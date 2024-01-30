@@ -6,15 +6,14 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     CompletionParams,
     CompletionResponse,
-    ExpressionEditorLangClientInterface,
     PartialSTRequest,
     PublishDiagnosticsParams,
     SymbolInfoResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import {
     NodePosition,
     STKindChecker,
@@ -35,41 +34,44 @@ import { ModelType, StatementEditorViewState } from "./statement-editor-viewstat
 
 export async function getPartialSTForStatement(
     partialSTRequest: PartialSTRequest,
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
-    const langClient: ExpressionEditorLangClientInterface = await getLangClient();
-    const resp = await langClient.getSTForSingleStatement(partialSTRequest);
+    langServerRpcClient: LangServerRpcClient
+): Promise<STNode> {
+    const resp = await langServerRpcClient.getSTForSingleStatement(partialSTRequest);
     return resp.syntaxTree;
 }
 
 export async function getPartialSTForModuleMembers(
     partialSTRequest: PartialSTRequest,
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>, isResource?: boolean): Promise<STNode> {
-    const langClient: ExpressionEditorLangClientInterface = await getLangClient();
-    const resp = isResource ? await langClient.getSTForResource(partialSTRequest) :
-        await langClient.getSTForModuleMembers(partialSTRequest);
+    langServerRpcClient: LangServerRpcClient, isResource?: boolean
+): Promise<STNode> {
+    const resp = isResource ? await langServerRpcClient.getSTForResource(partialSTRequest) :
+        await langServerRpcClient.getSTForModuleMembers(partialSTRequest);
     return resp.syntaxTree;
 }
 
 export async function getPartialSTForModulePart(
     partialSTRequest: PartialSTRequest,
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
-    const langClient: ExpressionEditorLangClientInterface = await getLangClient();
-    const resp = await langClient.getSTForModulePart(partialSTRequest);
+    langServerRpcClient: LangServerRpcClient
+): Promise<STNode> {
+    const resp = await langServerRpcClient.getSTForModulePart(partialSTRequest);
     return resp.syntaxTree;
 }
 
 export async function getPartialSTForExpression(
     partialSTRequest: PartialSTRequest,
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<STNode> {
-    const langClient: ExpressionEditorLangClientInterface = await getLangClient();
-    const resp = await langClient.getSTForExpression(partialSTRequest);
+    langServerRpcClient: LangServerRpcClient
+): Promise<STNode> {
+    const resp = await langServerRpcClient.getSTForExpression(partialSTRequest);
     return resp.syntaxTree;
 }
 
-export async function getRenameEdits(fileURI: string, newName: string, position: NodePosition,
-                                     getLangClient: () => Promise<IBallerinaLangClient>): Promise<WorkspaceEdit> {
-    const langClient = await getLangClient();
-    const renameEdits = await langClient.rename({
+export async function getRenameEdits(
+    fileURI: string,
+    newName: string,
+    position: NodePosition,
+    langServerRpcClient: LangServerRpcClient
+): Promise<WorkspaceEdit> {
+    const renameEdits = await langServerRpcClient.rename({
         textDocument: { uri: Uri.file(fileURI).toString() },
         position: {
             line: position.startLine,
@@ -80,12 +82,13 @@ export async function getRenameEdits(fileURI: string, newName: string, position:
     return renameEdits;
 }
 
-export async function getCompletions(docUri: string,
-                                     targetPosition: NodePosition,
-                                     completeModel: STNode,
-                                     currentModel: CurrentModel,
-                                     getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
-                                     userInput: string = ''
+export async function getCompletions(
+    docUri: string,
+    targetPosition: NodePosition,
+    completeModel: STNode,
+    currentModel: CurrentModel,
+    langServerRpcClient: LangServerRpcClient,
+    userInput: string = ''
 ): Promise<SuggestionItem[]> {
 
     const isTypeDescriptor = (currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.TYPE_DESCRIPTOR;
@@ -113,8 +116,7 @@ export async function getCompletions(docUri: string,
     // CodeSnippet is split to get the suggestions for field-access-expr (expression.field-name)
     const inputElements = userInput.split('.');
 
-    const langClient = await getLangClient();
-    const completions: CompletionResponse[] = await langClient.getCompletion(completionParams);
+    const completions: CompletionResponse[] = await langServerRpcClient.getCompletion(completionParams);
 
     const filteredCompletionItems = completions.filter((completionResponse: CompletionResponse) => (
         (!completionResponse.kind ||
@@ -163,13 +165,10 @@ export async function getCompletions(docUri: string,
     return suggestions;
 }
 
-export async function getCompletionsForType(docUri: string,
-                                            targetPosition: NodePosition,
-                                            completeModel: STNode,
-                                            currentModel: CurrentModel,
-                                            getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
-                                            userInput: string = '',
-                                            completionKinds: number[] = []
+export async function getCompletionsForType(
+    docUri: string,
+    langServerRpcClient: LangServerRpcClient,
+    completionKinds: number[] = []
 ): Promise<SuggestionItem[]> {
 
     const suggestions: SuggestionItem[] = [];
@@ -188,8 +187,7 @@ export async function getCompletionsForType(docUri: string,
     }
 
     // CodeSnippet is split to get the suggestions for field-access-expr (expression.field-name)
-    const langClient = await getLangClient();
-    const completions: CompletionResponse[] = await langClient.getCompletion(completionParams);
+    const completions: CompletionResponse[] = await langServerRpcClient.getCompletion(completionParams);
 
     completions
         .filter((completionResponse: CompletionResponse) => (
@@ -218,9 +216,9 @@ export async function getCompletionsForType(docUri: string,
 export async function sendDidOpen(
     docUri: string,
     content: string,
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>) {
-    const langClient = await getLangClient();
-    langClient.didOpen({
+    langServerRpcClient: LangServerRpcClient
+) {
+    langServerRpcClient.didOpen({
         textDocument: {
             uri: docUri,
             languageId: "ballerina",
@@ -232,9 +230,9 @@ export async function sendDidOpen(
 
 export async function sendDidClose(
     docUri: string,
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>) {
-    const langClient = await getLangClient();
-    langClient.didClose({
+    langServerRpcClient: LangServerRpcClient
+) {
+    langServerRpcClient.didClose({
         textDocument: {
             uri: docUri
         }
@@ -244,9 +242,9 @@ export async function sendDidClose(
 export async function sendDidChange(
     docUri: string,
     content: string,
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>) {
-    const langClient = await getLangClient();
-    langClient.didChange({
+    langServerRpcClient: LangServerRpcClient
+) {
+    langServerRpcClient.didChange({
         contentChanges: [
             {
                 text: content
@@ -261,9 +259,9 @@ export async function sendDidChange(
 
 export async function getDiagnostics(
     docUri: string,
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<PublishDiagnosticsParams[]> {
-    const langClient = await getLangClient();
-    const diagnostics = await langClient.getDiagnostics({
+    langServerRpcClient: LangServerRpcClient
+): Promise<PublishDiagnosticsParams[]> {
+    const diagnostics = await langServerRpcClient.getDiagnostics({
         documentIdentifier: {
             uri: docUri,
         }
@@ -275,10 +273,9 @@ export async function getDiagnostics(
 export async function getCodeAction(
     filePath: string,
     diagnostic: Diagnostic,
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>
+    langServerRpcClient: LangServerRpcClient
 ): Promise<CodeAction[]> {
-    const langClient = await getLangClient();
-    const codeAction = await langClient.codeAction({
+    const codeAction = await langServerRpcClient.codeAction({
         context: {
             diagnostics: [
                 {
@@ -321,11 +318,11 @@ export async function getSymbolDocumentation(
     docUri: string,
     targetPosition: NodePosition,
     currentModel: STNode,
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
-    userInput: string = ''): Promise<SymbolInfoResponse> {
-    const langClient = await getLangClient();
+    langServerRpcClient: LangServerRpcClient,
+    userInput: string = ''
+): Promise<SymbolInfoResponse> {
     const symbolPos = getSymbolPosition(targetPosition, currentModel, userInput);
-    const symbolDoc = await langClient.getSymbolDocumentation({
+    const symbolDoc = await langServerRpcClient.getSymbolDocumentation({
         textDocumentIdentifier: {
             uri: docUri
         },
@@ -337,10 +334,27 @@ export async function getSymbolDocumentation(
     return symbolDoc;
 }
 
-export const handleDiagnostics = async (source: string, fileURI: string, targetPosition: NodePosition,
-                                        getLangClient: () => Promise<ExpressionEditorLangClientInterface>):
+
+export async function updateFileContent(
+    fileUri: string,
+    content: string,
+    langServerRpcClient: LangServerRpcClient,
+    skipForceSave?: boolean,
+): Promise<boolean> {
+    const response = await langServerRpcClient.updateFileContent({
+        fileUri,
+        content,
+        skipForceSave
+    });
+    return response;
+}
+
+export const handleDiagnostics = async (
+    fileURI: string,
+    langServerRpcClient: LangServerRpcClient
+):
     Promise<Diagnostic[]> => {
-    const diagResp = await getDiagnostics(fileURI, getLangClient);
+    const diagResp = await getDiagnostics(fileURI, langServerRpcClient);
     const diag = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
     return diag;
 }

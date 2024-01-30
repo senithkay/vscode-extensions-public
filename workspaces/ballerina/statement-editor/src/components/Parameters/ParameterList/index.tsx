@@ -8,11 +8,11 @@
  */
 import React, { useContext } from "react";
 
-import { Checkbox, IconButton, ListItem, ListItemText, ListSubheader, Typography } from "@material-ui/core";
-import { withStyles } from "@material-ui/core/styles";
-import { AddCircleOutline } from "@material-ui/icons";
-import { ParameterInfo, SymbolDocumentation } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+// tslint:disable-next-line:no-submodule-imports
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import { ParameterInfo, SymbolDocumentation } from "@wso2-enterprise/ballerina-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
+import { Button, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import { SymbolParameterType } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
@@ -26,10 +26,12 @@ import {
     isDocumentationSupportedModel,
 } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
-import { parameterHeader, useStmtEditorHelperPanelStyles } from "../../styles";
+import { useStmtEditorHelperPanelStyles } from "../../styles";
 import { IncludedRecord } from "../IncludedRecord";
 import { NamedArgIncludedRecord } from "../NamedArgIncludedRecord";
 import { RequiredArg } from "../RequiredArg";
+
+// tslint:disable-next-line:no-submodule-imports
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 export interface ParameterListProps {
@@ -39,7 +41,6 @@ export interface ParameterListProps {
 export function ParameterList(props: ParameterListProps) {
     const { paramDocumentation } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
-    const ParamListSubheader = withStyles(parameterHeader)(ListSubheader);
     const {
         modelCtx: {
             currentModel : {
@@ -87,17 +88,19 @@ export function ParameterList(props: ParameterListProps) {
         return (
             <>
                 {!includedRecordHeader && (
-                    <ListItem key={value} className={stmtEditorHelperClasses.includedRecordHeaderList}>
-                        <ListItemText className={stmtEditorHelperClasses.docListItemText} primary={"Add Named Argument"}/>
-                        <IconButton
+                    <div key={value} className={stmtEditorHelperClasses.includedRecordHeaderList}>
+                        <Typography variant="body3" sx={{ color: 'var(--vscode-descriptionForeground)'}}>
+                            Add Named Argument
+                        </Typography>
+                        <Button
                             className={stmtEditorHelperClasses.includedRecordPlusBtn}
                             onClick={handlePlusButton()}
                             disabled={false}
                             data-testid="named-arg-button"
                         >
-                            <AddCircleOutline/>
-                        </IconButton>
-                    </ListItem>
+                            <Codicon name="diff-added" />
+                        </Button>
+                    </div>
                 )}
                 {includedRecordHeader = true}
             </>
@@ -120,12 +123,15 @@ export function ParameterList(props: ParameterListProps) {
         <>
             {!!paramDocumentation.parameters?.length && (
                 <div data-testid="parameter-list">
-                    <ParamListSubheader>
+                    <Typography
+                        variant="h4"
+                        className={stmtEditorHelperClasses.paramHeader}
+                    >
                         Configure Parameters
-                        <ListItemText
-                            secondary={"Select parameters from the list given below"}
-                        />
-                    </ParamListSubheader>
+                    </Typography>
+                    <Typography variant="body3" sx={{ color: 'var(--vscode-descriptionForeground)'}}>
+                        Select parameters from the list given below
+                    </Typography>
                     <div className={stmtEditorHelperClasses.paramList}>
                     {paramDocumentation.parameters?.map((param: ParameterInfo, value: number) => (
                             <>
@@ -163,40 +169,39 @@ export function ParameterList(props: ParameterListProps) {
                                         ) : (
                                             <>
                                                 {param.kind !== SymbolParameterType.INCLUDED_RECORD && (
-                                                    <ListItem
+                                                    <div
                                                         key={value}
                                                         className={stmtEditorHelperClasses.docListDefault}
                                                         style={getParamHighlight(model, param)}
                                                         data-testid="optional-arg"
                                                     >
-                                                        <Checkbox
-                                                            classes={{
-                                                                root: stmtEditorHelperClasses.parameterCheckbox,
-                                                                checked: stmtEditorHelperClasses.checked
-                                                            }}
+                                                        <VSCodeCheckbox
+                                                            id="select-local-var"
                                                             checked={param.modelPosition !== undefined}
                                                             onClick={handleCheckboxClick(param)}
                                                             data-testid="arg-check"
                                                         />
-                                                        <ListItemText
-                                                            className={stmtEditorHelperClasses.docListItemText}
-                                                            primary={param.name}
-                                                        />
-                                                        <ListItemText
-                                                            className={stmtEditorHelperClasses.paramDataType}
-                                                            primary={(
-                                                                <Typography className={stmtEditorHelperClasses.suggestionDataType}>
-                                                                    {param.type.includes("?") ? param.type + " (Optional)" : param.type}
-                                                                </Typography>
-                                                            )}
-                                                        />
+                                                        <Typography
+                                                            variant="body3"
+                                                            sx={{margin: '0px 5px'}}
+                                                        >
+                                                            {param.name}
+                                                        </Typography>
+                                                        <Typography
+                                                            className={stmtEditorHelperClasses.suggestionDataType}
+                                                            variant="body3"
+                                                        >
+                                                            {param.type.includes("?") ? param.type + " (Optional)" : param.type}
+                                                        </Typography>
                                                         {param.description !== undefined && (
-                                                            <ListItemText
+                                                            <Typography
                                                                 className={stmtEditorHelperClasses.docParamDescriptionText}
-                                                                primary={" : " + param.description}
-                                                            />
+                                                                variant="body3"
+                                                            >
+                                                                {" : " + param.description}
+                                                            </Typography>
                                                         )}
-                                                    </ListItem>
+                                                    </div>
                                                 )}
                                             </>
                                         )}

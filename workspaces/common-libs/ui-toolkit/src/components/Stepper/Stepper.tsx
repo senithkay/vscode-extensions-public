@@ -25,6 +25,8 @@ export interface Step {
 }
 
 export interface StepperProps {
+    id?: string;
+    className?: string;
     steps: string[];
     currentStep: number;
     variant?: "right" | "bottom";
@@ -32,6 +34,8 @@ export interface StepperProps {
 }
 
 export interface StepCardProps {
+    id?: string;
+    className?: string;
     step: Step;
     currentStep: number;
     totalSteps: number;
@@ -135,10 +139,10 @@ export const BottomTitleHorizontalBar = styled.div`
 `;
 
 export const Stepper: React.FC<StepperProps> = (props: StepperProps) => {
-    const { steps, currentStep, alignment: alignment = "center", variant: titleAlignment = "right" } = props;
+    const { id, className, steps, currentStep, alignment: alignment = "center", variant: titleAlignment = "right" } = props;
 
     return (
-        <StepperContainer allignment={alignment}>
+        <StepperContainer id={id} className={className} allignment={alignment}>
             {steps.map((step: string, id: number) => {
                 const stepCardProps: StepCardProps = {
                     currentStep: currentStep,

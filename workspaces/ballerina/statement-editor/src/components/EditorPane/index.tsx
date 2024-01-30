@@ -10,7 +10,6 @@
 import React, { useContext } from "react";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import Breadcrumb from "../Breadcrumb";
 import { Diagnostics } from "../Diagnostics";
 import { HelperPane } from "../HelperPane";
 import { StatementRenderer } from "../StatementRenderer";
@@ -33,7 +32,7 @@ export function EditorPane() {
         <>
             <div className={statementEditorClasses.stmtEditorContentWrapper} data-testid="statement-contentWrapper">
                 <Toolbar />
-                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                <div className={statementEditorClasses.sourceEditor}>
                     <div className={statementEditorClasses.statementExpressionContent}  data-testid="statement-renderer">
                         <StatementRenderer
                             model={statementModel}

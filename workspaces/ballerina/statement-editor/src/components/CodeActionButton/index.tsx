@@ -7,19 +7,19 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { IconButton, Menu, MenuItem } from "@material-ui/core";
-import { NodePosition } from "@wso2-enterprise/ballerina-languageclient";
-import { CodeAction, TextDocumentEdit, TextEdit } from "vscode-languageserver-protocol";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { Button, Codicon, Item, Menu, MenuItem } from "@wso2-enterprise/ui-toolkit";
+import { CodeAction, TextDocumentEdit } from "vscode-languageserver-protocol";
 
-import CodeActionIcon from "../../assets/icons/CodeActionIcon";
 import { StatementSyntaxDiagnostics } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import {
     filterCodeActions,
     getContentFromSource,
-    getStatementLine,
+    getStatementIndex,
+    getStatementPosition,
     getUpdatedSource,
     isPositionsEquals
 } from "../../utils";
@@ -43,11 +43,11 @@ export function CodeActionButton(props: CodeActionButtonProps) {
     } = stmtCtx;
 
     const [updatedSource, setUpdatedSource] = useState(currentFile.draftSource);
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLButtonElement>(null);
+    const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+    const contextRef = useRef(null);
 
     const codeActions = filterCodeActions(syntaxDiagnostic.codeActions);
-    const open = Boolean(anchorEl);
-    const actionMenuItems: React.ReactNode[] = [];
+    const menuItems: React.ReactNode[] = [];
 
     useEffect(() => {
         setUpdatedSource(currentFile.draftSource);
@@ -59,25 +59,31 @@ export function CodeActionButton(props: CodeActionButtonProps) {
             const onSelectCodeAction = () => {
                 applyCodeAction(action);
             };
-            actionMenuItems.push(
-                <MenuItem
-                    key={index}
-                    onClick={onSelectCodeAction}
-                    data-testid="code-action-menu-item"
-                    data-index={index}
+            const itemElement = (
+                <div
+                    className={classes.itemContainer}
+                    key={action.title}
                 >
-                    {action.title}
-                </MenuItem>
+                    <div>{action.title}</div>
+                </div>
+            );
+            const menuItem: Item = { id: action.title, label: itemElement, onClick: onSelectCodeAction }
+            menuItems.push(
+                <MenuItem
+                    sx={{ pointerEvents: "auto", userSelect: "none" }}
+                    item={menuItem}
+                    data-testid={`code-action-${index}`}
+                />
             );
         });
     }
 
-    const onClickCodeAction = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
+    const onClickCodeAction = () => {
+        setIsMenuOpen(prev => !prev);
     };
 
     const onCloseCodeActionMenu = () => {
-        setAnchorEl(null);
+        setIsMenuOpen(false);
     };
 
     const applyCodeAction = async (action: CodeAction) => {
@@ -111,7 +117,9 @@ export function CodeActionButton(props: CodeActionButtonProps) {
 
             currentSource = getUpdatedSource(textEdit.newText, currentSource, targetedEditPosition, undefined, true, false);
             if (targetedEditPosition.startLine < editorActivePosition.startLine) {
-                const newLine = getStatementLine(currentSource, editorActiveStatement);
+                const stmtIndex = getStatementIndex(currentSource, editorActiveStatement, editorActivePosition);
+                const newTargetPosition = getStatementPosition(currentSource, editorActiveStatement, stmtIndex);
+                const newLine = newTargetPosition.startLine;
                 editorActivePosition.startLine = newLine;
                 editorActivePosition.endLine += newLine - editorActivePosition.startLine;
             } else if (targetedEditPosition.startLine >= editorActivePosition.startLine
@@ -155,26 +163,44 @@ export function CodeActionButton(props: CodeActionButtonProps) {
         // TODO: add loader while changing source
         await updateStatementModel(changedActiveContent, currentSource, editorActivePosition);
         setUpdatedSource(currentSource);
-        setAnchorEl(null);
+        setIsMenuOpen(false);
     };
 
+    const handleClickOutside = (event: MouseEvent) => {
+        if (contextRef.current && !contextRef.current.contains(event.target as Node)) {
+            setIsMenuOpen(false);
+        }
+    }
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     return (
-        <div className={classes.container} data-testid="code-action-btn" data-index={key}>
-            <IconButton className={classes.iconButton} onClick={onClickCodeAction} data-testid="code-action-icon">
-                <CodeActionIcon />
-            </IconButton>
-            <Menu
-                anchorEl={anchorEl}
-                open={open}
-                onClose={onCloseCodeActionMenu}
-                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                transformOrigin={{ vertical: "top", horizontal: "left" }}
-                className={classes.menu}
-                data-testid="code-action-menu"
-                disableScrollLock={true}
+        <div ref={contextRef} className={classes.container} data-testid="code-action-btn" data-index={key}>
+            <Button
+                appearance="icon"
+                onClick={onClickCodeAction}
+                data-testid="code-action-icon"
             >
-                {actionMenuItems}
-            </Menu>
+                <Codicon name="lightbulb" sx={{color: 'var(--vscode-editorLightBulb-foreground)'}}/>
+            </Button>
+            {isMenuOpen && (
+                <Menu
+                    sx={{
+                        background: 'var(--vscode-quickInput-background)',
+                        padding: '0px',
+                        position: 'absolute',
+                        zIndex: 1,
+                        border: '1px solid var(--vscode-panel-border)',
+                    }}
+                >
+                    {menuItems}
+                </Menu>
+            )}
         </div>
     );
 }

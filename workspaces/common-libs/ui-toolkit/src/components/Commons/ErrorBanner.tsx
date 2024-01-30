@@ -29,11 +29,11 @@ export const ErrorIcon = cx(css`
     color: var(--vscode-errorForeground);
 `);
 
-export function ErrorBanner(props: { errorMsg: string }) {
-    const { errorMsg } = props;
+export function ErrorBanner(props: { id?: string, className?: string, errorMsg: string }) {
+    const { id, className, errorMsg } = props;
 
     return (
-        <Container>
+        <Container id={id} className={className}>
             <i className={`codicon codicon-warning ${cx(codiconStyles)}`} />
             {errorMsg}
         </Container>

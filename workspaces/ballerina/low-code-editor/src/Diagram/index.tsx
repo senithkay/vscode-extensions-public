@@ -48,8 +48,7 @@ export function Diagram() {
                 getFunctionDef
             },
             webView: {
-                showTryitView,
-                showDocumentationView
+                showTryitView
             },
             project: {
                 run
@@ -355,7 +354,6 @@ export function Diagram() {
                                 getFunctionDef
                             },
                             webView: {
-                                showDocumentationView,
                                 showTryitView
                             },
                             project: {

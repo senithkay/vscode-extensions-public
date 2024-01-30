@@ -12,11 +12,11 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { SeachBox, SeachBoxProps } from "./SearchBox";
+import { SearchBox, SearchBoxProps } from "./SearchBox";
 
-const Template: ComponentStory<typeof SeachBox> = (args: SeachBoxProps) => <SeachBox {...args} />;
+const Template: ComponentStory<typeof SearchBox> = (args: SearchBoxProps) => <SearchBox {...args} />;
 
-export const SearchBox = Template.bind();
-SearchBox.args = { label: "Search", autoFocus: true, placeholder: "placeholder", onChange: (text: string)=> console.log({text}) };
+export const Default = Template.bind();
+Default.args = { label: "Search", autoFocus: true, placeholder: "placeholder", onChange: (text: string)=> console.log({text}) };
 
-export default { component: SeachBox, title: "SeachBox" };
+export default { component: SearchBox, title: "SearchBox" };

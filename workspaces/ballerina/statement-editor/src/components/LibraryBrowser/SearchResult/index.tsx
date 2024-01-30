@@ -34,7 +34,7 @@ export function SearchResult(props: SearchResultProps) {
             objectTypes, enums } = librarySearchResponse;
 
     return (
-        <>
+        <div className={stmtEditorHelperClasses.searchResult}>
             {modules.length > 0 && !moduleSelected && (
                     <div>
                         <div className={stmtEditorHelperClasses.helperPaneSubHeader}>Modules</div>
@@ -66,6 +66,6 @@ export function SearchResult(props: SearchResultProps) {
             {annotations.length > 0 && <SearchCategory label='Annotations' searchResult={annotations} />}
             {objectTypes.length > 0 && <SearchCategory label='Object Types' searchResult={objectTypes} />}
             {enums.length > 0 && <SearchCategory label='Enums' searchResult={enums} />}
-        </>
+        </div>
     );
 }

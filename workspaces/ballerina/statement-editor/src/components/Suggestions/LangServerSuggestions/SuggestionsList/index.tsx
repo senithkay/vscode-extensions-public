@@ -47,11 +47,11 @@ export function SuggestionsList(props: SuggestionsListProps) {
             )}
             {(selection) && (
                 <>
-                    <br/>
                     <div className={stmtEditorHelperClasses.selectionWrapper}>
                         <div className={stmtEditorHelperClasses.selectionSubHeader}>{selection}</div>
                         <div className={stmtEditorHelperClasses.selectionSeparator} />
                     </div>
+                    <br/>
                 </>
             )}
             <List className={stmtEditorHelperClasses.suggestionList} data-testid="suggestion-list">
@@ -72,7 +72,7 @@ export function SuggestionsList(props: SuggestionsListProps) {
                 }
             </List>
             {isReference && (
-                <div className={stmtEditorHelperClasses.selectionWrapper}>
+                <div className={stmtEditorHelperClasses.suggestionDividerWrapper}>
                     <div className={stmtEditorHelperClasses.selectionSeparator} />
                     <br />
                 </div>
