@@ -62,17 +62,21 @@ export const Breadcrumbs: React.FC<PropsWithChildren<BreadcrumbProps>> =
         const { children, id, className, maxItems = 8, separator = "/", sx } = props;
         const [isOverflowing, setIsOverflowing] = React.useState(false);
 
-        const [items, activeItem] = React.useMemo(() => {
+        const [items, previousItem, activeItem] = React.useMemo(() => {
             if (!children || maxItems < 1) {
-                return [null, null];
+                return [null, null, null];
             }
 
             let items = React.Children.toArray(children);
-            const activeItem = <ActiveSelection>{items.pop()}</ActiveSelection>;
+            const activeItem = items.length ? (<ActiveSelection>{items.pop()}</ActiveSelection>) : null;
+            const previousItem = items.length ? (
+                <React.Fragment>
+                    <LinkSelection>{items.pop()}</LinkSelection>
+                    <Separator>{separator}</Separator>
+                </React.Fragment>
+            ): null;
 
-            if (maxItems === 1) {
-                return [activeItem, null];
-            } else if (!isOverflowing && items.length > maxItems - 1) {
+            if (!isOverflowing && maxItems > 1 && items.length > maxItems - 2) {
                 const item = (
                     <React.Fragment>
                         <LinkSelection>{items[0]}</LinkSelection>
@@ -83,7 +87,7 @@ export const Breadcrumbs: React.FC<PropsWithChildren<BreadcrumbProps>> =
                         <Separator>{separator}</Separator>
                     </React.Fragment>
                 );
-                return [item, activeItem];
+                return [item, previousItem, activeItem];
             }
 
             items = items.map((item, index) => {
@@ -95,12 +99,13 @@ export const Breadcrumbs: React.FC<PropsWithChildren<BreadcrumbProps>> =
                 );
             });
 
-            return [items, activeItem];
+            return [items, previousItem, activeItem];
         }, [children, maxItems, separator, isOverflowing]);
 
         return (
             <BreadcrumbContainer id={id} className={className} sx={sx}>
                 {items}
+                {previousItem}
                 {activeItem}
             </BreadcrumbContainer>
         );
