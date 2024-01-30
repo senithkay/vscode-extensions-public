@@ -41,6 +41,7 @@ export function SequenceNodeWidget(props: SequenceNodeProps) {
         return { width, height };
     };
 
+    /* eslint-disable prefer-const */
     let { width, height } = getCanvasDimensions(nodes, props.sequenceType);
 
     width += OFFSET.MARGIN.SEQUENCE;

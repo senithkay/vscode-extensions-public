@@ -7,6 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+// Disable eslint @typescript-eslint/no-duplicate-enum-values
+/* eslint @typescript-eslint/no-duplicate-enum-values: "off" */
 export enum Colors {
     DEFAULT_TEXT = '#40404B',
     PRIMARY = '#5567D5',
