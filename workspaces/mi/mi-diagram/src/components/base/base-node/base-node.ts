@@ -66,10 +66,10 @@ export class BaseNodeModel extends NodeModel<NodeModelGenerics> {
     isNodeSelected = (selectedLink: BaseLinkModel, portIdentifier: string): boolean => {
         if (selectedLink) {
             if (selectedLink.getSourcePort().getNode().getID() === this.getID()) {
-                let sourcePortID: string = selectedLink.getSourcePort().getID();
+                const sourcePortID: string = selectedLink.getSourcePort().getID();
                 return sourcePortID.slice(sourcePortID.indexOf('-') + 1) === portIdentifier;
             } else if (selectedLink.getTargetPort().getNode().getID() === this.getID()) {
-                let targetPortID: string = selectedLink.getTargetPort().getID();
+                const targetPortID: string = selectedLink.getTargetPort().getID();
                 return targetPortID.slice(targetPortID.indexOf('-') + 1) === portIdentifier;
             }
         }

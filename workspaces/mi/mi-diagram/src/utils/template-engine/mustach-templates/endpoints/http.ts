@@ -35,6 +35,5 @@ export function getHTTPEndpointMustacheTemplate() {
     <property name="{{propertyName}}" {{#value}}value="{{value}}"{{/value}} {{#expression}}expression="{{expression}}"{{/expression}} />
     {{/properties}}
     <description>{{description}}</description>
-</endpoint>
-`;
+</endpoint>`;
 }

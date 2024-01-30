@@ -23,6 +23,14 @@ import { getPropertyGroupMustacheTemplate } from "./core/propertyGroup";
 import { getReponseMustacheTemplate } from "./core/respond";
 import { getSendMustacheTemplate } from "./core/send";
 import { getHTTPEndpointMustacheTemplate } from "./endpoints/http";
+import { getAddressEndpointMustacheTemplate } from "./endpoints/address";
+import { getDefaultEndpointMustacheTemplate } from "./endpoints/default";
+import { getFailoverEndpointMustacheTemplate } from "./endpoints/failover";
+import { getLoadBalanceEndpointMustacheTemplate } from "./endpoints/loadbalance";
+import { getNamedEndpointXml } from "./endpoints/named";
+import { getRecipientListEndpointMustacheTemplate } from "./endpoints/recipientList";
+import { getTemplateEndpointMustacheTemplate } from "./endpoints/template";
+import { getWSDLEndpointMustacheTemplate } from "./endpoints/wsdl";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -60,24 +68,24 @@ export function getMustacheTemplate(name: string) {
             return getValidateMustacheTemplate();
 
         // Endpoints
-        // case ENDPOINTS.ADDRESS:
-        //     return getAddressEndpointMustacheTemplate();
-        // case ENDPOINTS.DEFAULT:
-        //     return getDefaultEndpointMustacheTemplate();
-        // case ENDPOINTS.FAILOVER:
-        //     return getFailoverEndpointMustacheTemplate();
+        case ENDPOINTS.ADDRESS:
+            return getAddressEndpointMustacheTemplate();
+        case ENDPOINTS.DEFAULT:
+            return getDefaultEndpointMustacheTemplate();
+        case ENDPOINTS.FAILOVER:
+            return getFailoverEndpointMustacheTemplate();
         case ENDPOINTS.HTTP:
             return getHTTPEndpointMustacheTemplate();
-        // case ENDPOINTS.LOADBALANCE:
-        //     return getLoadBalanceEndpointMustacheTemplate();
-        // case ENDPOINTS.NAMED:
-        //     return getNamedEndpointMustacheTemplate();
-        // case ENDPOINTS.RECIPIENTLIST:
-        //     return getRecipientListEndpointMustacheTemplate();
-        // case ENDPOINTS.TEMPLATE:
-        //     return getTemplateEndpointMustacheTemplate();
-        // case ENDPOINTS.WSDL:
-        //     return getWSDLEndpointMustacheTemplate();
+        case ENDPOINTS.LOADBALANCE:
+            return getLoadBalanceEndpointMustacheTemplate();
+        case ENDPOINTS.NAMED:
+            return getAddressEndpointMustacheTemplate();
+        case ENDPOINTS.RECIPIENTLIST:
+            return getRecipientListEndpointMustacheTemplate();
+        case ENDPOINTS.TEMPLATE:
+            return getTemplateEndpointMustacheTemplate();
+        case ENDPOINTS.WSDL:
+            return getWSDLEndpointMustacheTemplate();
     }
 }
 
@@ -93,6 +101,8 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getCallTemplateXml(data)
         case MEDIATORS.PAYLOAD:
             return getPayloadXml(data);
+        case ENDPOINTS.NAMED:
+            return getNamedEndpointXml(data);    
         default:
             return Mustache.render(getMustacheTemplate(name), data);
     }

@@ -8,144 +8,19 @@
  */
 
 import * as vscode from 'vscode';
-import { createDiagramWebview } from './diagram/webview';
-import axios from 'axios';
-import { generatePrompt } from './ai/prompt';
-import { unescape } from 'querystring';
-import { ProjectExplorerEntryProvider } from './activity-panel/project-explorer-provider';
-import { createApiWizardWebview } from './api-wizard/webview';
-import { createEndpointWizardWebview } from './endpoint-wizard/webview';
-import { createSequenceWizardWebview } from './sequence-wizard/webview';
-import { createProjectWizardWebview } from './project-wizard/webview';
-// import { MILanguageClient } from './lang-client/activator';
-// import { readFileSync } from 'fs';
+import { StateMachine } from './stateMachine';
+import { extension } from './MIExtensionContext';
+import { activateProjectExplorer } from './project-explorer/activate';
+import { activateAiPrompt } from './ai-prompt/activate';
+import { activateVisualizer } from './visualizer/activate';
+import { activateActivityPanel } from './activity-panel/activate';
 
 export async function activate(context: vscode.ExtensionContext) {
 
-	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context)
-	// vscode.window.registerTreeDataProvider('project-explorer', projectExplorerDataProvider)
-	const projectTree = vscode.window.createTreeView('project-explorer', { treeDataProvider: projectExplorerDataProvider })
-	vscode.commands.registerCommand('project-explorer.refresh', () => { projectExplorerDataProvider.refresh() })
-	vscode.commands.registerCommand('project-explorer.add', () => {
-		vscode.window.showQuickPick([
-			{ label: 'Project', description: 'Add new Project' },
-			{ label: 'API', description: 'Add new API' },
-			{ label: 'Endpoint', description: 'Add new Endpoint' },
-			{ label: 'Sequence', description: 'Add new Sequence' }
-		], {
-			placeHolder: 'Select the construct to add'
-		}).then(selection => {
-			if (selection?.label === 'API') {
-				vscode.commands.executeCommand('project-explorer.add-api');
-			} else if (selection?.label === 'Endpoint') {
-				vscode.commands.executeCommand('project-explorer.add-endpoint');
-			} else if (selection?.label === 'Sequence') {
-				vscode.commands.executeCommand('project-explorer.add-sequence');
-			} else if (selection?.label === 'Project') {
-				vscode.commands.executeCommand('project-explorer.add-project');
-			}
-		});
-
-	})
-	vscode.commands.registerCommand('project-explorer.add-project', () => {
-		createProjectWizardWebview(context);
-	})
-
-	vscode.commands.registerCommand('project-explorer.add-api', () => {
-		createApiWizardWebview(context);
-	})
-
-	vscode.commands.registerCommand('project-explorer.add-endpoint', () => {
-		createEndpointWizardWebview(context);
-	})
-
-	vscode.commands.registerCommand('project-explorer.add-sequence', () => {
-		createSequenceWizardWebview(context);
-	})
-
-	projectTree.onDidChangeSelection(async e => {
-		if (e.selection.length > 0 && e.selection[0].info) {
-			const info = e.selection[0].info;
-			// TODO: Open file logic should go here
-			if (info.type === 'resource') {
-				const document = await vscode.workspace.openTextDocument(info.path);
-				await vscode.window.showTextDocument(document);
-				vscode.commands.executeCommand('integrationStudio.showDiagram', info.name);
-			}
-		}
-	})
-
-	vscode.commands.executeCommand('project-explorer.focus');
-
-	let disposable = vscode.commands.registerCommand('integrationStudio.showDiagram', async (resource: string) => {
-		createDiagramWebview(context, vscode.window.activeTextEditor!.document.uri.fsPath, resource);
-	});
-
-	// TODO: Show diagram without opening the file
-	// let disposable = vscode.commands.registerCommand('integrationStudio.showDiagram', async (filePath :string, resource: string) => {
-	// 	const content: string = readFileSync(filePath, { encoding: 'utf-8' });
-	// 	(await MILanguageClient.getInstance(context)).languageClient?.didOpen({textDocument: {
-	// 		uri: filePath,
-	// 		languageId: 'SynapseXml',
-	// 		version: 1,
-	// 		text: content
-	// 	}});
-	// 	createDiagramWebview(context, filePath, resource);
-	// });
-
-	context.subscriptions.push(disposable);
-
-	let prompt = vscode.commands.registerCommand('integrationStudio.addMediator', async () => {
-		let userInput = await vscode.window.showInputBox({ prompt: 'What you want to add?' });
-		let editor = vscode.window.activeTextEditor;
-		if (userInput && editor) {
-			let document = editor.document;
-			let text = document.getText();
-
-			const prompt = unescape(generatePrompt(text, userInput));
-
-			await vscode.window.withProgress({
-				location: vscode.ProgressLocation.Notification,
-				title: "Processing...",
-				cancellable: false
-			}, async (progress) => {
-				progress.report({ increment: 0 });
-
-				try {
-					const apiKey = vscode.workspace.getConfiguration('integrationStudio').get('apiKey');
-					if (!apiKey) {
-						vscode.window.showErrorMessage('Please set your OpenAI API key in the settings.');
-						return;
-					}
-					const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-						model: "gpt-3.5-turbo",
-						"messages": [{ "role": "user", "content": prompt }],
-						temperature: 0.2,
-					}, {
-						headers: {
-							'Content-Type': 'application/json',
-							'Authorization': `Bearer ${apiKey}`
-						}
-					});
-
-					progress.report({ increment: 50 });
-
-					const data = response.data;
-					if (editor) {
-						const position = editor.selection.active;
-						await editor.edit(editBuilder => {
-							const content = data.choices[0].message.content;
-							editBuilder.replace(new vscode.Range(document.positionAt(0), document.positionAt(text.length)), content);
-						});
-					}
-
-					progress.report({ increment: 100 });
-				} catch (error) {
-					vscode.window.showErrorMessage('An error occurred while processing your request.');
-				}
-			});
-		}
-	});
-
-	context.subscriptions.push(prompt);
+	extension.context = context;
+	// activateActivityPanel(context);
+	activateProjectExplorer(context);
+	// activateAiPrompt(context);
+	activateVisualizer(context);
+	StateMachine.initialize();
 }

@@ -12,6 +12,15 @@ export interface STNode {
     selfClosed: boolean;
     range: Range;
     tag: string;
+    viewState?: viewState;
+}
+
+export interface viewState {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    parentId?: string;
 }
 
 export interface Range {
@@ -974,7 +983,7 @@ export interface ValidateProperty extends STNode {
 }
 
 export interface Sequence extends STNode {
-    mediatorList: CallTemplate | Smooks | Spring | Bam | Class | PublishEvent | Header | PojoCommand | Callout | Loopback | Xquery | Foreach | Iterate | Script | Builder | Store | Enrich | Ejb | FastXSLT | Clone | DbMediator | Log | ConditionalRouter | Bean | Throttle | Switch | Cache | Jsontransform | Filter | Rewrite | Property | FilterSequence | OauthService | Validate | Xslt | EntitlementService | Respond | Event | Transaction | Enqueue | PayloadFactory | DataServiceCall | Send | Datamapper | Call | Rule | Drop | Aggregate | PropertyGroup | Makefault;
+    mediatorList: (CallTemplate | Smooks | Spring | Bam | Class | PublishEvent | Header | PojoCommand | Callout | Loopback | Xquery | Foreach | Iterate | Script | Builder | Store | Enrich | Ejb | FastXSLT | Clone | DbMediator | Log | ConditionalRouter | Bean | Throttle | Switch | Cache | Jsontransform | Filter | Rewrite | Property | FilterSequence | OauthService | Validate | Xslt | EntitlementService | Respond | Event | Transaction | Enqueue | PayloadFactory | DataServiceCall | Send | Datamapper | Call | Rule | Drop | Aggregate | PropertyGroup | Makefault)[];
 }
 
 export interface EndpointHttpAuthenticationOauth extends STNode {
@@ -999,7 +1008,7 @@ export interface APIResource extends STNode {
     inSequence: Sequence;
     outSequence: Sequence;
     faultSequence: Sequence;
-    methods: string;
+    methods: [string];
     protocol: string;
     inSequenceAttribute: string;
     outSequenceAttribute: string;

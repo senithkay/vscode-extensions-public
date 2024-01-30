@@ -38,7 +38,7 @@
    * LTS schedule: https://nodejs.org/en/about/releases/
    * LTS versions: https://nodejs.org/en/download/releases/
    */
-  "nodeSupportedVersionRange": ">=16.13.0 <=18.18.2",
+  "nodeSupportedVersionRange": ">=16.13.0 <=18.19.2",
   /**
    * If the version check above fails, Rush will display a message showing the current
    * node version and the supported version range. You can use this setting to provide
@@ -580,6 +580,14 @@
       "projectFolder": "workspaces/mi/syntax-tree"
     },
     {
+      "packageName": "@wso2-enterprise/mi-visualizer",
+      "projectFolder": "workspaces/mi/mi-visualizer"
+    },
+    {
+      "packageName": "@wso2-enterprise/mi-rpc-client",
+      "projectFolder": "workspaces/mi/mi-rpc-client"
+    },
+    {
       "packageName": "api-chat",
       "projectFolder": "workspaces/api-chat/extension",
       "versionPolicyName": "ballerina-extension"
@@ -593,6 +601,10 @@
       "packageName": "apk-config-language-support",
       "projectFolder": "workspaces/apk/apk-extension",
       "versionPolicyName": "ballerina-extension"
-    }
+    },
+    {
+      "packageName": "@wso2-enterprise/mi-diagram-2",
+      "projectFolder": "workspaces/mi/mi-diagram-2"
+  }
   ]
 }

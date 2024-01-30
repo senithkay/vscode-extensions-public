@@ -11,8 +11,7 @@ import React from "react";
 
 import styled from "@emotion/styled";
 import { isDarkMode } from "./utils/Utils";
-
-const background = require('./resources/assets/PatternBg.svg') as string;
+import { Colors } from "./resources/assets/Constants";
 
 export const Container: React.FC<any> = styled.div`
   height: inherit;
@@ -23,7 +22,7 @@ export const Container: React.FC<any> = styled.div`
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background-image: url('${background}');
+    background-image: radial-gradient(${Colors.DEFAULT_TEXT} 10%, transparent 0px);;
     filter: invert(${isDarkMode() ? "1" : "0"});
     background-color: var(--vscode-editor-background);
     background-blend-mode: difference;
