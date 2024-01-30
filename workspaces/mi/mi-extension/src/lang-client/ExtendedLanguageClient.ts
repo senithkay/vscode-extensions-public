@@ -7,7 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { GetProjectStructureRequest, GetProjectStructureResponse, GetSyntaxTreeRequest } from "@wso2-enterprise/mi-core";
+import { ProjectStructureResponse, getSyntaxTree } from "@wso2-enterprise/mi-core";
+import { readFileSync } from "fs";
 import { Position, Uri, workspace } from "vscode";
 import { CompletionParams, LanguageClient, TextEdit } from "vscode-languageclient/node";
 
@@ -61,10 +62,24 @@ export interface LogSnippet {
 export class ExtendedLanguageClient extends LanguageClient {
 
     async getSyntaxTree(req: GetSyntaxTreeParams): Promise<GetSyntaxTreeResponse> {
-        return this.sendRequest(GetSyntaxTreeRequest.method, { uri: Uri.parse(req.documentIdentifier.uri).toString() });
+        this.didOpen(req.documentIdentifier.uri);
+        return this.sendRequest('xml/getSynapseSyntaxTree', { uri: Uri.parse(req.documentIdentifier.uri).toString() });
     }
 
-    async getProjectStructure(path: string): Promise<GetProjectStructureResponse> {
+    private async didOpen(fileUri: string): Promise<void> {
+        const content: string = readFileSync(fileUri, { encoding: 'utf-8' });
+		const didOpenParams = {
+			textDocument: {
+				uri: Uri.parse(fileUri).toString(),
+				languageId: 'xml',
+				version: 1,
+				text: content
+			}
+		};
+        await this.sendNotification("textDocument/didOpen", didOpenParams);
+    }
+
+    async getProjectStructure(path: string): Promise<ProjectStructureResponse> {
         return this.sendRequest('xml/getSynapseDirectoryTree', { uri: Uri.parse(path).toString() });
     }
 

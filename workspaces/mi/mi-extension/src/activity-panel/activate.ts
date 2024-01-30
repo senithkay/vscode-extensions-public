@@ -8,10 +8,11 @@
  */
 
 import * as vscode from 'vscode';
-import { ProjectView } from './panel';
+import { ActivityPanel } from './webview';
 
-export function activateActivityBarWebViews(context: vscode.ExtensionContext) {
-	const projectViewProvider = new ProjectView(context);
-	context.subscriptions.push(vscode.window.registerWebviewViewProvider(ProjectView.viewType, projectViewProvider));
+export function activateActivityPanel(context: vscode.ExtensionContext) {
+	const activityPanelProvider = new ActivityPanel(context);
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider(ActivityPanel.viewType, activityPanelProvider)
+	);
 }
-

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -10,8 +11,8 @@
 import { Button, IconLabel } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
-import { MIWebViewAPI } from '../../utils/WebViewRpc';
-import { GetConnectorsResponse } from '@wso2-enterprise/mi-core';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { Connector } from '@wso2-enterprise/mi-core';
 import AddConnector from './Pages/AddConnector';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import LogForm from './Pages/mediators/core/log';
@@ -71,9 +72,11 @@ export interface SidePanelListProps {
 
 const stackRef: string[] = [];
 const SidePanelList = (props: SidePanelListProps) => {
+    const { rpcClient } = useVisualizerContext();
+
     const sidePanelContext = React.useContext(SidePanelContext);
     const [isLoading, setLoading] = useState<boolean>(true);
-    const [connectorList, setConnectorList] = useState<GetConnectorsResponse[]>([]);
+    const [connectorList, setConnectorList] = useState<Connector[]>([]);
     const [actions, setActions] = useState<any[]>([]);
     const [connectorForm, setConnectorForm] = useState<any>();
     const [mediatorForm, setMediatorForm] = useState<any>();
@@ -420,8 +423,8 @@ const SidePanelList = (props: SidePanelListProps) => {
         setLoading(true);
 
         (async () => {
-            const connectors = await MIWebViewAPI.getInstance().getConnectors();
-            setConnectorList(connectors);
+            const connectors = await rpcClient.getMiDiagramRpcClient().getConnectors();
+            setConnectorList(connectors.data);
             setLoading(false);
         })();
     }, []);
@@ -448,8 +451,8 @@ const SidePanelList = (props: SidePanelListProps) => {
 
     const showConnectorActions = async (connectorPath: string) => {
         sidePanelContext.setShowBackBtn(true);
-        const actions = await MIWebViewAPI.getInstance().getConnector(connectorPath);
-        setActions(actions.map((action: any) => JSON.parse(action)));
+        const actions = await rpcClient.getMiDiagramRpcClient().getConnector({ path: connectorPath});
+        setActions(actions.data.map((action: any) => JSON.parse(action)));
         stackRef.push("connectors");
         setShowConnectors(false);
         setShowMenu(false);
