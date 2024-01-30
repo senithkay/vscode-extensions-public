@@ -6,20 +6,25 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { DefaultPortModel, LinkModel, LinkModelGenerics } from "@projectstorm/react-diagrams";
+import { DefaultLinkModel, DefaultPortModel, LinkModel, LinkModelGenerics } from "@projectstorm/react-diagrams";
 import { NodeLinkModel } from "../NodeLink/NodeLinkModel";
+import { AbstractModelFactory } from "@projectstorm/react-canvas-core";
 
 export class NodePortModel extends DefaultPortModel {
-    constructor(isInput = true, name = "") {
+    constructor(isIn = true, name = "", label = name) {
         super({
             type: "node-port",
-            in: isInput,
+            in: isIn,
             name: name,
-            label: name,
+            label: label,
         });
     }
 
-    createLinkModel(): LinkModel<LinkModelGenerics> {
-        return new NodeLinkModel();
+    createLinkModel(factory?: AbstractModelFactory<LinkModel>): LinkModel {
+        let link = super.createLinkModel();
+        if (!link && factory) {
+            return factory.generateModel({});
+        }
+        return link || new NodeLinkModel();
     }
 }

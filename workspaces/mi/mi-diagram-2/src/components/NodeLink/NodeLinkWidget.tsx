@@ -7,9 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from 'react';
-import { DefaultLinkWidget, DiagramEngine } from '@projectstorm/react-diagrams';
-import { NodeLinkModel } from './NodeLinkModel';
+import React from "react";
+import { DiagramEngine } from "@projectstorm/react-diagrams";
+import { NodeLinkModel } from "./NodeLinkModel";
+import { Colors } from "../../resources/constants";
 
 interface NodeLinkWidgetProps {
     link: NodeLinkModel;
@@ -18,9 +19,29 @@ interface NodeLinkWidgetProps {
 
 export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) => {
     return (
-        <DefaultLinkWidget
-            link={link}
-            diagramEngine={engine}
-        />
+        <g pointerEvents={"all"}>
+            <path
+                id={link.getID()}
+                d={link.getSVGPath()}
+                cursor={"pointer"}
+                fill={"none"}
+                stroke={Colors.PRIMARY}
+                strokeWidth={2}
+                marker-end={`url(#${link.getID()}-arrow-head)`}
+            />
+            <defs>
+                <marker
+                    markerWidth="5"
+                    markerHeight="5"
+                    refX="5"
+                    refY="2.5"
+                    viewBox="0 0 5 5"
+                    orient="auto"
+                    id={`${link.getID()}-arrow-head`}
+                >
+                    <polygon points="0,5 0,0 5,2.5" fill={Colors.PRIMARY}></polygon>
+                </marker>
+            </defs>
+        </g>
     );
 };

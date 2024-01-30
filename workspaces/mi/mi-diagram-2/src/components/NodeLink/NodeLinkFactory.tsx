@@ -17,12 +17,12 @@ export class NodeLinkFactory extends AbstractReactFactory<NodeLinkModel, Diagram
     constructor() {
         super("node-link");
     }
-    
+
     generateModel(event: GenerateModelEvent): NodeLinkModel {
         return new NodeLinkModel();
     }
 
     generateReactWidget(event: GenerateWidgetEvent<NodeLinkModel>): JSX.Element {
-        return <NodeLinkWidget engine={this.engine} link={event.model} />;
+        return <NodeLinkWidget link={event.model} engine={this.engine} />;
     }
 }

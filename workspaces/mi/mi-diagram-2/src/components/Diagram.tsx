@@ -17,6 +17,7 @@ import { generateEngine } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { MediatorNodeModel } from "./nodes/MediatorNode/MediatorNodeModel";
+import { NodeLinkModel } from "./NodeLink/NodeLinkModel";
 
 export interface DiagramProps {
     model: APIResource | Sequence;
@@ -56,18 +57,23 @@ export function Diagram(props: DiagramProps) {
         newDiagramModel.addAll(...nodes);
 
         // Start sample code
-        // var node1 = new DefaultNodeModel({
-        //     name: "Node 1",
-        //     color: "rgb(0,192,255)",
-        // });
+        // var mediatorList = (model as APIResource).inSequence.mediatorList;
+        // console.log("mediatorList", mediatorList);
+        // // create nodes
+        // var node1 = new MediatorNodeModel(mediatorList[0]);
         // node1.setPosition(100, 100);
-        // let port1 = node1.addOutPort("Out");
+        // var updatedMediator = mediatorList[2];
+        // updatedMediator.viewState.id = "abc-node";
+        // var node2 = new MediatorNodeModel(updatedMediator);
+        // node2.setPosition(100, 300);
 
-        // var node2 = new CallNodeModel(model);
-        // node2.setPosition(400, 100);
-
-        // let link1 = port1.link<NodeLinkModel>(node2.getPort("in")!);
-        // link1.getOptions().testName = "Test";
+        // // create links
+        // let port1 = node1.getOutPorts().at(0);
+        // let port2 = node2.getInPorts().at(0);
+        // let link1 = new NodeLinkModel();
+        // link1.setSourcePort(port1);
+        // link1.setTargetPort(port2);
+        // port1.addLink(link1);
 
         // newDiagramModel.addAll(node1, node2, link1);
         // End sample code
