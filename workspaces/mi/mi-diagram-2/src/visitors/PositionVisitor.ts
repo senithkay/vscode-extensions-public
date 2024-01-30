@@ -7,7 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STNode, Visitor, APIResource } from "@wso2-enterprise/mi-syntax-tree/src";
+import { STNode, Visitor, APIResource, ViewState } from "@wso2-enterprise/mi-syntax-tree/src";
+import { v4 as uuidv4 } from "uuid";
 
 export const NODE_GAP = 100;
 
@@ -25,18 +26,18 @@ export class PositionVisitor implements Visitor {
 
     beginVisitAPIResource(node: APIResource): void {
         console.log("beginVisitAPIResource", node);
+        const defaultViewState: ViewState = { id: node.tag + uuidv4(), x: 0, y: 0, w: 0, h: 0 };
         if (node.viewState == undefined) {
-            node.viewState = { x: 0, y: 0, w: 0, h: 0 };
+            node.viewState = defaultViewState;
         }
         let y = node.viewState.y;
         node.inSequence.mediatorList.forEach((element) => {
             if (element.viewState == undefined) {
-                element.viewState = { x: 0, y: 0, w: 0, h: 0 };
+                element.viewState = defaultViewState;
             }
             element.viewState.x = 100;
             element.viewState.y = 100 + y;
             y = NODE_GAP + element.viewState.h;
-            console.log("element.viewState", element.viewState);
         });
     }
 

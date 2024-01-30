@@ -12,10 +12,11 @@ export interface STNode {
     selfClosed: boolean;
     range: Range;
     tag: string;
-    viewState?: viewState;
+    viewState?: ViewState;
 }
 
-export interface viewState {
+export interface ViewState {
+    id: string;
     x: number;
     y: number;
     w: number;
