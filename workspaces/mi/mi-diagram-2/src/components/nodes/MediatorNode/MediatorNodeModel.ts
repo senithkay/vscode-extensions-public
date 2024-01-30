@@ -10,12 +10,12 @@
 import { NodeModel, DefaultPortModel } from '@projectstorm/react-diagrams';
 import { STNode } from '@wso2-enterprise/mi-syntax-tree/src';
 
-export class CallNodeModel extends NodeModel {
+export class MediatorNodeModel extends NodeModel {
     readonly stNode: STNode;
     
     constructor(stNode: STNode) {
         super({
-            type: "call-node",
+            type: "mediator-node",
         });
         this.stNode = stNode;
         this.addPort(new DefaultPortModel({ in: true, name: 'in' }));

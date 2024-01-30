@@ -10,7 +10,7 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { CallNodeModel } from "./CallNodeModel";
+import { MediatorNodeModel } from "./MediatorNodeModel";
 import { Colors } from "../../../resources/constants";
 
 namespace S {
@@ -19,20 +19,22 @@ namespace S {
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
-        width: 100px;
+        min-width: 100px;
         height: 50px;
-        border: 1px solid black;
+        padding: 0 8px;
+        border: 2px solid ${Colors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: ${Colors.SURFACE_BRIGHT};
+        color: ${Colors.ON_SURFACE};
     `;
 }
 
 interface CallNodeWidgetProps {
-    node: CallNodeModel;
+    node: MediatorNodeModel;
     engine: DiagramEngine;
 }
 
-export function CallNodeWidget(props: CallNodeWidgetProps) {
+export function MediatorNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine } = props;
     return (
         <S.Node>

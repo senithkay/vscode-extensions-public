@@ -36,7 +36,7 @@ export class PositionVisitor implements Visitor {
             element.viewState.x = 100;
             element.viewState.y = 100 + y;
             y = NODE_GAP + element.viewState.h;
-            console.log(y);
+            console.log("element.viewState", element.viewState);
         });
     }
 

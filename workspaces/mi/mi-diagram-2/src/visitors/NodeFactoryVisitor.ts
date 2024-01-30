@@ -8,24 +8,26 @@
  */
 
 import { Visitor, STNode, WithParam } from "@wso2-enterprise/mi-syntax-tree/src";
-import { CallNodeModel } from "../components/nodes/CallNode/CallNodeModel";
+import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 
 export class NodeFactoryVisitor implements Visitor {
-    nodes: CallNodeModel[] = [];
+    nodes: MediatorNodeModel[] = [];
     private skipChildrenVisit = false;
 
     private createNode(node: STNode): void {
-        const diagramNode = new CallNodeModel(node);
+        const diagramNode = new MediatorNodeModel(node);
         diagramNode.setPosition(100, node.viewState.y);
         this.nodes.push(diagramNode);
     }
 
-    getNodes(): CallNodeModel[] {
+    getNodes(): MediatorNodeModel[] {
         return this.nodes;
     }
 
     endVisitSend = (node: STNode): void => this.createNode(node);
     endVisitWithParam = (node: WithParam): void => this.createNode(node);
+    endVisitCall = (node: STNode): void => this.createNode(node);
+
 
     skipChildren(): boolean {
         return this.skipChildrenVisit;

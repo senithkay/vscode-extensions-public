@@ -16,6 +16,7 @@ import { PositionVisitor } from "../visitors/PositionVisitor";
 import { generateEngine } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
+import { MediatorNodeModel } from "./nodes/MediatorNode/MediatorNodeModel";
 
 export interface DiagramProps {
     model: APIResource | Sequence;
@@ -29,27 +30,27 @@ export function Diagram(props: DiagramProps) {
 
     useEffect(() => {
         if (diagramEngine) {
-            drawDiagram();
+            const nodes = getNodes();
+            drawDiagram(nodes);
         }
     }, []);
 
-    // run sizing visitor
-    const sizingVisitor = new SizingVisitor();
-    traversNode(model, sizingVisitor);
-    // run position visitor
-    const positionVisitor = new PositionVisitor();
-    traversNode(model, positionVisitor);
-    // run node visitor
-    const nodeVisitor = new NodeFactoryVisitor();
-    traversNode(model, nodeVisitor);
-    const nodes = nodeVisitor.getNodes();
-    console.log("nodes", nodes);
+    const getNodes = () => {
+        // run sizing visitor
+        const sizingVisitor = new SizingVisitor();
+        traversNode(model, sizingVisitor);
+        // run position visitor
+        const positionVisitor = new PositionVisitor();
+        traversNode(model, positionVisitor);
+        // run node visitor
+        const nodeVisitor = new NodeFactoryVisitor();
+        traversNode(model, nodeVisitor);
+        const nodes = nodeVisitor.getNodes();
+        console.log("nodes", nodes);
+        return nodes;
+    };
 
-    // add node edges
-    // setup react diagram engine
-    // render diagram
-
-    const drawDiagram = () => {
+    const drawDiagram = (nodes: MediatorNodeModel[]) => {
         const newDiagramModel = new DiagramModel();
 
         newDiagramModel.addAll(...nodes);

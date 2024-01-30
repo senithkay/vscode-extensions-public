@@ -30,6 +30,7 @@ export class SizingVisitor implements Visitor {
 
     endVisitSend = (node: STNode): void => calculateBasicMediator(node);
     endVisitWithParam = (node: WithParam): void => calculateBasicMediator(node);
+    endVisitCall = (node: STNode): void => calculateBasicMediator(node);
 
     skipChildren(): boolean {
         return this.skipChildrenVisit;
