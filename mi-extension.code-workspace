@@ -11,6 +11,9 @@
 		},
 		{
 			"path": "workspaces/mi/syntax-tree"
+		},
+		{
+			"path": "workspaces/mi/mi-diagram-2"
 		}
 	]
 }
