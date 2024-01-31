@@ -28,6 +28,13 @@ namespace S {
         color: ${Colors.ON_SURFACE};
     `;
 
+    export const Header = styled.div<{}>`
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    `;
+
     export const TopPortWidget = styled(PortWidget)`
         margin-top: -3px;
     `;
@@ -47,10 +54,11 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
     return (
         <S.Node>
             <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
-            <div>
+            <S.Header>
                 <div>{/* icon here */}</div>
                 <div>{node.stNode.tag}</div>
-            </div>
+                <S.BottomPortWidget port={node.getPort("right")!} engine={engine} />
+            </S.Header>
             <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
         </S.Node>
     );
