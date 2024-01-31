@@ -10,7 +10,7 @@
 
 import { NotificationType, RequestType } from "vscode-messenger-common";
 
-export type MachineViews = "Overview" | "Diagram" | "ServiceDesigner" | "APIForm" | "EndPointForm" | "SequenceForm";
+export type MachineViews = "Overview" | "Diagram" | "ServiceDesigner" | "APIForm" | "EndPointForm" | "SequenceForm" | "ProjectCreationForm";
 
 export type MachineStateValue =
     | 'initialize' | 'projectDetected' | 'LSInit' | 'ready' | 'disabled'

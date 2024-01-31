@@ -7,6 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { FileStructure } from '@wso2-enterprise/mi-core';
+import * as fs from 'fs';
 import * as path from 'path';
 import { ExtensionContext, Uri, Webview } from "vscode";
 
@@ -19,4 +21,19 @@ export function getComposerJSFiles(context: ExtensionContext, componentName: str
 			: webView.asWebviewUri(Uri.file(filePath)).toString(),
 		isDevMode ? 'http://localhost:8097' : '' // For React Dev Tools
 	];
+}
+
+export function createFolderStructure(targetPath: string, structure: FileStructure) {
+	for (const [key, value] of Object.entries(structure)) {
+		const fullPath = path.join(targetPath, key);
+
+		if (key.includes('.')) {
+			// If it's a file, create the file
+			fs.writeFileSync(fullPath, value as string);
+		} else {
+			// If it's a directory, create the directory and recurse
+			fs.mkdirSync(fullPath, { recursive: true });
+			createFolderStructure(fullPath, value as FileStructure);
+		}
+	}
 }

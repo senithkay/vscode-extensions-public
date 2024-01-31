@@ -42,6 +42,11 @@ export interface CreateEndpointResponse {
     path: string;
 }
 
+export interface CreateProjectRequest {
+    directory: string;
+    name: string;
+}
+
 export interface Connector {
     path: string;
     name: string;
@@ -107,4 +112,20 @@ export interface CreateSequenceRequest {
 }
 export interface CreateSequenceResponse {
     filePath: string;
+}
+
+export interface ProjectRootResponse {
+    path: string;
+}
+
+export interface ProjectDirResponse {
+    path: string;
+}
+
+export interface CreateProjectResponse {
+    filePath: string;
+}
+
+export interface FileStructure {
+    [key: string]: string | FileStructure;
 }
