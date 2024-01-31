@@ -14,6 +14,8 @@ import {
     BallerinaSTModifyRequest,
     CodeActionParams,
     CompletionParams,
+    DefaultFnNameRequest,
+    DiagnosticsForFnNameRequest,
     DidChangeTextDocumentParams,
     DidCloseTextDocumentParams,
     DidOpenTextDocumentParams,
@@ -22,6 +24,7 @@ import {
     GetSyntaxTreeParams,
     JsonToRecordRequest,
     PartialSTRequest,
+    RecordCompletionsRequest,
     RenameParams,
     SymbolInfoRequest,
     TextDocumentPositionParams,
@@ -38,9 +41,12 @@ import {
     getBallerinaProjectComponents,
     getBallerinaVersion,
     getCompletion,
+    getDefaultFnName,
     getDefinitionPosition,
     getDiagnostics,
+    getDiagnosticsForFnName,
     getExecutorPositions,
+    getRecordCompletions,
     getST,
     getSTByRange,
     getSTForExpression,
@@ -91,4 +97,8 @@ export function registerLangServerRpcHandlers(messenger: Messenger) {
     messenger.onNotification(didOpen, (args: DidOpenTextDocumentParams) => rpcManger.didOpen(args));
     messenger.onNotification(didChange, (args: DidChangeTextDocumentParams) => rpcManger.didChange(args));
     messenger.onNotification(didClose, (args: DidCloseTextDocumentParams) => rpcManger.didClose(args));
+    messenger.onRequest(getDiagnosticsForFnName, (args: DiagnosticsForFnNameRequest) => rpcManger.getDiagnosticsForFnName(args));
+    messenger.onRequest(getDefaultFnName, (args: DefaultFnNameRequest) => rpcManger.getDefaultFnName(args));
+    messenger.onRequest(getRecordCompletions, (args: RecordCompletionsRequest) => rpcManger.getRecordCompletions(args));
 }
+

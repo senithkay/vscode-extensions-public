@@ -7,8 +7,10 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, NodePosition } from "@wso2-enterprise/syntax-tree";
 import { DiagramDiagnostic, NonPrimitiveBal } from "./connector-wizard-types";
+import { CompletionResponse } from "./extended-lang-server-types";
+import { Diagnostic } from "vscode-languageserver-types";
 
 export interface Type {
     typeName: string;
@@ -51,3 +53,51 @@ export interface Type {
     originalTypeName?: string;
     resolvedUnionType?: Type | Type[];
 }
+
+export enum TypeNature {
+    BLACKLISTED,
+    WHITELISTED,
+    YET_TO_SUPPORT,
+    INVALID,
+    NOT_FOUND,
+    TYPE_UNAVAILABLE,
+    PARAM_NAME_UNAVAILABLE,
+    DUMMY
+}
+
+export interface DataMapperInputParam {
+    name: string;
+    type: string;
+    isUnsupported?: boolean;
+    typeNature?: TypeNature;
+    isArray?: boolean;
+}
+
+export interface DiagnosticsForFnNameRequest {
+    name: string,
+    inputParams: DataMapperInputParam[],
+    outputType: string,
+    fnST: FunctionDefinition,
+    targetPosition: NodePosition,
+    currentFileContent: string,
+    filePath: string
+}
+
+export interface DefaultFnNameRequest {
+    filePath: string,
+    targetPosition: NodePosition,
+}
+
+export interface ExtendedDiagnostic extends Diagnostic {}
+
+export interface RecordCompletionsRequest {
+    currentFileContent: string,
+    importStatements: string[],
+    fnSTPosition: NodePosition,
+    path: string,
+}
+
+export interface CompletionResponseWithModule extends CompletionResponse {
+    module?: string;
+}
+

@@ -15,14 +15,14 @@ import {
     BallerinaSTModifyResponse,
     CodeActionParams,
     CompletionParams,
-    DidChangeTextDocumentParams,
+        DidChangeTextDocumentParams,
     DidCloseTextDocumentParams,
     DidOpenTextDocumentParams,
     GetBallerinaPackagesParams,
     JsonToRecordRequest,
-    RenameParams,
+        RenameParams,
     TextDocumentPositionParams,
-    GetSyntaxTreeResponse,
+        GetSyntaxTreeResponse,
     GetSyntaxTreeParams,
     BallerinaFunctionSTRequest,
     BallerinaSTModifyRequest,
@@ -37,7 +37,12 @@ import {
     PartialSTResponse,
     PartialSTRequest,
     SymbolInfoRequest,
-    SymbolInfoResponse
+    SymbolInfoResponse,
+    DiagnosticsForFnNameRequest,
+    DefaultFnNameRequest,
+    RecordCompletionsRequest,
+    CompletionResponseWithModule,
+    ExtendedDiagnostic
 } from "../..";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -71,3 +76,7 @@ export const getSymbolDocumentation: RequestType<SymbolInfoRequest, SymbolInfoRe
 export const didOpen: NotificationType<DidOpenTextDocumentParams> = { method: `${_preFix}/didOpen` };
 export const didChange: NotificationType<DidChangeTextDocumentParams> = { method: `${_preFix}/didChange` };
 export const didClose: NotificationType<DidCloseTextDocumentParams> = { method: `${_preFix}/didClose` };
+export const getDiagnosticsForFnName: RequestType<DiagnosticsForFnNameRequest, ExtendedDiagnostic[]> = { method: `${_preFix}/getDiagnosticsForFnName` };
+export const getDefaultFnName: RequestType<DefaultFnNameRequest, string> = { method: `${_preFix}/getDefaultFnName` };
+export const getRecordCompletions: RequestType<RecordCompletionsRequest, CompletionResponseWithModule[]> = { method: `${_preFix}/getRecordCompletions` };
+
