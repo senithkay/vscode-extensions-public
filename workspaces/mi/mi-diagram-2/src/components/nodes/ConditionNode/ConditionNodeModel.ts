@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodeModel, DefaultPortModel } from "@projectstorm/react-diagrams";
-import { v4 as uuidv4 } from 'uuid';
+import { NodeModel } from "@projectstorm/react-diagrams";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodePortModel } from "../../NodePort/NodePortModel";
+import { getNodeIdFromModel } from "../../../utils/node";
 
 export class ConditionNodeModel extends NodeModel {
     readonly stNode: STNode;
@@ -19,7 +19,7 @@ export class ConditionNodeModel extends NodeModel {
 
     constructor(stNode: STNode) {
         super({
-            id: stNode.viewState?.id || uuidv4(),
+            id: stNode.viewState?.id || getNodeIdFromModel(stNode),
             type: "condition-node",
             locked: true,
         });

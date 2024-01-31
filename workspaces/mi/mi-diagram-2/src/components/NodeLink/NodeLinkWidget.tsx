@@ -27,7 +27,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 fill={"none"}
                 stroke={Colors.PRIMARY}
                 strokeWidth={2}
-                marker-end={`url(#${link.getID()}-arrow-head)`}
+                markerEnd={`url(#${link.getID()}-arrow-head)`}
             />
             <defs>
                 <marker

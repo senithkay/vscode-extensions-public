@@ -8,9 +8,9 @@
  */
 
 import { NodeModel, PortModelAlignment } from "@projectstorm/react-diagrams";
-import { v4 as uuidv4 } from "uuid";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodePortModel } from "../../NodePort/NodePortModel";
+import { getNodeIdFromModel } from "../../../utils/node";
 
 export class StartNodeModel extends NodeModel {
     readonly stNode: STNode;
@@ -18,7 +18,7 @@ export class StartNodeModel extends NodeModel {
 
     constructor(stNode: STNode) {
         super({
-            id: stNode.viewState?.id || uuidv4(),
+            id: stNode.viewState?.id || getNodeIdFromModel(stNode),
             type: "start-node",
             locked: true,
         });

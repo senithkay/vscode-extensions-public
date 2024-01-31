@@ -26,7 +26,7 @@ export class NodePortFactory extends AbstractReactFactory<
     }
     
     generateModel(event: GenerateModelEvent): NodePortModel {
-        return new NodePortModel();
+        return new NodePortModel(event.initialConfig);
     }
 
     generateReactWidget(event: GenerateWidgetEvent<NodePortModel>): JSX.Element {

@@ -16,7 +16,7 @@ export interface STNode {
 }
 
 export interface ViewState {
-    id: string;
+    id?: string;
     x: number;
     y: number;
     w: number;

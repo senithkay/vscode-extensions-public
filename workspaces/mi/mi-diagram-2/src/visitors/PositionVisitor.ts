@@ -8,7 +8,6 @@
  */
 
 import { STNode, Visitor, APIResource, ViewState } from "@wso2-enterprise/mi-syntax-tree/src";
-import { v4 as uuidv4 } from "uuid";
 
 export const NODE_GAP = 100;
 
@@ -26,7 +25,7 @@ export class PositionVisitor implements Visitor {
 
     beginVisitAPIResource(node: APIResource): void {
         console.log("beginVisitAPIResource", node);
-        const defaultViewState: ViewState = { id: node.tag + uuidv4(), x: 0, y: 0, w: 0, h: 0 };
+        const defaultViewState: ViewState = { x: 0, y: 0, w: 0, h: 0 };
         if (node.viewState == undefined) {
             node.viewState = defaultViewState;
         }

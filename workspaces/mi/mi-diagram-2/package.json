@@ -24,8 +24,7 @@
         "@projectstorm/react-diagrams-routing": "^6.7.4",
         "@emotion/react": "^11.9.3",
         "@emotion/styled": "^11.10.5",
-        "@wso2-enterprise/mi-syntax-tree": "workspace:*",
-        "uuid": "~9.0.1"
+        "@wso2-enterprise/mi-syntax-tree": "workspace:*"
     },
     "devDependencies": {
         "@storybook/react": "^6.3.7",
