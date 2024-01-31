@@ -7,3 +7,4 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 export { ServiceDesignerView } from "./ServiceDesigner/ServiceDesignerView";
+export type { Resource } from "@wso2-enterprise/service-designer";
