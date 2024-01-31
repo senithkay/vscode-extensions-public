@@ -45,7 +45,7 @@ export class VisualizerWebview {
         const panel = vscode.window.createWebviewPanel(
             VisualizerWebview.viewType,
             'Integration Studio',
-            ViewColumn.Two,
+            ViewColumn.Active,
             {
                 enableScripts: true,
                 localResourceRoots: [Uri.file(path.join(extension.context.extensionPath, 'resources'))],
