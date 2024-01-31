@@ -10,38 +10,38 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { CallNodeModel } from "./CallNodeModel";
+import { EndpointNodeModel } from "./EndpointNodeModel";
 import { Colors } from "../../../resources/constants";
 
 namespace S {
     export const Node = styled.div<{}>`
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        width: 100px;
-        height: 50px;
-        border: 1px solid black;
-        border-radius: 10px;
-        background-color: ${Colors.SURFACE_BRIGHT};
     `;
 }
 
 interface CallNodeWidgetProps {
-    node: CallNodeModel;
+    node: EndpointNodeModel;
     engine: DiagramEngine;
 }
 
-export function CallNodeWidget(props: CallNodeWidgetProps) {
+export function EndpointNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine } = props;
     return (
         <S.Node>
             <PortWidget port={node.getPort("in")!} engine={engine} />
-            <div>
-                <div>{node.stNode.tag}</div>
-                <div>{/* Your icon here */}</div>
-            </div>
-            <PortWidget port={node.getPort("out")!} engine={engine} />
+            <svg width="50" height="50" viewBox="0 0 50 50">
+                <circle
+                    cx="25"
+                    cy="25"
+                    r="24"
+                    fill={Colors.SURFACE_BRIGHT}
+                    stroke={Colors.OUTLINE_VARIANT}
+                    strokeWidth={2}
+                />
+            </svg>
         </S.Node>
     );
 }

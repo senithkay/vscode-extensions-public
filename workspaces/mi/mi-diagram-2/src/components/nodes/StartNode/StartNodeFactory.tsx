@@ -10,19 +10,19 @@
 import React from "react";
 import { AbstractReactFactory, GenerateModelEvent, GenerateWidgetEvent } from "@projectstorm/react-canvas-core";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { NodeLinkModel } from "./NodeLinkModel";
-import { NodeLinkWidget } from "./NodeLinkWidget";
+import { StartNodeModel } from "./StartNodeModel";
+import { StartNodeWidget } from "./StartNodeWidget";
 
-export class NodeLinkFactory extends AbstractReactFactory<NodeLinkModel, DiagramEngine> {
+export class StartNodeFactory extends AbstractReactFactory<StartNodeModel, DiagramEngine> {
     constructor() {
-        super("node-link");
+        super("start-node");
     }
 
-    generateModel(event: GenerateModelEvent): NodeLinkModel {
-        return new NodeLinkModel();
+    generateModel(event: GenerateModelEvent): StartNodeModel {
+        return new StartNodeModel(event.initialConfig.stNode);
     }
 
-    generateReactWidget(event: GenerateWidgetEvent<NodeLinkModel>): JSX.Element {
-        return <NodeLinkWidget link={event.model} engine={this.engine} />;
+    generateReactWidget(event: GenerateWidgetEvent<StartNodeModel>) {
+        return <StartNodeWidget engine={this.engine} node={event.model} />;
     }
 }
