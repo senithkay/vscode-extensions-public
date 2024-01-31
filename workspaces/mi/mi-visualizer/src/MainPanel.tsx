@@ -8,6 +8,7 @@ import { APIWizard } from './views/Forms/APIform';
 import { EndpointWizard } from './views/Forms/EndpointForm';
 import { SequenceWizard } from './views/Forms/SequenceForm';
 import { NavigationBar } from './components/NavigationBar';
+import { ProjectWizard } from './views/Forms/ProjectForm';
 
 
 const MainPanel = (props: { state: MachineStateValue }) => {
@@ -46,6 +47,8 @@ const MainPanel = (props: { state: MachineStateValue }) => {
                 return <EndpointWizard />
             case "SequenceForm":
                 return <SequenceWizard />
+            case "ProjectCreationForm":
+                return <ProjectWizard />
             default:
                 return <h1>LOADING</h1>;
         }

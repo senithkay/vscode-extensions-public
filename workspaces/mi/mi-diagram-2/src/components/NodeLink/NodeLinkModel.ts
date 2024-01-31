@@ -7,14 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DefaultLinkModel } from '@projectstorm/react-diagrams';
+import { DefaultLinkModel } from "@projectstorm/react-diagrams";
+import { Colors } from "../../resources/constants";
 
 export class NodeLinkModel extends DefaultLinkModel {
     constructor() {
         super({
-            type: 'node-link',
-            width: 2,
-            color: 'blue',
+            type: "node-link",
+            width: 10,
+            color: Colors.PRIMARY,
+            selectedColor: Colors.SECONDARY,
             curvyness: 0,
         });
     }

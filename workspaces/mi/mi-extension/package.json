@@ -100,6 +100,12 @@
         "group": "navigation"
       },
       {
+        "command": "project-explorer.open-service-designer",
+        "title": "Open Service Designer",
+        "icon": "$(design-view)",
+        "group": "navigation"
+      },
+      {
         "command": "project-explorer.add-endpoint",
         "title": "Add Endpoint",
         "icon": "$(add)",
@@ -139,6 +145,11 @@
       "view/item/context": [
         {
           "command": "project-explorer.add-api",
+          "when": "view == project-explorer && viewItem == apis",
+          "group": "inline"
+        },
+        {
+          "command": "project-explorer.open-service-designer",
           "when": "view == project-explorer && viewItem == api",
           "group": "inline"
         },

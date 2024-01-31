@@ -19,12 +19,15 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('project-explorer.refresh', () => { projectExplorerDataProvider.refresh(); });
 	vscode.commands.registerCommand('project-explorer.add', () => {
 		vscode.window.showQuickPick([
-			{ label: 'API', description: 'Add new API' }
+			{ label: 'API', description: 'Add new API' },
+			{ label: 'Project', description: 'Add new Project' }
 		], {
 			placeHolder: 'Select the construct to add'
 		}).then(selection => {
 			if (selection?.label === 'API') {
 				vscode.commands.executeCommand('project-explorer.add-api');
+			} else if (selection?.label === 'Project') {
+				vscode.commands.executeCommand('project-explorer.add-project');
 			}
 		});
 
@@ -32,6 +35,14 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('project-explorer.add-api', () => {
 		openView({ view: "APIForm" });
 		console.log('Add API');
+	});
+
+	vscode.commands.registerCommand('project-explorer.add-project', () => {
+		// Update state machine to show the api wizard
+		// createApiWizardWebview(context);
+		vscode.commands.executeCommand('integrationStudio.showDiagram');
+		openView( { view: "ProjectCreationForm" });
+		console.log('Create New Project');
 	});
 
 	projectTree.onDidChangeSelection(async e => {

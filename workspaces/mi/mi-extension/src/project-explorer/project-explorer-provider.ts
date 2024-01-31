@@ -218,36 +218,22 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 		let explorerEntry;
 
 		if (entry.resources) {
-			const folderEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(true), undefined, 'folder');
+			const apiEntry = new ProjectExplorerEntry(entry.name, isCollapsibleState(true), entry, 'code');
+			apiEntry.contextValue = 'api';
+			apiEntry.iconPath = new vscode.ThemeIcon('notebook-open-as-text');
+			apiEntry.children = [];
 
 			// Generate resource structure
-			const resourceFolder = new ProjectExplorerEntry(
-				"resources",
-				isCollapsibleState(entry.resources.length > 0),
-				undefined,
-				'folder'
-			);
-
-			const resources: ProjectExplorerEntry[] = [];
-
 			for (const resource of entry.resources) {
 				const resourceEntry: ProjectStructureEntry = {
 					...entry,
-					name: resource.uriTemplate,
-					type: 'resource'
+					name : resource.uriTemplate,
+					type : 'resource'
 				};
-				resources.push(new ProjectExplorerEntry(resource.uriTemplate, isCollapsibleState(false), resourceEntry, 'code'));
+				apiEntry.children.push(new ProjectExplorerEntry(resource.uriTemplate ?? "/", isCollapsibleState(false), resourceEntry, 'code'));
 			}
-
-			resourceFolder.children = resources;
-			resourceFolder.contextValue = 'resource';
-
-			// Generate API structure
-			const apiEntry = new ProjectExplorerEntry(entry.name, isCollapsibleState(false), entry, 'code');
-
-			folderEntry.children = [apiEntry, resourceFolder];
-			explorerEntry = folderEntry;
-
+			explorerEntry = apiEntry;
+			
 		} else {
 			explorerEntry = new ProjectExplorerEntry(entry.name, isCollapsibleState(false), entry, 'code');
 		}

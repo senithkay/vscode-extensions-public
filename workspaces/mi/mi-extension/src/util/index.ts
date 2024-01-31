@@ -7,7 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { MachineViews } from '@wso2-enterprise/mi-core';
+import { FileStructure, MachineViews } from '@wso2-enterprise/mi-core';
+import * as fs from 'fs';
 import * as path from 'path';
 import { ExtensionContext, Uri, Webview } from "vscode";
 
@@ -38,4 +39,19 @@ const viewFlow: ViewFlow = {
 
 export function getPreviousView(currentView: MachineViews): MachineViews[] {
 	return viewFlow[currentView] || [];
+}
+
+export function createFolderStructure(targetPath: string, structure: FileStructure) {
+	for (const [key, value] of Object.entries(structure)) {
+		const fullPath = path.join(targetPath, key);
+
+		if (key.includes('.')) {
+			// If it's a file, create the file
+			fs.writeFileSync(fullPath, value as string);
+		} else {
+			// If it's a directory, create the directory and recurse
+			fs.mkdirSync(fullPath, { recursive: true });
+			createFolderStructure(fullPath, value as FileStructure);
+		}
+	}
 }

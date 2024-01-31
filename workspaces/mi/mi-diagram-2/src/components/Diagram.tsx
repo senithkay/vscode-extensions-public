@@ -16,6 +16,8 @@ import { PositionVisitor } from "../visitors/PositionVisitor";
 import { generateEngine } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
+import { MediatorNodeModel } from "./nodes/MediatorNode/MediatorNodeModel";
+import { sampleDiagram } from "../utils/sample";
 
 export interface DiagramProps {
     model: APIResource | Sequence;
@@ -29,47 +31,31 @@ export function Diagram(props: DiagramProps) {
 
     useEffect(() => {
         if (diagramEngine) {
-            drawDiagram();
+            const nodes = getNodes();
+            drawDiagram(nodes);
         }
     }, []);
 
-    // run sizing visitor
-    const sizingVisitor = new SizingVisitor();
-    traversNode(model, sizingVisitor);
-    // run position visitor
-    const positionVisitor = new PositionVisitor();
-    traversNode(model, positionVisitor);
-    // run node visitor
-    const nodeVisitor = new NodeFactoryVisitor();
-    traversNode(model, nodeVisitor);
-    const nodes = nodeVisitor.getNodes();
-    console.log("nodes", nodes);
+    const getNodes = () => {
+        // run sizing visitor
+        const sizingVisitor = new SizingVisitor();
+        traversNode(model, sizingVisitor);
+        // run position visitor
+        const positionVisitor = new PositionVisitor();
+        traversNode(model, positionVisitor);
+        // run node visitor
+        const nodeVisitor = new NodeFactoryVisitor();
+        traversNode(model, nodeVisitor);
+        const nodes = nodeVisitor.getNodes();
+        console.log("nodes", nodes);
+        return nodes;
+    };
 
-    // add node edges
-    // setup react diagram engine
-    // render diagram
-
-    const drawDiagram = () => {
+    const drawDiagram = (nodes: MediatorNodeModel[]) => {
         const newDiagramModel = new DiagramModel();
-
         newDiagramModel.addAll(...nodes);
-
-        // Start sample code
-        // var node1 = new DefaultNodeModel({
-        //     name: "Node 1",
-        //     color: "rgb(0,192,255)",
-        // });
-        // node1.setPosition(100, 100);
-        // let port1 = node1.addOutPort("Out");
-
-        // var node2 = new CallNodeModel(model);
-        // node2.setPosition(400, 100);
-
-        // let link1 = port1.link<NodeLinkModel>(node2.getPort("in")!);
-        // link1.getOptions().testName = "Test";
-
-        // newDiagramModel.addAll(node1, node2, link1);
-        // End sample code
+        // uncomment below to see the sample diagram. comment above line
+        // sampleDiagram(model, newDiagramModel);
 
         diagramEngine.setModel(newDiagramModel);
         setDiagramModel(newDiagramModel);
