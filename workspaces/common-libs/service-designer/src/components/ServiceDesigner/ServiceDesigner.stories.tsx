@@ -10,7 +10,6 @@
 import React from "react";
 import { ServiceDesigner } from "./ServiceDesigner";
 import { PARAM_TYPES, Resource, Service } from "../../definitions";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 const GET: Resource = {
     method: "GET",
@@ -402,8 +401,8 @@ const handleResourceDelete = (resource: Resource) => {
 const handleResourceEdit = (resource: Resource) => {
     console.log("Edit resource ", resource);
 };
-const handleGoToSource = (position: NodePosition) => {
-    console.log("Go to source postion ", position);
+const handleGoToSource = (resource: Resource,) => {
+    console.log("Go to source postion ", resource);
 };
 const handleServiceEdit = (service: Service) => {
     console.log("Edit service ", service);
