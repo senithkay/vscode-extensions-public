@@ -50,7 +50,8 @@ import {
     getPartialSTForModuleMembers,
     getPartialSTForStatement,
     getSymbolDocumentation,
-    sendDidChange
+    sendDidChange,
+    updateFileContent
 } from "../../utils/ls-utils";
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { StackElement } from "../../utils/undo-redo";
@@ -84,10 +85,9 @@ export function StatementEditor(props: StatementEditorProps) {
         editorManager,
         formArgs,
         config,
-        getLangClient,
+        langServerRpcClient,
+        libraryBrowserRpcClient,
         applyModifications,
-        updateFileContent,
-        library,
         currentFile,
         syntaxTree,
         stSymbolInfo,
@@ -212,15 +212,15 @@ export function StatementEditor(props: StatementEditorProps) {
                         const index = statements.indexOf(statement);
                         const updatedContent = getUpdatedSource(statement, currentFile.content,
                             targetPosition, moduleList, skipStatementSemicolon);
-                        await sendDidChange(fileURI, updatedContent, getLangClient);
+                        await sendDidChange(fileURI, updatedContent, langServerRpcClient);
                         let completions: SuggestionItem[];
 
                         if (index === 0) {
                             directSuggestions = await getCompletions(fileURI, draftPosition || targetPosition,
-                                model, currentModel, getLangClient);
+                                model, currentModel, langServerRpcClient);
                         } else {
                             completions = await getCompletions(fileURI, draftPosition || targetPosition,
-                                model, currentModel, getLangClient, selectionWithDot);
+                                model, currentModel, langServerRpcClient, selectionWithDot);
                             secondLevelSuggestions = completions.map((suggestionItem) => ({
                                 ...suggestionItem,
                                 prefix: `${selectionWithDot}`
@@ -228,7 +228,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
                             const content = getUpdatedSource(model.source, currentFile.content,
                                 targetPosition, moduleList, skipStatementSemicolon);
-                            await sendDidChange(fileURI, content, getLangClient);
+                            await sendDidChange(fileURI, content, langServerRpcClient);
                         }
                     }
                 }
@@ -287,7 +287,7 @@ export function StatementEditor(props: StatementEditorProps) {
         const stmtIndex = getStatementIndex(updatedContent, statement, targetPosition);
         const newTargetPosition = getStatementPosition(updatedContent, statement, stmtIndex);
 
-        await updateFileContent(updatedContent, true, currentFile.path);
+        await updateFileContent(currentFile.path, updatedContent, langServerRpcClient, true);
 
         setDraftSource(updatedContent);
         setDraftPosition(newTargetPosition);
@@ -318,13 +318,13 @@ export function StatementEditor(props: StatementEditorProps) {
                 newCodeSnippet: codeSnippet
             }
             partialST = isModuleMember(existingModel)
-                ? await getPartialSTForModuleMembers({ codeSnippet: existingModel.source , stModification }, getLangClient)
-                : (isExpressionMode ? await getPartialSTForExpression({ codeSnippet: existingModel.source , stModification }, getLangClient)
-                : await getPartialSTForStatement({ codeSnippet: existingModel.source , stModification }, getLangClient));
+                ? await getPartialSTForModuleMembers({ codeSnippet: existingModel.source , stModification }, langServerRpcClient)
+                : (isExpressionMode ? await getPartialSTForExpression({ codeSnippet: existingModel.source , stModification }, langServerRpcClient)
+                : await getPartialSTForStatement({ codeSnippet: existingModel.source , stModification }, langServerRpcClient));
         } else {
             partialST = (isConfigurableStmt || isModuleVar)
-                ? await getPartialSTForModuleMembers({ codeSnippet }, getLangClient)
-                : await getPartialSTForStatement({ codeSnippet }, getLangClient);
+                ? await getPartialSTForModuleMembers({ codeSnippet }, langServerRpcClient)
+                : await getPartialSTForStatement({ codeSnippet }, langServerRpcClient);
         }
 
         if (!partialST.syntaxDiagnostics.length || (!isExpressionMode && config.type === CUSTOM_CONFIG_TYPE)) {
@@ -355,13 +355,13 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     const updateStatementModel = async (updatedStatement: string, updatedSource: string, position: NodePosition) => {
-        await updateFileContent(updatedSource, true, currentFile.path);
+        await updateFileContent(currentFile.path, updatedSource, langServerRpcClient, true);
         setDraftSource(updatedSource);
         setDraftPosition(position);
         const partialST = isModuleMember(model)
-            ? await getPartialSTForModuleMembers({ codeSnippet: updatedStatement }, getLangClient)
-            : (isExpressionMode ? await getPartialSTForExpression({ codeSnippet: updatedStatement }, getLangClient)
-                : await getPartialSTForStatement({ codeSnippet: updatedStatement }, getLangClient));
+            ? await getPartialSTForModuleMembers({ codeSnippet: updatedStatement }, langServerRpcClient)
+            : (isExpressionMode ? await getPartialSTForExpression({ codeSnippet: updatedStatement }, langServerRpcClient)
+                : await getPartialSTForStatement({ codeSnippet: updatedStatement }, langServerRpcClient));
 
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
             const diagnostics = await handleDiagnostics(partialST.source);
@@ -404,14 +404,14 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const handleCompletions = async (newValue: string) => {
         const lsSuggestions = await getCompletions(fileURI, draftPosition || targetPosition, model,
-            currentModel, getLangClient, newValue);
+            currentModel, langServerRpcClient, newValue);
         setLSSuggestionsList({
             directSuggestions: lsSuggestions
         });
     }
 
     const handleDiagnostics = async (statement: string, targetedPosition?: NodePosition): Promise<Diagnostic[]> => {
-        const diagResp = await getDiagnostics(fileURI, getLangClient);
+        const diagResp = await getDiagnostics(fileURI, langServerRpcClient);
         const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
         if (config.type !== CONNECTOR && config.type !== ACTION && config.type !== HTTP_ACTION){
             removeUnusedModules(diag);
@@ -427,7 +427,7 @@ export function StatementEditor(props: StatementEditorProps) {
     ): Promise<StatementSyntaxDiagnostics[]> => {
         for (const diagnostic of filteredDiagnostics) {
             if (diagnostic.diagnostic) {
-                const codeActionResp = await getCodeAction(fileURI, diagnostic.diagnostic, getLangClient);
+                const codeActionResp = await getCodeAction(fileURI, diagnostic.diagnostic, langServerRpcClient);
                 if (codeActionResp) {
                     diagnostic.codeActions = codeActionResp;
                 }
@@ -443,7 +443,7 @@ export function StatementEditor(props: StatementEditorProps) {
         if (newCurrentModel && isDocumentationSupportedModel(newCurrentModel)){
             setDocumentation({
                 modelPosition: newCurrentModel.position,
-                documentation: await getSymbolDocumentation(fileURI, draftPosition, newCurrentModel, getLangClient)
+                documentation: await getSymbolDocumentation(fileURI, draftPosition, newCurrentModel, langServerRpcClient)
             });
         } else {
             if (newCurrentModel && (newCurrentModel.parent?.viewState as StatementEditorViewState)?.parentFunctionPos){
@@ -454,7 +454,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 if (isDocumentationSupportedModel(parentModel) && parentModel.position !== documentation.modelPosition){
                     setDocumentation({
                         modelPosition: (newCurrentModel.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
-                        documentation: await getSymbolDocumentation(fileURI, draftPosition, parentModel, getLangClient)
+                        documentation: await getSymbolDocumentation(fileURI, draftPosition, parentModel, langServerRpcClient)
                     });
                 }
             } else {
@@ -543,7 +543,7 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     async function handleOnCancel(){
-        await updateFileContent(currentFile.content, undefined, currentFile.path);
+        await updateFileContent(currentFile.path, currentFile.content, langServerRpcClient);
         onCancel();
     }
 
@@ -585,11 +585,10 @@ export function StatementEditor(props: StatementEditorProps) {
                     targetPosition={targetPosition}
                     config={config}
                     formArgs={formArgs}
-                    getLangClient={getLangClient}
+                    langServerRpcClient={langServerRpcClient}
+                    libraryBrowserRpcClient={libraryBrowserRpcClient}
                     applyModifications={applyModifications}
-                    updateFileContent={updateFileContent}
                     currentFile={currentFile}
-                    library={library}
                     importStatements={importStatements}
                     syntaxTree={syntaxTree}
                     stSymbolInfo={stSymbolInfo}

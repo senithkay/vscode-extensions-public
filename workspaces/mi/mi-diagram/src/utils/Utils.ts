@@ -182,5 +182,5 @@ export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel
 }
 
 export function isDarkMode() {
-    return document.body.getAttribute('data-vscode-theme-kind')?.includes('dark') ?? false;
+    return false;
 }

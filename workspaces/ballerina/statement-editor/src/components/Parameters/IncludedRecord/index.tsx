@@ -8,8 +8,10 @@
  */
 import React, { useContext } from "react";
 
-import { Checkbox, ListItem, ListItemText } from "@material-ui/core";
-import { ParameterInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+// tslint:disable-next-line:no-submodule-imports
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import { ParameterInfo } from "@wso2-enterprise/ballerina-core";
+import { Typography } from "@wso2-enterprise/ui-toolkit";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getParamHighlight } from "../../../utils";
@@ -36,26 +38,23 @@ export function IncludedRecord(props: IncludedRecordProps){
     return (
         <>
             {param.modelPosition && (
-                <ListItem
+                <div
                     key={key}
                     className={stmtEditorHelperClasses.docListDefault}
                     style={getParamHighlight(model, param)}
                     data-testid="included-record-arg"
                 >
-                    <Checkbox
-                        classes={{
-                            root: stmtEditorHelperClasses.parameterCheckbox,
-                            checked: stmtEditorHelperClasses.checked
-                        }}
-                        style={{ flex: 'inherit' }}
+                    <VSCodeCheckbox
                         checked={true}
                         onClick={handleCheckboxClick(param)}
                     />
-                    <ListItemText
-                        className={stmtEditorHelperClasses.docListItemText}
-                        primary={param.name}
-                    />
-                </ListItem>
+                    <Typography
+                        variant="body3"
+                        sx={{margin: '0px 5px'}}
+                    >
+                        {param.name}
+                    </Typography>
+                </div>
             )}
         </>
     );

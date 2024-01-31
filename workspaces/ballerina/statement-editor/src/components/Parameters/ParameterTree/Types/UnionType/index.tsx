@@ -9,11 +9,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useRef, useState } from "react";
 
-import { Checkbox, ListItem, ListItemText, Typography } from "@material-ui/core";
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+// tslint:disable-next-line:no-submodule-imports
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import { FormField } from "@wso2-enterprise/ballerina-core";
+import { Dropdown, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import { TypeProps } from "../..";
-import SelectDropdown from "../../../../Dropdown";
 import { useStmtEditorHelperPanelStyles } from "../../../../styles";
 import { ParameterBranch } from "../../ParameterBranch";
 import { getSelectedUnionMember, isRequiredParam } from "../../utils";
@@ -23,7 +24,7 @@ export default function UnionType(props: TypeProps) {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
 
     const requiredParam = isRequiredParam(param);
-    const memberTypes = param.members?.map((field) => getUnionParamName(field));
+    const memberTypes = param.members?.map((field, index) => ({id: index.toString(), value: getUnionParamName(field)}));
     const initSelectedMember = getSelectedUnionMember(param);
 
     const [paramSelected, setParamSelected] = useState(param.selected || requiredParam);
@@ -61,53 +62,50 @@ export default function UnionType(props: TypeProps) {
     };
 
     return (
-        <ListItem className={stmtEditorHelperClasses.docListDefault}>
+        <div className={stmtEditorHelperClasses.docListDefault}>
             <div className={stmtEditorHelperClasses.listItemMultiLine} data-testid="union-arg">
                 <div className={stmtEditorHelperClasses.listItemHeader}>
-                    <Checkbox
-                        classes={{
-                            root: requiredParam
-                                ? stmtEditorHelperClasses.disabledCheckbox
-                                : stmtEditorHelperClasses.parameterCheckbox,
-                            checked: stmtEditorHelperClasses.checked,
-                        }}
+                    <VSCodeCheckbox
                         checked={paramSelected}
                         disabled={requiredParam}
                         onClick={toggleParamCheck}
+                        className={stmtEditorHelperClasses.parameterCheckbox}
                         data-testid="arg-check"
                     />
-                    <ListItemText
-                        className={stmtEditorHelperClasses.docListItemText}
-                        primary={param.name}
-                        data-testid="arg-name"
-                    />
+                    <Typography
+                        variant="body3"
+                        sx={{margin: '0px 5px'}}
+                    >
+                        {param.name}
+                    </Typography>
                     {(param.optional || param.defaultable) && (
-                        <ListItemText
-                            className={stmtEditorHelperClasses.paramDataType}
+                        <Typography
+                            className={stmtEditorHelperClasses.suggestionDataType}
+                            variant="body3"
                             data-testid="arg-type"
-                            primary={(
-                                <Typography className={stmtEditorHelperClasses.suggestionDataType}>
-                                    {"(Optional)"}
-                                </Typography>
-                            )}
-                        />
+                        >
+                            {"(Optional)"}
+                        </Typography>
                     )}
                     <div className={stmtEditorHelperClasses.listDropdownWrapper} data-testid="arg-dropdown">
-                        <SelectDropdown
-                            className={stmtEditorHelperClasses.listSelectDropDown}
-                            values={memberTypes}
-                            defaultValue={selectedMemberType}
-                            onSelection={handleMemberType}
+                        <Dropdown
+                            onChange={handleMemberType}
+                            id="arg-dropdown"
+                            value={selectedMemberType}
+                            items={memberTypes}
+                            data-testid="arg-dropdown-component"
                         />
                     </div>
                 </div>
                 {param.documentation && (
                     <div className={stmtEditorHelperClasses.documentationWrapper}>
-                        <ListItemText
-                            className={stmtEditorHelperClasses.paramTreeDescriptionText}
-                            primary={param.documentation}
+                        <Typography
+                            className={stmtEditorHelperClasses.docParamDescriptionText}
+                            variant="body3"
                             data-testid="arg-documentation"
-                        />
+                        >
+                            {param.documentation}
+                        </Typography>
                     </div>
                 )}
                 {paramSelected && parameter && (
@@ -116,7 +114,7 @@ export default function UnionType(props: TypeProps) {
                     </div>
                 )}
             </div>
-        </ListItem>
+        </div>
     );
 }
 

@@ -6,16 +6,17 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from 'react';
 
-import { Box, CircularProgress, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
+import { Box, CircularProgress, ListItem, ListItemText } from "@material-ui/core";
 import {
     FunctionParams,
     LibraryDataResponse,
     LibraryFunction,
     ModuleProperty
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+// import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { PARAM_CONSTRUCTOR } from '../../../constants';
 import { InputEditorContext } from '../../../store/input-editor-context';
@@ -48,9 +49,7 @@ export function ModuleElement(props: ModuleElementProps) {
             updateModuleList
         },
         targetPosition,
-        library: {
-            getLibraryData
-        }
+        libraryBrowserRpcClient
     } = useContext(StatementEditorContext);
 
     const onClickOnModuleElement = async () => {
@@ -58,7 +57,11 @@ export function ModuleElement(props: ModuleElementProps) {
         let content = keywords.includes(moduleName) ? `${moduleName}0:${id}` : `${moduleName}:${id}`;
         setClickedModuleElement(content);
         if (isFunction) {
-            const response: LibraryDataResponse = await getLibraryData(moduleOrgName, moduleId, moduleVersion);
+            const response: LibraryDataResponse = await libraryBrowserRpcClient.getLibraryData({
+                orgName: moduleOrgName,
+                moduleName: moduleId,
+                version: moduleVersion
+            });
 
             let functionProperties: LibraryFunction = null;
             response.docsData.modules[0].functions.map((libFunction: LibraryFunction) => {
@@ -101,11 +104,13 @@ export function ModuleElement(props: ModuleElementProps) {
             <SuggestIcon
                 style={{ minWidth: '12%', textAlign: 'left', color }}
             />
-            <StatementEditorHint content={`${moduleId}:${id}`}>
-            <ListItemText
-                primary={<Typography className={stmtEditorHelperClasses.suggestionValue}>{`${moduleId}:${id}`}</Typography>}
-            />
-            </StatementEditorHint>
+            {/* <StatementEditorHint content={`${moduleId}:${id}`}> */}
+                <ListItemText
+                    primary={
+                        <div className={stmtEditorHelperClasses.suggestionValue}>{`${moduleId}:${id}`}</div>
+                    }
+                />
+            {/* </StatementEditorHint> */}
             {`${moduleId}:${id}` === clickedModuleElement && (circularProgress)}
         </ListItem>
     );

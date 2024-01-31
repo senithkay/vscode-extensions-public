@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -15,7 +16,7 @@ import { MediatorPortWidget } from '../../../port/MediatorPortWidget';
 import { drawSequence, setNodePositions } from '../../../../utils/Utils';
 import { getSVGIcon } from '../Icons';
 import styled from '@emotion/styled';
-import { MIWebViewAPI } from '../../../../utils/WebViewRpc';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { Codicon } from '@wso2-enterprise/ui-toolkit'
 import SidePanelContext from '../../../sidePanel/SidePanelContexProvider';
@@ -56,6 +57,8 @@ export interface AdvancedMediatorWidgetProps extends BaseNodeProps {
 }
 
 export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
+    const { rpcClient } = useVisualizerContext();
+
     const node: AdvancedMediatorNodeModel = props.node as AdvancedMediatorNodeModel;
     const subSequences = node.subSequences;
     const nodePosition = node.getPosition();
@@ -93,22 +96,6 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
             let subSequenceHeight = 0;
             let subSequenceWidth = 40;
             const subNodes = subSequence.nodes;
-            // if (subSequence.range == null) {
-            //     return;
-            // }
-
-            // props.diagramEngine.getModel().getNodes().forEach(node => {
-            //     const found = subNodes.find((subNode) => subNode.getID() === node.getID());
-            //     if (found) {
-            //         props.diagramEngine.getModel().removeNode(node);
-            //     }
-            // })
-            // props.diagramEngine.getModel().getLinks().forEach(link => {
-            //     const found = subNodes.find((subNode) => subNode.getID() === link.getID());
-            //     if (found) {
-            //         props.diagramEngine.getModel().removeLink(link);
-            //     }
-            // })
 
             const nodesAndLinks = drawSequence(subNodes, SequenceType.SUB_SEQUENCE, subSequence.range, props.diagramEngine.getModel(), node.getNode());
             const nodes = nodesAndLinks.filter(nodeOrLink => !(nodeOrLink instanceof MediatorLinkModel));
@@ -134,7 +121,7 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
     }
 
     const deleteNode = async () => {
-        MIWebViewAPI.getInstance().applyEdit({
+        rpcClient.getMiDiagramRpcClient().applyEdit({
             documentUri: props.documentUri, range: props.nodePosition, text: ""
         });
         sidePanelContext.setFormValues(undefined);

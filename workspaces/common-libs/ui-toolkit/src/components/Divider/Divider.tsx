@@ -9,6 +9,8 @@
 import styled from '@emotion/styled';
 import React from 'react';
 export interface DeviderProps {
+    id?: string;
+    className?: string;
     sx?: any;
 }
 
@@ -19,8 +21,8 @@ const Container = styled.div<DeviderProps>`
 `;
 
 export const Divider: React.FC<DeviderProps> = (props: DeviderProps) => {
-    const { sx } = props;
+    const { id, className, sx } = props;
     return (
-        <Container sx={sx} />
+        <Container id={id} className={className} sx={sx} />
     );
 };

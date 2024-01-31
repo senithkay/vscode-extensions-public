@@ -65,9 +65,6 @@ export function HTTPWizard(props: WizardProps) {
             insights: {
                 onEvent
             },
-            webView: {
-                showDocumentationView
-            }
         },
         props: {
             stSymbolInfo,
@@ -262,18 +259,6 @@ export function HTTPWizard(props: WizardProps) {
         onEvent(event);
     };
 
-    const openDocPanel = () => {
-        if (connector?.package) {
-            const { organization, name } = connector?.package;
-            if (organization && name) {
-                const docURL = generateDocUrl(organization, name, "", connector?.name, environment);
-                if (docURL) {
-                    showDocumentationView(docURL);
-                }
-            }
-        }
-    }
-
     return (
         <div className={classes.root}>
             <div className={wizardClasses.topTitleWrapper}>
@@ -285,11 +270,6 @@ export function HTTPWizard(props: WizardProps) {
                 <div className={wizardClasses.titleWrapper}>
                     <div className={wizardClasses.connectorIconWrapper}>{getModuleIcon(connector, 0.5)}</div>
                     <Typography className={wizardClasses.configTitle} variant="h4">{isNewConnectorInitWizard ? "New" : "Update"} {connector.displayName} <FormattedMessage id="lowcode.develop.connectorForms.HTTP.connection.title" defaultMessage="Connection" /></Typography>
-                    <IconButton
-                        onClick={openDocPanel}
-                    >
-                        <img src={DocIcon} />
-                    </IconButton>
                 </div>
             </div>
             <>

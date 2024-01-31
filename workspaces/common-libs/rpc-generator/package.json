@@ -1,0 +1,25 @@
+{
+    "name": "rpc-generator",
+    "version": "1.0.0",
+    "description": "Generate rpc-manager,rpc-handler and rpc-client ts files in relevant libraries",
+    "main": "index.js",
+    "config": { 
+      "CORE_RPC_TYPE_FILE": "mi-visualizer/index.ts",
+      "CORE_RPC_TYPE_DIR": "../../mi/mi-core/",
+      "EXT_RPC_MANAGER_DIR": "../../mi/mi-extension/",
+      "RPC_CLIENT_DIR": "../../mi/mi-rpc-client/",
+      "CORE_MODULE_NAME": "@wso2-enterprise/mi-core"
+    },
+    "scripts": {
+      "generate": "node index.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+      "@types/node": "^20.8.10"
+    },
+    "dependencies": {
+      "@ts-morph/common": "^0.21.0",
+      "ts-morph": "^20.0.0"
+    }
+  }
