@@ -14,4 +14,5 @@ export interface MIVisualizerAPI {
     getWorkspaces: () => Promise<WorkspacesResponse>;
     getProjectStructure: (params: ProjectStructureRequest) => Promise<ProjectStructureResponse>;
     openView: (params: VisualizerLocation) => void;
+    goBack: () => void;
 }

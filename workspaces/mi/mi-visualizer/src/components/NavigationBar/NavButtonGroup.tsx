@@ -23,7 +23,7 @@ export function NavButtonGroup(props: NavButtonGroupProps) {
 
 
     const handleBackButtonClick = () => {
-        console.log("BACK");
+        rpcClient.getMiVisualizerRpcClient().goBack();
     }
 
     const handleHomeButtonClick = () => {

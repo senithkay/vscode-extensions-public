@@ -16,3 +16,4 @@ const _preFix = "mi-visualizer";
 export const getWorkspaces: RequestType<void, WorkspacesResponse> = { method: `${_preFix}/getWorkspaces` };
 export const getProjectStructure: RequestType<ProjectStructureRequest, ProjectStructureResponse> = { method: `${_preFix}/getProjectStructure` };
 export const openView: NotificationType<VisualizerLocation> = { method: `${_preFix}/openView` };
+export const goBack: NotificationType<void> = { method: `${_preFix}/goBack` };

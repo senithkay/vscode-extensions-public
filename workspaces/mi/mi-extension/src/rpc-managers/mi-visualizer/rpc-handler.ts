@@ -13,7 +13,8 @@ import {
     VisualizerLocation,
     getProjectStructure,
     getWorkspaces,
-    openView
+    goBack,
+    openView,
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiVisualizerRpcManager } from "./rpc-manager";
@@ -23,4 +24,5 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getWorkspaces, () => rpcManger.getWorkspaces());
     messenger.onRequest(getProjectStructure, (args: ProjectStructureRequest) => rpcManger.getProjectStructure(args));
     messenger.onNotification(openView, (args: VisualizerLocation) => rpcManger.openView(args));
+    messenger.onNotification(goBack, () => rpcManger.goBack());
 }
