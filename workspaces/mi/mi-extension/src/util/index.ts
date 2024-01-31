@@ -35,6 +35,7 @@ const viewFlow: ViewFlow = {
 	APIForm: ["Overview"],
 	EndPointForm: ["Overview"],
 	SequenceForm: ["Overview"],
+	ProjectCreationForm: ["Overview"]
 };
 
 export function getPreviousView(currentView: MachineViews): MachineViews[] {
