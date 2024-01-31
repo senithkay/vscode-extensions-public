@@ -144,8 +144,6 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     }
 
     askProjectDirPath(): Promise<ProjectDirResponse> {
-        const projectdir = this._messenger.sendRequest(askProjectDirPath, HOST_EXTENSION);
-        console.log(projectdir);
         return this._messenger.sendRequest(askProjectDirPath, HOST_EXTENSION);
     }
 

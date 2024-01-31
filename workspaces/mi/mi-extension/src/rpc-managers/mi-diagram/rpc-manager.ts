@@ -409,7 +409,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const workspaceFolders = workspace.workspaceFolders;
             if (workspaceFolders) {
-                resolve({ path: "workspaceFolders[0].uri.fsPath" });
+                resolve({ path: workspaceFolders[0].uri.fsPath });
             }
             resolve({ path: "" });
         });
@@ -423,7 +423,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 resolve({ path: "" });
             } else {
                 const parentDir = selectedDir[0].fsPath;
-                console.log(parentDir);
                 resolve({ path: parentDir});
             }
         });
