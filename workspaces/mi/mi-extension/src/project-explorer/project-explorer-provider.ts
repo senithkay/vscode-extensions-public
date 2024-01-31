@@ -29,7 +29,7 @@ export class ProjectExplorerEntry extends vscode.TreeItem {
 }
 
 export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<ProjectExplorerEntry> {
-	private _data: ProjectExplorerEntry[]
+	private _data: ProjectExplorerEntry[];
 	private _onDidChangeTreeData: vscode.EventEmitter<ProjectExplorerEntry | undefined | null | void>
 		= new vscode.EventEmitter<ProjectExplorerEntry | undefined | null | void>();
 	readonly onDidChangeTreeData: vscode.Event<ProjectExplorerEntry | undefined | null | void>
@@ -38,12 +38,12 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 	refresh(): void {
 		getProjectStructureData(this.context)
 			.then(data => {
-				this._data = data
+				this._data = data;
 			})
 			.catch(err => {
-				console.error(err)
-				this._data = []
-			})
+				console.error(err);
+				this._data = [];
+			});
 
 		this._onDidChangeTreeData.fire();
 	}
@@ -53,13 +53,13 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 
 		getProjectStructureData(context)
 			.then(data => {
-				this._data = data
+				this._data = data;
 				this._onDidChangeTreeData.fire();
 			})
 			.catch(err => {
-				console.error(err)
-				this._data = []
-			})
+				console.error(err);
+				this._data = [];
+			});
 	}
 
 	getTreeItem(element: ProjectExplorerEntry): vscode.TreeItem | Thenable<vscode.TreeItem> {
@@ -83,17 +83,21 @@ async function getProjectStructureData(context: vscode.ExtensionContext): Promis
 		: undefined;
 
 	if (rootPath === undefined) {
-		throw new Error("Error identifying workspace root")
+		vscode.commands.executeCommand('setContext', 'projectOpened', false);
+		throw new Error("Error identifying workspace root");
 	}
 
 	const langClient = (await MILanguageClient.getInstance(context)).languageClient;
 
 	if (!!langClient) {
-		const resp = await langClient.getProjectStructure(rootPath)
+		const resp = await langClient.getProjectStructure(rootPath);
+		if (resp) {
+			vscode.commands.executeCommand('setContext', 'projectOpened', true);
+		}
 		return generateTreeData(resp);
 	}
-
-	return []
+	vscode.commands.executeCommand('setContext', 'projectOpened', false);
+	return [];
 
 }
 
@@ -169,7 +173,7 @@ function generateTreeData(data: ProjectStructureResponse): ProjectExplorerEntry[
 
 
 					esbConfigs.children = esbConfigs.children ?? [];
-					if (parentEntry.children.length > 0) esbConfigs.children.push(parentEntry);
+					if (parentEntry.children.length > 0) { esbConfigs.children.push(parentEntry); }
 				}
 				projectRoot.children = projectRoot.children ?? [];
 				projectRoot.children.push(esbConfigs);
@@ -191,7 +195,7 @@ function generateTreeData(data: ProjectStructureResponse): ProjectExplorerEntry[
 				const children = genProjectStructureEntry(directoryMap[key]);
 				parentEntry.children = children;
 				projectRoot.children = projectRoot.children ?? [];
-				if (children.length > 0) projectRoot.children.push(parentEntry);
+				if (children.length > 0) { projectRoot.children.push(parentEntry); }
 			default:
 			// do none
 
@@ -212,9 +216,9 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 
 	for (const entry of data) {
 		let explorerEntry;
-		
+
 		if (entry.resources) {
-			const folderEntry = new ProjectExplorerEntry(entry.name.replace(".xml",""), isCollapsibleState(true), undefined, 'folder');
+			const folderEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(true), undefined, 'folder');
 
 			// Generate resource structure
 			const resourceFolder = new ProjectExplorerEntry(
@@ -223,16 +227,16 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				undefined,
 				'folder'
 			);
-			
+
 			const resources: ProjectExplorerEntry[] = [];
 
 			for (const resource of entry.resources) {
 				const resourceEntry: ProjectStructureEntry = {
 					...entry,
-					name : resource.uriTemplate,
-					type : 'resource'
-				}
-				resources.push(new ProjectExplorerEntry(resource.uriTemplate, isCollapsibleState(false), resourceEntry, 'code'))
+					name: resource.uriTemplate,
+					type: 'resource'
+				};
+				resources.push(new ProjectExplorerEntry(resource.uriTemplate, isCollapsibleState(false), resourceEntry, 'code'));
 			}
 
 			resourceFolder.children = resources;
@@ -240,14 +244,14 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 
 			// Generate API structure
 			const apiEntry = new ProjectExplorerEntry(entry.name, isCollapsibleState(false), entry, 'code');
-			
+
 			folderEntry.children = [apiEntry, resourceFolder];
 			explorerEntry = folderEntry;
-			
+
 		} else {
 			explorerEntry = new ProjectExplorerEntry(entry.name, isCollapsibleState(false), entry, 'code');
 		}
-		
+
 		result.push(explorerEntry);
 	}
 
