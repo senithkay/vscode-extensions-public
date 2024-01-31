@@ -22,7 +22,7 @@ namespace S {
         min-width: 100px;
         height: 50px;
         padding: 0 8px;
-        border: 3px solid ${Colors.OUTLINE_VARIANT};
+        border: 2px solid ${Colors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: ${Colors.SURFACE_BRIGHT};
         color: ${Colors.ON_SURFACE};
