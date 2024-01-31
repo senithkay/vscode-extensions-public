@@ -90,7 +90,6 @@ export function ProjectWizard() {
         }
         await rpcClient.getMiDiagramRpcClient().createProject(createProjectParams);
         console.log("Project created");
-        rpcClient.getMiDiagramRpcClient().closeWebView();
     };
 
     const handleCancel = () => {
