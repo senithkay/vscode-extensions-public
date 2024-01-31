@@ -17,6 +17,7 @@ import { generateEngine } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { MediatorNodeModel } from "./nodes/MediatorNode/MediatorNodeModel";
+import { sampleDiagram } from "../utils/sample";
 
 export interface DiagramProps {
     model: APIResource | Sequence;

@@ -12,33 +12,33 @@ import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodePortModel } from "../../NodePort/NodePortModel";
 import { getNodeIdFromModel } from "../../../utils/node";
 
-export class StartNodeModel extends NodeModel {
+export class EndpointNodeModel extends NodeModel {
     readonly stNode: STNode;
     protected port: NodePortModel;
 
     constructor(stNode: STNode) {
         super({
-            id: stNode.viewState?.id || getNodeIdFromModel(stNode, "start"),
-            type: "start-node",
+            id: stNode.viewState?.id || getNodeIdFromModel(stNode, "endpoint"),
+            type: "endpoint-node",
             locked: true,
         });
         this.stNode = stNode;
-        this.addOutPort("out");
+        this.addInPort("in");
     }
 
-    addOutPort(label: string): NodePortModel {
+    addInPort(label: string): NodePortModel {
         const port = new NodePortModel({
-            in: false,
-            name: "out",
+            in: true,
+            name: "in",
             label: label,
-            alignment: PortModelAlignment.BOTTOM,
+            alignment: PortModelAlignment.LEFT,
         });
         super.addPort(port);
         this.port = port;
         return port;
     }
 
-    getOutPort(): NodePortModel {
+    getInPort(): NodePortModel {
         return this.port;
     }
 }

@@ -7,15 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodeModel } from "@projectstorm/react-diagrams";
+import { NodeModel, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodePortModel } from "../../NodePort/NodePortModel";
 import { getNodeIdFromModel } from "../../../utils/node";
 
 export class MediatorNodeModel extends NodeModel {
     readonly stNode: STNode;
-    protected portsIn: NodePortModel[];
-    protected portsOut: NodePortModel[];
+    protected portIn: NodePortModel;
+    protected portOut: NodePortModel;
+    protected portRight: NodePortModel;
 
     constructor(stNode: STNode) {
         super({
@@ -24,22 +25,17 @@ export class MediatorNodeModel extends NodeModel {
             locked: true,
         });
         this.stNode = stNode;
-        this.portsIn = [];
-        this.portsOut = [];
         this.addInPort("in");
         this.addOutPort("out");
+        this.addRightPort("right");
     }
 
     addPort<T extends NodePortModel>(port: T): T {
         super.addPort(port);
         if (port.getOptions().in) {
-            if (this.portsIn?.indexOf(port) === -1) {
-                this.portsIn.push(port);
-            }
+            this.portIn = port;
         } else {
-            if (this.portsOut?.indexOf(port) === -1) {
-                this.portsOut.push(port);
-            }
+            this.portOut = port;
         }
         return port;
     }
@@ -54,11 +50,27 @@ export class MediatorNodeModel extends NodeModel {
         return this.addPort(p);
     }
 
-    getInPorts(): NodePortModel[] {
-        return this.portsIn;
+    addRightPort(label: string): NodePortModel {
+        const p = new NodePortModel({
+            in: false,
+            name: "out-right",
+            label: label,
+            alignment: PortModelAlignment.RIGHT,
+        });
+        super.addPort(p);
+        this.portRight = p;
+        return p;
     }
 
-    getOutPorts(): NodePortModel[] {
-        return this.portsOut;
+    getInPort(): NodePortModel {
+        return this.portIn;
+    }
+
+    getOutPort(): NodePortModel {
+        return this.portOut;
+    }
+
+    getRightPort(): NodePortModel {
+        return this.portRight;
     }
 }

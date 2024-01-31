@@ -14,6 +14,7 @@ import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNode
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 import { createLink } from "./diagram";
 import { DiagramModel } from "@projectstorm/react-diagrams-core";
+import { EndpointNodeModel } from "../components/nodes/EndpointNode/EndpointNodeModel";
 
 // Test data
 export function sampleDiagram(model: APIResource | Sequence, diagramModel: DiagramModel) {
@@ -27,34 +28,26 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
     var node1 = new MediatorNodeModel(mediatorList[0]);
     node1.setPosition(100, 180);
 
-    var node3 = new ConditionNodeModel(mediatorList[1]);
-    node3.setPosition(100 + 60 - 28, 280);
+    var node2 = new ConditionNodeModel(mediatorList[1]);
+    node2.setPosition(100 + 60 - 28, 280);
 
-    var updatedMediator = mediatorList[2];
-    updatedMediator.viewState.id = "abc-node";
+    var node3 = new MediatorNodeModel(mediatorList[2]);
+    node3.setPosition(100, 400);
 
-    var node2 = new MediatorNodeModel(updatedMediator);
-    node2.setPosition(100, 400);
+    var nodeep = new EndpointNodeModel(mediatorList[3]);
+    nodeep.setPosition(400, 400);
 
     var nodeend = new EndNodeModel();
     nodeend.setPosition(100 + 60 - 12, 500);
 
     // create links
-    let portstart = nodestart.getOutPort();
-    let port0 = node1.getInPorts().at(0);
-    let linkstart = createLink(portstart, port0);
+    let linkstart = createLink(nodestart.getOutPort(), node1.getInPort());
+    var link1 = createLink(node1.getOutPort(), node2.getInPort());
+    var link2 = createLink(node2.getOutPort(), node3.getInPort());
+    var linkep = createLink(node3.getRightPort(), nodeep.getInPort());
+    var linkend = createLink(node3.getOutPort(), nodeend.getInPort());
 
-    let port1 = node1.getOutPorts().at(0);
-    let port4 = node3.getInPorts().at(0);
-    let link1 = createLink(port1, port4);
+    diagramModel.addAll(nodestart, node1, node2, node3, nodeend, nodeep, linkstart, link1, link2, linkep, linkend);
 
-    let port5 = node3.getOutPorts().at(0);
-    let port2 = node2.getInPorts().at(0);
-    let link2 = createLink(port5, port2);
-
-    let port3 = node2.getOutPorts().at(0);
-    let portend = nodeend.getInPort();
-    let linkend = createLink(port3, portend);
-
-    diagramModel.addAll(nodestart, node1, node2, node3, nodeend, linkstart, link1, link2, linkend);
+    console.log("diagramModel", diagramModel);
 }

@@ -9,12 +9,16 @@
 
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 
-export function getNodeIdFromModel(model: STNode) {
+export function getNodeIdFromModel(model: STNode, prefix?: string) {
     if (model.viewState?.id) {
         return model.viewState.id;
     }
     if (model && model.tag && model.range) {
-        return `${model.tag}-${model.range.start.line}-${model.range.start.character}-${model.range.end.line}-${model.range.end.character}`;
+        const id = `${model.tag}-${model.range.start.line}-${model.range.start.character}-${model.range.end.line}-${model.range.end.character}`;
+        if (prefix) {
+            return `${prefix}-${id}`;
+        }
+        return id;
     }
     return null;
 }

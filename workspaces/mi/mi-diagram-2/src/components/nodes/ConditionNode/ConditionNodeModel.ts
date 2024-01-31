@@ -14,8 +14,8 @@ import { getNodeIdFromModel } from "../../../utils/node";
 
 export class ConditionNodeModel extends NodeModel {
     readonly stNode: STNode;
-    protected portsIn: NodePortModel[];
-    protected portsOut: NodePortModel[];
+    protected portIn: NodePortModel;
+    protected portOut: NodePortModel;
 
     constructor(stNode: STNode) {
         super({
@@ -24,8 +24,6 @@ export class ConditionNodeModel extends NodeModel {
             locked: true,
         });
         this.stNode = stNode;
-        this.portsIn = [];
-        this.portsOut = [];
         this.addInPort("in");
         this.addOutPort("out");
     }
@@ -33,13 +31,9 @@ export class ConditionNodeModel extends NodeModel {
     addPort<T extends NodePortModel>(port: T): T {
         super.addPort(port);
         if (port.getOptions().in) {
-            if (this.portsIn?.indexOf(port) === -1) {
-                this.portsIn.push(port);
-            }
+            this.portIn = port;
         } else {
-            if (this.portsOut?.indexOf(port) === -1) {
-                this.portsOut.push(port);
-            }
+            this.portOut = port;
         }
         return port;
     }
@@ -54,11 +48,11 @@ export class ConditionNodeModel extends NodeModel {
         return this.addPort(p);
     }
 
-    getInPorts(): NodePortModel[] {
-        return this.portsIn;
+    getInPort(): NodePortModel {
+        return this.portIn;
     }
 
-    getOutPorts(): NodePortModel[] {
-        return this.portsOut;
+    getOutPort(): NodePortModel {
+        return this.portOut;
     }
 }
