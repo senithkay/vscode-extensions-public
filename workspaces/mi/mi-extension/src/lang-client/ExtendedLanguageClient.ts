@@ -59,6 +59,15 @@ export interface LogSnippet {
     snippet: string;
 }
 
+export interface DidOpenParams {
+    textDocument: {
+        uri: string;
+        languageId: string;
+        text: string;
+        version: number;
+    };
+}
+
 export class ExtendedLanguageClient extends LanguageClient {
 
     async getSyntaxTree(req: GetSyntaxTreeParams): Promise<GetSyntaxTreeResponse> {
