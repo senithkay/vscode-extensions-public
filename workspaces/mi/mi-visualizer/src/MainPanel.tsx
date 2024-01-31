@@ -3,10 +3,11 @@ import { MachineStateValue, VisualizerLocation } from '@wso2-enterprise/mi-core'
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Overview } from './views/Overview';
 import { MIDiagram } from '@wso2-enterprise/mi-diagram';
-import { ServiceDesigner } from './views/ServiceDesigner';
+import { ServiceDesignerView } from './views/ServiceDesigner';
 import { APIWizard } from './views/Forms/APIform';
 import { EndpointWizard } from './views/Forms/EndpointForm';
 import { SequenceWizard } from './views/Forms/SequenceForm';
+import { NavigationBar } from './components/NavigationBar';
 
 
 const MainPanel = (props: { state: MachineStateValue }) => {
@@ -38,7 +39,7 @@ const MainPanel = (props: { state: MachineStateValue }) => {
             case "Diagram":
                 return <MIDiagram documentUri={machineView.documentUri} resource={machineView.identifier}/>
             case "ServiceDesigner":
-                return <ServiceDesigner />
+                return <ServiceDesignerView />
             case "APIForm":
                 return <APIWizard />
             case "EndPointForm":
@@ -52,6 +53,7 @@ const MainPanel = (props: { state: MachineStateValue }) => {
 
     return (
         <div>
+            <NavigationBar />
             {machineView && <OverviewComponent />}
         </div>
     );
