@@ -17,11 +17,25 @@ export class NodeFactoryVisitor implements Visitor {
     private parents: STNode[] = [];
     private skipChildrenVisit = false;
     private previousNodes: STNode[] = [];
+    private currentBranchName: string;
 
-    private createNode(node: STNode): void {
+    private createNodeAndLinks(node: STNode): void {
+        // create node
         const diagramNode = new MediatorNodeModel(node, this.parents[this.parents.length - 1], this.previousNodes);
         diagramNode.setPosition(node.viewState.x, node.viewState.y);
         this.nodes.push(diagramNode);
+
+        // create link
+        if (this.previousNodes != undefined) {
+            this.previousNodes.forEach((previousStNode) => {
+                const previousNodes: MediatorNodeModel[] = this.nodes.filter((node) => node.getStNode() == previousStNode);
+                previousNodes.forEach((previousNode) => {
+                    const link = this.createLink(previousNode, diagramNode);
+                    this.links.push(link);
+                });
+            });
+        }
+
         this.previousNodes = [node];
     }
 
@@ -30,51 +44,38 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     getLinks(): NodeLinkModel[] {
-        this.createLinks();
         return this.links;
     }
 
-    createLinks(): void {
-        for (let i = 0; i < this.nodes.length; i++) {
-            const previousStNodes = this.nodes[i].getPrevStNodes();
-            if (previousStNodes != undefined) {
-                previousStNodes.forEach((previousStNode) => {
-                    const previousNodes: MediatorNodeModel[] = this.nodes.filter((node) => node.getStNode() == previousStNode);
-                    previousNodes.forEach((previousNode) => {
-                        const link = this.createLink(previousNode, this.nodes[i]);
-                        this.links.push(link);
-                    });
-                });
-            }
-        }
-    }
-
     createLink(sourceNode: MediatorNodeModel, targetNode: MediatorNodeModel): NodeLinkModel {
-        const link = new NodeLinkModel();
+        const link = new NodeLinkModel(this.currentBranchName);
         link.setSourcePort(sourceNode.getPort("out"));
         link.setTargetPort(targetNode.getPort("in"));
         sourceNode.getPort("out").addLink(link);
+        this.currentBranchName = undefined;
         return link;
     }
 
-    beginVisitCall = (node: Call): void => this.createNode(node);
-    beginVisitCallout = (node: Callout): void => this.createNode(node);
-    beginVisitDrop = (node: Drop): void => this.createNode(node);
-    beginVisitEndpoint = (node: Endpoint): void => this.createNode(node);
-    beginVisitEndpointHttp = (node: EndpointHttp): void => this.createNode(node);
+    beginVisitCall = (node: Call): void => this.createNodeAndLinks(node);
+    beginVisitCallout = (node: Callout): void => this.createNodeAndLinks(node);
+    beginVisitDrop = (node: Drop): void => this.createNodeAndLinks(node);
+    beginVisitEndpoint = (node: Endpoint): void => this.createNodeAndLinks(node);
+    beginVisitEndpointHttp = (node: EndpointHttp): void => this.createNodeAndLinks(node);
 
     beginVisitFilter(node: Filter): void {
-        this.createNode(node)
+        this.createNodeAndLinks(node)
         this.parents.push(node);
 
         if (node.then && node.then.mediatorList && (node.then.mediatorList as any).length > 0) {
             this.previousNodes = [node];
+            this.currentBranchName = "Then";
             (node.then.mediatorList as any).forEach((childNode: STNode) => {
                 traversNode(childNode, this);
             });
         }
         if (node.else_ && node.else_.mediatorList && (node.else_.mediatorList as any).length > 0) {
             this.previousNodes = [node];
+            this.currentBranchName = "Else";
             (node.else_.mediatorList as any).forEach((childNode: STNode) => {
                 traversNode(childNode, this);
             });
@@ -94,7 +95,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.skipChildrenVisit = false;
     }
 
-    beginVisitHeader = (node: Header): void => this.createNode(node);
+    beginVisitHeader = (node: Header): void => this.createNodeAndLinks(node);
 
     beginVisitInSequence(node: Sequence): void {
         this.parents.push(node);
@@ -103,19 +104,19 @@ export class NodeFactoryVisitor implements Visitor {
         this.parents.pop();
     }
 
-    beginVisitLog = (node: Log): void => this.createNode(node);
-    beginVisitLoopback = (node: Loopback): void => this.createNode(node);
-    beginVisitPayloadFactory = (node: PayloadFactory): void => this.createNode(node);
-    beginVisitProperty = (node: Property): void => this.createNode(node);
-    beginVisitPropertyGroup = (node: PropertyGroup): void => this.createNode(node);
-    beginVisitRespond = (node: Respond): void => this.createNode(node);
-    beginVisitSend = (node: Send): void => this.createNode(node);
-    beginVisitSequence = (node: Sequence): void => this.createNode(node);
-    beginVisitStore = (node: Store): void => this.createNode(node);
-    beginVisitThrottle = (node: Throttle): void => this.createNode(node);
-    beginVisitValidate = (node: Validate): void => this.createNode(node);
-    beginVisitWithParam = (node: WithParam): void => this.createNode(node);
-    beginVisitCallTemplate = (node: CallTemplate): void => this.createNode(node);
+    beginVisitLog = (node: Log): void => this.createNodeAndLinks(node);
+    beginVisitLoopback = (node: Loopback): void => this.createNodeAndLinks(node);
+    beginVisitPayloadFactory = (node: PayloadFactory): void => this.createNodeAndLinks(node);
+    beginVisitProperty = (node: Property): void => this.createNodeAndLinks(node);
+    beginVisitPropertyGroup = (node: PropertyGroup): void => this.createNodeAndLinks(node);
+    beginVisitRespond = (node: Respond): void => this.createNodeAndLinks(node);
+    beginVisitSend = (node: Send): void => this.createNodeAndLinks(node);
+    beginVisitSequence = (node: Sequence): void => this.createNodeAndLinks(node);
+    beginVisitStore = (node: Store): void => this.createNodeAndLinks(node);
+    beginVisitThrottle = (node: Throttle): void => this.createNodeAndLinks(node);
+    beginVisitValidate = (node: Validate): void => this.createNodeAndLinks(node);
+    beginVisitWithParam = (node: WithParam): void => this.createNodeAndLinks(node);
+    beginVisitCallTemplate = (node: CallTemplate): void => this.createNodeAndLinks(node);
 
     skipChildren(): boolean {
         return this.skipChildrenVisit;
