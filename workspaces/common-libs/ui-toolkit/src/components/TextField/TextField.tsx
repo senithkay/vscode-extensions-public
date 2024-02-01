@@ -33,6 +33,7 @@ export interface TextFieldProps {
     validationMessage?: string;
     sx?: any;
     onChange?: (e: string) => void;
+    onBlur?: (e: string) => void;
 }
 
 interface ContainerProps {
@@ -51,7 +52,7 @@ const LabelContainer = styled.div<ContainerProps>`
 
 export function TextField(props: TextFieldProps) {
     const { label, type = "text", size = 20, disabled, icon, readonly, value = "", id, autoFocus, required, onChange,
-        placeholder, validationMessage, errorMsg, sx
+        onBlur, placeholder, validationMessage, errorMsg, sx
     } = props;
     const { iconComponent, position = "start" } = icon || {};
     const handleChange = (e: any) => {
@@ -68,6 +69,7 @@ export function TextField(props: TextFieldProps) {
                 validationMessage={validationMessage}
                 placeholder={placeholder}
                 onInput={handleChange}
+                onBlur={onBlur}
                 value={value}
                 id={id}
             >
