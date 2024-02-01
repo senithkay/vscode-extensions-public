@@ -49,17 +49,19 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
     node4.setPosition(x + conY, (y += gapY));
 
     var nodeend = new EndNodeModel();
-    nodeend.setPosition(x + 60 - 12, (y += gapY));
+    nodeend.setPosition(x + 60 - 12, (y += gapY + 10));
 
     // create links
-    let linkstart = createLink(nodestart.getOutPort(), node1.getInPort());
+    let linkstart = createLink(nodestart.getOutPort(), node1.getInPort(), {
+        onAddClick: () => console.log("onAddClick"),
+    });
     var link1 = createLink(node1.getOutPort(), node2.getInPort());
-    var linkep = createLink(node1.getRightPort(), nodeep.getInPort()); // endpoint link
-    var link2 = createLink(node2.getOutPort(), node3.getInPort(), "onAccept");
+    var linkep = createLink(node1.getRightPort(), nodeep.getInPort(), { showAddButton: false }); // endpoint link
+    var link2 = createLink(node2.getOutPort(), node3.getInPort(), { label: "onAccept" });
     var link3 = createLink(node3.getOutPort(), node4.getInPort());
-    var link4 = createLink(node2.getOutPort(), node5.getInPort(), "onReject");
-    var linkend = createLink(node4.getOutPort(), nodeend.getInPort());
-    var linkend2 = createLink(node5.getOutPort(), nodeend.getInPort());
+    var link4 = createLink(node2.getOutPort(), node5.getInPort(), { label: "onReject" });
+    var linkend = createLink(node4.getOutPort(), nodeend.getInPort(), { showAddButton: false });
+    var linkend2 = createLink(node5.getOutPort(), nodeend.getInPort(), { showAddButton: true });
 
     diagramModel.addAll(
         nodestart,

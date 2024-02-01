@@ -33,6 +33,7 @@ namespace S {
         border-radius: 10px;
         background-color: ${Colors.SURFACE_BRIGHT};
         color: ${Colors.ON_SURFACE};
+        cursor: pointer;
     `;
 
     export const Header = styled.div<{}>`

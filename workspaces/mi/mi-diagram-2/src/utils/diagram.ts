@@ -12,7 +12,7 @@ import { NodeLinkFactory } from "../components/NodeLink/NodeLinkFactory";
 import { NodePortFactory } from "../components/NodePort/NodePortFactory";
 import { StartNodeFactory } from "../components/nodes/StartNode/StartNodeFactory";
 import { EndNodeFactory } from "../components/nodes/EndNode/EndNodeFactory";
-import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
+import { NodeLinkModel, NodeLinkModelOptions } from "../components/NodeLink/NodeLinkModel";
 import { NodePortModel } from "../components/NodePort/NodePortModel";
 import { ConditionNodeFactory } from "../components/nodes/ConditionNode/ConditionNodeFactory";
 import { EndpointNodeFactory } from "../components/nodes/EndpointNode/EndpointNodeFactory";
@@ -32,8 +32,8 @@ export function generateEngine(): DiagramEngine {
     return engine;
 }
 
-export function createLink(sourcePort: NodePortModel, targetPort: NodePortModel, label?: string) {
-    const link = new NodeLinkModel(label);
+export function createLink(sourcePort: NodePortModel, targetPort: NodePortModel, options?: NodeLinkModelOptions) {
+    const link = new NodeLinkModel(options);
     link.setSourcePort(sourcePort);
     link.setTargetPort(targetPort);
     sourcePort.addLink(link);
