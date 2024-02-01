@@ -32,8 +32,8 @@ export function generateEngine(): DiagramEngine {
     return engine;
 }
 
-export function createLink(sourcePort: NodePortModel, targetPort: NodePortModel) {
-    const link = new NodeLinkModel();
+export function createLink(sourcePort: NodePortModel, targetPort: NodePortModel, label?: string) {
+    const link = new NodeLinkModel(label);
     link.setSourcePort(sourcePort);
     link.setTargetPort(targetPort);
     sourcePort.addLink(link);

@@ -40,7 +40,7 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
     node2.setPosition(x + 60 - 28, (y += gapY));
 
     var node3 = new MediatorNodeModel(mediatorList[2]);
-    node3.setPosition(x + conY, (y += gapY));
+    node3.setPosition(x + conY, (y += gapY + 50));
 
     var node5 = new MediatorNodeModel(mediatorList[6]);
     node5.setPosition(x - conY, y);
@@ -55,9 +55,9 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
     let linkstart = createLink(nodestart.getOutPort(), node1.getInPort());
     var link1 = createLink(node1.getOutPort(), node2.getInPort());
     var linkep = createLink(node1.getRightPort(), nodeep.getInPort()); // endpoint link
-    var link2 = createLink(node2.getOutPort(), node3.getInPort());
+    var link2 = createLink(node2.getOutPort(), node3.getInPort(), "onAccept");
     var link3 = createLink(node3.getOutPort(), node4.getInPort());
-    var link4 = createLink(node2.getOutPort(), node5.getInPort());
+    var link4 = createLink(node2.getOutPort(), node5.getInPort(), "onReject");
     var linkend = createLink(node4.getOutPort(), nodeend.getInPort());
     var linkend2 = createLink(node5.getOutPort(), nodeend.getInPort());
 

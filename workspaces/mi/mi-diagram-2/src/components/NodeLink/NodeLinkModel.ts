@@ -10,8 +10,13 @@
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
 import { Colors } from "../../resources/constants";
 
+export const LINK_BOTTOM_OFFSET = 30;
+
 export class NodeLinkModel extends DefaultLinkModel {
-    constructor() {
+    label: string;
+    linkBottomOffset: number;
+
+    constructor(label?: string) {
         super({
             type: "node-link",
             width: 10,
@@ -19,12 +24,19 @@ export class NodeLinkModel extends DefaultLinkModel {
             selectedColor: Colors.SECONDARY,
             curvyness: 0,
         });
+        if (label) {
+            this.label = label;
+            this.linkBottomOffset = LINK_BOTTOM_OFFSET + 40;
+        } else {
+            this.linkBottomOffset = LINK_BOTTOM_OFFSET;
+        }
     }
 
     getSVGPath(): string {
         if (this.points.length == 2) {
             let source = this.getFirstPoint().getPosition();
             let target = this.getLastPoint().getPosition();
+
             // is lines are straight?
             let tolerance = 10;
             let isStraight = Math.abs(source.y - target.y) <= tolerance || Math.abs(source.x - target.x) <= tolerance;
@@ -35,24 +47,55 @@ export class NodeLinkModel extends DefaultLinkModel {
             }
 
             // generate 2 angle lines
-            let bottomOffset = 30;
             let curveOffset = 10;
             // is the target on the right?
             let isRight = source.x < target.x;
 
             let path = `M ${source.x} ${source.y} `;
-            path += `L ${source.x} ${target.y - bottomOffset - curveOffset} `;
+            path += `L ${source.x} ${target.y - this.linkBottomOffset - curveOffset} `;
             if (isRight) {
-                path += `A ${curveOffset},${curveOffset} 0 0 0 ${source.x + curveOffset},${target.y - bottomOffset} `;
-                path += `L ${target.x - curveOffset} ${target.y - bottomOffset} `;
-                path += `A ${curveOffset},${curveOffset} 0 0 1 ${target.x},${target.y - bottomOffset + curveOffset} `;
+                path += `A ${curveOffset},${curveOffset} 0 0 0 ${source.x + curveOffset},${
+                    target.y - this.linkBottomOffset
+                } `;
+                path += `L ${target.x - curveOffset} ${target.y - this.linkBottomOffset} `;
+                path += `A ${curveOffset},${curveOffset} 0 0 1 ${target.x},${
+                    target.y - this.linkBottomOffset + curveOffset
+                } `;
             } else {
-                path += `A ${curveOffset},${curveOffset} 0 0 1 ${source.x - curveOffset},${target.y - bottomOffset} `;
-                path += `L ${target.x + curveOffset} ${target.y - bottomOffset} `;
-                path += `A ${curveOffset},${curveOffset} 0 0 0 ${target.x},${target.y - bottomOffset + curveOffset} `;
+                path += `A ${curveOffset},${curveOffset} 0 0 1 ${source.x - curveOffset},${
+                    target.y - this.linkBottomOffset
+                } `;
+                path += `L ${target.x + curveOffset} ${target.y - this.linkBottomOffset} `;
+                path += `A ${curveOffset},${curveOffset} 0 0 0 ${target.x},${
+                    target.y - this.linkBottomOffset + curveOffset
+                } `;
             }
             path += `L ${target.x} ${target.y}`;
             return path;
+        }
+    }
+
+    // get label coordinates
+    getLabelPosition(): { x: number; y: number } {
+        if (this.points.length == 2) {
+            let source = this.getFirstPoint().getPosition();
+            let target = this.getLastPoint().getPosition();
+
+            // is lines are straight?
+            let tolerance = 10;
+            let isStraight = Math.abs(source.y - target.y) <= tolerance || Math.abs(source.x - target.x) <= tolerance;
+            if (isStraight) {
+                // is horizontal?
+                if (Math.abs(source.y - target.y) <= tolerance) {
+                    return { x: (source.x + target.x) / 2, y: source.y + 5 };
+                }
+                return { x: (source.x + target.x) / 2, y: (source.y + target.y) / 2 };
+            }
+
+            // generate for 2 angle lines
+            let x = target.x;
+            let y = target.y - this.linkBottomOffset / 2 + 4;
+            return { x: x, y: y };
         }
     }
 }

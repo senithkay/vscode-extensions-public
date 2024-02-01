@@ -29,8 +29,10 @@ interface CallNodeWidgetProps {
 
 export function ConditionNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine } = props;
+    const [isHovered, setIsHovered] = React.useState(false);
+
     return (
-        <S.Node>
+        <S.Node onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
             <PortWidget port={node.getPort("in")!} engine={engine} />
             <svg width="56" height="56" viewBox="0 0 56 56">
                 <rect
@@ -41,7 +43,7 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
                     rx="5"
                     ry="5"
                     fill={Colors.SURFACE_BRIGHT}
-                    stroke={Colors.OUTLINE_VARIANT}
+                    stroke={node.isSelected() ? Colors.SECONDARY : isHovered ? Colors.SECONDARY :Colors.OUTLINE_VARIANT}
                     strokeWidth={2}
                     transform="rotate(45 28 28)"
                 />
