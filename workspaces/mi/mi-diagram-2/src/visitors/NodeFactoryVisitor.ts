@@ -36,34 +36,24 @@ export class NodeFactoryVisitor implements Visitor {
 
     createLinks(): void {
         for (let i = 0; i < this.nodes.length; i++) {
-            const previousStNodes= this.nodes[i].getPrevStNodes();
+            const previousStNodes = this.nodes[i].getPrevStNodes();
             if (previousStNodes != undefined) {
                 previousStNodes.forEach((previousStNode) => {
-                    const previousNodes = this.nodes.filter((node) => node.getStNode() == previousStNode);
+                    const previousNodes: MediatorNodeModel[] = this.nodes.filter((node) => node.getStNode() == previousStNode);
                     previousNodes.forEach((previousNode) => {
                         const link = this.createLink(previousNode, this.nodes[i]);
                         this.links.push(link);
                     });
                 });
             }
-
-            // for (let j = i + 1; j < this.nodes.length; j++) {
-            //     if (this.nodes[i].getStNode() == this.nodes[j].getPrevStNode()) {
-            //         const link = this.createLink(this.nodes[i], this.nodes[j]);
-            //         this.links.push(link);
-            //         break;
-            //     }
-            // }
         }
     }
 
     createLink(sourceNode: MediatorNodeModel, targetNode: MediatorNodeModel): NodeLinkModel {
-        let link = sourceNode.getPort("out").link<NodeLinkModel>(targetNode.getPort("in")!);
-        // const link = new NodeLinkModel();
-        // link.setSourcePort(sourceNode.getPort("out"));
-        // link.setTargetPort(targetNode.getPort("in"));
-        // sourceNode.getPort("out").addLink(link);
-        // link.addLabel("test");
+        const link = new NodeLinkModel();
+        link.setSourcePort(sourceNode.getPort("out"));
+        link.setTargetPort(targetNode.getPort("in"));
+        sourceNode.getPort("out").addLink(link);
         return link;
     }
 
@@ -81,13 +71,13 @@ export class NodeFactoryVisitor implements Visitor {
             this.previousNodes = [node];
             (node.then.mediatorList as any).forEach((childNode: STNode) => {
                 traversNode(childNode, this);
-            }); 
+            });
         }
         if (node.else_ && node.else_.mediatorList && (node.else_.mediatorList as any).length > 0) {
             this.previousNodes = [node];
             (node.else_.mediatorList as any).forEach((childNode: STNode) => {
                 traversNode(childNode, this);
-            });   
+            });
         }
         this.skipChildrenVisit = true;
     }
@@ -96,10 +86,10 @@ export class NodeFactoryVisitor implements Visitor {
 
         this.previousNodes = [];
         if (node.then && node.then.mediatorList && (node.then.mediatorList as any).length > 0) {
-            this.previousNodes.push((node.then.mediatorList as any)[0]);      
+            this.previousNodes.push((node.then.mediatorList as any)[0]);
         }
         if (node.else_ && node.else_.mediatorList && (node.else_.mediatorList as any).length > 0) {
-            this.previousNodes.push((node.else_.mediatorList as any)[0]);      
+            this.previousNodes.push((node.else_.mediatorList as any)[0]);
         }
         this.skipChildrenVisit = false;
     }

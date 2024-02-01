@@ -37,15 +37,38 @@ export class PositionVisitor implements Visitor {
         this.position.y += NODE_GAP.Y + node.viewState.h;
     }
 
-    private setAdvancedMediatorPosition(node: STNode): void {
-        // if (this.skipChildrenVisit) return;
+    private setAdvancedMediatorPosition(node: STNode, subSequences: { [x: string]: any; }): void {
+        this.setBasicMediatorPosition(node);
+        let branchX = 0;
+        let branchY = this.position.y;
 
-        if (node.viewState == undefined) {
-            node.viewState = { x: 0, y: 0, w: 0, h: 0 };
+        this.position.x = node.viewState.x - node.viewState.w / 2;
+        for (const key in subSequences) {
+            const subSequence = subSequences[key as keyof typeof subSequences];
+            if (subSequence) {
+                const subSequenceMediatorList = subSequence.mediatorList as any as STNode[];
+                let subSequenceWidth = 0;
+                subSequenceMediatorList.forEach((childNode: STNode) => {
+                    traversNode(childNode, this);
+                    if (childNode.viewState) {
+                        subSequenceWidth = Math.max(subSequenceWidth, childNode.viewState.w);
+                    }
+                });
+                branchX = Math.max(branchX, subSequenceWidth);
+                branchY = Math.max(branchY, subSequenceMediatorList[subSequenceMediatorList.length - 1].viewState.y + subSequenceMediatorList[subSequenceMediatorList.length - 1].viewState.h);
+                this.position.x += NODE_GAP.BRANCH_X + branchX;
+                this.position.y = node.viewState.y + node.viewState.h + NODE_GAP.Y;
+            }
         }
-        node.viewState.x = this.position.x - (node.viewState.w / 2);
-        node.viewState.y = this.position.y;
-        this.position.y += NODE_GAP.Y + node.viewState.h;
+
+        // set filter node positions after traversing children
+        this.position.x = node.viewState.x + node.viewState.w / 2;
+        this.position.y = branchY + NODE_GAP.Y;
+        this.skipChildrenVisit = true;
+    }
+
+    private setSkipChildrenVisit(status: boolean): void {
+        this.skipChildrenVisit = status;
     }
 
     beginVisitCall = (node: Call): void => this.setBasicMediatorPosition(node);
@@ -54,43 +77,13 @@ export class PositionVisitor implements Visitor {
     beginVisitEndpoint = (node: Endpoint): void => this.setBasicMediatorPosition(node);
     beginVisitEndpointHttp = (node: EndpointHttp): void => this.setBasicMediatorPosition(node);
 
-    beginVisitFilter(node: Filter): void {
-        this.setAdvancedMediatorPosition(node);
-        let branchX = 0;
-        let branchY = this.position.y;
-
-        this.position.x = node.viewState.x - node.viewState.w/ 2;
-        if (node.then) {
-            const thenMediatorList = node.then.mediatorList as any as STNode[];
-            let thenMediatorsWidth = 0;
-            thenMediatorList.forEach((childNode: STNode) => {
-                traversNode(childNode, this);
-                if (childNode.viewState) {
-                    thenMediatorsWidth = Math.max(thenMediatorsWidth, childNode.viewState.w);
-                }
-            });
-            branchX = thenMediatorsWidth;
-            branchY = Math.max(branchY, thenMediatorList[thenMediatorList.length - 1].viewState.y + thenMediatorList[thenMediatorList.length - 1].viewState.h);
-        }
-        this.position.x += NODE_GAP.BRANCH_X + branchX;
-        this.position.y = node.viewState.y + node.viewState.h + NODE_GAP.Y;
-
-        if (node.else_) {
-            const elseMediatorList = node.else_.mediatorList as any as STNode[];
-            elseMediatorList.forEach((childNode: STNode) => {
-                traversNode(childNode, this);
-            });
-            branchY = Math.max(branchY, elseMediatorList[elseMediatorList.length - 1].viewState.y + elseMediatorList[elseMediatorList.length - 1].viewState.h);
-        }
-
-        // set filter node positions after traversing children
-        this.position.x = node.viewState.x + node.viewState.w / 2;
-        this.position.y = branchY + NODE_GAP.Y;
-        this.skipChildrenVisit = true;
+    beginVisitFilter = (node: Filter): void => {
+        this.setAdvancedMediatorPosition(node, {
+            then: node.then,
+            else: node.else_
+        });
     }
-    endVisitFilter(node: Filter): void {
-        this.skipChildrenVisit = false;
-    }
+    endVisitFilter = (node: Filter): void => this.setSkipChildrenVisit(false);
 
     beginVisitHeader = (node: Header): void => this.setBasicMediatorPosition(node);
     beginVisitLog = (node: Log): void => this.setBasicMediatorPosition(node);
@@ -102,8 +95,22 @@ export class PositionVisitor implements Visitor {
     beginVisitSend = (node: Send): void => this.setBasicMediatorPosition(node);
     beginVisitSequence = (node: Sequence): void => this.setBasicMediatorPosition(node);
     beginVisitStore = (node: Store): void => this.setBasicMediatorPosition(node);
-    beginVisitThrottle = (node: Throttle): void => this.setAdvancedMediatorPosition(node);
-    beginVisitValidate = (node: Validate): void => this.setAdvancedMediatorPosition(node);
+
+    beginVisitThrottle = (node: Throttle): void => {
+        this.setAdvancedMediatorPosition(node, {
+            onAccept: node.onAccept,
+            onReject: node.onReject
+        });
+    }
+    endVisitThrottle = (node: Throttle): void => this.setSkipChildrenVisit(false);
+
+    beginVisitValidate = (node: Validate): void => {
+        this.setAdvancedMediatorPosition(node, {
+            onFail: node.onFail
+        });
+    }
+    endVisitValidate = (node: Validate): void => this.setSkipChildrenVisit(false);
+
     beginVisitWithParam = (node: WithParam): void => this.setBasicMediatorPosition(node);
     beginVisitCallTemplate = (node: CallTemplate): void => this.setBasicMediatorPosition(node);
 
