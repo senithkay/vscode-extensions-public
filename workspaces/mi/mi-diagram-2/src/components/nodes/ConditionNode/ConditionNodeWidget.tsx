@@ -20,6 +20,7 @@ namespace S {
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
+        cursor: pointer;
     `;
 }
 

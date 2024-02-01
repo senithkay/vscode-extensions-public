@@ -7,7 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import React from "react";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { CodeIcon } from "../resources";
 
 export function getNodeIdFromModel(model: STNode, prefix?: string) {
     if (model.viewState?.id) {
