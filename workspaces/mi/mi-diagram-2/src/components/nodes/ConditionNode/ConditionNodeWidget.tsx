@@ -12,6 +12,7 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConditionNodeModel } from "./ConditionNodeModel";
 import { Colors } from "../../../resources/constants";
+import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 
 namespace S {
     export const Node = styled.div<{}>`
@@ -25,12 +26,26 @@ namespace S {
 interface CallNodeWidgetProps {
     node: ConditionNodeModel;
     engine: DiagramEngine;
+    onClick?: (node: STNode) => void;
 }
 
 export function ConditionNodeWidget(props: CallNodeWidgetProps) {
-    const { node, engine } = props;
+    const { node, engine, onClick } = props;
+    const [isHovered, setIsHovered] = React.useState(false);
+
+    const handleOnClick = () => {
+        if (onClick) {
+            console.log("Condition Node clicked", node.stNode);
+            onClick(node.stNode);
+        }
+    };
+
     return (
-        <S.Node>
+        <S.Node
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            onClick={handleOnClick}
+        >
             <PortWidget port={node.getPort("in")!} engine={engine} />
             <svg width="56" height="56" viewBox="0 0 56 56">
                 <rect
@@ -41,7 +56,9 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
                     rx="5"
                     ry="5"
                     fill={Colors.SURFACE_BRIGHT}
-                    stroke={Colors.OUTLINE_VARIANT}
+                    stroke={
+                        node.isSelected() ? Colors.SECONDARY : isHovered ? Colors.SECONDARY : Colors.OUTLINE_VARIANT
+                    }
                     strokeWidth={2}
                     transform="rotate(45 28 28)"
                 />

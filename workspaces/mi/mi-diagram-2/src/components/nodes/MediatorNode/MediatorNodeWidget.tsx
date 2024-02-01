@@ -12,9 +12,14 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { MediatorNodeModel } from "./MediatorNodeModel";
 import { Colors } from "../../../resources/constants";
+import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 
 namespace S {
-    export const Node = styled.div<{}>`
+    export type NodeStyleProp = {
+        selected: boolean;
+        hovered: boolean;
+    };
+    export const Node = styled.div<NodeStyleProp>`
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -22,10 +27,19 @@ namespace S {
         min-width: 100px;
         height: 50px;
         padding: 0 8px;
-        border: 2px solid ${Colors.OUTLINE_VARIANT};
+        border: 2px solid
+            ${(props: NodeStyleProp) =>
+                props.selected ? Colors.SECONDARY : props.hovered ? Colors.SECONDARY : Colors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: ${Colors.SURFACE_BRIGHT};
         color: ${Colors.ON_SURFACE};
+    `;
+
+    export const Header = styled.div<{}>`
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -40,17 +54,34 @@ namespace S {
 interface CallNodeWidgetProps {
     node: MediatorNodeModel;
     engine: DiagramEngine;
+    onClick?: (node: STNode) => void;
 }
 
 export function MediatorNodeWidget(props: CallNodeWidgetProps) {
-    const { node, engine } = props;
+    const { node, engine, onClick } = props;
+    const [isHovered, setIsHovered] = React.useState(false);
+
+    const handleOnClick = () => {
+        if (onClick) {
+            onClick(node.stNode);
+            console.log("Mediator Node clicked", node.stNode);
+        }
+    };
+
     return (
-        <S.Node>
+        <S.Node
+            selected={node.isSelected()}
+            hovered={isHovered}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            onClick={handleOnClick}
+        >
             <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
-            <div>
+            <S.Header>
                 <div>{/* icon here */}</div>
                 <div>{node.stNode.tag}</div>
-            </div>
+                <S.BottomPortWidget port={node.getPort("right")!} engine={engine} />
+            </S.Header>
             <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
         </S.Node>
     );
