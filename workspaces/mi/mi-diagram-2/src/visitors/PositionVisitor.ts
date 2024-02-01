@@ -8,11 +8,11 @@
  */
 
 import { STNode, Visitor, Log, WithParam, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState } from "@wso2-enterprise/mi-syntax-tree/src";
-import { NODE_GAP, START_NODE_WIDTH } from "./Constants";
+import { NODE_GAP } from "./Constants";
 
 export class PositionVisitor implements Visitor {
     private position = {
-        x: 0,
+        x: 100,
         y: 0
     };
     private nodes: STNode[] = [];
@@ -42,10 +42,30 @@ export class PositionVisitor implements Visitor {
         let branchX = 0;
         let branchY = this.position.y;
 
-        this.position.x = node.viewState.x - node.viewState.w / 2;
-        for (const key in subSequences) {
-            const subSequence = subSequences[key as keyof typeof subSequences];
-            if (subSequence) {
+        const centerX = node.viewState.x + (node.viewState.w / 2);
+        const noOfSubSequences = Object.keys(subSequences).length;
+
+        // calculate sequence widths
+        const sequenceWidths: number[] = [];
+        for (const i in subSequences) {
+            const subSequence = subSequences[i];
+            if (subSequence && subSequence.mediatorList && subSequence.mediatorList.length > 0) {
+                const subSequenceMediatorList = subSequence.mediatorList as any as STNode[];
+                let subSequenceWidth = 0;
+                subSequenceMediatorList.forEach((childNode: STNode) => {
+                    if (childNode.viewState) {
+                        subSequenceWidth = Math.max(subSequenceWidth, childNode.viewState.w);
+                    }
+                });
+                sequenceWidths.push(subSequenceWidth);
+            }
+        }
+
+        // set positions
+        this.position.x = centerX - (node.viewState.fw / noOfSubSequences) + (sequenceWidths[0] / noOfSubSequences);
+        for (let i = 0; i < Object.keys(subSequences).length; i++) {
+            const subSequence = subSequences[Object.keys(subSequences)[i]];
+            if (subSequence && subSequence.mediatorList && subSequence.mediatorList.length > 0) {
                 const subSequenceMediatorList = subSequence.mediatorList as any as STNode[];
                 let subSequenceWidth = 0;
                 subSequenceMediatorList.forEach((childNode: STNode) => {
@@ -56,7 +76,7 @@ export class PositionVisitor implements Visitor {
                 });
                 branchX = Math.max(branchX, subSequenceWidth);
                 branchY = Math.max(branchY, subSequenceMediatorList[subSequenceMediatorList.length - 1].viewState.y + subSequenceMediatorList[subSequenceMediatorList.length - 1].viewState.h);
-                this.position.x += NODE_GAP.BRANCH_X + branchX;
+                this.position.x += sequenceWidths[i + 1] + NODE_GAP.BRANCH_X;
                 this.position.y = node.viewState.y + node.viewState.h + NODE_GAP.Y;
             }
         }
