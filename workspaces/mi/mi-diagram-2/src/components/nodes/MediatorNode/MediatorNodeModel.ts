@@ -57,7 +57,7 @@ export class MediatorNodeModel extends NodeModel {
     addRightPort(label: string): NodePortModel {
         const p = new NodePortModel({
             in: false,
-            name: "out-right",
+            name: "right",
             label: label,
             alignment: PortModelAlignment.RIGHT,
         });

@@ -26,7 +26,7 @@ export class EndNodeModel extends NodeModel {
             in: true,
             name: "in",
             label: label,
-            alignment: PortModelAlignment.BOTTOM,
+            alignment: PortModelAlignment.TOP,
         });
         super.addPort(port);
         this.port = port;

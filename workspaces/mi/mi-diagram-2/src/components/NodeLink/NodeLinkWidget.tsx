@@ -18,6 +18,7 @@ interface NodeLinkWidgetProps {
 }
 
 export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) => {
+    const labelPosition = link.getLabelPosition();
     return (
         <g pointerEvents={"all"}>
             <path
@@ -29,6 +30,33 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 strokeWidth={2}
                 markerEnd={`url(#${link.getID()}-arrow-head)`}
             />
+            {link.label && (
+                <foreignObject x={labelPosition.x - 50} y={labelPosition.y - 20} width="100" height="100">
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                        }}
+                    >
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                borderRadius: "20px",
+                                border: `2px solid ${Colors.PRIMARY}`,
+                                backgroundColor: `${Colors.SURFACE_BRIGHT}`,
+                                padding: "2px 10px",
+                                boxSizing: "border-box",
+                                width: "fit-content",
+                            }}
+                        >
+                            <span style={{ color: Colors.PRIMARY, fontSize: "14px" }}>{link.label}</span>
+                        </div>
+                    </div>
+                </foreignObject>
+            )}
             <defs>
                 <marker
                     markerWidth="5"

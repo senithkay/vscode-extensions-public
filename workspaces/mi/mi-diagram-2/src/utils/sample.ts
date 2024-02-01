@@ -13,41 +13,72 @@ import { EndNodeModel } from "../components/nodes/EndNode/EndNodeModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 import { createLink } from "./diagram";
-import { DiagramModel } from "@projectstorm/react-diagrams-core";
+import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams-core";
 import { EndpointNodeModel } from "../components/nodes/EndpointNode/EndpointNodeModel";
 
 // Test data
-export function sampleDiagram(model: APIResource | Sequence, diagramModel: DiagramModel) {
+export function sampleDiagram(model: APIResource | Sequence, diagramModel: DiagramModel, engine: DiagramEngine) {
     var mediatorList = (model as APIResource).inSequence.mediatorList;
     console.log("mediatorList", mediatorList);
 
+    let x = 100;
+    let y = 100;
+    let gapY = 110;
+    let conY = 100;
+
     // create nodes
     var nodestart = new StartNodeModel((model as APIResource).inSequence);
-    nodestart.setPosition(100 + 60 - 12, 100);
+    nodestart.setPosition(x + 60 - 12, y);
 
     var node1 = new MediatorNodeModel(mediatorList[0]);
-    node1.setPosition(100, 180);
+    node1.setPosition(x, (y += gapY));
 
-    var node2 = new ConditionNodeModel(mediatorList[1]);
-    node2.setPosition(100 + 60 - 28, 280);
+    var nodeep = new EndpointNodeModel(mediatorList[3]); // endpoint node
+    nodeep.setPosition(400, y);
+
+    var node2 = new ConditionNodeModel(mediatorList[1]); // condition node
+    node2.setPosition(x + 60 - 28, (y += gapY));
 
     var node3 = new MediatorNodeModel(mediatorList[2]);
-    node3.setPosition(100, 400);
+    node3.setPosition(x + conY, (y += gapY + 50));
 
-    var nodeep = new EndpointNodeModel(mediatorList[3]);
-    nodeep.setPosition(400, 400);
+    var node5 = new MediatorNodeModel(mediatorList[6]);
+    node5.setPosition(x - conY, y);
+
+    var node4 = new MediatorNodeModel(mediatorList[4]);
+    node4.setPosition(x + conY, (y += gapY));
 
     var nodeend = new EndNodeModel();
-    nodeend.setPosition(100 + 60 - 12, 500);
+    nodeend.setPosition(x + 60 - 12, (y += gapY));
 
     // create links
     let linkstart = createLink(nodestart.getOutPort(), node1.getInPort());
     var link1 = createLink(node1.getOutPort(), node2.getInPort());
-    var link2 = createLink(node2.getOutPort(), node3.getInPort());
-    var linkep = createLink(node3.getRightPort(), nodeep.getInPort());
-    var linkend = createLink(node3.getOutPort(), nodeend.getInPort());
+    var linkep = createLink(node1.getRightPort(), nodeep.getInPort()); // endpoint link
+    var link2 = createLink(node2.getOutPort(), node3.getInPort(), "onAccept");
+    var link3 = createLink(node3.getOutPort(), node4.getInPort());
+    var link4 = createLink(node2.getOutPort(), node5.getInPort(), "onReject");
+    var linkend = createLink(node4.getOutPort(), nodeend.getInPort());
+    var linkend2 = createLink(node5.getOutPort(), nodeend.getInPort());
 
-    diagramModel.addAll(nodestart, node1, node2, node3, nodeend, nodeep, linkstart, link1, link2, linkep, linkend);
+    diagramModel.addAll(
+        nodestart,
+        node1,
+        node2,
+        node3,
+        node4,
+        node5,
+        nodeend,
+        nodeep,
+        linkstart,
+        link1,
+        link2,
+        link3,
+        link4,
+        linkep,
+        linkend,
+        linkend2
+    );
 
     console.log("diagramModel", diagramModel);
 }
