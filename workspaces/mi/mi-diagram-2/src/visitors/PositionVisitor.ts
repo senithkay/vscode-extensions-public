@@ -8,7 +8,7 @@
  */
 
 import { STNode, Visitor, Log, WithParam, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState } from "@wso2-enterprise/mi-syntax-tree/src";
-import { NODE_GAP } from "./Constants";
+import { NODE_GAP, START_NODE_WIDTH } from "./Constants";
 
 export class PositionVisitor implements Visitor {
     private position = {
@@ -86,6 +86,9 @@ export class PositionVisitor implements Visitor {
     endVisitFilter = (node: Filter): void => this.setSkipChildrenVisit(false);
 
     beginVisitHeader = (node: Header): void => this.setBasicMediatorPosition(node);
+    beginVisitInSequence = (node: Sequence): void => {
+        this.setBasicMediatorPosition(node);
+    }
     beginVisitLog = (node: Log): void => this.setBasicMediatorPosition(node);
     beginVisitLoopback = (node: Loopback): void => this.setBasicMediatorPosition(node);
     beginVisitPayloadFactory = (node: PayloadFactory): void => this.setBasicMediatorPosition(node);

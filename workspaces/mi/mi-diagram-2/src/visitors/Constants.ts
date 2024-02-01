@@ -15,5 +15,6 @@ export const NODE_GAP = {
     BRANCH_Y: 0
 };
 
-export const NODE_WIDTH = 100;
+export const NODE_WIDTH = 120;
 export const NODE_HEIGHT = 50;
+export const START_NODE_WIDTH = 24;
