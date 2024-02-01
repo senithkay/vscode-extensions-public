@@ -293,8 +293,18 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (!!rootPath) {
                 const langClient = StateMachine.context().langClient!;
                 const resp = await langClient.getProjectStructure(rootPath);
-                const endpoints = (resp.directoryMap.esbConfigs.endpoints).map((endpoint :any) => endpoint.name);
-                const sequences = (resp.directoryMap.esbConfigs.sequences).map((sequence :any) => sequence.name);
+
+                const endpoints = [];
+                const sequences = [];
+
+                for (const esbConfig of resp.directoryMap.esbConfigs) {
+                    for (const endpoint of esbConfig.esbConfigs.endpoints) {
+                        endpoints.push(endpoint.name);
+                    }
+                    for (const sequence of esbConfig.esbConfigs.sequences) {
+                        sequences.push(sequence.name);
+                    }
+                }
                 return [endpoints, sequences];
             }
 
@@ -423,7 +433,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 resolve({ path: "" });
             } else {
                 const parentDir = selectedDir[0].fsPath;
-                resolve({ path: parentDir});
+                resolve({ path: parentDir });
             }
         });
     }
