@@ -20,7 +20,7 @@ export class MediatorNodeModel extends NodeModel {
     readonly parentNode: STNode;
     readonly prevNodes: STNode[];
 
-    constructor(stNode: STNode, parentNode: STNode, prevNodes: STNode[] = []) {
+    constructor(stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode),
             type: "mediator-node",
