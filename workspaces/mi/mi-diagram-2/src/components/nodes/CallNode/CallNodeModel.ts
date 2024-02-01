@@ -12,13 +12,29 @@ import { STNode } from '@wso2-enterprise/mi-syntax-tree/src';
 
 export class CallNodeModel extends NodeModel {
     readonly stNode: STNode;
+    readonly parentNode: STNode;
+    readonly prevNodes: STNode[];
     
-    constructor(stNode: STNode) {
+    constructor(stNode: STNode, parentNode: STNode, prevNodes: STNode[] = []) {
         super({
             type: "call-node",
         });
         this.stNode = stNode;
+        this.parentNode = parentNode;
+        this.prevNodes = prevNodes;
         this.addPort(new DefaultPortModel({ in: true, name: 'in' }));
         this.addPort(new DefaultPortModel({ in: false, name: 'out' }));
+    }
+
+    getStNode(): STNode {
+        return this.stNode;
+    }
+
+    getParentStNode(): STNode {
+        return this.parentNode;
+    }
+
+    getPrevStNodes(): STNode[] {
+        return this.prevNodes;
     }
 }

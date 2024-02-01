@@ -20,7 +20,7 @@ export interface viewState {
     y: number;
     w: number;
     h: number;
-    parentId?: string;
+    fw?: number;
 }
 
 export interface Range {

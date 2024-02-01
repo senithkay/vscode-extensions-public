@@ -37,13 +37,15 @@ export function Diagram(props: DiagramProps) {
     const sizingVisitor = new SizingVisitor();
     traversNode(model, sizingVisitor);
     // run position visitor
-    const positionVisitor = new PositionVisitor();
+    const positionVisitor = new PositionVisitor(sizingVisitor.getSequenceWidth());
     traversNode(model, positionVisitor);
     // run node visitor
     const nodeVisitor = new NodeFactoryVisitor();
     traversNode(model, nodeVisitor);
     const nodes = nodeVisitor.getNodes();
+    const links = nodeVisitor.getLinks();
     console.log("nodes", nodes);
+    console.log("links", links);
 
     // add node edges
     // setup react diagram engine
@@ -52,7 +54,7 @@ export function Diagram(props: DiagramProps) {
     const drawDiagram = () => {
         const newDiagramModel = new DiagramModel();
 
-        newDiagramModel.addAll(...nodes);
+        newDiagramModel.addAll(...nodes, ...links);
 
         // Start sample code
         // var node1 = new DefaultNodeModel({

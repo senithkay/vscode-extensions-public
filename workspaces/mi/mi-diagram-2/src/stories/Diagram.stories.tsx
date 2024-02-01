@@ -7,850 +7,446 @@ const resourceModel: any = { // TODO: find and check APIResource model types and
     inSequence: {
         mediatorList: [
             {
-                endpoint: [
-                    {
-                        http: {
-                            enableSecAndEnableRMAndEnableAddressing: {
-                                suspendOnFailure: {
-                                    initialDuration: {
-                                        range: {
-                                            start: {
-                                                line: 9,
-                                                character: 28,
-                                            },
-                                            end: {
-                                                line: 9,
-                                                character: 65,
-                                            },
-                                        },
-                                        hasTextNode: true,
-                                        textNode: "-1",
-                                        selfClosed: false,
-                                        tag: "initialDuration",
-                                    },
-                                    progressionFactor: {
-                                        range: {
-                                            start: {
-                                                line: 10,
-                                                character: 28,
-                                            },
-                                            end: {
-                                                line: 10,
-                                                character: 69,
-                                            },
-                                        },
-                                        hasTextNode: true,
-                                        textNode: "-1",
-                                        selfClosed: false,
-                                        tag: "progressionFactor",
-                                    },
-                                    maximumDuration: {
-                                        range: {
-                                            start: {
-                                                line: 11,
-                                                character: 28,
-                                            },
-                                            end: {
-                                                line: 11,
-                                                character: 64,
-                                            },
-                                        },
-                                        hasTextNode: true,
-                                        textNode: "0",
-                                        selfClosed: false,
-                                        tag: "maximumDuration",
-                                    },
-                                    range: {
-                                        start: {
-                                            line: 8,
-                                            character: 24,
-                                        },
-                                        end: {
-                                            line: 12,
-                                            character: 43,
-                                        },
-                                    },
-                                    hasTextNode: false,
-                                    selfClosed: false,
-                                    tag: "suspendOnFailure",
-                                },
-                                markForSuspension: {
-                                    retriesBeforeSuspension: {
-                                        range: {
-                                            start: {
-                                                line: 14,
-                                                character: 28,
-                                            },
-                                            end: {
-                                                line: 14,
-                                                character: 80,
-                                            },
-                                        },
-                                        hasTextNode: true,
-                                        textNode: "0",
-                                        selfClosed: false,
-                                        tag: "retriesBeforeSuspension",
-                                    },
-                                    range: {
-                                        start: {
-                                            line: 13,
-                                            character: 24,
-                                        },
-                                        end: {
-                                            line: 15,
-                                            character: 44,
-                                        },
-                                    },
-                                    hasTextNode: false,
-                                    selfClosed: false,
-                                    tag: "markForSuspension",
-                                },
-                                hasTextNode: false,
-                                selfClosed: false,
-                            },
-                            method: "get",
-                            range: {
-                                start: {
-                                    line: 7,
-                                    character: 20,
-                                },
-                                end: {
-                                    line: 16,
-                                    character: 27,
-                                },
-                            },
-                            hasTextNode: false,
-                            selfClosed: false,
-                            tag: "http",
-                        },
-                        property: [],
-                        parameter: [],
-                        type: "HTTP_ENDPOINT",
-                        range: {
-                            start: {
-                                line: 6,
-                                character: 16,
-                            },
-                            end: {
-                                line: 17,
-                                character: 27,
-                            },
-                        },
-                        hasTextNode: false,
-                        selfClosed: false,
-                        tag: "endpoint",
-                    },
-                ],
-                buildmessage: false,
-                range: {
-                    start: {
-                        line: 5,
-                        character: 12,
-                    },
-                    end: {
-                        line: 18,
-                        character: 19,
-                    },
-                },
-                hasTextNode: false,
-                selfClosed: false,
-                tag: "send",
-            },
-            {
-                withParam: [
-                    {
-                        name: "testname1",
-                        value: "testvalue1",
-                        range: {
-                            start: {
-                                line: 20,
-                                character: 12,
-                            },
-                            end: {
-                                line: 20,
-                                character: 62,
-                            },
-                        },
-                        hasTextNode: false,
-                        selfClosed: true,
-                        tag: "with-param",
-                    },
-                ],
-                range: {
-                    start: {
-                        line: 19,
-                        character: 12,
-                    },
-                    end: {
-                        line: 21,
-                        character: 28,
-                    },
-                },
-                hasTextNode: false,
-                selfClosed: false,
-                tag: "call-template",
-            },
-            {
-                endpoint: {
-                    property: [],
-                    parameter: [],
-                    type: "NAMED_ENDPOINT",
-                    range: {
-                        start: {
-                            line: 23,
-                            character: 12,
-                        },
-                        end: {
-                            line: 27,
-                            character: 23,
-                        },
-                    },
-                    hasTextNode: false,
-                    selfClosed: false,
-                    tag: "endpoint",
-                },
-                blocking: false,
-                range: {
-                    start: {
-                        line: 22,
-                        character: 12,
-                    },
-                    end: {
-                        line: 28,
-                        character: 19,
-                    },
-                },
-                hasTextNode: false,
-                selfClosed: false,
-                tag: "call",
-            },
-            {
-                onAccept: {
-                    mediatorList: [
-                        {
-                            property: [],
-                            level: "simple",
-                            range: {
-                                start: {
-                                    line: 38,
-                                    character: 20,
-                                },
-                                end: {
-                                    line: 38,
-                                    character: 42,
-                                },
-                            },
-                            hasTextNode: false,
-                            selfClosed: true,
-                            tag: "log",
-                        },
-                        {
-                            property: [],
-                            level: "simple",
-                            range: {
-                                start: {
-                                    line: 39,
-                                    character: 20,
-                                },
-                                end: {
-                                    line: 39,
-                                    character: 42,
-                                },
-                            },
-                            hasTextNode: false,
-                            selfClosed: true,
-                            tag: "log",
-                        },
-                    ],
-                    range: {
-                        start: {
-                            line: 37,
-                            character: 16,
-                        },
-                        end: {
-                            line: 40,
-                            character: 27,
-                        },
-                    },
-                    hasTextNode: false,
-                    selfClosed: false,
-                    tag: "onAccept",
-                },
-                onReject: {
-                    mediatorList: [
-                        {
-                            property: [],
-                            level: "simple",
-                            range: {
-                                start: {
-                                    line: 32,
-                                    character: 20,
-                                },
-                                end: {
-                                    line: 32,
-                                    character: 42,
-                                },
-                            },
-                            hasTextNode: false,
-                            selfClosed: true,
-                            tag: "log",
-                        },
-                    ],
-                    range: {
-                        start: {
-                            line: 31,
-                            character: 16,
-                        },
-                        end: {
-                            line: 33,
-                            character: 27,
-                        },
-                    },
-                    hasTextNode: false,
-                    selfClosed: false,
-                    tag: "onReject",
-                },
-                id: "t1",
-                range: {
-                    start: {
-                        line: 30,
-                        character: 12,
-                    },
-                    end: {
-                        line: 41,
-                        character: 23,
-                    },
-                },
-                hasTextNode: false,
-                selfClosed: false,
-                tag: "throttle",
-            },
-            {
-                property: [
-                    {
-                        name: "name1",
-                        value: "value1",
-                        range: {
-                            start: {
-                                line: 43,
-                                character: 16,
-                            },
-                            end: {
-                                line: 43,
-                                character: 57,
-                            },
-                        },
-                        hasTextNode: false,
-                        selfClosed: true,
-                        tag: "property",
-                    },
-                ],
-                level: "simple",
-                category: "INFO",
-                range: {
-                    start: {
-                        line: 42,
-                        character: 12,
-                    },
-                    end: {
-                        line: 44,
-                        character: 18,
-                    },
-                },
-                hasTextNode: false,
-                selfClosed: false,
-                tag: "log",
-            },
-            {
                 property: [],
-                level: "simple",
                 range: {
                     start: {
-                        line: 45,
-                        character: 12,
+                        line: 4,
+                        character: 12
                     },
                     end: {
-                        line: 46,
-                        character: 18,
-                    },
-                },
-                hasTextNode: true,
-                textNode: "\n            ",
-                selfClosed: false,
-                tag: "log",
-            },
-            {
-                property: [],
-                level: "simple",
-                range: {
-                    start: {
-                        line: 47,
-                        character: 12,
-                    },
-                    end: {
-                        line: 47,
-                        character: 34,
-                    },
+                        line: 4,
+                        character: 18
+                    }
                 },
                 hasTextNode: false,
                 selfClosed: true,
-                tag: "log",
-            },
-            {
-                description: "something",
-                range: {
-                    start: {
-                        line: 48,
-                        character: 12,
-                    },
-                    end: {
-                        line: 48,
-                        character: 60,
-                    },
-                },
-                hasTextNode: false,
-                selfClosed: true,
-                tag: "store",
-            },
-            {
-                withParam: [],
-                range: {
-                    start: {
-                        line: 49,
-                        character: 12,
-                    },
-                    end: {
-                        line: 49,
-                        character: 38,
-                    },
-                },
-                hasTextNode: false,
-                selfClosed: true,
-                tag: "call-template",
-            },
-            {
-                source: {
-                    type: "property",
-                    range: {
-                        start: {
-                            line: 51,
-                            character: 16,
-                        },
-                        end: {
-                            line: 51,
-                            character: 64,
-                        },
-                    },
-                    hasTextNode: false,
-                    selfClosed: false,
-                    tag: "source",
-                },
-                target: {
-                    type: "body",
-                    range: {
-                        start: {
-                            line: 53,
-                            character: 16,
-                        },
-                        end: {
-                            line: 53,
-                            character: 45,
-                        },
-                    },
-                    hasTextNode: false,
-                    selfClosed: false,
-                    tag: "target",
-                },
-                blocking: false,
-                range: {
-                    start: {
-                        line: 50,
-                        character: 12,
-                    },
-                    end: {
-                        line: 54,
-                        character: 19,
-                    },
-                },
-                hasTextNode: false,
-                selfClosed: false,
-                tag: "call",
+                tag: "log"
             },
             {
                 scope: "default",
                 type: "STRING",
+                pattern: "stPattern",
                 group: 0,
+                description: "Read the phone number in the resource URL",
+                name: "phoneNumber",
+                value: "ccc",
                 range: {
                     start: {
-                        line: 55,
-                        character: 12,
+                        line: 5,
+                        character: 12
                     },
                     end: {
-                        line: 55,
-                        character: 70,
-                    },
+                        line: 5,
+                        character: 170
+                    }
                 },
                 hasTextNode: false,
                 selfClosed: true,
-                tag: "property",
+                tag: "property"
             },
             {
-                property: [],
-                range: {
-                    start: {
-                        line: 56,
-                        character: 12,
-                    },
-                    end: {
-                        line: 56,
-                        character: 28,
-                    },
-                },
-                hasTextNode: false,
-                selfClosed: true,
-                tag: "propertyGroup",
-            },
-            {
-                key: "Sequence",
-                range: {
-                    start: {
-                        line: 57,
-                        character: 12,
-                    },
-                    end: {
-                        line: 57,
-                        character: 38,
-                    },
-                },
-                hasTextNode: false,
-                selfClosed: true,
-                tag: "sequence",
-            },
-            {
-                target: {
-                    type: "property",
-                    range: {
-                        start: {
-                            line: 59,
-                            character: 16,
+                property: [
+                    {
+                        name: "PhoneNumber",
+                        expression: "$ctx:phoneNumber",
+                        range: {
+                            start: {
+                                line: 7,
+                                character: 16
+                            },
+                            end: {
+                                line: 7,
+                                character: 76
+                            }
                         },
-                        end: {
-                            line: 59,
-                            character: 41,
-                        },
-                    },
-                    hasTextNode: false,
-                    selfClosed: true,
-                    tag: "target",
-                },
-                blocking: false,
+                        hasTextNode: false,
+                        selfClosed: true,
+                        tag: "property"
+                    }
+                ],
+                level: "custom",
+                description: "Log the phone number",
                 range: {
                     start: {
-                        line: 58,
-                        character: 12,
+                        line: 6,
+                        character: 12
                     },
                     end: {
-                        line: 60,
-                        character: 19,
-                    },
+                        line: 8,
+                        character: 18
+                    }
                 },
                 hasTextNode: false,
                 selfClosed: false,
-                tag: "call",
+                tag: "log"
             },
             {
-                onAccept: {
+                then: {
                     mediatorList: [
                         {
-                            property: [],
-                            level: "simple",
+                            endpoint: {
+                                http: {
+                                    enableSecAndEnableRMAndEnableAddressing: {
+                                        suspendOnFailure: {
+                                            initialDuration: {
+                                                range: {
+                                                    start: {
+                                                        line: 15,
+                                                        character: 36
+                                                    },
+                                                    end: {
+                                                        line: 15,
+                                                        character: 73
+                                                    }
+                                                },
+                                                hasTextNode: true,
+                                                textNode: "-1",
+                                                selfClosed: false,
+                                                tag: "initialDuration"
+                                            },
+                                            progressionFactor: {
+                                                range: {
+                                                    start: {
+                                                        line: 16,
+                                                        character: 36
+                                                    },
+                                                    end: {
+                                                        line: 16,
+                                                        character: 77
+                                                    }
+                                                },
+                                                hasTextNode: true,
+                                                textNode: "-1",
+                                                selfClosed: false,
+                                                tag: "progressionFactor"
+                                            },
+                                            maximumDuration: {
+                                                range: {
+                                                    start: {
+                                                        line: 17,
+                                                        character: 36
+                                                    },
+                                                    end: {
+                                                        line: 17,
+                                                        character: 72
+                                                    }
+                                                },
+                                                hasTextNode: true,
+                                                textNode: "0",
+                                                selfClosed: false,
+                                                tag: "maximumDuration"
+                                            },
+                                            range: {
+                                                start: {
+                                                    line: 14,
+                                                    character: 32
+                                                },
+                                                end: {
+                                                    line: 18,
+                                                    character: 51
+                                                }
+                                            },
+                                            hasTextNode: false,
+                                            selfClosed: false,
+                                            tag: "suspendOnFailure"
+                                        },
+                                        markForSuspension: {
+                                            retriesBeforeSuspension: {
+                                                range: {
+                                                    start: {
+                                                        line: 20,
+                                                        character: 36
+                                                    },
+                                                    end: {
+                                                        line: 20,
+                                                        character: 88
+                                                    }
+                                                },
+                                                hasTextNode: true,
+                                                textNode: "0",
+                                                selfClosed: false,
+                                                tag: "retriesBeforeSuspension"
+                                            },
+                                            range: {
+                                                start: {
+                                                    line: 19,
+                                                    character: 32
+                                                },
+                                                end: {
+                                                    line: 21,
+                                                    character: 52
+                                                }
+                                            },
+                                            hasTextNode: false,
+                                            selfClosed: false,
+                                            tag: "markForSuspension"
+                                        },
+                                        hasTextNode: false,
+                                        selfClosed: false
+                                    },
+                                    method: "get",
+                                    range: {
+                                        start: {
+                                            line: 13,
+                                            character: 28
+                                        },
+                                        end: {
+                                            line: 22,
+                                            character: 35
+                                        }
+                                    },
+                                    hasTextNode: false,
+                                    selfClosed: false,
+                                    tag: "http"
+                                },
+                                property: [],
+                                parameter: [],
+                                type: "HTTP_ENDPOINT",
+                                range: {
+                                    start: {
+                                        line: 12,
+                                        character: 24
+                                    },
+                                    end: {
+                                        line: 23,
+                                        character: 35
+                                    }
+                                },
+                                hasTextNode: false,
+                                selfClosed: false,
+                                tag: "endpoint"
+                            },
+                            blocking: false,
+                            description: "Send request to endpoint",
                             range: {
                                 start: {
-                                    line: 66,
-                                    character: 20,
+                                    line: 11,
+                                    character: 20
                                 },
                                 end: {
-                                    line: 66,
-                                    character: 42,
-                                },
+                                    line: 24,
+                                    character: 27
+                                }
                             },
                             hasTextNode: false,
-                            selfClosed: true,
-                            tag: "log",
-                        },
-                        {
-                            property: [],
-                            level: "simple",
-                            range: {
-                                start: {
-                                    line: 67,
-                                    character: 20,
-                                },
-                                end: {
-                                    line: 67,
-                                    character: 42,
-                                },
-                            },
-                            hasTextNode: false,
-                            selfClosed: true,
-                            tag: "log",
-                        },
+                            selfClosed: false,
+                            tag: "call"
+                        }
                     ],
                     range: {
                         start: {
-                            line: 65,
-                            character: 16,
+                            line: 10,
+                            character: 16
                         },
                         end: {
-                            line: 68,
-                            character: 27,
-                        },
+                            line: 25,
+                            character: 23
+                        }
                     },
                     hasTextNode: false,
                     selfClosed: false,
-                    tag: "onAccept",
+                    tag: "then"
                 },
-                onReject: {
+                else_: {
                     mediatorList: [
                         {
-                            property: [],
-                            level: "simple",
+                            format: {
+                                content: "<Message xmlns=\"\" >Invalid Phone Number</Message>",
+                                range: {
+                                    start: {
+                                        line: 28,
+                                        character: 24
+                                    },
+                                    end: {
+                                        line: 30,
+                                        character: 33
+                                    }
+                                },
+                                hasTextNode: false,
+                                selfClosed: false,
+                                tag: "format"
+                            },
+                            args: {
+                                arg: [
+                                    {
+                                        value: "default",
+                                        literal: false,
+                                        range: {
+                                            start: {
+                                                line: 32,
+                                                character: 28
+                                            },
+                                            end: {
+                                                line: 32,
+                                                character: 50
+                                            }
+                                        },
+                                        hasTextNode: false,
+                                        selfClosed: true,
+                                        tag: "arg"
+                                    },
+                                    {
+                                        evaluator: "xml",
+                                        expression: "s",
+                                        literal: false,
+                                        range: {
+                                            start: {
+                                                line: 33,
+                                                character: 28
+                                            },
+                                            end: {
+                                                line: 33,
+                                                character: 65
+                                            }
+                                        },
+                                        hasTextNode: false,
+                                        selfClosed: true,
+                                        tag: "arg"
+                                    }
+                                ],
+                                range: {
+                                    start: {
+                                        line: 31,
+                                        character: 24
+                                    },
+                                    end: {
+                                        line: 34,
+                                        character: 31
+                                    }
+                                },
+                                hasTextNode: false,
+                                selfClosed: false,
+                                tag: "args"
+                            },
+                            mediaType: "xml",
+                            description: "Create response payload for invalid phone numbers",
                             range: {
                                 start: {
-                                    line: 63,
-                                    character: 20,
+                                    line: 27,
+                                    character: 20
                                 },
                                 end: {
-                                    line: 63,
-                                    character: 42,
-                                },
+                                    line: 35,
+                                    character: 37
+                                }
                             },
                             hasTextNode: false,
-                            selfClosed: true,
-                            tag: "log",
-                        },
+                            selfClosed: false,
+                            tag: "payloadFactory"
+                        }
                     ],
                     range: {
                         start: {
-                            line: 62,
-                            character: 16,
+                            line: 26,
+                            character: 16
                         },
                         end: {
-                            line: 64,
-                            character: 27,
-                        },
+                            line: 36,
+                            character: 23
+                        }
                     },
                     hasTextNode: false,
                     selfClosed: false,
-                    tag: "onReject",
+                    tag: "else"
                 },
-                id: "t1",
+                xpath: "fn:string-length($ctx:phoneNumber) = 10",
+                description: "Check phone number has 10 digits",
                 range: {
                     start: {
-                        line: 61,
-                        character: 12,
+                        line: 9,
+                        character: 12
                     },
                     end: {
-                        line: 69,
-                        character: 23,
-                    },
+                        line: 37,
+                        character: 21
+                    }
                 },
                 hasTextNode: false,
                 selfClosed: false,
-                tag: "throttle",
+                tag: "filter"
             },
             {
-                initAxis2ClientOptions: false,
+                description: "Send response back to the client",
                 range: {
                     start: {
-                        line: 70,
-                        character: 12,
+                        line: 38,
+                        character: 12
                     },
                     end: {
-                        line: 70,
-                        character: 128,
-                    },
+                        line: 38,
+                        character: 69
+                    }
                 },
                 hasTextNode: false,
                 selfClosed: true,
-                tag: "callout",
-            },
-            {
-                scope: "default",
-                range: {
-                    start: {
-                        line: 71,
-                        character: 12,
-                    },
-                    end: {
-                        line: 71,
-                        character: 92,
-                    },
-                },
-                hasTextNode: false,
-                selfClosed: true,
-                tag: "header",
-            },
-            {
-                property: [],
-                level: "simple",
-                range: {
-                    start: {
-                        line: 72,
-                        character: 12,
-                    },
-                    end: {
-                        line: 72,
-                        character: 34,
-                    },
-                },
-                hasTextNode: false,
-                selfClosed: true,
-                tag: "log",
-            },
-            {
-                range: {
-                    start: {
-                        line: 73,
-                        character: 12,
-                    },
-                    end: {
-                        line: 73,
-                        character: 19,
-                    },
-                },
-                hasTextNode: false,
-                selfClosed: true,
-                tag: "drop",
-            },
-            {
-                range: {
-                    start: {
-                        line: 74,
-                        character: 12,
-                    },
-                    end: {
-                        line: 74,
-                        character: 22,
-                    },
-                },
-                hasTextNode: false,
-                selfClosed: true,
-                tag: "respond",
-            },
-            {
-                range: {
-                    start: {
-                        line: 75,
-                        character: 12,
-                    },
-                    end: {
-                        line: 75,
-                        character: 23,
-                    },
-                },
-                hasTextNode: false,
-                selfClosed: true,
-                tag: "loopback",
-            },
+                tag: "respond"
+            }
         ],
         range: {
             start: {
                 line: 3,
-                character: 8,
+                character: 8
             },
             end: {
-                line: 76,
-                character: 21,
-            },
+                line: 39,
+                character: 21
+            }
         },
         hasTextNode: false,
         selfClosed: false,
-        tag: "inSequence",
+        tag: "inSequence"
     },
     outSequence: {
-        mediatorList: [
-            {
-                property: [],
-                level: "simple",
-                range: {
-                    start: {
-                        line: 78,
-                        character: 12,
-                    },
-                    end: {
-                        line: 78,
-                        character: 34,
-                    },
-                },
-                hasTextNode: false,
-                selfClosed: true,
-                tag: "log",
-            },
-            {
-                property: [],
-                level: "simple",
-                range: {
-                    start: {
-                        line: 79,
-                        character: 12,
-                    },
-                    end: {
-                        line: 79,
-                        character: 34,
-                    },
-                },
-                hasTextNode: false,
-                selfClosed: true,
-                tag: "log",
-            },
-            {
-                property: [],
-                level: "simple",
-                range: {
-                    start: {
-                        line: 80,
-                        character: 12,
-                    },
-                    end: {
-                        line: 80,
-                        character: 34,
-                    },
-                },
-                hasTextNode: false,
-                selfClosed: true,
-                tag: "log",
-            },
-        ],
+        mediatorList: [],
         range: {
             start: {
-                line: 77,
-                character: 8,
+                line: 40,
+                character: 8
             },
             end: {
-                line: 81,
-                character: 22,
+                line: 41,
+                character: 22
+            }
+        },
+        hasTextNode: true,
+        textNode: "\n        ",
+        selfClosed: false,
+        tag: "outSequence"
+    },
+    faultSequence: {
+        mediatorList: [],
+        range: {
+            start: {
+                line: 42,
+                character: 8
             },
+            end: {
+                line: 42,
+                character: 24
+            }
         },
         hasTextNode: false,
-        selfClosed: false,
-        tag: "outSequence",
+        selfClosed: true,
+        tag: "faultSequence"
     },
-    methods: ["GET"],
-    uriTemplate: "/resource",
+    methods: [
+        "GET"
+    ],
+    uriTemplate: "/validate/{phoneNumber}",
     range: {
         start: {
             line: 2,
-            character: 4,
+            character: 4
         },
         end: {
-            line: 82,
-            character: 15,
-        },
+            line: 43,
+            character: 15
+        }
     },
     hasTextNode: false,
     selfClosed: false,
-    tag: "APIResource",
+    tag: "resource"
+
 };
 
 export default {
