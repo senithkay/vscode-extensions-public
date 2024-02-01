@@ -17,14 +17,18 @@ export class MediatorNodeModel extends NodeModel {
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
     protected portRight: NodePortModel;
+    readonly parentNode: STNode;
+    readonly prevNodes: STNode[];
 
-    constructor(stNode: STNode) {
+    constructor(stNode: STNode, parentNode: STNode, prevNodes: STNode[] = []) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode),
             type: "mediator-node",
             locked: true,
         });
         this.stNode = stNode;
+        this.parentNode = parentNode;
+        this.prevNodes = prevNodes;
         this.addInPort("in");
         this.addOutPort("out");
         this.addRightPort("right");
@@ -72,5 +76,17 @@ export class MediatorNodeModel extends NodeModel {
 
     getRightPort(): NodePortModel {
         return this.portRight;
+    }
+
+    getStNode(): STNode {
+        return this.stNode;
+    }
+
+    getParentStNode(): STNode {
+        return this.parentNode;
+    }
+
+    getPrevStNodes(): STNode[] {
+        return this.prevNodes;
     }
 }
