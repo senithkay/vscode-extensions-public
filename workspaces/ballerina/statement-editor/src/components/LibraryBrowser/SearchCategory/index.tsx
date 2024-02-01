@@ -9,12 +9,13 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { List } from "@material-ui/core";
 import { ModuleProperty } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classNames from "classnames";
 
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 import { ModuleElement } from "../ModuleElement";
+import { Grid } from '@wso2-enterprise/ui-toolkit';
+import { SUGGESTION_COLUMN_SIZE } from '../../../constants';
 
 interface SearchCategoryProps {
     label: string,
@@ -36,7 +37,7 @@ export function SearchCategory(props: SearchCategoryProps) {
             >
                 {label}
             </div>
-            <List className={stmtEditorHelperClasses.libraryElementBlockContent} data-testid="library-element-block-content">
+            <Grid columns={SUGGESTION_COLUMN_SIZE} data-testid="library-element-block-content">
                 {searchResult.map((property: ModuleProperty, index: number) => (
                     <ModuleElement
                         moduleProperty={property}
@@ -45,7 +46,7 @@ export function SearchCategory(props: SearchCategoryProps) {
                         label={label}
                     />
                 ))}
-            </List>
+            </Grid>
             <div className={statementEditorClasses.separatorLine} />
         </div>
     );

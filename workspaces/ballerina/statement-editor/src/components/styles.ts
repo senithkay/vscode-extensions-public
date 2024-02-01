@@ -535,8 +535,8 @@ export const useStmtEditorHelperPanelStyles = () => ({
     }),
     libraryWrapper: css({
         height: 'calc(100vh - 335px)',
-        paddingLeft: '15px',
-        paddingRight: '25px',
+        marginTop: '15px',
+        padding: '0 15px 25px 15px',
         overflowY: 'scroll',
     }),
     libraryBrowser: css({

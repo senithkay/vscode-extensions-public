@@ -9,14 +9,13 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from 'react';
 
-import { Box, CircularProgress, ListItem, ListItemText } from "@material-ui/core";
+import { Box, CircularProgress } from "@material-ui/core";
 import {
     FunctionParams,
     LibraryDataResponse,
     LibraryFunction,
     ModuleProperty
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-// import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { PARAM_CONSTRUCTOR } from '../../../constants';
 import { InputEditorContext } from '../../../store/input-editor-context';
@@ -24,6 +23,7 @@ import { StatementEditorContext } from "../../../store/statement-editor-context"
 import { getModuleIconStyle } from "../../../utils";
 import { getFQModuleName, keywords } from "../../../utils/statement-modifications";
 import { useStmtEditorHelperPanelStyles } from "../../styles";
+import { GridItem, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 
 interface ModuleElementProps {
     moduleProperty: ModuleProperty,
@@ -94,24 +94,36 @@ export function ModuleElement(props: ModuleElementProps) {
     );
 
     return (
-        <ListItem
-            button={true}
+        <GridItem
             key={key}
+            id={key}
             onClick={onClickOnModuleElement}
-            className={stmtEditorHelperClasses.suggestionListItem}
-            disableRipple={true}
+            sx={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                maxWidth: '160px',
+                color: 'var(--foreground)'
+            }}
         >
-            <SuggestIcon
-                style={{ minWidth: '12%', textAlign: 'left', color }}
-            />
-            {/* <StatementEditorHint content={`${moduleId}:${id}`}> */}
-                <ListItemText
-                    primary={
-                        <div className={stmtEditorHelperClasses.suggestionValue}>{`${moduleId}:${id}`}</div>
-                    }
+            <div className={stmtEditorHelperClasses.suggestionListItem}>
+                <SuggestIcon
+                    style={{ minWidth: '12%', textAlign: 'left', margin: '2px 2px 0 0', color }}
                 />
-            {/* </StatementEditorHint> */}
-            {`${moduleId}:${id}` === clickedModuleElement && (circularProgress)}
-        </ListItem>
+                <Tooltip
+                    content={`${moduleId}:${id}`}
+                    position="bottom-end"
+                >
+                    <Typography
+                        variant="body3"
+                        className={stmtEditorHelperClasses.suggestionValue}
+                        data-testid="suggestion-value"
+                    >
+                        {`${moduleId}:${id}`}
+                    </Typography>
+                </Tooltip>
+                {`${moduleId}:${id}` === clickedModuleElement && (circularProgress)}
+            </div>
+        </GridItem>
     );
 }

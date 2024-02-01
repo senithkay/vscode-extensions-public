@@ -9,10 +9,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from 'react';
 
-import { ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
 import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { Icon } from "@wso2-enterprise/ui-toolkit";
-// import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { GridItem, Icon, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { useStmtEditorHelperPanelStyles } from "../../styles";
@@ -45,23 +43,33 @@ export function Library(props: LibraryProps) {
     }
 
     return (
-        <ListItem
-            button={true}
-            className={stmtEditorHelperClasses.suggestionListItem}
+        <GridItem
             key={key}
+            id={key}
             onClick={onClickOnLibrary}
-            disableRipple={true}
+            sx={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                maxWidth: '160px',
+                color: 'var(--foreground)'
+            }}
         >
-            <ListItemIcon style={{ minWidth: 'fit-content', textAlign: 'left', marginRight: '6.25px'}}>
-                <Icon name="module-icon" sx={{color: 'var(--vscode-icon-foreground)'}} />
-            </ListItemIcon>
-            {/* <StatementEditorHint content={id}> */}
-                <ListItemText
-                    primary={
-                        <div className={stmtEditorHelperClasses.suggestionValue}>{id}</div>
-                    }
-                />
-            {/* </StatementEditorHint> */}
-        </ListItem>
+            <div className={stmtEditorHelperClasses.suggestionListItem}>
+                <Icon name="module-icon" sx={{color: 'var(--vscode-icon-foreground)', margin: '2px 2px 0 0'}} />
+                <Tooltip
+                    content={id}
+                    position="bottom-end"
+                >
+                    <Typography
+                        variant="body3"
+                        className={stmtEditorHelperClasses.suggestionValue}
+                        data-testid={`library-item-${key}`}
+                    >
+                        {id}
+                    </Typography>
+                </Tooltip>
+            </div>
+        </GridItem>
     );
 }
