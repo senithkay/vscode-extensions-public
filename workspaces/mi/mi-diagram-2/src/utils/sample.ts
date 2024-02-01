@@ -15,6 +15,7 @@ import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 import { createLink } from "./diagram";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams-core";
 import { EndpointNodeModel } from "../components/nodes/EndpointNode/EndpointNodeModel";
+import { CallNodeModel } from "../components/nodes/CallNode/CallNodeModel";
 
 // Test data
 export function sampleDiagram(model: APIResource | Sequence, diagramModel: DiagramModel, engine: DiagramEngine) {
@@ -33,13 +34,10 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
     var node1 = new MediatorNodeModel(mediatorList[0]);
     node1.setPosition(x, (y += gapY));
 
-    var nodeep = new EndpointNodeModel(mediatorList[3]); // endpoint node
-    nodeep.setPosition(400, y);
-
     var node2 = new ConditionNodeModel(mediatorList[1]); // condition node
     node2.setPosition(x + 60 - 28, (y += gapY));
 
-    var node3 = new MediatorNodeModel(mediatorList[2]);
+    var node3 = new CallNodeModel(mediatorList[2]);
     node3.setPosition(x + conY, (y += gapY + 50));
 
     var node5 = new MediatorNodeModel(mediatorList[6]);
@@ -56,7 +54,6 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
         onAddClick: () => console.log("onAddClick"),
     });
     var link1 = createLink(node1.getOutPort(), node2.getInPort());
-    var linkep = createLink(node1.getRightPort(), nodeep.getInPort(), { showAddButton: false }); // endpoint link
     var link2 = createLink(node2.getOutPort(), node3.getInPort(), { label: "onAccept" });
     var link3 = createLink(node3.getOutPort(), node4.getInPort());
     var link4 = createLink(node2.getOutPort(), node5.getInPort(), { label: "onReject" });
@@ -71,13 +68,11 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
         node4,
         node5,
         nodeend,
-        nodeep,
         linkstart,
         link1,
         link2,
         link3,
         link4,
-        linkep,
         linkend,
         linkend2
     );

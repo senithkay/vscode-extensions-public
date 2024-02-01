@@ -12,7 +12,7 @@ import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodePortModel } from "../../NodePort/NodePortModel";
 import { getNodeIdFromModel } from "../../../utils/node";
 
-export class MediatorNodeModel extends NodeModel {
+export class CallNodeModel extends NodeModel {
     readonly stNode: STNode;
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
@@ -20,7 +20,7 @@ export class MediatorNodeModel extends NodeModel {
     constructor(stNode: STNode) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode),
-            type: "mediator-node",
+            type: "call-node",
             locked: true,
         });
         this.stNode = stNode;
