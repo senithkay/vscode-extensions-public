@@ -48,12 +48,12 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
             onClick={handleOnClick}
         >
             <PortWidget port={node.getPort("in")!} engine={engine} />
-            <svg width="56" height="56" viewBox="0 0 56 56" transform="rotate(180)">
+            <svg width="65" height="65" viewBox="0 0 70 70">
                 <rect
-                    x="8"
-                    y="8"
-                    width="40"
-                    height="40"
+                    x="12"
+                    y="2"
+                    width="50"
+                    height="50"
                     rx="5"
                     ry="5"
                     fill={Colors.SURFACE_BRIGHT}
@@ -63,12 +63,15 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
                     strokeWidth={2}
                     transform="rotate(45 28 28)"
                 />
-                <svg x="16" y="18" width="24" height="24" viewBox="0 0 24 24">
+                <svg x="20" y="30" width="30" height="30" viewBox="0 0 24 24">
                     <path
                         fill={Colors.ON_SURFACE}
+                        transform="rotate(180)"
+                        transform-origin="50% 50%"
                         d="m14.85 4.85l1.44 1.44l-2.88 2.88l1.42 1.42l2.88-2.88l1.44 1.44a.5.5 0 0 0 .85-.36V4.5c0-.28-.22-.5-.5-.5h-4.29a.5.5 0 0 0-.36.85M8.79 4H4.5c-.28 0-.5.22-.5.5v4.29c0 .45.54.67.85.35L6.29 7.7L11 12.4V19c0 .55.45 1 1 1s1-.45 1-1v-7c0-.26-.11-.52-.29-.71l-5-5.01l1.44-1.44c.31-.3.09-.84-.36-.84"
                     />
                 </svg>
+                <text x="20" y="30">{node.getStNode().tag}</text>
             </svg>
             <PortWidget port={node.getPort("out")!} engine={engine} />
         </S.Node>
