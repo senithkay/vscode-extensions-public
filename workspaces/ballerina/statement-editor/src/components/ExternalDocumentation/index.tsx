@@ -11,8 +11,8 @@ import React, { useContext } from "react";
 
 import {
     BallerinaConnectorInfo,
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+} from "@wso2-enterprise/ballerina-core";
+// import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import ToolbarDocumentationIcon from "../../assets/icons/ToolbarDocumentationIcon";
 import { StatementEditorContext } from "../../store/statement-editor-context";
@@ -39,16 +39,16 @@ export function DocumentationButton(props: DocButtonProps) {
     return (
         <div className={statementEditorClasses.docButton}>
             <ToolbarDocumentationIcon/>
-            <StatementEditorHint
-                content={"Refer Ballerina Docs"}
-            >
+            {/*<StatementEditorHint*/}
+            {/*    content={"Refer Ballerina Docs"}*/}
+            {/*>*/}
                 <div
                     onClick={openStatementEditorHelp}
                     className={statementEditorClasses.helpLink}
                 >
                     Docs
                 </div>
-            </StatementEditorHint>
+            {/*</StatementEditorHint>*/}
         </div>
     );
 }

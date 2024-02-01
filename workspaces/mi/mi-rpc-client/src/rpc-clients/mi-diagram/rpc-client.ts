@@ -21,19 +21,25 @@ import {
     CreateAPIResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
+    CreateProjectRequest,
+    CreateProjectResponse,
     CreateSequenceRequest,
     CreateSequenceResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     MiDiagramAPI,
     OpenDiagramRequest,
+    ProjectDirResponse,
+    ProjectRootResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
     applyEdit,
+    askProjectDirPath,
     closeWebView,
     closeWebViewNotification,
     createAPI,
     createEndpoint,
+    createProject,
     createSequence,
     executeCommand,
     getAPIDirectory,
@@ -41,6 +47,7 @@ import {
     getConnectors,
     getEndpointDirectory,
     getEndpointsAndSequences,
+    getProjectRoot,
     getSTRequest,
     getSTResponse,
     getSequenceDirectory,
@@ -130,5 +137,17 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     closeWebViewNotification(): void {
         return this._messenger.sendNotification(closeWebViewNotification, HOST_EXTENSION);
+    }
+
+    getProjectRoot(): Promise<ProjectRootResponse> {
+        return this._messenger.sendRequest(getProjectRoot, HOST_EXTENSION);
+    }
+
+    askProjectDirPath(): Promise<ProjectDirResponse> {
+        return this._messenger.sendRequest(askProjectDirPath, HOST_EXTENSION);
+    }
+
+    createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {
+        return this._messenger.sendRequest(createProject, HOST_EXTENSION, params);
     }
 }

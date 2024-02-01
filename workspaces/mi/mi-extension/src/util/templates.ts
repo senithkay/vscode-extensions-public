@@ -1,0 +1,383 @@
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+export const projectFileContent = (projectName: string) => `<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>${projectName}</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+	</buildSpec>
+	<natures>
+		<nature>org.wso2.developerstudio.eclipse.mavenmultimodule.project.nature</nature>
+	</natures>
+</projectDescription>`;
+
+export const rootPomXmlContent = (projectName: string) => `<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.example</groupId>
+  <artifactId>${projectName}</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>${projectName}</name>
+  <description>${projectName}</description>
+  <modules>
+    <module>${projectName}</module>
+    <module>${projectName}</module>
+  </modules>
+  <scm>
+    <connection>scm:git:https://github.com/username/repository.git</connection>
+    <developerConnection>scm:git:https://github.com/username/repository.git</developerConnection>
+    <url>https://github.com/username/repository.git</url>
+  </scm>
+  <distributionManagement>
+    <repository>
+      <id>release</id>
+      <name>Release Distribution Repository</name>
+      <url>https://example.com/nexus/repository</url>
+    </repository>
+  </distributionManagement>
+  <properties>
+    <project.scm.id>integration-project</project.scm.id>
+  </properties>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>3.0.0-M1</version>
+        <configuration />
+      </plugin>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>3.0.0-M1</version>
+        <configuration />
+      </plugin>
+      <plugin>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <version>2.9</version>
+        <configuration>
+          <projectnatures>
+            <projectnature>org.wso2.developerstudio.eclipse.mavenmultimodule.project.nature</projectnature>
+          </projectnatures>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <profiles>
+    <profile>
+      <id>Solution</id>
+      <build />
+    </profile>
+    <profile>
+      <id>Docker</id>
+      <build />
+    </profile>
+    <profile>
+      <id>Kubernetes</id>
+      <build />
+    </profile>
+    <profile>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build />
+    </profile>
+  </profiles>
+</project>`;
+
+export const compositeProjectContent = (projectName: string) => `<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>${projectName}CompositeExporter</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+	</buildSpec>
+	<natures>
+		<nature>org.wso2.developerstudio.eclipse.distribution.project.nature</nature>
+	</natures>
+</projectDescription>`
+
+export const compositePomXmlContent = (projectName: string, directory: string) => `<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.example</groupId>
+    <artifactId>${projectName}</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  <groupId>com.example</groupId>
+  <artifactId>${projectName}CompositeExporter</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>carbon/application</packaging>
+  <name>${projectName}CompositeExporter</name>
+  <description>${projectName}CompositeExporter</description>
+  <properties>
+    <artifact.types>jaggery/app=zip,synapse/priority-executor=xml,synapse/inbound-endpoint=xml,service/rule=aar,synapse/message-store=xml,event/stream=json,service/meta=xml,datasource/datasource=xml,synapse/proxy-service=xml,bpel/workflow=zip,synapse/sequence=xml,synapse/endpointTemplate=xml,carbon/application=car,wso2/gadget=dar,synapse/api=xml,synapse/event-source=xml,synapse/message-processors=xml,event/receiver=xml,lib/dataservice/validator=jar,synapse/template=xml,synapse/endpoint=xml,lib/carbon/ui=jar,lib/synapse/mediator=jar,synapse/metadata=yaml,event/publisher=xml,synapse/local-entry=xml,synapse/task=xml,webapp/jaxws=war,registry/resource=zip,synapse/configuration=xml,service/axis2=aar,synapse/lib=zip,synapse/sequenceTemplate=xml,event/execution-plan=siddhiql,service/dataservice=dbs,web/application=war,lib/library/bundle=jar</artifact.types>
+  </properties>
+  <repositories>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>daily</updatePolicy>
+        <checksumPolicy>ignore</checksumPolicy>
+      </releases>
+      <id>wso2-nexus</id>
+      <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+    </repository>
+    <repository>
+      <id>wso2-maven2-repository-1</id>
+      <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+    </repository>
+    <repository>
+      <id>wso2-nexus-repository-1</id>
+      <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>daily</updatePolicy>
+        <checksumPolicy>ignore</checksumPolicy>
+      </releases>
+      <id>wso2-nexus</id>
+      <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>wso2-maven2-repository-1</id>
+      <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>wso2-nexus-repository-1</id>
+      <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+    </pluginRepository>
+  </pluginRepositories>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <version>2.9</version>
+        <configuration>
+          <buildcommands />
+          <projectnatures>
+            <projectnature>org.wso2.developerstudio.eclipse.distribution.project.nature</projectnature>
+          </projectnatures>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.wso2.maven</groupId>
+        <artifactId>maven-car-plugin</artifactId>
+        <version>5.2.42</version>
+        <extensions>true</extensions>
+        <executions>
+          <execution>
+            <id>car</id>
+            <phase>package</phase>
+            <goals>
+              <goal>car</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>com.sun.activation</groupId>
+            <artifactId>javax.activation</artifactId>
+            <version>1.2.0</version>
+          </dependency>
+        </dependencies>
+        <configuration />
+      </plugin>
+      <plugin>
+        <groupId>org.wso2.maven</groupId>
+        <artifactId>maven-car-deploy-plugin</artifactId>
+        <version>5.2.42</version>
+        <extensions>true</extensions>
+        <dependencies>
+          <dependency>
+            <groupId>com.sun.activation</groupId>
+            <artifactId>javax.activation</artifactId>
+            <version>1.2.0</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <carbonServers>
+            <CarbonServer>
+              <trustStorePath>${directory}/${projectName}Configs/src/main/resources/security/wso2carbon.jks</trustStorePath>
+              <trustStorePassword>wso2carbon</trustStorePassword>
+              <trustStoreType>JKS</trustStoreType>
+              <serverUrl>https://localhost:9443</serverUrl>
+              <userName>admin</userName>
+              <password>admin</password>
+              <operation>deploy</operation>
+            </CarbonServer>
+          </carbonServers>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>`;
+
+export const artifactsContent = () => `<?xml version="1.0" encoding="UTF-8"?><artifacts/>`;
+
+export const configsProjectContent = (projectName: string) => `<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>${projectName}Configs</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+	</buildSpec>
+	<natures>
+		<nature>org.wso2.developerstudio.eclipse.esb.project.nature</nature>
+	</natures>
+</projectDescription>`
+
+export const configsPomXmlContent = (projectName: string, directory: string) => `<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.example</groupId>
+    <artifactId>${projectName}</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  <groupId>com.example</groupId>
+  <artifactId>${projectName}Configs</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>${projectName}Configs</name>
+  <description>${projectName}Configs</description>
+  <properties>
+    <maven.test.skip>false</maven.test.skip>
+    <CApp.type>bpel/workflow=zip,lib/registry/filter=jar,webapp/jaxws=war,lib/library/bundle=jar,service/dataservice=dbs,synapse/local-entry=xml,synapse/proxy-service=xml,carbon/application=car,registry/resource=zip,lib/dataservice/validator=jar,synapse/endpoint=xml,web/application=war,lib/carbon/ui=jar,service/axis2=aar,synapse/sequence=xml,synapse/configuration=xml,wso2/gadget=dar,lib/registry/handlers=jar,lib/synapse/mediator=jar,synapse/task=xml,synapse/api=xml,synapse/template=xml,synapse/message-store=xml,synapse/message-processors=xml,synapse/inbound-endpoint=xml,synapse/metadata=yaml</CApp.type>
+  </properties>
+  <repositories>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>daily</updatePolicy>
+        <checksumPolicy>ignore</checksumPolicy>
+      </releases>
+      <id>wso2-nexus</id>
+      <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>daily</updatePolicy>
+        <checksumPolicy>ignore</checksumPolicy>
+      </releases>
+      <id>wso2-nexus</id>
+      <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+    </pluginRepository>
+  </pluginRepositories>
+  <build>
+    <directory>target/capp</directory>
+    <plugins>
+      <!-- ... (existing plugins) ... -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.4.0</version>
+        <extensions>true</extensions>
+        <executions>
+          <execution>
+            <id>package</id>
+            <phase>package</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>mvn</executable>
+              <workingDirectory>{project.build.directory}</workingDirectory>
+              <arguments>
+                <argument>clean</argument>
+                <argument>package</argument>
+                <argument>-Dmaven.test.skip={maven.test.skip}</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>install</id>
+            <phase>install</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>mvn</executable>
+              <workingDirectory>{project.build.directory}</workingDirectory>
+              <arguments>
+                <argument>clean</argument>
+                <argument>install</argument>
+                <argument>-Dmaven.test.skip={maven.test.skip}</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>deploy</id>
+            <phase>deploy</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>mvn</executable>
+              <workingDirectory>{project.build.directory}</workingDirectory>
+              <arguments>
+                <argument>deploy</argument>
+                <argument>-Dmaven.test.skip={maven.test.skip}</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+        <configuration />
+      </plugin>
+      <plugin>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <version>2.9</version>
+        <configuration>
+          <buildcommands />
+          <projectnatures>
+            <projectnature>org.wso2.developerstudio.eclipse.esb.project.nature</projectnature>
+          </projectnatures>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.wso2.maven</groupId>
+        <artifactId>synapse-unit-test-maven-plugin</artifactId>
+        <version>5.2.41</version>
+        <executions>
+          <execution>
+            <id>synapse-unit-test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>synapse-unit-test</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <server>
+            <testServerType>{testServerType}</testServerType>
+            <testServerHost>{testServerHost}</testServerHost>
+            <testServerPort>{testServerPort}</testServerPort>
+            <testServerPath>{testServerPath}</testServerPath>
+          </server>
+          <testCasesFilePath>${directory}/${projectName}Configs/test/{testFile}</testCasesFilePath>
+          <mavenTestSkip>{maven.test.skip}</mavenTestSkip>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>`;

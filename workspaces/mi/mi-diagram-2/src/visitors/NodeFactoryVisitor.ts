@@ -8,24 +8,24 @@
  */
 
 import { Visitor, STNode, WithParam, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp } from "@wso2-enterprise/mi-syntax-tree/src";
-import { CallNodeModel } from "../components/nodes/CallNode/CallNodeModel";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
+import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 
 export class NodeFactoryVisitor implements Visitor {
-    nodes: CallNodeModel[] = [];
+    nodes: MediatorNodeModel[] = [];
     links: NodeLinkModel[] = [];
     private parents: STNode[] = [];
     private skipChildrenVisit = false;
     private previousNodes: STNode[] = [];
 
     private createNode(node: STNode): void {
-        const diagramNode = new CallNodeModel(node, this.parents[this.parents.length - 1], this.previousNodes);
+        const diagramNode = new MediatorNodeModel(node, this.parents[this.parents.length - 1], this.previousNodes);
         diagramNode.setPosition(node.viewState.x, node.viewState.y);
         this.nodes.push(diagramNode);
         this.previousNodes = [node];
     }
 
-    getNodes(): CallNodeModel[] {
+    getNodes(): MediatorNodeModel[] {
         return this.nodes;
     }
 
@@ -57,7 +57,7 @@ export class NodeFactoryVisitor implements Visitor {
         }
     }
 
-    createLink(sourceNode: CallNodeModel, targetNode: CallNodeModel): NodeLinkModel {
+    createLink(sourceNode: MediatorNodeModel, targetNode: MediatorNodeModel): NodeLinkModel {
         let link = sourceNode.getPort("out").link<NodeLinkModel>(targetNode.getPort("in")!);
         // const link = new NodeLinkModel();
         // link.setSourcePort(sourceNode.getPort("out"));

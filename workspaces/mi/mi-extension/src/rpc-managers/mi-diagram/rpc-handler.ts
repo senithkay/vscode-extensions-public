@@ -14,14 +14,17 @@ import {
     ConnectorRequest,
     CreateAPIRequest,
     CreateEndpointRequest,
+    CreateProjectRequest,
     CreateSequenceRequest,
     OpenDiagramRequest,
     ShowErrorMessageRequest,
     applyEdit,
+    askProjectDirPath,
     closeWebView,
     closeWebViewNotification,
     createAPI,
     createEndpoint,
+    createProject,
     createSequence,
     executeCommand,
     getAPIDirectory,
@@ -29,13 +32,14 @@ import {
     getConnectors,
     getEndpointDirectory,
     getEndpointsAndSequences,
+    getProjectRoot,
     getSTRequest,
     getSequenceDirectory,
     getSyntaxTree,
     onRefresh,
     openDiagram,
     openFile,
-    showErrorMessage,
+    showErrorMessage
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -59,4 +63,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));
     messenger.onNotification(openFile, (args: OpenDiagramRequest) => rpcManger.openFile(args));
     messenger.onNotification(closeWebViewNotification, () => rpcManger.closeWebViewNotification());
+    messenger.onRequest(getProjectRoot, () => rpcManger.getProjectRoot());
+    messenger.onRequest(askProjectDirPath, () => rpcManger.askProjectDirPath());
+    messenger.onRequest(createProject, (args: CreateProjectRequest) => rpcManger.createProject(args));
 }

@@ -10,19 +10,16 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import {
-    FormControl,
-    Input,
-    InputAdornment,
     List,
     ListItem,
-    ListItemText,
-    Typography
+    ListItemText
 } from "@material-ui/core";
+// tslint:disable-next-line:no-submodule-imports
+import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { CheckBoxGroup, StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { SearchBox } from "@wso2-enterprise/ui-toolkit";
 
-import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
 import {
     CALL_CONFIG_TYPE,
     CONFIGURABLE_VALUE_REQUIRED_TOKEN,
@@ -200,28 +197,24 @@ export function ExpressionSuggestions() {
     }
 
     return (
-        <>
-
-            <div className={stmtEditorHelperClasses.expressionSuggestionList} data-testid="expression-list">
-                <FormControl style={{ width: '100%', padding: '0 25px' }}>
-                    <Input
-                        data-testid="expr-suggestions-searchbar"
-                        className={stmtEditorHelperClasses.librarySearchBox}
-                        value={keyword}
-                        placeholder={`Search Expression`}
-                        onChange={(e) => searchExpressions(e.target.value)}
-                        endAdornment={(
-                            <InputAdornment position={"end"} style={{ padding: '8.5px' }}>
-                                <LibrarySearchIcon/>
-                            </InputAdornment>
-                        )}
-                    />
-                </FormControl>
-                {!filteredExpressions.length && (
-                    <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                        <p>Expressions not available</p>
-                    </div>
-                )}
+        <div className={stmtEditorHelperClasses.suggestionListInner} data-testid="expression-list">
+            <div className={stmtEditorHelperClasses.searchBox}>
+                <SearchBox
+                    id={'expr-suggestions-searchbar'}
+                    autoFocus={true}
+                    placeholder={`Search Expression`}
+                    value={keyword}
+                    onChange={searchExpressions}
+                    size={100}
+                    data-testid="expr-suggestions-searchbar"
+                />
+            </div>
+            {!filteredExpressions.length && (
+                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                    <p>Expressions not available</p>
+                </div>
+            )}
+            <div className={stmtEditorHelperClasses.suggestionListContainer}>
                 <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
                     {!!filteredExpressions.length && (
                         <>
@@ -243,26 +236,27 @@ export function ExpressionSuggestions() {
                                                         { selectedGroup: groupIndex, selectedListItem: index })}
                                                     disableRipple={true}
                                                 >
-                                                    <StatementEditorHint content={expression.name}>
+                                                    {/* <StatementEditorHint content={expression.name}> */}
                                                         {displayCheckBoxAsExpression(currentModel.model, expression) ? (
-                                                            <CheckBoxGroup
-                                                                testId="is-closed"
-                                                                values={["is Closed ?"]}
-                                                                defaultValues={isClosedRecord(currentModel.model) ?
-                                                                    ["is Closed ?"] : []}
-                                                                onChange={null}
-                                                            />
+                                                            <>
+                                                                <VSCodeCheckbox
+                                                                    checked={isClosedRecord(currentModel.model)}
+                                                                    onChange={null}
+                                                                    data-testid="is-closed"
+                                                                />
+                                                                <div>{"is-closed ?"}</div>
+                                                            </>
                                                         ) : (
                                                             <ListItemText
                                                                 data-testid="expression-title"
                                                                 primary={(
-                                                                    <Typography style={{fontFamily: 'monospace'}}>
+                                                                    <div className={stmtEditorHelperClasses.expressionExample}>
                                                                         {expression.example}
-                                                                    </Typography>
+                                                                    </div>
                                                                 )}
                                                             />
                                                         )}
-                                                    </StatementEditorHint>
+                                                    {/* </StatementEditorHint> */}
                                                 </ListItem>
                                             ))
                                         }
@@ -274,6 +268,6 @@ export function ExpressionSuggestions() {
                     )}
                 </div>
             </div>
-        </>
+        </div>
     );
 }

@@ -47,7 +47,6 @@ import {
 import { CodeAction, Diagnostic } from "vscode-languageserver-protocol";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
-import * as formComponents from '../components/Forms/Form';
 import { INPUT_EDITOR_PLACEHOLDERS } from "../components/InputEditor/constants";
 import * as statementTypeComponents from '../components/Statements';
 import {
@@ -148,16 +147,6 @@ export function getStatementTypeComponent(
     return (
         <StatementTypeComponent
             model={model}
-        />
-    );
-}
-
-export function getFormComponent(type: string, model: STNode, completions: SuggestionItem[]): ReactNode {
-    const FormComponent = (formComponents as any)[type];
-    return (
-        <FormComponent
-            model={model}
-            completions={completions}
         />
     );
 }

@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STNode, Visitor, Log, WithParam, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { NODE_GAP, NODE_WIDTH } from "./Constants";
+import { STNode, Visitor, Log, WithParam, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState } from "@wso2-enterprise/mi-syntax-tree/src";
+import { NODE_GAP } from "./Constants";
 
 export class PositionVisitor implements Visitor {
     private position = {
@@ -28,10 +28,9 @@ export class PositionVisitor implements Visitor {
     }
 
     private setBasicMediatorPosition(node: STNode): void {
-        // if (this.skipChildrenVisit) return;
-
+        const defaultViewState: ViewState = { x: 0, y: 0, w: 0, h: 0 };
         if (node.viewState == undefined) {
-            node.viewState = { x: 0, y: 0, w: 0, h: 0 };
+            node.viewState = defaultViewState;
         }
         node.viewState.x = this.position.x - (node.viewState.w / 2);
         node.viewState.y = this.position.y;

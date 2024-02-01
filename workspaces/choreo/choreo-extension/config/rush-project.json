@@ -1,3 +1,11 @@
 {
-    "extends": "../../../rush-config.json"
+    "extends": "../../../rush-config.json",
+    "operationSettings": [
+        {
+            "operationName": "build",
+            "dependsOnAdditionalFiles": [
+                "../cell-diagram/build/*",
+            ]
+        }
+    ]
 }

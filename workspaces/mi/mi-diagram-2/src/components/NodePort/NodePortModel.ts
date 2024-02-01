@@ -6,21 +6,36 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { DefaultPortModel, LinkModel, LinkModelGenerics } from "@projectstorm/react-diagrams";
+import { DefaultLinkModel, DefaultPortModel, DefaultPortModelOptions, LinkModel, LinkModelGenerics, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { NodeLinkModel } from "../NodeLink/NodeLinkModel";
+import { AbstractModelFactory } from "@projectstorm/react-canvas-core";
 
 export class NodePortModel extends DefaultPortModel {
-    constructor(isInput = true, name = "") {
+    constructor(isIn: boolean, name?: string, label?: string);
+    constructor(options: DefaultPortModelOptions);
+    constructor(options: DefaultPortModelOptions | boolean, name?: string, label?: string) {
+        if (!!name) {
+            options = {
+                in: !!options,
+                name: name,
+                label: label,
+            };
+        }
+        options = options as DefaultPortModelOptions;
         super({
-            type: "node-port",
-            in: isInput,
-            name: name,
-            label: name,
+            label: options.label || options.name,
+            alignment: options.in ? PortModelAlignment.TOP : PortModelAlignment.BOTTOM,
+            type: "default",
+            ...options,
         });
     }
 
-    createLinkModel(): LinkModel<LinkModelGenerics> {
-        return new NodeLinkModel();
+    createLinkModel(factory?: AbstractModelFactory<LinkModel>): LinkModel {
+        let link = super.createLinkModel();
+        if (!link && factory) {
+            return factory.generateModel({});
+        }
+        return link || new NodeLinkModel();
     }
 
     // link(port: NodePortModel): LinkModel<LinkModelGenerics> {
