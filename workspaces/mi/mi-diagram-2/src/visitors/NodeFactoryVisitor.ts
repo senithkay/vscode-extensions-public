@@ -12,14 +12,16 @@ import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 import { NodeModel } from "@projectstorm/react-diagrams";
+import { ConditionNodeModel } from "../components/nodes/ConditionNode/ConditionNodeModel";
 
 enum NodeType {
     START,
     MEDIATOR,
+    CONDITION
 }
 
 export class NodeFactoryVisitor implements Visitor {
-    nodes: (MediatorNodeModel | StartNodeModel)[] = [];
+    nodes: (MediatorNodeModel | StartNodeModel | ConditionNodeModel)[] = [];
     links: NodeLinkModel[] = [];
     private parents: STNode[] = [];
     private skipChildrenVisit = false;
@@ -28,9 +30,11 @@ export class NodeFactoryVisitor implements Visitor {
 
     private createNodeAndLinks(node: STNode, type: NodeType = NodeType.MEDIATOR): void {
         // create node
-        let diagramNode: MediatorNodeModel | StartNodeModel;
+        let diagramNode: MediatorNodeModel | StartNodeModel | ConditionNodeModel;
         if (type === NodeType.MEDIATOR) {
             diagramNode = new MediatorNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
+        } else if (type === NodeType.CONDITION) {
+            diagramNode = new ConditionNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeType.START) {
             diagramNode = new StartNodeModel(node);
         }
@@ -41,7 +45,7 @@ export class NodeFactoryVisitor implements Visitor {
         if (this.previousSTNodes != undefined) {
             for (let i = 0; i < this.previousSTNodes.length; i++) {
                 const previousStNode = this.previousSTNodes[i];
-                const previousNodes: (MediatorNodeModel | StartNodeModel)[] = this.nodes.filter((node) => node.getStNode() == previousStNode);
+                const previousNodes = this.nodes.filter((node) => node.getStNode() == previousStNode);
                 for (let j = 0; j < previousNodes.length; j++) {
                     const previousNode = previousNodes[j];
                     const link = this.createLink(previousNode, diagramNode);
@@ -77,7 +81,7 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitEndpointHttp = (node: EndpointHttp): void => this.createNodeAndLinks(node);
 
     beginVisitFilter(node: Filter): void {
-        this.createNodeAndLinks(node)
+        this.createNodeAndLinks(node, NodeType.CONDITION)
         this.parents.push(node);
 
         if (node.then && node.then.mediatorList && (node.then.mediatorList as any).length > 0) {

@@ -18,3 +18,4 @@ export const NODE_GAP = {
 export const NODE_WIDTH = 120;
 export const NODE_HEIGHT = 50;
 export const START_NODE_WIDTH = 24;
+export const CONDITION_NODE_WIDTH = 56;

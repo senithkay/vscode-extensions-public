@@ -41,4 +41,8 @@ export class StartNodeModel extends NodeModel {
     getOutPort(): NodePortModel {
         return this.port;
     }
+
+    getStNode(): STNode {
+        return this.stNode;
+    }
 }

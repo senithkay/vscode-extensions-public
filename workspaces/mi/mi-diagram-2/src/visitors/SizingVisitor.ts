@@ -8,7 +8,7 @@
  */
 
 import { Call, CallTemplate, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, STNode, Send, Sequence, Store, Throttle, Validate, Visitor, WithParam } from "@wso2-enterprise/mi-syntax-tree/src";
-import { NODE_GAP, NODE_HEIGHT, NODE_WIDTH, START_NODE_WIDTH } from "./Constants";
+import { CONDITION_NODE_WIDTH, NODE_GAP, NODE_HEIGHT, NODE_WIDTH, START_NODE_WIDTH } from "./Constants";
 
 export class SizingVisitor implements Visitor {
     private skipChildrenVisit = false;
@@ -31,7 +31,7 @@ export class SizingVisitor implements Visitor {
         if (node.viewState == undefined) {
             node.viewState = { x: 0, y: 0, w: 0, h: 0 }
         }
-        node.viewState.w = NODE_WIDTH;
+        if (!node.viewState.w) node.viewState.w = NODE_WIDTH;
         node.viewState.fw = Math.max(NODE_WIDTH, subSequencesWidth);
         node.viewState.h = NODE_HEIGHT;
         this.sequenceWidth = Math.max(this.sequenceWidth, node.viewState.fw);
@@ -49,6 +49,7 @@ export class SizingVisitor implements Visitor {
     endVisitEndpointHttp = (node: EndpointHttp): void => this.calculateBasicMediator(node);
 
     endVisitFilter(node: Filter): void {
+        node.viewState = { x: 0, y: 0, w: CONDITION_NODE_WIDTH, h: 0 };
         let thenMediatorsWidth = 0;
         let elseMediatorsWidth = 0;
         if (node.then) {

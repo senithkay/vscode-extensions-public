@@ -16,8 +16,10 @@ export class ConditionNodeModel extends NodeModel {
     readonly stNode: STNode;
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
+    readonly parentNode: STNode;
+    readonly prevNodes: STNode[];
 
-    constructor(stNode: STNode) {
+    constructor(stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode),
             type: "condition-node",
@@ -54,5 +56,17 @@ export class ConditionNodeModel extends NodeModel {
 
     getOutPort(): NodePortModel {
         return this.portOut;
+    }
+
+    getStNode(): STNode {
+        return this.stNode;
+    }
+
+    getParentStNode(): STNode {
+        return this.parentNode;
+    }
+
+    getPrevStNodes(): STNode[] {
+        return this.prevNodes;
     }
 }
