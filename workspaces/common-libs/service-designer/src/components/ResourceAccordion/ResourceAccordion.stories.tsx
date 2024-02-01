@@ -10,7 +10,6 @@
 import React from "react";
 import ResourceAccordion from "./ResourceAccordion";
 import { PARAM_TYPES, Resource } from "../../definitions";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 export default {
     component: ResourceAccordion,
@@ -23,8 +22,8 @@ const handleResourceDelete = (resource: Resource) => {
 const handleResourceEdit = (resource: Resource) => {
     console.log("Edit resource ", resource);
 };
-const handleGoToSource = (position: NodePosition) => {
-    console.log("Go to source postion ", position);
+const handleGoToSource = (resource: Resource) => {
+    console.log("Go to source postion ", resource);
 };
 
 const resource: Resource = {

@@ -14,10 +14,11 @@ import {
     ProjectStructureResponse,
     VisualizerLocation,
     WorkspaceFolder,
-    WorkspacesResponse
+    WorkspacesResponse,
 } from "@wso2-enterprise/mi-core";
 import { workspace } from "vscode";
 import { StateMachine, openView } from "../../stateMachine";
+import { getPreviousView } from "../../util";
 
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
     async getWorkspaces(): Promise<WorkspacesResponse> {
@@ -49,6 +50,14 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
 
     openView(params: VisualizerLocation): void {
-       openView(params);
+        openView(params);
+    }
+
+    goBack(): void {
+        // Get current view
+        const currentView = StateMachine.context().view;
+        const currentDoc = StateMachine.context().documentUri;
+        const view = getPreviousView(currentView!);
+        view.length > 0 && openView({ view: view[0], documentUri: currentDoc });
     }
 }

@@ -5,9 +5,10 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { window } from 'vscode';
 import { MILanguageClient } from './lang-client/activator';
-import { extension } from './MIExtensionContext';
+import { extension } from './MIExtensionContext';
 import { EventType, MachineStateValue, VisualizerLocation } from '@wso2-enterprise/mi-core';
 import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
+import { VisualizerWebview } from './visualizer/webview';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -139,14 +140,18 @@ const stateMachine = createMachine<MachineContext>({
         waitForLS: (context, event) => {
             // replace this with actual promise that waits for LS to be ready
             return new Promise(async (resolve, reject) => {
-                const ls = (await MILanguageClient.getInstance(extension .context)).languageClient;
+                const ls = (await MILanguageClient.getInstance(extension.context)).languageClient;
                 resolve(ls);
             });
         },
         waitForloading: (context, event) => {
             // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
             return new Promise((resolve, reject) => {
-                resolve(undefined);
+                if (!VisualizerWebview.currentPanel) {
+                    VisualizerWebview.currentPanel = new VisualizerWebview();
+                }
+                VisualizerWebview.currentPanel!.getWebview()?.reveal();
+                resolve(true);
             });
         }
     }
