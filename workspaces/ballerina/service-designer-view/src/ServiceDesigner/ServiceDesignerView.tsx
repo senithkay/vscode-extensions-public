@@ -25,7 +25,7 @@ interface ServiceDesignerProps {
     // Types to be shown in the autocomplete of respose
     typeCompletions?: string[];
     // Callback to send the position of the resource to navigae to code
-    goToSource?: (position: NodePosition) =>  void;
+    goToSource?: (resource: Resource) =>  void;
 }
 
 export function ServiceDesignerView(props: ServiceDesignerProps) {

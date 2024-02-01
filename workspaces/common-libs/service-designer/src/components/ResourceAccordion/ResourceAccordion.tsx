@@ -10,7 +10,6 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { Button, Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { AccordionTable } from '../AccordionTable/AccordionTable';
 import { Resource } from '../../definitions';
 import ConfirmDialog from '../ConfirmBox/ConfirmBox';
@@ -101,7 +100,7 @@ function getColorByMethod(method: string) {
 
 export interface ResourceAccordionProps {
     resource: Resource;
-    goToSource: (position: NodePosition) =>  void;
+    goToSource: (resource: Resource) =>  void;
     onEditResource: (resource: Resource) => void;
     onDeleteResource?: (resource: Resource) => void;
 }
@@ -117,7 +116,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
 
     const handleShowDiagram = (e: Event) => {
         e.stopPropagation(); // Stop the event propagation
-        goToSource(resource.position);
+        goToSource(resource);
     };
 
     const handleEditResource = (e: Event) => {

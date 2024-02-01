@@ -21,7 +21,7 @@ interface ServiceDesignerProps {
     // Model of the service.
     model?: Service;
     // Callback to send the position of the resource to navigae to code
-    goToSource?: (position: NodePosition) =>  void;
+    goToSource?: (resource: Resource) =>  void;
     // Callback to add a new resource
     onResourceAdd?: () =>  void;
     // Callback to send the Resource back to the parent component
