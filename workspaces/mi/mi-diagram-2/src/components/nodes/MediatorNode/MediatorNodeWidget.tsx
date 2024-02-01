@@ -13,6 +13,7 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { MediatorNodeModel } from "./MediatorNodeModel";
 import { Colors } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { CallIcon, SendIcon, LogIcon, CodeIcon } from "../../../resources";
 
 namespace S {
     export type NodeStyleProp = {
@@ -43,6 +44,19 @@ namespace S {
         align-items: center;
     `;
 
+    export const IconContainer = styled.div`
+        padding: 0 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        & svg {
+            height: 16px;
+            width: 16px;
+            fill: ${Colors.ON_SURFACE};
+            stroke: ${Colors.ON_SURFACE};
+        }
+    `;
+
     export const TopPortWidget = styled(PortWidget)`
         margin-top: -3px;
     `;
@@ -51,6 +65,19 @@ namespace S {
         margin-bottom: -3px;
     `;
 }
+
+const getNodeIcon = (tag: string) => {
+    switch (tag) {
+        case "call":
+            return <CallIcon />;
+        case "send":
+            return <SendIcon />;
+        case "log":
+            return <LogIcon />;
+        default:
+            return <CodeIcon />;
+    }
+};
 
 interface CallNodeWidgetProps {
     node: MediatorNodeModel;
@@ -79,7 +106,7 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
         >
             <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
             <S.Header>
-                <div>{/* icon here */}</div>
+                <S.IconContainer>{getNodeIcon(node.stNode.tag)}</S.IconContainer>
                 <div>{node.stNode.tag}</div>
                 <S.BottomPortWidget port={node.getPort("right")!} engine={engine} />
             </S.Header>
