@@ -15,6 +15,7 @@ import { Grid, GridItem } from "@wso2-enterprise/ui-toolkit";
 import { Suggestion, SuggestionItem } from "../../../../models/definitions";
 import { useStmtEditorHelperPanelStyles } from "../../../styles";
 import { SuggestionListItem } from "../SuggestionListItem";
+import { SUGGESTION_COLUMN_SIZE } from "../../../../constants";
 
 export interface SuggestionsListProps {
     lsSuggestions: SuggestionItem[];
@@ -55,7 +56,7 @@ export function SuggestionsList(props: SuggestionsListProps) {
                     <br/>
                 </>
             )}
-            <Grid columns={3}>
+            <Grid columns={SUGGESTION_COLUMN_SIZE}>
                 {
                     lsSuggestions.map((suggestion: SuggestionItem, index: number) => {
                         const isSelected = selectedSuggestion && (

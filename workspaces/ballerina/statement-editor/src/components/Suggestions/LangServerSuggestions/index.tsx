@@ -241,7 +241,7 @@ export function LSSuggestions() {
         updateModel(value, nodePosition);
         inputEditorCtx.onInputChange('');
         inputEditorCtx.onSuggestionSelection(value);
-        setSelectedSuggestion(undefined);
+        setSelectedSuggestion(null);
     }
 
     const searchSuggestions = (searchValue: string) => {
