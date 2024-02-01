@@ -26,6 +26,7 @@ namespace S {
         justify-content: space-between;
         align-items: center;
         min-width: 100px;
+        max-width: 100px;
         height: 36px;
         padding: 0 8px;
         border: 2px solid
