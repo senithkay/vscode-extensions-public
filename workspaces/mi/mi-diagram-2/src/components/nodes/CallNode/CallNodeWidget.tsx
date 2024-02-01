@@ -10,10 +10,10 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { MediatorNodeModel } from "./MediatorNodeModel";
+import { CallNodeModel } from "./CallNodeModel";
 import { Colors } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { SendIcon, LogIcon, CodeIcon } from "../../../resources";
+import { CallIcon } from "../../../resources";
 
 namespace S {
     export type NodeStyleProp = {
@@ -45,6 +45,12 @@ namespace S {
         width: 100%;
     `;
 
+    export const CircleContainer = styled.div`
+        position: absolute;
+        top: 0;
+        right: -100px;
+    `;
+
     export const IconContainer = styled.div`
         padding: 0 8px;
         display: flex;
@@ -67,24 +73,13 @@ namespace S {
     `;
 }
 
-const getNodeIcon = (tag: string) => {
-    switch (tag) {
-        case "send":
-            return <SendIcon />;
-        case "log":
-            return <LogIcon />;
-        default:
-            return <CodeIcon />;
-    }
-};
-
 interface CallNodeWidgetProps {
-    node: MediatorNodeModel;
+    node: CallNodeModel;
     engine: DiagramEngine;
     onClick?: (node: STNode) => void;
 }
 
-export function MediatorNodeWidget(props: CallNodeWidgetProps) {
+export function CallNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine, onClick } = props;
     const [isHovered, setIsHovered] = React.useState(false);
 
@@ -105,10 +100,25 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
         >
             <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
             <S.Header>
-                <S.IconContainer>{getNodeIcon(node.stNode.tag)}</S.IconContainer>
+                <S.IconContainer>
+                    <CallIcon />
+                </S.IconContainer>
                 <div>{node.stNode.tag}</div>
+                
             </S.Header>
             <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
+            <S.CircleContainer>
+                    <svg width="40" height="40" viewBox="0 0 40 40">
+                        <circle
+                            cx="20"
+                            cy="20"
+                            r="18"
+                            fill={Colors.SURFACE_BRIGHT}
+                            stroke={Colors.OUTLINE_VARIANT}
+                            strokeWidth={2}
+                        />
+                    </svg>
+                </S.CircleContainer>
         </S.Node>
     );
 }

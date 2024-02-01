@@ -10,8 +10,23 @@
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
 import { Colors } from "../../resources/constants";
 
+export const LINK_BOTTOM_OFFSET = 30;
+
+export interface NodeLinkModelOptions {
+    label?: string;
+    showAddButton?: boolean;
+    onAddClick?: () => void;
+}
+
 export class NodeLinkModel extends DefaultLinkModel {
-    constructor() {
+    label: string;
+    showAddButton = true;
+    linkBottomOffset = LINK_BOTTOM_OFFSET;
+    onAddClick?: () => void;
+
+    constructor(label?: string);
+    constructor(options: NodeLinkModelOptions);
+    constructor(options: NodeLinkModelOptions | string) {
         super({
             type: "node-link",
             width: 10,
@@ -19,5 +34,125 @@ export class NodeLinkModel extends DefaultLinkModel {
             selectedColor: Colors.SECONDARY,
             curvyness: 0,
         });
+        if (options) {
+            if (typeof options === "string" && options.length > 0) {
+                this.label = options;
+                this.linkBottomOffset = LINK_BOTTOM_OFFSET + 40;
+            } else {
+                if ((options as NodeLinkModelOptions).label) {
+                    this.label = (options as NodeLinkModelOptions).label;
+                    this.linkBottomOffset = LINK_BOTTOM_OFFSET + 40;
+                }
+                if ((options as NodeLinkModelOptions).showAddButton === false) {
+                    this.showAddButton = (options as NodeLinkModelOptions).showAddButton;
+                }
+            }
+            if((options as NodeLinkModelOptions).onAddClick) {
+                this.onAddClick = (options as NodeLinkModelOptions).onAddClick;
+            }
+        }
+    }
+
+    getSVGPath(): string {
+        if (this.points.length != 2) {
+            return "";
+        }
+
+        let source = this.getFirstPoint().getPosition();
+        let target = this.getLastPoint().getPosition();
+
+        // is lines are straight?
+        let tolerance = 10;
+        let isStraight = Math.abs(source.y - target.y) <= tolerance || Math.abs(source.x - target.x) <= tolerance;
+        if (isStraight) {
+            let path = `M ${source.x} ${source.y} `;
+            path += `L ${target.x} ${target.y}`;
+            return path;
+        }
+
+        // generate 2 angle lines
+        let curveOffset = 10;
+        // is the target on the right?
+        let isRight = source.x < target.x;
+
+        let path = `M ${source.x} ${source.y} `;
+        path += `L ${source.x} ${target.y - this.linkBottomOffset - curveOffset} `;
+        if (isRight) {
+            path += `A ${curveOffset},${curveOffset} 0 0 0 ${source.x + curveOffset},${
+                target.y - this.linkBottomOffset
+            } `;
+            path += `L ${target.x - curveOffset} ${target.y - this.linkBottomOffset} `;
+            path += `A ${curveOffset},${curveOffset} 0 0 1 ${target.x},${
+                target.y - this.linkBottomOffset + curveOffset
+            } `;
+        } else {
+            path += `A ${curveOffset},${curveOffset} 0 0 1 ${source.x - curveOffset},${
+                target.y - this.linkBottomOffset
+            } `;
+            path += `L ${target.x + curveOffset} ${target.y - this.linkBottomOffset} `;
+            path += `A ${curveOffset},${curveOffset} 0 0 0 ${target.x},${
+                target.y - this.linkBottomOffset + curveOffset
+            } `;
+        }
+        path += `L ${target.x} ${target.y}`;
+        return path;
+    }
+
+    // get label coordinates
+    getLabelPosition(): { x: number; y: number } {
+        if (this.points.length != 2) {
+            return { x: 0, y: 0 };
+        }
+
+        let source = this.getFirstPoint().getPosition();
+        let target = this.getLastPoint().getPosition();
+
+        // is lines are straight?
+        let tolerance = 10;
+        let isStraight = Math.abs(source.y - target.y) <= tolerance || Math.abs(source.x - target.x) <= tolerance;
+        if (isStraight) {
+            // is horizontal?
+            if (Math.abs(source.y - target.y) <= tolerance) {
+                return { x: (source.x + target.x) / 2, y: source.y + 5 };
+            }
+            return { x: (source.x + target.x) / 2, y: (source.y + target.y) / 2 };
+        }
+
+        // generate for 2 angle lines
+        let x = target.x;
+        let y = target.y - this.linkBottomOffset / 2 + 4;
+        return { x: x, y: y };
+    }
+
+    // get add button position
+    getAddButtonPosition(): { x: number; y: number } {
+        if (this.points.length != 2 && !this.showAddButton) {
+            return { x: 0, y: 0 };
+        }
+
+        let source = this.getFirstPoint().getPosition();
+        let target = this.getLastPoint().getPosition();
+
+        // is lines are straight?
+        let tolerance = 10;
+        let isStraight = Math.abs(source.y - target.y) <= tolerance || Math.abs(source.x - target.x) <= tolerance;
+        if (isStraight) {
+            // with label
+            if (this.label) {
+                return { x: (source.x + target.x) / 2, y: (source.y + target.y) / 2 + 2 };
+            }
+            // without label
+            return { x: (source.x + target.x) / 2, y: (source.y + target.y) / 2 - 5 };
+        }
+
+        // generate for 2 angle lines
+
+        // with label
+        if (this.label) {
+            return { x: target.x, y: target.y - this.linkBottomOffset / 2 + 5 };
+        }
+        // without label
+        this.linkBottomOffset = LINK_BOTTOM_OFFSET + 20;
+        return { x: target.x, y: target.y - this.linkBottomOffset / 2 - 2 };
     }
 }

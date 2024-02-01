@@ -9,7 +9,8 @@
 
 import React from "react";
 import serviceModel from "./data/serviceST.json";
-import { NodePosition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
+import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
+import { Resource } from "@wso2-enterprise/service-designer";
 import { ServiceDesignerView } from "./ServiceDesignerView";
 
 export default {
@@ -18,8 +19,8 @@ export default {
 };
 
 const typeCompletions = ["int", "string", "float"];
-const goToSource = (postion: NodePosition) => {
-    console.log("Go to source ", postion);
+const goToSource = (resource: Resource) => {
+    console.log("Go to source ", resource);
 };
 
 export const EmptyModel = () => <ServiceDesignerView typeCompletions={typeCompletions} />;

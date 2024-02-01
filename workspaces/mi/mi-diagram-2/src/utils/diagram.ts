@@ -12,10 +12,11 @@ import { NodeLinkFactory } from "../components/NodeLink/NodeLinkFactory";
 import { NodePortFactory } from "../components/NodePort/NodePortFactory";
 import { StartNodeFactory } from "../components/nodes/StartNode/StartNodeFactory";
 import { EndNodeFactory } from "../components/nodes/EndNode/EndNodeFactory";
-import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
+import { NodeLinkModel, NodeLinkModelOptions } from "../components/NodeLink/NodeLinkModel";
 import { NodePortModel } from "../components/NodePort/NodePortModel";
 import { ConditionNodeFactory } from "../components/nodes/ConditionNode/ConditionNodeFactory";
 import { EndpointNodeFactory } from "../components/nodes/EndpointNode/EndpointNodeFactory";
+import { CallNodeFactory } from "../components/nodes/CallNode/CallNodeFactory";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -29,12 +30,12 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new EndNodeFactory());
     engine.getNodeFactories().registerFactory(new ConditionNodeFactory());
     engine.getNodeFactories().registerFactory(new EndpointNodeFactory());
+    engine.getNodeFactories().registerFactory(new CallNodeFactory());
     return engine;
 }
 
-export function createLink(sourcePort: NodePortModel, targetPort: NodePortModel) {
-    console.log("createLink", sourcePort, targetPort);
-    const link = new NodeLinkModel();
+export function createLink(sourcePort: NodePortModel, targetPort: NodePortModel, options?: NodeLinkModelOptions) {
+    const link = new NodeLinkModel(options);
     link.setSourcePort(sourcePort);
     link.setTargetPort(targetPort);
     sourcePort.addLink(link);

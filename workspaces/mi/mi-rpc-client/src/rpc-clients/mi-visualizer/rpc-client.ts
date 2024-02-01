@@ -16,6 +16,7 @@ import {
     WorkspacesResponse,
     getProjectStructure,
     getWorkspaces,
+    goBack,
     openView
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -38,5 +39,9 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     openView(params: VisualizerLocation): void {
         return this._messenger.sendNotification(openView, HOST_EXTENSION, params);
+    }
+
+    goBack(): void {
+        return this._messenger.sendNotification(goBack, HOST_EXTENSION);
     }
 }
