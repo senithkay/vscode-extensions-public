@@ -10,23 +10,52 @@
 import React, { useEffect } from "react";
 import { VisualizerLocation } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
 
-export function ServiceDesigner() {
+export function ServiceDesignerView() {
     const { rpcClient } = useVisualizerContext();
-    const [state, setState] = React.useState<VisualizerLocation>(null);
+    const [serviceModel, setServiceModel] = React.useState<Service>(null);
+    const [doUri, setDocUri] = React.useState<string>("");
 
     useEffect(() => {
         if (rpcClient) {
-            rpcClient.getVisualizerState().then((initialState) => {
-                setState(initialState);
+            rpcClient.getVisualizerState().then((state) => {
+                setDocUri(state.documentUri);
+                rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: state.documentUri }).then((res) => {
+                    console.log(res.syntaxTree);
+                    const st = res.syntaxTree.api;
+                    const resources: Resource[] = [];
+                    st.resource.forEach((resource: any) => {
+                        const value: Resource = {
+                            method: resource.methods[0],
+                            path: resource.uriTemplate,
+                        }
+                        resources.push(value);
+                    })
+                    const model: Service = {
+                        path: st.context,
+                        port: 0,
+                        resources: resources,
+                        position: {
+                            startLine: st.range.start.line,
+                            startColumn: st.range.start.character,
+                            endLine: st.range.end.line,
+                            endColumn: st.range.end.character
+                        }
+                    }
+                    setServiceModel(model);
+                })
             });
         }
     }, [rpcClient]);
 
-    
+    const openDiagram = (resource: Resource) => {
+        rpcClient.getMiVisualizerRpcClient().openView({ view: "Diagram", documentUri: doUri, identifier: resource.path })
+    }
+
     return (
         <>
-            <h1>Hello Service Designer - {state?.documentUri}</h1>
+            {serviceModel && <ServiceDesigner model={serviceModel} goToSource={openDiagram} />}
         </>
     );
 }

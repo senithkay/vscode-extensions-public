@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { FileStructure } from '@wso2-enterprise/mi-core';
+import { FileStructure, MachineViews } from '@wso2-enterprise/mi-core';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ExtensionContext, Uri, Webview } from "vscode";
@@ -21,6 +21,25 @@ export function getComposerJSFiles(context: ExtensionContext, componentName: str
 			: webView.asWebviewUri(Uri.file(filePath)).toString(),
 		isDevMode ? 'http://localhost:8097' : '' // For React Dev Tools
 	];
+}
+
+
+type ViewFlow = {
+	[key in MachineViews]: MachineViews[];
+};
+
+const viewFlow: ViewFlow = {
+	Overview: [],
+	ServiceDesigner: ["Overview"],
+	Diagram: ["ServiceDesigner"],
+	APIForm: ["Overview"],
+	EndPointForm: ["Overview"],
+	SequenceForm: ["Overview"],
+	ProjectCreationForm: ["Overview"]
+};
+
+export function getPreviousView(currentView: MachineViews): MachineViews[] {
+	return viewFlow[currentView] || [];
 }
 
 export function createFolderStructure(targetPath: string, structure: FileStructure) {
