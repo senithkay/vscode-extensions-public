@@ -14,16 +14,20 @@ import { getNodeIdFromModel } from "../../../utils/node";
 
 export class CallNodeModel extends NodeModel {
     readonly stNode: STNode;
+    readonly endpoint: STNode;
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
 
-    constructor(stNode: STNode) {
+    constructor(stNode: STNode, endpoint?: STNode) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode),
             type: "call-node",
             locked: true,
         });
         this.stNode = stNode;
+        if (endpoint) {
+            this.endpoint = endpoint;
+        }
         this.addInPort("in");
         this.addOutPort("out");
     }

@@ -13,7 +13,8 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { CallNodeModel } from "./CallNodeModel";
 import { Colors } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { CallIcon } from "../../../resources";
+import { Button } from "@wso2-enterprise/ui-toolkit";
+import { CallIcon, MoreVertIcon, PlusIcon } from "../../../resources";
 
 namespace S {
     export type NodeStyleProp = {
@@ -64,6 +65,11 @@ namespace S {
         }
     `;
 
+    export const StyledButton = styled(Button)`
+        position: absolute;
+        right: 8px;
+    `;
+
     export const TopPortWidget = styled(PortWidget)`
         margin-top: -3px;
     `;
@@ -104,21 +110,48 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                     <CallIcon />
                 </S.IconContainer>
                 <div>{node.stNode.tag}</div>
-                
+                <S.StyledButton appearance="icon" onClick={handleOnClick}>
+                    {node.endpoint ? <MoreVertIcon /> : <PlusIcon />}
+                </S.StyledButton>
             </S.Header>
             <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
-            <S.CircleContainer>
-                    <svg width="40" height="40" viewBox="0 0 40 40">
+            {node.endpoint && (
+                <S.CircleContainer>
+                    <svg width="100" height="40" viewBox="0 0 100 40">
                         <circle
-                            cx="20"
+                            cx="80"
                             cy="20"
                             r="18"
                             fill={Colors.SURFACE_BRIGHT}
                             stroke={Colors.OUTLINE_VARIANT}
                             strokeWidth={2}
                         />
+                        <g id="node" transform="translate(100, 100)">
+                            <rect width="50" height="50" style={{ fill: "blue" }} />
+                        </g>
+                        <line
+                            x1="0"
+                            y1="20"
+                            x2="60"
+                            y2="20"
+                            style={{ stroke: "black", strokeWidth: 2, markerEnd: `url(#${node.getID()}-arrow-head)` }}
+                        />
+                        <defs>
+                            <marker
+                                markerWidth="5"
+                                markerHeight="5"
+                                refX="4"
+                                refY="2.5"
+                                viewBox="0 0 5 5"
+                                orient="auto"
+                                id={`${node.getID()}-arrow-head`}
+                            >
+                                <polygon points="0,5 0,0 5,2.5" fill={Colors.OUTLINE}></polygon>
+                            </marker>
+                        </defs>
                     </svg>
                 </S.CircleContainer>
+            )}
         </S.Node>
     );
 }
