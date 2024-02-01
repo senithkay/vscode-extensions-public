@@ -14,7 +14,6 @@ import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNode
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 import { createLink } from "./diagram";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams-core";
-import { EndpointNodeModel } from "../components/nodes/EndpointNode/EndpointNodeModel";
 import { CallNodeModel } from "../components/nodes/CallNode/CallNodeModel";
 
 // Test data
@@ -43,7 +42,7 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
     var node5 = new MediatorNodeModel(mediatorList[6]);
     node5.setPosition(x - conY, y);
 
-    var node4 = new MediatorNodeModel(mediatorList[4]);
+    var node4 = new CallNodeModel(mediatorList[12], mediatorList[5]);
     node4.setPosition(x + conY, (y += gapY));
 
     var nodeend = new EndNodeModel();

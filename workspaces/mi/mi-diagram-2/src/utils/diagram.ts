@@ -15,7 +15,6 @@ import { EndNodeFactory } from "../components/nodes/EndNode/EndNodeFactory";
 import { NodeLinkModel, NodeLinkModelOptions } from "../components/NodeLink/NodeLinkModel";
 import { NodePortModel } from "../components/NodePort/NodePortModel";
 import { ConditionNodeFactory } from "../components/nodes/ConditionNode/ConditionNodeFactory";
-import { EndpointNodeFactory } from "../components/nodes/EndpointNode/EndpointNodeFactory";
 import { CallNodeFactory } from "../components/nodes/CallNode/CallNodeFactory";
 
 export function generateEngine(): DiagramEngine {
@@ -29,7 +28,6 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new StartNodeFactory());
     engine.getNodeFactories().registerFactory(new EndNodeFactory());
     engine.getNodeFactories().registerFactory(new ConditionNodeFactory());
-    engine.getNodeFactories().registerFactory(new EndpointNodeFactory());
     engine.getNodeFactories().registerFactory(new CallNodeFactory());
     return engine;
 }

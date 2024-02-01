@@ -13,7 +13,8 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { MediatorNodeModel } from "./MediatorNodeModel";
 import { Colors } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { SendIcon, LogIcon, CodeIcon } from "../../../resources";
+import { Button } from "@wso2-enterprise/ui-toolkit";
+import { SendIcon, LogIcon, CodeIcon, MoreVertIcon } from "../../../resources";
 
 namespace S {
     export type NodeStyleProp = {
@@ -59,6 +60,11 @@ namespace S {
         }
     `;
 
+    export const StyledButton = styled(Button)`
+        position: absolute;
+        right: 8px;
+    `;
+
     export const TopPortWidget = styled(PortWidget)`
         margin-top: -3px;
     `;
@@ -102,12 +108,14 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
             hovered={isHovered}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            onClick={handleOnClick}
         >
             <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
             <S.Header>
                 <S.IconContainer>{getNodeIcon(node.stNode.tag)}</S.IconContainer>
                 <div>{node.stNode.tag}</div>
+                <S.StyledButton appearance="icon" onClick={handleOnClick}>
+                    <MoreVertIcon />
+                </S.StyledButton>
             </S.Header>
             <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
         </S.Node>
