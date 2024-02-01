@@ -45,7 +45,7 @@ import { useDMMetaData, useProjectComponents } from "../Hooks";
 import { DataMapperViewProps } from "../..";
 import { WarningBanner } from "./Warning/DataMapperWarning";
 
-// import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
+import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 
 const classes = {
     root: css({
@@ -498,6 +498,7 @@ export function DataMapperC(props: DataMapperViewProps) {
         ballerinaVersion,
         onSave: onConfigSave,
         onClose: onConfigClose,
+        applyModifications,
         langServerRpcClient,
         recordPanel
     }
@@ -544,7 +545,7 @@ export function DataMapperC(props: DataMapperViewProps) {
                                 onError={handleErrors}
                             />
                         )}
-                        {/* {(showConfigPanel || isConfigPanelOpen) && dMSupported && <DataMapperConfigPanel {...cPanelProps} />} */}
+                        {(showConfigPanel || isConfigPanelOpen) && dMSupported && <DataMapperConfigPanel {...cPanelProps} />}
                         {!!currentEditableField && dMSupported && (
                             <StatementEditorComponent
                                 expressionInfo={currentEditableField}
