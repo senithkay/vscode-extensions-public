@@ -36,9 +36,12 @@ import { DataMapperInputParam, DataMapperOutputParam } from "./InputParamsPanel/
 import { OutputTypePanel } from "./OutputTypePanel/OutputTypePanel";
 import { CompletionResponseWithModule } from "./TypeBrowser";
 import {
+    getDefaultFnName,
+    getDiagnosticsForFnName,
     getFnNameFromST,
     getModifiedTargetPosition
 } from "./utils";
+import { getRecordCompletions } from "../../Diagram/utils/ls-utils";
 
 export const DM_DEFAULT_FUNCTION_NAME = "transform";
 export const REDECLARED_SYMBOL_ERROR_CODE = "BCE2008";
@@ -116,21 +119,22 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
         void (async () => {
             setValidationInProgress(true);
             try {
-                const diagnostics = await langServerRpcClient.getDiagnosticsForFnName({
-                    name: fnName, 
+                const diagnostics = await getDiagnosticsForFnName(
+                    fnName, 
                     inputParams,
-                    outputType: outputType.type,
+                    outputType.type,
                     fnST,
                     targetPosition,
-                    currentFileContent: content,
-                    filePath
-                });
+                    content,
+                    filePath,
+                    langServerRpcClient
+                );
                 if (diagnostics.length > 0) {
                     const redeclaredSymbol = diagnostics.some((diagnostic) => {
                         return diagnostic.code === REDECLARED_SYMBOL_ERROR_CODE
                     });
                     if (fnNameFromST === undefined && redeclaredSymbol) {
-                        const defaultFnName = await langServerRpcClient.getDefaultFnName({ filePath, targetPosition });
+                        const defaultFnName = await getDefaultFnName(filePath, targetPosition, langServerRpcClient);
                         setFnName(defaultFnName);
                     } else {
                         setDmFuncDiagnostic(diagnostics[0]?.message);
@@ -150,12 +154,13 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
         void (async () => {
             if (initiated) {
                 setFetchingCompletions(true);
-                const allCompletions = await langServerRpcClient.getRecordCompletions({
-                    currentFileContent: content,
+                const allCompletions = await getRecordCompletions(
+                    content,
                     importStatements,
-                    fnSTPosition: fnST?.position as NodePosition || targetPosition,
-                    path
-                });
+                    fnST?.position as NodePosition || targetPosition,
+                    path,
+                    langServerRpcClient
+                );
                 setRecordCompletions(allCompletions);
                 setFetchingCompletions(false);
             }
@@ -236,15 +241,16 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
             setValidationInProgress(true);
             try {
                 if (fnNameFromST) {
-                    const diagnostics = await langServerRpcClient.getDiagnosticsForFnName({
-                        name: fnNameFromST,
+                    const diagnostics = await getDiagnosticsForFnName(
+                        fnNameFromST,
                         inputParams,
-                        outputType: outputType.type,
+                        outputType.type,
                         fnST,
                         targetPosition,
-                        currentFileContent: content,
-                        filePath
-                    });
+                        content,
+                        filePath,
+                        langServerRpcClient
+                    );
                     if (diagnostics.length > 0) {
                         setDmFuncDiagnostic(diagnostics[0]?.message);
                     }
@@ -331,15 +337,16 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
         } else if (name !== fnNameFromST) {
             setValidationInProgress(true);
             try {
-                const diagnostics = await langServerRpcClient.getDiagnosticsForFnName({
-                    name: value,
+                const diagnostics = await getDiagnosticsForFnName(
+                    value,
                     inputParams,
-                    outputType: outputType.type,
+                    outputType.type,
                     fnST,
                     targetPosition,
-                    currentFileContent: content,
-                    filePath
-                });
+                    content,
+                    filePath,
+                    langServerRpcClient
+                );
                 if (diagnostics.length > 0) {
                     setDmFuncDiagnostic(diagnostics[0]?.message);
                 }

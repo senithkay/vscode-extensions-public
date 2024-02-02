@@ -16,8 +16,6 @@ import {
     BallerinaSTModifyResponse,
     CodeActionParams,
     CompletionParams,
-    DefaultFnNameRequest,
-    DiagnosticsForFnNameRequest,
     DidChangeTextDocumentParams,
     DidCloseTextDocumentParams,
     DidOpenTextDocumentParams,
@@ -30,7 +28,6 @@ import {
     JsonToRecordResponse,
     LangServerAPI,
     PartialSTRequest,
-    RecordCompletionsRequest,
     RenameParams,
     SymbolInfoRequest,
     SymbolInfoResponse,
@@ -50,12 +47,9 @@ import {
     getBallerinaProjectComponents,
     getBallerinaVersion,
     getCompletion,
-    getDefaultFnName,
     getDefinitionPosition,
     getDiagnostics,
-    getDiagnosticsForFnName,
     getExecutorPositions,
-    getRecordCompletions,
     getST,
     getSTByRange,
     getSTForExpression,
@@ -74,9 +68,7 @@ import {
     updateFileContent,
     PartialSTResponse,
     CompletionResponse,
-    PublishDiagnosticsParams,
-    CompletionResponseWithModule,
-    ExtendedDiagnostic
+    PublishDiagnosticsParams
 } from "@wso2-enterprise/ballerina-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeAction, Location, LocationLink, WorkspaceEdit } from "vscode-languageserver-types";
@@ -200,18 +192,6 @@ export class LangServerRpcClient implements LangServerAPI {
 
     didClose(params: DidCloseTextDocumentParams): void {
         return this._messenger.sendNotification(didClose, HOST_EXTENSION, params);
-    }
-
-    getDiagnosticsForFnName(params: DiagnosticsForFnNameRequest): Promise<ExtendedDiagnostic[]> {
-        return this._messenger.sendRequest(getDiagnosticsForFnName, HOST_EXTENSION, params);
-    }
-
-    getDefaultFnName(params: DefaultFnNameRequest): Promise<string> {
-        return this._messenger.sendRequest(getDefaultFnName, HOST_EXTENSION, params);
-    }
-
-    getRecordCompletions(params: RecordCompletionsRequest): Promise<CompletionResponseWithModule[]> {
-        return this._messenger.sendRequest(getRecordCompletions, HOST_EXTENSION, params);
     }
 }
 

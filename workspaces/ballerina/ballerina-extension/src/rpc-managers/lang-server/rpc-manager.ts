@@ -17,8 +17,6 @@ import {
     CodeActionParams,
     CompletionParams,
     CompletionResponse,
-    DefaultFnNameRequest,
-    DiagnosticsForFnNameRequest,
     DidChangeTextDocumentParams,
     DidCloseTextDocumentParams,
     DidOpenTextDocumentParams,
@@ -33,7 +31,6 @@ import {
     NOT_SUPPORTED_TYPE,
     LangServerAPI,
     PublishDiagnosticsParams,
-    RecordCompletionsRequest,
     RenameParams,
     SymbolInfoRequest,
     SymbolInfoResponse,
@@ -46,25 +43,16 @@ import {
     UpdateFileContentRequest,
     PartialSTRequest,
     PartialSTResponse,
-    CompletionResponseWithModule,
-    updateFunctionSignature,
-    createFunctionSignature,
-    getSource,
-    addToTargetPosition,
-    getSelectedDiagnostics,
-    ExtendedDiagnostic
 } from "@wso2-enterprise/ballerina-core";
-import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 import { getBallerinaVersion, getLangClient, getService} from "../../visualizer/activator";
 import { URI } from "vscode-uri";
 import { getSyntaxTreeFromPosition } from "../../utils/navigation";
 import { Position, Range, WorkspaceEdit, workspace } from "vscode";
-import { CodeAction, CompletionItemKind, WorkspaceEdit as WorkspaceEditType } from "vscode-languageserver-types";
+import { CodeAction, WorkspaceEdit as WorkspaceEditType } from "vscode-languageserver-types";
 import { writeFileSync } from 'fs';
 import { normalize } from "path";
 import { Location, LocationLink } from "vscode-languageserver-types";
-import { STModification } from "@wso2-enterprise/ballerina-languageclient";
-import { DM_DEFAULT_FUNCTION_NAME, EXPR_SCHEME, FILE_SCHEME, getVirtualDiagnostics } from "./utils";
 
 export class LangServerRpcManager implements LangServerAPI {
 
@@ -249,157 +237,6 @@ export class LangServerRpcManager implements LangServerAPI {
 
     async getBallerinaVersion(): Promise<string | undefined> {
         return getBallerinaVersion();
-    }
-
-    async getDiagnosticsForFnName(params: DiagnosticsForFnNameRequest): Promise<ExtendedDiagnostic[]> {
-        const parametersStr = params.inputParams
-        .map((item) => `${item.type} ${item.name}`)
-        .join(",");
-        const returnTypeStr = params.outputType ? `returns ${params.outputType}` : '';
-
-        let stModification: STModification;
-        let fnConfigPosition: NodePosition;
-        let diagTargetPosition: NodePosition;
-        if (params.fnST && STKindChecker.isFunctionDefinition(params.fnST)) {
-            fnConfigPosition = {
-                ...params.fnST?.functionSignature?.position as NodePosition,
-                startLine: (params.fnST.functionName.position as NodePosition)?.startLine,
-                startColumn: (params.fnST.functionName.position as NodePosition)?.startColumn
-            };
-            diagTargetPosition = {
-                startLine: (params.fnST.functionName.position as NodePosition).startLine,
-                startColumn: (params.fnST.functionName.position as NodePosition).startColumn,
-                endLine: (params.fnST.functionName.position as NodePosition).endLine,
-                endColumn: (params.fnST.functionName.position as NodePosition).startColumn + params.name.length
-            };
-            stModification = updateFunctionSignature(params.name, parametersStr, returnTypeStr, fnConfigPosition);
-        } else {
-            fnConfigPosition = params.targetPosition;
-            const fnNameStartColumn = "function ".length + 1;
-            diagTargetPosition = {
-                startLine: params.targetPosition.startLine + 1,
-                startColumn: params.targetPosition.startColumn + fnNameStartColumn,
-                endLine: params.targetPosition.endLine + 1,
-                endColumn: params.targetPosition.endColumn + (fnNameStartColumn + params.name.length)
-            };
-            stModification = createFunctionSignature(
-                "",
-                params.name,
-                parametersStr,
-                returnTypeStr,
-                params.targetPosition,
-                false,
-                true,
-                params.outputType ? `{}` : `()`  // TODO: Find default value for selected output type when DM supports types other than records
-            );
-        }
-        const source = getSource(stModification);
-        const content = addToTargetPosition(params.currentFileContent, fnConfigPosition, source);
-
-        const diagnostics = await getVirtualDiagnostics(params.filePath, params.currentFileContent, content);
-
-        return getSelectedDiagnostics(diagnostics, diagTargetPosition, 0, params.name.length);
-    }
-
-    async getDefaultFnName(params: DefaultFnNameRequest): Promise<string> {
-        const completionParams: CompletionParams = {
-            textDocument: {
-                uri: URI.file(params.filePath).toString()
-            },
-            position: {
-                character: params.targetPosition.endColumn,
-                line: params.targetPosition.endLine
-            },
-            context: {
-                triggerKind: 3
-            }
-        };
-        const completions = await this._langClient.getCompletion(completionParams);
-        const existingFnNames = completions.map((completion) => {
-            if (completion.kind === CompletionItemKind.Function) {
-                return completion?.filterText;
-            }
-        }).filter((name) => name !== undefined);
-    
-        let suffixIndex = 2;
-        while (existingFnNames.includes(`${DM_DEFAULT_FUNCTION_NAME}${suffixIndex}`)) {
-            suffixIndex++;
-        }
-    
-        return `${DM_DEFAULT_FUNCTION_NAME}${suffixIndex}`;
-    }
-
-    async getRecordCompletions(params: RecordCompletionsRequest): Promise<CompletionResponseWithModule[]> {
-        const typeLabelsToIgnore = ["StrandData"];
-        const completionMap = new Map<string, CompletionResponseWithModule>();
-
-        const completionParams: CompletionParams = {
-            textDocument: { uri: URI.file(params.path).toString() },
-            position: { character: 0, line: 0 },
-            context: { triggerKind: 22 },
-        };
-
-        const completions = await this._langClient.getCompletion(completionParams);
-        const recCompletions = completions.filter((item) => item.kind === CompletionItemKind.Struct);
-        recCompletions.forEach((item) => completionMap.set(item.insertText, item));
-
-        if (params.importStatements.length > 0) {
-
-            const exprFileUrl = URI.file(params.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
-            this._langClient.didOpen({
-                textDocument: {
-                    languageId: "ballerina",
-                    text: params.currentFileContent,
-                    uri: exprFileUrl,
-                    version: 1,
-                },
-            });
-
-            for (const importStr of params.importStatements) {
-                const moduleName = importStr.split("/").pop().split(".").pop().replace(";", "");
-                const updatedContent = addToTargetPosition(
-                    params.currentFileContent,
-                    {
-                        startLine: params.fnSTPosition.endLine,
-                        startColumn: params.fnSTPosition.endColumn,
-                        endLine: params.fnSTPosition.endLine,
-                        endColumn: params.fnSTPosition.endColumn,
-                    },
-                    `${moduleName}:`
-                );
-
-                this._langClient.didChange({
-                    textDocument: { uri: exprFileUrl, version: 1 },
-                    contentChanges: [{ text: updatedContent }],
-                });
-
-                const importCompletions = await this._langClient.getCompletion({
-                    textDocument: { uri: exprFileUrl },
-                    position: { character: params.fnSTPosition.endColumn + moduleName.length + 1, line: params.fnSTPosition.endLine },
-                    context: { triggerKind: 22 },
-                });
-
-                const importRecCompletions = importCompletions.filter((item) => item.kind === CompletionItemKind.Struct);
-
-                importRecCompletions.forEach((item) => {
-                    if (!completionMap.has(`${item.insertText}${moduleName}`)) {
-                        completionMap.set(`${item.insertText}${moduleName}`, { ...item, module: moduleName });
-                    }
-                });
-            }
-            this._langClient.didChange({
-                textDocument: { uri: exprFileUrl, version: 1 },
-                contentChanges: [{ text: params.currentFileContent }],
-            });
-
-            this._langClient.didClose({ textDocument: { uri: exprFileUrl } });
-        }
-
-        const allCompletions = Array.from(completionMap.values()).filter(
-            (item) => !(typeLabelsToIgnore.includes(item.label) || item.label.startsWith("("))
-        );
-
-        return allCompletions;
     }
 }
 

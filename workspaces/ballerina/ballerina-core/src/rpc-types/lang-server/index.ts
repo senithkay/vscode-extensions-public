@@ -44,12 +44,7 @@ import {
     PartialSTResponse,
     PartialSTRequest,
     SymbolInfoRequest,
-    SymbolInfoResponse,
-    DiagnosticsForFnNameRequest,
-    DefaultFnNameRequest,
-    RecordCompletionsRequest,
-    CompletionResponseWithModule,
-    ExtendedDiagnostic
+    SymbolInfoResponse
 } from "../..";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Location, LocationLink } from "vscode-languageserver-types";
@@ -83,8 +78,5 @@ export interface LangServerAPI {
     didOpen: (Params: DidOpenTextDocumentParams) => void;
     didChange: (params: DidChangeTextDocumentParams) => void;
     didClose: (params: DidCloseTextDocumentParams) => void;
-    getDiagnosticsForFnName: (params: DiagnosticsForFnNameRequest) => Promise<ExtendedDiagnostic[]>;
-    getDefaultFnName: (params: DefaultFnNameRequest) => Promise<string>;
-    getRecordCompletions: (params: RecordCompletionsRequest) => Promise<CompletionResponseWithModule[]>
 }
 
