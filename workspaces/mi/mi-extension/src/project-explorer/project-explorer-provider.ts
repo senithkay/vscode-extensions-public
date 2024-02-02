@@ -115,9 +115,16 @@ function generateTreeData(data: ProjectStructureResponse): ProjectExplorerEntry[
 	for (const key in directoryMap) {
 		switch (key) {
 			case "esbConfigs":
+				const esbConfigs = new ProjectExplorerEntry(
+					key,
+					isCollapsibleState(Object.keys(directoryMap.esbConfigs).length > 0),
+					undefined,
+					'package'
+				);
+
 				for (const esbConfig in directoryMap.esbConfigs) {
 					const config = directoryMap.esbConfigs[esbConfig];
-					const esbConfigs = new ProjectExplorerEntry(
+					const esbConfigEntry = new ProjectExplorerEntry(
 						config.name,
 						isCollapsibleState(Object.keys(config).length > 0),
 						undefined,
@@ -173,12 +180,14 @@ function generateTreeData(data: ProjectStructureResponse): ProjectExplorerEntry[
 							default:
 						}
 
-						esbConfigs.children = esbConfigs.children ?? [];
-						if (parentEntry.children.length > 0) esbConfigs.children.push(parentEntry);
+						esbConfigEntry.children = esbConfigEntry.children ?? [];
+						if (parentEntry.children.length > 0) esbConfigEntry.children.push(parentEntry);
 					}
-					projectRoot.children = projectRoot.children ?? [];
-					projectRoot.children.push(esbConfigs);
+					esbConfigs.children = esbConfigs.children ?? [];
+					esbConfigs.children.push(esbConfigEntry);
 				}
+				projectRoot.children = projectRoot.children ?? [];
+				projectRoot.children.push(esbConfigs);
 				break;
 			case 'dataServiceConfigs':
 			case 'dataSourceConfigs':
