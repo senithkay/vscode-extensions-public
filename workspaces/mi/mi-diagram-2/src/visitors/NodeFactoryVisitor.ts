@@ -13,15 +13,18 @@ import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNode
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 import { NodeModel } from "@projectstorm/react-diagrams";
 import { ConditionNodeModel } from "../components/nodes/ConditionNode/ConditionNodeModel";
+import { EndNodeModel } from "../components/nodes/EndNode/EndNodeModel";
+import { NODE_GAP } from "./Constants";
 
 enum NodeType {
     START,
+    END,
     MEDIATOR,
     CONDITION
 }
 
 export class NodeFactoryVisitor implements Visitor {
-    nodes: (MediatorNodeModel | StartNodeModel | ConditionNodeModel)[] = [];
+    nodes: (MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel)[] = [];
     links: NodeLinkModel[] = [];
     private parents: STNode[] = [];
     private skipChildrenVisit = false;
@@ -30,13 +33,15 @@ export class NodeFactoryVisitor implements Visitor {
 
     private createNodeAndLinks(node: STNode, type: NodeType = NodeType.MEDIATOR): void {
         // create node
-        let diagramNode: MediatorNodeModel | StartNodeModel | ConditionNodeModel;
+        let diagramNode: MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel;
         if (type === NodeType.MEDIATOR) {
             diagramNode = new MediatorNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeType.CONDITION) {
             diagramNode = new ConditionNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeType.START) {
             diagramNode = new StartNodeModel(node);
+        } else if (type === NodeType.END) {
+            diagramNode = new EndNodeModel(node);
         }
         diagramNode.setPosition(node.viewState.x, node.viewState.y);
         this.nodes.push(diagramNode);
@@ -119,7 +124,9 @@ export class NodeFactoryVisitor implements Visitor {
         this.createNodeAndLinks(node, NodeType.START);
         this.parents.push(node);
     }
-    EndVisitInSequence(node: Sequence): void {
+    endVisitInSequence(node: Sequence): void {
+        node.viewState.y = this.nodes[this.nodes.length - 1].getPosition().y + NODE_GAP.Y;
+        this.createNodeAndLinks(node, NodeType.END);
         this.parents.pop();
     }
 
