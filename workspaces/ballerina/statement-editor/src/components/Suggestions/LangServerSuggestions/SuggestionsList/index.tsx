@@ -9,13 +9,12 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React from "react";
 
-import { List } from "@material-ui/core";
 import { Grid, GridItem } from "@wso2-enterprise/ui-toolkit";
 
+import { SUGGESTION_COLUMN_SIZE } from "../../../../constants";
 import { Suggestion, SuggestionItem } from "../../../../models/definitions";
 import { useStmtEditorHelperPanelStyles } from "../../../styles";
 import { SuggestionListItem } from "../SuggestionListItem";
-import { SUGGESTION_COLUMN_SIZE } from "../../../../constants";
 
 export interface SuggestionsListProps {
     lsSuggestions: SuggestionItem[];

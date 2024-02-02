@@ -25,14 +25,14 @@ import {
 
 import {
     CompletionResponse,
-    getFilteredDiagnostics,
     getSelectedDiagnostics,
     LinePosition,
     ParameterInfo,
     STModification,
     STSymbolInfo,
     SymbolDocumentation
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
+import { getFilteredDiagnostics } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     Minutiae, ModuleVarDecl,
     NodePosition,

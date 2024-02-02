@@ -10,10 +10,10 @@
 import React from 'react';
 
 import {
-    ExpressionEditorLangClientInterface,
     STModification,
     STSymbolInfo
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
+import { LangServerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { WorkspaceEdit } from "vscode-languageserver-protocol";
 
@@ -39,7 +39,7 @@ export const FormEditorContext = React.createContext({
     onChange: (code: string, partialST: STNode, moduleList?: Set<string>, currentModel?: CurrentModel,
                newValue?: string, completionKinds?: number[], offsetLineCount?: number,
                diagnosticOffSet?: NodePosition) => undefined,
-    getLangClient: () => (Promise.resolve({} as any)),
+    langServerRpcClient: null,
     applyModifications: (modifications: STModification[], filePath?: string) => undefined,
     changeInProgress: false,
     renameSymbol: (workspaceEdits: WorkspaceEdit) =>  undefined
@@ -57,7 +57,7 @@ export interface FormEditorProps {
     syntaxTree?: STNode;
     fullST?: STNode;
     isEdit?: boolean;
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
+    langServerRpcClient: LangServerRpcClient;
     onChange: (code: string, partialST: STNode, moduleList?: Set<string>, currentModel?: CurrentModel,
                newValue?: string, completionKinds?: number[], offsetLineCount?: number,
                diagnosticOffSet?: NodePosition) => void;
@@ -87,7 +87,7 @@ export const FormEditorContextProvider = (props: FormEditorProps) => {
         onCancel,
         onSave,
         onChange,
-        getLangClient,
+        langServerRpcClient,
         changeInProgress,
         renameSymbol
     } = props;
@@ -108,7 +108,7 @@ export const FormEditorContextProvider = (props: FormEditorProps) => {
                 onCancel,
                 onSave,
                 onChange,
-                getLangClient,
+                langServerRpcClient,
                 changeInProgress,
                 renameSymbol
             }}

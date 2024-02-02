@@ -423,12 +423,7 @@ export const useStmtEditorHelperPanelStyles = () => ({
         },
     }),
     suggestionListItem: css({
-        display: 'flex',
-        // "& .MuiListItemText-root": {
-        //     margin: '0'
-        // },
-        // ...hoverColor1,
-        // ...activeColour
+        display: 'flex'
     }),
     suggestionDataType: css({
         color: 'var(--vscode-terminal-ansiGreen)',
@@ -530,7 +525,9 @@ export const useStmtEditorHelperPanelStyles = () => ({
     }),
     loadingContainer: css({
         height: '60vh',
-        alignContent: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
         alignItems: 'center',
     }),
     libraryWrapper: css({

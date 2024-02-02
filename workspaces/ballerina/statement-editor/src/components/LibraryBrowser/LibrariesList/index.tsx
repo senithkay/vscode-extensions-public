@@ -9,10 +9,11 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { Library } from '../Library';
+import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-core";
 import { Grid } from '@wso2-enterprise/ui-toolkit';
+
 import { SUGGESTION_COLUMN_SIZE } from '../../../constants';
+import { Library } from '../Library';
 
 interface LibrariesListProps {
     libraries: LibraryInfo[],

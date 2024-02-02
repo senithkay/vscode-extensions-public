@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from 'react';
 
-import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-core";
 import { GridItem, Icon, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";

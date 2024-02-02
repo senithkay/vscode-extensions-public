@@ -10,16 +10,10 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 
 import {
-    Box,
-    CircularProgress,
-    Grid,
-    Typography
-} from "@material-ui/core";
-import {
     LibraryDataResponse,
     LibrarySearchResponse
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { Button, Codicon, Icon, SearchBox } from "@wso2-enterprise/ui-toolkit";
+} from "@wso2-enterprise/ballerina-core";
+import { Button, Codicon, Icon, ProgressRing, SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
 import debounce from "lodash.debounce";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
@@ -102,16 +96,10 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
     }
 
     const loadingScreen = (
-        <Grid sm={12} item={true} container={true} className={stmtEditorHelperClasses.loadingContainer}>
-            <Grid item={true} sm={12}>
-                <Box display="flex" justifyContent="center">
-                    <CircularProgress />
-                </Box>
-                <Box display="flex" justifyContent="center" mt={2}>
-                    <Typography variant="body1">Loading...</Typography>
-                </Box>
-            </Grid>
-        </Grid>
+        <div className={stmtEditorHelperClasses.loadingContainer}>
+            <ProgressRing sx={{height: '35px', width: '35px', marginBottom: '12px'}} />
+            <Typography variant="body2">Loading...</Typography>
+        </div>
     );
 
     const searchLibrary = (value: string) => {

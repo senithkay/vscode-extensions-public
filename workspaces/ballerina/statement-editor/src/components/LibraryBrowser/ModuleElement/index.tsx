@@ -9,13 +9,13 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from 'react';
 
-import { Box, CircularProgress } from "@material-ui/core";
 import {
     FunctionParams,
     LibraryDataResponse,
     LibraryFunction,
     ModuleProperty
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
+import { GridItem, ProgressRing, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 
 import { PARAM_CONSTRUCTOR } from '../../../constants';
 import { InputEditorContext } from '../../../store/input-editor-context';
@@ -23,7 +23,6 @@ import { StatementEditorContext } from "../../../store/statement-editor-context"
 import { getModuleIconStyle } from "../../../utils";
 import { getFQModuleName, keywords } from "../../../utils/statement-modifications";
 import { useStmtEditorHelperPanelStyles } from "../../styles";
-import { GridItem, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 
 interface ModuleElementProps {
     moduleProperty: ModuleProperty,
@@ -87,11 +86,7 @@ export function ModuleElement(props: ModuleElementProps) {
         updateModel(content, currentModel.model ? currentModel.model.position : targetPosition);
     }
 
-    const circularProgress = (
-        <Box display="flex" justifyContent="center">
-            <CircularProgress size={15} style={{marginRight: '5px'}}/>
-        </Box>
-    );
+    const circularProgress = <ProgressRing sx={{ height: '15px', width: '15px', marginRight: '5px' }} />;
 
     return (
         <GridItem

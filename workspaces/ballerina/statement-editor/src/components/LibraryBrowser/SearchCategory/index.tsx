@@ -9,13 +9,13 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { ModuleProperty } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ModuleProperty } from "@wso2-enterprise/ballerina-core";
+import { Grid } from '@wso2-enterprise/ui-toolkit';
 import classNames from "classnames";
 
+import { SUGGESTION_COLUMN_SIZE } from '../../../constants';
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 import { ModuleElement } from "../ModuleElement";
-import { Grid } from '@wso2-enterprise/ui-toolkit';
-import { SUGGESTION_COLUMN_SIZE } from '../../../constants';
 
 interface SearchCategoryProps {
     label: string,

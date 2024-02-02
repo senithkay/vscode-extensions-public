@@ -6,16 +6,18 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
-import { useStmtEditorHelperPanelStyles } from "../../../styles";
-import { Expression, ExpressionGroup } from "../../../../utils/expressions";
-import { Suggestion } from "../../../../models/definitions";
-import { displayCheckBoxAsExpression, isClosedRecord } from "../../../../utils";
-import { StatementEditorContext } from "../../../../store/statement-editor-context";
+
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { Grid, GridItem, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
+
 import { SUGGESTION_COLUMN_SIZE } from "../../../../constants";
+import { Suggestion } from "../../../../models/definitions";
+import { StatementEditorContext } from "../../../../store/statement-editor-context";
+import { displayCheckBoxAsExpression, isClosedRecord } from "../../../../utils";
+import { Expression, ExpressionGroup } from "../../../../utils/expressions";
+import { useStmtEditorHelperPanelStyles } from "../../../styles";
 
 interface TemplateListProps {
     group: ExpressionGroup;
