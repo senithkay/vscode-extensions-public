@@ -12,7 +12,7 @@ import { ConditionNodeModel } from "../components/nodes/ConditionNode/ConditionN
 import { EndNodeModel } from "../components/nodes/EndNode/EndNodeModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
-import { createLink } from "./diagram";
+import { createPortsLink, createNodesLink } from "./diagram";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams-core";
 import { CallNodeModel } from "../components/nodes/CallNode/CallNodeModel";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
@@ -55,19 +55,20 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
     nodeend.setPosition(x + 60 - 10, (y += gapY/2));
 
     // create links
-    let linkstart = createLink(nodestart.getOutPort(), node1.getInPort(), {
+    let linkstart = createPortsLink(nodestart.getOutPort(), node1.getInPort(), {
         onAddClick: () => console.log("onAddClick"),
     });
-    var link1 = createLink(node1.getOutPort(), node2.getInPort());
+    var link1 = createNodesLink(node1, node2);
 
-    var link2 = createLink(node2.getOutPort(), node3.getInPort(), { label: "onAccept" });
-    var link3 = createLink(node3.getOutPort(), node4.getInPort());
-    var linkend = createLink(node4.getOutPort(), nodeempty.getInPort(), { showArrow: false });
+    var link2 = createPortsLink(node2.getOutPort(), node3.getInPort(), { label: "onAccept" });
+    var link3 = createPortsLink(node3.getOutPort(), node4.getInPort());
+    var linkend = createNodesLink(node4, nodeempty);
 
-    var link4 = createLink(node2.getOutPort(), node5.getInPort(), { label: "onReject", showArrow: false, brokenLine: true });
-    var linkend2 = createLink(node5.getOutPort(), nodeempty.getInPort(), { showArrow: false, brokenLine: true });
+    // var link4 = createLink(node2.getOutPort(), node5.getInPort(), { label: "onReject", brokenLine: true });
+    var link4 = createNodesLink(node2, node5, { label: "onReject", brokenLine: true });
+    var linkend2 = createNodesLink(node5, nodeempty, { brokenLine: true });
 
-    var linkend3 = createLink(nodeempty.getOutPort(), nodeend.getInPort());
+    var linkend3 = createPortsLink(nodeempty.getOutPort(), nodeend.getInPort());
 
     diagramModel.addAll(
         nodestart,

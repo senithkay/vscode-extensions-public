@@ -17,6 +17,12 @@ import { NodePortModel } from "../components/NodePort/NodePortModel";
 import { ConditionNodeFactory } from "../components/nodes/ConditionNode/ConditionNodeFactory";
 import { CallNodeFactory } from "../components/nodes/CallNode/CallNodeFactory";
 import { EmptyNodeFactory } from "../components/nodes/EmptyNode/EmptyNodeFactory";
+import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
+import { CallNodeModel } from "../components/nodes/CallNode/CallNodeModel";
+import { ConditionNodeModel } from "../components/nodes/ConditionNode/ConditionNodeModel";
+import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
+import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
+import { EndNodeModel } from "../components/nodes/EndNode/EndNodeModel";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -34,10 +40,24 @@ export function generateEngine(): DiagramEngine {
     return engine;
 }
 
-export function createLink(sourcePort: NodePortModel, targetPort: NodePortModel, options?: NodeLinkModelOptions) {
+// create link between ports
+export function createPortsLink(sourcePort: NodePortModel, targetPort: NodePortModel, options?: NodeLinkModelOptions) {
     const link = new NodeLinkModel(options);
     link.setSourcePort(sourcePort);
     link.setTargetPort(targetPort);
     sourcePort.addLink(link);
+    return link;
+}
+
+// create link between nodes
+export type AllNodeModel = StartNodeModel| EndNodeModel | MediatorNodeModel | ConditionNodeModel | CallNodeModel | EmptyNodeModel;
+export type SourceNodeModel = Exclude<AllNodeModel, EndNodeModel>;
+export type TargetNodeModel = Exclude<AllNodeModel, StartNodeModel>;
+export function createNodesLink(sourceNode: SourceNodeModel, targetNode: TargetNodeModel, options?: NodeLinkModelOptions) {
+    const sourcePort = sourceNode.getOutPort();
+    const targetPort = targetNode.getInPort();
+    const link = createPortsLink(sourcePort, targetPort, options);
+    link.setSourceNode(sourceNode);
+    link.setTargetNode(targetNode);
     return link;
 }

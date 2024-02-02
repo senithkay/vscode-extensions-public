@@ -9,6 +9,7 @@
 
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
 import { Colors } from "../../resources/constants";
+import { SourceNodeModel, TargetNodeModel } from "../../utils/diagram";
 
 export const LINK_BOTTOM_OFFSET = 30;
 
@@ -22,6 +23,9 @@ export interface NodeLinkModelOptions {
 
 export class NodeLinkModel extends DefaultLinkModel {
     label: string;
+    sourceNode: SourceNodeModel;
+    targetNode: TargetNodeModel;
+    // options
     showAddButton = true;
     showArrow = true;
     brokenLine = false;
@@ -61,6 +65,14 @@ export class NodeLinkModel extends DefaultLinkModel {
                 this.onAddClick = (options as NodeLinkModelOptions).onAddClick;
             }
         }
+    }
+
+    setSourceNode(node: SourceNodeModel) {
+        this.sourceNode = node;
+    }
+
+    setTargetNode(node: TargetNodeModel) {
+        this.targetNode = node;
     }
 
     getSVGPath(): string {
@@ -157,5 +169,16 @@ export class NodeLinkModel extends DefaultLinkModel {
 
         // generate for 2 angle lines
         return { x: (source.x + target.x) / 2, y: target.y - this.linkBottomOffset - 2 };
+    }
+
+    // show node arrow. default true. but target node is a EmptyNodeModel, then false
+    showArrowToNode(): boolean {
+        if (this.points.length != 2) {
+            return false;
+        }
+        if (this.targetNode?.getType() === "empty-node") {
+            return false;
+        }
+        return this.showArrow;
     }
 }

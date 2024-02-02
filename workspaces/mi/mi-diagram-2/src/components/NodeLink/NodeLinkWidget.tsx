@@ -57,7 +57,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 stroke={link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY}
                 strokeWidth={2}
                 strokeDasharray={link.brokenLine ? "5,5" : "0"}
-                markerEnd={link.showArrow && `url(#${link.getID()}-arrow-head)`}
+                markerEnd={link.showArrowToNode() && `url(#${link.getID()}-arrow-head)`}
             />
             {link.label && (
                 <foreignObject x={labelPosition.x - 50} y={labelPosition.y - 20} width="100" height="100">
