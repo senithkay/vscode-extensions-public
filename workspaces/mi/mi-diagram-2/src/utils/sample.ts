@@ -50,7 +50,7 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
     nodeempty.setPosition(x + 60 - 4, (y += gapY));
 
     var nodeend = new EndNodeModel();
-    nodeend.setPosition(x + 60 - 12, (y += gapY + 10));
+    nodeend.setPosition(x + 60 - 10, (y += gapY/2));
 
     // create links
     let linkstart = createLink(nodestart.getOutPort(), node1.getInPort(), {

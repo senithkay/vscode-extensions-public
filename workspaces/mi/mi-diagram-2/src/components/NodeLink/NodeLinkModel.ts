@@ -52,7 +52,7 @@ export class NodeLinkModel extends DefaultLinkModel {
                     this.showArrow = (options as NodeLinkModelOptions).showArrow;
                 }
             }
-            if((options as NodeLinkModelOptions).onAddClick) {
+            if ((options as NodeLinkModelOptions).onAddClick) {
                 this.onAddClick = (options as NodeLinkModelOptions).onAddClick;
             }
         }
@@ -151,13 +151,6 @@ export class NodeLinkModel extends DefaultLinkModel {
         }
 
         // generate for 2 angle lines
-
-        // with label
-        if (this.label) {
-            return { x: target.x, y: target.y - this.linkBottomOffset / 2 + 5 };
-        }
-        // without label
-        this.linkBottomOffset = LINK_BOTTOM_OFFSET + 20;
-        return { x: target.x, y: target.y - this.linkBottomOffset / 2 - 2 };
+        return { x: (source.x + target.x) / 2, y: target.y - this.linkBottomOffset - 2 };
     }
 }
