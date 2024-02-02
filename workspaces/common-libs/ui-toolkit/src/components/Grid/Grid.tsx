@@ -41,6 +41,7 @@ export interface GridProps {
     id?: string;
     className?: string;
     columns?: number;
+    sx?: React.CSSProperties;
 }
 
 const generateRowData = (numColumns: number, children: ReactNode) => {
