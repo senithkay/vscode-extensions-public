@@ -14,9 +14,10 @@ export function RecordButtonGroup(props: RecordButtonGroupProps) {
   return (
     <Container>
       <Button
-        onClick={openRecordEditor}
+        // onClick={openRecordEditor}
         appearance="icon"
         data-testid='new-record'
+        disabled={true}
       >
         <Codicon name="add" sx={{ marginRight: "4px" }} iconSx={{ color: "var(--vscode-focusBorder)" }} />
         <Typography variant="body3" sx={{ color: "var(--vscode-focusBorder)" }}>NEW RECORD</Typography>
