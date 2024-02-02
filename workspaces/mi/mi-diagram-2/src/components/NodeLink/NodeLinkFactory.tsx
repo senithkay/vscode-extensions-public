@@ -12,10 +12,11 @@ import { AbstractReactFactory, GenerateModelEvent, GenerateWidgetEvent } from "@
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { NodeLinkModel } from "./NodeLinkModel";
 import { NodeLinkWidget } from "./NodeLinkWidget";
+import { NODE_LINK } from "../../resources/constants";
 
 export class NodeLinkFactory extends AbstractReactFactory<NodeLinkModel, DiagramEngine> {
     constructor() {
-        super("node-link");
+        super(NODE_LINK);
     }
 
     generateModel(event: GenerateModelEvent): NodeLinkModel {

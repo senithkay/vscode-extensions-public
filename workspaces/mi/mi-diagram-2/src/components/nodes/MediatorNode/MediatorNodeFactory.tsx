@@ -12,10 +12,11 @@ import { AbstractReactFactory, GenerateModelEvent, GenerateWidgetEvent } from "@
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { MediatorNodeModel } from "./MediatorNodeModel";
 import { MediatorNodeWidget } from "./MediatorNodeWidget";
+import { NodeTypes } from "../../../resources/constants";
 
 export class MediatorNodeFactory extends AbstractReactFactory<MediatorNodeModel, DiagramEngine> {
     constructor() {
-        super("mediator-node");
+        super(NodeTypes.MEDIATOR_NODE);
     }
 
     generateModel(event: GenerateModelEvent): MediatorNodeModel {

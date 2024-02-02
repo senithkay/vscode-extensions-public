@@ -9,6 +9,7 @@
 
 import { NodeModel } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort/NodePortModel";
+import { NodeTypes } from "../../../resources/constants";
 
 export class EmptyNodeModel extends NodeModel {
     protected portIn: NodePortModel;
@@ -16,7 +17,7 @@ export class EmptyNodeModel extends NodeModel {
 
     constructor() {
         super({
-            type: "empty-node",
+            type: NodeTypes.EMPTY_NODE,
             locked: true,
         });
         this.addInPort("in");

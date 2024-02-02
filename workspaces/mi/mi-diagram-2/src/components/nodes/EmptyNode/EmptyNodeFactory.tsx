@@ -12,10 +12,11 @@ import { AbstractReactFactory, GenerateWidgetEvent } from "@projectstorm/react-c
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { EmptyNodeModel } from "./EmptyNodeModel";
 import { EmptyNodeWidget } from "./EmptyNodeWidget";
+import { NodeTypes } from "../../../resources/constants";
 
 export class EmptyNodeFactory extends AbstractReactFactory<EmptyNodeModel, DiagramEngine> {
     constructor() {
-        super("empty-node");
+        super(NodeTypes.EMPTY_NODE);
     }
 
     generateModel(): EmptyNodeModel {

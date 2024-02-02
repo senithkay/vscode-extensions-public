@@ -12,10 +12,11 @@ import { AbstractReactFactory, GenerateModelEvent, GenerateWidgetEvent } from "@
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { CallNodeModel } from "./CallNodeModel";
 import { CallNodeWidget } from "./CallNodeWidget";
+import { NodeTypes } from "../../../resources/constants";
 
 export class CallNodeFactory extends AbstractReactFactory<CallNodeModel, DiagramEngine> {
     constructor() {
-        super("call-node");
+        super(NodeTypes.CALL_NODE);
     }
 
     generateModel(event: GenerateModelEvent): CallNodeModel {

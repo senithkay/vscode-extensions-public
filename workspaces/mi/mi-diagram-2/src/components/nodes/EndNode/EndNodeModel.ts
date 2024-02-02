@@ -9,13 +9,14 @@
 
 import { NodeModel, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort/NodePortModel";
+import { NodeTypes } from "../../../resources/constants";
 
 export class EndNodeModel extends NodeModel {
     protected port: NodePortModel;
 
     constructor() {
         super({
-            type: "end-node",
+            type: NodeTypes.END_NODE,
             locked: true,
         });
         this.addInPort("in");

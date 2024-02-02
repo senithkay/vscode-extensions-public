@@ -8,7 +8,7 @@
  */
 
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
-import { Colors } from "../../resources/constants";
+import { Colors, NODE_LINK, NodeTypes } from "../../resources/constants";
 import { SourceNodeModel, TargetNodeModel } from "../../utils/diagram";
 
 export const LINK_BOTTOM_OFFSET = 30;
@@ -36,7 +36,7 @@ export class NodeLinkModel extends DefaultLinkModel {
     constructor(options: NodeLinkModelOptions);
     constructor(options: NodeLinkModelOptions | string) {
         super({
-            type: "node-link",
+            type: NODE_LINK,
             width: 10,
             color: Colors.PRIMARY,
             selectedColor: Colors.SECONDARY,
@@ -176,7 +176,7 @@ export class NodeLinkModel extends DefaultLinkModel {
         if (this.points.length != 2) {
             return false;
         }
-        if (this.targetNode?.getType() === "empty-node") {
+        if (this.targetNode?.getType() === NodeTypes.EMPTY_NODE) {
             return false;
         }
         return this.showArrow;

@@ -16,13 +16,14 @@ import {
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { NodePortModel } from "./NodePortModel";
 import { NodePortWidget } from "./NodePortWidget";
+import { NODE_PORT } from "../../resources/constants";
 
 export class NodePortFactory extends AbstractReactFactory<
     NodePortModel,
     DiagramEngine
 > {
     constructor() {
-        super("node-port");
+        super(NODE_PORT);
     }
     
     generateModel(event: GenerateModelEvent): NodePortModel {
