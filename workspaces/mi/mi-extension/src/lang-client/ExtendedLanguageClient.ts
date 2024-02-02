@@ -11,6 +11,7 @@ import { ProjectStructureResponse, getSyntaxTree } from "@wso2-enterprise/mi-cor
 import { readFileSync } from "fs";
 import { Position, Uri, workspace } from "vscode";
 import { CompletionParams, LanguageClient, TextEdit } from "vscode-languageclient/node";
+import { TextDocumentIdentifier } from "vscode-languageserver-protocol";
 
 export interface GetSyntaxTreeParams {
     documentIdentifier: {
@@ -68,6 +69,19 @@ export interface DidOpenParams {
     };
 }
 
+export type TPosition = {
+    character: number;
+    line: number;
+};
+
+export interface GoToDefinitionResponse {
+    uri: string,
+    range: {
+        end: TPosition,
+        start: TPosition
+    }
+}
+
 export class ExtendedLanguageClient extends LanguageClient {
 
     async getSyntaxTree(req: GetSyntaxTreeParams): Promise<GetSyntaxTreeResponse> {
@@ -90,6 +104,10 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async getProjectStructure(path: string): Promise<ProjectStructureResponse> {
         return this.sendRequest('xml/getSynapseDirectoryTree', { uri: Uri.parse(path).toString() });
+    }
+
+    async getDefinition(document: TextDocumentIdentifier, position: Position): Promise<GoToDefinitionResponse> {
+        return this.sendRequest('xml/definition', { textDocument: document, position: position })
     }
 
     async getCompletion(params: GetCompletionParams): Promise<CompletionResponse[]> {
