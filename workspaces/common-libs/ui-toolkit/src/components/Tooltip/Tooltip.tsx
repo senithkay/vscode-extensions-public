@@ -121,7 +121,7 @@ export const Tooltip: React.FC<PropsWithChildren<TooltipProps>> = (props: PropsW
                 });
                 if (!isVisible) setIsVisible(true);
             }
-        }, 1000))
+        }, 500))
     }
 
     const onMouseLeave = () => {
