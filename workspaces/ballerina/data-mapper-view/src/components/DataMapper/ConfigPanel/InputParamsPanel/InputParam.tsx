@@ -10,7 +10,6 @@
 import React from "react";
 
 import styled from "@emotion/styled";
-import { Box } from "@material-ui/core";
 
 import { DataMapperInputParam } from "./types";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
@@ -43,7 +42,7 @@ export function InputParamItem(props: InputParamItemProps) {
             <ClickToEditContainer isInvalid={inputParam.isUnsupported} onClick={!inputParam.isUnsupported && handleEdit}>
                 {label}
             </ClickToEditContainer>
-            <Box component="span" display="flex">
+            <Box>
                 {!inputParam.isUnsupported && (
                     <EditButton
                         onClick={handleEdit}
@@ -72,7 +71,7 @@ const ClickToEditContainer = styled.div(({ isInvalid }: { isInvalid?: boolean })
 
 const DeleteButton = styled(Button)`
     padding: 0;
-    color: #FE523C;
+    color: var(--vscode-errorForeground);
 `;
 
 const EditButton = styled(Button)`
@@ -82,10 +81,9 @@ const EditButton = styled(Button)`
 `;
 
 const InputParamContainer = styled.div(() => ({
-    background: 'white',
+    background: 'var(--vscode-sideBar-background)',
+    color: 'inherit',
     padding: 10,
-    borderRadius: 5,
-    border: '1px solid var(--vscode-editor-inactiveSelectionBackground)',
     margin: '1rem 0 0.25rem',
     justifyContent: 'space-between',
     display: 'flex',
@@ -95,5 +93,10 @@ const InputParamContainer = styled.div(() => ({
 
 const TypeName = styled.span(({ isInvalid }: { isInvalid?: boolean }) => ({
     fontWeight: 500,
-    color: `${isInvalid ? '#fe523c' : 'inherit'}`,
+    color: `${isInvalid ? 'var(--vscode-errorForeground)' : 'inherit'}`,
 }));
+
+const Box = styled.div`
+    display: flex;
+`;
+

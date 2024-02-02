@@ -17,7 +17,7 @@ import {
     updateFunctionSignature,
 } from "@wso2-enterprise/ballerina-core";
 import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, ComponentCard, Popover, Divider, Typography, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, ComponentCard, Popover, Divider, Typography, Codicon, SidePanel } from "@wso2-enterprise/ui-toolkit";
 import {
     ExpressionFunctionBody,
     FunctionDefinition,
@@ -400,138 +400,137 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
     }
 
     return (
-        <div onClick={onClose}>
-            <WizardFormControlExtended
-                data-testid="data-mapper-form"
-            >
-                {(isNewRecord && breadCrumb) || (
-                    <FormTitleContainer>
-                        <Typography variant="h4">Data Mapper</Typography>
-                        <Button
-                            appearance="icon"
-                            onClick={onClose}
-                        >
-                            <Codicon name="close" />
-                        </Button>
-                    </FormTitleContainer>
-                )}
-                {isNewRecord &&
-                    recordPanel({
-                        targetPosition: getModifiedTargetPosition(newRecords, targetPosition, projectComponents, currentFile.path),
-                        closeAddNewRecord
-                    })
-                }
-                {!isNewRecord && (
-                    <>
-                        <FormBody>
-                            <FunctionNameEditor
-                                value={fnName}
-                                onBlur={(event: FocusEvent<HTMLInputElement>) => onNameOutFocus(event.target.value)}
-                                onChange={onNameChange}
-                                isValidating={!initiated || isValidationInProgress}
-                                errorMessage={dmFuncDiagnostic}
-                            />
-                            <FormDivider />
-                            <InputParamsPanel
-                                inputParams={inputParams}
-                                onUpdateParams={setInputParams}
-                                enableAddNewRecord={enableAddNewRecord}
-                                setAddExistType={setAddExistType}
-                                isAddExistType={isAddExistType}
-                                loadingCompletions={fetchingCompletions}
-                                completions={recordCompletions}
-                                isArraySupported={isArraySupported}
-                            />
-                            <FormDivider />
-                            <OutputTypePanel
-                                outputType={outputType}
-                                fetchingCompletions={fetchingCompletions}
-                                completions={recordCompletions}
-                                showOutputType={showOutputType}
-                                handleShowOutputType={handleShowOutputType}
-                                handleHideOutputType={handleHideOutputType}
-                                handleOutputTypeChange={handleOutputTypeChange}
-                                handleShowRecordEditor={handleShowRecordEditor}
-                                handleOutputDeleteClick={handleOutputDeleteClick}
-                                isArraySupported={isArraySupported}
-                            />
-                        </FormBody>
-                        <Button
-                            tooltip="Save"
-                            onClick={undefined}
-                        />
-                        <Button
-                            tooltip="Cancel"
-                            onClick={onClose}
-                        />
-                        <Button
-                            appearance="secondary"
-                            onClick={onClose}
-                        >
-                            <Typography variant="h5">Cancel</Typography>
-                        </Button>
-                        <Button
-                            appearance="primary"
-                            disabled={isClicked || !isValidConfig}
-                            onClick={handleSave}
-                        >
-                            <Typography variant="h5">Save</Typography>
-                        </Button>
-                        <Popover
-                            id={id}
-                            open={editConfirmPopoverOpen}
-                            anchorEl={popoverAnchorEl}
-                            // onClose={handleClosePopover}
-                        >
-                            <ComponentCard sx={{width:400}}>
-                                <span>{editConfirmMessage.current}</span>
-                                <ComponentCard sx={{display:'flex', justifyContent:'flex-end'}}>
-                                    <Button
-                                        appearance="secondary"
-                                        data-testid="dm-save-popover-cancel-btn"
-                                        onClick={handleClosePopover}
-                                    >
-                                        <Typography variant="h5">Cancel</Typography>
-                                    </Button>
-                                    <Button
-                                        appearance="primary"
-                                        data-testid="dm-save-popover-continue-btn"
-                                        onClick={onSaveForm}
-                                    >
-                                        <Typography variant="h5">Continue</Typography>
-                                    </Button>
-                                    <Button
-                                        tooltip="Cancel"
-                                        onClick={handleClosePopover}
-                                    />
-                                    <Button
-                                        tooltip="Continue"
-                                        onClick={onSaveForm}
-                                    />
+        <SidePanel
+            isOpen={true}
+            alignmanet="right"
+            sx={{transition: "all 0.3s ease-in-out", width: 600}}
+        >
+            <div>
+                <WizardFormControlExtended
+                    data-testid="data-mapper-form"
+                >
+                    {(isNewRecord && breadCrumb) || (
+                        <FormTitleContainer>
+                            <Typography variant="h4">Data Mapper</Typography>
+                            <Button
+                                appearance="icon"
+                                onClick={onClose}
+                            >
+                                <Codicon sx={{ width: "16px" }} iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} name="close" />
+                            </Button>
+                        </FormTitleContainer>
+                    )}
+                    {isNewRecord &&
+                        recordPanel({
+                            targetPosition: getModifiedTargetPosition(newRecords, targetPosition, projectComponents, currentFile.path),
+                            closeAddNewRecord
+                        })
+                    }
+                    {!isNewRecord && (
+                        <>
+                            <FormBody>
+                                <FunctionNameEditor
+                                    value={fnName}
+                                    onBlur={(event: FocusEvent<HTMLInputElement>) => onNameOutFocus(event.target.value)}
+                                    onChange={onNameChange}
+                                    isValidating={!initiated || isValidationInProgress}
+                                    errorMessage={dmFuncDiagnostic}
+                                />
+                                <FormDivider />
+                                <InputParamsPanel
+                                    inputParams={inputParams}
+                                    onUpdateParams={setInputParams}
+                                    enableAddNewRecord={enableAddNewRecord}
+                                    setAddExistType={setAddExistType}
+                                    isAddExistType={isAddExistType}
+                                    loadingCompletions={fetchingCompletions}
+                                    completions={recordCompletions}
+                                    isArraySupported={isArraySupported}
+                                />
+                                <FormDivider />
+                                <OutputTypePanel
+                                    outputType={outputType}
+                                    fetchingCompletions={fetchingCompletions}
+                                    completions={recordCompletions}
+                                    showOutputType={showOutputType}
+                                    handleShowOutputType={handleShowOutputType}
+                                    handleHideOutputType={handleHideOutputType}
+                                    handleOutputTypeChange={handleOutputTypeChange}
+                                    handleShowRecordEditor={handleShowRecordEditor}
+                                    handleOutputDeleteClick={handleOutputDeleteClick}
+                                    isArraySupported={isArraySupported}
+                                />
+                            </FormBody>
+                            <ButtonContainer>
+                                <Button
+                                    appearance="secondary"
+                                    onClick={onClose}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    appearance="primary"
+                                    disabled={isClicked || !isValidConfig}
+                                    onClick={handleSave}
+                                >
+                                    Save
+                                </Button>
+                            </ButtonContainer>
+                            <Popover
+                                id={id}
+                                open={editConfirmPopoverOpen}
+                                anchorEl={popoverAnchorEl}
+                                // onClose={handleClosePopover}
+                            >
+                                <ComponentCard sx={{width:400}}>
+                                    <span>{editConfirmMessage.current}</span>
+                                    <ComponentCard sx={{display:'flex', justifyContent:'flex-end'}}>
+                                        <Button
+                                            appearance="secondary"
+                                            data-testid="dm-save-popover-cancel-btn"
+                                            onClick={handleClosePopover}
+                                        >
+                                            <Typography variant="h5">Cancel</Typography>
+                                        </Button>
+                                        <Button
+                                            appearance="primary"
+                                            data-testid="dm-save-popover-continue-btn"
+                                            onClick={onSaveForm}
+                                        >
+                                            <Typography variant="h5">Continue</Typography>
+                                        </Button>
+                                        <Button
+                                            tooltip="Cancel"
+                                            onClick={handleClosePopover}
+                                        />
+                                        <Button
+                                            tooltip="Continue"
+                                            onClick={onSaveForm}
+                                        />
+                                    </ComponentCard>
                                 </ComponentCard>
-                            </ComponentCard>
-                        </Popover>
-                    </>
-                )}
-            </WizardFormControlExtended>
-        </div>
+                            </Popover>
+                        </>
+                    )}
+                </WizardFormControlExtended>
+            </div>
+        </SidePanel>
     );
 }
 
 const FormTitleContainer = styled.div`
-    display: 'flex';
-    flex-direction: 'row';
-    align-items: 'center';
-    justify-content: 'space-around';
-    border-bottom: '1px solid #d8d8d8';
-    padding-left: '12px'
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--vscode-editorIndentGuide-background);
+    padding: 0 12px;
 `;
 
 const FormSecondTitle = styled.div`
-    position: 'absolute';
+    position: absolute;
     left: 124;
-    display: 'flex';
-    align-items: 'center';
+    display: flex;
+    align-items: center;
     
     & svg {
         margin-top: 4
@@ -542,7 +541,6 @@ const FormBody = styled.div`
     width: 100%;
     flex-direction: row;
     padding: 15px 20px;
-    font-family: Gilmer;
 `;
 
 const FormDivider = styled(Divider)`
@@ -554,13 +552,23 @@ const WizardFormControlExtended = styled.div`
 `;
 
 export const Title = styled.div(() => ({
+    color: 'inherit',
     fontSize: "13px",
     letterSpacing: "normal",
     textTransform: "capitalize",
     margin: "0 0 8px",
-    fontFamily: "Gilmer",
     lineHeight: "1rem",
     paddingBottom: "0.6rem",
     fontWeight: 500,
 }));
+
+const ButtonContainer = styled.div`
+    display: flex;
+    gap: 10px;
+    padding: 0 20px;
+
+    & :nth-child(1) {
+        margin-left: auto;
+    }
+`;
 

@@ -16,8 +16,11 @@ export function FunctionNameEditor(props: FunctionNameEditorProps)  {
     return (
         <>
             <TextField
+                size={80}
                 onBlur={onBlur}
                 onChange={onChange}
+                label="Name"
+                required={true}
                 value={value}
                 placeholder="Data Mapper Name"
                 errorMsg={errorMessage}

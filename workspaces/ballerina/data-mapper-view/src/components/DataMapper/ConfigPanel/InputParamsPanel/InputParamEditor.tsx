@@ -11,13 +11,13 @@
 import React, { useState } from "react";
 
 import styled from "@emotion/styled";
-import { Box, Checkbox, FormControlLabel, Grid } from "@material-ui/core";
 import { camelCase } from "lodash";
 
 import { CompletionResponseWithModule, TypeBrowser } from "../TypeBrowser";
 
 import { DataMapperInputParam } from "./types";
-import { Button, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, Typography, Grid } from "@wso2-enterprise/ui-toolkit";
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 
 interface InputParamEditorProps {
     index?: number;
@@ -92,8 +92,8 @@ export function InputParamEditor(props: InputParamEditorProps) {
 
     return (
         <ParamEditorContainer>
-            <Grid container={true} spacing={1}>
-                <Grid item={true} xs={hideName ? 12 : 8}>
+            <Grid>
+                <Grid direction="row">
                     <IputLabel>Type</IputLabel>
                     <TypeBrowser
                         type={paramType}
@@ -103,49 +103,46 @@ export function InputParamEditor(props: InputParamEditorProps) {
                     />
                 </Grid>
                 {!hideName && (
-                    <Grid item={true} xs={4}>
+                    <Grid direction="row">
                         <IputLabel>Name</IputLabel>
                         <TextField
                             value={paramName}
                             placeholder={paramName}
                             onChange={onUpdateParamName}
                             errorMsg={pramError}
+                            size={40}
                         />
                     </Grid>
                 )}
 
             </Grid>
-            <Box mt={1} />
-            <Grid container={true} item={true} spacing={2}>
-                <Grid item={true} xs={6}>
+            <Grid direction="column" sx={{ marginTop: "8px" }}>
+                <Grid>
                     {isArraySupported && (
-                        <FormControlLabel
-                            control={(
-                                <Checkbox
-                                    checked={isArray}
-                                    onChange={(event) => setIsArray(event.target.checked)}
-                                    color="primary"
-                                />
-                            )}
-                            label="Is Array"
-                        />
+                        <FormControlLabel>
+                            <VSCodeCheckbox
+                                checked={isArray}
+                                onChange={event => setIsArray((event.target as HTMLInputElement).checked)}
+                            />
+                            <Typography variant="h4" sx={{ textWrap: "nowrap" }}>Is Array</Typography>
+                        </FormControlLabel>
                     )}
 
                 </Grid>
-                <Grid item={true} xs={6}>
+                <Grid>
                     <ButtonContainer>
                         <Button
                             appearance="secondary"
                             onClick={onCancel}
                         >
-                            <Typography variant="h5">Cancel</Typography>
+                            Cancel
                         </Button>
                         <Button
                             appearance="primary"
                             disabled={(!hideName && !paramName) || !paramType || pramError !== "" || !isValidParam}
                             onClick={onUpdate ? handleOnUpdate : handleOnSave}
                         >
-                            <Typography variant="h5">{onUpdate ? "Update" : " Add"}</Typography>
+                            {onUpdate ? "Update" : " Add"}
                         </Button>
                     </ButtonContainer>
                 </Grid>
@@ -177,6 +174,13 @@ const IputLabel = styled.div(() => ({
 
 const ButtonContainer = styled.div(() => ({
     display: "flex",
-    justifyContent: "flex-end",
-    marginTop: "1px"
+    alignItems: "center",
+    gap: "8px",
+    marginLeft: "auto",
 }))
+
+const FormControlLabel = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 6px;
+`;

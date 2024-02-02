@@ -165,7 +165,9 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
     );
 }
 
-const InputParamsContainer = styled.div(() => ({}));
+const InputParamsContainer = styled.div(() => ({
+    color: 'var(--vscode-foreground)'
+}));
 
 const Warning = styled(WarningBanner)`
     border-width: 1px !important;

@@ -11,7 +11,6 @@
 import React from "react";
 
 import styled from "@emotion/styled";
-import { Box } from "@material-ui/core";
 import { Button, Codicon, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import { Title } from "../DataMapperConfigPanel";
@@ -114,7 +113,7 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
                             {label}
                         </ClickToEditContainer>
                         <TypeName>{outputType?.isArray ? `${outputType.type}[]` : outputType.type}</TypeName>
-                        <Box component="span" display="flex">
+                        <Box>
                             {!outputType.isUnsupported && (
                                 <EditButton
                                     onClick={handleShowOutputType}
@@ -146,11 +145,9 @@ const ClickToEditContainer = styled.div(({ isInvalid }: { isInvalid?: boolean })
 }));
 
 const OutputTypeContainer = styled.div(({ isInvalid }: { isInvalid?: boolean }) => ({
-    background: "white",
+    background: 'var(--vscode-sideBar-background)',
     padding: 10,
-    borderRadius: 5,
-    border: "1px solid var(--vscode-editor-inactiveSelectionBackground)",
-    color: `${isInvalid ? '#fe523c' : 'inherit'}`,
+    color: `${isInvalid ? 'var(--vscode-errorForeground)' : 'inherit'}`,
     margin: "1rem 0 0.25rem",
     justifyContent: "space-between",
     display: "flex",
@@ -159,6 +156,7 @@ const OutputTypeContainer = styled.div(({ isInvalid }: { isInvalid?: boolean }) 
 }));
 
 const OutputTypeConfigPanel = styled.div`
+    color: 'var(--vscode-foreground)';
     width: 100%;
 `;
 
@@ -170,16 +168,21 @@ const Warning = styled(WarningBanner)`
 
 const DeleteButton = styled(Button)`
     padding: 0;
-    color: #fe523c;
+    color: var(--vscode-errorForeground);
 `;
 
 const TypeName = styled.span(({ isInvalid }: { isInvalid?: boolean }) => ({
     fontWeight: 500,
-    color: `${isInvalid ? '#fe523c' : 'inherit'}`,
+    color: `${isInvalid ? 'var(--vscode-errorForeground)' : 'inherit'}`,
+    marginRight: '6px'
 }));
 
 const EditButton = styled(Button)`
     padding: 0;
     margin-right: 5px;
     color: #36B475;
+`;
+
+const Box = styled.div`
+    display: flex;
 `;
