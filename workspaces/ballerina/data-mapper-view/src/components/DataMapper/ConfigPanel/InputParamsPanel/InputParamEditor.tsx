@@ -156,11 +156,9 @@ const ParamEditorContainer = styled.div(() => ({
     boxSizing: "border-box",
     height: "153px",
     width: "100%",
-    border: "1px solid #EEEEEE",
-    borderRadius: "5px",
+    border: "1px solid var(--vscode-editorIndentGuide-background)",
     backgroundColor: "var(--vscode-editorWidget-background)",
-    padding: "15px 10px",
-    margin: "5px",
+    padding: "15px 10px"
 }));
 
 const IputLabel = styled.div(() => ({
