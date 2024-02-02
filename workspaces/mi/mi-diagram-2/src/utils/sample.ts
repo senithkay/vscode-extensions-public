@@ -31,7 +31,7 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
     nodestart.setPosition(x + 60 - 12, y);
 
     var node1 = new MediatorNodeModel(mediatorList[0]);
-    node1.setPosition(x, (y += gapY));
+    node1.setPosition(x, (y += gapY-30));
 
     var node2 = new ConditionNodeModel(mediatorList[1]); // condition node
     node2.setPosition(x + 60 - 28, (y += gapY));
@@ -53,11 +53,13 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
         onAddClick: () => console.log("onAddClick"),
     });
     var link1 = createLink(node1.getOutPort(), node2.getInPort());
+
     var link2 = createLink(node2.getOutPort(), node3.getInPort(), { label: "onAccept" });
     var link3 = createLink(node3.getOutPort(), node4.getInPort());
+    var linkend = createLink(node4.getOutPort(), nodeend.getInPort());
+
     var link4 = createLink(node2.getOutPort(), node5.getInPort(), { label: "onReject" });
-    var linkend = createLink(node4.getOutPort(), nodeend.getInPort(), { showAddButton: false });
-    var linkend2 = createLink(node5.getOutPort(), nodeend.getInPort(), { showAddButton: true });
+    var linkend2 = createLink(node5.getOutPort(), nodeend.getInPort());
 
     diagramModel.addAll(
         nodestart,
