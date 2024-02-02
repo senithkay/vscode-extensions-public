@@ -16,6 +16,7 @@ import { NodeLinkModel, NodeLinkModelOptions } from "../components/NodeLink/Node
 import { NodePortModel } from "../components/NodePort/NodePortModel";
 import { ConditionNodeFactory } from "../components/nodes/ConditionNode/ConditionNodeFactory";
 import { CallNodeFactory } from "../components/nodes/CallNode/CallNodeFactory";
+import { EmptyNodeFactory } from "../components/nodes/EmptyNode/EmptyNodeFactory";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -29,6 +30,7 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new EndNodeFactory());
     engine.getNodeFactories().registerFactory(new ConditionNodeFactory());
     engine.getNodeFactories().registerFactory(new CallNodeFactory());
+    engine.getNodeFactories().registerFactory(new EmptyNodeFactory());
     return engine;
 }
 

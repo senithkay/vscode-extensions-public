@@ -15,6 +15,7 @@ import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 import { createLink } from "./diagram";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams-core";
 import { CallNodeModel } from "../components/nodes/CallNode/CallNodeModel";
+import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
 
 // Test data
 export function sampleDiagram(model: APIResource | Sequence, diagramModel: DiagramModel, engine: DiagramEngine) {
@@ -31,7 +32,7 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
     nodestart.setPosition(x + 60 - 12, y);
 
     var node1 = new MediatorNodeModel(mediatorList[0]);
-    node1.setPosition(x, (y += gapY-30));
+    node1.setPosition(x, (y += gapY - 30));
 
     var node2 = new ConditionNodeModel(mediatorList[1]); // condition node
     node2.setPosition(x + 60 - 28, (y += gapY));
@@ -45,6 +46,9 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
     var node4 = new CallNodeModel(mediatorList[12], mediatorList[5]);
     node4.setPosition(x + conY, (y += gapY));
 
+    var nodeempty = new EmptyNodeModel();
+    nodeempty.setPosition(x + 60 - 4, (y += gapY));
+
     var nodeend = new EndNodeModel();
     nodeend.setPosition(x + 60 - 12, (y += gapY + 10));
 
@@ -56,10 +60,12 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
 
     var link2 = createLink(node2.getOutPort(), node3.getInPort(), { label: "onAccept" });
     var link3 = createLink(node3.getOutPort(), node4.getInPort());
-    var linkend = createLink(node4.getOutPort(), nodeend.getInPort());
+    var linkend = createLink(node4.getOutPort(), nodeempty.getInPort(), { showArrow: false });
 
     var link4 = createLink(node2.getOutPort(), node5.getInPort(), { label: "onReject" });
-    var linkend2 = createLink(node5.getOutPort(), nodeend.getInPort());
+    var linkend2 = createLink(node5.getOutPort(), nodeempty.getInPort(), { showArrow: false });
+
+    var linkend3 = createLink(nodeempty.getOutPort(), nodeend.getInPort());
 
     diagramModel.addAll(
         nodestart,
@@ -68,6 +74,7 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
         node3,
         node4,
         node5,
+        nodeempty,
         nodeend,
         linkstart,
         link1,
@@ -75,7 +82,8 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
         link3,
         link4,
         linkend,
-        linkend2
+        linkend2,
+        linkend3
     );
 
     console.log("diagramModel", diagramModel);
