@@ -40,8 +40,10 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
     var node3 = new CallNodeModel(mediatorList[2]);
     node3.setPosition(x + conY, (y += gapY + 50));
 
-    var node5 = new MediatorNodeModel(mediatorList[6]);
-    node5.setPosition(x - conY, y);
+    // var node5 = new MediatorNodeModel(mediatorList[6]);
+    // node5.setPosition(x - conY, y);
+    var node5 = new EmptyNodeModel();
+    node5.setPosition(x - conY + 40, y);
 
     var node4 = new CallNodeModel(mediatorList[12], mediatorList[5]);
     node4.setPosition(x + conY, (y += gapY));
@@ -62,8 +64,8 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
     var link3 = createLink(node3.getOutPort(), node4.getInPort());
     var linkend = createLink(node4.getOutPort(), nodeempty.getInPort(), { showArrow: false });
 
-    var link4 = createLink(node2.getOutPort(), node5.getInPort(), { label: "onReject" });
-    var linkend2 = createLink(node5.getOutPort(), nodeempty.getInPort(), { showArrow: false });
+    var link4 = createLink(node2.getOutPort(), node5.getInPort(), { label: "onReject", showArrow: false, brokenLine: true });
+    var linkend2 = createLink(node5.getOutPort(), nodeempty.getInPort(), { showArrow: false, brokenLine: true });
 
     var linkend3 = createLink(nodeempty.getOutPort(), nodeend.getInPort());
 

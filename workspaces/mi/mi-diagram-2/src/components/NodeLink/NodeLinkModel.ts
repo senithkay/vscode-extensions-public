@@ -14,8 +14,9 @@ export const LINK_BOTTOM_OFFSET = 30;
 
 export interface NodeLinkModelOptions {
     label?: string;
-    showAddButton?: boolean;
-    showArrow?: boolean;
+    showAddButton?: boolean; // default true
+    showArrow?: boolean; // default true
+    brokenLine?: boolean; // default false
     onAddClick?: () => void;
 }
 
@@ -23,6 +24,7 @@ export class NodeLinkModel extends DefaultLinkModel {
     label: string;
     showAddButton = true;
     showArrow = true;
+    brokenLine = false;
     linkBottomOffset = LINK_BOTTOM_OFFSET;
     onAddClick?: () => void;
 
@@ -50,6 +52,9 @@ export class NodeLinkModel extends DefaultLinkModel {
                 }
                 if ((options as NodeLinkModelOptions).showArrow === false) {
                     this.showArrow = (options as NodeLinkModelOptions).showArrow;
+                }
+                if ((options as NodeLinkModelOptions).brokenLine === true) {
+                    this.brokenLine = (options as NodeLinkModelOptions).brokenLine;
                 }
             }
             if ((options as NodeLinkModelOptions).onAddClick) {
