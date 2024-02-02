@@ -41,7 +41,7 @@ import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
 import { LocalVarConfigPanel } from "./LocalVarConfigPanel/LocalVarConfigPanel";
 import { isArraysSupported, isDMSupported } from "./utils";
-import { useDMMetaData, useProjectComponents } from "../Hooks";
+import { useContent, useDMMetaData, useProjectComponents } from "../Hooks";
 import { DataMapperViewProps } from "../..";
 import { WarningBanner } from "./Warning/DataMapperWarning";
 
@@ -179,6 +179,7 @@ export function DataMapperC(props: DataMapperViewProps) {
         isFetching: isFetchingDMMetaData,
         isError: isErrorDMMetaData
     } = useDMMetaData(langServerRpcClient);
+    const { content, isFetching: isFetchingContent } = useContent(langServerRpcClient, filePath);
     // const { data } = useSyntaxTreeFromRange();
 
     // const fnST = data?.syntaxTree as FunctionDefinition;
@@ -191,12 +192,6 @@ export function DataMapperC(props: DataMapperViewProps) {
         startColumn: 0,
         endLine: 0,
         endColumn: 0
-    };
-
-    const currentFile = {
-        content: "",
-        path: filePath,
-        size: 1
     };
 
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
@@ -289,6 +284,12 @@ export function DataMapperC(props: DataMapperViewProps) {
         currentReferences,
         handleCurrentReferences
     }
+
+    const currentFile = useMemo(() => ({
+        content: content,
+        path: filePath,
+        size: 1
+    }), [content, isFetchingContent]);
 
     const moduleVariables = useMemo(() => {
         const moduleVars = [];

@@ -207,3 +207,30 @@ export const useDMMetaData = (langServerRpcClient: LangServerRpcClient): {
     return { ballerinaVersion, dMSupported, dMUnsupportedMessage, isFetching, isError, refetch };
 };
 
+export const useContent = (langServerRpcClient: LangServerRpcClient, filePath: string): {
+    content: string;
+    isFetching: boolean;
+    isError: boolean;
+    refetch: any;
+} => {
+    const fetchContent = async () => {
+        try {
+            const fullST = await langServerRpcClient.getST({
+                documentIdentifier: { uri: URI.file(filePath).toString() }
+            });
+            return fullST.syntaxTree.source;
+        } catch (networkError: any) {
+            console.error('Error while fetching content', networkError);
+        }
+    };
+
+    const {
+        data: content,
+        isFetching,
+        isError,
+        refetch,
+    } = useQuery(['fetchContent'], () => fetchContent(), {});
+
+    return { content, isFetching, isError, refetch };
+};
+
