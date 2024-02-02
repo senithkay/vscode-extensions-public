@@ -18,6 +18,19 @@ import { Combobox } from '@headlessui/react'
 import { Dropdown } from "./Dropdown";
 import styled from '@emotion/styled';
 
+export interface AutoCompleteProps {
+    id?: string;
+    items: string[];
+    label?: string;
+    notItemsFoundMessage?: string;
+    selectedItem?: string;
+    widthOffset?: number;
+    nullable?: boolean;
+    sx?: React.CSSProperties;
+    borderBox?: boolean; // Enable this if the box-sizing is border-box
+    onChange: (item: string, index?: number) => void;
+}
+
 const ComboboxButtonContainerActive = cx(css`
     height: 28px;
     position: absolute;
@@ -81,20 +94,8 @@ export const Container = styled.div<ContainerProps>`
     ${(props: ContainerProps) => props.sx}
 `;
 
-export interface AutoCompleteProps {
-    id?: string;
-    items: string[];
-    label?: string;
-    notItemsFoundMessage?: string;
-    selectedItem?: string;
-    widthOffset?: number;
-    nullable?: boolean;
-    sx?: React.CSSProperties;
-    onChange: (item: string, index?: number) => void;
-}
-
 export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompleteProps) => {
-    const { id, selectedItem, items, label, notItemsFoundMessage, widthOffset = 157, nullable, sx, onChange } = props;
+    const { id, selectedItem, items, label, notItemsFoundMessage, widthOffset = 157, nullable, sx, onChange, borderBox } = props;
     const [query, setQuery] = useState('');
     const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
     const [isUpButton, setIsUpButton] = useState(false);
@@ -149,20 +150,35 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
                             ref={inputRef}
                             displayValue={displayItemValue}
                             onChange={handleInputQueryChange}
-                            className={SearchableInput}
+                            className={cx(SearchableInput, borderBox && cx(css`
+                                height: 28px;
+                            `))}
                             onBlur={handleTextFieldOutFocused}
                             onFocus={handleTextFieldFocused}
                             onClick={handleTextFieldClick}
                         />
                         <Combobox.Button
                             id={`autocomplete-dropdown-button-${items[0]}`}
-                            className={isTextFieldFocused ? ComboboxButtonContainerActive : ComboboxButtonContainer}
-                            onClick={handleComboButtonClick}
+                            className={cx(isTextFieldFocused ? ComboboxButtonContainerActive : ComboboxButtonContainer, cx(css`
+                                padding-right: 10px;
+                            `))}
                         >
                             {isUpButton ? (
-                                <i className={`codicon codicon-chevron-up ${DropdownIcon}`} onClick={handleComboButtonClick} />
+                                <i 
+                                    className={`codicon codicon-chevron-up ${DropdownIcon}`}
+                                    onClick={handleComboButtonClick}
+                                    onMouseDown={(e: React.MouseEvent) => {
+                                        e.preventDefault()
+                                    }}
+                                />
                             ) : (
-                                <i className={`codicon codicon-chevron-down ${DropdownIcon}`} onClick={handleComboButtonClick} />
+                                <i
+                                    className={`codicon codicon-chevron-down ${DropdownIcon}`}
+                                    onClick={handleComboButtonClick}
+                                    onMouseDown={(e: React.MouseEvent) => {
+                                        e.preventDefault()
+                                    }}
+                                />
                             )}
 
                         </Combobox.Button>
