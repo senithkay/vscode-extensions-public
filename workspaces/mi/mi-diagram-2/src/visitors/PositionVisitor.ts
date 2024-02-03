@@ -8,7 +8,8 @@
  */
 
 import { STNode, Visitor, Log, WithParam, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState } from "@wso2-enterprise/mi-syntax-tree/src";
-import { NODE_GAP } from "./Constants";
+import { NODE_GAP, NODE_WIDTH } from "./Constants";
+import { MEDIATORS } from "../resources/constants";
 
 export class PositionVisitor implements Visitor {
     private position = {
@@ -39,51 +40,53 @@ export class PositionVisitor implements Visitor {
 
     private setAdvancedMediatorPosition(node: STNode, subSequences: { [x: string]: any; }): void {
         this.setBasicMediatorPosition(node);
-        let branchX = 0;
-        let branchY = this.position.y;
 
         const centerX = node.viewState.x + (node.viewState.w / 2);
-        const noOfSubSequences = Object.keys(subSequences).length;
+        const subSequenceKeys = Object.keys(subSequences);
 
         // calculate sequence widths
         const sequenceWidths: number[] = [];
+        const sequenceTypeOffsets: number[] = [];
         for (const i in subSequences) {
             const subSequence = subSequences[i];
             if (subSequence && subSequence.mediatorList && subSequence.mediatorList.length > 0) {
                 const subSequenceMediatorList = subSequence.mediatorList as any as STNode[];
-                let subSequenceWidth = 0;
+                let subSequenceFullWidth = NODE_WIDTH;
+                let subSequenceOffset = NODE_WIDTH;
                 subSequenceMediatorList.forEach((childNode: STNode) => {
                     if (childNode.viewState) {
-                        subSequenceWidth = Math.max(subSequenceWidth, childNode.viewState.w);
+                        if (childNode.tag !== MEDIATORS.CALL.toLowerCase()) {
+                            subSequenceOffset = Math.max(subSequenceOffset, childNode.viewState.w);
+                        }
+                        subSequenceFullWidth = Math.max(subSequenceFullWidth, childNode.viewState.fw ?? childNode.viewState.w);
                     }
                 });
-                sequenceWidths.push(subSequenceWidth);
+                sequenceWidths.push(subSequenceFullWidth);
+                sequenceTypeOffsets.push(subSequenceOffset / 2);
             }
         }
+        const branchesWidth = node.viewState.fw - sequenceTypeOffsets[0] - sequenceTypeOffsets[sequenceTypeOffsets.length - 1];
 
-        // set positions
-        this.position.x = centerX - (node.viewState.fw / noOfSubSequences) + (sequenceWidths[0] / noOfSubSequences);
-        for (let i = 0; i < Object.keys(subSequences).length; i++) {
-            const subSequence = subSequences[Object.keys(subSequences)[i]];
+        this.position.x = centerX - (branchesWidth / 2);
+        for (let i = 0; i < subSequenceKeys.length; i++) {
+            const subSequence = subSequences[subSequenceKeys[i]];
             if (subSequence && subSequence.mediatorList && subSequence.mediatorList.length > 0) {
                 const subSequenceMediatorList = subSequence.mediatorList as any as STNode[];
                 let subSequenceWidth = 0;
                 subSequenceMediatorList.forEach((childNode: STNode) => {
                     traversNode(childNode, this);
                     if (childNode.viewState) {
-                        subSequenceWidth = Math.max(subSequenceWidth, childNode.viewState.w);
+                        subSequenceWidth = Math.max(subSequenceWidth, childNode.viewState.fw ?? childNode.viewState.w);
                     }
                 });
-                branchX = Math.max(branchX, subSequenceWidth);
-                branchY = Math.max(branchY, subSequenceMediatorList[subSequenceMediatorList.length - 1].viewState.y + subSequenceMediatorList[subSequenceMediatorList.length - 1].viewState.h);
-                this.position.x += sequenceWidths[i + 1] + NODE_GAP.BRANCH_X;
+                this.position.x += subSequenceWidth + NODE_GAP.BRANCH_X;
                 this.position.y = node.viewState.y + node.viewState.h + NODE_GAP.Y;
             }
         }
 
         // set filter node positions after traversing children
         this.position.x = node.viewState.x + node.viewState.w / 2;
-        this.position.y = branchY + NODE_GAP.Y;
+        this.position.y += NODE_GAP.Y + node.viewState.fh;
         this.skipChildrenVisit = true;
     }
 

@@ -22,6 +22,7 @@ export interface ViewState {
     w: number;
     h: number;
     fw?: number;
+    fh?: number;
 }
 
 export interface Range {
@@ -604,6 +605,7 @@ export interface Endpoint extends STNode {
     key: string;
     template: string;
     uri: string;
+    type: string;
 }
 
 export interface API extends STNode {
