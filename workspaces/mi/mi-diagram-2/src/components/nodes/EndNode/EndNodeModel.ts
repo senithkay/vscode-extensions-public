@@ -9,15 +9,22 @@
 
 import { NodeModel, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort/NodePortModel";
+import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 
 export class EndNodeModel extends NodeModel {
+    protected stNode: STNode;
     protected port: NodePortModel;
+    protected parentNode: STNode;
+    protected prevNodes: STNode[];
 
-    constructor() {
+    constructor(stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
         super({
             type: "end-node",
             locked: true,
         });
+        this.stNode = stNode;
+        this.parentNode = parentNode;
+        this.prevNodes = prevNodes;
         this.addInPort("in");
     }
 
@@ -35,5 +42,17 @@ export class EndNodeModel extends NodeModel {
 
     getInPort(): NodePortModel {
         return this.port;
+    }
+
+    getStNode(): STNode {
+        return this.stNode;
+    }
+
+    getParentNode(): STNode {
+        return this.parentNode;
+    }
+
+    getPrevNodes(): STNode[] {
+        return this.prevNodes;
     }
 }

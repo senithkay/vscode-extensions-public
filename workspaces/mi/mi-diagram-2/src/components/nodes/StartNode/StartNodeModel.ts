@@ -15,8 +15,10 @@ import { getNodeIdFromModel } from "../../../utils/node";
 export class StartNodeModel extends NodeModel {
     readonly stNode: STNode;
     protected port: NodePortModel;
+    protected parentNode: STNode;
+    protected prevNodes: STNode[];
 
-    constructor(stNode: STNode) {
+    constructor(stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode, "start"),
             type: "start-node",
@@ -44,5 +46,13 @@ export class StartNodeModel extends NodeModel {
 
     getStNode(): STNode {
         return this.stNode;
+    }
+
+    getParentNode(): STNode {
+        return this.parentNode;
+    }
+
+    getPrevNodes(): STNode[] {
+        return this.prevNodes;
     }
 }

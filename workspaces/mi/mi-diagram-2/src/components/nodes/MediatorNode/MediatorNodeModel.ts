@@ -17,8 +17,8 @@ export class MediatorNodeModel extends NodeModel {
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
     protected portRight: NodePortModel;
-    readonly parentNode: STNode;
-    readonly prevNodes: STNode[];
+    protected parentNode: STNode;
+    protected prevNodes: STNode[];
 
     constructor(stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
         super({

@@ -16,8 +16,8 @@ export class ConditionNodeModel extends NodeModel {
     readonly stNode: STNode;
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
-    readonly parentNode: STNode;
-    readonly prevNodes: STNode[];
+    protected parentNode: STNode;
+    protected prevNodes: STNode[];
 
     constructor(stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
         super({
@@ -26,6 +26,8 @@ export class ConditionNodeModel extends NodeModel {
             locked: true,
         });
         this.stNode = stNode;
+        this.parentNode = parentNode;
+        this.prevNodes = prevNodes;
         this.addInPort("in");
         this.addOutPort("out");
     }

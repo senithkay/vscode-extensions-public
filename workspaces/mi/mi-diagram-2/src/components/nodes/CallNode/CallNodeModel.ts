@@ -17,8 +17,10 @@ export class CallNodeModel extends NodeModel {
     readonly endpoint: STNode;
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
+    protected parentNode: STNode;
+    protected prevNodes: STNode[];
 
-    constructor(stNode: STNode, endpoint?: STNode) {
+    constructor(stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = [], endpoint?: STNode) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode),
             type: "call-node",
@@ -58,5 +60,21 @@ export class CallNodeModel extends NodeModel {
 
     getOutPort(): NodePortModel {
         return this.portOut;
+    }
+
+    getStNode(): STNode {
+        return this.stNode;
+    }
+
+    getParentStNode(): STNode {
+        return this.parentNode;
+    }
+
+    getPrevStNodes(): STNode[] {
+        return this.prevNodes;
+    }
+
+    getEndpoint(): STNode {
+        return this.endpoint;
     }
 }
