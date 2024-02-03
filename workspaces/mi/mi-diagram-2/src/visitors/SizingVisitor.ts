@@ -8,7 +8,7 @@
  */
 
 import { Call, CallTemplate, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, STNode, Send, Sequence, Store, Throttle, Validate, Visitor, WithParam } from "@wso2-enterprise/mi-syntax-tree/src";
-import { CALL_NODE_WIDTH, CONDITION_NODE_WIDTH, NODE_GAP, NODE_HEIGHT, NODE_WIDTH, START_NODE_WIDTH } from "./Constants";
+import { NODE_WIDTH, NODE_HEIGHT, NODE_GAP, CONDITION_NODE_WIDTH, CALL_NODE_WIDTH, START_NODE_WIDTH } from "../resources/constants";
 
 export class SizingVisitor implements Visitor {
     private skipChildrenVisit = false;

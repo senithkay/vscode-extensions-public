@@ -8,8 +8,7 @@
  */
 
 import { STNode, Visitor, Log, WithParam, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState } from "@wso2-enterprise/mi-syntax-tree/src";
-import { NODE_GAP, NODE_WIDTH } from "./Constants";
-import { MEDIATORS } from "../resources/constants";
+import { MEDIATORS, NODE_GAP, NODE_WIDTH } from "../resources/constants";
 
 export class PositionVisitor implements Visitor {
     private position = {

@@ -14,8 +14,8 @@ import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 import { NodeModel } from "@projectstorm/react-diagrams";
 import { ConditionNodeModel } from "../components/nodes/ConditionNode/ConditionNodeModel";
 import { EndNodeModel } from "../components/nodes/EndNode/EndNodeModel";
-import { NODE_GAP } from "./Constants";
 import { CallNodeModel } from "../components/nodes/CallNode/CallNodeModel";
+import { NODE_GAP } from "../resources/constants";
 
 enum NodeType {
     START,

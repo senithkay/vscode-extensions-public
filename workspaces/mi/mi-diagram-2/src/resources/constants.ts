@@ -78,6 +78,19 @@ export const Colors = {
     ERROR:  DefaultColors.ERROR,
 };
 
+export const NODE_GAP = {
+    X: 0,
+    Y: 100,
+    BRANCH_X: 100,
+    BRANCH_Y: 20
+};
+
+export const NODE_WIDTH = 120;
+export const NODE_HEIGHT = 50;
+export const START_NODE_WIDTH = 24;
+export const CONDITION_NODE_WIDTH = 65;
+export const CALL_NODE_WIDTH = 110 + NODE_WIDTH;
+
 
 // MEDIATOR NAMES
 export const MEDIATORS = {
