@@ -8,7 +8,7 @@
  */
 
 import { STNode, Visitor, Log, WithParam, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState } from "@wso2-enterprise/mi-syntax-tree/src";
-import { MEDIATORS, NODE_GAP, NODE_WIDTH } from "../resources/constants";
+import { MEDIATORS, NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
 
 export class PositionVisitor implements Visitor {
     private position = {
@@ -50,8 +50,8 @@ export class PositionVisitor implements Visitor {
             const subSequence = subSequences[i];
             if (subSequence && subSequence.mediatorList && subSequence.mediatorList.length > 0) {
                 const subSequenceMediatorList = subSequence.mediatorList as any as STNode[];
-                let subSequenceFullWidth = NODE_WIDTH;
-                let subSequenceOffset = NODE_WIDTH;
+                let subSequenceFullWidth = NODE_DIMENSIONS.DEFAULT.WIDTH;
+                let subSequenceOffset = NODE_DIMENSIONS.DEFAULT.WIDTH;
                 subSequenceMediatorList.forEach((childNode: STNode) => {
                     if (childNode.viewState) {
                         if (childNode.tag !== MEDIATORS.CALL.toLowerCase()) {
@@ -68,6 +68,7 @@ export class PositionVisitor implements Visitor {
 
         this.position.x = centerX - (branchesWidth / 2);
         for (let i = 0; i < subSequenceKeys.length; i++) {
+            this.position.y = node.viewState.y + node.viewState.h + NODE_GAP.Y + 40 + NODE_GAP.BRANCH_TOP;
             const subSequence = subSequences[subSequenceKeys[i]];
             if (subSequence && subSequence.mediatorList && subSequence.mediatorList.length > 0) {
                 const subSequenceMediatorList = subSequence.mediatorList as any as STNode[];
@@ -79,7 +80,6 @@ export class PositionVisitor implements Visitor {
                     }
                 });
                 this.position.x += subSequenceWidth + NODE_GAP.BRANCH_X;
-                this.position.y = node.viewState.y + node.viewState.h + NODE_GAP.Y;
             }
         }
 

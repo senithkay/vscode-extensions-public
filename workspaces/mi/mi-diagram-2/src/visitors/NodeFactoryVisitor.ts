@@ -144,7 +144,8 @@ export class NodeFactoryVisitor implements Visitor {
         this.parents.push(node);
     }
     endVisitInSequence(node: Sequence): void {
-        node.viewState.y = this.nodes[this.nodes.length - 1].getPosition().y + NODE_GAP.Y;
+        const lastNode = this.nodes[this.nodes.length - 1].getStNode();
+        node.viewState.y = lastNode.viewState.y + lastNode.viewState.h + NODE_GAP.Y;
         this.createNodeAndLinks(node, NodeType.END);
         this.parents.pop();
     }

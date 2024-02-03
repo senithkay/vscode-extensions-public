@@ -8,7 +8,7 @@
  */
 
 import { Call, CallTemplate, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, STNode, Send, Sequence, Store, Throttle, Validate, Visitor, WithParam } from "@wso2-enterprise/mi-syntax-tree/src";
-import { NODE_WIDTH, NODE_HEIGHT, NODE_GAP, CONDITION_NODE_WIDTH, CALL_NODE_WIDTH, START_NODE_WIDTH } from "../resources/constants";
+import { NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
 
 export class SizingVisitor implements Visitor {
     private skipChildrenVisit = false;
@@ -20,19 +20,23 @@ export class SizingVisitor implements Visitor {
 
     calculateBasicMediator = (node: STNode): void => {
         if (node.viewState == undefined) {
-            node.viewState = { x: 0, y: 0, w: NODE_WIDTH, h: NODE_HEIGHT }
+            node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.DEFAULT.WIDTH, h: NODE_DIMENSIONS.DEFAULT.HEIGHT }
         }
         this.sequenceWidth = Math.max(this.sequenceWidth, node.viewState.w);
     }
 
     calculateAdvancedMediator = (node: STNode, subSequences: { [x: string]: any; }): void => {
+        if (node.viewState == undefined) {
+            node.viewState = { x: 0, y: 0, w: 0, h: 0, fw: 0, fh: 0 }
+        }
+
         let subSequencesWidth = 0;
         let subSequencesHeight = 0;
         for (let i = 0; i < Object.keys(subSequences).length; i++) {
             const subSequence = subSequences[Object.keys(subSequences)[i]];
             if (subSequence && subSequence.mediatorList && subSequence.mediatorList.length > 0) {
                 const subSequenceMediatorList = subSequence.mediatorList as any as STNode[];
-                let subSequenceWidth = NODE_WIDTH;
+                let subSequenceWidth = NODE_DIMENSIONS.DEFAULT.WIDTH;
                 subSequenceMediatorList.forEach((childNode: STNode) => {
                     if (childNode.viewState) {
                         subSequenceWidth = Math.max(subSequenceWidth, childNode.viewState.fw ?? childNode.viewState.w);
@@ -41,11 +45,12 @@ export class SizingVisitor implements Visitor {
                 subSequencesWidth += subSequenceWidth + (i === Object.keys(subSequences).length - 1 ? 0 : NODE_GAP.BRANCH_X);
                 subSequencesHeight = Math.max(subSequencesHeight,
                     (subSequenceMediatorList[subSequenceMediatorList.length - 1].viewState.y + subSequenceMediatorList[subSequenceMediatorList.length - 1].viewState.h) -
-                    (subSequenceMediatorList[0].viewState.y + subSequenceMediatorList[0].viewState.h) + NODE_GAP.BRANCH_Y);
+                    (subSequenceMediatorList[0].viewState.y + subSequenceMediatorList[0].viewState.h) + NODE_GAP.BRANCH_BOTTOM);
             }
         }
 
-        node.viewState = { x: 0, y: 0, w: CONDITION_NODE_WIDTH, h: NODE_HEIGHT, fw: subSequencesWidth, fh: subSequencesHeight };
+        node.viewState.fw = subSequencesWidth;
+        node.viewState.fh = subSequencesHeight;
 
         this.sequenceWidth = Math.max(this.sequenceWidth, node.viewState.fw);
     }
@@ -57,7 +62,7 @@ export class SizingVisitor implements Visitor {
     // visitors
     endVisitCall = (node: Call): void => {
         if (node.endpoint) {
-            node.viewState = { x: 0, y: 0, w: NODE_WIDTH, fw: CALL_NODE_WIDTH, h: 0 };
+            node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.DEFAULT.WIDTH, fw: NODE_DIMENSIONS.CALL.WIDTH, h: NODE_DIMENSIONS.DEFAULT.HEIGHT };
         }
         this.calculateBasicMediator(node);
     }
@@ -71,11 +76,13 @@ export class SizingVisitor implements Visitor {
             then: node.then,
             else: node.else_
         });
+        node.viewState.w = NODE_DIMENSIONS.CONDITION.WIDTH;
+        node.viewState.h = NODE_DIMENSIONS.CONDITION.HEIGHT;
     }
 
     endVisitHeader = (node: Header): void => this.calculateBasicMediator(node);
     endVisitInSequence = (node: Sequence): void => {
-        node.viewState = { x: 0, y: 0, w: START_NODE_WIDTH, h: 0 };
+        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.WIDTH, h: NODE_DIMENSIONS.START.HEIGHT };
     }
     endVisitLog = (node: Log): void => this.calculateBasicMediator(node);
     endVisitLoopback = (node: Loopback): void => this.calculateBasicMediator(node);

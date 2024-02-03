@@ -52,44 +52,58 @@ export enum VSCodeColors {
 }
 
 export const Colors = {
-    PRIMARY:  DefaultColors.PRIMARY,
-    ON_PRIMARY:  DefaultColors.ON_PRIMARY,
+    PRIMARY: DefaultColors.PRIMARY,
+    ON_PRIMARY: DefaultColors.ON_PRIMARY,
     PRIMARY_CONTAINER:
         DefaultColors.PRIMARY_CONTAINER,
 
-    SECONDARY:  DefaultColors.SECONDARY,
-    ON_SECONDARY:  DefaultColors.ON_SECONDARY,
+    SECONDARY: DefaultColors.SECONDARY,
+    ON_SECONDARY: DefaultColors.ON_SECONDARY,
     SECONDARY_CONTAINER:
         DefaultColors.SECONDARY_CONTAINER,
 
-    SURFACE_BRIGHT:  DefaultColors.SURFACE_BRIGHT,
-    SURFACE:DefaultColors.SURFACE,
-    SURFACE_DIM:  DefaultColors.SURFACE_DIM,
+    SURFACE_BRIGHT: DefaultColors.SURFACE_BRIGHT,
+    SURFACE: DefaultColors.SURFACE,
+    SURFACE_DIM: DefaultColors.SURFACE_DIM,
     ON_SURFACE: DefaultColors.ON_SURFACE,
     ON_SURFACE_VARIANT:
         DefaultColors.ON_SURFACE_VARIANT,
     SURFACE_CONTAINER:
-      DefaultColors.SURFACE_CONTAINER,
+        DefaultColors.SURFACE_CONTAINER,
 
     OUTLINE: DefaultColors.OUTLINE,
     OUTLINE_VARIANT:
-       DefaultColors.OUTLINE_VARIANT,
+        DefaultColors.OUTLINE_VARIANT,
 
-    ERROR:  DefaultColors.ERROR,
+    ERROR: DefaultColors.ERROR,
 };
 
 export const NODE_GAP = {
     X: 0,
-    Y: 100,
+    Y: 50,
     BRANCH_X: 100,
-    BRANCH_Y: 20
+    BRANCH_TOP: 0,
+    BRANCH_BOTTOM: 0
 };
 
-export const NODE_WIDTH = 120;
-export const NODE_HEIGHT = 50;
-export const START_NODE_WIDTH = 24;
-export const CONDITION_NODE_WIDTH = 65;
-export const CALL_NODE_WIDTH = 110 + NODE_WIDTH;
+export const NODE_DIMENSIONS = {
+    DEFAULT: {
+        WIDTH: 120,
+        HEIGHT: 40,
+    },
+    START: {
+        WIDTH: 24,
+        HEIGHT: 24,
+    },
+    CONDITION: {
+        WIDTH: 65,
+        HEIGHT: 65,
+    },
+    CALL: {
+        WIDTH: 110 + 120,
+        HEIGHT: 50,
+    },
+};
 
 
 // MEDIATOR NAMES
