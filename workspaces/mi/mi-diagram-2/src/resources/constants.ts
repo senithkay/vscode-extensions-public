@@ -52,28 +52,80 @@ export enum VSCodeColors {
 }
 
 export const Colors = {
-    PRIMARY: VSCodeColors.PRIMARY || DefaultColors.PRIMARY,
-    ON_PRIMARY: VSCodeColors.ON_PRIMARY || DefaultColors.ON_PRIMARY,
+    PRIMARY:  DefaultColors.PRIMARY,
+    ON_PRIMARY:  DefaultColors.ON_PRIMARY,
     PRIMARY_CONTAINER:
-        VSCodeColors.PRIMARY_CONTAINER || DefaultColors.PRIMARY_CONTAINER,
+        DefaultColors.PRIMARY_CONTAINER,
 
-    SECONDARY: VSCodeColors.SECONDARY || DefaultColors.SECONDARY,
-    ON_SECONDARY: VSCodeColors.ON_SECONDARY || DefaultColors.ON_SECONDARY,
+    SECONDARY:  DefaultColors.SECONDARY,
+    ON_SECONDARY:  DefaultColors.ON_SECONDARY,
     SECONDARY_CONTAINER:
-        VSCodeColors.SECONDARY_CONTAINER || DefaultColors.SECONDARY_CONTAINER,
+        DefaultColors.SECONDARY_CONTAINER,
 
-    SURFACE_BRIGHT: VSCodeColors.SURFACE_BRIGHT || DefaultColors.SURFACE_BRIGHT,
-    SURFACE: VSCodeColors.SURFACE || DefaultColors.SURFACE,
-    SURFACE_DIM: VSCodeColors.SURFACE_DIM || DefaultColors.SURFACE_DIM,
-    ON_SURFACE: VSCodeColors.ON_SURFACE || DefaultColors.ON_SURFACE,
+    SURFACE_BRIGHT:  DefaultColors.SURFACE_BRIGHT,
+    SURFACE:DefaultColors.SURFACE,
+    SURFACE_DIM:  DefaultColors.SURFACE_DIM,
+    ON_SURFACE: DefaultColors.ON_SURFACE,
     ON_SURFACE_VARIANT:
-        VSCodeColors.ON_SURFACE_VARIANT || DefaultColors.ON_SURFACE_VARIANT,
+        DefaultColors.ON_SURFACE_VARIANT,
     SURFACE_CONTAINER:
-        VSCodeColors.SURFACE_CONTAINER || DefaultColors.SURFACE_CONTAINER,
+      DefaultColors.SURFACE_CONTAINER,
 
-    OUTLINE: VSCodeColors.OUTLINE || DefaultColors.OUTLINE,
+    OUTLINE: DefaultColors.OUTLINE,
     OUTLINE_VARIANT:
-        VSCodeColors.OUTLINE_VARIANT || DefaultColors.OUTLINE_VARIANT,
+       DefaultColors.OUTLINE_VARIANT,
 
-    ERROR: VSCodeColors.ERROR || DefaultColors.ERROR,
+    ERROR:  DefaultColors.ERROR,
 };
+
+
+// MEDIATOR NAMES
+export const MEDIATORS = {
+    AGGREGATE: "Aggregate",
+    CACHE: "Cache",
+    CALL: "Call",
+    CALLOUT: "Callout",
+    CALLTEMPLATE: "CallTemplate",
+    CLONE: "Clone",
+    DATAMAPPER: "DataMapper",
+    DATASERVICE: "DataService",
+    DROP: "Drop",
+    ENRICH: "Enrich",
+    ENTITLEMENT: "Entitlement",
+    FASTXSLT: "FastXSLT",
+    FAULT: "Fault",
+    FILTER: "Filter",
+    FOREACH: "ForEach",
+    HEADER: "Header",
+    ITERATE: "Iterate",
+    JSONTRANSFORM: "JSONTransform",
+    LOG: "Log",
+    LOOPBACK: "Loopback",
+    PAYLOAD: "Payload",
+    PROPERTY: "Property",
+    PROPERTYGROUP: "PropertyGroup",
+    RESPOND: "Respond",
+    REWRITE: "Rewrite",
+    RULE: "Rule",
+    SEND: "Send",
+    SEQUENCE: "Sequence",
+    SMOOKS: "Smooks",
+    STORE: "Store",
+    SWITCH: "Switch",
+    THROTTLE: "Throttle",
+    VALIDATE: "Validate",
+    XQUERY: "XQuery",
+    XSLT: "XSLT",
+}
+
+export const ENDPOINTS = {
+    ADDRESS: "Address",
+    DEFAULT: "Default",
+    FAILOVER: "Failover",
+    HTTP: "Http",
+    LOADBALANCE: "Loadbalance",
+    NAMED: "Named",
+    RECIPIENTLIST: "Recipientlist",
+    TEMPLATE: "Template",
+    WSDL: "wsdl",
+}
