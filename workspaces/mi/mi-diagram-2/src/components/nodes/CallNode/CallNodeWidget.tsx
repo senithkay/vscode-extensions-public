@@ -48,8 +48,8 @@ namespace S {
 
     export const CircleContainer = styled.div`
         position: absolute;
-        top: 0;
-        right: -100px;
+        top: -5px;
+        right: -110px;
     `;
 
     export const IconContainer = styled.div`
@@ -117,22 +117,20 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
             <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
             {node.endpoint && (
                 <S.CircleContainer>
-                    <svg width="100" height="40" viewBox="0 0 100 40">
+                    <svg width="110" height="50" viewBox="0 0 103 40">
                         <circle
                             cx="80"
                             cy="20"
-                            r="18"
+                            r="22"
                             fill={Colors.SURFACE_BRIGHT}
                             stroke={Colors.OUTLINE_VARIANT}
                             strokeWidth={2}
                         />
-                        <g id="node" transform="translate(100, 100)">
-                            <rect width="50" height="50" style={{ fill: "blue" }} />
-                        </g>
+                        <text x="60" y="25" fill={Colors.OUTLINE} fontSize={"13px"}>{node.endpoint.type}</text>
                         <line
                             x1="0"
                             y1="20"
-                            x2="60"
+                            x2="57"
                             y2="20"
                             style={{ stroke: "black", strokeWidth: 2, markerEnd: `url(#${node.getID()}-arrow-head)` }}
                         />
