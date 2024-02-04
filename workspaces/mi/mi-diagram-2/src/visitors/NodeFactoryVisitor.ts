@@ -15,15 +15,7 @@ import { NodeModel } from "@projectstorm/react-diagrams";
 import { ConditionNodeModel } from "../components/nodes/ConditionNode/ConditionNodeModel";
 import { EndNodeModel } from "../components/nodes/EndNode/EndNodeModel";
 import { CallNodeModel } from "../components/nodes/CallNode/CallNodeModel";
-import { NODE_GAP } from "../resources/constants";
-
-enum NodeType {
-    START,
-    END,
-    MEDIATOR,
-    CONDITION,
-    CALL
-}
+import { NODE_GAP, NodeTypes } from "../resources/constants";
 
 export class NodeFactoryVisitor implements Visitor {
     nodes: (MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel)[] = [];
@@ -33,18 +25,18 @@ export class NodeFactoryVisitor implements Visitor {
     private previousSTNodes: STNode[] = [];
     private currentBranchName: string;
 
-    private createNodeAndLinks(node: STNode, type: NodeType = NodeType.MEDIATOR, data?: any): void {
+    private createNodeAndLinks(node: STNode, type: NodeTypes = NodeTypes.MEDIATOR_NODE, data?: any): void {
         // create node
         let diagramNode: MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel;
-        if (type === NodeType.MEDIATOR) {
+        if (type === NodeTypes.MEDIATOR_NODE) {
             diagramNode = new MediatorNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
-        } else if (type === NodeType.CONDITION) {
+        } else if (type === NodeTypes.CONDITION_NODE) {
             diagramNode = new ConditionNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
-        } else if (type === NodeType.START) {
+        } else if (type === NodeTypes.START_NODE) {
             diagramNode = new StartNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
-        } else if (type === NodeType.END) {
+        } else if (type === NodeTypes.END_NODE) {
             diagramNode = new EndNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
-        } else if (type === NodeType.CALL) {
+        } else if (type === NodeTypes.CALL_NODE) {
             diagramNode = new CallNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes, data);
         }
         diagramNode.setPosition(node.viewState.x, node.viewState.y);
@@ -110,7 +102,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitCall = (node: Call): void => {
-        this.createNodeAndLinks(node, NodeType.CALL, node.endpoint);
+        this.createNodeAndLinks(node, NodeTypes.CALL_NODE, node.endpoint);
         this.skipChildrenVisit = true;
     }
     endVisitCall = (node: Call): void => {
@@ -123,7 +115,7 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitEndpointHttp = (node: EndpointHttp): void => this.createNodeAndLinks(node);
 
     beginVisitFilter(node: Filter): void {
-        this.createNodeAndLinks(node, NodeType.CONDITION)
+        this.createNodeAndLinks(node, NodeTypes.CONDITION_NODE)
         this.parents.push(node);
 
         this.visitSubSequences(node, {
@@ -140,13 +132,13 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitHeader = (node: Header): void => this.createNodeAndLinks(node);
 
     beginVisitInSequence(node: Sequence): void {
-        this.createNodeAndLinks(node, NodeType.START);
+        this.createNodeAndLinks(node, NodeTypes.START_NODE);
         this.parents.push(node);
     }
     endVisitInSequence(node: Sequence): void {
         const lastNode = this.nodes[this.nodes.length - 1].getStNode();
         node.viewState.y = lastNode.viewState.y + lastNode.viewState.h + NODE_GAP.Y;
-        this.createNodeAndLinks(node, NodeType.END);
+        this.createNodeAndLinks(node, NodeTypes.END_NODE);
         this.parents.pop();
     }
 
