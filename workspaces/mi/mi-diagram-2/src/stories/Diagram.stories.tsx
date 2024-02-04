@@ -349,6 +349,108 @@ const resourceModel: any = { // TODO: find and check APIResource model types and
                     selfClosed: false,
                     tag: "else"
                 },
+                else_2: {
+                    mediatorList: [
+                        {
+                            format: {
+                                content: "<Message xmlns=\"\" >Invalid Phone Number</Message>",
+                                range: {
+                                    start: {
+                                        line: 282,
+                                        character: 24
+                                    },
+                                    end: {
+                                        line: 302,
+                                        character: 33
+                                    }
+                                },
+                                hasTextNode: false,
+                                selfClosed: false,
+                                tag: "format"
+                            },
+                            args: {
+                                arg: [
+                                    {
+                                        value: "default",
+                                        literal: false,
+                                        range: {
+                                            start: {
+                                                line: 32,
+                                                character: 28
+                                            },
+                                            end: {
+                                                line: 32,
+                                                character: 50
+                                            }
+                                        },
+                                        hasTextNode: false,
+                                        selfClosed: true,
+                                        tag: "arg"
+                                    },
+                                    {
+                                        evaluator: "xml",
+                                        expression: "s",
+                                        literal: false,
+                                        range: {
+                                            start: {
+                                                line: 33,
+                                                character: 28
+                                            },
+                                            end: {
+                                                line: 33,
+                                                character: 65
+                                            }
+                                        },
+                                        hasTextNode: false,
+                                        selfClosed: true,
+                                        tag: "arg"
+                                    }
+                                ],
+                                range: {
+                                    start: {
+                                        line: 31,
+                                        character: 24
+                                    },
+                                    end: {
+                                        line: 34,
+                                        character: 31
+                                    }
+                                },
+                                hasTextNode: false,
+                                selfClosed: false,
+                                tag: "args"
+                            },
+                            mediaType: "xml",
+                            description: "Create response payload for invalid phone numbers",
+                            range: {
+                                start: {
+                                    line: 271,
+                                    character: 20
+                                },
+                                end: {
+                                    line: 351,
+                                    character: 37
+                                }
+                            },
+                            hasTextNode: false,
+                            selfClosed: false,
+                            tag: "payloadFactory"
+                        }
+                    ],
+                    range: {
+                        start: {
+                            line: 26,
+                            character: 16
+                        },
+                        end: {
+                            line: 36,
+                            character: 23
+                        }
+                    },
+                    hasTextNode: false,
+                    selfClosed: false,
+                    tag: "else"
+                },
                 xpath: "fn:string-length($ctx:phoneNumber) = 10",
                 description: "Check phone number has 10 digits",
                 range: {

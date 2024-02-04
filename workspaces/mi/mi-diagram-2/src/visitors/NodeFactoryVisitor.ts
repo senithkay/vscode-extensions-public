@@ -16,6 +16,7 @@ import { ConditionNodeModel } from "../components/nodes/ConditionNode/ConditionN
 import { EndNodeModel } from "../components/nodes/EndNode/EndNodeModel";
 import { CallNodeModel } from "../components/nodes/CallNode/CallNodeModel";
 import { NODE_GAP, NodeTypes } from "../resources/constants";
+import { SourceNodeModel, TargetNodeModel, createNodesLink } from "../utils/diagram";
 
 export class NodeFactoryVisitor implements Visitor {
     nodes: (MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel)[] = [];
@@ -49,8 +50,15 @@ export class NodeFactoryVisitor implements Visitor {
                 const previousNodes = this.nodes.filter((node) => node.getStNode() == previousStNode);
                 for (let j = 0; j < previousNodes.length; j++) {
                     const previousNode = previousNodes[j];
-                    const link = this.createLink(previousNode, diagramNode);
+                    const link = createNodesLink(
+                        previousNode as SourceNodeModel,
+                        diagramNode as TargetNodeModel,
+                        {
+                            label: this.currentBranchName,
+                        }
+                    );
                     this.links.push(link);
+                    this.currentBranchName = undefined;
                 }
             }
         }
@@ -90,15 +98,6 @@ export class NodeFactoryVisitor implements Visitor {
 
     getLinks(): NodeLinkModel[] {
         return this.links;
-    }
-
-    createLink(sourceNode: NodeModel, targetNode: NodeModel): NodeLinkModel {
-        const link = new NodeLinkModel(this.currentBranchName);
-        link.setSourcePort(sourceNode.getPort("out"));
-        link.setTargetPort(targetNode.getPort("in"));
-        sourceNode.getPort("out").addLink(link);
-        this.currentBranchName = undefined;
-        return link;
     }
 
     beginVisitCall = (node: Call): void => {
