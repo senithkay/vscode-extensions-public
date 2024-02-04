@@ -100,7 +100,8 @@ export const NODE_DIMENSIONS = {
         HEIGHT: 65,
     },
     CALL: {
-        WIDTH: 110 + 120,
+        WIDTH: 152,
+        FULL_WIDTH: 152 + 110,
         HEIGHT: 50,
     },
 };
