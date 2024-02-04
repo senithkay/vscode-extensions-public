@@ -52,30 +52,30 @@ export enum VSCodeColors {
 }
 
 export const Colors = {
-    PRIMARY: DefaultColors.PRIMARY,
-    ON_PRIMARY: DefaultColors.ON_PRIMARY,
+    PRIMARY: VSCodeColors.PRIMARY || DefaultColors.PRIMARY,
+    ON_PRIMARY: VSCodeColors.ON_PRIMARY || DefaultColors.ON_PRIMARY,
     PRIMARY_CONTAINER:
-        DefaultColors.PRIMARY_CONTAINER,
+        VSCodeColors.PRIMARY_CONTAINER || DefaultColors.PRIMARY_CONTAINER,
 
-    SECONDARY: DefaultColors.SECONDARY,
-    ON_SECONDARY: DefaultColors.ON_SECONDARY,
+    SECONDARY: VSCodeColors.SECONDARY || DefaultColors.SECONDARY,
+    ON_SECONDARY: VSCodeColors.ON_SECONDARY || DefaultColors.ON_SECONDARY,
     SECONDARY_CONTAINER:
-        DefaultColors.SECONDARY_CONTAINER,
+        VSCodeColors.SECONDARY_CONTAINER || DefaultColors.SECONDARY_CONTAINER,
 
-    SURFACE_BRIGHT: DefaultColors.SURFACE_BRIGHT,
-    SURFACE: DefaultColors.SURFACE,
-    SURFACE_DIM: DefaultColors.SURFACE_DIM,
-    ON_SURFACE: DefaultColors.ON_SURFACE,
+    SURFACE_BRIGHT: VSCodeColors.SURFACE_BRIGHT || DefaultColors.SURFACE_BRIGHT,
+    SURFACE: VSCodeColors.SURFACE || DefaultColors.SURFACE,
+    SURFACE_DIM: VSCodeColors.SURFACE_DIM || DefaultColors.SURFACE_DIM,
+    ON_SURFACE: VSCodeColors.ON_SURFACE || DefaultColors.ON_SURFACE,
     ON_SURFACE_VARIANT:
-        DefaultColors.ON_SURFACE_VARIANT,
+        VSCodeColors.ON_SURFACE_VARIANT || DefaultColors.ON_SURFACE_VARIANT,
     SURFACE_CONTAINER:
-        DefaultColors.SURFACE_CONTAINER,
+        VSCodeColors.SURFACE_CONTAINER || DefaultColors.SURFACE_CONTAINER,
 
-    OUTLINE: DefaultColors.OUTLINE,
+    OUTLINE: VSCodeColors.OUTLINE || DefaultColors.OUTLINE,
     OUTLINE_VARIANT:
-        DefaultColors.OUTLINE_VARIANT,
+       DefaultColors.OUTLINE_VARIANT,
 
-    ERROR: DefaultColors.ERROR,
+    ERROR: VSCodeColors.ERROR || DefaultColors.ERROR,
 };
 
 export const NODE_GAP = {
