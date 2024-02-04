@@ -12,10 +12,11 @@ import { AbstractReactFactory, GenerateModelEvent, GenerateWidgetEvent } from "@
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { StartNodeModel } from "./StartNodeModel";
 import { StartNodeWidget } from "./StartNodeWidget";
+import { NodeTypes } from "../../../resources/constants";
 
 export class StartNodeFactory extends AbstractReactFactory<StartNodeModel, DiagramEngine> {
     constructor() {
-        super("start-node");
+        super(NodeTypes.START_NODE);
     }
 
     generateModel(event: GenerateModelEvent): StartNodeModel {

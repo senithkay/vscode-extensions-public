@@ -11,6 +11,7 @@ import { NodeModel } from "@projectstorm/react-diagrams";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodePortModel } from "../../NodePort/NodePortModel";
 import { getNodeIdFromModel } from "../../../utils/node";
+import { NodeTypes } from "../../../resources/constants";
 
 export class MediatorNodeModel extends NodeModel {
     readonly stNode: STNode;
@@ -20,7 +21,7 @@ export class MediatorNodeModel extends NodeModel {
     constructor(stNode: STNode) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode),
-            type: "mediator-node",
+            type: NodeTypes.MEDIATOR_NODE,
             locked: true,
         });
         this.stNode = stNode;

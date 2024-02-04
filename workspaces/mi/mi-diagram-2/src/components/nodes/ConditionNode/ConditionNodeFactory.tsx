@@ -12,10 +12,11 @@ import { AbstractReactFactory, GenerateModelEvent, GenerateWidgetEvent } from "@
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { ConditionNodeModel } from "./ConditionNodeModel";
 import { ConditionNodeWidget } from "./ConditionNodeWidget";
+import { NodeTypes } from "../../../resources/constants";
 
 export class ConditionNodeFactory extends AbstractReactFactory<ConditionNodeModel, DiagramEngine> {
     constructor() {
-        super("condition-node");
+        super(NodeTypes.CONDITION_NODE);
     }
 
     generateModel(event: GenerateModelEvent): ConditionNodeModel {

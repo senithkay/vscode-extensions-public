@@ -8,19 +8,27 @@
  */
 
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
-import { Colors } from "../../resources/constants";
+import { Colors, NODE_LINK, NodeTypes } from "../../resources/constants";
+import { SourceNodeModel, TargetNodeModel } from "../../utils/diagram";
 
 export const LINK_BOTTOM_OFFSET = 30;
 
 export interface NodeLinkModelOptions {
     label?: string;
-    showAddButton?: boolean;
+    showAddButton?: boolean; // default true
+    showArrow?: boolean; // default true
+    brokenLine?: boolean; // default false
     onAddClick?: () => void;
 }
 
 export class NodeLinkModel extends DefaultLinkModel {
     label: string;
+    sourceNode: SourceNodeModel;
+    targetNode: TargetNodeModel;
+    // options
     showAddButton = true;
+    showArrow = true;
+    brokenLine = false;
     linkBottomOffset = LINK_BOTTOM_OFFSET;
     onAddClick?: () => void;
 
@@ -28,7 +36,7 @@ export class NodeLinkModel extends DefaultLinkModel {
     constructor(options: NodeLinkModelOptions);
     constructor(options: NodeLinkModelOptions | string) {
         super({
-            type: "node-link",
+            type: NODE_LINK,
             width: 10,
             color: Colors.PRIMARY,
             selectedColor: Colors.SECONDARY,
@@ -46,11 +54,25 @@ export class NodeLinkModel extends DefaultLinkModel {
                 if ((options as NodeLinkModelOptions).showAddButton === false) {
                     this.showAddButton = (options as NodeLinkModelOptions).showAddButton;
                 }
+                if ((options as NodeLinkModelOptions).showArrow === false) {
+                    this.showArrow = (options as NodeLinkModelOptions).showArrow;
+                }
+                if ((options as NodeLinkModelOptions).brokenLine === true) {
+                    this.brokenLine = (options as NodeLinkModelOptions).brokenLine;
+                }
             }
-            if((options as NodeLinkModelOptions).onAddClick) {
+            if ((options as NodeLinkModelOptions).onAddClick) {
                 this.onAddClick = (options as NodeLinkModelOptions).onAddClick;
             }
         }
+    }
+
+    setSourceNode(node: SourceNodeModel) {
+        this.sourceNode = node;
+    }
+
+    setTargetNode(node: TargetNodeModel) {
+        this.targetNode = node;
     }
 
     getSVGPath(): string {
@@ -146,13 +168,17 @@ export class NodeLinkModel extends DefaultLinkModel {
         }
 
         // generate for 2 angle lines
+        return { x: (source.x + target.x) / 2, y: target.y - this.linkBottomOffset - 2 };
+    }
 
-        // with label
-        if (this.label) {
-            return { x: target.x, y: target.y - this.linkBottomOffset / 2 + 5 };
+    // show node arrow. default true. but target node is a EmptyNodeModel, then false
+    showArrowToNode(): boolean {
+        if (this.points.length != 2) {
+            return false;
         }
-        // without label
-        this.linkBottomOffset = LINK_BOTTOM_OFFSET + 20;
-        return { x: target.x, y: target.y - this.linkBottomOffset / 2 - 2 };
+        if (this.targetNode?.getType() === NodeTypes.EMPTY_NODE) {
+            return false;
+        }
+        return this.showArrow;
     }
 }

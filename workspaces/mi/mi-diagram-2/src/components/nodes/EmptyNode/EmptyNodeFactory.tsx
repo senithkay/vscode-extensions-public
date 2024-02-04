@@ -8,22 +8,22 @@
  */
 
 import React from "react";
-import { AbstractReactFactory, GenerateModelEvent, GenerateWidgetEvent } from "@projectstorm/react-canvas-core";
+import { AbstractReactFactory, GenerateWidgetEvent } from "@projectstorm/react-canvas-core";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { CallNodeModel } from "./CallNodeModel";
-import { CallNodeWidget } from "./CallNodeWidget";
+import { EmptyNodeModel } from "./EmptyNodeModel";
+import { EmptyNodeWidget } from "./EmptyNodeWidget";
 import { NodeTypes } from "../../../resources/constants";
 
-export class CallNodeFactory extends AbstractReactFactory<CallNodeModel, DiagramEngine> {
+export class EmptyNodeFactory extends AbstractReactFactory<EmptyNodeModel, DiagramEngine> {
     constructor() {
-        super(NodeTypes.CALL_NODE);
+        super(NodeTypes.EMPTY_NODE);
     }
 
-    generateModel(event: GenerateModelEvent): CallNodeModel {
-        return new CallNodeModel(event.initialConfig.stNode);
+    generateModel(): EmptyNodeModel {
+        return new EmptyNodeModel();
     }
 
-    generateReactWidget(event: GenerateWidgetEvent<CallNodeModel>) {
-        return <CallNodeWidget engine={this.engine} node={event.model} />;
+    generateReactWidget(event: GenerateWidgetEvent<EmptyNodeModel>) {
+        return <EmptyNodeWidget engine={this.engine} node={event.model} />;
     }
 }
