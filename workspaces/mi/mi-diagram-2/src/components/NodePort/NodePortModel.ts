@@ -6,9 +6,10 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { DefaultLinkModel, DefaultPortModel, DefaultPortModelOptions, LinkModel, LinkModelGenerics, PortModelAlignment } from "@projectstorm/react-diagrams";
+import { DefaultPortModel, DefaultPortModelOptions, LinkModel, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { NodeLinkModel } from "../NodeLink/NodeLinkModel";
 import { AbstractModelFactory } from "@projectstorm/react-canvas-core";
+import { NODE_PORT } from "../../resources/constants";
 
 export class NodePortModel extends DefaultPortModel {
     constructor(isIn: boolean, name?: string, label?: string);
@@ -25,7 +26,7 @@ export class NodePortModel extends DefaultPortModel {
         super({
             label: options.label || options.name,
             alignment: options.in ? PortModelAlignment.TOP : PortModelAlignment.BOTTOM,
-            type: "default",
+            type: NODE_PORT,
             ...options,
         });
     }

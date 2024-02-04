@@ -11,6 +11,7 @@ import { NodeModel } from "@projectstorm/react-diagrams";
 import { Endpoint, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodePortModel } from "../../NodePort/NodePortModel";
 import { getNodeIdFromModel } from "../../../utils/node";
+import { NodeTypes } from "../../../resources/constants";
 
 export class CallNodeModel extends NodeModel {
     readonly stNode: STNode;
@@ -23,7 +24,7 @@ export class CallNodeModel extends NodeModel {
     constructor(stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = [], endpoint?: Endpoint) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode),
-            type: "call-node",
+            type: NodeTypes.CALL_NODE,
             locked: true,
         });
         this.stNode = stNode;

@@ -10,6 +10,7 @@
 import { NodeModel, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort/NodePortModel";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { NodeTypes } from "../../../resources/constants";
 
 export class EndNodeModel extends NodeModel {
     protected stNode: STNode;
@@ -19,7 +20,7 @@ export class EndNodeModel extends NodeModel {
 
     constructor(stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
         super({
-            type: "end-node",
+            type: NodeTypes.END_NODE,
             locked: true,
         });
         this.stNode = stNode;

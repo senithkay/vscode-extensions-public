@@ -61,8 +61,10 @@ namespace S {
     `;
 
     export const StyledButton = styled(Button)`
+        background-color: ${Colors.SURFACE};
+        border-radius: 5px;
         position: absolute;
-        right: 8px;
+        right: 6px;
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -71,6 +73,13 @@ namespace S {
 
     export const BottomPortWidget = styled(PortWidget)`
         margin-bottom: -3px;
+    `;
+
+    export const NodeText = styled.div`
+        max-width: 100px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     `;
 }
 
@@ -112,10 +121,12 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
             <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
             <S.Header>
                 <S.IconContainer>{getNodeIcon(node.stNode.tag)}</S.IconContainer>
-                <div>{node.stNode.tag}</div>
-                <S.StyledButton appearance="icon" onClick={handleOnClick}>
-                    <MoreVertIcon />
-                </S.StyledButton>
+                <S.NodeText>{node.stNode.tag}</S.NodeText>
+                {isHovered && (
+                    <S.StyledButton appearance="icon" onClick={handleOnClick}>
+                        <MoreVertIcon />
+                    </S.StyledButton>
+                )}
             </S.Header>
             <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
         </S.Node>

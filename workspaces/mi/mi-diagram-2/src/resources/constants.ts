@@ -156,3 +156,15 @@ export const ENDPOINTS = {
     TEMPLATE: "Template",
     WSDL: "wsdl",
 }
+
+export enum NodeTypes {
+    START_NODE = "start-node",
+    END_NODE = "end-node",
+    MEDIATOR_NODE = "mediator-node",
+    CONDITION_NODE = "condition-node",
+    CALL_NODE = "call-node",
+    EMPTY_NODE = "empty-node",
+}
+
+export const NODE_LINK = "node-link";
+export const NODE_PORT = "node-port";

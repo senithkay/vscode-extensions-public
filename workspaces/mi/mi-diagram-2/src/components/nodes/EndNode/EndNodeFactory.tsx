@@ -12,10 +12,11 @@ import { AbstractReactFactory, GenerateWidgetEvent } from "@projectstorm/react-c
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { EndNodeModel } from "./EndNodeModel";
 import { EndNodeWidget } from "./EndNodeWidget";
+import { NodeTypes } from "../../../resources/constants";
 
 export class EndNodeFactory extends AbstractReactFactory<EndNodeModel, DiagramEngine> {
     constructor() {
-        super("end-node");
+        super(NodeTypes.END_NODE);
     }
 
     generateModel(): EndNodeModel {

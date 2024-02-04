@@ -11,6 +11,7 @@ import { NodeModel } from "@projectstorm/react-diagrams";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodePortModel } from "../../NodePort/NodePortModel";
 import { getNodeIdFromModel } from "../../../utils/node";
+import { NodeTypes } from "../../../resources/constants";
 
 export class ConditionNodeModel extends NodeModel {
     readonly stNode: STNode;
@@ -22,7 +23,7 @@ export class ConditionNodeModel extends NodeModel {
     constructor(stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode),
-            type: "condition-node",
+            type: NodeTypes.CONDITION_NODE,
             locked: true,
         });
         this.stNode = stNode;
