@@ -21,6 +21,11 @@ namespace S {
         justify-content: space-between;
         align-items: center;
         cursor: pointer;
+        background-color: ${Colors.SURFACE_BRIGHT};
+        color: ${Colors.ON_SURFACE};
+        & svg {
+            fill: ${Colors.ON_SURFACE};
+        }
     `;
 }
 
