@@ -51,7 +51,7 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
     var nodeempty = new EmptyNodeModel();
     nodeempty.setPosition(x + 60 - 4, (y += gapY));
 
-    var nodeend = new EndNodeModel();
+    var nodeend = new EndNodeModel(mediatorList[0]);
     nodeend.setPosition(x + 60 - 10, (y += gapY/2));
 
     // create links

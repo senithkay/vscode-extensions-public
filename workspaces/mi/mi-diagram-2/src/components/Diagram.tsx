@@ -33,7 +33,7 @@ export function Diagram(props: DiagramProps) {
     useEffect(() => {
         if (diagramEngine) {
             const {nodes, links} = getNodes();
-            drawDiagram(nodes, links);
+            drawDiagram(nodes as any, links);
         }
     }, []);
 

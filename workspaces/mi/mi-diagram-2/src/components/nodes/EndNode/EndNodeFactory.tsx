@@ -8,7 +8,7 @@
  */
 
 import React from "react";
-import { AbstractReactFactory, GenerateWidgetEvent } from "@projectstorm/react-canvas-core";
+import { AbstractReactFactory, GenerateModelEvent, GenerateWidgetEvent } from "@projectstorm/react-canvas-core";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { EndNodeModel } from "./EndNodeModel";
 import { EndNodeWidget } from "./EndNodeWidget";
@@ -19,8 +19,8 @@ export class EndNodeFactory extends AbstractReactFactory<EndNodeModel, DiagramEn
         super(NodeTypes.END_NODE);
     }
 
-    generateModel(): EndNodeModel {
-        return new EndNodeModel();
+    generateModel(event: GenerateModelEvent): EndNodeModel {
+        return new EndNodeModel(event.initialConfig.stNode);
     }
 
     generateReactWidget(event: GenerateWidgetEvent<EndNodeModel>) {
