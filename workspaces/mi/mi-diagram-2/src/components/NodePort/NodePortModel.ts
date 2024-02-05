@@ -39,10 +39,4 @@ export class NodePortModel extends DefaultPortModel {
         return link || new NodeLinkModel();
     }
 
-    // link(port: NodePortModel): LinkModel<LinkModelGenerics> {
-    //     const link = this.createLinkModel();
-    //     link.setSourcePort(this);
-    //     link.setTargetPort(port);
-    //     return link;
-    // }
 }
