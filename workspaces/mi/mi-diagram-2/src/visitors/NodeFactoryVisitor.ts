@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Visitor, STNode, WithParam, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp } from "@wso2-enterprise/mi-syntax-tree/src";
+import { Visitor, STNode, WithParam, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
@@ -26,7 +26,7 @@ export class NodeFactoryVisitor implements Visitor {
     private previousSTNodes: STNode[] = [];
     private currentBranchName: string;
 
-    private createNodeAndLinks(node: STNode, type: NodeTypes = NodeTypes.MEDIATOR_NODE, data?: any): void {
+    private createNodeAndLinks(node: STNode, type: NodeTypes = NodeTypes.MEDIATOR_NODE, addPosition: Position = node.range.start, data?: any): void {
         // create node
         let diagramNode: MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel;
         if (type === NodeTypes.MEDIATOR_NODE) {
@@ -55,6 +55,7 @@ export class NodeFactoryVisitor implements Visitor {
                         diagramNode as TargetNodeModel,
                         {
                             label: this.currentBranchName,
+                            stPosition: addPosition
                         }
                     );
                     this.links.push(link);
@@ -101,7 +102,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitCall = (node: Call): void => {
-        this.createNodeAndLinks(node, NodeTypes.CALL_NODE, node.endpoint);
+        this.createNodeAndLinks(node, NodeTypes.CALL_NODE, undefined, node.endpoint);
         this.skipChildrenVisit = true;
     }
     endVisitCall = (node: Call): void => {
@@ -137,7 +138,7 @@ export class NodeFactoryVisitor implements Visitor {
     endVisitInSequence(node: Sequence): void {
         const lastNode = this.nodes[this.nodes.length - 1].getStNode();
         node.viewState.y = lastNode.viewState.y + lastNode.viewState.h + NODE_GAP.Y;
-        this.createNodeAndLinks(node, NodeTypes.END_NODE);
+        this.createNodeAndLinks(node, NodeTypes.END_NODE, node.range.end);
         this.parents.pop();
     }
 
