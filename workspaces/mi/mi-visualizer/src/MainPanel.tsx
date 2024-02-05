@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { MachineStateValue, VisualizerLocation } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Overview } from './views/Overview';
-import { MIDiagram } from '@wso2-enterprise/mi-diagram';
 import { ServiceDesignerView } from './views/ServiceDesigner';
 import { APIWizard } from './views/Forms/APIform';
 import { EndpointWizard } from './views/Forms/EndpointForm';
 import { SequenceWizard } from './views/Forms/SequenceForm';
 import { NavigationBar } from './components/NavigationBar';
 import { ProjectWizard } from './views/Forms/ProjectForm';
+import { Diagram } from '@wso2-enterprise/mi-diagram-2/lib/components/Diagram';
 
 
 const MainPanel = (props: { state: MachineStateValue }) => {
@@ -16,6 +16,7 @@ const MainPanel = (props: { state: MachineStateValue }) => {
     const { rpcClient } = useVisualizerContext();
     const [machineView, setMachineView] = useState<VisualizerLocation>(null);
     const [mainState, setMainState] = React.useState<MachineStateValue>(state);
+    const [component, setComponent] = useState<JSX.Element | null>(null);
 
     rpcClient?.onStateChanged((newState: MachineStateValue) => {
         setMainState(newState);
@@ -33,31 +34,47 @@ const MainPanel = (props: { state: MachineStateValue }) => {
         }
     }, [mainState]);
 
+    useEffect(() => {
+        if (machineView) {
+            OverviewComponent();
+        }
+
+    }, [machineView]);
+
     const OverviewComponent = () => {
         switch (machineView.view) {
             case "Overview":
-                return <Overview />;
+                setComponent(<Overview />);
+                break;
             case "Diagram":
-                return <MIDiagram documentUri={machineView.documentUri} resource={machineView.identifier}/>
+                rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri }).then((st) => {
+                    setComponent(<Diagram model={st.syntaxTree.api.resource[0]} />);
+                });
+                break;
             case "ServiceDesigner":
-                return <ServiceDesignerView />
+                setComponent(<ServiceDesignerView />);
+                break;
             case "APIForm":
-                return <APIWizard />
+                setComponent(<APIWizard />);
+                break;
             case "EndPointForm":
-                return <EndpointWizard />
+                setComponent(<EndpointWizard />);
+                break;
             case "SequenceForm":
-                return <SequenceWizard />
+                setComponent(<SequenceWizard />);
+                break;
             case "ProjectCreationForm":
-                return <ProjectWizard />
-            default:
-                return <h1>LOADING</h1>;
+                setComponent(<ProjectWizard />);
+                break;
         }
     };
 
     return (
         <div>
-            <NavigationBar />
-            {machineView && <OverviewComponent />}
+            {!component ? <h1>LOADING</h1> : <div>
+                <NavigationBar />
+                {component}
+            </div>}
         </div>
     );
 };
