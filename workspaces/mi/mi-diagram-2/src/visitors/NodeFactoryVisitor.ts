@@ -25,8 +25,9 @@ export class NodeFactoryVisitor implements Visitor {
     private skipChildrenVisit = false;
     private previousSTNodes: STNode[] = [];
     private currentBranchName: string;
+    private currentAddPosition: Position;
 
-    private createNodeAndLinks(node: STNode, type: NodeTypes = NodeTypes.MEDIATOR_NODE, addPosition: Position = node.range.start, data?: any): void {
+    private createNodeAndLinks(node: STNode, type: NodeTypes = NodeTypes.MEDIATOR_NODE, data?: any): void {
         // create node
         let diagramNode: MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel;
         if (type === NodeTypes.MEDIATOR_NODE) {
@@ -55,11 +56,12 @@ export class NodeFactoryVisitor implements Visitor {
                         diagramNode as TargetNodeModel,
                         {
                             label: this.currentBranchName,
-                            stPosition: addPosition
+                            stPosition: this.currentAddPosition ?? previousStNode.range.end
                         }
                     );
                     this.links.push(link);
                     this.currentBranchName = undefined;
+                    this.currentAddPosition = undefined;
                 }
             }
         }
@@ -76,6 +78,8 @@ export class NodeFactoryVisitor implements Visitor {
                 this.previousSTNodes = [node];
                 this.currentBranchName = sequenceKeys[i];
 
+                // TODO: Use the sub sequence's start position as the current add position. Need the tag range to be added to the STNode
+                this.currentAddPosition = (sequence.mediatorList as any)[0].range.start;
                 (sequence.mediatorList as any).forEach((childNode: STNode) => {
                     traversNode(childNode, this);
                 });
@@ -102,7 +106,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitCall = (node: Call): void => {
-        this.createNodeAndLinks(node, NodeTypes.CALL_NODE, undefined, node.endpoint);
+        this.createNodeAndLinks(node, NodeTypes.CALL_NODE, node.endpoint);
         this.skipChildrenVisit = true;
     }
     endVisitCall = (node: Call): void => {
@@ -132,6 +136,11 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitHeader = (node: Header): void => this.createNodeAndLinks(node);
 
     beginVisitInSequence(node: Sequence): void {
+        const addPosition = {
+            line: node.range.start.line,
+            character: node.range.start.character + 12
+        }
+        this.currentAddPosition = addPosition;
         this.createNodeAndLinks(node, NodeTypes.START_NODE);
         this.parents.push(node);
     }
