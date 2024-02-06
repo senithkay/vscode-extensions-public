@@ -19,9 +19,14 @@ import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { MediatorNodeModel } from "./nodes/MediatorNode/MediatorNodeModel";
 // import { sampleDiagram } from "../utils/sample";
 import { NodeLinkModel } from "./NodeLink/NodeLinkModel";
+import { SidePanelProvider } from "./sidePanel/SidePanelContexProvider";
+import { Button, SidePanel, SidePanelTitleContainer } from '@wso2-enterprise/ui-toolkit'
+import SidePanelList from './sidePanel';
+import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 export interface DiagramProps {
     model: APIResource | Sequence;
+    documentUri: string;
 }
 
 export function Diagram(props: DiagramProps) {
@@ -29,13 +34,20 @@ export function Diagram(props: DiagramProps) {
 
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
+    const [isSidePanelOpen, setSidePanelOpen] = useState<boolean>(false);
+    const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [sidePanelnodeRange, setSidePanelNodeRange] = useState<Range>();
+    const [sidePanelMediator, setSidePanelMediator] = useState<string>();
+    const [sidePanelFormValues, setSidePanelFormValues] = useState<{ [key: string]: any }>();
+    const [sidePanelShowBackBtn, setSidePanelShowBackBtn] = useState<boolean>(false);
+    const [sidePanelBackBtn, setSidePanelBackBtn] = useState<number>(0);
 
     useEffect(() => {
         if (diagramEngine) {
-            const {nodes, links} = getNodes();
+            const { nodes, links } = getNodes();
             drawDiagram(nodes as any, links);
         }
-    }, []);
+    }, [props.model, props.documentUri]);
 
     const getNodes = () => {
         // run sizing visitor
@@ -50,7 +62,7 @@ export function Diagram(props: DiagramProps) {
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();
         console.log("nodes", nodes);
-        return {nodes, links};
+        return { nodes, links };
     };
 
     const drawDiagram = (nodes: MediatorNodeModel[], links: NodeLinkModel[]) => {
@@ -63,12 +75,59 @@ export function Diagram(props: DiagramProps) {
         setDiagramModel(newDiagramModel);
     };
 
+    const closeSidePanel = () => {
+        setSidePanelNodeRange(undefined);
+        setSidePanelMediator(undefined);
+        setSidePanelOpen(false);
+        setSidePanelFormValues(undefined);
+        setIsEditing(false);
+    };
+
+    const sidePanelBackClick = () => {
+        setSidePanelBackBtn(sidePanelBackBtn + 1);
+    };
+
     return (
         <>
             {diagramEngine && diagramModel && (
-                <DiagramCanvas>
-                    <CanvasWidget engine={diagramEngine} />
-                </DiagramCanvas>
+                <div>
+                    <SidePanelProvider value={{
+                        setIsOpen: setSidePanelOpen,
+                        isOpen: isSidePanelOpen,
+                        setIsEditing: setIsEditing,
+                        isEditing: isEditing,
+                        setNodeRange: setSidePanelNodeRange,
+                        nodeRange: sidePanelnodeRange,
+                        setShowBackBtn: setSidePanelShowBackBtn,
+                        showBackBtn: sidePanelShowBackBtn,
+                        setOperationName: setSidePanelMediator,
+                        operationName: sidePanelMediator,
+                        setFormValues: setSidePanelFormValues,
+                        formValues: sidePanelFormValues,
+                        setBackBtn: setSidePanelBackBtn,
+                        backBtn: sidePanelBackBtn
+                    }}>
+                        {isSidePanelOpen && <SidePanel
+                            isOpen={isSidePanelOpen}
+                            alignmanet="right"
+                            width={450}
+                        >
+                            <SidePanelTitleContainer>
+                                <div style={{ minWidth: "20px" }}>
+                                    {
+                                        sidePanelShowBackBtn && <Button onClick={sidePanelBackClick} appearance="icon">{"<"}</Button>
+                                    }
+                                </div>
+                                {isEditing ? <div>Edit {sidePanelMediator}</div> : <div>Add New</div>}
+                                <Button onClick={closeSidePanel} appearance="icon">X</Button>
+                            </SidePanelTitleContainer>
+                            <SidePanelList nodePosition={sidePanelnodeRange} documentUri={props.documentUri} />
+                        </SidePanel>}
+                        <DiagramCanvas>
+                            <CanvasWidget engine={diagramEngine} />
+                        </DiagramCanvas>
+                    </SidePanelProvider>
+                </div >
             )}
         </>
     );

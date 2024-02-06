@@ -25,7 +25,12 @@
         "@emotion/react": "^11.9.3",
         "@emotion/styled": "^11.10.5",
         "@wso2-enterprise/mi-syntax-tree": "workspace:*",
-        "@wso2-enterprise/ui-toolkit": "workspace:*"
+        "@wso2-enterprise/ui-toolkit": "workspace:*",
+        "@vscode/webview-ui-toolkit": "~1.4.0",
+        "@wso2-enterprise/mi-core": "workspace:*",
+        "@wso2-enterprise/mi-rpc-client": "workspace:*",
+        "mustache": "~4.2.0",
+        "@types/mustache": "~4.2.5"
     },
     "devDependencies": {
         "@storybook/react": "^6.3.7",

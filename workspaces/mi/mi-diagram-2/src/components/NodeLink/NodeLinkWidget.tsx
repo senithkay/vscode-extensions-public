@@ -9,10 +9,12 @@
 
 /** @jsxImportSource @emotion/react */
 import { css, keyframes } from "@emotion/react";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { NodeLinkModel } from "./NodeLinkModel";
 import { Colors } from "../../resources/constants";
+import SidePanelContext from "../sidePanel/SidePanelContexProvider";
+import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 interface NodeLinkWidgetProps {
     link: NodeLinkModel;
@@ -34,13 +36,23 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
     const [isHovered, setIsHovered] = useState(false);
     const labelPosition = link.getLabelPosition();
     const addButtonPosition = link.getAddButtonPosition();
+    const sidePanelContext = useContext(SidePanelContext)
 
     const handleAddNode = () => {
         if (link.onAddClick) {
             link.onAddClick();
         } else {
-            console.log("Add button clicked");
-            console.log(link.stPosition)
+            const rangeOrPosition: any = link.stRange;
+            if (rangeOrPosition.start && rangeOrPosition.end) {
+                sidePanelContext.setNodeRange(link.stRange as Range);
+            } else {
+                sidePanelContext.setNodeRange({
+                    start: rangeOrPosition,
+                    end: rangeOrPosition,
+                });
+            }
+            sidePanelContext.setIsOpen(true);
+            sidePanelContext.setOperationName("parentName");
         }
     };
 
@@ -77,9 +89,8 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                                 justifyContent: "center",
                                 alignItems: "center",
                                 borderRadius: "20px",
-                                border: `2px solid ${
-                                    link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY
-                                }`,
+                                border: `2px solid ${link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY
+                                    }`,
                                 backgroundColor: `${Colors.SURFACE_BRIGHT}`,
                                 padding: "2px 10px",
                                 boxSizing: "border-box",
