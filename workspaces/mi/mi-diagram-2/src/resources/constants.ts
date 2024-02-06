@@ -73,10 +73,90 @@ export const Colors = {
 
     OUTLINE: VSCodeColors.OUTLINE || DefaultColors.OUTLINE,
     OUTLINE_VARIANT:
-        VSCodeColors.OUTLINE_VARIANT || DefaultColors.OUTLINE_VARIANT,
+       DefaultColors.OUTLINE_VARIANT,
 
     ERROR: VSCodeColors.ERROR || DefaultColors.ERROR,
 };
+
+export const NODE_GAP = {
+    X: 0,
+    Y: 50,
+    BRANCH_X: 100,
+    BRANCH_TOP: 0,
+    BRANCH_BOTTOM: 0
+};
+
+export const NODE_DIMENSIONS = {
+    DEFAULT: {
+        WIDTH: 120,
+        HEIGHT: 40,
+    },
+    START: {
+        WIDTH: 24,
+        HEIGHT: 24,
+    },
+    CONDITION: {
+        WIDTH: 65,
+        HEIGHT: 65,
+    },
+    CALL: {
+        WIDTH: 152,
+        FULL_WIDTH: 152 + 110,
+        HEIGHT: 50,
+    },
+};
+
+
+// MEDIATOR NAMES
+export const MEDIATORS = {
+    AGGREGATE: "Aggregate",
+    CACHE: "Cache",
+    CALL: "Call",
+    CALLOUT: "Callout",
+    CALLTEMPLATE: "CallTemplate",
+    CLONE: "Clone",
+    DATAMAPPER: "DataMapper",
+    DATASERVICE: "DataService",
+    DROP: "Drop",
+    ENRICH: "Enrich",
+    ENTITLEMENT: "Entitlement",
+    FASTXSLT: "FastXSLT",
+    FAULT: "Fault",
+    FILTER: "Filter",
+    FOREACH: "ForEach",
+    HEADER: "Header",
+    ITERATE: "Iterate",
+    JSONTRANSFORM: "JSONTransform",
+    LOG: "Log",
+    LOOPBACK: "Loopback",
+    PAYLOAD: "Payload",
+    PROPERTY: "Property",
+    PROPERTYGROUP: "PropertyGroup",
+    RESPOND: "Respond",
+    REWRITE: "Rewrite",
+    RULE: "Rule",
+    SEND: "Send",
+    SEQUENCE: "Sequence",
+    SMOOKS: "Smooks",
+    STORE: "Store",
+    SWITCH: "Switch",
+    THROTTLE: "Throttle",
+    VALIDATE: "Validate",
+    XQUERY: "XQuery",
+    XSLT: "XSLT",
+}
+
+export const ENDPOINTS = {
+    ADDRESS: "Address",
+    DEFAULT: "Default",
+    FAILOVER: "Failover",
+    HTTP: "Http",
+    LOADBALANCE: "Loadbalance",
+    NAMED: "Named",
+    RECIPIENTLIST: "Recipientlist",
+    TEMPLATE: "Template",
+    WSDL: "wsdl",
+}
 
 export enum NodeTypes {
     START_NODE = "start-node",

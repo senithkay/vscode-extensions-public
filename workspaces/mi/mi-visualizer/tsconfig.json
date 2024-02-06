@@ -32,7 +32,10 @@
     "noImplicitAny": true,
     "typeRoots": [
       "node_modules/@types"
-    ]
+    ],
+    "paths": {
+      "@wso2-enterprise/mi-diagram-2": ["../mi-diagram-2/lib"],
+    }
   },
   "include": ["src"],
   "exclude": [

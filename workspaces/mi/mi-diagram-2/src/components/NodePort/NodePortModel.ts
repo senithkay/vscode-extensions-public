@@ -38,4 +38,5 @@ export class NodePortModel extends DefaultPortModel {
         }
         return link || new NodeLinkModel();
     }
+
 }

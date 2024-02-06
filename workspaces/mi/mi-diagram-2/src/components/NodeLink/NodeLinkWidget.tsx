@@ -38,6 +38,9 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
     const handleAddNode = () => {
         if (link.onAddClick) {
             link.onAddClick();
+        } else {
+            console.log("Add button clicked");
+            console.log(link.stPosition)
         }
     };
 

@@ -16,8 +16,10 @@ import { NodeTypes } from "../../../resources/constants";
 export class StartNodeModel extends NodeModel {
     readonly stNode: STNode;
     protected port: NodePortModel;
+    protected parentNode: STNode;
+    protected prevNodes: STNode[];
 
-    constructor(stNode: STNode) {
+    constructor(stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode, "start"),
             type: NodeTypes.START_NODE,
@@ -41,5 +43,17 @@ export class StartNodeModel extends NodeModel {
 
     getOutPort(): NodePortModel {
         return this.port;
+    }
+
+    getStNode(): STNode {
+        return this.stNode;
+    }
+
+    getParentNode(): STNode {
+        return this.parentNode;
+    }
+
+    getPrevNodes(): STNode[] {
+        return this.prevNodes;
     }
 }

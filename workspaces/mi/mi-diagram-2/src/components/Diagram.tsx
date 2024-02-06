@@ -10,14 +10,15 @@
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
-import { APIResource, Sequence, traversNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { APIResource, Sequence, traversNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
 import { generateEngine } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { MediatorNodeModel } from "./nodes/MediatorNode/MediatorNodeModel";
-import { sampleDiagram } from "../utils/sample";
+// import { sampleDiagram } from "../utils/sample";
+import { NodeLinkModel } from "./NodeLink/NodeLinkModel";
 
 export interface DiagramProps {
     model: APIResource | Sequence;
@@ -31,8 +32,8 @@ export function Diagram(props: DiagramProps) {
 
     useEffect(() => {
         if (diagramEngine) {
-            const nodes = getNodes();
-            drawDiagram(nodes);
+            const {nodes, links} = getNodes();
+            drawDiagram(nodes as any, links);
         }
     }, []);
 
@@ -41,19 +42,20 @@ export function Diagram(props: DiagramProps) {
         const sizingVisitor = new SizingVisitor();
         traversNode(model, sizingVisitor);
         // run position visitor
-        const positionVisitor = new PositionVisitor();
+        const positionVisitor = new PositionVisitor(sizingVisitor.getSequenceWidth());
         traversNode(model, positionVisitor);
         // run node visitor
         const nodeVisitor = new NodeFactoryVisitor();
         traversNode(model, nodeVisitor);
         const nodes = nodeVisitor.getNodes();
+        const links = nodeVisitor.getLinks();
         console.log("nodes", nodes);
-        return nodes;
+        return {nodes, links};
     };
 
-    const drawDiagram = (nodes: MediatorNodeModel[]) => {
+    const drawDiagram = (nodes: MediatorNodeModel[], links: NodeLinkModel[]) => {
         const newDiagramModel = new DiagramModel();
-        newDiagramModel.addAll(...nodes);
+        newDiagramModel.addAll(...nodes, ...links);
         // uncomment below to see the sample diagram. comment above line
         // sampleDiagram(model, newDiagramModel);
 
