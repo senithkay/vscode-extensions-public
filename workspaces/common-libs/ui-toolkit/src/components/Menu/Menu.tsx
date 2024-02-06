@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import styled from "@emotion/styled";
-import React from "react";
+import React, { PropsWithChildren } from "react";
 
 export interface Item {
     id: number | string;
@@ -18,7 +18,6 @@ export interface Item {
 export interface MenuProps {
     menuItems?: Item[];
     id?: string;
-    children?: React.ReactNode;
     sx?: any;
 }
 
@@ -35,7 +34,7 @@ const Container = styled.div<ContainerProps>`
     ${(props: ContainerProps) => props.sx};
 `;
 
-export const Menu: React.FC<MenuProps> = (props: MenuProps) => {
+export const Menu: React.FC<PropsWithChildren<MenuProps>> = (props: PropsWithChildren<MenuProps>) => {
     const { children, sx, id } = props;
 
     return (
@@ -44,3 +43,4 @@ export const Menu: React.FC<MenuProps> = (props: MenuProps) => {
         </Container>
     );
 };
+

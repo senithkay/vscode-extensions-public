@@ -18,7 +18,7 @@ const useStyles = () => ({
         height: '30px',
         cursor: "pointer",
         '&:hover': {
-            backgroundColor: 'var(--vscode-tab-inactiveBackground)',
+            backgroundColor: 'var(--vscode-list-hoverBackground)',
         }
     }),
     menuItemText: css({

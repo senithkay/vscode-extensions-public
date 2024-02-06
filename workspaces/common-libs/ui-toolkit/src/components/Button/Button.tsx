@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import styled from "@emotion/styled";
-import React from "react";
+import React, { PropsWithChildren } from "react";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 
 export interface ButtonWrapperProps {
@@ -20,7 +20,6 @@ export interface ButtonProps {
     appearance?: "primary" | "secondary" | "icon";
     tooltip?: string;
     disabled?: boolean;
-    children?: React.ReactNode;
     sx?: React.CSSProperties;
     onClick?: (() => void) | ((event: React.MouseEvent<HTMLElement | SVGSVGElement>) => void);
 }
@@ -40,7 +39,7 @@ export const ButtonWrapper = styled.div<ButtonWrapperProps>`
     ${(props: ButtonWrapperProps) => props.sx}
 `;
 
-export const Button = (props: ButtonProps) => {
+export const Button: React.FC<PropsWithChildren<ButtonProps>> = (props: PropsWithChildren<ButtonProps>) => {
     const { id, className, disabled, appearance = "primary", tooltip, children, onClick, sx } = props;
 
     return (
@@ -52,3 +51,4 @@ export const Button = (props: ButtonProps) => {
         </ButtonWrapper>
     );
 };
+

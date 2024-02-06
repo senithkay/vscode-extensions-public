@@ -21,6 +21,12 @@ export const useStyles = () => ({
             }
         }
     }),
+    clauseItemBody: css({
+        display: "flex",
+        alignItems: "center",
+        background: "var(--vscode-sideBar-background)",
+        marginLeft: "25px",
+    }),
     lineWrap: css({
         width: "80px",
         height: "25px",
@@ -53,8 +59,6 @@ export const useStyles = () => ({
     clauseWrap: css({
         background: "var(--vscode-sideBar-background)",
         height: "40px",
-        marginLeft: "25px",
-        marginRight: "10px",
         display: "flex",
         alignItems: "center",
         padding: "26px 10px",
