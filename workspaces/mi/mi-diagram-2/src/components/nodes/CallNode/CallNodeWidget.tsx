@@ -118,7 +118,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                 <S.IconContainer>
                     <CallIcon />
                 </S.IconContainer>
-                <S.NodeText>{node.stNode.tag} lkasdjf aljfdlka akjsd</S.NodeText>
+                <S.NodeText>{node.stNode.tag}</S.NodeText>
                 {isHovered && (
                     <S.StyledButton appearance="icon" onClick={handleOnClick}>
                         {node.endpoint ? <MoreVertIcon /> : <PlusIcon />}
