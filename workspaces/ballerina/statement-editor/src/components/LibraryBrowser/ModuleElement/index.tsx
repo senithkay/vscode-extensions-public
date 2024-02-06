@@ -17,7 +17,7 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import { GridItem, ProgressRing, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 
-import { PARAM_CONSTRUCTOR } from '../../../constants';
+import { MAX_COLUMN_WIDTH, PARAM_CONSTRUCTOR } from '../../../constants';
 import { InputEditorContext } from '../../../store/input-editor-context';
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getModuleIconStyle } from "../../../utils";
@@ -97,7 +97,7 @@ export function ModuleElement(props: ModuleElementProps) {
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
-                maxWidth: '155px',
+                maxWidth: MAX_COLUMN_WIDTH,
                 color: 'var(--foreground)'
             }}
         >

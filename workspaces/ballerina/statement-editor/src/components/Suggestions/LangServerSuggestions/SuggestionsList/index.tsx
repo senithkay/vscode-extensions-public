@@ -11,7 +11,7 @@ import React from "react";
 
 import { Grid, GridItem } from "@wso2-enterprise/ui-toolkit";
 
-import { SUGGESTION_COLUMN_SIZE } from "../../../../constants";
+import { MAX_COLUMN_WIDTH, SUGGESTION_COLUMN_SIZE } from "../../../../constants";
 import { Suggestion, SuggestionItem } from "../../../../models/definitions";
 import { useStmtEditorHelperPanelStyles } from "../../../styles";
 import { SuggestionListItem } from "../SuggestionListItem";
@@ -71,7 +71,7 @@ export function SuggestionsList(props: SuggestionsListProps) {
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
                                     whiteSpace: 'nowrap',
-                                    maxWidth: '155px',
+                                    maxWidth: MAX_COLUMN_WIDTH,
                                     color: isSelected ? 'var(--vscode-list-activeSelectionForeground)' : 'var(--foreground)'
                                 }}
                                 selected={isSelected}

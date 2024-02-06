@@ -12,7 +12,7 @@ import React, { useContext } from "react";
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { Grid, GridItem, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
 
-import { SUGGESTION_COLUMN_SIZE } from "../../../../constants";
+import { MAX_COLUMN_WIDTH, SUGGESTION_COLUMN_SIZE } from "../../../../constants";
 import { Suggestion } from "../../../../models/definitions";
 import { StatementEditorContext } from "../../../../store/statement-editor-context";
 import { displayCheckBoxAsExpression, isClosedRecord } from "../../../../utils";
@@ -57,7 +57,7 @@ export function TemplateList(props: TemplateListProps) {
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
                                 whiteSpace: 'nowrap',
-                                maxWidth: '155px',
+                                maxWidth: MAX_COLUMN_WIDTH,
                                 color: isSelected ? 'var(--vscode-list-activeSelectionForeground)' : 'var(--foreground)'
                             }}
                             selected={isSelected}

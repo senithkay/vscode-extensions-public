@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from "react";
+import React, { FormEvent, useContext, useEffect, useState } from "react";
 
 import { Dropdown } from "@wso2-enterprise/ui-toolkit";
 
@@ -31,7 +31,6 @@ import { LibraryBrowser } from "../LibraryBrowser";
 import { ParameterSuggestions } from "../Parameters/ParameterSuggestions";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
 import { LSSuggestions } from "../Suggestions/LangServerSuggestions";
-import TabPanel from "../Tab";
 import { VSCodePanels, VSCodePanelTab, VSCodePanelView } from "@vscode/webview-ui-toolkit/react";
 import styled from '@emotion/styled';
 
@@ -86,6 +85,10 @@ export function HelperPane() {
         setLibraryType(value);
     };
 
+    const onTabChange = (e: Event | FormEvent<HTMLElement>) => {
+        setSelectedTab((e as any).currentTarget.activetab.id);
+    }
+
     useEffect(() => {
         if (toolbarCtx.toolbarMoreExp === true) {
             setSelectedTab(TabElements.expressions);
@@ -112,7 +115,7 @@ export function HelperPane() {
 
     return (
         <PanelWrapper>
-            <VSCodePanels activeid={selectedTab}>
+            <VSCodePanels activeid={selectedTab} onChange={onTabChange}>
                 <PanelElement id={TabElements.suggestions}>{TabElements.suggestions}</PanelElement>
                 <PanelElement id={TabElements.expressions}>{TabElements.expressions}</PanelElement>
                 <PanelElement id={TabElements.libraries}>{TabElements.libraries}</PanelElement>

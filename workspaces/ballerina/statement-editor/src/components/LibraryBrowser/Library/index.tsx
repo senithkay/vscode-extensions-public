@@ -14,6 +14,7 @@ import { GridItem, Icon, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { useStmtEditorHelperPanelStyles } from "../../styles";
+import { MAX_COLUMN_WIDTH } from '../../../constants';
 
 interface LibraryProps {
     libraryInfo: LibraryInfo,
@@ -51,7 +52,7 @@ export function Library(props: LibraryProps) {
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
-                maxWidth: '155px',
+                maxWidth: MAX_COLUMN_WIDTH,
                 color: 'var(--foreground)'
             }}
         >
