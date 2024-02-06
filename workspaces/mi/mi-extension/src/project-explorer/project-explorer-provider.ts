@@ -229,7 +229,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 		let explorerEntry;
 
 		if (entry.resources) {
-			const apiEntry = new ProjectExplorerEntry(entry.name, isCollapsibleState(true), entry, 'code');
+			const apiEntry = new ProjectExplorerEntry(entry.name.replace(".xml",""), isCollapsibleState(true), entry, 'code');
 			apiEntry.contextValue = 'api';
 			apiEntry.iconPath = new vscode.ThemeIcon('notebook-open-as-text');
 			apiEntry.children = [];
@@ -246,7 +246,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry = apiEntry;
 
 		} else {
-			explorerEntry = new ProjectExplorerEntry(entry.name, isCollapsibleState(false), entry, 'code');
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml",""), isCollapsibleState(false), entry, 'code');
 		}
 
 		result.push(explorerEntry);
