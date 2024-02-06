@@ -7,7 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CellLinkModel, ComponentLinkModel, ComponentModel, ConnectionModel, EmptyModel, ExternalLinkModel, ExternalModel } from "./components";
+import { CellLinkModel, ComponentLinkModel, ComponentModel, ConnectionModel, EmptyModel, ExternalLinkModel, ExternalModel, ProjectModel } from "./components";
+import { CellBounds } from "./components/Cell/CellNode/CellModel";
 
 export interface Organization {
     id: string;
@@ -21,8 +22,9 @@ export interface Project {
     id: string;
     name: string;
     components: Component[];
+    connections?: OrgConnection[];
     configurations?: Connection[];
-    modelVersion: string;
+    modelVersion?: string;
 }
 
 export enum ComponentType {
@@ -76,6 +78,19 @@ export enum ConnectionType {
     Datastore = "datastore",
 }
 
+export interface OrgConnection {
+    id: string;
+    label?: string;
+    tooltip?: string;
+    source: {
+        boundary: CellBounds
+    };
+    target: {
+        projectId: string;
+        boundary: CellBounds
+    };
+}
+
 export interface ComponentMetadata {
     type: ConnectionType;
     organization: string;
@@ -123,8 +138,12 @@ export interface Observations {
 
 // Util function types
 
-export type CommonModel = ComponentModel | ConnectionModel | ExternalModel | EmptyModel;
-export interface DiagramData {
+export type CommonModel = ProjectModel | ComponentModel | ConnectionModel | ExternalModel | EmptyModel;
+export interface OrgDiagramData {
+    nodes: Nodes;
+    links: Links;
+}
+export interface ProjectDiagramData {
     nodes: Nodes;
     links: Links;
     gateways: Gateways;

@@ -7,6 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+export { ProjectFactory } from './Project/ProjectNode/ProjectFactory';
+export { ProjectModel } from './Project/ProjectNode/ProjectModel';
+export { ProjectWidget } from './Project/ProjectNode/ProjectWidget';
+
+export { ProjectLinkFactory } from './Project/ProjectLink/ProjectLinkFactory';
+export { ProjectLinkModel } from './Project/ProjectLink/ProjectLinkModel';
+export { ProjectLinkWidget } from './Project/ProjectLink/ProjectLinkWidget';
+
+export { ProjectPortFactory } from './Project/ProjectPort/ProjectPortFactory';
+export { ProjectPortModel } from './Project/ProjectPort/ProjectPortModel';
+export { ProjectPortWidget } from './Project/ProjectPort/ProjectPortWidget';
+
 export { ComponentFactory } from './Component/ComponentNode/ComponentFactory';
 export { ComponentModel } from './Component/ComponentNode/ComponentModel';
 export { ComponentWidget } from './Component/ComponentNode/ComponentWidget';

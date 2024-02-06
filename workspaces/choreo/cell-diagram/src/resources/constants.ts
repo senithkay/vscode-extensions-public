@@ -50,6 +50,7 @@ export const ERRONEOUS_MODEL = 'Please resolve the diagnostics to view the cell 
 export const NO_CELL_NODE = 'Could not detect cell.';
 
 // node types
+export const PROJECT_NODE = "projectNode";
 export const COMPONENT_NODE = "componentNode";
 export const CONNECTION_NODE = "connectionNode";
 export const MAIN_CELL = "mainCell";
@@ -58,6 +59,7 @@ export const EXTERNAL_NODE = "externalNode";
 export const BORDER_NODE = "borderNode";
 
 // link types
+export const PROJECT_LINK = "projectLink";
 export const COMPONENT_LINK = "componentLink";
 export const CONNECTION_LINK = "connectionLink";
 export const CELL_LINK = "cellLink";

@@ -68,6 +68,14 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
             animateDiagram();
             diagramEngine.repaintCanvas();
         }
+        
+        return () => {
+            diagramEngine.getModel()?.getNodes().forEach((node) => {
+                if (isRenderInsideCell(node)) {
+                    node.clearListeners();
+                }
+            });
+        }
     }, [isDiagramLoaded, diagramEngine]);
 
     useEffect(() => {

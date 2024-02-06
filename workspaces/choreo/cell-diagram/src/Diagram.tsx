@@ -32,9 +32,13 @@ export interface CellDiagramProps {
 export function CellDiagram(props: CellDiagramProps) {
     const { organization, project } = props;
 
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
     return (
         <Container>
-            {organization ? (
+            {isSafari ? (
+                <PromptScreen userMessage={"Thi browser is not supported. Please use a different browser."} />
+            ) : organization ? (
                 <OrgDiagram organization={organization} />
             ) : project ? (
                 <ProjectDiagram project={project} />

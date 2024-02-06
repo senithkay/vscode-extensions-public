@@ -7,30 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import createEngine, { DiagramEngine, DiagramModel, NodeModel, NodeModelGenerics, PortModelAlignment } from "@projectstorm/react-diagrams";
+import { DiagramModel, NodeModel, NodeModelGenerics, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { BaseModel, BaseModelGenerics } from "@projectstorm/react-canvas-core";
-import gsap from "gsap";
 import {
     ComponentLinkModel,
     ComponentModel,
     ComponentPortModel,
-    OverlayLayerFactory,
-    ComponentFactory,
-    ComponentLinkFactory,
-    ComponentPortFactory,
-    CellFactory,
-    CellLinkFactory,
-    CellPortFactory,
     CellLinkModel,
     CellPortModel,
-    EmptyFactory,
-    ExternalFactory,
-    ExternalLinkFactory,
     ExternalLinkModel,
     ExternalModel,
     EmptyModel,
-    ConnectionPortFactory,
-    ConnectionFactory,
     ConnectionModel,
     ConnectionPortModel,
 } from "../components";
@@ -40,7 +27,7 @@ import {
     ConnectionMetadata,
     ConnectionType,
     ConnectorMetadata,
-    DiagramData,
+    ProjectDiagramData,
     Project,
     ComponentMetadata,
     Observations,
@@ -52,14 +39,11 @@ import { getNodePortId, getCellPortMetadata, getCellLinkName } from "../componen
 import {
     BORDER_GAP,
     BORDER_NODE,
-    CELL_LINK,
     CIRCLE_WIDTH,
-    COMPONENT_LINK,
     COMPONENT_NODE,
     CONNECTION_NODE,
     DIAGRAM_END,
     DOT_WIDTH,
-    EXTERNAL_LINK,
     LINE_MIN_WIDTH,
     MAIN_CELL,
     MAIN_CELL_DEFAULT_HEIGHT,
@@ -71,34 +55,8 @@ import { getConnectionNameById } from "../components/Connection/connection-node-
 import { getEmptyNodeName } from "../components/Cell/cell-util";
 import { getExternalLinkName, getExternalNodeName } from "../components/External/external-node-util";
 
-// Diagram engine utils
-
-export function generateEngine(): DiagramEngine {
-    const engine: DiagramEngine = createEngine({
-        registerDefaultPanAndZoomCanvasAction: true,
-        registerDefaultZoomCanvasAction: true,
-    });
-    engine.getLinkFactories().registerFactory(new ComponentLinkFactory());
-    engine.getPortFactories().registerFactory(new ComponentPortFactory());
-    engine.getNodeFactories().registerFactory(new ComponentFactory());
-
-    engine.getPortFactories().registerFactory(new ConnectionPortFactory());
-    engine.getNodeFactories().registerFactory(new ConnectionFactory());
-
-    engine.getLinkFactories().registerFactory(new CellLinkFactory());
-    engine.getPortFactories().registerFactory(new CellPortFactory());
-    engine.getNodeFactories().registerFactory(new CellFactory());
-
-    engine.getLinkFactories().registerFactory(new ExternalLinkFactory());
-    engine.getNodeFactories().registerFactory(new ExternalFactory());
-
-    engine.getNodeFactories().registerFactory(new EmptyFactory());
-
-    engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
-    return engine;
-}
-
-export function getDiagramDataFromProject(project: Project): DiagramData {
+// Project diagram engine utils
+export function getDiagramDataFromProject(project: Project): ProjectDiagramData {
     const componentNodes: Map<string, CommonModel> = generateComponentNodes(project);
     const connectorNodes: Map<string, ConnectionModel> = generateConnectorNodes(project);
     const connectionNodes: Map<string, ConnectionModel> = generateConnectionNodes(project);
@@ -135,7 +93,7 @@ export function getDiagramDataFromProject(project: Project): DiagramData {
 
 // Cell utils
 
-export function getComponentDiagramWidth(models: DiagramData): number {
+export function getComponentDiagramWidth(models: ProjectDiagramData): number {
     const tempModel = new DiagramModel();
     tempModel.addAll(
         ...models.nodes.componentNodes.values(),
@@ -196,62 +154,6 @@ export function manualDistribute(model: DiagramModel): DiagramModel {
     updateBoundNodePositions(cellNode, model);
 
     return model;
-}
-
-// reveal diagram with animation
-export function animateDiagram() {
-    const tl = gsap.timeline();
-    const safeAnimate = (selector, animation, label?) => {
-        const elements = gsap.utils.toArray(selector);
-        if (elements.length > 0) {
-            tl.from(elements, animation, label);
-        }
-    };
-    safeAnimate(`div[data-nodeid="${MAIN_CELL}"]`, {
-        scale: 0,
-        opacity: 0,
-        duration: 0.5,
-    });
-    safeAnimate(
-        `g[data-linkid^="${EXTERNAL_LINK}|"]`,
-        {
-            opacity: 0,
-            duration: 0.5,
-        },
-        "showNodeTime"
-    );
-    safeAnimate(
-        `div[data-nodeid^="${COMPONENT_NODE}|"]`,
-        {
-            opacity: 0,
-            duration: 0.5,
-        },
-        "showNodeTime"
-    );
-    safeAnimate(
-        `div[data-nodeid^="${CONNECTION_NODE}|"]`,
-        {
-            opacity: 0,
-            duration: 0.5,
-        },
-        "showNodeTime"
-    );
-    safeAnimate(
-        `g[data-linkid^="${COMPONENT_LINK}|"]`,
-        {
-            opacity: 0,
-            duration: 0.5,
-        },
-        "showNodeTime"
-    );
-    safeAnimate(
-        `g[data-linkid^="${CELL_LINK}|"]`,
-        {
-            opacity: 0,
-            duration: 0.5,
-        },
-        "showNodeTime"
-    );
 }
 
 export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>, model: DiagramModel) {
