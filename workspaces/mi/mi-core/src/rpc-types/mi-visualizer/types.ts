@@ -22,7 +22,7 @@ export interface ProjectStructureRequest {
 
 export interface ProjectStructureResponse {
     directoryMap: {
-        esbConfigs: ProjectDirectoryMap;
+        esbConfigs: EsbDirectoryMap[];
         dataServiceConfigs: ProjectStructureEntry[],
         dataSourceConfigs: ProjectStructureEntry[],
         mediatorProjects: ProjectStructureEntry[],
@@ -37,6 +37,13 @@ export interface ProjectStructureResponse {
 
 export interface ProjectDirectoryMap {
     [key: string]: ProjectStructureEntry[];
+}
+
+export interface EsbDirectoryMap {
+    esbConfigs: ProjectDirectoryMap,
+    name: string,
+    path: string,
+    type: string
 }
 
 export interface ProjectStructureEntry {
