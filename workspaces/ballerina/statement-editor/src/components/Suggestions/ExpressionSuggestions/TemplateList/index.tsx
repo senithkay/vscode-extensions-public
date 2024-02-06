@@ -57,7 +57,7 @@ export function TemplateList(props: TemplateListProps) {
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
                                 whiteSpace: 'nowrap',
-                                maxWidth: '160px',
+                                maxWidth: '155px',
                                 color: isSelected ? 'var(--vscode-list-activeSelectionForeground)' : 'var(--foreground)'
                             }}
                             selected={isSelected}

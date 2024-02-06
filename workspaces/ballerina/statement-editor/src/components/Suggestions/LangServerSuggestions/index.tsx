@@ -11,7 +11,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-core";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { SearchBox } from "@wso2-enterprise/ui-toolkit";
+import { SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import {
     ACTION,
@@ -32,6 +32,7 @@ import { getActionExprWithArgs } from "../../Parameters/ParameterTree/utils";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
 import { SuggestionsList } from "./SuggestionsList";
+import { DiagnosticsPaneId } from "../../Diagnostics";
 
 export function LSSuggestions() {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
@@ -46,6 +47,10 @@ export function LSSuggestions() {
         suggestionsCtx: {
             lsSuggestions,
             lsSecondLevelSuggestions
+        },
+        statementCtx: {
+            diagnostics,
+            errorMsg
         },
         formCtx: {
             formArgs: {
@@ -64,6 +69,7 @@ export function LSSuggestions() {
     const [filteredSecondLevelSuggestions, setFilteredSecondLevelSuggestions] = useState<SuggestionItem[]>(secondLevelSuggestions);
     const [selectedSuggestion, setSelectedSuggestion] = React.useState<Suggestion>(null);
     const [references, setReferences] = useState<SuggestionItem[]>([]);
+    const [diagnosticsHeight, setDiagnosticsHeight] = useState(0);
 
     useEffect(() => {
         setFilteredSuggestions(lsSuggestions);
@@ -77,8 +83,19 @@ export function LSSuggestions() {
             }
         })
         setReferences(referencedFields);
-    }, [currentReferences])
+    }, [currentReferences]);
 
+    // A workaround for https://github.com/microsoft/vscode-webview-ui-toolkit/issues/464
+    useEffect(() => {
+        const handleResize = () => {
+            const diagnosticsElement = document.getElementById(DiagnosticsPaneId);
+            if (diagnosticsElement) {
+                const height = diagnosticsElement.offsetHeight;
+                setDiagnosticsHeight(height);
+            }
+        };
+        handleResize();
+    }, [diagnostics, errorMsg]);
 
     const changeSelectionOnRightLeft = (key: number) => {
         if (selectedSuggestion) {
@@ -266,7 +283,10 @@ export function LSSuggestions() {
             </div>
             {(filteredSuggestions?.length || filteredSecondLevelSuggestions?.length) ?
             (
-                <div className={stmtEditorHelperClasses.suggestionListContainer}>
+                <div
+                    className={stmtEditorHelperClasses.suggestionListContainer}
+                    style={{maxHeight: `calc(100vh - ${ 305 + diagnosticsHeight}px)`}}
+                >
                     <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
                         {references?.length > 0 && (
                             <SuggestionsList
@@ -300,9 +320,12 @@ export function LSSuggestions() {
             )
             :
             (
-                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                    <p>Suggestions not available</p>
-                </div>
+                <Typography
+                    variant="body3"
+                    sx={{marginTop: '15px'}}
+                >
+                    Suggestions not available
+                </Typography>
             )}
         </div>
     );

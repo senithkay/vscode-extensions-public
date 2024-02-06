@@ -51,7 +51,7 @@ export function Library(props: LibraryProps) {
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
-                maxWidth: '160px',
+                maxWidth: '155px',
                 color: 'var(--foreground)'
             }}
         >

@@ -357,7 +357,7 @@ export const useStatementEditorDiagnosticStyles = () => ({
     }),
     diagnosticsPaneInner: css({
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
     }),
     diagnosticsErrorIcon: css({
         padding: '4px 6px 0 0'
@@ -409,18 +409,8 @@ export const useStmtEditorHelperPanelStyles = () => ({
         }
     }),
     suggestionListContainer: css({
-        height: 'inherit',
-        "& .MuiList-padding": {
-            ...removePadding
-        }
-    }),
-    suggestionList: css({
-        columnGap: '5%',
-        display: 'grid',
-        gridTemplateColumns: '30% 30% 30%',
-        "& .MuiListItem-root": {
-            padding: '7px 10px'
-        },
+        overflowY: 'scroll',
+        marginTop: '5px',
     }),
     suggestionListItem: css({
         display: 'flex'
@@ -446,8 +436,7 @@ export const useStmtEditorHelperPanelStyles = () => ({
         fontSize: '13px',
     }),
     searchBox: css({
-        width: '100%',
-        padding: '0 25px'
+        width: '100%'
     }),
     librarySearchBox: css({
         position: 'relative',
@@ -466,8 +455,7 @@ export const useStmtEditorHelperPanelStyles = () => ({
     helperPaneSubHeader: css({
         color: 'var(--vscode-editor-foreground)',
         marginBottom: '4px',
-        fontWeight: 500,
-        paddingLeft: '10px'
+        fontWeight: 500
     }),
     groupHeaderWrapper: css({
         display: 'flex',
@@ -481,19 +469,15 @@ export const useStmtEditorHelperPanelStyles = () => ({
     }),
     suggestionDividerWrapper: css({
         marginTop: '5px',
-        marginLeft: '10px'
     }),
     groupHeader: css({
         color: 'var(--vscode-editor-foreground)',
-        fontWeight: 500,
-        marginLeft: '10px',
-        marginRight: '5px',
+        fontWeight: 500
     }),
     selectionSubHeader: css({
         color: 'var(--vscode-settings-textInputForeground)',
         borderRadius: '5px',
         backgroundColor: 'var(--vscode-editor-selectionBackground)',
-        marginLeft: '10px',
         marginRight: '5px',
         ...statementFontStyles
     }),
@@ -531,9 +515,7 @@ export const useStmtEditorHelperPanelStyles = () => ({
         alignItems: 'center',
     }),
     libraryWrapper: css({
-        height: 'calc(100vh - 335px)',
-        marginTop: '15px',
-        padding: '0 15px 25px 15px',
+        marginTop: '5px',
         overflowY: 'scroll',
     }),
     libraryBrowser: css({
@@ -551,8 +533,7 @@ export const useStmtEditorHelperPanelStyles = () => ({
         width: '100%',
         alignItems: 'center',
         zIndex: 1,
-        color: 'var(--vscode-sideBar-foreground)',
-        ...stmtEditorPadding
+        color: 'var(--vscode-sideBar-foreground)'
     }),
     searchResult: css({
         paddingTop: '15px',
@@ -853,12 +834,6 @@ export const useStatementEditorStyles = () => ({
         height: 'auto',
         flexDirection: 'column',
     }),
-    stmtEditorInnerWrapper: css({
-        fontSize: '13px',
-        overflowY: 'hidden',
-        paddingTop: '0px',
-        ...stmtEditorPadding
-    }),
     sourceEditor: css({
         fontSize: '13px',
         fontFamily: 'Gilmer',
@@ -912,7 +887,6 @@ export const useStatementEditorStyles = () => ({
     suggestionsSection: css({
         display: 'flex',
         flexDirection: 'column',
-        overflowX: 'hidden',
         height: 'inherit'
     }),
     stmtEditorContentWrapper: css({
@@ -956,14 +930,14 @@ export const useStatementEditorStyles = () => ({
         height: '1px',
         opacity: '0.52',
         backgroundColor: 'var(--vscode-panel-border)',
-        marginBottom: '25px',
-        marginLeft: '10px'
+        marginBottom: '15px'
+    }),
+    lastExpression: css({
+        marginBottom: '15px'
     }),
     stmtEditorExpressionWrapper: css({
-        padding: '0 15px 15px 15px',
-        marginTop: '15px',
-        height: 'inherit',
-        overflowY: 'scroll'
+        marginTop: '10px',
+        height: 'inherit'
     }),
     helpText: css({
         fontStyle: "italic"
