@@ -11,11 +11,11 @@
 import React, { useState } from 'react';
 
 import { ActionButtons, AutoComplete, TextField } from '@wso2-enterprise/ui-toolkit';
-import { ResponseConfig } from '../../definitions';
 import { EditorContainer, EditorContent } from '../../styles';
 import { responseCodes } from '@wso2-enterprise/ballerina-core';
 import { getSourceFromResponseCode, getTitleFromResponseCode } from '../../utils/utils';
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import { ResponseConfig } from '@wso2-enterprise/service-designer';
 
 export interface ParamProps {
     response: ResponseConfig;
@@ -73,26 +73,26 @@ export function ResponseEditor(props: ParamProps) {
         <EditorContainer>
             <EditorContent>
                 <AutoComplete
-                    sx={{ zIndex: 1 }}
+                    sx={{ zIndex: 1, position: "relative" }}
                     label="Code"
                     selectedItem={getTitleFromResponseCode(response.code)}
                     items={responseCodes.map(code => code.title)}
                     onChange={handleCodeChange}
                 />
-                <AutoComplete
-                    sx={{ zIndex: 1 }}
-                    label="Type"
-                    selectedItem={response.type}
-                    items={typeCompletions}
-                    nullable
-                    onChange={handleTypeChange}
-                />
+                {typeCompletions && (
+                    <AutoComplete
+                        sx={{ zIndex: 1, position: "relative" }}
+                        label="Type"
+                        selectedItem={response.type}
+                        items={typeCompletions}
+                        nullable
+                        onChange={handleTypeChange}
+                    />
+                )}
             </EditorContent>
-            <>
-                <VSCodeCheckbox checked={isNameRecord} onChange={handleReqFieldChange} id="is-name-rec-checkbox">
-                    Define a name record for the return type
-                </VSCodeCheckbox>
-            </>
+            <VSCodeCheckbox checked={isNameRecord} onChange={handleReqFieldChange} id="is-name-rec-checkbox">
+                Define a name record for the return type
+            </VSCodeCheckbox>
             {isNameRecord && (
                 <TextField
                     size={33}

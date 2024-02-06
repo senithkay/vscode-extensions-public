@@ -12,8 +12,8 @@ import React from 'react';
 
 import { ActionButtons, Dropdown, TextField } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { PARAM_TYPES, ParameterConfig } from '../../definitions';
 import { EditorContainer, EditorContent } from '../../styles';
+import { PARAM_TYPES, ParameterConfig } from '@wso2-enterprise/service-designer';
 
 const options = [{ id: "0", value: PARAM_TYPES.DEFAULT }, { id: "1", value: PARAM_TYPES.HEADER }];
 

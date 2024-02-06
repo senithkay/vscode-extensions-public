@@ -9,7 +9,8 @@
 import React from "react";
 import { ComponentStory } from "@storybook/react";
 import { HorizontalIcons as IconsWrapper, HorizontalIconProps } from "./HorizontalIcons";
-import { FORM_WIDTH } from "../WebAppCreation/WebAppCreation";
+
+const FORM_WIDTH = 600;
 
 const Template: ComponentStory<typeof IconsWrapper> = (args: HorizontalIconProps) => <IconsWrapper {...args} />;
 

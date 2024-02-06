@@ -39,14 +39,14 @@ interface TransformNodeData {
 
 export interface CodeGeneartionData {
     workerBlocks: string;
-    transformFunction?: TransformFunction;
+    transformFunctions?: TransformFunction[];
 }
 
 
 export function workerCodeGen(model: Flow): CodeGeneartionData {
     console.log("===model", model);
     let workerBlocks: string = "";
-    let transformFunction: TransformFunction;
+    let transformFunctions: TransformFunction[];
     // use the util functions and generate the workerblocks
     model?.nodes.forEach((node) => {
         if (node.templateId === "SwitchNode") {
@@ -57,7 +57,12 @@ export function workerCodeGen(model: Flow): CodeGeneartionData {
             workerBlocks += generateResponseNode(node);
         } else if (node.templateId === "TransformNode") {
             const transformNodeData: TransformNodeData = generateTransformNode(node);
-            transformFunction = transformNodeData.transformFunction;
+            if (transformNodeData.transformFunction) {
+                if (!transformFunctions) {
+                    transformFunctions = [];
+                }
+                transformFunctions.push(transformNodeData.transformFunction);
+            }
             workerBlocks += transformNodeData.transformNode;
         } else if (node.templateId === "StartNode") {
             workerBlocks += generateStartNode(node);
@@ -68,7 +73,7 @@ export function workerCodeGen(model: Flow): CodeGeneartionData {
 
     return {
         workerBlocks: workerBlocks + startWorkerCall + returnBlock,
-        transformFunction: transformFunction || undefined,
+        transformFunctions: transformFunctions || undefined,
     };
 }
 
@@ -413,7 +418,7 @@ function generateTransformNode(node: Node): TransformNodeData {
             },
             transformNode: completeNode,
         };
-    } else if (nodeProperties?.expression?.expression && nodeProperties.updateFuncSignature){
+    } else if (nodeProperties?.expression?.expression && nodeProperties.updateFuncSignature) {
         const outputType = metadata?.outputs[0]?.type;
         const inputPortNames: string[] = [];
         const inputPortTypes: string[] = [];

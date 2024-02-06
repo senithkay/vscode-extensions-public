@@ -12,12 +12,12 @@ import { ActionButtons, Button, Divider, LinkButton, SidePanel, SidePanelBody, S
 import { ResourcePath } from '../ResourcePath/ResourcePath';
 import { ResourceResponse } from '../ResourceResponse/ResourceResponse';
 import { ResourceParam } from '../ResourceParam/ResourceParam';
-import { PARAM_TYPES, ParameterConfig, ResourceInfo, ResponseConfig } from '../../definitions';
 import { Payload } from '../Payload/Payload';
 import { AdvancedParams } from '../AdvancedParam/AdvancedParam';
 import styled from '@emotion/styled';
 import { HTTP_METHOD, generateNewResourceFunction, updateResourceFunction } from '../../utils/utils';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
+import { PARAM_TYPES, ParameterConfig, Resource, ResponseConfig } from '@wso2-enterprise/service-designer';
 
 const AdvancedParamTitleWrapper = styled.div`
 	display: flex;
@@ -26,8 +26,8 @@ const AdvancedParamTitleWrapper = styled.div`
 
 export interface ResourceFormProps {
 	isOpen: boolean;
-	resourceConfig?: ResourceInfo;
-	applyModifications?: (source: string, updatePosition?: NodePosition) => void;
+	resourceConfig?: Resource;
+	onSave?: (source: string, config: Resource, updatePosition?: NodePosition) => void;
 	getRecordST?: (recordName: string) => void;
 	addNameRecord?: (source: string) => void;
 	onClose: () => void;
@@ -35,10 +35,10 @@ export interface ResourceFormProps {
 }
 
 export function ResourceForm(props: ResourceFormProps) {
-	const { isOpen, resourceConfig, onClose, applyModifications, addNameRecord, typeCompletions } = props;
+	const { isOpen, resourceConfig, onClose, onSave, addNameRecord, typeCompletions } = props;
 
 	const [method, setMethod] = useState<HTTP_METHOD>(resourceConfig?.method.toUpperCase() as HTTP_METHOD || HTTP_METHOD.GET);
-	const [path, setPath] = useState<string>(resourceConfig?.path || "/");
+	const [path, setPath] = useState<string>(resourceConfig?.path || "path");
 
 	const [parameters, setParameters] = useState<ParameterConfig[]>(resourceConfig?.params || []);
 	const [advancedParams, setAdvancedParam] = useState<Map<string, ParameterConfig>>(resourceConfig?.advancedParams || new Map<string, ParameterConfig>());
@@ -71,7 +71,7 @@ export function ResourceForm(props: ResourceFormProps) {
 		setPath(path);
 	}
 
-	const onSave = () => {
+	const handleSave = () => {
 		let paramString = "";
 
 		let advancedParamIndex = 0;
@@ -108,21 +108,23 @@ export function ResourceForm(props: ResourceFormProps) {
 		}
 
 		let genSource = "";
+		const config = {
+			method: method,
+			path: path,
+			params: parameters,
+			advancedParams: advancedParams,
+			payloadConfig: payload,
+			responses: response
+		};
 		// Insert scenario
-		if (!resourceConfig?.ST) {
+		if (!resourceConfig?.updatePosition) {
 			// Insert scenario
 			genSource = generateNewResourceFunction({ METHOD: method.toLocaleLowerCase(), PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString });
-			applyModifications && applyModifications(genSource);
+			onSave && onSave(genSource, config);
 		} else {
 			// Edit scenario
-			const position = {
-				startLine: resourceConfig?.ST?.functionName?.position?.startLine,
-				startColumn: resourceConfig?.ST?.functionName?.position?.startColumn,
-				endLine: resourceConfig?.ST?.functionSignature?.position?.endLine,
-				endColumn: resourceConfig?.ST?.functionSignature?.position?.endColumn
-			};
 			genSource = updateResourceFunction({ METHOD: method.toLocaleLowerCase(), PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString });
-			applyModifications && applyModifications(genSource, position);
+			onSave && onSave(genSource, config, resourceConfig?.updatePosition);
 		}
 		onClose();
 	};
@@ -146,7 +148,7 @@ export function ResourceForm(props: ResourceFormProps) {
 
 					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Parameters</Typography>
 					<ResourceParam parameters={parameters} onChange={handleParamChange} />
-					{method !== "GET" && <Payload parameter={payload} onChange={handlePayloadChange} />}
+					{method !== HTTP_METHOD.GET && <Payload parameter={payload} onChange={handlePayloadChange} />}
 					<AdvancedParamTitleWrapper>
 						<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Advanced Parameters</Typography>
 						<LinkButton sx={{ marginTop: 12, marginLeft: 8 }} onClick={handleAdvanceParamToggle}> {showAdvanced ? "Hide" : "Show"} </LinkButton>
@@ -159,7 +161,7 @@ export function ResourceForm(props: ResourceFormProps) {
 					<ResourceResponse method={method} addNameRecord={addNameRecord} response={response} onChange={handleResponseChange} typeCompletions={typeCompletions}/>
 
 					<ActionButtons
-						primaryButton={{ text: "Save", onClick: onSave, tooltip: "Save" }}
+						primaryButton={{ text: "Save", onClick: handleSave, tooltip: "Save" }}
 						secondaryButton={{ text: "Cancel", onClick: onClose, tooltip: "Cancel" }}
 						sx={{ justifyContent: "flex-end" }}
 					/>

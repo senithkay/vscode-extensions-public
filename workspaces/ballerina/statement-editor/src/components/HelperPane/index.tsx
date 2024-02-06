@@ -9,6 +9,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { FormEvent, useContext, useEffect, useState } from "react";
 
+import styled from '@emotion/styled';
+import { VSCodePanels, VSCodePanelTab, VSCodePanelView } from "@vscode/webview-ui-toolkit/react";
 import { Dropdown } from "@wso2-enterprise/ui-toolkit";
 
 import {
@@ -31,8 +33,6 @@ import { LibraryBrowser } from "../LibraryBrowser";
 import { ParameterSuggestions } from "../Parameters/ParameterSuggestions";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
 import { LSSuggestions } from "../Suggestions/LangServerSuggestions";
-import { VSCodePanels, VSCodePanelTab, VSCodePanelView } from "@vscode/webview-ui-toolkit/react";
-import styled from '@emotion/styled';
 
 enum TabElements {
     suggestions = 'Suggestions',
@@ -54,7 +54,7 @@ const PanelContent = styled(VSCodePanelView)`
     box-sizing: border-box;
     font-size: var(--type-ramp-base-font-size);
     line-height: var(--type-ramp-base-line-height);
-    padding: 10px 0px 10px 3px;
+    padding: 10px 0 10px 3px;
 `;
 
 const PanelElement = styled(VSCodePanelTab)`

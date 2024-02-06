@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ReactNode } from "react";
+import React, { ReactNode, PropsWithChildren } from "react";
 
 import styled from "@emotion/styled";
 import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from "@vscode/webview-ui-toolkit/react";
@@ -41,7 +41,6 @@ export interface GridProps {
     id?: string;
     className?: string;
     columns?: number;
-    children?: ReactNode;
 }
 
 const generateRowData = (numColumns: number, children: ReactNode) => {
@@ -75,7 +74,7 @@ const generateRowData = (numColumns: number, children: ReactNode) => {
     return rowData;
 };
 
-export function Grid(props: GridProps) {
+export const Grid: React.FC<PropsWithChildren<GridProps>> = (props: PropsWithChildren<GridProps>) => {
     const { children, columns } = props;
     const numberOfChildren = React.Children.count(children);
     const rowData = numberOfChildren > 0 ? generateRowData(columns, children) : [];
@@ -85,4 +84,4 @@ export function Grid(props: GridProps) {
             {rowData}
         </VSCodeDataGrid>
     );
-}
+};

@@ -28,11 +28,11 @@ import { Suggestion, SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getExprWithArgs } from "../../../utils";
+import { DiagnosticsPaneId } from "../../Diagnostics";
 import { getActionExprWithArgs } from "../../Parameters/ParameterTree/utils";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
 import { SuggestionsList } from "./SuggestionsList";
-import { DiagnosticsPaneId } from "../../Diagnostics";
 
 export function LSSuggestions() {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();

@@ -17,13 +17,13 @@ import { Button, Codicon, Icon, ProgressRing, SearchBox, Typography } from "@wso
 import debounce from "lodash.debounce";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
+import { DiagnosticsPaneId } from "../Diagnostics";
 import { useStmtEditorHelperPanelStyles } from "../styles";
 
 import { useLibrariesList, useLibrarySearchData } from "./Hooks";
 import { LibrariesList } from "./LibrariesList";
 import { SearchResult } from "./SearchResult";
 import { filterByKeyword } from "./utils";
-import { DiagnosticsPaneId } from "../Diagnostics";
 
 interface LibraryBrowserProps {
     libraryType: string;

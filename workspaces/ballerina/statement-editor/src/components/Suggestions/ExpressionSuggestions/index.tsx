@@ -41,10 +41,10 @@ import {
     SELECTED_EXPRESSION,
     switchOpenClose
 } from "../../../utils/expressions";
+import { DiagnosticsPaneId } from "../../Diagnostics";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
 import { TemplateList } from "./TemplateList";
-import { DiagnosticsPaneId } from "../../Diagnostics";
 
 export function ExpressionSuggestions() {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
@@ -243,7 +243,7 @@ export function ExpressionSuggestions() {
                                         selectedSuggestions={selectedSuggestions}
                                         onClickExpressionSuggestion={onClickExpressionSuggestion}
                                     />
-                                    {groupIndex !== filteredExpressions.length -1 ? (
+                                    {groupIndex !== filteredExpressions.length - 1 ? (
                                         <div className={statementEditorClasses.separatorLine}/>
                                     ) : (
                                         <div className={statementEditorClasses.lastExpression}/>

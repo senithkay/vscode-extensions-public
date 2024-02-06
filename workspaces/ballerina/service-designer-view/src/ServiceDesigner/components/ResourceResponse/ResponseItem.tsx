@@ -10,9 +10,9 @@
 import React from "react";
 
 import { Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
-import { ResponseConfig } from "../../definitions";
 import { ActionIconWrapper, ContentSection, DeleteIconWrapper, EditIconWrapper, HeaderLabel, IconTextWrapper, IconWrapper, OptionLabel, disabledHeaderLabel, headerLabelStyles } from "../../styles";
 import { HTTP_METHOD, getDefaultResponse } from "../../utils/utils";
+import { ResponseConfig } from "@wso2-enterprise/service-designer";
 
 interface ParamItemProps {
     method: HTTP_METHOD;

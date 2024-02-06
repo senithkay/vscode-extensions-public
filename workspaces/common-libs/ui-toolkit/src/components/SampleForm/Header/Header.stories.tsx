@@ -9,7 +9,8 @@
 import React from "react";
 import { ComponentStory } from "@storybook/react";
 import { Header as HeaderWrapper, HeaderContainerProps } from "./Header";
-import { FORM_WIDTH } from "../WebAppCreation/WebAppCreation";
+
+const FORM_WIDTH = 600;
 
 const Template: ComponentStory<typeof HeaderWrapper> = (args: HeaderContainerProps) => <HeaderWrapper {...args} />;
 
