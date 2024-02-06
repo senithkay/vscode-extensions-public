@@ -11,6 +11,7 @@ import { NodeModel, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodePortModel } from "../../NodePort/NodePortModel";
 import { getNodeIdFromModel } from "../../../utils/node";
+import { NodeTypes } from "../../../resources/constants";
 
 export class StartNodeModel extends NodeModel {
     readonly stNode: STNode;
@@ -19,7 +20,7 @@ export class StartNodeModel extends NodeModel {
     constructor(stNode: STNode) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode, "start"),
-            type: "start-node",
+            type: NodeTypes.START_NODE,
             locked: true,
         });
         this.stNode = stNode;

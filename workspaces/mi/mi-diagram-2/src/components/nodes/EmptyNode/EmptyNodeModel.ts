@@ -8,23 +8,18 @@
  */
 
 import { NodeModel } from "@projectstorm/react-diagrams";
-import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodePortModel } from "../../NodePort/NodePortModel";
-import { getNodeIdFromModel } from "../../../utils/node";
 import { NodeTypes } from "../../../resources/constants";
 
-export class ConditionNodeModel extends NodeModel {
-    readonly stNode: STNode;
+export class EmptyNodeModel extends NodeModel {
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
 
-    constructor(stNode: STNode) {
+    constructor() {
         super({
-            id: stNode.viewState?.id || getNodeIdFromModel(stNode),
-            type: NodeTypes.CONDITION_NODE,
+            type: NodeTypes.EMPTY_NODE,
             locked: true,
         });
-        this.stNode = stNode;
         this.addInPort("in");
         this.addOutPort("out");
     }

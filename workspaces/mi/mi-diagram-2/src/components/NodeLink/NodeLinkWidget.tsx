@@ -56,7 +56,8 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 fill={"none"}
                 stroke={link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY}
                 strokeWidth={2}
-                markerEnd={`url(#${link.getID()}-arrow-head)`}
+                strokeDasharray={link.brokenLine ? "5,5" : "0"}
+                markerEnd={link.showArrowToNode() && `url(#${link.getID()}-arrow-head)`}
             />
             {link.label && (
                 <foreignObject x={labelPosition.x - 50} y={labelPosition.y - 20} width="100" height="100">
@@ -126,16 +127,16 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
             )}
             <defs>
                 <marker
-                    markerWidth="5"
-                    markerHeight="5"
-                    refX="4"
-                    refY="2.5"
-                    viewBox="0 0 5 5"
+                    markerWidth="4"
+                    markerHeight="4"
+                    refX="3"
+                    refY="2"
+                    viewBox="0 0 4 4"
                     orient="auto"
                     id={`${link.getID()}-arrow-head`}
                 >
                     <polygon
-                        points="0,5 0,0 5,2.5"
+                        points="0,4 0,0 4,2"
                         fill={link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY}
                     ></polygon>
                 </marker>

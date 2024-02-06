@@ -122,58 +122,69 @@ function generateTreeData(data: ProjectStructureResponse): ProjectExplorerEntry[
 					'package'
 				);
 
-				for (const key in directoryMap.esbConfigs) {
-					const parentEntry = new ProjectExplorerEntry(
-						key,
-						isCollapsibleState(directoryMap.esbConfigs[key].length > 0),
+				for (const esbConfig in directoryMap.esbConfigs) {
+					const config = directoryMap.esbConfigs[esbConfig];
+					const esbConfigEntry = new ProjectExplorerEntry(
+						config.name,
+						isCollapsibleState(Object.keys(config).length > 0),
 						undefined,
-						'folder'
+						'package'
 					);
-					const children = genProjectStructureEntry(directoryMap.esbConfigs[key]);
 
-					parentEntry.children = children;
-					parentEntry.contextValue = key;
+					for (const key in config.esbConfigs) {
+						const parentEntry = new ProjectExplorerEntry(
+							key,
+							isCollapsibleState((config.esbConfigs[key]).length > 0),
+							undefined,
+							'folder'
+						);
+						const children = genProjectStructureEntry(config.esbConfigs[key]);
 
-					switch (key) {
-						case 'api':
-							parentEntry.iconPath = new vscode.ThemeIcon('globe');
-							break;
-						case 'endpoints':
-							parentEntry.iconPath = new vscode.ThemeIcon('plug');
-							break;
-						case 'inbound-endpoints':
-							parentEntry.iconPath = new vscode.ThemeIcon('fold-down');
-							break;
-						case 'local-entries':
-							parentEntry.iconPath = new vscode.ThemeIcon('settings');
-							break;
-						case 'message-stores':
-							parentEntry.iconPath = new vscode.ThemeIcon('database');
-							break;
-						case 'message-processors':
-							parentEntry.iconPath = new vscode.ThemeIcon('gear');
-							break;
-						case 'proxy-services':
-							parentEntry.iconPath = new vscode.ThemeIcon('arrow-swap');
-							break;
-						case 'sequences':
-							parentEntry.iconPath = new vscode.ThemeIcon('list-ordered');
-							break;
-						case 'tasks':
-							parentEntry.iconPath = new vscode.ThemeIcon('tasklist');
-							break;
-						case 'templates':
-							parentEntry.iconPath = new vscode.ThemeIcon('file');
-							break;
-						case 'resources':
-							parentEntry.iconPath = new vscode.ThemeIcon('globe');
-							break;
-						default:
+						parentEntry.children = children;
+						parentEntry.contextValue = key;
+
+						switch (key) {
+							case 'api':
+								parentEntry.iconPath = new vscode.ThemeIcon('globe');
+								break;
+							case 'endpoints':
+								parentEntry.iconPath = new vscode.ThemeIcon('plug');
+								break;
+							case 'inbound-endpoints':
+								parentEntry.iconPath = new vscode.ThemeIcon('fold-down');
+								break;
+							case 'local-entries':
+								parentEntry.iconPath = new vscode.ThemeIcon('settings');
+								break;
+							case 'message-stores':
+								parentEntry.iconPath = new vscode.ThemeIcon('database');
+								break;
+							case 'message-processors':
+								parentEntry.iconPath = new vscode.ThemeIcon('gear');
+								break;
+							case 'proxy-services':
+								parentEntry.iconPath = new vscode.ThemeIcon('arrow-swap');
+								break;
+							case 'sequences':
+								parentEntry.iconPath = new vscode.ThemeIcon('list-ordered');
+								break;
+							case 'tasks':
+								parentEntry.iconPath = new vscode.ThemeIcon('tasklist');
+								break;
+							case 'templates':
+								parentEntry.iconPath = new vscode.ThemeIcon('file');
+								break;
+							case 'resources':
+								parentEntry.iconPath = new vscode.ThemeIcon('globe');
+								break;
+							default:
+						}
+
+						esbConfigEntry.children = esbConfigEntry.children ?? [];
+						if (parentEntry.children.length > 0) esbConfigEntry.children.push(parentEntry);
 					}
-
-
 					esbConfigs.children = esbConfigs.children ?? [];
-					if (parentEntry.children.length > 0) { esbConfigs.children.push(parentEntry); }
+					esbConfigs.children.push(esbConfigEntry);
 				}
 				projectRoot.children = projectRoot.children ?? [];
 				projectRoot.children.push(esbConfigs);
@@ -227,13 +238,13 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			for (const resource of entry.resources) {
 				const resourceEntry: ProjectStructureEntry = {
 					...entry,
-					name : resource.uriTemplate,
-					type : 'resource'
+					name: resource.uriTemplate,
+					type: 'resource'
 				};
 				apiEntry.children.push(new ProjectExplorerEntry(resource.uriTemplate ?? "/", isCollapsibleState(false), resourceEntry, 'code'));
 			}
 			explorerEntry = apiEntry;
-			
+
 		} else {
 			explorerEntry = new ProjectExplorerEntry(entry.name, isCollapsibleState(false), entry, 'code');
 		}

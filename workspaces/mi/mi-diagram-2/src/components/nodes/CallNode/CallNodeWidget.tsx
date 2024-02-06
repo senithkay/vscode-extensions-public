@@ -66,8 +66,10 @@ namespace S {
     `;
 
     export const StyledButton = styled(Button)`
+        background-color: ${Colors.SURFACE};
+        border-radius: 5px;
         position: absolute;
-        right: 8px;
+        right: 6px;
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -76,6 +78,13 @@ namespace S {
 
     export const BottomPortWidget = styled(PortWidget)`
         margin-bottom: -3px;
+    `;
+
+    export const NodeText = styled.div`
+        max-width: 100px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     `;
 }
 
@@ -109,10 +118,12 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                 <S.IconContainer>
                     <CallIcon />
                 </S.IconContainer>
-                <div>{node.stNode.tag}</div>
-                <S.StyledButton appearance="icon" onClick={handleOnClick}>
-                    {node.endpoint ? <MoreVertIcon /> : <PlusIcon />}
-                </S.StyledButton>
+                <S.NodeText>{node.stNode.tag} lkasdjf aljfdlka akjsd</S.NodeText>
+                {isHovered && (
+                    <S.StyledButton appearance="icon" onClick={handleOnClick}>
+                        {node.endpoint ? <MoreVertIcon /> : <PlusIcon />}
+                    </S.StyledButton>
+                )}
             </S.Header>
             <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
             {node.endpoint && (
@@ -134,19 +145,23 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                             y1="20"
                             x2="60"
                             y2="20"
-                            style={{ stroke: "black", strokeWidth: 2, markerEnd: `url(#${node.getID()}-arrow-head)` }}
+                            style={{
+                                stroke: Colors.PRIMARY,
+                                strokeWidth: 2,
+                                markerEnd: `url(#${node.getID()}-arrow-head)`,
+                            }}
                         />
                         <defs>
                             <marker
-                                markerWidth="5"
-                                markerHeight="5"
-                                refX="4"
-                                refY="2.5"
-                                viewBox="0 0 5 5"
+                                markerWidth="4"
+                                markerHeight="4"
+                                refX="3"
+                                refY="2"
+                                viewBox="0 0 4 4"
                                 orient="auto"
                                 id={`${node.getID()}-arrow-head`}
                             >
-                                <polygon points="0,5 0,0 5,2.5" fill={Colors.OUTLINE}></polygon>
+                                <polygon points="0,4 0,0 4,2" fill={Colors.PRIMARY}></polygon>
                             </marker>
                         </defs>
                     </svg>

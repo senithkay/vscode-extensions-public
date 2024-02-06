@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ProjectStructureEntry, ProjectStructureResponse, ProjectDirectoryMap } from '@wso2-enterprise/mi-core';
+import { ProjectStructureEntry, ProjectStructureResponse, ProjectDirectoryMap, EsbDirectoryMap } from '@wso2-enterprise/mi-core';
 import { ComponentCard, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
@@ -44,7 +44,7 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
         }
     };
 
-    const renderEntries = (entries: ProjectStructureEntry[]) => {
+    const renderEntries = (entries: ProjectStructureEntry[] | EsbDirectoryMap[]) => {
         return entries.map((entry, index) => (
             <ComponentCard key={index} onClick={() => handleClick(entry.type, entry.path)} sx={{ height: 40, marginTop: 15, margin: 10 }}>
                 <IconWrapper>
