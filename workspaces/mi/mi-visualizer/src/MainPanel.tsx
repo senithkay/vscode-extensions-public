@@ -8,7 +8,7 @@ import { EndpointWizard } from './views/Forms/EndpointForm';
 import { SequenceWizard } from './views/Forms/SequenceForm';
 import { NavigationBar } from './components/NavigationBar';
 import { ProjectWizard } from './views/Forms/ProjectForm';
-import { Diagram } from '@wso2-enterprise/mi-diagram-2/lib/components/Diagram';
+import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 
 
 const MainPanel = (props: { state: MachineStateValue }) => {
