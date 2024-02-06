@@ -102,6 +102,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
     const [popoverAnchorEl, setPopoverAnchorEl] = React.useState(null);
     const [isClicked, setIsClicked] = React.useState<boolean>(false);
     const editConfirmMessage = useRef<string>();
+    const buttonContainerRef = useRef<HTMLDivElement>(null);
     const editConfirmPopoverOpen = Boolean(popoverAnchorEl);
     const id = editConfirmPopoverOpen ? 'edit-confirm-popover' : undefined;
 
@@ -468,7 +469,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                                     isArraySupported={isArraySupported}
                                 />
                             </FormBody>
-                            <ButtonContainer>
+                            <ButtonContainer ref={buttonContainerRef}>
                                 <Button
                                     appearance="secondary"
                                     onClick={onClose}
@@ -487,34 +488,37 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                                 id={id}
                                 open={editConfirmPopoverOpen}
                                 anchorEl={popoverAnchorEl}
-                                // onClose={handleClosePopover}
+                                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                                sx={{ background: 'var(--vscode-editor-background)', padding: 0 }}
                             >
-                                <ComponentCard sx={{width:400}}>
+                                <ComponentCard
+                                    sx={{
+                                        width: 400,
+                                        flexDirection: 'column',
+                                        backgroundColor: 'var(--vscode-editor-background)',
+                                        borderColor: 'var(--vscode-editorIndentGuide-background)',
+                                        padding: '8px',
+                                        borderRadius: 0
+                                    }}
+                                >
                                     <span>{editConfirmMessage.current}</span>
-                                    <ComponentCard sx={{display:'flex', justifyContent:'flex-end'}}>
-                                        <Button
-                                            appearance="secondary"
-                                            data-testid="dm-save-popover-cancel-btn"
-                                            onClick={handleClosePopover}
-                                        >
-                                            <Typography variant="h5">Cancel</Typography>
-                                        </Button>
-                                        <Button
-                                            appearance="primary"
-                                            data-testid="dm-save-popover-continue-btn"
-                                            onClick={onSaveForm}
-                                        >
-                                            <Typography variant="h5">Continue</Typography>
-                                        </Button>
-                                        <Button
-                                            tooltip="Cancel"
-                                            onClick={handleClosePopover}
-                                        />
-                                        <Button
-                                            tooltip="Continue"
-                                            onClick={onSaveForm}
-                                        />
-                                    </ComponentCard>
+                                        <PopoverButtonContainer>
+                                            <Button
+                                                appearance="secondary"
+                                                data-testid="dm-save-popover-cancel-btn"
+                                                onClick={handleClosePopover}
+                                            >
+                                                Cancel
+                                            </Button>
+                                            <Button
+                                                appearance="primary"
+                                                data-testid="dm-save-popover-continue-btn"
+                                                onClick={onSaveForm}
+                                            >
+                                                Continue
+                                            </Button>
+                                        </PopoverButtonContainer>
                                 </ComponentCard>
                             </Popover>
                         </>
@@ -579,3 +583,12 @@ const ButtonContainer = styled.div`
     }
 `;
 
+const PopoverButtonContainer = styled.div`
+    display: flex;
+    gap: 10px;
+    width: 100%;
+
+    & :nth-child(1) {
+        margin-left: auto;
+    }
+`;
