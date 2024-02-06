@@ -48,7 +48,7 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
         return entries.map((entry, index) => (
             <ComponentCard key={index} onClick={() => handleClick(entry.type, entry.path)} sx={{ height: 40, marginTop: 15, margin: 10 }}>
                 <IconWrapper>
-                    <TextContainer>{entry.name}</TextContainer>
+                    <TextContainer>{entry.name.replace(".xml","")}</TextContainer>
                 </IconWrapper>
             </ComponentCard>
         ));
