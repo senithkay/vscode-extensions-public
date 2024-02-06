@@ -9,7 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import { VisualizerAPI, VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
-import { getService, openView, updateView } from "../../visualizer/activator";
+import { getService, openView, updateView } from "../../stateMachine";
 import { handleVisualizerView } from "../../utils/navigation";
 
 export class VisualizerRpcManager implements VisualizerAPI {

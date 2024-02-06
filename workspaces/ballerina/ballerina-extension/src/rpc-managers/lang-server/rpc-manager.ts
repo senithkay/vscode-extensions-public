@@ -45,7 +45,7 @@ import {
     PartialSTResponse
 } from "@wso2-enterprise/ballerina-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
-import { getBallerinaVersion, getLangClient, getService} from "../../visualizer/activator";
+import { getBallerinaVersion, getLangClient, getService} from "../../stateMachine";
 import { URI } from "vscode-uri";
 import { getSyntaxTreeFromPosition } from "../../utils/navigation";
 import { Position, Range, WorkspaceEdit, workspace } from "vscode";

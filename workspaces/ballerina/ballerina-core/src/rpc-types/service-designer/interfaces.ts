@@ -1,34 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
- *  This software is the property of WSO2 LLC. and its suppliers, if any.
- *  Dissemination of any information or reproduction of any material contained
- *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
- *  the WSO2 Commercial License available at http://wso2.com/licenses.
- *  For specific language governing the permissions and limitations under
- *  this license, please see the license as well as any agreement you’ve
- *  entered into with WSO2 governing the purchase of this software and any
- *  associated services.
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STNode } from "@wso2-enterprise/syntax-tree";
-
-export interface BallerinaRecordRequest {
-    org: string;
-    module: string;
-    version: string;
-    name: string;
-}
-
-export interface BallerinaRecordResponse {
-    org: string;
-    module: string;
-    version: string;
-    name: string;
-    ast?: STNode;
-    error?: any;
-}
+import { NodePosition, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { CompletionResponse } from "../lang-server/interfaces";
 
 export interface ResponseCode {
     code: number;
@@ -96,3 +76,48 @@ export const responseCodes: ResponseCode[] = [
     { code: 510, title: "510 - Not Extended", source: "http:NotExtended" },
     { code: 511, title: "511 - Network Authentication Required", source: "http:NetworkAuthorizationRequired" }
 ]
+
+export interface CreateServiceRequest {
+    position: NodePosition;
+}
+
+export interface UpdateServiceRequest {
+    position: NodePosition;
+}
+
+export interface DeleteServiceRequest {
+    position: NodePosition;
+}
+
+export interface CreateResourceRequest {
+    position: NodePosition;
+    source: string;
+}
+
+export interface UpdateResourceRequest {
+    position: NodePosition;
+}
+
+export interface DeleteResourceRequest {
+    position: NodePosition;
+}
+
+export interface KeywordTypeResponse {
+    completions: CompletionResponse[]
+}
+
+export interface RecordSTRequest {
+    recordName: string;
+}
+
+export interface RecordSTResponse {
+    recordST: TypeDefinition;
+}
+
+export interface ServiceResponse {
+    error?: string;
+}
+
+export interface ResourceResponse {
+    error?: string;
+}

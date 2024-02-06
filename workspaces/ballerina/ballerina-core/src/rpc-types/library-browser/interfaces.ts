@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -6,10 +7,20 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+
 export enum LibraryKind {
     langLib = 'langLibs',
     stdLib = 'modules',
 }
+
+export interface LibrariesListRequest {
+    kind?: LibraryKind;
+}
+
+export interface LibrariesListResponse {
+    librariesList: LibraryInfo[];
+}
+
 
 export interface LibraryDataRequest {
     orgName: string;
@@ -20,10 +31,6 @@ export interface LibraryDataRequest {
 export interface LibraryDataResponse {
     docsData: LibraryDocsData;
     searchData: LibrarySearchResponse;
-}
-
-export interface LibraryDocResponse {
-    librariesList: LibraryInfo[];
 }
 
 export interface LibrarySearchResponse {

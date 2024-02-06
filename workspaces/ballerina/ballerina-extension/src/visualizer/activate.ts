@@ -9,7 +9,7 @@
 
 import * as vscode from 'vscode';
 import { PALETTE_COMMANDS } from '../project/cmds/cmd-runner';
-import { openView } from './activator';
+import { openView } from '../stateMachine';
 import { handleVisualizerView } from '../utils/navigation';
 
 export function activateSubscriptions(context: vscode.ExtensionContext) {

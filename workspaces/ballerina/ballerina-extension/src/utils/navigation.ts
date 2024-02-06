@@ -1,5 +1,5 @@
 import { BallerinaSTModifyResponse, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
-import { getLangClient, openView } from "../visualizer/activator";
+import { getLangClient, openView } from "../stateMachine";
 import { Uri } from "vscode";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { BallerinaFunctionSTRequest } from "@wso2-enterprise/ballerina-languageclient";

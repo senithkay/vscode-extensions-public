@@ -29,8 +29,8 @@ import { activate as activateERDiagram } from './persist-layer-diagram';
 import { activate as activateDesignDiagramView } from './project-design-diagrams';
 import { debug, handleResolveMissingDependencies, log } from './utils';
 import { activateUriHandlers } from './uri-handlers';
-import { startMachine } from './visualizer/activator';
-import { activateSubscriptions } from './visualizer/subscription';
+import { startMachine } from './stateMachine';
+import { activateSubscriptions } from './visualizer/activate';
 
 let langClient: ExtendedLangClient;
 export let isPluginStartup = true;

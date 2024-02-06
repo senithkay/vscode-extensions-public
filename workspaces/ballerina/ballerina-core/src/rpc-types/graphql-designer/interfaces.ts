@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -7,9 +8,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { TriggerRequest, TriggerResponse, TriggersRequest, TriggersResponse } from "./interfaces";
+import { LinePosition } from "../../interfaces/common";
 
-export interface TriggerWizardAPI {
-    getTriggers: (params: TriggersRequest) => Promise<TriggersResponse>;
-    getTrigger: (params: TriggerRequest) => Promise<TriggerResponse>;
+
+export interface GraphqlModelRequest {
+    filePath: string;
+    startLine: LinePosition;
+    endLine: LinePosition;
+}
+export interface GraphqlModelResponse {
+    graphqlDesignModel: any;
+    isIncompleteModel: boolean;
+    errorMsg: string;
 }
