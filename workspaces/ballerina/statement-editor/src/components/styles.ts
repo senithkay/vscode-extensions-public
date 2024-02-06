@@ -30,27 +30,9 @@ const syntaxHighlightingRules = {
     }
 }
 
-const hoverColor1 = {
-    '&:hover': {
-        backgroundColor: '#F0F1FB',
-    }
-}
-
 const hoverColor2 = {
     '&.hovered': {
         backgroundColor: 'var(--vscode-list-inactiveSelectionBackground)'
-    },
-}
-
-const focusColor1 = {
-    '&:focus': {
-        backgroundColor: 'rgba(204,209,242,0.61)'
-    },
-}
-
-const activeColour = {
-    '&:active': {
-        backgroundColor: 'rgba(204,209,242,0.61)'
     },
 }
 
@@ -84,19 +66,6 @@ const truncateText = {
     textOverflow: 'ellipsis'
 }
 
-export const parameterHeader = {
-    root: {
-        fontSize: '13px',
-        color: 'var(--vscode-editor-foreground)',
-        letterSpacing: '0',
-        lineHeight: '14px',
-        paddingLeft: '0px',
-        marginBottom: '7px',
-        position: 'relative' as 'relative',
-        width: '100%'
-    }
-}
-
 const HEADER_FOOTER_HEIGHT = '105px';
 
 export const useStatementEditorToolbarStyles = () => ({
@@ -106,12 +75,6 @@ export const useStatementEditorToolbarStyles = () => ({
         justifyContent: 'flex-start',
         borderBottom: '1px solid var(--vscode-panel-border)',
         paddingLeft: '17px'
-    }),
-    toolbarSet: css({
-        border: '1px solid #e6e7ec',
-        borderRadius: '8px',
-        display: 'flex',
-        marginLeft: '16px'
     }),
     toolbarOperators: css({
         display: 'flex',
@@ -135,11 +98,6 @@ export const useStatementEditorToolbarStyles = () => ({
         fontFamily: 'monospace',
         fontSize: '12px',
         marginTop: '2px',
-    }),
-    undoRedoSeparator: css({
-        width: '1px',
-        borderRadius: '5px',
-        boxShadow: 'inset 0 0 0 1px #E6E7EC'
     }),
     qualifierListItem: css({
         "& .MuiListItem-root": {
@@ -278,11 +236,6 @@ export const useStatementRendererStyles = () => ({
         margin: '4px 2px',
         borderRadius: '50%'
     }),
-    libraryDropdown: css({
-        flex: '0 0 50%',
-        display: 'flex',
-        justifyContent: 'flex-end'
-    }),
     rhsComponent: css({
         position: 'relative',
         top: '10px',
@@ -365,48 +318,10 @@ export const useStatementEditorDiagnosticStyles = () => ({
 });
 
 export const useStmtEditorHelperPanelStyles = () => ({
-    tabPanelWrapper: css({
-        display: 'flex',
-        flexDirection: 'row',
-        zIndex: 1,
-    }),
-    libraryTypeSelector: css({
-        height: '48px',
-        marginLeft: '80px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-end'
-    }),
     suggestionsInner: css({
         overflowY: 'hidden',
         height: '100%',
         width: '100%'
-    }),
-    tabsPanelSe: css({
-        "& .MuiTab-wrapper": {
-            textTransform: 'none',
-            fontWeight: 'normal'
-        },
-        "& .MuiTab-root": {
-            marginRight: '24px',
-            minWidth: 'fit-content',
-            fontSize: '13px',
-            ...removePadding
-        },
-        "& .MuiTab-textColorInherit": {
-            color: '#8D91A3'
-        },
-        "& .MuiTab-textColorInherit.Mui-selected": {
-            opacity: 1,
-            color: 'var(--vscode-tab-activeForeground)'
-        },
-        "& .MuiTabs-indicator": {
-            backgroundColor: 'var(--vscode-button-background)',
-            height: '2px'
-        },
-        "& .MuiTabs-scroller": {
-            height: '48px'
-        }
     }),
     suggestionListContainer: css({
         overflowY: 'scroll',
@@ -442,10 +357,7 @@ export const useStmtEditorHelperPanelStyles = () => ({
         position: 'relative',
         height: '32px',
         width: 'inherit',
-        // "var(--vscode-editorInfo-foreground)"
         border: '1px var(--custom-input-border-color)',
-        // borderRadius: '5px',
-        // boxShadow: 'inset 0 0 0 1px #DEE0E7, inset 0 2px 1px 0 rgba(0,0,0,0.07), 0 0 0 0 rgba(50,50,77,0.07)',
         color: '#8D91A3',
         textIndent: '12px',
         textAlign: 'left',
@@ -488,25 +400,6 @@ export const useStmtEditorHelperPanelStyles = () => ({
         backgroundColor: 'var(--vscode-panel-border)',
         alignSelf: 'flex-end'
     }),
-    expressionList: css({
-        columnGap: '5%',
-        display: 'grid',
-        gridTemplateColumns: '30% 30% 30%',
-        "& .MuiListItem-root": {
-            marginBottom: '8px',
-            padding: '0 10px',
-            width: 'fit-content'
-        },
-        ...removePadding
-    }),
-    expressionListItem: css({
-        width: '100px',
-        "& .MuiListItemText-root": {
-            margin: '0'
-        },
-        ...hoverColor1,
-        ...activeColour
-    }),
     loadingContainer: css({
         height: '60vh',
         display: 'flex',
@@ -519,13 +412,7 @@ export const useStmtEditorHelperPanelStyles = () => ({
         overflowY: 'scroll',
     }),
     libraryBrowser: css({
-        height: '100%',
-        "& .MuiListItem-root": {
-            padding: '6px 10px'
-        },
-        "& .MuiIconButton-root": {
-            ...removePadding
-        }
+        height: '100%'
     }),
     libraryBrowserHeader: css({
         display: 'flex',
@@ -546,28 +433,6 @@ export const useStmtEditorHelperPanelStyles = () => ({
     libraryReturnIcon: css({
         marginRight: '8px'
     }),
-    arrowBack: css({
-        color: '#5567D5'
-    }),
-    libraryModuleIcon: css({
-        marginLeft: '8.25px',
-        marginBottom: '12px'
-    }),
-    libraryListBlock: css({
-        paddingBottom: '50px',
-        columnGap: '5%',
-        display: 'grid',
-        gridTemplateColumns: '28% 28% 28%',
-        ...removePadding
-    }),
-    libraryElementBlockContent: css({
-        top: '10%',
-        height: '80%',
-        overflowY: 'hidden',
-        columnGap: '6%',
-        display: 'grid',
-        gridTemplateColumns: '29% 29% 29%'
-    }),
     libraryElementBlock: css({
         top: '5%',
         display: 'flex',
@@ -580,39 +445,7 @@ export const useStmtEditorHelperPanelStyles = () => ({
     parameterCheckbox: css({
         margin: '0px'
     }),
-    parameterTabCheckBox: css({
-        root: {
-            "&$checked": {
-                color: "rgba(0, 0, 0, 0.54)"
-            }
-        }
-    }),
     checked: css({}),
-    disabledCheckbox: css({
-        alignSelf: "flex-start",
-        color: 'rgba(47,168,108,0.5)',
-        padding: '3px 6px 0 0',
-        "&$checked": {
-            color: "rgba(47,168,108,0.5)",
-            "&:hover": {
-                background: "transparent",
-            },
-            "& .MuiIconButton-label": {
-                position: "relative",
-            },
-            "& .MuiIconButton-label::after": {
-                content: '""',
-                left: 1,
-                top: 1,
-                width: 19,
-                height: 19,
-                position: "absolute",
-                backgroundColor: "#fff",
-                zIndex: -1,
-                borderRadius: 3,
-            }
-        }
-    }),
     docParamSuggestions: css({
         height: '100%',
         overflowY: 'scroll',
@@ -623,15 +456,6 @@ export const useStmtEditorHelperPanelStyles = () => ({
         opacity: '0.52',
         backgroundColor: 'var(--vscode-panel-border)',
         marginBottom: '15px'
-    }),
-    docListItemText: css({
-        "& .MuiListItem-root": {
-            padding: '0px'
-        },
-        "& .MuiListItemText-root": {
-            flex: "none"
-        },
-        ...removePadding
     }),
     docParamDescriptionText: css({
         flex: "inherit",
@@ -721,24 +545,11 @@ export const useStmtEditorHelperPanelStyles = () => ({
         width: 'fit-content',
         ...removePadding
     }),
-    exampleHeader: css({
-        fontSize: '13px',
-        color: 'var(--vscode-editor-foreground)',
-        letterSpacing: '0',
-        lineHeight: '14px',
-        paddingLeft: '0px',
-        marginBottom: '7px',
-        marginTop: '20px'
-    }),
     exampleCode: css({
         display: 'flex',
         padding: '5px',
         fontFamily: 'monospace',
         borderRadius: '0px'
-    }),
-    paramTreeList: css({
-        display: 'flex',
-        alignItems: 'flex-start'
     }),
     paramTreeDescriptionText: css({
         flex: "inherit",
@@ -785,46 +596,6 @@ export const useStmtEditorHelperPanelStyles = () => ({
         letterSpacing: '0',
         lineHeight: '14px',
         paddingLeft: '0px',
-    }),
-    listSelectDropDown: css({
-        height: '24px',
-        borderRadius: 4,
-        background: "linear-gradient(180deg, #FFFFFF 0%, #F7F7F9 100%)",
-        boxShadow: "inset 0 0 0 1px #DEE0E7, 0 1px 2px -1px rgba(0,0,0,0.08)",
-        cursor: "pointer",
-        width: "inherit",
-        "&:active": {
-            background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
-            boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
-            border: "1px solid #5567d5",
-        },
-        "&:focused": {
-            background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
-            boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
-            border: "1px solid #5567d5 !important"
-        },
-        '& .MuiSelect-icon': {
-            marginRight: 11,
-        },
-        "& .MuiSelect-selectMenu": {
-            height: "inherit !important",
-            paddingLeft: 10,
-            "& .TextSpan": {
-                top: "calc(50% - 8px)",
-                position: "absolute",
-                maxWidth: "156px",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-            }
-        },
-        "& .MuiSelect-select.MuiSelect-select": {
-            padding: "0 0 0 10px",
-            minWidth: "100px"
-        },
-        "& .MuiSelect-select.MuiSelect-select:focus": {
-            backgroundColor: "transparent"
-        }
     }),
 });
 
@@ -939,9 +710,6 @@ export const useStatementEditorStyles = () => ({
         marginTop: '10px',
         height: 'inherit'
     }),
-    helpText: css({
-        fontStyle: "italic"
-    }),
     editorsBreadcrumb: css({
         width: '90%',
         '& > * + *': {
@@ -959,10 +727,6 @@ export const useStatementEditorStyles = () => ({
         display: 'flex',
         justifyContent: 'flex-end',
         width: '10%'
-    }),
-    help: css({
-        paddingRight: '24px',
-        display: "flex"
     }),
     helpLink: css({
         marginLeft: '8px',
