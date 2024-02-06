@@ -56,7 +56,7 @@ export class NodeFactoryVisitor implements Visitor {
                         diagramNode as TargetNodeModel,
                         {
                             label: this.currentBranchName,
-                            stPosition: this.currentAddPosition ?? previousStNode.range.end
+                            stRange: this.currentAddPosition ?? previousStNode.range.end
                         }
                     );
                     this.links.push(link);

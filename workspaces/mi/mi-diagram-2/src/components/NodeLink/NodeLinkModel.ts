@@ -10,7 +10,7 @@
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
 import { Colors, NODE_LINK, NodeTypes } from "../../resources/constants";
 import { SourceNodeModel, TargetNodeModel } from "../../utils/diagram";
-import { Position } from "@wso2-enterprise/mi-syntax-tree/src";
+import { Position, Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export const LINK_BOTTOM_OFFSET = 30;
 
@@ -19,7 +19,7 @@ export interface NodeLinkModelOptions {
     showAddButton?: boolean; // default true
     showArrow?: boolean; // default true
     brokenLine?: boolean; // default false
-    stPosition?: Position;
+    stRange?: Range | Position;
     onAddClick?: () => void;
 }
 
@@ -32,7 +32,7 @@ export class NodeLinkModel extends DefaultLinkModel {
     showArrow = true;
     brokenLine = false;
     linkBottomOffset = LINK_BOTTOM_OFFSET;
-    stPosition: Position;
+    stRange: Range | Position;
     onAddClick?: () => void;
 
     constructor(label?: string);
@@ -63,8 +63,8 @@ export class NodeLinkModel extends DefaultLinkModel {
                 if ((options as NodeLinkModelOptions).brokenLine === true) {
                     this.brokenLine = (options as NodeLinkModelOptions).brokenLine;
                 }
-                if ((options as NodeLinkModelOptions).stPosition) {
-                    this.stPosition = (options as NodeLinkModelOptions).stPosition;
+                if ((options as NodeLinkModelOptions).stRange) {
+                    this.stRange = (options as NodeLinkModelOptions).stRange;
                 }
             }
             if ((options as NodeLinkModelOptions).onAddClick) {
