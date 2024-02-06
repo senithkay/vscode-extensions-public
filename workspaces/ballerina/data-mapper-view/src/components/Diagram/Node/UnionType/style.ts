@@ -66,6 +66,7 @@ export const useStyles = () => ({
     unionTypeListItem: css({
         display: 'flex',
         alignItems: 'center',
+        width: '100%',
         ...hoverColor1,
         ...activeColour
     }),
@@ -99,7 +100,7 @@ export const useStyles = () => ({
 
 const hoverColor1 = {
     '&:hover': {
-        backgroundColor: 'var(--vscode-tab-inactiveBackground)',
+        backgroundColor: 'var(--vscode-list-hoverBackground)',
     }
 }
 
