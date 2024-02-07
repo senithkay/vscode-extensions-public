@@ -55,15 +55,17 @@ export function EndpointWizard() {
     const [endpointName, setEndpointName] = useState("");
     const [endpointType, setEndpointType] = useState("Address Endpoint");
     const [endpointConfiguration, setEndpointConfiguration] = useState("Static Endpoint (Save in an ESB Project)");
+    const [ESBConfigs, setESBConfigs] = useState([]);
+    const [selectedConfig, setSelectedConfig] = useState("");
     const [address, setAddress] = useState("");
     const [URITemplate, setURITemplate] = useState("");
     const [method, setMethod] = useState("GET");
-    const [projectDir, setProjectDir] = useState("");
 
     useEffect(() => {
         (async () => {
-            const synapseEndpointsPath = await rpcClient.getMiDiagramRpcClient().getEndpointDirectory();
-            setProjectDir(synapseEndpointsPath.data);
+            const esbConfigs = await rpcClient.getMiDiagramRpcClient().getESBConfigs();
+            setESBConfigs(esbConfigs.data);
+            setSelectedConfig(esbConfigs.data[0]);
         })();
 
     }, []);
@@ -106,9 +108,15 @@ export function EndpointWizard() {
         setMethod(type);
     };
 
+    const handleConfigChange = (config: string) => {
+        setSelectedConfig(config);
+    };
+
     const handleCreateEndpoint = async () => {
+        const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot()).path;
+        const endpointDir = `${projectDir}/${selectedConfig}/src/main/synapse-config/endpoints`;
         const createEndpointParams: CreateEndpointRequest = {
-            directory: projectDir,
+            directory: endpointDir,
             name: endpointName,
             type: endpointType,
             configuration: endpointConfiguration,
@@ -117,12 +125,13 @@ export function EndpointWizard() {
             method: method
         }
         const file = await rpcClient.getMiDiagramRpcClient().createEndpoint(createEndpointParams);
+
+        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
         rpcClient.getMiDiagramRpcClient().openFile(file);
-        rpcClient.getMiDiagramRpcClient().closeWebView();
     };
 
     const handleCancel = () => {
-        rpcClient.getMiDiagramRpcClient().closeWebView();
+        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
     };
 
     const isValid: boolean = endpointName.length > 0 &&
@@ -147,6 +156,8 @@ export function EndpointWizard() {
                     autoFocus
                     required
                 />
+                <span>ESB Config</span>
+                <AutoComplete items={ESBConfigs} selectedItem={selectedConfig} onChange={handleConfigChange}></AutoComplete>
                 <span>Endpoint Type</span>
                 <AutoComplete items={endpointTypes} selectedItem={endpointType} onChange={handleEndpointTypeChange}></AutoComplete>
                 {endpointType === "Address Endpoint" && (

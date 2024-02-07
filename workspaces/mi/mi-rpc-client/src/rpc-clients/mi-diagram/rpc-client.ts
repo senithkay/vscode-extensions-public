@@ -25,6 +25,7 @@ import {
     CreateProjectResponse,
     CreateSequenceRequest,
     CreateSequenceResponse,
+    ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     MiDiagramAPI,
@@ -45,6 +46,7 @@ import {
     getAPIDirectory,
     getConnector,
     getConnectors,
+    getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
     getProjectRoot,
@@ -81,6 +83,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     applyEdit(params: ApplyEditRequest): Promise<ApplyEditResponse> {
         return this._messenger.sendRequest(applyEdit, HOST_EXTENSION, params);
+    }
+
+    getESBConfigs(): Promise<ESBConfigsResponse> {
+        return this._messenger.sendRequest(getESBConfigs, HOST_EXTENSION);
     }
 
     getConnectors(): Promise<ConnectorsResponse> {

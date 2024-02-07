@@ -7,13 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ApiDirectoryResponse, ApplyEditRequest, ApplyEditResponse, CommandsRequest, CommandsResponse, ConnectorRequest, ConnectorResponse, ConnectorsResponse, CreateAPIRequest, CreateAPIResponse, CreateEndpointRequest, CreateEndpointResponse, CreateSequenceRequest, CreateSequenceResponse, EndpointDirectoryResponse, EndpointsAndSequencesResponse, ProjectRootResponse, OpenDiagramRequest, SequenceDirectoryResponse, ShowErrorMessageRequest, getSTRequest, getSTResponse, CreateProjectRequest, ProjectDirResponse, CreateProjectResponse } from "./types";
+import { ApiDirectoryResponse, ApplyEditRequest, ApplyEditResponse, CommandsRequest, CommandsResponse, ConnectorRequest, ConnectorResponse, ConnectorsResponse, CreateAPIRequest, CreateAPIResponse, CreateEndpointRequest, CreateEndpointResponse, CreateSequenceRequest, CreateSequenceResponse, EndpointDirectoryResponse, EndpointsAndSequencesResponse, ProjectRootResponse, OpenDiagramRequest, SequenceDirectoryResponse, ShowErrorMessageRequest, getSTRequest, getSTResponse, CreateProjectRequest, ProjectDirResponse, CreateProjectResponse, ESBConfigsResponse } from "./types";
 
 export interface MiDiagramAPI {
     executeCommand: (params: CommandsRequest) => Promise<CommandsResponse>;
     showErrorMessage: (params: ShowErrorMessageRequest) => void;
     getSyntaxTree: (params: getSTRequest) => Promise<getSTResponse>;
     applyEdit: (params: ApplyEditRequest) => Promise<ApplyEditResponse>;
+    getESBConfigs: () => Promise<ESBConfigsResponse>;
     getConnectors: () => Promise<ConnectorsResponse>;
     getConnector: (params: ConnectorRequest) => Promise<ConnectorResponse>;
     getAPIDirectory: () => Promise<ApiDirectoryResponse>;
