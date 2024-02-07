@@ -72,20 +72,19 @@
       {
         "command": "integrationStudio.showDiagram",
         "title": "Show Diagram",
-        "icon": "$(design-view)"
+        "icon": "$(design-view)",
+        "category": "MI"
       },
       {
         "command": "integrationStudio.openProject",
-        "title": "Open Project"
-      },
-      {
-        "command": "integrationStudio.addMediator",
-        "title": "Add Mediator by Prompt"
+        "title": "Open Project",
+        "category": "MI"
       },
       {
         "command": "project-explorer.add",
         "title": "Add Construct",
-        "icon": "$(add)"
+        "icon": "$(add)",
+        "category": "MI"
       },
       {
         "command": "project-explorer.refresh",
