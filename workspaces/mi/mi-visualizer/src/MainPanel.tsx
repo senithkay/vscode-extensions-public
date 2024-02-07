@@ -10,13 +10,13 @@ import { NavigationBar } from './components/NavigationBar';
 import { ProjectWizard } from './views/Forms/ProjectForm';
 import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 
-
 const MainPanel = (props: { state: MachineStateValue }) => {
     const { state } = props;
     const { rpcClient } = useVisualizerContext();
     const [machineView, setMachineView] = useState<VisualizerLocation>(null);
     const [mainState, setMainState] = React.useState<MachineStateValue>(state);
     const [component, setComponent] = useState<JSX.Element | null>(null);
+    const [lastUpdated, setLastUpdated] = useState<number>(0);
 
     rpcClient?.onStateChanged((newState: MachineStateValue) => {
         setMainState(newState);
@@ -32,6 +32,10 @@ const MainPanel = (props: { state: MachineStateValue }) => {
 
             }
         }
+
+        rpcClient.getMiDiagramRpcClient().onRefresh(() => {
+            setLastUpdated(Date.now());
+        });
     }, [mainState]);
 
     useEffect(() => {
@@ -39,7 +43,7 @@ const MainPanel = (props: { state: MachineStateValue }) => {
             OverviewComponent();
         }
 
-    }, [machineView]);
+    }, [machineView, lastUpdated]);
 
     const OverviewComponent = () => {
         switch (machineView.view) {
@@ -50,7 +54,7 @@ const MainPanel = (props: { state: MachineStateValue }) => {
                 rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri }).then((st) => {
                     if (machineView.identifier && st?.syntaxTree?.api?.resource) {
                         const resourceNode = st?.syntaxTree?.api.resource.find((resource: any) => resource.uriTemplate === machineView.identifier);
-                        setComponent(<Diagram model={resourceNode} />);
+                        setComponent(<Diagram model={resourceNode} documentUri={machineView.documentUri} />);
                     }
                 });
                 break;

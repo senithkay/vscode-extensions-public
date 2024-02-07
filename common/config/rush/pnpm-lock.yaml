@@ -2403,10 +2403,15 @@ importers:
       '@projectstorm/react-diagrams-defaults': ^6.7.4
       '@projectstorm/react-diagrams-routing': ^6.7.4
       '@storybook/react': ^6.3.7
+      '@types/mustache': ~4.2.5
       '@types/react': ^17.0.14
       '@types/react-dom': ^17.0.9
+      '@vscode/webview-ui-toolkit': ~1.4.0
+      '@wso2-enterprise/mi-core': workspace:*
+      '@wso2-enterprise/mi-rpc-client': workspace:*
       '@wso2-enterprise/mi-syntax-tree': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
+      mustache: ~4.2.0
       react: ~18.2.0
       react-dom: ~18.2.0
       typescript: ^4.3.5
@@ -2419,8 +2424,13 @@ importers:
       '@projectstorm/react-diagrams-core': 6.7.4_react@18.2.0
       '@projectstorm/react-diagrams-defaults': 6.7.4_2jbui5nro4tb6hwabdsx6ymml4
       '@projectstorm/react-diagrams-routing': 6.7.4_2jbui5nro4tb6hwabdsx6ymml4
+      '@types/mustache': 4.2.5
+      '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
+      '@wso2-enterprise/mi-core': link:../mi-core
+      '@wso2-enterprise/mi-rpc-client': link:../mi-rpc-client
       '@wso2-enterprise/mi-syntax-tree': link:../syntax-tree
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
+      mustache: 4.2.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
