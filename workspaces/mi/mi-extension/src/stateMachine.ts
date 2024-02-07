@@ -174,6 +174,10 @@ export function openView(viewLocation: VisualizerLocation) {
     stateService.send({ type: "OPEN_VIEW", viewLocation: viewLocation });
 }
 
+export function createView(viewLocation: VisualizerLocation) {
+    stateService.send({ type: "GET_STARTED", viewLocation: viewLocation });
+}
+
 export function fileUpdated(viewLocation: VisualizerLocation) {
     stateService.send({ type: "FILE_UPDATED", viewLocation: viewLocation });
 }
