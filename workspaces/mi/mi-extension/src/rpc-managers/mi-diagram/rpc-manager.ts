@@ -407,8 +407,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     openFile(params: OpenDiagramRequest): void {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        const uri = Uri.file(params.path);
+        workspace.openTextDocument(uri).then((document) => {
+            window.showTextDocument(document);
+        });
     }
 
     onRefresh(callback: () => void): void {
