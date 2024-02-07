@@ -578,7 +578,7 @@ const ButtonContainer = styled.div`
     gap: 10px;
     padding: 0 20px;
 
-    & :nth-child(1) {
+    & :nth-of-type(1) {
         margin-left: auto;
     }
 `;
@@ -588,7 +588,8 @@ const PopoverButtonContainer = styled.div`
     gap: 10px;
     width: 100%;
 
-    & :nth-child(1) {
+    & :nth-of-type(1) {
         margin-left: auto;
     }
 `;
+
