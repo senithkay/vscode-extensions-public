@@ -488,6 +488,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                                 id={id}
                                 open={editConfirmPopoverOpen}
                                 anchorEl={popoverAnchorEl}
+                                handleClose={handleClosePopover}
                                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                                 transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                                 sx={{ background: 'var(--vscode-editor-background)', padding: 0 }}
