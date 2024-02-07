@@ -57,6 +57,10 @@ export interface ConnectorsResponse {
     data: Connector[];
 }
 
+export interface ESBConfigsResponse {
+    data: string[];
+}
+
 export interface CommandsRequest {
     commands: string[];
 }

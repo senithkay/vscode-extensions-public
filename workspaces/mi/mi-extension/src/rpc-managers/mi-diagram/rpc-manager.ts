@@ -26,6 +26,7 @@ import {
     CreateProjectResponse,
     CreateSequenceRequest,
     CreateSequenceResponse,
+    ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     FileStructure,
@@ -36,15 +37,15 @@ import {
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
     getSTRequest,
-    getSTResponse
+    getSTResponse,
 } from "@wso2-enterprise/mi-core";
 import * as fs from "fs";
 import * as os from 'os';
 import { Position, Range, Uri, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { StateMachine, openView } from "../../stateMachine";
-import path = require("path");
-import { artifactsContent, compositePomXmlContent, compositeProjectContent, configsPomXmlContent, configsProjectContent, projectFileContent, rootPomXmlContent } from "../../util/templates";
 import { createFolderStructure } from "../../util";
+import { artifactsContent, compositePomXmlContent, compositeProjectContent, configsPomXmlContent, configsProjectContent, projectFileContent, rootPomXmlContent } from "../../util/templates";
+import path = require("path");
 const { XMLParser } = require("fast-xml-parser");
 
 const connectorsPath = path.join(".metadata", ".Connectors");
@@ -169,7 +170,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
     <api context="${context}" name="${name}" ${swaggerAttributes}${versionAttributes} xmlns="http://ws.apache.org/ns/synapse">
-        <resource methods="GET">
+        <resource methods="GET" uri-template="/resource">
             <inSequence>
             </inSequence>
             <outSequence>
@@ -489,6 +490,29 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             commands.executeCommand('vscode.openFolder', Uri.file(`${directory}/${name}`));
 
             return `${directory}/${name}`;
+        });
+    }
+
+    async getESBConfigs(): Promise<ESBConfigsResponse> {
+        return new Promise(async (resolve) => {
+            const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
+                workspace.workspaceFolders[0].uri.fsPath
+                : undefined;
+
+            if (!!rootPath) {
+                const langClient = StateMachine.context().langClient!;
+                const resp = await langClient.getProjectStructure(rootPath);
+
+                const ESBConfigs = [];
+
+                for (const esbConfig of resp.directoryMap.esbConfigs) {
+					const config = esbConfig.name;
+                    ESBConfigs.push(config);
+                }
+                resolve({ data: ESBConfigs });
+            }
+
+            resolve({ data: [] });
         });
     }
 }
