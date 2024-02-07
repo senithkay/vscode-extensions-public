@@ -53,6 +53,7 @@ import SmooksForm from './Pages/mediators/transformation/smooks';
 import XQueryForm from './Pages/mediators/transformation/xquery';
 import XSLTForm from './Pages/mediators/transformation/xslt';
 import { MEDIATORS, ENDPOINTS } from '../../resources/constants';
+import { LogIcon } from '../../resources';
 
 const ButtonGrid = styled.div`
     display: grid;
@@ -487,8 +488,9 @@ const SidePanelList = (props: SidePanelListProps) => {
                             {values.map((action) => (
                                 <ButtonContainer key={action.title}>
                                     <Button key={action.operationName} appearance='icon' sx={{ width: "90px", height: "120px", padding: "5px 0" }} onClick={() => showMediatorForm(action)}>
-                                        <div>
+                                        <div style={{ width: "90px"}}>
                                             {/* {getSVGIcon(action.operationName, null, 70, 70)} */}
+                                            <LogIcon />
                                             <div style={{ marginTop: "15px" }}>
                                                 <IconLabel>{action.title.charAt(0).toUpperCase() + action.title.slice(1)}</IconLabel>
                                             </div>
