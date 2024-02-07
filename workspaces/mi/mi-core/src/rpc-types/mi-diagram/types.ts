@@ -112,7 +112,10 @@ export interface SequenceDirectoryResponse {
 }
 
 export interface CreateSequenceRequest {
-
+    directory: string;
+    name: string;
+    endpoint: string;
+    onErrorSequence: string;
 }
 export interface CreateSequenceResponse {
     filePath: string;

@@ -20,11 +20,17 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('project-explorer.add', () => {
 		vscode.window.showQuickPick([
 			{ label: 'API', description: 'Add new API' },
+			{ label: 'Endpoint', description: 'Add new endpoint' },
+			{ label: 'Sequence', description: 'Add new sequence' },
 		], {
 			placeHolder: 'Select the construct to add'
 		}).then(selection => {
 			if (selection?.label === 'API') {
 				vscode.commands.executeCommand('project-explorer.add-api');
+			} else if (selection?.label === 'Endpoint') {
+			 	vscode.commands.executeCommand('project-explorer.add-endpoint');
+			} else if (selection?.label === 'Sequence') {
+				vscode.commands.executeCommand('project-explorer.add-sequence');
 			}
 		});
 
@@ -32,6 +38,16 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('project-explorer.add-api', () => {
 		openView({ view: "APIForm" });
 		console.log('Add API');
+	});
+
+	vscode.commands.registerCommand('project-explorer.add-endpoint', () => {
+		openView({ view: "EndPointForm" });
+		console.log('Add Endpoint');
+	});
+
+	vscode.commands.registerCommand('project-explorer.add-sequence', () => {
+		openView({ view: "SequenceForm" });
+		console.log('Add Sequence');
 	});
 
 	vscode.commands.registerCommand('project-explorer.create-project', () => {
