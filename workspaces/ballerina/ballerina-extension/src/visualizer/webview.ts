@@ -10,12 +10,11 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { Uri, ViewColumn, Webview } from 'vscode';
-import { getComposerJSFiles } from '../util';
 import { RPCLayer } from '../RPCLayer';
-import { extension } from '../MIExtensionContext';
-import { onRefresh } from '@wso2-enterprise/mi-core';
 import { debounce } from 'lodash';
 import { WebViewOptions, getComposerWebViewOptions, getLibraryWebViewContent } from 'src/utils/webview-utils';
+import { extension } from 'src/BalExtensionContext';
+import { onFileContentUpdate } from '@wso2-enterprise/ballerina-core';
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
@@ -32,7 +31,7 @@ export class VisualizerWebview {
         // Handle the text change and diagram update with rpc notification
         const refreshDiagram = debounce(() => {
             if (this.getWebview()) {
-                RPCLayer._messenger.sendNotification(onRefresh, { type: 'webview', webviewType: VisualizerWebview.viewType });
+                RPCLayer._messenger.sendNotification(onFileContentUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType });
             }
         }, 500);
 
@@ -45,7 +44,7 @@ export class VisualizerWebview {
     private static createWebview(): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
             VisualizerWebview.viewType,
-            'Integration Studio',
+            'Ballerina Visualizer',
             ViewColumn.Active,
             {
                 enableScripts: true,

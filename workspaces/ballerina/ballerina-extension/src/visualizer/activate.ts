@@ -11,31 +11,33 @@ import * as vscode from 'vscode';
 import { PALETTE_COMMANDS } from '../project/cmds/cmd-runner';
 import { openView } from '../stateMachine';
 import { handleVisualizerView } from '../utils/navigation';
+import { extension } from '../BalExtensionContext';
 
-export function activateSubscriptions(context: vscode.ExtensionContext) {
+export function activateSubscriptions() {
+    const context = extension.context;
     context.subscriptions.push(
         vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, (path, position) => {
-            openView({view: "Overview", location: {fileName: path, position: position}});
+            openView("OPEN_VIEW", { view: "Overview", documentUri: path, position: position });
         })
     );
     context.subscriptions.push(
         vscode.commands.registerCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, (path, position) => {
-            handleVisualizerView({fileName: path, position: position});
+            handleVisualizerView({ view: "Overview", documentUri: path, position: position });
         })
     );
     context.subscriptions.push(
         vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_ARCHITECTURE_VIEW, () => {
-            openView({view: 'Architecture'});
+            openView("OPEN_VIEW", { view: 'ArchitectureDiagram' });
         })
     );
     context.subscriptions.push(
         vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_SERVICE_DESIGNER_VIEW, (path, position) => {
-            openView({view: 'ServiceDesigner', location: {fileName: path || vscode.window.activeTextEditor.document.uri.fsPath, position: position}});
+            openView("OPEN_VIEW", { view: 'ServiceDesigner', documentUri: path || vscode.window.activeTextEditor.document.uri.fsPath, position: position });
         })
     );
     context.subscriptions.push(
         vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_ENTITY_DIAGRAM, () => {
-            openView({ view: 'ER'});
+            openView("OPEN_VIEW", { view: 'ERDiagram' });
         })
     );
 }

@@ -40,8 +40,6 @@ export class RPCLayer {
         return new RPCLayer(webViewPanel);
     }
 
-
-
 }
 
 async function getContext(): Promise<VisualizerLocation> {

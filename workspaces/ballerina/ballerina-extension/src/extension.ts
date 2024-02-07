@@ -29,8 +29,9 @@ import { activate as activateERDiagram } from './persist-layer-diagram';
 import { activate as activateDesignDiagramView } from './project-design-diagrams';
 import { debug, handleResolveMissingDependencies, log } from './utils';
 import { activateUriHandlers } from './uri-handlers';
-import { startMachine } from './stateMachine';
+import { StateMachine } from './stateMachine';
 import { activateSubscriptions } from './visualizer/activate';
+import { extension } from './BalExtensionContext';
 
 let langClient: ExtendedLangClient;
 export let isPluginStartup = true;
@@ -75,19 +76,22 @@ function onBeforeInit(langClient: ExtendedLangClient) {
 }
 
 export async function activate(context: ExtensionContext) { 
-    await startMachine(context);
+    extension.context = context;
+    // Wait for the ballerina extension to be ready
+    await StateMachine.initialize();
+    // Then return the ballerina extension context
     return ballerinaExtInstance;
 }
 
-export async function activateBallerina(context: ExtensionContext): Promise<BallerinaExtension> {
+export async function activateBallerina(): Promise<BallerinaExtension> {
     debug('Active the Ballerina VS Code extension.');
     sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_EXTENSION_ACTIVATE, CMP_EXTENSION_CORE);
-    ballerinaExtInstance.setContext(context);
+    ballerinaExtInstance.setContext(extension.context);
     // Enable URI handlers
     activateUriHandlers(ballerinaExtInstance);
     await ballerinaExtInstance.init(onBeforeInit).then(() => {
         activateLibraryBrowser(ballerinaExtInstance);
-        activateSubscriptions(context);
+        activateSubscriptions();
         // start the features.
         // Enable Ballerina diagram
         // activateDiagram(ballerinaExtInstance);
