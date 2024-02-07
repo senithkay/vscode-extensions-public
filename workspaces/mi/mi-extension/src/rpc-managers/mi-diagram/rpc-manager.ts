@@ -306,7 +306,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         sequences.push(sequence.name);
                     }
                 }
-                return [endpoints, sequences];
+                resolve({ data: [endpoints, sequences] });
             }
 
             resolve({ data: [] });
@@ -345,28 +345,28 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async createSequence(params: CreateSequenceRequest): Promise<CreateSequenceResponse> {
         return new Promise(async (resolve) => {
-            //             const { directory, name, endpoint, onErrorSequence } = params;
+            const { directory, name, endpoint, onErrorSequence } = params;
 
-            //             let endpointAttributes = ``;
-            //             let errorSequence = ``;
-            //             if (endpoint) {
-            //                 endpointAttributes = `<send>
-            //             <endpoint key="${endpoint.replace(".xml", "")}"/>
-            //         </send>`;
-            //             }
+            let endpointAttributes = ``;
+            let errorSequence = ``;
+            if (endpoint) {
+                endpointAttributes = `<send>
+            <endpoint key="${endpoint.replace(".xml", "")}"/>
+        </send>`;
+            }
 
-            //             if (onErrorSequence) {
-            //                 errorSequence = `onError="${onErrorSequence}"`;
-            //             }
+            if (onErrorSequence) {
+                errorSequence = `onError="${onErrorSequence}"`;
+            }
 
-            //             const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
-            // <sequence name="${name}" ${errorSequence} trace="disable" xmlns="http://ws.apache.org/ns/synapse">
-            //     ${endpointAttributes}
-            // </sequence>`;
+            const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
+<sequence name="${name}" ${errorSequence} trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+    ${endpointAttributes}
+</sequence>`;
 
-            //             const filePath = path.join(directory, `${name}.xml`);
-            //             fs.writeFileSync(filePath, xmlData);
-            //             return filePath;
+            const filePath = path.join(directory, `${name}.xml`);
+            fs.writeFileSync(filePath, xmlData);
+            resolve({ filePath: filePath });
         });
     }
 
