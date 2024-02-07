@@ -140,11 +140,11 @@ const multiProjectsMeshModel: Organization = {
                 {
                     id: "9012-3456",
                     source: {
-                        boundary: CellBounds.SouthBound,
+                        boundary: CellBounds.EastBound,
                     },
                     target: {
                         projectId: "3456",
-                        boundary: CellBounds.NorthBound,
+                        boundary: CellBounds.WestBound,
                     },
                 }
             ]

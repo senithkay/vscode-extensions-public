@@ -36,10 +36,8 @@ export const dagreEngine = new DagreEngine({
         ranksep: 200,
         edgesep: 100,
         nodesep: 150,
-
         ranker: 'tight-tree',
-    },
-    // includeLinks: true,
+    }
 });
 
 export const NAME_JOIN_CHAR = "|";

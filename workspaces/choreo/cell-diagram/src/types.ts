@@ -7,7 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CellLinkModel, ComponentLinkModel, ComponentModel, ConnectionModel, EmptyModel, ExternalLinkModel, ExternalModel, ProjectModel } from "./components";
+import {
+    CellLinkModel,
+    ComponentLinkModel,
+    ComponentModel,
+    ConnectionModel,
+    EmptyModel,
+    ExternalLinkModel,
+    ExternalModel,
+    ProjectModel,
+} from "./components";
 import { CellBounds } from "./components/Cell/CellNode/CellModel";
 
 export interface Organization {
@@ -83,11 +92,11 @@ export interface OrgConnection {
     label?: string;
     tooltip?: string;
     source: {
-        boundary: CellBounds
+        boundary: CellBounds;
     };
     target: {
         projectId: string;
-        boundary: CellBounds
+        boundary: CellBounds;
     };
 }
 

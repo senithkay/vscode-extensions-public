@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useRef, useState } from "react";
-import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import { DiagramEngine, DiagramModel, PathFindingLinkFactory } from "@projectstorm/react-diagrams";
 import CircularProgress from "@mui/material/CircularProgress";
 import { generateEngine, animateDiagram, getDiagramDataFromOrg } from "../utils";
 import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen } from "../components";
@@ -104,7 +104,7 @@ export function OrgDiagram(props: OrgDiagramProps) {
 
     // draw diagram
     const drawDiagram = () => {
-        const diagramData = getDiagramDataFromOrg(organization);
+        const diagramData = getDiagramDataFromOrg(organization, diagramEngine);
         // create diagram model
         const model = new DiagramModel();
         // add preloader overlay layer
@@ -122,8 +122,20 @@ export function OrgDiagram(props: OrgDiagramProps) {
         setDiagramModel(model);
 
         setTimeout(() => {
+            dagreEngine.options = {
+                graph: {
+                    rankdir: 'LR',
+                    ranksep: 120,
+                    edgesep: 180,
+                    nodesep: 150,
+                    acyclicer: 'greedy',
+                    ranker: 'network-simplex',
+                },
+                includeLinks: true,
+            };
             dagreEngine.redistribute(model);
-            if (diagramEngine.getCanvas()?.getBoundingClientRect) {
+            
+            if (diagramEngine.getCanvas()?.getBoundingClientRect()) {
                 // zoom to fit nodes and center diagram
                 diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
             }

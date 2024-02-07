@@ -14,6 +14,7 @@ export { ProjectWidget } from './Project/ProjectNode/ProjectWidget';
 export { ProjectLinkFactory } from './Project/ProjectLink/ProjectLinkFactory';
 export { ProjectLinkModel } from './Project/ProjectLink/ProjectLinkModel';
 export { ProjectLinkWidget } from './Project/ProjectLink/ProjectLinkWidget';
+export { AdvancedLinkFactory as DefaultLinkFactory } from './Project/AdvancedLink/AdvancedLinkFactory';
 
 export { ProjectPortFactory } from './Project/ProjectPort/ProjectPortFactory';
 export { ProjectPortModel } from './Project/ProjectPort/ProjectPortModel';

@@ -25,6 +25,7 @@ import {
     ProjectLinkFactory,
     ProjectPortFactory,
     ProjectFactory,
+    DefaultLinkFactory,
 } from "../components";
 import {
     CELL_LINK,
@@ -45,6 +46,7 @@ export function generateEngine(): DiagramEngine {
     engine.getLinkFactories().registerFactory(new ProjectLinkFactory());
     engine.getPortFactories().registerFactory(new ProjectPortFactory());
     engine.getNodeFactories().registerFactory(new ProjectFactory());
+    engine.getLinkFactories().registerFactory(new DefaultLinkFactory());
 
     engine.getLinkFactories().registerFactory(new ComponentLinkFactory());
     engine.getPortFactories().registerFactory(new ComponentPortFactory());
