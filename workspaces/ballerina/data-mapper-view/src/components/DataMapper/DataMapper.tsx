@@ -247,7 +247,6 @@ export function DataMapperC(props: DataMapperViewProps) {
         setConfigPanelOpen(false);
         setInputs(inputParams);
         setOutput(outputType);
-        onSave(funcName);
     }
 
     const enableStatementEditor = (expressionInfo: ExpressionInfo) => {
