@@ -12,15 +12,15 @@ import {
     PartialSTRequest,
     PublishDiagnosticsParams,
     SymbolInfoResponse
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
 import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import {
     NodePosition,
     STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
-import { Uri } from "monaco-editor";
-import { CodeAction, Diagnostic, WorkspaceEdit } from "vscode-languageserver-protocol";
+import { CodeAction, Diagnostic, WorkspaceEdit } from "vscode-languageserver-types";
+import { URI } from "vscode-uri";
 
 import {
     acceptedCompletionKindForExpressions,
@@ -72,7 +72,7 @@ export async function getRenameEdits(
     langServerRpcClient: LangServerRpcClient
 ): Promise<WorkspaceEdit> {
     const renameEdits = await langServerRpcClient.rename({
-        textDocument: { uri: Uri.file(fileURI).toString() },
+        textDocument: { uri: URI.file(fileURI).toString() },
         position: {
             line: position.startLine,
             character: position?.startColumn

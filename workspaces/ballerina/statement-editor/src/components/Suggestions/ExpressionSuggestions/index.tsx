@@ -6,19 +6,12 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-// tslint:disable: jsx-no-multiline-js jsx-no-lambda
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import {
-    List,
-    ListItem,
-    ListItemText
-} from "@material-ui/core";
-// tslint:disable-next-line:no-submodule-imports
-import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
-import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-core";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { SearchBox } from "@wso2-enterprise/ui-toolkit";
+import { SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import {
     CALL_CONFIG_TYPE,
@@ -31,11 +24,12 @@ import { Suggestion } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import {
-    displayCheckBoxAsExpression,
     getFilteredExpressions,
     getRecordFieldSource,
     getRecordSwitchedSource,
-    getRecordUpdatePosition, isClosedRecord, isQuestionMarkFromRecordField, isRecordFieldName
+    getRecordUpdatePosition,
+    isQuestionMarkFromRecordField,
+    isRecordFieldName
 } from "../../../utils";
 import {
     Expression,
@@ -47,7 +41,10 @@ import {
     SELECTED_EXPRESSION,
     switchOpenClose
 } from "../../../utils/expressions";
+import { DiagnosticsPaneId } from "../../Diagnostics";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
+
+import { TemplateList } from "./TemplateList";
 
 export function ExpressionSuggestions() {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
@@ -56,11 +53,16 @@ export function ExpressionSuggestions() {
     const [keyword, setKeyword] = useState('');
     const [filteredExpressions, setFilteredExpressions] = useState(expressions);
     const [selectedSuggestions, setSelectedSuggestion] = React.useState<Suggestion>(null);
+    const [diagnosticsHeight, setDiagnosticsHeight] = useState(0);
 
     const {
         modelCtx: {
             currentModel,
             updateModel,
+        },
+        statementCtx: {
+            diagnostics,
+            errorMsg
         },
         config
     } = useContext(StatementEditorContext);
@@ -68,10 +70,6 @@ export function ExpressionSuggestions() {
     const onClickExpressionSuggestion = (expression: Expression, clickedSuggestion: Suggestion) => {
         setKeyword('');
         if (clickedSuggestion) {
-            setSelectedSuggestion({
-                selectedGroup: clickedSuggestion.selectedGroup,
-                selectedListItem: clickedSuggestion.selectedListItem
-            });
             updateModelWithSuggestion(expression);
         }
     }
@@ -117,6 +115,18 @@ export function ExpressionSuggestions() {
             setFilteredExpressions(filteredGroups);
         }
     }, [currentModel.model]);
+
+    // A workaround for https://github.com/microsoft/vscode-webview-ui-toolkit/issues/464
+    useEffect(() => {
+        const handleResize = () => {
+            const diagnosticsElement = document.getElementById(DiagnosticsPaneId);
+            if (diagnosticsElement) {
+                const height = diagnosticsElement.offsetHeight;
+                setDiagnosticsHeight(height);
+            }
+        };
+        handleResize();
+    }, [diagnostics, errorMsg]);
 
     const changeSelectionOnUpDown = (key: number) => {
         if (selectedSuggestions == null && filteredExpressions?.length > 0) {
@@ -210,58 +220,34 @@ export function ExpressionSuggestions() {
                 />
             </div>
             {!filteredExpressions.length && (
-                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                    <p>Expressions not available</p>
-                </div>
+                <Typography
+                    variant="body3"
+                    sx={{marginTop: '15px'}}
+                >
+                    Expressions not available
+                </Typography>
             )}
-            <div className={stmtEditorHelperClasses.suggestionListContainer}>
+            <div
+                className={stmtEditorHelperClasses.suggestionListContainer}
+                style={{maxHeight: `calc(100vh - ${ 305 + diagnosticsHeight}px)`}}
+            >
                 <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
                     {!!filteredExpressions.length && (
                         <>
                             {filteredExpressions.map((group, groupIndex) => (
                                 <>
                                     <div className={stmtEditorHelperClasses.helperPaneSubHeader}>{group.name}</div>
-                                    <List className={stmtEditorHelperClasses.expressionList}>
-                                        {
-                                            group.expressions.map((expression, index) => (
-                                                <ListItem
-                                                    button={true}
-                                                    className={stmtEditorHelperClasses.expressionListItem}
-                                                    key={index}
-                                                    selected={
-                                                        groupIndex === selectedSuggestions?.selectedGroup &&
-                                                        index === selectedSuggestions?.selectedListItem
-                                                    }
-                                                    onMouseDown={() => onClickExpressionSuggestion(expression,
-                                                        { selectedGroup: groupIndex, selectedListItem: index })}
-                                                    disableRipple={true}
-                                                >
-                                                    {/* <StatementEditorHint content={expression.name}> */}
-                                                        {displayCheckBoxAsExpression(currentModel.model, expression) ? (
-                                                            <>
-                                                                <VSCodeCheckbox
-                                                                    checked={isClosedRecord(currentModel.model)}
-                                                                    onChange={null}
-                                                                    data-testid="is-closed"
-                                                                />
-                                                                <div>{"is-closed ?"}</div>
-                                                            </>
-                                                        ) : (
-                                                            <ListItemText
-                                                                data-testid="expression-title"
-                                                                primary={(
-                                                                    <div className={stmtEditorHelperClasses.expressionExample}>
-                                                                        {expression.example}
-                                                                    </div>
-                                                                )}
-                                                            />
-                                                        )}
-                                                    {/* </StatementEditorHint> */}
-                                                </ListItem>
-                                            ))
-                                        }
-                                    </List>
-                                    <div className={statementEditorClasses.separatorLine}/>
+                                    <TemplateList
+                                        group={group}
+                                        groupIndex={groupIndex}
+                                        selectedSuggestions={selectedSuggestions}
+                                        onClickExpressionSuggestion={onClickExpressionSuggestion}
+                                    />
+                                    {groupIndex !== filteredExpressions.length - 1 ? (
+                                        <div className={statementEditorClasses.separatorLine}/>
+                                    ) : (
+                                        <div className={statementEditorClasses.lastExpression}/>
+                                    )}
                                 </>
                             ))}
                         </>
