@@ -2465,6 +2465,7 @@ importers:
       jsonix: ~3.0.0
       lodash: ~4.17.21
       mocha: ^10.2.0
+      node-fetch: ~2.6.2
       rimraf: ~5.0.5
       ts-loader: ^9.4.4
       typescript: ^5.1.6
@@ -2493,6 +2494,7 @@ importers:
       fast-xml-parser: 4.3.4
       jsonix: 3.0.0
       lodash: 4.17.21
+      node-fetch: 2.6.13
       vscode-extension-tester: 5.9.1_73fg3tqgzkq2e6aekvvil76q2i
       vscode-languageclient: 8.1.0
       vscode-languageserver-protocol: 3.17.5
@@ -35941,6 +35943,18 @@ packages:
 
   /node-fetch-native/1.6.1:
     resolution: {integrity: sha512-bW9T/uJDPAJB2YNYEpWzE54U5O3MQidXsOyTfnbKYtTtFexRvGzb1waphBN4ZwP6EcIvYYEOwW0b72BpAqydTw==}
+
+  /node-fetch/2.6.13:
+    resolution: {integrity: sha512-StxNAxh15zr77QvvkmveSQ8uCQ4+v5FkvNTj0OESmiHu+VRi/gXArXtkWMElOsOUNLtUEvI4yS+rdtOHZTwlQA==}
+    engines: {node: 4.x || >=6.0.0}
+    peerDependencies:
+      encoding: ^0.1.0
+    peerDependenciesMeta:
+      encoding:
+        optional: true
+    dependencies:
+      whatwg-url: 5.0.0
+    dev: false
 
   /node-fetch/2.7.0:
     resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
