@@ -44,6 +44,16 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
         }
     };
 
+    const handlePlusClick = async (key: string) => {
+        if (key === 'api') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({commands: ["project-explorer.add-api"]});
+        } else if (key === 'endpoints') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({commands: ["project-explorer.add-endpoint"]});
+        } else if (key === 'sequences') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({commands: ["project-explorer.add-sequence"]});
+        }
+    };
+
     const renderEntries = (entries: ProjectStructureEntry[] | EsbDirectoryMap[]) => {
         return entries.map((entry, index) => (
             <ComponentCard key={index} onClick={() => handleClick(entry.type, entry.path)} sx={{ height: 40, marginTop: 15, margin: 10 }}>
@@ -73,7 +83,7 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
                             <Typography variant="h3">{key.toUpperCase()}</Typography>
                             <HorizontalCardContainer>
                                 {renderEsbs(value as EsbDirectoryMap[])}
-                                <ComponentCard key={0} onClick={() => handleClick("NEW")} sx={{ height: 40, marginTop: 15, margin: 10 }}>
+                                <ComponentCard key={0} onClick={() => handlePlusClick(key)} sx={{ height: 40, marginTop: 15, margin: 10 }}>
                                     <IconWrapper>+</IconWrapper>
                                 </ComponentCard>
                             </HorizontalCardContainer>
@@ -92,7 +102,7 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
                             <Typography variant="h3">{key.toUpperCase()}</Typography>
                             <HorizontalCardContainer>
                                 {renderEntries(value)}
-                                <ComponentCard key={0} onClick={() => handleClick("NEW")} sx={{ height: 40, marginTop: 15, margin: 10 }}>
+                                <ComponentCard key={0} onClick={() => handlePlusClick(key)} sx={{ height: 40, marginTop: 15, margin: 10 }}>
                                     <IconWrapper>+</IconWrapper>
                                 </ComponentCard>
                             </HorizontalCardContainer>
