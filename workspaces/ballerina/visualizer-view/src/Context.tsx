@@ -9,22 +9,12 @@
 
 import React, { ReactNode, useState } from "react";
 import { BallerinaRpcClient, VisualizerContext, Context } from "@wso2-enterprise/ballerina-rpc-client";
-import { VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
 
 
 export function VisualizerContextProvider({ children }: { children: ReactNode }) {
 
-  const setView = (view: VisualizerLocationContext) => {
-    setVisualizerState((prevState: VisualizerContext) => ({
-      ...prevState,
-      viewLocation: view,
-    }));
-  };
-
   const [visualizerState, setVisualizerState] = useState<VisualizerContext>({
-    viewLocation: { view: "Overview" },
-    setViewLocation: setView,
-    ballerinaRpcClient: new BallerinaRpcClient() // Create the root RPC layer client object
+    rpcClient: new BallerinaRpcClient() // Create the root RPC layer client object
   });
 
   return (

@@ -11,12 +11,15 @@
 import { NotificationType, RequestType } from "vscode-messenger-common";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-export type MachineViews = "Overview" | "LowCode" | "ServiceDesigner" | "ArchitectureDiagram" | "ERDiagram" | "DataMapper";
+export type MachineViews = "Overview" | "SequenceDiagram" | "ServiceDesigner" | "ArchitectureDiagram" | "ERDiagram" | "DataMapper" | "GraphQLDiagram" | "SequenceDiagram" | "TypeDiagram";
 
 export type MachineStateValue =
-    | 'initialize' | 'projectDetected' | 'LSInit' | 'ready' | 'disabled'
-    | { ready: 'viewReady' } | { ready: 'viewUpdate' }
-    | { newProject: 'welcome' } | { newProject: 'create' };
+    | 'initialize'
+    | 'lsError'
+    | 'lsReady'
+    | 'viewActive' 
+    | 'disabled'
+    | { viewActive: 'viewInit' } | { viewActive: 'webViewLoaded' } | { viewActive: 'viewReady' } | { viewActive: 'viewEditing' };
 
 export type EventType = "OPEN_VIEW" | "GET_STARTED" | "CANCEL_CREATION";
 
@@ -34,13 +37,13 @@ export interface CommandProps {
 
 // State Machine context values
 export interface VisualizerLocation {
-    view: MachineViews | null;
+    view?: MachineViews | null;
     documentUri?: string;
     identifier?: string;
     position?: NodePosition;
 }
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
-export const getVisualizerState: RequestType<void, VisualizerLocation> = { method: 'getVisualizerState' };
+export const getVisualizerContext: RequestType<void, VisualizerLocation> = { method: 'getVisualizerContext' };
 export const onFileContentUpdate: NotificationType<void> = { method: `onFileContentUpdate` };
 

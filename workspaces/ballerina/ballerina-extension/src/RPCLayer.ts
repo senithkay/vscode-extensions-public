@@ -10,8 +10,7 @@
 import { WebviewView, WebviewPanel } from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { StateMachine } from './stateMachine';
-import { stateChanged, getVisualizerState, VisualizerLocation } from '@wso2-enterprise/ballerina-core';
-import { State } from 'xstate';
+import { stateChanged, getVisualizerContext, VisualizerLocation } from '@wso2-enterprise/ballerina-core';
 import { VisualizerWebview } from './visualizer/webview';
 import { registerVisualizerRpcHandlers } from './rpc-managers/visualizer/rpc-handler';
 
@@ -27,12 +26,12 @@ export class RPCLayer {
             });
         } else {
             RPCLayer._messenger.registerWebviewView(webViewPanel as WebviewView);
-            StateMachine.service().onTransition((state) => {
-                RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'activity.panel' }, state.value);
-            });
+            // StateMachine.service().onTransition((state) => {
+            //     RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'activity.panel' }, state.value);
+            // });
         }
 
-        RPCLayer._messenger.onRequest(getVisualizerState, () => getContext());
+        RPCLayer._messenger.onRequest(getVisualizerContext, () => getContext());
         registerVisualizerRpcHandlers(RPCLayer._messenger);
     }
 
@@ -51,6 +50,5 @@ async function getContext(): Promise<VisualizerLocation> {
 
 function isWebviewPanel(webview: WebviewPanel | WebviewView): boolean {
     const title = webview.title;
-    const panelTitle = 'Integration Studio';
-    return title === panelTitle;
+    return title === VisualizerWebview.panelTitle;
 }

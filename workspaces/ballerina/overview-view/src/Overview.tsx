@@ -19,7 +19,7 @@ import { TitleBar } from './components/TitleBar';
 export function Overview() {
     const [currentComponents, setCurrentComponents] = useState<any>();
     const [loading, setLoading] = useState(true);
-    const { ballerinaRpcClient } = useVisualizerContext();
+    const { rpcClient } = useVisualizerContext();
 
     const [isPanelOpen, setPanelOpen] = useState(false);
 
@@ -30,7 +30,7 @@ export function Overview() {
 
     const fetchData = async () => {
         try {
-            const res = await ballerinaRpcClient.getLangServerRpcClient().getBallerinaProjectComponents(undefined);
+            const res = await rpcClient.getLangServerRpcClient().getBallerinaProjectComponents(undefined);
             setCurrentComponents(res);
         } catch (error) {
             console.error('Error fetching data:', error);

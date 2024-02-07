@@ -7,8 +7,6 @@
 * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
 * You may not alter or remove any copyright or other notice from copies of this content.
 */
-import { Position } from "vscode-languageserver-types";
-
 export enum PrimitiveBalType {
     String = "string",
     Record = "record",
@@ -36,11 +34,6 @@ export enum OtherBalType {
 
 export const AnydataType = "anydata";
 
-export interface LinePosition {
-    line: number;
-    offset: number;
-}
-
 export interface DocumentIdentifier {
     uri: string;
 }
@@ -50,7 +43,17 @@ export interface LineRange {
     endLine: LinePosition;
 }
 
-export interface RRange {
+export interface LinePosition {
+    line: number;
+    offset: number;
+}
+
+export interface Range {
     start: Position;
     end: Position;
+}
+
+export interface Position {
+    line: number;
+    character: number;
 }

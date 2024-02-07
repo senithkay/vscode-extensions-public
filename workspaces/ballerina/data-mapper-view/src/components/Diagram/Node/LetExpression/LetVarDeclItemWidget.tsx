@@ -11,7 +11,7 @@ import React, { useState } from "react";
 
 import { Button, Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 import { LetVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -27,7 +27,7 @@ import { useStyles } from "./style";
 
 export interface LetVarDeclItemProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
-    typeDesc: Type;
+    typeDesc: TypeField;
     engine: DiagramEngine;
     declaration: LetVarDecl;
     context: IDataMapperContext;

@@ -9,38 +9,40 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    BallerinaFunctionSTRequest,
-    BallerinaProjectComponents,
-    BallerinaProjectParams,
-    BallerinaSTModifyRequest,
-    BallerinaSTModifyResponse,
-    CodeActionParams,
-    CompletionParams,
+    BallerinaVersionResponse,
+    CodeActionRequest,
+    CodeActionResponse,
+    CompletionRequest,
     CompletionResponse,
-    DidChangeTextDocumentParams,
-    DidCloseTextDocumentParams,
-    DidOpenTextDocumentParams,
+    DefinitionPositionRequest,
+    DefinitionResponse,
+    DiagnosticsResponse,
+    DidChangeRequest,
+    DidCloseRequest,
+    DidOpenRequest,
+    ExecutorPositionsRequest,
     ExecutorPositionsResponse,
-    GetBallerinaPackagesParams,
-    GetBallerinaProjectParams,
-    GetSyntaxTreeParams,
-    GetSyntaxTreeResponse,
-    JsonToRecordRequest,
-    JsonToRecordResponse,
     LangServerAPI,
     PartialSTRequest,
-    RenameParams,
+    PartialSTResponse,
+    ProjectComponentsRequest,
+    BallerinaProjectComponents,
+    RenameRequest,
+    RenameResponse,
+    STByRangeRequest,
+    STModifyRequest,
+    STRequest,
     SymbolInfoRequest,
     SymbolInfoResponse,
-    TextDocumentPositionParams,
+    SyntaxTreeResponse,
     TypeFromExpressionRequest,
     TypeFromSymbolRequest,
     TypesFromExpressionResponse,
     TypesFromFnDefinitionRequest,
     TypesFromSymbolResponse,
     UpdateFileContentRequest,
+    UpdateFileContentResponse,
     codeAction,
-    convert,
     definition,
     didChange,
     didClose,
@@ -50,7 +52,6 @@ import {
     getCompletion,
     getDefinitionPosition,
     getDiagnostics,
-    PublishDiagnosticsParams,
     getExecutorPositions,
     getST,
     getSTByRange,
@@ -67,11 +68,8 @@ import {
     getTypesFromFnDefinition,
     rename,
     stModify,
-    updateFileContent,
-    PartialSTResponse
+    updateFileContent
 } from "@wso2-enterprise/ballerina-core";
-import { STNode } from "@wso2-enterprise/syntax-tree";
-import { CodeAction, Location, LocationLink, WorkspaceEdit } from "vscode-languageserver-types";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 
@@ -82,55 +80,51 @@ export class LangServerRpcClient implements LangServerAPI {
         this._messenger = messenger;
     }
 
-    getSyntaxTree(): Promise<STNode> {
+    getSyntaxTree(): Promise<SyntaxTreeResponse> {
         return this._messenger.sendRequest(getSyntaxTree, HOST_EXTENSION);
     }
 
-    getST(params: GetSyntaxTreeParams): Promise<GetSyntaxTreeResponse> {
+    getST(params: STRequest): Promise<SyntaxTreeResponse> {
         return this._messenger.sendRequest(getST, HOST_EXTENSION, params);
     }
 
-    getSTByRange(params: BallerinaFunctionSTRequest): Promise<BallerinaSTModifyResponse> {
+    getSTByRange(params: STByRangeRequest): Promise<SyntaxTreeResponse> {
         return this._messenger.sendRequest(getSTByRange, HOST_EXTENSION, params);
     }
 
-    getBallerinaProjectComponents(params: GetBallerinaPackagesParams): Promise<BallerinaProjectComponents> {
+    getBallerinaProjectComponents(params: ProjectComponentsRequest): Promise<BallerinaProjectComponents> {
         return this._messenger.sendRequest(getBallerinaProjectComponents, HOST_EXTENSION, params);
     }
 
-    getBallerinaVersion(): Promise<string | undefined> {
+    getBallerinaVersion(): Promise<BallerinaVersionResponse> {
         return this._messenger.sendRequest(getBallerinaVersion, HOST_EXTENSION);
     }
 
-    getCompletion(params: CompletionParams): Promise<CompletionResponse[]> {
+    getCompletion(params: CompletionRequest): Promise<CompletionResponse> {
         return this._messenger.sendRequest(getCompletion, HOST_EXTENSION, params);
     }
 
-    getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[]> {
+    getDiagnostics(params: STRequest): Promise<DiagnosticsResponse> {
         return this._messenger.sendRequest(getDiagnostics, HOST_EXTENSION, params);
     }
 
-    codeAction(params: CodeActionParams): Promise<CodeAction[]> {
+    codeAction(params: CodeActionRequest): Promise<CodeActionResponse> {
         return this._messenger.sendRequest(codeAction, HOST_EXTENSION, params);
     }
 
-    rename(params: RenameParams): Promise<WorkspaceEdit> {
+    rename(params: RenameRequest): Promise<RenameResponse> {
         return this._messenger.sendRequest(rename, HOST_EXTENSION, params);
     }
 
-    getDefinitionPosition(params: TextDocumentPositionParams): Promise<BallerinaSTModifyResponse> {
+    getDefinitionPosition(params: DefinitionPositionRequest): Promise<SyntaxTreeResponse> {
         return this._messenger.sendRequest(getDefinitionPosition, HOST_EXTENSION, params);
     }
 
-    convert(params: JsonToRecordRequest): Promise<JsonToRecordResponse> {
-        return this._messenger.sendRequest(convert, HOST_EXTENSION, params);
-    }
-
-    stModify(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse> {
+    stModify(params: STModifyRequest): Promise<SyntaxTreeResponse> {
         return this._messenger.sendRequest(stModify, HOST_EXTENSION, params);
     }
 
-    updateFileContent(params: UpdateFileContentRequest): Promise<boolean> {
+    updateFileContent(params: UpdateFileContentRequest): Promise<UpdateFileContentResponse> {
         return this._messenger.sendRequest(updateFileContent, HOST_EXTENSION, params);
     }
 
@@ -146,15 +140,15 @@ export class LangServerRpcClient implements LangServerAPI {
         return this._messenger.sendRequest(getTypesFromFnDefinition, HOST_EXTENSION, params);
     }
 
-    definition(params: TextDocumentPositionParams): Promise<Location | Location[] | LocationLink[] | null> {
+    definition(params: DefinitionPositionRequest): Promise<DefinitionResponse> {
         return this._messenger.sendRequest(definition, HOST_EXTENSION, params);
     }
 
-    getSTForFunction(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse> {
+    getSTForFunction(params: STModifyRequest): Promise<SyntaxTreeResponse> {
         return this._messenger.sendRequest(getSTForFunction, HOST_EXTENSION, params);
     }
 
-    getExecutorPositions(params: GetBallerinaProjectParams): Promise<ExecutorPositionsResponse> {
+    getExecutorPositions(params: ExecutorPositionsRequest): Promise<ExecutorPositionsResponse> {
         return this._messenger.sendRequest(getExecutorPositions, HOST_EXTENSION, params);
     }
 
@@ -182,15 +176,15 @@ export class LangServerRpcClient implements LangServerAPI {
         return this._messenger.sendRequest(getSymbolDocumentation, HOST_EXTENSION, params);
     }
 
-    didOpen(params: DidOpenTextDocumentParams): void {
+    didOpen(params: DidOpenRequest): void {
         return this._messenger.sendNotification(didOpen, HOST_EXTENSION, params);
     }
 
-    didChange(params: DidChangeTextDocumentParams): void {
+    didChange(params: DidChangeRequest): void {
         return this._messenger.sendNotification(didChange, HOST_EXTENSION, params);
     }
 
-    didClose(params: DidCloseTextDocumentParams): void {
+    didClose(params: DidCloseRequest): void {
         return this._messenger.sendNotification(didClose, HOST_EXTENSION, params);
     }
 }

@@ -10,7 +10,7 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRoot } from "react-dom/client";
-import { Webview } from "./Visualizer";
+import { Visualizer } from "./Visualizer";
 import { VisualizerContextProvider } from "./Context";
 
 const queryClient = new QueryClient({
@@ -24,13 +24,13 @@ const queryClient = new QueryClient({
   },
 });
 
-export function renderWebview(target: HTMLElement) {
-    const root = createRoot(target);
-    root.render(
-        <VisualizerContextProvider>
-          <QueryClientProvider client={queryClient}>
-            <Webview />
-          </QueryClientProvider>
-        </VisualizerContextProvider>
-    );
+export function renderWebview(mode: string, target: HTMLElement) {
+  const root = createRoot(target);
+  root.render(
+    <VisualizerContextProvider>
+      <QueryClientProvider client={queryClient}>
+        <Visualizer mode={mode} />
+      </QueryClientProvider>
+    </VisualizerContextProvider>
+  );
 }

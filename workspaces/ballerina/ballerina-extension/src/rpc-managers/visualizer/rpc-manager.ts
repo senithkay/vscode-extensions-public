@@ -8,37 +8,31 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { VisualizerAPI, VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
-import { getService, openView, updateView } from "../../stateMachine";
+import {
+    VisualizerAPI,
+    VisualizerLocation
+} from "@wso2-enterprise/ballerina-core";
+import { StateMachine, getPreviousView, openView } from "../../stateMachine";
 import { handleVisualizerView } from "../../utils/navigation";
 
 export class VisualizerRpcManager implements VisualizerAPI {
-
-    async getVisualizerState(): Promise<VisualizerLocationContext> {
-        const snapshot = getService().getSnapshot();
-        return new Promise((resolve) => {
-            resolve(snapshot.context);
-        });
-    }
-
-    async openVisualizerView(params: VisualizerLocationContext): Promise<VisualizerLocationContext> {
+   
+    openView(params: VisualizerLocation): Promise<void> {
         return new Promise(async (resolve) => {
-            if (params.location) {
-                await handleVisualizerView(params.location);
+            if (params.position) {
+                await handleVisualizerView(params);
             } else {
-                openView(params);
+                openView("OPEN_VIEW", params);
             }
-            const snapshot = getService().getSnapshot();
-            resolve(snapshot.context);
+            resolve();
         });
     }
 
-    async updateVisualizerView(params: VisualizerLocationContext): Promise<VisualizerLocationContext> {
-        return new Promise(async (resolve) => {
-            updateView(params);
-            const snapshot = getService().getSnapshot();
-            resolve(snapshot.context);
-        });
+    goBack(): void{
+        // Get current view
+        const currentView = StateMachine.context().view;
+        const currentDoc = StateMachine.context().documentUri;
+        const view = getPreviousView(currentView!);
+        view.length > 0 && openView("OPEN_VIEW", { view: view[0], documentUri: currentDoc });
     }
-
 }

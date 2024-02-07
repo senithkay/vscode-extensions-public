@@ -10,7 +10,7 @@
 import React from 'react';
 
 import { css } from '@emotion/css';
-import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
 import classNames from "classnames";
 
@@ -154,7 +154,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         });
     };
 
-    const applyQueryExpression = (linkModel: DataMapperLinkModel, targetRecord: Type) => {
+    const applyQueryExpression = (linkModel: DataMapperLinkModel, targetRecord: TypeField) => {
         if (linkModel.value
             && (STKindChecker.isFieldAccess(linkModel.value) || STKindChecker.isSimpleNameReference(linkModel.value))) {
 

@@ -9,7 +9,7 @@
 
 import { VisualizerLocation } from "../../state-machine-types";
 
-export interface MIVisualizerAPI {
+export interface VisualizerAPI {
     openView: (params: VisualizerLocation) => void;
     goBack: () => void;
 }

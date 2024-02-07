@@ -2,13 +2,32 @@
 import { ExtendedLangClient } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EventType, MachineStateValue, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { EventType, MachineStateValue, MachineViews, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './library-browser';
 import { VisualizerWebview } from './visualizer/webview';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
     errorCode: string | null;
+}
+
+type ViewFlow = {
+	[key in MachineViews]: MachineViews[];
+};
+
+const viewFlow: ViewFlow = {
+	Overview: [],
+	ServiceDesigner: ["Overview"],
+	DataMapper: ["Overview"],
+	ArchitectureDiagram: ["Overview"],
+	ERDiagram: ["Overview"],
+	GraphQLDiagram: ["Overview"],
+	SequenceDiagram: ["Overview"],
+	TypeDiagram: ["Overview"]
+};
+
+export function getPreviousView(currentView: MachineViews): MachineViews[] {
+	return viewFlow[currentView] || [];
 }
 
 const stateMachine = createMachine<MachineContext>(
@@ -48,7 +67,8 @@ const stateMachine = createMachine<MachineContext>(
                     target: "viewActive",
                     actions: assign({
                         view: (context, event) => event.viewLocation.view,
-                        documentUri: (context, event) => event.viewLocation.location
+                        documentUri: (context, event) => event.viewLocation.location,
+                        position: (context, event) => event.viewLocation.position
                     })
                 }
             }
@@ -74,7 +94,6 @@ const stateMachine = createMachine<MachineContext>(
                 },
                 viewReady: {
                     on: {
-                        CLOSE: "#Visualizer.lsReady",
                         OPEN_VIEW: {
                             target: "viewInit",
                             actions: assign({
@@ -88,7 +107,7 @@ const stateMachine = createMachine<MachineContext>(
                                 view: (context, event) => event.viewLocation.view,
                                 documentUri: (context, event) => event.viewLocation.location
                             })
-                        }
+                        },
                     }
                 },
                 viewEditing: {

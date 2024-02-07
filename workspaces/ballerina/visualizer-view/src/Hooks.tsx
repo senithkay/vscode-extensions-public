@@ -10,19 +10,20 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { URI } from "vscode-uri";
-import { transformNodePosition } from './components/Utils';
-import { FunctionDefinition } from '@wso2-enterprise/syntax-tree';
+import { transformNodePosition } from './utils/utils';
 
 export const useSyntaxTreeFromRange = (hasFileChanged?: boolean) => {
-    const { ballerinaRpcClient, viewLocation } = useVisualizerContext();
-    const { position, fileName } = viewLocation?.location || {};
+    const { rpcClient } = useVisualizerContext();
+    let _position;
     const getST = async () => {
-        if (position && fileName) {
+        const { documentUri, position} = await rpcClient.getVisualizerContext();
+        _position = position;
+        if (position && documentUri) {
             try {
-                const response = await ballerinaRpcClient?.getLangServerRpcClient().getSTByRange({
+                const response = await rpcClient?.getLangServerRpcClient().getSTByRange({
                     lineRange: transformNodePosition(position),
                     documentIdentifier: {
-                        uri: URI.file(fileName).toString()
+                        uri: URI.file(documentUri).toString()
                     }
                 });
                 return response;
@@ -37,7 +38,7 @@ export const useSyntaxTreeFromRange = (hasFileChanged?: boolean) => {
         isFetching,
         isError,
         refetch,
-    } = useQuery(['getST', {position, hasFileChanged}], () => getST(), {});
+    } = useQuery(['getST', {_position, hasFileChanged}], () => getST(), {});
 
     return { data, isFetching, isError, refetch };
 };

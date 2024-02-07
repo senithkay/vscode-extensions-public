@@ -21,7 +21,7 @@ import {
     DefinitionPositionRequest,
     DiagnosticsResponse,
     ProjectComponentsRequest,
-    ProjectComponentsResponse,
+    BallerinaProjectComponents,
     RenameRequest,
     RenameResponse,
     STByRangeRequest,
@@ -45,8 +45,8 @@ import {
 export interface LangServerAPI {
     getSyntaxTree: () => Promise<SyntaxTreeResponse>;
     getST: (params: STRequest) => Promise<SyntaxTreeResponse>;
-    getSTByRange(params: STByRangeRequest): Promise<SyntaxTreeResponse>;
-    getBallerinaProjectComponents: (params: ProjectComponentsRequest) => Promise<ProjectComponentsResponse>;
+    getSTByRange: (params: STByRangeRequest) => Promise<SyntaxTreeResponse>;
+    getBallerinaProjectComponents: (params: ProjectComponentsRequest) => Promise<BallerinaProjectComponents>;
     getBallerinaVersion: () => Promise<BallerinaVersionResponse>;
     getCompletion: (params: CompletionRequest) => Promise<CompletionResponse>;
     getDiagnostics: (params: STRequest) => Promise<DiagnosticsResponse>;
@@ -67,7 +67,7 @@ export interface LangServerAPI {
     getSTForModuleMembers: (params: PartialSTRequest) => Promise<PartialSTResponse>;
     getSTForModulePart: (params: PartialSTRequest) => Promise<PartialSTResponse>;
     getSymbolDocumentation: (params: SymbolInfoRequest) => Promise<SymbolInfoResponse>;
-    didOpen: (Params: DidOpenRequest) => void;
+    didOpen: (params: DidOpenRequest) => void;
     didChange: (params: DidChangeRequest) => void;
     didClose: (params: DidCloseRequest) => void;
 }

@@ -103,7 +103,7 @@ export interface DeleteResourceRequest {
 }
 
 export interface KeywordTypeResponse {
-    completions: CompletionResponse[]
+    data: CompletionResponse;
 }
 
 export interface RecordSTRequest {

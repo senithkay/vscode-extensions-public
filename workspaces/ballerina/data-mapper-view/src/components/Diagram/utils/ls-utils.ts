@@ -6,12 +6,13 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { addToTargetPosition, ExpressionRange } from "@wso2-enterprise/ballerina-core";
 import {
-    BallerinaSTModifyResponse,
+    SyntaxTreeResponse,
     CompletionParams,
     LinePosition,
-    PublishDiagnosticsParams,
+    DiagnosticData,
+    ExpressionRange,
+    addToTargetPosition,
     ResolvedTypeForExpression
 } from "@wso2-enterprise/ballerina-core";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
@@ -22,14 +23,14 @@ import { CompletionResponseWithModule } from "../../DataMapper/ConfigPanel/TypeB
 import { EXPR_SCHEME, FILE_SCHEME } from "../../DataMapper/ConfigPanel/utils";
 import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 
-export async function getDiagnostics(docUri: string, langServerRpcClient: LangServerRpcClient): Promise<PublishDiagnosticsParams[]> {
+export async function getDiagnostics(docUri: string, langServerRpcClient: LangServerRpcClient): Promise<DiagnosticData[]> {
     const diagnostics = await langServerRpcClient.getDiagnostics({
         documentIdentifier: {
             uri: docUri,
         }
     });
 
-    return diagnostics;
+    return diagnostics.diagnostics;
 }
 
 export const handleDiagnostics = async (fileURI: string, langServerRpcClient: LangServerRpcClient):
@@ -94,7 +95,7 @@ export async function getCodeAction(filePath: string, diagnostic: Diagnostic, la
         }
     });
 
-    return codeAction
+    return codeAction.codeActions;
 }
 
 export async function getRenameEdits(fileURI: string,
@@ -110,7 +111,7 @@ export async function getRenameEdits(fileURI: string,
         },
         newName
     });
-    return renameEdits;
+    return renameEdits.workspaceEdit;
 }
 
 export const handleCodeActions = async (fileURI: string,
@@ -141,7 +142,7 @@ export async function getRecordCompletions(
         context: { triggerKind: 22 },
     };
 
-    const completions = await langServerRpcClient.getCompletion(completionParams);
+    const completions = (await langServerRpcClient.getCompletion(completionParams)).completions;
     const recCompletions = completions.filter((item) => item.kind === CompletionItemKind.Struct);
     recCompletions.forEach((item) => completionMap.set(item.insertText, item));
 
@@ -181,7 +182,7 @@ export async function getRecordCompletions(
                 context: { triggerKind: 22 },
             });
 
-            const importRecCompletions = importCompletions.filter((item) => item.kind === CompletionItemKind.Struct);
+            const importRecCompletions = importCompletions.completions.filter((item) => item.kind === CompletionItemKind.Struct);
 
             importRecCompletions.forEach((item) => {
                 if (!completionMap.has(`${item.insertText}${moduleName}`)) {
@@ -220,7 +221,7 @@ export async function getTypesForExpressions(fileURI: string,
 
 export async function getDefinitionPosition(fileURI: string,
     position: LinePosition,
-    langServerRpcClient: LangServerRpcClient): Promise<BallerinaSTModifyResponse> {
+    langServerRpcClient: LangServerRpcClient): Promise<SyntaxTreeResponse> {
 
     const definitionPosition = await langServerRpcClient.getDefinitionPosition(
         {

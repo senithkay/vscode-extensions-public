@@ -12,13 +12,14 @@ import * as path from 'path';
 import { Uri, ViewColumn, Webview } from 'vscode';
 import { RPCLayer } from '../RPCLayer';
 import { debounce } from 'lodash';
-import { WebViewOptions, getComposerWebViewOptions, getLibraryWebViewContent } from 'src/utils/webview-utils';
-import { extension } from 'src/BalExtensionContext';
+import { WebViewOptions, getComposerWebViewOptions, getLibraryWebViewContent } from '../utils/webview-utils';
+import { extension } from '../BalExtensionContext';
 import { onFileContentUpdate } from '@wso2-enterprise/ballerina-core';
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
 	public static readonly viewType = 'ballerina.visualizer';
+    public static readonly panelTitle = 'Ballerina Visualizer';
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 
@@ -44,8 +45,8 @@ export class VisualizerWebview {
     private static createWebview(): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
             VisualizerWebview.viewType,
-            'Ballerina Visualizer',
-            ViewColumn.Active,
+            VisualizerWebview.panelTitle,
+            { viewColumn: ViewColumn.Beside, preserveFocus: false },
             {
                 enableScripts: true,
                 localResourceRoots: [Uri.file(path.join(extension.context.extensionPath, 'resources'))],
@@ -74,7 +75,7 @@ export class VisualizerWebview {
         const scripts = `
             function loadedScript() {
                 function renderDiagrams() {
-                    visualizerWebview.renderWebview(document.getElementById("webview-container"));
+                    visualizerWebview.renderWebview("visualizer", document.getElementById("webview-container"));
                 }
                 renderDiagrams();
             }

@@ -8,7 +8,7 @@
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { responseCodes, STModification } from '@wso2-enterprise/ballerina-core';
-import { VersionedTextDocumentIdentifier } from '@wso2-enterprise/ballerina-core';
+import { DocumentIdentifier } from '@wso2-enterprise/ballerina-core';
 import { BallerinaRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import * as Handlebars from 'handlebars';
 import { Annotation, NodePosition, OptionalTypeDesc, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
@@ -77,9 +77,9 @@ export function getModification(code: string, targetPosition: NodePosition): STM
     };
 }
 
-export async function getServiceST(documentIdentifier: VersionedTextDocumentIdentifier,
-    ballerinaRpcClient: BallerinaRpcClient, position: NodePosition): Promise<ServiceDeclaration> {
-    const response = await ballerinaRpcClient.getLangServerRpcClient().getSTByRange({
+export async function getServiceST(documentIdentifier: DocumentIdentifier,
+    rpcClient: BallerinaRpcClient, position: NodePosition): Promise<ServiceDeclaration> {
+    const response = await rpcClient.getLangServerRpcClient().getSTByRange({
         lineRange: {
             start: {
                 line: position.startLine,

@@ -16,7 +16,9 @@ import {
     KeywordTypeResponse,
     RecordSTRequest,
     RecordSTResponse,
+    ResourceResponse,
     ServiceDesignerAPI,
+    ServiceResponse,
     UpdateResourceRequest,
     UpdateServiceRequest,
     createResource,
@@ -38,28 +40,28 @@ export class ServiceDesignerRpcClient implements ServiceDesignerAPI {
         this._messenger = messenger;
     }
 
-    createService(params: CreateServiceRequest): void {
-        return this._messenger.sendNotification(createService, HOST_EXTENSION, params);
+    createService(params: CreateServiceRequest): Promise<ServiceResponse> {
+        return this._messenger.sendRequest(createService, HOST_EXTENSION, params);
     }
 
-    updateService(params: UpdateServiceRequest): void {
-        return this._messenger.sendNotification(updateService, HOST_EXTENSION, params);
+    updateService(params: UpdateServiceRequest): Promise<ServiceResponse> {
+        return this._messenger.sendRequest(updateService, HOST_EXTENSION, params);
     }
 
-    deleteService(params: DeleteServiceRequest): void {
-        return this._messenger.sendNotification(deleteService, HOST_EXTENSION, params);
+    deleteService(params: DeleteServiceRequest): Promise<ServiceResponse> {
+        return this._messenger.sendRequest(deleteService, HOST_EXTENSION, params);
     }
 
-    createResource(params: CreateResourceRequest): void {
-        return this._messenger.sendNotification(createResource, HOST_EXTENSION, params);
+    createResource(params: CreateResourceRequest): Promise<ResourceResponse> {
+        return this._messenger.sendRequest(createResource, HOST_EXTENSION, params);
     }
 
-    updateResource(params: UpdateResourceRequest): void {
-        return this._messenger.sendNotification(updateResource, HOST_EXTENSION, params);
+    updateResource(params: UpdateResourceRequest): Promise<ResourceResponse> {
+        return this._messenger.sendRequest(updateResource, HOST_EXTENSION, params);
     }
 
-    deleteResource(params: DeleteResourceRequest): void {
-        return this._messenger.sendNotification(deleteResource, HOST_EXTENSION, params);
+    deleteResource(params: DeleteResourceRequest): Promise<ResourceResponse> {
+        return this._messenger.sendRequest(deleteResource, HOST_EXTENSION, params);
     }
 
     getKeywordTypes(): Promise<KeywordTypeResponse> {

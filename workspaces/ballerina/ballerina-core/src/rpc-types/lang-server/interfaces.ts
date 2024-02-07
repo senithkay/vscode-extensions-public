@@ -9,8 +9,8 @@
  */
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
-import { DocumentIdentifier, LinePosition, RRange } from "../../interfaces/common";
-import { CodeAction, CodeActionContext, Diagnostic, LocationLink, Position, TextDocumentIdentifier, TextDocumentItem, WorkspaceEdit } from "vscode-languageserver-types";
+import { DocumentIdentifier, LinePosition, Range } from "../../interfaces/common";
+import { CodeAction, CodeActionContext, Diagnostic, LocationLink, Position, TextDocumentIdentifier, TextDocumentItem, WorkspaceEdit, Location } from "vscode-languageserver-types";
 import { Completion, ExecutorPosition, ExpressionRange, ResolvedTypeForExpression, ResolvedTypeForSymbol } from "../../interfaces/ballerina";
 
 export interface STRequest {
@@ -21,13 +21,13 @@ export interface STRequest {
 
 export interface SyntaxTreeResponse {
     syntaxTree: STNode;
-    parseSuccess: boolean;
+    parseSuccess?: boolean;
     source?: string;
     defFilePath?: string;
 }
 
 export interface STByRangeRequest {
-    lineRange: RRange;
+    lineRange: Range;
     documentIdentifier: DocumentIdentifier;
 }
 
@@ -35,7 +35,7 @@ export interface ProjectComponentsRequest {
     documentIdentifiers: DocumentIdentifier[];
 }
 
-export interface ProjectComponentsResponse {
+export interface BallerinaProjectComponents {
     packages?: PackageSummary[];
 }
 

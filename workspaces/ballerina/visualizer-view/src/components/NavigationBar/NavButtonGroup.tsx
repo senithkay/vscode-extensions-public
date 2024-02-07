@@ -19,15 +19,15 @@ interface NavButtonGroupProps {
 
 export function NavButtonGroup(props: NavButtonGroupProps) {
 
-    const { ballerinaRpcClient } = useVisualizerContext();
+    const { rpcClient } = useVisualizerContext();
 
 
     const handleBackButtonClick = () => {
-        console.log("BACK");
+        rpcClient.getVisualizerRpcClient().goBack();
     }
 
     const handleHomeButtonClick = () => {
-        ballerinaRpcClient.getVisualizerRpcClient().openVisualizerView({ view: "Overview" });
+        rpcClient.getVisualizerRpcClient().openView({ view: "Overview" });
     }
 
     return (

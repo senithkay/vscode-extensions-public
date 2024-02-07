@@ -10,20 +10,29 @@
 import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
 import React, { useEffect, useMemo, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { BallerinaSTModifyResponse, STModification } from "@wso2-enterprise/ballerina-core";
-import { useSyntaxTreeFromRange } from "./../Hooks"
+import { SyntaxTreeResponse, STModification, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { useSyntaxTreeFromRange } from "../../Hooks";
 import { FunctionDefinition, ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { URI } from "vscode-uri";
 
-
-export function DataMapperOverlay() {
+export function DataMapper() {
     const [rerender, setRerender] = useState(false);
     const { data, isFetching } = useSyntaxTreeFromRange(rerender);
-    const { ballerinaRpcClient, viewLocation } = useVisualizerContext();
-    const langServerRpcClient = ballerinaRpcClient.getLangServerRpcClient();
-    const libraryBrowserRPCClient = ballerinaRpcClient.getLibraryBrowserRPCClient();
-    const [mapperData, setMapperData] = useState<BallerinaSTModifyResponse>(data);
+    const { rpcClient } = useVisualizerContext();
+    const langServerRpcClient = rpcClient.getLangServerRpcClient();
+    const libraryBrowserRPCClient = rpcClient.getLibraryBrowserRPCClient();
+    const [mapperData, setMapperData] = useState<SyntaxTreeResponse>(data);
 
+    const [context, setContext] = React.useState<VisualizerLocation>();
+
+    useEffect(() => {
+        if (rpcClient) {
+            rpcClient.getVisualizerContext().then((value) => {
+                setContext(value);
+            });
+        }
+    }, [rpcClient]);
+    
     useEffect(() => {
         if (!isFetching) {
             setMapperData(data);
@@ -34,9 +43,9 @@ export function DataMapperOverlay() {
     const fnName = syntaxTree?.functionName.value;
 
     const applyModifications = async (modifications: STModification[]) => {
-        const langServerRPCClient = ballerinaRpcClient.getLangServerRpcClient();
-        const visualizerRPCClient = ballerinaRpcClient.getVisualizerRpcClient();
-        const filePath = viewLocation.location.fileName;
+        const langServerRPCClient = rpcClient.getLangServerRpcClient();
+        const visualizerRPCClient = rpcClient.getVisualizerRpcClient();
+        const filePath = context.documentUri;
         const { parseSuccess, source: newSource, syntaxTree } = await langServerRPCClient?.stModify({
             astModifications: modifications,
             documentIdentifier: {
@@ -55,31 +64,29 @@ export function DataMapperOverlay() {
                 STKindChecker.isFunctionDefinition(mem)
             ) as FunctionDefinition[];
             const st = fns.find((mem) => mem.functionName.value === fnName);
-            await visualizerRPCClient.updateVisualizerView({
+            await visualizerRPCClient.openView({
                 view: "DataMapper",
-                location: {
-                    fileName: filePath,
-                    position: st.position
-                }
+                documentUri: filePath,
+                position: st.position
             });
             setRerender(prevState => !prevState);
         }
     };
 
     const view = useMemo(() => {
-        if (!mapperData || !viewLocation?.location) {
-          return <div>DM Loading...</div>;
+        if (!mapperData || context.documentUri) {
+            return <div>DM Loading...</div>;
         }
         return (
             <DataMapperView
                 fnST={syntaxTree as FunctionDefinition}
-                filePath={viewLocation.location.fileName}
+                filePath={context.documentUri}
                 langServerRpcClient={langServerRpcClient}
                 libraryBrowserRpcClient={libraryBrowserRPCClient}
                 applyModifications={applyModifications}
             />
         );
-      }, [mapperData]);
+    }, [mapperData]);
 
     return view;
 };

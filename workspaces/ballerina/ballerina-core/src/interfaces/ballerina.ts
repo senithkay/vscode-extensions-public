@@ -9,9 +9,9 @@
 */
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
-import { Position } from "vscode-languageserver-types";
-import { DocumentIdentifier, LinePosition, LineRange, RRange } from "./common";
+import { DocumentIdentifier, LinePosition, LineRange, Position, Range } from "./common";
 import { CMDiagnostics, ComponentModel } from "./component";
+import { Uri } from "vscode";
 
 export enum DIAGNOSTIC_SEVERITY {
     INTERNAL = "INTERNAL",
@@ -116,25 +116,25 @@ export interface BallerinaRecordRequest {
     name: string;
 }
 
-export interface FormField {
+export interface TypeField {
     typeName: string;
     name?: string;
     displayName?: string;
-    memberType?: FormField;
-    inclusionType?: FormField;
-    paramType?: FormField;
+    memberType?: TypeField;
+    inclusionType?: TypeField;
+    paramType?: TypeField;
     selectedDataType?: string;
     description?: string;
     defaultValue?: any;
     value?: any;
     optional?: boolean;
     defaultable?: boolean;
-    fields?: FormField[];
-    members?: FormField[];
-    references?: FormField[];
-    restType?: FormField;
-    constraintType?: FormField;
-    rowType?: FormField;
+    fields?: TypeField[];
+    members?: TypeField[];
+    references?: TypeField[];
+    restType?: TypeField;
+    constraintType?: TypeField;
+    rowType?: TypeField;
     keys?: string[];
     isReturn?: boolean;
     isTypeDef?: boolean;
@@ -163,7 +163,7 @@ export interface FormField {
     position?: NodePosition;
     selected?: boolean;
     originalTypeName?: string;
-    resolvedUnionType?: FormField | FormField[];
+    resolvedUnionType?: TypeField | TypeField[];
 }
 
 
@@ -176,9 +176,9 @@ export interface PathParam {
 export interface FunctionDefinitionInfo {
     name: string;
     documentation: string;
-    parameters: FormField[];
+    parameters: TypeField[];
     pathParams?: PathParam[];
-    returnType?: FormField;
+    returnType?: TypeField;
     qualifiers?: string[];
     isRemote?: boolean;
     displayAnnotation?: any;
@@ -520,7 +520,7 @@ export interface MainConfig {
 
 export interface STModifyRequest {
     documentIdentifier: { uri: string; };
-    astModifications?: STModification[];
+    astModifications: STModification[];
 }
 
 export interface ServiceTriggerModifyRequest extends STModifyRequest {
@@ -530,19 +530,13 @@ export interface ServiceTriggerModifyRequest extends STModifyRequest {
 
 export type TriggerModifyRequest = MainTriggerModifyRequest | ServiceTriggerModifyRequest;
 
-export interface BallerinaProjectParams {
-    documentIdentifier: {
-        uri: string;
-    };
-}
-
 export interface PerformanceAnalyzerRequest {
     documentIdentifier: DocumentIdentifier;
     isWorkerSupported: boolean;
 }
 
 export interface PerformanceAnalyzerResponse {
-    resourcePos: RRange;
+    resourcePos: Range;
     endpoints: any;
     actionInvocations: any;
     type: string;
@@ -602,46 +596,6 @@ export interface NonPrimitiveBal {
     version?: string;
 }
 
-export interface Type {
-    typeName: string;
-    name?: string;
-    displayName?: string;
-    memberType?: Type;
-    inclusionType?: Type;
-    paramType?: Type;
-    selectedDataType?: string;
-    description?: string;
-    defaultValue?: any;
-    value?: any;
-    optional?: boolean;
-    defaultable?: boolean;
-    fields?: Type[];
-    members?: Type[];
-    references?: Type[];
-    isReturn?: boolean;
-    isTypeDef?: boolean;
-    isReference?: boolean;
-    isStream?: boolean;
-    typeInfo?: NonPrimitiveBal;
-    hide?: boolean;
-    aiSuggestion?: string;
-    noCodeGen?: boolean;
-    requestName?: string;
-    tooltip?: string;
-    tooltipActionLink?: string;
-    tooltipActionText?: string;
-    isErrorType?: boolean;
-    isRestParam?: boolean;
-    customAutoComplete?: string[];
-    validationRegex?: any;
-    leftTypeParam?: any;
-    rightTypeParam?: any;
-    initialDiagnostics?: DiagramDiagnostic[];
-    documentation?: string;
-    position?: NodePosition;
-    selected?: boolean;
-}
-
 export interface ExpressionRange {
     startLine: LinePosition;
     endLine: LinePosition;
@@ -650,7 +604,7 @@ export interface ExpressionRange {
 
 
 export interface ResolvedTypeForExpression {
-    type: Type;
+    type: TypeField;
     requestedRange: ExpressionRange;
 }
 
@@ -666,7 +620,7 @@ export interface GraphqlDesignServiceResponse {
 }
 
 export interface ResolvedTypeForSymbol {
-    type: FormField;
+    type: TypeField;
     requestedPosition: LinePosition;
 }
 
@@ -732,4 +686,18 @@ export interface Package {
     createdDate?: number;
     visibility?: string;
     modules?: any[];
+}
+
+export interface ComponentViewInfo {
+    filePath: string;
+    position: NodePosition;
+    fileName?: string;
+    moduleName?: string;
+    uid?: string;
+    name?: string;
+}
+
+export interface FileListEntry {
+    fileName: string;
+    uri: Uri;
 }

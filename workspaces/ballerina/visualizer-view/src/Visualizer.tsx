@@ -7,61 +7,54 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Overview } from "@wso2-enterprise/overview-view";
-import { ServiceDesignerView } from "@wso2-enterprise/service-designer-view";
-import React, { useEffect } from "react";
+import React from "react";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { NavigationBar } from "./components/NavigationBar";
-/** @jsx jsx */
-import { jsx, Global, css } from '@emotion/react';
-import styled from "@emotion/styled";
-import { VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
-import { DataMapperOverlay } from "./components/DataMapperOverlay"
+import { MachineStateValue } from "@wso2-enterprise/ballerina-core";
+import MainPanel from "./MainPanel";
+import { LoadingRing } from "./components/Loader";
 
-const globalStyles = css`
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-  }
-`;
+export function Visualizer({ mode }: { mode: string }) {
+    const { rpcClient } = useVisualizerContext();
+    const [state, setState] = React.useState<MachineStateValue>('initialize');
 
-const VisualizerContainer = styled.div`
-    width: 100%;
-    height: 100%;
-`;
-
-export function Webview() {
-    const { viewLocation, setViewLocation, ballerinaRpcClient } = useVisualizerContext();
-
-    useEffect(() => {
-        setViewLocationState();
-        ballerinaRpcClient.onStateChanged((state: { viewContext: VisualizerLocationContext }) => {
-            setViewLocation(state.viewContext);
-        });
-    }, []);
-
-    const setViewLocationState = async () => {
-        const state = await ballerinaRpcClient.getVisualizerRpcClient().getVisualizerState();
-        if (state) {
-            setViewLocation(state);
-        }
-    }
-
-    const OrgLabel = styled.span`
-        color: var(--vscode-descriptionForeground);
-    `;
+    rpcClient?.onStateChanged((newState: MachineStateValue) => {
+        setState(newState);
+    });
 
     return (
         <>
-            <Global styles={globalStyles} />
-            <VisualizerContainer>
-                <NavigationBar />
-                {viewLocation.view === "Overview" && <Overview />}
-                {viewLocation.view === "ServiceDesigner" && <ServiceDesignerView model={null} rpcClient={null} goToSource={null}/>}
-                {viewLocation.view === "DataMapper" && <DataMapperOverlay />}
-                {viewLocation.view === "Architecture" && <h2>Hello Arch</h2>}
-            </VisualizerContainer>
+            {(() => {
+                switch (mode) {
+                    case "visualizer":
+                        return <VisualizerComponent state={state}/>
+                    // TODO: Below is to render another webview in the activity panel
+                    // case "activityPanel":
+                    //     return <ActivityPanelComponent state={state}/>
+                }
+            })()}
         </>
     );
 };
+
+const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue }) => {
+    switch (true) {
+        case typeof state === 'object' && 'viewActive' in state:
+            return <MainPanel state={state} />;
+        default:
+            return <LoadingRing />;
+    }
+});
+
+
+// TODO: Remove below code if we don't need to have a webview for the activity panel
+// const ActivityPanelComponent = ({ state }: { state: MachineStateValue }) => {
+//     switch (true) {
+//         case typeof state === 'object' && 'ready' in state:
+//             return <GettingStartedPanel state={state} />;
+//             // return <MainPanel state={state} />;
+//         case typeof state === 'object' && 'newProject' in state:
+//             return <GettingStartedPanel state={state} />;
+//         default:
+//             return <h1>LOADING</h1>;
+//     }
+// };

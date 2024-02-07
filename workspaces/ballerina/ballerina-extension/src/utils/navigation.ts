@@ -27,7 +27,7 @@ export async function handleVisualizerView(visualizer: VisualizerLocation) {
     const node = await getSyntaxTreeFromPosition(req);
     if (node.parseSuccess) {
         if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
-            openView("OPEN_VIEW", { view: "ServiceDesigner", documentUri: visualizer.documentUri });
+            openView("OPEN_VIEW", { view: "ServiceDesigner", documentUri: visualizer.documentUri, position: visualizer.position });
         } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) && STKindChecker.isExpressionFunctionBody(node.syntaxTree.functionBody)) {
             openView("OPEN_VIEW", { view: "DataMapper", documentUri: visualizer.documentUri });
         } else if (STKindChecker.isTypeDefinition(node.syntaxTree) && STKindChecker.isRecordTypeDesc(node.syntaxTree.typeDescriptor)) {

@@ -20,22 +20,31 @@ export * from "./interfaces/component";
 
 // ------ RPC interfaces -------->
 export * from "./rpc-types/connector-wizard";
+export * from "./rpc-types/connector-wizard/rpc-type";
 export * from "./rpc-types/connector-wizard/interfaces";
 export * from "./rpc-types/record-creator";
+export * from "./rpc-types/record-creator/rpc-type";
 export * from "./rpc-types/record-creator/interfaces";
 export * from "./rpc-types/graphql-designer";
+export * from "./rpc-types/graphql-designer/rpc-type";
 export * from "./rpc-types/graphql-designer/interfaces";
 export * from "./rpc-types/service-designer";
+export * from "./rpc-types/service-designer/rpc-type";
 export * from "./rpc-types/service-designer/interfaces";
 export * from "./rpc-types/performance-analyzer";
+export * from "./rpc-types/performance-analyzer/rpc-type";
 export * from "./rpc-types/performance-analyzer/interfaces";
 export * from "./rpc-types/trigger-wizard";
+export * from "./rpc-types/trigger-wizard/rpc-type";
 export * from "./rpc-types/trigger-wizard/interfaces";
 export * from "./rpc-types/visualizer";
+export * from "./rpc-types/visualizer/rpc-type";
 export * from "./rpc-types/visualizer/interfaces";
 export * from "./rpc-types/lang-server";
+export * from "./rpc-types/lang-server/rpc-type";
 export * from "./rpc-types/lang-server/interfaces";
 export * from "./rpc-types/library-browser";
+export * from "./rpc-types/library-browser/rpc-type";
 export * from "./rpc-types/library-browser/interfaces";
 
 // ------ Util functions -------->
