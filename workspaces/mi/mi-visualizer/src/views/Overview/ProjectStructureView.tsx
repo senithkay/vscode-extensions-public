@@ -58,7 +58,7 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
         return entries.map((entry, index) => (
             <ComponentCard key={index} isSelected={entry === esbConfig} onClick={() => setEsbConfig(entry)} sx={{ height: 40, marginTop: 15, margin: 10 }}>
                 <IconWrapper>
-                    <div>{entry.name}</div>
+                    <TextContainer>{entry.name}</TextContainer>
                 </IconWrapper>
             </ComponentCard>
         ));
