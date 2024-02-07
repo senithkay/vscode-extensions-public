@@ -97,7 +97,15 @@
         "command": "project-explorer.add-api",
         "title": "Add API",
         "icon": "$(add)",
-        "group": "navigation"
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
+        "command": "project-explorer.create-project",
+        "title": "Create New Project",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
       },
       {
         "command": "project-explorer.open-service-designer",
@@ -109,13 +117,15 @@
         "command": "project-explorer.add-endpoint",
         "title": "Add Endpoint",
         "icon": "$(add)",
-        "group": "navigation"
+        "group": "navigation",
+        "category": "MI"
       },
       {
         "command": "project-explorer.add-sequence",
         "title": "Add Sequence",
         "icon": "$(add)",
-        "group": "navigation"
+        "group": "navigation",
+        "category": "MI"
       },
       {
         "command": "project-explorer.view",
