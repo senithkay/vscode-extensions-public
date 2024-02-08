@@ -60,23 +60,3 @@ export interface ResourceStructureEntry {
     uriTemplate: string,
     method: string
 }
-export interface GettingStartedSample {
-    category: number;
-    priority: number;
-    title: string;
-    description: string;
-    zipFileName: string;
-}
-
-export interface GettingStartedCategory {
-    id: number;
-    title: string;
-    icon: string;
-}
-export interface GettingStartedData {
-    categories: GettingStartedCategory[];
-    samples: GettingStartedSample[];
-}
-export interface SampleDownloadRequest {
-    zipFileName: string;
-}

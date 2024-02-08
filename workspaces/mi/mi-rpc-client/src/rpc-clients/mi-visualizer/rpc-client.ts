@@ -9,19 +9,15 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    GettingStartedData,
     MIVisualizerAPI,
     ProjectStructureRequest,
     ProjectStructureResponse,
-    SampleDownloadRequest,
     VisualizerLocation,
     WorkspacesResponse,
     getProjectStructure,
     getWorkspaces,
     goBack,
-    openView,
-    fetchSamplesFromGithub,
-    downloadSelectedSampleFromGithub
+    openView
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -47,13 +43,5 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     goBack(): void {
         return this._messenger.sendNotification(goBack, HOST_EXTENSION);
-    }
-
-    fetchSamplesFromGithub(): Promise<GettingStartedData> {
-        return this._messenger.sendRequest(fetchSamplesFromGithub, HOST_EXTENSION);
-    }
-
-    downloadSelectedSampleFromGithub(params: SampleDownloadRequest): void {
-        return this._messenger.sendNotification(downloadSelectedSampleFromGithub, HOST_EXTENSION, params);
     }
 }

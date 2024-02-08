@@ -2465,7 +2465,6 @@ importers:
       jsonix: ~3.0.0
       lodash: ~4.17.21
       mocha: ^10.2.0
-      node-fetch: ~3.3.2
       rimraf: ~5.0.5
       ts-loader: ^9.4.4
       typescript: ^5.1.6
@@ -2494,7 +2493,6 @@ importers:
       fast-xml-parser: 4.3.4
       jsonix: 3.0.0
       lodash: 4.17.21
-      node-fetch: 3.3.2
       vscode-extension-tester: 5.9.1_73fg3tqgzkq2e6aekvvil76q2i
       vscode-languageclient: 8.1.0
       vscode-languageserver-protocol: 3.17.5
