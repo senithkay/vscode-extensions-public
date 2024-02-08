@@ -7,7 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DagreEngine } from './Dagre/DagreEngine'; // TODO: Update library props to support node parents
 
 export enum Colors {    
     PRIMARY = '#5567D5',
@@ -29,16 +28,6 @@ export enum Colors {
 
     ERROR = '#ED2633',
 }
-
-export const dagreEngine = new DagreEngine({
-    graph: {
-        rankdir: 'LR',
-        ranksep: 200,
-        edgesep: 100,
-        nodesep: 150,
-        ranker: 'tight-tree',
-    }
-});
 
 export const NAME_JOIN_CHAR = "|";
 

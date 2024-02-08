@@ -358,43 +358,43 @@ const observabilityModel: Project = {
     modelVersion: "0.4.0",
 };
 
-storiesOf("Basic", module).add("Empty cell", () => (
+storiesOf("Project", module).add("Empty cell", () => (
     <Container>
         <CellDiagram project={noComponentModel} />
     </Container>
 ));
 
-storiesOf("Basic", module).add("Single component", () => (
+storiesOf("Project", module).add("Single component", () => (
     <Container>
         <CellDiagram project={singleComponentModel} />
     </Container>
 ));
 
-storiesOf("Basic", module).add("Single component with expose link", () => (
+storiesOf("Project", module).add("Single component with expose link", () => (
     <Container>
         <CellDiagram project={singleExposedComponentModel} />
     </Container>
 ));
 
-storiesOf("Basic", module).add("All component types", () => (
+storiesOf("Project", module).add("All component types", () => (
     <Container>
         <CellDiagram project={allComponentModel} />
     </Container>
 ));
 
-storiesOf("Basic", module).add("Component dependencies", () => (
+storiesOf("Project", module).add("Component dependencies", () => (
     <Container>
         <CellDiagram project={componentDependencyModel} />
     </Container>
 ));
 
-storiesOf("Basic", module).add("Project configurations", () => (
+storiesOf("Project", module).add("Project configurations", () => (
     <Container>
         <CellDiagram project={unlinkConfigurationModel} />
     </Container>
 ));
 
-storiesOf("Basic", module).add("Observability data and events", () => (
+storiesOf("Project", module).add("Observability data and events", () => (
     <Container>
         <CellDiagram project={observabilityModel} componentMenu={componentMenu} onComponentDoubleClick={handleComponentDoubleClick} />
     </Container>

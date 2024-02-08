@@ -8,14 +8,15 @@
  */
 
 import React, { useEffect, useRef, useState } from "react";
-import { DiagramEngine, DiagramModel, PathFindingLinkFactory } from "@projectstorm/react-diagrams";
+import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import CircularProgress from "@mui/material/CircularProgress";
 import { generateEngine, animateDiagram, getDiagramDataFromOrg } from "../utils";
 import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen } from "../components";
-import { Colors, dagreEngine } from "../resources";
+import { Colors } from "../resources";
 import { Container, DiagramContainer, useStyles } from "../utils/CanvasStyles";
 import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
 import { CustomTooltips, DiagramLayer, MoreVertMenuItem, ObservationSummary, Organization } from "../types";
+import { DagreEngine } from "../resources/Dagre/DagreEngine";
 
 export { DiagramLayer } from "../types";
 export type { MoreVertMenuItem, Project } from "../types";
@@ -122,19 +123,19 @@ export function OrgDiagram(props: OrgDiagramProps) {
         setDiagramModel(model);
 
         setTimeout(() => {
-            dagreEngine.options = {
+            const dagreEngine = new DagreEngine({
                 graph: {
-                    rankdir: 'LR',
+                    rankdir: "LR",
                     ranksep: 120,
-                    edgesep: 180,
-                    nodesep: 150,
-                    acyclicer: 'greedy',
-                    ranker: 'network-simplex',
+                    edgesep: 108,
+                    nodesep: 20,
+                    // acyclicer: 'greedy',
+                    ranker: "network-simplex",
                 },
                 includeLinks: true,
-            };
+            });
             dagreEngine.redistribute(model);
-            
+
             if (diagramEngine.getCanvas()?.getBoundingClientRect()) {
                 // zoom to fit nodes and center diagram
                 diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });

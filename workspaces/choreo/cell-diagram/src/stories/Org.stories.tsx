@@ -14,14 +14,14 @@ import { Organization, Project } from "../types";
 import { Container, componentMenu, handleComponentDoubleClick } from "./utils";
 import { CellBounds } from "../components/Cell/CellNode/CellModel";
 
-const noProjectsModel: Organization = {
+const noProjectsOrgModel: Organization = {
     id: "A",
     name: "A",
     projects: [],
     modelVersion: "0.4.0",
 };
 
-const singleProjectModel: Organization = {
+const singleProjectOrgModel: Organization = {
     id: "A",
     name: "A",
     projects: [
@@ -34,7 +34,7 @@ const singleProjectModel: Organization = {
     modelVersion: "0.4.0",
 };
 
-const multiProjectsModel: Organization = {
+const simpleOrgModel: Organization = {
     id: "A",
     name: "A",
     projects: [
@@ -62,8 +62,8 @@ const multiProjectsModel: Organization = {
                         projectId: "9012",
                         boundary: CellBounds.WestBound,
                     },
-                }
-            ]
+                },
+            ],
         },
         {
             id: "5678",
@@ -84,19 +84,19 @@ const multiProjectsModel: Organization = {
                         projectId: "3456",
                         boundary: CellBounds.NorthBound,
                     },
-                }
-            ]
+                },
+            ],
         },
         {
             id: "3456",
             name: "Project D",
             components: [],
-        }
+        },
     ],
     modelVersion: "0.4.0",
 };
 
-const multiProjectsMeshModel: Organization = {
+const multiProjectsOrgModel: Organization = {
     id: "A",
     name: "A",
     projects: [
@@ -124,8 +124,8 @@ const multiProjectsMeshModel: Organization = {
                         projectId: "9012",
                         boundary: CellBounds.WestBound,
                     },
-                }
-            ]
+                },
+            ],
         },
         {
             id: "5678",
@@ -146,8 +146,8 @@ const multiProjectsMeshModel: Organization = {
                         projectId: "3456",
                         boundary: CellBounds.WestBound,
                     },
-                }
-            ]
+                },
+            ],
         },
         {
             id: "3456",
@@ -163,8 +163,8 @@ const multiProjectsMeshModel: Organization = {
                         projectId: "7890",
                         boundary: CellBounds.WestBound,
                     },
-                }
-            ]
+                },
+            ],
         },
         {
             id: "7890",
@@ -190,33 +190,180 @@ const multiProjectsMeshModel: Organization = {
                         projectId: "5678",
                         boundary: CellBounds.WestBound,
                     },
-                }
-            ]
-        }
+                },
+            ],
+        },
     ],
     modelVersion: "0.4.0",
 };
 
-storiesOf("Org", module).add("Empty", () => (
+const complexOrgModel: Organization = {
+    id: "A",
+    name: "A",
+    projects: [
+        {
+            id: "1234",
+            name: "Project A",
+            components: [],
+            connections: [
+                {
+                    id: "1234-5678",
+                    source: {
+                        boundary: CellBounds.EastBound,
+                    },
+                    target: {
+                        projectId: "5678",
+                        boundary: CellBounds.WestBound,
+                    },
+                },
+                {
+                    id: "1234-9012",
+                    source: {
+                        boundary: CellBounds.EastBound,
+                    },
+                    target: {
+                        projectId: "9012",
+                        boundary: CellBounds.WestBound,
+                    },
+                },
+                {
+                    id: "1234-3456",
+                    source: {
+                        boundary: CellBounds.EastBound,
+                    },
+                    target: {
+                        projectId: "3456",
+                        boundary: CellBounds.WestBound,
+                    },
+                },
+            ],
+        },
+        {
+            id: "5678",
+            name: "Project B",
+            components: [],
+        },
+        {
+            id: "9012",
+            name: "Project C",
+            components: [],
+            connections: [
+                {
+                    id: "9012-3456",
+                    source: {
+                        boundary: CellBounds.EastBound,
+                    },
+                    target: {
+                        projectId: "3456",
+                        boundary: CellBounds.WestBound,
+                    },
+                },
+                {
+                    id: "9012-5678",
+                    source: {
+                        boundary: CellBounds.EastBound,
+                    },
+                    target: {
+                        projectId: "5678",
+                        boundary: CellBounds.WestBound,
+                    },
+                },
+                {
+                    id: "9012-7890",
+                    source: {
+                        boundary: CellBounds.EastBound,
+                    },
+                    target: {
+                        projectId: "7890",
+                        boundary: CellBounds.WestBound,
+                    },
+                },
+            ],
+        },
+        {
+            id: "3456",
+            name: "Project D",
+            components: [],
+            connections: [
+                {
+                    id: "3456-7890",
+                    source: {
+                        boundary: CellBounds.EastBound,
+                    },
+                    target: {
+                        projectId: "7890",
+                        boundary: CellBounds.WestBound,
+                    },
+                },
+                {
+                    id: "3456-5678",
+                    source: {
+                        boundary: CellBounds.EastBound,
+                    },
+                    target: {
+                        projectId: "5678",
+                        boundary: CellBounds.WestBound,
+                    },
+                },
+            ],
+        },
+        {
+            id: "7890",
+            name: "Project E",
+            components: [],
+            connections: [
+                {
+                    id: "7890-1234",
+                    source: {
+                        boundary: CellBounds.EastBound,
+                    },
+                    target: {
+                        projectId: "1234",
+                        boundary: CellBounds.WestBound,
+                    },
+                },
+                {
+                    id: "7890-5678",
+                    source: {
+                        boundary: CellBounds.EastBound,
+                    },
+                    target: {
+                        projectId: "5678",
+                        boundary: CellBounds.WestBound,
+                    },
+                },
+            ],
+        },
+    ],
+    modelVersion: "0.4.0",
+};
+
+storiesOf("Org", module).add("Empty organization", () => (
     <Container>
-        <CellDiagram organization={noProjectsModel} />
+        <CellDiagram organization={noProjectsOrgModel} />
     </Container>
 ));
 
-storiesOf("Org", module).add("Single project", () => (
+storiesOf("Org", module).add("Single project organization", () => (
     <Container>
-        <CellDiagram organization={singleProjectModel} />
+        <CellDiagram organization={singleProjectOrgModel} />
     </Container>
 ));
 
-storiesOf("Org", module).add("Multi projects", () => (
+storiesOf("Org", module).add("Simple organization", () => (
     <Container>
-        <CellDiagram organization={multiProjectsModel} />
+        <CellDiagram organization={simpleOrgModel} />
     </Container>
 ));
 
-storiesOf("Org", module).add("Multi projects mesh", () => (
+storiesOf("Org", module).add("Multi projects organization", () => (
     <Container>
-        <CellDiagram organization={multiProjectsMeshModel} />
+        <CellDiagram organization={multiProjectsOrgModel} />
+    </Container>
+));
+
+storiesOf("Org", module).add("Complex organization", () => (
+    <Container>
+        <CellDiagram organization={complexOrgModel} />
     </Container>
 ));
