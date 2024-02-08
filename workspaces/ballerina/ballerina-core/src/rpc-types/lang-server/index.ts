@@ -71,3 +71,4 @@ export interface LangServerAPI {
     didChange: (params: DidChangeRequest) => void;
     didClose: (params: DidCloseRequest) => void;
 }
+

@@ -88,3 +88,4 @@ export function registerLangServerRpcHandlers(messenger: Messenger) {
     messenger.onNotification(didChange, (args: DidChangeRequest) => rpcManger.didChange(args));
     messenger.onNotification(didClose, (args: DidCloseRequest) => rpcManger.didClose(args));
 }
+

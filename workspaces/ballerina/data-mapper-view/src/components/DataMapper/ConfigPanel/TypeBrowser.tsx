@@ -34,6 +34,7 @@ export function TypeBrowser(props: TypeBrowserProps) {
                 )}
                 selectedItem={selectedTypeStr}
                 onChange={onChange}
+                borderBox={true}
             />
             {isLoading && <ProgressIndicator data-testid={'type-select-linear-progress'} />}
         </>

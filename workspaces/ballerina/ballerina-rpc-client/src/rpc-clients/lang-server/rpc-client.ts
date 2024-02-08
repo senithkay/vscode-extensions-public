@@ -13,7 +13,6 @@ import {
     CodeActionRequest,
     CodeActionResponse,
     CompletionRequest,
-    CompletionResponse,
     DefinitionPositionRequest,
     DefinitionResponse,
     DiagnosticsResponse,
@@ -68,7 +67,8 @@ import {
     getTypesFromFnDefinition,
     rename,
     stModify,
-    updateFileContent
+    updateFileContent,
+    CompletionResponse,
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -188,3 +188,4 @@ export class LangServerRpcClient implements LangServerAPI {
         return this._messenger.sendNotification(didClose, HOST_EXTENSION, params);
     }
 }
+
