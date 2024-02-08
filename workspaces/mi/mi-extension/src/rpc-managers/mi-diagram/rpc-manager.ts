@@ -295,8 +295,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 const langClient = StateMachine.context().langClient!;
                 const resp = await langClient.getProjectStructure(rootPath);
 
-                const endpoints: string[] = [];
-                const sequences: string[] = [];
+                const endpoints = [];
+                const sequences = [];
 
                 for (const esbConfig of resp.directoryMap.esbConfigs) {
                     for (const endpoint of esbConfig.esbConfigs.endpoints) {
