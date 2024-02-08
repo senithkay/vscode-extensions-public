@@ -9,22 +9,23 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    CompletionParams,
     Completion,
+    CompletionParams,
     CreateResourceRequest,
     CreateServiceRequest,
     DeleteResourceRequest,
     DeleteServiceRequest,
+    GoToSourceRequest,
     KeywordTypeResponse,
     RecordSTRequest,
     RecordSTResponse,
     visitor as RecordsFinderVisitor,
+    ResourceResponse,
     STModification,
     ServiceDesignerAPI,
+    ServiceResponse,
     UpdateResourceRequest,
-    UpdateServiceRequest,
-    ResourceResponse,
-    ServiceResponse
+    UpdateServiceRequest
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, STKindChecker, traversNode } from "@wso2-enterprise/syntax-tree";
 import { Uri } from "vscode";
@@ -142,7 +143,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         });
     }
 
-    goToSource(params: goToSourceRequest): void {
+    goToSource(params: GoToSourceRequest): void {
         // ADD YOUR IMPLEMENTATION HERE
         throw new Error('Not implemented');
     }

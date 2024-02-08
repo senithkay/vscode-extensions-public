@@ -22,7 +22,7 @@ import {
     UpdateServiceRequest,
     GoToSourceRequest
 } from "./interfaces";
-import { NotificationType, RequestType } from "vscode-messenger-common";
+import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "service-designer";
 export const createService: RequestType<CreateServiceRequest, ServiceResponse> = { method: `${_preFix}/createService` };

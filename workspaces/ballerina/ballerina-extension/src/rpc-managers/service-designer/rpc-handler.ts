@@ -13,6 +13,7 @@ import {
     CreateServiceRequest,
     DeleteResourceRequest,
     DeleteServiceRequest,
+    GoToSourceRequest,
     RecordSTRequest,
     UpdateResourceRequest,
     UpdateServiceRequest,
@@ -23,7 +24,6 @@ import {
     getKeywordTypes,
     getRecordST,
     goToSource,
-    GoToSourceRequest,
     updateResource,
     updateService
 } from "@wso2-enterprise/ballerina-core";
@@ -32,12 +32,12 @@ import { ServiceDesignerRpcManager } from "./rpc-manager";
 
 export function registerServiceDesignerRpcHandlers(messenger: Messenger) {
     const rpcManger = new ServiceDesignerRpcManager();
-    messenger.onNotification(createService, (args: CreateServiceRequest) => rpcManger.createService(args));
-    messenger.onNotification(updateService, (args: UpdateServiceRequest) => rpcManger.updateService(args));
-    messenger.onNotification(deleteService, (args: DeleteServiceRequest) => rpcManger.deleteService(args));
-    messenger.onNotification(createResource, (args: CreateResourceRequest) => rpcManger.createResource(args));
-    messenger.onNotification(updateResource, (args: UpdateResourceRequest) => rpcManger.updateResource(args));
-    messenger.onNotification(deleteResource, (args: DeleteResourceRequest) => rpcManger.deleteResource(args));
+    messenger.onRequest(createService, (args: CreateServiceRequest) => rpcManger.createService(args));
+    messenger.onRequest(updateService, (args: UpdateServiceRequest) => rpcManger.updateService(args));
+    messenger.onRequest(deleteService, (args: DeleteServiceRequest) => rpcManger.deleteService(args));
+    messenger.onRequest(createResource, (args: CreateResourceRequest) => rpcManger.createResource(args));
+    messenger.onRequest(updateResource, (args: UpdateResourceRequest) => rpcManger.updateResource(args));
+    messenger.onRequest(deleteResource, (args: DeleteResourceRequest) => rpcManger.deleteResource(args));
     messenger.onRequest(getKeywordTypes, () => rpcManger.getKeywordTypes());
     messenger.onRequest(getRecordST, (args: RecordSTRequest) => rpcManger.getRecordST(args));
     messenger.onNotification(goToSource, (args: GoToSourceRequest) => rpcManger.goToSource(args));

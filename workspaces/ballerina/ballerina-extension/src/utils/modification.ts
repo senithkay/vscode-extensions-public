@@ -6,12 +6,12 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { BallerinaSTModifyResponse, InsertorDelete, NOT_SUPPORTED_TYPE, STModification } from "@wso2-enterprise/ballerina-core";
-import { getLangClient } from "../visualizer/activator";
+import { SyntaxTreeResponse, InsertorDelete, NOT_SUPPORTED_TYPE, STModification } from "@wso2-enterprise/ballerina-core";
 import { normalize } from "path";
 import { Position, Range, Uri, WorkspaceEdit, workspace } from "vscode";
 import { URI } from "vscode-uri";
 import { writeFileSync } from "fs";
+import { StateMachine } from "../stateMachine";
 
 interface UpdateFileContentRequest {
     fileUri: string;
@@ -19,9 +19,8 @@ interface UpdateFileContentRequest {
     skipForceSave?: boolean;
 }
 
-export async function applyModifications(fileName: string, modifications: STModification[]): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
-    const langClient = getLangClient();
-    return await langClient.stModify({
+export async function applyModifications(fileName: string, modifications: STModification[]): Promise<SyntaxTreeResponse | NOT_SUPPORTED_TYPE> {
+    return await StateMachine.langClient().stModify({
         documentIdentifier: { uri: Uri.file(fileName).toString() },
         astModifications: await InsertorDelete(modifications)
     });
@@ -29,7 +28,7 @@ export async function applyModifications(fileName: string, modifications: STModi
 
 export async function updateFileContent(params: UpdateFileContentRequest): Promise<boolean> {
     const { fileUri, content, skipForceSave } = params;
-    const langClient = getLangClient();
+    const langClient = StateMachine.langClient();
     const normalizedFilePath = normalize(fileUri);
     const doc = workspace.textDocuments.find((doc) => normalize(doc.fileName) === normalizedFilePath);
     if (doc) {

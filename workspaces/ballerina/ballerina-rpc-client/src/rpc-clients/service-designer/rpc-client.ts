@@ -13,6 +13,7 @@ import {
     CreateServiceRequest,
     DeleteResourceRequest,
     DeleteServiceRequest,
+    GoToSourceRequest,
     KeywordTypeResponse,
     RecordSTRequest,
     RecordSTResponse,
@@ -28,7 +29,6 @@ import {
     getKeywordTypes,
     getRecordST,
     goToSource,
-    goToSourceRequest,
     updateResource,
     updateService
 } from "@wso2-enterprise/ballerina-core";
@@ -74,7 +74,7 @@ export class ServiceDesignerRpcClient implements ServiceDesignerAPI {
         return this._messenger.sendRequest(getRecordST, HOST_EXTENSION, params);
     }
 
-    goToSource(params: goToSourceRequest): void {
+    goToSource(params: GoToSourceRequest): void {
         return this._messenger.sendNotification(goToSource, HOST_EXTENSION, params);
     }
 }

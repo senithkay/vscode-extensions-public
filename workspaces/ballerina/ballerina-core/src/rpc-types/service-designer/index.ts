@@ -19,7 +19,7 @@ import {
     ServiceResponse,
     UpdateResourceRequest,
     UpdateServiceRequest,
-    goToSourceRequest
+    GoToSourceRequest
 } from "./interfaces";
 
 export interface ServiceDesignerAPI {
@@ -31,5 +31,5 @@ export interface ServiceDesignerAPI {
     deleteResource: (params: DeleteResourceRequest) => Promise<ResourceResponse>;
     getKeywordTypes: () => Promise<KeywordTypeResponse>;
     getRecordST: (params: RecordSTRequest) => Promise<RecordSTResponse>;
-    goToSource: (params: goToSourceRequest) => void;
+    goToSource: (params: GoToSourceRequest) => void;
 }
