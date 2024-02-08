@@ -22,9 +22,6 @@ export function ProjectLinkWidget(props: WidgetProps) {
     const { link } = props;
 
     const [isSelected, setIsSelected] = useState<boolean>(false);
-    // const [anchorEl, setAnchorEl] = React.useState<null | SVGGElement>(null);
-
-    // const open = (link.tooltip || link.observations?.length > 0) && Boolean(anchorEl);
 
     useEffect(() => {
         const listener = link.registerListener({

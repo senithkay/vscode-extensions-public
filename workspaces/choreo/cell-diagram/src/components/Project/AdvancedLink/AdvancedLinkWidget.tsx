@@ -8,11 +8,12 @@
  */
 
 import * as React from "react";
-import { DiagramEngine, LinkWidget, PointModel } from "@projectstorm/react-diagrams-core";
+import { DiagramEngine, PointModel } from "@projectstorm/react-diagrams-core";
 import { AdvancedLinkModel } from "./AdvancedLinkModel";
 import { AdvancedLinkPointWidget } from "./AdvancedLinkPointWidget";
 import { AdvancedLinkSegmentWidget } from "./AdvancedLinkSegmentWidget";
 import { MouseEvent } from "react";
+import { Colors } from "../../../resources";
 
 export interface AdvancedLinkProps {
     link: AdvancedLinkModel;
@@ -118,8 +119,6 @@ export class AdvancedLinkWidget extends React.Component<AdvancedLinkProps, Advan
         let paths = [];
         this.refPaths = [];
 
-        // console.log("points", this.props.link.getSourcePort() , points);
-
         if (points.length === 2) {
             paths.push(
                 this.generateLink(
@@ -127,7 +126,6 @@ export class AdvancedLinkWidget extends React.Component<AdvancedLinkProps, Advan
                     {
                         onMouseDown: (event: React.MouseEvent<Element, globalThis.MouseEvent>) => {
                             this.props.selected?.(event);
-                            // this.addPointToLink(event, 1); // Remove line breakpoint adding feature
                         },
                     },
                     "0"
@@ -144,7 +142,6 @@ export class AdvancedLinkWidget extends React.Component<AdvancedLinkProps, Advan
                 paths.push(
                     this.generateLink(
                         this.props.link.getSVGPathSegment(points[j], points[j + 1]),
-                        // LinkWidget.generateLinePath(points[j], points[j + 1]),
                         {
                             "data-linkid": this.props.link.getID(),
                             "data-point": j,
@@ -174,20 +171,6 @@ export class AdvancedLinkWidget extends React.Component<AdvancedLinkProps, Advan
         return (
             <g data-default-link-test={this.props.link.getOptions().testName}>
                 {paths}
-                <defs>
-                    <marker
-                        id={"arrowhead"}
-                        markerWidth="5"
-                        markerHeight="5"
-                        markerUnits="strokeWidth"
-                        refX="5"
-                        refY="2.5"
-                        viewBox="0 0 5 5"
-                        orient="auto"
-                    >
-                        <polygon points="0,5 0,0 5,2.5" fill={"black"}></polygon>
-                    </marker>
-                </defs>
             </g>
         );
     }

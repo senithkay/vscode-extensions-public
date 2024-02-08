@@ -127,13 +127,11 @@ export class AdvancedLinkModel extends LinkModel<DefaultLinkModelGenerics> {
                 path += `L ${midX} ${target.y + curveOffset} `;
                 path += `A ${curveOffset},${curveOffset} 0 0 1 ${midX + curveOffset},${target.y} `;
             }
-            // path += `L ${target.x - this.linkXOffset - curveOffset} ${target.y} `; // target
         } else {
             midX =
                 Math.abs((source.x + target.x) / 2) > Math.abs(source.x - this.linkXOffset)
                     ? (source.x + target.x) / 2
                     : source.x - this.linkXOffset;
-            console.log("isEnd", isEnd, this.targetPort.getOptions().alignment);
 
             if (isStart && this.sourcePort.getOptions().alignment === PortModelAlignment.RIGHT) {
                 // start segment with curve
@@ -148,7 +146,6 @@ export class AdvancedLinkModel extends LinkModel<DefaultLinkModelGenerics> {
                     path += `L ${midX} ${target.y + curveOffset} `;
                     path += `A ${curveOffset},${curveOffset} 0 0 0 ${midX - curveOffset},${target.y} `;
                 }
-                // path += `L ${target.x - this.linkXOffset - curveOffset} ${target.y} `; // target
             } else if (isEnd && this.targetPort.getOptions().alignment === PortModelAlignment.LEFT) {
                 // start segment with curve
                 midX = target.x - this.linkXOffset;
@@ -162,7 +159,6 @@ export class AdvancedLinkModel extends LinkModel<DefaultLinkModelGenerics> {
                     path += `L ${midX - curveOffset} ${target.y + curveOffset} `;
                     path += `A ${curveOffset},${curveOffset} 0 0 1 ${midX},${target.y} `;
                 }
-                // path += `L ${target.x - this.linkXOffset - curveOffset} ${target.y} `;
             } else {
                 // middle and last segments
                 path += `L ${midX + curveOffset} ${source.y} `;
@@ -175,7 +171,6 @@ export class AdvancedLinkModel extends LinkModel<DefaultLinkModelGenerics> {
                     path += `L ${midX} ${target.y + curveOffset} `;
                     path += `A ${curveOffset},${curveOffset} 0 0 0 ${midX - curveOffset},${target.y} `;
                 }
-                // path += `L ${target.x + this.linkXOffset + curveOffset} ${target.y} `; // target
             }
         }
 

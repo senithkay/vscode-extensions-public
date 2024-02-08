@@ -13,7 +13,7 @@ import { AdvancedLinkWidget } from "./AdvancedLinkWidget";
 import styled from "@emotion/styled";
 import { AbstractReactFactory } from "@projectstorm/react-canvas-core";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { css, keyframes } from "@emotion/react";
+import { keyframes } from "@emotion/react";
 
 namespace S {
     export const Keyframes = keyframes`
@@ -52,8 +52,25 @@ export class AdvancedLinkFactory<Link extends AdvancedLinkModel = AdvancedLinkMo
                     stroke={selected ? model.getOptions().selectedColor : model.getOptions().color}
                     strokeWidth={model.getOptions().width}
                     d={path}
-                    markerEnd={showArrow ? "url(#arrowhead)" :""}
+                    markerEnd={showArrow ? `url(#arrow-head-${model.getID()})` :""}
                 />
+                <defs>
+                    <marker
+                        id={`arrow-head-${model.getID()}`}
+                        markerWidth="5"
+                        markerHeight="5"
+                        markerUnits="strokeWidth"
+                        refX="5"
+                        refY="2.5"
+                        viewBox="0 0 5 5"
+                        orient="auto"
+                    >
+                        <polygon
+                            points="0,5 0,0 5,2.5"
+                            fill={selected ? model.getOptions().selectedColor : model.getOptions().color}
+                        ></polygon>
+                    </marker>
+                </defs>
             </g>
         );
     }
