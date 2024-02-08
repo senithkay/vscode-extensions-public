@@ -136,3 +136,7 @@ export interface CreateProjectResponse {
 export interface FileStructure {
     [key: string]: string | FileStructure;
 }
+
+export interface HighlightCodeRequest {
+    range: Range;
+}

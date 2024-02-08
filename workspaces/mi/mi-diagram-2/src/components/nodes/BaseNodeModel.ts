@@ -20,7 +20,6 @@ export class BaseNodeModel extends NodeModel {
     protected portOut: NodePortModel;
     protected parentNode: STNode;
     protected prevNodes: STNode[];
-    private visualizerContext = useVisualizerContext();
 
     constructor(type: NodeTypes, stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
         super({
@@ -75,7 +74,9 @@ export class BaseNodeModel extends NodeModel {
         return this.prevNodes;
     }
 
-    onClicked(): void {
-        console.log("Node clicked");
+    onClicked(visualizerContext: ReturnType<typeof useVisualizerContext>): void {
+        visualizerContext.rpcClient.getMiDiagramRpcClient().highlightCode({
+            range: this.stNode.range
+        });
     }
 }

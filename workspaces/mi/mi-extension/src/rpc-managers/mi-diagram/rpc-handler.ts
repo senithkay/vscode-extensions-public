@@ -16,6 +16,7 @@ import {
     CreateEndpointRequest,
     CreateProjectRequest,
     CreateSequenceRequest,
+    HighlightCodeRequest,
     OpenDiagramRequest,
     ShowErrorMessageRequest,
     applyEdit,
@@ -37,7 +38,7 @@ import {
     getSTRequest,
     getSequenceDirectory,
     getSyntaxTree,
-    onRefresh,
+    highlightCode,
     openDiagram,
     openFile,
     showErrorMessage
@@ -68,4 +69,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getProjectRoot, () => rpcManger.getProjectRoot());
     messenger.onRequest(askProjectDirPath, () => rpcManger.askProjectDirPath());
     messenger.onRequest(createProject, (args: CreateProjectRequest) => rpcManger.createProject(args));
+    messenger.onNotification(highlightCode, (args: HighlightCodeRequest) => rpcManger.highlightCode(args));
 }

@@ -13,6 +13,7 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConditionNodeModel } from "./ConditionNodeModel";
 import { Colors } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 namespace S {
     export const Node = styled.div<{}>`
@@ -38,12 +39,17 @@ interface CallNodeWidgetProps {
 export function ConditionNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine, onClick } = props;
     const [isHovered, setIsHovered] = React.useState(false);
+    const visualizerContext = useVisualizerContext();
 
-    const handleOnClick = () => {
+    const handleOnClickMenu = () => {
         if (onClick) {
             console.log("Condition Node clicked", node.stNode);
             onClick(node.stNode);
         }
+    };
+
+    const handleOnClick = () => {
+        if (node.isSelected()) node.onClicked(visualizerContext);
     };
 
     return (

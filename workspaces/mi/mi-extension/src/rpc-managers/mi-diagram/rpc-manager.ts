@@ -30,6 +30,7 @@ import {
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     FileStructure,
+    HighlightCodeRequest,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectDirResponse,
@@ -37,11 +38,11 @@ import {
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
     getSTRequest,
-    getSTResponse,
+    getSTResponse
 } from "@wso2-enterprise/mi-core";
 import * as fs from "fs";
 import * as os from 'os';
-import { Position, Range, Uri, WorkspaceEdit, commands, window, workspace } from "vscode";
+import { Position, Range, Selection, Uri, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { StateMachine, openView } from "../../stateMachine";
 import { createFolderStructure } from "../../util";
 import { artifactsContent, compositePomXmlContent, compositeProjectContent, configsPomXmlContent, configsProjectContent, projectFileContent, rootPomXmlContent } from "../../util/templates";
@@ -516,6 +517,16 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             resolve({ data: [] });
         });
+    }
+
+    async highlightCode(params: HighlightCodeRequest) {
+        const documentUri = StateMachine.context().documentUri;
+        const editor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
+        if (editor) {
+            const range = new Range(params.range.start.line, params.range.start.character, params.range.end.line, params.range.end.character);
+            editor.selection = new Selection(range.start, range.end);
+            editor.revealRange(range);
+        }
     }
 }
 

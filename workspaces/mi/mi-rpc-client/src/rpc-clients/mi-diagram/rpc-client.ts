@@ -28,6 +28,7 @@ import {
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
+    HighlightCodeRequest,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectDirResponse,
@@ -54,6 +55,7 @@ import {
     getSTResponse,
     getSequenceDirectory,
     getSyntaxTree,
+    highlightCode,
     onRefresh,
     openDiagram,
     openFile,
@@ -155,5 +157,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {
         return this._messenger.sendRequest(createProject, HOST_EXTENSION, params);
+    }
+
+    highlightCode(params: HighlightCodeRequest): void {
+        return this._messenger.sendNotification(highlightCode, HOST_EXTENSION, params);
     }
 }
