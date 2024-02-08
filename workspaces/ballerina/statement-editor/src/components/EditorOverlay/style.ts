@@ -6,24 +6,21 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import { css } from "@emotion/css";
 
-export const useStyles = makeStyles((theme: Theme) =>
-	createStyles({
-		title: {
-			fontWeight: 600,
-			fontSize: "17px",
-			lineHeight: "24px",
-			marginTop: "28px",
-			marginBottom: "4px",
-			color: theme.palette.text.primary
-		},
-		subtitle: {
-			fontWeight: 400,
-			fontSize: "13px",
-			lineHeight: "20px",
-			color: theme.palette.text.hint
-		},
-
+export const useStyles = () => ({
+	title: css({
+		fontWeight: 600,
+		fontSize: "17px",
+		lineHeight: "24px",
+		marginTop: "28px",
+		marginBottom: "4px",
+		color: 'var(--vscode-editor-foreground)'
+	}),
+	subtitle: css({
+		fontWeight: 400,
+		fontSize: "13px",
+		lineHeight: "20px",
+		color: 'var(--vscode-descriptionForeground)'
 	})
-);
+});

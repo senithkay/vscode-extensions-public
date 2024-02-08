@@ -73,8 +73,8 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
     };
 
     const fetchTypes = async () => {
-        const types = await rpcClient?.getKeywordTypes();
-        setTypes(types?.completions.map(type => type.insertText));
+        const types = await rpcClient.getKeywordTypes();
+        setTypes(types.data?.completions.map(type => type.insertText));
     };
 
     const handleGoToSource = (resource: Resource) => {

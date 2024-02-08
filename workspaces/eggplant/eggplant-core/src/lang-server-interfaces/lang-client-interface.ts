@@ -8,19 +8,19 @@
  */
 
 import {
-    BallerinaFunctionSTRequest,
+    STByRangeRequest,
     BallerinaProjectComponents,
     BallerinaProjectParams,
-    BallerinaSTModifyRequest,
+    STModifyRequest,
     BallerinaSTModifyResponse,
-    CodeActionParams,
+    CodeActionRequest,
     CompletionParams,
-    CompletionResponse,
-    DidChangeTextDocumentParams,
-    DidCloseTextDocumentParams,
-    DidOpenTextDocumentParams,
+    Completion,
+    DidChangeRequest,
+    DidCloseRequest,
+    DidOpenRequest,
     ExecutorPositionsResponse,
-    GetBallerinaPackagesParams,
+    ProjectComponentsRequest,
     GetBallerinaProjectParams,
     GetSyntaxTreeParams,
     GetSyntaxTreeResponse,
@@ -29,11 +29,11 @@ import {
     NOT_SUPPORTED_TYPE,
     PartialSTRequest,
     PartialSTResponse,
-    PublishDiagnosticsParams,
-    RenameParams,
+    DiagnosticData,
+    RenameRequest,
     SymbolInfoRequest,
     SymbolInfoResponse,
-    TextDocumentPositionParams,
+    DefinitionPositionRequest,
     TypeFromExpressionRequest,
     TypeFromSymbolRequest,
     TypesFromExpressionResponse,
@@ -57,28 +57,28 @@ export interface EggplantModelRequest {
     endLine: LinePosition;
 }
 export interface LangClientInterface extends LanguageClient {
-    getBallerinaProjectComponents: (params: GetBallerinaPackagesParams) => Promise<BallerinaProjectComponents>;
-    getSTByRange: (params: BallerinaFunctionSTRequest) => Promise<BallerinaSTModifyResponse>;
+    getBallerinaProjectComponents: (params: ProjectComponentsRequest) => Promise<BallerinaProjectComponents>;
+    getSTByRange: (params: STByRangeRequest) => Promise<BallerinaSTModifyResponse>;
     getEggplantModel: (params: EggplantModelRequest) => Promise<Flow>;
-    stModify: (params: BallerinaSTModifyRequest) => Thenable<BallerinaSTModifyResponse>;
-    didChange(params: DidChangeTextDocumentParams): Promise<void>;
-    didOpen: (Params: DidOpenTextDocumentParams) => void;
-    didClose: (params: DidCloseTextDocumentParams) => void;
+    stModify: (params: STModifyRequest) => Thenable<BallerinaSTModifyResponse>;
+    didChange(params: DidChangeRequest): void;
+    didOpen: (Params: DidOpenRequest) => void;
+    didClose: (params: DidCloseRequest) => void;
     getSyntaxTree: (params: GetSyntaxTreeParams) => Thenable<GetSyntaxTreeResponse>;
-    definition: (params: TextDocumentPositionParams) => Promise<Location | Location[] | LocationLink[] | null> ;
-    getDiagnostics: (params: BallerinaProjectParams) => Thenable<PublishDiagnosticsParams[]>;
-    getCompletion: (params: CompletionParams) => Thenable<CompletionResponse[]>;
+    definition: (params: DefinitionPositionRequest) => Promise<Location | Location[] | LocationLink[] | null> ;
+    getDiagnostics: (params: BallerinaProjectParams) => Thenable<DiagnosticData[]>;
+    getCompletion: (params: CompletionParams) => Thenable<Completion[]>;
     getTypeFromExpression: (params: TypeFromExpressionRequest) => Thenable<TypesFromExpressionResponse>;
     getTypeFromSymbol: (params: TypeFromSymbolRequest) => Thenable<TypesFromSymbolResponse>;
     getTypesFromFnDefinition: (params: TypesFromFnDefinitionRequest) => Thenable<TypesFromSymbolResponse>;
     convert: (params: JsonToRecordRequest) => Thenable<JsonToRecordResponse>;
     convertXml: (params: XMLToRecordRequest) => Thenable<XMLToRecordResponse>;
-    rename: (params: RenameParams) => Thenable<WorkspaceEditType>;
-    codeAction: (params: CodeActionParams) => Promise<CodeAction[]>;
-    getDefinitionPosition(params: TextDocumentPositionParams): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE>;
+    rename: (params: RenameRequest) => Thenable<WorkspaceEditType>;
+    codeAction: (params: CodeActionRequest) => Promise<CodeAction[]>;
+    getDefinitionPosition(params: DefinitionPositionRequest): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE>;
     convertJsonToRecord(params: JsonToRecordRequest): Promise<JsonToRecordResponse | NOT_SUPPORTED_TYPE>;
     updateStatusBar(): void;
-    getSTForFunction: (params: BallerinaSTModifyRequest) => Promise<BallerinaSTModifyResponse>;
+    getSTForFunction: (params: STModifyRequest) => Promise<BallerinaSTModifyResponse>;
     getExecutorPositions: (params: GetBallerinaProjectParams) => Promise<ExecutorPositionsResponse>;
     getSTForExpression: (params: PartialSTRequest) => Promise<PartialSTResponse | NOT_SUPPORTED_TYPE>;
     getSTForSingleStatement: (params: PartialSTRequest) => Promise<PartialSTResponse | NOT_SUPPORTED_TYPE>;

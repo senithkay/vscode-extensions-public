@@ -65,7 +65,7 @@ export function ResourcesList(params: { component: SelectedComponent }) {
         })
 
         const context: VisualizerLocation = {
-            fileName: component.fileName,
+            documentUri: component.fileName,
             position: comp.position,
             view: "Overview",
             identifier: component.serviceST.absoluteResourcePath.reduce((result, obj) => result + obj.value, "") + `/${comp.functionName.value}/${resourcePath}`

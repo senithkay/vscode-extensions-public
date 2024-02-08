@@ -9,16 +9,16 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
-import { FormControl } from '@material-ui/core';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
     CommandResponse,
     KeyboardNavigationManager,
     STModification,
     STSymbolInfo
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
 import { LangServerRpcClient, LibraryBrowserRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { SidePanel } from '@wso2-enterprise/ui-toolkit';
 import { URI } from "vscode-uri";
 
 import { CUSTOM_CONFIG_TYPE } from "../../constants";
@@ -224,7 +224,12 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
 
     return (
         <QueryClientProvider client={queryClient}>
-            <FormControl data-testid="property-form">
+            <SidePanel
+                isOpen={true}
+                alignmanet="right"
+                sx={{transition: "all 0.3s ease-in-out", width: 600}}
+                data-testid="property-form"
+            >
                 {!editor && (
                     <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor-loader">
                         <div className={overlayClasses.loadingWrapper}>Loading statement editor...</div>
@@ -272,7 +277,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             />
                         </>
                     )}
-            </FormControl>
+            </SidePanel>
         </QueryClientProvider>
     )
 }

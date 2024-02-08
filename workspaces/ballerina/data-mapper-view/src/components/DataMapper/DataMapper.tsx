@@ -12,10 +12,7 @@ import React, { useEffect, useMemo, useReducer, useState } from "react";
 import { css } from "@emotion/css";
 import {
     ComponentViewInfo,
-    FileListEntry,
-    LibraryDataResponse,
-    LibraryDocResponse,
-    LibrarySearchResponse
+    FileListEntry
 } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 

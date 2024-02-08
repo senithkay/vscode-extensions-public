@@ -23,7 +23,7 @@ import {
     getKeywordTypes,
     getRecordST,
     goToSource,
-    goToSourceRequest,
+    GoToSourceRequest,
     updateResource,
     updateService
 } from "@wso2-enterprise/ballerina-core";
@@ -40,5 +40,5 @@ export function registerServiceDesignerRpcHandlers(messenger: Messenger) {
     messenger.onNotification(deleteResource, (args: DeleteResourceRequest) => rpcManger.deleteResource(args));
     messenger.onRequest(getKeywordTypes, () => rpcManger.getKeywordTypes());
     messenger.onRequest(getRecordST, (args: RecordSTRequest) => rpcManger.getRecordST(args));
-    messenger.onNotification(goToSource, (args: goToSourceRequest) => rpcManger.goToSource(args));
+    messenger.onNotification(goToSource, (args: GoToSourceRequest) => rpcManger.goToSource(args));
 }

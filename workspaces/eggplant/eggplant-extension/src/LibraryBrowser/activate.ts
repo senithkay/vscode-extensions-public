@@ -1,26 +1,22 @@
-/*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
- *  This software is the property of WSO2 LLC. and its suppliers, if any.
- *  Dissemination of any information or reproduction of any material contained
- *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
- *  the WSO2 Commercial License available at http://wso2.com/licenses.
- *  For specific language governing the permissions and limitations under
- *  this license, please see the license as well as any agreement you’ve
- *  entered into with WSO2 governing the purchase of this software and any
- *  associated services.
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
 import https from "https";
 import {
 	LibraryDataResponse,
-	LibraryDocResponse,
+	LibrariesListResponse,
 	LibraryKind,
 	LibrarySearchResponse
 } from '@wso2-enterprise/ballerina-core';
 import { extensions } from "vscode";
 
-export const cachedLibrariesList = new Map<string, LibraryDocResponse>();
+export const cachedLibrariesList = new Map<string, LibrariesListResponse>();
 export const cachedSearchList = new Map<string, LibrarySearchResponse>();
 export const cachedLibraryData = new Map<string, LibraryDataResponse>();
 export const DIST_LIB_LIST_CACHE = "DISTRIBUTION_LIB_LIST_CACHE";
@@ -54,7 +50,7 @@ export function activateLibraryBrowser() {
     fetchAndCacheLibraryData();
 }
 
-export function getLibrariesList(kind?: LibraryKind): Promise<LibraryDocResponse | undefined> {
+export function getLibrariesList(kind?: LibraryKind): Promise<LibrariesListResponse | undefined> {
 
     return new Promise((resolve, reject) => {
 

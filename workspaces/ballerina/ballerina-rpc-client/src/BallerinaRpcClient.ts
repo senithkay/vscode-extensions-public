@@ -11,9 +11,10 @@
 
 import { Messenger } from "vscode-messenger-webview";
 import { VisualizerRpcClient } from "./rpc-clients/visualizer/rpc-client";
-import { vscode } from "@wso2-enterprise/ballerina-core";
+import { MachineStateValue, VisualizerLocation, getVisualizerContext, onFileContentUpdate, stateChanged, vscode } from "@wso2-enterprise/ballerina-core";
 import { LangServerRpcClient } from "./rpc-clients/lang-server/rpc-client";
 import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-client";
+import { HOST_EXTENSION } from "vscode-messenger-common";
 import { ServiceDesignerRpcClient } from "./rpc-clients";
 
 export class BallerinaRpcClient {
@@ -49,8 +50,16 @@ export class BallerinaRpcClient {
         return this._libraryBrowser;
     }
 
-    onStateChanged(callback: (state: any) => void) {
-        this.messenger.onNotification({ method: 'stateChanged' }, callback);
+    getVisualizerContext(): Promise<VisualizerLocation> {
+        return this.messenger.sendRequest(getVisualizerContext, HOST_EXTENSION);
+    }
+
+    onStateChanged(callback: (state: MachineStateValue) => void) {
+        this.messenger.onNotification(stateChanged, callback);
+    }
+
+    onFileContentUpdate(callback: () => void): void {
+        this.messenger.onNotification(onFileContentUpdate, callback);
     }
 
 }

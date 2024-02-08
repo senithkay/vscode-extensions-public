@@ -6,9 +6,9 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
-// tslint:disable-next-line:no-submodule-imports
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { ParameterInfo, SymbolDocumentation } from "@wso2-enterprise/ballerina-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
@@ -31,9 +31,6 @@ import { IncludedRecord } from "../IncludedRecord";
 import { NamedArgIncludedRecord } from "../NamedArgIncludedRecord";
 import { RequiredArg } from "../RequiredArg";
 
-// tslint:disable-next-line:no-submodule-imports
-
-// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 export interface ParameterListProps {
     paramDocumentation : SymbolDocumentation;
 }

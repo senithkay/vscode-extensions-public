@@ -1,4 +1,4 @@
-import { BallerinaFunctionSTRequest, BallerinaSTModifyResponse } from "@wso2-enterprise/ballerina-core";
+import { STByRangeRequest, BallerinaSTModifyResponse } from "@wso2-enterprise/ballerina-core";
 import { EggplantModelRequest, LangClientInterface } from "@wso2-enterprise/eggplant-core";
 
 enum EXTENDED_APIS {
@@ -8,7 +8,7 @@ enum EXTENDED_APIS {
 
 // YOU CAN ADD EGGPLANT SPECIFIC LANG CLIENT METHODS HERE
 export function registerNewLSMethods(langClient: LangClientInterface): LangClientInterface {
-    langClient.getSTByRange = async (params: BallerinaFunctionSTRequest) => {
+    langClient.getSTByRange = async (params: STByRangeRequest) => {
         return langClient.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_ST_BY_RANGE, params);
     };
 

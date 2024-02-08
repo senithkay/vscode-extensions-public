@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
-import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 import { RequiredParam } from "@wso2-enterprise/syntax-tree";
 
 import { useDMSearchStore } from "../../../../store/store";
@@ -18,10 +18,10 @@ import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 export const REQ_PARAM_NODE_TYPE = "datamapper-node-required-param";
 
 export class RequiredParamNode extends DataMapperNodeModel {
-    public typeDef: Type;
+    public typeDef: TypeField;
     public x: number;
     public numberOfFields:  number;
-    originalTypeDef: Type;
+    originalTypeDef: TypeField;
 
     constructor(
         public context: IDataMapperContext,

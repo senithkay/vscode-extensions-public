@@ -122,6 +122,7 @@ export const IGNORABLE_DIAGNOSTICS: string[] = [
 
 // The suggestion column size is handled with css (suggestionList -> gridTemplateColumns)
 export const SUGGESTION_COLUMN_SIZE = 3;
+export const MAX_COLUMN_WIDTH = '155px';
 
 // Statement types supported in function-body-block
 export type StatementNodes = ActionStatement

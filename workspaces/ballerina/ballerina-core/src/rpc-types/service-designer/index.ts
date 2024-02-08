@@ -1,25 +1,34 @@
-/*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
- *  This software is the property of WSO2 LLC. and its suppliers, if any.
- *  Dissemination of any information or reproduction of any material contained
- *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
- *  the WSO2 Commercial License available at http://wso2.com/licenses.
- *  For specific language governing the permissions and limitations under
- *  this license, please see the license as well as any agreement you’ve
- *  entered into with WSO2 governing the purchase of this software and any
- *  associated services.
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CreateServiceRequest, UpdateServiceRequest, DeleteServiceRequest, CreateResourceRequest, UpdateResourceRequest, DeleteResourceRequest, KeywordTypeResponse, RecordSTResponse, RecordSTRequest, goToSourceRequest } from "./types";
+import {
+    CreateResourceRequest,
+    CreateServiceRequest,
+    DeleteResourceRequest,
+    DeleteServiceRequest,
+    KeywordTypeResponse,
+    RecordSTRequest,
+    RecordSTResponse,
+    ResourceResponse,
+    ServiceResponse,
+    UpdateResourceRequest,
+    UpdateServiceRequest,
+    goToSourceRequest
+} from "./interfaces";
 
 export interface ServiceDesignerAPI {
-    createService: (params: CreateServiceRequest) => void;
-    updateService: (params: UpdateServiceRequest) => void;
-    deleteService: (params: DeleteServiceRequest) => void;
-    createResource: (params: CreateResourceRequest) => void;
-    updateResource: (params: UpdateResourceRequest) => void;
-    deleteResource: (params: DeleteResourceRequest) => void;
+    createService: (params: CreateServiceRequest) => Promise<ServiceResponse>;
+    updateService: (params: UpdateServiceRequest) => Promise<ServiceResponse>;
+    deleteService: (params: DeleteServiceRequest) => Promise<ServiceResponse>;
+    createResource: (params: CreateResourceRequest) => Promise<ResourceResponse>;
+    updateResource: (params: UpdateResourceRequest) => Promise<ResourceResponse>;
+    deleteResource: (params: DeleteResourceRequest) => Promise<ResourceResponse>;
     getKeywordTypes: () => Promise<KeywordTypeResponse>;
     getRecordST: (params: RecordSTRequest) => Promise<RecordSTResponse>;
     goToSource: (params: goToSourceRequest) => void;
