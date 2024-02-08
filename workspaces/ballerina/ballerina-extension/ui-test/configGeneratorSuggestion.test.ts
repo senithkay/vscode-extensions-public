@@ -32,7 +32,7 @@ describe('VSCode Config Suggestions UI Tests', () => {
 
     const configContent = `# Configuration file for "configServicePackageEdit"
     # How to use see:
-    # https://ballerina.io/learn/configure-ballerina-programs/provide-values-to-configurable-variables/#provide-via-toml-syntax
+    # https://ballerina.io/learn/provide-values-to-configurable-variables/#provide-via-toml-syntax
     
     bar = 0.0	# Type of NUMBER
     
