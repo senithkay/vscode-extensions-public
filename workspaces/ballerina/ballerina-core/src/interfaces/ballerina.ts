@@ -701,3 +701,24 @@ export interface FileListEntry {
     fileName: string;
     uri: Uri;
 }
+
+export interface CommandResponse {
+    error: boolean;
+    message: string;
+}
+
+export interface STSymbolInfo {
+    moduleEndpoints: Map<string, STNode>;
+    localEndpoints: Map<string, STNode>;
+    actions: Map<string, STNode>;
+    variables: Map<string, STNode[]>;
+    configurables: Map<string, STNode>;
+    callStatement: Map<string, STNode[]>;
+    variableNameReferences: Map<string, STNode[]>;
+    assignmentStatement: Map<string, STNode[]>;
+    recordTypeDescriptions: Map<string, STNode>;
+    listeners: Map<string, STNode>;
+    moduleVariables: Map<string, STNode>;
+    constants: Map<string, STNode>;
+    enums: Map<string, STNode>;
+}
