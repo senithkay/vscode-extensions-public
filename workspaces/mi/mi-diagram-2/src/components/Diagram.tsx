@@ -41,19 +41,32 @@ export function Diagram(props: DiagramProps) {
     const [sidePanelFormValues, setSidePanelFormValues] = useState<{ [key: string]: any }>();
     const [sidePanelShowBackBtn, setSidePanelShowBackBtn] = useState<boolean>(false);
     const [sidePanelBackBtn, setSidePanelBackBtn] = useState<number>(0);
+    const [diagramWidth, setDiagramWidth] = useState<number>(0);
 
     useEffect(() => {
         if (diagramEngine) {
-            const { nodes, links, diagramWidth } = getNodes();
-            drawDiagram(nodes as any, links, diagramWidth);
+            const { nodes, links } = getNodes();
+            drawDiagram(nodes as any, links);
         }
     }, [props.model, props.documentUri]);
+
+    useEffect(() => {
+        setTimeout(() => {
+            if (diagramModel) {
+                window.addEventListener("resize", () => {
+                    centerDiagram();
+                });
+                centerDiagram();
+            }
+        }, 500);
+    }, [diagramModel]);
 
     const getNodes = () => {
         // run sizing visitor
         const sizingVisitor = new SizingVisitor();
         traversNode(model, sizingVisitor);
         const diagramWidth = sizingVisitor.getSequenceWidth();
+        setDiagramWidth(diagramWidth);
 
         // run position visitor
         const positionVisitor = new PositionVisitor(diagramWidth);
@@ -64,29 +77,15 @@ export function Diagram(props: DiagramProps) {
         traversNode(model, nodeVisitor);
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();
-        return { nodes, links, diagramWidth };
+        return { nodes, links };
     };
 
-    const drawDiagram = (nodes: MediatorNodeModel[], links: NodeLinkModel[], diagramWidth: number) => {
+    const drawDiagram = (nodes: MediatorNodeModel[], links: NodeLinkModel[]) => {
         const newDiagramModel = new DiagramModel();
         newDiagramModel.addAll(...nodes, ...links);
 
         diagramEngine.setModel(newDiagramModel);
         setDiagramModel(newDiagramModel);
-
-        setTimeout(() => {
-            if (diagramEngine.getCanvas().getBoundingClientRect) {
-                const canvasBounds = diagramEngine.getCanvas().getBoundingClientRect();
-
-                const offsetX = canvasBounds.width / 2;
-
-                diagramEngine.getModel().setOffsetX(offsetX - (diagramWidth / 2));
-            }
-
-            // update diagram
-            diagramEngine.setModel(newDiagramModel);
-            diagramEngine.repaintCanvas();
-        }, 500);
     };
 
     const closeSidePanel = () => {
@@ -145,4 +144,18 @@ export function Diagram(props: DiagramProps) {
             )}
         </>
     );
+
+    function centerDiagram() {
+        if (diagramEngine?.getCanvas()?.getBoundingClientRect()) {
+            const canvasBounds = diagramEngine.getCanvas().getBoundingClientRect();
+
+            const offsetX = canvasBounds.width / 2;
+
+            diagramEngine.getModel().setOffsetX(offsetX - (diagramWidth / 2));
+        }
+
+        // update diagram
+        diagramEngine.setModel(diagramModel);
+        diagramEngine.repaintCanvas();
+    }
 }
