@@ -12,12 +12,12 @@ import { debug } from "../utils";
 import { BallerinaExtension } from "../core";
 import {
 	LibraryDataResponse,
-	LibraryDocResponse,
+	LibrariesListResponse,
 	LibraryKind,
 	LibrarySearchResponse
 } from '@wso2-enterprise/ballerina-core';
 
-export const cachedLibrariesList = new Map<string, LibraryDocResponse>();
+export const cachedLibrariesList = new Map<string, LibrariesListResponse>();
 export const cachedSearchList = new Map<string, LibrarySearchResponse>();
 export const cachedLibraryData = new Map<string, LibraryDataResponse>();
 export const DIST_LIB_LIST_CACHE = "DISTRIBUTION_LIB_LIST_CACHE";
@@ -48,7 +48,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     }
 }
 
-export function getLibrariesList(kind?: LibraryKind): Promise<LibraryDocResponse | undefined> {
+export function getLibrariesList(kind?: LibraryKind): Promise<LibrariesListResponse | undefined> {
 
     return new Promise((resolve, reject) => {
 

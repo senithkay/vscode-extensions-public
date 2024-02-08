@@ -10,7 +10,7 @@
 import React, { useRef, useState } from "react";
 
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { FormField } from "@wso2-enterprise/ballerina-core";
+import { TypeField } from "@wso2-enterprise/ballerina-core";
 import { Dropdown, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import { TypeProps } from "../..";
@@ -28,14 +28,14 @@ export default function UnionType(props: TypeProps) {
 
     const [paramSelected, setParamSelected] = useState(param.selected || requiredParam);
     const [selectedMemberType, setSelectedMemberType] = useState(getUnionParamName(initSelectedMember));
-    const [parameter, setParameter] = useState<FormField>(initSelectedMember);
+    const [parameter, setParameter] = useState<TypeField>(initSelectedMember);
     const initialRendering = useRef(false);
 
     if (!(param.members && param.members.length > 0)){
         return <></>;
     }
 
-    const updateFormFieldMemberSelection = (unionField: FormField) => {
+    const updateFormFieldMemberSelection = (unionField: TypeField) => {
         const unionFieldName = getUnionParamName(unionField);
         param.members.forEach((field) => {
             field.selected = getUnionParamName(field) === unionFieldName;
@@ -117,6 +117,6 @@ export default function UnionType(props: TypeProps) {
     );
 }
 
-export function getUnionParamName(param: FormField) {
+export function getUnionParamName(param: TypeField) {
     return param ? param.name || param.typeName : "";
 }

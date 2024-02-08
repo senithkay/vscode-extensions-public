@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -9,17 +9,15 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    VisualizerLocationContext,
-    getVisualizerState,
-    openVisualizerView,
-    updateVisualizerView
+    VisualizerLocation,
+    goBack,
+    openView,
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { VisualizerRpcManager } from "./rpc-manager";
 
 export function registerVisualizerRpcHandlers(messenger: Messenger) {
     const rpcManger = new VisualizerRpcManager();
-    messenger.onRequest(getVisualizerState, () => rpcManger.getVisualizerState());
-    messenger.onRequest(openVisualizerView, (args: VisualizerLocationContext) => rpcManger.openVisualizerView(args));
-    messenger.onRequest(updateVisualizerView, (args: VisualizerLocationContext) => rpcManger.updateVisualizerView(args));
+    messenger.onNotification(openView, (args: VisualizerLocation) => rpcManger.openView(args));
+    messenger.onNotification(goBack, () => rpcManger.goBack());
 }

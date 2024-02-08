@@ -10,7 +10,7 @@
 import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
 import React, { useEffect, useMemo, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
-import { BallerinaSTModifyResponse, STModification } from "@wso2-enterprise/ballerina-core";
+import { SyntaxTreeResponse, STModification } from "@wso2-enterprise/ballerina-core";
 import { useSyntaxTreeFromRange } from "../../hooks/LangServer";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { URI } from "vscode-uri";
@@ -37,7 +37,7 @@ export function DataMapperWidget(props: DataMapperWidgetProps) {
     const { eggplantRpcClient, viewLocation } = useVisualizerContext();
     const langServerRpcClient = eggplantRpcClient.getLangServerRpcClient();
     const libraryBrowserRpcClient = eggplantRpcClient.getLibraryBrowserRpcClient();
-    const [mapperData, setMapperData] = useState<BallerinaSTModifyResponse>(data);
+    const [mapperData, setMapperData] = useState<SyntaxTreeResponse>(data);
     const [filePosition, setFilePosition] = useState<NodePosition>(null);
 
     useEffect(() => {

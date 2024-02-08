@@ -15,7 +15,7 @@ import {
     getSource,
     PrimitiveBalType,
     STModification,
-    Type,
+    TypeField,
     updateFunctionSignature
 } from "@wso2-enterprise/ballerina-core";
 import {
@@ -48,14 +48,14 @@ export const IO_KIND = "${IO_KIND}";
 export const DM_TYPES_UNSUPPORTED_MSG = `${PROVIDED_TYPE} is not supported as data mapper ${IO_KIND}`;
 export const DM_TYPES_NOT_FOUND_MSG = `Unrecognized type`;
 export const DM_TYPES_YET_TO_SUPPORT_MSG = `${PROVIDED_TYPE} is currently not supported as data mapper ${IO_KIND}`;
-export const DM_TYPES_SUPPORTED_IN_LATEST_MSG = `Type ${PROVIDED_TYPE} is not supported by the data mapper for your Ballerina version.
+export const DM_TYPES_SUPPORTED_IN_LATEST_MSG = `TypeField ${PROVIDED_TYPE} is not supported by the data mapper for your Ballerina version.
  Please upgrade Ballerina to the latest version to use this type`;
 export const DM_TYPES_INVALID_MSG = `${PROVIDED_TYPE} is not a valid type descriptor`;
-export const DM_TYPE_UNAVAILABLE_MSG = `Type is missing`;
+export const DM_TYPE_UNAVAILABLE_MSG = `TypeField is missing`;
 export const DM_PARAM_NAME_UNAVAILABLE_MSG = `Parameter name is missing`;
 
 function isSupportedType(node: STNode,
-                         type: Type,
+                         type: TypeField,
                          kind: 'input' | 'output',
                          balVersion: string,
                          paramName?: IdentifierToken): [boolean, TypeNature?] {
@@ -306,7 +306,7 @@ export async function getDefaultFnName(
             triggerKind: 3
         }
     };
-    const completions = await langServerRpcClient.getCompletion(completionParams);
+    const completions = (await langServerRpcClient.getCompletion(completionParams)).completions;
     const existingFnNames = completions.map((completion) => {
         if (completion.kind === CompletionItemKind.Function) {
             return completion?.filterText;
@@ -356,5 +356,5 @@ async function getVirtualDiagnostics(filePath: string,
         }
     });
 
-    return diagResp[0]?.diagnostics || [];
+    return diagResp.diagnostics[0]?.diagnostics || [];
 }

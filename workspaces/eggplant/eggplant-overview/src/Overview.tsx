@@ -79,7 +79,7 @@ export function Overview() {
                         filteredComponents.forEach(async (comp: ComponentViewInfo, compIndex: number) => {
                             if (selected && selected.name == comp.name) {
                                 const context: VisualizerLocation = {
-                                    fileName: comp.filePath,
+                                    documentUri: comp.filePath,
                                     position: comp.position,
                                     identifier: comp.name
                                 }
@@ -140,7 +140,7 @@ export function Overview() {
         // Open service designer view
         const context: VisualizerLocation = {
             view: "ServiceDesigner",
-            fileName: selectedComponent.fileName,
+            documentUri: selectedComponent.fileName,
             position: selectedComponent.serviceST.position,
             identifier: selectedComponent.serviceST.absoluteResourcePath.reduce((result, obj) => result + obj.value, "")
         }
