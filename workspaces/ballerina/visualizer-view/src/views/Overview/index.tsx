@@ -10,6 +10,7 @@
 import React, { useEffect } from "react";
 import { VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { Overview as OverviewComponent } from "@wso2-enterprise/overview-view";
 
 export function Overview() {
     const { rpcClient } = useVisualizerContext();
@@ -26,13 +27,8 @@ export function Overview() {
 
     return (
         <>
-            <h1>Hello Overview</h1>
-            <ul>
-                <li>{context?.view}</li>
-                <li>{context?.documentUri}</li>
-                <li>{context?.position?.startLine}</li>
-                <li>{context?.identifier}</li>
-            </ul>
+            <h1>Overview</h1>
+            <OverviewComponent />
         </>
     );
 }

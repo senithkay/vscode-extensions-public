@@ -8,31 +8,25 @@
  */
 
 import React, { useEffect } from "react";
-import { VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
+import { ServiceDesignerView } from "@wso2-enterprise/service-designer-view";
 
 export function ServiceDesigner() {
     const { rpcClient } = useVisualizerContext();
-    const [context, setContext] = React.useState<VisualizerLocation>();
+    const [st, setSt] = React.useState<ServiceDeclaration>();
 
     useEffect(() => {
-        if (rpcClient) {
-            rpcClient.getVisualizerContext().then((value) => {
-                setContext(value);
-            });
-        }
-    }, [rpcClient]);
+        rpcClient.getLangServerRpcClient().getSyntaxTree().then((value) => {
+            const serviceSt = value.syntaxTree as ServiceDeclaration;
+            setSt(serviceSt);
+        });
+    }, []);
 
 
     return (
         <>
-            <h1>Hello Service Designer</h1>
-            <ul>
-                <li>{context?.view}</li>
-                <li>{context?.documentUri}</li>
-                <li>{context?.position?.startLine}</li>
-                <li>{context?.identifier}</li>
-            </ul>
+            <ServiceDesignerView model={st} rpcClient={rpcClient.getServiceDesignerRpcClient()} />
         </>
     );
 }

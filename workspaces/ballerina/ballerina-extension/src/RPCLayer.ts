@@ -13,6 +13,9 @@ import { StateMachine } from './stateMachine';
 import { stateChanged, getVisualizerContext, VisualizerLocation } from '@wso2-enterprise/ballerina-core';
 import { VisualizerWebview } from './visualizer/webview';
 import { registerVisualizerRpcHandlers } from './rpc-managers/visualizer/rpc-handler';
+import { registerLangServerRpcHandlers } from './rpc-managers/lang-server/rpc-handler';
+import { registerLibraryBrowserRpcHandlers } from './rpc-managers/library-browser/rpc-handler';
+import { registerServiceDesignerRpcHandlers } from './rpc-managers/service-designer/rpc-handler';
 
 export class RPCLayer {
     static _messenger: Messenger;
@@ -33,6 +36,9 @@ export class RPCLayer {
 
         RPCLayer._messenger.onRequest(getVisualizerContext, () => getContext());
         registerVisualizerRpcHandlers(RPCLayer._messenger);
+        registerLangServerRpcHandlers(RPCLayer._messenger);
+        registerLibraryBrowserRpcHandlers(RPCLayer._messenger);
+        registerServiceDesignerRpcHandlers(RPCLayer._messenger);
     }
 
     static create(webViewPanel: WebviewPanel | WebviewView) {

@@ -11,10 +11,11 @@
 
 import { Messenger } from "vscode-messenger-webview";
 import { VisualizerRpcClient } from "./rpc-clients/visualizer/rpc-client";
-import { MachineStateValue, VisualizerLocation, getVisualizerContext, onFileContentUpdate, stateChanged, vscode } from "@wso2-enterprise/ballerina-core";
+import { MachineStateValue, ServiceDesignerAPI, VisualizerLocation, getVisualizerContext, onFileContentUpdate, stateChanged, vscode } from "@wso2-enterprise/ballerina-core";
 import { LangServerRpcClient } from "./rpc-clients/lang-server/rpc-client";
 import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-client";
 import { HOST_EXTENSION } from "vscode-messenger-common";
+import { ServiceDesignerRpcClient } from "./rpc-clients";
 
 export class BallerinaRpcClient {
 
@@ -22,6 +23,7 @@ export class BallerinaRpcClient {
     private _visualizer: VisualizerRpcClient;
     private _langServer: LangServerRpcClient;
     private _libraryBrowser: LibraryBrowserRpcClient;
+    private _serviceDesigner: ServiceDesignerRpcClient;
 
     constructor() {
         this.messenger = new Messenger(vscode);
@@ -29,10 +31,15 @@ export class BallerinaRpcClient {
         this._visualizer = new VisualizerRpcClient(this.messenger);
         this._langServer = new LangServerRpcClient(this.messenger);
         this._libraryBrowser = new LibraryBrowserRpcClient(this.messenger);
+        this._serviceDesigner = new ServiceDesignerRpcClient(this.messenger);
     }
 
     getVisualizerRpcClient(): VisualizerRpcClient {
         return this._visualizer;
+    }
+
+    getServiceDesignerRpcClient(): ServiceDesignerRpcClient {
+        return this._serviceDesigner;
     }
 
     getLangServerRpcClient(): LangServerRpcClient {
