@@ -562,9 +562,11 @@ export interface SymbolInfoRequest {
 
 export interface ParameterInfo {
     name: string,
-    description: string,
+    description?: string,
     kind: string,
-    type: string
+    type: string,
+    modelPosition?: NodePosition,
+    fields?: ParameterInfo[]
 }
 
 export interface SymbolDocumentation {

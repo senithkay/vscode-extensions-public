@@ -47,7 +47,7 @@ import {
     TypesFromFnDefinitionRequest,
     TypesFromSymbolResponse,
     UpdateFileContentRequest,
-    UpdateFileContentResponse
+    UpdateFileContentResponse,
 } from "@wso2-enterprise/ballerina-core";
 import { writeFileSync } from 'fs';
 import { normalize, resolve } from "path";
@@ -55,7 +55,6 @@ import { Position, Range, WorkspaceEdit, workspace } from "vscode";
 import { URI } from "vscode-uri";
 import { StateMachine } from "../../stateMachine";
 import { getSyntaxTreeFromPosition } from "../../utils/navigation";
-import { BallerinaFunctionSTRequest } from "@wso2-enterprise/ballerina-languageclient";
 import { ballerinaExtInstance } from "../../core";
 
 export class LangServerRpcManager implements LangServerAPI {
@@ -63,7 +62,7 @@ export class LangServerRpcManager implements LangServerAPI {
     async getSyntaxTree(): Promise<SyntaxTreeResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
-            const req: BallerinaFunctionSTRequest = {
+            const req: STByRangeRequest = {
                 documentIdentifier: { uri: URI.file(context.documentUri).toString() },
                 lineRange: {
                     start: {
@@ -133,7 +132,7 @@ export class LangServerRpcManager implements LangServerAPI {
     async rename(params: RenameRequest): Promise<RenameResponse> {
         return new Promise(async (resolve) => {
             const workspaceEdit = await StateMachine.langClient().rename(params);
-            resolve({ workspaceEdit })
+            resolve({ workspaceEdit });
         });
     }
 

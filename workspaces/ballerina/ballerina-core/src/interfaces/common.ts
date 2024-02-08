@@ -57,3 +57,7 @@ export interface Position {
     line: number;
     character: number;
 }
+
+export interface NOT_SUPPORTED_TYPE {
+
+}
