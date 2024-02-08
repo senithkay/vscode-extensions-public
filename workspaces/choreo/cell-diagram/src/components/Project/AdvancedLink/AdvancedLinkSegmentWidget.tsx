@@ -29,7 +29,7 @@ export class AdvancedLinkSegmentWidget extends React.Component<AdvancedLinkSegme
         const Bottom = React.cloneElement(
             this.props.factory.generateLinkSegment(
                 this.props.link,
-                this.props.selected || this.props.link.isSelected(),
+                this.props.selected,
                 this.props.path,
                 this.props.showArrow
             ),

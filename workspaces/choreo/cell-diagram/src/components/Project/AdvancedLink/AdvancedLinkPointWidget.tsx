@@ -43,7 +43,7 @@ export class AdvancedLinkPointWidget extends React.Component<AdvancedLinkPointWi
                     cx={point.getPosition().x}
                     cy={point.getPosition().y}
                     r={1}
-                    fill={this.state.selected || this.props.point.isSelected() ? this.props.colorSelected : this.props.color}
+                    fill={this.state.selected ? this.props.colorSelected : this.props.color}
                 />
                 <S.PointTop
                     className="point"

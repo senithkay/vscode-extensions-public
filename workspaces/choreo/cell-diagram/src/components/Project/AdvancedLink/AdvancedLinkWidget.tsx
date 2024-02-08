@@ -9,11 +9,11 @@
 
 import * as React from "react";
 import { DiagramEngine, PointModel } from "@projectstorm/react-diagrams-core";
+import { ListenerHandle } from "@projectstorm/react-canvas-core";
 import { AdvancedLinkModel } from "./AdvancedLinkModel";
 import { AdvancedLinkPointWidget } from "./AdvancedLinkPointWidget";
 import { AdvancedLinkSegmentWidget } from "./AdvancedLinkSegmentWidget";
 import { MouseEvent } from "react";
-import { Colors } from "../../../resources";
 
 export interface AdvancedLinkProps {
     link: AdvancedLinkModel;
@@ -25,6 +25,7 @@ export interface AdvancedLinkProps {
 
 export interface AdvancedLinkState {
     selected: boolean;
+    listener?: ListenerHandle;
 }
 
 export class AdvancedLinkWidget extends React.Component<AdvancedLinkProps, AdvancedLinkState> {
@@ -56,11 +57,27 @@ export class AdvancedLinkWidget extends React.Component<AdvancedLinkProps, Advan
                 return ref.current;
             })
         );
+        const listener = this.props.link.registerListener({
+            SELECT: this.selectPath,
+            UNSELECT: this.unselectPath,
+        });
+        this.setState({ listener });
     }
 
     componentWillUnmount(): void {
         this.props.link.setRenderedPaths([]);
+        if (this.state.listener) {
+            this.props.link.deregisterListener(this.state.listener);
+        }
     }
+
+    selectPath = () => {
+        this.setState({ selected: true });
+    };
+
+    unselectPath = () => {
+        this.setState({ selected: false });
+    };
 
     addPointToLink(event: MouseEvent, index: number) {
         if (
