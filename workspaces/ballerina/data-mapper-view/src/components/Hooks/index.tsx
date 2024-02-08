@@ -207,7 +207,7 @@ export const useDMMetaData = (langServerRpcClient: LangServerRpcClient): {
     return { ballerinaVersion, dMSupported, dMUnsupportedMessage, isFetching, isError, refetch };
 };
 
-export const useContent = (langServerRpcClient: LangServerRpcClient, filePath: string): {
+export const useFileContent = (langServerRpcClient: LangServerRpcClient, filePath: string): {
     content: string;
     isFetching: boolean;
     isError: boolean;
