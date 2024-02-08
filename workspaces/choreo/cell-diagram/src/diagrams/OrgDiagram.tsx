@@ -127,7 +127,7 @@ export function OrgDiagram(props: OrgDiagramProps) {
                 graph: {
                     rankdir: "LR",
                     ranksep: 120,
-                    edgesep: 108,
+                    edgesep: 48,
                     nodesep: 20,
                     // acyclicer: 'greedy',
                     ranker: "network-simplex",
