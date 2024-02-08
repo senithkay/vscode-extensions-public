@@ -93,7 +93,7 @@ export function InputParamEditor(props: InputParamEditorProps) {
     return (
         <ParamEditorContainer>
             <Grid>
-                <Grid direction="row">
+                <Grid>
                     <IputLabel>Type</IputLabel>
                     <TypeBrowser
                         type={paramType}
@@ -103,7 +103,7 @@ export function InputParamEditor(props: InputParamEditorProps) {
                     />
                 </Grid>
                 {!hideName && (
-                    <Grid direction="row">
+                    <Grid>
                         <IputLabel>Name</IputLabel>
                         <TextField
                             value={paramName}
@@ -116,7 +116,7 @@ export function InputParamEditor(props: InputParamEditorProps) {
                 )}
 
             </Grid>
-            <Grid direction="column" sx={{ marginTop: "8px" }}>
+            <Grid sx={{ marginTop: "8px" }}>
                 <Grid>
                     {isArraySupported && (
                         <FormControlLabel>
