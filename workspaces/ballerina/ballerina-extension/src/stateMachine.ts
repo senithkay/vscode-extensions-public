@@ -12,119 +12,122 @@ interface MachineContext extends VisualizerLocation {
 }
 
 type ViewFlow = {
-	[key in MachineViews]: MachineViews[];
+    [key in MachineViews]: MachineViews[];
 };
 
 const viewFlow: ViewFlow = {
-	Overview: [],
-	ServiceDesigner: ["Overview"],
-	DataMapper: ["Overview"],
-	ArchitectureDiagram: ["Overview"],
-	ERDiagram: ["Overview"],
-	GraphQLDiagram: ["Overview"],
-	SequenceDiagram: ["Overview"],
-	TypeDiagram: ["Overview"]
+    Overview: [],
+    ServiceDesigner: ["Overview"],
+    DataMapper: ["Overview"],
+    ArchitectureDiagram: ["Overview"],
+    ERDiagram: ["Overview"],
+    GraphQLDiagram: ["Overview"],
+    SequenceDiagram: ["Overview"],
+    TypeDiagram: ["Overview"]
 };
 
 export function getPreviousView(currentView: MachineViews): MachineViews[] {
-	return viewFlow[currentView] || [];
+    return viewFlow[currentView] || [];
 }
 
 const stateMachine = createMachine<MachineContext>(
     {
-    /** @xstate-layout N4IgpgJg5mDOIC5QDUCWsCuBDANqgXmAE4B0AkgHaoAuAxBAPYVgmoUBuDA1i2prgWLkq1BG04BjLNVRMA2gAYAuoqWJQABwawasiupAAPRACYAjGZIKArCYUAOAMxnr1gJz23HgDQgAnqYKjiQmACxeXgBskaEA7KGRsfYAvsm+fNh4hKSUNLTERAykGjjSAGZFALYkGQLZwjRiHAxSMvLKqgZaOm36SEaI0ZEkZiZ21mY2jtbTvgEIbrEkkU4mK7Em7hZOqenomYKkAKJEhUS0AEpHACoXAJqd-d26TAbGCKNziKO7ILVZQguYCwED8tAA8gAFI4AOQA+sgyEcAOqPTTaF59UDvcLBSLTUKhBSbab40JfD6xBQkNyOeKxMzOBRuEyxFm-f6HGqoMAAdwAghIZOwwLQAMIAGXBAGUjmiQM9em9EI5IiYaSYWY57GY3GTEhTHCZ7MtVXFzMyxmZYhz9nUhGg+YLhaKobCEUjUcouhilf13saSI44rYzJ5Qjr4o5HBT7AphrZg9bpmEZpFbfwAaRHQKhagRbQAGJkCVHOFigAS-JhAHEjgAReWKvTKj4KWIUxLDTYKSaOPVeILWDMHeo5535ljsHm83J0RjMVjNHjczNc8d5kUkad8udNSTSPSqJu+lv+xCEhNORw2eyJOJOCludwkWLWXuM+N2SLWFJpP52lm3JOpuU4znO+SnEUJAlOUVSrqODozhOW47rOIj7i0h7tCo3pPKerznh8oSBi49ihKMTjhO+Hb+BexIkBGX5jJq0ZqiO9rZshoEkLyYAAEY5hKDAgpA9BMCw4jcLwgHrtxLq8QJQkiRAkCYa0R4dHh6I9Ge2KILEMRBs+STMmYkQWMSsb4iQ74KPZhJxFGf57GuY7yZOimCTOwmiRAkFnDBpTUBURDVJy7kgQpfHeXyvmqRA6nYRQx7aQqBFYgMCCGaExnWKZbjmZZJixuZVj2e2kRuHExKuBxQEbgpaHxWwUC0IiKJwlc-L1g8aXNoR+lthZjGsn2ozrO41nqhVvZEjE-bWKE9VyVFnkYBoEDSGAObiYuUkrhFSFrVuG1bdQO0zklvSpWo+G6YNWWXrZ163veSQxnR2UWOVvabCY0x-W4K2RbmClndtu0FNBsEhfBR1cSdLAQxdObXZpuF3TpmKts9v7Rm99KPl90TBHZCgkfi1VuL2qT-hQDCqfA-QIz6D2Ze8AC0iTLLYD6TBM9ibLR8yc2+tkVWYCR6vY77hCDQhzmzONESRFLWt24R6hMGw2KyjgK8cUFEMrfpDaMawkHG5iuHSstGtY6uTFY4yMiyzIUbENr-gjJBAiC8zY2bWWqsM+JLbE2rxjE1WffMdjqmEUR6jYHhGstPuyaDKFgKbelZZzuq82ESQC2GmwGl9+XWDSETU6yP6y4bwFg55aFK-dKtDca6ozKMDjGvNCRx4g1MS-ZtiR-lzgZ65iGI63W4xcpfl5497zuNS2ozFS1iRMykdmLGNivnZ5lqvGhVmM3jVtz5KmtWvHOjy4QahHSaw0-brLTePc3xu-Z8s8AJuWOovMCfJ-agifq2C2lhdTWwSESeI79f5a1pD+cyXhnA3w8qdTakMZwwKIpsXKCdL5hDjPGewFIva5R-L+Kk+9+wWG9nPTiLcc7bhnCcM4xChqFRrsGD+VUHAzB-iTKqp8PyhAmE5LwdNkhAA */
-    id: "Visualizer",
-    initial: 'initialize',
-    predictableActionArguments: true,
-    context: {
-        langClient: null,
-        errorCode: null,
-        view: "Overview"
-    },
-    states: {
-        initialize: {
-            invoke: {
-                src: 'activateLanguageServer',
-                onDone: {
-                    target: "lsReady",
-                    actions: assign({
-                        langClient: (context, event) => event.data
-                    })
-                },
-                onError: {
-                    target: "lsError"
-                }
-            }
+        /** @xstate-layout N4IgpgJg5mDOIC5QDUCWsCuBDANqgXmAE4B0AkgHaoAuAxBAPYVgmoUBuDA1i2prgWLkq1BG04BjLNVRMA2gAYAuoqWJQABwawasiupAAPRACYAjGZIKArCYUAOAMxnr1gJz23HgDQgAnqYKjiQmACxeXgBskaEA7KGRsfYAvsm+fNh4hKSUNLTERAykGjjSAGZFALYkGQLZwjRiHAxSMvLKqgZaOm36SEaI0ZEkZiZ21mY2jtbTvgEIbrEkkU4mK7Em7hZOqenomYKkAKJEhUS0AEpHACoXAJqd-d26TAbGCKNziKO7ILVZQguYCwED8tAA8gAFI4AOQA+sgyEcAOqPTTaF59UDvcLBSLTUKhBSbab40JfD6xBQkNyOeKxMzOBRuEyxFm-f6HGqoMAAdwAghIZOwwLQAMIAGXBAGUjmiQM9em9EI5IiYaSYWY57GY3GTEhTHCZ7MtVXFzMyxmZYhz9nUhGg+YLhaKobCEUjUcouhilf13saSI44rYzJ5Qjr4o5HBT7AphrZg9bpmEZpFbfwAaRHQKhagRbQAGJkCVHOFigAS-JhAHEjgAReWKvTKj4KWIUxLDTYKSaOPVeILWDMHeo5535ljsHm83J0RjMVjNHjczNc8d5kUkad8udNSTSPSqJu+lv+xCEhNORw2eyJOJOCludwkWLWXuM+N2SLWFJpP52lm3JOpuU4znO+SnEUJAlOUVSrqODozhOW47rOIj7i0h7tCo3pPKerznh8oSBi49ihKMTjhO+Hb+BexIkBGX5jJq0ZqiO9rZshoEkLyYAAEY5hKDAgpA9BMCw4jcLwgHrtxLq8QJQkiRAkCYa0R4dHh6I9Ge2KILEMRBs+STMmYkQWMSsb4iQ74KPZhJxFGf57GuY7yZOimCTOwmiRAkFnDBpTUBURDVJy7kgQpfHeXyvmqRA6nYRQx7aQqBFYgMCCGaExnWKZbjmZZJixuZVj2e2kRuHExKuBxQEbgpaHxWwUC0IiKJwlc-L1g8aXNoR+lthZjGsn2ozrO41nqhVvZEjE-bWKE9VyVFnkYBoEDSGAObiYuUkrhFSFrVuG1bdQO0zklvSpWo+G6YNWWXrZ163veSQxnR2UWOVvabCY0x-W4K2RbmClndtu0FNBsEhfBR1cSdLAQxdObXZpuF3TpmKts9v7Rm99KPl90TBHZCgkfi1VuL2qT-hQDCqfA-QIz6D2Ze8AC0iTLLYD6TBM9ibLR8yc2+tkVWYCR6vY77hCDQhzmzONESRFLWt24R6hMGw2KyjgK8cUFEMrfpDaMawkHG5iuHSstGtY6uTFY4yMiyzIUbENr-gjJBAiC8zY2bWWqsM+JLbE2rxjE1WffMdjqmEUR6jYHhGstPuyaDKFgKbelZZzuq82ESQC2GmwGl9+XWDSETU6yP6y4bwFg55aFK-dKtDca6ozKMDjGvNCRx4g1MS-ZtiR-lzgZ65iGI63W4xcpfl5497zuNS2ozFS1iRMykdmLGNivnZ5lqvGhVmM3jVtz5KmtWvHOjy4QahHSaw0-brLTePc3xu-Z8s8AJuWOovMCfJ-agifq2C2lhdTWwSESeI79f5a1pD+cyXhnA3w8qdTakMZwwKIpsXKCdL5hDjPGewFIva5R-L+Kk+9+wWG9nPTiLcc7bhnCcM4xChqFRrsGD+VUHAzB-iTKqp8PyhAmE5LwdNkhAA */
+        id: "Visualizer",
+        initial: 'initialize',
+        predictableActionArguments: true,
+        context: {
+            langClient: null,
+            errorCode: null,
+            view: "Overview"
         },
-        lsError: {
-            on: {
-                RETRY: "initialize"
-            }
-        },
-        lsReady: {
-            on: {
-                OPEN_VIEW: {
-                    target: "viewActive",
-                    actions: assign({
-                        view: (context, event) => event.viewLocation.view,
-                        documentUri: (context, event) => event.viewLocation.location,
-                        position: (context, event) => event.viewLocation.position
-                    })
-                }
-            }
-        },
-        viewActive: {
-            initial: "viewInit",
-            states: {
-                viewInit: {
-                    invoke: {
-                        src: 'openWebView',
-                        onDone: {
-                            target: "webViewLoaded"
-                        },
+        states: {
+            initialize: {
+                invoke: {
+                    src: 'activateLanguageServer',
+                    onDone: {
+                        target: "lsReady",
+                        actions: assign({
+                            langClient: (context, event) => event.data
+                        })
+                    },
+                    onError: {
+                        target: "lsError"
                     }
-                },
-                webViewLoaded: {
-                    invoke: {
-                        src: 'findView',
-                        onDone: {
-                            target: "viewReady",
+                }
+            },
+            lsError: {
+                on: {
+                    RETRY: "initialize"
+                }
+            },
+            lsReady: {
+                on: {
+                    OPEN_VIEW: {
+                        target: "viewActive",
+                        actions: assign({
+                            view: (context, event) => event.viewLocation.view,
+                            documentUri: (context, event) => event.viewLocation.location,
+                            position: (context, event) => event.viewLocation.position
+                        })
+                    }
+                }
+            },
+            viewActive: {
+                initial: "viewInit",
+                states: {
+                    viewInit: {
+                        invoke: {
+                            src: 'openWebView',
+                            onDone: {
+                                target: "webViewLoaded"
+                            },
                         }
-                    }
-                },
-                viewReady: {
-                    on: {
-                        OPEN_VIEW: {
-                            target: "viewInit",
-                            actions: assign({
-                                view: (context, event) => event.viewLocation.view,
-                                documentUri: (context, event) => event.viewLocation.location
-                            })
-                        },
-                        FILE_EDIT: {
-                            target: "viewEditing",
-                            actions: assign({
-                                view: (context, event) => event.viewLocation.view,
-                                documentUri: (context, event) => event.viewLocation.location
-                            })
-                        },
-                    }
-                },
-                viewEditing: {
-                    on: {
-                        EDIT_DONE: {
-                            target: "viewReady",
-                            actions: assign({
-                                view: (context, event) => event.viewLocation.view,
-                                documentUri: (context, event) => event.viewLocation.documentUri
-                            })
+                    },
+                    webViewLoaded: {
+                        invoke: {
+                            src: 'findView',
+                            onDone: {
+                                target: "viewReady",
+                            }
+                        }
+                    },
+                    viewReady: {
+                        on: {
+                            OPEN_VIEW: {
+                                target: "viewInit",
+                                actions: assign({
+                                    view: (context, event) => event.viewLocation.view,
+                                    documentUri: (context, event) => event.viewLocation.location,
+                                    position: (context, event) => event.viewLocation.position
+                                })
+                            },
+                            FILE_EDIT: {
+                                target: "viewEditing",
+                                actions: assign({
+                                    view: (context, event) => event.viewLocation.view,
+                                    documentUri: (context, event) => event.viewLocation.location,
+                                    position: (context, event) => event.viewLocation.position
+                                })
+                            },
+                        }
+                    },
+                    viewEditing: {
+                        on: {
+                            EDIT_DONE: {
+                                target: "viewReady",
+                                actions: assign({
+                                    view: (context, event) => event.viewLocation.view,
+                                    documentUri: (context, event) => event.viewLocation.location,
+                                    position: (context, event) => event.viewLocation.position
+                                })
+                            }
                         }
                     }
                 }
             }
         }
-    }
-}, {
+    }, {
     services: {
         activateLanguageServer: (context, event) => {
             return new Promise(async (resolve, reject) => {
@@ -149,11 +152,10 @@ const stateMachine = createMachine<MachineContext>(
         },
         findView: (context, event) => {
             return new Promise((resolve, reject) => {
-                if (!VisualizerWebview.currentPanel) {
-                    VisualizerWebview.currentPanel = new VisualizerWebview();
-                }
-                VisualizerWebview.currentPanel!.getWebview()?.reveal();
-                resolve(true);
+                // Find view logic here based on the positions
+                setTimeout(() => {
+                    resolve(true);
+                }, 500); // Wait for 2 seconds (2000 milliseconds)
             });
         }
     }
