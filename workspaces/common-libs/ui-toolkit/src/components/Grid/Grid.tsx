@@ -6,55 +6,82 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+import React, { ReactNode, PropsWithChildren } from "react";
 
-import React from "react";
 import styled from "@emotion/styled";
+import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from "@vscode/webview-ui-toolkit/react";
 
-export const GridDirections = {
-    row: "row",
-    column: "column",
-} as const;
+interface DataGridCellProps {
+    selected?: boolean;
+}
+export const DataGridRow = styled(VSCodeDataGridRow)`
+    &:hover {
+        background: none;
+    }
+`;
+
+export const DataGridCell = styled(VSCodeDataGridCell) <DataGridCellProps>`
+    background: ${(props: DataGridCellProps) => props.selected ? 'var(--vscode-list-activeSelectionBackground)' : 'var(--vscode-editor-background)'};
+    border: ${(props: DataGridCellProps) => props.selected ? '1px var(--vscode-list-focusOutline) solid' : 'none'};
+    &:hover {
+        background: var(--vscode-list-hoverBackground);
+        cursor: pointer;
+    };
+    &:active {
+        background: var(--vscode-list-activeSelectionBackground);
+    };
+`;
+
+export const DataGridEmptyCell = styled(VSCodeDataGridCell)`
+    background: var(--vscode-editor-background);
+    border: none;
+`;
 
 export interface GridProps {
     id?: string;
     className?: string;
-    key?: string | number;
-    direction?: (typeof GridDirections)[keyof typeof GridDirections];
-    children: React.ReactNode;
-    item?: boolean;
     columns?: number;
 }
 
-const GridContainer = styled.div<GridProps>`
-    display: grid;
-    ${({ columns, direction }: GridProps) =>
-        direction === GridDirections.column
-            ? `grid-template-columns: repeat(${columns}, auto);
-        column-gap: 5%;
-        grid-auto-flow: row dense;`
-            : `grid-template-rows: repeat(${columns}, auto);
-        row-gap: 5%;
-        grid-auto-flow: column dense;`}
-
-    > * {
-        margin-bottom: 8px;
-        padding: 0 10px;
+const generateRowData = (numColumns: number, children: ReactNode) => {
+    const gridItems = React.Children.toArray(children);
+    const rowData: ReactNode[] = [];
+    const columnTemplate = Array.from({ length: numColumns }, () => '1fr').join(' ');
+    for (let i = 0; i < gridItems.length; i += numColumns) {
+        const row = [];
+        for (let j = 0; j < numColumns; j++) {
+            row.push(gridItems[i + j]);
+        }
+        rowData.push(
+            <DataGridRow grid-template-columns={columnTemplate} key={rowData?.length}>
+                {row.map((cell, index) => {
+                    const selectedCell = cell && (cell as any).props.selected;
+                    return cell ? (
+                        <DataGridCell
+                            key={`cell${i+index}`}
+                            grid-column={index + 1}
+                            selected={selectedCell}
+                        >
+                            {cell}
+                        </DataGridCell>
+                    ) : (
+                        <DataGridEmptyCell grid-column={index + 1}/>
+                    );
+                })}
+            </DataGridRow>
+        );
     }
-`;
+    return rowData;
+};
 
-const GridItem = styled.div`
-    width: fit-content;
-    height: fit-content;
-`;
+export const Grid: React.FC<PropsWithChildren<GridProps>> = (props: PropsWithChildren<GridProps>) => {
+    const { children, columns } = props;
+    const numberOfChildren = React.Children.count(children);
+    const rowData = numberOfChildren > 0 ? generateRowData(columns, children) : [];
 
-export function Grid(props: GridProps) {
-    const { id, className, key, children, columns, direction = GridDirections.column, item = false } = props;
-    const columnCount = columns ? columns : React.Children.count(children);
-    return item ? (
-        <GridItem key={key}>{children}</GridItem>
-    ) : (
-        <GridContainer id={id} className={className} direction={direction} columns={columnCount}>
-            {children}
-        </GridContainer>
+    return (
+        <VSCodeDataGrid>
+            {rowData}
+        </VSCodeDataGrid>
     );
-}
+};

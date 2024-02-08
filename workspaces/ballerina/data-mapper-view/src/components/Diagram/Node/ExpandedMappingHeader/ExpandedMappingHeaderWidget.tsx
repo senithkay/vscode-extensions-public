@@ -56,18 +56,20 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
             <div>
                 <div className={classes.clauseItem}>
                     <div className={classNames(classes.clauseKeyWrap, classes.fromClauseKeyWrap)}>{fromClause.fromKeyword.value}</div>
-                    <div className={classes.clauseWrap}>
-                        <span
-                            className={classes.clauseItemKey}
-                        >
-                            {` ${fromClause.typedBindingPattern.source} ${fromClause.inKeyword.value}`}
-                        </span>
-                        <span
-                            className={classes.clauseExpression}
-                            onClick={() => onClickEdit(fromClause.expression.source, fromClause.expression.position, "From clause")}
-                        >
-                            {fromClause.expression.source}
-                        </span>
+                    <div className={classes.clauseItemBody}>
+                        <div className={classes.clauseWrap}>
+                            <span
+                                className={classes.clauseItemKey}
+                            >
+                                {` ${fromClause.typedBindingPattern.source} ${fromClause.inKeyword.value}`}
+                            </span>
+                            <span
+                                className={classes.clauseExpression}
+                                onClick={() => onClickEdit(fromClause.expression.source, fromClause.expression.position, "From clause")}
+                            >
+                                {fromClause.expression.source}
+                            </span>
+                        </div>
                     </div>
                 </div>
 

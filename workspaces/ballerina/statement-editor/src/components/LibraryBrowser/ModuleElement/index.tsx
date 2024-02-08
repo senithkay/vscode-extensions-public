@@ -9,16 +9,15 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from 'react';
 
-import { Box, CircularProgress, ListItem, ListItemText } from "@material-ui/core";
 import {
     FunctionParams,
     LibraryDataResponse,
     LibraryFunction,
     ModuleProperty
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-// import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+} from "@wso2-enterprise/ballerina-core";
+import { GridItem, ProgressRing, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 
-import { PARAM_CONSTRUCTOR } from '../../../constants';
+import { MAX_COLUMN_WIDTH, PARAM_CONSTRUCTOR } from '../../../constants';
 import { InputEditorContext } from '../../../store/input-editor-context';
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getModuleIconStyle } from "../../../utils";
@@ -87,31 +86,39 @@ export function ModuleElement(props: ModuleElementProps) {
         updateModel(content, currentModel.model ? currentModel.model.position : targetPosition);
     }
 
-    const circularProgress = (
-        <Box display="flex" justifyContent="center">
-            <CircularProgress size={15} style={{marginRight: '5px'}}/>
-        </Box>
-    );
+    const circularProgress = <ProgressRing sx={{ height: '15px', width: '15px', marginRight: '5px' }} />;
 
     return (
-        <ListItem
-            button={true}
+        <GridItem
             key={key}
+            id={key}
             onClick={onClickOnModuleElement}
-            className={stmtEditorHelperClasses.suggestionListItem}
-            disableRipple={true}
+            sx={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                maxWidth: MAX_COLUMN_WIDTH,
+                color: 'var(--foreground)'
+            }}
         >
-            <SuggestIcon
-                style={{ minWidth: '12%', textAlign: 'left', color }}
-            />
-            {/* <StatementEditorHint content={`${moduleId}:${id}`}> */}
-                <ListItemText
-                    primary={
-                        <div className={stmtEditorHelperClasses.suggestionValue}>{`${moduleId}:${id}`}</div>
-                    }
+            <div className={stmtEditorHelperClasses.suggestionListItem}>
+                <SuggestIcon
+                    style={{ minWidth: '12%', textAlign: 'left', margin: '2px 2px 0 0', color }}
                 />
-            {/* </StatementEditorHint> */}
-            {`${moduleId}:${id}` === clickedModuleElement && (circularProgress)}
-        </ListItem>
+                <Tooltip
+                    content={`${moduleId}:${id}`}
+                    position="bottom-end"
+                >
+                    <Typography
+                        variant="body3"
+                        className={stmtEditorHelperClasses.suggestionValue}
+                        data-testid="suggestion-value"
+                    >
+                        {`${moduleId}:${id}`}
+                    </Typography>
+                </Tooltip>
+                {`${moduleId}:${id}` === clickedModuleElement && (circularProgress)}
+            </div>
+        </GridItem>
     );
 }

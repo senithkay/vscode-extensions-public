@@ -9,10 +9,8 @@
 
 import React, { useContext } from "react";
 
-import {
-    BallerinaConnectorInfo,
-} from "@wso2-enterprise/ballerina-core";
-// import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-core";
+import { Tooltip } from "@wso2-enterprise/ui-toolkit";
 
 import ToolbarDocumentationIcon from "../../assets/icons/ToolbarDocumentationIcon";
 import { StatementEditorContext } from "../../store/statement-editor-context";
@@ -39,16 +37,14 @@ export function DocumentationButton(props: DocButtonProps) {
     return (
         <div className={statementEditorClasses.docButton}>
             <ToolbarDocumentationIcon/>
-            {/*<StatementEditorHint*/}
-            {/*    content={"Refer Ballerina Docs"}*/}
-            {/*>*/}
+            <Tooltip content={"Refer Ballerina Docs"} position="bottom">
                 <div
                     onClick={openStatementEditorHelp}
                     className={statementEditorClasses.helpLink}
                 >
                     Docs
                 </div>
-            {/*</StatementEditorHint>*/}
+            </Tooltip>
         </div>
     );
 }
