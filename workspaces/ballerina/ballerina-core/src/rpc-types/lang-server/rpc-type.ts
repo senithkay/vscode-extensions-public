@@ -68,3 +68,4 @@ export const getSymbolDocumentation: RequestType<SymbolInfoRequest, SymbolInfoRe
 export const didOpen: NotificationType<DidOpenRequest> = { method: `${_preFix}/didOpen` };
 export const didChange: NotificationType<DidChangeRequest> = { method: `${_preFix}/didChange` };
 export const didClose: NotificationType<DidCloseRequest> = { method: `${_preFix}/didClose` };
+

@@ -67,7 +67,7 @@ const stateMachine = createMachine<MachineContext>(
                         target: "viewActive",
                         actions: assign({
                             view: (context, event) => event.viewLocation.view,
-                            documentUri: (context, event) => event.viewLocation.location,
+                            documentUri: (context, event) => event.viewLocation.documentUri,
                             position: (context, event) => event.viewLocation.position
                         })
                     }
@@ -98,7 +98,7 @@ const stateMachine = createMachine<MachineContext>(
                                 target: "viewInit",
                                 actions: assign({
                                     view: (context, event) => event.viewLocation.view,
-                                    documentUri: (context, event) => event.viewLocation.location,
+                                    documentUri: (context, event) => event.viewLocation.documentUri,
                                     position: (context, event) => event.viewLocation.position
                                 })
                             },
@@ -106,7 +106,7 @@ const stateMachine = createMachine<MachineContext>(
                                 target: "viewEditing",
                                 actions: assign({
                                     view: (context, event) => event.viewLocation.view,
-                                    documentUri: (context, event) => event.viewLocation.location,
+                                    documentUri: (context, event) => event.viewLocation.documentUri,
                                     position: (context, event) => event.viewLocation.position
                                 })
                             },
@@ -118,7 +118,7 @@ const stateMachine = createMachine<MachineContext>(
                                 target: "viewReady",
                                 actions: assign({
                                     view: (context, event) => event.viewLocation.view,
-                                    documentUri: (context, event) => event.viewLocation.location,
+                                    documentUri: (context, event) => event.viewLocation.documentUri,
                                     position: (context, event) => event.viewLocation.position
                                 })
                             }

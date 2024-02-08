@@ -41,6 +41,7 @@ export interface GridProps {
     id?: string;
     className?: string;
     columns?: number;
+    sx?: React.CSSProperties;
 }
 
 const generateRowData = (numColumns: number, children: ReactNode) => {
@@ -77,7 +78,7 @@ const generateRowData = (numColumns: number, children: ReactNode) => {
 export const Grid: React.FC<PropsWithChildren<GridProps>> = (props: PropsWithChildren<GridProps>) => {
     const { children, columns } = props;
     const numberOfChildren = React.Children.count(children);
-    const rowData = numberOfChildren > 0 ? generateRowData(columns, children) : [];
+    const rowData = numberOfChildren > 0 ? columns ? generateRowData(columns, children) : generateRowData(numberOfChildren, children) : [];
 
     return (
         <VSCodeDataGrid>

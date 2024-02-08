@@ -16,7 +16,7 @@ export const useSyntaxTreeFromRange = (hasFileChanged?: boolean) => {
     const { rpcClient } = useVisualizerContext();
     let _position;
     const getST = async () => {
-        const { documentUri, position} = await rpcClient.getVisualizerContext();
+        const { documentUri, position } = await rpcClient.getVisualizerContext();
         _position = position;
         if (position && documentUri) {
             try {
@@ -30,7 +30,7 @@ export const useSyntaxTreeFromRange = (hasFileChanged?: boolean) => {
             } catch (networkError: any) {
                 console.error('Error while fetching syntax tree', networkError);
             }
-        }    
+        }
     }
 
     const {
@@ -38,7 +38,7 @@ export const useSyntaxTreeFromRange = (hasFileChanged?: boolean) => {
         isFetching,
         isError,
         refetch,
-    } = useQuery(['getST', {_position, hasFileChanged}], () => getST(), {});
+    } = useQuery(['getST', { _position, hasFileChanged }], () => getST(), {});
 
     return { data, isFetching, isError, refetch };
 };
