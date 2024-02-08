@@ -10,16 +10,10 @@
 import React, { useEffect } from "react";
 import { VisualizerLocation } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { SamplesView } from "../SamplesView";
 
 export function GettingStarted() {
     const { rpcClient } = useVisualizerContext();
     const [state, setState] = React.useState<VisualizerLocation>(null);
-    const [showSamples, viewSamples] = React.useState<boolean>(false);
-
-    const viewSampleHandle = async () => {
-        viewSamples(true);
-    }
 
     useEffect(() => {
         if (rpcClient) {
@@ -29,12 +23,10 @@ export function GettingStarted() {
         }
     }, [rpcClient]);
 
-
+    
     return (
         <>
             <h1>Hello Getting Started - {state?.documentUri}</h1>
-            <button onClick={viewSampleHandle}>Download a Sample</button>
-            {showSamples && <SamplesView />}
         </>
     );
 }

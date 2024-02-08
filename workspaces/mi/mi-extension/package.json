@@ -64,8 +64,8 @@
     },
     "viewsWelcome": [
       {
-        "view": "project-explorer",
-        "contents": "Welcome to Integration Studio. You can open a folder containing a MI project or [create a new project](command:integrationStudio.showDiagram).\n[Open MI Project](command:integrationStudio.openProject)\nTo learn more about how to use Integration Studio in VS Code [read our docs](https://ei.docs.wso2.com)."
+          "view": "project-explorer",
+          "contents": "Welcome to Integration Studio. You can open a folder containing a MI project or [create a new project](command:integrationStudio.showDiagram).\n[Open MI Project](command:integrationStudio.openProject)\nTo learn more about how to use Integration Studio in VS Code [read our docs](https://ei.docs.wso2.com)."
       }
     ],
     "commands": [
@@ -242,7 +242,6 @@
     "@wso2-enterprise/mi-syntax-tree": "workspace:*",
     "@wso2-enterprise/mi-diagram": "workspace:*",
     "@wso2-enterprise/font-wso2-vscode": "workspace:*",
-    "xstate": "^4.38.3",
-    "node-fetch": "~3.3.2"
+    "xstate": "^4.38.3"
   }
 }
