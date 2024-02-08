@@ -7,72 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodeModel } from "@projectstorm/react-diagrams";
 import { Endpoint, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { NodePortModel } from "../../NodePort/NodePortModel";
-import { getNodeIdFromModel } from "../../../utils/node";
 import { NodeTypes } from "../../../resources/constants";
+import { BaseNodeModel } from "../BaseNodeModel";
 
-export class CallNodeModel extends NodeModel {
-    readonly stNode: STNode;
+export class CallNodeModel extends BaseNodeModel {
     readonly endpoint: Endpoint;
-    protected portIn: NodePortModel;
-    protected portOut: NodePortModel;
-    protected parentNode: STNode;
-    protected prevNodes: STNode[];
 
     constructor(stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = [], endpoint?: Endpoint) {
-        super({
-            id: stNode.viewState?.id || getNodeIdFromModel(stNode),
-            type: NodeTypes.CALL_NODE,
-            locked: true,
-        });
-        this.stNode = stNode;
+        super(NodeTypes.CALL_NODE, stNode, parentNode, prevNodes);
         if (endpoint) {
             this.endpoint = endpoint;
         }
-        this.addInPort("in");
-        this.addOutPort("out");
-    }
-
-    addPort<T extends NodePortModel>(port: T): T {
-        super.addPort(port);
-        if (port.getOptions().in) {
-            this.portIn = port;
-        } else {
-            this.portOut = port;
-        }
-        return port;
-    }
-
-    addInPort(label: string): NodePortModel {
-        const p = new NodePortModel(true, label);
-        return this.addPort(p);
-    }
-
-    addOutPort(label: string): NodePortModel {
-        const p = new NodePortModel(false, label);
-        return this.addPort(p);
-    }
-
-    getInPort(): NodePortModel {
-        return this.portIn;
-    }
-
-    getOutPort(): NodePortModel {
-        return this.portOut;
-    }
-
-    getStNode(): STNode {
-        return this.stNode;
-    }
-
-    getParentStNode(): STNode {
-        return this.parentNode;
-    }
-
-    getPrevStNodes(): STNode[] {
-        return this.prevNodes;
     }
 
     getEndpoint(): STNode {
