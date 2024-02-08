@@ -17,8 +17,8 @@ export function ServiceDesigner() {
     const [st, setSt] = React.useState<ServiceDeclaration>();
 
     rpcClient.onFileContentUpdate(() => {
-		fetchServiceSt();
-	});
+        fetchServiceSt();
+    });
 
     useEffect(() => {
         fetchServiceSt();
