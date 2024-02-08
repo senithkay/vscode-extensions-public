@@ -38,11 +38,27 @@ export function ProjectHeadWidget(props: ServiceHeadProps) {
         >
             {generateRoundedOctagonSVG(cellHeight)}
 
-            <ProjectPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />
-            <ProjectPortWidget port={node.getPort(`bottom-${node.getID()}`)} engine={engine} />
+            <ProjectPortWidget
+                port={node.getPort(`top-${node.getID()}`)}
+                engine={engine}
+                isSelected={isSelected || isFocused}
+            />
+            <ProjectPortWidget
+                port={node.getPort(`bottom-${node.getID()}`)}
+                engine={engine}
+                isSelected={isSelected || isFocused}
+            />
 
-            <ProjectPortWidget port={node.getPort(`left-${node.getID()}`)} engine={engine} />
-            <ProjectPortWidget port={node.getPort(`right-${node.getID()}`)} engine={engine} />
+            <ProjectPortWidget
+                port={node.getPort(`left-${node.getID()}`)}
+                engine={engine}
+                isSelected={isSelected || isFocused}
+            />
+            <ProjectPortWidget
+                port={node.getPort(`right-${node.getID()}`)}
+                engine={engine}
+                isSelected={isSelected || isFocused}
+            />
         </ProjectCellNode>
     );
 }

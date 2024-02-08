@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DefaultPortModel, PortModel, PortModelAlignment } from '@projectstorm/react-diagrams';
+import { DefaultPortModel, PortModelAlignment } from '@projectstorm/react-diagrams';
 
 export class ProjectPortModel extends DefaultPortModel {
     constructor(id: string, portType: PortModelAlignment) {

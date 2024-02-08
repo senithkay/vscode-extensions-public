@@ -10,10 +10,10 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 import { ProjectModel } from "./ProjectModel";
-import { ProjectLinkModel } from "../ProjectLink/ProjectLinkModel";
 import { ProjectHeadWidget } from "./ProjectHeadWidget/ProjectHeadWidget";
 import { ProjectName, ProjectNode } from "./styles";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
+import { AdvancedLinkModel } from "../AdvancedLink/AdvancedLinkModel";
 
 interface ProjectWidgetProps {
     node: ProjectModel;
@@ -23,7 +23,7 @@ interface ProjectWidgetProps {
 export function ProjectWidget(props: ProjectWidgetProps) {
     const { node, engine } = props;
     const { selectedNodeId, focusedNodeId, componentMenu, onComponentDoubleClick } = useContext(DiagramContext);
-    const [selectedLink, setSelectedLink] = useState<ProjectLinkModel>(undefined);
+    const [selectedLink, setSelectedLink] = useState<AdvancedLinkModel>(undefined);
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const headPorts = useRef<PortModel[]>([]);
 
@@ -32,16 +32,13 @@ export function ProjectWidget(props: ProjectWidgetProps) {
     useEffect(() => {
         const listener = node.registerListener({
             SELECT: (event: any) => {
-                setSelectedLink(event.project as ProjectLinkModel);
+                setSelectedLink(event.project as AdvancedLinkModel);
             },
             UNSELECT: () => {
                 setSelectedLink(undefined);
             },
         });
-        headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
         headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
-        headPorts.current.push(node.getPortFromID(`bottom-${node.getID()}`));
-
         return () => {
             node.deregisterListener(listener);
         };

@@ -71,7 +71,7 @@ export const ProjectCellNode: React.FC<ProjectNodeStyleProps> = styled.div`
         stroke: ${(props: ProjectNodeStyleProps) => (props.isSelected ? Colors.SECONDARY : Colors.ON_SURFACE)};
         stroke-width: ${(props: ProjectNodeStyleProps) => props.borderWidth};
         fill: none;
-        fill: ${Colors.SURFACE};
+        fill: ${(props: ProjectNodeStyleProps) => (props.isSelected ? Colors.SECONDARY_CONTAINER : Colors.SURFACE)};
         pointer-events: none;
     }
 `;
