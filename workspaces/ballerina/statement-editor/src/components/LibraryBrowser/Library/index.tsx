@@ -6,14 +6,13 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from 'react';
 
-import { ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
-import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-core";
+import { GridItem, Icon, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
 
-import LibraryModuleIcon from "../../../assets/icons/LibraryModuleIcon";
+import { MAX_COLUMN_WIDTH } from '../../../constants';
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { useStmtEditorHelperPanelStyles } from "../../styles";
 
@@ -25,18 +24,18 @@ interface LibraryProps {
 }
 
 export function Library(props: LibraryProps) {
-    const {
-        library: {
-            getLibraryData
-        }
-    } = useContext(StatementEditorContext);
+    const { libraryBrowserRpcClient } = useContext(StatementEditorContext);
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const { libraryInfo, key, libraryBrowsingHandler, libraryDataFetchingHandler } = props;
     const { id, orgName, version } = libraryInfo;
 
     const onClickOnLibrary = async () => {
         libraryDataFetchingHandler(true);
-        const response = await getLibraryData(orgName, id, version);
+        const response = await libraryBrowserRpcClient.getLibraryData({
+            orgName,
+            moduleName: id,
+            version
+        });
 
         if (response) {
             libraryBrowsingHandler(response);
@@ -45,21 +44,33 @@ export function Library(props: LibraryProps) {
     }
 
     return (
-        <ListItem
-            button={true}
-            className={stmtEditorHelperClasses.suggestionListItem}
+        <GridItem
             key={key}
+            id={key}
             onClick={onClickOnLibrary}
-            disableRipple={true}
+            sx={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                maxWidth: MAX_COLUMN_WIDTH,
+                color: 'var(--foreground)'
+            }}
         >
-            <ListItemIcon style={{ minWidth: 'fit-content', textAlign: 'left', marginRight: '6.25px'}}>
-                <LibraryModuleIcon/>
-            </ListItemIcon>
-            <StatementEditorHint content={id}>
-            <ListItemText
-                primary={<Typography className={stmtEditorHelperClasses.suggestionValue}>{id}</Typography>}
-            />
-            </StatementEditorHint>
-        </ListItem>
+            <div className={stmtEditorHelperClasses.suggestionListItem}>
+                <Icon name="module-icon" sx={{color: 'var(--vscode-icon-foreground)', margin: '2px 2px 0 0'}} />
+                <Tooltip
+                    content={id}
+                    position="bottom-end"
+                >
+                    <Typography
+                        variant="body3"
+                        className={stmtEditorHelperClasses.suggestionValue}
+                        data-testid={`library-item-${key}`}
+                    >
+                        {id}
+                    </Typography>
+                </Tooltip>
+            </div>
+        </GridItem>
     );
 }

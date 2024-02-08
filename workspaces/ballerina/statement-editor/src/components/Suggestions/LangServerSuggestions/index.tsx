@@ -9,11 +9,10 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import { FormControl, Input, InputAdornment } from "@material-ui/core";
-import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-core";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
 
-import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
 import {
     ACTION,
     CURRENT_REFERENCES_TITLE,
@@ -29,6 +28,7 @@ import { Suggestion, SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getExprWithArgs } from "../../../utils";
+import { DiagnosticsPaneId } from "../../Diagnostics";
 import { getActionExprWithArgs } from "../../Parameters/ParameterTree/utils";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
@@ -48,6 +48,10 @@ export function LSSuggestions() {
             lsSuggestions,
             lsSecondLevelSuggestions
         },
+        statementCtx: {
+            diagnostics,
+            errorMsg
+        },
         formCtx: {
             formArgs: {
                 connector,
@@ -65,6 +69,7 @@ export function LSSuggestions() {
     const [filteredSecondLevelSuggestions, setFilteredSecondLevelSuggestions] = useState<SuggestionItem[]>(secondLevelSuggestions);
     const [selectedSuggestion, setSelectedSuggestion] = React.useState<Suggestion>(null);
     const [references, setReferences] = useState<SuggestionItem[]>([]);
+    const [diagnosticsHeight, setDiagnosticsHeight] = useState(0);
 
     useEffect(() => {
         setFilteredSuggestions(lsSuggestions);
@@ -78,8 +83,19 @@ export function LSSuggestions() {
             }
         })
         setReferences(referencedFields);
-    }, [currentReferences])
+    }, [currentReferences]);
 
+    // A workaround for https://github.com/microsoft/vscode-webview-ui-toolkit/issues/464
+    useEffect(() => {
+        const handleResize = () => {
+            const diagnosticsElement = document.getElementById(DiagnosticsPaneId);
+            if (diagnosticsElement) {
+                const height = diagnosticsElement.offsetHeight;
+                setDiagnosticsHeight(height);
+            }
+        };
+        handleResize();
+    }, [diagnostics, errorMsg]);
 
     const changeSelectionOnRightLeft = (key: number) => {
         if (selectedSuggestion) {
@@ -242,10 +258,10 @@ export function LSSuggestions() {
         updateModel(value, nodePosition);
         inputEditorCtx.onInputChange('');
         inputEditorCtx.onSuggestionSelection(value);
+        setSelectedSuggestion(null);
     }
 
-    const searchSuggestions = (e: any) => {
-        const searchValue = e.target.value;
+    const searchSuggestions = (searchValue: string) => {
         setKeyword(searchValue);
         setFilteredSuggestions(lsSuggestions.filter(suggestion => suggestion.value.toLowerCase().includes(searchValue.toLowerCase())));
         setFilteredSecondLevelSuggestions(secondLevelSuggestions.filter(suggestion => suggestion.value.toLowerCase().includes(searchValue.toLowerCase())))
@@ -253,24 +269,24 @@ export function LSSuggestions() {
     }
 
     return (
-        <>
-            <FormControl style={{ width: '100%', padding: '0 25px' }}>
-                <Input
-                    data-testid="ls-suggestions-searchbar"
-                    className={stmtEditorHelperClasses.librarySearchBox}
+        <div className={stmtEditorHelperClasses.suggestionListInner} data-testid="expression-list">
+            <div className={stmtEditorHelperClasses.searchBox}>
+                <SearchBox
+                    id={'ls-suggestions-searchbar'}
+                    autoFocus={true}
                     placeholder={`Search Suggestions`}
-                    onChange={searchSuggestions}
                     value={keyword}
-                    endAdornment={(
-                        <InputAdornment position={"end"} style={{ padding: '8.5px' }}>
-                            <LibrarySearchIcon/>
-                        </InputAdornment>
-                    )}
+                    onChange={searchSuggestions}
+                    size={100}
+                    data-testid="ls-suggestions-searchbar"
                 />
-            </FormControl>
+            </div>
             {(filteredSuggestions?.length || filteredSecondLevelSuggestions?.length) ?
             (
-                <div className={stmtEditorHelperClasses.lsSuggestionList}>
+                <div
+                    className={stmtEditorHelperClasses.suggestionListContainer}
+                    style={{maxHeight: `calc(100vh - ${ 305 + diagnosticsHeight}px)`}}
+                >
                     <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
                         {references?.length > 0 && (
                             <SuggestionsList
@@ -304,10 +320,13 @@ export function LSSuggestions() {
             )
             :
             (
-                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                    <p>Suggestions not available</p>
-                </div>
+                <Typography
+                    variant="body3"
+                    sx={{marginTop: '15px'}}
+                >
+                    Suggestions not available
+                </Typography>
             )}
-        </>
+        </div>
     );
 }

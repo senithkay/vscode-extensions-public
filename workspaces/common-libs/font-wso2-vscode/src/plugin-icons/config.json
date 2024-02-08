@@ -9,7 +9,16 @@
         "start.svg",
         "debug.svg",
         "source-view.svg",
-        "persist-diagram.svg"
+        "persist-diagram.svg",
+        "cached-round.svg",
+        "fit-to-screen.svg",
+        "explicit-outlined.svg",
+        "error-icon.svg",
+        "error-outline.svg",
+        "symbol-struct-icon.svg",
+        "add-circle-outline.svg",
+        "radio-button-checked.svg",
+        "radio-button-unchecked.svg"
     ],
     "choreoExtIcons": [
         "choreo-2.svg"

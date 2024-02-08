@@ -30,7 +30,12 @@ inputs:
     description: Update EggPlant extension version
     type: boolean
     required: false
-    default: false           
+    default: false   
+  mi:
+    description: Update MI extension version
+    type: boolean
+    required: false
+    default: false               
   version:
     default: 'N/A'
     type: string
@@ -116,7 +121,15 @@ runs:
       if: ${{ inputs.eggplant == 'true' }}
       uses: ./.github/actions/updateVersion
       with:
-        path: 'eggplant/egglant-extension'
+        path: 'eggplant/eggplant-extension'
+        isPreRelease: ${{ inputs.isPreRelease }}
+        version: ${{ inputs.version }}
+
+    - name: Update version - MI
+      if: ${{ inputs.mi == 'true' }}
+      uses: ./.github/actions/updateVersion
+      with:
+        path: 'mi/mi-extension'
         isPreRelease: ${{ inputs.isPreRelease }}
         version: ${{ inputs.version }}
 

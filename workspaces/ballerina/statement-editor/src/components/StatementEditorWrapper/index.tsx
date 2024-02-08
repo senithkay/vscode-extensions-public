@@ -9,40 +9,34 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
-import { FormControl } from '@material-ui/core';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
     CommandResponse,
-    ExpressionEditorLangClientInterface, KeyboardNavigationManager,
-    LibraryDataResponse,
-    LibraryDocResponse,
-    LibrarySearchResponse,
+    KeyboardNavigationManager,
     STModification,
     STSymbolInfo
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
+import { LangServerRpcClient, LibraryBrowserRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
-import * as monaco from "monaco-editor";
+import { SidePanel } from '@wso2-enterprise/ui-toolkit';
+import { URI } from "vscode-uri";
 
 import { CUSTOM_CONFIG_TYPE } from "../../constants";
 import { EditorModel } from "../../models/definitions";
-import { getPartialSTForExpression, getPartialSTForModuleMembers, getPartialSTForStatement, sendDidOpen } from "../../utils/ls-utils";
+import { getPartialSTForExpression, getPartialSTForModuleMembers, getPartialSTForStatement } from "../../utils/ls-utils";
 import { StmtEditorUndoRedoManager } from "../../utils/undo-redo";
 import { StatementEditor } from "../StatementEditor";
 import { useStatementEditorStyles } from '../styles';
 
 export interface LowCodeEditorProps {
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
+    langServerRpcClient: LangServerRpcClient;
+    libraryBrowserRpcClient: LibraryBrowserRpcClient;
     applyModifications: (modifications: STModification[]) => void;
-    updateFileContent: (content: string, skipForceSave?: boolean, filePath?: string) => Promise<boolean>;
     currentFile: {
         content: string,
         path: string,
         size: number,
         originalContent?: string
-    };
-    library: {
-        getLibrariesList: (kind?: string) => Promise<LibraryDocResponse>;
-        getLibrariesData: () => Promise<LibrarySearchResponse>;
-        getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };
     formArgs: any;
     config: {
@@ -75,6 +69,17 @@ export interface StatementEditorWrapperProps extends LowCodeEditorProps {
     currentReferences?: string[];
 }
 
+const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        refetchOnWindowFocus: false,
+        staleTime: 1000,
+        cacheTime: 1000,
+      },
+    },
+});
+
 export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     const overlayClasses = useStatementEditorStyles();
     const {
@@ -84,10 +89,9 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         config,
         onCancel,
         onWizardClose,
-        getLangClient,
+        langServerRpcClient,
+        libraryBrowserRpcClient,
         applyModifications,
-        updateFileContent,
-        library,
         currentFile,
         syntaxTree,
         stSymbolInfo,
@@ -115,6 +119,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     const [editors, setEditors] = useState<EditorModel[]>([]);
     const [editor, setEditor] = useState<EditorModel>();
     const [activeEditorId, setActiveEditorId] = useState<number>(0);
+    const [fullSource, setFullSource] = useState("");
 
     useEffect(() => {
         (async () => {
@@ -123,9 +128,9 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
             if (initialSource) {
                 const partialST =
                     isConfigurableStmt || isModuleVar
-                        ? await getPartialSTForModuleMembers({ codeSnippet: initialSource.trim() }, getLangClient)
-                        : (isExpressionMode ? await getPartialSTForExpression({codeSnippet: initialSource.trim()}, getLangClient)
-                        : await getPartialSTForStatement({ codeSnippet: initialSource.trim()}, getLangClient));
+                        ? await getPartialSTForModuleMembers({ codeSnippet: initialSource.trim() }, langServerRpcClient)
+                        : (isExpressionMode ? await getPartialSTForExpression({codeSnippet: initialSource.trim()}, langServerRpcClient)
+                        : await getPartialSTForStatement({ codeSnippet: initialSource.trim()}, langServerRpcClient));
 
                 if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
                     model = partialST;
@@ -143,6 +148,11 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                 undoRedoManager: new StmtEditorUndoRedoManager(),
                 hasIncorrectSyntax
             };
+
+            const fullST = await langServerRpcClient.getST({
+                documentIdentifier: { uri: URI.file(currentFile.path).toString() }
+            });
+            setFullSource(fullST.syntaxTree.source);
 
             setEditors((prevEditors: EditorModel[]) => {
                 return [...prevEditors, newEditor];
@@ -189,7 +199,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     const addConfigurable = async (newLabel: string, newPosition: NodePosition,
                                    newSource: string, isExistingStmt: boolean = false) => {
         const partialST = await getPartialSTForModuleMembers(
-            {codeSnippet: newSource.trim()}, getLangClient);
+            {codeSnippet: newSource.trim()}, langServerRpcClient);
 
         const newEditor: EditorModel = {
             label: newLabel,
@@ -213,49 +223,61 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     }, []);
 
     return (
-        <FormControl data-testid="property-form">
-            {!editor && (
-                <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor-loader">
-                    <div className={overlayClasses.loadingWrapper}>Loading statement editor...</div>
-                </div>
-            )}
-            {editor && (
-                    <>
-                        <StatementEditor
-                            editor={editor}
-                            editorManager={{
-                                switchEditor,
-                                updateEditor,
-                                dropLastEditor,
-                                addConfigurable,
-                                activeEditorId,
-                                editors
-                            }}
-                            onWizardClose={onWizardClose}
-                            onCancel={onCancel}
-                            config={config}
-                            formArgs={formArgs}
-                            getLangClient={getLangClient}
-                            applyModifications={applyModifications}
-                            updateFileContent={updateFileContent}
-                            currentFile={currentFile}
-                            library={library}
-                            importStatements={importStatements}
-                            syntaxTree={syntaxTree}
-                            stSymbolInfo={stSymbolInfo}
-                            extraModules={extraModules}
-                            experimentalEnabled={experimentalEnabled}
-                            runBackgroundTerminalCommand={runBackgroundTerminalCommand}
-                            isExpressionMode={isExpressionMode}
-                            skipSemicolon={skipSemicolon}
-                            ballerinaVersion={ballerinaVersion}
-                            isCodeServerInstance={isCodeServerInstance}
-                            openExternalUrl={openExternalUrl}
-                            isHeaderHidden={isHeaderHidden}
-                            currentReferences={currentReferences}
-                        />
-                    </>
+        <QueryClientProvider client={queryClient}>
+            <SidePanel
+                isOpen={true}
+                alignmanet="right"
+                sx={{transition: "all 0.3s ease-in-out", width: 600}}
+                data-testid="property-form"
+            >
+                {!editor && (
+                    <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor-loader">
+                        <div className={overlayClasses.loadingWrapper}>Loading statement editor...</div>
+                    </div>
                 )}
-        </FormControl>
+                {editor && (
+                        <>
+                            <StatementEditor
+                                editor={editor}
+                                editorManager={{
+                                    switchEditor,
+                                    updateEditor,
+                                    dropLastEditor,
+                                    addConfigurable,
+                                    activeEditorId,
+                                    editors
+                                }}
+                                onWizardClose={onWizardClose}
+                                onCancel={onCancel}
+                                config={config}
+                                formArgs={formArgs}
+                                langServerRpcClient={langServerRpcClient}
+                                libraryBrowserRpcClient={libraryBrowserRpcClient}
+                                applyModifications={applyModifications}
+                                currentFile={
+                                    {
+                                        ...currentFile,
+                                        content: fullSource,
+                                        originalContent: fullSource
+                                    }
+                                }
+                                importStatements={importStatements}
+                                syntaxTree={syntaxTree}
+                                stSymbolInfo={stSymbolInfo}
+                                extraModules={extraModules}
+                                experimentalEnabled={experimentalEnabled}
+                                runBackgroundTerminalCommand={runBackgroundTerminalCommand}
+                                isExpressionMode={isExpressionMode}
+                                skipSemicolon={skipSemicolon}
+                                ballerinaVersion={ballerinaVersion}
+                                isCodeServerInstance={isCodeServerInstance}
+                                openExternalUrl={openExternalUrl}
+                                isHeaderHidden={isHeaderHidden}
+                                currentReferences={currentReferences}
+                            />
+                        </>
+                    )}
+            </SidePanel>
+        </QueryClientProvider>
     )
 }

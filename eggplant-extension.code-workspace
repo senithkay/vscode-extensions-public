@@ -1,0 +1,28 @@
+{
+	"folders": [
+		{
+			"path": "workspaces/eggplant/eggplant-extension"
+		},
+		{
+			"path": "workspaces/eggplant/webview"
+		},
+		{
+			"path": "workspaces/eggplant/eggplant-diagram"
+		},
+		{
+			"path": "workspaces/common-libs/ui-toolkit"
+		},
+		{
+			"path": "workspaces/eggplant/eggplant-core"
+		},
+		{
+			"path": "workspaces/eggplant/eggplant-rpc-client"
+		},
+		{
+			"path": "workspaces/eggplant/eggplant-overview"
+		}
+	],
+	"settings": {
+		"typescript.tsc.autoDetect": "off"
+	}
+}

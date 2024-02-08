@@ -246,7 +246,7 @@
         "description": "choreo-2",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f105"
+          "fontCharacter": "\\f109"
         }
       }
     }
@@ -340,6 +340,11 @@
     "simple-git": "^3.15.1",
     "vscode-messenger": "^0.4.4",
     "vscode-messenger-common": "^0.4.3",
-    "which": "^3.0.0"
+    "which": "^3.0.0",
+    "@wso2-enterprise/cell-diagram": "workspace:*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
   }
 }

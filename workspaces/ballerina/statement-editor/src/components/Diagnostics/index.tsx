@@ -7,17 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
+import React, { useContext } from "react";
 
-import React, { useContext, useState } from "react";
+import { Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 
-import { Box, List, ListItemText, Typography } from "@material-ui/core";
-
-import DiagnosticsErrorIcon from "../../assets/icons/DiagnosticsErrorIcon";
 import { StatementSyntaxDiagnostics } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { filterCodeActions } from "../../utils";
 import { CodeActionButton } from "../CodeActionButton";
 import { useStatementEditorDiagnosticStyles } from "../styles";
+
+export const DiagnosticsPaneId = "data-mapper-diagnostic-pane";
 
 export function Diagnostics() {
     const statementEditorDiagnosticClasses = useStatementEditorDiagnosticStyles();
@@ -32,40 +32,44 @@ export function Diagnostics() {
             hasCodeAction = true;
             return <CodeActionButton syntaxDiagnostic={diag} index={key}/>;
         } else if (hasCodeAction) {
-            return <Box style={{ width: "30px", marginRight: "6px" }} />;
+            return <div style={{ width: "30px", marginRight: "6px" }} />;
         }
     }
 
+    const diagnosticsMessages = diagnostics && diagnostics.map((diag: StatementSyntaxDiagnostics, index: number) =>
+        !diag.isPlaceHolderDiag && (
+            <div className={statementEditorDiagnosticClasses.diagnosticsPaneInner}>
+                {actionButton(diag, index)}
+                <Codicon name="error" sx={{marginTop: '3px', cursor: 'unset'}} />
+                <Typography
+                    variant="body2"
+                    sx={{marginLeft: "5px"}}
+                >
+                    {diag.message}
+                </Typography>
+            </div>
+        )
+    );
+
+    const errorMessage = errorMsg && errorMsg.length > 0 && (
+        <Typography
+            variant="body2"
+            data-testid="error-message"
+        >
+            {errorMsg}
+        </Typography>
+    );
+
     return (
-        <div className={statementEditorDiagnosticClasses.diagnosticsPane} data-testid="diagnostics-pane">
-            <List>
-                {diagnostics &&
-                    diagnostics.map(
-                        (diag: StatementSyntaxDiagnostics, index: number) =>
-                            !diag.isPlaceHolderDiag && (
-                                <ListItemText
-                                    data-testid="diagnostic-message"
-                                    key={index}
-                                    primary={(
-                                        <Typography style={{ display: "flex", flexDirection: "row" }}>
-                                            {actionButton(diag, index)}
-                                            <div className={statementEditorDiagnosticClasses.diagnosticsErrorIcon}>
-                                                <DiagnosticsErrorIcon />
-                                            </div>
-                                            {diag.message}
-                                        </Typography>
-                                    )}
-                                />
-                            )
-                    )}
-                {errorMsg && errorMsg.length > 0 && (
-                    <ListItemText
-                        data-testid="error-message"
-                        key="error"
-                        primary={<Typography style={{ display: "flex", flexDirection: "row" }}>{errorMsg}</Typography>}
-                    />
-                )}
-            </List>
+        <div
+            id={DiagnosticsPaneId}
+            className={(diagnosticsMessages.length > 0 || errorMessage) && statementEditorDiagnosticClasses.diagnosticsPane}
+            data-testid="diagnostics-pane"
+        >
+            <div>
+                {diagnostics && diagnosticsMessages}
+                {errorMsg && errorMsg.length > 0 && errorMessage}
+            </div>
         </div>
     );
 }

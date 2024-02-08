@@ -7,9 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
-import { Checkbox, ListItem, ListItemText, Typography } from "@material-ui/core";
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import { Typography } from "@wso2-enterprise/ui-toolkit";
 
 import { TypeProps } from "../..";
 import { useStmtEditorHelperPanelStyles } from "../../../../styles";
@@ -31,46 +32,41 @@ export default function CustomType(props: TypeProps) {
     };
 
     return (
-        <ListItem className={param.documentation ? stmtEditorHelperClasses.docListCustom : stmtEditorHelperClasses.docListDefault}>
+        <div className={param.documentation ? stmtEditorHelperClasses.docListCustom : stmtEditorHelperClasses.docListDefault}>
             <div className={stmtEditorHelperClasses.listItemMultiLine} data-testid="custom-arg">
                 <div className={stmtEditorHelperClasses.listItemHeader}>
-                    <Checkbox
-                        classes={{
-                            root: requiredParam
-                                ? stmtEditorHelperClasses.disabledCheckbox
-                                : stmtEditorHelperClasses.parameterCheckbox,
-                            checked: stmtEditorHelperClasses.checked,
-                        }}
+                    <VSCodeCheckbox
                         checked={paramSelected}
                         disabled={requiredParam}
                         onClick={toggleParamCheck}
                         data-testid="arg-check"
+                        className={stmtEditorHelperClasses.parameterCheckbox}
                     />
-                    <ListItemText
-                        className={stmtEditorHelperClasses.docListItemText}
-                        primary={param.name}
-                        data-testid="arg-name"
-                    />
-                    <ListItemText
-                        className={stmtEditorHelperClasses.paramDataType}
+                    <Typography
+                        variant="body3"
+                        sx={{margin: '0px 5px'}}
+                    >
+                        {param.name}
+                    </Typography>
+                    <Typography
+                        className={stmtEditorHelperClasses.suggestionDataType}
+                        variant="body3"
                         data-testid="arg-type"
-                        primary={(
-                            <Typography className={stmtEditorHelperClasses.suggestionDataType}>
-                                {param.optional || param.defaultable ? param.typeName + " (Optional)" : param.typeName}
-                            </Typography>
-                        )}
-                    />
+                    >
+                        {param.optional || param.defaultable ? param.typeName + " (Optional)" : param.typeName}
+                    </Typography>
                 </div>
                 {param.documentation && (
                     <div className={stmtEditorHelperClasses.documentationWrapper}>
-                        <ListItemText
-                            className={stmtEditorHelperClasses.paramTreeDescriptionText}
-                            primary={param.documentation}
-                            data-testid="arg-documentation"
-                        />
+                        <Typography
+                            className={stmtEditorHelperClasses.docParamDescriptionText}
+                            variant="body3"
+                        >
+                            {param.documentation}
+                        </Typography>
                     </div>
                 )}
             </div>
-        </ListItem>
+        </div>
     );
 }

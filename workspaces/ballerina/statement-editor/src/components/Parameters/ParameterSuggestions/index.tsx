@@ -6,12 +6,12 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect } from "react";
 
-import { List, ListItem, ListItemText, ListSubheader } from "@material-ui/core";
-import { withStyles } from "@material-ui/core/styles";
-import { BallerinaConnectorInfo, FunctionDefinitionInfo, SymbolDocumentation } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConnectorInfo, FunctionDefinitionInfo, SymbolDocumentation } from "@wso2-enterprise/ballerina-core";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { Typography } from "@wso2-enterprise/ui-toolkit";
 
 import { ACTION, CONNECTOR, HTTP_ACTION } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
@@ -28,14 +28,12 @@ import {
     updateParamListFordMethodCallDoc
 } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
-import { parameterHeader, useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 import { ParameterList } from "../ParameterList";
 import { ParameterTree } from "../ParameterTree";
 import { retrieveUsedAction } from "../ParameterTree/utils";
 
-// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 export function ParameterSuggestions() {
-    const ParamListSubheader = withStyles(parameterHeader)(ListSubheader);
     const {
         modelCtx: {
             currentModel,
@@ -109,95 +107,120 @@ export function ParameterSuggestions() {
             const docEx = docRegex.exec(doc);
             return (
                 <>
-                    <ListItemText primary={des[0]}/>
-                    <ListSubheader className={stmtEditorHelperClasses.exampleHeader}>
+                    <Typography variant="body3">{des[0]}</Typography>
+                    <Typography
+                        variant="h5"
+                        sx={{margin: '8px 0px'}}
+                    >
                         Example
-                    </ListSubheader>
-                    <ListItem className={stmtEditorHelperClasses.docDescription}>
-                        <code className={stmtEditorHelperClasses.exampleCode}>{docEx[1]}</code>
-                    </ListItem>
+                    </Typography>
+                    <code className={stmtEditorHelperClasses.exampleCode}>{docEx[1]}</code>
                 </>
             );
         } else {
             const trimmedDoc = doc?.replace(/\n/g, " ");
             return (
-                <ListItemText primary={trimmedDoc}/>
+                <Typography variant="body3">{trimmedDoc}</Typography>
             );
         }
     }
 
-    return (
-        <>
-            {!isConnectorFlow &&
-                (documentation === null ? (
-                    <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                        <p>Please upgrade to the latest Ballerina version</p>
-                    </div>
-                ) : (
-                    <>
-                        {documentation && !(documentation.documentation === undefined) ? (
-                            <List className={stmtEditorHelperClasses.docParamSuggestions}>
-                                {paramDoc && <ParameterList paramDocumentation={paramDoc}/>}
-                                {documentation.documentation.description && (
-                                    <>
-                                        {paramDoc?.parameters?.length > 0 && (
-                                            <hr className={stmtEditorHelperClasses.returnSeparator}/>
-                                        )}
-                                        <ParamListSubheader>
-                                            Description
-                                        </ParamListSubheader>
-                                        <ListItem className={stmtEditorHelperClasses.docDescription}>
-                                            {getDocumentationDescription()}
-                                        </ListItem>
-                                    </>
-                                )}
-                                {documentation.documentation.returnValueDescription && (
-                                    <>
-                                        <hr className={stmtEditorHelperClasses.returnSeparator}/>
-                                        <ParamListSubheader>
-                                            Return
-                                        </ParamListSubheader>
-                                        <ListItem className={stmtEditorHelperClasses.returnDescription}>
-                                            <ListItemText primary={documentation.documentation.returnValueDescription}/>
-                                        </ListItem>
-                                    </>
-                                )}
-                            </List>
-                        ) : (
-                            <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                                <p>Please select a function to see the parameter information</p>
+    const getFnDocumentation = () => {
+        if (documentation === null) {
+            return <Typography variant="body3">Please upgrade to the latest Ballerina version</Typography>;
+        }
+        if (documentation && !(documentation.documentation === undefined)) {
+            return (
+                <>
+                    {paramDoc && <ParameterList paramDocumentation={paramDoc}/>}
+                    {documentation.documentation.description && (
+                        <>
+                            {paramDoc?.parameters?.length > 0 && (
+                                <div className={stmtEditorHelperClasses.returnSeparator} />
+                            )}
+                            <Typography
+                                variant="h4"
+                                className={stmtEditorHelperClasses.paramHeader}
+                            >
+                                Description
+                            </Typography>
+                            <div className={stmtEditorHelperClasses.docDescription}>
+                                {getDocumentationDescription()}
                             </div>
-                        )}
+                        </>
+                    )}
+                    {documentation.documentation.returnValueDescription && (
+                        <>
+                            <div className={stmtEditorHelperClasses.returnSeparator} />
+                            <Typography
+                                variant="h4"
+                                className={stmtEditorHelperClasses.paramHeader}
+                            >
+                                Return
+                            </Typography>
+                            <div className={stmtEditorHelperClasses.returnDescription}>
+                                <Typography variant="body3">
+                                    {documentation.documentation.returnValueDescription}
+                                </Typography>
+                            </div>
+                        </>
+                    )}
+                </>
+            );
+        }
+        return <Typography variant="body3">Please select a function to see the parameter information</Typography>;
+    };
+
+    const getConnectorFlowDocumentation = () => {
+        return (
+            <div className={stmtEditorHelperClasses.docParamSuggestions}>
+                {activeMethod.parameters && <ParameterTree parameters={activeMethod.parameters} connectorInfo={connectorInfo}/>}
+                {activeMethod.parameters?.length > 0 && <div className={stmtEditorHelperClasses.returnSeparator} />}
+                {(connectorInfo?.documentation || activeMethod.documentation) && (
+                    <>
+                        <Typography
+                            variant="h4"
+                            className={stmtEditorHelperClasses.paramHeader}
+                        >
+                            Description
+                        </Typography>
+                        <div className={stmtEditorHelperClasses.docDescription}>
+                            {getDocumentationDescription(connectorInfo?.documentation || activeMethod.documentation)}
+                        </div>
                     </>
-                ))}
-            {isConnectorFlow && insideParamList && (
-                <List className={stmtEditorHelperClasses.docParamSuggestions}>
-                    {activeMethod.parameters && <ParameterTree parameters={activeMethod.parameters} connectorInfo={connectorInfo}/>}
-                    {activeMethod.parameters?.length > 0 && <hr className={stmtEditorHelperClasses.returnSeparator} />}
-                    {(connectorInfo?.documentation || activeMethod.documentation) && (
-                        <>
-                            <ParamListSubheader>Description</ParamListSubheader>
-                            <ListItem className={stmtEditorHelperClasses.docDescription}>
-                                {getDocumentationDescription(connectorInfo?.documentation || activeMethod.documentation)}
-                            </ListItem>
-                        </>
-                    )}
-                    {activeMethod.returnType?.documentation && (
-                        <>
-                            <hr className={stmtEditorHelperClasses.returnSeparator} />
-                            <ParamListSubheader>Return</ParamListSubheader>
-                            <ListItem className={stmtEditorHelperClasses.returnDescription}>
-                                <ListItemText primary={activeMethod.returnType?.documentation} />
-                            </ListItem>
-                        </>
-                    )}
-                </List>
-            )}
+                )}
+                {activeMethod.returnType?.documentation && (
+                    <>
+                        <div className={stmtEditorHelperClasses.returnSeparator} />
+                        <Typography
+                                variant="h4"
+                                className={stmtEditorHelperClasses.paramHeader}
+                        >
+                            Return
+                        </Typography>
+                        <div className={stmtEditorHelperClasses.returnDescription}>
+                            <Typography variant="body3">
+                                {activeMethod.returnType?.documentation}
+                            </Typography>
+                        </div>
+                    </>
+                )}
+            </div>
+        );
+    };
+
+    return (
+        <div>
+            {!isConnectorFlow && getFnDocumentation()}
+            {isConnectorFlow && insideParamList && getConnectorFlowDocumentation()}
             {isConnectorFlow && !insideParamList && (
-                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                    <p>Please select a method or parameter to see the parameter information</p>
-                </div>
+                <Typography
+                    variant="body3"
+                    sx={{marginTop: '10px'}}
+                >
+                    Please select a method or parameter to see the parameter information
+                </Typography>
             )}
-        </>
+        </div>
     );
 }

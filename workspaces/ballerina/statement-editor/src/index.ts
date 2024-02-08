@@ -6,6 +6,5 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-export {FormEditor} from "./components/FormEditor/FormEditor";
 export {StatementEditorWrapper} from "./components/StatementEditorWrapper";
 export {parentSetupVisitor} from "./visitors/parent-setup-visitor";

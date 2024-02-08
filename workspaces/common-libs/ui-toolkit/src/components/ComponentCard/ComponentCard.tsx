@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
+import React, { PropsWithChildren } from "react";
 import cn from "classnames";
 
 import styled from "@emotion/styled";
@@ -50,20 +50,21 @@ export interface ComponentCardProps {
     isSelected?: boolean;
     disabled?: boolean;
     sx?: any;
-    children?: React.ReactNode;
     onClick?: (value: string) => void;
 }
 
-export const ComponentCard: React.FC<ComponentCardProps> = (props: ComponentCardProps) => {
-    const { id, sx, tooltip, isSelected, disabled, children, onClick } = props;
+export const ComponentCard: React.FC<PropsWithChildren<ComponentCardProps>> = 
+    (props: PropsWithChildren<ComponentCardProps>) => {
+        const { id, sx, tooltip, isSelected, disabled, children, onClick } = props;
 
-    const handleComponentClick = () => {
-        onClick(id);
+        const handleComponentClick = () => {
+            onClick && onClick(id);
+        };
+
+        return (
+            <CardContainer id={`card-select-${id}`} className={cn({ "active": isSelected, 'not-allowed': disabled })} sx={sx} isSelected={isSelected} onClick={handleComponentClick} title={tooltip}>
+                {children}
+            </CardContainer>
+        );
     };
-
-    return (
-        <CardContainer id={`card-select-${id}`} className={cn({ "active": isSelected, 'not-allowed': disabled })} sx={sx} isSelected={isSelected} onClick={handleComponentClick} title={tooltip}>
-            {children}
-        </CardContainer>
-    );
-};
+    

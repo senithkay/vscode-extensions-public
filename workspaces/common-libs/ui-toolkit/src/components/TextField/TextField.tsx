@@ -10,6 +10,7 @@ import React, { ReactNode } from 'react';
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
 import { ErrorBanner } from "../Commons/ErrorBanner";
 import { RequiredFormInput } from "../Commons/RequiredInput";
+import styled from '@emotion/styled';
 
 interface IconProps {
     iconComponent: ReactNode;
@@ -30,19 +31,34 @@ export interface TextFieldProps {
     errorMsg?: string;
     placeholder?: string;
     validationMessage?: string;
+    sx?: any;
     onChange?: (e: string) => void;
 }
 
+interface ContainerProps {
+    sx?: any;
+}
+
+const Container = styled.div<ContainerProps>`
+    ${(props: ContainerProps) => props.sx};
+`;
+
+const LabelContainer = styled.div<ContainerProps>`
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 4px;
+`;
+
 export function TextField(props: TextFieldProps) {
     const { label, type = "text", size = 20, disabled, icon, readonly, value = "", id, autoFocus, required, onChange,
-        placeholder, validationMessage, errorMsg
+        placeholder, validationMessage, errorMsg, sx
     } = props;
     const { iconComponent, position = "start" } = icon || {};
     const handleChange = (e: any) => {
         onChange && onChange(e.target.value);
     }
     return (
-        <>
+        <Container sx={sx}>
             <VSCodeTextField
                 autoFocus={autoFocus}
                 type={type}
@@ -56,11 +72,16 @@ export function TextField(props: TextFieldProps) {
                 id={id}
             >
                 {iconComponent && (<span slot={position}>{iconComponent}</span>)}
-                {label} {(required && label) && (<RequiredFormInput />)}
+                <LabelContainer>
+                    <div style={{color: "var(--vscode-editor-foreground	)"}}> 
+                        <label htmlFor={`${id}-label`}>{label}</label> 
+                    </div>
+                    {(required && label) && (<RequiredFormInput />)}
+                </LabelContainer>
             </VSCodeTextField>
             {errorMsg && (
                 <ErrorBanner errorMsg={errorMsg} />
             )}
-        </>
+        </Container>
     );
 }

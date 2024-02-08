@@ -18,7 +18,6 @@ import {
 import { activateDebugConfigProvider } from './debugger';
 import { activate as activateProjectFeatures } from './project';
 import { activate as activateEditorSupport } from './editor-support';
-import { activate as activatePackageOverview } from './tree-view';
 import { activate as activateTesting } from './testing/activator';
 import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams, FeatureState } from 'vscode-languageclient';
 import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-language-client';
@@ -30,6 +29,8 @@ import { activate as activateERDiagram } from './persist-layer-diagram';
 import { activate as activateDesignDiagramView } from './project-design-diagrams';
 import { debug, handleResolveMissingDependencies, log } from './utils';
 import { activateUriHandlers } from './uri-handlers';
+import { startMachine } from './visualizer/activator';
+import { activateSubscriptions } from './visualizer/subscription';
 
 let langClient: ExtendedLangClient;
 export let isPluginStartup = true;
@@ -73,37 +74,41 @@ function onBeforeInit(langClient: ExtendedLangClient) {
     langClient.registerFeature(new ShowFileFeature());
 }
 
-export async function activate(context: ExtensionContext): Promise<BallerinaExtension> {
+export async function activate(context: ExtensionContext) { 
+    await startMachine(context);
+    return ballerinaExtInstance;
+}
+
+export async function activateBallerina(context: ExtensionContext): Promise<BallerinaExtension> {
     debug('Active the Ballerina VS Code extension.');
     sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_EXTENSION_ACTIVATE, CMP_EXTENSION_CORE);
     ballerinaExtInstance.setContext(context);
     // Enable URI handlers
     activateUriHandlers(ballerinaExtInstance);
     await ballerinaExtInstance.init(onBeforeInit).then(() => {
-        // start the features.
-        // Enable package overview
-        activatePackageOverview(ballerinaExtInstance);
-        // Enable Ballerina diagram
-        activateDiagram(ballerinaExtInstance);
-        // Enable Ballerina by examples
-        activateBBE(ballerinaExtInstance);
-        // Enable Ballerina Debug Config Provider
-        activateDebugConfigProvider(ballerinaExtInstance);
-        // Enable Ballerina Project related features
-        activateProjectFeatures();
-        activateEditorSupport(ballerinaExtInstance);
-        // Enable performance forecaster
-        activatePerformanceForecaster(ballerinaExtInstance);
-        // Enable try it views
-        activateTryIt(ballerinaExtInstance);
-        // Enable Ballerina Telemetry listener
-        activateTelemetryListener(ballerinaExtInstance);
-        activateTesting(ballerinaExtInstance);
-        // Enable Ballerina Notebook
-        activateNotebook(ballerinaExtInstance);
         activateLibraryBrowser(ballerinaExtInstance);
-        activateDesignDiagramView(ballerinaExtInstance);
-        activateERDiagram(ballerinaExtInstance);
+        activateSubscriptions(context);
+        // start the features.
+        // Enable Ballerina diagram
+        // activateDiagram(ballerinaExtInstance);
+        // // Enable Ballerina by examples
+        // activateBBE(ballerinaExtInstance);
+        // // Enable Ballerina Debug Config Provider
+        // activateDebugConfigProvider(ballerinaExtInstance);
+        // // Enable Ballerina Project related features
+        // activateProjectFeatures();
+        activateEditorSupport(ballerinaExtInstance);
+        // // Enable performance forecaster
+        // activatePerformanceForecaster(ballerinaExtInstance);
+        // // Enable try it views
+        // activateTryIt(ballerinaExtInstance);
+        // // Enable Ballerina Telemetry listener
+        // activateTelemetryListener(ballerinaExtInstance);
+        // activateTesting(ballerinaExtInstance);
+        // // Enable Ballerina Notebook
+        // activateNotebook(ballerinaExtInstance);
+        // activateDesignDiagramView(ballerinaExtInstance);
+        // activateERDiagram(ballerinaExtInstance);
 
         langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         // Register showTextDocument listener

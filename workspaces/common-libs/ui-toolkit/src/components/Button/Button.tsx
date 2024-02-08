@@ -7,8 +7,22 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import styled from "@emotion/styled";
-import React from "react";
+import React, { PropsWithChildren } from "react";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+
+export interface ButtonWrapperProps {
+    sx?: React.CSSProperties;
+}
+
+export interface ButtonProps {
+    id?: string;
+    className?: string;
+    appearance?: "primary" | "secondary" | "icon";
+    tooltip?: string;
+    disabled?: boolean;
+    sx?: React.CSSProperties;
+    onClick?: (() => void) | ((event: React.MouseEvent<HTMLElement | SVGSVGElement>) => void);
+}
 
 export const IconLabel = styled.div`
     // To hide label in small screens
@@ -18,21 +32,23 @@ export const IconLabel = styled.div`
     }
 `;
 
-export interface ButtonProps {
-    appearance?: "primary" | "secondary" | "icon";
-    tooltip?: string;
-    disabled?: boolean;
-    children?: React.ReactNode;
-    onClick?: () => void;
-}
+export const ButtonWrapper = styled.div<ButtonWrapperProps>`
+    display: flex;
+    height: fit-content;
+    width: fit-content;
+    ${(props: ButtonWrapperProps) => props.sx}
+`;
 
-export const Button = (props: ButtonProps) => {
-    const { disabled, appearance = "primary", tooltip, children, onClick } = props;
+export const Button: React.FC<PropsWithChildren<ButtonProps>> = (props: PropsWithChildren<ButtonProps>) => {
+    const { id, className, disabled, appearance = "primary", tooltip, children, onClick, sx } = props;
 
     return (
         // Workaround for button not being disabled when disabled prop is passed
-        <VSCodeButton appearance={appearance} onClick={() => onClick()} title={tooltip} disabled={(disabled ? true : undefined)}>
-            {children}
-        </VSCodeButton>
+        <ButtonWrapper id={id} className={className} sx={sx}>
+            <VSCodeButton appearance={appearance} onClick={onClick} title={tooltip} disabled={(disabled ? true : undefined)}>
+                {children}
+            </VSCodeButton>
+        </ButtonWrapper>
     );
 };
+

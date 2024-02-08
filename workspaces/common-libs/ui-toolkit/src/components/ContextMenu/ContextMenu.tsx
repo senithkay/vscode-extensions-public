@@ -17,6 +17,7 @@ import {
 import styled from "@emotion/styled";
 import { Overlay } from "../Commons/Overlay";
 import { Codicon } from "../Codicon/Codicon";
+import { ClickAwayListener } from "../ClickAwayListener/ClickAwayListener";
 
 interface Item {
     id: number | string;
@@ -25,6 +26,8 @@ interface Item {
     disabled?: boolean;
 }
 export interface ContextMenuProps {
+    id?: string;
+    className?: string;
     menuItems?: Item[];
     isOpen?: boolean;
     isLoading?: boolean;
@@ -40,11 +43,15 @@ interface ContainerProps {
 }
 
 const VSCodeDataGridInlineCell = styled(VSCodeDataGridCell)`
+    color: var(--vscode-inputOption-activeForeground);
     text-align: left;
     width: 220px;
     display: flex;
     align-items: center;
     padding: 6px 10px;
+    &:hover {
+        background-color: var(--vscode-focusBorder);
+    };
 `;
 
 const ExpandedMenu = styled.div<ContainerProps>`
@@ -74,7 +81,7 @@ const Container = styled.div`
 `;
 
 export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps) => {
-    const { isLoading, isOpen, menuId, sx, iconSx, menuItems, icon } = props;
+    const { id, className, isLoading, isOpen, menuId, sx, iconSx, menuItems, icon } = props;
     const [isMenuOpen, setIsMenuOpen] = useState(isOpen);
 
     const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
@@ -88,49 +95,50 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
     };
 
     return (
-        <Container>
-            {isLoading ? (
-                <SmallProgressRing />
-            ) : (
-                iconSx ? (
-                    <IconWrapper onClick={handleClick} sx={iconSx} id={`component-list-menu-${menuId ? menuId : "btn"}`}>
-                        {icon ? icon : <Codicon name="ellipsis"/>}
-                    </IconWrapper>
+        <ClickAwayListener onClickAway={() => setIsMenuOpen(false)}>
+            <Container id={id} className={className}>
+                {isLoading ? (
+                    <SmallProgressRing />
                 ) : (
-                    <VSCodeButton appearance="icon" onClick={handleClick} title="More Actions" id={`component-list-menu-${menuId ? menuId : "btn"}`}>
-                        {icon ? icon : <Codicon name="ellipsis"/>}
-                    </VSCodeButton>
-                )
-            )}
-
-            {isMenuOpen && (
-                <ExpandedMenu sx={sx}>
-                    <VSCodeDataGrid aria-label="Context Menu">
-                        {menuItems?.map(item => (
-                            <VSCodeDataGridRow
-                                key={item.id}
-                                onClick={(event: React.MouseEvent<HTMLElement, MouseEvent>) => {
-                                    if (!item?.disabled) {
-                                        event.stopPropagation();
-                                        if (item?.onClick) {
-                                            item.onClick();
+                    iconSx ? (
+                        <IconWrapper onClick={handleClick} sx={iconSx} id={`component-list-menu-${menuId ? menuId : "btn"}`}>
+                            {icon ? icon : <Codicon name="ellipsis"/>}
+                        </IconWrapper>
+                    ) : (
+                        <VSCodeButton appearance="icon" onClick={handleClick} title="More Actions" id={`component-list-menu-${menuId ? menuId : "btn"}`}>
+                            {icon ? icon : <Codicon name="ellipsis"/>}
+                        </VSCodeButton>
+                    )
+                )}
+                {isMenuOpen && (
+                    <ExpandedMenu sx={sx}>
+                        <VSCodeDataGrid aria-label="Context Menu">
+                            {menuItems?.map(item => (
+                                <VSCodeDataGridRow
+                                    key={item.id}
+                                    onClick={(event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+                                        if (!item?.disabled) {
+                                            event.stopPropagation();
+                                            if (item?.onClick) {
+                                                item.onClick();
+                                            }
+                                            setIsMenuOpen(false);
                                         }
-                                        setIsMenuOpen(false);
-                                    }
-                                }}
-                                style={{
-                                    cursor: item.disabled ? "not-allowed" : "pointer",
-                                    opacity: item.disabled ? 0.5 : 1,
-                                }}
-                                id={`component-list-menu-${item.id}`}
-                            >
-                                <VSCodeDataGridInlineCell>{item.label}</VSCodeDataGridInlineCell>
-                            </VSCodeDataGridRow>
-                        ))}
-                    </VSCodeDataGrid>
-                </ExpandedMenu>
-            )}
-            {isMenuOpen && <Overlay onClose={handleMenuClose} />}
-        </Container>
+                                    }}
+                                    style={{
+                                        cursor: item.disabled ? "not-allowed" : "pointer",
+                                        opacity: item.disabled ? 0.5 : 1,
+                                    }}
+                                    id={`component-list-menu-${item.id}`}
+                                >
+                                    <VSCodeDataGridInlineCell>{item.label}</VSCodeDataGridInlineCell>
+                                </VSCodeDataGridRow>
+                            ))}
+                        </VSCodeDataGrid>
+                    </ExpandedMenu>
+                )}
+                {isMenuOpen && <Overlay onClose={handleMenuClose} />}
+            </Container>
+        </ClickAwayListener>
     );
 };

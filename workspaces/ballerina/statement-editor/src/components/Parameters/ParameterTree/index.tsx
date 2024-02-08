@@ -9,17 +9,16 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import { ListItemText, ListSubheader } from "@material-ui/core";
-import { withStyles } from "@material-ui/core/styles";
-import { BallerinaConnectorInfo, FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConnectorInfo, FormField } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { Typography } from "@wso2-enterprise/ui-toolkit";
 
 import { ACTION, CONNECTOR, HTTP_ACTION } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getParamUpdateModelPosition, getParentFunctionModel } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { DocumentationButton } from "../../ExternalDocumentation";
-import { parameterHeader, useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
 import { MemoizedParameterBranch } from "./ParameterBranch";
 import { getDefaultParams, mapActionToFormField, mapEndpointToFormField } from "./utils";
@@ -39,7 +38,6 @@ export function ParameterTree(props: ParameterTreeProps) {
     const { parameters, connectorInfo } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const overlayClasses = useStatementEditorStyles();
-    const ParamListSubheader = withStyles(parameterHeader)(ListSubheader);
     const {
         modelCtx: {
             currentModel: { model },
@@ -89,13 +87,18 @@ export function ParameterTree(props: ParameterTreeProps) {
         <div data-testid="parameter-tree">
             {parameters?.length > 0 && (
                 <>
-                    <ParamListSubheader>
-                        <div style={{display: "flex", justifyContent: "space-between"}}>
+                    <div style={{display: "flex", justifyContent: "space-between"}}>
+                        <Typography
+                            variant="h4"
+                            className={stmtEditorHelperClasses.paramHeader}
+                        >
                             Configure Parameters
-                            {connectorInfo && (<DocumentationButton connectorInfo={connectorInfo}/>)}
-                        </div>
-                        <ListItemText secondary={"Select parameters from the list given below"} />
-                    </ParamListSubheader>
+                        </Typography>
+                        {connectorInfo && (<DocumentationButton connectorInfo={connectorInfo}/>)}
+                    </div>
+                    <Typography variant="body3" sx={{ color: 'var(--vscode-descriptionForeground)'}}>
+                        Select parameters from the list given below
+                    </Typography>
                     {updatingParams && (
                         <div className={stmtEditorHelperClasses.paramList} data-testid="parameter-loader">
                             <div className={overlayClasses.sectionLoadingWrapper}>Loading Parameters...</div>
