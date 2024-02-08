@@ -30,15 +30,15 @@ export class VisualizerWebview {
         RPCLayer.create(this._panel);
 
         // Handle the text change and diagram update with rpc notification
-        const refreshDiagram = debounce(() => {
-            if (this.getWebview()) {
+        const sendUpdateNotificationToWebview = debounce(() => {
+            if (this._panel) {
                 RPCLayer._messenger.sendNotification(onFileContentUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType });
             }
         }, 500);
 
         vscode.workspace.onDidChangeTextDocument(async function (document) {
             await document.document.save();
-            refreshDiagram();
+            sendUpdateNotificationToWebview();
         }, extension.context);
     }
 

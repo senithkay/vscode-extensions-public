@@ -16,13 +16,20 @@ export function ServiceDesigner() {
     const { rpcClient } = useVisualizerContext();
     const [st, setSt] = React.useState<ServiceDeclaration>();
 
+    rpcClient.onFileContentUpdate(() => {
+		fetchServiceSt();
+	});
+
     useEffect(() => {
+        fetchServiceSt();
+    }, []);
+
+    const fetchServiceSt = () => {
         rpcClient.getLangServerRpcClient().getSyntaxTree().then((value) => {
             const serviceSt = value.syntaxTree as ServiceDeclaration;
             setSt(serviceSt);
         });
-    }, []);
-
+    }
 
     return (
         <>
