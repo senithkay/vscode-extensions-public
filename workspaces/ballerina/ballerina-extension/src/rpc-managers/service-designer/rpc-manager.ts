@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -9,12 +9,14 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    BallerinaSTModifyResponse,
     CompletionParams,
     CompletionResponse,
     CreateResourceRequest,
     CreateServiceRequest,
     DeleteResourceRequest,
     DeleteServiceRequest,
+    GetSyntaxTreeResponse,
     KeywordTypeResponse,
     RecordSTRequest,
     RecordSTResponse,
@@ -27,13 +29,13 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, STKindChecker, traversNode } from "@wso2-enterprise/syntax-tree";
 import { Uri } from "vscode";
-import { StateMachine, openView } from "../../stateMachine";
 import { applyModifications, updateFileContent } from "../../utils/modification";
+import { getLangClient, getService, openView } from "../../visualizer/activator";
+import { goToSource } from "../../utils";
 
 export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     async createService(params: CreateServiceRequest): Promise<void> {
         // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
     }
 
     async updateService(params: UpdateServiceRequest): Promise<void> {
@@ -47,7 +49,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     }
 
     async createResource(params: CreateResourceRequest): Promise<void> {
-        const context = StateMachine.context();
+        const location = getService().getSnapshot().context.location;
         const modification: STModification = {
             type: "INSERT",
             isImport: false,
@@ -56,17 +58,15 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             },
             ...params.position
         };
-        const response = await applyModifications(context.fileName!, [modification]);
+        const response = await applyModifications(location.fileName!, [modification]) as BallerinaSTModifyResponse;
         if (response.parseSuccess) {
-            await updateFileContent({ fileUri: context.fileName!, content: response.source });
+            await updateFileContent({ fileUri: location.fileName!, content: response.source });
             const st = response.syntaxTree as ModulePart;
             st.members.forEach(member => {
                 if (STKindChecker.isServiceDeclaration(member)) {
                     const identifier = member.absoluteResourcePath.reduce((result, obj) => result + obj.value, "");
-                    if (identifier === context.identifier) {
-                        openView({ position: member.position });
-                    }
                 }
+                openView({ location: member?.position, view: "ServiceDesigner" });
             });
         }
     }
@@ -77,32 +77,32 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     }
 
     async deleteResource(params: DeleteResourceRequest): Promise<void> {
-        const context = StateMachine.context();
+        const location = getService().getSnapshot().context.location;
         const modification: STModification = {
             type: 'DELETE',
             ...params.position
         };
 
-        const response = await applyModifications(context.fileName!, [modification]);
+        const response = await applyModifications(location.fileName!, [modification]) as BallerinaSTModifyResponse;
         if (response.parseSuccess) {
-            await updateFileContent({ fileUri: context.fileName!, content: response.source });
+            await updateFileContent({ fileUri: location.fileName!, content: response.source });
             const st = response.syntaxTree as ModulePart;
             st.members.forEach(member => {
                 if (STKindChecker.isServiceDeclaration(member)) {
                     const identifier = member.absoluteResourcePath.reduce((result, obj) => result + obj.value, "");
-                    if (identifier === context.identifier) {
-                        openView({ position: member.position });
-                    }
+                    // if (identifier === context.identifier) {
+                    //     openView({ position: member.position });
+                    // }
                 }
             });
         }
     }
 
     async getKeywordTypes(): Promise<KeywordTypeResponse> {
-        const context = StateMachine.context();
+        const location = getService().getSnapshot().context.location;
         const completionParams: CompletionParams = {
             textDocument: {
-                uri: Uri.file(context.fileName!).toString()
+                uri: Uri.file(location.fileName!).toString()
             },
             context: {
                 triggerKind: 25,
@@ -111,18 +111,18 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 character: 0,
                 line: 0
             }
-        }
+        };
 
-        const langClient = await context.langServer!;
+        const langClient = getLangClient();
         const completions: CompletionResponse[] = await langClient.getCompletion(completionParams);
         return { completions: completions.filter(value => value.kind === 25) };
     }
 
     async getRecordST(params: RecordSTRequest): Promise<RecordSTResponse> {
-        const context = StateMachine.context();
-        const langClient = await context.langServer!;
-        const fileUri = Uri.file(context.fileName!).toString();
-        const stResponse = await langClient.getSyntaxTree({ documentIdentifier: { uri: fileUri } });
+        const location = getService().getSnapshot().context.location;
+        const langClient = getLangClient();
+        const fileUri = Uri.file(location.fileName!).toString();
+        const stResponse = await langClient.getSyntaxTree({ documentIdentifier: { uri: fileUri } }) as GetSyntaxTreeResponse;
         traversNode(stResponse.syntaxTree, RecordsFinderVisitor);
         const records = RecordsFinderVisitor.getRecords();
         const recordST = records.get(params.recordName);
@@ -134,8 +134,8 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         }
     }
 
-    goToSource(params: goToSourceRequest): void {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+    async goToSource(params: goToSourceRequest): Promise<void> {
+        const location = getService().getSnapshot().context.location;
+        goToSource(params.position, location.fileName!);
     }
 }

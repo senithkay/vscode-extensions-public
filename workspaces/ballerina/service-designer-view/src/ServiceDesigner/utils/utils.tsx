@@ -292,6 +292,14 @@ export async function getResponseConfig(resource: ResourceAccessorDefinition, rp
                 index++;
             }
         }
+    } else if (resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol) {
+        const type = resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.typeKind;
+        response.push({
+            id: index,
+            code: ((type === "error" || type === "error?") ? 500 : getCodeFromResponse(resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.name as string, resource.functionName.value as HTTP_METHOD)),
+            type: type,
+            source: type
+        });
     }
     return response;
 }

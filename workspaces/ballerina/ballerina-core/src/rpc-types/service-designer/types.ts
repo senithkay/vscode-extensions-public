@@ -37,3 +37,8 @@ export interface RecordSTRequest {
 export interface RecordSTResponse {
     recordST: TypeDefinition;
 }
+
+export interface goToSourceRequest {
+    position: NodePosition;
+    fileUri: string;
+}

@@ -13,15 +13,15 @@ import React, { useState, useEffect } from "react";
 import { ResourceForm } from "./components/ResourceForm/ResourceForm";
 import { ServiceDeclaration, NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
-import { ServiceDesignerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { getService, updateServiceDecl } from "./utils/utils";
 import { ServiceForm } from "./components/ServiceForm/ServiceForm";
+import { ServiceDesignerAPI } from "@wso2-enterprise/ballerina-core";
 
 interface ServiceDesignerProps {
     // Model of the service. This is the ST of the service
     model?: ServiceDeclaration;
     // RPC client to communicate with the backend for ballerina
-    rpcClient?: ServiceDesignerRpcClient;
+    rpcClient?: ServiceDesignerAPI;
     // Types to be shown in the autocomplete of respose
     typeCompletions?: string[];
     // Callback to send the position of the resource to navigae to code
@@ -77,6 +77,10 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         setTypes(types?.completions.map(type => type.insertText));
     };
 
+    const handleGoToSource = (resource: Resource) => {
+        rpcClient.goToSource({ position: resource.position, fileUri: ""});
+    }
+
     useEffect(() => {
         const fetchService = async () => {
             setServiceConfig(await getService(model, rpcClient));
@@ -97,7 +101,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         <div data-testid="service-design-view">
             <ServiceDesigner
                 model={serviceConfig}
-                goToSource={goToSource}
+                goToSource={handleGoToSource}
                 onResourceEdit={handleResourceEdit}
                 onResourceDelete={handleResourceDelete}
                 onServiceEdit={handleServiceEdit}
