@@ -9,11 +9,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { URI } from "vscode-uri";
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
-import { BallerinaSTModifyResponse } from "@wso2-enterprise/ballerina-core";
+import { SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
 export const useSyntaxTreeFromRange = (location: NodePosition, fileName: string, hasRerender: boolean) : {
-    data: BallerinaSTModifyResponse;
+    data: SyntaxTreeResponse;
     isFetching: boolean;
     isError: boolean;
     refetch: any;

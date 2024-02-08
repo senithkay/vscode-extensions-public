@@ -12,7 +12,7 @@ import React, { useMemo, useState } from "react";
 import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { css } from "@emotion/css";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { STModification, Type } from "@wso2-enterprise/ballerina-core";
+import { STModification, TypeField } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 
@@ -255,7 +255,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 		return targetPosition;
 	}
 
-	const handleWrapWithTypeCast = async (type: Type, shouldReInitialize?: boolean) => {
+	const handleWrapWithTypeCast = async (type: TypeField, shouldReInitialize?: boolean) => {
 		setIsModifyingTypeCast(true)
 		try {
 			const name = getTypeName(type);

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -10,10 +10,9 @@
  */
 import {
     VisualizerAPI,
-    VisualizerLocationContext,
-    getVisualizerState,
-    openVisualizerView,
-    updateVisualizerView
+    VisualizerLocation,
+    goBack,
+    openView
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -25,15 +24,11 @@ export class VisualizerRpcClient implements VisualizerAPI {
         this._messenger = messenger;
     }
 
-    getVisualizerState(): Promise<VisualizerLocationContext> {
-        return this._messenger.sendRequest(getVisualizerState, HOST_EXTENSION);
+    openView(params: VisualizerLocation): void {
+        return this._messenger.sendNotification(openView, HOST_EXTENSION, params);
     }
 
-    openVisualizerView(params: VisualizerLocationContext): Promise<VisualizerLocationContext> {
-        return this._messenger.sendRequest(openVisualizerView, HOST_EXTENSION, params);
-    }
-
-    updateVisualizerView(params: VisualizerLocationContext): Promise<VisualizerLocationContext> {
-        return this._messenger.sendRequest(updateVisualizerView, HOST_EXTENSION, params);
+    goBack(): void {
+        return this._messenger.sendNotification(goBack, HOST_EXTENSION);
     }
 }

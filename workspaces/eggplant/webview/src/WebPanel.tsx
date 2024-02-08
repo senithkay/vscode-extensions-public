@@ -16,7 +16,7 @@ const WebPanel = (props: { state: MachineStateValue }) => {
                 eggplantRpcClient.getWebviewRpcClient().getVisualizerState().then(async (vState: VisualizerLocation) => {
                     if (vState.view === "ServiceDesigner") {
                         const context: VisualizerLocation = {
-                            fileName: vState.fileName,
+                            documentUri: vState.documentUri,
                             position: vState.position
                         }
                         const serviceST = await eggplantRpcClient.getWebviewRpcClient().getSTNodeFromLocation(context);

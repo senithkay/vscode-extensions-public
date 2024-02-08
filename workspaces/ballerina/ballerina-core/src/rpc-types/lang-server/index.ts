@@ -11,71 +11,63 @@
  *  associated services.
  */
 
-import { CodeAction, WorkspaceEdit } from "vscode-languageserver-types";
+import { PartialSTRequest, PartialSTResponse, STModifyRequest, SymbolInfoRequest, SymbolInfoResponse } from "../../interfaces/ballerina";
 import {
-    BallerinaProjectComponents,
-    BallerinaProjectParams,
-    BallerinaSTModifyResponse,
-    CodeActionParams,
-    CompletionParams,
+    BallerinaVersionResponse,
+    CodeActionRequest,
+    CodeActionResponse,
+    CompletionRequest,
     CompletionResponse,
-    DidChangeTextDocumentParams,
-    DidCloseTextDocumentParams,
-    DidOpenTextDocumentParams,
-    GetBallerinaPackagesParams,
-    JsonToRecordRequest,
-    JsonToRecordResponse,
-    PublishDiagnosticsParams,
-    RenameParams,
-    TextDocumentPositionParams,
-    NOT_SUPPORTED_TYPE,
-    GetSyntaxTreeResponse,
-    GetSyntaxTreeParams,
-    BallerinaFunctionSTRequest,
-    BallerinaSTModifyRequest,
+    DefinitionPositionRequest,
+    DiagnosticsResponse,
+    ProjectComponentsRequest,
+    BallerinaProjectComponents,
+    RenameRequest,
+    RenameResponse,
+    STByRangeRequest,
+    STRequest,
+    SyntaxTreeResponse,
     UpdateFileContentRequest,
+    UpdateFileContentResponse,
     TypeFromExpressionRequest,
-    TypeFromSymbolRequest,
     TypesFromExpressionResponse,
-    TypesFromFnDefinitionRequest,
+    TypeFromSymbolRequest,
     TypesFromSymbolResponse,
+    TypesFromFnDefinitionRequest,
+    DefinitionResponse,
+    ExecutorPositionsRequest,
     ExecutorPositionsResponse,
-    GetBallerinaProjectParams, 
-    PartialSTResponse,
-    PartialSTRequest,
-    SymbolInfoRequest,
-    SymbolInfoResponse
-} from "../..";
-import { STNode } from "@wso2-enterprise/syntax-tree";
-import { Location, LocationLink } from "vscode-languageserver-types";
+    DidOpenRequest,
+    DidChangeRequest,
+    DidCloseRequest
+} from "./interfaces";
 
 export interface LangServerAPI {
-    getSyntaxTree: () => Promise<STNode>;
-    getST: (params: GetSyntaxTreeParams) => Promise<GetSyntaxTreeResponse>;
-    getSTByRange(params: BallerinaFunctionSTRequest): Promise<BallerinaSTModifyResponse>;
-    getBallerinaProjectComponents: (params: GetBallerinaPackagesParams) => Promise<BallerinaProjectComponents>;
-    getBallerinaVersion: () => Promise<string | undefined>;
-    getCompletion: (params: CompletionParams) => Promise<CompletionResponse[]>;
-    getDiagnostics: (params: BallerinaProjectParams) => Promise<PublishDiagnosticsParams[] | NOT_SUPPORTED_TYPE>;
-    codeAction: (params: CodeActionParams) => Promise<CodeAction[]>;
-    rename: (params: RenameParams) => Promise<WorkspaceEdit>;
-    getDefinitionPosition: (params: TextDocumentPositionParams) => Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE>;
-    convert: (params: JsonToRecordRequest) => Promise<JsonToRecordResponse | NOT_SUPPORTED_TYPE>;
-    stModify: (params: BallerinaSTModifyRequest) => Promise<BallerinaSTModifyResponse>;
-    updateFileContent: (params: UpdateFileContentRequest) => Promise<boolean>;
+    getSyntaxTree: () => Promise<SyntaxTreeResponse>;
+    getST: (params: STRequest) => Promise<SyntaxTreeResponse>;
+    getSTByRange: (params: STByRangeRequest) => Promise<SyntaxTreeResponse>;
+    getBallerinaProjectComponents: (params: ProjectComponentsRequest) => Promise<BallerinaProjectComponents>;
+    getBallerinaVersion: () => Promise<BallerinaVersionResponse>;
+    getCompletion: (params: CompletionRequest) => Promise<CompletionResponse>;
+    getDiagnostics: (params: STRequest) => Promise<DiagnosticsResponse>;
+    codeAction: (params: CodeActionRequest) => Promise<CodeActionResponse>;
+    rename: (params: RenameRequest) => Promise<RenameResponse>;
+    getDefinitionPosition: (params: DefinitionPositionRequest) => Promise<SyntaxTreeResponse>;
+    stModify: (params: STModifyRequest) => Promise<SyntaxTreeResponse>;
+    updateFileContent: (params: UpdateFileContentRequest) => Promise<UpdateFileContentResponse>;
     getTypeFromExpression: (params: TypeFromExpressionRequest) => Promise<TypesFromExpressionResponse>;
     getTypeFromSymbol: (params: TypeFromSymbolRequest) => Promise<TypesFromSymbolResponse>;
     getTypesFromFnDefinition: (params: TypesFromFnDefinitionRequest) => Promise<TypesFromSymbolResponse>;
-    definition: (params: TextDocumentPositionParams) => Promise<Location | Location[] | LocationLink[] | null>;
-    getSTForFunction: (params: BallerinaSTModifyRequest) => Promise<BallerinaSTModifyResponse>;
-    getExecutorPositions: (params: GetBallerinaProjectParams) => Promise<ExecutorPositionsResponse>;
-    getSTForExpression: (params: PartialSTRequest) => Promise<PartialSTResponse | NOT_SUPPORTED_TYPE>;
-    getSTForSingleStatement: (params: PartialSTRequest) => Promise<PartialSTResponse | NOT_SUPPORTED_TYPE>;
-    getSTForResource: (params: PartialSTRequest) => Promise<PartialSTResponse | NOT_SUPPORTED_TYPE>;
-    getSTForModuleMembers: (params: PartialSTRequest) => Promise<PartialSTResponse | NOT_SUPPORTED_TYPE>;
-    getSTForModulePart: (params: PartialSTRequest) => Promise<PartialSTResponse | NOT_SUPPORTED_TYPE>;
+    definition: (params: DefinitionPositionRequest) => Promise<DefinitionResponse>;
+    getSTForFunction: (params: STModifyRequest) => Promise<SyntaxTreeResponse>;
+    getExecutorPositions: (params: ExecutorPositionsRequest) => Promise<ExecutorPositionsResponse>;
+    getSTForExpression: (params: PartialSTRequest) => Promise<PartialSTResponse>;
+    getSTForSingleStatement: (params: PartialSTRequest) => Promise<PartialSTResponse>;
+    getSTForResource: (params: PartialSTRequest) => Promise<PartialSTResponse>;
+    getSTForModuleMembers: (params: PartialSTRequest) => Promise<PartialSTResponse>;
+    getSTForModulePart: (params: PartialSTRequest) => Promise<PartialSTResponse>;
     getSymbolDocumentation: (params: SymbolInfoRequest) => Promise<SymbolInfoResponse>;
-    didOpen: (Params: DidOpenTextDocumentParams) => void;
-    didChange: (params: DidChangeTextDocumentParams) => void;
-    didClose: (params: DidCloseTextDocumentParams) => void;
+    didOpen: (params: DidOpenRequest) => void;
+    didChange: (params: DidChangeRequest) => void;
+    didClose: (params: DidCloseRequest) => void;
 }

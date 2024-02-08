@@ -24,7 +24,7 @@ import {
 } from "react-icons/vsc";
 
 import {
-    CompletionResponse,
+    Completion,
     getSelectedDiagnostics,
     LinePosition,
     ParameterInfo,
@@ -514,7 +514,7 @@ export function getSuggestionIconStyle(suggestionType: number, isReference: bool
     };
 }
 
-export function sortSuggestions(x: CompletionResponse, y: CompletionResponse) {
+export function sortSuggestions(x: Completion, y: Completion) {
     if (!!x.sortText && !!y.sortText) {
         return x.sortText.localeCompare(y.sortText);
     }

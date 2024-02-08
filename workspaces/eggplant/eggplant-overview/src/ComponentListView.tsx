@@ -86,7 +86,7 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
         })
         selected = info;
         const context: VisualizerLocation = {
-            fileName: info.filePath,
+            documentUri: info.filePath,
             position: info.position,
             identifier: info.name
         }

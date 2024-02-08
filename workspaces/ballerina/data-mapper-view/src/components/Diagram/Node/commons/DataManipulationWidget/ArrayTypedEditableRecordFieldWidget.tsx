@@ -327,7 +327,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 disabled={isAddingElement}
                 data-testid={`array-widget-${portIn?.getName()}-add-element`}
             >
-                {isAddingElement ? <ProgressRing sx={{ height: '16px', width: '16px' }} /> : <Codicon name="add" iconSx={{ color: "var(--vscode-inputOption-activeForeground)"}} />}
+                {isAddingElement ? <ProgressRing sx={{ height: '16px', width: '16px' }} /> : <Codicon name="add" iconSx={{ color: "var(--vscode-inputOption-activeForeground)" }} />}
                 Add Element
             </Button>
         );
@@ -365,7 +365,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 if (!field.type.memberType.typeName && field.type.memberType.typeInfo) {
                     unionType = findTypeByInfoFromStore(field.type.memberType.typeInfo);
                 }
-                type  = unionType.members.find(member => typeNameStr === getTypeName(member)).typeName;
+                type = unionType.members.find(member => typeNameStr === getTypeName(member)).typeName;
             }
             const defaultValue = getDefaultValue(type);
             let targetPosition: NodePosition;
@@ -541,15 +541,15 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         <span>[</span>
                         {arrayElements}
                         {addElementButton}
-                            {(isAnydataType || isUnionType) && (
-                                <Menu>
-                                    {possibleTypeOptions?.map((item) => (
-                                        <>
-                                            <MenuItem item={item} />
-                                        </>
-                                    ))}
-                                </Menu>
-                            )}
+                        {(isAnydataType || isUnionType) && (
+                            <Menu>
+                                {possibleTypeOptions?.map((item) => (
+                                    <>
+                                        <MenuItem item={item} />
+                                    </>
+                                ))}
+                            </Menu>
+                        )}
                         <span>]</span>
                     </div>
                 </div>

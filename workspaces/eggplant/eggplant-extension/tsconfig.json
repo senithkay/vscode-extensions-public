@@ -1,34 +1,44 @@
 {
-	"compilerOptions": {
-		"module": "CommonJS",
-		"target": "ES5",
-		"outDir": "out",
-		"lib": [
-			"ES2022",
-			"ES5"
-		],
-		"sourceMap": true,
-		"noEmit": false,
-		"noImplicitAny": false,
-		"paths": {},
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es6",
+        "outDir": "out",
+        "lib": [
+            "es2022"
+        ],
+        "sourceMap": true,
+        "rootDirs": [
+            "src",
+            "test"
+        ],
+        /* Strict Type-Checking Option */
+        "strict": true, /* enable all strict type-checking options */
+        "strictNullChecks": false,
+        /* Additional Checks */
+        "noUnusedLocals": false, /* Report errors on unused locals. */
+        // "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
+        // "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
+        // "noUnusedParameters": true,  /* Report errors on unused parameters. */
+        "baseUrl": ".",
+        "paths": {},
         "jsx": "react",
+        "noImplicitAny": false,
         "declaration": true,
-        "moduleResolution": "Node",
+        "moduleResolution": "node",
         "skipLibCheck": true,
         "esModuleInterop": true,
         "alwaysStrict": true,
-        "resolveJsonModule": true,
-		"rootDir": "src",
-		"strict": true   /* enable all strict type-checking options */
-		/* Additional Checks */
-		// "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
-		// "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
-		// "noUnusedParameters": true,  /* Report errors on unused parameters. */
-	},
-	"exclude": [
-        "node_modules"
+        "resolveJsonModule": true
+    },
+    "exclude": [
+        "node_modules",
+        ".vscode-test",
+        "target",
+        "extractedDistribution"
     ],
     "include": [
-        "src"
+        "src",
+        "test",
+        "ui-test"
     ]
 }
