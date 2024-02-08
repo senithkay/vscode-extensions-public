@@ -152,19 +152,19 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
     const [recordCompletions, setRecordCompletions] = useState<CompletionResponseWithModule[]>([]);
 
     useEffect(() => {
-        void (async () => {
-            if (initiated) {
-                setFetchingCompletions(true);
-                const allCompletions = await getRecordCompletions(
-                    content,
-                    importStatements,
-                    fnST?.position as NodePosition || targetPosition,
-                    path,
-                    langServerRpcClient
-                );
-                setRecordCompletions(allCompletions);
-                setFetchingCompletions(false);
-            }
+    void (async () => {
+    if (initiated) {
+    setFetchingCompletions(true);
+    const allCompletions = await getRecordCompletions(
+    content,
+    importStatements,
+    fnST?.position as NodePosition || targetPosition,
+    path,
+    langServerRpcClient
+    );
+    setRecordCompletions(allCompletions);
+    setFetchingCompletions(false);
+    }
         })();
     }, [content, initiated]);
 
@@ -365,6 +365,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
     const isArraySupported = useMemo(() => isArraysSupported(ballerinaVersion), [ballerinaVersion]);
 
     const handleClosePopover = () => {
+        setIsClicked(false);
         setPopoverAnchorEl(null);
     };
 
