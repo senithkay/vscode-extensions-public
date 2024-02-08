@@ -113,6 +113,12 @@ const stateMachine = createMachine<MachineContext>({
                     on: {
                         GET_STARTED: {
                             target: "create",
+                        },
+                        OPEN_VIEW: {
+                            target: "create",
+                            actions: assign({
+                                view: (context, event) => event.viewLocation.view,
+                            })
                         }
                     }
                 },
@@ -120,6 +126,12 @@ const stateMachine = createMachine<MachineContext>({
                     on: {
                         CANCEL_CREATION: {
                             target: "welcome"
+                        },
+                        OPEN_VIEW: {
+                            target: "welcome",
+                            actions: assign({
+                                view: (context, event) => event.viewLocation.view,
+                            })
                         }
                     }
                 }
