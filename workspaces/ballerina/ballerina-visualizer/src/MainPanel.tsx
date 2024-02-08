@@ -40,6 +40,10 @@ const VisualizerContainer = styled.div`
     height: 100%;
 `;
 
+const ComponentViewWrapper = styled.div`
+    height: calc(100% - 22px);
+`;
+
 const MainPanel = (props: { state: MachineStateValue }) => {
     const { state } = props;
     const { rpcClient } = useVisualizerContext();
@@ -86,13 +90,17 @@ const MainPanel = (props: { state: MachineStateValue }) => {
     };
 
     return (
-        <div>
+        <>
             <Global styles={globalStyles} />
             <VisualizerContainer>
                 <NavigationBar />
-                {context && <RenderComponentView />}
+                {context && (
+                    <ComponentViewWrapper>
+                        <RenderComponentView />
+                    </ComponentViewWrapper>
+                )}
             </VisualizerContainer>
-        </div>
+        </>
     );
 };
 
