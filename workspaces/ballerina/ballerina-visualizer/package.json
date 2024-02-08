@@ -1,5 +1,5 @@
 {
-  "name": "@wso2-enterprise/visualizer-view",
+  "name": "@wso2-enterprise/ballerina-visualizer",
   "version": "1.0.0",
   "description": "Ballerina Extension Visualizer Webview",
   "files": [
