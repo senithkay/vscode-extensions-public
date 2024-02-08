@@ -23,6 +23,7 @@ import { SidePanelProvider } from "./sidePanel/SidePanelContexProvider";
 import { Button, SidePanel, SidePanelTitleContainer } from '@wso2-enterprise/ui-toolkit'
 import SidePanelList from './sidePanel';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { OverlayLayerModel } from "./OverlayLoader/OverlayLayerModel";
 
 export interface DiagramProps {
     model: APIResource | Sequence;
@@ -57,8 +58,11 @@ export function Diagram(props: DiagramProps) {
                     centerDiagram();
                 });
                 centerDiagram();
+                setTimeout(() => {
+                    removeOverlay();
+                }, 100);
             }
-        }, 500);
+        }, 400);
     }, [diagramModel]);
 
     const getNodes = () => {
@@ -82,6 +86,7 @@ export function Diagram(props: DiagramProps) {
 
     const drawDiagram = (nodes: MediatorNodeModel[], links: NodeLinkModel[]) => {
         const newDiagramModel = new DiagramModel();
+        newDiagramModel.addLayer(new OverlayLayerModel());
         newDiagramModel.addAll(...nodes, ...links);
 
         diagramEngine.setModel(newDiagramModel);
@@ -156,6 +161,18 @@ export function Diagram(props: DiagramProps) {
 
         // update diagram
         diagramEngine.setModel(diagramModel);
+        diagramEngine.repaintCanvas();
+    }
+
+    function removeOverlay() {
+        // remove preloader overlay layer
+        const overlayLayer = diagramEngine
+            .getModel()
+            .getLayers()
+            .find((layer) => layer instanceof OverlayLayerModel);
+        if (overlayLayer) {
+            diagramEngine.getModel().removeLayer(overlayLayer);
+        }
         diagramEngine.repaintCanvas();
     }
 }
