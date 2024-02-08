@@ -37,7 +37,6 @@ export function ProjectHeadWidget(props: ServiceHeadProps) {
             isSelected={isSelected || isFocused}
         >
             {generateRoundedOctagonSVG(cellHeight)}
-
             <ProjectPortWidget
                 port={node.getPort(`top-${node.getID()}`)}
                 engine={engine}

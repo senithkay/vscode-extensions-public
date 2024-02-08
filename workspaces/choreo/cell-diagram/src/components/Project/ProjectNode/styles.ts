@@ -69,8 +69,8 @@ export const ProjectCellNode: React.FC<ProjectNodeStyleProps> = styled.div`
     #mainCell path {
         stroke: ${(props: ProjectNodeStyleProps) => (props.isSelected ? Colors.SECONDARY : Colors.ON_SURFACE)};
         stroke-width: ${(props: ProjectNodeStyleProps) => props.borderWidth};
-        fill: none;
-        fill: ${(props: ProjectNodeStyleProps) => (props.isSelected ? Colors.SECONDARY_CONTAINER : Colors.SURFACE)};
+        fill: ${(props: ProjectNodeStyleProps) =>
+            props.isSelected ? Colors.SECONDARY_CONTAINER : Colors.SURFACE};
         pointer-events: none;
     }
 `;
@@ -86,4 +86,9 @@ export const ProjectName: React.FC<any> = styled.span`
         color: ${(props: StyleProps) => (props.isClickable ? PRIMARY_HOVER : ``)};
         text-decoration: ${(props: StyleProps) => (props.isClickable ? `underline` : ``)};
     }
+`;
+
+export const TopArrowContainer = styled.div`
+    position: absolute;
+    top: 0;
 `;
