@@ -16,7 +16,7 @@ import { camelCase } from "lodash";
 import { CompletionResponseWithModule, TypeBrowser } from "../TypeBrowser";
 
 import { DataMapperInputParam } from "./types";
-import { Button, TextField, Typography, Grid } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 
 interface InputParamEditorProps {
@@ -92,19 +92,19 @@ export function InputParamEditor(props: InputParamEditorProps) {
 
     return (
         <ParamEditorContainer>
-            <Grid>
-                <Grid>
-                    <IputLabel>Type</IputLabel>
+            <Row>
+                <Column>
+                    <InputLabel>Type</InputLabel>
                     <TypeBrowser
                         type={paramType}
                         onChange={handleParamTypeChange}
                         isLoading={loadingCompletions}
                         recordCompletions={completions}
                     />
-                </Grid>
+                </Column>
                 {!hideName && (
-                    <Grid>
-                        <IputLabel>Name</IputLabel>
+                    <Column>
+                        <InputLabel>Name</InputLabel>
                         <TextField
                             value={paramName}
                             placeholder={paramName}
@@ -112,12 +112,12 @@ export function InputParamEditor(props: InputParamEditorProps) {
                             errorMsg={pramError}
                             size={40}
                         />
-                    </Grid>
+                    </Column>
                 )}
 
-            </Grid>
-            <Grid sx={{ marginTop: "8px" }}>
-                <Grid>
+            </Row>
+            <Row style={{ marginTop: "8px" }}>
+                <Column>
                     {isArraySupported && (
                         <FormControlLabel>
                             <VSCodeCheckbox
@@ -128,8 +128,8 @@ export function InputParamEditor(props: InputParamEditorProps) {
                         </FormControlLabel>
                     )}
 
-                </Grid>
-                <Grid>
+                </Column>
+                <Column>
                     <ButtonContainer>
                         <Button
                             appearance="secondary"
@@ -145,8 +145,8 @@ export function InputParamEditor(props: InputParamEditorProps) {
                             {onUpdate ? "Update" : " Add"}
                         </Button>
                     </ButtonContainer>
-                </Grid>
-            </Grid>
+                </Column>
+            </Row>
         </ParamEditorContainer>
     );
 }
@@ -161,7 +161,7 @@ const ParamEditorContainer = styled.div(() => ({
     padding: "15px 10px"
 }));
 
-const IputLabel = styled.div(() => ({
+const InputLabel = styled.div(() => ({
     height: "24px",
     width: "38px",
     color: "var(--vscode-input-foreground)",
@@ -182,3 +182,17 @@ const FormControlLabel = styled.div`
     align-items: center;
     gap: 6px;
 `;
+
+const Row = styled.div`
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    width: 100%;
+`;
+
+const Column = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+`;
+
