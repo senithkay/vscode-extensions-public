@@ -20,6 +20,7 @@ export class ProjectModel extends SharedNodeModel {
         const name = project.id;
         super(PROJECT_NODE, name);
         this.project = project;
+        this.setLocked(true);
 
         this.addPort(new ProjectPortModel(name, PortModelAlignment.LEFT));
         this.addPort(new ProjectPortModel(name, PortModelAlignment.RIGHT));

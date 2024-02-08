@@ -31,7 +31,6 @@ export const ProjectNode: React.FC<any> = styled.div`
     gap: 10px;
     padding: 2px;
     pointer-events: all;
-    cursor: grab;
     &:active {
         cursor: grabbing;
     }
@@ -85,7 +84,6 @@ export const ProjectName: React.FC<any> = styled.span`
     max-width: ${LABEL_MAX_WIDTH}px;
     &:hover {
         color: ${(props: StyleProps) => (props.isClickable ? PRIMARY_HOVER : ``)};
-        cursor: ${(props: StyleProps) => (props.isClickable ? `grabbing` : ``)};
         text-decoration: ${(props: StyleProps) => (props.isClickable ? `underline` : ``)};
     }
 `;
