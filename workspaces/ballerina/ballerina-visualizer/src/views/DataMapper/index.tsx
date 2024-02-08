@@ -22,17 +22,15 @@ export function DataMapper() {
     const langServerRpcClient = rpcClient.getLangServerRpcClient();
     const libraryBrowserRPCClient = rpcClient.getLibraryBrowserRPCClient();
     const [mapperData, setMapperData] = useState<SyntaxTreeResponse>(data);
-
     const [context, setContext] = React.useState<VisualizerLocation>();
 
+
     useEffect(() => {
-        if (rpcClient) {
-            rpcClient.getVisualizerContext().then((value) => {
-                setContext(value);
-            });
-        }
-    }, [rpcClient]);
-    
+        rpcClient.getVisualizerContext().then((value) => {
+            setContext(value);
+        });
+    }, []);
+
     useEffect(() => {
         if (!isFetching) {
             setMapperData(data);
@@ -45,6 +43,7 @@ export function DataMapper() {
     const applyModifications = async (modifications: STModification[]) => {
         const langServerRPCClient = rpcClient.getLangServerRpcClient();
         const visualizerRPCClient = rpcClient.getVisualizerRpcClient();
+        const context = await rpcClient.getVisualizerContext();
         const filePath = context.documentUri;
         const { parseSuccess, source: newSource, syntaxTree } = await langServerRPCClient?.stModify({
             astModifications: modifications,
@@ -74,7 +73,7 @@ export function DataMapper() {
     };
 
     const view = useMemo(() => {
-        if (!mapperData || context.documentUri) {
+        if (!mapperData || !context.documentUri) {
             return <div>DM Loading...</div>;
         }
         return (
