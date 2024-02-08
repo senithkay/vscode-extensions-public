@@ -55,15 +55,13 @@ export function DataMapperOverlay() {
                 STKindChecker.isFunctionDefinition(mem)
             ) as FunctionDefinition[];
             const st = fns.find((mem) => mem.functionName.value === fnName);
-            if (!!st) {
-                await visualizerRPCClient.updateVisualizerView({
-                    view: "DataMapper",
-                    location: {
-                        fileName: filePath,
-                        position: st.position
-                    }
-                });
-            }
+            await visualizerRPCClient.updateVisualizerView({
+                view: "DataMapper",
+                location: {
+                    fileName: filePath,
+                    position: st.position
+                }
+            });
             setRerender(prevState => !prevState);
         }
     };
