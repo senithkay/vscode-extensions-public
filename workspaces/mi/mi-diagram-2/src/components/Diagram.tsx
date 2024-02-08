@@ -44,8 +44,8 @@ export function Diagram(props: DiagramProps) {
 
     useEffect(() => {
         if (diagramEngine) {
-            const { nodes, links } = getNodes();
-            drawDiagram(nodes as any, links);
+            const { nodes, links, diagramWidth } = getNodes();
+            drawDiagram(nodes as any, links, diagramWidth);
         }
     }, [props.model, props.documentUri]);
 
@@ -53,26 +53,40 @@ export function Diagram(props: DiagramProps) {
         // run sizing visitor
         const sizingVisitor = new SizingVisitor();
         traversNode(model, sizingVisitor);
+        const diagramWidth = sizingVisitor.getSequenceWidth();
+
         // run position visitor
-        const positionVisitor = new PositionVisitor(sizingVisitor.getSequenceWidth());
+        const positionVisitor = new PositionVisitor(diagramWidth);
         traversNode(model, positionVisitor);
+
         // run node visitor
         const nodeVisitor = new NodeFactoryVisitor();
         traversNode(model, nodeVisitor);
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();
-        console.log("nodes", nodes);
-        return { nodes, links };
+        return { nodes, links, diagramWidth };
     };
 
-    const drawDiagram = (nodes: MediatorNodeModel[], links: NodeLinkModel[]) => {
+    const drawDiagram = (nodes: MediatorNodeModel[], links: NodeLinkModel[], diagramWidth: number) => {
         const newDiagramModel = new DiagramModel();
         newDiagramModel.addAll(...nodes, ...links);
-        // uncomment below to see the sample diagram. comment above line
-        // sampleDiagram(model, newDiagramModel);
 
         diagramEngine.setModel(newDiagramModel);
         setDiagramModel(newDiagramModel);
+
+        setTimeout(() => {
+            if (diagramEngine.getCanvas().getBoundingClientRect) {
+                const canvasBounds = diagramEngine.getCanvas().getBoundingClientRect();
+
+                const offsetX = canvasBounds.width / 2;
+
+                diagramEngine.getModel().setOffsetX(offsetX - (diagramWidth / 2));
+            }
+
+            // update diagram
+            diagramEngine.setModel(newDiagramModel);
+            diagramEngine.repaintCanvas();
+        }, 500);
     };
 
     const closeSidePanel = () => {
