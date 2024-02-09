@@ -121,3 +121,7 @@ export interface ServiceResponse {
 export interface ResourceResponse {
     error?: string;
 }
+
+export interface GoToSourceRequest {
+    position: NodePosition;
+}

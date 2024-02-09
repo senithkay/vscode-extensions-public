@@ -10,7 +10,6 @@
 import React from "react";
 import serviceModel from "./data/serviceST.json";
 import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
-import { Resource } from "@wso2-enterprise/service-designer";
 import { ServiceDesignerView } from "./ServiceDesignerView";
 
 export default {
@@ -18,11 +17,6 @@ export default {
     title: 'Service Designer',
 };
 
-const typeCompletions = ["int", "string", "float"];
-const goToSource = (resource: Resource) => {
-    console.log("Go to source ", resource);
-};
+export const EmptyModel = () => <ServiceDesignerView />;
 
-export const EmptyModel = () => <ServiceDesignerView typeCompletions={typeCompletions} />;
-
-export const WithSampleResourceModel = () => <ServiceDesignerView typeCompletions={typeCompletions} goToSource={goToSource} model={serviceModel as unknown as ServiceDeclaration}/>;
+export const WithSampleResourceModel = () => <ServiceDesignerView model={serviceModel as unknown as ServiceDeclaration}/>;
