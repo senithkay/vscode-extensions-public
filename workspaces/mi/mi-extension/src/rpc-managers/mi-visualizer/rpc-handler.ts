@@ -15,6 +15,9 @@ import {
     getWorkspaces,
     goBack,
     openView,
+    fetchSamplesFromGithub,
+    downloadSelectedSampleFromGithub,
+    SampleDownloadRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiVisualizerRpcManager } from "./rpc-manager";
@@ -25,4 +28,6 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getProjectStructure, (args: ProjectStructureRequest) => rpcManger.getProjectStructure(args));
     messenger.onNotification(openView, (args: VisualizerLocation) => rpcManger.openView(args));
     messenger.onNotification(goBack, () => rpcManger.goBack());
+    messenger.onRequest(fetchSamplesFromGithub, () => rpcManger.fetchSamplesFromGithub());
+    messenger.onNotification(downloadSelectedSampleFromGithub, (args: SampleDownloadRequest) => rpcManger.downloadSelectedSampleFromGithub(args));
 }
