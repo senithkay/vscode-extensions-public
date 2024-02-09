@@ -28,6 +28,8 @@ import { OverlayLayerFactory } from "../components/OverlayLoader/OverlayLayerFac
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
         registerDefaultDeleteItemsAction: false,
+        registerDefaultPanAndZoomCanvasAction: false,
+        registerDefaultZoomCanvasAction: false,
     });
 
     engine.getPortFactories().registerFactory(new NodePortFactory());

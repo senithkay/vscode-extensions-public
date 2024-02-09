@@ -9,7 +9,6 @@
 
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
-import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { APIResource, Sequence, traversNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
@@ -20,14 +19,26 @@ import { MediatorNodeModel } from "./nodes/MediatorNode/MediatorNodeModel";
 // import { sampleDiagram } from "../utils/sample";
 import { NodeLinkModel } from "./NodeLink/NodeLinkModel";
 import { SidePanelProvider } from "./sidePanel/SidePanelContexProvider";
-import { Button, SidePanel, SidePanelTitleContainer } from '@wso2-enterprise/ui-toolkit'
+import { Button, SidePanel, SidePanelTitleContainer, NavigationWrapperCanvasWidget } from '@wso2-enterprise/ui-toolkit'
 import SidePanelList from './sidePanel';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { OverlayLayerModel } from "./OverlayLoader/OverlayLayerModel";
+import styled from "@emotion/styled";
+import { Colors } from "../resources/constants";
 
 export interface DiagramProps {
     model: APIResource | Sequence;
     documentUri: string;
+}
+
+namespace S {
+    export const Container = styled.div`
+        height: 100vh;
+        overflow: scroll;
+        background-image: radial-gradient(${Colors.SURFACE_CONTAINER} 10%, transparent 0px);
+        background-size: 16px 16px;
+        background-color: ${Colors.SURFACE_BRIGHT};
+    `;
 }
 
 export function Diagram(props: DiagramProps) {
@@ -43,6 +54,7 @@ export function Diagram(props: DiagramProps) {
     const [sidePanelShowBackBtn, setSidePanelShowBackBtn] = useState<boolean>(false);
     const [sidePanelBackBtn, setSidePanelBackBtn] = useState<number>(0);
     const [diagramWidth, setDiagramWidth] = useState<number>(0);
+    const [diagramHeight, setDiagramHeight] = useState<number>(0);
 
     useEffect(() => {
         if (diagramEngine) {
@@ -70,7 +82,9 @@ export function Diagram(props: DiagramProps) {
         const sizingVisitor = new SizingVisitor();
         traversNode(model, sizingVisitor);
         const diagramWidth = sizingVisitor.getSequenceWidth();
+        const diagramHeight = sizingVisitor.getSequenceHeight();
         setDiagramWidth(diagramWidth);
+        setDiagramHeight(diagramHeight);
 
         // run position visitor
         const positionVisitor = new PositionVisitor(diagramWidth);
@@ -108,7 +122,7 @@ export function Diagram(props: DiagramProps) {
     return (
         <>
             {diagramEngine && diagramModel && (
-                <div>
+                <S.Container>
                     <SidePanelProvider value={{
                         setIsOpen: setSidePanelOpen,
                         isOpen: isSidePanelOpen,
@@ -141,11 +155,16 @@ export function Diagram(props: DiagramProps) {
                             </SidePanelTitleContainer>
                             <SidePanelList nodePosition={sidePanelnodeRange} documentUri={props.documentUri} />
                         </SidePanel>}
-                        <DiagramCanvas>
-                            <CanvasWidget engine={diagramEngine} />
+                        <DiagramCanvas height={diagramHeight + 275} width={diagramWidth + 300}>
+                            {/* <CanvasWidget engine={diagramEngine} /> */}
+                            <NavigationWrapperCanvasWidget
+                                diagramEngine={diagramEngine as any}
+                                overflow="hidden"
+                                cursor="Default"
+                            />
                         </DiagramCanvas>
                     </SidePanelProvider>
-                </div >
+                </S.Container >
             )}
         </>
     );
@@ -157,6 +176,7 @@ export function Diagram(props: DiagramProps) {
             const offsetX = canvasBounds.width / 2;
 
             diagramEngine.getModel().setOffsetX(offsetX - (diagramWidth / 2));
+            diagramEngine.getModel().setGridSize(50);
         }
 
         // update diagram

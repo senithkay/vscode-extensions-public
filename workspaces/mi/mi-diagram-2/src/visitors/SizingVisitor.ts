@@ -13,6 +13,7 @@ import { NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
 export class SizingVisitor implements Visitor {
     private skipChildrenVisit = false;
     private sequenceWidth = 0;
+    private sequenceHeight = 0;
 
     constructor() {
         console.log("SizingVisitor");
@@ -23,6 +24,7 @@ export class SizingVisitor implements Visitor {
             node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.DEFAULT.WIDTH, h: NODE_DIMENSIONS.DEFAULT.HEIGHT }
         }
         this.sequenceWidth = Math.max(this.sequenceWidth, node.viewState.w);
+        this.sequenceHeight += NODE_GAP.Y + node.viewState.h;
     }
 
     calculateAdvancedMediator = (node: STNode, subSequences: { [x: string]: any; }): void => {
@@ -53,10 +55,15 @@ export class SizingVisitor implements Visitor {
         node.viewState.fh = subSequencesHeight;
 
         this.sequenceWidth = Math.max(this.sequenceWidth, node.viewState.fw);
+        this.sequenceHeight += NODE_GAP.Y + node.viewState.fh;
     }
 
     getSequenceWidth(): number {
         return this.sequenceWidth;
+    }
+
+    getSequenceHeight(): number {
+        return this.sequenceHeight;
     }
 
     // visitors

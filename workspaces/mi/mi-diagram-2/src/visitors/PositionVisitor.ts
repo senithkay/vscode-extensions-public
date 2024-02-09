@@ -13,7 +13,7 @@ import { MEDIATORS, NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
 export class PositionVisitor implements Visitor {
     private position = {
         x: 0,
-        y: 0
+        y: 40
     };
     private nodes: STNode[] = [];
     private skipChildrenVisit = false;
