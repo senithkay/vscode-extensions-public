@@ -12,6 +12,7 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { MachineStateValue } from "@wso2-enterprise/mi-core";
 import MainPanel from "./MainPanel";
 import { GettingStarted } from "./views/GettingStarted";
+import { ProjectWizard } from "./views/Forms/ProjectForm";
 
 export function Visualizer({ mode }: { mode: string }) {
     const { rpcClient } = useVisualizerContext();
@@ -40,8 +41,11 @@ const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue })
     switch (true) {
         case typeof state === 'object' && 'ready' in state:
             return <MainPanel state={state} />;
-        case typeof state === 'object' && 'newProject' in state:
+        case typeof state === 'object' && 'newProject' in state && state.newProject === "welcome":
             return <GettingStarted />;
+        case typeof state === 'object' && 'newProject' in state && state.newProject === "create":
+            return <ProjectWizard />;
+
         default:
             return <h1>LOADING</h1>;
     }

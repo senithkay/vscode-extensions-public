@@ -52,7 +52,10 @@ const MainPanel = (props: { state: MachineStateValue }) => {
                 break;
             case "Diagram":
                 rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri }).then((st) => {
-                    setComponent(<Diagram model={st.syntaxTree.api.resource[0]} documentUri={machineView.documentUri} />);
+                    if (machineView.identifier && st?.syntaxTree?.api?.resource) {
+                        const resourceNode = st?.syntaxTree?.api.resource.find((resource: any) => resource.uriTemplate === machineView.identifier);
+                        setComponent(<Diagram model={resourceNode} documentUri={machineView.documentUri} />);
+                    }
                 });
                 break;
             case "ServiceDesigner":

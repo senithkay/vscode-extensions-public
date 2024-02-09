@@ -9,7 +9,7 @@
 
 import * as vscode from 'vscode';
 import { ProjectExplorerEntryProvider } from './project-explorer-provider';
-import { openView } from '../stateMachine';
+import { createView, openView } from '../stateMachine';
 
 export function activateProjectExplorer(context: vscode.ExtensionContext) {
 
@@ -20,14 +20,17 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('project-explorer.add', () => {
 		vscode.window.showQuickPick([
 			{ label: 'API', description: 'Add new API' },
-			{ label: 'Project', description: 'Add new Project' }
+			{ label: 'Endpoint', description: 'Add new endpoint' },
+			{ label: 'Sequence', description: 'Add new sequence' },
 		], {
 			placeHolder: 'Select the construct to add'
 		}).then(selection => {
 			if (selection?.label === 'API') {
 				vscode.commands.executeCommand('project-explorer.add-api');
-			} else if (selection?.label === 'Project') {
-				vscode.commands.executeCommand('project-explorer.add-project');
+			} else if (selection?.label === 'Endpoint') {
+			 	vscode.commands.executeCommand('project-explorer.add-endpoint');
+			} else if (selection?.label === 'Sequence') {
+				vscode.commands.executeCommand('project-explorer.add-sequence');
 			}
 		});
 
@@ -37,11 +40,21 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 		console.log('Add API');
 	});
 
-	vscode.commands.registerCommand('project-explorer.add-project', () => {
+	vscode.commands.registerCommand('project-explorer.add-endpoint', () => {
+		openView({ view: "EndPointForm" });
+		console.log('Add Endpoint');
+	});
+
+	vscode.commands.registerCommand('project-explorer.add-sequence', () => {
+		openView({ view: "SequenceForm" });
+		console.log('Add Sequence');
+	});
+
+	vscode.commands.registerCommand('project-explorer.create-project', () => {
 		// Update state machine to show the api wizard
 		// createApiWizardWebview(context);
 		vscode.commands.executeCommand('integrationStudio.showDiagram');
-		openView( { view: "ProjectCreationForm" });
+		createView( { view: "ProjectCreationForm" });
 		console.log('Create New Project');
 	});
 

@@ -45,7 +45,8 @@ export function SequenceWizard() {
 
     const { rpcClient } = useVisualizerContext();
     const [sequenceName, setSequenceName] = useState("");
-    const [projectDir, setProjectDir] = useState("");
+    const [ESBConfigs, setESBConfigs] = useState([]);
+    const [selectedConfig, setSelectedConfig] = useState("");
     const [selectedEndpoint, setSelectedEndpoint] = useState("");
     const [onErrorSequence, setOnErrorSequence] = useState("");
     const [endpoints, setEndpoints] = useState([]);
@@ -53,13 +54,14 @@ export function SequenceWizard() {
 
     useEffect(() => {
         (async () => {
-            const synapseSequencePath = await rpcClient.getMiDiagramRpcClient().getSequenceDirectory();
-            setProjectDir(synapseSequencePath.data);
+            const esbConfigs = await rpcClient.getMiDiagramRpcClient().getESBConfigs();
+            setESBConfigs(esbConfigs.data);
+            setSelectedConfig(esbConfigs.data[0]);
+            
             const data = await rpcClient.getMiDiagramRpcClient().getEndpointsAndSequences();
             setEndpoints(data.data[0]);
             setSequences(data.data[1]);
         })();
-
     }, []);
 
     const handleEndpointChange = (endpoint: string) => {
@@ -70,20 +72,26 @@ export function SequenceWizard() {
         setOnErrorSequence(sequence);
     };
 
+    const handleConfigChange = (config: string) => {
+        setSelectedConfig(config);
+    };
+
     const handleCreateProject = async () => {
+        const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot()).path;
+        const sequenceDir = `${projectDir}/${selectedConfig}/src/main/synapse-config/sequences`;
         const createSequenceParams = {
             name: sequenceName,
-            directory: projectDir,
+            directory: sequenceDir,
             endpoint: selectedEndpoint,
             onErrorSequence: onErrorSequence,
         }
         const file = await rpcClient.getMiDiagramRpcClient().createSequence(createSequenceParams);
-        rpcClient.getMiDiagramRpcClient().openFile({ path: file.filePath });
-        rpcClient.getMiDiagramRpcClient().closeWebView();
+        // rpcClient.getMiVisualizerRpcClient().openView({ view: "Diagram", documentUri: file.filePath, identifier: `` });
+        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
     };
 
     const handleCancel = () => {
-        rpcClient.getMiDiagramRpcClient().closeWebView();
+        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
     };
 
     const isValid: boolean = sequenceName.length > 0;
@@ -105,6 +113,8 @@ export function SequenceWizard() {
                     autoFocus
                     required
                 />
+                <span>ESB Config</span>
+                <AutoComplete items={ESBConfigs} selectedItem={selectedConfig} onChange={handleConfigChange}></AutoComplete>
                 <h5>Advanced Configuration</h5>
                 <span>Available Endpoints</span>
                 <AutoComplete items={endpoints} selectedItem={selectedEndpoint} onChange={handleEndpointChange}></AutoComplete>

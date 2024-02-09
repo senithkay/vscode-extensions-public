@@ -64,14 +64,16 @@ export function APIWizard() {
     const [apiName, setAPIName] = useState("");
     const [apiContext, setAPIContext] = useState("");
     const [versionType, setVersionType] = useState("none");
+    const [ESBConfigs, setESBConfigs] = useState([]);
+    const [selectedConfig, setSelectedConfig] = useState("");
     const [version, setVersion] = useState("");
     const [swaggerdefPath, setSwaggerdefPath] = useState("");
-    const [projectDir, setProjectDir] = useState("");
 
     useEffect(() => {
         (async () => {
-            const synapseAPIPath = await rpcClient.getMiDiagramRpcClient().getAPIDirectory();
-            setProjectDir(synapseAPIPath.data);
+            const esbConfigs = await rpcClient.getMiDiagramRpcClient().getESBConfigs();
+            setESBConfigs(esbConfigs.data);
+            setSelectedConfig(esbConfigs.data[0]);
         })();
 
     }, []);
@@ -82,24 +84,29 @@ export function APIWizard() {
         setVersionType(type);
     };
 
-    const handleCreateProject = async () => {
+    const handleConfigChange = (config: string) => {
+        setSelectedConfig(config);
+    };
+
+    const handleCreateAPI = async () => {
+        const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot()).path;
+        const APIDir = `${projectDir}/${selectedConfig}/src/main/synapse-config/api`;
         const createAPIParams = {
             name: apiName,
             context: apiContext,
-            directory: projectDir,
+            directory: APIDir,
             swaggerDef: swaggerdefPath,
             type: versionType,
             version: version
         }
         const file = await rpcClient.getMiDiagramRpcClient().createAPI(createAPIParams);
         console.log("API created");
-        rpcClient.getMiDiagramRpcClient().openDiagram(file);
-        // rpcClient.getMiDiagramRpcClient().closeWebView();
+        rpcClient.getMiVisualizerRpcClient().openView({ view: "Diagram", documentUri: file.path, identifier: `/resource` });
     };
 
     const handleCancel = () => {
         console.log("cancel");
-        // rpcClient.getMiDiagramRpcClient().closeWebView();
+        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
     };
 
     const isValid: boolean = apiName.length > 0 && apiContext.length > 0 && versionType.length > 0;
@@ -130,6 +137,8 @@ export function APIWizard() {
                     id='context-input'
                     required
                 />
+                <span>ESB Config</span>
+                <AutoComplete items={ESBConfigs} selectedItem={selectedConfig} onChange={handleConfigChange}></AutoComplete>
                 <span>Version Type</span>
                 <AutoComplete items={versionLabels} selectedItem={versionType} onChange={handleVersionTypeChange}></AutoComplete>
                 {versionType !== "none" && (
@@ -162,7 +171,7 @@ export function APIWizard() {
                 </Button>
                 <Button
                     appearance="primary"
-                    onClick={handleCreateProject}
+                    onClick={handleCreateAPI}
                     disabled={!isValid}
                 >
                     Create
