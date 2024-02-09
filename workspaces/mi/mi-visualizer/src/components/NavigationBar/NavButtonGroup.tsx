@@ -45,12 +45,17 @@ export function NavButtonGroup(props: NavButtonGroupProps) {
 
     return (
         <>
-            {machineView?.view !== "Overview" && <VSCodeButton appearance="icon" title="Go Back" onClick={handleBackButtonClick}>
-                <Codicon name="arrow-left" />
-            </VSCodeButton>}
-            <VSCodeButton appearance="icon" title="Home" onClick={handleHomeButtonClick}>
-                <Codicon name="home" />
-            </VSCodeButton>
+            {machineView?.view !== "Overview" && (
+                <>
+                    <VSCodeButton appearance="icon" title="Go Back" onClick={handleBackButtonClick}>
+                        <Codicon name="arrow-left" />
+                    </VSCodeButton>
+                    <VSCodeButton appearance="icon" title="Home" onClick={handleHomeButtonClick}>
+                        <Codicon name="home" />
+                    </VSCodeButton>
+                </>
+            )}
+            
         </>
     );
 }
