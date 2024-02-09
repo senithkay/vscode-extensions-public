@@ -66,7 +66,7 @@ const stateMachine = createMachine<Context>({
                             target: "viewUpdate",
                             actions: assign({
                                 view: (context, event) => event.viewLocation.view ? event.viewLocation.view : context.view,
-                                documentUri: (context, event) => event.viewLocation.fileName ? event.viewLocation.fileName : context.documentUri,
+                                documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
                                 position: (context, event) => event.viewLocation.position ? event.viewLocation.position : context.position,
                                 identifier: (context, event) => event.viewLocation.identifier ? event.viewLocation.identifier : context.identifier,
                             })
