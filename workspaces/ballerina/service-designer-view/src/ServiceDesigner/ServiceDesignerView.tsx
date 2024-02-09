@@ -22,20 +22,18 @@ interface ServiceDesignerProps {
     model?: ServiceDeclaration;
     // RPC client to communicate with the backend for ballerina
     rpcClient?: ServiceDesignerAPI;
-    // Types to be shown in the autocomplete of respose
-    typeCompletions?: string[];
     // Callback to send the position of the resource to navigae to code
     goToSource?: (resource: Resource) =>  void;
 }
 
 export function ServiceDesignerView(props: ServiceDesignerProps) {
-    const { model, typeCompletions = [], rpcClient, goToSource } = props;
+    const { model, rpcClient } = props;
 
     const [serviceConfig, setServiceConfig] = useState<Service>();
 
     const [isResourceFormOpen, setResourceFormOpen] = useState<boolean>(false);
     const [isServiceFormOpen, setServiceFormOpen] = useState<boolean>(false);
-    const [types, setTypes] = useState<string[]>(typeCompletions);
+    const [types, setTypes] = useState<string[]>([]);
 
     const [editingResource, setEditingResource] = useState<Resource>();
 
