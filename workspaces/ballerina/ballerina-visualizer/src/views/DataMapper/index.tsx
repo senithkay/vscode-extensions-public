@@ -73,13 +73,13 @@ export function DataMapper() {
     };
 
     const view = useMemo(() => {
-        if (!mapperData || !context.documentUri) {
+        if (!mapperData) {
             return <div>DM Loading...</div>;
         }
         return (
             <DataMapperView
                 fnST={syntaxTree as FunctionDefinition}
-                filePath={context.documentUri}
+                filePath={context?.documentUri}
                 langServerRpcClient={langServerRpcClient}
                 libraryBrowserRpcClient={libraryBrowserRPCClient}
                 applyModifications={applyModifications}

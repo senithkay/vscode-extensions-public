@@ -2,9 +2,11 @@
 import { ExtendedLangClient } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EventType, MachineStateValue, MachineViews, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { EventType, MachineStateValue, MachineViews, STByRangeRequest, SyntaxTreeResponse, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './library-browser';
 import { VisualizerWebview } from './visualizer/webview';
+import { Uri } from 'vscode';
+import { STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -89,6 +91,11 @@ const stateMachine = createMachine<MachineContext>(
                             src: 'findView',
                             onDone: {
                                 target: "viewReady",
+                                actions: assign({
+                                    view: (context, event) => event.data.view,
+                                    documentUri: (context, event) => event.data.documentUri,
+                                    position: (context, event) => event.data.position
+                                })
                             }
                         }
                     },
@@ -150,10 +157,40 @@ const stateMachine = createMachine<MachineContext>(
                 resolve(true);
             });
         },
-        findView: (context, event) => {
-            return new Promise((resolve, reject) => {
-                // Find view logic here based on the positions
-                resolve(true);
+        findView(context, event): Promise<VisualizerLocation> {
+            return new Promise(async (resolve, reject) => {
+                if (!context.position) {
+                    resolve({ view: "Overview" });
+                    return;
+                }
+                const req: STByRangeRequest = {
+                    documentIdentifier: { uri: Uri.file(context.documentUri).toString() },
+                    lineRange: {
+                        start: {
+                            line: context.position.startLine,
+                            character: context.position.startColumn
+                        },
+                        end: {
+                            line: context.position.endLine,
+                            character: context.position.endColumn
+                        }
+                    }
+                };
+            
+                const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
+                
+                if (node.parseSuccess) {
+                    if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
+                        resolve({ view: "ServiceDesigner", documentUri: context.documentUri, position: context.position });
+                    } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) && STKindChecker.isExpressionFunctionBody(node.syntaxTree.functionBody)) {
+                        resolve({ view: "DataMapper", documentUri: context.documentUri, position: context.position });
+                    } else if (STKindChecker.isTypeDefinition(node.syntaxTree) && STKindChecker.isRecordTypeDesc(node.syntaxTree.typeDescriptor)) {
+                        resolve({ view: "ArchitectureDiagram", documentUri: context.documentUri });
+                    } else {
+                        resolve({ view: "Overview", documentUri: context.documentUri });
+                    }
+                }
+                return;
             });
         }
     }
