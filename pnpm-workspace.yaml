@@ -1,7 +1,8 @@
 packages:
-  - "workspaces/*"
-  - "workspaces/ballerina/*"
-  - "workspaces/common-libs/*"
-  - "workspaces/choreo/*"
-  - "workspaces/common-libs/*"
+  - 'workspaces/*'
+  - 'workspaces/ballerina/*'
+  - 'workspaces/choreo/*'
   - "workspaces/eggplant/*"
+  - 'workspaces/common-libs/*'
+  - 'workspaces/api-chat/*'
+  - 'workspaces/common-libs/*'

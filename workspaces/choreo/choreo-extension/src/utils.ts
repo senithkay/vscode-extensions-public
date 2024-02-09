@@ -12,7 +12,7 @@
  */
 
 import { CMResourceFunction, ComponentModel, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
-import { ApiVersion, Component, ComponentConfig, ComponentConfigSchema } from "@wso2-enterprise/choreo-core";
+import { ApiVersion, Component, ComponentYamlContent, ComponentYamlSchema } from "@wso2-enterprise/choreo-core";
 import { existsSync, readFileSync } from "fs";
 import * as yaml from "js-yaml";
 import { ProjectRegistry } from "./registry/project-registry";
@@ -193,10 +193,20 @@ export function regexFilePathChecker(path: string, regex: RegExp): boolean {
     return regex.test(path);
 }
 
-export function enrichComponentSchema(schema: ComponentConfigSchema, component: string, project: string, componentConfigs: ComponentConfig[]): ComponentConfigSchema {
+export function enrichComponentSchema(
+    schema: ComponentYamlSchema,
+    component: string, project: string,
+    componentConfigs: ComponentYamlContent[] | undefined
+): ComponentYamlSchema {
+    delete schema.definitions!.name.default;
+    delete schema.definitions!.projectName.default;
+
     schema.definitions!.name.const = component;
     schema.definitions!.projectName.const = project;
 
+    if (!componentConfigs) {
+        return schema;
+    }
     const branches = new Set<string>();
     componentConfigs.forEach((config) => {
         branches.add(config.spec.build!.branch);

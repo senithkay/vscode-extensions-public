@@ -36,7 +36,7 @@ export function generateQueryExpression(srcExpr: string, targetType: TypeField, 
     if (targetType.typeName === PrimitiveBalType.Record) {
         const srcFields = targetType.fields;
         selectExpr = `{
-            ${targetType.fields.map((field, index) =>
+            ${targetType.fields.filter(field => !field.defaultable && !field.optional).map((field, index) =>
                 `${getBalRecFieldName(field.name)}: ${(index !== srcFields.length - 1) ? `,${getLinebreak()}\t\t\t` : ''}`
             ).join("")}
         }`

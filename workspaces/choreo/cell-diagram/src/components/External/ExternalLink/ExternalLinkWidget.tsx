@@ -44,17 +44,27 @@ export function ExternalLinkWidget(props: WidgetProps) {
 
     return (
         <g className={EXTERNAL_LINK}>
-            <polygon points={link.getArrowHeadPoints()} fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.NODE_BORDER} />
+            <defs>
+                <marker
+                    id={link.getLinkArrowId()}
+                    markerWidth="8"
+                    markerHeight="8"
+                    markerUnits="strokeWidth"
+                    refX="4"
+                    refY="3"
+                    viewBox="0 0 6 6"
+                    orient="auto"
+                >
+                    <polygon points="0,6 0,0 5,3" fill={isSelected ? Colors.SECONDARY : Colors.OUTLINE}></polygon>
+                </marker>
+            </defs>
             <path
                 id={link.getID()}
                 d={link.getCurvePath()}
-                cursor={"pointer"}
                 fill={"none"}
-                onMouseLeave={unselectPath}
-                onMouseOver={selectPath}
-                pointerEvents={"all"}
-                stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.NODE_BORDER}
+                stroke={isSelected ? Colors.SECONDARY : Colors.OUTLINE}
                 strokeWidth={2}
+                markerEnd={"url(#" + link.getLinkArrowId() + ")"}
             />
         </g>
     );
