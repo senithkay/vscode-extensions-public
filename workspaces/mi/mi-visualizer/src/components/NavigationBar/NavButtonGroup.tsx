@@ -7,11 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content."
  */
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { VisualizerLocation } from "@wso2-enterprise/mi-core";
 
 interface NavButtonGroupProps {
     currentProjectPath?: string;
@@ -21,6 +22,17 @@ export function NavButtonGroup(props: NavButtonGroupProps) {
 
     const { rpcClient } = useVisualizerContext();
 
+    const [machineView, setMachineView] = useState<VisualizerLocation>(null);
+
+    useEffect(() => {
+        try {
+            rpcClient.getVisualizerState().then((mState) => {
+                setMachineView(mState);
+            });
+        } catch (error) {
+
+        }
+    }, []);
 
     const handleBackButtonClick = () => {
         rpcClient.getMiVisualizerRpcClient().goBack();
@@ -28,13 +40,14 @@ export function NavButtonGroup(props: NavButtonGroupProps) {
 
     const handleHomeButtonClick = () => {
         rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
+        rpcClient.getVisualizerState
     }
 
     return (
         <>
-            <VSCodeButton appearance="icon" title="Go Back" onClick={handleBackButtonClick}>
+            {machineView?.view !== "Overview" && <VSCodeButton appearance="icon" title="Go Back" onClick={handleBackButtonClick}>
                 <Codicon name="arrow-left" />
-            </VSCodeButton>
+            </VSCodeButton>}
             <VSCodeButton appearance="icon" title="Home" onClick={handleHomeButtonClick}>
                 <Codicon name="home" />
             </VSCodeButton>
