@@ -9,27 +9,28 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    CompletionParams,
     Completion,
+    CompletionParams,
     CreateResourceRequest,
     CreateServiceRequest,
     DeleteResourceRequest,
     DeleteServiceRequest,
+    GoToSourceRequest,
     KeywordTypeResponse,
     RecordSTRequest,
     RecordSTResponse,
+    visitor as RecordsFinderVisitor,
+    ResourceResponse,
     STModification,
     ServiceDesignerAPI,
+    ServiceResponse,
     UpdateResourceRequest,
-    UpdateServiceRequest,
-    ResourceResponse,
-    ServiceResponse
+    UpdateServiceRequest
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, STKindChecker, traversNode } from "@wso2-enterprise/syntax-tree";
 import { Uri } from "vscode";
 import { StateMachine, openView } from "../../stateMachine";
 import { applyModifications, updateFileContent } from "../../utils/modification";
-import { visitor as RecordsFinderVisitor } from "@wso2-enterprise/ballerina-core";
 
 export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
 
@@ -140,5 +141,10 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 throw new Error(`Record with name ${params.recordName} not found.`);
             }
         });
+    }
+
+    goToSource(params: GoToSourceRequest): void {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
     }
 }

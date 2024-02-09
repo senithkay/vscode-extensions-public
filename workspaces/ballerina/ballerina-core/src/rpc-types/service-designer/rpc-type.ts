@@ -19,9 +19,10 @@ import {
     ResourceResponse,
     ServiceResponse,
     UpdateResourceRequest,
-    UpdateServiceRequest
+    UpdateServiceRequest,
+    GoToSourceRequest
 } from "./interfaces";
-import { RequestType } from "vscode-messenger-common";
+import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "service-designer";
 export const createService: RequestType<CreateServiceRequest, ServiceResponse> = { method: `${_preFix}/createService` };
@@ -32,3 +33,4 @@ export const updateResource: RequestType<UpdateResourceRequest, ResourceResponse
 export const deleteResource: RequestType<DeleteResourceRequest, ResourceResponse> = { method: `${_preFix}/deleteResource` };
 export const getKeywordTypes: RequestType<void, KeywordTypeResponse> = { method: `${_preFix}/getKeywordTypes` };
 export const getRecordST: RequestType<RecordSTRequest, RecordSTResponse> = { method: `${_preFix}/getRecordST` };
+export const goToSource: NotificationType<GoToSourceRequest> = { method: `${_preFix}/goToSource` };
