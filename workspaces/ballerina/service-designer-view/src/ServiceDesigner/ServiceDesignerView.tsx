@@ -76,7 +76,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
     };
 
     const handleGoToSource = (resource: Resource) => {
-        rpcClient.goToSource({ position: resource.position, fileUri: ""});
+        rpcClient.goToSource({ position: resource.position });
     }
 
     useEffect(() => {

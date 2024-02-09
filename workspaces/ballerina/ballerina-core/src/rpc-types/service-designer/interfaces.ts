@@ -124,5 +124,4 @@ export interface ResourceResponse {
 
 export interface GoToSourceRequest {
     position: NodePosition;
-    fileUri: string;
 }
