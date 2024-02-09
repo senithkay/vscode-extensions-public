@@ -14,12 +14,12 @@ import { Overview as OverviewComponent } from "@wso2-enterprise/overview-view";
 
 export function Overview() {
     const { rpcClient } = useVisualizerContext();
-    const [context, setContext] = React.useState<VisualizerLocation>();
+    const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
 
     useEffect(() => {
         if (rpcClient) {
-            rpcClient.getVisualizerContext().then((value) => {
-                setContext(value);
+            rpcClient.getVisualizerLocation().then((value) => {
+                setVisualizerLocation(value);
             });
         }
     }, [rpcClient]);
