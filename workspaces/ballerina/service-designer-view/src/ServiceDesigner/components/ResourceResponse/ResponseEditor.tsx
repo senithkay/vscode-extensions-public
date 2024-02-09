@@ -19,6 +19,7 @@ import { ResponseConfig } from '@wso2-enterprise/service-designer';
 
 export interface ParamProps {
     response: ResponseConfig;
+    isBallerniaExt?: boolean;
     isEdit: boolean;
     onChange: (param: ResponseConfig) => void;
     onSave?: (param: ResponseConfig, defineRecordName: string) => void;
@@ -27,7 +28,7 @@ export interface ParamProps {
 }
 
 export function ResponseEditor(props: ParamProps) {
-    const { response, onSave, onChange, onCancel, typeCompletions } = props;
+    const { response, isBallerniaExt, onSave, onChange, onCancel, typeCompletions } = props;
 
     const [isNameRecord, setIsNameRecord] = useState(false);
     const [definedRecordName, setDefinedRecordName] = useState("");
@@ -74,7 +75,7 @@ export function ResponseEditor(props: ParamProps) {
             <EditorContent>
                 <AutoComplete
                     sx={{ zIndex: 1, position: "relative" }}
-                    borderBox
+                    borderBox={isBallerniaExt}
                     label="Code"
                     selectedItem={getTitleFromResponseCode(response.code)}
                     items={responseCodes.map(code => code.title)}
@@ -83,7 +84,7 @@ export function ResponseEditor(props: ParamProps) {
                 {typeCompletions && (
                     <AutoComplete
                         sx={{ zIndex: 1, position: "relative" }}
-                        borderBox
+                        borderBox={isBallerniaExt}
                         label="Type"
                         selectedItem={response.type}
                         items={typeCompletions}

@@ -42,7 +42,16 @@ const ComboboxButtonContainer = cx(css`
     border-left: 0 solid var(--vscode-dropdown-border);
 `);
 
-export const DropdownIcon = cx(css`
+const DropdownLabelDiv = cx(css`
+    margin-bottom: 4px;
+    font-family: var(--font-family);
+`);
+
+interface ContainerProps {
+    sx?: React.CSSProperties;
+}
+
+const DropdownIcon = cx(css`
     color: var(--vscode-symbolIcon-colorForeground);
     padding-top: 5px;
     height: 20px;
@@ -50,7 +59,7 @@ export const DropdownIcon = cx(css`
     padding-right: 8px;
 `);
 
-export const SearchableInput = cx(css`
+const SearchableInput = cx(css`
     color: var(--vscode-input-foreground);
     background-color: var(--vscode-input-background);
     height: 24px;
@@ -69,33 +78,25 @@ export const SearchableInput = cx(css`
     }
 `);
 
-const DropdownLabelDiv = cx(css`
-    margin-bottom: 4px;
-    font-family: var(--font-family);
-`);
-
-interface ContainerProps {
-    sx?: React.CSSProperties;
-}
-
-export const Container = styled.div<ContainerProps>`
+const Container = styled.div<ContainerProps>`
     width: 100%;
     ${(props: ContainerProps) => props.sx}
 `;
 
-export interface TypeEditorProps {
+export interface TypeBrowserProps {
     id?: string;
     items: string[];
     label?: string;
     selectedItem?: string;
     widthOffset?: number;
     sx?: React.CSSProperties;
+    borderBox?: boolean; // Enable this if the box-sizing is border-box
     onChange: (item: string, index?: number) => void;
     onCreateNewRecord: (name: string) => void;
 }
 
-export const TypeEditor: React.FC<TypeEditorProps> = (props: TypeEditorProps) => {
-    const { id, selectedItem, items, label, widthOffset = 157, sx, onChange, onCreateNewRecord } = props;
+export const TypeBrowser: React.FC<TypeBrowserProps> = (props: TypeBrowserProps) => {
+    const { id, selectedItem, items, label, widthOffset = 157, sx, borderBox, onChange, onCreateNewRecord } = props;
     const [query, setQuery] = useState('');
     const [isCleared, setIsCleared] = useState(false);
     const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
@@ -123,7 +124,6 @@ export const TypeEditor: React.FC<TypeEditorProps> = (props: TypeEditorProps) =>
         setQuery('');
     };
     const handleQueryChange = (q: string) => {
-        // setIsCleared(false);
         setQuery(q);
     };
 
@@ -153,7 +153,9 @@ export const TypeEditor: React.FC<TypeEditorProps> = (props: TypeEditorProps) =>
                             ref={inputRef}
                             displayValue={isCleared ? () => "" : displayItemValue}
                             onChange={handleInputQueryChange}
-                            className={SearchableInput}
+                            className={cx(SearchableInput, borderBox && cx(css`
+                                height: 28px;
+                            `))}
                             onBlur={handleTextFieldOutFocused}
                             onFocus={handleTextFieldFocused}
                             onClick={handleTextFieldClick}

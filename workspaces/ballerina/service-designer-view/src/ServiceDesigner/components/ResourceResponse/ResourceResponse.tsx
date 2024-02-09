@@ -20,6 +20,7 @@ import { ResponseConfig } from '@wso2-enterprise/service-designer';
 export interface ResourceParamProps {
     method: HTTP_METHOD;
     response: ResponseConfig[];
+    isBallerniaExt?: boolean;
     onChange?: (parameters: ResponseConfig[]) => void;
     addNameRecord?: (source: string) => void;
     readonly?: boolean;
@@ -31,7 +32,7 @@ const AddButtonWrapper = styled.div`
 `;
 
 export function ResourceResponse(props: ResourceParamProps) {
-    const { method, response, readonly, onChange, addNameRecord, typeCompletions } = props;
+    const { method, response, isBallerniaExt, readonly, onChange, addNameRecord, typeCompletions } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
 
@@ -142,6 +143,7 @@ export function ResourceResponse(props: ResourceParamProps) {
                             code: param.code,
                             source: param.source
                         }}
+                        isBallerniaExt={isBallerniaExt}
                         isEdit={true}
                         onChange={onChangeParam}
                         onSave={onSaveParam}

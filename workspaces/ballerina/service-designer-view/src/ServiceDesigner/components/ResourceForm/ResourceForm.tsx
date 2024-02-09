@@ -26,6 +26,7 @@ const AdvancedParamTitleWrapper = styled.div`
 
 export interface ResourceFormProps {
 	isOpen: boolean;
+	isBallerniaExt?: boolean;
 	resourceConfig?: Resource;
 	onSave?: (source: string, config: Resource, updatePosition?: NodePosition) => void;
 	getRecordST?: (recordName: string) => void;
@@ -35,7 +36,7 @@ export interface ResourceFormProps {
 }
 
 export function ResourceForm(props: ResourceFormProps) {
-	const { isOpen, resourceConfig, onClose, onSave, addNameRecord, typeCompletions } = props;
+	const { isOpen, isBallerniaExt, resourceConfig, onClose, onSave, addNameRecord, typeCompletions } = props;
 
 	const [method, setMethod] = useState<HTTP_METHOD>(resourceConfig?.method.toUpperCase() as HTTP_METHOD || HTTP_METHOD.GET);
 	const [path, setPath] = useState<string>(resourceConfig?.path || "path");
@@ -158,7 +159,7 @@ export function ResourceForm(props: ResourceFormProps) {
 					<Divider />
 
 					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Responses</Typography>
-					<ResourceResponse method={method} addNameRecord={addNameRecord} response={response} onChange={handleResponseChange} typeCompletions={typeCompletions}/>
+					<ResourceResponse method={method} addNameRecord={addNameRecord} response={response} onChange={handleResponseChange} typeCompletions={typeCompletions} isBallerniaExt={isBallerniaExt}/>
 
 					<ActionButtons
 						primaryButton={{ text: "Save", onClick: handleSave, tooltip: "Save" }}

@@ -23,19 +23,20 @@ interface ServiceDesignerProps {
     // RPC client to communicate with the backend for ballerina
     rpcClient?: ServiceDesignerAPI;
     // Callback to send the position of the resource to navigae to code
-    goToSource?: (resource: Resource) =>  void;
+    goToSource?: (resource: Resource) => void;
 }
 
 export function ServiceDesignerView(props: ServiceDesignerProps) {
-    const { model, rpcClient } = props;
+    const { model, rpcClient, goToSource } = props;
 
     const [serviceConfig, setServiceConfig] = useState<Service>();
 
     const [isResourceFormOpen, setResourceFormOpen] = useState<boolean>(false);
     const [isServiceFormOpen, setServiceFormOpen] = useState<boolean>(false);
     const [types, setTypes] = useState<string[]>([]);
-
     const [editingResource, setEditingResource] = useState<Resource>();
+
+    const isParentBallerinaExt = !goToSource;
 
     // Callbacks for resource form
     const handleResourceFormClose = () => {
@@ -76,8 +77,12 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
     };
 
     const handleGoToSource = (resource: Resource) => {
-        rpcClient.goToSource({ position: resource.position });
-    }
+        if (goToSource) {
+            goToSource(resource);
+        } else {
+            rpcClient.goToSource({ position: resource.position });
+        }
+    };
 
     useEffect(() => {
         const fetchService = async () => {
@@ -108,6 +113,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
             {isResourceFormOpen &&
                 <ResourceForm
                     isOpen={isResourceFormOpen}
+                    isBallerniaExt={isParentBallerinaExt}
                     resourceConfig={serviceConfig?.resources.length > 0 ? editingResource : undefined}
                     onSave={handleResourceFormSave}
                     onClose={handleResourceFormClose} 

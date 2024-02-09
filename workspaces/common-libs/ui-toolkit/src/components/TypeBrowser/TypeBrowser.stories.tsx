@@ -8,9 +8,9 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { TypeEditor, TypeEditorProps } from "./TypeEditor";
+import { TypeBrowser, TypeBrowserProps } from "./TypeBrowser";
 
-const Template: ComponentStory<typeof TypeEditor> = (args: TypeEditorProps) => <div style={{ width: 300 }}><TypeEditor {...args} /></div>;
+const Template: ComponentStory<typeof TypeBrowser> = (args: TypeBrowserProps) => <div style={{ width: 300 }}><TypeBrowser {...args} /></div>;
 
 export const Select = Template.bind();
 Select.args = { id: "type-editor", label: "Words", nullable: false, onChange: (value: string) => { console.log(value); }, onCreateNewRecord: (value: string) => { console.log(`Create Record with Name: ${value}`); }, items: ["foo", "boo"] };
