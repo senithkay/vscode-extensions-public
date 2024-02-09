@@ -91,7 +91,15 @@ export class SizingVisitor implements Visitor {
     endVisitInSequence = (node: Sequence): void => {
         node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.WIDTH, h: NODE_DIMENSIONS.START.HEIGHT };
     }
-    endVisitLog = (node: Log): void => this.calculateBasicMediator(node);
+
+    beginVisitLog = (node: Log): void => {
+        this.skipChildrenVisit = true;
+    }
+    endVisitLog = (node: Log): void => {
+        this.calculateBasicMediator(node);
+        this.skipChildrenVisit = false;
+    }
+
     endVisitLoopback = (node: Loopback): void => this.calculateBasicMediator(node);
     endVisitPayloadFactory = (node: PayloadFactory): void => this.calculateBasicMediator(node);
     endVisitProperty = (node: Property): void => this.calculateBasicMediator(node);

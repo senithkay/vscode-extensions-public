@@ -151,7 +151,14 @@ export class NodeFactoryVisitor implements Visitor {
         this.parents.pop();
     }
 
-    beginVisitLog = (node: Log): void => this.createNodeAndLinks(node);
+    beginVisitLog = (node: Log): void => {
+        this.createNodeAndLinks(node);
+        this.skipChildrenVisit = true;
+    }
+    endVisitLog = (node: Log): void => {
+        this.skipChildrenVisit = false;
+    }
+
     beginVisitLoopback = (node: Loopback): void => this.createNodeAndLinks(node);
     beginVisitPayloadFactory = (node: PayloadFactory): void => this.createNodeAndLinks(node);
     beginVisitProperty = (node: Property): void => this.createNodeAndLinks(node);
