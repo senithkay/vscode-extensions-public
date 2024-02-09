@@ -186,7 +186,7 @@ export const useDMMetaData = (langServerRpcClient: LangServerRpcClient): {
 } => {
     const fetchDMMetaData = async () => {
         try {
-            const ballerinaVersion = await langServerRpcClient.getBallerinaVersion();
+            const ballerinaVersion = (await langServerRpcClient.getBallerinaVersion()).version;
             const dMSupported = isDMSupported(ballerinaVersion);
             const dMUnsupportedMessage = `The current ballerina version ${ballerinaVersion.replace(
                 "(swan lake)", "").trim()
@@ -205,5 +205,32 @@ export const useDMMetaData = (langServerRpcClient: LangServerRpcClient): {
     } = useQuery(['fetchDMMetaData'], () => fetchDMMetaData(), {});
 
     return { ballerinaVersion, dMSupported, dMUnsupportedMessage, isFetching, isError, refetch };
+};
+
+export const useFileContent = (langServerRpcClient: LangServerRpcClient, filePath: string): {
+    content: string;
+    isFetching: boolean;
+    isError: boolean;
+    refetch: any;
+} => {
+    const fetchContent = async () => {
+        try {
+            const fullST = await langServerRpcClient.getST({
+                documentIdentifier: { uri: URI.file(filePath).toString() }
+            });
+            return fullST.syntaxTree.source;
+        } catch (networkError: any) {
+            console.error('Error while fetching content', networkError);
+        }
+    };
+
+    const {
+        data: content,
+        isFetching,
+        isError,
+        refetch,
+    } = useQuery(['fetchContent'], () => fetchContent(), {});
+
+    return { content, isFetching, isError, refetch };
 };
 

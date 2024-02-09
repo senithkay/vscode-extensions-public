@@ -1,4 +1,4 @@
-import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 
 import { RecordFieldPortModel } from "../Port";
 import {
@@ -23,7 +23,7 @@ export function canConvertLinkToQueryExpr(link: DataMapperLinkModel): boolean {
     return false;
 }
 
-export function generateQueryExpression(srcExpr: string, targetType: Type, isOptionalSource: boolean, variableNames: string[]) {
+export function generateQueryExpression(srcExpr: string, targetType: TypeField, isOptionalSource: boolean, variableNames: string[]) {
 
     let itemName = `${srcExpr.split('.').pop().trim()}Item`;
     itemName = genVariableName(itemName, variableNames);
@@ -36,7 +36,7 @@ export function generateQueryExpression(srcExpr: string, targetType: Type, isOpt
     if (targetType.typeName === PrimitiveBalType.Record) {
         const srcFields = targetType.fields;
         selectExpr = `{
-            ${targetType.fields.map((field, index) =>
+            ${targetType.fields.filter(field => !field.defaultable && !field.optional).map((field, index) =>
                 `${getBalRecFieldName(field.name)}: ${(index !== srcFields.length - 1) ? `,${getLinebreak()}\t\t\t` : ''}`
             ).join("")}
         }`

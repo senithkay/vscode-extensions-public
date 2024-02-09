@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
-import { STModification, Type, PrimitiveBalType } from "@wso2-enterprise/ballerina-core";
+import { STModification, TypeField, PrimitiveBalType } from "@wso2-enterprise/ballerina-core";
 import {
     ExpressionFunctionBody,
     IdentifierToken,
@@ -56,7 +56,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
         public context: IDataMapperContext,
         public value: SelectClause | ExpressionFunctionBody,
         public typeIdentifier: TypeDescriptor | IdentifierToken,
-        public typeDef: Type,
+        public typeDef: TypeField,
         public queryExpr?: QueryExpression) {
         super(
             context,

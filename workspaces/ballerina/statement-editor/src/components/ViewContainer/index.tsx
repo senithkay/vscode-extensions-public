@@ -10,8 +10,8 @@
 import React, { useContext } from 'react';
 
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { Button, Codicon, SidePanel, SidePanelTitleContainer } from '@wso2-enterprise/ui-toolkit';
-import { Uri } from 'monaco-editor';
+import { Button, Codicon, SidePanelTitleContainer } from '@wso2-enterprise/ui-toolkit';
+import { URI } from 'vscode-uri';
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { sendDidChange } from "../../utils/ls-utils";
@@ -50,7 +50,7 @@ export function ViewContainer(props: ViewContainerProps) {
             activeEditorId
         }
     } = useContext(StatementEditorContext);
-    const fileSchemeURI = Uri.file(currentFile.path).toString();
+    const fileSchemeURI = URI.file(currentFile.path).toString();
 
     const onSaveClick = async () => {
         const typeName = await handleModifications();
@@ -93,11 +93,7 @@ export function ViewContainer(props: ViewContainerProps) {
 
     return (
         (
-            <SidePanel
-                isOpen={true}
-                alignmanet="right"
-                sx={{transition: "all 0.3s ease-in-out", width: 600}}
-            >
+            <>
                 <SidePanelTitleContainer>
                     {!isHeaderHidden && (
                         <>
@@ -140,7 +136,7 @@ export function ViewContainer(props: ViewContainerProps) {
                         </>
                     )}
                 </div>
-            </SidePanel>
+            </>
         )
     )
 }

@@ -11,7 +11,7 @@ import React, { useMemo, useState } from 'react';
 
 import { css } from '@emotion/css';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { AnydataType, STModification, Type } from "@wso2-enterprise/ballerina-core";
+import { AnydataType, STModification, TypeField } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
@@ -263,7 +263,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 		return targetPosition;
 	}
 
-	const handleWrapWithTypeCast = async (type: Type, shouldReInitialize?: boolean) => {
+	const handleWrapWithTypeCast = async (type: TypeField, shouldReInitialize?: boolean) => {
 		setIsModifyingTypeCast(true)
 		try {
 			const name = getTypeName(type);

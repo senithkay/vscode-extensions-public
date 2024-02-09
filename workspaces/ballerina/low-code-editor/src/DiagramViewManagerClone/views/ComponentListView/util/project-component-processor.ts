@@ -84,7 +84,7 @@ export class ProjectComponentProcessor {
                 const uri = Uri.parse(genFilePath(this.currentPackage, this.currentModule, component));
                 this.fileMap.set(fileEntryKey, {
                     uri: {
-                        path: uri.path,
+                        path: genFilePath(this.currentPackage, this.currentModule, component),
                         fsPath: uri.fsPath,
                         sheme: uri.scheme,
                         external: ''

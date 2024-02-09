@@ -243,8 +243,9 @@
      * The list of shell commands to run after the Rush build command finishes
      */
     "postRushBuild": [
-      "cd workspaces/ballerina/ballerina-extension && pnpm run copyVSIXToRoot",
-      "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot",
+      "cd workspaces/ballerina/ballerina-extension && pnpm run copyVSIXToRoot", 
+      "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot", 
+      "cd workspaces/api-chat/extension && pnpm run copyVSIXToRoot",
       "cd workspaces/eggplant/eggplant-extension && pnpm run copyVSIXToRoot"
     ]
   },
@@ -514,8 +515,8 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
-      "packageName": "@wso2-enterprise/visualizer-view",
-      "projectFolder": "workspaces/ballerina/visualizer-view",
+      "packageName": "@wso2-enterprise/ballerina-visualizer",
+      "projectFolder": "workspaces/ballerina/ballerina-visualizer",
       "versionPolicyName": "ballerina-extension"
     },
     {
@@ -591,6 +592,16 @@
     {
       "packageName": "ballerina",
       "projectFolder": "workspaces/ballerina/ballerina-extension",
+      "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "api-chat",
+      "projectFolder": "workspaces/api-chat/extension",
+      "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/api-chat-vscode-webviews",
+      "projectFolder": "workspaces/api-chat/webviews",
       "versionPolicyName": "ballerina-extension"
     },
     {

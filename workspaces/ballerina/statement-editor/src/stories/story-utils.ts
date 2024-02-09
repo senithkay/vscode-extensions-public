@@ -1,5 +1,5 @@
 import { BalleriaLanguageClient, WSConnection } from "@wso2-enterprise/ballerina-languageclient";
-import { Uri } from "monaco-editor";
+import { URI } from "vscode-uri";
 
 import devproject from "./data/devproject.json";
 
@@ -44,7 +44,7 @@ function getProjectPath() {
 export async function fetchSyntaxTree(filePath: string) {
   const text = await getFileContent(filePath);
   const langClient = await langClientPromise;
-  const uri = Uri.file(filePath).toString();
+  const uri = URI.file(filePath).toString();
 
   await langClient.didOpen({
     textDocument: {

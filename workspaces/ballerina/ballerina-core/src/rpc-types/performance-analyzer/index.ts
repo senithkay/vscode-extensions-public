@@ -11,10 +11,8 @@
  *  associated services.
  */
 
-import { PerformanceAnalyzerEndpointsRequest, PerformanceAnalyzerResponse } from "../../lang-server-interfaces/performance-analyzer-types";
+import { PerfEndpointsRequest, PerfEndpointsResponse } from "./interfaces";
 
 export interface PerformanceAnalyzerAPI {
-    getPerfEndpoints: (
-        params: PerformanceAnalyzerEndpointsRequest
-    ) => Thenable<PerformanceAnalyzerResponse[]>;
+    getPerfEndpoints: (params: PerfEndpointsRequest) => Promise<PerfEndpointsResponse>;
 }

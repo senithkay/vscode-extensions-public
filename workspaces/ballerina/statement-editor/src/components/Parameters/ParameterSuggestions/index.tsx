@@ -210,12 +210,13 @@ export function ParameterSuggestions() {
     };
 
     return (
-        <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+        <div>
             {!isConnectorFlow && getFnDocumentation()}
             {isConnectorFlow && insideParamList && getConnectorFlowDocumentation()}
             {isConnectorFlow && !insideParamList && (
                 <Typography
                     variant="body3"
+                    sx={{marginTop: '10px'}}
                 >
                     Please select a method or parameter to see the parameter information
                 </Typography>

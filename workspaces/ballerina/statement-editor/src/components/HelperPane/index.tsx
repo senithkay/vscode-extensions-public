@@ -7,9 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from "react";
+import React, { FormEvent, useContext, useEffect, useState } from "react";
 
-import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import styled from '@emotion/styled';
+import { VSCodePanels, VSCodePanelTab, VSCodePanelView } from "@vscode/webview-ui-toolkit/react";
 import { Dropdown } from "@wso2-enterprise/ui-toolkit";
 
 import {
@@ -30,11 +31,8 @@ import {
 } from "../../utils";
 import { LibraryBrowser } from "../LibraryBrowser";
 import { ParameterSuggestions } from "../Parameters/ParameterSuggestions";
-import { useStatementEditorStyles, useStmtEditorHelperPanelStyles  } from "../styles";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
 import { LSSuggestions } from "../Suggestions/LangServerSuggestions";
-import TabPanel from "../Tab";
-// import { VSCodePanels, VSCodePanelTab, VSCodePanelView } from "@vscode/webview-ui-toolkit/react";
 
 enum TabElements {
     suggestions = 'Suggestions',
@@ -43,11 +41,32 @@ enum TabElements {
     parameters = 'Parameters'
 }
 
+const PanelWrapper = styled.div`
+    margin-top: 10px;
+    padding-left: 24px;
+    padding-right: 24px;
+`;
+
+const PanelContent = styled(VSCodePanelView)`
+    color: inherit;
+    background-color: transparent;
+    border: solid calc(var(--border-width) * 1px) transparent;
+    box-sizing: border-box;
+    font-size: var(--type-ramp-base-font-size);
+    line-height: var(--type-ramp-base-line-height);
+    padding: 10px 0 10px 3px;
+`;
+
+const PanelElement = styled(VSCodePanelTab)`
+    height: 100%;
+    width: 100%;
+    maxHeight: 100%;
+    overflow: hidden;
+`;
+
 export function HelperPane() {
-    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
-    const statementEditorClasses = useStatementEditorStyles();
     const [selectedTab, setSelectedTab] = useState(TabElements.suggestions);
-    const [libraryType, setLibraryType] = useState('');
+    const [libraryType, setLibraryType] = useState(ALL_LIBS_IDENTIFIER);
 
     const {
         modelCtx: {
@@ -62,13 +81,13 @@ export function HelperPane() {
 
     const toolbarCtx = useContext(ToolbarContext);
 
-    const onTabElementSelection = async (value: TabElements) => {
-        setSelectedTab(value);
-    };
-
     const onLibTypeSelection = (value: string) => {
         setLibraryType(value);
     };
+
+    const onTabChange = (e: Event | FormEvent<HTMLElement>) => {
+        setSelectedTab((e as any).currentTarget.activetab.id);
+    }
 
     useEffect(() => {
         if (toolbarCtx.toolbarMoreExp === true) {
@@ -76,17 +95,6 @@ export function HelperPane() {
             toolbarCtx.onClickMoreExp(false)
         }
     }, [toolbarCtx.toolbarMoreExp]);
-
-    React.useEffect(() => {
-
-        const client = KeyboardNavigationManager.getClient();
-
-        client.bindNewKey(['ctrl+shift+m', 'command+shift+m'], setSelectedTab, TabElements.suggestions);
-        client.bindNewKey(['ctrl+shift+,', 'command+shift+,'], setSelectedTab, TabElements.expressions);
-        client.bindNewKey(['ctrl+shift+.', 'command+shift+.'], setSelectedTab, TabElements.libraries);
-        client.bindNewKey(['ctrl+shift+/', 'command+shift+/'], setSelectedTab, TabElements.parameters);
-
-    }, []);
 
     useEffect(() => {
         if (
@@ -105,78 +113,40 @@ export function HelperPane() {
         }
     }, [currentModel.model]);
 
-    // return (
-    //     <PanelWrapper>
-    //         <VSCodePanels activeid="suggestions">
-    //             <VSCodePanelTab id="suggestions">{TabElements.suggestions}</VSCodePanelTab>
-    //             <VSCodePanelTab id="expressions">{TabElements.expressions}</VSCodePanelTab>
-    //             <VSCodePanelTab id="libraries">{TabElements.libraries}</VSCodePanelTab>
-    //             <VSCodePanelTab id="parameters">{TabElements.parameters}</VSCodePanelTab>
-    //             <PanelContent>
-    //                 <LSSuggestions />
-    //             </PanelContent>
-    //             <PanelContent>
-    //                 <ExpressionSuggestions />
-    //             </PanelContent>
-    //             <PanelContent>
-    //                 <>
-    //                     <Dropdown
-    //                         onChange={onLibTypeSelection}
-    //                         id="lib-filter-dropdown"
-    //                         value={libraryType}
-    //                         items={[
-    //                             { id: "allLibs", value: ALL_LIBS_IDENTIFIER },
-    //                             { id: "langLibs", value: LANG_LIBS_IDENTIFIER },
-    //                             { id: "stdLibs", value: STD_LIBS_IDENTIFIER }
-    //                         ]}
-    //                         data-testid="library-selector-dropdown"
-    //                         sx={{position: 'absolute', zIndex: 1, top: '-27px', right: '25px'}}
-    //                     />
-    //                     <LibraryBrowser libraryType={libraryType} />
-    //                 </>
-    //             </PanelContent>
-    //             <PanelContent>
-    //                 <ParameterSuggestions />
-    //             </PanelContent>
-    //         </VSCodePanels>
-    //     </PanelWrapper>
-    // );
-
     return (
-        <>
-            <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                <div className={stmtEditorHelperClasses.tabPanelWrapper} data-testid="tab-panel-wrapper">
-                    <TabPanel
-                        values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries, TabElements.parameters]}
-                        defaultValue={TabElements.suggestions}
-                        onSelection={onTabElementSelection}
-                        selectedTab={selectedTab}
-                    />
-                    <div className={stmtEditorHelperClasses.libraryTypeSelector} data-testid="library-type-selector">
-                        {selectedTab === TabElements.libraries && (
-                            <Dropdown
-                                onChange={onLibTypeSelection}
-                                id="lib-filter-dropdown"
-                                value={libraryType}
-                                items={[
-                                    { id: "allLibs", value: ALL_LIBS_IDENTIFIER },
-                                    { id: "langLibs", value: LANG_LIBS_IDENTIFIER },
-                                    { id: "stdLibs", value: STD_LIBS_IDENTIFIER }
-                                ]}
-                                data-testid="library-selector-dropdown"
-                                sx={{position: 'absolute', zIndex: 1, transform: 'translateY(-50%)'}}
-                            />
-                        )}
-                    </div>
-                </div>
-                <div className={statementEditorClasses.separatorLine} />
-            </div>
-            <div className={stmtEditorHelperClasses.suggestionsInner} data-testid="suggestions-inner">
-                {selectedTab === TabElements.suggestions && <LSSuggestions />}
-                {selectedTab === TabElements.expressions && <ExpressionSuggestions />}
-                {selectedTab === TabElements.libraries && <LibraryBrowser libraryType={libraryType} />}
-                {selectedTab === TabElements.parameters && <ParameterSuggestions />}
-            </div>
-        </>
+        <PanelWrapper>
+            <VSCodePanels activeid={selectedTab} onChange={onTabChange}>
+                <PanelElement id={TabElements.suggestions}>{TabElements.suggestions}</PanelElement>
+                <PanelElement id={TabElements.expressions}>{TabElements.expressions}</PanelElement>
+                <PanelElement id={TabElements.libraries}>{TabElements.libraries}</PanelElement>
+                <PanelElement id={TabElements.parameters}>{TabElements.parameters}</PanelElement>
+                <PanelContent>
+                    <LSSuggestions />
+                </PanelContent>
+                <PanelContent>
+                    <ExpressionSuggestions />
+                </PanelContent>
+                <PanelContent>
+                    <>
+                        <Dropdown
+                            onChange={onLibTypeSelection}
+                            id="lib-filter-dropdown"
+                            value={libraryType}
+                            items={[
+                                { id: "allLibs", value: ALL_LIBS_IDENTIFIER },
+                                { id: "langLibs", value: LANG_LIBS_IDENTIFIER },
+                                { id: "stdLibs", value: STD_LIBS_IDENTIFIER }
+                            ]}
+                            data-testid="library-selector-dropdown"
+                            sx={{position: 'absolute', zIndex: 1, top: '-27px', right: '0'}}
+                        />
+                        <LibraryBrowser libraryType={libraryType} />
+                    </>
+                </PanelContent>
+                <PanelContent>
+                    <ParameterSuggestions />
+                </PanelContent>
+            </VSCodePanels>
+        </PanelWrapper>
     );
 }
