@@ -135,9 +135,10 @@ export async function getRecordCompletions(
 
     const typeLabelsToIgnore = ["StrandData"];
     const completionMap = new Map<string, CompletionResponseWithModule>();
+    const fileUri = URI.file(path).toString();
 
     const completionParams: CompletionParams = {
-        textDocument: { uri: URI.file(path).toString() },
+        textDocument: { uri: fileUri },
         position: { character: 0, line: 0 },
         context: { triggerKind: 22 },
     };
@@ -147,16 +148,6 @@ export async function getRecordCompletions(
     recCompletions.forEach((item) => completionMap.set(item.insertText, item));
 
     if (importStatements.length > 0) {
-
-        const exprFileUrl = URI.file(path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
-        langServerRpcClient.didOpen({
-            textDocument: {
-                languageId: "ballerina",
-                text: currentFileContent,
-                uri: exprFileUrl,
-                version: 1,
-            },
-        });
 
         for (const importStr of importStatements) {
             const moduleName = importStr.split("/").pop().split(".").pop().replace(";", "");
@@ -172,12 +163,12 @@ export async function getRecordCompletions(
             );
 
             langServerRpcClient.didChange({
-                textDocument: { uri: exprFileUrl, version: 1 },
+                textDocument: { uri: fileUri, version: 1 },
                 contentChanges: [{ text: updatedContent }],
             });
 
             const importCompletions = await langServerRpcClient.getCompletion({
-                textDocument: { uri: exprFileUrl },
+                textDocument: { uri: fileUri },
                 position: { character: fnSTPosition.endColumn + moduleName.length + 1, line: fnSTPosition.endLine },
                 context: { triggerKind: 22 },
             });
@@ -191,11 +182,9 @@ export async function getRecordCompletions(
             });
         }
         langServerRpcClient.didChange({
-            textDocument: { uri: exprFileUrl, version: 1 },
+            textDocument: { uri: fileUri, version: 1 },
             contentChanges: [{ text: currentFileContent }],
         });
-
-        langServerRpcClient.didClose({ textDocument: { uri: exprFileUrl } });
     }
 
     const allCompletions = Array.from(completionMap.values()).filter(
