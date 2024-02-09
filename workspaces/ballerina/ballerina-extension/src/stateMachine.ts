@@ -153,9 +153,7 @@ const stateMachine = createMachine<MachineContext>(
         findView: (context, event) => {
             return new Promise((resolve, reject) => {
                 // Find view logic here based on the positions
-                setTimeout(() => {
-                    resolve(true);
-                }, 500); // Wait for 2 seconds (2000 milliseconds)
+                resolve(true);
             });
         }
     }
