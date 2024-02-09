@@ -18,7 +18,6 @@ export class Cache<V, Args extends any[]> {
         if (this._timerIndex.has(key)) {
             clearTimeout(this._timerIndex.get(key));
         }
-        console.log('Setting expiration for key', key);
         const timer = setTimeout(async () => {
             this._timerIndex.delete(key);
             await this.invalidate(key, ...args);
@@ -40,20 +39,28 @@ export class Cache<V, Args extends any[]> {
             }
             return value as V;
         }
-        const res = await this.params.getDataFunc(...args);
-        if (res) {
-            await ext.context.globalState.update(key, res);
-            this.setExpiration(key, ...args);
-            return res;
+        try {
+            const res = await this.params.getDataFunc(...args);
+            if (res) {
+                await ext.context.globalState.update(key, res);
+                this.setExpiration(key, ...args);
+                return res;
+            }
+            return undefined;
+        } catch(err) {
+            throw err;
         }
-        return undefined;
     }
 
     public async invalidate(key: string, ...args: Args): Promise<void> {
-        const res = await this.params.getDataFunc(...args);
-        if (res) {
-            await ext.context.globalState.update(key, res);
-            this.setExpiration(key, ...args);
+        try {
+            const res = await this.params.getDataFunc(...args);
+            if (res) {
+                await ext.context.globalState.update(key, res);
+                this.setExpiration(key, ...args);
+            }
+        } catch(err) {
+            throw err;
         }
     }
 }

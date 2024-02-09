@@ -15,7 +15,7 @@ interface HeaderProps {}
 
 const HeaderContainer = styled.div`
     align-items: center;
-    color: ${Colors.DEFAULT_TEXT};
+    color: ${Colors.ON_SURFACE_VARIANT};
     display: flex;
     flex-direction: row;
     font-family: GilmerBold;

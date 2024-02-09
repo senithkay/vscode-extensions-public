@@ -86,11 +86,11 @@ const simpleModel: Project = {
                         gateways: {
                             internet: {
                                 isExposed: true,
-                                tooltip: "No data from internet gateway"
+                                tooltip: "No data from internet gateway",
                             },
                             intranet: {
                                 isExposed: true,
-                                tooltip: "No data from intranet gateway"
+                                tooltip: "No data from intranet gateway",
                             },
                         },
                     },
@@ -100,13 +100,13 @@ const simpleModel: Project = {
                 {
                     id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Payments:payments",
                     type: "http",
-                    tooltip: "No data form payment service"
+                    tooltip: "No data form payment service",
                 },
                 {
                     id: "mysql://mysql",
                     type: "datastore",
                     onPlatform: true,
-                    tooltip: "No data from database connection"
+                    tooltip: "No data from database connection",
                 },
                 {
                     id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Products:products",
@@ -455,7 +455,6 @@ const complexModel: Project = {
                         },
                     },
                 },
-            
             },
             connections: [
                 {
@@ -542,7 +541,7 @@ const observationsModel: Project = {
                                         p50Latency: 22461844,
                                         p90Latency: 1469733900,
                                         p99Latency: 1469733900,
-                                        requestCount: 8,
+                                        requestCount: 16,
                                         sourceNodeId: 0,
                                     },
                                 ],
@@ -597,7 +596,7 @@ const observationsModel: Project = {
                                         p50Latency: 21132684,
                                         p90Latency: 1043810050,
                                         p99Latency: 2199582500,
-                                        requestCount: 36,
+                                        requestCount: 2500,
                                         sourceNodeId: 0,
                                     },
                                 ],
@@ -622,7 +621,7 @@ const observationsModel: Project = {
                             p50Latency: 191934320,
                             p90Latency: 191934320,
                             p99Latency: 191934320,
-                            requestCount: 1,
+                            requestCount: 1000,
                             sourceNodeId: 2,
                         },
                     ],
@@ -641,7 +640,7 @@ const observationsModel: Project = {
                             p50Latency: 191934320,
                             p90Latency: 191934320,
                             p99Latency: 191934320,
-                            requestCount: 1,
+                            requestCount: 4000,
                             sourceNodeId: 2,
                         },
                     ],
@@ -685,7 +684,7 @@ const observationsModel: Project = {
                             p50Latency: 191934320,
                             p90Latency: 191934320,
                             p99Latency: 191934320,
-                            requestCount: 1,
+                            requestCount: 10000,
                             sourceNodeId: 2,
                         },
                     ],
@@ -703,7 +702,7 @@ const observationsModel: Project = {
                             p50Latency: 191934320,
                             p90Latency: 191934320,
                             p99Latency: 191934320,
-                            requestCount: 1,
+                            requestCount: 20,
                             sourceNodeId: 2,
                         },
                     ],
@@ -747,7 +746,7 @@ const observationsModel: Project = {
                             p50Latency: 191934320,
                             p90Latency: 191934320,
                             p99Latency: 191934320,
-                            requestCount: 1,
+                            requestCount: 158,
                             sourceNodeId: 2,
                         },
                     ],
@@ -763,8 +762,20 @@ const observationsModel: Project = {
                             p50Latency: 191934320,
                             p90Latency: 191934320,
                             p99Latency: 191934320,
-                            requestCount: 1,
+                            requestCount: 150,
                             sourceNodeId: 2,
+                            componentVersion: "0.2.0",
+                        },
+                        {
+                            avgLatency: 191934320,
+                            destinationNodeId: 1,
+                            errorCount: 0,
+                            p50Latency: 191934320,
+                            p90Latency: 191934320,
+                            p99Latency: 191934320,
+                            requestCount: 300,
+                            sourceNodeId: 2,
+                            componentVersion: "0.1.0",
                         },
                     ],
                 },
@@ -781,11 +792,65 @@ const observationsModel: Project = {
                             p50Latency: 191934320,
                             p90Latency: 191934320,
                             p99Latency: 191934320,
-                            requestCount: 1,
+                            requestCount: 2000,
                             sourceNodeId: 2,
                         },
                     ],
                 },
+            ],
+        },
+        {
+            id: "Transactions",
+            version: "0.2.0",
+            type: "service",
+            services: {
+                "ABC:A:Invoices:get": {
+                    id: "ABC:A:Invoices:get",
+                    label: "Get Invoices",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: false,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [
+                {
+                    id: "ABC:A:Products:basepath",
+                    onPlatform: true,
+                    observations: [
+                        {
+                            avgLatency: 191934320,
+                            destinationNodeId: 1,
+                            errorCount: 0,
+                            p50Latency: 191934320,
+                            p90Latency: 191934320,
+                            p99Latency: 191934320,
+                            requestCount: 1500,
+                            sourceNodeId: 2,
+                            componentVersion: "0.2.0",
+                        },
+                        {
+                            avgLatency: 191934320,
+                            destinationNodeId: 1,
+                            errorCount: 0,
+                            p50Latency: 191934320,
+                            p90Latency: 191934320,
+                            p99Latency: 191934320,
+                            requestCount: 3000,
+                            sourceNodeId: 2,
+                            componentVersion: "0.1.0",
+                        },
+                    ],
+                },
+               
             ],
         },
     ],

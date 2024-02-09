@@ -27,10 +27,16 @@ inputs:
     description: 'Is APK'
     type: boolean
     default: false
+  apiChat:
+    description: 'Is API Chat'    
+    type: boolean
+    default: false 
   commonLibs:
     description: 'Is Common Lib'    
     type: boolean
     default: false    
+    required: true
+  
 runs:
   using: "composite"
   steps:
@@ -59,6 +65,11 @@ runs:
         if: ${{ inputs.commonLibs == 'true' }}
         shell: bash
         run: git add workspaces/common-libs/*/*.json
+        
+      - name: Add Api Chat git changes
+        if: ${{ inputs.apiChat == 'true' }}
+        shell: bash
+        run: git add workspaces/api-chat/*/*.json
 
       - name: Commit version
         shell: bash

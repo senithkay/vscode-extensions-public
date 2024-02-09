@@ -22,7 +22,7 @@ export const useStyles = makeStyles(() =>
             marginInline: '5px',
             minWidth: '140px',
             '&:hover': {
-                backgroundColor: Colors.PRIMARY_LIGHT
+                backgroundColor: Colors.PRIMARY
             }
         },
         container: {
