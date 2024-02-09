@@ -176,7 +176,7 @@ export function DataMapperC(props: DataMapperViewProps) {
         isFetching: isFetchingDMMetaData,
         isError: isErrorDMMetaData
     } = useDMMetaData(langServerRpcClient);
-    const { content, isFetching: isFetchingContent } = useFileContent(langServerRpcClient, filePath);
+    const { content, isFetching: isFetchingContent } = useFileContent(langServerRpcClient, filePath, fnST.source);
     // const { data } = useSyntaxTreeFromRange();
 
     // const fnST = data?.syntaxTree as FunctionDefinition;

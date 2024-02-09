@@ -207,7 +207,7 @@ export const useDMMetaData = (langServerRpcClient: LangServerRpcClient): {
     return { ballerinaVersion, dMSupported, dMUnsupportedMessage, isFetching, isError, refetch };
 };
 
-export const useFileContent = (langServerRpcClient: LangServerRpcClient, filePath: string): {
+export const useFileContent = (langServerRpcClient: LangServerRpcClient, filePath: string, fnSource: string): {
     content: string;
     isFetching: boolean;
     isError: boolean;
@@ -229,7 +229,7 @@ export const useFileContent = (langServerRpcClient: LangServerRpcClient, filePat
         isFetching,
         isError,
         refetch,
-    } = useQuery(['fetchContent'], () => fetchContent(), {});
+    } = useQuery(['fetchContent', {filePath, fnSource}], () => fetchContent(), {});
 
     return { content, isFetching, isError, refetch };
 };
