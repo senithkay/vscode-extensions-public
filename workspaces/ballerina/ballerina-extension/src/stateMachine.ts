@@ -2,11 +2,12 @@
 import { ExtendedLangClient } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EventType, MachineStateValue, MachineViews, STByRangeRequest, SyntaxTreeResponse, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { EventType, MachineStateValue, MachineViews, STByRangeRequest, SyntaxTreeResponse, VisualizerLocation, webviewReady } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './library-browser';
 import { VisualizerWebview } from './visualizer/webview';
 import { Uri } from 'vscode';
 import { STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { RPCLayer } from './RPCLayer';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -152,9 +153,13 @@ const stateMachine = createMachine<MachineContext>(
             return new Promise((resolve, reject) => {
                 if (!VisualizerWebview.currentPanel) {
                     VisualizerWebview.currentPanel = new VisualizerWebview();
+                    RPCLayer._messenger.onNotification(webviewReady, () => {
+                        resolve(true);
+                    });
+                } else {
+                    VisualizerWebview.currentPanel!.getWebview()?.reveal();
+                    resolve(true);
                 }
-                VisualizerWebview.currentPanel!.getWebview()?.reveal();
-                resolve(true);
             });
         },
         findView(context, event): Promise<VisualizerLocation> {
@@ -176,9 +181,9 @@ const stateMachine = createMachine<MachineContext>(
                         }
                     }
                 };
-            
+
                 const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
-                
+
                 if (node.parseSuccess) {
                     if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
                         resolve({ view: "ServiceDesigner", documentUri: context.documentUri, position: context.position });
