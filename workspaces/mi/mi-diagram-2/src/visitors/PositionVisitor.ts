@@ -108,8 +108,12 @@ export class PositionVisitor implements Visitor {
     endVisitFilter = (node: Filter): void => this.setSkipChildrenVisit(false);
 
     beginVisitHeader = (node: Header): void => this.setBasicMediatorPosition(node);
+
     beginVisitInSequence = (node: Sequence): void => {
         this.setBasicMediatorPosition(node);
+    }
+    endVisitInSequence = (node: Sequence): void => {
+        this.position.y += NODE_GAP.Y + node.viewState.h;
     }
 
     beginVisitLog = (node: Log): void => {

@@ -149,6 +149,7 @@ export class NodeFactoryVisitor implements Visitor {
         node.viewState.y = lastNode.viewState.y + lastNode.viewState.h + NODE_GAP.Y;
         this.createNodeAndLinks(node, NodeTypes.END_NODE, node.range.end);
         this.parents.pop();
+        this.previousSTNodes = undefined;
     }
 
     beginVisitLog = (node: Log): void => {
