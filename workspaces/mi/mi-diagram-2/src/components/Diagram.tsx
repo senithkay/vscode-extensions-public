@@ -41,6 +41,7 @@ namespace S {
     `;
 }
 
+const SIDE_PANEL_WIDTH = 450;
 export function Diagram(props: DiagramProps) {
     const { model } = props;
 
@@ -76,6 +77,13 @@ export function Diagram(props: DiagramProps) {
             }
         }, 400);
     }, [diagramModel]);
+
+    // center diagram when side panel is opened
+    useEffect(() => {
+        if (diagramModel) {
+            centerDiagram(true);
+        }
+    }, [isSidePanelOpen]);
 
     const getNodes = () => {
         // run sizing visitor
@@ -139,10 +147,21 @@ export function Diagram(props: DiagramProps) {
                         setBackBtn: setSidePanelBackBtn,
                         backBtn: sidePanelBackBtn
                     }}>
+                        <DiagramCanvas height={diagramHeight + 275} width={diagramWidth + 300}>
+                            {/* <CanvasWidget engine={diagramEngine} /> */}
+                            <NavigationWrapperCanvasWidget
+                                diagramEngine={diagramEngine as any}
+                                overflow="hidden"
+                                cursor="Default"
+                            />
+                        </DiagramCanvas>
+
+                        {/* side panel */}
                         {isSidePanelOpen && <SidePanel
                             isOpen={isSidePanelOpen}
                             alignmanet="right"
-                            width={450}
+                            width={SIDE_PANEL_WIDTH}
+                            overlay={false}
                         >
                             <SidePanelTitleContainer>
                                 <div style={{ minWidth: "20px" }}>
@@ -155,33 +174,36 @@ export function Diagram(props: DiagramProps) {
                             </SidePanelTitleContainer>
                             <SidePanelList nodePosition={sidePanelnodeRange} documentUri={props.documentUri} />
                         </SidePanel>}
-                        <DiagramCanvas height={diagramHeight + 275} width={diagramWidth + 300}>
-                            {/* <CanvasWidget engine={diagramEngine} /> */}
-                            <NavigationWrapperCanvasWidget
-                                diagramEngine={diagramEngine as any}
-                                overflow="hidden"
-                                cursor="Default"
-                            />
-                        </DiagramCanvas>
+
                     </SidePanelProvider>
                 </S.Container >
             )}
         </>
     );
 
-    function centerDiagram() {
+    async function centerDiagram(animate = false) {
         if (diagramEngine?.getCanvas()?.getBoundingClientRect()) {
             const canvasBounds = diagramEngine.getCanvas().getBoundingClientRect();
 
-            const offsetX = canvasBounds.width / 2;
+            const currentOffsetX = diagramEngine.getModel().getOffsetX();
+            const offsetAdj = isSidePanelOpen ? (SIDE_PANEL_WIDTH - 25) : 0;
+            const offsetX = + ((canvasBounds.width - diagramWidth - offsetAdj) / 2);
 
-            diagramEngine.getModel().setOffsetX(offsetX - (diagramWidth / 2));
-            diagramEngine.getModel().setGridSize(50);
+            const step = (offsetX - currentOffsetX) / 30;
+            let i = animate ? currentOffsetX : offsetX;
+            do {
+                i += animate ? step : 0;
+
+                diagramEngine.getModel().setOffsetX(+ i);
+                diagramEngine.getModel().setGridSize(50);
+
+                // update diagram
+                diagramEngine.setModel(diagramModel);
+                diagramEngine.repaintCanvas();
+                // Sleep for 500 milliseconds
+                await new Promise(resolve => setTimeout(resolve, 1));
+            } while (!(i > offsetX - 1 && i < offsetX + 1));
         }
-
-        // update diagram
-        diagramEngine.setModel(diagramModel);
-        diagramEngine.repaintCanvas();
     }
 
     function removeOverlay() {
