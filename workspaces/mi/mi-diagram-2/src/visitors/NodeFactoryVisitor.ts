@@ -152,6 +152,23 @@ export class NodeFactoryVisitor implements Visitor {
         this.previousSTNodes = undefined;
     }
 
+    beginVisitOutSequence(node: Sequence): void {
+        const addPosition = {
+            line: node.range.start.line,
+            character: node.range.start.character + 12
+        }
+        this.currentAddPosition = addPosition;
+        this.createNodeAndLinks(node, NodeTypes.START_NODE);
+        this.parents.push(node);
+    }
+    endVisitOutSequence(node: Sequence): void {
+        const lastNode = this.nodes[this.nodes.length - 1].getStNode();
+        node.viewState.y = lastNode.viewState.y + lastNode.viewState.h + NODE_GAP.Y;
+        this.createNodeAndLinks(node, NodeTypes.END_NODE, node.range.end);
+        this.parents.pop();
+        this.previousSTNodes = undefined;
+    }
+
     beginVisitLog = (node: Log): void => {
         this.createNodeAndLinks(node);
         this.skipChildrenVisit = true;
