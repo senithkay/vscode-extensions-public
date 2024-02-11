@@ -48,7 +48,7 @@ export class NodeFactoryVisitor implements Visitor {
         if (this.previousSTNodes != undefined) {
             for (let i = 0; i < this.previousSTNodes.length; i++) {
                 const previousStNode = this.previousSTNodes[i];
-                const previousNodes = this.nodes.filter((node) => node.getStNode() == previousStNode);
+                const previousNodes = this.nodes.filter((node) => node.getStNode() == previousStNode && node.getType() !== NodeTypes.END_NODE);
                 for (let j = 0; j < previousNodes.length; j++) {
                     const previousNode = previousNodes[j];
                     const link = createNodesLink(
