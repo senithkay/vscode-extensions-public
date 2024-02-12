@@ -12,6 +12,7 @@ import { MachineStateValue, ProjectStructureResponse, WorkspaceFolder } from "@w
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import ProjectStructureView from "./ProjectStructureView";
 import { Typography } from "@wso2-enterprise/ui-toolkit";
+import styled from "@emotion/styled";
 
 // TODO: Can remove below if we don't need the workspaces list
 // import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
@@ -23,6 +24,19 @@ import { Typography } from "@wso2-enterprise/ui-toolkit";
 //     width: 50%;
 //     display: none;
 // `;
+
+const TitleWrapper = styled.div`
+    padding: 5px 0 0;
+    margin-bottom: 10px;
+    border: none;
+    font-weight: 400;
+    font-size: 2.7em;
+    white-space: nowrap;
+`;
+
+const OverviewContainer = styled.div`
+    margin: 20px;
+`;
 
 export function Overview() {
     const { rpcClient } = useVisualizerContext();
@@ -50,7 +64,7 @@ export function Overview() {
     }
 
     return (
-        <>
+        <OverviewContainer>
             {/* TODO: Below code is to show the list of workspaces */}
             {/* <DropDownContainer>
                 <label htmlFor="workspaces">MI Workspaces</label>
@@ -62,9 +76,9 @@ export function Overview() {
                     ))}
                 </VSCodeDropdown>
             </DropDownContainer> */}
-            <Typography variant="h2">Project Overview</Typography>
+            <TitleWrapper>Project Overview</TitleWrapper>
             {projectStructure && <ProjectStructureView projectStructure={projectStructure} />}
 
-        </>
+        </OverviewContainer>
     );
 }
