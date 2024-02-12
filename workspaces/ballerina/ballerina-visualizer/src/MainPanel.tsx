@@ -47,7 +47,7 @@ const ComponentViewWrapper = styled.div`
 const MainPanel = (props: { state: MachineStateValue }) => {
     const { state } = props;
     const { rpcClient } = useVisualizerContext();
-    const [context, setContext] = useState<VisualizerLocation>();
+    const [visualizerLocation, setVisualizerLocation] = useState<VisualizerLocation>();
     const [mainState, setMainState] = React.useState<MachineStateValue>(state);
 
     rpcClient?.onStateChanged((newState: MachineStateValue) => {
@@ -57,8 +57,8 @@ const MainPanel = (props: { state: MachineStateValue }) => {
     useEffect(() => {
         if (typeof mainState === 'object' && 'viewActive' in mainState && mainState.viewActive === 'viewReady') {
             try {
-                rpcClient.getVisualizerContext().then((value) => {
-                    setContext(value);
+                rpcClient.getVisualizerLocation().then((value) => {
+                    setVisualizerLocation(value);
                 });
             } catch (error) {
 
@@ -67,7 +67,7 @@ const MainPanel = (props: { state: MachineStateValue }) => {
     }, [mainState]);
 
     const RenderComponentView = () => {
-        switch (context!.view) {
+        switch (visualizerLocation!.view) {
             case "Overview":
                 return <Overview />;
             case "ArchitectureDiagram":
@@ -77,7 +77,12 @@ const MainPanel = (props: { state: MachineStateValue }) => {
             case "ERDiagram":
                 return <ERDiagram />
             case "DataMapper":
-                return <DataMapper />
+                return (
+                    <DataMapper
+                        filePath={visualizerLocation.documentUri}
+                        fnLocation={visualizerLocation.position}
+                    />
+                );
             case "GraphQLDiagram":
                 return <GraphQLDiagram />
             case "SequenceDiagram":
@@ -94,7 +99,7 @@ const MainPanel = (props: { state: MachineStateValue }) => {
             <Global styles={globalStyles} />
             <VisualizerContainer>
                 <NavigationBar />
-                {context && (
+                {visualizerLocation && (
                     <ComponentViewWrapper>
                         <RenderComponentView />
                     </ComponentViewWrapper>

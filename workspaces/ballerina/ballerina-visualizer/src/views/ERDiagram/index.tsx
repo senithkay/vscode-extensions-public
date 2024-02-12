@@ -19,8 +19,8 @@ export function ERDiagram() {
 
     useEffect(() => {
         if (rpcClient) {
-            rpcClient.getVisualizerContext().then((value) => {
-                setContext(value);
+            rpcClient.getVisualizerLocation().then((value) => {
+                setVisualizerLocation(value);
             });
         }
     }, [rpcClient]);

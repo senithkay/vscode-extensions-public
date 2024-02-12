@@ -10,26 +10,25 @@
 import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
 import React, { useEffect, useMemo, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { SyntaxTreeResponse, STModification, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { SyntaxTreeResponse, STModification, NodePosition } from "@wso2-enterprise/ballerina-core";
 import { useSyntaxTreeFromRange } from "../../Hooks";
 import { FunctionDefinition, ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { URI } from "vscode-uri";
 
-export function DataMapper() {
+interface DataMapperProps {
+    filePath: string;
+    fnLocation: NodePosition;
+}
+
+export function DataMapper(props: DataMapperProps) {
+    const { filePath, fnLocation } = props;
     const [rerender, setRerender] = useState(false);
-    const { data, isFetching } = useSyntaxTreeFromRange(rerender);
+    const [position, setPosition] = useState<NodePosition>(fnLocation);
+    const { data, isFetching } = useSyntaxTreeFromRange(position, filePath, rerender);
     const { rpcClient } = useVisualizerContext();
     const langServerRpcClient = rpcClient.getLangServerRpcClient();
     const libraryBrowserRPCClient = rpcClient.getLibraryBrowserRPCClient();
     const [mapperData, setMapperData] = useState<SyntaxTreeResponse>(data);
-    const [context, setContext] = React.useState<VisualizerLocation>();
-
-
-    useEffect(() => {
-        rpcClient.getVisualizerContext().then((value) => {
-            setContext(value);
-        });
-    }, []);
 
     useEffect(() => {
         if (!isFetching) {
@@ -38,13 +37,10 @@ export function DataMapper() {
     }, [isFetching, data]);
 
     const syntaxTree = mapperData?.syntaxTree as FunctionDefinition;
-    const fnName = syntaxTree?.functionName.value;
+    let fnName = syntaxTree?.functionName.value;
 
     const applyModifications = async (modifications: STModification[]) => {
         const langServerRPCClient = rpcClient.getLangServerRpcClient();
-        const visualizerRPCClient = rpcClient.getVisualizerRpcClient();
-        const context = await rpcClient.getVisualizerContext();
-        const filePath = context.documentUri;
         const { parseSuccess, source: newSource, syntaxTree } = await langServerRPCClient?.stModify({
             astModifications: modifications,
             documentIdentifier: {
@@ -52,7 +48,6 @@ export function DataMapper() {
             }
         });
         if (parseSuccess) {
-            // TODO: Handle this in extension specific code
             await langServerRPCClient.updateFileContent({
                 content: newSource,
                 fileUri: filePath
@@ -62,24 +57,25 @@ export function DataMapper() {
             const fns = modPart.members.filter((mem) =>
                 STKindChecker.isFunctionDefinition(mem)
             ) as FunctionDefinition[];
+
+            if (modifications.length === 1 && modifications[0].type === "FUNCTION_DEFINITION_SIGNATURE") {
+                fnName = modifications[0].config.NAME;
+            }
+
             const st = fns.find((mem) => mem.functionName.value === fnName);
-            await visualizerRPCClient.openView({
-                view: "DataMapper",
-                documentUri: filePath,
-                position: st.position
-            });
+            setPosition(st.position);
             setRerender(prevState => !prevState);
         }
     };
 
     const view = useMemo(() => {
-        if (!mapperData || !context.documentUri) {
+        if (!mapperData) {
             return <div>DM Loading...</div>;
         }
         return (
             <DataMapperView
                 fnST={syntaxTree as FunctionDefinition}
-                filePath={context.documentUri}
+                filePath={filePath}
                 langServerRpcClient={langServerRpcClient}
                 libraryBrowserRpcClient={libraryBrowserRPCClient}
                 applyModifications={applyModifications}

@@ -19,8 +19,8 @@ export function GraphQLDiagram() {
 
     useEffect(() => {
         if (rpcClient) {
-            rpcClient.getVisualizerContext().then((value) => {
-                setContext(value);
+            rpcClient.getVisualizerLocation().then((value) => {
+                setVisualizerLocation(value);
             });
         }
     }, [rpcClient]);
@@ -47,10 +47,10 @@ export function GraphQLDiagram() {
         <>
             <h1>Hello GraphQL Diagram</h1>
             <ul>
-                <li>{context?.view}</li>
-                <li>{context?.documentUri}</li>
-                <li>{context?.position?.startLine}</li>
-                <li>{context?.identifier}</li>
+                <li>{visualizerLocation?.view}</li>
+                <li>{visualizerLocation?.documentUri}</li>
+                <li>{visualizerLocation?.position?.startLine}</li>
+                <li>{visualizerLocation?.identifier}</li>
             </ul>
             <GraphqlDesignDiagram
                 graphqlModelResponse={graphqlModdel}
