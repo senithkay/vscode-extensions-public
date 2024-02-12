@@ -89,6 +89,10 @@ export class SizingVisitor implements Visitor {
         node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.WIDTH, h: NODE_DIMENSIONS.START.HEIGHT };
     }
 
+    endVisitFaultSequence = (node: Sequence): void => {
+        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.WIDTH, h: NODE_DIMENSIONS.START.HEIGHT };
+    }
+
     beginVisitLog = (node: Log): void => {
         this.skipChildrenVisit = true;
     }
