@@ -13,22 +13,17 @@ import {
     VisualizerLocation
 } from "@wso2-enterprise/ballerina-core";
 import { StateMachine, getPreviousView, openView } from "../../stateMachine";
-import { handleVisualizerView } from "../../utils/navigation";
 
 export class VisualizerRpcManager implements VisualizerAPI {
-   
+
     openView(params: VisualizerLocation): Promise<void> {
         return new Promise(async (resolve) => {
-            if (params.position) {
-                await handleVisualizerView(params);
-            } else {
-                openView("OPEN_VIEW", params);
-            }
+            openView("OPEN_VIEW", params);
             resolve();
         });
     }
 
-    goBack(): void{
+    goBack(): void {
         // Get current view
         const currentView = StateMachine.context().view;
         const currentDoc = StateMachine.context().documentUri;

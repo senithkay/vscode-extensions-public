@@ -54,7 +54,6 @@ import { normalize, resolve } from "path";
 import { Position, Range, WorkspaceEdit, extensions, workspace } from "vscode";
 import { URI } from "vscode-uri";
 import { StateMachine } from "../../stateMachine";
-import { getSyntaxTreeFromPosition } from "../../utils/navigation";
 
 export class LangServerRpcManager implements LangServerAPI {
 
@@ -74,7 +73,7 @@ export class LangServerRpcManager implements LangServerAPI {
                     }
                 }
             };
-            const node = await getSyntaxTreeFromPosition(req);
+            const node = await StateMachine.langClient().getSTByRange(req);
             if (node.parseSuccess) {
                 resolve({ syntaxTree: node.syntaxTree });
             } else {
