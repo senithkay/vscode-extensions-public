@@ -61,7 +61,7 @@ export class VisualizerWebview {
     }
 
     private getWebviewContent(webView: Webview) {
-        const body = `<div class="container" id="webview-container" />`;
+        const body = `<div class="container" id="webview-container"><div class="loader" /></div></div>`;
         const bodyCss = ``;
         const styles = `
             .container {

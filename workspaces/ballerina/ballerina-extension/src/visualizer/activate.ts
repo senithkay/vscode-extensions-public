@@ -10,7 +10,6 @@
 import * as vscode from 'vscode';
 import { PALETTE_COMMANDS } from '../project/cmds/cmd-runner';
 import { openView } from '../stateMachine';
-import { handleVisualizerView } from '../utils/navigation';
 import { extension } from '../BalExtensionContext';
 
 export function activateSubscriptions() {
@@ -22,7 +21,7 @@ export function activateSubscriptions() {
     );
     context.subscriptions.push(
         vscode.commands.registerCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, (path, position) => {
-            handleVisualizerView({ view: "Overview", documentUri: path, position: position });
+            openView("OPEN_VIEW", { view: "Overview", documentUri: path, position: position });
         })
     );
     context.subscriptions.push(
