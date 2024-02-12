@@ -207,7 +207,7 @@ const stateService = interpret(stateMachine);
 function startMachine(): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         stateService.start().onTransition((state) => {
-            if (state.value === "Ready") {
+            if (state.value === "lsReady") {
                 resolve();
             }
         });
