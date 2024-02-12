@@ -69,8 +69,7 @@ const stateMachine = createMachine<MachineContext>(
                     OPEN_VIEW: {
                         target: "viewActive",
                         actions: assign({
-                            view: (context, event) => event.viewLocation.view,
-                            documentUri: (context, event) => event.viewLocation.documentUri,
+                            documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
                             position: (context, event) => event.viewLocation.position
                         })
                     }
@@ -89,13 +88,12 @@ const stateMachine = createMachine<MachineContext>(
                     },
                     webViewLoaded: {
                         invoke: {
-                            src: 'findView',
+                            src: 'findView', // NOTE: We only find the view and indentifer from this state as we already have the position and the file URL
                             onDone: {
                                 target: "viewReady",
                                 actions: assign({
                                     view: (context, event) => event.data.view,
-                                    documentUri: (context, event) => event.data.documentUri,
-                                    position: (context, event) => event.data.position
+                                    identifier: (context, event) => event.data.identifier
                                 })
                             }
                         }
@@ -105,17 +103,16 @@ const stateMachine = createMachine<MachineContext>(
                             OPEN_VIEW: {
                                 target: "viewInit",
                                 actions: assign({
-                                    view: (context, event) => event.viewLocation.view,
-                                    documentUri: (context, event) => event.viewLocation.documentUri,
-                                    position: (context, event) => event.viewLocation.position
+                                    documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
+                                    position: (context, event) => event.viewLocation.position,
                                 })
                             },
                             FILE_EDIT: {
                                 target: "viewEditing",
                                 actions: assign({
-                                    view: (context, event) => event.viewLocation.view,
-                                    documentUri: (context, event) => event.viewLocation.documentUri,
-                                    position: (context, event) => event.viewLocation.position
+                                    documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
+                                    position: (context, event) => event.viewLocation.position,
+                                    identifier: (context, event) => event.viewLocation.identifier
                                 })
                             },
                         }
@@ -125,9 +122,9 @@ const stateMachine = createMachine<MachineContext>(
                             EDIT_DONE: {
                                 target: "viewReady",
                                 actions: assign({
-                                    view: (context, event) => event.viewLocation.view,
-                                    documentUri: (context, event) => event.viewLocation.documentUri,
-                                    position: (context, event) => event.viewLocation.position
+                                    documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
+                                    position: (context, event) => event.viewLocation.position,
+                                    identifier: (context, event) => event.viewLocation.identifier
                                 })
                             }
                         }
@@ -186,7 +183,10 @@ const stateMachine = createMachine<MachineContext>(
 
                 if (node.parseSuccess) {
                     if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
-                        resolve({ view: "ServiceDesigner", documentUri: context.documentUri, position: context.position });
+                        resolve({
+                            view: "ServiceDesigner",
+                            identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join('')
+                        });
                     } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) && STKindChecker.isExpressionFunctionBody(node.syntaxTree.functionBody)) {
                         resolve({ view: "DataMapper", documentUri: context.documentUri, position: context.position });
                     } else if (STKindChecker.isTypeDefinition(node.syntaxTree) && STKindChecker.isRecordTypeDesc(node.syntaxTree.typeDescriptor)) {

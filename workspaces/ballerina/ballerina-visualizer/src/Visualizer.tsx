@@ -42,8 +42,8 @@ export function Visualizer({ mode }: { mode: string }) {
 
 const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue }) => {
     switch (true) {
-        case typeof state === 'object' && 'viewActive' in state:
-            return <MainPanel state={state} />;
+        case typeof state === 'object' && 'viewActive' in state && state.viewActive === "viewReady":
+            return <MainPanel />;
         default:
             return <LoadingRing />;
     }
