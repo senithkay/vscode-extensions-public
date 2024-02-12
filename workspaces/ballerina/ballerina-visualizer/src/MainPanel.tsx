@@ -65,7 +65,7 @@ const MainPanel = () => {
     }, []);
 
     const viewComponent = useMemo(() => {
-        switch (visualizerLocation.view) {
+        switch (visualizerLocation?.view) {
             case "Overview":
                 return <Overview />;
             case "ArchitectureDiagram":
