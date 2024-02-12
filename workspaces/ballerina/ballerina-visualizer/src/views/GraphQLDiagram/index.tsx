@@ -14,7 +14,7 @@ import { GraphqlDesignDiagram } from "@wso2-enterprise/ballerina-graphql-design-
 
 export function GraphQLDiagram() {
     const { rpcClient } = useVisualizerContext();
-    const [context, setContext] = React.useState<VisualizerLocation>();
+    const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
     const [graphqlModdel, setGraphqlModel] = React.useState<GraphqlDesignServiceResponse>();
 
     useEffect(() => {
@@ -27,16 +27,16 @@ export function GraphQLDiagram() {
 
     useEffect( () => {
         getGraphqlDesignModel();
-    }, [context]);
+    }, [visualizerLocation]);
 
     const getGraphqlDesignModel = async () => {
         if (!rpcClient) {
             return;
         }
         const request : GraphqlDesignServiceRequest = {
-            filePath: context?.documentUri,
-            startLine: {line: context?.position?.startLine, offset: context?.position?.startColumn},
-            endLine: {line: context?.position?.endLine, offset: context?.position?.endColumn}
+            filePath: visualizerLocation?.documentUri,
+            startLine: {line: visualizerLocation?.position?.startLine, offset: visualizerLocation?.position?.startColumn},
+            endLine: {line: visualizerLocation?.position?.endLine, offset: visualizerLocation?.position?.endColumn}
         }
         const response: GraphqlDesignServiceResponse = await rpcClient.getGraphqlDesignerRpcClient().getGraphqlModel(request);
         setGraphqlModel(response);
@@ -54,7 +54,7 @@ export function GraphQLDiagram() {
             </ul>
             <GraphqlDesignDiagram
                 graphqlModelResponse={graphqlModdel}
-                filePath={context?.documentUri}
+                filePath={visualizerLocation?.documentUri}
             />
         </>
     );

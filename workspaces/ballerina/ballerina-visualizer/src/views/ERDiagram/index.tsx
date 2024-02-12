@@ -15,7 +15,7 @@ import { PersistDiagram } from "@wso2-enterprise/persist-layer-diagram";
 export function ERDiagram() {
     const { rpcClient } = useVisualizerContext();
     const persistDiagramRPCClient = rpcClient.getPersistDiagramRpcClient();
-    const [context, setContext] = React.useState<VisualizerLocation>();
+    const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
 
     useEffect(() => {
         if (rpcClient) {
@@ -44,7 +44,7 @@ export function ERDiagram() {
     return (
         <PersistDiagram
             getPersistModel={getPersistModel}
-            selectedRecordName={context?.identifier}
+            selectedRecordName={visualizerLocation?.identifier}
             showProblemPanel={showProblemPanel}
         />
     );
