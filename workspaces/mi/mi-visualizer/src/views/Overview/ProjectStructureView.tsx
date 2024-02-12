@@ -24,11 +24,24 @@ const VerticalCardContainer = styled.div`
 `;
 
 const TextContainer = styled.div`
-    width: 120px;
+    width: 100px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     text-align: center;
+`;
+
+const Title = styled.div`
+    text-align: left;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 400;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-size: 1.5em;
+    line-height: normal;
 `;
 
 const ProjectStructureView = (props: { projectStructure: ProjectStructureResponse }) => {
@@ -80,7 +93,7 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
                 if (Array.isArray(value)) {
                     return (
                         <div key={key}>
-                            <Typography variant="h3">{key.toUpperCase()}</Typography>
+                            <Title>{key.toUpperCase()}</Title>
                             <HorizontalCardContainer>
                                 {renderEsbs(value as EsbDirectoryMap[])}
                                 <ComponentCard key={0} onClick={() => handlePlusClick(key)} sx={{ height: 40, marginTop: 15, margin: 10 }}>
@@ -99,7 +112,7 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
                 if (Array.isArray(value)) {
                     return (
                         <div key={key}>
-                            <Typography variant="h3">{key.toUpperCase()}</Typography>
+                            <Title>{key.toUpperCase()}</Title>
                             <HorizontalCardContainer>
                                 {renderEntries(value)}
                                 <ComponentCard key={0} onClick={() => handlePlusClick(key)} sx={{ height: 40, marginTop: 15, margin: 10 }}>

@@ -296,8 +296,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 const langClient = StateMachine.context().langClient!;
                 const resp = await langClient.getProjectStructure(rootPath);
 
-                const endpoints = [];
-                const sequences = [];
+                const endpoints: string[] = [];
+                const sequences: string[] = [];
 
                 for (const esbConfig of resp.directoryMap.esbConfigs) {
                     for (const endpoint of esbConfig.esbConfigs.endpoints) {
@@ -506,7 +506,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 const langClient = StateMachine.context().langClient!;
                 const resp = await langClient.getProjectStructure(rootPath);
 
-                const ESBConfigs = [];
+                const ESBConfigs: string[] = [];
 
                 for (const esbConfig of resp.directoryMap.esbConfigs) {
 					const config = esbConfig.name;
