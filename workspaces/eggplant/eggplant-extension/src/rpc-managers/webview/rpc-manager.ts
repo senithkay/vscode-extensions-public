@@ -27,7 +27,6 @@ import { writeFileSync } from "fs";
 import * as vscode from "vscode";
 import { Uri, commands, workspace } from "vscode";
 import { StateMachine, openView } from "../../stateMachine";
-import { getSyntaxTreeFromPosition } from "../../utils/navigation";
 import { createEggplantProject, openEggplantProject } from "../../utils/project";
 
 export class WebviewRpcManager implements WebviewAPI {
@@ -142,7 +141,7 @@ export class WebviewRpcManager implements WebviewAPI {
                 }
             }
         };
-        const node = await getSyntaxTreeFromPosition(req);
+        const node = await StateMachine.langClient().getSTByRange(req);
         return new Promise((resolve) => {
             if (node.parseSuccess) {
                 resolve(node.syntaxTree);
