@@ -25,10 +25,17 @@ import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { OverlayLayerModel } from "./OverlayLoader/OverlayLayerModel";
 import styled from "@emotion/styled";
 import { Colors } from "../resources/constants";
+import { VSCodePanelTab, VSCodePanelView, VSCodePanels } from '@vscode/webview-ui-toolkit/react';
+import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 
 export interface DiagramProps {
     model: APIResource | Sequence;
     documentUri: string;
+}
+
+export enum DiagramType {
+    FLOW = "flow",
+    FAULT = "fault"
 }
 
 namespace S {
@@ -45,8 +52,10 @@ const SIDE_PANEL_WIDTH = 450;
 export function Diagram(props: DiagramProps) {
     const { model } = props;
 
-    const [diagramEngine] = useState<DiagramEngine>(generateEngine());
-    const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
+    const [flowDiagramEngine] = useState<DiagramEngine>(generateEngine());
+    const [flowDiagramModel, setFlowDiagramModel] = useState<DiagramModel | null>(null);
+    const [faultSequenceDiagramEngine] = useState<DiagramEngine>(generateEngine());
+    const [faultSequenceDiagramModel, setFaultSequenceDiagramModel] = useState<DiagramModel | null>(null);
     const [isSidePanelOpen, setSidePanelOpen] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [sidePanelnodeRange, setSidePanelNodeRange] = useState<Range>();
@@ -56,41 +65,47 @@ export function Diagram(props: DiagramProps) {
     const [sidePanelBackBtn, setSidePanelBackBtn] = useState<number>(0);
     const [diagramWidth, setDiagramWidth] = useState<number>(0);
     const [diagramHeight, setDiagramHeight] = useState<number>(0);
+    const [activeTab, setActiveTab] = useState<DiagramType>(DiagramType.FLOW);
 
     useEffect(() => {
-        if (diagramEngine) {
-            const { nodes, links } = getNodes();
-            drawDiagram(nodes as any, links);
-        }
-    }, [props.model, props.documentUri]);
-
-    useEffect(() => {
-        setTimeout(() => {
-            if (diagramModel) {
-                window.addEventListener("resize", () => {
-                    centerDiagram();
-                });
-                centerDiagram();
-                setTimeout(() => {
-                    removeOverlay();
-                }, 100);
+        if (model.tag === "resource") {
+            if (flowDiagramEngine && activeTab === DiagramType.FLOW) {
+                const flowModel = Object.assign({}, model);
+                delete (flowModel as APIResource).faultSequence
+                const { nodes, links } = getNodes((flowModel as APIResource));
+                drawDiagram(nodes as any, links, flowDiagramEngine, setFlowDiagramModel);
             }
-        }, 400);
-    }, [diagramModel]);
+            if (faultSequenceDiagramEngine && activeTab === DiagramType.FAULT) {
+                const { nodes, links } = getNodes((model as APIResource).faultSequence);
+                drawDiagram(nodes as any, links, faultSequenceDiagramEngine, setFaultSequenceDiagramModel);
+            }
+        }
+    }, [props.model, props.documentUri, activeTab]);
+
+    useEffect(() => {
+        initDiagram(flowDiagramModel, flowDiagramEngine);
+    }, [flowDiagramModel, diagramWidth]);
+
+    useEffect(() => {
+        initDiagram(faultSequenceDiagramModel, faultSequenceDiagramEngine);
+    }, [faultSequenceDiagramModel, diagramWidth]);
 
     // center diagram when side panel is opened
     useEffect(() => {
-        if (diagramModel) {
-            centerDiagram(true);
+        if (flowDiagramModel) {
+            centerDiagram(true, flowDiagramModel, flowDiagramEngine);
+        }
+        if (faultSequenceDiagramModel) {
+            centerDiagram(true, faultSequenceDiagramModel, faultSequenceDiagramEngine);
         }
     }, [isSidePanelOpen]);
 
-    const getNodes = () => {
+    const getNodes = (model: STNode) => {
         // run sizing visitor
         const sizingVisitor = new SizingVisitor();
         traversNode(model, sizingVisitor);
         const diagramWidth = sizingVisitor.getSequenceWidth();
-        
+
         // run position visitor
         const positionVisitor = new PositionVisitor(diagramWidth);
         traversNode(model, positionVisitor);
@@ -106,13 +121,13 @@ export function Diagram(props: DiagramProps) {
         return { nodes, links };
     };
 
-    const drawDiagram = (nodes: MediatorNodeModel[], links: NodeLinkModel[]) => {
+    const drawDiagram = (nodes: MediatorNodeModel[], links: NodeLinkModel[], diagramEngine: DiagramEngine, setModel: any) => {
         const newDiagramModel = new DiagramModel();
         newDiagramModel.addLayer(new OverlayLayerModel());
         newDiagramModel.addAll(...nodes, ...links);
 
         diagramEngine.setModel(newDiagramModel);
-        setDiagramModel(newDiagramModel);
+        setModel(newDiagramModel);
     };
 
     const closeSidePanel = () => {
@@ -129,59 +144,94 @@ export function Diagram(props: DiagramProps) {
 
     return (
         <>
-            {diagramEngine && diagramModel && (
-                <S.Container>
-                    <SidePanelProvider value={{
-                        setIsOpen: setSidePanelOpen,
-                        isOpen: isSidePanelOpen,
-                        setIsEditing: setIsEditing,
-                        isEditing: isEditing,
-                        setNodeRange: setSidePanelNodeRange,
-                        nodeRange: sidePanelnodeRange,
-                        setShowBackBtn: setSidePanelShowBackBtn,
-                        showBackBtn: sidePanelShowBackBtn,
-                        setOperationName: setSidePanelMediator,
-                        operationName: sidePanelMediator,
-                        setFormValues: setSidePanelFormValues,
-                        formValues: sidePanelFormValues,
-                        setBackBtn: setSidePanelBackBtn,
-                        backBtn: sidePanelBackBtn
-                    }}>
-                        <DiagramCanvas height={diagramHeight + 40} width={diagramWidth + 300}>
-                            {/* <CanvasWidget engine={diagramEngine} /> */}
-                            <NavigationWrapperCanvasWidget
-                                diagramEngine={diagramEngine as any}
-                                overflow="hidden"
-                                cursor="Default"
-                            />
-                        </DiagramCanvas>
+            <S.Container>
+                <SidePanelProvider value={{
+                    setIsOpen: setSidePanelOpen,
+                    isOpen: isSidePanelOpen,
+                    setIsEditing: setIsEditing,
+                    isEditing: isEditing,
+                    setNodeRange: setSidePanelNodeRange,
+                    nodeRange: sidePanelnodeRange,
+                    setShowBackBtn: setSidePanelShowBackBtn,
+                    showBackBtn: sidePanelShowBackBtn,
+                    setOperationName: setSidePanelMediator,
+                    operationName: sidePanelMediator,
+                    setFormValues: setSidePanelFormValues,
+                    formValues: sidePanelFormValues,
+                    setBackBtn: setSidePanelBackBtn,
+                    backBtn: sidePanelBackBtn
+                }}>
+                    <VSCodePanels aria-label="Default">
+                        <VSCodePanelTab id={DiagramType.FLOW} onClick={(e: any) => { setActiveTab(e.target.id) }}>Flow</VSCodePanelTab>
+                        <VSCodePanelTab id={DiagramType.FAULT} onClick={(e: any) => { setActiveTab(e.target.id) }}>Fault</VSCodePanelTab>
 
-                        {/* side panel */}
-                        {isSidePanelOpen && <SidePanel
-                            isOpen={isSidePanelOpen}
-                            alignmanet="right"
-                            width={SIDE_PANEL_WIDTH}
-                            overlay={false}
-                        >
-                            <SidePanelTitleContainer>
-                                <div style={{ minWidth: "20px" }}>
-                                    {
-                                        sidePanelShowBackBtn && <Button onClick={sidePanelBackClick} appearance="icon">{"<"}</Button>
-                                    }
-                                </div>
-                                {isEditing ? <div>Edit {sidePanelMediator}</div> : <div>Add New</div>}
-                                <Button onClick={closeSidePanel} appearance="icon">X</Button>
-                            </SidePanelTitleContainer>
-                            <SidePanelList nodePosition={sidePanelnodeRange} documentUri={props.documentUri} />
-                        </SidePanel>}
+                        {/* Flow */}
+                        <VSCodePanelView id={DiagramType.FLOW} width={"1000px"}>
+                            {flowDiagramEngine && flowDiagramModel && (
+                                <DiagramCanvas height={diagramHeight + 40}>
+                                    <NavigationWrapperCanvasWidget
+                                        diagramEngine={flowDiagramEngine as any}
+                                        overflow="hidden"
+                                        cursor="Default"
+                                    />
+                                </DiagramCanvas>
+                            )}
+                        </VSCodePanelView>
 
-                    </SidePanelProvider>
-                </S.Container >
-            )}
+                        {/* Fault sequence */}
+                        <VSCodePanelView id={DiagramType.FAULT}>
+                            {flowDiagramEngine && faultSequenceDiagramModel && (
+                                <DiagramCanvas height={diagramHeight + 40}>
+                                    <NavigationWrapperCanvasWidget
+                                        diagramEngine={faultSequenceDiagramEngine as any}
+                                        overflow="hidden"
+                                        cursor="Default"
+                                    />
+                                </DiagramCanvas>
+                            )}
+                        </VSCodePanelView>
+
+                    </VSCodePanels>
+
+                    {/* side panel */}
+                    {isSidePanelOpen && <SidePanel
+                        isOpen={isSidePanelOpen}
+                        alignmanet="right"
+                        width={SIDE_PANEL_WIDTH}
+                        overlay={false}
+                    >
+                        <SidePanelTitleContainer>
+                            <div style={{ minWidth: "20px" }}>
+                                {
+                                    sidePanelShowBackBtn && <Button onClick={sidePanelBackClick} appearance="icon">{"<"}</Button>
+                                }
+                            </div>
+                            {isEditing ? <div>Edit {sidePanelMediator}</div> : <div>Add New</div>}
+                            <Button onClick={closeSidePanel} appearance="icon">X</Button>
+                        </SidePanelTitleContainer>
+                        <SidePanelList nodePosition={sidePanelnodeRange} documentUri={props.documentUri} />
+                    </SidePanel>}
+
+                </SidePanelProvider>
+            </S.Container >
         </>
     );
 
-    async function centerDiagram(animate = false) {
+    function initDiagram(diagramModel: DiagramModel, diagramEngine: DiagramEngine) {
+        setTimeout(() => {
+            if (diagramModel) {
+                window.addEventListener("resize", () => {
+                    centerDiagram(false, diagramModel, diagramEngine);
+                });
+                centerDiagram(false, diagramModel, diagramEngine);
+                setTimeout(() => {
+                    removeOverlay(diagramEngine);
+                }, 100);
+            }
+        }, 400);
+    }
+
+    async function centerDiagram(animate = false, diagramModel: DiagramModel, diagramEngine: DiagramEngine) {
         if (diagramEngine?.getCanvas()?.getBoundingClientRect()) {
             const canvasBounds = diagramEngine.getCanvas().getBoundingClientRect();
 
@@ -206,7 +256,7 @@ export function Diagram(props: DiagramProps) {
         }
     }
 
-    function removeOverlay() {
+    function removeOverlay(diagramEngine: DiagramEngine) {
         // remove preloader overlay layer
         const overlayLayer = diagramEngine
             .getModel()

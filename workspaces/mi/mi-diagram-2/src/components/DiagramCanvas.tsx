@@ -25,7 +25,7 @@ namespace S {
         background-size: 50px 50px;
         display: flex;
         min-height: ${(props: any) => props.height || 0}px;
-        min-width: ${(props: any) => props.width || 0}px;
+        min-width: ${(props: any) => props.width ? props.width + "px" : "100%"};
 
         > * {
             height: 100vh;
