@@ -36,6 +36,10 @@ export function DataMapper(props: DataMapperProps) {
         }
     }, [isFetching, data]);
 
+    rpcClient.onFileContentUpdate(() => {
+        setRerender(prevState => !prevState);
+    });
+
     const syntaxTree = mapperData?.syntaxTree as FunctionDefinition;
     let fnName = syntaxTree?.functionName.value;
 
