@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ExtensionContext, commands, window, Location, Uri } from 'vscode';
+import { ExtensionContext, commands, window, Location, Uri, TextEditor } from 'vscode';
 import { ballerinaExtInstance, BallerinaExtension } from './core';
 import { activate as activateDiagram } from './diagram';
 import { activate as activateBBE } from './bbe';
@@ -112,7 +112,7 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         // // Enable Ballerina Notebook
         // activateNotebook(ballerinaExtInstance);
         // activateDesignDiagramView(ballerinaExtInstance);
-        // activateERDiagram(ballerinaExtInstance);
+        activateERDiagram(ballerinaExtInstance);
 
         langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         // Register showTextDocument listener

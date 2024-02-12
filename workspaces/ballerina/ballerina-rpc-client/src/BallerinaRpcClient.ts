@@ -15,7 +15,7 @@ import { MachineStateValue, VisualizerLocation, getVisualizerLocation, onFileCon
 import { LangServerRpcClient } from "./rpc-clients/lang-server/rpc-client";
 import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-client";
 import { HOST_EXTENSION } from "vscode-messenger-common";
-import { ServiceDesignerRpcClient } from "./rpc-clients";
+import { GraphqlDesignerRpcClient, PersistDiagramRpcClient, ServiceDesignerRpcClient } from "./rpc-clients";
 
 export class BallerinaRpcClient {
 
@@ -24,6 +24,8 @@ export class BallerinaRpcClient {
     private _langServer: LangServerRpcClient;
     private _libraryBrowser: LibraryBrowserRpcClient;
     private _serviceDesigner: ServiceDesignerRpcClient;
+    private _persistDiagram: PersistDiagramRpcClient;
+    private _GraphqlDesigner: GraphqlDesignerRpcClient;
 
     constructor() {
         this.messenger = new Messenger(vscode);
@@ -32,6 +34,8 @@ export class BallerinaRpcClient {
         this._langServer = new LangServerRpcClient(this.messenger);
         this._libraryBrowser = new LibraryBrowserRpcClient(this.messenger);
         this._serviceDesigner = new ServiceDesignerRpcClient(this.messenger);
+        this._persistDiagram = new PersistDiagramRpcClient(this.messenger);
+        this._GraphqlDesigner = new GraphqlDesignerRpcClient(this.messenger);
     }
 
     getVisualizerRpcClient(): VisualizerRpcClient {
@@ -40,6 +44,14 @@ export class BallerinaRpcClient {
 
     getServiceDesignerRpcClient(): ServiceDesignerRpcClient {
         return this._serviceDesigner;
+    }
+
+    getPersistDiagramRpcClient(): PersistDiagramRpcClient {
+        return this._persistDiagram;
+    }
+
+    getGraphqlDesignerRpcClient(): GraphqlDesignerRpcClient {
+        return this._GraphqlDesigner;
     }
 
     getLangServerRpcClient(): LangServerRpcClient {
