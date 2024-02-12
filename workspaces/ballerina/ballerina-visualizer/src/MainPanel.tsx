@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { MachineStateValue, MachineViews } from '@wso2-enterprise/ballerina-core';
+import { MachineStateValue, MachineViews, VisualizerLocation } from '@wso2-enterprise/ballerina-core';
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 /** @jsx jsx */
 import { Global, css } from '@emotion/react';
@@ -46,7 +46,7 @@ const ComponentViewWrapper = styled.div`
 
 const MainPanel = () => {
     const { rpcClient } = useVisualizerContext();
-    const [view, setView] = useState<MachineViews>();
+    const [visualizerLocation, setVisualizerLocation] = useState<VisualizerLocation>();
 
     rpcClient?.onStateChanged((newState: MachineStateValue) => {
         if (typeof newState === 'object' && 'viewActive' in newState && newState.viewActive === 'viewReady') {
@@ -55,8 +55,8 @@ const MainPanel = () => {
     });
 
     const fetchContext = () => {
-        rpcClient.getVisualizerContext().then((value) => {
-            setView(value.view);
+        rpcClient.getVisualizerLocation().then((value) => {
+            setVisualizerLocation(value);
         });
     }
  
@@ -65,7 +65,7 @@ const MainPanel = () => {
     }, []);
 
     const viewComponent = useMemo(() => {
-        switch (view) {
+        switch (visualizerLocation.view) {
             case "Overview":
                 return <Overview />;
             case "ArchitectureDiagram":
@@ -75,7 +75,12 @@ const MainPanel = () => {
             case "ERDiagram":
                 return <ERDiagram />
             case "DataMapper":
-                return <DataMapper />
+                return (
+                    <DataMapper
+                        filePath={visualizerLocation.documentUri}
+                        fnLocation={visualizerLocation.position}
+                    />
+                );
             case "GraphQLDiagram":
                 return <GraphQLDiagram />
             case "SequenceDiagram":
@@ -85,7 +90,7 @@ const MainPanel = () => {
             default:
                 return <LoadingRing />;
         }
-    }, [view]);
+    }, [visualizerLocation]);
 
     const RenderComponentView = () => {
         return viewComponent;
@@ -96,7 +101,7 @@ const MainPanel = () => {
             <Global styles={globalStyles} />
             <VisualizerContainer>
                 <NavigationBar />
-                {view && (
+                {visualizerLocation && (
                     <ComponentViewWrapper>
                         <RenderComponentView />
                     </ComponentViewWrapper>

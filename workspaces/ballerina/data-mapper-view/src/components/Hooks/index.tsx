@@ -34,6 +34,7 @@ import { ModuleVariableNode } from '../Diagram/Node/ModuleVariable';
 import { EnumTypeNode } from '../Diagram/Node/EnumType';
 import { ExpandedMappingHeaderNode } from '../Diagram/Node/ExpandedMappingHeader';
 import { isDMSupported } from '../DataMapper/utils';
+import { ModulePart } from '@wso2-enterprise/syntax-tree';
 
 export const useProjectComponents = (langServerRpcClient: LangServerRpcClient, fileName: string): {
     projectComponents: BallerinaProjectComponents;
@@ -207,18 +208,23 @@ export const useDMMetaData = (langServerRpcClient: LangServerRpcClient): {
     return { ballerinaVersion, dMSupported, dMUnsupportedMessage, isFetching, isError, refetch };
 };
 
-export const useFileContent = (langServerRpcClient: LangServerRpcClient, filePath: string): {
-    content: string;
+export const useFileContent = (langServerRpcClient: LangServerRpcClient, filePath: string, fnSource: string): {
+    content: [string, string[]];
     isFetching: boolean;
     isError: boolean;
     refetch: any;
 } => {
-    const fetchContent = async () => {
+    const fetchContent = async () : Promise<[string, string[]]> => {
+        const importStatements: string[] = [];
         try {
             const fullST = await langServerRpcClient.getST({
                 documentIdentifier: { uri: URI.file(filePath).toString() }
             });
-            return fullST.syntaxTree.source;
+            const modulePart = fullST.syntaxTree as ModulePart;
+            modulePart?.imports.map((importDeclaration: any) => (
+                importStatements.push(importDeclaration.source.trim())
+            ));
+            return [modulePart.source, importStatements];
         } catch (networkError: any) {
             console.error('Error while fetching content', networkError);
         }
@@ -229,8 +235,7 @@ export const useFileContent = (langServerRpcClient: LangServerRpcClient, filePat
         isFetching,
         isError,
         refetch,
-    } = useQuery(['fetchContent'], () => fetchContent(), {});
+    } = useQuery(['fetchContent', {filePath, fnSource}], () => fetchContent(), {});
 
     return { content, isFetching, isError, refetch };
 };
-

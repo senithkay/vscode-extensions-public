@@ -13,12 +13,12 @@ import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 export function ERDiagram() {
     const { rpcClient } = useVisualizerContext();
-    const [context, setContext] = React.useState<VisualizerLocation>();
+    const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
 
     useEffect(() => {
         if (rpcClient) {
-            rpcClient.getVisualizerContext().then((value) => {
-                setContext(value);
+            rpcClient.getVisualizerLocation().then((value) => {
+                setVisualizerLocation(value);
             });
         }
     }, [rpcClient]);
@@ -28,10 +28,10 @@ export function ERDiagram() {
         <>
             <h1>Hello ER Diagram</h1>
             <ul>
-                <li>{context?.view}</li>
-                <li>{context?.documentUri}</li>
-                <li>{context?.position?.startLine}</li>
-                <li>{context?.identifier}</li>
+                <li>{visualizerLocation?.view}</li>
+                <li>{visualizerLocation?.documentUri}</li>
+                <li>{visualizerLocation?.position?.startLine}</li>
+                <li>{visualizerLocation?.identifier}</li>
             </ul>
         </>
     );
