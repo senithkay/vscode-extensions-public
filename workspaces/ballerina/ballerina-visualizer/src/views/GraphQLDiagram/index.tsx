@@ -8,12 +8,14 @@
  */
 
 import React, { useEffect } from "react";
-import { VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { GraphqlDesignServiceRequest, GraphqlDesignServiceResponse, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { GraphqlDesignDiagram } from "@wso2-enterprise/ballerina-graphql-design-diagram";
 
 export function GraphQLDiagram() {
     const { rpcClient } = useVisualizerContext();
     const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
+    const [graphqlModdel, setGraphqlModel] = React.useState<GraphqlDesignServiceResponse>();
 
     useEffect(() => {
         if (rpcClient) {
@@ -22,6 +24,23 @@ export function GraphQLDiagram() {
             });
         }
     }, [rpcClient]);
+
+    useEffect( () => {
+        getGraphqlDesignModel();
+    }, [visualizerLocation]);
+
+    const getGraphqlDesignModel = async () => {
+        if (!rpcClient) {
+            return;
+        }
+        const request : GraphqlDesignServiceRequest = {
+            filePath: visualizerLocation?.documentUri,
+            startLine: {line: visualizerLocation?.position?.startLine, offset: visualizerLocation?.position?.startColumn},
+            endLine: {line: visualizerLocation?.position?.endLine, offset: visualizerLocation?.position?.endColumn}
+        }
+        const response: GraphqlDesignServiceResponse = await rpcClient.getGraphqlDesignerRpcClient().getGraphqlModel(request);
+        setGraphqlModel(response);
+    };
 
 
     return (
@@ -33,6 +52,10 @@ export function GraphQLDiagram() {
                 <li>{visualizerLocation?.position?.startLine}</li>
                 <li>{visualizerLocation?.identifier}</li>
             </ul>
+            <GraphqlDesignDiagram
+                graphqlModelResponse={graphqlModdel}
+                filePath={visualizerLocation?.documentUri}
+            />
         </>
     );
 }
