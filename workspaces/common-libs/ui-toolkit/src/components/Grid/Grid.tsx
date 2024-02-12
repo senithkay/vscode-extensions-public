@@ -30,7 +30,7 @@ const GridContainer = styled.div<GridProps>`
     ${({ columns, direction }: GridProps) =>
         direction === GridDirections.column
             ? `grid-template-columns: repeat(${columns}, auto);
-        column-gap: 5%;
+        column-gap: 2%;
         grid-auto-flow: row dense;`
             : `grid-template-rows: repeat(${columns}, auto);
         row-gap: 5%;

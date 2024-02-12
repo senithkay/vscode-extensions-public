@@ -11,9 +11,40 @@
 import React, { useEffect } from "react";
 import { VisualizerLocation, GettingStartedSample, GettingStartedCategory, SampleDownloadRequest } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { Dropdown, Grid, SearchBox } from "@wso2-enterprise/ui-toolkit";
+import { ComponentCard, Dropdown, Grid, SearchBox } from "@wso2-enterprise/ui-toolkit";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { SAMPLE_ICONS_GITHUB_URL } from "../constants";
+import styled from "@emotion/styled";
+import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+
+const SearchWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+`;
+
+const SampleContainer = styled.div`
+    display: grid;
+    justify-items: center;
+    padding: 16px;
+    align-items: center;
+    height: 90%;
+`;
+
+const LoaderWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 30vh;
+    width: 100vw;
+`;
+
+const ProgressRing = styled(VSCodeProgressRing)`
+    height: 40px;
+    width: 40px;
+    margin-top: auto;
+    padding: 4px;
+`;
 
 export function SamplesView() {
     const { rpcClient } = useVisualizerContext();
@@ -35,6 +66,7 @@ export function SamplesView() {
                 setSampleData(samples.samples);
                 setFilteredSamples(samples.samples);
                 setFilteredSampleDataCopy(samples.samples);
+                samples.categories.unshift({ id: 0, title: "All", icon: "" });
                 setCategories(samples.categories);
                 let urls = [];
                 for (let i = 0; i < samples.categories.length; i++) {
@@ -46,11 +78,17 @@ export function SamplesView() {
     }, [rpcClient]);
 
     const handleChange = (value: string) => {
-        let categoryId = categories.find(category => category.title === value).id;
-        let filteredData = SampleData.filter(sample => sample.category === categoryId);
-        setFilteredSamples(filteredData);
-        setFilteredSampleDataCopy(filteredData);
-        setFilterText(value);
+        if (value === "All") {
+            setFilteredSamples(SampleData);
+            setFilteredSampleDataCopy(SampleData);
+            setFilterText(value);
+        } else {
+            let categoryId = categories.find(category => category.title === value).id;
+            let filteredData = SampleData.filter(sample => sample.category === categoryId);
+            setFilteredSamples(filteredData);
+            setFilteredSampleDataCopy(filteredData);
+            setFilterText(value);
+        }
     }
 
     const handleSearch = (searchText: string) => {
@@ -74,11 +112,9 @@ export function SamplesView() {
     return (
         <>
             <div>
-                <h1>Try out a sample</h1>
+                <h2>Try out a sample</h2>
                 <p>Choose a sample from the list below to get started.</p>
-                <Grid
-                    columns={2}
-                    direction="column">
+                <SearchWrapper>
                     <Dropdown
                         id="drop-down"
                         items={categories ? categories.map(category => ({
@@ -89,6 +125,7 @@ export function SamplesView() {
                         label="Sample Category"
                         onChange={handleChange}
                         value={filterText}
+                        sx={{ width: 230 }}
                     />
                     <SearchBox
                         value={searchText}
@@ -96,19 +133,28 @@ export function SamplesView() {
                         label="Search"
                         type="text"
                         onChange={handleSearch}
-                    /></Grid>
+                    />
+                </SearchWrapper>
                 <br />
                 <Grid
-                    columns={6}
+                    columns={5}
                     direction="column">
                     {filteredSampleData ? filteredSampleData.sort((a, b) => a.priority - b.priority).map((sample, index) => (
-                        <div key={sample.title} style={{ border: '1px solid #ccc', padding: '16px', marginBottom: '16px' }}>
-                            <h2 className="card-title" style={{ margin: '0', fontSize: '16px' }}>{sample.title}</h2>
-                            <img src={images[sample.category - 1]} className="card-image" style={{ width: '50%', height: 'auto' }} />
-                            <p className="card-content" style={{ marginTop: '16px' }}>{sample.description}</p>
-                            <Button appearance="primary" onClick={() => downloadSample(sample.zipFileName)}>Download</Button>
-                        </div>
-                    )) : null}
+                        <ComponentCard
+                            disbaleHoverEffect={true}
+                            sx={{ alignItems: "flex-start", width: "220px", marginBottom: "20px"}}>
+                            <SampleContainer key={sample.title}>
+                                <h2 className="card-title" style={{ margin: '0', fontSize: '16px' }}>{sample.title}</h2>
+                                <img src={images[sample.category - 1]} className="card-image" style={{ width: '50%', height: 'auto' }} />
+                                <p className="card-content" style={{ marginTop: '16px', textAlign: 'justify' }}>{sample.description}</p>
+                                <Button appearance="primary" onClick={() => downloadSample(sample.zipFileName)}>Download</Button>
+                            </SampleContainer>
+                        </ComponentCard>
+                    )) : (
+                        <LoaderWrapper>
+                            <ProgressRing />
+                        </LoaderWrapper>
+                    )}
                 </Grid>
             </div>
         </>
