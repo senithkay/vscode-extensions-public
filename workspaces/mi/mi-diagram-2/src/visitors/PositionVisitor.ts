@@ -27,6 +27,10 @@ export class PositionVisitor implements Visitor {
         return this.skipChildrenVisit;
     }
 
+    getSequenceHeight(): number {
+        return this.position.y;
+    }
+
     private setBasicMediatorPosition(node: STNode): void {
         const defaultViewState: ViewState = { x: 0, y: 0, w: 0, h: 0 };
         if (node.viewState == undefined) {

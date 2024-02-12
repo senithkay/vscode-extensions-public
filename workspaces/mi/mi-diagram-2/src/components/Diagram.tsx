@@ -90,13 +90,13 @@ export function Diagram(props: DiagramProps) {
         const sizingVisitor = new SizingVisitor();
         traversNode(model, sizingVisitor);
         const diagramWidth = sizingVisitor.getSequenceWidth();
-        const diagramHeight = sizingVisitor.getSequenceHeight();
-        setDiagramWidth(diagramWidth);
-        setDiagramHeight(diagramHeight);
-
+        
         // run position visitor
         const positionVisitor = new PositionVisitor(diagramWidth);
         traversNode(model, positionVisitor);
+        const diagramHeight = positionVisitor.getSequenceHeight();
+        setDiagramHeight(diagramHeight);
+        setDiagramWidth(diagramWidth);
 
         // run node visitor
         const nodeVisitor = new NodeFactoryVisitor();
@@ -147,7 +147,7 @@ export function Diagram(props: DiagramProps) {
                         setBackBtn: setSidePanelBackBtn,
                         backBtn: sidePanelBackBtn
                     }}>
-                        <DiagramCanvas height={diagramHeight + 275} width={diagramWidth + 300}>
+                        <DiagramCanvas height={diagramHeight + 40} width={diagramWidth + 300}>
                             {/* <CanvasWidget engine={diagramEngine} /> */}
                             <NavigationWrapperCanvasWidget
                                 diagramEngine={diagramEngine as any}
