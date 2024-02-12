@@ -46,6 +46,9 @@ export * from "./rpc-types/lang-server/interfaces";
 export * from "./rpc-types/library-browser";
 export * from "./rpc-types/library-browser/rpc-type";
 export * from "./rpc-types/library-browser/interfaces";
+export * from "./rpc-types/persist-diagram";
+export * from "./rpc-types/persist-diagram/rpc-type";
+export * from "./rpc-types/persist-diagram/interfaces";
 
 // ------ Util functions -------->
 export * from "./utils/modification-utils";

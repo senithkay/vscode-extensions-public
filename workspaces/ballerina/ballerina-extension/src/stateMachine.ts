@@ -68,7 +68,8 @@ const stateMachine = createMachine<MachineContext>(
                         actions: assign({
                             view: (context, event) => event.viewLocation.view,
                             documentUri: (context, event) => event.viewLocation.documentUri,
-                            position: (context, event) => event.viewLocation.position
+                            position: (context, event) => event.viewLocation.position,
+                            identifier: (context, event) => event.viewLocation.identifier
                         })
                     }
                 }

@@ -42,6 +42,7 @@ export enum PALETTE_COMMANDS {
     CONFIG_CREATE_COMMAND = 'ballerina.project.config.create',
     SHOW_ENTITY_DIAGRAM = 'ballerina.view.entityDiagram',
     SHOW_SERVICE_DESIGNER_VIEW = 'ballerina.view.serviceDesigner',
+    SHOW_GRAPHQL_DESIGNER_VIEW = 'ballerina.view.graphqlDesigner'
 
 }
 

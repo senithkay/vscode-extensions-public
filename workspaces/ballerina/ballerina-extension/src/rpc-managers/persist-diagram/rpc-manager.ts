@@ -9,19 +9,23 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    GraphqlDiagramAPI,
-    GraphqlModelRequest,
-    GraphqlModelResponse
+    GetPersistERModelResponse,
+    PersistDiagramAPI,
 } from "@wso2-enterprise/ballerina-core";
 import { StateMachine } from "../../stateMachine";
+import { commands } from "vscode";
 
-export class GraphqlDesignerRpcManager implements GraphqlDiagramAPI {
-    async getGraphqlModel(params: GraphqlModelRequest): Promise<GraphqlModelResponse> {
+export class PersistDiagramRpcManager implements PersistDiagramAPI {
+
+    async getPersistERModel(): Promise<GetPersistERModelResponse> {
         return new Promise(async (resolve) => {
-            const res = await StateMachine.langClient().getGraphqlModel({ filePath: params.filePath,
-                startLine: params.startLine,
-                endLine: params.endLine});
+            const currentDoc = StateMachine.context().documentUri;
+            const res = await StateMachine.langClient().getPersistERModel({ documentUri: currentDoc});
             resolve(res);
         });
+    }
+
+    async showProblemPanel(): Promise<void> {
+        return await commands.executeCommand('workbench.action.problems.focus');
     }
 }
