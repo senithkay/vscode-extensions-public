@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  *
  *  This software is the property of WSO2 LLC. and its suppliers, if any.
  *  Dissemination of any information or reproduction of any material contained
@@ -10,7 +10,8 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useRef, useState } from 'react'
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect, useRef, useState } from 'react'
 
 import { css, cx } from "@emotion/css";
 import { Combobox } from '@headlessui/react'
@@ -19,6 +20,7 @@ import { Dropdown } from "./Dropdown";
 import styled from '@emotion/styled';
 import { Codicon } from '../Codicon/Codicon';
 import { Button } from '../Button/Button';
+import { CommonRPCAPI } from '@wso2-enterprise/ballerina-core';
 
 const ComboboxButtonContainerActive = cx(css`
     height: 28px;
@@ -83,24 +85,48 @@ const Container = styled.div<ContainerProps>`
     ${(props: ContainerProps) => props.sx}
 `;
 
+export interface NodePosition {
+    startLine?: number;
+    startColumn?: number;
+    endLine?: number;
+    endColumn?: number;
+}
+
 export interface TypeBrowserProps {
     id?: string;
-    items: string[];
+    commonRpcClient: CommonRPCAPI;
+    serviceEndPosition?: NodePosition;
     label?: string;
     selectedItem?: string;
     widthOffset?: number;
     sx?: React.CSSProperties;
     borderBox?: boolean; // Enable this if the box-sizing is border-box
     onChange: (item: string, index?: number) => void;
-    onCreateNewRecord: (name: string) => void;
 }
 
 export const TypeBrowser: React.FC<TypeBrowserProps> = (props: TypeBrowserProps) => {
-    const { id, selectedItem, items, label, widthOffset = 157, sx, borderBox, onChange, onCreateNewRecord } = props;
+    const { id, commonRpcClient, selectedItem, serviceEndPosition, label, widthOffset = 157, sx, borderBox, onChange } = props;
     const [query, setQuery] = useState('');
+    const [items, setItems] = useState([]);
     const [isCleared, setIsCleared] = useState(false);
     const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
     const inputRef = useRef(null);
+
+    const fetchTypes = async () => {
+        const types = await commonRpcClient.getTypes();
+        setItems(types.data?.completions.map(type => type.insertText));
+    };
+
+    useEffect(() => {
+        fetchTypes();
+    } , []);
+
+    const handleCreateNewRecord = async (name: string) => {
+        const source = `type ${name} readonly & record {};`;
+        commonRpcClient.updateSource({ position: serviceEndPosition, source });
+        setQuery(name);
+        fetchTypes();
+    };
 
     const handleChange = (item: string) => {
         onChange(item);
@@ -165,7 +191,7 @@ export const TypeBrowser: React.FC<TypeBrowserProps> = (props: TypeBrowserProps)
                             className={isTextFieldFocused ? ComboboxButtonContainerActive : ComboboxButtonContainer}
                         >
                             <Button sx={{width: 20, height: 20}} appearance="icon" tooltip="Clear" onClick={handleDeleteButtonClick}>
-                                <Codicon sx={{marginTop: -3, width: 8}} name="close" className={DropdownIcon} />
+                                <Codicon sx={{marginTop: -6, width: 8}} name="close" className={DropdownIcon} />
                             </Button>
                         </Combobox.Button>
                     </div>
@@ -174,7 +200,7 @@ export const TypeBrowser: React.FC<TypeBrowserProps> = (props: TypeBrowserProps)
                         widthOffset={widthOffset}
                         filteredResults={filteredResults}
                         onQueryChange={handleQueryChange}
-                        onCreateNewRecord={onCreateNewRecord}
+                        onCreateNewRecord={handleCreateNewRecord}
                     />
                 </div>
             </Combobox>

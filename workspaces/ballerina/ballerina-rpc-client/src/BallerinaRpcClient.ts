@@ -15,7 +15,7 @@ import { MachineStateValue, VisualizerLocation, getVisualizerContext, onFileCont
 import { LangServerRpcClient } from "./rpc-clients/lang-server/rpc-client";
 import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-client";
 import { HOST_EXTENSION } from "vscode-messenger-common";
-import { ServiceDesignerRpcClient } from "./rpc-clients";
+import { CommonRpcClient, ServiceDesignerRpcClient } from "./rpc-clients";
 
 export class BallerinaRpcClient {
 
@@ -24,6 +24,7 @@ export class BallerinaRpcClient {
     private _langServer: LangServerRpcClient;
     private _libraryBrowser: LibraryBrowserRpcClient;
     private _serviceDesigner: ServiceDesignerRpcClient;
+    private _commn: CommonRpcClient;
 
     constructor() {
         this.messenger = new Messenger(vscode);
@@ -32,6 +33,7 @@ export class BallerinaRpcClient {
         this._langServer = new LangServerRpcClient(this.messenger);
         this._libraryBrowser = new LibraryBrowserRpcClient(this.messenger);
         this._serviceDesigner = new ServiceDesignerRpcClient(this.messenger);
+        this._commn = new CommonRpcClient(this.messenger);
     }
 
     getVisualizerRpcClient(): VisualizerRpcClient {
@@ -48,6 +50,10 @@ export class BallerinaRpcClient {
 
     getLibraryBrowserRPCClient(): LibraryBrowserRpcClient {
         return this._libraryBrowser;
+    }
+
+    getCommonRpcClient(): CommonRpcClient {
+        return this._commn;
     }
 
     getVisualizerContext(): Promise<VisualizerLocation> {

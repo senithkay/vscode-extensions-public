@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -15,28 +14,33 @@ import { ServiceDeclaration, NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
 import { getService, updateServiceDecl } from "./utils/utils";
 import { ServiceForm } from "./components/ServiceForm/ServiceForm";
-import { ServiceDesignerAPI } from "@wso2-enterprise/ballerina-core";
+import { ServiceDesignerAPI, CommonRPCAPI } from "@wso2-enterprise/ballerina-core";
 
+interface RPCClients {
+    serviceDesignerRpcClient: ServiceDesignerAPI;
+    commonRpcClient: CommonRPCAPI;
+}
 interface ServiceDesignerProps {
     // Model of the service. This is the ST of the service
     model?: ServiceDeclaration;
     // RPC client to communicate with the backend for ballerina
-    rpcClient?: ServiceDesignerAPI;
+    rpcClients?: RPCClients;
     // Callback to send the position of the resource to navigae to code
     goToSource?: (resource: Resource) => void;
 }
 
 export function ServiceDesignerView(props: ServiceDesignerProps) {
-    const { model, rpcClient, goToSource } = props;
+    const { model, rpcClients, goToSource } = props;
 
     const [serviceConfig, setServiceConfig] = useState<Service>();
 
     const [isResourceFormOpen, setResourceFormOpen] = useState<boolean>(false);
     const [isServiceFormOpen, setServiceFormOpen] = useState<boolean>(false);
-    const [types, setTypes] = useState<string[]>([]);
     const [editingResource, setEditingResource] = useState<Resource>();
 
     const isParentBallerinaExt = !goToSource;
+    const serviceDesignerRpcClient = rpcClients?.serviceDesignerRpcClient;
+    const commonRpcClient = rpcClients?.commonRpcClient;
 
     // Callbacks for resource form
     const handleResourceFormClose = () => {
@@ -51,12 +55,12 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         setResourceFormOpen(true);
     };
     const handleResourceDelete = async (resource: Resource) => {
-        rpcClient.deleteResource({ position: resource.position });
+        serviceDesignerRpcClient.deleteResource({ position: resource.position });
     };
     const handleResourceFormSave = async (content: string, config: Resource, resourcePosition?: NodePosition) => {
         const position = model.closeBraceToken.position;
         position.endColumn = 0;
-        rpcClient.createResource({ position: resourcePosition ? resourcePosition : position, source: content });
+        commonRpcClient.updateSource({ position: resourcePosition ? resourcePosition : position, source: content });
     };
 
     // Callbacks for service form
@@ -68,36 +72,28 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
     };
     const handleServiceFormSave = async (service: Service) => {
         const content = updateServiceDecl({BASE_PATH: service.path, PORT: `${service.port}`, SERVICE_TYPE: "http"});
-        rpcClient.createResource({ position: service.position, source: content });
-    };
-
-    const fetchTypes = async () => {
-        const types = await rpcClient.getKeywordTypes();
-        setTypes(types.data?.completions.map(type => type.insertText));
+        commonRpcClient.updateSource({ position: service.position, source: content });
     };
 
     const handleGoToSource = (resource: Resource) => {
         if (goToSource) {
             goToSource(resource);
         } else {
-            rpcClient.goToSource({ position: resource.position });
+            serviceDesignerRpcClient.goToSource({ position: resource.position });
         }
     };
 
     useEffect(() => {
         const fetchService = async () => {
-            setServiceConfig(await getService(model, rpcClient));
+            setServiceConfig(await getService(model, serviceDesignerRpcClient));
         };
         fetchService();
-        if (types.length === 0) {
-            fetchTypes();
-        }
-    }, [model, types.length]);
+    }, [model]);
 
     const addNameRecord = async (source: string) => {
         const position = model.closeBraceToken.position;
         position.startColumn = position.endColumn;
-        rpcClient.createResource({ position: position, source });
+        commonRpcClient.updateSource({ position: position, source });
     };
 
     return (
@@ -118,7 +114,13 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
                     onSave={handleResourceFormSave}
                     onClose={handleResourceFormClose} 
                     addNameRecord={addNameRecord}
-                    typeCompletions={types}
+                    serviceEndPosition={{
+                        startLine: model.closeBraceToken.position.endLine,
+                        startColumn: model.closeBraceToken.position.endColumn,
+                        endLine: model.closeBraceToken.position.endLine,
+                        endColumn: model.closeBraceToken.position.endColumn
+                    }}
+                    commonRpcClient={commonRpcClient}
                 />
             }
             {isServiceFormOpen &&

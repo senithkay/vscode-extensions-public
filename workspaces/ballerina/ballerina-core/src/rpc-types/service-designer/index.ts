@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { GoToSourceRequest } from "../common/interfaces";
 import {
     CreateResourceRequest,
     CreateServiceRequest,
@@ -18,8 +19,7 @@ import {
     ResourceResponse,
     ServiceResponse,
     UpdateResourceRequest,
-    UpdateServiceRequest,
-    GoToSourceRequest
+    UpdateServiceRequest
 } from "./interfaces";
 
 export interface ServiceDesignerAPI {

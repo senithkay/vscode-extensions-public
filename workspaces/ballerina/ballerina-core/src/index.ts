@@ -46,6 +46,9 @@ export * from "./rpc-types/lang-server/interfaces";
 export * from "./rpc-types/library-browser";
 export * from "./rpc-types/library-browser/rpc-type";
 export * from "./rpc-types/library-browser/interfaces";
+export * from "./rpc-types/common";
+export * from "./rpc-types/common/rpc-type";
+export * from "./rpc-types/common/interfaces";
 
 // ------ Util functions -------->
 export * from "./utils/modification-utils";

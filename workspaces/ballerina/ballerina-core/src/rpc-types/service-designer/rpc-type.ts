@@ -8,6 +8,7 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
+import { GoToSourceRequest } from "../common/interfaces";
 import {
     CreateResourceRequest,
     CreateServiceRequest,
@@ -19,8 +20,7 @@ import {
     ResourceResponse,
     ServiceResponse,
     UpdateResourceRequest,
-    UpdateServiceRequest,
-    GoToSourceRequest
+    UpdateServiceRequest
 } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
