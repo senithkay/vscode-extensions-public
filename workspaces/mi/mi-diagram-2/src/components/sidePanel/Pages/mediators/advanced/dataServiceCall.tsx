@@ -74,10 +74,14 @@ const DataServiceForm = (props: AddMediatorProps) => {
            rpcClient.getMiDiagramRpcClient().applyEdit({
                documentUri: props.documentUri, range: props.nodePosition, text: xml
            });
-           sidePanelContext.setIsOpen(false);
-           sidePanelContext.setFormValues(undefined);
-           sidePanelContext.setNodeRange(undefined);
-           sidePanelContext.setOperationName(undefined);
+           sidePanelContext.setSidePanelState({
+                ...sidePanelContext,
+                isOpen: false,
+                isEditing: false,
+                formValues: undefined,
+                nodeRange: undefined,
+                operationName: undefined
+              });
        }
    };
 
