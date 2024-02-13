@@ -73,30 +73,13 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
     const [filteredNode, setFilteredNode] = useState<NodeType>(undefined);
 
     useEffect(() => {
-        // if (fullST) {
-        //     (async () => {
-        //         await getGraphqlModel();
-        //     })();
-        // }
-        setModelData({
-            designModel: graphqlModelResponse?.graphqlDesignModel,
-            isIncompleteModel: graphqlModelResponse?.isIncompleteModel
-        });
-    }, []);
-
-    // const getGraphqlModel = async () => {
-    //     // const request: GraphqlDesignServiceRequest = {
-    //     //     filePath: currentFile.path,
-    //     //     startLine: { line: targetPosition.startLine, offset: targetPosition.startColumn },
-    //     //     endLine: { line: targetPosition.endLine, offset: targetPosition.endColumn }
-    //     // };
-    //     // const graphqlModel: GraphqlDesignServiceResponse = await getModelForGraphqlService(request, langClientPromise);
-    //     const graphqlModel: GraphqlDesignServiceResponse = await getGraphqlDesignModel();
-    //     setModelData({
-    //         designModel: graphqlModel.graphqlDesignModel,
-    //         isIncompleteModel: graphqlModel.isIncompleteModel
-    //     });
-    // };
+        if (graphqlModelResponse) {
+            setModelData({
+                designModel: graphqlModelResponse?.graphqlDesignModel,
+                isIncompleteModel: graphqlModelResponse?.isIncompleteModel
+            });
+        }
+    }, [graphqlModelResponse]);
 
     const setSelectedNode = (node: string) => {
         setSelectedDiagramNode(node);
@@ -123,7 +106,7 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
         filteredNode
     };
 
-    // TODO: temp removed FullST check when redering the graphqlContainer
+    // TODO: temporary removed FullST check when rendering the GraphqlDiagramContainer, need to add with form rendering
     return (
         <>
             <GraphqlDiagramContext {...ctxt}>
