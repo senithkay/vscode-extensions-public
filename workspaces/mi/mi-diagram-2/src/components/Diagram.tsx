@@ -118,8 +118,8 @@ export function Diagram(props: DiagramProps) {
                         model: faultSequence
                     });
                 }
-                updateDiagramData(flows);
             }
+            updateDiagramData(flows);
         }, 200);
 
         fetchData();
@@ -265,7 +265,7 @@ export function Diagram(props: DiagramProps) {
                 }}>
                     <VSCodePanels aria-label="Default">
                         <VSCodePanelTab id={DiagramType.FLOW} onClick={(e: any) => { setActiveTab(e.target.id) }}>Flow</VSCodePanelTab>
-                        <VSCodePanelTab id={DiagramType.FAULT} onClick={(e: any) => { setActiveTab(e.target.id) }}>Fault</VSCodePanelTab>
+                        {(props.model as APIResource).faultSequence && <VSCodePanelTab id={DiagramType.FAULT} onClick={(e: any) => { setActiveTab(e.target.id) }}>Fault</VSCodePanelTab>}
 
                         {/* Flow */}
                         <VSCodePanelView id={DiagramType.FLOW} width={"1000px"}>
@@ -281,8 +281,8 @@ export function Diagram(props: DiagramProps) {
                         </VSCodePanelView>
 
                         {/* Fault sequence */}
-                        <VSCodePanelView id={DiagramType.FAULT}>
-                            {diagramData.fault.engine && diagramData.fault.model && (
+                        {diagramData.fault.engine && diagramData.fault.model &&
+                            <VSCodePanelView id={DiagramType.FAULT}>
                                 <DiagramCanvas height={diagramData.fault.height + 40}>
                                     <NavigationWrapperCanvasWidget
                                         diagramEngine={diagramData.fault.engine as any}
@@ -290,8 +290,9 @@ export function Diagram(props: DiagramProps) {
                                         cursor="Default"
                                     />
                                 </DiagramCanvas>
-                            )}
-                        </VSCodePanelView>
+
+                            </VSCodePanelView>
+                        }
 
                     </VSCodePanels>
 
