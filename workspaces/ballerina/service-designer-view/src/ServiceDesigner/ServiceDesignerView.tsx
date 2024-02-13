@@ -55,7 +55,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         setResourceFormOpen(true);
     };
     const handleResourceDelete = async (resource: Resource) => {
-        serviceDesignerRpcClient.deleteResource({ position: resource.position });
+        commonRpcClient.deleteSource({ position: resource.position });
     };
     const handleResourceFormSave = async (content: string, config: Resource, resourcePosition?: NodePosition) => {
         const position = model.closeBraceToken.position;
@@ -79,7 +79,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         if (goToSource) {
             goToSource(resource);
         } else {
-            serviceDesignerRpcClient.goToSource({ position: resource.position });
+            commonRpcClient.goToSource({ position: resource.position });
         }
     };
 

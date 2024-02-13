@@ -14,6 +14,7 @@ import {
     CompletionParams,
     DeleteSourceRequest,
     DeleteSourceResponse,
+    GoToSourceRequest,
     STModification,
     SyntaxTreeResponse,
     TypeResponse,
@@ -21,9 +22,10 @@ import {
     UpdateSourceResponse
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { Uri } from "vscode";
 import { StateMachine, openView } from "../../stateMachine";
 import { applyModifications, updateFileContent } from "../../utils/modification";
-import { Uri } from "vscode";
+import { goToSource } from "../../utils";
 
 export class CommonRpcManager implements CommonRPCAPI {
     async getTypes(): Promise<TypeResponse> {
@@ -97,5 +99,10 @@ export class CommonRpcManager implements CommonRPCAPI {
                 });
             }
         });
+    }
+
+    async goToSource(params: GoToSourceRequest): Promise<void> {
+        const context = StateMachine.context();
+        goToSource(params.position, context.documentUri!);
     }
 }

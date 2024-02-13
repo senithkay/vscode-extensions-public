@@ -7,29 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { GoToSourceRequest } from "../common/interfaces";
 import {
-    CreateResourceRequest,
-    CreateServiceRequest,
-    DeleteResourceRequest,
-    DeleteServiceRequest,
-    KeywordTypeResponse,
     RecordSTRequest,
     RecordSTResponse,
-    ResourceResponse,
-    ServiceResponse,
-    UpdateResourceRequest,
-    UpdateServiceRequest
 } from "./interfaces";
 
 export interface ServiceDesignerAPI {
-    createService: (params: CreateServiceRequest) => Promise<ServiceResponse>;
-    updateService: (params: UpdateServiceRequest) => Promise<ServiceResponse>;
-    deleteService: (params: DeleteServiceRequest) => Promise<ServiceResponse>;
-    createResource: (params: CreateResourceRequest) => Promise<ResourceResponse>;
-    updateResource: (params: UpdateResourceRequest) => Promise<ResourceResponse>;
-    deleteResource: (params: DeleteResourceRequest) => Promise<ResourceResponse>;
-    getKeywordTypes: () => Promise<KeywordTypeResponse>;
     getRecordST: (params: RecordSTRequest) => Promise<RecordSTResponse>;
-    goToSource: (params: GoToSourceRequest) => void;
 }

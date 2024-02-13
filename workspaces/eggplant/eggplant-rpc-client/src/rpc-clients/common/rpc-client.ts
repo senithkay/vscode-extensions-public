@@ -12,11 +12,13 @@ import {
     CommonRPCAPI,
     DeleteSourceRequest,
     DeleteSourceResponse,
+    GoToSourceRequest,
     TypeResponse,
     UpdateSourceRequest,
     UpdateSourceResponse,
     deleteSource,
     getTypes,
+    goToSource,
     updateSource
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -39,5 +41,9 @@ export class CommonRpcClient implements CommonRPCAPI {
 
     deleteSource(params: DeleteSourceRequest): Promise<DeleteSourceResponse> {
         return this._messenger.sendRequest(deleteSource, HOST_EXTENSION, params);
+    }
+
+    goToSource(params: GoToSourceRequest): void {
+        return this._messenger.sendNotification(goToSource, HOST_EXTENSION, params);
     }
 }

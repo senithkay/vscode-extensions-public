@@ -10,9 +10,11 @@
  */
 import {
     DeleteSourceRequest,
+    GoToSourceRequest,
     UpdateSourceRequest,
     deleteSource,
     getTypes,
+    goToSource,
     updateSource
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
@@ -23,4 +25,5 @@ export function registerCommonRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getTypes, () => rpcManger.getTypes());
     messenger.onRequest(updateSource, (args: UpdateSourceRequest) => rpcManger.updateSource(args));
     messenger.onRequest(deleteSource, (args: DeleteSourceRequest) => rpcManger.deleteSource(args));
+    messenger.onNotification(goToSource, (args: GoToSourceRequest) => rpcManger.goToSource(args));
 }

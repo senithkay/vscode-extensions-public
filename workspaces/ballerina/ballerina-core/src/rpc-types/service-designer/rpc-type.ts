@@ -8,29 +8,11 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { GoToSourceRequest } from "../common/interfaces";
 import {
-    CreateResourceRequest,
-    CreateServiceRequest,
-    DeleteResourceRequest,
-    DeleteServiceRequest,
-    KeywordTypeResponse,
     RecordSTRequest,
     RecordSTResponse,
-    ResourceResponse,
-    ServiceResponse,
-    UpdateResourceRequest,
-    UpdateServiceRequest
 } from "./interfaces";
-import { RequestType, NotificationType } from "vscode-messenger-common";
+import { RequestType } from "vscode-messenger-common";
 
 const _preFix = "service-designer";
-export const createService: RequestType<CreateServiceRequest, ServiceResponse> = { method: `${_preFix}/createService` };
-export const updateService: RequestType<UpdateServiceRequest, ServiceResponse> = { method: `${_preFix}/updateService` };
-export const deleteService: RequestType<DeleteServiceRequest, ServiceResponse> = { method: `${_preFix}/deleteService` };
-export const createResource: RequestType<CreateResourceRequest, ResourceResponse> = { method: `${_preFix}/createResource` };
-export const updateResource: RequestType<UpdateResourceRequest, ResourceResponse> = { method: `${_preFix}/updateResource` };
-export const deleteResource: RequestType<DeleteResourceRequest, ResourceResponse> = { method: `${_preFix}/deleteResource` };
-export const getKeywordTypes: RequestType<void, KeywordTypeResponse> = { method: `${_preFix}/getKeywordTypes` };
 export const getRecordST: RequestType<RecordSTRequest, RecordSTResponse> = { method: `${_preFix}/getRecordST` };
-export const goToSource: NotificationType<GoToSourceRequest> = { method: `${_preFix}/goToSource` };
