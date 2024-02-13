@@ -641,13 +641,6 @@ export interface GetComponentModelResponse {
     diagnostics: CMDiagnostics[];
 }
 
-export interface GetPersistERModelResponse {
-    persistERModel: {
-        [key: string]: ComponentModel;
-    };
-    diagnostics: CMDiagnostics[];
-}
-
 export interface BallerinaConstructRequest {
     query: string;
     packageName?: string;

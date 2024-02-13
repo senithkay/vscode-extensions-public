@@ -1,10 +1,13 @@
 
-import { ExtendedLangClient } from './core';
+import { ExtendedLangClient, ballerinaExtInstance } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EventType, MachineStateValue, MachineViews, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { EventType, MachineStateValue, MachineViews, STByRangeRequest, SyntaxTreeResponse, VisualizerLocation, webviewReady } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './library-browser';
 import { VisualizerWebview } from './visualizer/webview';
+import { Uri } from 'vscode';
+import { STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { RPCLayer } from './RPCLayer';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -66,8 +69,7 @@ const stateMachine = createMachine<MachineContext>(
                     OPEN_VIEW: {
                         target: "viewActive",
                         actions: assign({
-                            view: (context, event) => event.viewLocation.view,
-                            documentUri: (context, event) => event.viewLocation.documentUri,
+                            documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
                             position: (context, event) => event.viewLocation.position
                         })
                     }
@@ -86,9 +88,13 @@ const stateMachine = createMachine<MachineContext>(
                     },
                     webViewLoaded: {
                         invoke: {
-                            src: 'findView',
+                            src: 'findView', // NOTE: We only find the view and indentifer from this state as we already have the position and the file URL
                             onDone: {
                                 target: "viewReady",
+                                actions: assign({
+                                    view: (context, event) => event.data.view,
+                                    identifier: (context, event) => event.data.identifier
+                                })
                             }
                         }
                     },
@@ -97,17 +103,17 @@ const stateMachine = createMachine<MachineContext>(
                             OPEN_VIEW: {
                                 target: "viewInit",
                                 actions: assign({
-                                    view: (context, event) => event.viewLocation.view,
-                                    documentUri: (context, event) => event.viewLocation.documentUri,
-                                    position: (context, event) => event.viewLocation.position
+                                    documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
+                                    position: (context, event) => event.viewLocation.position,
+                                    identifier: (context, event) => event.viewLocation.identifier
                                 })
                             },
                             FILE_EDIT: {
                                 target: "viewEditing",
                                 actions: assign({
-                                    view: (context, event) => event.viewLocation.view,
-                                    documentUri: (context, event) => event.viewLocation.documentUri,
-                                    position: (context, event) => event.viewLocation.position
+                                    documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
+                                    position: (context, event) => event.viewLocation.position,
+                                    identifier: (context, event) => event.viewLocation.identifier
                                 })
                             },
                         }
@@ -117,9 +123,9 @@ const stateMachine = createMachine<MachineContext>(
                             EDIT_DONE: {
                                 target: "viewReady",
                                 actions: assign({
-                                    view: (context, event) => event.viewLocation.view,
-                                    documentUri: (context, event) => event.viewLocation.documentUri,
-                                    position: (context, event) => event.viewLocation.position
+                                    documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
+                                    position: (context, event) => event.viewLocation.position,
+                                    identifier: (context, event) => event.viewLocation.identifier
                                 })
                             }
                         }
@@ -145,17 +151,68 @@ const stateMachine = createMachine<MachineContext>(
             return new Promise((resolve, reject) => {
                 if (!VisualizerWebview.currentPanel) {
                     VisualizerWebview.currentPanel = new VisualizerWebview();
+                    RPCLayer._messenger.onNotification(webviewReady, () => {
+                        resolve(true);
+                    });
+                } else {
+                    VisualizerWebview.currentPanel!.getWebview()?.reveal();
+                    resolve(true);
                 }
-                VisualizerWebview.currentPanel!.getWebview()?.reveal();
-                resolve(true);
             });
         },
-        findView: (context, event) => {
-            return new Promise((resolve, reject) => {
-                // Find view logic here based on the positions
-                setTimeout(() => {
-                    resolve(true);
-                }, 500); // Wait for 2 seconds (2000 milliseconds)
+        findView(context, event): Promise<VisualizerLocation> {
+            return new Promise(async (resolve, reject) => {
+                if (ballerinaExtInstance.getPersistDiagramStatus()) {
+                    resolve({
+                        view: "ERDiagram",
+                        identifier: context.identifier
+                    });
+                    return;
+                }
+                if (!context.position) {
+                    resolve({ view: "Overview" });
+                    return;
+                }
+                
+                const req: STByRangeRequest = {
+                    documentIdentifier: { uri: Uri.file(context.documentUri).toString() },
+                    lineRange: {
+                        start: {
+                            line: context.position.startLine,
+                            character: context.position.startColumn
+                        },
+                        end: {
+                            line: context.position.endLine,
+                            character: context.position.endColumn
+                        }
+                    }
+                };
+
+                const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
+
+                if (node.parseSuccess) {
+                    if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
+                        const expr = node.syntaxTree.expressions[0];
+                        if (expr?.typeData?.typeSymbol?.signature?.includes("graphql")) {
+                            resolve({
+                                view: "GraphQLDiagram",
+                                identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join('')
+                            });
+                        } else {
+                            resolve({
+                                view: "ServiceDesigner",
+                                identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join('')
+                            });
+                        }
+                    } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) && STKindChecker.isExpressionFunctionBody(node.syntaxTree.functionBody)) {
+                        resolve({ view: "DataMapper", documentUri: context.documentUri, position: context.position });
+                    } else if (STKindChecker.isTypeDefinition(node.syntaxTree) && STKindChecker.isRecordTypeDesc(node.syntaxTree.typeDescriptor)) {
+                        resolve({ view: "ArchitectureDiagram", documentUri: context.documentUri });
+                    } else {
+                        resolve({ view: "Overview", documentUri: context.documentUri });
+                    }
+                }
+                return;
             });
         }
     }
@@ -167,7 +224,7 @@ const stateService = interpret(stateMachine);
 function startMachine(): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         stateService.start().onTransition((state) => {
-            if (state.value === "Ready") {
+            if (state.value === "lsReady") {
                 resolve();
             }
         });

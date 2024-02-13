@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -8,31 +8,44 @@
  */
 
 import React, { useEffect } from "react";
-import { VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { GetPersistERModelResponse, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { PersistDiagram } from "@wso2-enterprise/persist-layer-diagram";
 
 export function ERDiagram() {
     const { rpcClient } = useVisualizerContext();
-    const [context, setContext] = React.useState<VisualizerLocation>();
+    const persistDiagramRPCClient = rpcClient.getPersistDiagramRpcClient();
+    const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
 
     useEffect(() => {
         if (rpcClient) {
-            rpcClient.getVisualizerContext().then((value) => {
-                setContext(value);
+            rpcClient.getVisualizerLocation().then((value) => {
+                setVisualizerLocation(value);
             });
         }
     }, [rpcClient]);
 
 
+    const getPersistModel = async () => {
+        if (!rpcClient) {
+            return;
+        }
+        const response: GetPersistERModelResponse = await persistDiagramRPCClient.getPersistERModel();
+        return response;
+    };
+
+    const showProblemPanel = async () => {
+        if (!rpcClient) {
+            return;
+        }
+        await persistDiagramRPCClient.showProblemPanel();
+    }
+
     return (
-        <>
-            <h1>Hello ER Diagram</h1>
-            <ul>
-                <li>{context?.view}</li>
-                <li>{context?.documentUri}</li>
-                <li>{context?.position?.startLine}</li>
-                <li>{context?.identifier}</li>
-            </ul>
-        </>
+        <PersistDiagram
+            getPersistModel={getPersistModel}
+            selectedRecordName={visualizerLocation?.identifier}
+            showProblemPanel={showProblemPanel}
+        />
     );
 }

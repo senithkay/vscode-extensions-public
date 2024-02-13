@@ -325,15 +325,7 @@ async function getVirtualDiagnostics(filePath: string,
                                      currentFileContent: string,
                                      newContent: string,
                                      langServerRpcClient: LangServerRpcClient): Promise<Diagnostic[]> {
-    const docUri = URI.file(filePath).toString().replace(FILE_SCHEME, EXPR_SCHEME);
-    langServerRpcClient.didOpen({
-        textDocument: {
-            uri: docUri,
-            languageId: "ballerina",
-            text: currentFileContent,
-            version: 1
-        }
-    });
+    const docUri = URI.file(filePath).toString();
     langServerRpcClient.didChange({
         contentChanges: [
             {
@@ -350,9 +342,15 @@ async function getVirtualDiagnostics(filePath: string,
             uri: docUri,
         }
     });
-    langServerRpcClient.didClose({
+    langServerRpcClient.didChange({
+        contentChanges: [
+            {
+                text: currentFileContent
+            }
+        ],
         textDocument: {
-            uri: docUri
+            uri: docUri,
+            version: 1
         }
     });
 

@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content."
  */
 
-import React, { useEffect, useState } from 'react';
-import { MachineStateValue, VisualizerLocation } from '@wso2-enterprise/ballerina-core';
+import React, { useEffect, useMemo, useState } from 'react';
+import { MachineStateValue, MachineViews, VisualizerLocation } from '@wso2-enterprise/ballerina-core';
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 /** @jsx jsx */
 import { Global, css } from '@emotion/react';
@@ -44,30 +44,28 @@ const ComponentViewWrapper = styled.div`
     height: calc(100% - 22px);
 `;
 
-const MainPanel = (props: { state: MachineStateValue }) => {
-    const { state } = props;
+const MainPanel = () => {
     const { rpcClient } = useVisualizerContext();
-    const [context, setContext] = useState<VisualizerLocation>();
-    const [mainState, setMainState] = React.useState<MachineStateValue>(state);
+    const [visualizerLocation, setVisualizerLocation] = useState<VisualizerLocation>();
 
     rpcClient?.onStateChanged((newState: MachineStateValue) => {
-        setMainState(newState);
+        if (typeof newState === 'object' && 'viewActive' in newState && newState.viewActive === 'viewReady') {
+            fetchContext();
+        }
     });
 
+    const fetchContext = () => {
+        rpcClient.getVisualizerLocation().then((value) => {
+            setVisualizerLocation(value);
+        });
+    }
+ 
     useEffect(() => {
-        if (typeof mainState === 'object' && 'viewActive' in mainState && mainState.viewActive === 'viewReady') {
-            try {
-                rpcClient.getVisualizerContext().then((value) => {
-                    setContext(value);
-                });
-            } catch (error) {
+        fetchContext();
+    }, []);
 
-            }
-        }
-    }, [mainState]);
-
-    const RenderComponentView = () => {
-        switch (context!.view) {
+    const viewComponent = useMemo(() => {
+        switch (visualizerLocation?.view) {
             case "Overview":
                 return <Overview />;
             case "ArchitectureDiagram":
@@ -77,7 +75,12 @@ const MainPanel = (props: { state: MachineStateValue }) => {
             case "ERDiagram":
                 return <ERDiagram />
             case "DataMapper":
-                return <DataMapper />
+                return (
+                    <DataMapper
+                        filePath={visualizerLocation.documentUri}
+                        fnLocation={visualizerLocation.position}
+                    />
+                );
             case "GraphQLDiagram":
                 return <GraphQLDiagram />
             case "SequenceDiagram":
@@ -87,6 +90,10 @@ const MainPanel = (props: { state: MachineStateValue }) => {
             default:
                 return <LoadingRing />;
         }
+    }, [visualizerLocation]);
+
+    const RenderComponentView = () => {
+        return viewComponent;
     };
 
     return (
@@ -94,7 +101,7 @@ const MainPanel = (props: { state: MachineStateValue }) => {
             <Global styles={globalStyles} />
             <VisualizerContainer>
                 <NavigationBar />
-                {context && (
+                {visualizerLocation && (
                     <ComponentViewWrapper>
                         <RenderComponentView />
                     </ComponentViewWrapper>

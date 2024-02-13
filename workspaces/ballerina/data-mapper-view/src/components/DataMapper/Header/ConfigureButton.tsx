@@ -16,6 +16,17 @@ import React from "react";
 import { Button, Codicon, Tooltip } from "@wso2-enterprise/ui-toolkit";
 
 import { useMediaQuery } from "../utils";
+import { css } from '@emotion/css';
+
+const useStyles = () => ({
+    configureBtn: css({
+        "& > vscode-button": {
+            height: "26px",
+            borderRadius: 0,
+            padding: "0 2px",
+        }
+    })
+});
 
 interface ConfigureButtonProps {
     onClick: () => void;
@@ -23,11 +34,12 @@ interface ConfigureButtonProps {
 
 export default function ConfigureButton(props: ConfigureButtonProps) {
     const { onClick } = props;
+    const classes = useStyles();
     const showText = useMediaQuery("(min-width:500px)");
 
     return (
         <Tooltip content={"Edit data mapper name, inputs and the output"} position="bottom-start">
-            <Button onClick={onClick} appearance="icon">
+            <Button onClick={onClick} appearance="icon" className={classes.configureBtn}>
                 <Codicon sx={{ marginRight: 5 }} name="edit" />
                 {showText ? "Configure" : null}
             </Button>

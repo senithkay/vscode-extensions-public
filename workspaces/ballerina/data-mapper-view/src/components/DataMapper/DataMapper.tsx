@@ -163,7 +163,6 @@ export function DataMapperC(props: DataMapperViewProps) {
     const openedViaPlus = false;
     const goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void = undefined;
     const onSave: (fnName: string) => void = undefined;
-    const importStatements: string[] = [];
     const recordPanel: (props: { targetPosition: NodePosition, closeAddNewRecord: () => void }) => JSX.Element = undefined;
     const updateActiveFile: (currentFile: FileListEntry) => void = undefined;
     const updateSelectedComponent: (info: ComponentViewInfo) => void = undefined;
@@ -176,10 +175,8 @@ export function DataMapperC(props: DataMapperViewProps) {
         isFetching: isFetchingDMMetaData,
         isError: isErrorDMMetaData
     } = useDMMetaData(langServerRpcClient);
-    const { content, isFetching: isFetchingContent } = useFileContent(langServerRpcClient, filePath);
-    // const { data } = useSyntaxTreeFromRange();
+    const { content, isFetching: isFetchingContent } = useFileContent(langServerRpcClient, filePath, fnST.source);
 
-    // const fnST = data?.syntaxTree as FunctionDefinition;
     const targetPosition = fnST ? {
         ...fnST.position,
         startColumn: 0,
@@ -282,10 +279,12 @@ export function DataMapperC(props: DataMapperViewProps) {
     }
 
     const currentFile = useMemo(() => ({
-        content: content,
+        content: content ? content[0] : "",
         path: filePath,
         size: 1
     }), [content, isFetchingContent]);
+
+    const importStatements = useMemo(() => content ? content[1] : [], [content, isFetchingContent]);
 
     const moduleVariables = useMemo(() => {
         const moduleVars = [];
