@@ -70,7 +70,8 @@ const stateMachine = createMachine<MachineContext>(
                         target: "viewActive",
                         actions: assign({
                             documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
-                            position: (context, event) => event.viewLocation.position
+                            position: (context, event) => event.viewLocation.position,
+                            identifier: (context, event) => event.viewLocation.identifier
                         })
                     }
                 }
@@ -105,6 +106,7 @@ const stateMachine = createMachine<MachineContext>(
                                 actions: assign({
                                     documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
                                     position: (context, event) => event.viewLocation.position,
+                                    identifier: (context, event) => event.viewLocation.identifier
                                 })
                             },
                             FILE_EDIT: {

@@ -59,12 +59,15 @@ const MainPanel = () => {
             setVisualizerLocation(value);
         });
     }
- 
+
     useEffect(() => {
         fetchContext();
     }, []);
 
     const viewComponent = useMemo(() => {
+        if (!visualizerLocation?.view) {
+            return <LoadingRing />;
+        }
         switch (visualizerLocation?.view) {
             case "Overview":
                 return <Overview />;
@@ -90,22 +93,16 @@ const MainPanel = () => {
             default:
                 return <LoadingRing />;
         }
-    }, [visualizerLocation]);
-
-    const RenderComponentView = () => {
-        return viewComponent;
-    };
+    }, [visualizerLocation?.view]);
 
     return (
         <>
             <Global styles={globalStyles} />
             <VisualizerContainer>
                 <NavigationBar />
-                {visualizerLocation && (
-                    <ComponentViewWrapper>
-                        <RenderComponentView />
-                    </ComponentViewWrapper>
-                )}
+                <ComponentViewWrapper>
+                    {viewComponent}
+                </ComponentViewWrapper>
             </VisualizerContainer>
         </>
     );
