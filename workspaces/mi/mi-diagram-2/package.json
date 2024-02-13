@@ -30,7 +30,9 @@
         "@wso2-enterprise/mi-core": "workspace:*",
         "@wso2-enterprise/mi-rpc-client": "workspace:*",
         "mustache": "~4.2.0",
-        "@types/mustache": "~4.2.5"
+        "@types/mustache": "~4.2.5",
+        "lodash": "~4.17.21",
+        "@types/lodash": "~4.14.202"
     },
     "devDependencies": {
         "@storybook/react": "^6.3.7",

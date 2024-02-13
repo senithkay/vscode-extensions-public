@@ -44,15 +44,24 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
         } else {
             const rangeOrPosition: any = link.stRange;
             if (rangeOrPosition.start && rangeOrPosition.end) {
-                sidePanelContext.setNodeRange(link.stRange as Range);
+                sidePanelContext.setSidePanelState({
+                    ...sidePanelContext,
+                    nodeRange: link.stRange as Range,
+                });
             } else {
-                sidePanelContext.setNodeRange({
-                    start: rangeOrPosition,
-                    end: rangeOrPosition,
+                sidePanelContext.setSidePanelState({
+                    ...sidePanelContext,
+                    nodeRange: {
+                        start: rangeOrPosition,
+                        end: rangeOrPosition,
+                    }
                 });
             }
-            sidePanelContext.setIsOpen(true);
-            sidePanelContext.setOperationName("parentName");
+            sidePanelContext.setSidePanelState({
+                ...sidePanelContext,
+                isOpen: true,
+                operationName: "parentName",
+            });
         }
     };
 

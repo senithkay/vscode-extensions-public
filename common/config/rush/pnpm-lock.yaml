@@ -2403,6 +2403,7 @@ importers:
       '@projectstorm/react-diagrams-defaults': ^6.7.4
       '@projectstorm/react-diagrams-routing': ^6.7.4
       '@storybook/react': ^6.3.7
+      '@types/lodash': ~4.14.202
       '@types/mustache': ~4.2.5
       '@types/react': ^17.0.14
       '@types/react-dom': ^17.0.9
@@ -2411,6 +2412,7 @@ importers:
       '@wso2-enterprise/mi-rpc-client': workspace:*
       '@wso2-enterprise/mi-syntax-tree': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
+      lodash: ~4.17.21
       mustache: ~4.2.0
       react: ~18.2.0
       react-dom: ~18.2.0
@@ -2419,17 +2421,19 @@ importers:
       '@emotion/react': 11.11.3_ujupp4aqvz5yjxfmu635blrdgm
       '@emotion/styled': 11.11.0_a5ezjtzmbjq2agin6it3jktdwe
       '@projectstorm/geometry': 6.7.4
-      '@projectstorm/react-canvas-core': 6.7.4_react@18.2.0
-      '@projectstorm/react-diagrams': 6.7.4_2jbui5nro4tb6hwabdsx6ymml4
-      '@projectstorm/react-diagrams-core': 6.7.4_react@18.2.0
-      '@projectstorm/react-diagrams-defaults': 6.7.4_2jbui5nro4tb6hwabdsx6ymml4
-      '@projectstorm/react-diagrams-routing': 6.7.4_2jbui5nro4tb6hwabdsx6ymml4
+      '@projectstorm/react-canvas-core': 6.7.4_zrp62gez7omnrwllyfdlincg3a
+      '@projectstorm/react-diagrams': 6.7.4_fsljbzwwjspvry7b3zix5agdhy
+      '@projectstorm/react-diagrams-core': 6.7.4_zrp62gez7omnrwllyfdlincg3a
+      '@projectstorm/react-diagrams-defaults': 6.7.4_fsljbzwwjspvry7b3zix5agdhy
+      '@projectstorm/react-diagrams-routing': 6.7.4_fsljbzwwjspvry7b3zix5agdhy
+      '@types/lodash': 4.14.202
       '@types/mustache': 4.2.5
       '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
       '@wso2-enterprise/mi-core': link:../mi-core
       '@wso2-enterprise/mi-rpc-client': link:../mi-rpc-client
       '@wso2-enterprise/mi-syntax-tree': link:../syntax-tree
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
+      lodash: 4.17.21
       mustache: 4.2.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -8042,16 +8046,6 @@ packages:
       '@projectstorm/geometry': 6.7.4
     dev: false
 
-  /@projectstorm/react-canvas-core/6.7.4_react@18.2.0:
-    resolution: {integrity: sha512-sY32kT//gQe5aw6RHkmKrbzBq9iWyfwyvvfRTplGPE1ll3zOBVCjbf3tdfw6vATCden+WR0TmirtBo2j3exiBg==}
-    peerDependencies:
-      lodash: 4.*
-      react: 16.* || 17.*
-    dependencies:
-      '@projectstorm/geometry': 6.7.4
-      react: 18.2.0
-    dev: false
-
   /@projectstorm/react-canvas-core/6.7.4_vcdvlsazmnbhnp7yjvhccw67ha:
     resolution: {integrity: sha512-sY32kT//gQe5aw6RHkmKrbzBq9iWyfwyvvfRTplGPE1ll3zOBVCjbf3tdfw6vATCden+WR0TmirtBo2j3exiBg==}
     peerDependencies:
@@ -8125,7 +8119,7 @@ packages:
       resize-observer-polyfill: 1.5.1
     dev: false
 
-  /@projectstorm/react-diagrams-core/6.7.4_react@18.2.0:
+  /@projectstorm/react-diagrams-core/6.7.4_zrp62gez7omnrwllyfdlincg3a:
     resolution: {integrity: sha512-AeqH1u58Ugk8mif/GgLEUeOMmTPaWDpl1isA1OJHCPGMbvAytRfv5mrGMvG2E+pYDB29BQ4Yo2z9/TbAy6/nvA==}
     peerDependencies:
       lodash: 4.*
@@ -8133,7 +8127,8 @@ packages:
       resize-observer-polyfill: ^1.5.1
     dependencies:
       '@projectstorm/geometry': 6.7.4
-      '@projectstorm/react-canvas-core': 6.7.4_react@18.2.0
+      '@projectstorm/react-canvas-core': 6.7.4_zrp62gez7omnrwllyfdlincg3a
+      lodash: 4.17.21
       react: 18.2.0
     dev: false
 
@@ -8149,22 +8144,6 @@ packages:
     transitivePeerDependencies:
       - '@emotion/react'
       - '@types/react'
-    dev: false
-
-  /@projectstorm/react-diagrams-defaults/6.7.4_2jbui5nro4tb6hwabdsx6ymml4:
-    resolution: {integrity: sha512-j3pRlZq1Z5yIGKpI7VtVkvNK/kXKB2abNMVXTSLUECA4iRubPKDn08w6q4jg1nBZXLGidrHsrELqW+53G9VvLA==}
-    peerDependencies:
-      '@emotion/react': ^11.*
-      '@emotion/styled': ^11.*
-      lodash: 4.*
-      react: 18.*
-    dependencies:
-      '@emotion/react': 11.11.3_ujupp4aqvz5yjxfmu635blrdgm
-      '@emotion/styled': 11.11.0_a5ezjtzmbjq2agin6it3jktdwe
-      '@projectstorm/react-diagrams-core': 6.7.4_react@18.2.0
-      react: 18.2.0
-    transitivePeerDependencies:
-      - resize-observer-polyfill
     dev: false
 
   /@projectstorm/react-diagrams-defaults/6.7.4_5qhz6h2y4u2otpereufetyee2e:
@@ -8195,6 +8174,23 @@ packages:
       '@projectstorm/react-diagrams-core': 6.7.4_f6qoc2244z522xly4rlkjer7qi
       lodash: 4.17.21
       react: 17.0.2
+    transitivePeerDependencies:
+      - resize-observer-polyfill
+    dev: false
+
+  /@projectstorm/react-diagrams-defaults/6.7.4_fsljbzwwjspvry7b3zix5agdhy:
+    resolution: {integrity: sha512-j3pRlZq1Z5yIGKpI7VtVkvNK/kXKB2abNMVXTSLUECA4iRubPKDn08w6q4jg1nBZXLGidrHsrELqW+53G9VvLA==}
+    peerDependencies:
+      '@emotion/react': ^11.*
+      '@emotion/styled': ^11.*
+      lodash: 4.*
+      react: 18.*
+    dependencies:
+      '@emotion/react': 11.11.3_ujupp4aqvz5yjxfmu635blrdgm
+      '@emotion/styled': 11.11.0_a5ezjtzmbjq2agin6it3jktdwe
+      '@projectstorm/react-diagrams-core': 6.7.4_zrp62gez7omnrwllyfdlincg3a
+      lodash: 4.17.21
+      react: 18.2.0
     transitivePeerDependencies:
       - resize-observer-polyfill
     dev: false
@@ -8230,25 +8226,6 @@ packages:
       - '@types/react'
     dev: false
 
-  /@projectstorm/react-diagrams-routing/6.7.4_2jbui5nro4tb6hwabdsx6ymml4:
-    resolution: {integrity: sha512-mB8YaRkNF6gdTlYvL0Cxc6m6XLwh7wvmjIsiEO6kW3j1uSvH7R7Gbl/iDYOdc0zUMqH9+pD+M064tWC4oAXa9A==}
-    peerDependencies:
-      dagre: ^0.8.5
-      lodash: 4.*
-      pathfinding: ^0.4.18
-      paths-js: ^0.4.11
-      react: 18.*
-    dependencies:
-      '@projectstorm/geometry': 6.7.4
-      '@projectstorm/react-diagrams-core': 6.7.4_react@18.2.0
-      '@projectstorm/react-diagrams-defaults': 6.7.4_2jbui5nro4tb6hwabdsx6ymml4
-      react: 18.2.0
-    transitivePeerDependencies:
-      - '@emotion/react'
-      - '@emotion/styled'
-      - resize-observer-polyfill
-    dev: false
-
   /@projectstorm/react-diagrams-routing/6.7.4_5qhz6h2y4u2otpereufetyee2e:
     resolution: {integrity: sha512-mB8YaRkNF6gdTlYvL0Cxc6m6XLwh7wvmjIsiEO6kW3j1uSvH7R7Gbl/iDYOdc0zUMqH9+pD+M064tWC4oAXa9A==}
     peerDependencies:
@@ -8261,6 +8238,26 @@ packages:
       '@projectstorm/geometry': 6.7.4
       '@projectstorm/react-diagrams-core': 6.7.4
       '@projectstorm/react-diagrams-defaults': 6.7.4_5qhz6h2y4u2otpereufetyee2e
+    transitivePeerDependencies:
+      - '@emotion/react'
+      - '@emotion/styled'
+      - resize-observer-polyfill
+    dev: false
+
+  /@projectstorm/react-diagrams-routing/6.7.4_fsljbzwwjspvry7b3zix5agdhy:
+    resolution: {integrity: sha512-mB8YaRkNF6gdTlYvL0Cxc6m6XLwh7wvmjIsiEO6kW3j1uSvH7R7Gbl/iDYOdc0zUMqH9+pD+M064tWC4oAXa9A==}
+    peerDependencies:
+      dagre: ^0.8.5
+      lodash: 4.*
+      pathfinding: ^0.4.18
+      paths-js: ^0.4.11
+      react: 18.*
+    dependencies:
+      '@projectstorm/geometry': 6.7.4
+      '@projectstorm/react-diagrams-core': 6.7.4_zrp62gez7omnrwllyfdlincg3a
+      '@projectstorm/react-diagrams-defaults': 6.7.4_fsljbzwwjspvry7b3zix5agdhy
+      lodash: 4.17.21
+      react: 18.2.0
     transitivePeerDependencies:
       - '@emotion/react'
       - '@emotion/styled'
@@ -8330,12 +8327,12 @@ packages:
       - '@types/react'
     dev: false
 
-  /@projectstorm/react-diagrams/6.7.4_2jbui5nro4tb6hwabdsx6ymml4:
+  /@projectstorm/react-diagrams/6.7.4_5qhz6h2y4u2otpereufetyee2e:
     resolution: {integrity: sha512-xK/bi7DqHKv15XZRESeSpvSmAVArJIXkV6E1mybSc/24toGmoE2imcS+puxG6wGS56NhR0gIrUiT5UYwBvyD5A==}
     dependencies:
-      '@projectstorm/react-diagrams-core': 6.7.4_react@18.2.0
-      '@projectstorm/react-diagrams-defaults': 6.7.4_2jbui5nro4tb6hwabdsx6ymml4
-      '@projectstorm/react-diagrams-routing': 6.7.4_2jbui5nro4tb6hwabdsx6ymml4
+      '@projectstorm/react-diagrams-core': 6.7.4
+      '@projectstorm/react-diagrams-defaults': 6.7.4_5qhz6h2y4u2otpereufetyee2e
+      '@projectstorm/react-diagrams-routing': 6.7.4_5qhz6h2y4u2otpereufetyee2e
     transitivePeerDependencies:
       - '@emotion/react'
       - '@emotion/styled'
@@ -8347,12 +8344,12 @@ packages:
       - resize-observer-polyfill
     dev: false
 
-  /@projectstorm/react-diagrams/6.7.4_5qhz6h2y4u2otpereufetyee2e:
+  /@projectstorm/react-diagrams/6.7.4_fsljbzwwjspvry7b3zix5agdhy:
     resolution: {integrity: sha512-xK/bi7DqHKv15XZRESeSpvSmAVArJIXkV6E1mybSc/24toGmoE2imcS+puxG6wGS56NhR0gIrUiT5UYwBvyD5A==}
     dependencies:
-      '@projectstorm/react-diagrams-core': 6.7.4
-      '@projectstorm/react-diagrams-defaults': 6.7.4_5qhz6h2y4u2otpereufetyee2e
-      '@projectstorm/react-diagrams-routing': 6.7.4_5qhz6h2y4u2otpereufetyee2e
+      '@projectstorm/react-diagrams-core': 6.7.4_zrp62gez7omnrwllyfdlincg3a
+      '@projectstorm/react-diagrams-defaults': 6.7.4_fsljbzwwjspvry7b3zix5agdhy
+      '@projectstorm/react-diagrams-routing': 6.7.4_fsljbzwwjspvry7b3zix5agdhy
     transitivePeerDependencies:
       - '@emotion/react'
       - '@emotion/styled'
@@ -16785,7 +16782,7 @@ packages:
       '@babel/preset-env': 7.23.9
       '@babel/types': 7.23.9
       '@mdx-js/mdx': 1.6.22
-      '@types/lodash': 4.14.189
+      '@types/lodash': 4.14.202
       js-string-escape: 1.0.1
       loader-utils: 2.0.4
       lodash: 4.17.21
@@ -16804,7 +16801,7 @@ packages:
       '@babel/preset-env': 7.23.9_@babel+core@7.23.9
       '@babel/types': 7.23.9
       '@mdx-js/mdx': 1.6.22
-      '@types/lodash': 4.14.189
+      '@types/lodash': 4.14.202
       js-string-escape: 1.0.1
       loader-utils: 2.0.4
       lodash: 4.17.21
@@ -19430,6 +19427,7 @@ packages:
 
   /@types/lodash/4.14.189:
     resolution: {integrity: sha512-kb9/98N6X8gyME9Cf7YaqIMvYGnBSWqEci6tiettE6iJWH1XdJz/PO8LB0GtLCG7x8dU3KWhZT+lA1a35127tA==}
+    dev: false
 
   /@types/lodash/4.14.202:
     resolution: {integrity: sha512-OvlIYQK9tNneDlS0VN54LLd5uiPCBOp7gS5Z0f1mjoJYBrtStzgmJBxONW3U6OZqdtNzZPmn9BS/7WI7BFFcFQ==}

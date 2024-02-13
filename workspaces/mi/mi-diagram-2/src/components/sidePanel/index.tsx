@@ -347,7 +347,10 @@ const SidePanelList = (props: SidePanelListProps) => {
     type MediatorsType = typeof mediators;
 
     useEffect(() => {
-        sidePanelContext.setShowBackBtn(false);
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            showBackBtn: false,
+        })
         let form;
         if (sidePanelContext.isEditing) {
             for (const key in mediators) {
@@ -388,11 +391,17 @@ const SidePanelList = (props: SidePanelListProps) => {
 
         if (sidePanelContext.backBtn > goBackRef.current) {
             if (connectorForm) {
-                sidePanelContext.setShowBackBtn(true);
+                sidePanelContext.setSidePanelState({
+                    ...sidePanelContext,
+                    showBackBtn: true,
+                })
                 setShowMenu(false);
                 setConnectorForm(undefined);
             } else if (mediatorForm) {
-                sidePanelContext.setShowBackBtn(false);
+                sidePanelContext.setSidePanelState({
+                    ...sidePanelContext,
+                    showBackBtn: false,
+                })
                 setMediatorForm(undefined);
             } else if (actions.length > 0) {
                 setActions([]);
@@ -451,8 +460,11 @@ const SidePanelList = (props: SidePanelListProps) => {
     }
 
     const showConnectorActions = async (connectorPath: string) => {
-        sidePanelContext.setShowBackBtn(true);
-        const actions = await rpcClient.getMiDiagramRpcClient().getConnector({ path: connectorPath});
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            showBackBtn: true,
+        })
+        const actions = await rpcClient.getMiDiagramRpcClient().getConnector({ path: connectorPath });
         setActions(actions.data.map((action: any) => JSON.parse(action)));
         stackRef.push("connectors");
         setShowConnectors(false);
@@ -473,7 +485,10 @@ const SidePanelList = (props: SidePanelListProps) => {
     }
 
     const showConnectorForm = async (connectorSchema: any) => {
-        sidePanelContext.setShowBackBtn(true);
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            showBackBtn: true,
+        })
         stackRef.push("connector");
         setConnectorForm(connectorSchema);
     };
@@ -488,7 +503,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                             {values.map((action) => (
                                 <ButtonContainer key={action.title}>
                                     <Button key={action.operationName} appearance='icon' sx={{ width: "90px", height: "120px", padding: "5px 0" }} onClick={() => showMediatorForm(action)}>
-                                        <div style={{ width: "90px"}}>
+                                        <div style={{ width: "90px" }}>
                                             {/* {getSVGIcon(action.operationName, null, 70, 70)} */}
                                             <LogIcon />
                                             <div style={{ marginTop: "15px" }}>
@@ -508,7 +523,10 @@ const SidePanelList = (props: SidePanelListProps) => {
     }
 
     const showMediatorForm = async (mediator: any) => {
-        sidePanelContext.setShowBackBtn(true);
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            showBackBtn: true,
+        })
         stackRef.push("mediators");
         setShowMediators(false);
         setShowMenu(false);
@@ -534,7 +552,10 @@ const SidePanelList = (props: SidePanelListProps) => {
     }
 
     const showEndpointForm = async (endpoint: any) => {
-        sidePanelContext.setShowBackBtn(true);
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            showBackBtn: true,
+        })
         stackRef.push("endpoints");
         setShowEndpoints(false);
         setShowMenu(false);
