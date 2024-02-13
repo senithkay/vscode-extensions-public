@@ -9,6 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    AIUserInput,
     ApplyEditRequest,
     CommandsRequest,
     ConnectorRequest,
@@ -27,6 +28,7 @@ import {
     createProject,
     createSequence,
     executeCommand,
+    getAIResponse,
     getAPIDirectory,
     getConnector,
     getConnectors,
@@ -40,7 +42,9 @@ import {
     onRefresh,
     openDiagram,
     openFile,
-    showErrorMessage
+    showErrorMessage,
+    writeContentToFile,
+    writeContentToFileRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -64,8 +68,10 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(closeWebView, () => rpcManger.closeWebView());
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));
     messenger.onNotification(openFile, (args: OpenDiagramRequest) => rpcManger.openFile(args));
-    messenger.onNotification(closeWebViewNotification, () => rpcManger.closeWebViewNotification());
+        messenger.onNotification(closeWebViewNotification, () => rpcManger.closeWebViewNotification());
     messenger.onRequest(getProjectRoot, () => rpcManger.getProjectRoot());
     messenger.onRequest(askProjectDirPath, () => rpcManger.askProjectDirPath());
     messenger.onRequest(createProject, (args: CreateProjectRequest) => rpcManger.createProject(args));
+    messenger.onRequest(getAIResponse, (args: AIUserInput) => rpcManger.getAIResponse(args));
+    messenger.onRequest(writeContentToFile, (args: writeContentToFileRequest) => rpcManger.writeContentToFile(args));
 }

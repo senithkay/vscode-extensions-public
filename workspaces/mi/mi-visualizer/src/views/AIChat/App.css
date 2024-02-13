@@ -1,0 +1,13 @@
+.custom-textarea-style {
+    display: flex;
+    flex-direction: column;
+    min-height: 7vh;
+    margin: 0;
+
+  }
+
+.custom-button-style{
+    display: block;
+    margin: auto;
+    margin-top: 2%;
+}    
