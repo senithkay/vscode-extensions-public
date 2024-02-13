@@ -44,7 +44,7 @@ const RespondForm = (props: AddMediatorProps) => {
    const [errors, setErrors] = useState({} as any);
 
    useEffect(() => {
-       if (sidePanelContext.formValues) {
+       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
        } else {
            setFormValues({});
