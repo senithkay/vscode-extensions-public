@@ -17,9 +17,10 @@ import { EndNodeModel } from "../components/nodes/EndNode/EndNodeModel";
 import { CallNodeModel } from "../components/nodes/CallNode/CallNodeModel";
 import { NODE_GAP, NodeTypes } from "../resources/constants";
 import { SourceNodeModel, TargetNodeModel, createNodesLink } from "../utils/diagram";
+import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
 
 export class NodeFactoryVisitor implements Visitor {
-    nodes: (MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel)[] = [];
+    nodes: (MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel)[] = [];
     links: NodeLinkModel[] = [];
     private parents: STNode[] = [];
     private skipChildrenVisit = false;
@@ -29,7 +30,7 @@ export class NodeFactoryVisitor implements Visitor {
 
     private createNodeAndLinks(node: STNode, type: NodeTypes = NodeTypes.MEDIATOR_NODE, data?: any): void {
         // create node
-        let diagramNode: MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel;
+        let diagramNode: MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel;
         if (type === NodeTypes.MEDIATOR_NODE) {
             diagramNode = new MediatorNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.CONDITION_NODE) {
@@ -40,6 +41,8 @@ export class NodeFactoryVisitor implements Visitor {
             diagramNode = new EndNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.CALL_NODE) {
             diagramNode = new CallNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes, data);
+        } else if (type === NodeTypes.EMPTY_NODE) {
+            diagramNode = new EmptyNodeModel(node);
         }
         diagramNode.setPosition(node.viewState.x, node.viewState.y);
         this.nodes.push(diagramNode);
@@ -56,7 +59,8 @@ export class NodeFactoryVisitor implements Visitor {
                         diagramNode as TargetNodeModel,
                         {
                             label: this.currentBranchName,
-                            stRange: this.currentAddPosition ?? previousStNode.range.end
+                            stRange: this.currentAddPosition ?? previousStNode.range.end,
+                            brokenLine: type === NodeTypes.EMPTY_NODE || previousNode instanceof EmptyNodeModel
                         }
                     );
                     this.links.push(link);
@@ -83,6 +87,12 @@ export class NodeFactoryVisitor implements Visitor {
                 (sequence.mediatorList as any).forEach((childNode: STNode) => {
                     traversNode(childNode, this);
                 });
+            } else {
+                this.currentBranchName = sequenceKeys[i];
+                this.previousSTNodes = [node];
+                // TODO: Use the sub sequence's start position as the current add position. Need the tag range to be added to the STNode
+                this.currentAddPosition = sequence.range.end;
+                this.createNodeAndLinks(sequence, NodeTypes.EMPTY_NODE, node.range.end);
             }
         }
 
@@ -93,6 +103,8 @@ export class NodeFactoryVisitor implements Visitor {
             if (sequence && sequence.mediatorList && sequence.mediatorList.length > 0) {
                 const lastNode = (sequence.mediatorList as any)[(sequence.mediatorList as any).length - 1];
                 this.previousSTNodes.push(lastNode);
+            } else {
+                this.previousSTNodes.push(subSequences[sequenceKeys[i]]);
             }
         }
     }

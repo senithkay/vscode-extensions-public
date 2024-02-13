@@ -66,6 +66,9 @@ export class PositionVisitor implements Visitor {
                 });
                 sequenceWidths.push(subSequenceFullWidth);
                 sequenceTypeOffsets.push(subSequenceOffset / 2);
+            } else {
+                sequenceWidths.push(NODE_DIMENSIONS.EMPTY.WIDTH);
+                sequenceTypeOffsets.push(NODE_DIMENSIONS.EMPTY.WIDTH / 2);
             }
         }
         const branchesWidth = node.viewState.fw - sequenceTypeOffsets[0] - sequenceTypeOffsets[sequenceTypeOffsets.length - 1];
@@ -74,22 +77,19 @@ export class PositionVisitor implements Visitor {
         for (let i = 0; i < subSequenceKeys.length; i++) {
             this.position.y = node.viewState.y + node.viewState.h + NODE_GAP.Y + 40 + NODE_GAP.BRANCH_TOP;
             const subSequence = subSequences[subSequenceKeys[i]];
+
+            this.position.x += i > 0 ? (sequenceWidths[i] / 2) : 0;
             if (subSequence && subSequence.mediatorList && subSequence.mediatorList.length > 0) {
-                const subSequenceMediatorList = subSequence.mediatorList as any as STNode[];
-                let subSequenceWidth = 0;
-                subSequenceMediatorList.forEach((childNode: STNode) => {
-                    traversNode(childNode, this);
-                    if (childNode.viewState) {
-                        subSequenceWidth = Math.max(subSequenceWidth, childNode.viewState.fw ?? childNode.viewState.w);
-                    }
-                });
-                this.position.x += subSequenceWidth + NODE_GAP.BRANCH_X;
+                traversNode(subSequence, this);
+            } else {
+                this.setBasicMediatorPosition(subSequence);
             }
+            this.position.x += (sequenceWidths[i] / 2) + NODE_GAP.BRANCH_X;
         }
 
         // set filter node positions after traversing children
         this.position.x = node.viewState.x + node.viewState.w / 2;
-        this.position.y += NODE_GAP.Y + node.viewState.fh;
+        this.position.y = node.viewState.y + node.viewState.fh + 100 + NODE_GAP.BRANCH_BOTTOM;
         this.skipChildrenVisit = true;
     }
 
