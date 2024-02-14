@@ -8,7 +8,7 @@
  */
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { AccordionTable } from '../AccordionTable/AccordionTable';
 import { Resource } from '../../definitions';
@@ -147,7 +147,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
         setConfirmOpen(true);
     };
 
-    const handleDeleteResource = (e: Event) => {
+    const handleDeleteResource = (e: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         e.stopPropagation(); // Stop the event propagation
         handleOpenConfirm();
     };
@@ -202,20 +202,19 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                     )}
 
                     {onDeleteResource && (
-                        <VSCodeButton appearance="icon" title="Delete Resource" onClick={handleDeleteResource}>
-                            <Icon name="delete" />
-                        </VSCodeButton>
+                        <Button appearance='icon' onClick={handleDeleteResource}>
+                            <Codicon iconSx={{marginTop: -2}} name="trash" />
+                        </Button>
                     )}
 
                     {isOpen ? 
-                        <Codicon
-                            sx={{"&:hover": {"backgroundColor": "var(--button-icon-hover-background)"}}}
-                            name="chevron-up" 
-                        /> : 
-                        <Codicon
-                            name="chevron-down"
-                            sx={{"&:hover": {"backgroundColor": "var(--button-icon-hover-background)"}}}
-                        />
+                        <Button appearance='icon' onClick={handleDeleteResource}>
+                            <Codicon iconSx={{marginTop: -3}} name="chevron-up" />
+                        </Button>
+                        : 
+                        <Button appearance='icon' onClick={handleDeleteResource}>
+                            <Codicon iconSx={{marginTop: -3}} name="chevron-down" />
+                        </Button>
                     }
                 </ButtonSection>
             </AccordionHeader>
