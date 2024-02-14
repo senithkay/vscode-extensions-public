@@ -94,7 +94,7 @@ export class CodeLensProviderVisitor implements Visitor {
         codeLens.command = {
             title: "Visualize",
             tooltip: "Visualize code block",
-            command: PALETTE_COMMANDS.SHOW_GRAPHQL_DESIGNER_VIEW,
+            command: PALETTE_COMMANDS.SHOW_VISUALIZER,
             arguments: [this.activeEditorUri.fsPath, position]
         };
         this.codeLenses.push(codeLens);
