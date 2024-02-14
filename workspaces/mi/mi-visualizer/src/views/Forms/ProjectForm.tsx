@@ -94,7 +94,8 @@ export function ProjectWizard() {
 
     const handleCancel = () => {
         console.log("cancel");
-        rpcClient.getMiDiagramRpcClient().closeWebView();
+        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
+
     };
 
     const isValid: boolean = projectName.length > 0 && projectDir.length > 0;

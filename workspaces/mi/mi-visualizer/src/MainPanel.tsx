@@ -77,7 +77,9 @@ const MainPanel = (props: { state: MachineStateValue }) => {
     };
 
     return (
-        <div>
+        <div style={{
+            overflow: "hidden",
+        }}>
             {!component ? <h1>LOADING</h1> : <div>
                 <NavigationBar />
                 {component}

@@ -12,8 +12,8 @@ import { MEDIATORS, NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
 
 export class PositionVisitor implements Visitor {
     private position = {
-        x: 100,
-        y: 0
+        x: 0,
+        y: 40
     };
     private nodes: STNode[] = [];
     private skipChildrenVisit = false;
@@ -25,6 +25,10 @@ export class PositionVisitor implements Visitor {
 
     skipChildren(): boolean {
         return this.skipChildrenVisit;
+    }
+
+    getSequenceHeight(): number {
+        return this.position.y;
     }
 
     private setBasicMediatorPosition(node: STNode): void {
@@ -62,6 +66,9 @@ export class PositionVisitor implements Visitor {
                 });
                 sequenceWidths.push(subSequenceFullWidth);
                 sequenceTypeOffsets.push(subSequenceOffset / 2);
+            } else {
+                sequenceWidths.push(NODE_DIMENSIONS.EMPTY.WIDTH);
+                sequenceTypeOffsets.push(NODE_DIMENSIONS.EMPTY.WIDTH / 2);
             }
         }
         const branchesWidth = node.viewState.fw - sequenceTypeOffsets[0] - sequenceTypeOffsets[sequenceTypeOffsets.length - 1];
@@ -70,22 +77,19 @@ export class PositionVisitor implements Visitor {
         for (let i = 0; i < subSequenceKeys.length; i++) {
             this.position.y = node.viewState.y + node.viewState.h + NODE_GAP.Y + 40 + NODE_GAP.BRANCH_TOP;
             const subSequence = subSequences[subSequenceKeys[i]];
+
+            this.position.x += i > 0 ? (sequenceWidths[i] / 2) : 0;
             if (subSequence && subSequence.mediatorList && subSequence.mediatorList.length > 0) {
-                const subSequenceMediatorList = subSequence.mediatorList as any as STNode[];
-                let subSequenceWidth = 0;
-                subSequenceMediatorList.forEach((childNode: STNode) => {
-                    traversNode(childNode, this);
-                    if (childNode.viewState) {
-                        subSequenceWidth = Math.max(subSequenceWidth, childNode.viewState.fw ?? childNode.viewState.w);
-                    }
-                });
-                this.position.x += subSequenceWidth + NODE_GAP.BRANCH_X;
+                traversNode(subSequence, this);
+            } else {
+                this.setBasicMediatorPosition(subSequence);
             }
+            this.position.x += (sequenceWidths[i] / 2) + NODE_GAP.BRANCH_X;
         }
 
         // set filter node positions after traversing children
         this.position.x = node.viewState.x + node.viewState.w / 2;
-        this.position.y += NODE_GAP.Y + node.viewState.fh;
+        this.position.y = node.viewState.y + node.viewState.fh + 100 + NODE_GAP.BRANCH_BOTTOM;
         this.skipChildrenVisit = true;
     }
 
@@ -108,10 +112,35 @@ export class PositionVisitor implements Visitor {
     endVisitFilter = (node: Filter): void => this.setSkipChildrenVisit(false);
 
     beginVisitHeader = (node: Header): void => this.setBasicMediatorPosition(node);
+
     beginVisitInSequence = (node: Sequence): void => {
         this.setBasicMediatorPosition(node);
     }
-    beginVisitLog = (node: Log): void => this.setBasicMediatorPosition(node);
+    endVisitInSequence = (node: Sequence): void => {
+        this.position.y += NODE_GAP.Y + node.viewState.h;
+    }
+
+    beginVisitOutSequence = (node: Sequence): void => {
+        this.setBasicMediatorPosition(node);
+    }
+    endVisitOutSequence = (node: Sequence): void => {
+        this.position.y += NODE_GAP.Y + node.viewState.h;
+    }
+
+    beginVisitFaultSequence = (node: Sequence): void => {
+        this.setBasicMediatorPosition(node);
+    }
+    endVisitFaultSequence = (node: Sequence): void => {
+        this.position.y += NODE_GAP.Y + node.viewState.h;
+    }
+    beginVisitLog = (node: Log): void => {
+        this.setBasicMediatorPosition(node);
+        this.skipChildrenVisit = true;
+    }
+    endVisitLog = (node: Log): void => {
+        this.skipChildrenVisit = false;
+    }
+
     beginVisitLoopback = (node: Loopback): void => this.setBasicMediatorPosition(node);
     beginVisitPayloadFactory = (node: PayloadFactory): void => this.setBasicMediatorPosition(node);
     beginVisitProperty = (node: Property): void => this.setBasicMediatorPosition(node);

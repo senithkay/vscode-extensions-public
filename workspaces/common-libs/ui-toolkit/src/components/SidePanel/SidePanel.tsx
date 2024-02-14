@@ -15,6 +15,7 @@ export interface SidePanelProps {
 	id?: string;
     className?: string;
 	isOpen?: boolean;
+	overlay?: boolean;
 	alignmanet?: "left" | "right";
 	width?: number;
 	children?: React.ReactNode;
@@ -38,12 +39,12 @@ const SidePanelContainer = styled.div<SidePanelProps>`
 `;
     
 export const SidePanel: React.FC<SidePanelProps> = (props: SidePanelProps) => {
-    const { id, className, isOpen = false, alignmanet = "right", width = 312, children, sx } = props;
+    const { id, className, isOpen = false, alignmanet = "right", width = 312, children, sx, overlay = true } = props;
     return (
         <div id={id} className={className}>
             {isOpen && (
                 <>
-                    <Overlay sx={{background: colors.vscodeInputBackground, opacity: 0.4, cursor: 'not-allowed'}}/>
+                    { overlay && <Overlay sx={{background: colors.vscodeInputBackground, opacity: 0.4, cursor: 'not-allowed'}}/>}
                     <SidePanelContainer isOpen={isOpen} alignmanet={alignmanet} width={width} sx={sx}>
                         {children}
                     </SidePanelContainer>

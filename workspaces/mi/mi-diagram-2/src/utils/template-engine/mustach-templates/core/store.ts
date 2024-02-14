@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-function getStoreMustacheTemplate() {
+export function getStoreMustacheTemplate() {
     return `<store messageStore="{{messageStore}}" 
        {{#sequence}}sequence="{{sequence}}"{{/sequence}} 
        {{#description}}description="{{description}}"{{/description}}>

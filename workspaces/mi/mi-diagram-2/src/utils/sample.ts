@@ -42,13 +42,13 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
 
     // var node5 = new MediatorNodeModel(mediatorList[6]);
     // node5.setPosition(x - conY, y);
-    var node5 = new EmptyNodeModel();
+    var node5 = new EmptyNodeModel(undefined);
     node5.setPosition(x - conY + 40, y);
 
     var node4 = new CallNodeModel(mediatorList[12], mediatorList[5]);
     node4.setPosition(x + conY, (y += gapY));
 
-    var nodeempty = new EmptyNodeModel();
+    var nodeempty = new EmptyNodeModel(undefined);
     nodeempty.setPosition(x + 60 - 4, (y += gapY));
 
     var nodeend = new EndNodeModel(mediatorList[0]);

@@ -23,10 +23,13 @@ import { ConditionNodeModel } from "../components/nodes/ConditionNode/ConditionN
 import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 import { EndNodeModel } from "../components/nodes/EndNode/EndNodeModel";
+import { OverlayLayerFactory } from "../components/OverlayLoader/OverlayLayerFactory";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
         registerDefaultDeleteItemsAction: false,
+        registerDefaultPanAndZoomCanvasAction: false,
+        registerDefaultZoomCanvasAction: false,
     });
 
     engine.getPortFactories().registerFactory(new NodePortFactory());
@@ -37,6 +40,7 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new ConditionNodeFactory());
     engine.getNodeFactories().registerFactory(new CallNodeFactory());
     engine.getNodeFactories().registerFactory(new EmptyNodeFactory());
+    engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
     return engine;
 }
 

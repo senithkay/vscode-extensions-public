@@ -7,6 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-function getSequenceMustacheTemplate() {
+export function getSequenceMustacheTemplate() {
     return `<sequence {{#staticReferenceKey}}key="{{staticReferenceKey}}"{{/staticReferenceKey}} {{#dynamicReferenceKey}}key="{{dynamicReferenceKey}}"{{/dynamicReferenceKey}} {{#description}}description="{{description}}"{{/description}}/>`;
 }

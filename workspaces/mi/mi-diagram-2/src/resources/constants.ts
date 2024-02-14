@@ -83,7 +83,7 @@ export const NODE_GAP = {
     Y: 50,
     BRANCH_X: 100,
     BRANCH_TOP: 0,
-    BRANCH_BOTTOM: 0
+    BRANCH_BOTTOM: 80
 };
 
 export const NODE_DIMENSIONS = {
@@ -103,6 +103,10 @@ export const NODE_DIMENSIONS = {
         WIDTH: 152,
         FULL_WIDTH: 152 + 110,
         HEIGHT: 50,
+    },
+    EMPTY: {
+        WIDTH: 12,
+        HEIGHT: 12,
     },
 };
 

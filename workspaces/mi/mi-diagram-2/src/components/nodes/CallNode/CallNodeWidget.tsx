@@ -15,6 +15,7 @@ import { Colors } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { CallIcon, MoreVertIcon, PlusIcon } from "../../../resources";
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 namespace S {
     export type NodeStyleProp = {
@@ -97,13 +98,19 @@ interface CallNodeWidgetProps {
 export function CallNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine, onClick } = props;
     const [isHovered, setIsHovered] = React.useState(false);
+    const visualizerContext = useVisualizerContext();
 
-    const handleOnClick = () => {
+    const handleOnClickMenu = () => {
         if (onClick) {
+            console.log("Call Node clicked", node.stNode);
             onClick(node.stNode);
-            console.log("Mediator Node clicked", node.stNode);
         }
     };
+
+    const handleOnClick = () => {
+        if (node.isSelected()) node.onClicked(visualizerContext);
+    };
+
 
     return (
         <S.Node

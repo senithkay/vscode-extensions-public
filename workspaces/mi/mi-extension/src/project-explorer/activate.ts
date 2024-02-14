@@ -53,8 +53,8 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('project-explorer.create-project', () => {
 		// Update state machine to show the api wizard
 		// createApiWizardWebview(context);
+		openView( { view: "ProjectCreationForm" });
 		vscode.commands.executeCommand('integrationStudio.showDiagram');
-		createView( { view: "ProjectCreationForm" });
 		console.log('Create New Project');
 	});
 
