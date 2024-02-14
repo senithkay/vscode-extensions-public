@@ -8,6 +8,7 @@ import { VisualizerWebview } from './visualizer/webview';
 import { Uri } from 'vscode';
 import { STKindChecker } from '@wso2-enterprise/syntax-tree';
 import { RPCLayer } from './RPCLayer';
+import { historyStack, pushHistory } from './history';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -90,6 +91,14 @@ const stateMachine = createMachine<MachineContext>(
                         invoke: {
                             src: 'findView', // NOTE: We only find the view and indentifer from this state as we already have the position and the file URL
                             onDone: {
+                                target: "updatedHistory"
+                            }
+                        }
+                    },
+                    updatedHistory: {
+                        invoke: {
+                            src: 'showView', // NOTE: We only find the view and indentifer from this state as we already have the position and the file URL
+                            onDone: {
                                 target: "viewReady",
                                 actions: assign({
                                     view: (context, event) => event.data.view,
@@ -105,6 +114,17 @@ const stateMachine = createMachine<MachineContext>(
                                 actions: assign({
                                     documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
                                     position: (context, event) => event.viewLocation.position,
+                                    view: (context, event) => event.viewLocation.view,
+                                    identifier: (context, event) => event.viewLocation.identifier
+                                })
+                            },
+                            GO_BACK: {
+                                target: "updatedHistory",
+                                actions: assign({
+                                    documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
+                                    position: (context, event) => event.viewLocation.position,
+                                    view: (context, event) => event.viewLocation.view,
+                                    identifier: (context, event) => event.viewLocation.identifier
                                 })
                             },
                             FILE_EDIT: {
@@ -159,10 +179,11 @@ const stateMachine = createMachine<MachineContext>(
                 }
             });
         },
-        findView(context, event): Promise<VisualizerLocation> {
+        findView(context, event): Promise<void> {
             return new Promise(async (resolve, reject) => {
                 if (!context.position) {
-                    resolve({ view: "Overview" });
+                    pushHistory({ view: "Overview" });
+                    resolve();
                     return;
                 }
                 const req: STByRangeRequest = {
@@ -183,19 +204,42 @@ const stateMachine = createMachine<MachineContext>(
 
                 if (node.parseSuccess) {
                     if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
-                        resolve({
+                        pushHistory({
                             view: "ServiceDesigner",
-                            identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join('')
+                            identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
+                            documentUri: context.documentUri,
+                            position: context.position
                         });
+                        resolve();
                     } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) && STKindChecker.isExpressionFunctionBody(node.syntaxTree.functionBody)) {
-                        resolve({ view: "DataMapper", documentUri: context.documentUri, position: context.position });
+                        pushHistory({
+                            view: "DataMapper",
+                            documentUri: context.documentUri,
+                            position: context.position
+                        });
+                        resolve();
                     } else if (STKindChecker.isTypeDefinition(node.syntaxTree) && STKindChecker.isRecordTypeDesc(node.syntaxTree.typeDescriptor)) {
-                        resolve({ view: "ArchitectureDiagram", documentUri: context.documentUri });
+                        pushHistory({
+                            view: "ArchitectureDiagram",
+                            documentUri: context.documentUri,
+                            position: context.position
+                        });
+                        resolve();
                     } else {
-                        resolve({ view: "Overview", documentUri: context.documentUri });
+                        pushHistory({
+                            view: "Overview",
+                            documentUri: context.documentUri,
+                            position: context.position
+                        });
+                        resolve();
                     }
                 }
                 return;
+            });
+        },
+        showView(context, event): Promise<VisualizerLocation> {
+            return new Promise(async (resolve, reject) => {
+                resolve(historyStack[historyStack.length - 1]?.view ? historyStack[historyStack.length - 1] : { view: "Overview" });
             });
         }
     }
@@ -228,3 +272,6 @@ export function openView(type: "OPEN_VIEW" | "FILE_EDIT" | "EDIT_DONE", viewLoca
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 
+export function goBackOneView(type: "GO_BACK", viewLocation: VisualizerLocation) {
+    stateService.send({ type: type, viewLocation: viewLocation });
+}

@@ -12,7 +12,8 @@ import {
     VisualizerAPI,
     VisualizerLocation
 } from "@wso2-enterprise/ballerina-core";
-import { StateMachine, getPreviousView, openView } from "../../stateMachine";
+import { goBackOneView, openView } from "../../stateMachine";
+import { historyStack, popHistory } from "../../history";
 
 export class VisualizerRpcManager implements VisualizerAPI {
 
@@ -24,10 +25,7 @@ export class VisualizerRpcManager implements VisualizerAPI {
     }
 
     goBack(): void {
-        // Get current view
-        const currentView = StateMachine.context().view;
-        const currentDoc = StateMachine.context().documentUri;
-        const view = getPreviousView(currentView!);
-        view.length > 0 && openView("OPEN_VIEW", { view: view[0], documentUri: currentDoc });
+        popHistory();
+        goBackOneView("GO_BACK", historyStack[historyStack.length - 1])
     }
 }
