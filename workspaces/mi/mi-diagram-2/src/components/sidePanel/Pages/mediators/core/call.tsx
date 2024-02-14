@@ -45,7 +45,7 @@ const CallForm = (props: AddMediatorProps) => {
    const [errors, setErrors] = useState({} as any);
 
    useEffect(() => {
-       if (sidePanelContext.formValues) {
+       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
        } else {
            setFormValues({
@@ -72,10 +72,14 @@ const CallForm = (props: AddMediatorProps) => {
            rpcClient.getMiDiagramRpcClient().applyEdit({
                documentUri: props.documentUri, range: props.nodePosition, text: xml
            });
-           sidePanelContext.setIsOpen(false);
-           sidePanelContext.setFormValues(undefined);
-           sidePanelContext.setNodeRange(undefined);
-           sidePanelContext.setOperationName(undefined);
+           sidePanelContext.setSidePanelState({
+                ...sidePanelContext,
+                isOpen: false,
+                isEditing: false,
+                formValues: undefined,
+                nodeRange: undefined,
+                operationName: undefined
+              });
        }
    };
 

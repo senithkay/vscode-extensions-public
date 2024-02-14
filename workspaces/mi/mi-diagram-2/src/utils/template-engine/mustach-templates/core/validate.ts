@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-function getValidateMustacheTemplate() {
+export function getValidateMustacheTemplate() {
     return `<validate {{#source}}source="{{source}}"{{/source}} 
           {{#cache-schema}}cache-schema="{{cache-schema}}"{{/cache-schema}} 
           {{#description}}description="{{description}}"{{/description}}>

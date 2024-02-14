@@ -31,6 +31,7 @@ import {
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     FileStructure,
+    HighlightCodeRequest,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectDirResponse,
@@ -39,12 +40,12 @@ import {
     ShowErrorMessageRequest,
     getSTRequest,
     getSTResponse,
-    writeContentToFileRequest,
-    writeContentToFileResponse
+    WriteContentToFileRequest,
+    WriteContentToFileResponse
 } from "@wso2-enterprise/mi-core";
 import * as fs from "fs";
 import * as os from 'os';
-import { Position, Range, Uri, WorkspaceEdit, commands, window, workspace } from "vscode";
+import { Position, Range, Selection, Uri, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { StateMachine, openView } from "../../stateMachine";
 import { createFolderStructure } from "../../util";
 import { artifactsContent, compositePomXmlContent, compositeProjectContent, configsPomXmlContent, configsProjectContent, projectFileContent, rootPomXmlContent } from "../../util/templates";
@@ -526,7 +527,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     async getAIResponse(params: AIUserInput): Promise<string> {
-        console.log(params.chat_history);
         let result = '';
         try {
             const response = await axios.post('http://localhost:8000/generate-synapse', {
@@ -536,7 +536,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             response.data.pipe(new Transform({
                 transform(chunk, encoding, callback) {
                     const chunkAsString = chunk.toString();
-                    console.log(chunkAsString);
                     result += chunkAsString;
                     callback();
                 }
@@ -553,7 +552,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         }
     }
 
-    async writeContentToFile(params: writeContentToFileRequest): Promise<writeContentToFileResponse> {
+    async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
         let status = true;
         // ADD YOUR IMPLEMENTATION HERE
         //if file exists, overwrite if not, create new file and write content.  if successful, return true, else false
@@ -600,22 +599,25 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     status = false;
                 }
             }
-
-           
-
         }
 
         if(status){
-            //send success message within vs code with a tick
             window.showInformationMessage('Content written to file successfully');
-
-
-
             return { status: true };
         }else{
             return { status: false };
         }
 
+
+    }
+    async highlightCode(params: HighlightCodeRequest) {
+        const documentUri = StateMachine.context().documentUri;
+        const editor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
+        if (editor) {
+            const range = new Range(params.range.start.line, params.range.start.character, params.range.end.line, params.range.end.character);
+            editor.selection = new Selection(range.start, range.end);
+            editor.revealRange(range);
+        }
     }
 }
 

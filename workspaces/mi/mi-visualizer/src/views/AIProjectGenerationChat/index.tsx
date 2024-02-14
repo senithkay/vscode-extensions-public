@@ -1,3 +1,13 @@
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ * 
+ * THIS FILE INCLUDES AUTO GENERATED CODE
+ */
 import React, { useEffect, useState } from "react";
 import { VisualizerLocation, CreateProjectRequest } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
@@ -126,7 +136,6 @@ export function AIProjectGenerationChat() {
 
 
   const handleAddtoWorkspace = async () => {
-      console.log(codeBlocks);
       var path="";
       await rpcClient.getMiDiagramRpcClient().askProjectDirPath().then((response) => {
         path = response.path;
@@ -174,7 +183,7 @@ export function AIProjectGenerationChat() {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", width: "100%", margin: "auto" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "95%", width: "100%", margin: "auto" }}>
       <div style={{ flex: 1, overflowY: "auto", padding: "10px", borderBottom: "1px solid #ccc" }}>
         {messages.map((message, index) => (
           <div key={index} style={{ marginBottom: "8px" }}>
@@ -199,27 +208,32 @@ export function AIProjectGenerationChat() {
           value={userInput}
           className="custom-textarea-style"
         />
-        <Button
+        <div>
+            <Button
+              appearance="primary"
+              onClick={handleSend}
+              tooltip="Send"
+              className="custom-button-style"
+            >
+              <br />
+              <div style={{ color: 'var(--vscode-editor-foreground)' }}>Send</div>
+            </Button>
+        </div>
 
-          appearance="primary"
-          onClick={handleSend}
-          tooltip="Send"
-          className="custom-button-style"
-        >
-          
-          <br />
-          <div style={{ color: 'var(--vscode-editor-foreground)' }}>Send</div>
-        </Button>
-       
-        <Button
-          appearance="primary"
-          onClick={handleAddtoWorkspace}
-          tooltip="Send"
-          className="custom-button-style"
-        >
-          
-          <div style={{ color: 'var(--vscode-editor-foreground)' }}>Create Project</div>
-        </Button>
+        <div>
+            <Button
+              appearance="primary"
+              onClick={handleAddtoWorkspace}
+              tooltip="Send"
+              className="custom-button-style"
+            >
+              <br />
+              <div style={{ color: 'var(--vscode-editor-foreground)' }}>Create Project</div>
+            </Button>
+        </div>
+
+
+
       </div>
     </div>
   );

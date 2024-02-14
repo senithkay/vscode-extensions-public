@@ -99,7 +99,7 @@ const AddConnector = (props: AddConnectorProps) => {
             // rpcClient.getMiDiagramRpcClient().applyEdit({
             //     documentUri: props.documentUri, range: props.nodePosition, text: modifiedXml
             // });
-            sidePanelContext.setIsOpen(false);
+            // sidePanelContext.setIsOpen(false);
         }
     };
 

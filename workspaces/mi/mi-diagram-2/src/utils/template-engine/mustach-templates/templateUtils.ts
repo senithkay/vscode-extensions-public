@@ -31,6 +31,10 @@ import { getRecipientListEndpointMustacheTemplate } from "./endpoints/recipientL
 import { getTemplateEndpointMustacheTemplate } from "./endpoints/template";
 import { getWSDLEndpointMustacheTemplate } from "./endpoints/wsdl";
 import { MEDIATORS, ENDPOINTS } from "../../../resources/constants";
+import { getFilterMustacheTemplate } from "./core/filter";
+import { getSequenceMustacheTemplate } from "./core/sequence";
+import { getStoreMustacheTemplate } from "./core/store";
+import { getValidateMustacheTemplate } from "./core/validate";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {

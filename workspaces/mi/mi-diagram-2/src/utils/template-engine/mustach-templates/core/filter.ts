@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-function getFilterMustacheTemplate() {
+export function getFilterMustacheTemplate() {
     return `<filter{{#description}} description="{{description}}"{{/description}}{{#regularExpression}} regex="{{regularExpression}}"{{/regularExpression}}{{#source}} source="{{source}}"{{/source}}{{#xPath}} xpath="{{xPath}}"{{/xPath}} >
     <then>
     </then>

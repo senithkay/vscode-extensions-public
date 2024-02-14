@@ -16,23 +16,22 @@ export interface DiagramCanvasProps {
     color?: string;
     background?: string;
     children?: React.ReactNode;
+    width?: number;
+    height?: number;
 }
 
 namespace S {
-    export const Container = styled.div<{ color: string; background: string }>`
-        height: 100%;
+    export const Container = styled.div<{ color: string; background: string; width: number; height: number; }>`
         background-size: 50px 50px;
         display: flex;
+        min-height: ${(props: any) => props.height || 0}px;
+        min-width: ${(props: any) => props.width ? props.width + "px" : "100%"};
 
         > * {
             height: 100vh;
             min-height: 100%;
             width: 100%;
         }
-
-        background-image: radial-gradient(${Colors.SURFACE_CONTAINER} 10%, transparent 0px);
-        background-size: 16px 16px;
-        background-color: ${Colors.SURFACE_BRIGHT};
     `;
 
     export const Expand = css`
@@ -45,11 +44,15 @@ namespace S {
 }
 
 export function DiagramCanvas(props: DiagramCanvasProps) {
-    const { color, background, children } = props;
+    const { color, background, children, width, height } = props;
     return (
         <>
             <Global styles={S.Expand} />
-            <S.Container background={background || Colors.SURFACE_BRIGHT} color={color || Colors.ON_SURFACE}>
+            <S.Container
+                background={background || Colors.SURFACE_BRIGHT} color={color || Colors.ON_SURFACE}
+                width={width}
+                height={height}
+            >
                 {children}
             </S.Container>
         </>

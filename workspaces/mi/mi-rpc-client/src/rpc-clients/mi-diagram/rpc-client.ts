@@ -29,6 +29,7 @@ import {
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
+    HighlightCodeRequest,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectDirResponse,
@@ -56,13 +57,14 @@ import {
     getSTResponse,
     getSequenceDirectory,
     getSyntaxTree,
+    highlightCode,
     onRefresh,
     openDiagram,
     openFile,
     showErrorMessage,
     writeContentToFile,
-    writeContentToFileRequest,
-    writeContentToFileResponse
+    WriteContentToFileRequest,
+    WriteContentToFileResponse
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -166,7 +168,11 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getAIResponse, HOST_EXTENSION, params);
     }
 
-    writeContentToFile(params: writeContentToFileRequest): Promise<writeContentToFileResponse> {
+    writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
         return this._messenger.sendRequest(writeContentToFile, HOST_EXTENSION, params);
+    }
+  
+    highlightCode(params: HighlightCodeRequest): void {
+        return this._messenger.sendNotification(highlightCode, HOST_EXTENSION, params);
     }
 }

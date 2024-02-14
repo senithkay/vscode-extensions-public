@@ -18,7 +18,7 @@ import { debounce } from 'lodash';
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
-	public static readonly viewType = 'integration-studio.visualizer';
+    public static readonly viewType = 'integration-studio.visualizer';
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 
@@ -76,6 +76,14 @@ export class VisualizerWebview {
           <meta name="theme-color" content="#000000">
           <title>Integration Studio</title>
          
+          <style>
+            body, html, #root {
+                height: 100%;
+                margin: 0;
+                padding: 5px;
+                overflow: hidden;
+            }
+          </style>
           ${scriptUri}
         </head>
         <body>

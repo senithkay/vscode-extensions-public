@@ -147,11 +147,15 @@ export interface AIUserInput {
     chat_history: ChatEntry[];
 }
 
-export interface writeContentToFileRequest {
+export interface WriteContentToFileRequest {
     content: string[];
     directoryPath: string;
 }
 
-export interface writeContentToFileResponse {
+export interface WriteContentToFileResponse {
     status: boolean;
+}
+
+export interface HighlightCodeRequest {
+    range: Range;
 }
