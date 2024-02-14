@@ -14,7 +14,8 @@
             "symbol-struct-icon.svg",
             "add-circle-outline.svg",
             "radio-button-checked.svg",
-            "radio-button-unchecked.svg"
+            "radio-button-unchecked.svg",
+        "file-upload.svg"
         ],
         "codiconFont" : [
             "file-submodule.svg",
