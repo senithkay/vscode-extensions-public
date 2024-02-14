@@ -1,5 +1,5 @@
 
-import { ExtendedLangClient } from './core';
+import { ExtendedLangClient, ballerinaExtInstance } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
 import { EventType, MachineStateValue, MachineViews, STByRangeRequest, SyntaxTreeResponse, VisualizerLocation, webviewReady } from "@wso2-enterprise/ballerina-core";
@@ -165,6 +165,13 @@ const stateMachine = createMachine<MachineContext>(
         },
         findView(context, event): Promise<VisualizerLocation> {
             return new Promise(async (resolve, reject) => {
+                if (ballerinaExtInstance.getPersistDiagramStatus()) {
+                    resolve({
+                        view: "ERDiagram",
+                        identifier: context.identifier
+                    });
+                    return;
+                }
                 if (!context.view) {
                     if (!context.position || ("groupId" in context.position)) {
                         resolve({ view: "Overview" });
@@ -188,10 +195,18 @@ const stateMachine = createMachine<MachineContext>(
 
                     if (node.parseSuccess) {
                         if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
-                            resolve({
-                                view: "ServiceDesigner",
-                                identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join('')
-                            });
+                            const expr = node.syntaxTree.expressions[0];
+                            if (expr?.typeData?.typeSymbol?.signature?.includes("graphql")) {
+                                resolve({
+                                    view: "GraphQLDiagram",
+                                    identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join('')
+                                });
+                            } else {
+                                resolve({
+                                    view: "ServiceDesigner",
+                                    identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join('')
+                                });
+                            }
                         } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) && STKindChecker.isExpressionFunctionBody(node.syntaxTree.functionBody)) {
                             resolve({ view: "DataMapper", documentUri: context.documentUri, position: context.position });
                         } else if (STKindChecker.isFunctionDefinition(node.syntaxTree)) {
