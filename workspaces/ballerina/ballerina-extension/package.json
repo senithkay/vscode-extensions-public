@@ -329,7 +329,7 @@
             },
             {
                 "command": "ballerina.show.visualizer",
-                "title": "Show DiagramX",
+                "title": "Show Diagram",
                 "icon": "$(distro-design-view)",
                 "category": "Ballerina"
             },
