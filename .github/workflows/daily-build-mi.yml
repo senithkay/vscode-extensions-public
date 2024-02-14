@@ -20,6 +20,7 @@ jobs:
         with:
           mi: true
           API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
+          token: ${{ secrets.BALLERINA_BOT_TOKEN }}
 
       - name: Notification - MI
         uses: ./.github/actions/dailyBuildNotification
