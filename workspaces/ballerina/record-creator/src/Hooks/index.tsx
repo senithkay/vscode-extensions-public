@@ -1,0 +1,67 @@
+import { useQuery } from "@tanstack/react-query";
+import { SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
+import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { URI } from "vscode-uri";
+
+export const useBallerinaVersion = (
+    langServerRpcClient: LangServerRpcClient
+): {
+    ballerinaVersion: string;
+    isFetching: boolean;
+    isError: boolean;
+    refetch: any;
+} => {
+    const fetchBallerinaVersion = async () => {
+        try {
+            const ballerinaVersion = await langServerRpcClient.getBallerinaVersion();
+            return ballerinaVersion.version;
+        } catch (networkError: any) {
+            console.error("Error while fetching ballerina version", networkError);
+        }
+    };
+
+    const {
+        data: ballerinaVersion,
+        isFetching,
+        isError,
+        refetch,
+    } = useQuery({
+        queryKey: ["fetchBallerinaVersion"],
+        queryFn: fetchBallerinaVersion,
+    });
+
+    return { ballerinaVersion, isFetching, isError, refetch };
+};
+
+export const useFullST = (
+    filePath: string,
+    langServerRpcClient: LangServerRpcClient
+): {
+    fullST: SyntaxTreeResponse;
+    isFetching: boolean;
+    isError: boolean;
+    refetch: any;
+} => {
+    const fetchFullST = async () => {
+        try {
+            const fullST = await langServerRpcClient.getST({
+                documentIdentifier: { uri: URI.file(filePath).toString() },
+            });
+            return fullST;
+        } catch (networkError: any) {
+            console.error("Error while fetching full syntax tree", networkError);
+        }
+    };
+
+    const {
+        data: fullST,
+        isFetching,
+        isError,
+        refetch,
+    } = useQuery({
+        queryKey: ["fetchFullST", filePath],
+        queryFn: fetchFullST,
+    });
+
+    return { fullST, isFetching, isError, refetch };
+};
