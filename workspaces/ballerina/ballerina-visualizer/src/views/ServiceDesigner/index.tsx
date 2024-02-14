@@ -33,7 +33,7 @@ export function ServiceDesigner() {
 
     return (
         <>
-            <ServiceDesignerView model={st} rpcClient={rpcClient.getServiceDesignerRpcClient()} />
+            <ServiceDesignerView model={st} rpcClients={{serviceDesignerRpcClient: rpcClient.getServiceDesignerRpcClient(), commonRpcClient: rpcClient.getCommonRpcClient()}} />
         </>
     );
 }
