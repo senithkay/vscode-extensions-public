@@ -589,7 +589,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     console.log("File type - ",fileType)
                 }
                 //write the content to a file, if file exists, overwrite else create new file
-                const fullPath = path.join(directoryPath,'/test/testConfigs/src/main/synapse-config/',fileType,'/', `${name}.xml`);
+                const fullPath = path.join(directoryPath,'/temp/tempConfigs/src/main/synapse-config/',fileType,'/', `${name}.xml`);
                 try {
                     console.log('Writing content to file:', fullPath);
                     console.log('Content:', content[i]);

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { VisualizerLocation, CreateProjectRequest } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import * as Toolkit from "@wso2-enterprise/ui-toolkit";
+import {TextArea, Button} from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from 'react-markdown';
-import './App.css';
+import './AIProjectGenerationChat.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { MI_COPILOT_BACKEND_URL } from "../../constants";
 
 import {
   materialDark,
@@ -18,8 +19,9 @@ import {
   dark,
   dracula,
   materialOceanic,
-
 } from 'react-syntax-highlighter/dist/cjs/styles/prism'
+
+
 interface MarkdownRendererProps {
   markdownContent: string;
 }
@@ -42,10 +44,10 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) 
   return <ReactMarkdown>{markdownContent}</ReactMarkdown>;
 };
 
-//a string array to store all code blocks
+// A string array to store all code blocks
 const codeBlocks: string[] = [];
 
-export function AIChat() {
+export function AIProjectGenerationChat() {
   const { rpcClient } = useVisualizerContext();
   const [state, setState] = useState<VisualizerLocation | null>(null);
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([]);
@@ -64,11 +66,7 @@ export function AIChat() {
     setUserInput("");
     console.log(chatArray);
 
-    // rpcClient.getMiDiagramRpcClient().getAIResponse({ chat_history: chatArray }).then((response) => {
-    //   console.log(response);
-    // } );
-
-    fetch('https://cf3a4176-54c9-4547-bcd6-c6fe400ad0d8-dev.e1-us-east-azure.choreoapis.dev/awwr/mi-copilot-backend/mi-copilot-backend-5de/v1.0', {
+    fetch(MI_COPILOT_BACKEND_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -107,12 +105,12 @@ export function AIChat() {
             assistant_response += data;
           }
 
-                    // Add code blocks to codeBlocks array
-                    const regex = /```[\s\S]*?```/g;
-                    let match;
-                    while ((match = regex.exec(assistant_response)) !== null) {
-                      codeBlocks.push(match[0]);
-                    }
+          // Add code blocks to codeBlocks array
+          const regex = /```[\s\S]*?```/g;
+          let match;
+          while ((match = regex.exec(assistant_response)) !== null) {
+            codeBlocks.push(match[0]);
+          }
 
           addChatEntry("assistant", assistant_response);
         };
@@ -134,21 +132,18 @@ export function AIChat() {
         path = response.path;
         const request: CreateProjectRequest = {
           directory: path,
-          name: "test",
+          name: "temp",
           open: false,
         };
   
-          rpcClient.getMiDiagramRpcClient().createProject(request).then((response) => {
-            console.log(response);
-          } );
+        rpcClient.getMiDiagramRpcClient().createProject(request).then((response) => {
+          console.log(response);
+        } );
 
         rpcClient.getMiDiagramRpcClient().writeContentToFile({content: codeBlocks, directoryPath: path}).then((response) => {
           console.log(response);
         } );
-
-      } );
-
-
+      });
   }
 
 
@@ -157,6 +152,7 @@ export function AIChat() {
     let match;
     const regex = /```xml([\s\S]*?)```/g;
     let start = 0;
+
     while ((match = regex.exec(content)) !== null) {
       if (match.index > start) {
         segments.push({ isCode: false, text: content.slice(start, match.index) });
@@ -169,12 +165,14 @@ export function AIChat() {
     }
     return segments;
   }
+
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", width: "100%", margin: "auto" }}>
       <div style={{ flex: 1, overflowY: "auto", padding: "10px", borderBottom: "1px solid #ccc" }}>
@@ -182,26 +180,26 @@ export function AIChat() {
           <div key={index} style={{ marginBottom: "8px" }}>
             <strong>{message.role}:</strong>
             {splitContent(message.content).map((segment, i) =>
-      segment.isCode ? (
-        <SyntaxHighlighter key={i} language="xml" style={materialOceanic}>
-          {segment.text}
-        </SyntaxHighlighter>
-      ) : (
-        <MarkdownRenderer key={i} markdownContent={segment.text} />
-      )
-    )}
+                segment.isCode ? (
+                  <SyntaxHighlighter key={i} language="xml" style={materialOceanic}>
+                    {segment.text}
+                  </SyntaxHighlighter>
+                ) : (
+                  <MarkdownRenderer key={i} markdownContent={segment.text} />
+                )
+            )}
           </div>
         ))}
       </div>
       <div style={{ display: "flex", flexDirection: "column", padding: "10px" }}>
-        <Toolkit.TextArea
+        <TextArea
           onChange={(e) => setUserInput(e)}
           placeholder="Type your message here"
           required
           value={userInput}
           className="custom-textarea-style"
         />
-        <Toolkit.Button
+        <Button
 
           appearance="primary"
           onClick={handleSend}
@@ -211,18 +209,17 @@ export function AIChat() {
           
           <br />
           <div style={{ color: 'var(--vscode-editor-foreground)' }}>Send</div>
-        </Toolkit.Button>
+        </Button>
        
-        <Toolkit.Button
+        <Button
           appearance="primary"
           onClick={handleAddtoWorkspace}
           tooltip="Send"
           className="custom-button-style"
         >
           
-          {/* <br /> */}
           <div style={{ color: 'var(--vscode-editor-foreground)' }}>Create Project</div>
-        </Toolkit.Button>
+        </Button>
       </div>
     </div>
   );

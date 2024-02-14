@@ -15,7 +15,7 @@ import styled from "@emotion/styled";
 import { Codicon, ComponentCard } from "@wso2-enterprise/ui-toolkit";
 import { ProjectWizard } from "../Forms/ProjectForm";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { AIChat } from "../AIChat";
+import { AIProjectGenerationChat } from "../AIProjectGenerationChat";
 
 const HorizontalCardContainer = styled.div`
     display: flex;
@@ -127,7 +127,7 @@ export function GettingStarted() {
                 </>
             )}
             {mode === "NewProject" && <ProjectWizard />}
-            {mode === "AI" && <AIChat />}
+            {mode === "AI" && <AIProjectGenerationChat />}
             {mode === "Samples" && <SamplesView />}
         </>
     );
