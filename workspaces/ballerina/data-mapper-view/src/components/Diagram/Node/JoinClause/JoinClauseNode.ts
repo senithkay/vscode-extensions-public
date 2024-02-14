@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
-import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 import {
     CaptureBindingPattern,
     FieldAccess,
@@ -31,7 +31,7 @@ export const QUERY_EXPR_JOIN_NODE_TYPE = "datamapper-node-record-type-desc-join"
 export class JoinClauseNode extends DataMapperNodeModel {
 
     public sourceTypeDesc: RecordTypeDesc;
-    public typeDef: Type;
+    public typeDef: TypeField;
     public sourceBindingPattern: CaptureBindingPattern;
     public isOptional: boolean;
     public x: number;

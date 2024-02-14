@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -10,13 +9,9 @@
 
 import { createContext, useContext } from "react";
 import { BallerinaRpcClient } from "../BallerinaRpcClient";
-import { VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
-
 
 export interface VisualizerContext {
-    viewLocation: VisualizerLocationContext,
-    ballerinaRpcClient?: BallerinaRpcClient
-    setViewLocation?: (view: VisualizerLocationContext) => void
+    rpcClient: BallerinaRpcClient
 }
 
 /**
@@ -24,7 +19,7 @@ export interface VisualizerContext {
  * This will be used within all the other components
  */
 const defaultState: VisualizerContext = {
-    viewLocation: { view: "Overview" }
+    rpcClient:  null
 }
 export const Context = createContext<VisualizerContext>(defaultState);
 

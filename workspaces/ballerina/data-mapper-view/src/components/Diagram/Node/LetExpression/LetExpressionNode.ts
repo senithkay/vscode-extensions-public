@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
-import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 import {
     ExpressionFunctionBody,
     LetExpression,
@@ -28,7 +28,7 @@ export const LET_EXPR_SOURCE_NODE_TYPE = "datamapper-node-type-desc-let-expressi
 
 export interface DMLetVarDecl {
     varName: string;
-    type: Type;
+    type: TypeField;
     declaration: LetVarDecl;
 }
 

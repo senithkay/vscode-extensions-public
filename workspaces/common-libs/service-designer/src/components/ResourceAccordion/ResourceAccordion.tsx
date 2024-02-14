@@ -22,6 +22,10 @@ type ContainerProps = {
     borderColor?: string;
 };
 
+type ButtonSectionProps = {
+    width?: number;
+};
+
 const AccordionContainer = styled.div<ContainerProps>`
     margin-top: 10px;
     overflow: hidden;
@@ -58,10 +62,10 @@ const MethodSection = styled.div`
     justify-content: space-between;
 `;
 
-const ButtonSection = styled.div`
+const ButtonSection = styled.div<ButtonSectionProps>`
     display: flex;
     justify-content: space-between;
-    width: 90px;
+    width: ${(p: ButtonSectionProps) => `${p.width}px`};
 `;
 
 const AccordionContent = styled.div`
@@ -96,6 +100,21 @@ function getColorByMethod(method: string) {
         default:
             return '#FFF'; // Default color
     }
+}
+
+function getCalculateWidth(goToSource: (resource: Resource) =>  void, onEditResource: (resource: Resource) => void,
+    onDeleteResource: (resource: Resource) => void) {
+    let width = 15;
+    if (goToSource) {
+        width += 25;
+    }
+    if (onEditResource) {
+        width += 25;
+    }
+    if (onDeleteResource) {
+        width += 25;
+    }
+    return width;
 }
 
 export interface ResourceAccordionProps {
@@ -169,18 +188,24 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                     <MethodBox color={getColorByMethod(resource.method)}>{resource.method.toUpperCase()}</MethodBox>
                     <MethodPath>{resource?.path}</MethodPath>
                 </MethodSection>
-                <ButtonSection>
-                    <VSCodeButton appearance="icon" title="Show Diagram" onClick={handleShowDiagram}>
-                        <Icon name='design-view' />
-                    </VSCodeButton>
+                <ButtonSection width={getCalculateWidth(goToSource, onEditResource, onDeleteResource)}>
+                    {goToSource && (
+                        <VSCodeButton appearance="icon" title="Show Diagram" onClick={handleShowDiagram}>
+                            <Icon name='design-view' />
+                        </VSCodeButton>
+                    )}
 
-                    <VSCodeButton appearance="icon" title="Edit Resource" onClick={handleEditResource}>
-                        <Icon name="editIcon" />
-                    </VSCodeButton>
+                    {onEditResource && (
+                        <VSCodeButton appearance="icon" title="Edit Resource" onClick={handleEditResource}>
+                            <Icon name="editIcon" />
+                        </VSCodeButton>
+                    )}
 
-                    <Button appearance='icon' onClick={handleDeleteResource}>
-                        <Codicon iconSx={{marginTop: -2}} name="trash" />
-                    </Button>
+                    {onDeleteResource && (
+                        <Button appearance='icon' onClick={handleDeleteResource}>
+                            <Codicon iconSx={{marginTop: -2}} name="trash" />
+                        </Button>
+                    )}
 
                     {isOpen ? 
                         <Button appearance='icon' onClick={handleDeleteResource}>

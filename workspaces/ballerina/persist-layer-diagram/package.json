@@ -2,10 +2,16 @@
 	"name": "@wso2-enterprise/persist-layer-diagram",
 	"version": "1.0.0",
 	"description": "The front-end implementation for the ER diagram generated using the persist model",
+	"files": [
+		"lib"
+	  ],
+	  "main": "lib/index.js",
+	  "types": "lib/index.d.ts",
 	"scripts": {
-		"start": "webpack-dev-server --progress --mode=development",
-		"build": "webpack && pnpm run postbuild",
-		"postbuild": "copyfiles -u 1 -V build/*.js build/fonts/* build/images/* -e build/*.txt ../ballerina-extension/resources/jslibs"
+		"watch": "tsc --watch",
+		"build": "tsc && pnpm run copy:assets",
+		"copy:assets": "copyfiles -u 1 \"src/**/*.scss\" \"src/**/*.svg\"  \"src/**/*.css\" \"src/**/*.png\" \"src/**/*.txt\" \"src/**/*.json\" \"src/resources/assets/font/*.*\" lib/",
+		"lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
 	},
 	"keywords": [],
 	"dependencies": {

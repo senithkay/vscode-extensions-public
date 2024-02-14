@@ -18,7 +18,6 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 
 import { UnionTypeListItem } from "./UnionTypeListItem";
-import { Grid } from "@wso2-enterprise/ui-toolkit";
 
 export interface UnionTypesListProps {
     unionTypes: string[];
@@ -33,22 +32,18 @@ export function UnionTypesList(props: UnionTypesListProps) {
 
     return (
         <>
-            <Grid direction="row" data-testid="suggestion-list">
-                {
-                    unionTypes.map((type: string, index: number) => (
-                        <Grid item={true}>
-                            <UnionTypeListItem
-                                key={index}
-                                context={context}
-                                type={type}
-                                hasInvalidTypeCast={hasInvalidTypeCast}
-                                innermostExpr={innermostExpr}
-                                typeCastExpr={typeCastExpr}
-                            />
-                        </Grid>
-                    ))
-                }
-            </Grid>
+            {
+                unionTypes.map((type: string, index: number) => (
+                    <UnionTypeListItem
+                        key={index}
+                        context={context}
+                        type={type}
+                        hasInvalidTypeCast={hasInvalidTypeCast}
+                        innermostExpr={innermostExpr}
+                        typeCastExpr={typeCastExpr}
+                    />
+                ))
+            }
         </>
     );
 }

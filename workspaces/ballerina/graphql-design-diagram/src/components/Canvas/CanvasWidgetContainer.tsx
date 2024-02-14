@@ -11,15 +11,14 @@ import React from "react";
 
 import styled from "@emotion/styled";
 
-const background = require('../resources/assets/PatternBg.svg') as string;
-
 const headerHeight = 110;
 
 export const Container: React.FC<any> = styled.div`
   // should take up full height minus the height of the header
   height: calc(100vh - ${headerHeight}px);
-  background-image: url('${background}');
-  background-repeat: repeat;
+  background-image: radial-gradient(circle at 0.5px 0.5px, var(--vscode-textBlockQuote-border) 1px, transparent 0);
+  background-color: var(--vscode-input-background);
+  background-size: 8px 8px;
   display: flex;
   font-family: 'GilmerRegular';
 
@@ -36,7 +35,7 @@ export const Container: React.FC<any> = styled.div`
 export class CanvasWidgetContainer extends React.Component {
     render() {
         return (
-            <Container className="dotted-background" data-testid="graphql-canvas-widget-container">
+            <Container data-testid="graphql-canvas-widget-container">
                 {this.props.children}
             </Container>
         );

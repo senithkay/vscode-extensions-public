@@ -198,16 +198,6 @@ export function ToolbarOperators() {
                             >
                                 <div style={{ fontFamily: 'monospace' }}>{expression.symbol}</div>
                             </Button>
-                                // <IconButton
-                                //     key={index}
-                                //     onClick={() => updateModelWithOperator(expression)}
-                                //     className={statementEditorToolbarClasses.toolbarOperatorsIcons}
-                                // >
-                                //     <Typography data-testid="operator-value" style={{ fontFamily: 'monospace' }}>
-                                //         {expression.symbol}
-                                //     </Typography>
-                                // </IconButton>
-                            // </StatementEditorHint>
                         ))
                     }
                 </div>

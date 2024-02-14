@@ -8,7 +8,7 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { BallerinaFunctionSTRequest, BallerinaProjectComponents, STModification } from "@wso2-enterprise/ballerina-core";
+import { STByRangeRequest, BallerinaProjectComponents, STModification } from "@wso2-enterprise/ballerina-core";
 
 import {
     EggplantModelRequest,
@@ -27,7 +27,6 @@ import { writeFileSync } from "fs";
 import * as vscode from "vscode";
 import { Uri, commands, workspace } from "vscode";
 import { StateMachine, openView } from "../../stateMachine";
-import { getSyntaxTreeFromPosition } from "../../utils/navigation";
 import { createEggplantProject, openEggplantProject } from "../../utils/project";
 
 export class WebviewRpcManager implements WebviewAPI {
@@ -35,7 +34,7 @@ export class WebviewRpcManager implements WebviewAPI {
     async getVisualizerState(): Promise<VisualizerLocation> {
         const context = StateMachine.context();
         return new Promise((resolve) => {
-            resolve({ view: context.view, fileName: context.fileName, position: context.position });
+            resolve({ view: context.view, documentUri: context.documentUri, position: context.position });
         });
     }
 
@@ -58,8 +57,7 @@ export class WebviewRpcManager implements WebviewAPI {
                     }
                 );
             });
-            const langClient = context.langServer as LangClientInterface;
-            return langClient.getBallerinaProjectComponents({
+            return StateMachine.langClient().getBallerinaProjectComponents({
                 documentIdentifiers: workspaceUri
             });
         } else {
@@ -70,7 +68,6 @@ export class WebviewRpcManager implements WebviewAPI {
 
     async getEggplantModel(): Promise<Flow> {
         const context = StateMachine.context();
-        const langClient = context.langServer as LangClientInterface;
         if (!context.position) {
             // demo hack
             //@ts-ignore
@@ -80,7 +77,7 @@ export class WebviewRpcManager implements WebviewAPI {
             });
         }
         const params: EggplantModelRequest = {
-            filePath: Uri.parse(context.fileName!).fsPath,
+            filePath: Uri.parse(context.documentUri!).fsPath,
             startLine: {
                 line: context.position.startLine ?? 0,
                 offset: context.position.startColumn ?? 0
@@ -93,7 +90,7 @@ export class WebviewRpcManager implements WebviewAPI {
         }
 
 
-        return langClient.getEggplantModel(params).then((model) => {
+        return StateMachine.langClient().getEggplantModel(params).then((model) => {
             console.log("===BackEndModel", model);
             //@ts-ignore
             return model.workerDesignModel;
@@ -131,8 +128,8 @@ export class WebviewRpcManager implements WebviewAPI {
 
     async getSTNodeFromLocation(location: VisualizerLocation): Promise<STNode> {
 
-        const req: BallerinaFunctionSTRequest = {
-            documentIdentifier: { uri: Uri.parse(location.fileName!).toString() },
+        const req: STByRangeRequest = {
+            documentIdentifier: { uri: Uri.parse(location.documentUri!).toString() },
             lineRange: {
                 start: {
                     line: location.position!.startLine as number,
@@ -144,7 +141,7 @@ export class WebviewRpcManager implements WebviewAPI {
                 }
             }
         };
-        const node = await getSyntaxTreeFromPosition(req);
+        const node = await StateMachine.langClient().getSTByRange(req);
         return new Promise((resolve) => {
             if (node.parseSuccess) {
                 resolve(node.syntaxTree);
@@ -156,9 +153,6 @@ export class WebviewRpcManager implements WebviewAPI {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             const code: CodeGeneartionData = workerCodeGen(flowModel);
-
-            const langClient = context.langServer as LangClientInterface;
-
             const modificationList: STModification[] = [];
 
             const modification: STModification = {
@@ -227,14 +221,14 @@ export class WebviewRpcManager implements WebviewAPI {
 
             // modificationList.push(modification);
 
-            const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
+            const { parseSuccess, source, syntaxTree: newST } = await StateMachine.langClient().stModify({
                 documentIdentifier: { uri: Uri.file(flowModel.fileName).toString() },
                 astModifications: modificationList
             });
 
             if (parseSuccess) {
                 writeFileSync(flowModel.fileName, source);
-                await langClient.didChange({
+                await StateMachine.langClient().didChange({
                     textDocument: { uri: Uri.file(flowModel.fileName).toString(), version: 1 },
                     contentChanges: [
                         {

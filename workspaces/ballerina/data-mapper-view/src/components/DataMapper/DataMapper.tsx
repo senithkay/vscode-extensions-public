@@ -12,10 +12,7 @@ import React, { useEffect, useMemo, useReducer, useState } from "react";
 import { css } from "@emotion/css";
 import {
     ComponentViewInfo,
-    FileListEntry,
-    LibraryDataResponse,
-    LibraryDocResponse,
-    LibrarySearchResponse
+    FileListEntry
 } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
@@ -41,11 +38,11 @@ import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
 import { LocalVarConfigPanel } from "./LocalVarConfigPanel/LocalVarConfigPanel";
 import { isArraysSupported, isDMSupported } from "./utils";
-import { useDMMetaData, useProjectComponents } from "../Hooks";
+import { useFileContent, useDMMetaData, useProjectComponents } from "../Hooks";
 import { DataMapperViewProps } from "../..";
 import { WarningBanner } from "./Warning/DataMapperWarning";
 
-// import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
+import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 
 const classes = {
     root: css({
@@ -166,7 +163,6 @@ export function DataMapperC(props: DataMapperViewProps) {
     const openedViaPlus = false;
     const goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void = undefined;
     const onSave: (fnName: string) => void = undefined;
-    const importStatements: string[] = [];
     const recordPanel: (props: { targetPosition: NodePosition, closeAddNewRecord: () => void }) => JSX.Element = undefined;
     const updateActiveFile: (currentFile: FileListEntry) => void = undefined;
     const updateSelectedComponent: (info: ComponentViewInfo) => void = undefined;
@@ -179,9 +175,8 @@ export function DataMapperC(props: DataMapperViewProps) {
         isFetching: isFetchingDMMetaData,
         isError: isErrorDMMetaData
     } = useDMMetaData(langServerRpcClient);
-    // const { data } = useSyntaxTreeFromRange();
+    const { content, isFetching: isFetchingContent } = useFileContent(langServerRpcClient, filePath, fnST.source);
 
-    // const fnST = data?.syntaxTree as FunctionDefinition;
     const targetPosition = fnST ? {
         ...fnST.position,
         startColumn: 0,
@@ -191,12 +186,6 @@ export function DataMapperC(props: DataMapperViewProps) {
         startColumn: 0,
         endLine: 0,
         endColumn: 0
-    };
-
-    const currentFile = {
-        content: "",
-        path: filePath,
-        size: 1
     };
 
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
@@ -252,7 +241,6 @@ export function DataMapperC(props: DataMapperViewProps) {
         setConfigPanelOpen(false);
         setInputs(inputParams);
         setOutput(outputType);
-        onSave(funcName);
     }
 
     const enableStatementEditor = (expressionInfo: ExpressionInfo) => {
@@ -289,6 +277,14 @@ export function DataMapperC(props: DataMapperViewProps) {
         currentReferences,
         handleCurrentReferences
     }
+
+    const currentFile = useMemo(() => ({
+        content: content ? content[0] : "",
+        path: filePath,
+        size: 1
+    }), [content, isFetchingContent]);
+
+    const importStatements = useMemo(() => content ? content[1] : [], [content, isFetchingContent]);
 
     const moduleVariables = useMemo(() => {
         const moduleVars = [];
@@ -498,6 +494,7 @@ export function DataMapperC(props: DataMapperViewProps) {
         ballerinaVersion,
         onSave: onConfigSave,
         onClose: onConfigClose,
+        applyModifications,
         langServerRpcClient,
         recordPanel
     }
@@ -544,7 +541,7 @@ export function DataMapperC(props: DataMapperViewProps) {
                                 onError={handleErrors}
                             />
                         )}
-                        {/* {(showConfigPanel || isConfigPanelOpen) && dMSupported && <DataMapperConfigPanel {...cPanelProps} />} */}
+                        {(showConfigPanel || isConfigPanelOpen) && dMSupported && <DataMapperConfigPanel {...cPanelProps} />}
                         {!!currentEditableField && dMSupported && (
                             <StatementEditorComponent
                                 expressionInfo={currentEditableField}

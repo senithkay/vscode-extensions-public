@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
-import { ExpressionRange, PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-core";
+import { ExpressionRange, PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 import {
     NodePosition,
     STKindChecker,
@@ -40,7 +40,7 @@ export interface ModuleVariable {
 export interface DMModuleVarDecl {
     varName: string;
     kind: ModuleVarKind;
-    type: Type;
+    type: TypeField;
     node: STNode;
 }
 
