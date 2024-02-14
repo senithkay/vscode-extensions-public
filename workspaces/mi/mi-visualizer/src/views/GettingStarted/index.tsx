@@ -54,6 +54,15 @@ const HeadlineWrapper = styled.div`
     padding: 40px;
 `;
 
+const ComponentCardStyles = { 
+    height: 350,
+    width: 300,
+    marginTop: 15,
+    marginBottom: 15,
+    display: "flex",
+    flexDirection: "column"
+};
+
 export function GettingStarted() {
     const { rpcClient } = useVisualizerContext();
     const [state, setState] = React.useState<VisualizerLocation>(null);
@@ -92,7 +101,7 @@ export function GettingStarted() {
                     <HorizontalCardContainer>
                         <ComponentCard
                             onClick={() => handleModeChange("NewProject")}
-                            sx={{ height: 350, width: 300, marginTop: 15, marginBottom: 15, display: "flex", flexDirection: "column" }}>
+                            sx={ComponentCardStyles}>
                             <IconWrapper>
                                 <Codicon name="folder-library" iconSx={{ fontSize: 150 }} />
                             </IconWrapper>
@@ -100,7 +109,7 @@ export function GettingStarted() {
                         </ComponentCard>
                         <ComponentCard
                             onClick={() => handleModeChange("AI")}
-                            sx={{ height: 350, width: 300, marginTop: 15, marginBottom: 15, display: "flex", flexDirection: "column" }}>
+                            sx={ComponentCardStyles}>
                             <IconWrapper>
                                 <Codicon name="wand" iconSx={{ fontSize: 150 }} />
                             </IconWrapper>
@@ -108,7 +117,7 @@ export function GettingStarted() {
                         </ComponentCard>
                         <ComponentCard
                             onClick={() => handleModeChange("Samples")}
-                            sx={{ height: 350, width: 300, marginTop: 15, marginBottom: 15, display: "flex", flexDirection: "column" }}>
+                            sx={ComponentCardStyles}>
                             <IconWrapper>
                                 <Codicon name="notebook-template" iconSx={{ fontSize: 150 }} />
                             </IconWrapper>
