@@ -11,6 +11,7 @@
 import {
     JsonToRecordRequest,
     JsonToRecordResponse,
+    NOT_SUPPORTED_TYPE,
     RecordCreatorAPI,
     XMLToRecordRequest,
     XMLToRecordResponse,
@@ -27,11 +28,11 @@ export class RecordCreatorRpcClient implements RecordCreatorAPI {
         this._messenger = messenger;
     }
 
-    convertJsonToRecord(params: JsonToRecordRequest): Promise<JsonToRecordResponse> {
+    convertJsonToRecord(params: JsonToRecordRequest): Promise<JsonToRecordResponse | NOT_SUPPORTED_TYPE> {
         return this._messenger.sendRequest(convertJsonToRecord, HOST_EXTENSION, params);
     }
 
-    convertXMLToRecord(params: XMLToRecordRequest): Promise<XMLToRecordResponse> {
+    convertXMLToRecord(params: XMLToRecordRequest): Promise<XMLToRecordResponse | NOT_SUPPORTED_TYPE> {
         return this._messenger.sendRequest(convertXMLToRecord, HOST_EXTENSION, params);
     }
 }
