@@ -35,6 +35,7 @@ export enum PALETTE_COMMANDS {
     TRY_IT = 'ballerina.tryit',
     OPEN_IN_DIAGRAM = 'ballerina.openIn.diagram',
     SHOW_DIAGRAM = 'ballerina.show.diagram',
+    SHOW_VISUALIZER = 'ballerina.show.visualizer',
     SHOW_ARCHITECTURE_VIEW = 'ballerina.view.architectureView',
     SHOW_CELL_VIEW = 'ballerina.view.cellView',
     REFRESH_SHOW_ARCHITECTURE_VIEW = "ballerina.view.architectureView.refresh",

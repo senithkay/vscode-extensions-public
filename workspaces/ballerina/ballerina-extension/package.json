@@ -328,7 +328,7 @@
                 "icon": "$(distro-delete)"
             },
             {
-                "command": "ballerina.show.diagram",
+                "command": "ballerina.show.visualizer",
                 "title": "Show Diagram",
                 "icon": "$(distro-design-view)",
                 "category": "Ballerina"
@@ -492,7 +492,7 @@
                 },
                 {
                     "when": "resourceLangId == ballerina && !isPersistModelActive",
-                    "command": "ballerina.show.diagram",
+                    "command": "ballerina.show.visualizer",
                     "group": "navigation@3"
                 },
                 {
