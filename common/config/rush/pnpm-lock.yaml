@@ -2232,10 +2232,12 @@ importers:
 
   ../../workspaces/common-libs/font-wso2-vscode:
     specifiers:
+      '@vscode/codicons': 0.0.33
       fantasticon: ^2.0.0
       icon-font-generator: ^2.1.11
       jsonc-parser: ^3.2.0
     devDependencies:
+      '@vscode/codicons': 0.0.33
       fantasticon: 2.0.0
       icon-font-generator: 2.1.11
       jsonc-parser: 3.2.1
@@ -2350,6 +2352,7 @@ importers:
       '@typescript-eslint/parser': ^6.2.1
       '@vscode/codicons': 0.0.33
       '@vscode/webview-ui-toolkit': ^1.2.0
+      '@wso2-enterprise/ballerina-core': workspace:*
       '@wso2-enterprise/font-wso2-vscode': workspace:*
       classnames: ^2.2.6
       eslint: ^8.32.0
@@ -2371,6 +2374,7 @@ importers:
       '@projectstorm/react-diagrams-core': 6.7.4_lodash@4.17.21
       '@vscode/codicons': 0.0.33
       '@vscode/webview-ui-toolkit': 1.4.0
+      '@wso2-enterprise/ballerina-core': link:../../ballerina/ballerina-core
       '@wso2-enterprise/font-wso2-vscode': link:../font-wso2-vscode
       classnames: 2.5.1
     devDependencies:
@@ -18749,7 +18753,6 @@ packages:
 
   /@vscode/codicons/0.0.33:
     resolution: {integrity: sha512-VdgpnD75swH9hpXjd34VBgQ2w2quK63WljodlUcOoJDPKiV+rPjHrcUc2sjLCNKxhl6oKqmsZgwOWcDAY2GKKQ==}
-    dev: false
 
   /@vscode/codicons/0.0.35:
     resolution: {integrity: sha512-7iiKdA5wHVYSbO7/Mm0hiHD3i4h+9hKUe1O4hISAe/nHhagMwb2ZbFC8jU6d7Cw+JNT2dWXN2j+WHbkhT5/l2w==}

@@ -16,14 +16,18 @@ import { ResponseItem } from './ResponseItem';
 import { ResponseEditor } from './ResponseEditor';
 import { HTTP_METHOD, getDefaultResponse, getResponseRecordCode, getResponseRecordDefCode, getSourceFromResponseCode } from '../../utils/utils';
 import { ResponseConfig } from '@wso2-enterprise/service-designer';
+import { NodePosition } from '@wso2-enterprise/syntax-tree';
+import { CommonRPCAPI } from '@wso2-enterprise/ballerina-core';
 
 export interface ResourceParamProps {
     method: HTTP_METHOD;
     response: ResponseConfig[];
+    isBallerniaExt?: boolean;
     onChange?: (parameters: ResponseConfig[]) => void;
     addNameRecord?: (source: string) => void;
+    serviceEndPosition?: NodePosition;
+    commonRpcClient?: CommonRPCAPI;
     readonly?: boolean;
-    typeCompletions?: string[];
 }
 
 const AddButtonWrapper = styled.div`
@@ -31,7 +35,7 @@ const AddButtonWrapper = styled.div`
 `;
 
 export function ResourceResponse(props: ResourceParamProps) {
-    const { method, response, readonly, onChange, addNameRecord, typeCompletions } = props;
+    const { method, response, isBallerniaExt, readonly, onChange, addNameRecord, serviceEndPosition, commonRpcClient } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
 
@@ -142,11 +146,13 @@ export function ResourceResponse(props: ResourceParamProps) {
                             code: param.code,
                             source: param.source
                         }}
+                        serviceEndPosition={serviceEndPosition}
+                        commonRpcClient={commonRpcClient}
+                        isBallerniaExt={isBallerniaExt}
                         isEdit={true}
                         onChange={onChangeParam}
                         onSave={onSaveParam}
                         onCancel={onParamEditCancel}
-                        typeCompletions={typeCompletions}
                     />
                 )
             } else if (editingSegmentId !== index) {
