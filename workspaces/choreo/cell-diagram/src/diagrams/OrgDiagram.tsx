@@ -158,7 +158,6 @@ export function OrgDiagram(props: OrgDiagramProps) {
                 }
             });
 
-            console.log("Max Y", maxY);
             // update connection nodes position to the bottom of the diagram
             models.forEach((node) => {
                 if (node.getType() === CONNECTION_NODE) {

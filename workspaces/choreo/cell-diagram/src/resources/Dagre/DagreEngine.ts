@@ -1,9 +1,9 @@
-import { DiagramModel, PointModel } from '@projectstorm/react-diagrams-core';
-import * as dagre from 'dagre';
-import * as _ from 'lodash';
-import { GraphLabel } from 'dagre';
-import { Point } from '@projectstorm/geometry';
-import { COMPONENT_NODE, EMPTY_NODE, MAIN_CELL } from '../constants';
+import { DiagramModel, NodeModel, NodeModelGenerics, PointModel } from "@projectstorm/react-diagrams-core";
+import * as dagre from "dagre";
+import * as _ from "lodash";
+import { GraphLabel } from "dagre";
+import { Point } from "@projectstorm/geometry";
+import { COMPONENT_NODE, EMPTY_NODE, MAIN_CELL } from "../constants";
 
 export interface DagreEngineOptions {
     graph?: GraphLabel;
@@ -36,7 +36,14 @@ export class DagreEngine {
             // Check if the node is of type EMPTY_NODE
             if (node.getType() === EMPTY_NODE) {
                 // If it's an EMPTY_NODE, set its position as fixed
-                g.setNode(node.getID(), { label: node.getID(), width: node.width, height: node.height, x: node.getX(), y: node.getY(), fixed: true });
+                g.setNode(node.getID(), {
+                    label: node.getID(),
+                    width: node.width,
+                    height: node.height,
+                    x: node.getX(),
+                    y: node.getY(),
+                    fixed: true,
+                });
             } else {
                 // For other nodes, set the default position
                 g.setNode(node.getID(), { label: node.getID(), width: node.width, height: node.height });
@@ -65,7 +72,11 @@ export class DagreEngine {
         });
 
         // layout the graph
-        dagre.layout(g);
+        if (model.getLinks().length === 0) {
+            this.gridLayout(g, 40);
+        } else {
+            dagre.layout(g);
+        }
 
         g.nodes().forEach((v) => {
             const node = g.node(v);
@@ -83,10 +94,31 @@ export class DagreEngine {
 
                 const points = [link.getFirstPoint()];
                 for (let i = 1; i < edge.points.length - 1; i++) {
-                    points.push(new PointModel({ link: link, position: new Point(edge.points[i].x, edge.points[i].y) }));
+                    points.push(
+                        new PointModel({ link: link, position: new Point(edge.points[i].x, edge.points[i].y) })
+                    );
                 }
                 link.setPoints(points.concat(link.getLastPoint()));
             });
         }
+    }
+
+    gridLayout(g, spacing: number) {
+        const nodes = g.nodes();
+        const gridSize = Math.ceil(Math.sqrt(nodes.length));
+        const minWidth = 120;
+        let x = 0;
+        let y = 0;
+
+        g.nodes().forEach((v) => {
+            const node = g.node(v);
+            node.x = x * ((node.width || minWidth) + spacing);
+            node.y = y * ((node.height || minWidth) + spacing);
+            x++;
+            if (x >= gridSize) {
+                x = 0;
+                y++;
+            }
+        });
     }
 }
