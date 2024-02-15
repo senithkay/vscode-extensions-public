@@ -9,10 +9,12 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    BallerinaProjectComponents,
     BallerinaVersionResponse,
     CodeActionRequest,
     CodeActionResponse,
     CompletionRequest,
+    CompletionResponse,
     DefinitionPositionRequest,
     DefinitionResponse,
     DiagnosticsResponse,
@@ -25,7 +27,6 @@ import {
     PartialSTRequest,
     PartialSTResponse,
     ProjectComponentsRequest,
-    BallerinaProjectComponents,
     RenameRequest,
     RenameResponse,
     STByRangeRequest,
@@ -67,8 +68,7 @@ import {
     getTypesFromFnDefinition,
     rename,
     stModify,
-    updateFileContent,
-    CompletionResponse,
+    updateFileContent
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -188,4 +188,3 @@ export class LangServerRpcClient implements LangServerAPI {
         return this._messenger.sendNotification(didClose, HOST_EXTENSION, params);
     }
 }
-

@@ -23,6 +23,6 @@ export function ServiceDesignerWrapper() {
     }, [isFetching, data]);
 
     return (
-        <ServiceDesignerView model={serviceST as ServiceDeclaration} rpcClient={ballerinaRpcClient.getServiceDesignerRpcClient()} typeCompletions={["string", "int"]}/>
+        <ServiceDesignerView model={serviceST as ServiceDeclaration} rpcClients={{serviceDesignerRpcClient: ballerinaRpcClient?.getServiceDesignerRpcClient(), commonRpcClient: ballerinaRpcClient?.getCommonRpcClient()}}/>
     );
 };
