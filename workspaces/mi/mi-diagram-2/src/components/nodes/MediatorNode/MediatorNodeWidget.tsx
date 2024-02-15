@@ -7,13 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { MediatorNodeModel } from "./MediatorNodeModel";
 import { Colors } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { Button } from "@wso2-enterprise/ui-toolkit";
+import { Button, Popover } from "@wso2-enterprise/ui-toolkit";
 import { SendIcon, LogIcon, CodeIcon, MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
@@ -105,37 +105,58 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine, onClick } = props;
     const [isHovered, setIsHovered] = React.useState(false);
     const visualizerContext = useVisualizerContext();
+    const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+    const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
 
-    const handleOnClickMenu = () => {
-        if (onClick) {
-            onClick(node.stNode);
-            console.log("Mediator Node clicked", node.stNode);
-        }
+    const handleOnClickMenu = (event: any) => {
+        setIsPopoverOpen(!isPopoverOpen);
+        setPopoverAnchorEl(event.currentTarget);
     };
 
     const handleOnClick = () => {
         if (node.isSelected()) node.onClicked(visualizerContext);
     };
 
+    const handleOnDelete = () => {
+        
+    };
+
     return (
-        <S.Node
-            selected={node.isSelected()}
-            hovered={isHovered}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            onClick={handleOnClick}
-        >
-            <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
-            <S.Header>
-                <S.IconContainer>{getNodeIcon(node.stNode.tag)}</S.IconContainer>
-                <S.NodeText>{node.stNode.tag}</S.NodeText>
-                {isHovered && (
-                    <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>
-                        <MoreVertIcon />
-                    </S.StyledButton>
-                )}
-            </S.Header>
-            <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
-        </S.Node>
+        <div>
+            <S.Node
+                selected={node.isSelected()}
+                hovered={isHovered}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                onClick={handleOnClick}
+            >
+                <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
+                <S.Header>
+                    <S.IconContainer>{getNodeIcon(node.stNode.tag)}</S.IconContainer>
+                    <S.NodeText>{node.stNode.tag}</S.NodeText>
+                    {isHovered && (
+                        <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>
+                            <MoreVertIcon />
+                        </S.StyledButton>
+                    )}
+                </S.Header>
+                <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
+            </S.Node>
+
+            <Popover
+                anchorEl={popoverAnchorEl}
+                open={isPopoverOpen}
+                sx={{
+                    backgroundColor: Colors.SURFACE,
+                    marginLeft: "30px",
+                }}
+            >
+                <Button appearance="secondary" onClick={() => {
+                    handleOnDelete();
+                    setIsPopoverOpen(false); // Close the popover after action
+                }}>Delete</Button>
+            </Popover>
+
+        </div >
     );
 }
