@@ -32,6 +32,15 @@ export enum OtherBalType {
     Null = "()"
 }
 
+export declare enum BallerinaComponentTypes {
+    REST_API = "restAPI",
+    GRAPHQL = "graphql",
+    MAIN = "main",
+    WEBHOOK = "webhook",
+    GRPC_API = "grpcAPI",
+    WEBSOCKET_API = "websocketAPI"
+}
+
 export const AnydataType = "anydata";
 
 export interface DocumentIdentifier {

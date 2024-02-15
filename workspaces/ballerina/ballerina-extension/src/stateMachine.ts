@@ -209,8 +209,8 @@ const stateMachine = createMachine<MachineContext>(
                             }
                         } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) && STKindChecker.isExpressionFunctionBody(node.syntaxTree.functionBody)) {
                             resolve({ view: "DataMapper", documentUri: context.documentUri, position: context.position });
-                        } else if (STKindChecker.isFunctionDefinition(node.syntaxTree)) {
-                            resolve({ view: "SequenceDiagram", documentUri: context.documentUri });
+                        } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) || STKindChecker.isResourceAccessorDefinition(node.syntaxTree)) {
+                            resolve({ view: "SequenceDiagram", documentUri: context.documentUri, position: context.position });
                         } else {
                             resolve({ view: "Overview", documentUri: context.documentUri });
                         }

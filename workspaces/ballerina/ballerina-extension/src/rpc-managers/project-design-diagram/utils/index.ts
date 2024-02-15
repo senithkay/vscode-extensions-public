@@ -7,4 +7,5 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export { activate } from './activator';
+export * from './linking-utils';
+export * from './shared-utils';
