@@ -12,10 +12,11 @@ import { existsSync, rmSync } from "fs";
 import * as path from "path";
 import { CMLocation as Location, CMAnnotation as Annotation, STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { AssignmentStatement, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
-import { ExtendedLangClient } from "../../../core";
-import { getLangClient, STResponse } from "../../activator";
-import { DeleteLinkArgs, SUCCESSFUL_LINK_DELETION, UNSUPPORTED_LINK_DELETION } from "../../resources";
+import { ExtendedLangClient } from "../../../../core";
+import { DeleteLinkArgs, SUCCESSFUL_LINK_DELETION, UNSUPPORTED_LINK_DELETION } from "../../../../project-design-diagrams/resources";
 import { getInitFunction, go2source, updateSyntaxTree, updateSourceFile, visitor as STNodeFindingVisitor } from "../shared-utils";
+import { StateMachine } from "../../../../stateMachine";
+import { BallerinaSTModifyResponse } from "@wso2-enterprise/ballerina-core";
 
 export function deleteBallerinaPackage(filePath: string): void {
     let basePath: string = path.dirname(filePath);
@@ -41,13 +42,13 @@ export async function deleteComponentOnly(location: Location) {
         type: "DELETE"
     });
 
-    const langClient: ExtendedLangClient = getLangClient();
-    const response: STResponse = (await langClient.stModify({
+    const langClient: ExtendedLangClient = StateMachine.langClient();
+    const response: BallerinaSTModifyResponse = (await langClient.stModify({
         astModifications: modifications,
         documentIdentifier: {
             uri: Uri.file(location.filePath).toString(),
         }
-    })) as STResponse;
+    })) as BallerinaSTModifyResponse;
 
     if (response.parseSuccess && response.source) {
         await updateSourceFile(langClient, location.filePath, response.source).then(() => {
@@ -75,11 +76,11 @@ async function updateWorkspaceFileOnDelete(componentPath: string): Promise<void>
 export async function deleteLink(langClient: ExtendedLangClient, args: DeleteLinkArgs): Promise<void> {
     const { linkLocation, nodeLocation } = args;
     let userFeedback = UNSUPPORTED_LINK_DELETION;
-    const stResponse: STResponse = await langClient.getSyntaxTree({
+    const stResponse: BallerinaSTModifyResponse = await langClient.getSyntaxTree({
         documentIdentifier: {
             uri: Uri.file(linkLocation.filePath).toString()
         }
-    }) as STResponse;
+    }) as BallerinaSTModifyResponse;
     if (stResponse.parseSuccess) {
         let modifications: STModification[] = [];
         STNodeFindingVisitor.setPosition({
@@ -135,12 +136,12 @@ export async function deleteLink(langClient: ExtendedLangClient, args: DeleteLin
         }
 
         if (modifications.length) {
-            const updatedST: STResponse = (await langClient.stModify({
+            const updatedST: BallerinaSTModifyResponse = (await langClient.stModify({
                 astModifications: modifications,
                 documentIdentifier: {
                     uri: Uri.file(linkLocation.filePath).toString(),
                 }
-            })) as STResponse;
+            })) as BallerinaSTModifyResponse;
 
             if (updatedST.parseSuccess && updatedST.source) {
                 await updateSourceFile(langClient, linkLocation.filePath, updatedST.source).then(() => {
@@ -178,8 +179,8 @@ export async function editDisplayLabel(langClient: ExtendedLangClient, annotatio
         }
     `;
 
-    const response: STResponse = await updateSyntaxTree(
-        langClient, annotation.sourceLocation.filePath, stObject, displayAnnotation, undefined, true) as STResponse;
+    const response: BallerinaSTModifyResponse = await updateSyntaxTree(
+        langClient, annotation.sourceLocation.filePath, stObject, displayAnnotation, undefined, true) as BallerinaSTModifyResponse;
     if (response.parseSuccess && response.source) {
         return updateSourceFile(langClient, annotation.sourceLocation.filePath, response.source);
     }

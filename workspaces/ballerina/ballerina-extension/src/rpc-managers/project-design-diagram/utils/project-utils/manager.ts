@@ -15,7 +15,7 @@ import { BallerinaTriggerResponse, BallerinaTriggersResponse } from "@wso2-enter
 import { ProgressLocation, window, workspace } from "vscode";
 import { randomUUID } from "crypto";
 import path, { join } from "path";
-import { addToWorkspace } from "../../../utils/project-utils";
+import { addToWorkspace } from "../../../../utils/project-utils";
 import {
     addDisplayAnnotation, buildWebhookTemplate, createBallerinaPackage, processTomlFiles, runCommand, writeWebhookTemplate
 } from "../component-utils";

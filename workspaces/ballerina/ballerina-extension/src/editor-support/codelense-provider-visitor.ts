@@ -110,7 +110,7 @@ export class CodeLensProviderVisitor implements Visitor {
         codeLens.command = {
             title: "Visualize",
             tooltip: "View this entity in the Entity Relationship diagram",
-            command: PALETTE_COMMANDS.SHOW_ENTITY_DIAGRAM,
+            command: PALETTE_COMMANDS.SHOW_VISUALIZER,
             arguments: [this.activeEditorUri.fsPath, recordName]
         };
         this.codeLenses.push(codeLens);

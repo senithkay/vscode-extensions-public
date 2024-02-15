@@ -18,6 +18,7 @@ import { registerLibraryBrowserRpcHandlers } from './rpc-managers/library-browse
 import { registerServiceDesignerRpcHandlers } from './rpc-managers/service-designer/rpc-handler';
 import { registerPersistDiagramRpcHandlers } from './rpc-managers/persist-diagram/rpc-handler';
 import { registerGraphqlDesignerRpcHandlers } from './rpc-managers/graphql-designer/rpc-handler';
+import { registerProjectDesignDiagramRpcHandlers } from './rpc-managers/project-design-diagram/rpc-handler';
 
 export class RPCLayer {
     static _messenger: Messenger;
@@ -43,6 +44,7 @@ export class RPCLayer {
         registerServiceDesignerRpcHandlers(RPCLayer._messenger);
         registerPersistDiagramRpcHandlers(RPCLayer._messenger);
         registerGraphqlDesignerRpcHandlers(RPCLayer._messenger);
+        registerProjectDesignDiagramRpcHandlers(RPCLayer._messenger);
     }
 
     static create(webViewPanel: WebviewPanel | WebviewView) {

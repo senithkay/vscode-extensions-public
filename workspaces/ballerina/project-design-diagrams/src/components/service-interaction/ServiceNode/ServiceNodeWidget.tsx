@@ -68,7 +68,7 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 			node.serviceType !== ServiceTypes.WEBHOOK && node.serviceType !== ServiceTypes.OTHER
 		) {
 			setNewLinkNodes({ ...newLinkNodes, target: node });
-			await editLayerAPI?.addLink(newLinkNodes.source.nodeObject, node.nodeObject);
+			await editLayerAPI?.addLink({source: newLinkNodes.source.nodeObject, target: node.nodeObject});
 			setNewLinkNodes({ source: undefined, target: undefined });
 			refreshDiagram();
 		}

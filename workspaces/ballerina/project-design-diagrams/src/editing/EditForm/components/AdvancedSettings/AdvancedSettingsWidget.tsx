@@ -35,7 +35,7 @@ export function AdvancedSettingsWidget(props: AdvancedSettingsProps) {
     useEffect(() => {
         editLayerAPI?.getProjectRoot().then((response) => {
             if (response) {
-                setDirectory(response);
+                setDirectory(response.response);
             }
         });
     }, [])

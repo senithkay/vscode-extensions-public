@@ -20,6 +20,7 @@ export function NavigationBar(props: NavigationBarProps) {
         width: 100%;
         display: flex;
         flex-direction: row;
+        justify-content: space-between;
     `;
 
     return (

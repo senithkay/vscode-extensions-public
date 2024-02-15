@@ -16,6 +16,7 @@ import { LangServerRpcClient } from "./rpc-clients/lang-server/rpc-client";
 import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-client";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { GraphqlDesignerRpcClient, PersistDiagramRpcClient, ServiceDesignerRpcClient } from "./rpc-clients";
+import { ProjectDesignDiagramRpcClient } from "./rpc-clients/project-design-diagram/rpc-client";
 
 export class BallerinaRpcClient {
 
@@ -26,6 +27,7 @@ export class BallerinaRpcClient {
     private _serviceDesigner: ServiceDesignerRpcClient;
     private _persistDiagram: PersistDiagramRpcClient;
     private _GraphqlDesigner: GraphqlDesignerRpcClient;
+    private _ProjectDesignDiagram: ProjectDesignDiagramRpcClient;
 
     constructor() {
         this.messenger = new Messenger(vscode);
@@ -36,6 +38,7 @@ export class BallerinaRpcClient {
         this._serviceDesigner = new ServiceDesignerRpcClient(this.messenger);
         this._persistDiagram = new PersistDiagramRpcClient(this.messenger);
         this._GraphqlDesigner = new GraphqlDesignerRpcClient(this.messenger);
+        this._ProjectDesignDiagram = new ProjectDesignDiagramRpcClient(this.messenger);
     }
 
     getVisualizerRpcClient(): VisualizerRpcClient {
@@ -60,6 +63,10 @@ export class BallerinaRpcClient {
 
     getLibraryBrowserRPCClient(): LibraryBrowserRpcClient {
         return this._libraryBrowser;
+    }
+
+    getProjectDesignDiagramRpcClient(): ProjectDesignDiagramRpcClient {
+        return this._ProjectDesignDiagram;
     }
 
     getVisualizerLocation(): Promise<VisualizerLocation> {

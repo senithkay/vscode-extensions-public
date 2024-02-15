@@ -8,12 +8,7 @@
  */
 
 import { DiagramModel } from '@projectstorm/react-diagrams';
-import {
-    CMEntryPoint as EntryPoint, CMLocation as Location, CMService as Service, CMAnnotation as Annotation
-} from '@wso2-enterprise/ballerina-languageclient';
-import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaTriggerResponse, BallerinaTriggersResponse, Connector } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
-import { NodePosition } from '@wso2-enterprise/syntax-tree';
+import { ProjectDesignDiagramAPI } from '@wso2-enterprise/ballerina-core';
 
 export interface ServiceModels {
     levelOne: DiagramModel;
@@ -66,25 +61,7 @@ export enum Colors {
 
 export const GRAPHQL_SUBSCRIBE_ACTION = 'subscribe';
 
-export interface EditLayerAPI {
-    getProjectRoot: () => Promise<string | undefined>;
-    createComponent: (args: BallerinaComponentCreationParams) => Promise<string>;
-    getConnectors: (args: BallerinaConnectorsRequest) => Promise<BallerinaConnectorsResponse>;
-    pullConnector: (connector: Connector, source: Service | EntryPoint) => Promise<boolean>;
-    addConnector: (connector: Connector, source: Service | EntryPoint) => Promise<boolean>;
-    addLink: (source: Service | EntryPoint, target: Service) => Promise<boolean>;
-    deleteLink: (linkLocation: Location, nodeLocation: Location) => Promise<boolean>;
-    pickDirectory: () => Promise<string | undefined>;
-    executeCommand: (cmd: string) => Promise<boolean>;
-    go2source: (location: Location) => void;
-    goToDesign: (filePath: string, position: NodePosition) => void;
-    showDiagnosticsWarning: () => void;
-    showErrorMessage: (message: string) => void;
-    editDisplayLabel: (annotation: Annotation) => Promise<boolean>;
-    fetchTriggers: () => Promise<BallerinaTriggersResponse>;
-    fetchTrigger: (triggerId: string) => Promise<BallerinaTriggerResponse>;
-    checkIsMultiRootWs: () => Promise<boolean>;
-    promptWorkspaceConversion: () => void;
+export interface EditLayerAPI extends ProjectDesignDiagramAPI {
 }
 
 export enum ConsoleView {
