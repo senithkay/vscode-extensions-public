@@ -29,11 +29,14 @@ export function ProjectHeadWidget(props: ServiceHeadProps) {
 
     const cellHeight = 120;
     const strokeWidth = 3;
-    const isExposedToPublic = node.project.connections?.some(
+    const isExposedToInternet = node.project.connections?.some(
         (connection) => connection.source?.boundary === CellBounds.NorthBound
     );
     const hasExternalDependencies = node.project.connections?.some(
         (connection) => connection.source?.boundary === CellBounds.SouthBound
+    );
+    const hasInternalDependencies = node.project.connections?.some(
+        (connection) => connection.source?.boundary === CellBounds.EastBound
     );
 
     return (
@@ -45,7 +48,7 @@ export function ProjectHeadWidget(props: ServiceHeadProps) {
         >
             {generateRoundedOctagonSVG(cellHeight)}
 
-            {isExposedToPublic && (
+            {isExposedToInternet && (
                 <ProjectPortWidget
                     port={node.getPort(`top-${node.getID()}`)}
                     engine={engine}
@@ -59,17 +62,18 @@ export function ProjectHeadWidget(props: ServiceHeadProps) {
                     isSelected={isSelected || isFocused}
                 />
             )}
-
             <ProjectPortWidget
                 port={node.getPort(`left-${node.getID()}`)}
                 engine={engine}
                 isSelected={isSelected || isFocused}
             />
-            <ProjectPortWidget
-                port={node.getPort(`right-${node.getID()}`)}
-                engine={engine}
-                isSelected={isSelected || isFocused}
-            />
+            {hasInternalDependencies && (
+                <ProjectPortWidget
+                    port={node.getPort(`right-${node.getID()}`)}
+                    engine={engine}
+                    isSelected={isSelected || isFocused}
+                />
+            )}
         </ProjectCellNode>
     );
 }

@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ConnectionModel, ProjectModel, ProjectPortModel } from "../components";
+import { ProjectModel, ProjectPortModel } from "../components";
 import { CellBounds } from "../components/Cell/CellNode/CellModel";
-import { CommonModel, Connection, OrgDiagramData, Organization, ProjectGateway } from "../types";
+import { CommonModel, OrgDiagramData, Organization, ProjectGateway } from "../types";
 import { AdvancedLinkModel } from "../components/Project/AdvancedLink/AdvancedLinkModel";
 
 export function getDiagramDataFromOrg(org: Organization): OrgDiagramData {
@@ -33,18 +33,18 @@ function generateProjectNodes(org: Organization): Map<string, CommonModel> {
         nodes.set(projectNode.getID(), projectNode);
 
         // add project connections
-        project.connections?.forEach((connection) => {
-            const targetGateway = connection.target as Connection;
-            if (!targetGateway) {
-                return;
-            }
-            if (!targetGateway.id || !targetGateway.label) {
-                console.error("Target node not found for connection: ", connection);
-                return;
-            }
-            const targetNode = new ConnectionModel(targetGateway);
-            nodes.set(targetNode.getID(), targetNode);
-        });
+        // project.connections?.forEach((connection) => {
+        //     const targetGateway = connection.target as Connection;
+        //     if (!targetGateway) {
+        //         return;
+        //     }
+        //     if (!targetGateway.id || !targetGateway.label) {
+        //         console.error("Target node not found for connection: ", connection);
+        //         return;
+        //     }
+        //     const targetNode = new ConnectionModel(targetGateway);
+        //     nodes.set(targetNode.getID(), targetNode);
+        // });
     });
 
     return nodes;

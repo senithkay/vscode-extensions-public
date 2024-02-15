@@ -116,16 +116,16 @@ const simpleNoLinkOrgModel: Organization = {
             name: "Project C",
             components: [],
             connections: [
-                // {
-                //     id: "9012-3456",
-                //     source: {
-                //         boundary: CellBounds.SouthBound,
-                //     },
-                //     target: {
-                //         id: "github",
-                //         label: "GitHub",
-                //     },
-                // },
+                {
+                    id: "9012-3456",
+                    source: {
+                        boundary: CellBounds.SouthBound,
+                    },
+                    target: {
+                        id: "github",
+                        label: "GitHub",
+                    },
+                },
             ],
         },
         {
@@ -194,6 +194,7 @@ const multiProjectsOrgModel: Organization = {
                         boundary: CellBounds.WestBound,
                     },
                 },
+               
             ],
         },
         {
@@ -217,16 +218,16 @@ const multiProjectsOrgModel: Organization = {
                         boundary: CellBounds.NorthBound,
                     },
                 },
-                // {
-                //     id: "3456-github",
-                //     source: {
-                //         boundary: CellBounds.SouthBound,
-                //     },
-                //     target: {
-                //         id: "github",
-                //         label: "GitHub",
-                //     },
-                // },
+                {
+                    id: "3456-github",
+                    source: {
+                        boundary: CellBounds.SouthBound,
+                    },
+                    target: {
+                        id: "github",
+                        label: "GitHub",
+                    },
+                },
             ],
         },
         {
@@ -299,16 +300,16 @@ const complexOrgModel: Organization = {
                         boundary: CellBounds.WestBound,
                     },
                 },
-                // {
-                //     id: "3456-github",
-                //     source: {
-                //         boundary: CellBounds.SouthBound,
-                //     },
-                //     target: {
-                //         id: "github",
-                //         label: "GitHub",
-                //     },
-                // },
+                {
+                    id: "3456-github",
+                    source: {
+                        boundary: CellBounds.SouthBound,
+                    },
+                    target: {
+                        id: "github",
+                        label: "GitHub",
+                    },
+                },
             ],
         },
         {
