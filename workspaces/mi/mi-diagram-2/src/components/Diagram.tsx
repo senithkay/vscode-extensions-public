@@ -54,9 +54,9 @@ namespace S {
 }
 
 const SIDE_PANEL_WIDTH = 450;
-const diagramDataMap: Map<DiagramType, string> = new Map();
 export function Diagram(props: DiagramProps) {
     const { model } = props;
+    const [diagramDataMap, setDiagramDataMap] = useState(new Map());
 
     const [diagramData, setDiagramData] = useState({
         flow: {
@@ -85,7 +85,6 @@ export function Diagram(props: DiagramProps) {
 
     const [activeTab, setActiveTab] = useState<DiagramType>(DiagramType.FLOW);
 
-
     useEffect(() => {
         const { flow, fault } = diagramData;
         const { engine: flowEngine } = flow;
@@ -97,32 +96,31 @@ export function Diagram(props: DiagramProps) {
         delete (modelCopy as APIResource).faultSequence;
         const key = JSON.stringify((STNode as APIResource).inSequence) + JSON.stringify((STNode as APIResource).outSequence);
 
-        const fetchData = debounce(() => {
-            if (diagramDataMap.get(DiagramType.FLOW) !== key && activeTab === DiagramType.FLOW) {
-                diagramDataMap.set(DiagramType.FLOW, key);
+        if (diagramDataMap.get(DiagramType.FLOW) !== key && activeTab === DiagramType.FLOW) {
+            diagramDataMap.set(DiagramType.FLOW, key);
+            flows.push({
+                engine: flowEngine,
+                modelType: DiagramType.FLOW,
+                model: modelCopy
+            });
+            setDiagramDataMap(diagramDataMap);
+        }
+
+        const faultSequence = (STNode as APIResource).faultSequence;
+        if (faultSequence) {
+            const key = JSON.stringify(faultSequence);
+            if (diagramDataMap.get(DiagramType.FAULT) !== key && activeTab == DiagramType.FAULT) {
+                diagramDataMap.set(DiagramType.FAULT, key);
                 flows.push({
-                    engine: flowEngine,
-                    modelType: DiagramType.FLOW,
-                    model: modelCopy
+                    engine: faultEngine,
+                    modelType: DiagramType.FAULT,
+                    model: faultSequence
                 });
+                setDiagramDataMap(diagramDataMap);
             }
+        }
+        updateDiagramData(flows);
 
-            const faultSequence = (STNode as APIResource).faultSequence;
-            if (faultSequence) {
-                const key = JSON.stringify(faultSequence);
-                if (diagramDataMap.get(DiagramType.FAULT) !== key && activeTab == DiagramType.FAULT) {
-                    diagramDataMap.set(DiagramType.FAULT, key);
-                    flows.push({
-                        engine: faultEngine,
-                        modelType: DiagramType.FAULT,
-                        model: faultSequence
-                    });
-                }
-            }
-            updateDiagramData(flows);
-        }, 200);
-
-        fetchData();
     }, [props.model, props.documentUri, activeTab]);
 
     // center diagram when side panel is opened
