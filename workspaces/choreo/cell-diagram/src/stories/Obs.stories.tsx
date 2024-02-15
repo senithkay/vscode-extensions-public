@@ -13,7 +13,7 @@ import { CellDiagram, CellDiagramProps, DiagramLayer } from "../Diagram";
 import { Container, componentMenu, handleComponentDoubleClick } from "./utils";
 
 export default {
-    title: "Samples",
+    title: "Layers Samples",
     component: CellDiagram,
     args: {
         animation: true,
