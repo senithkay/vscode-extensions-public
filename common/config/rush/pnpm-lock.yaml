@@ -1354,11 +1354,9 @@ importers:
   ../../workspaces/ballerina/persist-layer-diagram:
     specifiers:
       '@babel/core': ^7.20.12
+      '@emotion/css': ~11.11.2
       '@emotion/react': ^11.9.3
       '@emotion/styled': ^11.10.5
-      '@material-ui/core': ^4.12.3
-      '@mui/icons-material': ^5.10.3
-      '@mui/material': ~5.13.2
       '@projectstorm/geometry': ^6.7.4
       '@projectstorm/react-canvas-core': ^6.7.4
       '@projectstorm/react-diagrams': ^6.7.4
@@ -1370,6 +1368,7 @@ importers:
       '@types/react': ^17.0.37
       '@types/react-dom': 17.0.14
       '@wso2-enterprise/ballerina-languageclient': workspace:*
+      '@wso2-enterprise/ui-toolkit': workspace:*
       babel-loader: ^8.2.5
       closest: ^0.0.1
       copyfiles: ^2.4.1
@@ -1391,11 +1390,9 @@ importers:
       webpack-cli: ^4.10.0
       webpack-dev-server: ^4.11.1
     dependencies:
+      '@emotion/css': 11.11.2
       '@emotion/react': 11.11.3_7nbm7nfx3p2z47ghw7mvcj2mjy
       '@emotion/styled': 11.11.0_ku5kn3mlo2pzkbrm3xhhve3cky
-      '@material-ui/core': 4.12.4_bljuhzqk2fxulovaiic5vr6rce
-      '@mui/icons-material': 5.15.8_tqfmwuwm6ybbivfdi2tpvpytc4
-      '@mui/material': 5.13.7_g266rn2hmi5f6dolkpwcs6fhjq
       '@projectstorm/geometry': 6.7.4
       '@projectstorm/react-canvas-core': 6.7.4_vcdvlsazmnbhnp7yjvhccw67ha
       '@projectstorm/react-diagrams': 6.7.4_vyxs6b5fnmcevxchnbicgoyhva
@@ -1420,6 +1417,7 @@ importers:
       '@types/react': 17.0.75
       '@types/react-dom': 17.0.14
       '@wso2-enterprise/ballerina-languageclient': link:../ballerina-languageclient
+      '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       babel-loader: 8.3.0_nbyk5unbhi5brwpch5tjfpnbyq
       copyfiles: 2.4.1
       css-loader: 6.10.0_webpack@5.90.1
@@ -7508,23 +7506,6 @@ packages:
     dependencies:
       '@babel/runtime': 7.23.9
       '@mui/material': 5.15.7_g266rn2hmi5f6dolkpwcs6fhjq
-      '@types/react': 17.0.75
-      react: 17.0.2
-    dev: false
-
-  /@mui/icons-material/5.15.8_tqfmwuwm6ybbivfdi2tpvpytc4:
-    resolution: {integrity: sha512-3Ikivf+BOJ7jT1/71HrbKeicgF9ENM4qo+J1050HMJLtLiJEVXbicnsg2oWJZL+0AsrOMaKnTmx1URBpkctLWg==}
-    engines: {node: '>=12.0.0'}
-    peerDependencies:
-      '@mui/material': ^5.0.0
-      '@types/react': ^17.0.0 || ^18.0.0
-      react: ^17.0.0 || ^18.0.0
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-    dependencies:
-      '@babel/runtime': 7.23.9
-      '@mui/material': 5.13.7_g266rn2hmi5f6dolkpwcs6fhjq
       '@types/react': 17.0.75
       react: 17.0.2
     dev: false
