@@ -17,7 +17,7 @@ import {
     manualDistribute,
     calculateCellWidth,
     isRenderInsideCell,
-    animateDiagram,
+    animateProjectDiagram,
 } from "../utils";
 import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel } from "../components";
 import { Colors, DIAGRAM_END, MAIN_CELL, NO_CELL_NODE } from "../resources";
@@ -65,7 +65,7 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
 
     useEffect(() => {
         if (diagramEngine && animation && isDiagramLoaded) {
-            animateDiagram();
+            animateProjectDiagram();
             diagramEngine.repaintCanvas();
         }
         

@@ -10,7 +10,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import CircularProgress from "@mui/material/CircularProgress";
-import { generateEngine, animateDiagram, getDiagramDataFromOrg } from "../utils";
+import { generateEngine, getDiagramDataFromOrg, animateOrgDiagram } from "../utils";
 import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel } from "../components";
 import { CONNECTION_NODE, Colors, PROJECT_NODE } from "../resources";
 import { Container, DiagramContainer, useStyles } from "../utils/CanvasStyles";
@@ -63,7 +63,7 @@ export function OrgDiagram(props: OrgDiagramProps) {
 
     useEffect(() => {
         if (diagramEngine && animation && isDiagramLoaded) {
-            animateDiagram();
+            animateOrgDiagram();
             diagramEngine.repaintCanvas();
         }
 
@@ -105,7 +105,7 @@ export function OrgDiagram(props: OrgDiagramProps) {
 
     // draw diagram
     const drawDiagram = () => {
-        const diagramData = getDiagramDataFromOrg(organization, diagramEngine);
+        const diagramData = getDiagramDataFromOrg(organization);
         // create diagram model
         const model = new DiagramModel();
         // add preloader overlay layer

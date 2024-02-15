@@ -34,6 +34,8 @@ import {
     CONNECTION_NODE,
     EXTERNAL_LINK,
     MAIN_CELL,
+    PROJECT_LINK,
+    PROJECT_NODE,
 } from "../resources";
 
 // Diagram engine utils
@@ -69,7 +71,7 @@ export function generateEngine(): DiagramEngine {
 }
 
 // reveal diagram with animation
-export function animateDiagram() {
+export function animateProjectDiagram() {
     const tl = gsap.timeline();
     const safeAnimate = (selector, animation, label?) => {
         const elements = gsap.utils.toArray(selector);
@@ -122,4 +124,23 @@ export function animateDiagram() {
         },
         "showNodeTime"
     );
+}
+
+export function animateOrgDiagram() {
+    const tl = gsap.timeline();
+    const safeAnimate = (selector, animation, label?) => {
+        const elements = gsap.utils.toArray(selector);
+        if (elements.length > 0) {
+            tl.from(elements, animation, label);
+        }
+    };
+    safeAnimate(`div[data-nodeid^="${PROJECT_NODE}|"]`, {
+        scale: 0,
+        opacity: 0,
+        duration: 0.5,
+    });
+    safeAnimate(`g[data-default-link-test^="${PROJECT_NODE}|"]`, {
+        opacity: 0,
+        duration: 0.5,
+    });
 }

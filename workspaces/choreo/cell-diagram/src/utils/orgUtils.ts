@@ -11,6 +11,7 @@ import { ProjectModel, ProjectPortModel } from "../components";
 import { CellBounds } from "../components/Cell/CellNode/CellModel";
 import { CommonModel, OrgDiagramData, Organization, ProjectGateway } from "../types";
 import { AdvancedLinkModel } from "../components/Project/AdvancedLink/AdvancedLinkModel";
+import { NAME_JOIN_CHAR, PROJECT_LINK, PROJECT_NODE } from "../resources";
 
 export function getDiagramDataFromOrg(org: Organization): OrgDiagramData {
     const projectNodes: Map<string, CommonModel> = generateProjectNodes(org);
@@ -59,13 +60,15 @@ function generateProjectLinks(
     org.projects?.forEach((project, _key) => {
         project.connections?.forEach((connection) => {
             // link projects
-            const sourceNode = projectNodes.get(project.id);
+            const sourceNode = projectNodes.get(getProjectNameById(project.id));
             if (connection.target === undefined || (connection.target as ProjectGateway).projectId === undefined) {
                 console.error("Target node not found for connection: ", connection);
                 return;
             }
             const targetGateway = connection.target as ProjectGateway;
-            const targetNode = projectNodes.get(targetGateway.projectId);
+            console.log("targetGateway", targetGateway);
+            console.log("projectNodes", projectNodes);
+            const targetNode = projectNodes.get(getProjectNameById(targetGateway.projectId));
             if (!(sourceNode && targetNode)) {
                 console.error("Source or target node not found for connection: ", connection);
                 return;
@@ -109,3 +112,8 @@ const getPortAlignmentForCellBound = (bound: CellBounds): string => {
             return "top";
     }
 };
+
+export function getProjectNameById(id: string): string {
+    return `${PROJECT_NODE}${NAME_JOIN_CHAR}${id}`;
+}
+

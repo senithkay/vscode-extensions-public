@@ -12,12 +12,13 @@ import { SharedNodeModel } from "../../SharedNode/SharedNode";
 import { ProjectPortModel } from "../ProjectPort/ProjectPortModel";
 import { Project } from "../../../types";
 import { PROJECT_NODE } from "../../../resources";
+import { getProjectNameById } from "../../../utils";
 
 export class ProjectModel extends SharedNodeModel {
     readonly project: Project;
 
     constructor(project: Project) {
-        const name = project.id;
+        const name = getProjectNameById(project.id);
         super(PROJECT_NODE, name);
         this.project = project;
         this.setLocked(true);
