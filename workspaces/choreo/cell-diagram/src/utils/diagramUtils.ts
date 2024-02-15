@@ -34,7 +34,6 @@ import {
     CONNECTION_NODE,
     EXTERNAL_LINK,
     MAIN_CELL,
-    PROJECT_LINK,
     PROJECT_NODE,
 } from "../resources";
 

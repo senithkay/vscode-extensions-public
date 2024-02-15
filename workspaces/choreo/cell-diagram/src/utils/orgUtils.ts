@@ -11,7 +11,7 @@ import { ProjectModel, ProjectPortModel } from "../components";
 import { CellBounds } from "../components/Cell/CellNode/CellModel";
 import { CommonModel, OrgDiagramData, Organization, ProjectGateway } from "../types";
 import { AdvancedLinkModel } from "../components/Project/AdvancedLink/AdvancedLinkModel";
-import { NAME_JOIN_CHAR, PROJECT_LINK, PROJECT_NODE } from "../resources";
+import { NAME_JOIN_CHAR, PROJECT_NODE } from "../resources";
 
 export function getDiagramDataFromOrg(org: Organization): OrgDiagramData {
     const projectNodes: Map<string, CommonModel> = generateProjectNodes(org);
@@ -116,4 +116,3 @@ const getPortAlignmentForCellBound = (bound: CellBounds): string => {
 export function getProjectNameById(id: string): string {
     return `${PROJECT_NODE}${NAME_JOIN_CHAR}${id}`;
 }
-
