@@ -28,4 +28,8 @@ export class ProjectModel extends SharedNodeModel {
         this.addPort(new ProjectPortModel(name, PortModelAlignment.TOP));
         this.addPort(new ProjectPortModel(name, PortModelAlignment.BOTTOM));
     }
+
+    getPort(name: string): ProjectPortModel {
+        return this.getPorts()[name] as ProjectPortModel;
+    }
 }

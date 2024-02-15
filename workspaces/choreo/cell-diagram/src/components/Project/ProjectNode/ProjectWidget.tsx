@@ -11,10 +11,8 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 import { ProjectModel } from "./ProjectModel";
 import { ProjectHeadWidget } from "./ProjectHeadWidget/ProjectHeadWidget";
-import { ProjectName, ProjectNode, TopArrowContainer } from "./styles";
+import { ProjectName, ProjectNode } from "./styles";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
-import { AdvancedLinkModel } from "../AdvancedLink/AdvancedLinkModel";
-import { Colors } from "../../../resources";
 
 interface ProjectWidgetProps {
     node: ProjectModel;
@@ -24,25 +22,13 @@ interface ProjectWidgetProps {
 export function ProjectWidget(props: ProjectWidgetProps) {
     const { node, engine } = props;
     const { selectedNodeId, focusedNodeId, componentMenu, onComponentDoubleClick } = useContext(DiagramContext);
-    const [selectedLink, setSelectedLink] = useState<AdvancedLinkModel>(undefined);
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const headPorts = useRef<PortModel[]>([]);
 
     const displayName: string = node.project.name;
 
     useEffect(() => {
-        const listener = node.registerListener({
-            SELECT: (event: any) => {
-                setSelectedLink(event.project as AdvancedLinkModel);
-            },
-            UNSELECT: () => {
-                setSelectedLink(undefined);
-            },
-        });
         headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
-        return () => {
-            node.deregisterListener(listener);
-        };
     }, [node]);
 
     const handleOnHover = (task: string) => {
@@ -73,36 +59,6 @@ export function ProjectWidget(props: ProjectWidgetProps) {
 
     return (
         <>
-            <TopArrowContainer>
-                <svg width="124" height="50" viewBox="0 0 50 50">
-                    <line
-                        x1="25"
-                        y1="-4000"
-                        x2="25"
-                        y2="-6"
-                        style={{
-                            stroke: Colors.OUTLINE_VARIANT,
-                            strokeWidth: 2,
-                            markerEnd: `url(#${node.getID()}-top-arrow-head)`,
-                            opacity: 0.5,
-                            strokeDasharray: "8, 5",
-                        }}
-                    />
-                    <defs>
-                        <marker
-                            markerWidth="4"
-                            markerHeight="4"
-                            refX="3"
-                            refY="2"
-                            viewBox="0 0 4 4"
-                            orient="auto"
-                            id={`${node.getID()}-top-arrow-head`}
-                        >
-                            <polygon points="0,4 0,0 4,2" fill={Colors.OUTLINE_VARIANT}></polygon>
-                        </marker>
-                    </defs>
-                </svg>
-            </TopArrowContainer>
             <ProjectNode
                 isSelected={node.getID() === selectedNodeId}
                 isFocused={node.getID() === focusedNodeId}

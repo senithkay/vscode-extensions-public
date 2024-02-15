@@ -18,6 +18,7 @@ import {
     ProjectModel,
 } from "./components";
 import { CellBounds } from "./components/Cell/CellNode/CellModel";
+import { AdvancedLinkModel } from "./components/Project/AdvancedLink/AdvancedLinkModel";
 
 export interface Organization {
     id: string;
@@ -87,6 +88,11 @@ export enum ConnectionType {
     Datastore = "datastore",
 }
 
+export interface ProjectGateway {
+    projectId: string;
+    boundary: CellBounds;
+}
+
 export interface OrgConnection {
     id: string;
     label?: string;
@@ -94,10 +100,7 @@ export interface OrgConnection {
     source: {
         boundary: CellBounds;
     };
-    target: {
-        projectId: string;
-        boundary: CellBounds;
-    };
+    target?: ProjectGateway | Connection;
 }
 
 export interface ComponentMetadata {
@@ -173,7 +176,7 @@ export interface Nodes {
 }
 
 export interface Links {
-    [key: string]: Map<string, ComponentLinkModel | ExternalLinkModel | CellLinkModel>;
+    [key: string]: Map<string, ComponentLinkModel | ExternalLinkModel | CellLinkModel | AdvancedLinkModel>;
 }
 
 export interface MoreVertMenuItem {

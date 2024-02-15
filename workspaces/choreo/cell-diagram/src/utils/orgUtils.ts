@@ -7,16 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { ComponentLinkModel, ProjectLinkModel, ProjectModel, ProjectPortModel } from "../components";
+import { ConnectionModel, ProjectModel, ProjectPortModel } from "../components";
 import { CellBounds } from "../components/Cell/CellNode/CellModel";
-import { CommonModel, OrgDiagramData, Organization } from "../types";
-import { PathFindingLinkFactory, PathFindingLinkModel } from "@projectstorm/react-diagrams-routing";
+import { CommonModel, Connection, OrgDiagramData, Organization, ProjectGateway } from "../types";
 import { AdvancedLinkModel } from "../components/Project/AdvancedLink/AdvancedLinkModel";
 
-export function getDiagramDataFromOrg(org: Organization, engine: DiagramEngine): OrgDiagramData {
+export function getDiagramDataFromOrg(org: Organization): OrgDiagramData {
     const projectNodes: Map<string, CommonModel> = generateProjectNodes(org);
-    const projectLinks: Map<string, PathFindingLinkModel> = generateProjectLinks(org, projectNodes, engine);
+    const projectLinks: Map<string, AdvancedLinkModel> = generateProjectLinks(org, projectNodes);
 
     return {
         nodes: {
@@ -33,6 +31,20 @@ function generateProjectNodes(org: Organization): Map<string, CommonModel> {
     org.projects?.forEach((project, _key) => {
         const projectNode = new ProjectModel(project);
         nodes.set(projectNode.getID(), projectNode);
+
+        // add project connections
+        project.connections?.forEach((connection) => {
+            const targetGateway = connection.target as Connection;
+            if (!targetGateway) {
+                return;
+            }
+            if (!targetGateway.id || !targetGateway.label) {
+                console.error("Target node not found for connection: ", connection);
+                return;
+            }
+            const targetNode = new ConnectionModel(targetGateway);
+            nodes.set(targetNode.getID(), targetNode);
+        });
     });
 
     return nodes;
@@ -40,18 +52,20 @@ function generateProjectNodes(org: Organization): Map<string, CommonModel> {
 
 function generateProjectLinks(
     org: Organization,
-    projectNodes: Map<string, CommonModel>,
-    engine: DiagramEngine
-): Map<string, PathFindingLinkModel> {
-    const links: Map<string, PathFindingLinkModel> = new Map();
-    const pathFindingFactory = engine
-        .getLinkFactories()
-        .getFactory<PathFindingLinkFactory>(PathFindingLinkFactory.NAME);
+    projectNodes: Map<string, CommonModel>
+): Map<string, AdvancedLinkModel> {
+    const links: Map<string, AdvancedLinkModel> = new Map();
 
     org.projects?.forEach((project, _key) => {
         project.connections?.forEach((connection) => {
+            // link projects
             const sourceNode = projectNodes.get(project.id);
-            const targetNode = projectNodes.get(connection.target.projectId);
+            if (connection.target === undefined || (connection.target as ProjectGateway).projectId === undefined) {
+                console.error("Target node not found for connection: ", connection);
+                return;
+            }
+            const targetGateway = connection.target as ProjectGateway;
+            const targetNode = projectNodes.get(targetGateway.projectId);
             if (!(sourceNode && targetNode)) {
                 console.error("Source or target node not found for connection: ", connection);
                 return;
@@ -61,7 +75,7 @@ function generateProjectLinks(
                 `${getPortAlignmentForCellBound(connection.source.boundary)}-${sourceNode.getID()}`
             ) as ProjectPortModel;
             const targetPort = targetNode.getPort(
-                `${getPortAlignmentForCellBound(connection.target.boundary)}-${targetNode.getID()}`
+                `${getPortAlignmentForCellBound(targetGateway.boundary)}-${targetNode.getID()}`
             ) as ProjectPortModel;
             if (!(sourcePort && targetPort)) {
                 console.error("Source or target port not found for connection: ", connection);
@@ -69,15 +83,10 @@ function generateProjectLinks(
             }
 
             const linkId = `${sourceNode.getID()}-${targetNode.getID()}`;
-            const link = new AdvancedLinkModel({testName: linkId});
-            
-            // const link = new ProjectLinkModel(linkId);
-            // const link = sourcePort.link(targetPort, pathFindingFactory);
+            const link = new AdvancedLinkModel({ testName: linkId });
             link.setSourcePort(sourcePort);
             link.setTargetPort(targetPort);
             sourcePort.addLink(link);
-            // link.setSourceNode(sourceNode.getID());
-            // link.setTargetNode(targetNode.getID());
             links.set(linkId, link);
             link.setLocked(true);
         });

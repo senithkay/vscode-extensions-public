@@ -14,6 +14,7 @@ import { ProjectCellNode } from "../styles";
 import { MoreVertMenuItem } from "../../../../types";
 import { ProjectPortWidget } from "../../ProjectPort/ProjectPortWidget";
 import { generateRoundedOctagonSVG } from "../../../Cell/CellNode/CellWidget";
+import { CellBounds } from "../../../Cell/CellNode/CellModel";
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
@@ -27,7 +28,13 @@ export function ProjectHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected, isFocused } = props;
 
     const cellHeight = 120;
-    const strokeWidth = 2;
+    const strokeWidth = 3;
+    const isExposedToPublic = node.project.connections?.some(
+        (connection) => connection.source?.boundary === CellBounds.NorthBound
+    );
+    const hasExternalDependencies = node.project.connections?.some(
+        (connection) => connection.source?.boundary === CellBounds.SouthBound
+    );
 
     return (
         <ProjectCellNode
@@ -37,16 +44,21 @@ export function ProjectHeadWidget(props: ServiceHeadProps) {
             isSelected={isSelected || isFocused}
         >
             {generateRoundedOctagonSVG(cellHeight)}
-            <ProjectPortWidget
-                port={node.getPort(`top-${node.getID()}`)}
-                engine={engine}
-                isSelected={isSelected || isFocused}
-            />
-            <ProjectPortWidget
-                port={node.getPort(`bottom-${node.getID()}`)}
-                engine={engine}
-                isSelected={isSelected || isFocused}
-            />
+
+            {isExposedToPublic && (
+                <ProjectPortWidget
+                    port={node.getPort(`top-${node.getID()}`)}
+                    engine={engine}
+                    isSelected={isSelected || isFocused}
+                />
+            )}
+            {hasExternalDependencies && (
+                <ProjectPortWidget
+                    port={node.getPort(`bottom-${node.getID()}`)}
+                    engine={engine}
+                    isSelected={isSelected || isFocused}
+                />
+            )}
 
             <ProjectPortWidget
                 port={node.getPort(`left-${node.getID()}`)}

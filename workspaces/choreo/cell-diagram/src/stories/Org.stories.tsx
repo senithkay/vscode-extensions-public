@@ -81,10 +81,51 @@ const simpleOrgModel: Organization = {
                         boundary: CellBounds.SouthBound,
                     },
                     target: {
-                        projectId: "3456",
-                        boundary: CellBounds.NorthBound,
+                        id: "github",
+                        label: "GitHub",
                     },
                 },
+            ],
+        },
+        {
+            id: "3456",
+            name: "Project D",
+            components: [],
+        },
+    ],
+    modelVersion: "0.4.0",
+};
+
+const simpleNoLinkOrgModel: Organization = {
+    id: "A",
+    name: "A",
+    projects: [
+        {
+            id: "1234",
+            name: "Project A",
+            components: [],
+            connections: [],
+        },
+        {
+            id: "5678",
+            name: "Project B",
+            components: [],
+        },
+        {
+            id: "9012",
+            name: "Project C",
+            components: [],
+            connections: [
+                // {
+                //     id: "9012-3456",
+                //     source: {
+                //         boundary: CellBounds.SouthBound,
+                //     },
+                //     target: {
+                //         id: "github",
+                //         label: "GitHub",
+                //     },
+                // },
             ],
         },
         {
@@ -123,6 +164,12 @@ const multiProjectsOrgModel: Organization = {
                     target: {
                         projectId: "9012",
                         boundary: CellBounds.WestBound,
+                    },
+                },
+                {
+                    id: "1234-N",
+                    source: {
+                        boundary: CellBounds.NorthBound,
                     },
                 },
             ],
@@ -164,6 +211,22 @@ const multiProjectsOrgModel: Organization = {
                         boundary: CellBounds.WestBound,
                     },
                 },
+                {
+                    id: "3456-N",
+                    source: {
+                        boundary: CellBounds.NorthBound,
+                    },
+                },
+                // {
+                //     id: "3456-github",
+                //     source: {
+                //         boundary: CellBounds.SouthBound,
+                //     },
+                //     target: {
+                //         id: "github",
+                //         label: "GitHub",
+                //     },
+                // },
             ],
         },
         {
@@ -236,6 +299,16 @@ const complexOrgModel: Organization = {
                         boundary: CellBounds.WestBound,
                     },
                 },
+                // {
+                //     id: "3456-github",
+                //     source: {
+                //         boundary: CellBounds.SouthBound,
+                //     },
+                //     target: {
+                //         id: "github",
+                //         label: "GitHub",
+                //     },
+                // },
             ],
         },
         {
@@ -353,6 +426,12 @@ storiesOf("Org", module).add("Single project organization", () => (
 storiesOf("Org", module).add("Simple organization", () => (
     <Container>
         <CellDiagram organization={simpleOrgModel} />
+    </Container>
+));
+
+storiesOf("Org", module).add("Simple org without dependencies", () => (
+    <Container>
+        <CellDiagram organization={simpleNoLinkOrgModel} />
     </Container>
 ));
 

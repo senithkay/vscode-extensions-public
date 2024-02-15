@@ -215,7 +215,7 @@ export class AdvancedLinkModel extends LinkModel<DefaultLinkModelGenerics> {
         this.fireEvent({ color }, "colorChanged");
     }
 
-    addPoint<P extends PointModel<PointModelGenerics>>(pointModel: P, index?: number): P {
+    addPoint<P extends PointModel<PointModelGenerics>>(): P {
         return;
     }
 }

@@ -11,8 +11,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import CircularProgress from "@mui/material/CircularProgress";
 import { generateEngine, animateDiagram, getDiagramDataFromOrg } from "../utils";
-import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen } from "../components";
-import { Colors } from "../resources";
+import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel } from "../components";
+import { CONNECTION_NODE, Colors, PROJECT_NODE } from "../resources";
 import { Container, DiagramContainer, useStyles } from "../utils/CanvasStyles";
 import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
 import { CustomTooltips, DiagramLayer, MoreVertMenuItem, ObservationSummary, Organization } from "../types";
@@ -135,6 +135,37 @@ export function OrgDiagram(props: OrgDiagramProps) {
                 includeLinks: true,
             });
             dagreEngine.redistribute(model);
+
+            // get all links and find link in the bottom of the diagram and find y coordinate
+            const links = model.getLinks();
+            let maxY = 0;
+            links.forEach((link) => {
+                link.getPoints().forEach((point) => {
+                    if (point.getY() > maxY) {
+                        maxY = point.getY();
+                    }
+                });
+            });
+
+            // get all nodes and find node in the bottom of the diagram and find y coordinate
+            const nodes = model.getNodes();
+            nodes.forEach((node) => {
+                if (node.getType() === PROJECT_NODE) {
+                    const y = node.getY() + 120.
+                    if (y > maxY) {
+                        maxY = y;
+                    }
+                }
+            });
+
+            console.log("Max Y", maxY);
+            // update connection nodes position to the bottom of the diagram
+            models.forEach((node) => {
+                if (node.getType() === CONNECTION_NODE) {
+                    const conNode = node as ConnectionModel;
+                    (node as ConnectionModel).setPosition(0, maxY + 40);
+                }
+            });
 
             if (diagramEngine.getCanvas()?.getBoundingClientRect()) {
                 // zoom to fit nodes and center diagram
