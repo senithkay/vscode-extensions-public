@@ -113,7 +113,7 @@ export class RPCManger implements RPCInterface {
     }
 
     goToDesign(args: { filePath: string; position: NodePosition; }): void {
-        commands.executeCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, args.filePath, args.position, true);
+        commands.executeCommand(PALETTE_COMMANDS.SHOW_VISUALIZER, args.filePath, args.position, true);
     }
 
     showDiagnosticsWarning(): void {

@@ -16,7 +16,7 @@ const WebPanel = (props: { state: MachineStateValue }) => {
                 eggplantRpcClient.getWebviewRpcClient().getVisualizerState().then(async (vState: VisualizerLocation) => {
                     if (vState.view === "ServiceDesigner") {
                         const context: VisualizerLocation = {
-                            fileName: vState.fileName,
+                            documentUri: vState.documentUri,
                             position: vState.position
                         }
                         const serviceST = await eggplantRpcClient.getWebviewRpcClient().getSTNodeFromLocation(context);
@@ -41,7 +41,7 @@ const WebPanel = (props: { state: MachineStateValue }) => {
 
     return (
         <div>
-            {serviceST ? <ServiceDesignerView model={serviceST} rpcClient={eggplantRpcClient.getServiceDesignerRpcClient()} goToSource={showDiagram} /> : <LowCode state={state} />}
+            {serviceST ? <ServiceDesignerView model={serviceST} rpcClients={{serviceDesignerRpcClient: eggplantRpcClient.getServiceDesignerRpcClient(), commonRpcClient: eggplantRpcClient?.getCommonRpcClient()}} goToSource={showDiagram} /> : <LowCode state={state} />}
         </div>
     );
 };

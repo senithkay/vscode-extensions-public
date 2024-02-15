@@ -8,7 +8,7 @@ import { registerNewLSMethods } from './utils/lang-client';
 import { activateLibraryBrowser } from './LibraryBrowser/activate';
 
 interface Context extends VisualizerLocation {
-    langServer: LangClientInterface | null;
+    langClient: LangClientInterface | null;
     errorCode: string | null;
 }
 
@@ -17,7 +17,7 @@ const stateMachine = createMachine<Context>({
     id: 'eggplant',
     initial: 'initialize',
     context: { // Add this
-        langServer: null,
+        langClient: null,
         errorCode: null,
     },
     states: {
@@ -46,7 +46,7 @@ const stateMachine = createMachine<Context>({
                 onDone: {
                     target: 'ready',
                     actions: assign({
-                        langServer: (context, event) => event.data
+                        langClient: (context, event) => event.data
                     })
                 },
                 onError: {
@@ -66,7 +66,7 @@ const stateMachine = createMachine<Context>({
                             target: "viewUpdate",
                             actions: assign({
                                 view: (context, event) => event.viewLocation.view ? event.viewLocation.view : context.view,
-                                fileName: (context, event) => event.viewLocation.fileName ? event.viewLocation.fileName : context.fileName,
+                                documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
                                 position: (context, event) => event.viewLocation.position ? event.viewLocation.position : context.position,
                                 identifier: (context, event) => event.viewLocation.identifier ? event.viewLocation.identifier : context.identifier,
                             })
@@ -158,6 +158,7 @@ export const StateMachine = {
     initialize: () => stateService.start(),
     service: () => { return stateService; },
     context: () => { return stateService.getSnapshot().context; },
+    langClient: () => { return stateService.getSnapshot().context.langClient; },
     state: () => { return stateService.getSnapshot().value as MachineStateValue; },
     sendEvent: (eventType: EventType) => { stateService.send({ type: eventType }); },
 };

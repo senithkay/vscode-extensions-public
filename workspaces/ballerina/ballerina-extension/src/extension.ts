@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ExtensionContext, commands, window, Location, Uri } from 'vscode';
+import { ExtensionContext, commands, window, Location, Uri, TextEditor } from 'vscode';
 import { ballerinaExtInstance, BallerinaExtension } from './core';
 import { activate as activateDiagram } from './diagram';
 import { activate as activateBBE } from './bbe';
@@ -29,8 +29,9 @@ import { activate as activateERDiagram } from './persist-layer-diagram';
 import { activate as activateDesignDiagramView } from './project-design-diagrams';
 import { debug, handleResolveMissingDependencies, log } from './utils';
 import { activateUriHandlers } from './uri-handlers';
-import { startMachine } from './visualizer/activator';
-import { activateSubscriptions } from './visualizer/subscription';
+import { StateMachine } from './stateMachine';
+import { activateSubscriptions } from './visualizer/activate';
+import { extension } from './BalExtensionContext';
 
 let langClient: ExtendedLangClient;
 export let isPluginStartup = true;
@@ -75,19 +76,22 @@ function onBeforeInit(langClient: ExtendedLangClient) {
 }
 
 export async function activate(context: ExtensionContext) { 
-    await startMachine(context);
+    extension.context = context;
+    // Wait for the ballerina extension to be ready
+    await StateMachine.initialize();
+    // Then return the ballerina extension context
     return ballerinaExtInstance;
 }
 
-export async function activateBallerina(context: ExtensionContext): Promise<BallerinaExtension> {
+export async function activateBallerina(): Promise<BallerinaExtension> {
     debug('Active the Ballerina VS Code extension.');
     sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_EXTENSION_ACTIVATE, CMP_EXTENSION_CORE);
-    ballerinaExtInstance.setContext(context);
+    ballerinaExtInstance.setContext(extension.context);
     // Enable URI handlers
     activateUriHandlers(ballerinaExtInstance);
     await ballerinaExtInstance.init(onBeforeInit).then(() => {
         activateLibraryBrowser(ballerinaExtInstance);
-        activateSubscriptions(context);
+        activateSubscriptions();
         // start the features.
         // Enable Ballerina diagram
         // activateDiagram(ballerinaExtInstance);
@@ -108,7 +112,7 @@ export async function activateBallerina(context: ExtensionContext): Promise<Ball
         // // Enable Ballerina Notebook
         // activateNotebook(ballerinaExtInstance);
         // activateDesignDiagramView(ballerinaExtInstance);
-        // activateERDiagram(ballerinaExtInstance);
+        activateERDiagram(ballerinaExtInstance);
 
         langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         // Register showTextDocument listener

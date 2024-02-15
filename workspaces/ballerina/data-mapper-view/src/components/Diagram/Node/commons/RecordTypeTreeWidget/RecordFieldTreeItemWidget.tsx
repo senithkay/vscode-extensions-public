@@ -11,7 +11,7 @@ import React, { useState } from "react";
 
 import { css } from "@emotion/css";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 import classnames from "classnames";
 
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
@@ -99,7 +99,7 @@ const useStyles = () => ({
 
 export interface RecordFieldTreeItemWidgetProps {
     parentId: string;
-    field: Type;
+    field: TypeField;
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
     treeDepth?: number;
@@ -119,7 +119,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
 
-    let fields: Type[];
+    let fields: TypeField[];
     let optional = false;
 
     const optionalRecordField = getOptionalRecordField(field);

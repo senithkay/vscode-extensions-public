@@ -1,7 +1,7 @@
 // tslint:disable: jsx-no-lambda jsx-no-multiline-js
 import React, { useEffect, useState } from "react";
 
-import { CompletionResponse } from "@wso2-enterprise/ballerina-core";
+import { Completion } from "@wso2-enterprise/ballerina-core";
 import { AutoComplete, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 
 export interface TypeBrowserProps {
@@ -11,7 +11,7 @@ export interface TypeBrowserProps {
     recordCompletions: CompletionResponseWithModule[];
 }
 
-export interface CompletionResponseWithModule extends CompletionResponse {
+export interface CompletionResponseWithModule extends Completion {
     module?: string;
 }
 
@@ -34,6 +34,7 @@ export function TypeBrowser(props: TypeBrowserProps) {
                 )}
                 selectedItem={selectedTypeStr}
                 onChange={onChange}
+                borderBox={true}
             />
             {isLoading && <ProgressIndicator data-testid={'type-select-linear-progress'} />}
         </>

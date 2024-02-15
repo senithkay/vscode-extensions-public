@@ -59,7 +59,7 @@ export const TypeSelector = (props: TypeSelectorProps) => {
             <Typography variant="h6" sx={{ marginTop: 0 }}>Welcome to Project Choreo, an experimental web-based development workspace from WSO2.</Typography>
             <Typography variant="h5" sx={{ marginTop: 0, marginBottom: 16 }}> Create a new workspace </Typography>
 
-            <HorizontalIcons onClick={() => handleSelection("New Web app")} sx={{marginBottom: 5}} leftIconName='globe' rightIconName='plus' title='New Web app' description='Write an app using a web framework or simple HTML/JS/CSS'/>
+            <HorizontalIcons onClick={() => handleSelection("New Web app")} sx={{marginBottom: 5}} leftIconName='globe' isLeftIconCodicon  rightIconName='plus' title='New Web app' description='Write an app using a web framework or simple HTML/JS/CSS'/>
             <HorizontalIcons onClick={() => handleSelection("New Flutter app")} sx={{marginBottom: 5}} leftIconName='flutter' rightIconName='plus' title='New Flutter app' description='Write a cross-platform Flutter app in Dart'/>
             <HorizontalIcons onClick={() => handleSelection("New Blank workspace")} sx={{marginBottom: 5}} leftIconName='empty' rightIconName='plus' title='New Blank workspace' description='Get started with a completely blank setup'/>
             <HorizontalIcons onClick={() => handleSelection("Import a repo")} sx={{marginBottom: 5}} leftIconName='import' rightIconName='plus' title='Import a repo' description='Start from an existing GitHub repository'/>

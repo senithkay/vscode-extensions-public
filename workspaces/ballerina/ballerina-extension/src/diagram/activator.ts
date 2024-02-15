@@ -41,8 +41,8 @@ import {
 	STD_LIB_LIST_CACHE
 } from "../library-browser";
 import {
+	LibrariesListResponse,
 	LibraryDataResponse,
-	LibraryDocResponse,
 	LibraryKind,
 	LibrarySearchResponse
 } from '@wso2-enterprise/ballerina-core';
@@ -50,7 +50,7 @@ import { getSentryConfig, SentryConfig } from './sentry';
 import { BallerinaConnectorsResponse, GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-languageclient';
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { PALETTE_COMMANDS } from '../project';
-import { openView } from '../visualizer/activator';
+import { openView } from '../stateMachine';
 
 export let hasDiagram: boolean = false;
 
@@ -244,7 +244,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
 		//editor-lowcode-editor
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_LOW_CODE, CMP_DIAGRAM_VIEW);
-		openView({view: "Overview"});
+		openView("OPEN_VIEW", {view: "Overview"});
 		showDiagramEditor(0, 0, path, !ignoreFileCheck, nodePosition);
 	});
 
@@ -567,7 +567,7 @@ class DiagramPanel {
 			},
 			{
 				methodName: "getLibrariesList",
-				handler: async (args: any[]): Promise<LibraryDocResponse | undefined> => {
+				handler: async (args: any[]): Promise<LibrariesListResponse | undefined> => {
 					return await getLibrariesList(args[0]);
 				}
 			},

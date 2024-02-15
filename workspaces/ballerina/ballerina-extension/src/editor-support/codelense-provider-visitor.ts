@@ -45,7 +45,11 @@ export class CodeLensProviderVisitor implements Visitor {
                 (STKindChecker.isSimpleNameReference(expr) &&
                     this.supportedServiceTypes.includes(expr.typeData.typeSymbol.moduleID.moduleName))) {
                 this.createTryItCodeLens(node.position, node.serviceKeyword.position, node.absoluteResourcePath.map((path) => path.value).join(''));
-                this.createVisulizeCodeLens(node.serviceKeyword.position, node.position);
+                if (expr?.typeData?.typeSymbol?.signature?.includes("graphql")) {
+                    this.createVisulizeGraphqlCodeLens(node.serviceKeyword.position, node.position);
+                } else {
+                    this.createVisulizeCodeLens(node.serviceKeyword.position, node.position);
+                }
             }
         }
     }
@@ -74,7 +78,23 @@ export class CodeLensProviderVisitor implements Visitor {
         codeLens.command = {
             title: "Visualize",
             tooltip: "Visualize code block",
-            command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
+            command: PALETTE_COMMANDS.SHOW_VISUALIZER,
+            arguments: [this.activeEditorUri.fsPath, position]
+        };
+        this.codeLenses.push(codeLens);
+    }
+
+    private createVisulizeGraphqlCodeLens(range: any, position: any) {
+        const codeLens = new CodeLens(new Range(
+            range.startLine,
+            range.startColumn,
+            range.endLine,
+            range.endColumn
+        ));
+        codeLens.command = {
+            title: "Visualize",
+            tooltip: "Visualize code block",
+            command: PALETTE_COMMANDS.SHOW_VISUALIZER,
             arguments: [this.activeEditorUri.fsPath, position]
         };
         this.codeLenses.push(codeLens);
@@ -91,7 +111,7 @@ export class CodeLensProviderVisitor implements Visitor {
             title: "Visualize",
             tooltip: "View this entity in the Entity Relationship diagram",
             command: PALETTE_COMMANDS.SHOW_ENTITY_DIAGRAM,
-            arguments: [recordName]
+            arguments: [this.activeEditorUri.fsPath, recordName]
         };
         this.codeLenses.push(codeLens);
     }

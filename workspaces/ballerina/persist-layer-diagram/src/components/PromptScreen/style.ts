@@ -10,7 +10,6 @@
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import { Colors } from '../../resources';
 
-const background = require('../../resources/assets/PatternBg.svg') as string;
 
 export const useStyles = makeStyles(() =>
     createStyles({
@@ -27,7 +26,7 @@ export const useStyles = makeStyles(() =>
         },
         container: {
             alignItems: 'center',
-            backgroundImage: `url(${background})`,
+            backgroundImage: 'radial-gradient(circle at 0.5px 0.5px, var(--vscode-textBlockQuote-border) 1px, transparent 0)',
             backgroundRepeat: 'repeat',
             display: 'flex',
             flexDirection: 'column',

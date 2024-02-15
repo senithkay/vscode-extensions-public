@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { FormField } from "@wso2-enterprise/ballerina-core";
+import { TypeField } from "@wso2-enterprise/ballerina-core";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 
 import { TypeProps } from "..";
@@ -19,7 +19,7 @@ import { isAnyFieldSelected, isRequiredParam } from "../utils";
 import * as Types from "./../Types";
 
 export interface ParameterBranchProps {
-    parameters: FormField[];
+    parameters: TypeField[];
     depth: number;
     onChange: () => void;
 }
@@ -33,7 +33,7 @@ export function ParameterBranch(props: ParameterBranchProps) {
     const requiredParams: JSX.Element[] = [];
     const optionalParams: JSX.Element[] = [];
 
-    parameters?.forEach((param: FormField, index: number) => {
+    parameters?.forEach((param: TypeField, index: number) => {
         let TypeComponent = (Types as any)[param.typeName];
         const typeProps: TypeProps = {
             param,

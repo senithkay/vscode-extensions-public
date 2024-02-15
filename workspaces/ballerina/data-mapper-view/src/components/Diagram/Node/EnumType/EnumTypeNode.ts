@@ -8,12 +8,12 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import { Point } from "@projectstorm/geometry";
-import { ResolvedTypeForExpression } from "@wso2-enterprise/ballerina-core";
 import {
+    ResolvedTypeForExpression,
     ComponentInfo,
     ExpressionRange,
     PrimitiveBalType,
-    Type,
+    TypeField,
 } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -40,14 +40,14 @@ export interface EnumInfo {
 
 export interface DMEnumTypeDecl {
     varName: string;
-    type: Type;
+    type: TypeField;
     fields: DMEnumTypeMember[];
 }
 
 export interface DMEnumTypeMember {
     varName: string;
     kind: ModuleVarKind;
-    type: Type;
+    type: TypeField;
     node: STNode;
 }
 
@@ -124,7 +124,7 @@ export class EnumTypeNode extends DataMapperNodeModel {
                                 })
                             ) {
                                 let typeDeclared: boolean = false;
-                                const typeDecl: Type = {
+                                const typeDecl: TypeField = {
                                     name: varName,
                                     ...type.type,
                                 };

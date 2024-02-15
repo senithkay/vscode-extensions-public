@@ -243,8 +243,9 @@
      * The list of shell commands to run after the Rush build command finishes
      */
     "postRushBuild": [
-      "cd workspaces/ballerina/ballerina-extension && pnpm run copyVSIXToRoot",
-      "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot",
+      "cd workspaces/ballerina/ballerina-extension && pnpm run copyVSIXToRoot", 
+      "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot", 
+      "cd workspaces/api-chat/extension && pnpm run copyVSIXToRoot",
       "cd workspaces/eggplant/eggplant-extension && pnpm run copyVSIXToRoot"
     ]
   },
@@ -473,11 +474,11 @@
     //   "projectFolder": "workspaces/ballerina/graphql",
     //   "versionPolicyName": "ballerina-extension"
     // },
-    // {
-    //   "packageName": "@wso2-enterprise/ballerina-graphql-design-diagram",
-    //   "projectFolder": "workspaces/ballerina/graphql-design-diagram",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
+    {
+      "packageName": "@wso2-enterprise/ballerina-graphql-design-diagram",
+      "projectFolder": "workspaces/ballerina/graphql-design-diagram",
+      "versionPolicyName": "ballerina-extension"
+    },
     // {
     //   "packageName": "@wso2-enterprise/lang-service",
     //   "projectFolder": "workspaces/ballerina/lang-service",
@@ -514,8 +515,8 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
-      "packageName": "@wso2-enterprise/visualizer-view",
-      "projectFolder": "workspaces/ballerina/visualizer-view",
+      "packageName": "@wso2-enterprise/ballerina-visualizer",
+      "projectFolder": "workspaces/ballerina/ballerina-visualizer",
       "versionPolicyName": "ballerina-extension"
     },
     {
@@ -538,11 +539,11 @@
       "projectFolder": "workspaces/ballerina/low-code-editor-commons",
       "versionPolicyName": "ballerina-extension"
     },
-    // {
-    //   "packageName": "@wso2-enterprise/ballerina-low-code-edtior-ui-components",
-    //   "projectFolder": "workspaces/ballerina/low-code-ui-components",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
+    {
+      "packageName": "@wso2-enterprise/ballerina-low-code-edtior-ui-components",
+      "projectFolder": "workspaces/ballerina/low-code-ui-components",
+      "versionPolicyName": "ballerina-extension"
+    },
     // {
     //   "packageName": "notebook-renderer",
     //   "projectFolder": "workspaces/ballerina/notebook-renderer",
@@ -563,11 +564,11 @@
       "projectFolder": "workspaces/ballerina/project-design-diagrams",
       "versionPolicyName": "ballerina-extension"
     },
-    // {
-    //   "packageName": "@wso2-enterprise/persist-layer-diagram",
-    //   "projectFolder": "workspaces/ballerina/persist-layer-diagram",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
+    {
+      "packageName": "@wso2-enterprise/persist-layer-diagram",
+      "projectFolder": "workspaces/ballerina/persist-layer-diagram",
+      "versionPolicyName": "ballerina-extension"
+    },
     {
       "packageName": "@wso2-enterprise/ballerina-statement-editor",
       "projectFolder": "workspaces/ballerina/statement-editor",

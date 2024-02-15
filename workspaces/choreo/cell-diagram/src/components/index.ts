@@ -71,7 +71,6 @@ export * from "./ObservationLabel/ObservationLabel";
 export * from "./MoreVertMenu/MoreVertMenu";
 
 export { DiagramControls } from "./Controls/DiagramControls";
-export { NodeCollapser } from "./Controls/NodeCollapser";
 
 export * from "./DiagramContext/DiagramContext";
 
