@@ -2,13 +2,18 @@
 import { ExtendedLangClient } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EventType, MachineStateValue, MachineViews, STByRangeRequest, SyntaxTreeResponse, VisualizerLocation, webviewReady } from "@wso2-enterprise/ballerina-core";
+import { EventType, GetSyntaxTreeResponse, MachineStateValue, MachineViews, STByRangeRequest, SyntaxTreeResponse, VisualizerLocation, webviewReady } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './library-browser';
 import { VisualizerWebview } from './visualizer/webview';
 import { Uri } from 'vscode';
-import { STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { STKindChecker, traversNode } from '@wso2-enterprise/syntax-tree';
 import { RPCLayer } from './RPCLayer';
-import { historyStack, pushHistory } from './history';
+import { HistoryEntry, historyStack, pushHistory, updateCurrentEntry } from './history';
+import { UIDGenerationVisitor } from './history/utils/visitors/uid-generation-visitor';
+import { FindNodeByUidVisitor } from './history/utils/visitors/find-node-by-uid';
+import { FindConstructByNameVisitor } from './history/utils/visitors/find-construct-by-name-visitor';
+import { FindConstructByIndexVisitor } from './history/utils/visitors/find-construct-by-index-visitor';
+import { getConstructBodyString } from './history/utils/visitors/util';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -97,12 +102,13 @@ const stateMachine = createMachine<MachineContext>(
                     },
                     updatedHistory: {
                         invoke: {
-                            src: 'showView', // NOTE: We only find the view and indentifer from this state as we already have the position and the file URL
+                            src: 'showView',
                             onDone: {
                                 target: "viewReady",
                                 actions: assign({
                                     view: (context, event) => event.data.view,
-                                    identifier: (context, event) => event.data.identifier
+                                    identifier: (context, event) => event.data.identifier,
+                                    position: (context, event) => event.data.position,
                                 })
                             }
                         }
@@ -182,7 +188,7 @@ const stateMachine = createMachine<MachineContext>(
         findView(context, event): Promise<void> {
             return new Promise(async (resolve, reject) => {
                 if (!context.position) {
-                    pushHistory({ view: "Overview" });
+                    pushHistory({location: { view: "Overview" }});
                     resolve();
                     return;
                 }
@@ -205,31 +211,39 @@ const stateMachine = createMachine<MachineContext>(
                 if (node.parseSuccess) {
                     if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
                         pushHistory({
-                            view: "ServiceDesigner",
-                            identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
-                            documentUri: context.documentUri,
-                            position: context.position
+                            location: {
+                                view: "ServiceDesigner",
+                                identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
+                                documentUri: context.documentUri,
+                                position: context.position
+                            }
                         });
                         resolve();
                     } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) && STKindChecker.isExpressionFunctionBody(node.syntaxTree.functionBody)) {
                         pushHistory({
-                            view: "DataMapper",
-                            documentUri: context.documentUri,
-                            position: context.position
+                            location: {
+                                view: "DataMapper",
+                                documentUri: context.documentUri,
+                                position: context.position
+                            }
                         });
                         resolve();
                     } else if (STKindChecker.isTypeDefinition(node.syntaxTree) && STKindChecker.isRecordTypeDesc(node.syntaxTree.typeDescriptor)) {
                         pushHistory({
-                            view: "ArchitectureDiagram",
-                            documentUri: context.documentUri,
-                            position: context.position
+                            location: {
+                                view: "ArchitectureDiagram",
+                                documentUri: context.documentUri,
+                                position: context.position
+                            }
                         });
                         resolve();
                     } else {
                         pushHistory({
-                            view: "Overview",
-                            documentUri: context.documentUri,
-                            position: context.position
+                            location: {
+                                view: "Overview",
+                                documentUri: context.documentUri,
+                                position: context.position
+                            }
                         });
                         resolve();
                     }
@@ -239,7 +253,96 @@ const stateMachine = createMachine<MachineContext>(
         },
         showView(context, event): Promise<VisualizerLocation> {
             return new Promise(async (resolve, reject) => {
-                resolve(historyStack[historyStack.length - 1]?.view ? historyStack[historyStack.length - 1] : { view: "Overview" });
+                const selectedEntry: HistoryEntry = historyStack[historyStack.length - 1]?.location.view
+                    ? historyStack[historyStack.length - 1]
+                    : { location: { view: "Overview" } };
+                if (selectedEntry.location.view === "Overview") {
+                    resolve(selectedEntry.location);
+                    return;
+                }
+
+                const { location: { documentUri, position }, uid } = selectedEntry;
+                const node = await StateMachine.langClient().getSyntaxTree({
+                    documentIdentifier: {
+                        uri: Uri.file(documentUri).toString()
+                    }
+                }) as GetSyntaxTreeResponse;
+
+                let selectedST;
+
+                if (node.parseSuccess) {
+                    const fullST = node.syntaxTree;
+                    if (!uid && position) {
+                        const uidGenVisitor = new UIDGenerationVisitor(position);
+                        traversNode(fullST, uidGenVisitor);
+                        const generatedUid = uidGenVisitor.getUId();
+                        const nodeFindingVisitor = new FindNodeByUidVisitor(generatedUid);
+                        traversNode(fullST, nodeFindingVisitor);
+                        selectedST = nodeFindingVisitor.getNode();
+
+                        if (generatedUid) {
+                            updateCurrentEntry({
+                                location: {
+                                    ...selectedEntry.location,
+                                    position: selectedST.position
+                                },
+                                uid: generatedUid
+                            });
+                        } else {
+                            // show identification failure message
+                        }
+                    }
+
+                    if (uid && position) {
+                        const nodeFindingVisitor = new FindNodeByUidVisitor(uid);
+                        traversNode(fullST, nodeFindingVisitor);
+
+                        if (!nodeFindingVisitor.getNode()) {
+                            const visitorToFindConstructByName = new FindConstructByNameVisitor(uid);
+                            traversNode(fullST, visitorToFindConstructByName);
+
+                            if (visitorToFindConstructByName.getNode()) {
+                                selectedST = visitorToFindConstructByName.getNode();
+
+                                updateCurrentEntry({
+                                    location: {
+                                        ...selectedEntry.location,
+                                        position: selectedST.position
+                                    },
+                                    uid: visitorToFindConstructByName.getUid()
+                                });
+                            } else {
+                                const visitorToFindConstructByIndex =
+                                    new FindConstructByIndexVisitor(uid, getConstructBodyString(fullST));
+                                traversNode(fullST, visitorToFindConstructByIndex);
+                                if (visitorToFindConstructByIndex.getNode()) {
+                                    selectedST = visitorToFindConstructByIndex.getNode();
+
+                                    updateCurrentEntry({
+                                        location: {
+                                            ...selectedEntry.location,
+                                            position: selectedST.position
+                                        },
+                                        uid: visitorToFindConstructByIndex.getUid()
+                                    });
+                                } else {
+                                    // show identification failure message
+                                }
+                            }
+                        } else {
+                            selectedST = nodeFindingVisitor.getNode();
+                            updateCurrentEntry({
+                                ...selectedEntry,
+                                location: {
+                                    ...selectedEntry.location,
+                                    position: selectedST.position
+                                }
+                            });
+                        }
+                    }
+                }
+                resolve(historyStack[historyStack.length - 1].location);
+                return;
             });
         }
     }
@@ -272,6 +375,7 @@ export function openView(type: "OPEN_VIEW" | "FILE_EDIT" | "EDIT_DONE", viewLoca
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 
-export function goBackOneView(type: "GO_BACK", viewLocation: VisualizerLocation) {
-    stateService.send({ type: type, viewLocation: viewLocation });
+export function goBackOneView() {
+    const lastView = historyStack[historyStack.length - 1];
+    stateService.send({ type: "GO_BACK", viewLocation: lastView ? lastView.location : { view: "Overview" } });
 }

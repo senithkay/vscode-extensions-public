@@ -26,6 +26,6 @@ export class VisualizerRpcManager implements VisualizerAPI {
 
     goBack(): void {
         popHistory();
-        goBackOneView("GO_BACK", historyStack[historyStack.length - 1])
+        goBackOneView()
     }
 }
