@@ -27,12 +27,17 @@ export class NodeFactoryVisitor implements Visitor {
     private previousSTNodes: STNode[] = [];
     private currentBranchName: string;
     private currentAddPosition: Position;
+    private documentUri: string;
+
+    constructor(documentUri: string) {
+        this.documentUri = documentUri;
+    }
 
     private createNodeAndLinks(node: STNode, name: string, type: NodeTypes = NodeTypes.MEDIATOR_NODE, data?: any): void {
         // create node
         let diagramNode: MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel;
         if (type === NodeTypes.MEDIATOR_NODE) {
-            diagramNode = new MediatorNodeModel(node, name, this.parents[this.parents.length - 1], this.previousSTNodes);
+            diagramNode = new MediatorNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.CONDITION_NODE) {
             diagramNode = new ConditionNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.START_NODE) {

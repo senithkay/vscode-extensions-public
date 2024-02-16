@@ -104,12 +104,13 @@ interface CallNodeWidgetProps {
 }
 
 export function MediatorNodeWidget(props: CallNodeWidgetProps) {
-    const { node, engine, onClick } = props;
+    const { node, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
     const visualizerContext = useVisualizerContext();
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
     const sidePanelContext = React.useContext(SidePanelContext);
+    const { rpcClient } = useVisualizerContext();
 
     const handleOnClickMenu = (event: any) => {
         setIsPopoverOpen(!isPopoverOpen);
@@ -137,7 +138,11 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
     };
 
     const handleOnDelete = () => {
-
+        rpcClient.getMiDiagramRpcClient().applyEdit({
+            documentUri: node.documentUri,
+            range: node.stNode.range,
+            text: "",
+        });
     };
 
     return (

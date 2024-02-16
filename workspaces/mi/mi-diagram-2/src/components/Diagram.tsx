@@ -25,7 +25,6 @@ import styled from "@emotion/styled";
 import { Colors } from "../resources/constants";
 import { VSCodePanelTab, VSCodePanelView, VSCodePanels } from '@vscode/webview-ui-toolkit/react';
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { debounce } from "lodash";
 
 export interface DiagramProps {
     model: APIResource | Sequence;
@@ -186,7 +185,7 @@ export function Diagram(props: DiagramProps) {
         const height = positionVisitor.getSequenceHeight();
 
         // run node visitor
-        const nodeVisitor = new NodeFactoryVisitor();
+        const nodeVisitor = new NodeFactoryVisitor(props.documentUri);
         traversNode(model, nodeVisitor);
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();
