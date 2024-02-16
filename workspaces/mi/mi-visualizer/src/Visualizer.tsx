@@ -13,6 +13,23 @@ import { MachineStateValue } from "@wso2-enterprise/mi-core";
 import MainPanel from "./MainPanel";
 import { GettingStarted } from "./views/GettingStarted";
 import { ProjectWizard } from "./views/Forms/ProjectForm";
+import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import styled from "@emotion/styled";
+
+const LoaderWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+    width: 100vw;
+`;
+
+const ProgressRing = styled(VSCodeProgressRing)`
+    height: 40px;
+    width: 40px;
+    margin-top: auto;
+    padding: 4px;
+`;
 
 export function Visualizer({ mode }: { mode: string }) {
     const { rpcClient } = useVisualizerContext();
@@ -51,7 +68,11 @@ const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue })
             return <ProjectWizard />;
 
         default:
-            return <h1>LOADING</h1>;
+            return (
+                <LoaderWrapper>
+                    <ProgressRing />
+                </LoaderWrapper>
+            );
     }
 });
 

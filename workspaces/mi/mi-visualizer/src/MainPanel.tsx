@@ -9,6 +9,23 @@ import { SequenceWizard } from './views/Forms/SequenceForm';
 import { NavigationBar } from './components/NavigationBar';
 import { ProjectWizard } from './views/Forms/ProjectForm';
 import { Diagram } from '@wso2-enterprise/mi-diagram-2';
+import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
+import styled from '@emotion/styled';
+
+const LoaderWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+    width: 100vw;
+`;
+
+const ProgressRing = styled(VSCodeProgressRing)`
+    height: 40px;
+    width: 40px;
+    margin-top: auto;
+    padding: 4px;
+`;
 
 const MainPanel = (props: { state: MachineStateValue }) => {
     const { state } = props;
@@ -81,7 +98,11 @@ const MainPanel = (props: { state: MachineStateValue }) => {
         <div style={{
             overflow: "hidden",
         }}>
-            {!component ? <h1>LOADING</h1> : <div>
+            {!component ? (
+                <LoaderWrapper>
+                    <ProgressRing />
+                </LoaderWrapper>
+            ) : <div>
                 <NavigationBar />
                 {component}
             </div>}
