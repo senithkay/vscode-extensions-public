@@ -31,9 +31,7 @@ import { checkDiagnostics, getUpdatedSource } from "../components/FormComponents
 import { RecordOverview } from "../RecordOverview";
 import { Context } from "../Context";
 import { FileSelect, FormContainer, FormWrapper, InputWrapper, LabelWrapper, useStyles } from "../style";
-import styled from "@emotion/styled";
 import { Typography } from "@wso2-enterprise/ui-toolkit";
-import { css } from "@emotion/css";
 import { FormTextInput } from "../components/FormComponents/FormFieldComponents/TextField/FormTextInput";
 import { FormHeaderSection } from "../components/FormComponents/FormFieldComponents/FormHeader/FormHeaderSection";
 import { CheckBoxGroup } from "../components/FormComponents/FormFieldComponents/CheckBox";
