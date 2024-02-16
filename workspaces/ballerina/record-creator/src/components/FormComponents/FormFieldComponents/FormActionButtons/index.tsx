@@ -8,13 +8,10 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
-
-import { StatementEditorButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-
-import { GreyButton } from "../../../../../components/Buttons/GreyButton";
-import { PrimaryButtonSquare } from "../../../../../components/Buttons/PrimaryButtonSquare";
-
 import { useStyles } from "./style";
+import { Switch } from "@headlessui/react";
+import { FormGroup } from "../../../../style";
+import { Button, Typography } from "@wso2-enterprise/ui-toolkit";
 
 export interface FormActionButtonsProps {
     cancelBtnText?: string;
@@ -30,27 +27,41 @@ export interface FormActionButtonsProps {
 
 export function FormActionButtons(props: FormActionButtonsProps) {
     const classes = useStyles();
-    const { cancelBtnText, saveBtnText, isMutationInProgress, validForm, onSave, onCancel, statementEditor,
-            toggleChecked, experimentalEnabled } = props;
+    const {
+        cancelBtnText,
+        saveBtnText,
+        isMutationInProgress,
+        validForm,
+        onSave,
+        onCancel,
+        statementEditor,
+        toggleChecked,
+        experimentalEnabled,
+    } = props;
     return (
         <div className={classes.formSave}>
             <div className={classes.stmtEditorToggle}>
                 {experimentalEnabled && statementEditor && (
-                    <StatementEditorButton checked={toggleChecked} />
+                    <FormGroup>
+                        <Switch checked={toggleChecked} />
+                    </FormGroup>
                 )}
             </div>
             <div className={classes.buttonWrapper}>
                 <div className={classes.spaceBetween}>
-                    <GreyButton text={cancelBtnText} fullWidth={false} onClick={onCancel}/>
+                    <Button appearance="secondary" onClick={onCancel}>
+                        <Typography variant="h5">{cancelBtnText}</Typography>
+                    </Button>
                 </div>
                 <div className={classes.spaceBetween}>
-                    <PrimaryButtonSquare
-                        testId="save-btn"
-                        text={saveBtnText}
+                    <Button
+                        appearance="primary"
                         disabled={isMutationInProgress || !validForm}
-                        fullWidth={false}
                         onClick={onSave}
-                    />
+                        data-testid="save-btn"
+                    >
+                        <Typography variant="h5">{saveBtnText}</Typography>
+                    </Button>
                 </div>
             </div>
         </div>

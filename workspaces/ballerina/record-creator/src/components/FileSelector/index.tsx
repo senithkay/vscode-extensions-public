@@ -6,14 +6,9 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-
 import React from "react";
-
-import { Button } from "@material-ui/core";
-import { FileUploadIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-
-import "../../style.scss";
-import { useStyles } from "../FormComponents/DynamicConnectorForm/style";
+import { Button, Icon } from "@wso2-enterprise/ui-toolkit";
+import "./style.scss"
 
 export interface FileSelectorProps {
     label: string;
@@ -22,8 +17,6 @@ export interface FileSelectorProps {
 }
 
 export function FileSelector(props: FileSelectorProps) {
-    const classes = useStyles();
-
     const { extension, label, onReadFile } = props;
 
     const hiddenFileInput = React.useRef(null);
@@ -56,10 +49,9 @@ export function FileSelector(props: FileSelectorProps) {
             />
             <Button
                 onClick={handleClick}
-                variant="text"
-                startIcon={<FileUploadIcon />}
-                className={classes.jsonUpload}
+                appearance="icon"
             >
+                <Icon name="file-upload" />
                 {`Upload ${extension.toUpperCase()} File`}
             </Button>
         </div>

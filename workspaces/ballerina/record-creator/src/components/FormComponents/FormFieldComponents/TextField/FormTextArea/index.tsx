@@ -9,16 +9,26 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useRef, useState } from "react";
 
-import { TextareaAutosize } from "@material-ui/core";
-import Typography from '@material-ui/core/Typography';
-import { FormElementProps } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import cn from "classnames";
-
-import { useStyles } from "../style";
-
 import "./style.scss";
+import { useStyles } from "./style";
+import { cx } from "@emotion/css";
+import { TextArea, Typography } from "@wso2-enterprise/ui-toolkit";
+import { FormField } from "../../../../../types";
 
-export interface FormTextAreaProps {
+interface FormTextAreaProps {
+    validate?: (field: string, isInvalid: boolean) => void;
+    rowsMax?: number;
+    defaultValue?: string;
+    label?: string;
+    placeholder?: string;
+    isInvalid?: boolean;
+    text?: string;
+}
+
+interface FormElementProps<T = {}> {
+    onChange?: (event: any) => void;
+    customProps?: T;
+    model?: FormField | any;
     validate?: (field: string, isInvalid: boolean) => void;
     rowsMax?: number;
     defaultValue?: string;
@@ -29,10 +39,10 @@ export interface FormTextAreaProps {
 }
 
 export function FormTextArea(props: FormElementProps<FormTextAreaProps>) {
-    const { onChange, defaultValue, placeholder, rowsMax, customProps, model } = props;
     const classes = useStyles();
+    const { onChange, defaultValue, placeholder, rowsMax, customProps, model } = props;
     const defaultText: string = defaultValue ? defaultValue : "";
-    const errorClass = customProps?.isInvalid ? cn("error-class") : cn("valid");
+    const errorClass = customProps?.isInvalid ? cx("error-class") : cx("valid");
     const codeAreaRef = useRef<HTMLTextAreaElement>(null);
 
     const [inputValue, setInputValue] = useState(defaultText);
@@ -42,6 +52,16 @@ export function FormTextArea(props: FormElementProps<FormTextAreaProps>) {
     }
 
     const handleOnChange = (event: any) => {
+        if (event.keyCode === 9) {
+            event.preventDefault();
+            const { selectionStart } = event.target;
+            codeAreaRef.current.setRangeText(
+                "  ",
+                selectionStart,
+                selectionStart,
+                "end"
+              );
+        }
         setInputValue(event.target.value);
         onChange(event.target.value);
     };
@@ -66,14 +86,13 @@ export function FormTextArea(props: FormElementProps<FormTextAreaProps>) {
     return (
         <div className="textarea-wrapper">
             <div className={errorClass}>
-                <TextareaAutosize
+                <TextArea
                     ref={codeAreaRef}
                     className={classes.textArea}
                     placeholder={placeholder}
-                    rowsMax={rowsMax}
                     onChange={handleOnChange}
-                    onKeyDown={handleOnKeyDown}
                     value={inputValue}
+                    resize="vertical"
                 />
                 {customProps?.text ? (
                     <Typography variant="body2" className='textarea-error-text'>{customProps.text}</Typography>

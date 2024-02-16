@@ -9,10 +9,9 @@
 import React from "react";
 import Lottie from "react-lottie";
 
-import cn from "classnames";
-
 import animationData from "./data.json";
 import "./styles.scss";
+import { cx } from "@emotion/css";
 
 export interface TextPreloaderVerticalProps {
     position: "relative" | "absolute";
@@ -23,8 +22,8 @@ export function TextPreloaderVertical(props: TextPreloaderVerticalProps) {
 
     const loaderPosition =
         position === "relative"
-            ? cn("TextVerticalPreloader-wrapper-relative")
-            : cn("TextVerticalPreloader-wrapper-absolute");
+            ? cx("TextVerticalPreloader-wrapper-relative")
+            : cx("TextVerticalPreloader-wrapper-absolute");
 
     const defaultOptions = {
         loop: true,

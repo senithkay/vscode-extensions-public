@@ -6,19 +6,22 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+import { ModulePart, NodePosition, STKindChecker, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import {
-    ModulePart,
-    NodePosition,
-    STKindChecker,
-    STNode,
-    TypeDefinition,
-} from "@wso2-enterprise/syntax-tree";
-import { DIAGNOSTIC_SEVERITY, JsonToRecordResponse, NOT_SUPPORTED_TYPE, PartialSTRequest, STModification, XMLToRecordResponse, getComponentSource } from "@wso2-enterprise/ballerina-core";
+    DIAGNOSTIC_SEVERITY,
+    JsonToRecordResponse,
+    NOT_SUPPORTED_TYPE,
+    PartialSTRequest,
+    STModification,
+    XMLToRecordResponse,
+    getComponentSource,
+} from "@wso2-enterprise/ballerina-core";
 import { LangServerRpcClient, RecordCreatorRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { RecordItemModel } from "../types";
 
 export const isNotSupportedType = (resp: any): resp is NOT_SUPPORTED_TYPE => {
-    return !('diagnostics' in resp);
-}
+    return !("diagnostics" in resp);
+};
 
 export async function convertJsonToRecordUtil(
     json: string,
@@ -34,20 +37,28 @@ export async function convertJsonToRecordUtil(
         isRecordTypeDesc: !isSeparateDefinitions,
     });
     if (isNotSupportedType(resp)) {
-        return { diagnostics: [{ message: "Please enter a valid JSON", severity: DIAGNOSTIC_SEVERITY.ERROR }], codeBlock: "" };
+        return {
+            diagnostics: [{ message: "Please enter a valid JSON", severity: DIAGNOSTIC_SEVERITY.ERROR }],
+            codeBlock: "",
+        };
     }
     if ((resp as JsonToRecordResponse).diagnostics === undefined) {
         try {
             JSON.parse(json);
             (resp as JsonToRecordResponse).diagnostics = [];
         } catch (e) {
-            (resp as JsonToRecordResponse).diagnostics = [{ message: "Please enter a valid JSON", severity: DIAGNOSTIC_SEVERITY.ERROR }];
+            (resp as JsonToRecordResponse).diagnostics = [
+                { message: "Please enter a valid JSON", severity: DIAGNOSTIC_SEVERITY.ERROR },
+            ];
         }
     }
     return resp;
 }
 
-export async function convertXmlToRecordUtil(xml: string, recordCreatorRpcClient: RecordCreatorRpcClient): Promise<XMLToRecordResponse> {
+export async function convertXmlToRecordUtil(
+    xml: string,
+    recordCreatorRpcClient: RecordCreatorRpcClient
+): Promise<XMLToRecordResponse> {
     const resp: XMLToRecordResponse | NOT_SUPPORTED_TYPE = await recordCreatorRpcClient.convertXMLToRecord({
         xmlValue: xml,
         isClosed: false,
@@ -55,7 +66,10 @@ export async function convertXmlToRecordUtil(xml: string, recordCreatorRpcClient
         isRecordTypeDesc: false,
     });
     if (isNotSupportedType(resp)) {
-        return { diagnostics: [{ message: "Please enter a valid XML", severity: DIAGNOSTIC_SEVERITY.ERROR }], codeBlock: "" };
+        return {
+            diagnostics: [{ message: "Please enter a valid XML", severity: DIAGNOSTIC_SEVERITY.ERROR }],
+            codeBlock: "",
+        };
     }
 
     if ((resp as XMLToRecordResponse).diagnostics === undefined) {
@@ -64,13 +78,18 @@ export async function convertXmlToRecordUtil(xml: string, recordCreatorRpcClient
             const xmlDoc = parser.parseFromString(xml, "text/xml");
             (resp as XMLToRecordResponse).diagnostics = [];
         } catch (e) {
-            (resp as XMLToRecordResponse).diagnostics = [{ message: "Please enter a valid XML", severity: DIAGNOSTIC_SEVERITY.ERROR }];
+            (resp as XMLToRecordResponse).diagnostics = [
+                { message: "Please enter a valid XML", severity: DIAGNOSTIC_SEVERITY.ERROR },
+            ];
         }
     }
     return resp;
 }
 
-export async function getRecordST(partialSTRequest: PartialSTRequest, langServerRpcClient: LangServerRpcClient): Promise<STNode> {
+export async function getRecordST(
+    partialSTRequest: PartialSTRequest,
+    langServerRpcClient: LangServerRpcClient
+): Promise<STNode> {
     const resp = await langServerRpcClient.getSTForModuleMembers(partialSTRequest);
     return resp.syntaxTree;
 }
@@ -81,7 +100,10 @@ export function getRootRecord(modulePartSt: ModulePart, name: string): TypeDefin
     ) as TypeDefinition;
 }
 
-export async function getModulePartST(partialSTRequest: PartialSTRequest, langServerRpcClient: LangServerRpcClient): Promise<STNode> {
+export async function getModulePartST(
+    partialSTRequest: PartialSTRequest,
+    langServerRpcClient: LangServerRpcClient
+): Promise<STNode> {
     const resp = await langServerRpcClient.getSTForModulePart(partialSTRequest);
     return resp.syntaxTree;
 }
@@ -142,4 +164,83 @@ export function mutateTypeDefinition(
             TYPE_DESCRIPTOR: typeDesc,
         },
     };
+}
+
+export function updatePropertyStatement(property: string, targetPosition: NodePosition): STModification {
+    const propertyStatement: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: targetPosition.startColumn,
+        endLine: targetPosition.endLine,
+        endColumn: targetPosition.endColumn,
+        type: "PROPERTY_STATEMENT",
+        config: {
+            PROPERTY: property,
+        },
+    };
+
+    return propertyStatement;
+}
+
+export function extractImportedRecordNames(definitions: ModulePart | TypeDefinition): RecordItemModel[] {
+    const recordName: { name: string, checked: boolean }[] = [];
+    if (STKindChecker.isModulePart(definitions)) {
+        const typeDefs: TypeDefinition[] = definitions.members
+            .filter(definition => STKindChecker.isTypeDefinition(definition)) as TypeDefinition[];
+        typeDefs.forEach(typeDef => recordName.push({ name: typeDef?.typeName?.value, checked: false }));
+    } else if (STKindChecker.isTypeDefinition(definitions)) {
+        recordName.push({ name: definitions.typeName.value, checked: false });
+    }
+    return recordName;
+}
+
+export function getActualRecordST(syntaxTree: STNode, recordName: string): TypeDefinition {
+    let typeDef: TypeDefinition;
+    if (STKindChecker.isModulePart(syntaxTree)) {
+        typeDef = (syntaxTree.members
+            .filter(definition => STKindChecker.isTypeDefinition(definition)) as TypeDefinition[])
+            .find(record => record.typeName.value === recordName);
+    }
+    return typeDef;
+}
+
+export function getAvailableCreatedRecords(recordNames: RecordItemModel[], syntaxTree: STNode): RecordItemModel[] {
+    const records: RecordItemModel[] = [];
+    if (STKindChecker.isModulePart(syntaxTree)) {
+        const typeDefs: TypeDefinition[] = syntaxTree.members
+            .filter(definition => STKindChecker.isTypeDefinition(definition)) as TypeDefinition[];
+        const avaibaleRecords = typeDefs.filter(record => recordNames.some(res => res.name === record.typeName.value));
+        if (avaibaleRecords.length > 0) {
+            avaibaleRecords.forEach((record) => {
+                records.push({ name: record.typeName.value, checked: false });
+            })
+        }
+    }
+    return records;
+}
+
+function removeStatement(targetPosition: NodePosition): STModification {
+    const removeLine: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: targetPosition.startColumn,
+        endLine: targetPosition.endLine,
+        endColumn: targetPosition.endColumn,
+        type: 'DELETE'
+    };
+
+    return removeLine;
+}
+
+export function getRemoveCreatedRecordRange(recordNames: string[], syntaxTree: STNode): STModification[] {
+    const modifications: STModification[] = [];
+    if (STKindChecker.isModulePart(syntaxTree)) {
+        const typeDefs: TypeDefinition[] = syntaxTree.members
+            .filter(definition => STKindChecker.isTypeDefinition(definition)) as TypeDefinition[];
+        const createdRecords = typeDefs.filter(record => recordNames.includes(record.typeName.value));
+        if (createdRecords.length > 0) {
+            createdRecords.forEach((record) => {
+                modifications.push(removeStatement(record.position));
+            })
+        }
+    }
+    return modifications;
 }

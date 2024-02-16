@@ -89,3 +89,67 @@ export enum VERSION {
     ALPHA = "alpha",
     PREVIEW = "preview",
 }
+
+export interface NonPrimitiveBal {
+    orgName: string;
+    moduleName: string;
+    name: string;
+    version?: string;
+}
+
+export interface DiagramDiagnostic {
+    message: string;
+    diagnosticInfo: {
+        code: string;
+        severity: string;
+    };
+    range: NodePosition;
+}
+
+export interface FormField {
+    typeName: string;
+    name?: string;
+    displayName?: string;
+    memberType?: FormField;
+    inclusionType?: FormField;
+    paramType?: FormField;
+    selectedDataType?: string;
+    description?: string;
+    defaultValue?: any;
+    value?: any;
+    optional?: boolean;
+    defaultable?: boolean;
+    fields?: FormField[];
+    members?: FormField[];
+    references?: FormField[];
+    restType?: FormField;
+    constraintType?: FormField;
+    rowType?: FormField;
+    keys?: string[];
+    isReturn?: boolean;
+    isTypeDef?: boolean;
+    isReference?: boolean;
+    isStream?: boolean;
+    isErrorUnion?: boolean;
+    typeInfo?: NonPrimitiveBal;
+    hide?: boolean;
+    aiSuggestion?: string;
+    noCodeGen?: boolean;
+    requestName?: string;
+    tooltip?: string;
+    tooltipActionLink?: string;
+    tooltipActionText?: string;
+    isErrorType?: boolean;
+    isRestParam?: boolean;
+    hasRestType?: boolean;
+    isRestType?: boolean;
+    customAutoComplete?: string[];
+    validationRegex?: any;
+    leftTypeParam?: any;
+    rightTypeParam?: any;
+    initialDiagnostics?: DiagramDiagnostic[];
+    documentation?: string;
+    displayAnnotation?: any;
+    position?: NodePosition;
+    selected?: boolean;
+}

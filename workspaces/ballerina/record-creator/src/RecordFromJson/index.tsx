@@ -118,8 +118,8 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
         const updateContent = getUpdatedSource(content, currentFile.content, targetPosition);
         const diagnostics = await checkDiagnostics(currentFile?.path, updateContent, langServerRpcClient);
         let filteredDiagnostics;
-        if (diagnostics[0]?.severity === 1 && diagnostics[0]?.range?.start?.line - 1 === targetPosition.startLine) {
-            filteredDiagnostics = diagnostics.filter((diag) => diag.message.includes(event.target.value));
+        if (diagnostics[0]?.diagnostics[0].severity === 1 && diagnostics[0]?.diagnostics[0].range?.start?.line - 1 === targetPosition.startLine) {
+            filteredDiagnostics = diagnostics[0].diagnostics.filter((diag) => diag.message.includes(event.target.value));
         }
         dispatchFromState({
             type: "recordNameChange",
@@ -282,7 +282,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                         </InputWrapper>
                         <FormTextArea
                             rowsMax={5.1}
-                            dataTestId="json-input"
+                            data-TestId="json-input"
                             placeholder={`eg: {"organization": "wso2", "address": "Colombo"}`}
                             onChange={onJsonChange}
                             customProps={{

@@ -9,13 +9,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
-
-import { FormHelperText, InputAdornment, TextField as MuiTextField } from "@material-ui/core";
-import { FormElementProps } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-
-import { connectorStyles as useFormStyles } from "../connectorStyle";
-import { useStyles as useTextInputStyles } from "../formStyle";
-import { TooltipIcon } from "../Tooltip";
+import { InputWrapper, LabelWrapper, useStyles } from "../../../../../style";
+import { TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { getTooltipIconComponent } from "../../../Utils";
 
 interface FormTextInputProps {
     validate?: (value: any) => boolean;
@@ -26,10 +22,27 @@ interface FormTextInputProps {
     startAdornment?: string;
     tooltipTitle?: string;
     focused?: boolean;
-    readonly?: boolean;
     disabled?: boolean;
     secret?: boolean;
     isErrored?: boolean;
+    readonly?: boolean;
+}
+
+interface FormElementProps<T = {}> {
+    index?: number;
+    customProps?: T;
+    onChange?: (event: any) => void;
+    onKeyUp?: (event: any) => void;
+    onBlur?: (event: any) => void;
+    onClick?: () => void;
+    onFocus?: (event: any) => void;
+    defaultValue?: any;
+    label?: string;
+    placeholder?: string;
+    errorMessage?: string;
+    dataTestId?: string;
+    size?: "small" | "medium";
+    disabled?: boolean;
 }
 
 export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
@@ -49,8 +62,6 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
         size = "medium",
         disabled,
     } = props;
-    const formClasses = useFormStyles();
-    const textFieldClasses = useTextInputStyles();
     const defaultText: string = defaultValue ? defaultValue : "";
     const textLabel = label ? label : "";
 
@@ -61,6 +72,8 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
         customProps.clearInput = false;
         setInputValue("");
     }
+
+    const classes = useStyles();
 
     // to render invalid variable
     const [isInvalid, setIsInvalid] = useState(customProps?.isErrored);
@@ -134,65 +147,55 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
         <>
             {textLabel !== "" ? (
                 customProps && customProps.optional ? (
-                    <div className={textFieldClasses.inputWrapper}>
-                        <div className={textFieldClasses.inputWrapper}>
-                            <div className={textFieldClasses.labelWrapper}>
-                                <FormHelperText className={formClasses.inputLabelForRequired}>
-                                    {textLabel}
-                                </FormHelperText>
-                                <FormHelperText className={formClasses.optionalLabel}>
-                                    <FormattedMessage
-                                        id="lowcode.develop.elements.textField.formTextInput.optional.label"
-                                        defaultMessage="Optional"
-                                    />
-                                </FormHelperText>
-                            </div>
-                        </div>
-                        {customProps?.tooltipTitle && <TooltipIcon title={customProps?.tooltipTitle} arrow={true} />}
-                    </div>
+                    <InputWrapper>
+                        <LabelWrapper>
+                            <Typography variant="caption" className={classes.inputLabelForRequired}>
+                                {textLabel}
+                            </Typography>
+                            <Typography variant="caption" className={classes.optionalLabel}>
+                                <FormattedMessage
+                                    id="lowcode.develop.elements.textField.formTextInput.optional.label"
+                                    defaultMessage="Optional"
+                                />
+                            </Typography>
+                        </LabelWrapper>
+                        {customProps?.tooltipTitle && getTooltipIconComponent(customProps.tooltipTitle)}
+                    </InputWrapper>
                 ) : (
-                    <div className={textFieldClasses.inputWrapper}>
-                        <div className={textFieldClasses.labelWrapper}>
-                            <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
-                            <FormHelperText className={formClasses.starLabelForRequired}>*</FormHelperText>
-                        </div>
-                        {customProps?.tooltipTitle && <TooltipIcon title={customProps?.tooltipTitle} arrow={true} />}
-                    </div>
+                    <InputWrapper>
+                        <LabelWrapper>
+                            <Typography variant="caption" className={classes.inputLabelForRequired}>
+                                {textLabel}
+                            </Typography>
+                            <Typography variant="caption" className={classes.starLabelForRequired}>
+                                *
+                            </Typography>
+                        </LabelWrapper>
+                        {customProps?.tooltipTitle && getTooltipIconComponent(customProps.tooltipTitle)}
+                    </InputWrapper>
                 )
             ) : null}
             {customProps.readonly ? (
-                <FormHelperText className={formClasses.readOnlyEditor}>{inputValue}</FormHelperText>
+                <Typography variant="caption" className={classes.readOnlyEditor}>
+                    {inputValue}
+                </Typography>
             ) : (
-                <MuiTextField
+                <TextField
                     data-testid={dataTestId}
-                    error={isInvalid}
                     key={index}
-                    InputProps={{
-                        disableUnderline: true,
-                        // tslint:disable-next-line: jsx-curly-spacing
-                        classes: {
-                            root: textFieldClasses.textFeild,
-                            error: textFieldClasses.errorField,
-                        },
-                        startAdornment: customProps?.startAdornment ? (
-                            <InputAdornment position="start">{customProps.startAdornment}</InputAdornment>
-                        ) : null,
-                    }}
                     placeholder={placeholder}
-                    fullWidth={true}
-                    size={size}
-                    margin="normal"
-                    InputLabelProps={{ shrink: true }}
                     onChange={handleOnChange}
-                    onKeyUp={handleOnKeyUp}
                     onBlur={handleOnBlur}
-                    onClick={handleOnClick}
-                    onFocus={handleOnFocus}
                     value={inputValue}
-                    helperText={isInvalid ? errorMsg : ""}
                     autoFocus={customProps?.focused}
                     disabled={disabled}
                     type={customProps?.secret ? "password" : "text"}
+                    errorMsg={isInvalid ? errorMsg : ""}
+                    InputProps={{
+                        startAdornment: customProps?.startAdornment ? (
+                            <Typography variant="body1">{customProps.startAdornment}</Typography>
+                        ) : undefined,
+                    }}
                 />
             )}
         </>

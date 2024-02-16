@@ -217,7 +217,7 @@ export function RecordFromXml(recordFromXmlProps: RecordFromXmlProps) {
                         </InputWrapper>
                         <FormTextArea
                             rowsMax={5.1}
-                            dataTestId="xml-input"
+                            data-TestId="xml-input"
                             placeholder={`eg: <company><org>wso2</org><address>Colombo</address></company>`}
                             onChange={onXmlChange}
                             customProps={{

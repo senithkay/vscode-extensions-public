@@ -11,7 +11,7 @@ import React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 import styled from "@emotion/styled";
 import { Button, Codicon, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
-import { FormHeaderSection } from "../style";
+import { FormHeaderSection } from "../components/FormComponents/FormFieldComponents/FormHeader/FormHeaderSection";
 
 export interface RecordConfigTypeProps {
     isDataMapper?: boolean;
@@ -41,20 +41,10 @@ export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
     return (
         <>
             {!isDataMapper && (
-                <FormHeaderSection>
-                    <Typography variant="h4">
-                        <FormattedMessage
-                            id={"lowcode.develop.configForms.recordEditor.codePanel.title"}
-                            defaultMessage={"Record"}
-                        />
-                        <Button
-                            appearance="icon"
-                            onClick={onCancel}
-                        >
-                            <Codicon name="close" />
-                        </Button>
-                    </Typography>
-                </FormHeaderSection>
+                <FormHeaderSection
+                    formTitle="lowcode.develop.configForms.recordEditor.codePanel.title"
+                    defaultMessage="Record"
+                />
             )}
             <RecordFormWrapper>
                 <CreateButtonWrapper>

@@ -8,14 +8,9 @@
  */
 // tslint:disable:jsx-no-multiline-js
 import React from "react";
-
-import NavigateNextIcon from "@material-ui/icons/NavigateNext";
-import { getConstructIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-
-import { BackButton } from "./BackButton";
-import { CloseButton } from "./CloseButton";
-import { FormTitle } from "./FormTitle";
 import { useStyles } from "./style";
+import { Button, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { FormattedMessage } from "react-intl";
 
 interface FormHeaderSectionProps {
     formTitle: string;
@@ -28,23 +23,32 @@ interface FormHeaderSectionProps {
 }
 
 export function FormHeaderSection(props: FormHeaderSectionProps) {
-    const { onCancel, onBack, formTitle, formTitleSecond, defaultMessage, defaultMessageSecond, formType } = props;
+    const { onCancel, onBack, formTitle, formTitleSecond, defaultMessage, defaultMessageSecond } = props;
     const formClasses = useStyles();
-    // TODO need to move the assests folder to commens module
-    const icon = formType && formType.length > 0 ? getConstructIcon(formType) : null;
 
     return (
         <div className={formClasses.formHeaderTitleWrapper}>
-            {formType ? <div className={formClasses.titleIcon}>{icon}</div> : null}
-            {onBack && <BackButton onBack={onBack} />}
-            <FormTitle formTitle={formTitle} defaultMessage={defaultMessage} />
+            {onBack && (
+                <Button appearance="icon" onClick={onBack}>
+                    <Codicon name="arrow-small-left" />
+                </Button>
+            )}
+            <Typography variant="h4" sx={{ paddingTop: "19px", paddingBottom: "16px" }}>
+                <FormattedMessage id={formTitle} defaultMessage={defaultMessage} />
+            </Typography>
             {formTitleSecond && (
                 <div className={formClasses.secondTitle}>
-                    <NavigateNextIcon fontSize="small" />{" "}
-                    <FormTitle formTitle={formTitleSecond} defaultMessage={defaultMessageSecond} />{" "}
+                    <Codicon name="chevron-right" />{" "}
+                    <Typography variant="h4" sx={{ paddingTop: "19px", paddingBottom: "16px" }}>
+                        <FormattedMessage id={formTitleSecond} defaultMessage={defaultMessageSecond} />
+                    </Typography>{" "}
                 </div>
             )}
-            {onCancel && <CloseButton onCancel={onCancel} />}
+            {onCancel && (
+                <Button appearance="icon" onClick={onCancel}>
+                    <Codicon name="close" />
+                </Button>
+            )}
         </div>
     );
 }

@@ -8,12 +8,10 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
-
-import { ParamEditButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-import { CheckBoxGroup } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-
-import { recordStyles } from "../style";
 import { RecordItemModel } from "../types";
+import { CheckBoxGroup } from "../components/FormComponents/FormFieldComponents/CheckBox";
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { useStyles } from "../style";
 
 interface ParamItemProps {
     record: RecordItemModel;
@@ -22,8 +20,8 @@ interface ParamItemProps {
 }
 
 export function RecordItem(props: ParamItemProps) {
+    const classes = useStyles();
     const { record, onEditClick, handleOnCheck } = props;
-    const recordClasses = recordStyles();
 
     const handleEdit = () => {
         onEditClick(record.name);
@@ -35,18 +33,18 @@ export function RecordItem(props: ParamItemProps) {
     };
 
     return (
-        <div className={recordClasses.headerWrapper} data-testid={`${record.name}-item`}>
-            <div className={recordClasses.contentSection} >
+        <div className={classes.headerWrapper} data-testid={`${record.name}-item`}>
+            <div className={classes.contentSection}>
                 <CheckBoxGroup
                     values={[record.name]}
                     defaultValues={record.checked ? [record.name] : []}
                     onChange={handleCheckboxClick}
                 />
             </div>
-            <div className={recordClasses.iconSection}>
-                <div className={recordClasses.editIconWrapper}>
-                    <ParamEditButton onClick={handleEdit} />
-                </div>
+            <div className={classes.iconSection}>
+                <Button appearance="icon" onClick={handleEdit} sx={{ height: "14px", width: "14px" }}>
+                    <Codicon name="edit" />
+                </Button>
             </div>
         </div>
     );

@@ -8,251 +8,19 @@
  */
 import React from "react";
 
-import {
-    ConnectorConfig,
-    FormField,
-    FormFieldReturnType,
-    genVariableName,
-    getAllVariables,
-    STModification,
-    STSymbolInfo,
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import * as monaco from "monaco-editor";
-import { Diagnostic } from "vscode-languageserver-protocol";
-
-import {
-    createImportStatement,
-    createPropertyStatement,
-    createQueryWhileStatement,
-    updateFunctionSignature,
-} from "../../../utils/modification-util";
-import * as Forms from "../ConfigForms";
-import { FormFieldChecks } from "../Types";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { DiagnosticsResponse } from "@wso2-enterprise/ballerina-core";
+import { DiagnosticData, DiagnosticsResponse } from "@wso2-enterprise/ballerina-core";
+import { Codicon, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
+import * as monaco from "monaco-editor";
 
 export const FILE_SCHEME = "file://";
 export const EXPR_SCHEME = "expr://";
-
-export function getForm(type: string, args: any) {
-    const Form = (Forms as any)[type];
-    return Form ? <Form {...args} /> : <Forms.Custom {...args} />;
-}
-
-export function isAllEmpty(allFieldChecks: Map<string, FormFieldChecks>): boolean {
-    let result = true;
-    allFieldChecks?.forEach((fieldChecks, key) => {
-        if (!fieldChecks.isEmpty) {
-            result = false;
-        }
-    });
-    return result;
-}
-
-export function isAllIgnorable(fields: FormField[]): boolean {
-    let result = true;
-    fields?.forEach((field, key) => {
-        if (!(field.optional || field.defaultable)) {
-            result = false;
-        }
-    });
-    return result;
-}
-
-export function isAllDefaultableFields(recordFields: FormField[]): boolean {
-    return recordFields?.every((field) => field.defaultable || (field.fields && isAllDefaultableFields(field.fields)));
-}
-
-export function isAnyFieldSelected(recordFields: FormField[]): boolean {
-    return recordFields?.some((field) => field.selected || (field.fields && isAnyFieldSelected(field.fields)));
-}
-
-export function isAllFieldsValid(
-    allFieldChecks: Map<string, FormFieldChecks>,
-    model: FormField | FormField[],
-    isRoot: boolean
-): boolean {
-    let result = true;
-    let canModelIgnore = false;
-    let allFieldsIgnorable = false;
-
-    if (!isRoot) {
-        const formField = model as FormField;
-        canModelIgnore = formField.optional || formField.defaultable;
-        allFieldsIgnorable = isAllIgnorable(formField.fields);
-    } else {
-        const formFields = model as FormField[];
-        allFieldsIgnorable = isAllIgnorable(formFields);
-    }
-
-    allFieldChecks?.forEach((fieldChecks) => {
-        if (!canModelIgnore && !fieldChecks.canIgnore && (!fieldChecks.isValid || fieldChecks.isEmpty)) {
-            result = false;
-        }
-        if (fieldChecks.canIgnore && !fieldChecks.isEmpty && !fieldChecks.isValid) {
-            result = false;
-        }
-    });
-
-    return result;
-}
-
-const BALLERINA_CENTRAL_ROOT = "https://lib.ballerina.io";
-const BALLERINA_CENTRAL_STAGE = "https://staging-lib.ballerina.io";
-const BALLERINA_CENTRAL_DEV = "https://dev-lib.ballerina.io";
 
 export enum VERSION {
     BETA = "beta",
     ALPHA = "alpha",
     PREVIEW = "preview",
-}
-
-export function generateDocUrl(org: string, module: string, method: string, clientName: string, env: string) {
-    const environment =
-        env === "dev" ? BALLERINA_CENTRAL_DEV : env === "stage" ? BALLERINA_CENTRAL_STAGE : BALLERINA_CENTRAL_ROOT;
-
-    // tslint:disable-next-line: no-console
-    return method
-        ? clientName
-            ? `${environment}/${org}/${module}/latest/clients/${clientName}#${method}`
-            : `${environment}/${org}/${module}/latest/clients/Client#${method}`
-        : clientName
-        ? `${environment}/${org}/${module}/latest/clients/${clientName}`
-        : `${environment}/${org}/${module}/latest/clients/Client`;
-}
-
-export function updateFunctionSignatureWithError(modifications: STModification[], activeFunction: FunctionDefinition) {
-    const parametersStr = activeFunction.functionSignature.parameters.map((item) => item.source).join(",");
-    const returnTypeStr = addErrorReturnType(activeFunction.functionSignature.returnTypeDesc?.source.trim());
-
-    const functionSignature = updateFunctionSignature(activeFunction.functionName.value, parametersStr, returnTypeStr, {
-        ...activeFunction.functionSignature.position,
-        startColumn: activeFunction.functionName.position.startColumn,
-    });
-    if (functionSignature) {
-        modifications.push(functionSignature);
-    }
-}
-
-function addErrorReturnType(returnTypeStr: string): string {
-    // The function signature already includes the error return type.
-    if (returnTypeStr?.includes("error")) {
-        return returnTypeStr;
-    }
-    // Handles the scenarios where the error return type is not present.
-    if (returnTypeStr?.includes("?") || returnTypeStr?.includes("()")) {
-        returnTypeStr = returnTypeStr + "|error";
-    } else if (returnTypeStr) {
-        returnTypeStr = returnTypeStr + "|error?";
-    } else {
-        returnTypeStr = "returns error?";
-    }
-    return returnTypeStr;
-}
-
-export function addReturnTypeImports(modifications: STModification[], returnType: FormFieldReturnType) {
-    if (returnType.importTypeInfo) {
-        returnType.importTypeInfo?.forEach((typeInfo) => {
-            const addImport: STModification = createImportStatement(typeInfo.orgName, typeInfo.moduleName, {
-                startColumn: 0,
-                startLine: 0,
-            });
-            const existsMod = modifications.find(
-                (modification) => JSON.stringify(addImport) === JSON.stringify(modification)
-            );
-            if (!existsMod) {
-                modifications.push(addImport);
-            }
-        });
-    }
-}
-
-export function isDependOnDriver(connectorModule: string): boolean {
-    const dbConnectors = ["mysql", "mssql", "postgresql", "oracledb", "cdata.connect", "snowflake"];
-    if (dbConnectors.includes(connectorModule)) {
-        return true;
-    }
-    return false;
-}
-
-export function addDbExtraImport(
-    modifications: STModification[],
-    syntaxTree: STNode,
-    orgName: string,
-    moduleName: string
-) {
-    let importCounts: number = 0;
-    if (STKindChecker.isModulePart(syntaxTree)) {
-        (syntaxTree as ModulePart).imports?.forEach((imp) => {
-            if (
-                imp.typeData?.symbol?.moduleID &&
-                imp.typeData.symbol.moduleID.orgName === orgName &&
-                imp.typeData.symbol.moduleID.moduleName === `${moduleName}.driver`
-            ) {
-                importCounts = importCounts + 1;
-            }
-        });
-        if (importCounts === 0 && isDependOnDriver(moduleName)) {
-            const addDriverImport: STModification = createImportStatement(orgName, `${moduleName}.driver as _`, {
-                startColumn: 0,
-                startLine: 0,
-            });
-            modifications.push(addDriverImport);
-        }
-    }
-}
-
-export function addDbExtraStatements(
-    modifications: STModification[],
-    config: ConnectorConfig,
-    stSymbolInfo: STSymbolInfo,
-    targetPosition: NodePosition,
-    isAction: boolean
-) {
-    if (config.action.name === "query") {
-        const resultUniqueName = genVariableName("recordResult", getAllVariables(stSymbolInfo));
-        const returnTypeName = config.action.returnVariableName;
-        const addQueryWhileStatement = createQueryWhileStatement(resultUniqueName, returnTypeName, targetPosition);
-        modifications.push(addQueryWhileStatement);
-
-        const closeStreamStatement = `check ${returnTypeName}.close();`;
-        const addCloseStreamStatement = createPropertyStatement(closeStreamStatement, targetPosition);
-        modifications.push(addCloseStreamStatement);
-    }
-    if (!isAction) {
-        const resp = config.name;
-        const closeStatement = `check ${resp}.close();`;
-        const addCloseStatement = createPropertyStatement(closeStatement, targetPosition);
-        modifications.push(addCloseStatement);
-    }
-}
-
-export function isStatementEditorSupported(version: string): boolean {
-    // Version example
-    // 2301.0.0
-    // major release of next year
-    // YYMM.0.0
-    if (!version) {
-        return false;
-    }
-    const versionRegex = new RegExp("^[0-9]{4}.[0-9].[0-9]");
-    const versionStr = version.match(versionRegex);
-    const splittedVersions = versionStr[0]?.split(".");
-    if (parseInt(splittedVersions[0], 10) === 2201) {
-        // 2201.1.x
-        if (parseInt(splittedVersions[1], 10) === 1) {
-            return parseInt(splittedVersions[2], 10) >= 1;
-        } else {
-            // > 2201.0 (eg: 2301.1.2, 2301.2.2)
-            return parseInt(splittedVersions[1], 10) > 0;
-        }
-    } else if (parseInt(splittedVersions[0], 10) > 2201) {
-        // > 2201 (eg: 2301, 2202)
-        return true;
-    } else {
-        return false;
-    }
 }
 
 export function getUpdatedSource(
@@ -266,7 +34,7 @@ export function getUpdatedSource(
     return addToTargetPosition(currentFileContent, targetPosition, updatedStatement);
 }
 
-export function addToTargetPosition(currentContent: string, position: NodePosition, codeSnippet: string): string {
+function addToTargetPosition(currentContent: string, position: NodePosition, codeSnippet: string): string {
     const splitContent: string[] = currentContent.split(/\n/g) || [];
     const splitCodeSnippet: string[] = codeSnippet.trimEnd().split(/\n/g) || [];
     const noOfLines: number = position.endLine - position.startLine + 1;
@@ -298,16 +66,13 @@ export async function checkDiagnostics(
     path: string,
     updatedContent: string,
     langServerRpcClient: LangServerRpcClient
-) {
+): Promise<DiagnosticData[]> {
     const fileURI = monaco.Uri.file(path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
     await sendDidChange(fileURI, updatedContent, langServerRpcClient);
     return handleDiagnostics(fileURI, langServerRpcClient);
 }
 
-export async function getDiagnostics(
-    docUri: string,
-    langServerRpcClient: LangServerRpcClient
-): Promise<DiagnosticsResponse> {
+async function getDiagnostics(docUri: string, langServerRpcClient: LangServerRpcClient): Promise<DiagnosticsResponse> {
     const diagnostics = await langServerRpcClient.getDiagnostics({
         documentIdentifier: {
             uri: docUri,
@@ -317,16 +82,16 @@ export async function getDiagnostics(
     return diagnostics;
 }
 
-export const handleDiagnostics = async (
+const handleDiagnostics = async (
     fileURI: string,
     langServerRpcClient: LangServerRpcClient
-): Promise<Diagnostic[]> => {
+): Promise<DiagnosticData[]> => {
     const diagResp = await getDiagnostics(fileURI, langServerRpcClient);
     const diag = diagResp?.diagnostics ? diagResp.diagnostics : [];
     return diag;
 };
 
-export async function sendDidChange(docUri: string, content: string, langServerRpcClient: LangServerRpcClient) {
+async function sendDidChange(docUri: string, content: string, langServerRpcClient: LangServerRpcClient) {
     langServerRpcClient.didChange({
         contentChanges: [
             {
@@ -355,4 +120,12 @@ export function isSupportedSLVersion(balVersion: string, minSupportedVersion: nu
         return true;
     }
     return false;
+}
+
+export function getTooltipIconComponent(title: string): React.ReactNode {
+    return (
+        <Tooltip content={<Typography variant="body1">{title}</Typography>} position="bottom-end">
+            <Codicon name="info" />
+        </Tooltip>
+    );
 }
