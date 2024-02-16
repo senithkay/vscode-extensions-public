@@ -554,7 +554,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
         let status = true;
-        // ADD YOUR IMPLEMENTATION HERE
         //if file exists, overwrite if not, create new file and write content.  if successful, return true, else false
         const { content, directoryPath } = params;
     
