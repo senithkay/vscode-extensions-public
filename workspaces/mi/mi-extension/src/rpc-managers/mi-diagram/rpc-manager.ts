@@ -53,6 +53,7 @@ import path = require("path");
 const { XMLParser } = require("fast-xml-parser");
 import axios from 'axios';
 import { Transform } from 'stream';
+import { MI_COPILOT_BACKEND_URL } from "../../constants";
 
 const connectorsPath = path.join(".metadata", ".Connectors");
 export class MiDiagramRpcManager implements MiDiagramAPI {
@@ -529,7 +530,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async getAIResponse(params: AIUserInput): Promise<string> {
         let result = '';
         try {
-            const response = await axios.post('http://localhost:8000/generate-synapse', {
+            const response = await axios.post(MI_COPILOT_BACKEND_URL, {
                 chat_history: params.chat_history,
             }, { responseType: 'stream' });
 

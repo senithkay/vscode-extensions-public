@@ -69,7 +69,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(closeWebView, () => rpcManger.closeWebView());
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));
     messenger.onNotification(openFile, (args: OpenDiagramRequest) => rpcManger.openFile(args));
-        messenger.onNotification(closeWebViewNotification, () => rpcManger.closeWebViewNotification());
+    messenger.onNotification(closeWebViewNotification, () => rpcManger.closeWebViewNotification());
     messenger.onRequest(getProjectRoot, () => rpcManger.getProjectRoot());
     messenger.onRequest(askProjectDirPath, () => rpcManger.askProjectDirPath());
     messenger.onRequest(createProject, (args: CreateProjectRequest) => rpcManger.createProject(args));
