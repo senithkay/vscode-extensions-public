@@ -159,12 +159,12 @@ export function DataMapperC(props: DataMapperViewProps) {
         libraryBrowserRpcClient,
         applyModifications,
         onClose,
-        goToFunction: updateSelectedComponent
+        goToFunction: updateSelectedComponent,
+        renderRecordPanel
     } = props;
     const openedViaPlus = false;
     const goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void = undefined;
     const onSave: (fnName: string) => void = undefined;
-    const recordPanel: (props: { targetPosition: NodePosition, closeAddNewRecord: () => void }) => JSX.Element = undefined;
     const updateActiveFile: (currentFile: FileListEntry) => void = undefined;
 
     const { projectComponents, isFetching: isFetchingComponents } = useProjectComponents(langServerRpcClient, filePath);
@@ -271,6 +271,21 @@ export function DataMapperC(props: DataMapperViewProps) {
 
     const handleLocalVarConfigPanel = (showPanel: boolean) => {
         setShowLocalVarConfigPanel(showPanel);
+    }
+
+    const recordPanel = (closeAddNewRecord: (createdNewRecord?: string) => void) => {
+        return renderRecordPanel({
+            closeAddNewRecord,
+            expressionInfo: currentEditableField,
+            langServerRpcClient,
+            libraryBrowserRpcClient,
+            applyModifications,
+            currentFile,
+            onCancelStatementEditor: cancelStatementEditor,
+            onClose: closeStatementEditor,
+            importStatements,
+            currentReferences
+        });
     }
 
     const referenceManager = {

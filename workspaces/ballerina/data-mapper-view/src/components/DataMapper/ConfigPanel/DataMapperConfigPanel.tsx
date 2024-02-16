@@ -64,7 +64,7 @@ export interface DataMapperConfigPanelProps {
     onClose: () => void;
     applyModifications: (modifications: STModification[]) => Promise<void>;
     langServerRpcClient: LangServerRpcClient;
-    recordPanel?: (props: { targetPosition: NodePosition, closeAddNewRecord: () => void }) => JSX.Element;
+    recordPanel?: (closeAddNewRecord: (createdNewRecord?: string) => void) => React.ReactElement;
 }
 
 
@@ -430,10 +430,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                         </FormTitleContainer>
                     )}
                     {isNewRecord &&
-                        recordPanel({
-                            targetPosition: getModifiedTargetPosition(newRecords, targetPosition, projectComponents, currentFile.path),
-                            closeAddNewRecord
-                        })
+                        recordPanel(closeAddNewRecord)
                     }
                     {!isNewRecord && (
                         <>
