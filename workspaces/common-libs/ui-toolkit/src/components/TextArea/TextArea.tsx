@@ -13,6 +13,7 @@ import { RequiredFormInput } from "../Commons/RequiredInput";
 import styled from '@emotion/styled';
 
 export interface TextAreaProps {
+    ref?: React.MutableRefObject<HTMLTextAreaElement>;
     value: string;
     label?: string;
     id?: string;
@@ -46,7 +47,7 @@ const LabelContainer = styled.div<ContainerProps>`
 `;
 
 export function TextArea(props: TextAreaProps) {
-    const { label, value, id, className, autoFocus, required, onChange, placeholder, validationMessage, cols = 40, 
+    const { ref, label, value, id, className, autoFocus, required, onChange, placeholder, validationMessage, cols = 40, 
         rows, disabled, resize, readonly, errorMsg, sx
     } = props;
     const handleChange = (e: any) => {
@@ -55,6 +56,7 @@ export function TextArea(props: TextAreaProps) {
     return (
         <Container sx={sx}>
             <VSCodeTextArea
+                ref={ref}
                 autoFocus={autoFocus}
                 validationMessage={validationMessage}
                 placeholder={placeholder}
