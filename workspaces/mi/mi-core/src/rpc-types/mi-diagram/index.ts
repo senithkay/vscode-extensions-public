@@ -27,7 +27,6 @@ export interface MiDiagramAPI {
     closeWebView: () => void;
     openDiagram: (params: OpenDiagramRequest) => void;
     openFile: (params: OpenDiagramRequest) => void;
-    onRefresh: (callback: () => void) => void;
     closeWebViewNotification: () => void;
     getProjectRoot: () => Promise<ProjectRootResponse>;
     askProjectDirPath: () => Promise<ProjectDirResponse>;
