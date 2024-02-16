@@ -10,6 +10,8 @@ import React, { useState } from 'react';
 import { Button, Codicon, Dropdown, SearchBox } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { ConstructorPanel } from '../ConstructorPanel';
+import { WorkspacesFileResponse } from '@wso2-enterprise/ballerina-core';
+import { SELECT_ALL_FILES } from '../../Overview';
 
 const Container = styled.div`
     display: flex;
@@ -30,11 +32,14 @@ const ComponentButton = styled.div`
 
 export interface TitleBarProps {
     onQueryChange: (value: string) => void;
+    onSelectedFileChange: (value: string) => void;
+    selectedFile: string;
     query: string;
+    workspacesFileResponse: WorkspacesFileResponse;
 }
 
 export function TitleBar(props: TitleBarProps) {
-    const { onQueryChange, query } = props;
+    const { onQueryChange, onSelectedFileChange, selectedFile, query, workspacesFileResponse } = props;
 
     const [isPanelOpen, setPanelOpen] = useState(false);
 
@@ -45,6 +50,15 @@ export function TitleBar(props: TitleBarProps) {
     const handleSearch = (value: string) => {
         onQueryChange(value);
     };
+
+    const handleFileChange = (value: string) => {
+        onSelectedFileChange(value);
+    };
+
+    const workspaceFiles = [{ value: SELECT_ALL_FILES, content: SELECT_ALL_FILES }];
+    workspacesFileResponse?.files.map((file) => {
+        workspaceFiles.push({ value: file.path, content: file.relativePath });
+    });
 
     return (
         <Container>
@@ -57,10 +71,10 @@ export function TitleBar(props: TitleBarProps) {
                 >
                     <Dropdown
                         id="file-select"
-                        items={[{ value: "All" }, { value: "main.bal" }, { value: "test.bal" }]}
+                        items={workspaceFiles}
                         label="File"
-                        onChange={() => { }}
-                        value="All"
+                        onChange={handleFileChange}
+                        value={selectedFile}
                         sx={{ width: 200, marginTop: 2 }}
                     />
                 </div>
