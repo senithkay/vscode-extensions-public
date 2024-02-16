@@ -20,10 +20,13 @@ export class MediatorNodeFactory extends AbstractReactFactory<MediatorNodeModel,
     }
 
     generateModel(event: GenerateModelEvent): MediatorNodeModel {
-        return new MediatorNodeModel(event.initialConfig.stNode);
+        return new MediatorNodeModel(event.initialConfig.stNode, event.initialConfig.mediatorName);
     }
 
     generateReactWidget(event: GenerateWidgetEvent<MediatorNodeModel>) {
-        return <MediatorNodeWidget engine={this.engine} node={event.model} />;
+        return <MediatorNodeWidget
+            engine={this.engine}
+            node={event.model}
+        />;
     }
 }

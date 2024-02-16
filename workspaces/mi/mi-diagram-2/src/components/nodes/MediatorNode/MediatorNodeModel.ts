@@ -12,7 +12,9 @@ import { NodeTypes } from "../../../resources/constants";
 import { BaseNodeModel } from "../BaseNodeModel";
 
 export class MediatorNodeModel extends BaseNodeModel {
-    constructor(stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
+    readonly mediatorName: string;
+    constructor(stNode: STNode, mediatorName:string, parentNode?: STNode, prevNodes: STNode[] = []) {
         super(NodeTypes.MEDIATOR_NODE, stNode, parentNode, prevNodes);
+        this.mediatorName = mediatorName;
     }
 }

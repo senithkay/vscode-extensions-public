@@ -16,6 +16,8 @@ import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { Button, Popover } from "@wso2-enterprise/ui-toolkit";
 import { SendIcon, LogIcon, CodeIcon, MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
+import { getDataFromXML } from "../../../utils/template-engine/mustach-templates/templateUtils";
 
 namespace S {
     export type NodeStyleProp = {
@@ -107,18 +109,35 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
     const visualizerContext = useVisualizerContext();
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
+    const sidePanelContext = React.useContext(SidePanelContext);
 
     const handleOnClickMenu = (event: any) => {
         setIsPopoverOpen(!isPopoverOpen);
         setPopoverAnchorEl(event.currentTarget);
+        event.stopPropagation();
     };
 
     const handleOnClick = () => {
-        if (node.isSelected()) node.onClicked(visualizerContext);
+        if (node.isSelected()) {
+            node.onClicked(visualizerContext);
+
+            const formData = getDataFromXML(
+                props.node.mediatorName,
+                props.node.getStNode()
+            );
+            sidePanelContext.setSidePanelState({
+                ...sidePanelContext,
+                isOpen: true,
+                operationName: props.node.mediatorName.toLowerCase(),
+                nodeRange: node.stNode.range,
+                isEditing: true,
+                formValues: formData,
+            });
+        }
     };
 
     const handleOnDelete = () => {
-        
+
     };
 
     return (
