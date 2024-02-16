@@ -468,6 +468,7 @@ importers:
       '@wso2-enterprise/data-mapper-view': workspace:*
       '@wso2-enterprise/overview-view': workspace:*
       '@wso2-enterprise/persist-layer-diagram': workspace:*
+      '@wso2-enterprise/project-design-diagrams': workspace:*
       '@wso2-enterprise/service-designer-view': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
@@ -499,6 +500,7 @@ importers:
       '@wso2-enterprise/data-mapper-view': link:../data-mapper-view
       '@wso2-enterprise/overview-view': link:../overview-view
       '@wso2-enterprise/persist-layer-diagram': link:../persist-layer-diagram
+      '@wso2-enterprise/project-design-diagrams': link:../project-design-diagrams
       '@wso2-enterprise/service-designer-view': link:../service-designer-view
       '@wso2-enterprise/syntax-tree': link:../syntax-tree
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
@@ -1460,8 +1462,10 @@ importers:
       '@types/react-lottie': ^1.2.5
       '@types/uuid': ^8.3.0
       '@types/vscode-webview': ^1.57.0
+      '@wso2-enterprise/ballerina-core': workspace:*
       '@wso2-enterprise/ballerina-languageclient': workspace:*
       '@wso2-enterprise/ballerina-low-code-edtior-commons': workspace:*
+      '@wso2-enterprise/ballerina-rpc-client': workspace:*
       '@wso2-enterprise/choreo-core': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
@@ -1508,6 +1512,8 @@ importers:
       '@types/lodash.debounce': 4.0.9
       '@types/node': 18.19.14
       '@types/vscode-webview': 1.57.5
+      '@wso2-enterprise/ballerina-core': link:../ballerina-core
+      '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
       '@wso2-enterprise/syntax-tree': link:../syntax-tree
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       closest: 0.0.1
@@ -2157,7 +2163,6 @@ importers:
       '@wso2-enterprise/ballerina-languageclient': workspace:*
       '@wso2-enterprise/choreo-client': workspace:*
       '@wso2-enterprise/choreo-core': workspace:*
-      '@wso2-enterprise/project-design-diagrams': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       classnames: ~2.3.2
       clean-webpack-plugin: ^4.0.0
@@ -2194,7 +2199,6 @@ importers:
       '@wso2-enterprise/ballerina-languageclient': link:../../ballerina/ballerina-languageclient
       '@wso2-enterprise/choreo-client': link:../choreo-client
       '@wso2-enterprise/choreo-core': link:../choreo-core
-      '@wso2-enterprise/project-design-diagrams': link:../../ballerina/project-design-diagrams
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       classnames: 2.3.3
       copyfiles: 2.4.1
@@ -2230,10 +2234,12 @@ importers:
 
   ../../workspaces/common-libs/font-wso2-vscode:
     specifiers:
+      '@vscode/codicons': 0.0.33
       fantasticon: ^2.0.0
       icon-font-generator: ^2.1.11
       jsonc-parser: ^3.2.0
     devDependencies:
+      '@vscode/codicons': 0.0.33
       fantasticon: 2.0.0
       icon-font-generator: 2.1.11
       jsonc-parser: 3.2.1
@@ -2348,6 +2354,7 @@ importers:
       '@typescript-eslint/parser': ^6.2.1
       '@vscode/codicons': 0.0.33
       '@vscode/webview-ui-toolkit': ^1.2.0
+      '@wso2-enterprise/ballerina-core': workspace:*
       '@wso2-enterprise/font-wso2-vscode': workspace:*
       classnames: ^2.2.6
       eslint: ^8.32.0
@@ -2369,6 +2376,7 @@ importers:
       '@projectstorm/react-diagrams-core': 6.7.4_lodash@4.17.21
       '@vscode/codicons': 0.0.33
       '@vscode/webview-ui-toolkit': 1.4.0
+      '@wso2-enterprise/ballerina-core': link:../../ballerina/ballerina-core
       '@wso2-enterprise/font-wso2-vscode': link:../font-wso2-vscode
       classnames: 2.5.1
     devDependencies:
@@ -18730,7 +18738,6 @@ packages:
 
   /@vscode/codicons/0.0.33:
     resolution: {integrity: sha512-VdgpnD75swH9hpXjd34VBgQ2w2quK63WljodlUcOoJDPKiV+rPjHrcUc2sjLCNKxhl6oKqmsZgwOWcDAY2GKKQ==}
-    dev: false
 
   /@vscode/codicons/0.0.35:
     resolution: {integrity: sha512-7iiKdA5wHVYSbO7/Mm0hiHD3i4h+9hKUe1O4hISAe/nHhagMwb2ZbFC8jU6d7Cw+JNT2dWXN2j+WHbkhT5/l2w==}

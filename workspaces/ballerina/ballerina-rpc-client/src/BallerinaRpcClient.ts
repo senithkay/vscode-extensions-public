@@ -15,7 +15,7 @@ import { MachineStateValue, VisualizerLocation, getVisualizerLocation, onFileCon
 import { LangServerRpcClient } from "./rpc-clients/lang-server/rpc-client";
 import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-client";
 import { HOST_EXTENSION } from "vscode-messenger-common";
-import { GraphqlDesignerRpcClient, PersistDiagramRpcClient, ServiceDesignerRpcClient } from "./rpc-clients";
+import { CommonRpcClient, GraphqlDesignerRpcClient, PersistDiagramRpcClient, ProjectDesignDiagramRpcClient, ServiceDesignerRpcClient } from "./rpc-clients";
 
 export class BallerinaRpcClient {
 
@@ -24,8 +24,10 @@ export class BallerinaRpcClient {
     private _langServer: LangServerRpcClient;
     private _libraryBrowser: LibraryBrowserRpcClient;
     private _serviceDesigner: ServiceDesignerRpcClient;
+    private _commn: CommonRpcClient;
     private _persistDiagram: PersistDiagramRpcClient;
     private _GraphqlDesigner: GraphqlDesignerRpcClient;
+    private _ProjectDesignDiagram: ProjectDesignDiagramRpcClient;
 
     constructor() {
         this.messenger = new Messenger(vscode);
@@ -34,8 +36,10 @@ export class BallerinaRpcClient {
         this._langServer = new LangServerRpcClient(this.messenger);
         this._libraryBrowser = new LibraryBrowserRpcClient(this.messenger);
         this._serviceDesigner = new ServiceDesignerRpcClient(this.messenger);
+        this._commn = new CommonRpcClient(this.messenger);
         this._persistDiagram = new PersistDiagramRpcClient(this.messenger);
         this._GraphqlDesigner = new GraphqlDesignerRpcClient(this.messenger);
+        this._ProjectDesignDiagram = new ProjectDesignDiagramRpcClient(this.messenger);
     }
 
     getVisualizerRpcClient(): VisualizerRpcClient {
@@ -60,6 +64,14 @@ export class BallerinaRpcClient {
 
     getLibraryBrowserRPCClient(): LibraryBrowserRpcClient {
         return this._libraryBrowser;
+    }
+
+    getProjectDesignDiagramRpcClient(): ProjectDesignDiagramRpcClient {
+        return this._ProjectDesignDiagram;
+    }
+    
+    getCommonRpcClient(): CommonRpcClient {
+        return this._commn;
     }
 
     getVisualizerLocation(): Promise<VisualizerLocation> {

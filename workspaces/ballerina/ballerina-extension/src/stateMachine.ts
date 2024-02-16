@@ -69,8 +69,10 @@ const stateMachine = createMachine<MachineContext>(
                     OPEN_VIEW: {
                         target: "viewActive",
                         actions: assign({
+                            view: (context, event) => event.viewLocation.view,
                             documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
-                            position: (context, event) => event.viewLocation.position
+                            position: (context, event) => event.viewLocation.position,
+                            identifier: (context, event) => event.viewLocation.identifier
                         })
                     }
                 }
@@ -103,6 +105,7 @@ const stateMachine = createMachine<MachineContext>(
                             OPEN_VIEW: {
                                 target: "viewInit",
                                 actions: assign({
+                                    view: (context, event) => event.viewLocation.view,
                                     documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
                                     position: (context, event) => event.viewLocation.position,
                                     identifier: (context, event) => event.viewLocation.identifier
@@ -169,50 +172,60 @@ const stateMachine = createMachine<MachineContext>(
                     });
                     return;
                 }
-                if (!context.position) {
-                    resolve({ view: "Overview" });
+                if (!context.view) {
+                    if (!context.position || ("groupId" in context.position)) {
+                        resolve({ view: "Overview" });
+                        return;
+                    }
+                    const req: STByRangeRequest = {
+                        documentIdentifier: { uri: Uri.file(context.documentUri).toString() },
+                        lineRange: {
+                            start: {
+                                line: context.position.startLine,
+                                character: context.position.startColumn
+                            },
+                            end: {
+                                line: context.position.endLine,
+                                character: context.position.endColumn
+                            }
+                        }
+                    };
+
+                    const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
+
+                    if (node.parseSuccess) {
+                        if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
+                            const expr = node.syntaxTree.expressions[0];
+                            if (expr?.typeData?.typeSymbol?.signature?.includes("graphql")) {
+                                resolve({
+                                    view: "GraphQLDiagram",
+                                    identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join('')
+                                });
+                            } else {
+                                resolve({
+                                    view: "ServiceDesigner",
+                                    identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join('')
+                                });
+                            }
+                        } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) && STKindChecker.isExpressionFunctionBody(node.syntaxTree.functionBody)) {
+                            resolve({ view: "DataMapper", documentUri: context.documentUri, position: context.position });
+                        } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) || STKindChecker.isResourceAccessorDefinition(node.syntaxTree)) {
+                            resolve({ view: "SequenceDiagram", documentUri: context.documentUri, position: context.position });
+                        } else {
+                            resolve({ view: "Overview", documentUri: context.documentUri });
+                        }
+                    }
                     return;
                 }
-                
-                const req: STByRangeRequest = {
-                    documentIdentifier: { uri: Uri.file(context.documentUri).toString() },
-                    lineRange: {
-                        start: {
-                            line: context.position.startLine,
-                            character: context.position.startColumn
-                        },
-                        end: {
-                            line: context.position.endLine,
-                            character: context.position.endColumn
-                        }
-                    }
-                };
-
-                const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
-
-                if (node.parseSuccess) {
-                    if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
-                        const expr = node.syntaxTree.expressions[0];
-                        if (expr?.typeData?.typeSymbol?.signature?.includes("graphql")) {
-                            resolve({
-                                view: "GraphQLDiagram",
-                                identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join('')
-                            });
-                        } else {
-                            resolve({
-                                view: "ServiceDesigner",
-                                identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join('')
-                            });
-                        }
-                    } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) && STKindChecker.isExpressionFunctionBody(node.syntaxTree.functionBody)) {
-                        resolve({ view: "DataMapper", documentUri: context.documentUri, position: context.position });
-                    } else if (STKindChecker.isTypeDefinition(node.syntaxTree) && STKindChecker.isRecordTypeDesc(node.syntaxTree.typeDescriptor)) {
-                        resolve({ view: "ArchitectureDiagram", documentUri: context.documentUri });
-                    } else {
-                        resolve({ view: "Overview", documentUri: context.documentUri });
-                    }
+                else {
+                    resolve({
+                        view: context.view,
+                        documentUri: context.documentUri,
+                        position: context.position,
+                        identifier: context.identifier
+                    });
+                    return;
                 }
-                return;
             });
         }
     }
@@ -224,7 +237,7 @@ const stateService = interpret(stateMachine);
 function startMachine(): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         stateService.start().onTransition((state) => {
-            if (state.value === "Ready") {
+            if (state.value === "lsReady") {
                 resolve();
             }
         });

@@ -10,10 +10,14 @@
 import React, { useEffect } from "react";
 import { VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { DesignDiagram } from "@wso2-enterprise/project-design-diagrams";
 
 export function ArchitectureDiagram() {
     const { rpcClient } = useVisualizerContext();
     const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
+    const [isChoreoProject, setIsChoreoProject] = React.useState<boolean>(false);
+    const [selectedNodeId, setSelectedNodeId] = React.useState<string>();
+    const [isCellView, setIsCellView] = React.useState<boolean>();
 
     useEffect(() => {
         if (rpcClient) {
@@ -23,16 +27,15 @@ export function ArchitectureDiagram() {
         }
     }, [rpcClient]);
 
-
     return (
         <>
-            <h1>Hello Architecture Diagram</h1>
-            <ul>
-                <li>{visualizerLocation?.view}</li>
-                <li>{visualizerLocation?.documentUri}</li>
-                <li>{visualizerLocation?.position?.startLine}</li>
-                <li>{visualizerLocation?.identifier}</li>
-            </ul>
+            <DesignDiagram
+                isChoreoProject={isChoreoProject}
+                selectedNodeId={selectedNodeId}
+                isCellView={isCellView}
+                isEditable={true}
+                editLayerAPI={rpcClient.getProjectDesignDiagramRpcClient()}
+            />
         </>
     );
 }

@@ -7,4 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export * from './utils';
+export * from './diagramUtils';
+export * from './orgUtils';
+export * from './projectUtils';

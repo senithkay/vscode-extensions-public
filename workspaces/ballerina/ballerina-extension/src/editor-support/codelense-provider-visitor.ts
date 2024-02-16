@@ -78,7 +78,7 @@ export class CodeLensProviderVisitor implements Visitor {
         codeLens.command = {
             title: "Visualize",
             tooltip: "Visualize code block",
-            command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
+            command: PALETTE_COMMANDS.SHOW_VISUALIZER,
             arguments: [this.activeEditorUri.fsPath, position]
         };
         this.codeLenses.push(codeLens);
@@ -94,7 +94,7 @@ export class CodeLensProviderVisitor implements Visitor {
         codeLens.command = {
             title: "Visualize",
             tooltip: "Visualize code block",
-            command: PALETTE_COMMANDS.SHOW_GRAPHQL_DESIGNER_VIEW,
+            command: PALETTE_COMMANDS.SHOW_VISUALIZER,
             arguments: [this.activeEditorUri.fsPath, position]
         };
         this.codeLenses.push(codeLens);
@@ -110,7 +110,7 @@ export class CodeLensProviderVisitor implements Visitor {
         codeLens.command = {
             title: "Visualize",
             tooltip: "View this entity in the Entity Relationship diagram",
-            command: PALETTE_COMMANDS.SHOW_ENTITY_DIAGRAM,
+            command: PALETTE_COMMANDS.SHOW_VISUALIZER,
             arguments: [this.activeEditorUri.fsPath, recordName]
         };
         this.codeLenses.push(codeLens);
