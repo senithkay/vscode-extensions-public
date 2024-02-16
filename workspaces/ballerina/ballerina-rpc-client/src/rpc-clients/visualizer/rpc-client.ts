@@ -9,9 +9,13 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    HistoryEntry,
     VisualizerAPI,
     VisualizerLocation,
+    getHistory,
     goBack,
+    goHome,
+    goSelected,
     openView
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -28,7 +32,19 @@ export class VisualizerRpcClient implements VisualizerAPI {
         return this._messenger.sendNotification(openView, HOST_EXTENSION, params);
     }
 
+    getHistory(): Promise<HistoryEntry[]> {
+        return this._messenger.sendRequest(getHistory, HOST_EXTENSION);
+    }
+
     goBack(): void {
         return this._messenger.sendNotification(goBack, HOST_EXTENSION);
+    }
+
+    goHome(): void {
+        return this._messenger.sendNotification(goHome, HOST_EXTENSION);
+    }
+
+    goSelected(index: number): void {
+        return this._messenger.sendNotification(goSelected, HOST_EXTENSION, index);
     }
 }

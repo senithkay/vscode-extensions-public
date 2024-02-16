@@ -2,13 +2,13 @@
 import { ExtendedLangClient } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EventType, GetSyntaxTreeResponse, MachineStateValue, MachineViews, STByRangeRequest, SyntaxTreeResponse, VisualizerLocation, webviewReady } from "@wso2-enterprise/ballerina-core";
+import { EventType, GetSyntaxTreeResponse, HistoryEntry, MachineStateValue, MachineViews, STByRangeRequest, SyntaxTreeResponse, VisualizerLocation, webviewReady } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './library-browser';
 import { VisualizerWebview } from './visualizer/webview';
 import { Uri } from 'vscode';
 import { STKindChecker, traversNode } from '@wso2-enterprise/syntax-tree';
 import { RPCLayer } from './RPCLayer';
-import { HistoryEntry, historyStack, pushHistory, updateCurrentEntry } from './history';
+import { history } from './history';
 import { UIDGenerationVisitor } from './history/utils/visitors/uid-generation-visitor';
 import { FindNodeByUidVisitor } from './history/utils/visitors/find-node-by-uid';
 import { FindConstructByNameVisitor } from './history/utils/visitors/find-construct-by-name-visitor';
@@ -133,6 +133,15 @@ const stateMachine = createMachine<MachineContext>(
                                     identifier: (context, event) => event.viewLocation.identifier
                                 })
                             },
+                            NAVIGATE: {
+                                target: "updatedHistory",
+                                actions: assign({
+                                    documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
+                                    position: (context, event) => event.viewLocation.position,
+                                    view: (context, event) => event.viewLocation.view,
+                                    identifier: (context, event) => event.viewLocation.identifier
+                                })
+                            },
                             FILE_EDIT: {
                                 target: "viewEditing",
                                 actions: assign({
@@ -188,7 +197,6 @@ const stateMachine = createMachine<MachineContext>(
         findView(context, event): Promise<void> {
             return new Promise(async (resolve, reject) => {
                 if (!context.position) {
-                    pushHistory({location: { view: "Overview" }});
                     resolve();
                     return;
                 }
@@ -210,7 +218,7 @@ const stateMachine = createMachine<MachineContext>(
 
                 if (node.parseSuccess) {
                     if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
-                        pushHistory({
+                        history.push({
                             location: {
                                 view: "ServiceDesigner",
                                 identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
@@ -220,7 +228,7 @@ const stateMachine = createMachine<MachineContext>(
                         });
                         resolve();
                     } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) && STKindChecker.isExpressionFunctionBody(node.syntaxTree.functionBody)) {
-                        pushHistory({
+                        history.push({
                             location: {
                                 view: "DataMapper",
                                 documentUri: context.documentUri,
@@ -229,7 +237,7 @@ const stateMachine = createMachine<MachineContext>(
                         });
                         resolve();
                     } else if (STKindChecker.isTypeDefinition(node.syntaxTree) && STKindChecker.isRecordTypeDesc(node.syntaxTree.typeDescriptor)) {
-                        pushHistory({
+                        history.push({
                             location: {
                                 view: "ArchitectureDiagram",
                                 documentUri: context.documentUri,
@@ -238,13 +246,6 @@ const stateMachine = createMachine<MachineContext>(
                         });
                         resolve();
                     } else {
-                        pushHistory({
-                            location: {
-                                view: "Overview",
-                                documentUri: context.documentUri,
-                                position: context.position
-                            }
-                        });
                         resolve();
                     }
                 }
@@ -253,6 +254,7 @@ const stateMachine = createMachine<MachineContext>(
         },
         showView(context, event): Promise<VisualizerLocation> {
             return new Promise(async (resolve, reject) => {
+                const historyStack = history.get();
                 const selectedEntry: HistoryEntry = historyStack[historyStack.length - 1]?.location.view
                     ? historyStack[historyStack.length - 1]
                     : { location: { view: "Overview" } };
@@ -281,7 +283,7 @@ const stateMachine = createMachine<MachineContext>(
                         selectedST = nodeFindingVisitor.getNode();
 
                         if (generatedUid) {
-                            updateCurrentEntry({
+                            history.updateCurrentEntry({
                                 location: {
                                     ...selectedEntry.location,
                                     position: selectedST.position
@@ -304,7 +306,7 @@ const stateMachine = createMachine<MachineContext>(
                             if (visitorToFindConstructByName.getNode()) {
                                 selectedST = visitorToFindConstructByName.getNode();
 
-                                updateCurrentEntry({
+                                history.updateCurrentEntry({
                                     location: {
                                         ...selectedEntry.location,
                                         position: selectedST.position
@@ -318,7 +320,7 @@ const stateMachine = createMachine<MachineContext>(
                                 if (visitorToFindConstructByIndex.getNode()) {
                                     selectedST = visitorToFindConstructByIndex.getNode();
 
-                                    updateCurrentEntry({
+                                    history.updateCurrentEntry({
                                         location: {
                                             ...selectedEntry.location,
                                             position: selectedST.position
@@ -331,7 +333,7 @@ const stateMachine = createMachine<MachineContext>(
                             }
                         } else {
                             selectedST = nodeFindingVisitor.getNode();
-                            updateCurrentEntry({
+                            history.updateCurrentEntry({
                                 ...selectedEntry,
                                 location: {
                                     ...selectedEntry.location,
@@ -341,7 +343,8 @@ const stateMachine = createMachine<MachineContext>(
                         }
                     }
                 }
-                resolve(historyStack[historyStack.length - 1].location);
+                const updatedHistory = history.get();
+                resolve(updatedHistory[updatedHistory.length - 1].location);
                 return;
             });
         }
@@ -376,6 +379,13 @@ export function openView(type: "OPEN_VIEW" | "FILE_EDIT" | "EDIT_DONE", viewLoca
 }
 
 export function goBackOneView() {
+    const historyStack = history.get();
     const lastView = historyStack[historyStack.length - 1];
     stateService.send({ type: "GO_BACK", viewLocation: lastView ? lastView.location : { view: "Overview" } });
+}
+
+export function navigate() {
+    const historyStack = history.get();
+    const lastView = historyStack[historyStack.length - 1];
+    stateService.send({ type: "NAVIGATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
 }

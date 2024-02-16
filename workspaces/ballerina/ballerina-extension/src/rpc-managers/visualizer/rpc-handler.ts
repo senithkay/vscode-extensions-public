@@ -10,8 +10,11 @@
  */
 import {
     VisualizerLocation,
+    getHistory,
     goBack,
-    openView,
+    goHome,
+    goSelected,
+    openView
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { VisualizerRpcManager } from "./rpc-manager";
@@ -19,5 +22,8 @@ import { VisualizerRpcManager } from "./rpc-manager";
 export function registerVisualizerRpcHandlers(messenger: Messenger) {
     const rpcManger = new VisualizerRpcManager();
     messenger.onNotification(openView, (args: VisualizerLocation) => rpcManger.openView(args));
+    messenger.onRequest(getHistory, () => rpcManger.getHistory());
     messenger.onNotification(goBack, () => rpcManger.goBack());
+    messenger.onNotification(goHome, () => rpcManger.goHome());
+    messenger.onNotification(goSelected, (args: number) => rpcManger.goSelected(args));
 }

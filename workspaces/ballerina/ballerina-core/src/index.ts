@@ -47,6 +47,9 @@ export * from "./rpc-types/library-browser";
 export * from "./rpc-types/library-browser/rpc-type";
 export * from "./rpc-types/library-browser/interfaces";
 
+// ------ History class and interface -------->
+export * from "./history";
+
 // ------ Util functions -------->
 export * from "./utils/modification-utils";
 export * from "./utils/form-component-utils";

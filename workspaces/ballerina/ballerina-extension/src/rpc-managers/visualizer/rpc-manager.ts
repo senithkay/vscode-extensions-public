@@ -9,11 +9,12 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    HistoryEntry,
     VisualizerAPI,
     VisualizerLocation
 } from "@wso2-enterprise/ballerina-core";
-import { goBackOneView, openView } from "../../stateMachine";
-import { historyStack, popHistory } from "../../history";
+import { history } from "../../history";
+import { goBackOneView, navigate, openView } from "../../stateMachine";
 
 export class VisualizerRpcManager implements VisualizerAPI {
 
@@ -25,7 +26,21 @@ export class VisualizerRpcManager implements VisualizerAPI {
     }
 
     goBack(): void {
-        popHistory();
-        goBackOneView()
+        history.pop();
+        navigate();
+    }
+
+    async getHistory(): Promise<HistoryEntry[]> {
+        return history.get();
+    }
+
+    goHome(): void {
+        history.clear();
+        navigate();
+    }
+
+    goSelected(index: number): void {
+        history.select(index);
+        navigate();
     }
 }
