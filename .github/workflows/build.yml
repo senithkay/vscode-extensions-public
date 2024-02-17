@@ -139,6 +139,7 @@ jobs:
           eggplant: ${{ inputs.eggplant }}
           version: ${{ inputs.version }}
           API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
+          token: ${{ secrets.PUBLISH_PAT }}
 
   ExtTest_Ballerina:
     name: Run Ballerina extension tests

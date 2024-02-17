@@ -20,6 +20,7 @@ jobs:
         with:
           mi: true
           API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
+          token: ${{ secrets.PUBLISH_PAT }}
 
       - name: Notification - MI
         uses: ./.github/actions/dailyBuildNotification
