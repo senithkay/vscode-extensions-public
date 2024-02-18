@@ -23,6 +23,8 @@ export interface ViewState {
     h: number;
     fw?: number;
     fh?: number;
+    l?: number;
+    r?: number;
 }
 
 export interface Range {
