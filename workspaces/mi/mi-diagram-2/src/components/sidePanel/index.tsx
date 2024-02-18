@@ -433,8 +433,10 @@ const SidePanelList = (props: SidePanelListProps) => {
         setLoading(true);
 
         (async () => {
-            const connectors = await rpcClient.getMiDiagramRpcClient().getConnectors();
-            setConnectorList(connectors.data);
+            if (rpcClient) {
+                const connectors = await rpcClient.getMiDiagramRpcClient().getConnectors();
+                setConnectorList(connectors.data);
+            }
             setLoading(false);
         })();
     }, []);
@@ -563,7 +565,7 @@ const SidePanelList = (props: SidePanelListProps) => {
     };
 
     return (
-        isLoading ? <h1>Loading...S</h1> :
+        isLoading ? <h1>Loading...</h1> :
             <div style={{
                 padding: "10px",
                 height: "calc(100% - 70px)",
