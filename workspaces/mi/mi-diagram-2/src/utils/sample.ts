@@ -31,7 +31,7 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
     var nodestart = new StartNodeModel((model as APIResource).inSequence);
     nodestart.setPosition(x + 60 - 12, y);
 
-    var node1 = new MediatorNodeModel(mediatorList[0]);
+    var node1 = new MediatorNodeModel(mediatorList[0], "", "");
     node1.setPosition(x, (y += gapY - 30));
 
     var node2 = new ConditionNodeModel(mediatorList[1]); // condition node
