@@ -65,7 +65,7 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 			// TODO: Open file logic should go here
 			// const document = await vscode.workspace.openTextDocument(info.path);
 			// await vscode.window.showTextDocument(document);
-			if (info.type === 'api') {
+			if (info.type.toLowerCase() === 'api') {
 				openView({ view: "ServiceDesigner", documentUri: info.path, identifier: info.name });
 			} else if (info.type === 'resource') {
 				openView({ view: "Diagram", documentUri: info.path, identifier: info.name });
