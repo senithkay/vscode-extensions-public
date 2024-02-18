@@ -4,7 +4,7 @@ import { ComponentCard, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
-const allowedConfigs = ["sequences", "endpoints", "api"];
+const allowedConfigs = ["sequences", "endpoints", "apis"];
 
 const IconWrapper = styled.div`
     display: flex;
@@ -47,18 +47,15 @@ const Title = styled.div`
 const ProjectStructureView = (props: { projectStructure: ProjectStructureResponse }) => {
     const { projectStructure } = props;
     const { rpcClient } = useVisualizerContext();
-    const { directoryMap } = projectStructure;
-
-    const [esbConfig, setEsbConfig] = useState(directoryMap.esbConfigs[0]);
 
     const handleClick = (directory: string, path?: string) => {
-        if (directory === "api") {
+        if (directory.toLowerCase() === "api") {
             rpcClient.getMiVisualizerRpcClient().openView({view: "ServiceDesigner", documentUri: path});
         }
     };
 
     const handlePlusClick = async (key: string) => {
-        if (key === 'api') {
+        if (key === 'apis') {
             await rpcClient.getMiDiagramRpcClient().executeCommand({commands: ["project-explorer.add-api"]});
         } else if (key === 'endpoints') {
             await rpcClient.getMiDiagramRpcClient().executeCommand({commands: ["project-explorer.add-endpoint"]});
@@ -76,39 +73,10 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
             </ComponentCard>
         ));
     };
-    
-    const renderEsbs = (entries: EsbDirectoryMap[]) => {
-        return entries.map((entry, index) => (
-            <ComponentCard key={index} isSelected={entry === esbConfig} onClick={() => setEsbConfig(entry)} sx={{ height: 40, marginTop: 15, margin: 10 }}>
-                <IconWrapper>
-                    <TextContainer>{entry.name}</TextContainer>
-                </IconWrapper>
-            </ComponentCard>
-        ));
-    };
 
     const renderObject = (entry: ProjectDirectoryMap | ProjectStructureResponse["directoryMap"]) => {
         return Object.entries(entry).map(([key, value]) => {
-            if (key === "esbConfigs") {
-                if (Array.isArray(value)) {
-                    return (
-                        <div key={key}>
-                            <Title>{key.toUpperCase()}</Title>
-                            <HorizontalCardContainer>
-                                {renderEsbs(value as EsbDirectoryMap[])}
-                                <ComponentCard key={0} onClick={() => handlePlusClick(key)} sx={{ height: 40, marginTop: 15, margin: 10 }}>
-                                    <IconWrapper>+</IconWrapper>
-                                </ComponentCard>
-                            </HorizontalCardContainer>
-                            <VerticalCardContainer>
-                                {renderObject(esbConfig.esbConfigs)}
-                            </VerticalCardContainer>
-                        </div>
-                    )
-                } else {
-                    return (<div>{renderObject(value)}</div>)
-                }
-            } else if (allowedConfigs.includes(key)) {
+            if (allowedConfigs.includes(key)) {
                 if (Array.isArray(value)) {
                     return (
                         <div key={key}>
@@ -130,7 +98,8 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
 
     const renderDirectoryMap = () => {
         const { directoryMap } = projectStructure;
-        return renderObject(directoryMap);
+        const artifacts = (directoryMap as any).src.main.wso2mi.artifacts
+        return renderObject(artifacts);
     };
 
     return (
