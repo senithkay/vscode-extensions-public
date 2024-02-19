@@ -44,9 +44,9 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
             try {
                 if (currentProject) {
                     const langClient = await getDiagramEditorLangClient();
-
+                    const decodedFilePath = decodeURI(currentProject.uri.external);
                     const componentResponse: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
-                        documentIdentifiers: [{ uri: currentProject.uri.external }]
+                        documentIdentifiers: [{ uri: decodedFilePath }]
                     });
 
                     updateProjectComponenets(componentResponse);

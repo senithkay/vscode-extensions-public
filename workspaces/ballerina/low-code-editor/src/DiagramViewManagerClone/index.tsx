@@ -134,10 +134,11 @@ export function DiagramViewManager(props: EditorProps) {
                 const { file: filePath, position, uid } = history[history.length - 1];
                 const file = extractFilePath(filePath);
                 const langClient = await langClientPromise;
+                const decodedFilePath = decodeURI(file);
                 const componentResponse = await langClient.getBallerinaProjectComponents({
                     documentIdentifiers: [
                         {
-                            uri: monaco.Uri.file(file).toString(),
+                            uri: monaco.Uri.file(decodedFilePath).toString(),
                         }
                     ]
                 });
