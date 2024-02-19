@@ -9,8 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useReducer } from "react";
 
-import { DIAGNOSTIC_SEVERITY } from "@wso2-enterprise/ballerina-languageclient";
-import { JsonToRecordResponse } from "@wso2-enterprise/ballerina-core";
+import { DIAGNOSTIC_SEVERITY, JsonToRecordResponse } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, NodePosition, STKindChecker, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 

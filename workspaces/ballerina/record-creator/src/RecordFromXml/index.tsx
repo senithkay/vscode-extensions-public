@@ -9,8 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useReducer } from "react";
 
-import { DIAGNOSTIC_SEVERITY } from "@wso2-enterprise/ballerina-languageclient";
-import { XMLToRecordResponse } from "@wso2-enterprise/ballerina-core";
+import { DIAGNOSTIC_SEVERITY, XMLToRecordResponse } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, NodePosition, STKindChecker, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { TextPreloaderVertical } from "../PreLoader/TextPerloaderVertical";

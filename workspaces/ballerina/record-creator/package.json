@@ -26,7 +26,6 @@
         "@emotion/css": "~11.11.2",
         "react-intl": "~6.6.2",
         "@wso2-enterprise/ui-toolkit": "workspace:*",
-        "@wso2-enterprise/ballerina-languageclient": "workspace:*",
         "lodash.debounce": "~4.0.8",
         "@types/lodash.debounce": "~4.0.9",
         "react-lottie": "~1.2.4",
