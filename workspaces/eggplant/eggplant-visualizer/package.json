@@ -1,5 +1,5 @@
 {
-  "name": "@wso2-enterprise/eggplant-webview",
+  "name": "@wso2-enterprise/eggplant-visualizer",
   "version": "1.0.0",
   "description": "Eggplant Extension Visualizer Webview",
   "files": [
