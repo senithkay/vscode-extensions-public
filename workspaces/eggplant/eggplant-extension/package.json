@@ -82,7 +82,6 @@
         "@typescript-eslint/eslint-plugin": "^6.9.0",
         "@typescript-eslint/parser": "^6.9.0",
         "@vscode/test-electron": "^2.3.6",
-        "@wso2-enterprise/eggplant-visualizer": "workspace:*",
         "eslint": "^8.52.0",
         "glob": "^10.3.10",
         "mocha": "^10.2.0",
