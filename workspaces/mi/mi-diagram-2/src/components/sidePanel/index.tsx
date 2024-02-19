@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Button, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
@@ -35,6 +35,7 @@ const ButtonContainer = styled.div`
     flex-direction: row;
     justify-content: center;
     gap: 10px;
+    align-items: center;
 `;
 
 const BtnStyle = {
@@ -73,12 +74,18 @@ const SidePanelList = (props: SidePanelListProps) => {
         }
     }, [pageStack]);
 
-    // update page when side panel's back button is clicked
-    useEffect(() => {
+    const handleGoBack = () => {
         if (pageStack.length > 0) {
             setPageStack(pageStack.slice(0, -1));
         }
-    }, [sidePanelContext.backBtn]);
+    };
+
+    const handleClose = () => {
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            isOpen: false,
+        });
+    };
 
     const handleAddMediatorClick = () => {
         setAddMediator(true);
@@ -104,14 +111,19 @@ const SidePanelList = (props: SidePanelListProps) => {
                 pageStack.length === 0 ? <>
                     {/* Header */}
                     <ButtonContainer>
-                        <Button onClick={handleAddMediatorClick} appearance={isAddMediator ? 'primary' : 'secondary'} sx={BtnStyle}>Add Mediator</Button>
+                        <Button onClick={handleAddMediatorClick} appearance={isAddMediator ? 'primary' : 'secondary'} sx={{ ...BtnStyle, marginLeft: "auto" }}>Add Mediator</Button>
                         <Button onClick={handleGenerateClick} appearance={isGenerate ? 'primary' : 'secondary'} sx={BtnStyle}>Generate</Button>
+                        <Codicon name="close" sx={{ marginLeft: "auto" }} onClick={handleClose} />
                     </ButtonContainer>
 
                     {isAddMediator && <MediatorPage nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={setContent} />}
                     {isGenerate && <AIPage />}
                 </> :
                     <>
+                        <ButtonContainer>
+                            <Codicon name="arrow-left" sx={{ flex: "1" }} onClick={handleGoBack} />
+                            <Codicon name="close" sx={{ flex: "1", textAlign: "right" }} onClick={handleClose} />
+                        </ButtonContainer>
                         {pageStack[pageStack.length - 1]}
                     </>}
         </SidePanelContainer>

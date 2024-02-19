@@ -78,8 +78,6 @@ export function Diagram(props: DiagramProps) {
         nodeRange: undefined,
         mediator: "",
         formValues: {},
-        showBackBtn: false,
-        backBtn: 0,
         title: "",
     });
 
@@ -144,13 +142,6 @@ export function Diagram(props: DiagramProps) {
             isOpen: false,
             formValues: {},
             isEditing: false
-        });
-    };
-
-    const sidePanelBackClick = () => {
-        setSidePanelState({
-            ...sidePanelState,
-            backBtn: sidePanelState.backBtn + 1
         });
     };
 
@@ -301,17 +292,6 @@ export function Diagram(props: DiagramProps) {
                         width={SIDE_PANEL_WIDTH}
                         overlay={false}
                     >
-                        <SidePanelTitleContainer>
-                            <div style={{ minWidth: "20px" }}>
-                                {
-                                    sidePanelState.showBackBtn && <Button onClick={sidePanelBackClick} appearance="icon">{"<"}</Button>
-                                }
-                            </div>
-                            <div style={{
-                                fontFamily: "var(--font-family)"
-                            }}>{sidePanelState.title ? sidePanelState.title : "Add New"}</div>
-                            <Button onClick={closeSidePanel} appearance="icon">X</Button>
-                        </SidePanelTitleContainer>
                         <SidePanelList nodePosition={sidePanelState.nodeRange} documentUri={props.documentUri} />
                     </SidePanel>}
 
