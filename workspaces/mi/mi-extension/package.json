@@ -133,6 +133,13 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.add-localEntry",
+        "title": "Add Local Entry",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.view",
         "title": "View"
       },
@@ -202,6 +209,11 @@
         {
           "command": "MI.project-explorer.add-inbound-endpoint",
           "when": "view == MI.project-explorer && viewItem == inboundEndpoints",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-localEntry",
+          "when": "view == MI.project-explorer && viewItem == localEntries",
           "group": "inline"
         }
       ]

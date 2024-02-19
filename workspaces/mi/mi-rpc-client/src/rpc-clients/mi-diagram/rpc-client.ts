@@ -24,6 +24,8 @@ import {
     CreateEndpointResponse,
     CreateInboundEndpointRequest,
     CreateInboundEndpointResponse,
+    CreateLocalEntryRequest,
+    CreateLocalEntryResponse,
     CreateProjectRequest,
     CreateProjectResponse,
     CreateSequenceRequest,
@@ -39,8 +41,10 @@ import {
     GetProjectRootRequest,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
+    FileDirResponse,
     HighlightCodeRequest,
     InboundEndpointDirectoryResponse,
+    LocalEntryDirectoryResponse,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectDirResponse,
@@ -51,12 +55,14 @@ import {
     WriteContentToFileRequest,
     WriteContentToFileResponse,
     applyEdit,
+    askFileDirPath,
     askProjectDirPath,
     closeWebView,
     closeWebViewNotification,
     createAPI,
     createEndpoint,
     createInboundEndpoint,
+    createLocalEntry,
     createProject,
     createSequence,
     executeCommand,
@@ -69,6 +75,7 @@ import {
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
+    getLocalEntryDirectory,
     getInboundEndpointDirectory,
     getProjectRoot,
     getSTRequest,
@@ -139,6 +146,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     createEndpoint(params: CreateEndpointRequest): Promise<CreateEndpointResponse> {
         return this._messenger.sendRequest(createEndpoint, HOST_EXTENSION, params);
     }
+    
+    getLocalEntryDirectory(): Promise<LocalEntryDirectoryResponse> {
+        return this._messenger.sendRequest(getLocalEntryDirectory, HOST_EXTENSION);
+    }
+
+    createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse>{
+        return this._messenger.sendRequest(createLocalEntry, HOST_EXTENSION, params);
+    }
 
     getEndpointsAndSequences(): Promise<EndpointsAndSequencesResponse> {
         return this._messenger.sendRequest(getEndpointsAndSequences, HOST_EXTENSION);
@@ -186,6 +201,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     askProjectDirPath(): Promise<ProjectDirResponse> {
         return this._messenger.sendRequest(askProjectDirPath, HOST_EXTENSION);
+    }
+    
+    askFileDirPath(): Promise<FileDirResponse>{
+        return this._messenger.sendRequest(askFileDirPath, HOST_EXTENSION);
     }
 
     createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {

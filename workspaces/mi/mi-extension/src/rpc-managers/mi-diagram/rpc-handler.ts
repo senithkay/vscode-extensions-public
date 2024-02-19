@@ -23,6 +23,7 @@ import {
     GetInboundEpDirRequest,
     GetProjectRootRequest,
     GetTextAtRangeRequest,
+    CreateLocalEntryRequest,
     HighlightCodeRequest,
     OpenDiagramRequest,
     ShowErrorMessageRequest,
@@ -30,11 +31,13 @@ import {
     WriteContentToFileRequest,
     applyEdit,
     askProjectDirPath,
+    askFileDirPath,
     closeWebView,
     closeWebViewNotification,
     createAPI,
     createEndpoint,
     createInboundEndpoint,
+    createLocalEntry,
     createProject,
     createSequence,
     executeCommand,
@@ -48,6 +51,7 @@ import {
     getEndpointDirectory,
     getEndpointsAndSequences,
     getInboundEndpointDirectory,
+    getLocalEntryDirectory,
     getProjectRoot,
     getSTRequest,
     getSequenceDirectory,
@@ -91,10 +95,13 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getWorkspaceRoot, () => rpcManger.getWorkspaceRoot());
     messenger.onRequest(getProjectRoot, (args: GetProjectRootRequest) => rpcManger.getProjectRoot(args));
     messenger.onRequest(askProjectDirPath, () => rpcManger.askProjectDirPath());
+    messenger.onRequest(askFileDirPath, () => rpcManger.askFileDirPath());
     messenger.onRequest(createProject, (args: CreateProjectRequest) => rpcManger.createProject(args));
     messenger.onRequest(getAIResponse, (args: AIUserInput) => rpcManger.getAIResponse(args));
     messenger.onRequest(writeContentToFile, (args: WriteContentToFileRequest) => rpcManger.writeContentToFile(args));
     messenger.onNotification(highlightCode, (args: HighlightCodeRequest) => rpcManger.highlightCode(args));
+    messenger.onRequest(getLocalEntryDirectory, () => rpcManger.getLocalEntryDirectory());
+    messenger.onRequest(createLocalEntry, (args: CreateLocalEntryRequest) => rpcManger.createLocalEntry(args));
     messenger.onNotification(initUndoRedoManager, (args: UndoRedoParams) => rpcManger.initUndoRedoManager(args));
     messenger.onNotification(undo, (args: UndoRedoParams) => rpcManger.undo(args));
     messenger.onNotification(redo, (args: UndoRedoParams) => rpcManger.redo(args));

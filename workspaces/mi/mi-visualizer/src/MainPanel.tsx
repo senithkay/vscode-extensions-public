@@ -14,18 +14,18 @@ import styled from '@emotion/styled';
 import { InboundEPWizard } from './views/Forms/InboundEPform';
 
 const LoaderWrapper = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 50vh;
-    width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+  width: 100vw;
 `;
 
 const ProgressRing = styled(VSCodeProgressRing)`
-    height: 40px;
-    width: 40px;
-    margin-top: auto;
-    padding: 4px;
+  height: 40px;
+  width: 40px;
+  margin-top: auto;
+  padding: 4px;
 `;
 
 const MainPanel = () => {
