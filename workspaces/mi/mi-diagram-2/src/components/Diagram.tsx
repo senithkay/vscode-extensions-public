@@ -79,7 +79,8 @@ export function Diagram(props: DiagramProps) {
         mediator: "",
         formValues: {},
         showBackBtn: false,
-        backBtn: 0
+        backBtn: 0,
+        title: "",
     });
 
     const [activeTab, setActiveTab] = useState<DiagramType>(DiagramType.FLOW);
@@ -306,7 +307,9 @@ export function Diagram(props: DiagramProps) {
                                     sidePanelState.showBackBtn && <Button onClick={sidePanelBackClick} appearance="icon">{"<"}</Button>
                                 }
                             </div>
-                            {sidePanelState.isEditing ? <div>Edit {sidePanelState.mediator}</div> : <div>Add New</div>}
+                            <div style={{
+                                fontFamily: "var(--font-family)"
+                            }}>{sidePanelState.title ? sidePanelState.title : "Add New"}</div>
                             <Button onClick={closeSidePanel} appearance="icon">X</Button>
                         </SidePanelTitleContainer>
                         <SidePanelList nodePosition={sidePanelState.nodeRange} documentUri={props.documentUri} />
