@@ -16,11 +16,8 @@ const IconWrapper = styled.div`
 const HorizontalCardContainer = styled.div`
     display: flex;
     flex-direction: row;
-`;
-
-const VerticalCardContainer = styled.div`
-    display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: flex-start;
 `;
 
 const TextContainer = styled.div`
