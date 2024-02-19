@@ -111,59 +111,62 @@ function generateTreeData(data: ProjectStructureResponse): ProjectExplorerEntry[
 		undefined,
 		'project'
 	);
-	const artifacts = (directoryMap as any).src.main.wso2mi.artifacts;
-	for (const key in artifacts) {
 
-		const parentEntry = new ProjectExplorerEntry(
-			key,
-			isCollapsibleState(artifacts[key].length > 0),
-			undefined,
-			'folder'
-		);
-		const children = genProjectStructureEntry(artifacts[key]);
+	const artifacts = (directoryMap as any)?.src?.main?.wso2mi?.artifacts;
+	if (artifacts) {
+		for (const key in artifacts) {
 
-		parentEntry.children = children;
-		parentEntry.contextValue = key;
-
-		switch (key) {
-			case 'apis':
-				parentEntry.iconPath = new vscode.ThemeIcon('globe');
-				break;
-			case 'endpoints':
-				parentEntry.iconPath = new vscode.ThemeIcon('plug');
-				break;
-			case 'inbound-endpoints':
-				parentEntry.iconPath = new vscode.ThemeIcon('fold-down');
-				break;
-			case 'local-entries':
-				parentEntry.iconPath = new vscode.ThemeIcon('settings');
-				break;
-			case 'message-stores':
-				parentEntry.iconPath = new vscode.ThemeIcon('database');
-				break;
-			case 'message-processors':
-				parentEntry.iconPath = new vscode.ThemeIcon('gear');
-				break;
-			case 'proxy-services':
-				parentEntry.iconPath = new vscode.ThemeIcon('arrow-swap');
-				break;
-			case 'sequences':
-				parentEntry.iconPath = new vscode.ThemeIcon('list-ordered');
-				break;
-			case 'tasks':
-				parentEntry.iconPath = new vscode.ThemeIcon('tasklist');
-				break;
-			case 'templates':
-				parentEntry.iconPath = new vscode.ThemeIcon('file');
-				break;
-			case 'resources':
-				parentEntry.iconPath = new vscode.ThemeIcon('globe');
-				break;
-			default:
+			const parentEntry = new ProjectExplorerEntry(
+				key,
+				isCollapsibleState(artifacts[key].length > 0),
+				undefined,
+				'folder'
+			);
+			const children = genProjectStructureEntry(artifacts[key]);
+	
+			parentEntry.children = children;
+			parentEntry.contextValue = key;
+	
+			switch (key) {
+				case 'apis':
+					parentEntry.iconPath = new vscode.ThemeIcon('globe');
+					break;
+				case 'endpoints':
+					parentEntry.iconPath = new vscode.ThemeIcon('plug');
+					break;
+				case 'inbound-endpoints':
+					parentEntry.iconPath = new vscode.ThemeIcon('fold-down');
+					break;
+				case 'local-entries':
+					parentEntry.iconPath = new vscode.ThemeIcon('settings');
+					break;
+				case 'message-stores':
+					parentEntry.iconPath = new vscode.ThemeIcon('database');
+					break;
+				case 'message-processors':
+					parentEntry.iconPath = new vscode.ThemeIcon('gear');
+					break;
+				case 'proxy-services':
+					parentEntry.iconPath = new vscode.ThemeIcon('arrow-swap');
+					break;
+				case 'sequences':
+					parentEntry.iconPath = new vscode.ThemeIcon('list-ordered');
+					break;
+				case 'tasks':
+					parentEntry.iconPath = new vscode.ThemeIcon('tasklist');
+					break;
+				case 'templates':
+					parentEntry.iconPath = new vscode.ThemeIcon('file');
+					break;
+				case 'resources':
+					parentEntry.iconPath = new vscode.ThemeIcon('globe');
+					break;
+				default:
+			}
+	
+			projectRoot.children = projectRoot.children ?? [];
+			projectRoot.children.push(parentEntry);
 		}
-
-		projectRoot.children = projectRoot.children ?? [];
-		if (parentEntry.children.length > 0) projectRoot.children.push(parentEntry);
 	}
 
 	result.push(projectRoot);
