@@ -127,6 +127,13 @@
         "category": "MI"
       },
       {
+        "command": "project-explorer.add-inbound-endpoint",
+        "title": "Add Inbound Endpoint",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "project-explorer.view",
         "title": "View"
       }
@@ -171,6 +178,11 @@
           "command": "project-explorer.add-sequence",
           "when": "view == project-explorer && viewItem == sequences",
           "group": "inline"
+        },
+        {
+            "command": "project-explorer.add-inbound-endpoint",
+            "when": "view == project-explorer && viewItem == inbound-endpoints",
+            "group": "inline"
         }
       ]
     },
@@ -241,6 +253,8 @@
     "@wso2-enterprise/mi-syntax-tree": "workspace:*",
     "@wso2-enterprise/font-wso2-vscode": "workspace:*",
     "xstate": "^4.38.3",
-    "node-fetch": "~2.6.2"
+    "node-fetch": "~2.6.2",
+    "mustache": "~4.2.0",
+    "@types/mustache": "~4.2.5"
   }
 }

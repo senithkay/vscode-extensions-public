@@ -50,6 +50,11 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 		console.log('Add Sequence');
 	});
 
+	vscode.commands.registerCommand('project-explorer.add-inbound-endpoint', () => {
+		openView({ view: "InboundEPForm" });
+		console.log('Add Inbound API');
+	});
+
 	vscode.commands.registerCommand('project-explorer.create-project', () => {
 		// Update state machine to show the api wizard
 		// createApiWizardWebview(context);

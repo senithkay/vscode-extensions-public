@@ -11,6 +11,7 @@ import { FileStructure, MachineViews } from '@wso2-enterprise/mi-core';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ExtensionContext, Uri, Webview } from "vscode";
+import { getInboundEndpointdXml, GetInboundTemplatesArgs } from './template-engine/mustach-templates/inboundEndpoints';
 
 const isDevMode = process.env.WEB_VIEW_WATCH_MODE === "true";
 
@@ -35,6 +36,7 @@ const viewFlow: ViewFlow = {
 	APIForm: ["Overview"],
 	EndPointForm: ["Overview"],
 	SequenceForm: ["Overview"],
+	InboundEPForm: ["Overview"],
 	ProjectCreationForm: ["Overview"]
 };
 
@@ -55,4 +57,8 @@ export function createFolderStructure(targetPath: string, structure: FileStructu
 			createFolderStructure(fullPath, value as FileStructure);
 		}
 	}
+}
+
+export function getInboundEndpointXmlWrapper(props: GetInboundTemplatesArgs) {
+	return getInboundEndpointdXml(props);
 }

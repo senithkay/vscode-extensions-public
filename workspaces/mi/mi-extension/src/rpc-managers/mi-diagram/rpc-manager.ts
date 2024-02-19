@@ -41,7 +41,10 @@ import {
     getSTRequest,
     getSTResponse,
     WriteContentToFileRequest,
-    WriteContentToFileResponse
+    WriteContentToFileResponse,
+    InboundEndpointDirectoryResponse,
+    CreateInboundEndpointRequest,
+    CreateInboundEndpointResponse
 } from "@wso2-enterprise/mi-core";
 import * as fs from "fs";
 import * as os from 'os';
@@ -54,6 +57,8 @@ const { XMLParser } = require("fast-xml-parser");
 import axios from 'axios';
 import { Transform } from 'stream';
 import { MI_COPILOT_BACKEND_URL } from "../../constants";
+import { VisualizerWebview } from "../../visualizer/webview";
+import { getInboundEndpointXmlWrapper } from "../../util";
 
 const connectorsPath = path.join(".metadata", ".Connectors");
 export class MiDiagramRpcManager implements MiDiagramAPI {
@@ -292,6 +297,43 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
+    async getInboundEndpointDirectory(): Promise<InboundEndpointDirectoryResponse> {
+        try {
+            const workspaceFolder = workspace.workspaceFolders;
+            if (workspaceFolder) {
+                const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
+                const endpointDir = path.join(workspaceFolderPath, "helloConfigs", 'src', 'main', 'synapse-config', 'inbound-endpoints');
+
+                const response: InboundEndpointDirectoryResponse = { data: endpointDir };
+
+                return response;
+            }
+
+            return { data: "" };
+        } catch (error) {
+            throw new Error("Failed to fetch workspace folders: " + error);
+        }
+    }
+
+    async createInboundEndpoint(params: CreateInboundEndpointRequest): Promise<CreateInboundEndpointResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, name, type, sequence, errorSequence } = params;
+
+            const getTemplateParams = {
+                name,
+                type: type.toLowerCase(),
+                sequence,
+                errorSequence
+            };
+
+            const xmlData = getInboundEndpointXmlWrapper(getTemplateParams);
+
+            const filePath = path.join(directory, `${name}.xml`);
+            fs.writeFileSync(filePath, xmlData);
+            resolve({ path: filePath });
+        });
+    }
+
     async getEndpointsAndSequences(): Promise<EndpointsAndSequencesResponse> {
         return new Promise(async (resolve) => {
             const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
@@ -410,8 +452,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     closeWebView(): void {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        if (VisualizerWebview.currentPanel) {
+            VisualizerWebview.currentPanel.dispose();
+        }
     }
 
     openFile(params: OpenDiagramRequest): void {
