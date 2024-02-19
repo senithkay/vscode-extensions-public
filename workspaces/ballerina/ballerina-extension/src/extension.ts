@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ExtensionContext, commands, window, Location, Uri } from 'vscode';
+import { ExtensionContext, commands, window, Location, Uri, TextEditor } from 'vscode';
 import { ballerinaExtInstance, BallerinaExtension } from './core';
 import { activate as activateDiagram } from './diagram';
 import { activate as activateBBE } from './bbe';
@@ -27,7 +27,6 @@ import { activate as activateNotebook } from './notebook';
 import { activate as activateLibraryBrowser } from './library-browser';
 import { activate as activateHistory } from './history';
 import { activate as activateERDiagram } from './persist-layer-diagram';
-import { activate as activateDesignDiagramView } from './project-design-diagrams';
 import { debug, handleResolveMissingDependencies, log } from './utils';
 import { activateUriHandlers } from './uri-handlers';
 import { StateMachine } from './stateMachine';
@@ -114,7 +113,7 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         // // Enable Ballerina Notebook
         // activateNotebook(ballerinaExtInstance);
         // activateDesignDiagramView(ballerinaExtInstance);
-        // activateERDiagram(ballerinaExtInstance);
+        activateERDiagram(ballerinaExtInstance);
 
         langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         // Register showTextDocument listener

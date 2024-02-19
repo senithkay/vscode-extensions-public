@@ -13,10 +13,15 @@ import {
     GraphqlModelRequest,
     GraphqlModelResponse
 } from "@wso2-enterprise/ballerina-core";
+import { StateMachine } from "../../stateMachine";
 
 export class GraphqlDesignerRpcManager implements GraphqlDiagramAPI {
     async getGraphqlModel(params: GraphqlModelRequest): Promise<GraphqlModelResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const res = await StateMachine.langClient().getGraphqlModel({ filePath: params.filePath,
+                startLine: params.startLine,
+                endLine: params.endLine});
+            resolve(res);
+        });
     }
 }

@@ -13,10 +13,14 @@ import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { HistoryEntry } from "@wso2-enterprise/ballerina-core";
+import styled from "@emotion/styled";
 
 interface NavButtonGroupProps {
     historyStack?: HistoryEntry[];
 }
+
+const LeftSection = styled.div``;
+const RightSection = styled.div``;
 
 export function NavButtonGroup(props: NavButtonGroupProps) {
 
@@ -31,10 +35,14 @@ export function NavButtonGroup(props: NavButtonGroupProps) {
     const handleHomeButtonClick = () => {
         rpcClient.getVisualizerRpcClient().goHome();
     }
+    const handleProjectDesignClick = () => {
+        rpcClient.getVisualizerRpcClient().openView({ view: "ArchitectureDiagram" });
+    }
 
     return (
         <>
-            <VSCodeButton
+            <LeftSection>
+                <VSCodeButton
                 appearance="icon"
                 title="Go Back"
                 onClick={isHistoryAvailable ? handleBackButtonClick : undefined}
@@ -43,9 +51,9 @@ export function NavButtonGroup(props: NavButtonGroupProps) {
                     : "var(--vscode-activityBar-inactiveForeground)"
                 }}
             >
-                <Codicon name="arrow-left" />
-            </VSCodeButton>
-            <VSCodeButton
+                    <Codicon name="arrow-left" />
+                </VSCodeButton>
+                <VSCodeButton
                 appearance="icon"
                 title="Home"
                 onClick={isHistoryAvailable ? handleHomeButtonClick : undefined}
@@ -54,8 +62,14 @@ export function NavButtonGroup(props: NavButtonGroupProps) {
                     : "var(--vscode-activityBar-inactiveForeground)"
                 }}
             >
-                <Codicon name="home" />
-            </VSCodeButton>
+                    <Codicon name="home" />
+                </VSCodeButton>
+            </LeftSection>
+            <RightSection>
+                <VSCodeButton appearance="icon" title="Architecture Diagram" onClick={handleProjectDesignClick}>
+                    <Codicon name="type-hierarchy-sub" />
+                </VSCodeButton>
+            </RightSection>
         </>
     );
 }

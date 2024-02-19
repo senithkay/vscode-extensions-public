@@ -8,9 +8,8 @@
 * You may not alter or remove any copyright or other notice from copies of this content.
 */
 
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { DocumentIdentifier, LinePosition, LineRange, Position, Range } from "./common";
-import { CMDiagnostics, ComponentModel } from "./component";
 import { Uri } from "vscode";
 
 export enum DIAGNOSTIC_SEVERITY {
@@ -474,14 +473,6 @@ export interface BallerinaConnectorsResponse extends BallerinaModuleResponse {
     error?: string;
 }
 
-export interface BallerinaTriggerRequest {
-    id: string
-}
-
-export interface BallerinaTriggerResponse extends BallerinaTriggerInfo {
-    error?: string;
-}
-
 export interface STModification {
     startLine?: number;
     startColumn?: number;
@@ -495,7 +486,7 @@ export interface STModification {
 export interface BallerinaSTModifyResponse {
     source: string;
     defFilePath: string;
-    syntaxTree: STNode;
+    syntaxTree: ModulePart;
     parseSuccess: boolean;
 }
 
@@ -634,20 +625,6 @@ export interface GetPersistERModelRequest {
     documentUri: string;
 }
 
-export interface GetComponentModelResponse {
-    componentModels: {
-        [key: string]: ComponentModel;
-    };
-    diagnostics: CMDiagnostics[];
-}
-
-export interface GetPersistERModelResponse {
-    persistERModel: {
-        [key: string]: ComponentModel;
-    };
-    diagnostics: CMDiagnostics[];
-}
-
 export interface BallerinaConstructRequest {
     query: string;
     packageName?: string;
@@ -702,11 +679,6 @@ export interface ComponentViewInfo {
 export interface FileListEntry {
     fileName: string;
     uri: Uri;
-}
-
-export interface CommandResponse {
-    error: boolean;
-    message: string;
 }
 
 export interface STSymbolInfo {

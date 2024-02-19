@@ -19,11 +19,9 @@ export interface NodeLayerWidgetProps {
 	engine: DiagramEngine;
 }
 
-const background = require('../../resources/assets/PatternBg.svg') as string;
-
 const Container = styled.div`
 	align-items: center;
-	background-image: url(${background});
+	background-image: radial-gradient(circle at 0.5px 0.5px, var(--vscode-textBlockQuote-border) 1px, transparent 0);
 	display: flex;
 	flex-direction: row;
 	height: 100%;

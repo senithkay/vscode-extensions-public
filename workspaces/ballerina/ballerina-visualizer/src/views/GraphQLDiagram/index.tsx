@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -8,12 +8,14 @@
  */
 
 import React, { useEffect } from "react";
-import { VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { GraphqlDesignServiceRequest, GraphqlDesignServiceResponse, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { GraphqlDesignDiagram } from "@wso2-enterprise/ballerina-graphql-design-diagram";
 
 export function GraphQLDiagram() {
     const { rpcClient } = useVisualizerContext();
     const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
+    const [graphqlModdel, setGraphqlModel] = React.useState<GraphqlDesignServiceResponse>();
 
     useEffect(() => {
         if (rpcClient) {
@@ -23,16 +25,32 @@ export function GraphQLDiagram() {
         }
     }, [rpcClient]);
 
+    useEffect(() => {
+        getGraphqlDesignModel();
+    }, [visualizerLocation]);
+
+    const getGraphqlDesignModel = async () => {
+        if (!rpcClient && !visualizerLocation) {
+            return;
+        }
+        const request: GraphqlDesignServiceRequest = {
+            filePath: visualizerLocation?.documentUri,
+            startLine: { line: visualizerLocation?.position?.startLine, offset: visualizerLocation?.position?.startColumn },
+            endLine: { line: visualizerLocation?.position?.endLine, offset: visualizerLocation?.position?.endColumn }
+        }
+        const response: GraphqlDesignServiceResponse = await rpcClient.getGraphqlDesignerRpcClient().getGraphqlModel(request);
+        setGraphqlModel(response);
+    };
+
 
     return (
         <>
-            <h1>Hello GraphQL Diagram</h1>
-            <ul>
-                <li>{visualizerLocation?.view}</li>
-                <li>{visualizerLocation?.documentUri}</li>
-                <li>{visualizerLocation?.position?.startLine}</li>
-                <li>{visualizerLocation?.identifier}</li>
-            </ul>
+            {visualizerLocation &&
+                <GraphqlDesignDiagram
+                    graphqlModelResponse={graphqlModdel}
+                    filePath={visualizerLocation?.documentUri}
+                />
+            }
         </>
     );
 }

@@ -30,6 +30,7 @@
     "@projectstorm/react-diagrams-core": "^6.7.4",
     "@vscode/webview-ui-toolkit": "^1.2.0",
     "@wso2-enterprise/font-wso2-vscode": "workspace:*",
+    "@wso2-enterprise/ballerina-core": "workspace:*",
     "@vscode/codicons": "0.0.33",
     "classnames": "^2.2.6"
   },

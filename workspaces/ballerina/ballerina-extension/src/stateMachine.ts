@@ -1,5 +1,5 @@
 
-import { ExtendedLangClient } from './core';
+import { ExtendedLangClient, ballerinaExtInstance } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
 import { EventType, GetSyntaxTreeResponse, HistoryEntry, MachineStateValue, MachineViews, STByRangeRequest, SyntaxTreeResponse, VisualizerLocation, webviewReady } from "@wso2-enterprise/ballerina-core";
@@ -75,8 +75,10 @@ const stateMachine = createMachine<MachineContext>(
                     OPEN_VIEW: {
                         target: "viewActive",
                         actions: assign({
+                            view: (context, event) => event.viewLocation.view,
                             documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
-                            position: (context, event) => event.viewLocation.position
+                            position: (context, event) => event.viewLocation.position,
+                            identifier: (context, event) => event.viewLocation.identifier
                         })
                     }
                 }
@@ -118,9 +120,9 @@ const stateMachine = createMachine<MachineContext>(
                             OPEN_VIEW: {
                                 target: "viewInit",
                                 actions: assign({
+                                    view: (context, event) => event.viewLocation.view,
                                     documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
                                     position: (context, event) => event.viewLocation.position,
-                                    view: (context, event) => event.viewLocation.view,
                                     identifier: (context, event) => event.viewLocation.identifier
                                 })
                             },
@@ -196,37 +198,58 @@ const stateMachine = createMachine<MachineContext>(
         },
         findView(context, event): Promise<void> {
             return new Promise(async (resolve, reject) => {
-                if (!context.position) {
-                    resolve();
+                if (ballerinaExtInstance.getPersistDiagramStatus()) {
+                    resolve({
+                        view: "ERDiagram",
+                        identifier: context.identifier
+                    });
                     return;
                 }
-                const req: STByRangeRequest = {
-                    documentIdentifier: { uri: Uri.file(context.documentUri).toString() },
-                    lineRange: {
-                        start: {
-                            line: context.position.startLine,
-                            character: context.position.startColumn
-                        },
-                        end: {
-                            line: context.position.endLine,
-                            character: context.position.endColumn
-                        }
+                if (!context.view) {
+                    if (!context.position || ("groupId" in context.position)) {
+                        resolve();
+                        return;
                     }
-                };
+                    const req: STByRangeRequest = {
+                        documentIdentifier: { uri: Uri.file(context.documentUri).toString() },
+                        lineRange: {
+                            start: {
+                                line: context.position.startLine,
+                                character: context.position.startColumn
+                            },
+                            end: {
+                                line: context.position.endLine,
+                                character: context.position.endColumn
+                            }
+                        }
+                    };
 
-                const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
+                    const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
 
                 if (node.parseSuccess) {
                     if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
-                        history.push({
-                            location: {
-                                view: "ServiceDesigner",
-                                identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
-                                documentUri: context.documentUri,
-                                position: context.position
-                            }
-                        });
-                        resolve();
+                        const expr = node.syntaxTree.expressions[0];
+                        if (expr?.typeData?.typeSymbol?.signature?.includes("graphql")) {
+                            history.push({
+                                location: {
+                                    view: "GraphQLDiagram",
+                                    identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
+                                    documentUri: context.documentUri,
+                                    position: context.position
+                                }
+                            });
+                            resolve();
+                        } else {
+                            history.push({
+                                location: {
+                                    view: "ServiceDesigner",
+                                    identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
+                                    documentUri: context.documentUri,
+                                    position: context.position
+                                }
+                            });
+                            resolve();
+                        }
                     } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) && STKindChecker.isExpressionFunctionBody(node.syntaxTree.functionBody)) {
                         history.push({
                             location: {
@@ -238,19 +261,30 @@ const stateMachine = createMachine<MachineContext>(
                             dataMapperDepth: 0
                         });
                         resolve();
-                    } else if (STKindChecker.isTypeDefinition(node.syntaxTree) && STKindChecker.isRecordTypeDesc(node.syntaxTree.typeDescriptor)) {
+                    } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) || STKindChecker.isResourceAccessorDefinition(node.syntaxTree)) {
                         history.push({
                             location: {
-                                view: "ArchitectureDiagram",
+                                view: "SequenceDiagram",
                                 documentUri: context.documentUri,
                                 position: context.position
-                            }
+                            },
+                            dataMapperDepth: 0
                         });
                         resolve();
                     } else {
+                        history.push({ view: "Overview", documentUri: context.documentUri });
                         resolve();
                     }
                 }
+                return;
+            } else {
+                history.push({
+                    view: context.view,
+                    documentUri: context.documentUri,
+                    position: context.position,
+                    identifier: context.identifier
+                });
+                resolve();
                 return;
             });
         },
@@ -362,7 +396,7 @@ const stateService = interpret(stateMachine);
 function startMachine(): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         stateService.start().onTransition((state) => {
-            if (state.value === "Ready") {
+            if (state.value === "lsReady") {
                 resolve();
             }
         });

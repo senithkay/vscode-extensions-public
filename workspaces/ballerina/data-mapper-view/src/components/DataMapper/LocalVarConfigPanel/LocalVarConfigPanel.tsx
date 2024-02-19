@@ -27,7 +27,7 @@ import { NewLetVarDeclPlusButton } from "./NewLetVarDeclPlusButton";
 import { useStyles } from "./style";
 import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import styled from "@emotion/styled";
-import { Button, Codicon, Icon, SidePanel, colors } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, SidePanel } from "@wso2-enterprise/ui-toolkit";
 import { EmptyLocalVarPanel } from "./EmptyLocalVarPanel";
 
 export interface LetVarDeclModel {
@@ -44,7 +44,7 @@ export interface LocalVarConfigPanelProps {
     applyModifications: (modifications: STModification[]) => Promise<void>;
     langServerRpcClient: LangServerRpcClient,
     filePath: string;
-};
+}
 
 export const SidePanelTitleContainer = styled.div`
     display: flex;
@@ -220,7 +220,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                                             hasSelectedLetVarDecl && overlayClasses.deleteLetVarDeclEnabled
                                         )}
                                     >
-                                        <Icon sx={{marginRight: 5}} name="delete"/>
+                                        <Codicon sx={{marginRight: 5}} name="trash"/>
                                         Delete Selected
                                     </div>
                                 </Button>

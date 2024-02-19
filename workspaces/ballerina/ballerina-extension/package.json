@@ -328,7 +328,7 @@
                 "icon": "$(distro-delete)"
             },
             {
-                "command": "ballerina.show.diagram",
+                "command": "ballerina.show.visualizer",
                 "title": "Show Diagram",
                 "icon": "$(distro-design-view)",
                 "category": "Ballerina"
@@ -492,7 +492,7 @@
                 },
                 {
                     "when": "resourceLangId == ballerina && !isPersistModelActive",
-                    "command": "ballerina.show.diagram",
+                    "command": "ballerina.show.visualizer",
                     "group": "navigation@3"
                 },
                 {
@@ -595,27 +595,6 @@
                     "fontCharacter": "\\f134"
                 }
             },
-            "distro-refresh": {
-                "description": "refresh",
-                "default": {
-                    "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f140"
-                }
-            },
-            "distro-new-file": {
-                "description": "new-file",
-                "default": {
-                    "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f132"
-                }
-            },
-            "distro-new-folder": {
-                "description": "new-folder",
-                "default": {
-                    "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f133"
-                }
-            },
             "distro-delete": {
                 "description": "delete",
                 "default": {
@@ -627,21 +606,21 @@
                 "description": "design-view",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f115"
+                    "fontCharacter": "\\f113"
                 }
             },
             "distro-start": {
                 "description": "start",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f149"
+                    "fontCharacter": "\\f13b"
                 }
             },
             "distro-debug": {
                 "description": "debug",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f113"
+                    "fontCharacter": "\\f112"
                 }
             },
             "distro-source-view": {
@@ -655,7 +634,7 @@
                 "description": "persist-diagram",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f138"
+                    "fontCharacter": "\\f12f"
                 }
             },
             "distro-cached-rounded": {
@@ -676,35 +655,35 @@
                 "description": "fit-to-screen",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f122"
+                    "fontCharacter": "\\f11f"
                 }
             },
             "distro-explicit-outlined": {
                 "description": "explicit-outlined",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f121"
+                    "fontCharacter": "\\f11e"
                 }
             },
             "distro-error-icon": {
                 "description": "error-icon",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f11e"
+                    "fontCharacter": "\\f11b"
                 }
             },
             "distro-error-outline": {
                 "description": "error-outline",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f11f"
+                    "fontCharacter": "\\f11c"
                 }
             },
             "distro-symbol-struct-icon": {
                 "description": "symbol-struct-icon",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f14a"
+                    "fontCharacter": "\\f13c"
                 }
             },
             "distro-add-circle-outline": {
@@ -718,14 +697,42 @@
                 "description": "radio-button-checked",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f13c"
+                    "fontCharacter": "\\f133"
                 }
             },
             "distro-radio-button-unchecked": {
                 "description": "radio-button-unchecked",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f13d"
+                    "fontCharacter": "\\f134"
+                }
+            },
+            "distro-file-submodule": {
+                "description": "file-submodule",
+                "default": {
+                    "fontPath": "./resources/codicons/codicon.ttf",
+                    "fontCharacter": "\\eaec"
+                }
+            },
+            "distro-new-file": {
+                "description": "new-file",
+                "default": {
+                    "fontPath": "./resources/codicons/codicon.ttf",
+                    "fontCharacter": "\\ea7f"
+                }
+            },
+            "distro-new-folder": {
+                "description": "new-folder",
+                "default": {
+                    "fontPath": "./resources/codicons/codicon.ttf",
+                    "fontCharacter": "\\ea80"
+                }
+            },
+            "distro-refresh": {
+                "description": "refresh",
+                "default": {
+                    "fontPath": "./resources/codicons/codicon.ttf",
+                    "fontCharacter": "\\eb37"
                 }
             }
         }

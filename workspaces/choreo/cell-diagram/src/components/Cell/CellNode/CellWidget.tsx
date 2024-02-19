@@ -17,6 +17,16 @@ import { CELL_LINE_MIN_WIDTH, MAIN_CELL } from "../../../resources";
 import { GatewayIcon } from "../../../resources/assets/icons/GatewayIcon";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 
+export const generateRoundedOctagonSVG = (diagramHeight: number) => {
+    const sideLength = (diagramHeight * 4.14) / 10;
+    const { width, height, path } = getRoundedOctagonSVG(sideLength, sideLength * 0.08);
+    return (
+        <svg width={width} height={height} id={MAIN_CELL} transform={`rotate(${45 / 2})`}>
+            <path d={path} />
+        </svg>
+    );
+};
+
 interface CellWidgetProps {
     node: CellModel;
     engine: DiagramEngine;
@@ -36,15 +46,6 @@ export function CellWidget(props: CellWidgetProps) {
         resizeCellHeight();
     }, [node.width]);
 
-    const generateRoundedOctagonSVG = (diagramHeight: number) => {
-        const sideLength = (diagramHeight * 4.14) / 10;
-        const { width, height, path } = getRoundedOctagonSVG(sideLength, sideLength * 0.08);
-        return (
-            <svg width={width} height={height} id={MAIN_CELL} transform={`rotate(${45 / 2})`}>
-                <path d={path} />
-            </svg>
-        );
-    };
 
     const resizeCellHeight = () => {
         const conCount = node.connectorNodes?.length || 0;

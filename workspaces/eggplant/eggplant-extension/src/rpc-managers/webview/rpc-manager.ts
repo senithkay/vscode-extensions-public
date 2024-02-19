@@ -13,7 +13,6 @@ import { STByRangeRequest, BallerinaProjectComponents, STModification } from "@w
 import {
     EggplantModelRequest,
     Flow,
-    LangClientInterface,
     MachineEvent,
     MachineStateValue,
     VisualizerLocation,

@@ -9,28 +9,10 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    CreateResourceRequest,
-    CreateServiceRequest,
-    DeleteResourceRequest,
-    DeleteServiceRequest,
-    GoToSourceRequest,
-    KeywordTypeResponse,
     RecordSTRequest,
     RecordSTResponse,
-    ResourceResponse,
     ServiceDesignerAPI,
-    ServiceResponse,
-    UpdateResourceRequest,
-    UpdateServiceRequest,
-    createResource,
-    createService,
-    deleteResource,
-    deleteService,
-    getKeywordTypes,
-    getRecordST,
-    goToSource,
-    updateResource,
-    updateService
+    getRecordST
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -42,39 +24,7 @@ export class ServiceDesignerRpcClient implements ServiceDesignerAPI {
         this._messenger = messenger;
     }
 
-    createService(params: CreateServiceRequest): Promise<ServiceResponse> {
-        return this._messenger.sendRequest(createService, HOST_EXTENSION, params);
-    }
-
-    updateService(params: UpdateServiceRequest): Promise<ServiceResponse> {
-        return this._messenger.sendRequest(updateService, HOST_EXTENSION, params);
-    }
-
-    deleteService(params: DeleteServiceRequest): Promise<ServiceResponse> {
-        return this._messenger.sendRequest(deleteService, HOST_EXTENSION, params);
-    }
-
-    createResource(params: CreateResourceRequest): Promise<ResourceResponse> {
-        return this._messenger.sendRequest(createResource, HOST_EXTENSION, params);
-    }
-
-    updateResource(params: UpdateResourceRequest): Promise<ResourceResponse> {
-        return this._messenger.sendRequest(updateResource, HOST_EXTENSION, params);
-    }
-
-    deleteResource(params: DeleteResourceRequest): Promise<ResourceResponse> {
-        return this._messenger.sendRequest(deleteResource, HOST_EXTENSION, params);
-    }
-
-    getKeywordTypes(): Promise<KeywordTypeResponse> {
-        return this._messenger.sendRequest(getKeywordTypes, HOST_EXTENSION);
-    }
-
     getRecordST(params: RecordSTRequest): Promise<RecordSTResponse> {
         return this._messenger.sendRequest(getRecordST, HOST_EXTENSION, params);
-    }
-
-    goToSource(params: GoToSourceRequest): void {
-        return this._messenger.sendNotification(goToSource, HOST_EXTENSION, params);
     }
 }
