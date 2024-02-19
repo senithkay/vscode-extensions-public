@@ -132,6 +132,6 @@ export class ExtendedLanguageClient extends LanguageClient {
     }
 
     async getSnippetCompletion(req: LogSnippetCompletionRequest): Promise<LogSnippet> {
-        return this.sendRequest("synapse/getSnippetCompletion", req);
+        return this.sendRequest("xml/getSnippetCompletion", req);
     }
 }
