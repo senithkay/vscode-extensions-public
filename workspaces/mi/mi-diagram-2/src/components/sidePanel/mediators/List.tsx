@@ -190,23 +190,36 @@ export function Mediators(props: MediatorProps) {
     };
 
     const setContent = (content: any) => {
-        sidePanelContext.setSidePanelState({
-            ...sidePanelContext,
-            title: `Add ${content.title} Mediator`,
-        });
         props.setContent(content.form);
     }
 
-    const MediatorList = () => {
-        const filteredMediators = Object.keys(allMediators).reduce((acc: any, key: string) => {
-            const filtered = (allMediators as any)[key].filter((mediator: { title: string; }) => mediator.title.toLowerCase().includes(props.searchValue?.toLowerCase()));
+    const searchForm = (value: string, search?: boolean) => {
+        return Object.keys(allMediators).reduce((acc: any, key: string) => {
+            const filtered = (allMediators as any)[key].filter((mediator: { title: string; }) =>
+                search ? mediator.title.toLowerCase().includes(value?.toLowerCase()) : mediator.title.toLowerCase() === value?.toLowerCase());
             if (filtered.length > 0) {
                 acc[key] = filtered;
             }
             return acc;
         }
             , {});
-        const mediators = props.searchValue ? filteredMediators : allMediators;
+    }
+
+    const MediatorList = () => {
+        let mediators;
+        if (sidePanelContext.isEditing && sidePanelContext.operationName) {
+            const form = searchForm(sidePanelContext.operationName, false);
+
+            if (form) {
+                setContent(Object.keys(form).length > 0 ? form[Object.keys(form)[0]][0] : {});
+                return <></>;
+            }
+        }
+        if (props.searchValue) {
+            mediators = searchForm(props.searchValue, true);
+        } else {
+            mediators = allMediators;
+        }
 
         return Object.keys(mediators).length === 0 ? <h3 style={{ textAlign: "center" }}>No mediators found</h3> :
             <>

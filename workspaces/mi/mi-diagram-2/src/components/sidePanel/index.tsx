@@ -84,6 +84,8 @@ const SidePanelList = (props: SidePanelListProps) => {
         sidePanelContext.setSidePanelState({
             ...sidePanelContext,
             isOpen: false,
+            isEditing: false,
+            formValues: {},
         });
     };
 
@@ -98,7 +100,6 @@ const SidePanelList = (props: SidePanelListProps) => {
     };
 
     const setContent = async (content: any) => {
-        console.log(content);
         setPageStack([...pageStack, content]);
     };
 
@@ -121,7 +122,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                 </> :
                     <>
                         <ButtonContainer>
-                            <Codicon name="arrow-left" sx={{ flex: "1" }} onClick={handleGoBack} />
+                            {!sidePanelContext.isEditing && <Codicon name="arrow-left" sx={{ flex: "1" }} onClick={handleGoBack} />}
                             <Codicon name="close" sx={{ flex: "1", textAlign: "right" }} onClick={handleClose} />
                         </ButtonContainer>
                         {pageStack[pageStack.length - 1]}
