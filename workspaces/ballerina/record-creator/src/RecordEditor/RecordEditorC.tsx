@@ -18,11 +18,11 @@ import { UndoRedoManager } from "../components/UndoRedoManager";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { Context } from "../Context";
 import { FormContainer } from "../style";
-import { RecordEditorProps } from ".";
+import { RecordEditorCProps } from ".";
 
 const undoRedoManager = new UndoRedoManager();
 
-export function RecordEditor(props: RecordEditorProps) {
+export function RecordEditorC(props: RecordEditorCProps) {
     const { model, isDataMapper, onCancel, showHeader } = props;
 
     const {

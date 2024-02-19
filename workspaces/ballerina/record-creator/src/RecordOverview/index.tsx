@@ -27,7 +27,7 @@ import { Button, Codicon, Icon, Tooltip, Typography } from "@wso2-enterprise/ui-
 import { FormHeaderSection } from "../components/FormComponents/FormFieldComponents/FormHeader/FormHeaderSection";
 import { Context } from "../Context";
 import { InputLabel, InputLabelDetail, InputWrapper, RecordFormWrapper, useStyles } from "../style";
-import { RecordEditor } from "../RecordEditor/RecordEditor";
+import { RecordEditorC } from "../RecordEditor/RecordEditorC";
 
 export interface RecordOverviewProps {
     definitions: TypeDefinition | ModulePart;
@@ -218,10 +218,7 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
                     </div>
                 </>
             ) : (
-                <RecordEditor
-                    model={actualSelectedRecordSt}
-                    onCancel={onCancelEdit}
-                />
+                <RecordEditorC model={actualSelectedRecordSt} onCancel={onCancelEdit} />
             )}
         </>
     );
