@@ -13,7 +13,7 @@ import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { SyntaxTreeResponse, STModification, NodePosition, HistoryEntry } from "@wso2-enterprise/ballerina-core";
 import { useSyntaxTreeFromRange } from "../../Hooks";
 import { FunctionDefinition, ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { RecordEditorWrapper, StatementEditorComponentProps } from "@wso2-enterprise/record-creator";
+import { RecordEditor, StatementEditorComponentProps } from "@wso2-enterprise/record-creator";
 import { URI } from "vscode-uri";
 
 interface DataMapperProps {
@@ -50,7 +50,7 @@ export function DataMapper(props: DataMapperProps) {
 
     const renderRecordPanel = (props: { closeAddNewRecord: (createdNewRecord?: string) => void } & StatementEditorComponentProps) => {
         return (
-            <RecordEditorWrapper
+            <RecordEditor
                 isDataMapper={true}
                 onCancel={props.closeAddNewRecord}
                 recordCreatorRpcClient={recordCreatorRpcClient}
