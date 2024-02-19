@@ -199,10 +199,13 @@ const stateMachine = createMachine<MachineContext>(
         findView(context, event): Promise<void> {
             return new Promise(async (resolve, reject) => {
                 if (ballerinaExtInstance.getPersistDiagramStatus()) {
-                    resolve({
-                        view: "ERDiagram",
-                        identifier: context.identifier
+                    history.push({
+                        location: {
+                            view: "ERDiagram",
+                            identifier: context.identifier
+                        }
                     });
+                    resolve();
                     return;
                 }
                 if (!context.view) {
@@ -272,22 +275,24 @@ const stateMachine = createMachine<MachineContext>(
                         });
                         resolve();
                     } else {
-                        history.push({ view: "Overview", documentUri: context.documentUri });
+                        history.push({location: { view: "Overview", documentUri: context.documentUri }});
                         resolve();
                     }
                 }
                 return;
             } else {
                 history.push({
-                    view: context.view,
-                    documentUri: context.documentUri,
-                    position: context.position,
-                    identifier: context.identifier
+                    location: {
+                        view: context.view,
+                        documentUri: context.documentUri,
+                        position: context.position,
+                        identifier: context.identifier
+                    }
                 });
                 resolve();
                 return;
-            });
-        },
+            };
+        })},
         showView(context, event): Promise<VisualizerLocation> {
             return new Promise(async (resolve, reject) => {
                 const historyStack = history.get();
