@@ -13,9 +13,8 @@ import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { SyntaxTreeResponse, STModification, NodePosition, HistoryEntry } from "@wso2-enterprise/ballerina-core";
 import { useSyntaxTreeFromRange } from "../../Hooks";
 import { FunctionDefinition, ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { RecordEditorWrapper } from "@wso2-enterprise/record-creator";
+import { RecordEditorWrapper, StatementEditorComponentProps } from "@wso2-enterprise/record-creator";
 import { URI } from "vscode-uri";
-import { StatementEditorComponentProps } from "@wso2-enterprise/record-creator/lib/types";
 
 interface DataMapperProps {
     filePath: string;

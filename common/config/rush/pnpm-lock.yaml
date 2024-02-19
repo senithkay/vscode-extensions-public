@@ -1577,7 +1577,6 @@ importers:
       '@types/react-lottie': ~1.2.10
       '@vscode/webview-ui-toolkit': ~1.4.0
       '@wso2-enterprise/ballerina-core': workspace:*
-      '@wso2-enterprise/ballerina-languageclient': workspace:*
       '@wso2-enterprise/ballerina-rpc-client': workspace:*
       '@wso2-enterprise/ballerina-statement-editor': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
@@ -1603,7 +1602,6 @@ importers:
       '@types/react-lottie': 1.2.10
       '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
-      '@wso2-enterprise/ballerina-languageclient': link:../ballerina-languageclient
       '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
       '@wso2-enterprise/ballerina-statement-editor': link:../statement-editor
       '@wso2-enterprise/syntax-tree': link:../syntax-tree
