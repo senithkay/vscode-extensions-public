@@ -47,7 +47,7 @@ export const rootPomXmlContent = (projectName: string) => `<?xml version="1.0" e
     </repository>
   </distributionManagement>
   <properties>
-    <project.scm.id>integration-project</project.scm.id>
+    <projectType>integration-project</projectType>
   </properties>
   <build>
     <plugins>
