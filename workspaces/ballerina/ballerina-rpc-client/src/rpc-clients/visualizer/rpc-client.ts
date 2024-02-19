@@ -12,6 +12,7 @@ import {
     HistoryEntry,
     VisualizerAPI,
     VisualizerLocation,
+    addToHistory,
     getHistory,
     goBack,
     goHome,
@@ -34,6 +35,10 @@ export class VisualizerRpcClient implements VisualizerAPI {
 
     getHistory(): Promise<HistoryEntry[]> {
         return this._messenger.sendRequest(getHistory, HOST_EXTENSION);
+    }
+
+    addToHistory(params: HistoryEntry): void {
+        return this._messenger.sendNotification(addToHistory, HOST_EXTENSION, params);
     }
 
     goBack(): void {

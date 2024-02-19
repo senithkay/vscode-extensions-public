@@ -10,7 +10,7 @@
 import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
 import React, { useEffect, useMemo, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { SyntaxTreeResponse, STModification, NodePosition } from "@wso2-enterprise/ballerina-core";
+import { SyntaxTreeResponse, STModification, NodePosition, HistoryEntry } from "@wso2-enterprise/ballerina-core";
 import { useSyntaxTreeFromRange } from "../../Hooks";
 import { FunctionDefinition, ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { URI } from "vscode-uri";
@@ -72,6 +72,10 @@ export function DataMapper(props: DataMapperProps) {
         }
     };
 
+    const goToFunction = async (entry: HistoryEntry) => {
+        rpcClient.getVisualizerRpcClient().addToHistory(entry);
+    };
+
     const view = useMemo(() => {
         if (!mapperData) {
             return <div>DM Loading...</div>;
@@ -83,6 +87,7 @@ export function DataMapper(props: DataMapperProps) {
                 langServerRpcClient={langServerRpcClient}
                 libraryBrowserRpcClient={libraryBrowserRPCClient}
                 applyModifications={applyModifications}
+                goToFunction={goToFunction}
             />
         );
     }, [mapperData]);

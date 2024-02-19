@@ -232,8 +232,10 @@ const stateMachine = createMachine<MachineContext>(
                             location: {
                                 view: "DataMapper",
                                 documentUri: context.documentUri,
-                                position: context.position
-                            }
+                                position: context.position,
+                                identifier: node.syntaxTree.functionName.value
+                            },
+                            dataMapperDepth: 0
                         });
                         resolve();
                     } else if (STKindChecker.isTypeDefinition(node.syntaxTree) && STKindChecker.isRecordTypeDesc(node.syntaxTree.typeDescriptor)) {
@@ -284,6 +286,7 @@ const stateMachine = createMachine<MachineContext>(
 
                         if (generatedUid) {
                             history.updateCurrentEntry({
+                                ...selectedEntry,
                                 location: {
                                     ...selectedEntry.location,
                                     position: selectedST.position
@@ -307,6 +310,7 @@ const stateMachine = createMachine<MachineContext>(
                                 selectedST = visitorToFindConstructByName.getNode();
 
                                 history.updateCurrentEntry({
+                                    ...selectedEntry,
                                     location: {
                                         ...selectedEntry.location,
                                         position: selectedST.position
@@ -321,6 +325,7 @@ const stateMachine = createMachine<MachineContext>(
                                     selectedST = visitorToFindConstructByIndex.getNode();
 
                                     history.updateCurrentEntry({
+                                        ...selectedEntry,
                                         location: {
                                             ...selectedEntry.location,
                                             position: selectedST.position

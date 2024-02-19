@@ -13,6 +13,7 @@ import { VisualizerLocation } from "../../state-machine-types";
 export interface VisualizerAPI {
     openView: (params: VisualizerLocation) => void;
     getHistory: () => Promise<HistoryEntry[]>;
+    addToHistory: (entry: HistoryEntry) => void;
     goBack: () => void;
     goHome: () => void;
     goSelected: (index: number) => void;

@@ -9,7 +9,9 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    HistoryEntry,
     VisualizerLocation,
+    addToHistory,
     getHistory,
     goBack,
     goHome,
@@ -23,6 +25,7 @@ export function registerVisualizerRpcHandlers(messenger: Messenger) {
     const rpcManger = new VisualizerRpcManager();
     messenger.onNotification(openView, (args: VisualizerLocation) => rpcManger.openView(args));
     messenger.onRequest(getHistory, () => rpcManger.getHistory());
+    messenger.onNotification(addToHistory, (args: HistoryEntry) => rpcManger.addToHistory(args));
     messenger.onNotification(goBack, () => rpcManger.goBack());
     messenger.onNotification(goHome, () => rpcManger.goHome());
     messenger.onNotification(goSelected, (args: number) => rpcManger.goSelected(args));

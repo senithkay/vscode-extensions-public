@@ -14,7 +14,7 @@ import {
     VisualizerLocation
 } from "@wso2-enterprise/ballerina-core";
 import { history } from "../../history";
-import { goBackOneView, navigate, openView } from "../../stateMachine";
+import { navigate, openView } from "../../stateMachine";
 
 export class VisualizerRpcManager implements VisualizerAPI {
 
@@ -41,6 +41,11 @@ export class VisualizerRpcManager implements VisualizerAPI {
 
     goSelected(index: number): void {
         history.select(index);
+        navigate();
+    }
+
+    addToHistory(entry: HistoryEntry): void {
+        history.push(entry);
         navigate();
     }
 }

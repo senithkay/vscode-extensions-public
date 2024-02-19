@@ -12,19 +12,17 @@ import React, { useState } from "react";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { HistoryEntry } from "@wso2-enterprise/ballerina-core";
 
 interface NavButtonGroupProps {
-    currentProjectPath?: string;
+    historyStack?: HistoryEntry[];
 }
 
 export function NavButtonGroup(props: NavButtonGroupProps) {
 
+    const { historyStack } = props;
     const { rpcClient } = useVisualizerContext();
-    const [isHistoryAvailable, setIsHistoryAvailable] = useState(false);
-    rpcClient.getVisualizerRpcClient().getHistory().then((history) => {
-        setIsHistoryAvailable(history.length > 0);
-    });
-
+    const isHistoryAvailable = historyStack && historyStack.length > 0;
 
     const handleBackButtonClick = () => {
         rpcClient.getVisualizerRpcClient().goBack();

@@ -11,6 +11,7 @@ import { VisualizerLocation } from "./state-machine-types";
 export interface HistoryEntry {
     location: VisualizerLocation;
     uid?: string;
+    dataMapperDepth?: number;
 }
 
 export class History {
@@ -30,7 +31,7 @@ export class History {
     
     public select(index: number): void {
         if (index < 0 || index >= this.historyStack.length) return;
-        this.historyStack.slice(0, index + 1);
+        this.historyStack = this.historyStack.slice(0, index + 1);
     }
     
     public clear(): void {
