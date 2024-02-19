@@ -301,18 +301,19 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (!!rootPath) {
                 const langClient = StateMachine.context().langClient!;
                 const resp = await langClient.getProjectStructure(rootPath);
+                const artifacts = (resp.directoryMap as any).src.main.wso2mi.artifacts;
 
                 const endpoints: string[] = [];
                 const sequences: string[] = [];
 
-                for (const esbConfig of resp.directoryMap.esbConfigs) {
-                    for (const endpoint of esbConfig.esbConfigs.endpoints) {
-                        endpoints.push(endpoint.name);
-                    }
-                    for (const sequence of esbConfig.esbConfigs.sequences) {
-                        sequences.push(sequence.name);
-                    }
+                for (const endpoint of artifacts.endpoints) {
+                    endpoints.push(endpoint.name);
                 }
+                
+                for (const sequence of artifacts.sequences) {
+                    sequences.push(sequence.name);
+                }
+
                 resolve({ data: [endpoints, sequences] });
             }
 

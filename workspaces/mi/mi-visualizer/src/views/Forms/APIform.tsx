@@ -64,19 +64,8 @@ export function APIWizard() {
     const [apiName, setAPIName] = useState("");
     const [apiContext, setAPIContext] = useState("");
     const [versionType, setVersionType] = useState("none");
-    const [ESBConfigs, setESBConfigs] = useState([]);
-    const [selectedConfig, setSelectedConfig] = useState("");
     const [version, setVersion] = useState("");
-    const [swaggerdefPath, setSwaggerdefPath] = useState("");
-
-    useEffect(() => {
-        (async () => {
-            const esbConfigs = await rpcClient.getMiDiagramRpcClient().getESBConfigs();
-            setESBConfigs(esbConfigs.data);
-            setSelectedConfig(esbConfigs.data[0]);
-        })();
-
-    }, []);
+    const [swaggerdefPath, setSwaggerdefPath] = useState("");;
 
     const versionLabels = ['none', 'context', 'url'];
 
@@ -84,13 +73,9 @@ export function APIWizard() {
         setVersionType(type);
     };
 
-    const handleConfigChange = (config: string) => {
-        setSelectedConfig(config);
-    };
-
     const handleCreateAPI = async () => {
         const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot()).path;
-        const APIDir = `${projectDir}/${selectedConfig}/src/main/synapse-config/api`;
+        const APIDir = `${projectDir}/src/main/wso2mi/artifacts/apis`;
         const createAPIParams = {
             name: apiName,
             context: apiContext,
@@ -137,8 +122,6 @@ export function APIWizard() {
                     id='context-input'
                     required
                 />
-                <span>ESB Config</span>
-                <AutoComplete items={ESBConfigs} selectedItem={selectedConfig} onChange={handleConfigChange}></AutoComplete>
                 <span>Version Type</span>
                 <AutoComplete items={versionLabels} selectedItem={versionType} onChange={handleVersionTypeChange}></AutoComplete>
                 {versionType !== "none" && (
