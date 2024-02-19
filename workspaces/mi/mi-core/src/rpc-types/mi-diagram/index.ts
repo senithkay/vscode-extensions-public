@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ApiDirectoryResponse, ApplyEditRequest, ApplyEditResponse, CommandsRequest, CommandsResponse, ConnectorRequest, ConnectorResponse, ConnectorsResponse, CreateAPIRequest, CreateAPIResponse, CreateEndpointRequest, CreateEndpointResponse, CreateSequenceRequest, CreateSequenceResponse, EndpointDirectoryResponse, EndpointsAndSequencesResponse, ProjectRootResponse, OpenDiagramRequest, SequenceDirectoryResponse, ShowErrorMessageRequest, getSTRequest, getSTResponse, CreateProjectRequest, ProjectDirResponse, CreateProjectResponse, ESBConfigsResponse, HighlightCodeRequest } from "./types";
+import { ApiDirectoryResponse, ApplyEditRequest, ApplyEditResponse, CommandsRequest, CommandsResponse, ConnectorRequest, ConnectorResponse, ConnectorsResponse, CreateAPIRequest, CreateAPIResponse, CreateEndpointRequest, CreateEndpointResponse, CreateSequenceRequest, CreateSequenceResponse, EndpointDirectoryResponse, EndpointsAndSequencesResponse, ProjectRootResponse, OpenDiagramRequest, SequenceDirectoryResponse, ShowErrorMessageRequest, getSTRequest, getSTResponse, CreateProjectRequest, ProjectDirResponse, CreateProjectResponse, ESBConfigsResponse, HighlightCodeRequest, AIUserInput, WriteContentToFileRequest, WriteContentToFileResponse } from "./types";
 
 export interface MiDiagramAPI {
     executeCommand: (params: CommandsRequest) => Promise<CommandsResponse>;
@@ -32,5 +32,7 @@ export interface MiDiagramAPI {
     getProjectRoot: () => Promise<ProjectRootResponse>;
     askProjectDirPath: () => Promise<ProjectDirResponse>;
     createProject: (params: CreateProjectRequest) => Promise<CreateProjectResponse>;
+    getAIResponse: (params: AIUserInput) => Promise<string>;
+    writeContentToFile: (params: WriteContentToFileRequest) => Promise<WriteContentToFileResponse>;
     highlightCode: (params: HighlightCodeRequest) => void;
 }
