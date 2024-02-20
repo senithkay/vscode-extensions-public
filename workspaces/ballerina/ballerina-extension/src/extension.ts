@@ -93,7 +93,7 @@ export async function activate(context: ExtensionContext): Promise<BallerinaExte
         activateProjectFeatures();
         activateEditorSupport(ballerinaExtInstance);
         // Enable performance forecaster
-        activatePerformanceForecaster(ballerinaExtInstance);
+        // activatePerformanceForecaster(ballerinaExtInstance);
         // Enable try it views
         activateTryIt(ballerinaExtInstance);
         // Enable Ballerina Telemetry listener
