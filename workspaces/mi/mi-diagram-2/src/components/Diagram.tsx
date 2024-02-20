@@ -25,7 +25,6 @@ import styled from "@emotion/styled";
 import { Colors } from "../resources/constants";
 import { VSCodePanelTab, VSCodePanelView, VSCodePanels } from '@vscode/webview-ui-toolkit/react';
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { debounce } from "lodash";
 
 export interface DiagramProps {
     model: APIResource | Sequence;
@@ -54,9 +53,9 @@ namespace S {
 }
 
 const SIDE_PANEL_WIDTH = 450;
-const diagramDataMap: Map<DiagramType, string> = new Map();
 export function Diagram(props: DiagramProps) {
     const { model } = props;
+    const [diagramDataMap, setDiagramDataMap] = useState(new Map());
 
     const [diagramData, setDiagramData] = useState({
         flow: {
@@ -79,12 +78,10 @@ export function Diagram(props: DiagramProps) {
         nodeRange: undefined,
         mediator: "",
         formValues: {},
-        showBackBtn: false,
-        backBtn: 0
+        title: "",
     });
 
     const [activeTab, setActiveTab] = useState<DiagramType>(DiagramType.FLOW);
-
 
     useEffect(() => {
         const { flow, fault } = diagramData;
@@ -97,32 +94,31 @@ export function Diagram(props: DiagramProps) {
         delete (modelCopy as APIResource).faultSequence;
         const key = JSON.stringify((STNode as APIResource).inSequence) + JSON.stringify((STNode as APIResource).outSequence);
 
-        const fetchData = debounce(() => {
-            if (diagramDataMap.get(DiagramType.FLOW) !== key && activeTab === DiagramType.FLOW) {
-                diagramDataMap.set(DiagramType.FLOW, key);
+        if (diagramDataMap.get(DiagramType.FLOW) !== key && activeTab === DiagramType.FLOW) {
+            diagramDataMap.set(DiagramType.FLOW, key);
+            flows.push({
+                engine: flowEngine,
+                modelType: DiagramType.FLOW,
+                model: modelCopy
+            });
+            setDiagramDataMap(diagramDataMap);
+        }
+
+        const faultSequence = (STNode as APIResource).faultSequence;
+        if (faultSequence) {
+            const key = JSON.stringify(faultSequence);
+            if (diagramDataMap.get(DiagramType.FAULT) !== key && activeTab == DiagramType.FAULT) {
+                diagramDataMap.set(DiagramType.FAULT, key);
                 flows.push({
-                    engine: flowEngine,
-                    modelType: DiagramType.FLOW,
-                    model: modelCopy
+                    engine: faultEngine,
+                    modelType: DiagramType.FAULT,
+                    model: faultSequence
                 });
+                setDiagramDataMap(diagramDataMap);
             }
+        }
+        updateDiagramData(flows);
 
-            const faultSequence = (STNode as APIResource).faultSequence;
-            if (faultSequence) {
-                const key = JSON.stringify(faultSequence);
-                if (diagramDataMap.get(DiagramType.FAULT) !== key && activeTab == DiagramType.FAULT) {
-                    diagramDataMap.set(DiagramType.FAULT, key);
-                    flows.push({
-                        engine: faultEngine,
-                        modelType: DiagramType.FAULT,
-                        model: faultSequence
-                    });
-                }
-            }
-            updateDiagramData(flows);
-        }, 200);
-
-        fetchData();
     }, [props.model, props.documentUri, activeTab]);
 
     // center diagram when side panel is opened
@@ -146,13 +142,6 @@ export function Diagram(props: DiagramProps) {
             isOpen: false,
             formValues: {},
             isEditing: false
-        });
-    };
-
-    const sidePanelBackClick = () => {
-        setSidePanelState({
-            ...sidePanelState,
-            backBtn: sidePanelState.backBtn + 1
         });
     };
 
@@ -188,7 +177,7 @@ export function Diagram(props: DiagramProps) {
         const height = positionVisitor.getSequenceHeight();
 
         // run node visitor
-        const nodeVisitor = new NodeFactoryVisitor();
+        const nodeVisitor = new NodeFactoryVisitor(props.documentUri);
         traversNode(model, nodeVisitor);
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();
@@ -303,15 +292,6 @@ export function Diagram(props: DiagramProps) {
                         width={SIDE_PANEL_WIDTH}
                         overlay={false}
                     >
-                        <SidePanelTitleContainer>
-                            <div style={{ minWidth: "20px" }}>
-                                {
-                                    sidePanelState.showBackBtn && <Button onClick={sidePanelBackClick} appearance="icon">{"<"}</Button>
-                                }
-                            </div>
-                            {sidePanelState.isEditing ? <div>Edit {sidePanelState.mediator}</div> : <div>Add New</div>}
-                            <Button onClick={closeSidePanel} appearance="icon">X</Button>
-                        </SidePanelTitleContainer>
                         <SidePanelList nodePosition={sidePanelState.nodeRange} documentUri={props.documentUri} />
                     </SidePanel>}
 

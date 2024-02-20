@@ -49,42 +49,43 @@ export class PositionVisitor implements Visitor {
 
         // calculate sequence widths
         const sequenceWidths: number[] = [];
-        const sequenceTypeOffsets: number[] = [];
+        const sequenceTypeOffsets: { l: number; r: number }[] = [];
         for (const i in subSequences) {
             const subSequence = subSequences[i];
             if (subSequence && subSequence.mediatorList && subSequence.mediatorList.length > 0) {
                 const subSequenceMediatorList = subSequence.mediatorList as any as STNode[];
                 let subSequenceFullWidth = NODE_DIMENSIONS.DEFAULT.WIDTH;
-                let subSequenceOffset = NODE_DIMENSIONS.DEFAULT.WIDTH;
+                let subSequenceOffsetL = NODE_DIMENSIONS.DEFAULT.WIDTH / 2;
+                let subSequenceOffsetR = NODE_DIMENSIONS.DEFAULT.WIDTH / 2;
                 subSequenceMediatorList.forEach((childNode: STNode) => {
                     if (childNode.viewState) {
-                        if (childNode.tag !== MEDIATORS.CALL.toLowerCase()) {
-                            subSequenceOffset = Math.max(subSequenceOffset, childNode.viewState.w);
-                        }
+                        subSequenceOffsetL = Math.max(subSequenceOffsetL, childNode.viewState.l ?? childNode.viewState.w / 2);
+                        subSequenceOffsetR = Math.max(subSequenceOffsetR, childNode.viewState.r ?? childNode.viewState.w / 2);
+
                         subSequenceFullWidth = Math.max(subSequenceFullWidth, childNode.viewState.fw ?? childNode.viewState.w);
                     }
                 });
                 sequenceWidths.push(subSequenceFullWidth);
-                sequenceTypeOffsets.push(subSequenceOffset / 2);
+                sequenceTypeOffsets.push({ l: subSequenceOffsetL, r: subSequenceOffsetR });
             } else {
                 sequenceWidths.push(NODE_DIMENSIONS.EMPTY.WIDTH);
-                sequenceTypeOffsets.push(NODE_DIMENSIONS.EMPTY.WIDTH / 2);
+                sequenceTypeOffsets.push({ l: NODE_DIMENSIONS.EMPTY.WIDTH / 2, r: NODE_DIMENSIONS.EMPTY.WIDTH / 2 });
             }
         }
-        const branchesWidth = node.viewState.fw - sequenceTypeOffsets[0] - sequenceTypeOffsets[sequenceTypeOffsets.length - 1];
+        const branchesWidth = node.viewState.fw - sequenceTypeOffsets[0].l - sequenceTypeOffsets[sequenceTypeOffsets.length - 1].r;
 
         this.position.x = centerX - (branchesWidth / 2);
         for (let i = 0; i < subSequenceKeys.length; i++) {
             this.position.y = node.viewState.y + node.viewState.h + NODE_GAP.Y + 40 + NODE_GAP.BRANCH_TOP;
             const subSequence = subSequences[subSequenceKeys[i]];
 
-            this.position.x += i > 0 ? (sequenceWidths[i] / 2) : 0;
+            this.position.x += i > 0 ? sequenceTypeOffsets[i].l : 0;
             if (subSequence && subSequence.mediatorList && subSequence.mediatorList.length > 0) {
                 traversNode(subSequence, this);
             } else {
                 this.setBasicMediatorPosition(subSequence);
             }
-            this.position.x += (sequenceWidths[i] / 2) + NODE_GAP.BRANCH_X;
+            this.position.x += sequenceTypeOffsets[i].r + NODE_GAP.BRANCH_X;
         }
 
         // set filter node positions after traversing children

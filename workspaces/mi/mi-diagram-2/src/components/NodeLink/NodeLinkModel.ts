@@ -21,6 +21,8 @@ export interface NodeLinkModelOptions {
     brokenLine?: boolean; // default false
     stRange?: Range | Position;
     onAddClick?: () => void;
+    parentNode?: string;
+    previousNode?: string;
 }
 
 export class NodeLinkModel extends DefaultLinkModel {
@@ -33,6 +35,8 @@ export class NodeLinkModel extends DefaultLinkModel {
     brokenLine = false;
     linkBottomOffset = LINK_BOTTOM_OFFSET;
     stRange: Range | Position;
+    parentNode: string;
+    previousNode: string;
     onAddClick?: () => void;
 
     constructor(label?: string);
@@ -65,6 +69,12 @@ export class NodeLinkModel extends DefaultLinkModel {
                 }
                 if ((options as NodeLinkModelOptions).stRange) {
                     this.stRange = (options as NodeLinkModelOptions).stRange;
+                }
+                if ((options as NodeLinkModelOptions).parentNode) {
+                    this.parentNode = (options as NodeLinkModelOptions).parentNode;
+                }
+                if ((options as NodeLinkModelOptions).previousNode) {
+                    this.previousNode = (options as NodeLinkModelOptions).previousNode;
                 }
             }
             if ((options as NodeLinkModelOptions).onAddClick) {
@@ -186,5 +196,13 @@ export class NodeLinkModel extends DefaultLinkModel {
             return false;
         }
         return this.showArrow;
+    }
+
+    getParentNode(): string {
+        return this.parentNode;
+    }
+
+    getPreviousNode(): string {
+        return this.previousNode;
     }
 }

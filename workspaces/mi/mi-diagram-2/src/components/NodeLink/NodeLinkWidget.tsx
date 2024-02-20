@@ -55,7 +55,8 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
             sidePanelContext.setSidePanelState({
                 ...sidePanelContext,
                 isOpen: true,
-                operationName: "parentName",
+                parentNode: link.getParentNode(),
+                previousNode: link.getPreviousNode(),
                 nodeRange: nodeRange,
             });
         }
