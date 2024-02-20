@@ -34,7 +34,7 @@ export function MIDiagram(props: MIDiagramProps) {
 	const [sidePanelBackBtn, setSidePanelBackBtn] = useState<number>(0);
 	const { rpcClient } = useVisualizerContext();
 
-	rpcClient.getMiDiagramRpcClient().onRefresh(() => {
+	rpcClient.onFileContentUpdate(() => {
 		setLastUpdated(Date.now());
 	});
 

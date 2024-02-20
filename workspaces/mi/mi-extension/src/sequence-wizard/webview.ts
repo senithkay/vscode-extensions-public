@@ -9,7 +9,6 @@
 
 import * as path from 'path';
 import { ExtensionContext, Uri, ViewColumn, Webview, WebviewPanel, window, workspace } from 'vscode';
-import { onRefresh } from '@wso2-enterprise/mi-core';
 import { debounce } from "lodash";
 import { getComposerJSFiles } from '../util';
 
@@ -40,7 +39,7 @@ export function createSequenceWizardWebview(context: ExtensionContext) {
 
     // const refreshDiagram = debounce(() => {
     //     if (sequenceWizardWebview) {
-    //         rpc.getMessenger().sendNotification(onRefresh, { type: 'webview', webviewType: 'diagram' });
+    //         rpc.getMessenger().sendNotification(onFileContentUpdate, { type: 'webview', webviewType: 'diagram' });
     //     }
     // }, 500);
 

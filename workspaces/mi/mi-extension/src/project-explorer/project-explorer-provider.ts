@@ -166,7 +166,7 @@ function generateTreeData(data: ProjectStructureResponse): ProjectExplorerEntry[
 				}
 
 				projectRoot.children = projectRoot.children ?? [];
-				if (children.length > 0) { projectRoot.children.push(parentEntry) };
+				projectRoot.children.push(parentEntry);
 			}
 		}
 

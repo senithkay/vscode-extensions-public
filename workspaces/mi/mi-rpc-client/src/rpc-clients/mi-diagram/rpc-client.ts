@@ -58,7 +58,6 @@ import {
     getSequenceDirectory,
     getSyntaxTree,
     highlightCode,
-    onRefresh,
     openDiagram,
     openFile,
     showErrorMessage,
@@ -142,10 +141,6 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     openFile(params: OpenDiagramRequest): void {
         return this._messenger.sendNotification(openFile, HOST_EXTENSION, params);
-    }
-
-    onRefresh(callback: () => void): void {
-        this._messenger.onNotification(onRefresh, callback);
     }
 
     closeWebViewNotification(): void {
