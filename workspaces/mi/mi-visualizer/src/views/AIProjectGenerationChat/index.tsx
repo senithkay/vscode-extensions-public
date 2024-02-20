@@ -15,6 +15,7 @@ import {TextArea, Button} from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from 'react-markdown';
 import './AIProjectGenerationChat.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { BeatLoader } from "react-spinners";
 import { MI_COPILOT_BACKEND_URL } from "../../constants";
 
 import {
@@ -60,8 +61,10 @@ const codeBlocks: string[] = [];
 export function AIProjectGenerationChat() {
   const { rpcClient } = useVisualizerContext();
   const [state, setState] = useState<VisualizerLocation | null>(null);
-  const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([]);
+  const [messages, setMessages] = useState<Array<{ role: string; content: string; type:string }>>([]);
   const [userInput, setUserInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false); 
+  const [lastQuestionIndex, setLastQuestionIndex] = useState(-1);
 
   useEffect(() => {
     if (rpcClient) {
@@ -71,67 +74,97 @@ export function AIProjectGenerationChat() {
     }
   }, [rpcClient]);
 
-  const handleSend = () => {
+  async function handleSend (isQuestion: boolean = false) {
+    console.log(isQuestion);
+    setIsLoading(true);
+    let assistant_response = "";
     addChatEntry("user", userInput);
     setUserInput("");
     console.log(chatArray);
-
-    fetch(MI_COPILOT_BACKEND_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ chat_history: chatArray }),
-    })
-      .then(response => response.body)
-      .then(body => {
-        const reader = body.getReader();
-
-        setMessages(prevMessages => [
-          ...prevMessages,
-          { role: "User", content: userInput },
-        ]);
-
-        const processStream = async () => {
-          let result = await reader.read();
-
+    setMessages(prevMessages => prevMessages.filter((message, index) => index <= lastQuestionIndex || message.type !== 'question'));
+    if(isQuestion){
+          setLastQuestionIndex(messages.length-4);
           setMessages(prevMessages => [
-            ...prevMessages,
-            { role: "MI Copilot", content: " " },
+                ...prevMessages,
+                { role: "MI Copilot", content: "", type:"assistant_message"}, // Add a new message for the assistant
           ]);
+    }else{
+        setMessages(prevMessages => [
+            ...prevMessages,
+            { role: "User", content: userInput, type: "user_message"},
+            { role: "MI Copilot", content: "", type:"assistant_message"}, // Add a new message for the assistant
+        ]);
+    }
 
-          var assistant_response = ""
-          while (!result.done) {
-            const data = new TextDecoder("utf-8").decode(result.value);
+    const response = await fetch('http://localhost:8000/generate-synapse', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({chat_history: chatArray}),
+    })
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let result = '';
 
-            setMessages(prevMessages => {
-              const newMessages = [...prevMessages];
-              newMessages[newMessages.length - 1].content += data;
-              return newMessages;
-            });
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done){
+          setIsLoading(false);
+          break;
+        } 
 
-            result = await reader.read();
+        const chunk = decoder.decode(value, { stream: true });
+        result += chunk;
+    
+        const lines = result.split('\n');
+        for (let i = 0; i < lines.length - 1; i++) {
+          try {
+            const json = JSON.parse(lines[i]);
+            if(json.content==''){
+                  addChatEntry("assistant", assistant_response);
+                  console.log(json.questions);
+                  const questions = json.questions
+                    .filter((question: string) => /^\d/.test(question)) // filter out questions that start with a number
+                    .map((question: string, index: number) => {
+                      return { type: "question", role: "Question", content: question, id: index };
+                    });
 
-            assistant_response += data;
+                  setMessages(prevMessages => [
+                    ...prevMessages,
+                    ...questions,
+                  ]);
+            }else{
+                    assistant_response += json.content;
+                    setMessages(prevMessages => {
+                      const newMessages = [...prevMessages];
+                      newMessages[newMessages.length - 1].content += json.content;
+                      return newMessages;
+                    });
+                  const regex = /```[\s\S]*?```/g;
+                  let match;
+                  while ((match = regex.exec(assistant_response)) !== null) {
+                    codeBlocks.push(match[0]);
+                  }
+            }
+          } catch (error) {
+            console.error('Error parsing JSON:', error);
           }
-
-          // Add code blocks to codeBlocks array
-          const regex = /```[\s\S]*?```/g;
-          let match;
-          while ((match = regex.exec(assistant_response)) !== null) {
-            codeBlocks.push(match[0]);
-          }
-
-          addChatEntry("assistant", assistant_response);
-        };
-
-        processStream().catch(console.error);
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
-
+        }
+        result = lines[lines.length - 1];
+        
+    }
   
+  
+    
+      if (result) {
+          try {
+            const json = JSON.parse(result);
+            console.log(json); 
+          } catch (error) {
+            console.error('Error parsing JSON:', error);
+          }
+        }
   };
 
 
@@ -182,24 +215,62 @@ export function AIProjectGenerationChat() {
     }
   };
 
+  function handleQuestionClick(content: string) {
+    const question = content;
+
+    //remove numbering from question and take only the text of it
+    const questionText = question.replace(/^\d+\.\s/, "");
+    setMessages(prevMessages => prevMessages.filter((message, index) => index <= lastQuestionIndex || message.type !== 'question'));
+    setLastQuestionIndex(messages.length);
+
+    if (questionText) {
+      addChatEntry("user", questionText);
+  
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { role: "User", content: questionText, type: "user_message" },
+      ]);
+  
+      handleSend(true);
+    }
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "95%", width: "100%", margin: "auto" }}>
       <div style={{ flex: 1, overflowY: "auto", padding: "10px", borderBottom: "1px solid #ccc" }}>
-        {messages.map((message, index) => (
-          <div key={index} style={{ marginBottom: "8px" }}>
-            <strong>{message.role}:</strong>
-            {splitContent(message.content).map((segment, i) =>
-                segment.isCode ? (
-                  <SyntaxHighlighter key={i} language="xml" style={materialOceanic}>
-                    {segment.text}
-                  </SyntaxHighlighter>
-                ) : (
-                  <MarkdownRenderer key={i} markdownContent={segment.text} />
-                )
-            )}
-          </div>
-        ))}
+       {messages.map((message, index) => (
+        <div key={index} style={{ marginBottom: "8px" }}>
+        {message.type !== "question" && <strong>{message.role}:</strong>}
+          {message.type === "question" && index > lastQuestionIndex ? (
+            <Button
+              appearance="primary"
+              onClick={() => handleQuestionClick(message.content)}
+              tooltip="Click to answer this question"
+              className="custom-button-style"
+            >
+                <div style={{ color: 'var(--vscode-editor-foreground)' }}>
+                    {message.content.replace(/^\d+\.\s/, "")}
+                </div>
+            </Button>
+          ) : splitContent(message.content).map((segment, i) =>
+            segment.isCode ? (
+              <SyntaxHighlighter key={i} language="xml" style={materialOceanic}>
+                {segment.text}
+              </SyntaxHighlighter>
+            ) : (
+              <MarkdownRenderer key={i} markdownContent={segment.text} />
+            )
+          )}
+
+        </div>
+      ))}
       </div>
+      {isLoading ? (
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "4%"}}>
+                  <BeatLoader color="#4A90E2" />
+            </div>
+        ): null}
+
       <div style={{ display: "flex", flexDirection: "column", padding: "10px" }}>
         <TextArea
           onChange={(e) => setUserInput(e)}
@@ -211,9 +282,10 @@ export function AIProjectGenerationChat() {
         <div>
             <Button
               appearance="primary"
-              onClick={handleSend}
+              onClick={() => handleSend(false)}
               tooltip="Send"
               className="custom-button-style"
+              disabled={isLoading}
             >
               <br />
               <div style={{ color: 'var(--vscode-editor-foreground)' }}>Send</div>
@@ -226,6 +298,7 @@ export function AIProjectGenerationChat() {
               onClick={handleAddtoWorkspace}
               tooltip="Send"
               className="custom-button-style"
+              disabled={isLoading}
             >
               <br />
               <div style={{ color: 'var(--vscode-editor-foreground)' }}>Create Project</div>
