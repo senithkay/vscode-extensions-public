@@ -87,7 +87,7 @@ export function ProjectWizard() {
         const createProjectParams = {
             name: projectName,
             directory: projectDir,
-            open:true
+            open: true
         }
         await rpcClient.getMiDiagramRpcClient().createProject(createProjectParams);
         console.log("Project created");

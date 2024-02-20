@@ -86,7 +86,7 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async getSyntaxTree(req: GetSyntaxTreeParams): Promise<GetSyntaxTreeResponse> {
         this.didOpen(req.documentIdentifier.uri);
-        return this.sendRequest('xml/getSynapseSyntaxTree', { uri: Uri.parse(req.documentIdentifier.uri).toString() });
+        return this.sendRequest('synapse/syntaxTree', { uri: Uri.parse(req.documentIdentifier.uri).toString() });
     }
 
     private async didOpen(fileUri: string): Promise<void> {
@@ -103,11 +103,11 @@ export class ExtendedLanguageClient extends LanguageClient {
     }
 
     async getProjectStructure(path: string): Promise<ProjectStructureResponse> {
-        return this.sendRequest('xml/getSynapseDirectoryTree', { uri: Uri.parse(path).toString() });
+        return this.sendRequest('synapse/directoryTree', { uri: Uri.parse(path).toString() });
     }
 
     async getDefinition(document: TextDocumentIdentifier, position: Position): Promise<GoToDefinitionResponse> {
-        return this.sendRequest('xml/definition', { textDocument: document, position: position })
+        return this.sendRequest('synapse/definition', { textDocument: document, position: position })
     }
 
     async getCompletion(params: GetCompletionParams): Promise<CompletionResponse[]> {

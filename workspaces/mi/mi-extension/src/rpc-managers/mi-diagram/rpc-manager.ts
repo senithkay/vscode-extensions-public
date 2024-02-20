@@ -301,18 +301,19 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (!!rootPath) {
                 const langClient = StateMachine.context().langClient!;
                 const resp = await langClient.getProjectStructure(rootPath);
+                const artifacts = (resp.directoryMap as any).src.main.wso2mi.artifacts;
 
                 const endpoints: string[] = [];
                 const sequences: string[] = [];
 
-                for (const esbConfig of resp.directoryMap.esbConfigs) {
-                    for (const endpoint of esbConfig.esbConfigs.endpoints) {
-                        endpoints.push(endpoint.name);
-                    }
-                    for (const sequence of esbConfig.esbConfigs.sequences) {
-                        sequences.push(sequence.name);
-                    }
+                for (const endpoint of artifacts.endpoints) {
+                    endpoints.push(endpoint.name);
                 }
+
+                for (const sequence of artifacts.sequences) {
+                    sequences.push(sequence.name);
+                }
+
                 resolve({ data: [endpoints, sequences] });
             }
 
@@ -449,23 +450,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const folderStructure: FileStructure = {
                 [name]: { // Project folder
-                    '.project': projectFileContent(name),
                     'pom.xml': rootPomXmlContent(name),
-                    [`${name}CompositeExporter`]: {
-                        '.project': compositeProjectContent(name),
-                        'pom.xml': compositePomXmlContent(name, directory),
-                    },
-                    [`${name}Configs`]: {
-                        'artifact.xml': artifactsContent(),
-                        '.project': configsProjectContent(name),
-                        'pom.xml': configsPomXmlContent(name, directory),
-                        'src': {
-                            'main': {
-                                'resources': {
-                                    'metadata': '',
-                                },
-                                'synapse-config': {
-                                    'api': '',
+                    'src': {
+                        'main': {
+                            'wso2mi': {
+                                'artifacts': {
+                                    'apis': '',
                                     'endpoints': '',
                                     'inbound-endpoints': '',
                                     'local-entries': '',
@@ -475,13 +465,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                     'sequences': '',
                                     'tasks': '',
                                     'templates': '',
+                                    'data-services': '',
+                                    'data-sources': '',
+                                },
+                                'resources': {
+                                    'metadata': '',
                                 },
                             },
-                        },
-                        'test': {
-                            'resources': {
-                                'mock-services': '',
-                            },
+                            'test': ''
                         },
                     },
                 },
@@ -512,7 +503,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 const ESBConfigs: string[] = [];
 
                 for (const esbConfig of resp.directoryMap.esbConfigs) {
-					const config = esbConfig.name;
+                    const config = esbConfig.name;
                     ESBConfigs.push(config);
                 }
                 resolve({ data: ESBConfigs });
@@ -536,12 +527,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     callback();
                 }
             }));
-            
+
             return new Promise((resolve, reject) => {
                 response.data.on('end', () => resolve(result));
                 response.data.on('error', (err: Error) => reject(err));
             });
-    
+
         } catch (error) {
             console.error('Error calling the AI endpoint:', error);
             throw new Error('Failed to call AI endpoint');
@@ -552,7 +543,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         let status = true;
         //if file exists, overwrite if not, create new file and write content.  if successful, return true, else false
         const { content, directoryPath } = params;
-    
+
         const length = content.length;
         for (let i = 0; i < length; i++) {
             //remove starting '''xml and ending '''
@@ -580,15 +571,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         default:
                             fileType = '';
                     }
-                    console.log("File type - ",fileType)
+                    console.log("File type - ", fileType)
                 }
                 //write the content to a file, if file exists, overwrite else create new file
-                const fullPath = path.join(directoryPath,'/temp/tempConfigs/src/main/synapse-config/',fileType,'/', `${name}.xml`);
+                const fullPath = path.join(directoryPath, '/temp/tempConfigs/src/main/synapse-config/', fileType, '/', `${name}.xml`);
                 try {
                     console.log('Writing content to file:', fullPath);
                     console.log('Content:', content[i]);
                     fs.writeFileSync(fullPath, content[i]);
-       
+
                 } catch (error) {
                     console.error('Error writing content to file:', error);
                     status = false;
@@ -596,10 +587,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
         }
 
-        if(status){
+        if (status) {
             window.showInformationMessage('Content written to file successfully');
             return { status: true };
-        }else{
+        } else {
             return { status: false };
         }
 

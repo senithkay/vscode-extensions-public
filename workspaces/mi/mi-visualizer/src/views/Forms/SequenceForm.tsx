@@ -45,19 +45,13 @@ export function SequenceWizard() {
 
     const { rpcClient } = useVisualizerContext();
     const [sequenceName, setSequenceName] = useState("");
-    const [ESBConfigs, setESBConfigs] = useState([]);
-    const [selectedConfig, setSelectedConfig] = useState("");
     const [selectedEndpoint, setSelectedEndpoint] = useState("");
     const [onErrorSequence, setOnErrorSequence] = useState("");
     const [endpoints, setEndpoints] = useState([]);
     const [sequences, setSequences] = useState([]);
 
     useEffect(() => {
-        (async () => {
-            const esbConfigs = await rpcClient.getMiDiagramRpcClient().getESBConfigs();
-            setESBConfigs(esbConfigs.data);
-            setSelectedConfig(esbConfigs.data[0]);
-            
+        (async () => { 
             const data = await rpcClient.getMiDiagramRpcClient().getEndpointsAndSequences();
             setEndpoints(data.data[0]);
             setSequences(data.data[1]);
@@ -72,13 +66,9 @@ export function SequenceWizard() {
         setOnErrorSequence(sequence);
     };
 
-    const handleConfigChange = (config: string) => {
-        setSelectedConfig(config);
-    };
-
     const handleCreateProject = async () => {
         const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot()).path;
-        const sequenceDir = `${projectDir}/${selectedConfig}/src/main/synapse-config/sequences`;
+        const sequenceDir = `${projectDir}/src/main/wso2mi/artifacts/sequences`;
         const createSequenceParams = {
             name: sequenceName,
             directory: sequenceDir,
@@ -113,8 +103,6 @@ export function SequenceWizard() {
                     autoFocus
                     required
                 />
-                <span>ESB Config</span>
-                <AutoComplete items={ESBConfigs} selectedItem={selectedConfig} onChange={handleConfigChange}></AutoComplete>
                 <h5>Advanced Configuration</h5>
                 <span>Available Endpoints</span>
                 <AutoComplete items={endpoints} selectedItem={selectedEndpoint} onChange={handleEndpointChange}></AutoComplete>
