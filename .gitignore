@@ -69,3 +69,7 @@ common/autoinstallers/*/.npmrc
 playwright-report/
 # ignore storybook build
 **/.out/
+
+# storybook
+.storybook-out/
+**/storybook-static/

@@ -15,7 +15,7 @@ import { NodeModel } from "@projectstorm/react-diagrams";
 import { ConditionNodeModel } from "../components/nodes/ConditionNode/ConditionNodeModel";
 import { EndNodeModel } from "../components/nodes/EndNode/EndNodeModel";
 import { CallNodeModel } from "../components/nodes/CallNode/CallNodeModel";
-import { NODE_GAP, NodeTypes } from "../resources/constants";
+import { ENDPOINTS, MEDIATORS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { SourceNodeModel, TargetNodeModel, createNodesLink } from "../utils/diagram";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
 
@@ -27,12 +27,17 @@ export class NodeFactoryVisitor implements Visitor {
     private previousSTNodes: STNode[] = [];
     private currentBranchName: string;
     private currentAddPosition: Position;
+    private documentUri: string;
 
-    private createNodeAndLinks(node: STNode, type: NodeTypes = NodeTypes.MEDIATOR_NODE, data?: any): void {
+    constructor(documentUri: string) {
+        this.documentUri = documentUri;
+    }
+
+    private createNodeAndLinks(node: STNode, name: string, type: NodeTypes = NodeTypes.MEDIATOR_NODE, data?: any): void {
         // create node
         let diagramNode: MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel;
         if (type === NodeTypes.MEDIATOR_NODE) {
-            diagramNode = new MediatorNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
+            diagramNode = new MediatorNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.CONDITION_NODE) {
             diagramNode = new ConditionNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.START_NODE) {
@@ -60,7 +65,9 @@ export class NodeFactoryVisitor implements Visitor {
                         {
                             label: this.currentBranchName,
                             stRange: this.currentAddPosition ?? previousStNode.range.end,
-                            brokenLine: type === NodeTypes.EMPTY_NODE || previousNode instanceof EmptyNodeModel
+                            brokenLine: type === NodeTypes.EMPTY_NODE || previousNode instanceof EmptyNodeModel,
+                            previousNode: previousStNode.tag,
+                            parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
                         }
                     );
                     this.links.push(link);
@@ -92,7 +99,7 @@ export class NodeFactoryVisitor implements Visitor {
                 this.previousSTNodes = [node];
                 // TODO: Use the sub sequence's start position as the current add position. Need the tag range to be added to the STNode
                 this.currentAddPosition = sequence.range.end;
-                this.createNodeAndLinks(sequence, NodeTypes.EMPTY_NODE, node.range.end);
+                this.createNodeAndLinks(sequence, "", NodeTypes.EMPTY_NODE, node.range.end);
             }
         }
 
@@ -118,20 +125,20 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitCall = (node: Call): void => {
-        this.createNodeAndLinks(node, NodeTypes.CALL_NODE, node.endpoint);
+        this.createNodeAndLinks(node, MEDIATORS.CALL, NodeTypes.CALL_NODE, node.endpoint);
         this.skipChildrenVisit = true;
     }
     endVisitCall = (node: Call): void => {
         this.skipChildrenVisit = false;
     }
 
-    beginVisitCallout = (node: Callout): void => this.createNodeAndLinks(node);
-    beginVisitDrop = (node: Drop): void => this.createNodeAndLinks(node);
-    beginVisitEndpoint = (node: Endpoint): void => this.createNodeAndLinks(node);
-    beginVisitEndpointHttp = (node: EndpointHttp): void => this.createNodeAndLinks(node);
+    beginVisitCallout = (node: Callout): void => this.createNodeAndLinks(node, MEDIATORS.CALLOUT);
+    beginVisitDrop = (node: Drop): void => this.createNodeAndLinks(node, MEDIATORS.DROP);
+    beginVisitEndpoint = (node: Endpoint): void => this.createNodeAndLinks(node, "");
+    beginVisitEndpointHttp = (node: EndpointHttp): void => this.createNodeAndLinks(node, ENDPOINTS.HTTP);
 
     beginVisitFilter(node: Filter): void {
-        this.createNodeAndLinks(node, NodeTypes.CONDITION_NODE)
+        this.createNodeAndLinks(node, MEDIATORS.FILTER, NodeTypes.CONDITION_NODE)
         this.parents.push(node);
 
         this.visitSubSequences(node, {
@@ -145,7 +152,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.skipChildrenVisit = false;
     }
 
-    beginVisitHeader = (node: Header): void => this.createNodeAndLinks(node);
+    beginVisitHeader = (node: Header): void => this.createNodeAndLinks(node, MEDIATORS.HEADER);
 
     beginVisitInSequence(node: Sequence): void {
         const addPosition = {
@@ -153,13 +160,13 @@ export class NodeFactoryVisitor implements Visitor {
             character: node.range.start.character + 12
         }
         this.currentAddPosition = addPosition;
-        this.createNodeAndLinks(node, NodeTypes.START_NODE);
+        this.createNodeAndLinks(node, "", NodeTypes.START_NODE);
         this.parents.push(node);
     }
     endVisitInSequence(node: Sequence): void {
         const lastNode = this.nodes[this.nodes.length - 1].getStNode();
         node.viewState.y = lastNode.viewState.y + lastNode.viewState.h + NODE_GAP.Y;
-        this.createNodeAndLinks(node, NodeTypes.END_NODE, node.range.end);
+        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.end);
         this.parents.pop();
         this.previousSTNodes = undefined;
     }
@@ -170,13 +177,13 @@ export class NodeFactoryVisitor implements Visitor {
             character: node.range.start.character + 12
         }
         this.currentAddPosition = addPosition;
-        this.createNodeAndLinks(node, NodeTypes.START_NODE);
+        this.createNodeAndLinks(node, "", NodeTypes.START_NODE);
         this.parents.push(node);
     }
     endVisitOutSequence(node: Sequence): void {
         const lastNode = this.nodes[this.nodes.length - 1].getStNode();
         node.viewState.y = lastNode.viewState.y + lastNode.viewState.h + NODE_GAP.Y;
-        this.createNodeAndLinks(node, NodeTypes.END_NODE, node.range.end);
+        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.end);
         this.parents.pop();
         this.previousSTNodes = undefined;
     }
@@ -187,37 +194,37 @@ export class NodeFactoryVisitor implements Visitor {
             character: node.range.start.character + 12
         }
         this.currentAddPosition = addPosition;
-        this.createNodeAndLinks(node, NodeTypes.START_NODE);
+        this.createNodeAndLinks(node, "", NodeTypes.START_NODE);
         this.parents.push(node);
     }
     endVisitFaultSequence(node: Sequence): void {
         const lastNode = this.nodes[this.nodes.length - 1].getStNode();
         node.viewState.y = lastNode.viewState.y + lastNode.viewState.h + NODE_GAP.Y;
-        this.createNodeAndLinks(node, NodeTypes.END_NODE, node.range.end);
+        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.end);
         this.parents.pop();
         this.previousSTNodes = undefined;
     }
 
     beginVisitLog = (node: Log): void => {
-        this.createNodeAndLinks(node);
+        this.createNodeAndLinks(node, MEDIATORS.LOG);
         this.skipChildrenVisit = true;
     }
     endVisitLog = (node: Log): void => {
         this.skipChildrenVisit = false;
     }
 
-    beginVisitLoopback = (node: Loopback): void => this.createNodeAndLinks(node);
-    beginVisitPayloadFactory = (node: PayloadFactory): void => this.createNodeAndLinks(node);
-    beginVisitProperty = (node: Property): void => this.createNodeAndLinks(node);
-    beginVisitPropertyGroup = (node: PropertyGroup): void => this.createNodeAndLinks(node);
-    beginVisitRespond = (node: Respond): void => this.createNodeAndLinks(node);
-    beginVisitSend = (node: Send): void => this.createNodeAndLinks(node);
-    beginVisitSequence = (node: Sequence): void => this.createNodeAndLinks(node);
-    beginVisitStore = (node: Store): void => this.createNodeAndLinks(node);
-    beginVisitThrottle = (node: Throttle): void => this.createNodeAndLinks(node);
-    beginVisitValidate = (node: Validate): void => this.createNodeAndLinks(node);
-    beginVisitWithParam = (node: WithParam): void => this.createNodeAndLinks(node);
-    beginVisitCallTemplate = (node: CallTemplate): void => this.createNodeAndLinks(node);
+    beginVisitLoopback = (node: Loopback): void => this.createNodeAndLinks(node, MEDIATORS.LOOPBACK);
+    beginVisitPayloadFactory = (node: PayloadFactory): void => this.createNodeAndLinks(node, MEDIATORS.PAYLOAD);
+    beginVisitProperty = (node: Property): void => this.createNodeAndLinks(node, MEDIATORS.PROPERTY);
+    beginVisitPropertyGroup = (node: PropertyGroup): void => this.createNodeAndLinks(node, MEDIATORS.PROPERTYGROUP);
+    beginVisitRespond = (node: Respond): void => this.createNodeAndLinks(node, MEDIATORS.RESPOND);
+    beginVisitSend = (node: Send): void => this.createNodeAndLinks(node, MEDIATORS.SEND);
+    beginVisitSequence = (node: Sequence): void => this.createNodeAndLinks(node, MEDIATORS.SEQUENCE);
+    beginVisitStore = (node: Store): void => this.createNodeAndLinks(node, MEDIATORS.STORE);
+    beginVisitThrottle = (node: Throttle): void => this.createNodeAndLinks(node, MEDIATORS.THROTTLE);
+    beginVisitValidate = (node: Validate): void => this.createNodeAndLinks(node, MEDIATORS.VALIDATE);
+    beginVisitWithParam = (node: WithParam): void => this.createNodeAndLinks(node, "");
+    beginVisitCallTemplate = (node: CallTemplate): void => this.createNodeAndLinks(node, MEDIATORS.CALLTEMPLATE);
 
     skipChildren(): boolean {
         return this.skipChildrenVisit;
