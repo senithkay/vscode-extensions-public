@@ -7,66 +7,21 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-// import { Overview } from "@wso2-enterprise/overview-view";
-// import { ServiceDesigner } from "@wso2-enterprise/service-designer-view";
-import React, { useEffect } from "react";
-import WebPanel from './WebPanel';
-import Overview from './Overview';
-import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
-import { Loader } from "./Loader";
-import { MachineStateValue } from "@wso2-enterprise/eggplant-core";
-import InitProject from "./components/overview/InitProject";
-import WelcomeView from "./components/lowcode/WelcomeView";
+import React from "react";
+import VisualizerActivity from "./VisualizerActivity";
+import VisualizerMain from "./VisualizerMain";
 
-
-export function Webview({ mode }: { mode: string }) {
-    const { eggplantRpcClient } = useVisualizerContext();
-    const [state, setState] = React.useState<MachineStateValue>('initialize');
-
-    eggplantRpcClient?.onStateChanged((newState: MachineStateValue) => {
-        setState(newState);
-    });
-
-    useEffect(() => {
-        if (eggplantRpcClient) {
-            eggplantRpcClient.getWebviewRpcClient().getState().then(initialState => {
-                setState(initialState);
-            });
-        }
-    }, [eggplantRpcClient]);
-
+export function Visualizer({ mode }: { mode: string }) {
     return (
         <>
             {(() => {
                 switch (mode) {
-                    case "overview":
-                        return <OverviewComponent state={state} />;
-                    case "lowcode":
-                        return <LowCodeComponent state={state} />;
+                    case "activityPanel":
+                        return <VisualizerActivity />;
+                    case "visualizer":
+                        return <VisualizerMain />;
                 }
             })()}
         </>
     );
-};
-
-const OverviewComponent = ({ state }: { state: MachineStateValue }) => {
-    switch (true) {
-        case typeof state === 'object' && 'ready' in state:
-            return <Overview />;
-        case typeof state === 'object' && 'newProject' in state:
-            return <InitProject />;
-        default:
-            return <Loader />;
-    }
-};
-
-const LowCodeComponent = ({ state }: { state: MachineStateValue }) => {
-    switch (true) {
-        case typeof state === 'object' && 'ready' in state:
-            return <WebPanel state={state} />;
-        case typeof state === 'object' && 'newProject' in state:
-            return <WelcomeView state={state}/>;
-        default:
-            return <Loader />;
-    }
 };

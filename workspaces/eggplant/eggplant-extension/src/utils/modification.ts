@@ -1,5 +1,4 @@
-import { BallerinaSTModifyResponse, InsertorDelete, STModification } from "@wso2-enterprise/ballerina-core";
-import { LangClientInterface } from "@wso2-enterprise/eggplant-core";
+import { BallerinaSTModifyResponse, InsertorDelete, STModification } from "@wso2-enterprise/eggplant-core";
 import { StateMachine } from "../stateMachine";
 import { normalize } from "path";
 import { Position, Range, Uri, WorkspaceEdit, workspace } from "vscode";

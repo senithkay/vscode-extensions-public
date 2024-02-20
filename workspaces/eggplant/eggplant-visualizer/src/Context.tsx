@@ -8,28 +8,18 @@
  */
 
 import React, { ReactNode, useState } from "react";
-import { EggplantRpcClient, VisualizerContext, Context, } from "@wso2-enterprise/eggplant-rpc-client";
-import { VisualizerLocation } from "@wso2-enterprise/eggplant-core";
+import { EggplantRpcClient, VisualizerContext, Context } from "@wso2-enterprise/eggplant-rpc-client";
 
 
 export function VisualizerContextProvider({ children }: { children: ReactNode }) {
 
-  const setView = (view: VisualizerLocation) => {
-    setVisualizerState((prevState: VisualizerContext) => ({
-      ...prevState,
-      viewLocation: view,
-    }));
-  };
+	const [visualizerState, setVisualizerState] = useState<VisualizerContext>({
+		rpcClient: new EggplantRpcClient() // Create the root RPC layer client object
+	});
 
-  const [visualizerState, setVisualizerState] = useState<VisualizerContext>({
-    viewLocation: { view: "Overview" },
-    setViewLocation: setView,
-    eggplantRpcClient: new EggplantRpcClient() // Create the root RPC layer client object
-  });
-
-  return (
-    <Context.Provider value={visualizerState}>
-      {children}
-    </Context.Provider>
-  );
+	return (
+		<Context.Provider value={visualizerState}>
+			{children}
+		</Context.Provider>
+	);
 }

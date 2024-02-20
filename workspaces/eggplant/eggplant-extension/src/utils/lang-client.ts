@@ -1,5 +1,4 @@
-import { STByRangeRequest, BallerinaSTModifyResponse } from "@wso2-enterprise/ballerina-core";
-import { EggplantModelRequest, LangClientInterface } from "@wso2-enterprise/eggplant-core";
+import { BallerinaSTModifyResponse, EggplantModelRequest, LangClientInterface, STByRangeRequest } from "@wso2-enterprise/eggplant-core";
 
 enum EXTENDED_APIS {
     DOCUMENT_ST_BY_RANGE = 'ballerinaDocument/syntaxTreeByRange',

@@ -12,7 +12,6 @@ import React, { useState } from "react";
 import { EggplantApp, Flow } from "@wso2-enterprise/eggplant-diagram";
 import styled from "@emotion/styled";
 import { storiesOf } from "@storybook/react";
-import LowCode from "../LowCode";
 
 const Container = styled.div`
     width: 100%;

@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { activateActivityBarWebViews } from './ActivityBar/activate';
+import { activateActivityBarWebViews } from './activity-panel/activate';
 import { ext } from './eggplantExtentionContext';
-import { activateLowCodeWebViews } from './LowCode/activate';
+import { activateLowCodeWebViews } from './visualizer/activate';
 import { StateMachine } from './stateMachine';
 
 

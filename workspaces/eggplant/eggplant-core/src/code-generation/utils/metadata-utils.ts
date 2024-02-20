@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NMD_Metadata as Metadata } from "../../rpc-types/webview/metadata-types";
-import { Node } from "../../rpc-types/webview/types";
+import { NMD_Metadata as Metadata } from "../../interfaces/metadata-types";
+import { Node } from "../../interfaces/eggplant";
 
 export function encodeMetadata(obj: Metadata): string {
     return btoa(encodeURIComponent(JSON.stringify(obj)));
