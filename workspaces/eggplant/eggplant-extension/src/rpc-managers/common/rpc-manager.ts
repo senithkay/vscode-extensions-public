@@ -22,7 +22,7 @@ import {
     UpdateSourceResponse,
     WorkspaceFileRequest,
     WorkspacesFileResponse
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2-enterprise/eggplant-core";
 import { ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Uri, workspace } from "vscode";
 import { StateMachine, openView } from "../../stateMachine";

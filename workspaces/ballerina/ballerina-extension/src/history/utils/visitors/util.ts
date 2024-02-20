@@ -27,7 +27,7 @@ export function isPositionEqual(position1: NodePosition, position2: NodePosition
     return position1.startLine === position2.startLine &&
         position1.startColumn === position2.startColumn &&
         position1.endLine === position2.endLine &&
-        position1.endColumn === position2.endColumn
+        position1.endColumn === position2.endColumn;
 }
 
 export function generateResourcePathString(resourcePathSegments: (DotToken | IdentifierToken | ResourcePathRestParam | ResourcePathSegmentParam | SlashToken)[]): string {

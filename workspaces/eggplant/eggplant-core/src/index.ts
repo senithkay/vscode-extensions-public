@@ -87,6 +87,8 @@ export type {
     RecordSTRequest,
     RecordSTResponse,
     ServiceDesignerAPI,
+    WorkspaceFileRequest,
+    WorkspacesFileResponse
 } from "@wso2-enterprise/ballerina-core";
 export {
     LibraryKind,
@@ -127,7 +129,8 @@ export {
     getRecordST,
     InsertorDelete,
     visitor,
-    vscode
+    vscode,
+    getWorkspaceFiles
 } from "@wso2-enterprise/ballerina-core";
 export { CommonRpcClient, LangServerRpcClient, LibraryBrowserRpcClient, ServiceDesignerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 
