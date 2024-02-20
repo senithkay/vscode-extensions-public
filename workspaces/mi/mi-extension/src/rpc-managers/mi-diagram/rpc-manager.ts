@@ -9,6 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    AIUserInput,
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
@@ -30,6 +31,7 @@ import {
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     FileStructure,
+    HighlightCodeRequest,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectDirResponse,
@@ -38,15 +40,20 @@ import {
     ShowErrorMessageRequest,
     getSTRequest,
     getSTResponse,
+    WriteContentToFileRequest,
+    WriteContentToFileResponse
 } from "@wso2-enterprise/mi-core";
 import * as fs from "fs";
 import * as os from 'os';
-import { Position, Range, Uri, WorkspaceEdit, commands, window, workspace } from "vscode";
+import { Position, Range, Selection, Uri, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { StateMachine, openView } from "../../stateMachine";
 import { createFolderStructure } from "../../util";
 import { artifactsContent, compositePomXmlContent, compositeProjectContent, configsPomXmlContent, configsProjectContent, projectFileContent, rootPomXmlContent } from "../../util/templates";
 import path = require("path");
 const { XMLParser } = require("fast-xml-parser");
+import axios from 'axios';
+import { Transform } from 'stream';
+import { MI_COPILOT_BACKEND_URL } from "../../constants";
 
 const connectorsPath = path.join(".metadata", ".Connectors");
 export class MiDiagramRpcManager implements MiDiagramAPI {
@@ -443,7 +450,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {
         return new Promise(async (resolve) => {
-            const { directory, name } = params;
+            const { directory, name, open } = params;
 
             const folderStructure: FileStructure = {
                 [name]: { // Project folder
@@ -489,7 +496,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             window.showInformationMessage(`Successfully created ${name} project`);
 
-            commands.executeCommand('vscode.openFolder', Uri.file(`${directory}/${name}`));
+            if (open) {
+                commands.executeCommand('vscode.openFolder', Uri.file(`${directory}/${name}`));
+            }
 
             return `${directory}/${name}`;
         });
@@ -516,6 +525,99 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             resolve({ data: [] });
         });
+    }
+
+    async getAIResponse(params: AIUserInput): Promise<string> {
+        let result = '';
+        try {
+            const response = await axios.post(MI_COPILOT_BACKEND_URL, {
+                chat_history: params.chat_history,
+            }, { responseType: 'stream' });
+
+            response.data.pipe(new Transform({
+                transform(chunk, encoding, callback) {
+                    const chunkAsString = chunk.toString();
+                    result += chunkAsString;
+                    callback();
+                }
+            }));
+            
+            return new Promise((resolve, reject) => {
+                response.data.on('end', () => resolve(result));
+                response.data.on('error', (err: Error) => reject(err));
+            });
+    
+        } catch (error) {
+            console.error('Error calling the AI endpoint:', error);
+            throw new Error('Failed to call AI endpoint');
+        }
+    }
+
+    async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
+        let status = true;
+        //if file exists, overwrite if not, create new file and write content.  if successful, return true, else false
+        const { content, directoryPath } = params;
+    
+        const length = content.length;
+        for (let i = 0; i < length; i++) {
+            //remove starting '''xml and ending '''
+            content[i] = content[i].replace(/```xml/g, '');
+            content[i] = content[i].replace(/```/g, '');
+            //name of file is in the code somewhere in the format name="example", extract the name
+            const match = content[i].match(/name="([^"]+)"/);
+            if (match) {
+                const name = match[1]; // get the name
+                //identify type of the file from the first tag of the content
+                const tagMatch = content[i].match(/<(\w+)/);
+                let fileType = '';
+                if (tagMatch) {
+                    const tag = tagMatch[1];
+                    switch (tag) {
+                        case 'api':
+                            fileType = 'api';
+                            break;
+                        case 'endpoint':
+                            fileType = 'endpoints';
+                            break;
+                        case 'sequence':
+                            fileType = 'sequences'
+                            break;
+                        default:
+                            fileType = '';
+                    }
+                    console.log("File type - ",fileType)
+                }
+                //write the content to a file, if file exists, overwrite else create new file
+                const fullPath = path.join(directoryPath,'/temp/tempConfigs/src/main/synapse-config/',fileType,'/', `${name}.xml`);
+                try {
+                    console.log('Writing content to file:', fullPath);
+                    console.log('Content:', content[i]);
+                    fs.writeFileSync(fullPath, content[i]);
+       
+                } catch (error) {
+                    console.error('Error writing content to file:', error);
+                    status = false;
+                }
+            }
+        }
+
+        if(status){
+            window.showInformationMessage('Content written to file successfully');
+            return { status: true };
+        }else{
+            return { status: false };
+        }
+
+
+    }
+    async highlightCode(params: HighlightCodeRequest) {
+        const documentUri = StateMachine.context().documentUri;
+        const editor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
+        if (editor) {
+            const range = new Range(params.range.start.line, params.range.start.character, params.range.end.line, params.range.end.character);
+            editor.selection = new Selection(range.start, range.end);
+            editor.revealRange(range);
+        }
     }
 }
 

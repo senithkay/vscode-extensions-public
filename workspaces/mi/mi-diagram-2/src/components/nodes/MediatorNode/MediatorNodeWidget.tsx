@@ -15,6 +15,7 @@ import { Colors } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { SendIcon, LogIcon, CodeIcon, MoreVertIcon } from "../../../resources";
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 namespace S {
     export type NodeStyleProp = {
@@ -32,7 +33,7 @@ namespace S {
         padding: 0 8px;
         border: 2px solid
             ${(props: NodeStyleProp) =>
-                props.selected ? Colors.SECONDARY : props.hovered ? Colors.SECONDARY : Colors.OUTLINE_VARIANT};
+            props.selected ? Colors.SECONDARY : props.hovered ? Colors.SECONDARY : Colors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: ${Colors.SURFACE_BRIGHT};
         color: ${Colors.ON_SURFACE};
@@ -103,12 +104,17 @@ interface CallNodeWidgetProps {
 export function MediatorNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine, onClick } = props;
     const [isHovered, setIsHovered] = React.useState(false);
+    const visualizerContext = useVisualizerContext();
 
-    const handleOnClick = () => {
+    const handleOnClickMenu = () => {
         if (onClick) {
             onClick(node.stNode);
             console.log("Mediator Node clicked", node.stNode);
         }
+    };
+
+    const handleOnClick = () => {
+        if (node.isSelected()) node.onClicked(visualizerContext);
     };
 
     return (
@@ -117,13 +123,14 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
             hovered={isHovered}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            onClick={handleOnClick}
         >
             <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
             <S.Header>
                 <S.IconContainer>{getNodeIcon(node.stNode.tag)}</S.IconContainer>
                 <S.NodeText>{node.stNode.tag}</S.NodeText>
                 {isHovered && (
-                    <S.StyledButton appearance="icon" onClick={handleOnClick}>
+                    <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>
                         <MoreVertIcon />
                     </S.StyledButton>
                 )}

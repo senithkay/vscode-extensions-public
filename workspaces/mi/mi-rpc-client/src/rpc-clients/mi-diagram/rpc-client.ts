@@ -9,6 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    AIUserInput,
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
@@ -28,6 +29,7 @@ import {
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
+    HighlightCodeRequest,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectDirResponse,
@@ -43,6 +45,7 @@ import {
     createProject,
     createSequence,
     executeCommand,
+    getAIResponse,
     getAPIDirectory,
     getConnector,
     getConnectors,
@@ -54,10 +57,14 @@ import {
     getSTResponse,
     getSequenceDirectory,
     getSyntaxTree,
+    highlightCode,
     onRefresh,
     openDiagram,
     openFile,
-    showErrorMessage
+    showErrorMessage,
+    writeContentToFile,
+    WriteContentToFileRequest,
+    WriteContentToFileResponse
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -155,5 +162,17 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {
         return this._messenger.sendRequest(createProject, HOST_EXTENSION, params);
+    }
+
+    getAIResponse(params: AIUserInput): Promise<string> {
+        return this._messenger.sendRequest(getAIResponse, HOST_EXTENSION, params);
+    }
+
+    writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
+        return this._messenger.sendRequest(writeContentToFile, HOST_EXTENSION, params);
+    }
+  
+    highlightCode(params: HighlightCodeRequest): void {
+        return this._messenger.sendNotification(highlightCode, HOST_EXTENSION, params);
     }
 }

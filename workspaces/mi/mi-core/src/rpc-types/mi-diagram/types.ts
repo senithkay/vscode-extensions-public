@@ -45,6 +45,7 @@ export interface CreateEndpointResponse {
 export interface CreateProjectRequest {
     directory: string;
     name: string;
+    open: boolean;
 }
 
 export interface Connector {
@@ -135,4 +136,26 @@ export interface CreateProjectResponse {
 
 export interface FileStructure {
     [key: string]: string | FileStructure;
+}
+
+export interface ChatEntry {
+    role: string;
+    content: string;
+  }
+  
+export interface AIUserInput {
+    chat_history: ChatEntry[];
+}
+
+export interface WriteContentToFileRequest {
+    content: string[];
+    directoryPath: string;
+}
+
+export interface WriteContentToFileResponse {
+    status: boolean;
+}
+
+export interface HighlightCodeRequest {
+    range: Range;
 }

@@ -21,14 +21,17 @@ export interface DiagramProps {
     isNodeFocused?: boolean;
     disableZoom?: boolean;
     disableMouseEvents?: boolean;
+    overflow?: string;
+    cursor?: string;
 }
 
 // tslint:disable-next-line:no-namespace
 namespace S {
-    export const Canvas = styled.div`
+    export const Canvas = styled.div<{ cursor: string; overflow: string }>`
       position: relative;
-      cursor: move;
-      overflow: hidden;
+      cursor: ${(props: any) => props.cursor || "move"};
+      overflow: ${(props: any) => props.overflow || "unset"};
+      height: unset !important;
     `;
 }
 
@@ -93,6 +96,8 @@ export class CustomCanvasWidget extends React.Component<DiagramProps> {
 
         return (
             <S.Canvas
+                cursor={this.props.cursor}
+                overflow={this.props.overflow}
                 className={this.props.className}
                 ref={this.ref}
                 onWheel={event => {

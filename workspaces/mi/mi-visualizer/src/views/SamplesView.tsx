@@ -145,7 +145,7 @@ export function SamplesView() {
                             sx={{ alignItems: "flex-start", width: "220px", marginBottom: "20px"}}>
                             <SampleContainer key={sample.title}>
                                 <h2 className="card-title" style={{ margin: '0', fontSize: '16px' }}>{sample.title}</h2>
-                                <img src={images[sample.category - 1]} className="card-image" style={{ width: '50%', height: 'auto' }} />
+                                <img src={images[sample.category]} className="card-image" style={{ width: '50%', height: 'auto' }} />
                                 <p className="card-content" style={{ marginTop: '16px', textAlign: 'justify' }}>{sample.description}</p>
                                 <Button appearance="primary" onClick={() => downloadSample(sample.zipFileName)}>Download</Button>
                             </SampleContainer>

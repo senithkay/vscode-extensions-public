@@ -86,7 +86,8 @@ export function ProjectWizard() {
     const handleCreateProject = async () => {
         const createProjectParams = {
             name: projectName,
-            directory: projectDir
+            directory: projectDir,
+            open:true
         }
         await rpcClient.getMiDiagramRpcClient().createProject(createProjectParams);
         console.log("Project created");
@@ -94,7 +95,8 @@ export function ProjectWizard() {
 
     const handleCancel = () => {
         console.log("cancel");
-        rpcClient.getMiDiagramRpcClient().closeWebView();
+        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
+
     };
 
     const isValid: boolean = projectName.length > 0 && projectDir.length > 0;
