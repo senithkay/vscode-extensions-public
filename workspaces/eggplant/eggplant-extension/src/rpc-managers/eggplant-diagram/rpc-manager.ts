@@ -61,7 +61,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
         });
     }
 
-    async updateSource(params: Flow): Promise<void> {
+    async updateEggplantModel(params: Flow): Promise<void> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             const code: CodeGeneartionData = workerCodeGen(params);

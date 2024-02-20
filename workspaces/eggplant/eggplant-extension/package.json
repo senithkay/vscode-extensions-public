@@ -71,7 +71,8 @@
         "vscode-messenger-common": "^0.4.5",
         "xstate": "^4.38.3",
         "vscode-languageserver-types": "^3.17.5",
-        "vscode-uri": "^3.0.8"
+        "vscode-uri": "^3.0.8",
+        "lodash": "^4.17.11"
     },
     "devDependencies": {
         "@vscode/vsce": "^2.22.0",

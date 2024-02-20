@@ -2553,6 +2553,7 @@ importers:
       copyfiles: ^2.4.1
       eslint: ^8.52.0
       glob: ^10.3.10
+      lodash: ^4.17.11
       mocha: ^10.2.0
       source-map-support: ^0.5.21
       ts-loader: ^9.4.1
@@ -2571,6 +2572,7 @@ importers:
       '@wso2-enterprise/eggplant-visualizer': link:../eggplant-visualizer
       '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
       '@wso2-enterprise/syntax-tree': link:../../ballerina/syntax-tree
+      lodash: 4.17.21
       vscode-languageserver-types: 3.17.5
       vscode-messenger: 0.4.5
       vscode-messenger-common: 0.4.5

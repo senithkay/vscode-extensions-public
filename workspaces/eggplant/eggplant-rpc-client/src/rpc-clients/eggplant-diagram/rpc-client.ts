@@ -12,7 +12,7 @@ import {
     EggplantDiagramAPI,
     Flow,
     getEggplantModel,
-    updateSource
+    updateEggplantModel
 } from "@wso2-enterprise/eggplant-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -28,7 +28,7 @@ export class EggplantDiagramRpcClient implements EggplantDiagramAPI {
         return this._messenger.sendRequest(getEggplantModel, HOST_EXTENSION);
     }
 
-    updateSource(params: Flow): void {
-        return this._messenger.sendNotification(updateSource, HOST_EXTENSION, params);
+    updateEggplantModel(params: Flow): void {
+        return this._messenger.sendNotification(updateEggplantModel, HOST_EXTENSION, params);
     }
 }

@@ -13,4 +13,4 @@ import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "eggplant-diagram";
 export const getEggplantModel: RequestType<void, Flow> = { method: `${_preFix}/getEggplantModel` };
-export const updateSource: NotificationType<Flow> = { method: `${_preFix}/updateSource` };
+export const updateEggplantModel: NotificationType<Flow> = { method: `${_preFix}/updateEggplantModel` };

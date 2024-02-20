@@ -123,6 +123,7 @@ export {
     rename,
     stModify,
     updateFileContent,
+    updateSource,
     getRecordST,
     InsertorDelete,
     visitor,

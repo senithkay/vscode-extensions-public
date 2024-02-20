@@ -13,8 +13,10 @@
 import * as vscode from 'vscode';
 import { Uri } from "vscode";
 import { getUri } from '../utils';
-import { ext } from '../eggplantExtentionContext';
+import { extension } from '../eggplantExtentionContext';
 import { RPCLayer } from '../RPCLayer';
+import { debounce } from "lodash";
+import { onFileContentUpdate } from '@wso2-enterprise/eggplant-core';
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
@@ -28,6 +30,18 @@ export class VisualizerWebview {
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.html = this.getWebviewContent(this._panel.webview);
         RPCLayer.create(this._panel);
+
+        // Handle the text change and diagram update with rpc notification
+        const sendUpdateNotificationToWebview = debounce(() => {
+            if (this._panel) {
+                RPCLayer._messenger.sendNotification(onFileContentUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType });
+            }
+        }, 500);
+
+        vscode.workspace.onDidChangeTextDocument(async function (document) {
+            await document.document.save();
+            sendUpdateNotificationToWebview();
+        }, extension.context);
     }
 
     private static createWebview(): vscode.WebviewPanel {
@@ -46,14 +60,14 @@ export class VisualizerWebview {
 
     private getWebviewContent(webview: vscode.Webview) {
         // The JS file from the React build output
-        const scriptUri = getUri(webview, ext.context.extensionUri, [
+        const scriptUri = getUri(webview, extension.context.extensionUri, [
             "resources",
             "jslibs",
             "Visualizer.js"
         ]);
 
-        const codiconUri = webview.asWebviewUri(Uri.joinPath(ext.context.extensionUri, "resources", "codicons", "codicon.css"));
-        const fontsUri = webview.asWebviewUri(Uri.joinPath(ext.context.extensionUri, "node_modules", "@wso2-enterprise", "font-wso2-vscode", "dist", "wso2-vscode.css"));
+        const codiconUri = webview.asWebviewUri(Uri.joinPath(extension.context.extensionUri, "resources", "codicons", "codicon.css"));
+        const fontsUri = webview.asWebviewUri(Uri.joinPath(extension.context.extensionUri, "node_modules", "@wso2-enterprise", "font-wso2-vscode", "dist", "wso2-vscode.css"));
 
         return /*html*/ `
         <!DOCTYPE html>

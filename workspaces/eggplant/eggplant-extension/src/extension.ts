@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { activateActivityBarWebViews } from './activity-panel/activate';
-import { ext } from './eggplantExtentionContext';
+import { extension } from './eggplantExtentionContext';
 import { activateLowCodeWebViews } from './visualizer/activate';
 import { StateMachine } from './stateMachine';
 
@@ -17,7 +17,7 @@ import { StateMachine } from './stateMachine';
 
 export function activate(context: vscode.ExtensionContext) {
 	// Initialize the eggplant extention context so we do not need to pass the variables around
-	ext.context = context;
+	extension.context = context;
 	activateActivityBarWebViews(context);
 	activateLowCodeWebViews(context);
 

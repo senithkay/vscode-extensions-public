@@ -15,5 +15,5 @@ import { Flow } from "./interfaces";
 
 export interface EggplantDiagramAPI {
     getEggplantModel: () => Promise<Flow>;
-    updateSource: (params: Flow) => void;
+    updateEggplantModel: (params: Flow) => void;
 }

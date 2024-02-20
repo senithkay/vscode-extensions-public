@@ -14,7 +14,7 @@ export class ExtensionVariables {
     public context!: ExtensionContext;
 }
 
-export const ext = new ExtensionVariables();
+export const extension = new ExtensionVariables();
 
 export enum PALETTE_COMMANDS {
     SHOW_VISUALIZER = 'eggplant.show.visualizer'

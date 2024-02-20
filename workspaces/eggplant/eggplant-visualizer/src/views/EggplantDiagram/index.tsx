@@ -46,7 +46,7 @@ const EggplantDiagram = () => {
 
     const onModelChange = async (model: Flow) => {
         if (rpcClient) {
-            await rpcClient.getEggplantDiagramRpcClient().updateSource(model);
+            await rpcClient.getEggplantDiagramRpcClient().updateEggplantModel(model);
         }
     }
 

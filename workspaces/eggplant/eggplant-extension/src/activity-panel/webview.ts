@@ -13,7 +13,7 @@
 import * as vscode from 'vscode';
 import { Uri } from "vscode";
 import { getUri } from '../utils';
-import { ext } from '../eggplantExtentionContext';
+import { extension } from '../eggplantExtentionContext';
 import { RPCLayer } from '../RPCLayer';
 
 
@@ -45,14 +45,14 @@ export class ActivityPanel implements vscode.WebviewViewProvider {
 
     private getWebviewContent(webview: vscode.Webview) {
         // The JS file from the React build output
-        const scriptUri = getUri(webview, ext.context.extensionUri, [
+        const scriptUri = getUri(webview, extension.context.extensionUri, [
             "resources",
             "jslibs",
             "Visualizer.js"
         ]);
 
-        const codiconUri = webview.asWebviewUri(Uri.joinPath(ext.context.extensionUri, "resources", "codicons", "codicon.css"));
-        const fontsUri = webview.asWebviewUri(Uri.joinPath(ext.context.extensionUri, "node_modules", "@wso2-enterprise", "font-wso2-vscode", "dist", "wso2-vscode.css"));
+        const codiconUri = webview.asWebviewUri(Uri.joinPath(extension.context.extensionUri, "resources", "codicons", "codicon.css"));
+        const fontsUri = webview.asWebviewUri(Uri.joinPath(extension.context.extensionUri, "node_modules", "@wso2-enterprise", "font-wso2-vscode", "dist", "wso2-vscode.css"));
 
         return /*html*/ `
         <!DOCTYPE html>
