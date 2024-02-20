@@ -16,6 +16,8 @@ import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { CallIcon, MoreVertIcon, PlusIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
+import { Range, Position } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 namespace S {
     export type NodeStyleProp = {
@@ -32,7 +34,7 @@ namespace S {
         padding: 0 8px;
         border: 2px solid
             ${(props: NodeStyleProp) =>
-                props.selected ? Colors.SECONDARY : props.hovered ? Colors.SECONDARY : Colors.OUTLINE_VARIANT};
+            props.selected ? Colors.SECONDARY : props.hovered ? Colors.SECONDARY : Colors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: ${Colors.SURFACE_BRIGHT};
         color: ${Colors.ON_SURFACE};
@@ -87,6 +89,20 @@ namespace S {
         overflow: hidden;
         text-overflow: ellipsis;
     `;
+
+    export const EndpointContainer = styled.div`
+        position: absolute;
+        left: 223px;
+        top: 8px;
+    `;
+
+    export const EndpointTextWrapper = styled.div`
+        position: absolute;
+        left: 150px;
+        top: 50px;
+        width: 100px;
+        text-align: center;
+    `;
 }
 
 interface CallNodeWidgetProps {
@@ -99,6 +115,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine, onClick } = props;
     const [isHovered, setIsHovered] = React.useState(false);
     const visualizerContext = useVisualizerContext();
+    const sidePanelContext = React.useContext(SidePanelContext)
 
     const handleOnClickMenu = () => {
         if (onClick) {
@@ -111,67 +128,100 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
         if (node.isSelected()) node.onClicked(visualizerContext);
     };
 
+    const handlePlusNode = () => {
+        const startPosition: Position = {
+            line: node.stNode.range.start.line + 1,
+            character: node.stNode.range.start.character + 4,
+        };
+
+        const endPosition: Position = {
+            line: node.stNode.range.end.line,
+            character: node.stNode.range.end.character - 7,
+        }
+
+        const nodeRange: Range = {
+            start: startPosition,
+            end: endPosition,
+        }
+
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            isOpen: true,
+            nodeRange: nodeRange,
+            parentNode: node.getStNode()?.tag,
+            previousNode: node.getPrevStNodes()[node.getPrevStNodes().length - 1]?.tag,
+        });
+    };
+
 
     return (
-        <S.Node
-            selected={node.isSelected()}
-            hovered={isHovered}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            onClick={handleOnClick}
-        >
-            <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
-            <S.Header>
-                <S.IconContainer>
-                    <CallIcon />
-                </S.IconContainer>
-                <S.NodeText>{node.stNode.tag}</S.NodeText>
-                {isHovered && (
-                    <S.StyledButton appearance="icon" onClick={handleOnClick}>
-                        {node.endpoint ? <MoreVertIcon /> : <PlusIcon />}
+        <div>
+            <S.Node
+                selected={node.isSelected()}
+                hovered={isHovered}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                onClick={handleOnClick}
+            >
+                <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
+                <S.Header>
+                    <S.IconContainer>
+                        <CallIcon />
+                    </S.IconContainer>
+                    <S.NodeText>{node.stNode.tag}</S.NodeText>
+                    {isHovered && (
+                        <S.StyledButton appearance="icon" onClick={handleOnClick}>
+                            <MoreVertIcon />
+                        </S.StyledButton>
+                    )}
+                </S.Header>
+                <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
+            </S.Node>
+            <S.CircleContainer>
+                <svg width="110" height="50" viewBox="0 0 103 40">
+                    <circle
+                        cx="80"
+                        cy="20"
+                        r="22"
+                        fill={Colors.SURFACE_BRIGHT}
+                        stroke={Colors.OUTLINE_VARIANT}
+                        strokeWidth={2}
+                    />
+                    <line
+                        x1="0"
+                        y1="20"
+                        x2="57"
+                        y2="20"
+                        style={{
+                            stroke: Colors.PRIMARY,
+                            strokeWidth: 2,
+                            markerEnd: `url(#${node.getID()}-arrow-head)`,
+                        }}
+                    />
+                    <defs>
+                        <marker
+                            markerWidth="4"
+                            markerHeight="4"
+                            refX="3"
+                            refY="2"
+                            viewBox="0 0 4 4"
+                            orient="auto"
+                            id={`${node.getID()}-arrow-head`}
+                        >
+                            <polygon points="0,4 0,0 4,2" fill={Colors.PRIMARY}></polygon>
+                        </marker>
+                    </defs>
+                </svg>
+            </S.CircleContainer>
+            {node.endpoint ? (
+                <S.EndpointTextWrapper>{node.endpoint.type}</S.EndpointTextWrapper>
+            ) : (
+                <S.EndpointContainer>
+                    <S.StyledButton appearance="icon" onClick={handlePlusNode}>
+                        <PlusIcon />
                     </S.StyledButton>
-                )}
-            </S.Header>
-            <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
-            {node.endpoint && (
-                <S.CircleContainer>
-                    <svg width="110" height="50" viewBox="0 0 103 40">
-                        <circle
-                            cx="80"
-                            cy="20"
-                            r="22"
-                            fill={Colors.SURFACE_BRIGHT}
-                            stroke={Colors.OUTLINE_VARIANT}
-                            strokeWidth={2}
-                        />
-                        <text x="60" y="25" fill={Colors.OUTLINE} fontSize={"13px"}>{node.endpoint.type}</text>
-                        <line
-                            x1="0"
-                            y1="20"
-                            x2="57"
-                            y2="20"
-                            style={{
-                                stroke: Colors.PRIMARY,
-                                strokeWidth: 2,
-                                markerEnd: `url(#${node.getID()}-arrow-head)`,
-                            }}
-                        />
-                        <defs>
-                            <marker
-                                markerWidth="4"
-                                markerHeight="4"
-                                refX="3"
-                                refY="2"
-                                viewBox="0 0 4 4"
-                                orient="auto"
-                                id={`${node.getID()}-arrow-head`}
-                            >
-                                <polygon points="0,4 0,0 4,2" fill={Colors.PRIMARY}></polygon>
-                            </marker>
-                        </defs>
-                    </svg>
-                </S.CircleContainer>
+                </S.EndpointContainer>
             )}
-        </S.Node>
+        </div>
     );
 }
