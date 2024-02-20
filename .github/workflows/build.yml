@@ -33,7 +33,12 @@ on:
         description: Update EggPlant extension version
         type: boolean
         required: false
-        default: false                    
+        default: false    
+      mi:
+        description: Update MI extension version
+        type: boolean
+        required: false
+        default: false                            
       version:
         default: 'N/A'
         type: string
@@ -137,6 +142,7 @@ jobs:
           api-chat: ${{ inputs.api-chat }}
           apk: ${{ inputs.apk }}
           eggplant: ${{ inputs.eggplant }}
+          mi: ${{ inputs.mi }}
           version: ${{ inputs.version }}
           API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
           token: ${{ secrets.PUBLISH_PAT }}
