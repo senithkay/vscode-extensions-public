@@ -19,10 +19,12 @@ import {
     SyntaxTreeResponse,
     TypeResponse,
     UpdateSourceRequest,
-    UpdateSourceResponse
+    UpdateSourceResponse,
+    WorkspaceFileRequest,
+    WorkspacesFileResponse
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { Uri } from "vscode";
+import { Uri, workspace } from "vscode";
 import { StateMachine, openView } from "../../stateMachine";
 import { applyModifications, updateFileContent } from "../../utils/modification";
 
@@ -102,5 +104,18 @@ export class CommonRpcManager implements CommonRPCAPI {
 
     async goToSource(params: GoToSourceRequest): Promise<void> {
         // ADD YOUR IMPLEMENTATION HERE
+    }
+
+    async getWorkspaceFiles(params: WorkspaceFileRequest): Promise<WorkspacesFileResponse> {
+        // Get the workspace files form vscode workspace
+        const files = [];
+        // Get workspace path
+        const workspaceRoot = workspace.workspaceFolders![0].uri.fsPath;
+        const workspaceFiles = params.glob ? await workspace.findFiles(params.glob) : await workspace.findFiles('**/*.bal', '**/*test.bal');
+        workspaceFiles.forEach(file => {
+            // Push the file path relative to the workspace root without the leading slash
+            files.push({relativePath: file.fsPath.replace(workspaceRoot, '').substring(1), path: file.fsPath});
+        });
+        return { files, workspaceRoot };
     }
 }
