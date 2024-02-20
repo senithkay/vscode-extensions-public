@@ -15,11 +15,11 @@ import _ from "lodash";
 import { Project } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMLocation as Location, GetComponentModelResponse, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ExtendedLangClient } from "../../../core";
-import { STResponse, terminateActivation } from "../../activator";
-import { ERROR_MESSAGE, TomlPackageData } from "../../resources";
-import { getChoreoExtAPI } from "../../../choreo-features/activate";
+import { ExtendedLangClient } from "../../../../core";
+import { ERROR_MESSAGE, TomlPackageData } from "../../../../project-design-diagrams/resources";
+import { getChoreoExtAPI } from "../../../../choreo-features/activate";
 import { deleteBallerinaPackage, deleteComponentOnly } from "../component-utils";
+import { BallerinaSTModifyResponse } from "@wso2-enterprise/ballerina-core";
 
 const ballerinaToml = "Ballerina.toml";
 
@@ -71,7 +71,7 @@ export function getComponentModel(langClient: ExtendedLangClient, isChoreoProjec
             });
         } catch(error) {
             reject(error);
-            terminateActivation(ERROR_MESSAGE);
+            // terminateActivation(ERROR_MESSAGE);
         }
     });
 }
@@ -177,7 +177,7 @@ export async function updateSyntaxTree(
     generatedCode: string,
     imports?: Set<string>,
     isReplace: boolean = false
-): Promise<STResponse | {}> {
+): Promise<BallerinaSTModifyResponse | {}> {
     const modifications: STModification[] = [];
 
     if (imports && imports?.size > 0) {

@@ -13,9 +13,9 @@ import child_process from "child_process";
 import { compile } from "handlebars";
 import { BallerinaTriggerResponse, Parameter, ServiceType } from "@wso2-enterprise/ballerina-languageclient";
 import { BallerinaComponentTypes, TriggerDetails } from "@wso2-enterprise/choreo-core";
-import { ExtendedLangClient } from "../../../core";
-import { getLangClient } from "../../activator";
-import { CommandResponse, DEFAULT_SERVICE_TEMPLATE_SUFFIX, GRAPHQL_SERVICE_TEMPLATE_SUFFIX } from "../../resources";
+import { ExtendedLangClient } from "../../../../core";
+import { CommandResponse, DEFAULT_SERVICE_TEMPLATE_SUFFIX, GRAPHQL_SERVICE_TEMPLATE_SUFFIX } from "../../../../project-design-diagrams/resources";
+import { StateMachine } from "../../../../stateMachine";
 
 export function createBallerinaPackage(name: string, pkgRoot: string, type: BallerinaComponentTypes): Promise<CommandResponse> {
     const cmd = `bal new "${name}" ${getBalCommandSuffix(type)}`;
@@ -118,7 +118,7 @@ const triggerSource =
     "{{/each}}\n";
 
 export async function buildWebhookTemplate(pkgPath: string, trigger: TriggerDetails): Promise<string> {
-    const langClient: ExtendedLangClient = getLangClient();
+    const langClient: ExtendedLangClient = StateMachine.langClient();
     const template = compile(triggerSource);
     const triggerData: BallerinaTriggerResponse | {} = await langClient.getTrigger({ id: trigger.id });
     if ('serviceTypes' in triggerData && triggerData.serviceTypes.length) {

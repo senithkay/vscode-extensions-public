@@ -10,8 +10,8 @@
 import { Connector } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { getFormattedModuleName } from "@wso2-enterprise/ballerina-low-code-edtior-commons/src/utils/Diagram/modification-util";
 import { CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
-import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
-import { STResponse } from "../../activator";
+import { FunctionDefinition, ModulePart, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
+import { BallerinaSTModifyResponse } from "@wso2-enterprise/ballerina-core";
 
 export function getMissingImports(source: string, imports: Set<string>) {
     const missingImports = new Set<string>();
@@ -57,7 +57,8 @@ export function getServiceDeclaration(members: any[], service: Service, checkEnd
     ));
 }
 
-export function getMainFunction(stResponse: STResponse) {
-    return stResponse.syntaxTree.members.find((member: any) => member.kind === 'FunctionDefinition'
-        && member.functionName.value === 'main');
+export function getMainFunction(st: BallerinaSTModifyResponse) {
+    const syntaxTree = st.syntaxTree as ModulePart;
+    return syntaxTree.members.find((member: any) => member.kind === 'FunctionDefinition'
+        && member.functionName.value === 'main') as FunctionDefinition;
 }

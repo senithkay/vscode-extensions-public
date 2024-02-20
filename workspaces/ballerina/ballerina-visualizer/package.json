@@ -29,6 +29,7 @@
     "@wso2-enterprise/syntax-tree": "workspace:*",
     "@wso2-enterprise/persist-layer-diagram": "workspace:*",
     "@wso2-enterprise/ballerina-graphql-design-diagram": "workspace:*",
+    "@wso2-enterprise/project-design-diagrams": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "vscode-uri": "^3.0.8",

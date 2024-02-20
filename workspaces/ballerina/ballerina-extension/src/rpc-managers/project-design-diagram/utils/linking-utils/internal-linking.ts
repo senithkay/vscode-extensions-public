@@ -11,10 +11,11 @@ import { ExtendedLangClient } from "src/core";
 import { Uri } from "vscode";
 import { camelCase } from "lodash";
 import { CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
-import { STResponse } from "../../activator";
-import { AddLinkArgs, ServiceTypes } from "../../resources";
+import { AddLinkArgs, ServiceTypes } from "../../../../project-design-diagrams/resources";
 import { getInitFunction, updateSourceFile, updateSyntaxTree } from "../shared-utils";
 import { genClientName, getMainFunction, getMissingImports, getServiceDeclaration } from "./shared-utils";
+import { BallerinaSTModifyResponse } from "@wso2-enterprise/ballerina-core";
+import { FunctionBodyBlock } from "@wso2-enterprise/syntax-tree";
 
 let clientName: string;
 
@@ -22,11 +23,11 @@ export async function linkServices(langClient: ExtendedLangClient, args: AddLink
     const { source, target } = args;
     const filePath: string = args.source.sourceLocation.filePath;
 
-    const stResponse: STResponse = await langClient.getSyntaxTree({
+    const stResponse: BallerinaSTModifyResponse = await langClient.getSyntaxTree({
         documentIdentifier: {
             uri: Uri.file(filePath).toString()
         }
-    }) as STResponse;
+    }) as BallerinaSTModifyResponse;
 
     if (stResponse && stResponse.parseSuccess) {
         clientName = genClientName(stResponse.source, transformLabel(target.label || target.annotation.label || target.id));
@@ -44,26 +45,26 @@ export async function linkServices(langClient: ExtendedLangClient, args: AddLink
     return false;
 }
 
-async function linkFromService(stResponse: STResponse, source: Service, clientDecl: string, imports: Set<string>,
+async function linkFromService(stResponse: BallerinaSTModifyResponse, source: Service, clientDecl: string, imports: Set<string>,
     filePath: string, langClient: ExtendedLangClient): Promise<boolean> {
     const serviceDecl = getServiceDeclaration(stResponse.syntaxTree.members, source, true);
     const initMember = serviceDecl ? getInitFunction(serviceDecl) : undefined;
 
-    let modifiedST: STResponse;
+    let modifiedST: BallerinaSTModifyResponse;
     if (initMember) {
         if (!initMember.functionSignature.returnTypeDesc) {
-            modifiedST = await updateSyntaxTree(langClient, filePath, initMember.functionSignature.closeParenToken, ` returns error?`) as STResponse;
+            modifiedST = await updateSyntaxTree(langClient, filePath, initMember.functionSignature.closeParenToken, ` returns error?`) as BallerinaSTModifyResponse;
         } else if (!initMember.functionSignature.returnTypeDesc.type.source.replace(/\s/g, '').includes('error')) {
-            modifiedST = await updateSyntaxTree(langClient, filePath, initMember.functionSignature.returnTypeDesc.type, ` | error?`) as STResponse;
+            modifiedST = await updateSyntaxTree(langClient, filePath, initMember.functionSignature.returnTypeDesc.type, ` | error?`) as BallerinaSTModifyResponse;
         }
-        modifiedST = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, clientDecl) as STResponse;
+        modifiedST = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, clientDecl) as BallerinaSTModifyResponse;
         if (modifiedST && modifiedST.parseSuccess) {
             const members: any[] = modifiedST.syntaxTree.members;
             const serviceDecl = getServiceDeclaration(members, source, false);
             const updatedInitMember = serviceDecl ? getInitFunction(serviceDecl) : undefined;
             if (updatedInitMember) {
                 modifiedST = await updateSyntaxTree(langClient, filePath, updatedInitMember.functionBody.openBraceToken,
-                    generateClientInit(), imports) as STResponse;
+                    generateClientInit(), imports) as BallerinaSTModifyResponse;
                 if (modifiedST && modifiedST.parseSuccess) {
                     return updateSourceFile(langClient, filePath, modifiedST.source);
                 }
@@ -74,26 +75,27 @@ async function linkFromService(stResponse: STResponse, source: Service, clientDe
                     ${clientDecl}
                     ${generateServiceInit()}
                 `;
-        modifiedST = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, genCode, imports) as STResponse;
+        modifiedST = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, genCode, imports) as BallerinaSTModifyResponse;
         if (modifiedST && modifiedST.parseSuccess) {
             return updateSourceFile(langClient, filePath, modifiedST.source);
         }
     }
 }
 
-async function linkFromMain(stResponse: STResponse, clientDecl: string, missingImports: Set<string>, filePath: string,
+async function linkFromMain(stResponse: BallerinaSTModifyResponse, clientDecl: string, missingImports: Set<string>, filePath: string,
     langClient: ExtendedLangClient): Promise<boolean> {
     let mainFunc = getMainFunction(stResponse);
     if (mainFunc) {
-        let modifiedST: STResponse;
+        let modifiedST: BallerinaSTModifyResponse;
         if (!mainFunc.functionSignature.returnTypeDesc) {
-            modifiedST = await updateSyntaxTree(langClient, filePath, mainFunc.functionSignature.closeParenToken, ` returns error?`) as STResponse;
+            modifiedST = await updateSyntaxTree(langClient, filePath, mainFunc.functionSignature.closeParenToken, ` returns error?`) as BallerinaSTModifyResponse;
             mainFunc = getMainFunction(modifiedST);
         } else if (!mainFunc.functionSignature.returnTypeDesc.type.source.replace(/\s/g, '').includes('error')) {
-            modifiedST = await updateSyntaxTree(langClient, filePath, mainFunc.functionSignature.returnTypeDesc.type, ` | error?`) as STResponse;
+            modifiedST = await updateSyntaxTree(langClient, filePath, mainFunc.functionSignature.returnTypeDesc.type, ` | error?`) as BallerinaSTModifyResponse;
             mainFunc = getMainFunction(modifiedST);
         }
-        modifiedST = await updateSyntaxTree(langClient, filePath, mainFunc.functionBody.openBraceToken, clientDecl, missingImports) as STResponse;
+        const funcBody = mainFunc.functionBody as FunctionBodyBlock;
+        modifiedST = await updateSyntaxTree(langClient, filePath, funcBody.openBraceToken, clientDecl, missingImports) as BallerinaSTModifyResponse;
         if (modifiedST && modifiedST.parseSuccess) {
             return updateSourceFile(langClient, filePath, modifiedST.source);
         }

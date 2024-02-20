@@ -26,7 +26,6 @@ import { activate as activateTryIt } from './tryIt/tryit';
 import { activate as activateNotebook } from './notebook';
 import { activate as activateLibraryBrowser } from './library-browser';
 import { activate as activateERDiagram } from './persist-layer-diagram';
-import { activate as activateDesignDiagramView } from './project-design-diagrams';
 import { debug, handleResolveMissingDependencies, log } from './utils';
 import { activateUriHandlers } from './uri-handlers';
 import { StateMachine } from './stateMachine';
