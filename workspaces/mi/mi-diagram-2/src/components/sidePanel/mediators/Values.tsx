@@ -256,30 +256,36 @@ export function getAllMediators(props: GetMediatorsProps) {
         ]
     }
 
-    switch ((props.parentNode || props.previousNode || "").toLowerCase()) {
-        case MEDIATORS.CALL.toLowerCase():
-        case MEDIATORS.SEND.toLowerCase():
-            return endpoints;
-        case MEDIATORS.RESPOND.toLowerCase():
-        case MEDIATORS.LOOPBACK.toLowerCase():
-        case MEDIATORS.DROP.toLowerCase():
-        case MEDIATORS.RULE.toLowerCase():
-            return [];
-        case MEDIATORS.FILTER.toLowerCase():
-        case MEDIATORS.VALIDATE.toLowerCase():
-        case MEDIATORS.SWITCH.toLowerCase():
-        case MEDIATORS.CACHE.toLowerCase():
-        case MEDIATORS.THROTTLE.toLowerCase():
-        case MEDIATORS.AGGREGATE.toLowerCase():
-        case MEDIATORS.CLONE.toLowerCase():
-        case MEDIATORS.ENTITLEMENT.toLowerCase():
-            return [allMediators, "sequences", "connectors"];
-        case MEDIATORS.ITERATE.toLowerCase():
-        case MEDIATORS.FOREACH.toLowerCase(): {
-            allMediators["core"] = allMediators["core"].filter((mediator: any) => !["Send", "Respond", "Loopback", "Drop"].includes(mediator.title));
-            return [allMediators, "sequences", "connectors"];
+    if (props.parentNode) {
+        switch (props.parentNode.toLowerCase()) {
+            case MEDIATORS.CALL.toLowerCase():
+            case MEDIATORS.SEND.toLowerCase():
+                return endpoints;
         }
-        default:
-            return allMediators;
     }
+
+    if (props.previousNode) {
+        switch (props.previousNode.toLowerCase()) {
+            case MEDIATORS.RESPOND.toLowerCase():
+            case MEDIATORS.LOOPBACK.toLowerCase():
+            case MEDIATORS.DROP.toLowerCase():
+            case MEDIATORS.RULE.toLowerCase():
+                return [];
+            case MEDIATORS.FILTER.toLowerCase():
+            case MEDIATORS.VALIDATE.toLowerCase():
+            case MEDIATORS.SWITCH.toLowerCase():
+            case MEDIATORS.CACHE.toLowerCase():
+            case MEDIATORS.THROTTLE.toLowerCase():
+            case MEDIATORS.AGGREGATE.toLowerCase():
+            case MEDIATORS.CLONE.toLowerCase():
+            case MEDIATORS.ENTITLEMENT.toLowerCase():
+                return [allMediators, "sequences", "connectors"];
+            case MEDIATORS.ITERATE.toLowerCase():
+            case MEDIATORS.FOREACH.toLowerCase(): {
+                allMediators["core"] = allMediators["core"].filter((mediator: any) => !["Send", "Respond", "Loopback", "Drop"].includes(mediator.title));
+                return [allMediators, "sequences", "connectors"];
+            }
+        }
+    }
+    return { ...allMediators, ...endpoints };
 }

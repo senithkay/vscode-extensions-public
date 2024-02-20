@@ -13,7 +13,7 @@ import { Uri, ViewColumn } from 'vscode';
 import { getComposerJSFiles } from '../util';
 import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
-import { onRefresh } from '@wso2-enterprise/mi-core';
+import { onFileContentUpdate } from '@wso2-enterprise/mi-core';
 import { debounce } from 'lodash';
 
 export class VisualizerWebview {
@@ -31,7 +31,7 @@ export class VisualizerWebview {
         // Handle the text change and diagram update with rpc notification
         const refreshDiagram = debounce(() => {
             if (this.getWebview()) {
-                RPCLayer._messenger.sendNotification(onRefresh, { type: 'webview', webviewType: VisualizerWebview.viewType });
+                RPCLayer._messenger.sendNotification(onFileContentUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType });
             }
         }, 500);
 
