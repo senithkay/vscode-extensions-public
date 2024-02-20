@@ -401,8 +401,8 @@ export function DiagramViewManager(props: EditorProps) {
     }
 
     const updateActiveFile = (currentFile: FileListEntry) => {
-        setFocusFile(currentFile.uri.path);
-        fetchST(currentFile.uri.path);
+        setFocusFile(currentFile.uri.fsPath);
+        fetchST(currentFile.uri.fsPath);
     };
 
     const handleProjectChange = (project: WorkspaceFolder) => {
