@@ -270,7 +270,7 @@ export function getAllMediators(props: GetMediatorsProps) {
             case MEDIATORS.LOOPBACK.toLowerCase():
             case MEDIATORS.DROP.toLowerCase():
             case MEDIATORS.RULE.toLowerCase():
-                return [];
+                return {};
             case MEDIATORS.FILTER.toLowerCase():
             case MEDIATORS.VALIDATE.toLowerCase():
             case MEDIATORS.SWITCH.toLowerCase():
@@ -279,11 +279,13 @@ export function getAllMediators(props: GetMediatorsProps) {
             case MEDIATORS.AGGREGATE.toLowerCase():
             case MEDIATORS.CLONE.toLowerCase():
             case MEDIATORS.ENTITLEMENT.toLowerCase():
-                return [allMediators, "sequences", "connectors"];
+                // return {...allMediators, "sequences", "connectors"};
+                return { ...allMediators };
             case MEDIATORS.ITERATE.toLowerCase():
             case MEDIATORS.FOREACH.toLowerCase(): {
                 allMediators["core"] = allMediators["core"].filter((mediator: any) => !["Send", "Respond", "Loopback", "Drop"].includes(mediator.title));
-                return [allMediators, "sequences", "connectors"];
+                // return {...allMediators, "sequences", "connectors"};
+                return { ...allMediators };
             }
         }
     }
