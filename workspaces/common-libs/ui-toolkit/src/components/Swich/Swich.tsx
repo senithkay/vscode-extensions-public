@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -14,6 +14,7 @@ interface SwichContainerProps {
     active?: boolean;
     color?: string;
     enableTransition?: boolean;
+    disabled?: boolean;
 }
 
 const SwitchContainer = styled.div<SwichContainerProps>`
@@ -25,6 +26,7 @@ const SwitchContainer = styled.div<SwichContainerProps>`
     width: 200px;
     border: 1px solid var(--vscode-tree-indentGuidesStroke);
     border-radius: 4px;
+    opacity: ${(props: SwichContainerProps) => props.disabled ? 0.5 : 1};
     ${(props: SwichContainerProps) => props.sx};
 `;
 
@@ -37,7 +39,6 @@ const LeftInnerContainer = styled.div<SwichContainerProps>`
     background-color: var(--vscode-tab-unfocusedInactiveBackground);
     border-top-left-radius: 4px;
     border-bottom-left-radius: 4px;
-    ${(props: SwichContainerProps) => props.sx};
 `;
 
 const RightInnerContainer = styled.div<SwichContainerProps>`
@@ -49,7 +50,6 @@ const RightInnerContainer = styled.div<SwichContainerProps>`
     background-color: var(--vscode-tab-unfocusedInactiveBackground);
     border-top-right-radius: 4px;
     border-bottom-right-radius: 4px;
-    ${(props: SwichContainerProps) => props.sx};
 `;
 
 const InnerContainer = styled.div<SwichContainerProps>`
@@ -74,7 +74,7 @@ const Content = styled.div<SwichContainerProps>`
     justify-content: center;
     height: 100%;
     width: 100%;
-    ${(props: SwichContainerProps) => props.sx};
+    user-select: none;
 `;
 
 const IconContainer = styled.div`
@@ -92,6 +92,8 @@ export interface SwitchProps {
     uncheckedIcon?: ReactNode;
     checkedColor?: string;
     enableTransition?: boolean;
+    disabled?: boolean;
+    readonly?: boolean;
     onChange: () => void;
 }
 
@@ -131,20 +133,20 @@ const getUncheckedComponent = (text: string, icon: ReactNode) => {
 
 export const Switch: React.FC<SwitchProps> = (props: SwitchProps) => {
     const { id, className, sx, checked, leftLabel, rightLabel, checkedIcon,
-        uncheckedIcon, checkedColor, enableTransition, onChange 
+        uncheckedIcon, checkedColor, enableTransition, disabled, readonly, onChange 
     } = props;
     const handleLeftComponentClick = () => {
-        if (checked) {
+        if (checked && !readonly && !disabled) {
             onChange();
         }
     }
     const handleRightComponentClick = () => {
-        if (!checked) {
+        if (!(checked || readonly || disabled)) {
             onChange();
         }
     }
     return (
-        <SwitchContainer id={id} className={className} sx={sx}>
+        <SwitchContainer id={id} className={className} sx={sx} disabled={disabled}>
             <LeftInnerContainer onClick={handleLeftComponentClick}>
                 {checked ?
                     getUncheckedComponent(leftLabel, uncheckedIcon) :
