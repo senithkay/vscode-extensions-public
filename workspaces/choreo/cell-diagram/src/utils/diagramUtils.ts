@@ -134,7 +134,7 @@ export function animateOrgDiagram() {
         }
     };
     safeAnimate(`div[data-nodeid^="${PROJECT_NODE}|"]`, {
-        scale: 0,
+        scale: 0.5,
         opacity: 0,
         duration: 0.5,
     });
