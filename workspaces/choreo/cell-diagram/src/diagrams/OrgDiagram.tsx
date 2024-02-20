@@ -126,8 +126,8 @@ export function OrgDiagram(props: OrgDiagramProps) {
             const dagreEngine = new DagreEngine({
                 graph: {
                     rankdir: "LR",
-                    ranksep: 120,
-                    edgesep: 48,
+                    ranksep: 110,
+                    edgesep: 22,
                     nodesep: 10,
                     // acyclicer: 'greedy',
                     ranker: "network-simplex",

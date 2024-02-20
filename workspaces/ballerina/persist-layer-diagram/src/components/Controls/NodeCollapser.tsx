@@ -8,10 +8,7 @@
  */
 
 import React from 'react';
-import Button from '@mui/material/Button';
-import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
-import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
-import { useStyles } from './styles';
+import { Button, Icon } from '@wso2-enterprise/ui-toolkit';
 
 interface NodeCollapserProps {
     collapsedMode: boolean;
@@ -20,16 +17,16 @@ interface NodeCollapserProps {
 
 export function NodeCollapser(props: NodeCollapserProps) {
     const { collapsedMode, setIsCollapsedMode } = props;
-    const styles = useStyles();
 
     return (
         <Button
-            variant='outlined'
-            size='small'
-            className={styles.button}
             onClick={() => setIsCollapsedMode(!collapsedMode)}
-            startIcon={collapsedMode ? <UnfoldMoreIcon /> : <UnfoldLessIcon />}
+            appearance='icon'
         >
+            {collapsedMode ?
+                <Icon name="unfold-more" sx={{ marginRight: '10px' }} /> :
+                <Icon name='unfold-less' sx={{ marginRight: '10px' }} />
+            }
             {collapsedMode ? 'Expand' : 'Collapse'}
         </Button>
     );

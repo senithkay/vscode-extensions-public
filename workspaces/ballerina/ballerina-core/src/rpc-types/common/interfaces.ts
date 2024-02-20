@@ -35,3 +35,18 @@ export interface DeleteSourceRequest {
 export interface DeleteSourceResponse {
     error?: string;
 }
+
+export interface WorkspaceFileRequest {
+    glob?: string;
+}
+
+export interface File {
+    relativePath: string;
+    path: string;
+}
+
+
+export interface WorkspacesFileResponse {
+    workspaceRoot: string;
+    files: File[];
+}
