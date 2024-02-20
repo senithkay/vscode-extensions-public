@@ -2498,6 +2498,7 @@ importers:
       react: ^18.2.0
       react-dom: ^18.2.0
       react-markdown: ~9.0.1
+      react-spinners: ~0.13.8
       react-syntax-highlighter: ~15.5.0
       source-map-loader: ^4.0.1
       style-loader: ^1.3.0
@@ -2521,6 +2522,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-markdown: 9.0.1_7kh72gklg5qjlh5zc6s6v3p6v4
+      react-spinners: 0.13.8_biqbaboplfbrettd7655fr4n2y
       react-syntax-highlighter: 15.5.0_react@18.2.0
     devDependencies:
       '@babel/plugin-syntax-flow': 7.22.5
@@ -39257,6 +39259,16 @@ packages:
       react: 17.0.2
       react-is: 17.0.2
     dev: true
+
+  /react-spinners/0.13.8_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-3e+k56lUkPj0vb5NDXPVFAOkPC//XyhKPJjvcGjyMNPWsBKpplfeyialP74G7H7+It7KzhtET+MvGqbKgAqpZA==}
+    peerDependencies:
+      react: ^16.0.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
 
   /react-style-singleton/2.2.1_7kh72gklg5qjlh5zc6s6v3p6v4:
     resolution: {integrity: sha512-ZWj0fHEMyWkHzKYUr2Bs/4zU6XLmq9HsgBURm7g5pAVfyn49DgUiNgY2d4lXRlYSiCif9YBGpQleewkcqddc7g==}
