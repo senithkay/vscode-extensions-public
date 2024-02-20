@@ -28,12 +28,13 @@ const styles = () => ({
         width: '100%',
         backgroundColor: "var(--vscode-sideBar-background)",
         padding: "2px",
-        borderRadius: "6px",
+        borderRadius: "2px",
         display: "flex",
         flexDirection: "column",
         gap: "5px",
         color: "var(--vscode-checkbox-border)",
         alignItems: "center",
+        border: "1px solid var(--vscode-welcomePage-tileBorder)",
     }),
     element: css({
         backgroundColor: 'var(--vscode-input-background)',
@@ -204,8 +205,8 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                     position="bottom-end"
                 >
                     {isTnfFunctionCall ? (
-                        <Icon name="function-icon" sx={{ height: "20px", width: "20px" }} iconSx={{ fontSize: "20px" }} />) : (
-                        <Icon name="explicit-outlined" sx={{ height: "20px", width: "20px" }} iconSx={{ fontSize: "20px" }} />
+                        <Icon name="function-icon" iconSx={{ fontSize: "15px", color: "var(--vscode-input-placeholderForeground)" }} />) : (
+                        <Icon name="explicit-outlined" sx={{ height: "20px", width: "20px" }} iconSx={{ fontSize: "20px", color: "var(--vscode-input-placeholderForeground)" }} />
                     )}
                 </Tooltip>
                 {isTnfFunctionCall && (
