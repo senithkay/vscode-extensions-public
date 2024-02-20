@@ -15,6 +15,8 @@ interface SidePanelContext {
     isEditing: boolean;
     nodeRange?: Range;
     operationName?: string;
+    parentNode?: string;
+    previousNode?: string;
     formValues?: { [key: string]: any };
     title?: string;
     setSidePanelState?: Dispatch<SetStateAction<any>>;
@@ -25,6 +27,8 @@ const SidePanelContext = React.createContext<SidePanelContext>({
     isEditing: false,
     nodeRange: undefined,
     operationName: undefined,
+    parentNode: undefined,
+    previousNode: undefined,
     formValues: {},
     title: undefined,
     setSidePanelState: () => {},

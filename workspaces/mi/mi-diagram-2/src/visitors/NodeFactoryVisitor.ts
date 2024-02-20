@@ -65,7 +65,9 @@ export class NodeFactoryVisitor implements Visitor {
                         {
                             label: this.currentBranchName,
                             stRange: this.currentAddPosition ?? previousStNode.range.end,
-                            brokenLine: type === NodeTypes.EMPTY_NODE || previousNode instanceof EmptyNodeModel
+                            brokenLine: type === NodeTypes.EMPTY_NODE || previousNode instanceof EmptyNodeModel,
+                            previousNode: previousStNode.tag,
+                            parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
                         }
                     );
                     this.links.push(link);
