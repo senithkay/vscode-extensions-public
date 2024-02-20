@@ -31,6 +31,10 @@ export function DataMapper(props: DataMapperProps) {
     const [mapperData, setMapperData] = useState<SyntaxTreeResponse>(data);
 
     useEffect(() => {
+        setPosition(fnLocation);
+    }, [fnLocation]);
+
+    useEffect(() => {
         if (!isFetching) {
             setMapperData(data);
         }

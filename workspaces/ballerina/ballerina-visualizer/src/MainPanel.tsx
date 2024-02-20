@@ -93,7 +93,7 @@ const MainPanel = () => {
             default:
                 return <LoadingRing />;
         }
-    }, [visualizerLocation?.view]);
+    }, [visualizerLocation?.view, visualizerLocation?.identifier]);
 
     return (
         <>
