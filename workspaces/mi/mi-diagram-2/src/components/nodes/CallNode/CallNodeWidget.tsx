@@ -129,19 +129,9 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
     };
 
     const handlePlusNode = () => {
-        const startPosition: Position = {
-            line: node.stNode.range.start.line + 1,
-            character: node.stNode.range.start.character + 4,
-        };
-
-        const endPosition: Position = {
-            line: node.stNode.range.end.line,
-            character: node.stNode.range.end.character - 7,
-        }
-
         const nodeRange: Range = {
-            start: startPosition,
-            end: endPosition,
+            start: node.stNode.range.startTagRange.end,
+            end: node.stNode.range.endTagRange.start,
         }
 
         sidePanelContext.setSidePanelState({
