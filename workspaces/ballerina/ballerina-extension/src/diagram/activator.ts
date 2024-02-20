@@ -654,7 +654,7 @@ class DiagramPanel {
 			if (!DiagramPanel.currentPanel) {
 				performDidOpen();
 				this.webviewPanel.webview.html = render(
-					diagramElement!.fileUri!,
+					diagramElement!.fileUri!.fsPath!,
 					diagramElement!.startLine!,
 					diagramElement!.startColumn!,
 					experimentalEnabled,

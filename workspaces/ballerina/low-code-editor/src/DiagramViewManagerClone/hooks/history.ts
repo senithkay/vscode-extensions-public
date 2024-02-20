@@ -40,6 +40,8 @@ export function useComponentHistory():
     const [history, updateHistory] = useState<HistoryEntry[]>([]);
 
     const historyPush = (historyEntry: HistoryEntry) => {
+        const decodedFile = decodeURI(historyEntry.file);
+        historyEntry.file = decodedFile;
         updateHistory([...history, historyEntry]);
     }
 
@@ -49,6 +51,8 @@ export function useComponentHistory():
     }
 
     const historyClearAndPopulateWith = (historyEntry: HistoryEntry) => {
+        const decodedFile = decodeURI(historyEntry.file);
+        historyEntry.file = decodedFile;
         updateHistory([historyEntry]);
     }
 
@@ -63,6 +67,8 @@ export function useComponentHistory():
     const updateCurrentEntry = (historyEntry: HistoryEntry) => {
         if (history.length === 0) return;
         const newHistory = [...history];
+        const decodedFile = decodeURI(historyEntry.file);
+        historyEntry.file = decodedFile;
         newHistory[newHistory.length - 1] = historyEntry;
         updateHistory(newHistory);
     }

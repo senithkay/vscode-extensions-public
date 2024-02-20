@@ -134,13 +134,17 @@ export function DiagramViewManager(props: EditorProps) {
                 const { file: filePath, position, uid } = history[history.length - 1];
                 const file = extractFilePath(filePath);
                 const langClient = await langClientPromise;
-                const decodedFilePath = decodeURI(file);
-                const componentResponse = await langClient.getBallerinaProjectComponents({
+
+                const componentResponse: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
                     documentIdentifiers: [
                         {
-                            uri: monaco.Uri.file(decodedFilePath).toString(),
+                            uri: monaco.Uri.file(file).toString(),
                         }
                     ]
+                });
+
+                componentResponse?.packages?.forEach((pkg: any) => {
+                    pkg.filePath = decodeURI(pkg.filePath);
                 });
 
                 if (file.endsWith(".bal")) {
@@ -293,7 +297,7 @@ export function DiagramViewManager(props: EditorProps) {
     }, [history[history.length - 1], updatedTimeStamp]);
 
     const updateActiveFile = (currentFile: FileListEntry) => {
-        historyPush({ file: currentFile.uri.path });
+        historyPush({ file: currentFile.uri.fsPath });
     };
 
     const navigateUptoParent = (position: NodePosition): void => {

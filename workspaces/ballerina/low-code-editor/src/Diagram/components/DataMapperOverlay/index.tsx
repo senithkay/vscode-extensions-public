@@ -105,11 +105,10 @@ export function DataMapperOverlay(props: DataMapperProps) {
         const consts = []
         const enums = []
         const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
-        const decodedFilePath = decodeURI(currentFile.path);
         const componentResponse = await langClient.getBallerinaProjectComponents({
             documentIdentifiers: [
                 {
-                    uri: Uri.file(decodedFilePath).toString(),
+                    uri: Uri.file(currentFile.path).toString(),
                 }
             ]
         })
