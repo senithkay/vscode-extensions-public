@@ -41,7 +41,7 @@ const VisualizerContainer = styled.div`
 `;
 
 const ComponentViewWrapper = styled.div`
-    height: 100vh;
+    height: calc(100% - 24px);
 `;
 
 const MainPanel = () => {
