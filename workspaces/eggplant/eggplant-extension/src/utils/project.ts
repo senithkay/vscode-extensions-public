@@ -1,7 +1,7 @@
 import { exec } from "child_process";
 import { window, commands, workspace, Uri } from "vscode";
 import * as fs from 'fs';
-import { LowCode } from "../LowCode/LowCode";
+import { VisualizerWebview } from "../visualizer/webview";
 
 export function openEggplantProject() {
     window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Open Eggplant Project' })

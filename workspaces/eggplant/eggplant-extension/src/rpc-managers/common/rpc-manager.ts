@@ -22,7 +22,7 @@ import {
     UpdateSourceResponse,
     WorkspaceFileRequest,
     WorkspacesFileResponse
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2-enterprise/eggplant-core";
 import { ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Uri, workspace } from "vscode";
 import { StateMachine, openView } from "../../stateMachine";
@@ -70,7 +70,7 @@ export class CommonRpcManager implements CommonRPCAPI {
                     if (STKindChecker.isServiceDeclaration(member)) {
                         const identifier = member.absoluteResourcePath.reduce((result, obj) => result + obj.value, "");
                         if (identifier === context.identifier) {
-                            openView({ position: member.position });
+                            openView("OPEN_VIEW", { position: member.position });
                         }
                     }
                 });
@@ -94,7 +94,7 @@ export class CommonRpcManager implements CommonRPCAPI {
                     if (STKindChecker.isServiceDeclaration(member)) {
                         const identifier = member.absoluteResourcePath.reduce((result, obj) => result + obj.value, "");
                         if (identifier === context.identifier) {
-                            openView({ position: member.position });
+                            openView("OPEN_VIEW", { position: member.position });
                         }
                     }
                 });

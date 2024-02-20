@@ -291,8 +291,8 @@ const stateMachine = createMachine<MachineContext>(
                 });
                 resolve();
                 return;
-            };
-        })},
+            }
+        });},
         showView(context, event): Promise<VisualizerLocation> {
             return new Promise(async (resolve, reject) => {
                 const historyStack = history.get();

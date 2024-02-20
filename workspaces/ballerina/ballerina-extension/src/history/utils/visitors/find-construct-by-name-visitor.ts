@@ -78,11 +78,11 @@ export class FindConstructByNameVisitor implements Visitor {
         if (STKindChecker.isModulePart(parent)) {
             this.moduleFunctionIndex++;
             this.stack.push(`${constructIdStub}${SUB_DELIMETER}${this.moduleFunctionIndex}`);
-            uidNext = `${constructIdStub}${SUB_DELIMETER}${this.moduleFunctionIndex}`
+            uidNext = `${constructIdStub}${SUB_DELIMETER}${this.moduleFunctionIndex}`;
         } else {
             this.classMemberIndex++;
             this.stack.push(`${constructIdStub}${SUB_DELIMETER}${this.classMemberIndex}`);
-            uidNext = `${constructIdStub}${SUB_DELIMETER}${this.classMemberIndex}`
+            uidNext = `${constructIdStub}${SUB_DELIMETER}${this.classMemberIndex}`;
         }
 
         if (this.extractedUid === constructIdStub) {

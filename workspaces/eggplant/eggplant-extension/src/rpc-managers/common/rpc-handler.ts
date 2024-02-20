@@ -18,7 +18,7 @@ import {
     getWorkspaceFiles,
     goToSource,
     updateSource
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2-enterprise/eggplant-core";
 import { Messenger } from "vscode-messenger";
 import { CommonRpcManager } from "./rpc-manager";
 

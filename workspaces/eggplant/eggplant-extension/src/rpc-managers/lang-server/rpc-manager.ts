@@ -45,7 +45,7 @@ import {
     TypesFromSymbolResponse,
     UpdateFileContentRequest,
     UpdateFileContentResponse
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2-enterprise/eggplant-core";
 import { writeFileSync } from 'fs';
 import { normalize } from "path";
 import { Position, Range, WorkspaceEdit, extensions, workspace } from "vscode";
