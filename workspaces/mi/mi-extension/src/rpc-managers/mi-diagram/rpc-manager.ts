@@ -420,11 +420,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
-    onRefresh(callback: () => void): void {
-        // USE THE RPC METHOD TO BROADCAST NOTIFICATIONS TO WEBVIEW
-        // EX: RPCLayer._messenger.send
-    }
-
     async getProjectRoot(): Promise<ProjectRootResponse> {
         return new Promise(async (resolve) => {
             const workspaceFolders = workspace.workspaceFolders;

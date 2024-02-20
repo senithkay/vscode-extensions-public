@@ -6,9 +6,10 @@ import * as path from 'path';
 import { window } from 'vscode';
 import { MILanguageClient } from './lang-client/activator';
 import { extension } from './MIExtensionContext';
-import { EventType, MachineStateValue, VisualizerLocation } from '@wso2-enterprise/mi-core';
+import { EventType, MachineStateValue, VisualizerLocation, webviewReady } from '@wso2-enterprise/mi-core';
 import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 import { VisualizerWebview } from './visualizer/webview';
+import { RPCLayer } from './RPCLayer';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -161,9 +162,13 @@ const stateMachine = createMachine<MachineContext>({
             return new Promise((resolve, reject) => {
                 if (!VisualizerWebview.currentPanel) {
                     VisualizerWebview.currentPanel = new VisualizerWebview();
+                    RPCLayer._messenger.onNotification(webviewReady, () => {
+                        resolve(true);
+                    });
+                } else {
+                    VisualizerWebview.currentPanel!.getWebview()?.reveal();
+                    resolve(true);
                 }
-                VisualizerWebview.currentPanel!.getWebview()?.reveal();
-                resolve(true);
             });
         }
     }
