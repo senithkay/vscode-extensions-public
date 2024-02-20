@@ -8,17 +8,12 @@
  */
 
 import React, { useContext } from 'react';
-import AddIcon from '@mui/icons-material/Add';
-import FullscreenIcon from '@mui/icons-material/Fullscreen';
-import RemoveIcon from '@mui/icons-material/Remove';
-import DownloadIcon from '@mui/icons-material/FileDownloadOutlined';
-import WarningIcon from '@mui/icons-material/Warning';
 import styled from '@emotion/styled';
-import CachedIcon from "@mui/icons-material/Cached";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { toJpeg } from 'html-to-image';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
 import { CanvasControlButton } from './ControlButtons/ControlButton';
+import { Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
 
 interface ControlProps {
     engine: DiagramEngine;
@@ -73,28 +68,50 @@ export function DiagramControls(props: ControlProps) {
         <ControlPanel >
             {hasDiagnostics &&
                 <CanvasControlButton onClick={showProblemPanel} tooltipTitle={'Diagnostics were detected in the model.'}>
-                    <WarningIcon sx={{ color: '#EA4C4D' }} />
+                    <Codicon
+                        name="warning"
+                        sx={{ height: "fit-content", width: "fit-content" }}
+                        iconSx={{ fontWeight: "bolder", fontSize: "20px", color: "var(--vscode-inputValidation-errorBorder)" }}
+                    />
                 </CanvasControlButton>
             }
             <CanvasControlButton onClick={downloadDiagram} tooltipTitle={'Download'}>
-                <DownloadIcon />
+                <Icon
+                    name="import"
+                    sx={{ height: "fit-content", width: "fit-content" }}
+                    iconSx={{ fontWeight: "bolder", fontSize: "20px", color: "var(--vscode-input-placeholderForeground)" }}
+                />
             </CanvasControlButton>
 
             <CanvasControlButton onClick={refreshDiagram} tooltipTitle={'Refresh'}>
-                <CachedIcon />
+                <Icon
+                    name="cached-round"
+                    sx={{ height: "fit-content", width: "fit-content" }}
+                    iconSx={{ fontWeight: "bolder", fontSize: "20px", color: "var(--vscode-input-placeholderForeground)" }}
+                />
             </CanvasControlButton>
 
             <CanvasControlButton onClick={zoomToFit} tooltipTitle={'Zoom to fit nodes'}>
-                <FullscreenIcon />
+                <Icon
+                    name="fullscreen"
+                    sx={{ height: "fit-content", width: "fit-content" }}
+                    iconSx={{ fontWeight: "bolder", fontSize: "20px", color: "var(--vscode-input-placeholderForeground)" }}
+                />
             </CanvasControlButton>
 
             <div>
                 <CanvasControlButton onClick={() => { onZoom(true) }} tooltipTitle={'Zoom in'}>
-                    <AddIcon />
+                    <Codicon name="add"
+                        iconSx={{ fontWeight: "bolder", fontSize: "17px", color: "var(--vscode-input-placeholderForeground)" }}
+                        sx={{ height: "fit-content", width: "fit-content" }}
+                    />
                 </CanvasControlButton>
 
                 <CanvasControlButton onClick={() => { onZoom(false) }} tooltipTitle={'Zoom out'}>
-                    <RemoveIcon />
+                    <Codicon name="remove"
+                        iconSx={{ fontWeight: "bolder", fontSize: "17px", color: "var(--vscode-input-placeholderForeground)" }}
+                        sx={{ height: "fit-content", width: "fit-content" }}
+                    />
                 </CanvasControlButton>
             </div>
         </ControlPanel>
