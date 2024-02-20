@@ -7,16 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { CodeIcon } from "../resources";
 
 export function getNodeIdFromModel(model: STNode, prefix?: string) {
     if (model.viewState?.id) {
         return model.viewState.id;
     }
     if (model && model.tag && model.range) {
-        const id = `${model.tag}-${model.range.start.line}-${model.range.start.character}-${model.range.end.line}-${model.range.end.character}`;
+        const id = `${model.tag}-${model.range.startTagRange.start.line}-${model.range.startTagRange.start.character}-${model.range.endTagRange.end.line}-${model.range.endTagRange.end.character}`;
         if (prefix) {
             return `${prefix}-${id}`;
         }

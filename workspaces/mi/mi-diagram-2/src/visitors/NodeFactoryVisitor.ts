@@ -64,7 +64,7 @@ export class NodeFactoryVisitor implements Visitor {
                         diagramNode as TargetNodeModel,
                         {
                             label: this.currentBranchName,
-                            stRange: this.currentAddPosition ?? previousStNode.range.end,
+                            stRange: this.currentAddPosition ?? previousStNode.range.endTagRange.end,
                             brokenLine: type === NodeTypes.EMPTY_NODE || previousNode instanceof EmptyNodeModel,
                             previousNode: previousStNode.tag,
                             parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
@@ -89,17 +89,15 @@ export class NodeFactoryVisitor implements Visitor {
                 this.previousSTNodes = [node];
                 this.currentBranchName = sequenceKeys[i];
 
-                // TODO: Use the sub sequence's start position as the current add position. Need the tag range to be added to the STNode
-                this.currentAddPosition = (sequence.mediatorList as any)[0].range.start;
+                this.currentAddPosition = sequence.range.startTagRange.end;
                 (sequence.mediatorList as any).forEach((childNode: STNode) => {
                     traversNode(childNode, this);
                 });
             } else {
                 this.currentBranchName = sequenceKeys[i];
                 this.previousSTNodes = [node];
-                // TODO: Use the sub sequence's start position as the current add position. Need the tag range to be added to the STNode
-                this.currentAddPosition = sequence.range.end;
-                this.createNodeAndLinks(sequence, "", NodeTypes.EMPTY_NODE, node.range.end);
+                this.currentAddPosition = sequence.range.startTagRange.end;
+                this.createNodeAndLinks(sequence, "", NodeTypes.EMPTY_NODE);
             }
         }
 
@@ -156,8 +154,8 @@ export class NodeFactoryVisitor implements Visitor {
 
     beginVisitInSequence(node: Sequence): void {
         const addPosition = {
-            line: node.range.start.line,
-            character: node.range.start.character + 12
+            line: node.range.startTagRange.start.line,
+            character: node.range.startTagRange.end.character 
         }
         this.currentAddPosition = addPosition;
         this.createNodeAndLinks(node, "", NodeTypes.START_NODE);
@@ -166,15 +164,15 @@ export class NodeFactoryVisitor implements Visitor {
     endVisitInSequence(node: Sequence): void {
         const lastNode = this.nodes[this.nodes.length - 1].getStNode();
         node.viewState.y = lastNode.viewState.y + lastNode.viewState.h + NODE_GAP.Y;
-        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.end);
+        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.endTagRange.end);
         this.parents.pop();
         this.previousSTNodes = undefined;
     }
 
     beginVisitOutSequence(node: Sequence): void {
         const addPosition = {
-            line: node.range.start.line,
-            character: node.range.start.character + 12
+            line: node.range.startTagRange.end.line,
+            character: node.range.startTagRange.end.character
         }
         this.currentAddPosition = addPosition;
         this.createNodeAndLinks(node, "", NodeTypes.START_NODE);
@@ -183,15 +181,15 @@ export class NodeFactoryVisitor implements Visitor {
     endVisitOutSequence(node: Sequence): void {
         const lastNode = this.nodes[this.nodes.length - 1].getStNode();
         node.viewState.y = lastNode.viewState.y + lastNode.viewState.h + NODE_GAP.Y;
-        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.end);
+        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.endTagRange.end);
         this.parents.pop();
         this.previousSTNodes = undefined;
     }
 
     beginVisitFaultSequence(node: Sequence): void {
         const addPosition = {
-            line: node.range.start.line,
-            character: node.range.start.character + 12
+            line: node.range.startTagRange.end.line,
+            character: node.range.startTagRange.end.character
         }
         this.currentAddPosition = addPosition;
         this.createNodeAndLinks(node, "", NodeTypes.START_NODE);
@@ -200,7 +198,7 @@ export class NodeFactoryVisitor implements Visitor {
     endVisitFaultSequence(node: Sequence): void {
         const lastNode = this.nodes[this.nodes.length - 1].getStNode();
         node.viewState.y = lastNode.viewState.y + lastNode.viewState.h + NODE_GAP.Y;
-        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.end);
+        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.endTagRange.end);
         this.parents.pop();
         this.previousSTNodes = undefined;
     }

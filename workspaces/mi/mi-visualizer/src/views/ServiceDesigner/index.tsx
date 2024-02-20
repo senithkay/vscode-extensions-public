@@ -37,10 +37,10 @@ export function ServiceDesignerView() {
                         port: 0,
                         resources: resources,
                         position: {
-                            startLine: st.range.start.line,
-                            startColumn: st.range.start.character,
-                            endLine: st.range.end.line,
-                            endColumn: st.range.end.character
+                            startLine: st.range.startTagRange.start.line,
+                            startColumn: st.range.startTagRange.start.character,
+                            endLine: st.range.endTagRange.end.line,
+                            endColumn: st.range.endTagRange.end.character
                         }
                     }
                     setServiceModel(model);
