@@ -158,14 +158,14 @@ export function DataMapperC(props: DataMapperViewProps) {
         langServerRpcClient,
         libraryBrowserRpcClient,
         applyModifications,
-        onClose
+        onClose,
+        goToFunction: updateSelectedComponent
     } = props;
     const openedViaPlus = false;
     const goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void = undefined;
     const onSave: (fnName: string) => void = undefined;
     const recordPanel: (props: { targetPosition: NodePosition, closeAddNewRecord: () => void }) => JSX.Element = undefined;
     const updateActiveFile: (currentFile: FileListEntry) => void = undefined;
-    const updateSelectedComponent: (info: ComponentViewInfo) => void = undefined;
 
     const { projectComponents, isFetching: isFetchingComponents } = useProjectComponents(langServerRpcClient, filePath);
     const { 

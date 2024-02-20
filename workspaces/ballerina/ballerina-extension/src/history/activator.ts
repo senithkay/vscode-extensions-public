@@ -6,15 +6,10 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+import { History } from "@wso2-enterprise/ballerina-core";
 
-import { HistoryEntry } from "../../history";
-import { VisualizerLocation } from "../../state-machine-types";
+export let history: History;
 
-export interface VisualizerAPI {
-    openView: (params: VisualizerLocation) => void;
-    getHistory: () => Promise<HistoryEntry[]>;
-    addToHistory: (entry: HistoryEntry) => void;
-    goBack: () => void;
-    goHome: () => void;
-    goSelected: (index: number) => void;
+export function activate() {
+    history = new History();
 }

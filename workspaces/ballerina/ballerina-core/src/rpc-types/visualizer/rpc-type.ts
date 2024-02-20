@@ -8,9 +8,14 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
+import { HistoryEntry } from "../../history";
 import { VisualizerLocation } from "../../state-machine-types";
-import { NotificationType } from "vscode-messenger-common";
+import { NotificationType, RequestType } from "vscode-messenger-common";
 
 const _preFix = "visualizer";
 export const openView: NotificationType<VisualizerLocation> = { method: `${_preFix}/openView` };
+export const getHistory: RequestType<void, HistoryEntry[]> = { method: `${_preFix}/getHistory` };
+export const addToHistory: NotificationType<HistoryEntry> = { method: `${_preFix}/addToHistory` };
 export const goBack: NotificationType<void> = { method: `${_preFix}/goBack` };
+export const goHome: NotificationType<void> = { method: `${_preFix}/goHome` };
+export const goSelected: NotificationType<number> = { method: `${_preFix}/goSelected` };

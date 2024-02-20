@@ -7,14 +7,4 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { HistoryEntry } from "../../history";
-import { VisualizerLocation } from "../../state-machine-types";
-
-export interface VisualizerAPI {
-    openView: (params: VisualizerLocation) => void;
-    getHistory: () => Promise<HistoryEntry[]>;
-    addToHistory: (entry: HistoryEntry) => void;
-    goBack: () => void;
-    goHome: () => void;
-    goSelected: (index: number) => void;
-}
+export * from './activator';
