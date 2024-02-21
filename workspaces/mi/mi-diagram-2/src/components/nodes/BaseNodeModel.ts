@@ -20,8 +20,9 @@ export class BaseNodeModel extends NodeModel {
     protected portOut: NodePortModel;
     protected parentNode: STNode;
     protected prevNodes: STNode[];
+    readonly documentUri: string;
 
-    constructor(type: NodeTypes, stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
+    constructor(type: NodeTypes, documentUri:string, stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode),
             type: type,
@@ -32,6 +33,7 @@ export class BaseNodeModel extends NodeModel {
         this.prevNodes = prevNodes;
         this.addInPort("in");
         this.addOutPort("out");
+        this.documentUri = documentUri;
     }
 
     addPort<T extends NodePortModel>(port: T): T {

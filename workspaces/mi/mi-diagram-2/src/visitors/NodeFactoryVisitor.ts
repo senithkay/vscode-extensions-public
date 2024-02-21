@@ -39,15 +39,15 @@ export class NodeFactoryVisitor implements Visitor {
         if (type === NodeTypes.MEDIATOR_NODE) {
             diagramNode = new MediatorNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.CONDITION_NODE) {
-            diagramNode = new ConditionNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
+            diagramNode = new ConditionNodeModel(node, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.START_NODE) {
             diagramNode = new StartNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.END_NODE) {
             diagramNode = new EndNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.CALL_NODE) {
-            diagramNode = new CallNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes, data);
+            diagramNode = new CallNodeModel(node, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes, data);
         } else if (type === NodeTypes.EMPTY_NODE) {
-            diagramNode = new EmptyNodeModel(node);
+            diagramNode = new EmptyNodeModel(node, this.documentUri);
         }
         diagramNode.setPosition(node.viewState.x, node.viewState.y);
         this.nodes.push(diagramNode);
