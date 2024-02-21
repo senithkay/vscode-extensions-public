@@ -95,8 +95,8 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
 
     const renderDirectoryMap = () => {
         const { directoryMap } = projectStructure;
-        const artifacts = (directoryMap as any).src.main.wso2mi.artifacts
-        return renderObject(artifacts);
+        const artifacts = (directoryMap as any)?.src?.main?.wso2mi?.artifacts;
+        if (artifacts) return renderObject(artifacts);
     };
 
     return (
