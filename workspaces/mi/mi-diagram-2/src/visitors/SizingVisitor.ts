@@ -53,7 +53,7 @@ export class SizingVisitor implements Visitor {
         }
 
         node.viewState.fw = subSequencesWidth;
-        node.viewState.fh = subSequencesHeight;
+        node.viewState.fh = subSequencesHeight + NODE_DIMENSIONS.CONDITION.HEIGHT + NODE_GAP.BRANCH_TOP + NODE_GAP.BRANCH_BOTTOM;
 
         this.sequenceWidth = Math.max(this.sequenceWidth, node.viewState.fw);
     }
