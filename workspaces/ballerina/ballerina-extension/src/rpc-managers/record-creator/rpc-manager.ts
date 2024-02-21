@@ -16,20 +16,20 @@ import {
     XMLToRecordRequest,
     XMLToRecordResponse
 } from "@wso2-enterprise/ballerina-core";
-import { StateMachine } from "src/stateMachine";
+import { StateMachine } from "../../stateMachine";
 
 export class RecordCreatorRpcManager implements RecordCreatorAPI {
     async convertJsonToRecord(params: JsonToRecordRequest): Promise<JsonToRecordResponse | NOT_SUPPORTED_TYPE> {
         return new Promise(async (resolve) => {
-            const response = StateMachine.langClient().convertJsonToRecord(params);
-            resolve({ response });
+            const response = await StateMachine.langClient().convertJsonToRecord(params);
+            resolve(response);
         });
     }
 
     async convertXMLToRecord(params: XMLToRecordRequest): Promise<XMLToRecordResponse | NOT_SUPPORTED_TYPE> {
         return new Promise(async (resolve) => {
-            const response = StateMachine.langClient().convertXMLToRecord(params);
-            resolve({ response });
+            const response = await StateMachine.langClient().convertXMLToRecord(params);
+            resolve(response);
         });
     }
 }
