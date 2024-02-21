@@ -14,7 +14,7 @@ export function getNodeIdFromModel(model: STNode, prefix?: string) {
         return model.viewState.id;
     }
     if (model && model.tag && model.range) {
-        const id = `${model.tag}-${model.range.startTagRange.start.line}-${model.range.startTagRange.start.character}-${model.range.endTagRange.end.line}-${model.range.endTagRange.end.character}`;
+        const id = `${model.tag}-${model.range.startTagRange.start.line}-${model.range.startTagRange.start.character}`;
         if (prefix) {
             return `${prefix}-${id}`;
         }
