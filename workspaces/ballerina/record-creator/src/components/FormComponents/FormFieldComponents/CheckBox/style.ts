@@ -31,6 +31,7 @@ export const useStyles = () => ({
     }),
     labelWrapper: css({
         display: 'flex',
+        marginRight: 'auto'
     }),
     inputLabelForRequired: css({
         padding: 0,

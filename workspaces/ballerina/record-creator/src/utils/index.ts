@@ -19,8 +19,8 @@ import {
 import { LangServerRpcClient, RecordCreatorRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { RecordItemModel } from "../types";
 
-export const isNotSupportedType = (resp: any): resp is NOT_SUPPORTED_TYPE => {
-    return !("diagnostics" in resp);
+export const isNotSupportedType = (resp: JsonToRecordResponse | NOT_SUPPORTED_TYPE): resp is NOT_SUPPORTED_TYPE => {
+    return  !("diagnostics" in resp);
 };
 
 export async function convertJsonToRecordUtil(

@@ -29,8 +29,6 @@ interface FormElementProps<T = {}> {
     onChange?: (event: any) => void;
     customProps?: T;
     model?: FormField | any;
-    validate?: (field: string, isInvalid: boolean) => void;
-    rowsMax?: number;
     defaultValue?: string;
     label?: string;
     placeholder?: string;
@@ -40,7 +38,7 @@ interface FormElementProps<T = {}> {
 
 export function FormTextArea(props: FormElementProps<FormTextAreaProps>) {
     const classes = useStyles();
-    const { onChange, defaultValue, placeholder, rowsMax, customProps, model } = props;
+    const { onChange, defaultValue, placeholder, customProps, model } = props;
     const defaultText: string = defaultValue ? defaultValue : "";
     const errorClass = customProps?.isInvalid ? cx("error-class") : cx("valid");
     const codeAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -51,37 +49,32 @@ export function FormTextArea(props: FormElementProps<FormTextAreaProps>) {
         customProps?.validate(model.name, inputValue === "");
     }
 
-    const handleOnChange = (event: any) => {
-        if (event.keyCode === 9) {
-            event.preventDefault();
-            const { selectionStart } = event.target;
-            codeAreaRef.current.setRangeText(
-                "  ",
-                selectionStart,
-                selectionStart,
-                "end"
-              );
-        }
-        setInputValue(event.target.value);
-        onChange(event.target.value);
+    const handleOnChange = (value: string) => {
+        setInputValue(value);
+        onChange(value);
     };
 
     React.useEffect(() => {
         setInputValue(defaultText);
     }, [defaultText]);
 
-    const handleOnKeyDown = (event: any) => {
-        if (event.keyCode === 9) {
-            event.preventDefault();
-            const { selectionStart } = event.target;
-            codeAreaRef.current.setRangeText(
-                "  ",
-                selectionStart,
-                selectionStart,
-                "end"
-              );
-          }
-    }
+    React.useEffect(() => {
+        if (codeAreaRef.current) {
+            const textarea = codeAreaRef.current.shadowRoot.querySelector("textarea");
+            const handleOnKeyDown = (event: KeyboardEvent) => {
+                if (event.key === "Tab") {
+                    event.preventDefault();
+                    const selectionStart = textarea.selectionStart;
+                    textarea.setRangeText("  ", selectionStart, selectionStart, "end");
+                }
+            };
+
+            textarea.addEventListener("keydown", handleOnKeyDown);
+            return () => {
+                textarea.removeEventListener("keydown", handleOnKeyDown);
+            };
+        }
+    }, [codeAreaRef]);
 
     return (
         <div className="textarea-wrapper">
@@ -93,9 +86,12 @@ export function FormTextArea(props: FormElementProps<FormTextAreaProps>) {
                     onChange={handleOnChange}
                     value={inputValue}
                     resize="vertical"
+                    rows={8}
                 />
                 {customProps?.text ? (
-                    <Typography variant="body2" className='textarea-error-text'>{customProps.text}</Typography>
+                    <Typography variant="body2" className="textarea-error-text">
+                        {customProps.text}
+                    </Typography>
                 ) : null}
             </div>
         </div>

@@ -8,27 +8,22 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+import { useIntl } from "react-intl";
 import styled from "@emotion/styled";
-import { Button, Codicon, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
 import { FormHeaderSection } from "../components/FormComponents/FormFieldComponents/FormHeader/FormHeaderSection";
+import { RecordFormWrapper } from "../style";
 
 export interface RecordConfigTypeProps {
     isDataMapper?: boolean;
     onImportFromJson: () => void;
     onImportFromXml: () => void;
-    onCreateNew: () => void;
     onCancel: () => void;
 }
 
 export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
-    const { isDataMapper, onImportFromJson, onImportFromXml, onCreateNew, onCancel } = props;
+    const { isDataMapper, onImportFromJson, onImportFromXml } = props;
     const intl = useIntl();
-
-    const createNewButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.recordEditor.option.createNew",
-        defaultMessage: "Create New",
-    });
     const importJsonButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.option.importJson",
         defaultMessage: "Import a JSON",
@@ -48,14 +43,13 @@ export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
             )}
             <RecordFormWrapper>
                 <CreateButtonWrapper>
-                    <LinePrimaryButton onClick={onCreateNew} data-test-id="create-new-btn">
-                        <Typography variant="h5">{createNewButtonText}</Typography>
-                        <Codicon name="add" />
-                    </LinePrimaryButton>
-
                     <LinePrimaryButton onClick={onImportFromJson} data-test-id="import-json">
-                        <Typography variant="h5">{importJsonButtonText}</Typography>
-                        <Icon name="file-upload" />
+                        <Icon
+                            sx={{ width: "16px", marginRight: "4px" }}
+                            iconSx={{ fontSize: "16px" }}
+                            name="file-upload"
+                        />
+                        <LineButtonTitle variant="h5">{importJsonButtonText}</LineButtonTitle>
                     </LinePrimaryButton>
 
                     <LinePrimaryButton
@@ -63,8 +57,12 @@ export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
                         data-test-id="import-xml"
                         disabled={onImportFromXml === null}
                     >
-                        <Typography variant="h5">{importXmlButtonText}</Typography>
-                        <Icon name="file-upload" />
+                        <Icon
+                            sx={{ width: "16px", marginRight: "4px" }}
+                            iconSx={{ fontSize: "16px" }}
+                            name="file-upload"
+                        />
+                        <LineButtonTitle variant="h5">{importXmlButtonText}</LineButtonTitle>
                     </LinePrimaryButton>
                     {onImportFromXml === null && (
                         <BallerinaLabel>
@@ -77,31 +75,36 @@ export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
     );
 }
 
-const RecordFormWrapper = styled.div`
-    width: "100%";
-    max-height: 540;
-    overflow-y: "scroll";
-    flex-direction: "row";
-`;
-
 const CreateButtonWrapper = styled.div`
-    display: "flex";
-    margin: 16;
-    flex-direction: "column";
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 
     & button {
-        margin-bottom: 16;
+        margin-bottom: 16px;
     }
 `;
 
 const BallerinaLabel = styled.p`
-    color: "#4a4d55";
+    color: #4a4d55;
     font-size: 13;
-    text-transform: "capitalize";
+    text-transform: capitalize;
     font-weight: 300;
-    text-align: "end";
+    text-align: end;
 `;
 
 const LinePrimaryButton = styled(Button)`
-    width: 100%;
+    width: 100% !important;
+
+    & vscode-button {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+`;
+
+const LineButtonTitle = styled(Typography)`
+    margin: 0;
 `;

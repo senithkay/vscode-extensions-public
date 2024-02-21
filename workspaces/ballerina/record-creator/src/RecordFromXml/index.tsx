@@ -20,7 +20,15 @@ import { FormTextArea } from "../components/FormComponents/FormFieldComponents/T
 import { UndoRedoManager } from "../components/UndoRedoManager";
 import { RecordOverview } from "../RecordOverview";
 import { Context } from "../Context";
-import { FileSelect, FormContainer, FormWrapper, InputWrapper, LabelWrapper, useStyles } from "../style";
+import {
+    FileSelect,
+    FormContainer,
+    FormWrapper,
+    InputContainer,
+    InputWrapper,
+    LabelWrapper,
+    useStyles,
+} from "../style";
 import { Typography } from "@wso2-enterprise/ui-toolkit";
 import { FormHeaderSection } from "../components/FormComponents/FormFieldComponents/FormHeader/FormHeaderSection";
 
@@ -203,28 +211,27 @@ export function RecordFromXml(recordFromXmlProps: RecordFromXmlProps) {
                             defaultMessage="Import Sample XML"
                         />
                     )}
-                    <FormWrapper id="xml-input-container" test-id="xml-input-container">
-                        <InputWrapper>
-                            <LabelWrapper>
-                                <Typography variant="caption" className={classes.inputLabelForRequired}>
+                    <FormWrapper>
+                        <InputContainer id="xml-input-container" test-id="xml-input-container">
+                            <InputWrapper>
+                                <Typography variant="body3" className={classes.inputLabelForRequired}>
                                     Sample XML
                                 </Typography>
-                            </LabelWrapper>
-                            <FileSelect>
-                                <FileSelector label="Select XML file" extension="xml" onReadFile={onXmlChange} />
-                            </FileSelect>
-                        </InputWrapper>
-                        <FormTextArea
-                            rowsMax={5.1}
-                            data-TestId="xml-input"
-                            placeholder={`eg: <company><org>wso2</org><address>Colombo</address></company>`}
-                            onChange={onXmlChange}
-                            customProps={{
-                                isInvalid: formState.xmlDiagnostics !== "",
-                                text: formState.xmlDiagnostics,
-                            }}
-                            defaultValue={formState.xmlValue}
-                        />
+                                <FileSelect>
+                                    <FileSelector label="Select XML file" extension="xml" onReadFile={onXmlChange} />
+                                </FileSelect>
+                            </InputWrapper>
+                            <FormTextArea
+                                data-TestId="xml-input"
+                                placeholder={`eg: <company><org>wso2</org><address>Colombo</address></company>`}
+                                onChange={onXmlChange}
+                                customProps={{
+                                    isInvalid: formState.xmlDiagnostics !== "",
+                                    text: formState.xmlDiagnostics,
+                                }}
+                                defaultValue={formState.xmlValue}
+                            />
+                        </InputContainer>
                         {formState.isLoading && <TextPreloaderVertical position="absolute" />}
                         <FormActionButtons
                             cancelBtnText="Back"

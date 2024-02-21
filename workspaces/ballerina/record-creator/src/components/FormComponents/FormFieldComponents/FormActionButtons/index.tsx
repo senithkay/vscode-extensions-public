@@ -48,21 +48,17 @@ export function FormActionButtons(props: FormActionButtonsProps) {
                 )}
             </div>
             <div className={classes.buttonWrapper}>
-                <div className={classes.spaceBetween}>
-                    <Button appearance="secondary" onClick={onCancel}>
-                        <Typography variant="h5">{cancelBtnText}</Typography>
-                    </Button>
-                </div>
-                <div className={classes.spaceBetween}>
-                    <Button
-                        appearance="primary"
-                        disabled={isMutationInProgress || !validForm}
-                        onClick={onSave}
-                        data-testid="save-btn"
-                    >
-                        <Typography variant="h5">{saveBtnText}</Typography>
-                    </Button>
-                </div>
+                <Button appearance="secondary" onClick={() => onCancel()}>
+                    <Typography variant="h5">{cancelBtnText}</Typography>
+                </Button>
+                <Button
+                    appearance="primary"
+                    disabled={isMutationInProgress || !validForm}
+                    onClick={onSave}
+                    data-testid="save-btn"
+                >
+                    <Typography variant="h5">{saveBtnText}</Typography>
+                </Button>
             </div>
         </div>
     );

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProjectComponents, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
 import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI } from "vscode-uri";
 
@@ -64,4 +64,39 @@ export const useFullST = (
     });
 
     return { fullST, isFetching, isError, refetch };
+};
+
+export const useBallerinaProjectComponent = (
+    filePath: string,
+    langServerRpcClient: LangServerRpcClient
+): {
+    ballerinaProjectComponents: BallerinaProjectComponents;
+    isFetching: boolean;
+    isError: boolean;
+    refetch: any;
+} => {
+    const fetchBallerinaProjectComponents = async () => {
+        try {
+            const ballerinaProjectComponents = await langServerRpcClient.getBallerinaProjectComponents({
+                documentIdentifiers: [
+                    { uri: URI.file(filePath).toString() }
+                ],
+            });
+            return ballerinaProjectComponents;
+        } catch (networkError: any) {
+            console.error("Error while fetching ballerina project components", networkError);
+        }
+    };
+
+    const {
+        data: ballerinaProjectComponents,
+        isFetching,
+        isError,
+        refetch,
+    } = useQuery({
+        queryKey: ["fetchBallerinaProjectComponents", filePath],
+        queryFn: fetchBallerinaProjectComponents,
+    });
+
+    return { ballerinaProjectComponents, isFetching, isError, refetch };
 };

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STModification, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProjectComponents, STModification, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
 import {
     LangServerRpcClient,
     LibraryBrowserRpcClient,
@@ -55,7 +55,7 @@ export interface ExpressionInfo {
 }
 
 interface IStatementEditorComponentProps {
-    expressionInfo: ExpressionInfo;
+    targetPosition: NodePosition;
     langServerRpcClient: LangServerRpcClient;
     libraryBrowserRpcClient: LibraryBrowserRpcClient;
     currentFile?: {
@@ -80,6 +80,7 @@ export interface RecordCreatorContext {
         recordCreatorRpcClient: RecordCreatorRpcClient;
         ballerinaVersion: string;
         fullST: SyntaxTreeResponse;
+        ballerinaProjectComponents: BallerinaProjectComponents;
     };
     api: IStatementEditorComponentApi & {};
 }

@@ -13,15 +13,10 @@ import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { DiagnosticData, DiagnosticsResponse } from "@wso2-enterprise/ballerina-core";
 import { Codicon, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
 import * as monaco from "monaco-editor";
+import { VERSION } from "../../../types";
 
 export const FILE_SCHEME = "file://";
 export const EXPR_SCHEME = "expr://";
-
-export enum VERSION {
-    BETA = "beta",
-    ALPHA = "alpha",
-    PREVIEW = "preview",
-}
 
 export function getUpdatedSource(
     statement: string,

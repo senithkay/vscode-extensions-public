@@ -7,12 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from "react";
-import { Button, Icon } from "@wso2-enterprise/ui-toolkit";
-import "./style.scss"
+import { Button, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
+import "./style.scss";
+import styled from "@emotion/styled";
 
 export interface FileSelectorProps {
     label: string;
-    extension: 'json' | 'yaml' | 'xml'; // TODO: support for yaml js-yaml library
+    extension: "json" | "yaml" | "xml"; // TODO: support for yaml js-yaml library
     onReadFile: (text: string) => void;
 }
 
@@ -26,35 +27,26 @@ export function FileSelector(props: FileSelectorProps) {
     };
 
     const showFile = async (e: any) => {
-        e.preventDefault()
-        const reader = new FileReader()
-        const ext = e.target.files[0].name.split('.').pop().toLowerCase();
+        e.preventDefault();
+        const reader = new FileReader();
+        const ext = e.target.files[0].name.split(".").pop().toLowerCase();
         reader.readAsText(e.target.files[0]);
         reader.onload = async (loadEvent: any) => {
             if (ext === extension) {
-                const text = (loadEvent.target.result) as string;
+                const text = loadEvent.target.result as string;
                 onReadFile(text);
             }
-          };
-    }
+        };
+    };
 
     return (
-        <div>
-            <input
-                hidden={true}
-                accept={`.${extension}`}
-                type="file"
-                onChange={showFile}
-                ref={hiddenFileInput}
-            />
-            <Button
-                onClick={handleClick}
-                appearance="icon"
-            >
-                <Icon name="file-upload" />
-                {`Upload ${extension.toUpperCase()} File`}
+        <React.Fragment>
+            <input hidden={true} accept={`.${extension}`} type="file" onChange={showFile} ref={hiddenFileInput} />
+            <Button onClick={handleClick} appearance="icon">
+                <Icon name="file-upload" sx={{ width: "16px", marginRight: "4px" }} iconSx={{ fontSize: "16px" }} />
+                <Typography variant="body3">{`Upload ${extension.toUpperCase()} File`}</Typography>
             </Button>
-        </div>
-    )
-
+        </React.Fragment>
+    );
 }
+

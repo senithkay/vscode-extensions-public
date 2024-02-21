@@ -64,7 +64,7 @@ export interface DataMapperConfigPanelProps {
     onClose: () => void;
     applyModifications: (modifications: STModification[]) => Promise<void>;
     langServerRpcClient: LangServerRpcClient;
-    recordPanel?: (closeAddNewRecord: (createdNewRecord?: string) => void) => React.ReactElement;
+    recordPanel?: (props: {targetPosition: NodePosition, closeAddNewRecord: (createdNewRecord?: string) => void}) => React.ReactElement;
 }
 
 
@@ -317,17 +317,15 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
 
     const breadCrumb = (
         <FormTitleContainer>
-            <Typography variant="h4">Data Mapper</Typography>
-            <FormSecondTitle>
-                <Codicon name="chevron-right" />
-                <Typography variant="h4">Record</Typography>
-            </FormSecondTitle>
-            <Button
+            <FormTitle variant="h4">Data Mapper</FormTitle>
+            <Codicon name="chevron-right" />
+            <FormTitle variant="h4">Record</FormTitle>
+            <CloseButton
                 appearance="icon"
-                onClick={closeAddNewRecord}
+                onClick={() => closeAddNewRecord()}
             >
-                <Codicon name="close" />
-            </Button>
+                <Codicon sx={{ width: "16px" }} iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} name="close" />
+            </CloseButton>
         </FormTitleContainer>
     );
 
@@ -420,17 +418,17 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                 >
                     {(isNewRecord && breadCrumb) || (
                         <FormTitleContainer>
-                            <Typography variant="h4">Data Mapper</Typography>
-                            <Button
+                            <FormTitle variant="h4">Data Mapper</FormTitle>
+                            <CloseButton
                                 appearance="icon"
                                 onClick={onClose}
                             >
                                 <Codicon sx={{ width: "16px" }} iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} name="close" />
-                            </Button>
+                            </CloseButton>
                         </FormTitleContainer>
                     )}
                     {isNewRecord &&
-                        recordPanel(closeAddNewRecord)
+                        recordPanel({ targetPosition: getModifiedTargetPosition(newRecords, targetPosition, projectComponents, filePath), closeAddNewRecord })
                     }
                     {!isNewRecord && (
                         <>
@@ -531,21 +529,14 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
 const FormTitleContainer = styled.div`
     display: flex;
     align-items: center;
-    justify-content: space-between;
     border-bottom: 1px solid var(--vscode-editorIndentGuide-background);
-    padding: 0 12px;
+    padding: 16px 12px;
+    gap: 8px;
 `;
 
-const FormSecondTitle = styled.div`
-    position: absolute;
-    left: 124;
-    display: flex;
-    align-items: center;
-    
-    & svg {
-        margin-top: 4
-    }
-`;
+const FormTitle = styled(Typography)`
+    margin: 0;
+`
 
 const FormBody = styled.div`
     width: 100%;
@@ -560,6 +551,10 @@ const FormDivider = styled(Divider)`
 const WizardFormControlExtended = styled.div`
     width: 600;
 `;
+
+const CloseButton = styled(Button)`
+    margin-left: auto;
+`
 
 export const Title = styled.div(() => ({
     color: 'inherit',

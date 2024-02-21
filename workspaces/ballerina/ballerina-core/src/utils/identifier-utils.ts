@@ -7,8 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { STSymbolInfo } from "../interfaces/ballerina";
+import { BallerinaProjectComponents, ComponentInfo } from "../rpc-types/lang-server/interfaces";
 
 function convertToCamelCase(variableName: string): string {
     return variableName
@@ -32,90 +31,45 @@ export function genVariableName(defaultName: string, variables: string[], skipCa
     return varName;
 }
 
-export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]: any } {
+export function getAllVariablesForAi(projectComponents: BallerinaProjectComponents): { [key: string]: any } {
     const variableCollection: { [key: string]: any } = {};
-    symbolInfo.variables.forEach((variableNodes: STNode[], type: string) => {
-        variableNodes.forEach((variableNode) => {
-            if (STKindChecker.isRequiredParam(variableNode)) {
-                // Handle function definition params
-                variableCollection[variableNode.paramName.value] = {
-                    type: type,
-                    position: 0,
-                    isUsed: 0,
-                };
-            } else if (STKindChecker.isLocalVarDecl(variableNode)) {
-                const variableDef: LocalVarDecl = variableNode as LocalVarDecl;
-                if (
-                    STKindChecker.isCaptureBindingPattern(variableDef.typedBindingPattern.bindingPattern) &&
-                    variableDef.typedBindingPattern.bindingPattern.variableName
-                ) {
-                    variableCollection[variableDef.typedBindingPattern.bindingPattern.variableName.value] = {
-                        type: type,
+    projectComponents.packages?.forEach((packageSummary) => {
+        packageSummary.modules.forEach((moduleSummary) => {
+            moduleSummary.moduleVariables.forEach(({ name }: ComponentInfo) => {
+                if (!variableCollection[name]) {
+                    variableCollection[name] = {
+                        type: name,
                         position: 0,
                         isUsed: 0,
                     };
                 }
-            }
-        });
-    });
-    symbolInfo.moduleVariables.forEach((variableNode: STNode, type: string) => {
-        if (STKindChecker.isModuleVarDecl(variableNode) && !variableCollection[type]) {
-            variableCollection[type] = {
-                type: type,
-                position: 0,
-                isUsed: 0,
-            };
-        }
-    });
-    symbolInfo.enums.forEach((variableNode: STNode, type: string) => {
-        if (STKindChecker.isEnumDeclaration(variableNode) && !variableCollection[type]) {
-            variableCollection[type] = {
-                type: type,
-                position: 0,
-                isUsed: 0,
-            };
-        }
-    });
-    symbolInfo.recordTypeDescriptions.forEach((variableNode: STNode, type: string) => {
-        if (STKindChecker.isRecordTypeDesc(variableNode) && !variableCollection[type]) {
-            variableCollection[type] = {
-                type: type,
-                position: 0,
-                isUsed: 0,
-            };
-        }
-    });
-    symbolInfo.localEndpoints.forEach((variableNodes: STNode, type: string) => {
-        const variableDef: LocalVarDecl = variableNodes as LocalVarDecl;
-        const variable: CaptureBindingPattern = variableDef.typedBindingPattern.bindingPattern as CaptureBindingPattern;
-        if (!variableCollection[variable.variableName.value]) {
-            variableCollection[variable.variableName.value] = {
-                type: type,
-                position: 0,
-                isUsed: 0,
-            };
-        }
-    });
-    symbolInfo.actions.forEach((variableNodes: STNode, type: string) => {
-        if (variableNodes.kind === "LocalVarDecl") {
-            const variableDef: LocalVarDecl = variableNodes as LocalVarDecl;
-            const variable: CaptureBindingPattern = variableDef.typedBindingPattern
-                .bindingPattern as CaptureBindingPattern;
-            if (!variableCollection[variable.variableName.value]) {
-                variableCollection[variable.variableName.value] = {
-                    type: type,
-                    position: 0,
-                    isUsed: 0,
-                };
-            }
-        }
+            });
+            moduleSummary.enums.forEach(({ name }: ComponentInfo) => {
+                if (!variableCollection[name]) {
+                    variableCollection[name] = {
+                        type: name,
+                        position: 0,
+                        isUsed: 0,
+                    };
+                }
+            });
+            moduleSummary.records.forEach(({ name }: ComponentInfo) => {
+                if (!variableCollection[name]) {
+                    variableCollection[name] = {
+                        type: name,
+                        position: 0,
+                        isUsed: 0,
+                    };
+                }
+            });
+        })
     });
     return variableCollection;
 }
 
-export function getAllVariables(symbolInfo: STSymbolInfo): string[] {
+export function getAllVariables(projectComponents: BallerinaProjectComponents): string[] {
     const variableCollection: string[] = [];
-    const variableInfo = getAllVariablesForAi(symbolInfo);
+    const variableInfo = getAllVariablesForAi(projectComponents);
     Object.keys(variableInfo).map((variable) => {
         variableCollection.push(variable);
     });

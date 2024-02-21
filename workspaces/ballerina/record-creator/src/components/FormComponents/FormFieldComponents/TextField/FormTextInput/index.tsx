@@ -12,6 +12,7 @@ import { FormattedMessage } from "react-intl";
 import { InputWrapper, LabelWrapper, useStyles } from "../../../../../style";
 import { TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import { getTooltipIconComponent } from "../../../Utils";
+import styled from "@emotion/styled";
 
 interface FormTextInputProps {
     validate?: (value: any) => boolean;
@@ -32,16 +33,12 @@ interface FormElementProps<T = {}> {
     index?: number;
     customProps?: T;
     onChange?: (event: any) => void;
-    onKeyUp?: (event: any) => void;
     onBlur?: (event: any) => void;
-    onClick?: () => void;
-    onFocus?: (event: any) => void;
     defaultValue?: any;
     label?: string;
     placeholder?: string;
     errorMessage?: string;
     dataTestId?: string;
-    size?: "small" | "medium";
     disabled?: boolean;
 }
 
@@ -50,16 +47,12 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
         index,
         customProps,
         onChange,
-        onKeyUp,
         onBlur,
-        onClick,
-        onFocus,
         defaultValue,
         label,
         placeholder,
         errorMessage,
         dataTestId,
-        size = "medium",
         disabled,
     } = props;
     const defaultText: string = defaultValue ? defaultValue : "";
@@ -101,10 +94,9 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
         setInputValue(defaultValue ? defaultValue : "");
     }, [defaultValue, customProps?.isErrored]);
 
-    const handleOnChange = (event: any) => {
-        event.stopPropagation();
+    const handleOnChange = (value: string) => {
         if (onChange) {
-            onChange(event.target.value);
+            onChange(value);
         }
 
         if (
@@ -112,23 +104,9 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
             ((customProps && customProps.disableValidation !== undefined && !customProps.disableValidation) ||
                 (customProps && customProps.disableValidation === undefined))
         ) {
-            setIsInvalid(!customProps.validate(event.target.value));
+            setIsInvalid(!customProps.validate(value));
         }
-        setInputValue(event.target.value);
-    };
-
-    const handleOnKeyUp = (event: any) => {
-        event.preventDefault();
-        if (onKeyUp) {
-            onKeyUp(event);
-        }
-    };
-
-    const handleOnFocus = (event: any) => {
-        event.preventDefault();
-        if (onFocus) {
-            onFocus(event);
-        }
+        setInputValue(value);
     };
 
     const handleOnBlur = (event: any) => {
@@ -137,22 +115,16 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
         }
     };
 
-    const handleOnClick = () => {
-        if (onClick) {
-            onClick();
-        }
-    };
-
     return (
-        <>
+        <FormTextInputContainer>
             {textLabel !== "" ? (
                 customProps && customProps.optional ? (
                     <InputWrapper>
                         <LabelWrapper>
-                            <Typography variant="caption" className={classes.inputLabelForRequired}>
+                            <Typography variant="body3" className={classes.inputLabelForRequired}>
                                 {textLabel}
                             </Typography>
-                            <Typography variant="caption" className={classes.optionalLabel}>
+                            <Typography variant="body3" className={classes.optionalLabel}>
                                 <FormattedMessage
                                     id="lowcode.develop.elements.textField.formTextInput.optional.label"
                                     defaultMessage="Optional"
@@ -164,10 +136,10 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
                 ) : (
                     <InputWrapper>
                         <LabelWrapper>
-                            <Typography variant="caption" className={classes.inputLabelForRequired}>
+                            <Typography variant="body3" className={classes.inputLabelForRequired}>
                                 {textLabel}
                             </Typography>
-                            <Typography variant="caption" className={classes.starLabelForRequired}>
+                            <Typography variant="body3" className={classes.starLabelForRequired}>
                                 *
                             </Typography>
                         </LabelWrapper>
@@ -176,11 +148,12 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
                 )
             ) : null}
             {customProps.readonly ? (
-                <Typography variant="caption" className={classes.readOnlyEditor}>
+                <Typography variant="body3" className={classes.readOnlyEditor}>
                     {inputValue}
                 </Typography>
             ) : (
                 <TextField
+                    size={80}
                     data-testid={dataTestId}
                     key={index}
                     placeholder={placeholder}
@@ -198,6 +171,12 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
                     }}
                 />
             )}
-        </>
+        </FormTextInputContainer>
     );
 }
+
+const FormTextInputContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+`;

@@ -13,14 +13,16 @@ import { ComponentPropsWithoutRef } from "react";
 export const FormContainer: React.FC<ComponentPropsWithoutRef<"div">> = styled.div`
     display: flex;
     flex-direction: column;
+    align-items: center;
     width: 600px;
-    background-color: var(--vscode-sideBar-background);
 `;
 
 export const FormWrapper: React.FC<ComponentPropsWithoutRef<"div">> = styled.div`
     width: 100%;
     display: flex;
+    flex-direction: column;
     padding: 15px 20px;
+    gap: 8px;
 `;
 
 export const FormGroup: React.FC<ComponentPropsWithoutRef<"div">> = styled.div`
@@ -36,9 +38,15 @@ export const FormControlLabel: React.FC<ComponentPropsWithoutRef<"div">> = style
 `;
 
 export const InputWrapper: React.FC<ComponentPropsWithoutRef<"div">> = styled.div`
-    margin-top: 1rem;
     display: flex;
+    width: 100%;
 `;
+
+export const InputContainer: React.FC<ComponentPropsWithoutRef<"div">> = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+`
 
 export const InputLabel: React.FC<ComponentPropsWithoutRef<"div">> = styled.div`
     color: #1d2028;
@@ -63,12 +71,13 @@ export const LabelWrapper: React.FC<ComponentPropsWithoutRef<"div">> = styled.di
 export const RecordFormWrapper: React.FC<ComponentPropsWithoutRef<"div">> = styled.div`
     width: 100%;
     max-height: 540;
-    overflow-y: scroll;
+    display: flex;
     flex-direction: row;
+    padding: 15px 20px;
 `;
 
 export const FileSelect: React.FC<ComponentPropsWithoutRef<"div">> = styled.div`
-    margin-left: "auto";
+    margin-left: auto;
     padding: 1.6px;
     & svg {
         margin: 5;
@@ -82,12 +91,12 @@ export const FileSelect: React.FC<ComponentPropsWithoutRef<"div">> = styled.div`
 export const useStyles = () => ({
     inputLabelForRequired: css({
         padding: 0,
-        color: "#1D2028",
         fontSize: 13,
         textTransform: "capitalize",
-        display: "inline-block",
-        lineHeight: "35px",
+        display: "flex",
+        alignItems: "center",
         fontWeight: 300,
+        textWrap: "nowrap"
     }),
     optionalLabel: css({
         paddingRight: "5px",

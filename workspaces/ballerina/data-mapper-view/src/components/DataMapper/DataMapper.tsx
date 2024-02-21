@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useMemo, useReducer, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 
 import { css } from "@emotion/css";
 import {
@@ -175,7 +175,7 @@ export function DataMapperC(props: DataMapperViewProps) {
         isFetching: isFetchingDMMetaData,
         isError: isErrorDMMetaData
     } = useDMMetaData(langServerRpcClient);
-    const { content, isFetching: isFetchingContent } = useFileContent(langServerRpcClient, filePath, fnST.source);
+    const { content, isFetching: isFetchingContent } = useFileContent(langServerRpcClient, filePath, fnST?.source);
 
     const targetPosition = fnST ? {
         ...fnST.position,
@@ -273,19 +273,19 @@ export function DataMapperC(props: DataMapperViewProps) {
         setShowLocalVarConfigPanel(showPanel);
     }
 
-    const recordPanel = (closeAddNewRecord: (createdNewRecord?: string) => void) => {
-        return renderRecordPanel({
-            closeAddNewRecord,
-            expressionInfo: currentEditableField,
-            langServerRpcClient,
-            libraryBrowserRpcClient,
-            applyModifications,
-            currentFile,
-            onCancelStatementEditor: cancelStatementEditor,
-            onClose: closeStatementEditor,
-            importStatements,
-            currentReferences
-        });
+    const recordPanel = (props: { targetPosition: NodePosition, closeAddNewRecord: (createdNewRecord?: string) => void}) => {
+            return renderRecordPanel({
+                closeAddNewRecord: props.closeAddNewRecord,
+                targetPosition: props.targetPosition,
+                langServerRpcClient,
+                libraryBrowserRpcClient,
+                applyModifications,
+                currentFile,
+                onCancelStatementEditor: cancelStatementEditor,
+                onClose: closeStatementEditor,
+                importStatements,
+                currentReferences
+            });
     }
 
     const referenceManager = {

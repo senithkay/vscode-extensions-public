@@ -27,7 +27,7 @@ export function RecordEditorC(props: RecordEditorCProps) {
 
     const {
         props: {
-            expressionInfo,
+            targetPosition,
             langServerRpcClient,
             libraryBrowserRpcClient,
             currentFile,
@@ -40,7 +40,7 @@ export function RecordEditorC(props: RecordEditorCProps) {
     const createModelSave = (recordString: string, pos: NodePosition) => {
         undoRedoManager.updateContent(currentFile.path, currentFile.content);
         undoRedoManager.addModification(currentFile.content);
-        applyModifications([createPropertyStatement(recordString, expressionInfo.valuePosition, false)]);
+        applyModifications([createPropertyStatement(recordString, targetPosition, false)]);
         if (isDataMapper) {
             onCancel(recordString);
         }
@@ -49,7 +49,7 @@ export function RecordEditorC(props: RecordEditorCProps) {
     const stmtEditorComponent = StatementEditorWrapper({
         formArgs: {
             formArgs: {
-                targetPosition: expressionInfo.valuePosition,
+                targetPosition: model ? targetPosition : { startLine: targetPosition.startLine, startColumn: targetPosition.startColumn },
             },
         },
         config: {
@@ -61,8 +61,8 @@ export function RecordEditorC(props: RecordEditorCProps) {
         stSymbolInfo: null,
         langServerRpcClient: langServerRpcClient,
         libraryBrowserRpcClient: libraryBrowserRpcClient,
-        label: expressionInfo.label,
-        initialSource: expressionInfo.value,
+        label: 'Record',
+        initialSource: model?.source,
         applyModifications,
         currentFile: {
             ...currentFile,
@@ -85,7 +85,6 @@ export function RecordEditorC(props: RecordEditorCProps) {
                 <CreateRecord
                     onCancel={onCancel}
                     onSave={createModelSave}
-                    targetPosition={expressionInfo.valuePosition}
                     isDataMapper={isDataMapper}
                     undoRedoManager={undoRedoManager}
                     showHeader={showHeader}

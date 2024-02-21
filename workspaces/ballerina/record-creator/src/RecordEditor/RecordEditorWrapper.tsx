@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo } from "react";
 import { Context } from "../Context";
-import { useBallerinaVersion, useFullST } from "../Hooks";
+import { useBallerinaProjectComponent, useBallerinaVersion, useFullST } from "../Hooks";
 import { RecordEditorC } from "./RecordEditorC";
 import { RecordEditorProps } from ".";
 
@@ -19,7 +19,7 @@ export function RecordEditorWrapper(props: RecordEditorProps) {
         isDataMapper,
         onCancel,
         showHeader,
-        expressionInfo,
+        targetPosition,
         langServerRpcClient,
         libraryBrowserRpcClient,
         recordCreatorRpcClient,
@@ -30,25 +30,19 @@ export function RecordEditorWrapper(props: RecordEditorProps) {
         importStatements,
         currentReferences,
     } = props;
-    const {
-        ballerinaVersion,
-        isFetching: isFetchingBallerinaVersion,
-        isError: isErrorBallerinaVersion,
-    } = useBallerinaVersion(langServerRpcClient);
-    const {
-        fullST,
-        isFetching: isFetchingFullST,
-        isError: isErrorFullST,
-    } = useFullST(currentFile.path, langServerRpcClient);
+    const { ballerinaVersion, isFetching: isFetchingBallerinaVersion } = useBallerinaVersion(langServerRpcClient);
+    const { fullST, isFetching: isFetchingFullST } = useFullST(currentFile.path, langServerRpcClient);
+    const { ballerinaProjectComponents, isFetching: isFetchingBallerinaProjectComponents } =
+        useBallerinaProjectComponent(currentFile.path, langServerRpcClient);
 
     const contextValue = useMemo(() => {
-        if (isFetchingBallerinaVersion || isFetchingFullST) {
+        if (isFetchingBallerinaVersion || isFetchingFullST || isFetchingBallerinaProjectComponents) {
             return undefined;
         }
 
         return {
             props: {
-                expressionInfo,
+                targetPosition,
                 langServerRpcClient,
                 libraryBrowserRpcClient,
                 recordCreatorRpcClient,
@@ -57,6 +51,7 @@ export function RecordEditorWrapper(props: RecordEditorProps) {
                 currentReferences,
                 ballerinaVersion,
                 fullST,
+                ballerinaProjectComponents,
             },
             api: {
                 applyModifications,
@@ -64,11 +59,11 @@ export function RecordEditorWrapper(props: RecordEditorProps) {
                 onClose,
             },
         };
-    }, [isFetchingBallerinaVersion, isFetchingFullST]);
+    }, [isFetchingBallerinaVersion, isFetchingFullST, isFetchingBallerinaProjectComponents]);
 
     return (
         <Context.Provider value={contextValue}>
-            {!isFetchingBallerinaVersion && !isErrorBallerinaVersion && !isFetchingFullST && !isErrorFullST && (
+            {contextValue && (
                 <RecordEditorC model={model} isDataMapper={isDataMapper} onCancel={onCancel} showHeader={showHeader} />
             )}
         </Context.Provider>

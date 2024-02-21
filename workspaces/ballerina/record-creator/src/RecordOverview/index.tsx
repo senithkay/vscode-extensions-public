@@ -44,17 +44,10 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
 
     const {
         props: {
-            expressionInfo,
-            langServerRpcClient,
-            libraryBrowserRpcClient,
             currentFile,
-            importStatements,
-            currentReferences,
             fullST,
-            ballerinaVersion,
-            recordCreatorRpcClient,
         },
-        api: { applyModifications, onCancelStatementEditor, onClose },
+        api: { applyModifications },
     } = useContext(Context);
 
     const intl = useIntl();

@@ -29,7 +29,7 @@ import { UndoRedoManager } from "../components/UndoRedoManager";
 import { checkDiagnostics, getUpdatedSource } from "../components/FormComponents/Utils";
 import { RecordOverview } from "../RecordOverview";
 import { Context } from "../Context";
-import { FileSelect, FormContainer, FormWrapper, InputWrapper, LabelWrapper, useStyles } from "../style";
+import { FileSelect, FormContainer, FormWrapper, InputContainer, InputWrapper, LabelWrapper, useStyles } from "../style";
 import { Typography } from "@wso2-enterprise/ui-toolkit";
 import { FormTextInput } from "../components/FormComponents/FormFieldComponents/TextField/FormTextInput";
 import { FormHeaderSection } from "../components/FormComponents/FormFieldComponents/FormHeader/FormHeaderSection";
@@ -122,7 +122,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
             type: "recordNameChange",
             payload: {
                 recordName: event.target.value,
-                recordNameDiag: filteredDiagnostics ? filteredDiagnostics[0].message : "",
+                recordNameDiag: filteredDiagnostics && filteredDiagnostics.length ? filteredDiagnostics[0].message : "",
             },
         });
     };
@@ -267,27 +267,26 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                             onBlur={onNameOutFocus}
                             onChange={debouncedNameChanged}
                         />
-                        <InputWrapper>
-                            <LabelWrapper>
-                                <Typography variant="caption" className={classes.inputLabelForRequired}>
-                                    Sample JSON
-                                </Typography>
-                            </LabelWrapper>
-                            <FileSelect>
-                                <FileSelector label="Select JSON file" extension="json" onReadFile={onJsonChange} />
-                            </FileSelect>
-                        </InputWrapper>
-                        <FormTextArea
-                            rowsMax={5.1}
-                            data-TestId="json-input"
-                            placeholder={`eg: {"organization": "wso2", "address": "Colombo"}`}
-                            onChange={onJsonChange}
-                            customProps={{
-                                isInvalid: formState.jsonDiagnostics !== "",
-                                text: formState.jsonDiagnostics,
-                            }}
-                            defaultValue={formState.jsonValue}
-                        />
+                        <InputContainer>
+                            <InputWrapper>
+                                    <Typography variant="body3" className={classes.inputLabelForRequired}>
+                                        Sample JSON
+                                    </Typography>
+                                <FileSelect>
+                                    <FileSelector label="Select JSON file" extension="json" onReadFile={onJsonChange} />
+                                </FileSelect>
+                            </InputWrapper>
+                            <FormTextArea
+                                data-TestId="json-input"
+                                placeholder={`eg: {"organization": "wso2", "address": "Colombo"}`}
+                                onChange={onJsonChange}
+                                customProps={{
+                                    isInvalid: formState.jsonDiagnostics !== "",
+                                    text: formState.jsonDiagnostics,
+                                }}
+                                defaultValue={formState.jsonValue}
+                            />
+                        </InputContainer>
                         {formState.isLoading && <TextPreloaderVertical position="absolute" />}
                         <CheckBoxGroup
                             values={["Make Separate Record Definitions"]}

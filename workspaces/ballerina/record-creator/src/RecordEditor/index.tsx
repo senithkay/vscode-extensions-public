@@ -15,6 +15,8 @@ import { StatementEditorComponentProps } from "../types";
 import { RecordCreatorRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RecordEditorWrapper } from "./RecordEditorWrapper";
+import { IntlProvider } from "react-intl";
+import messages from "../lang/en.json";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -44,7 +46,7 @@ export function RecordEditor(props: RecordEditorProps) {
         isDataMapper,
         onCancel,
         showHeader,
-        expressionInfo,
+        targetPosition,
         langServerRpcClient,
         libraryBrowserRpcClient,
         recordCreatorRpcClient,
@@ -58,22 +60,24 @@ export function RecordEditor(props: RecordEditorProps) {
 
     return (
         <QueryClientProvider client={queryClient}>
-            <RecordEditorWrapper
-                model={model}
-                isDataMapper={isDataMapper}
-                onCancel={onCancel}
-                showHeader={showHeader}
-                expressionInfo={expressionInfo}
-                langServerRpcClient={langServerRpcClient}
-                libraryBrowserRpcClient={libraryBrowserRpcClient}
-                recordCreatorRpcClient={recordCreatorRpcClient}
-                currentFile={currentFile}
-                applyModifications={applyModifications}
-                onCancelStatementEditor={onCancelStatementEditor}
-                onClose={onClose}
-                importStatements={importStatements}
-                currentReferences={currentReferences}
-            />
+            <IntlProvider locale="en" defaultLocale="en" messages={messages}>
+                <RecordEditorWrapper
+                    model={model}
+                    isDataMapper={isDataMapper}
+                    onCancel={onCancel}
+                    showHeader={showHeader}
+                    targetPosition={targetPosition}
+                    langServerRpcClient={langServerRpcClient}
+                    libraryBrowserRpcClient={libraryBrowserRpcClient}
+                    recordCreatorRpcClient={recordCreatorRpcClient}
+                    currentFile={currentFile}
+                    applyModifications={applyModifications}
+                    onCancelStatementEditor={onCancelStatementEditor}
+                    onClose={onClose}
+                    importStatements={importStatements}
+                    currentReferences={currentReferences}
+                />
+            </IntlProvider>
         </QueryClientProvider>
     );
 }

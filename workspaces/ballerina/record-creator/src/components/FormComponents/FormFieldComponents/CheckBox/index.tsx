@@ -15,23 +15,21 @@ import { cx } from "@emotion/css";
 import { FormContainer } from "../../../../style";
 import { Typography } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeRadio, VSCodeRadioGroup } from "@vscode/webview-ui-toolkit/react";
+import styled from "@emotion/styled";
 
 interface CheckBoxGroupProps {
     label?: string;
     defaultValues?: string[];
     values: string[];
     onChange?: (values: string[]) => void;
-    className?: string;
-    checkOptional?: boolean;
     disabled?: boolean;
-    withMargins?: boolean;
     testId?: string;
     checkBoxLabel?: ReactNode;
     checkBoxTestId?: string;
 }
 
 export function CheckBoxGroup(props: CheckBoxGroupProps) {
-    const { values, className, onChange, label, defaultValues, checkOptional, withMargins = true, testId } = props;
+    const { values, onChange, label, defaultValues, testId } = props;
     const classes = useStyles();
     const [selected, setSelected] = React.useState(defaultValues);
 
@@ -39,11 +37,13 @@ export function CheckBoxGroup(props: CheckBoxGroupProps) {
         setSelected(defaultValues);
     }, [defaultValues]);
 
-    const handleChange = (value: string, checked: boolean) => {
+    const handleChange = (e: React.SyntheticEvent) => {
+        const target = e.target as HTMLInputElement;
+        const value = target.name;
         let newSelected = selected;
-        if (checked && !selected.includes(value)) {
+        if (!selected.includes(value)) {
             newSelected = [...selected, value];
-        } else if (!checked && selected.includes(value)) {
+        } else if (selected.includes(value)) {
             newSelected = [...selected.filter((e) => e !== value)];
         }
         if (onChange) {
@@ -52,38 +52,38 @@ export function CheckBoxGroup(props: CheckBoxGroupProps) {
         setSelected(newSelected);
     };
 
-    const error = checkOptional === undefined ? selected.length === 0 : checkOptional;
-
     return (
-        <div className={className}>
-            <FormContainer className={withMargins && classes.checkFormControl}>
-                {label !== undefined ? (
-                    <div className={cx(classes.labelWrapper, "labelWrapper")}>
-                        <Typography variant="caption" className={classes.inputLabelForRequired}>
-                            {label}
-                        </Typography>
-                        <Typography variant="caption" className={classes.starLabelForRequired}>
-                            *
-                        </Typography>
-                    </div>
-                ) : null}
+        <CheckBoxContainer>
+            {label !== undefined ? (
+                <div className={cx(classes.labelWrapper, "labelWrapper")}>
+                    <Typography variant="body3" className={classes.inputLabelForRequired}>
+                        {label}
+                    </Typography>
+                    <Typography variant="body3" className={classes.starLabelForRequired}>
+                        *
+                    </Typography>
+                </div>
+            ) : null}
 
-                <VSCodeRadioGroup orientation="vertical">
-                    {values.map((val) => (
-                        <VSCodeRadio
-                            checked={selected.includes(val)}
-                            onClick={(e) =>
-                                handleChange(
-                                    (e.target as HTMLInputElement).name,
-                                    (e.target as HTMLInputElement).checked
-                                )
-                            }
-                            data-testid={testId}
-                            key={val}
-                        ></VSCodeRadio>
-                    ))}
-                </VSCodeRadioGroup>
-            </FormContainer>
-        </div>
+            <VSCodeRadioGroup orientation="vertical" style={{ marginRight: "auto" }}>
+                {values.map((val) => (
+                    <VSCodeRadio
+                        checked={selected.includes(val)}
+                        onClick={handleChange}
+                        data-testid={testId}
+                        key={val}
+                        value={val}
+                        name={val}
+                    >
+                        {val}
+                    </VSCodeRadio>
+                ))}
+            </VSCodeRadioGroup>
+        </CheckBoxContainer>
     );
 }
+
+const CheckBoxContainer = styled.div`
+    display: flex;
+    width: 100%;
+`;
