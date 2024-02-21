@@ -140,7 +140,7 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
     const handleOnDelete = () => {
         rpcClient.getMiDiagramRpcClient().applyEdit({
             documentUri: node.documentUri,
-            range: node.stNode.range,
+            range: { start: node.stNode.range.startTagRange.start, end: node.stNode.range.endTagRange.end },
             text: "",
         });
     };

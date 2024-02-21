@@ -10,7 +10,7 @@
 import { LinkModel, NodeModel, NodeModelGenerics, PortModel } from '@projectstorm/react-diagrams';
 import { MediatorBaseLinkModel as BaseLinkModel } from '../base-link/base-link';
 import { DiagramEngine, NodeProps } from "@projectstorm/react-diagrams-core";
-import { STNode, Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { STNode, Range, TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 export interface BaseNodeProps extends NodeProps {
     node: BaseNodeModel;
@@ -31,7 +31,7 @@ export class BaseNodeModel extends NodeModel<NodeModelGenerics> {
     private readonly documentUri: string;
     private readonly sequenceType: SequenceType;
     private readonly dropSequence: boolean;
-    private nodeRange: Range;
+    private nodeRange: TagRange;
 
     constructor(type: string, id: string, documentUri: string, sequenceType: SequenceType, node?: STNode, parentNode?: STNode, dropSequence?: boolean) {
         super({
@@ -88,11 +88,11 @@ export class BaseNodeModel extends NodeModel<NodeModelGenerics> {
         return this.node;
     }
 
-    getNodeRange(): Range {
+    getNodeRange(): TagRange {
         return this.nodeRange;
     }
 
-    setNodeRange(range: Range) {
+    setNodeRange(range: TagRange) {
         this.nodeRange = range;
     }
 
