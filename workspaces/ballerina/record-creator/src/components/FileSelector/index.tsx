@@ -43,10 +43,16 @@ export function FileSelector(props: FileSelectorProps) {
         <React.Fragment>
             <input hidden={true} accept={`.${extension}`} type="file" onChange={showFile} ref={hiddenFileInput} />
             <Button onClick={handleClick} appearance="icon">
-                <Icon name="file-upload" sx={{ width: "16px", marginRight: "4px" }} iconSx={{ fontSize: "16px" }} />
-                <Typography variant="body3">{`Upload ${extension.toUpperCase()} File`}</Typography>
+                <Icon
+                    name="file-upload"
+                    sx={{ width: "16px", marginRight: "4px" }}
+                    iconSx={{ fontSize: "16px", color: "var(--vscode-charts-purple)" }}
+                />
+                <Typography
+                    variant="body3"
+                    sx={{ color: "var(--vscode-charts-purple)" }}
+                >{`Upload ${extension.toUpperCase()} File`}</Typography>
             </Button>
         </React.Fragment>
     );
 }
-

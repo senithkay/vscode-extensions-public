@@ -43,7 +43,12 @@ export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
             )}
             <RecordFormWrapper>
                 <CreateButtonWrapper>
-                    <LinePrimaryButton onClick={onImportFromJson} data-test-id="import-json">
+                    <LinePrimaryButton
+                        appearance="icon"
+                        sx={{ backgroundColor: "var(--vscode-button-hoverBackground)" }}
+                        onClick={onImportFromJson}
+                        data-test-id="import-json"
+                    >
                         <Icon
                             sx={{ width: "16px", marginRight: "4px" }}
                             iconSx={{ fontSize: "16px" }}
@@ -53,6 +58,8 @@ export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
                     </LinePrimaryButton>
 
                     <LinePrimaryButton
+                        appearance="icon"
+                        sx={{ backgroundColor: "var(--vscode-button-hoverBackground)" }}
                         onClick={onImportFromXml}
                         data-test-id="import-xml"
                         disabled={onImportFromXml === null}
