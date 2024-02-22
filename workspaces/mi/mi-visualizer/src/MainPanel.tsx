@@ -11,6 +11,7 @@ import { ProjectWizard } from './views/Forms/ProjectForm';
 import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
+import { InboundEPWizard } from './views/Forms/InboundEPform';
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -87,6 +88,9 @@ const MainPanel = (props: { state: MachineStateValue }) => {
                 break;
             case "SequenceForm":
                 setComponent(<SequenceWizard />);
+                break;
+            case "InboundEPForm":
+                setComponent(<InboundEPWizard />);
                 break;
             case "ProjectCreationForm":
                 setComponent(<ProjectWizard />);
