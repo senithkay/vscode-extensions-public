@@ -55,7 +55,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 d={link.getSVGPath()}
                 fill={"none"}
                 stroke={link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY}
-                strokeWidth={2}
+                strokeWidth={1.5}
                 strokeDasharray={link.brokenLine ? "5,5" : "0"}
                 markerEnd={link.showArrowToNode() && `url(#${link.getID()}-arrow-head)`}
             />
@@ -74,7 +74,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                                 justifyContent: "center",
                                 alignItems: "center",
                                 borderRadius: "20px",
-                                border: `2px solid ${
+                                border: `1.5px solid ${
                                     link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY
                                 }`,
                                 backgroundColor: `${Colors.SURFACE_BRIGHT}`,

@@ -28,7 +28,7 @@ namespace S {
         align-items: center;
         min-width: ${NODE_WIDTH}px;
         min-height: ${NODE_HEIGHT}px;
-        padding: 6px;
+        padding: 0 8px;
         border: 1.5px solid
             ${(props: NodeStyleProp) =>
                 props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
@@ -44,12 +44,11 @@ namespace S {
         justify-content: center;
         align-items: center;
         width: 100%;
-        padding: 0 0 2px 0;
+        padding: 8px;
         border-bottom: 1px solid ${Colors.OUTLINE_VARIANT};
     `;
 
     export const StyledButton = styled(Button)`
-        background-color: ${Colors.SURFACE};
         border-radius: 5px;
         position: absolute;
         right: 6px;
@@ -63,11 +62,16 @@ namespace S {
         margin-bottom: -3px;
     `;
 
-    export const NodeText = styled.div`
+    export const StyledText = styled.div`
+        font-size: 14px;
+    `;
+
+    export const Title = styled(StyledText)`
         max-width: ${NODE_WIDTH - 50}px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        font-family: "GilmerMedium";
     `;
 
     export const Body = styled.div`
@@ -76,7 +80,7 @@ namespace S {
         justify-content: center;
         align-items: center;
         width: 100%;
-        padding: 4px 0;
+        padding: 8px;
     `;
 
     export const Row = styled.div`
@@ -111,20 +115,18 @@ export function BaseNodeWidget(props: CallNodeWidgetProps) {
         >
             <S.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <S.Header>
-                <S.NodeText>{model.node.label || model.node.kind}</S.NodeText>
-                {isHovered && (
-                    <S.StyledButton appearance="icon" onClick={handleOnClick}>
-                        <MoreVertIcon />
-                    </S.StyledButton>
-                )}
+                <S.Title>{model.node.label || model.node.kind}</S.Title>
+                <S.StyledButton appearance="icon" onClick={handleOnClick}>
+                    <MoreVertIcon />
+                </S.StyledButton>
             </S.Header>
             <S.Body>
                 <S.Row>
-                    <S.NodeText>Condition </S.NodeText>
+                    <S.StyledText>Condition </S.StyledText>
                     <TextField value="" />
                 </S.Row>
                 <S.Row>
-                    <S.NodeText>Name </S.NodeText>
+                    <S.StyledText>Name </S.StyledText>
                     <TextField value="Hello" />
                 </S.Row>
             </S.Body>

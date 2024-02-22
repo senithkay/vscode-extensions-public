@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -11,6 +11,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { css, Global } from "@emotion/react";
 import { Colors } from "../resources/constants";
+import './../resources/assets/font/fonts.css';
 
 export interface DiagramCanvasProps {
     color?: string;
@@ -33,6 +34,7 @@ namespace S {
         background-image: radial-gradient(${Colors.SURFACE_CONTAINER} 10%, transparent 0px);
         background-size: 16px 16px;
         background-color: ${Colors.SURFACE_BRIGHT};
+        font-family: "GilmerRegular";
     `;
 
     export const Expand = css`
