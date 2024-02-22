@@ -2,18 +2,17 @@
 import { ExtendedLangClient, ballerinaExtInstance } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EventType, GetSyntaxTreeResponse, HistoryEntry, MachineStateValue, MachineViews, STByRangeRequest, SyntaxTreeResponse, VisualizerLocation, webviewReady } from "@wso2-enterprise/ballerina-core";
+import { EventType, GetSyntaxTreeResponse, History, HistoryEntry, MachineStateValue, MachineViews, STByRangeRequest, SyntaxTreeResponse, VisualizerLocation, webviewReady } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './library-browser';
 import { VisualizerWebview } from './visualizer/webview';
 import { Uri } from 'vscode';
 import { STKindChecker, traversNode } from '@wso2-enterprise/syntax-tree';
 import { RPCLayer } from './RPCLayer';
-import { history } from './history';
-import { UIDGenerationVisitor } from './history/utils/visitors/uid-generation-visitor';
-import { FindNodeByUidVisitor } from './history/utils/visitors/find-node-by-uid';
-import { FindConstructByNameVisitor } from './history/utils/visitors/find-construct-by-name-visitor';
-import { FindConstructByIndexVisitor } from './history/utils/visitors/find-construct-by-index-visitor';
-import { getConstructBodyString } from './history/utils/visitors/util';
+import { UIDGenerationVisitor } from './history/uid-generation-visitor';
+import { FindNodeByUidVisitor } from './history/find-node-by-uid';
+import { FindConstructByNameVisitor } from './history/find-construct-by-name-visitor';
+import { FindConstructByIndexVisitor } from './history/find-construct-by-index-visitor';
+import { getConstructBodyString } from './history/util';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -23,6 +22,8 @@ interface MachineContext extends VisualizerLocation {
 type ViewFlow = {
     [key in MachineViews]: MachineViews[];
 };
+
+export let history: History;
 
 const viewFlow: ViewFlow = {
     Overview: [],
@@ -126,15 +127,6 @@ const stateMachine = createMachine<MachineContext>(
                                     identifier: (context, event) => event.viewLocation.identifier
                                 })
                             },
-                            GO_BACK: {
-                                target: "updatedHistory",
-                                actions: assign({
-                                    documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
-                                    position: (context, event) => event.viewLocation.position,
-                                    view: (context, event) => event.viewLocation.view,
-                                    identifier: (context, event) => event.viewLocation.identifier
-                                })
-                            },
                             NAVIGATE: {
                                 target: "updatedHistory",
                                 actions: assign({
@@ -188,6 +180,7 @@ const stateMachine = createMachine<MachineContext>(
                 if (!VisualizerWebview.currentPanel) {
                     VisualizerWebview.currentPanel = new VisualizerWebview();
                     RPCLayer._messenger.onNotification(webviewReady, () => {
+                        history = new History();
                         resolve(true);
                     });
                 } else {
@@ -420,12 +413,6 @@ export const StateMachine = {
 
 export function openView(type: "OPEN_VIEW" | "FILE_EDIT" | "EDIT_DONE", viewLocation: VisualizerLocation) {
     stateService.send({ type: type, viewLocation: viewLocation });
-}
-
-export function goBackOneView() {
-    const historyStack = history.get();
-    const lastView = historyStack[historyStack.length - 1];
-    stateService.send({ type: "GO_BACK", viewLocation: lastView ? lastView.location : { view: "Overview" } });
 }
 
 export function navigate() {

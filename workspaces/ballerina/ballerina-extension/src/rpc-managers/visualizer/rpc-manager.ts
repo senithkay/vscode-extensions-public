@@ -13,8 +13,7 @@ import {
     VisualizerAPI,
     VisualizerLocation
 } from "@wso2-enterprise/ballerina-core";
-import { history } from "../../history";
-import { navigate, openView } from "../../stateMachine";
+import { history, navigate, openView } from "../../stateMachine";
 
 export class VisualizerRpcManager implements VisualizerAPI {
 

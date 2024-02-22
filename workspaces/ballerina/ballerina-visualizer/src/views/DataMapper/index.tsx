@@ -14,6 +14,7 @@ import { SyntaxTreeResponse, STModification, NodePosition, HistoryEntry } from "
 import { useSyntaxTreeFromRange } from "../../Hooks";
 import { FunctionDefinition, ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { URI } from "vscode-uri";
+import { LoadingRing } from "../../components/Loader";
 
 interface DataMapperProps {
     filePath: string;
@@ -82,7 +83,7 @@ export function DataMapper(props: DataMapperProps) {
 
     const view = useMemo(() => {
         if (!mapperData) {
-            return <div>DM Loading...</div>;
+            return <LoadingRing />;
         }
         return (
             <DataMapperView
