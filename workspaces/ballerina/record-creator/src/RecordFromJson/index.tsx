@@ -47,7 +47,6 @@ interface RecordState {
 }
 
 interface RecordFromJsonProps {
-    targetPosition?: NodePosition;
     undoRedoManager?: UndoRedoManager;
     onSave: (recordString: string, modifiedPosition: NodePosition) => void;
     onCancel: () => void;
@@ -86,10 +85,10 @@ const reducer = (state: RecordState, action: { type: string; payload: any }) => 
 
 export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
     const classes = useStyles();
-    const { targetPosition, isHeaderHidden, undoRedoManager, onSave, onCancel } = recordFromJsonProps;
+    const { isHeaderHidden, undoRedoManager, onSave, onCancel } = recordFromJsonProps;
 
     const {
-        props: { langServerRpcClient, recordCreatorRpcClient, currentFile, fullST },
+        props: { langServerRpcClient, recordCreatorRpcClient, currentFile, fullST, targetPosition },
     } = useContext(Context);
 
     const [formState, dispatchFromState] = useReducer(reducer, {

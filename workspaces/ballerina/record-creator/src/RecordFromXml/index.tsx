@@ -44,7 +44,6 @@ interface RecordState {
 }
 
 interface RecordFromXmlProps {
-    targetPosition?: NodePosition;
     undoRedoManager?: UndoRedoManager;
     onSave: (recordString: string, modifiedPosition: NodePosition) => void;
     onCancel: () => void;
@@ -77,10 +76,10 @@ const reducer = (state: RecordState, action: { type: string; payload: any }) => 
 
 export function RecordFromXml(recordFromXmlProps: RecordFromXmlProps) {
     const classes = useStyles();
-    const { targetPosition, isHeaderHidden, undoRedoManager, onSave, onCancel } = recordFromXmlProps;
+    const { isHeaderHidden, undoRedoManager, onSave, onCancel } = recordFromXmlProps;
 
     const {
-        props: { langServerRpcClient, recordCreatorRpcClient, currentFile, fullST },
+        props: { langServerRpcClient, recordCreatorRpcClient, targetPosition, fullST },
     } = useContext(Context);
 
     const [formState, dispatchFromState] = useReducer(reducer, {

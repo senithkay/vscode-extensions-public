@@ -78,7 +78,6 @@ export function CreateRecord(props: CreateRecordProps) {
                 {editorState === ConfigState.IMPORT_FROM_JSON && (
                     <RecordFromJson
                         undoRedoManager={undoRedoManager}
-                        targetPosition={targetPosition}
                         onCancel={onCancel}
                         onSave={handleImportJsonSave}
                         isHeaderHidden={showHeader ? false : isDataMapper}
@@ -87,7 +86,6 @@ export function CreateRecord(props: CreateRecordProps) {
                 {editorState === ConfigState.IMPORT_FROM_XML && (
                     <RecordFromXml
                         undoRedoManager={undoRedoManager}
-                        targetPosition={targetPosition}
                         onCancel={onCancel}
                         onSave={handleImportXmlSave}
                         isHeaderHidden={showHeader ? false : isDataMapper}
