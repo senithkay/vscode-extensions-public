@@ -20,7 +20,7 @@
   targetNamespace="http://www.wso2.org/products/wso2commons/throttle"
   xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:import namespace="http://schemas.xmlsoap.org/ws/2004/09/policy"
-    schemaLocation="https://schemas.xmlsoap.org/ws/2004/09/policy/ws-policy.xsd" />
+    schemaLocation="./ws-policy.xsd" />
 
   <xs:element name="Allow" type="xs:string" />
   <xs:element name="ID">
