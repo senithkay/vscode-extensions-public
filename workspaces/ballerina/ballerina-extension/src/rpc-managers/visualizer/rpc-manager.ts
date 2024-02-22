@@ -10,9 +10,9 @@
  */
 import {
     HistoryEntry,
-    UndoRedoManager,
+    UpdateUndoRedoMangerRequest,
     VisualizerAPI,
-    VisualizerLocation,
+    VisualizerLocation
 } from "@wso2-enterprise/ballerina-core";
 import { history, navigate, openView, undoRedoManager } from "../../stateMachine";
 
@@ -49,7 +49,23 @@ export class VisualizerRpcManager implements VisualizerAPI {
         navigate();
     }
 
-    async getUndoRedoManager(): Promise<UndoRedoManager> {
-        return undoRedoManager;
+    async undo(): Promise<string> {
+        const urMan = undoRedoManager;
+        const undoRes = urMan.undo();
+        return undoRes;
+    }
+
+    async redo(): Promise<string> {
+        const urMan = undoRedoManager;
+        const redoRes = urMan.redo();
+        return redoRes;
+    }
+
+    addToUndoStack(source: string): void {
+        undoRedoManager.addModification(source);
+    }
+
+    updateUndoRedoManager(params: UpdateUndoRedoMangerRequest): void {
+        undoRedoManager.updateContent(params.filePath, params.fileContent);
     }
 }

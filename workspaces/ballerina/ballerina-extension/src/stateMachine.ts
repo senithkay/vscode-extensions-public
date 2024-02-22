@@ -381,6 +381,7 @@ const stateMachine = createMachine<MachineContext>(
                             });
                         }
                     }
+                    undoRedoManager.updateContent(documentUri, node?.syntaxTree?.source);
                 }
                 const updatedHistory = history.get();
                 resolve(updatedHistory[updatedHistory.length - 1].location);
