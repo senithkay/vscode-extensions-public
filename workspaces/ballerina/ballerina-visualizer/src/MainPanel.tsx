@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { MachineStateValue, MachineViews, VisualizerLocation } from '@wso2-enterprise/ballerina-core';
+import { KeyboardNavigationManager, MachineStateValue, MachineViews, VisualizerLocation } from '@wso2-enterprise/ballerina-core';
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 /** @jsx jsx */
 import { Global, css } from '@emotion/react';
@@ -62,6 +62,35 @@ const MainPanel = () => {
 
     useEffect(() => {
         fetchContext();
+    }, []);
+
+    useEffect(() => {
+        const mouseTrapClient = KeyboardNavigationManager.getClient();
+        mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], async () => {
+            const undoRedoManager = await rpcClient.getVisualizerRpcClient().getUndoRedoManager();
+            const lastsource = undoRedoManager.undo();
+            if (lastsource) {
+                rpcClient.getLangServerRpcClient().updateFileContent({
+                    fileUri: visualizerLocation.documentUri,
+                    content: lastsource
+                });
+            }
+        });
+
+        mouseTrapClient.bindNewKey(['command+shift+z', 'ctrl+y'], async () => {
+            const undoRedoManager = await rpcClient.getVisualizerRpcClient().getUndoRedoManager();
+            const lastsource = undoRedoManager.redo();
+            if (lastsource) {
+                rpcClient.getLangServerRpcClient().updateFileContent({
+                    fileUri: visualizerLocation.documentUri,
+                    content: lastsource
+                });
+            }
+        });
+
+        return () => {
+            mouseTrapClient.resetMouseTrapInstance();
+        }
     }, []);
 
     const viewComponent = useMemo(() => {
