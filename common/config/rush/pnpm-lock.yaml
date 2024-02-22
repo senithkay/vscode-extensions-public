@@ -2544,15 +2544,9 @@ importers:
       '@projectstorm/react-diagrams-defaults': ^6.7.4
       '@projectstorm/react-diagrams-routing': ^6.7.4
       '@storybook/react': ^6.3.7
-      '@types/lodash': ~4.14.202
-      '@types/mustache': ~4.2.5
       '@types/react': ^17.0.14
       '@types/react-dom': ^17.0.9
-      '@typescript-eslint/eslint-plugin': ~7.0.2
-      '@vscode/webview-ui-toolkit': ~1.4.0
       '@wso2-enterprise/ui-toolkit': workspace:*
-      lodash: ~4.17.21
-      mustache: ~4.2.0
       react: ~18.2.0
       react-dom: ~18.2.0
       typescript: ^4.3.5
@@ -2560,24 +2554,18 @@ importers:
       '@emotion/react': 11.11.3_ujupp4aqvz5yjxfmu635blrdgm
       '@emotion/styled': 11.11.0_a5ezjtzmbjq2agin6it3jktdwe
       '@projectstorm/geometry': 6.7.4
-      '@projectstorm/react-canvas-core': 6.7.4_zrp62gez7omnrwllyfdlincg3a
-      '@projectstorm/react-diagrams': 6.7.4_fsljbzwwjspvry7b3zix5agdhy
-      '@projectstorm/react-diagrams-core': 6.7.4_zrp62gez7omnrwllyfdlincg3a
-      '@projectstorm/react-diagrams-defaults': 6.7.4_fsljbzwwjspvry7b3zix5agdhy
-      '@projectstorm/react-diagrams-routing': 6.7.4_fsljbzwwjspvry7b3zix5agdhy
-      '@types/lodash': 4.14.202
-      '@types/mustache': 4.2.5
-      '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
+      '@projectstorm/react-canvas-core': 6.7.4_react@18.2.0
+      '@projectstorm/react-diagrams': 6.7.4_2jbui5nro4tb6hwabdsx6ymml4
+      '@projectstorm/react-diagrams-core': 6.7.4_react@18.2.0
+      '@projectstorm/react-diagrams-defaults': 6.7.4_2jbui5nro4tb6hwabdsx6ymml4
+      '@projectstorm/react-diagrams-routing': 6.7.4_2jbui5nro4tb6hwabdsx6ymml4
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
-      lodash: 4.17.21
-      mustache: 4.2.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
       '@storybook/react': 6.5.16_ygqkwb4gg3aean7xjfdauovyqq
       '@types/react': 17.0.75
       '@types/react-dom': 17.0.14
-      '@typescript-eslint/eslint-plugin': 7.0.2_typescript@4.9.5
       typescript: 4.9.5
 
   ../../workspaces/eggplant/eggplant-extension:
@@ -8065,6 +8053,16 @@ packages:
       lodash: 4.17.21
     dev: false
 
+  /@projectstorm/react-canvas-core/6.7.4_react@18.2.0:
+    resolution: {integrity: sha512-sY32kT//gQe5aw6RHkmKrbzBq9iWyfwyvvfRTplGPE1ll3zOBVCjbf3tdfw6vATCden+WR0TmirtBo2j3exiBg==}
+    peerDependencies:
+      lodash: 4.*
+      react: 16.* || 17.*
+    dependencies:
+      '@projectstorm/geometry': 6.7.4
+      react: 18.2.0
+    dev: false
+
   /@projectstorm/react-canvas-core/6.7.4_vcdvlsazmnbhnp7yjvhccw67ha:
     resolution: {integrity: sha512-sY32kT//gQe5aw6RHkmKrbzBq9iWyfwyvvfRTplGPE1ll3zOBVCjbf3tdfw6vATCden+WR0TmirtBo2j3exiBg==}
     peerDependencies:
@@ -8127,7 +8125,7 @@ packages:
       resize-observer-polyfill: 1.5.1
     dev: false
 
-  /@projectstorm/react-diagrams-core/6.7.4_zrp62gez7omnrwllyfdlincg3a:
+  /@projectstorm/react-diagrams-core/6.7.4_react@18.2.0:
     resolution: {integrity: sha512-AeqH1u58Ugk8mif/GgLEUeOMmTPaWDpl1isA1OJHCPGMbvAytRfv5mrGMvG2E+pYDB29BQ4Yo2z9/TbAy6/nvA==}
     peerDependencies:
       lodash: 4.*
@@ -8135,9 +8133,24 @@ packages:
       resize-observer-polyfill: ^1.5.1
     dependencies:
       '@projectstorm/geometry': 6.7.4
-      '@projectstorm/react-canvas-core': 6.7.4_zrp62gez7omnrwllyfdlincg3a
-      lodash: 4.17.21
+      '@projectstorm/react-canvas-core': 6.7.4_react@18.2.0
       react: 18.2.0
+    dev: false
+
+  /@projectstorm/react-diagrams-defaults/6.7.4_2jbui5nro4tb6hwabdsx6ymml4:
+    resolution: {integrity: sha512-j3pRlZq1Z5yIGKpI7VtVkvNK/kXKB2abNMVXTSLUECA4iRubPKDn08w6q4jg1nBZXLGidrHsrELqW+53G9VvLA==}
+    peerDependencies:
+      '@emotion/react': ^11.*
+      '@emotion/styled': ^11.*
+      lodash: 4.*
+      react: 18.*
+    dependencies:
+      '@emotion/react': 11.11.3_ujupp4aqvz5yjxfmu635blrdgm
+      '@emotion/styled': 11.11.0_a5ezjtzmbjq2agin6it3jktdwe
+      '@projectstorm/react-diagrams-core': 6.7.4_react@18.2.0
+      react: 18.2.0
+    transitivePeerDependencies:
+      - resize-observer-polyfill
     dev: false
 
   /@projectstorm/react-diagrams-defaults/6.7.4_dvatlpsz4w5lez3horlcduv4de:
@@ -8153,23 +8166,6 @@ packages:
       '@projectstorm/react-diagrams-core': 6.7.4_f6qoc2244z522xly4rlkjer7qi
       lodash: 4.17.21
       react: 17.0.2
-    transitivePeerDependencies:
-      - resize-observer-polyfill
-    dev: false
-
-  /@projectstorm/react-diagrams-defaults/6.7.4_fsljbzwwjspvry7b3zix5agdhy:
-    resolution: {integrity: sha512-j3pRlZq1Z5yIGKpI7VtVkvNK/kXKB2abNMVXTSLUECA4iRubPKDn08w6q4jg1nBZXLGidrHsrELqW+53G9VvLA==}
-    peerDependencies:
-      '@emotion/react': ^11.*
-      '@emotion/styled': ^11.*
-      lodash: 4.*
-      react: 18.*
-    dependencies:
-      '@emotion/react': 11.11.3_ujupp4aqvz5yjxfmu635blrdgm
-      '@emotion/styled': 11.11.0_a5ezjtzmbjq2agin6it3jktdwe
-      '@projectstorm/react-diagrams-core': 6.7.4_zrp62gez7omnrwllyfdlincg3a
-      lodash: 4.17.21
-      react: 18.2.0
     transitivePeerDependencies:
       - resize-observer-polyfill
     dev: false
@@ -8207,7 +8203,7 @@ packages:
       - resize-observer-polyfill
     dev: false
 
-  /@projectstorm/react-diagrams-routing/6.7.4_fsljbzwwjspvry7b3zix5agdhy:
+  /@projectstorm/react-diagrams-routing/6.7.4_2jbui5nro4tb6hwabdsx6ymml4:
     resolution: {integrity: sha512-mB8YaRkNF6gdTlYvL0Cxc6m6XLwh7wvmjIsiEO6kW3j1uSvH7R7Gbl/iDYOdc0zUMqH9+pD+M064tWC4oAXa9A==}
     peerDependencies:
       dagre: ^0.8.5
@@ -8217,9 +8213,8 @@ packages:
       react: 18.*
     dependencies:
       '@projectstorm/geometry': 6.7.4
-      '@projectstorm/react-diagrams-core': 6.7.4_zrp62gez7omnrwllyfdlincg3a
-      '@projectstorm/react-diagrams-defaults': 6.7.4_fsljbzwwjspvry7b3zix5agdhy
-      lodash: 4.17.21
+      '@projectstorm/react-diagrams-core': 6.7.4_react@18.2.0
+      '@projectstorm/react-diagrams-defaults': 6.7.4_2jbui5nro4tb6hwabdsx6ymml4
       react: 18.2.0
     transitivePeerDependencies:
       - '@emotion/react'
@@ -8292,12 +8287,12 @@ packages:
       - resize-observer-polyfill
     dev: false
 
-  /@projectstorm/react-diagrams/6.7.4_fsljbzwwjspvry7b3zix5agdhy:
+  /@projectstorm/react-diagrams/6.7.4_2jbui5nro4tb6hwabdsx6ymml4:
     resolution: {integrity: sha512-xK/bi7DqHKv15XZRESeSpvSmAVArJIXkV6E1mybSc/24toGmoE2imcS+puxG6wGS56NhR0gIrUiT5UYwBvyD5A==}
     dependencies:
-      '@projectstorm/react-diagrams-core': 6.7.4_zrp62gez7omnrwllyfdlincg3a
-      '@projectstorm/react-diagrams-defaults': 6.7.4_fsljbzwwjspvry7b3zix5agdhy
-      '@projectstorm/react-diagrams-routing': 6.7.4_fsljbzwwjspvry7b3zix5agdhy
+      '@projectstorm/react-diagrams-core': 6.7.4_react@18.2.0
+      '@projectstorm/react-diagrams-defaults': 6.7.4_2jbui5nro4tb6hwabdsx6ymml4
+      '@projectstorm/react-diagrams-routing': 6.7.4_2jbui5nro4tb6hwabdsx6ymml4
     transitivePeerDependencies:
       - '@emotion/react'
       - '@emotion/styled'
@@ -17896,10 +17891,6 @@ packages:
     resolution: {integrity: sha512-qL0hyIMNPow317QWW/63RvL1x5MVMV+Ru3NaY9f/CuEpCqrmb7WeuK2071ZY5hczOnm38qExWM2i2WtkXLSqFw==}
     dev: false
 
-  /@types/mustache/4.2.5:
-    resolution: {integrity: sha512-PLwiVvTBg59tGFL/8VpcGvqOu3L4OuveNvPi0EYbWchRdEVP++yRUXJPFl+CApKEq13017/4Nf7aQ5lTtHUNsA==}
-    dev: false
-
   /@types/nock/11.1.0:
     resolution: {integrity: sha512-jI/ewavBQ7X5178262JQR0ewicPAcJhXS/iFaNJl0VHLfyosZ/kwSrsa6VNQNSO8i9d8SqdRgOtZSOKJ/+iNMw==}
     deprecated: This is a stub types definition. nock provides its own type definitions, so you do not need this installed.
@@ -18414,33 +18405,6 @@ packages:
       - supports-color
     dev: true
 
-  /@typescript-eslint/eslint-plugin/7.0.2_typescript@4.9.5:
-    resolution: {integrity: sha512-/XtVZJtbaphtdrWjr+CJclaCVGPtOdBpFEnvtNf/jRV0IiEemRrL0qABex/nEt8isYcnFacm3nPHYQwL+Wb7qg==}
-    engines: {node: ^16.0.0 || >=18.0.0}
-    peerDependencies:
-      '@typescript-eslint/parser': ^7.0.0
-      eslint: ^8.56.0
-      typescript: '*'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-    dependencies:
-      '@eslint-community/regexpp': 4.10.0
-      '@typescript-eslint/scope-manager': 7.0.2
-      '@typescript-eslint/type-utils': 7.0.2_typescript@4.9.5
-      '@typescript-eslint/utils': 7.0.2_typescript@4.9.5
-      '@typescript-eslint/visitor-keys': 7.0.2
-      debug: 4.3.4
-      graphemer: 1.4.0
-      ignore: 5.3.1
-      natural-compare: 1.4.0
-      semver: 7.6.0
-      ts-api-utils: 1.2.1_typescript@4.9.5
-      typescript: 4.9.5
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
   /@typescript-eslint/experimental-utils/5.62.0_7sjm5uif3lrlodkmlzqsvrpzla:
     resolution: {integrity: sha512-RTXpeB3eMkpoclG3ZHft6vG/Z30azNHuqY6wKPBHlVMZFuEvrtlEDe8gMqDb+SO+9hjC/pLekeSCryf9vMZlCw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
@@ -18637,14 +18601,6 @@ packages:
       '@typescript-eslint/visitor-keys': 6.21.0
     dev: true
 
-  /@typescript-eslint/scope-manager/7.0.2:
-    resolution: {integrity: sha512-l6sa2jF3h+qgN2qUMjVR3uCNGjWw4ahGfzIYsCtFrQJCjhbrDPdiihYT8FnnqFwsWX+20hK592yX9I2rxKTP4g==}
-    engines: {node: ^16.0.0 || >=18.0.0}
-    dependencies:
-      '@typescript-eslint/types': 7.0.2
-      '@typescript-eslint/visitor-keys': 7.0.2
-    dev: true
-
   /@typescript-eslint/type-utils/5.48.2_7sjm5uif3lrlodkmlzqsvrpzla:
     resolution: {integrity: sha512-QVWx7J5sPMRiOMJp5dYshPxABRoZV1xbRirqSk8yuIIsu0nvMTZesKErEA3Oix1k+uvsk8Cs8TGJ6kQ0ndAcew==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
@@ -18802,25 +18758,6 @@ packages:
       - supports-color
     dev: true
 
-  /@typescript-eslint/type-utils/7.0.2_typescript@4.9.5:
-    resolution: {integrity: sha512-IKKDcFsKAYlk8Rs4wiFfEwJTQlHcdn8CLwLaxwd6zb8HNiMcQIFX9sWax2k4Cjj7l7mGS5N1zl7RCHOVwHq2VQ==}
-    engines: {node: ^16.0.0 || >=18.0.0}
-    peerDependencies:
-      eslint: ^8.56.0
-      typescript: '*'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-    dependencies:
-      '@typescript-eslint/typescript-estree': 7.0.2_typescript@4.9.5
-      '@typescript-eslint/utils': 7.0.2_typescript@4.9.5
-      debug: 4.3.4
-      ts-api-utils: 1.2.1_typescript@4.9.5
-      typescript: 4.9.5
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
   /@typescript-eslint/types/5.48.2:
     resolution: {integrity: sha512-hE7dA77xxu7ByBc6KCzikgfRyBCTst6dZQpwaTy25iMYOnbNljDT4hjhrGEJJ0QoMjrfqrx+j1l1B9/LtKeuqA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
@@ -18832,11 +18769,6 @@ packages:
 
   /@typescript-eslint/types/6.21.0:
     resolution: {integrity: sha512-1kFmZ1rOm5epu9NZEZm1kckCDGj5UJEf7P1kliH4LKu/RkwpsfqqGmY2OOcUs18lSlQBKLDYBOGxRVtrMN5lpg==}
-    engines: {node: ^16.0.0 || >=18.0.0}
-    dev: true
-
-  /@typescript-eslint/types/7.0.2:
-    resolution: {integrity: sha512-ZzcCQHj4JaXFjdOql6adYV4B/oFOFjPOC9XYwCaZFRvqN8Llfvv4gSxrkQkd2u4Ci62i2c6W6gkDwQJDaRc4nA==}
     engines: {node: ^16.0.0 || >=18.0.0}
     dev: true
 
@@ -18942,28 +18874,6 @@ packages:
       semver: 7.6.0
       ts-api-utils: 1.2.1_typescript@5.3.3
       typescript: 5.3.3
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
-  /@typescript-eslint/typescript-estree/7.0.2_typescript@4.9.5:
-    resolution: {integrity: sha512-3AMc8khTcELFWcKcPc0xiLviEvvfzATpdPj/DXuOGIdQIIFybf4DMT1vKRbuAEOFMwhWt7NFLXRkbjsvKZQyvw==}
-    engines: {node: ^16.0.0 || >=18.0.0}
-    peerDependencies:
-      typescript: '*'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-    dependencies:
-      '@typescript-eslint/types': 7.0.2
-      '@typescript-eslint/visitor-keys': 7.0.2
-      debug: 4.3.4
-      globby: 11.1.0
-      is-glob: 4.0.3
-      minimatch: 9.0.3
-      semver: 7.6.0
-      ts-api-utils: 1.2.1_typescript@4.9.5
-      typescript: 4.9.5
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -19122,24 +19032,6 @@ packages:
       - typescript
     dev: true
 
-  /@typescript-eslint/utils/7.0.2_typescript@4.9.5:
-    resolution: {integrity: sha512-PZPIONBIB/X684bhT1XlrkjNZJIEevwkKDsdwfiu1WeqBxYEEdIgVDgm8/bbKHVu+6YOpeRqcfImTdImx/4Bsw==}
-    engines: {node: ^16.0.0 || >=18.0.0}
-    peerDependencies:
-      eslint: ^8.56.0
-    dependencies:
-      '@eslint-community/eslint-utils': 4.4.0
-      '@types/json-schema': 7.0.15
-      '@types/semver': 7.5.6
-      '@typescript-eslint/scope-manager': 7.0.2
-      '@typescript-eslint/types': 7.0.2
-      '@typescript-eslint/typescript-estree': 7.0.2_typescript@4.9.5
-      semver: 7.6.0
-    transitivePeerDependencies:
-      - supports-color
-      - typescript
-    dev: true
-
   /@typescript-eslint/visitor-keys/5.48.2:
     resolution: {integrity: sha512-z9njZLSkwmjFWUelGEwEbdf4NwKvfHxvGC0OcGN1Hp/XNDIcJ7D5DpPNPv6x6/mFvc1tQHsaWmpD/a4gOvvCJQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
@@ -19160,14 +19052,6 @@ packages:
     engines: {node: ^16.0.0 || >=18.0.0}
     dependencies:
       '@typescript-eslint/types': 6.21.0
-      eslint-visitor-keys: 3.4.3
-    dev: true
-
-  /@typescript-eslint/visitor-keys/7.0.2:
-    resolution: {integrity: sha512-8Y+YiBmqPighbm5xA2k4wKTxRzx9EkBu7Rlw+WHqMvRJ3RPz/BMBO9b2ru0LUNmXg120PHUXD5+SWFy2R8DqlQ==}
-    engines: {node: ^16.0.0 || >=18.0.0}
-    dependencies:
-      '@typescript-eslint/types': 7.0.2
       eslint-visitor-keys: 3.4.3
     dev: true
 
@@ -32903,11 +32787,6 @@ packages:
     dependencies:
       dns-packet: 5.6.1
       thunky: 1.1.0
-
-  /mustache/4.2.0:
-    resolution: {integrity: sha512-71ippSywq5Yb7/tVYyGbkBggbU8H3u5Rz56fH60jGFgr8uHwxs+aSKeqmluIVzM0m0kB7xQjKS6qPfd0b2ZoqQ==}
-    hasBin: true
-    dev: false
 
   /mute-stream/0.0.7:
     resolution: {integrity: sha512-r65nCZhrbXXb6dXOACihYApHw2Q6pV0M3V0PSxd74N0+D8nzAdEAITq2oAjA1jVnKI+tGvEBUpqiMh0+rW6zDQ==}
