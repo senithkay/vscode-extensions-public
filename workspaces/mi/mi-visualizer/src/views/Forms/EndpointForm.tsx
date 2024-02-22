@@ -55,20 +55,9 @@ export function EndpointWizard() {
     const [endpointName, setEndpointName] = useState("");
     const [endpointType, setEndpointType] = useState("Address Endpoint");
     const [endpointConfiguration, setEndpointConfiguration] = useState("Static Endpoint (Save in an ESB Project)");
-    const [ESBConfigs, setESBConfigs] = useState([]);
-    const [selectedConfig, setSelectedConfig] = useState("");
     const [address, setAddress] = useState("");
     const [URITemplate, setURITemplate] = useState("");
     const [method, setMethod] = useState("GET");
-
-    useEffect(() => {
-        (async () => {
-            const esbConfigs = await rpcClient.getMiDiagramRpcClient().getESBConfigs();
-            setESBConfigs(esbConfigs.data);
-            setSelectedConfig(esbConfigs.data[0]);
-        })();
-
-    }, []);
 
     const endpointTypes = [
         // Add remaining two types
@@ -108,13 +97,9 @@ export function EndpointWizard() {
         setMethod(type);
     };
 
-    const handleConfigChange = (config: string) => {
-        setSelectedConfig(config);
-    };
-
     const handleCreateEndpoint = async () => {
         const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot()).path;
-        const endpointDir = `${projectDir}/${selectedConfig}/src/main/synapse-config/endpoints`;
+        const endpointDir = `${projectDir}/src/main/wso2mi/artifacts/endpoints`;
         const createEndpointParams: CreateEndpointRequest = {
             directory: endpointDir,
             name: endpointName,
@@ -156,8 +141,6 @@ export function EndpointWizard() {
                     autoFocus
                     required
                 />
-                <span>ESB Config</span>
-                <AutoComplete items={ESBConfigs} selectedItem={selectedConfig} onChange={handleConfigChange}></AutoComplete>
                 <span>Endpoint Type</span>
                 <AutoComplete items={endpointTypes} selectedItem={endpointType} onChange={handleEndpointTypeChange}></AutoComplete>
                 {endpointType === "Address Endpoint" && (

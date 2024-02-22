@@ -10,7 +10,7 @@
 export interface STNode {
     hasTextNode: boolean;
     selfClosed: boolean;
-    range: Range;
+    range: TagRange;
     tag: string;
     viewState?: ViewState;
 }
@@ -23,6 +23,13 @@ export interface ViewState {
     h: number;
     fw?: number;
     fh?: number;
+    l?: number;
+    r?: number;
+}
+
+export interface TagRange {
+    startTagRange: Range;
+    endTagRange: Range;
 }
 
 export interface Range {

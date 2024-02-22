@@ -102,118 +102,99 @@ async function getProjectStructureData(context: vscode.ExtensionContext): Promis
 }
 
 function generateTreeData(data: ProjectStructureResponse): ProjectExplorerEntry[] {
-	const directoryMap = data.directoryMap;
 	const result: ProjectExplorerEntry[] = [];
-	const workspaceName = vscode.workspace.name ?? '';
-	const projectRoot = new ProjectExplorerEntry(
-		`Project ${workspaceName.length > 0 ? `: ${workspaceName.toUpperCase()}` : ''}`,
-		vscode.TreeItemCollapsibleState.Collapsed,
-		undefined,
-		'project'
-	);
+	const directoryMap = data.directoryMap;
+	if (directoryMap) {
+		const workspaceName = vscode.workspace.name ?? '';
+		const projectRoot = new ProjectExplorerEntry(
+			`Project ${workspaceName.length > 0 ? `: ${workspaceName}` : ''}`,
+			vscode.TreeItemCollapsibleState.Collapsed,
+			undefined,
+			'project'
+		);
 
-	for (const key in directoryMap) {
-		switch (key) {
-			case "esbConfigs":
-				const esbConfigs = new ProjectExplorerEntry(
-					key,
-					isCollapsibleState(Object.keys(directoryMap.esbConfigs).length > 0),
-					undefined,
-					'package'
-				);
+		const artifacts = (directoryMap as any)?.src?.main?.wso2mi?.artifacts;
+		if (artifacts) {
+			for (const key in artifacts) {
 
-				for (const esbConfig in directoryMap.esbConfigs) {
-					const config = directoryMap.esbConfigs[esbConfig];
-					const esbConfigEntry = new ProjectExplorerEntry(
-						config.name,
-						isCollapsibleState(Object.keys(config).length > 0),
-						undefined,
-						'package'
-					);
+				let icon = 'folder';
+				let label = key;
 
-					for (const key in config.esbConfigs) {
-						const parentEntry = new ProjectExplorerEntry(
-							key,
-							isCollapsibleState((config.esbConfigs[key]).length > 0),
-							undefined,
-							'folder'
-						);
-						const children = genProjectStructureEntry(config.esbConfigs[key]);
-
-						parentEntry.children = children;
-						parentEntry.contextValue = key;
-
-						switch (key) {
-							case 'api':
-								parentEntry.iconPath = new vscode.ThemeIcon('globe');
-								break;
-							case 'endpoints':
-								parentEntry.iconPath = new vscode.ThemeIcon('plug');
-								break;
-							case 'inbound-endpoints':
-								parentEntry.iconPath = new vscode.ThemeIcon('fold-down');
-								break;
-							case 'local-entries':
-								parentEntry.iconPath = new vscode.ThemeIcon('settings');
-								break;
-							case 'message-stores':
-								parentEntry.iconPath = new vscode.ThemeIcon('database');
-								break;
-							case 'message-processors':
-								parentEntry.iconPath = new vscode.ThemeIcon('gear');
-								break;
-							case 'proxy-services':
-								parentEntry.iconPath = new vscode.ThemeIcon('arrow-swap');
-								break;
-							case 'sequences':
-								parentEntry.iconPath = new vscode.ThemeIcon('list-ordered');
-								break;
-							case 'tasks':
-								parentEntry.iconPath = new vscode.ThemeIcon('tasklist');
-								break;
-							case 'templates':
-								parentEntry.iconPath = new vscode.ThemeIcon('file');
-								break;
-							case 'resources':
-								parentEntry.iconPath = new vscode.ThemeIcon('globe');
-								break;
-							default:
-						}
-
-						esbConfigEntry.children = esbConfigEntry.children ?? [];
-						if (parentEntry.children.length > 0) esbConfigEntry.children.push(parentEntry);
-					}
-					esbConfigs.children = esbConfigs.children ?? [];
-					esbConfigs.children.push(esbConfigEntry);
+				switch (key) {
+					case 'apis':
+						icon = 'globe';
+						label = 'APIs';
+						break;
+					case 'endpoints':
+						icon = 'plug';
+						label = 'Endpoints';
+						break;
+					case 'inboundEndpoints':
+						icon = 'fold-down';
+						label = 'Inbound Endpoints';
+						break;
+					case 'localEntries':
+						icon = 'settings';
+						label = 'Local Entries';
+						break;
+					case 'messageStores':
+						icon = 'database';
+						label = 'Message Stores';
+						break;
+					case 'messageProcessors':
+						icon = 'gear';
+						label = 'Message Processors';
+						break;
+					case 'proxyServices':
+						icon = 'arrow-swap';
+						label = 'Proxy Services';
+						break;
+					case 'sequences':
+						icon = 'list-ordered';
+						label = 'Sequences';
+						break;
+					case 'tasks':
+						icon = 'tasklist';
+						label = 'Tasks';
+						break;
+					case 'templates':
+						icon = 'file';
+						label = 'Templates';
+						break;
+					case 'resources':
+						icon = 'globe';
+						label = 'Resources';
+						break;
+					case 'dataServices':
+						icon = 'database';
+						label = 'Data Services';
+						break;
+					case 'dataSources':
+						icon = 'database';
+						label = 'Data Sources';
+						break;
+					default:
 				}
-				projectRoot.children = projectRoot.children ?? [];
-				projectRoot.children.push(esbConfigs);
-				break;
-			case 'dataServiceConfigs':
-			case 'dataSourceConfigs':
-			case 'mediatorProjects':
-			case 'registryResources':
-			case 'javaLibraryProjects':
-			case 'compositeExporters':
-			case 'connectorExporters':
-			case 'dockerExporters':
+
 				const parentEntry = new ProjectExplorerEntry(
-					key,
-					isCollapsibleState(Object.keys(directoryMap.esbConfigs).length > 0),
+					label,
+					isCollapsibleState(artifacts[key].length > 0),
 					undefined,
-					'package'
+					icon
 				);
-				const children = genProjectStructureEntry(directoryMap[key]);
+				const children = genProjectStructureEntry(artifacts[key]);
+
 				parentEntry.children = children;
+				parentEntry.contextValue = key;
+				parentEntry.id = key;
+
 				projectRoot.children = projectRoot.children ?? [];
-				if (children.length > 0) { projectRoot.children.push(parentEntry); }
-			default:
-			// do none
-
+				projectRoot.children.push(parentEntry);
+			}
 		}
-	}
 
-	result.push(projectRoot);
+		result.push(projectRoot);
+	}
 
 	return result;
 }
@@ -229,7 +210,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 		let explorerEntry;
 
 		if (entry.resources) {
-			const apiEntry = new ProjectExplorerEntry(entry.name.replace(".xml",""), isCollapsibleState(true), entry, 'code');
+			const apiEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(true), entry, 'code');
 			apiEntry.contextValue = 'api';
 			apiEntry.iconPath = new vscode.ThemeIcon('notebook-open-as-text');
 			apiEntry.children = [];
@@ -246,7 +227,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry = apiEntry;
 
 		} else {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml",""), isCollapsibleState(false), entry, 'code');
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 		}
 
 		result.push(explorerEntry);

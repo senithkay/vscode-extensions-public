@@ -600,8 +600,8 @@
       "projectFolder": "workspaces/mi/mi-extension"
     },
     {
-      "packageName": "@wso2-enterprise/mi-diagram",
-      "projectFolder": "workspaces/mi/mi-diagram"
+      "packageName": "@wso2-enterprise/mi-diagram-2",
+      "projectFolder": "workspaces/mi/mi-diagram-2"
     },
     {
       "packageName": "@wso2-enterprise/mi-core",
@@ -633,10 +633,6 @@
       "packageName": "apk-config-language-support",
       "projectFolder": "workspaces/apk/apk-extension",
       "versionPolicyName": "ballerina-extension"
-    },
-    {
-      "packageName": "@wso2-enterprise/mi-diagram-2",
-      "projectFolder": "workspaces/mi/mi-diagram-2"
     },
     {
       "packageName": "eggplant-extension",

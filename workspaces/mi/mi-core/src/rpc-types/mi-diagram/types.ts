@@ -42,6 +42,18 @@ export interface CreateEndpointResponse {
     path: string;
 }
 
+export interface CreateInboundEndpointRequest {
+    directory: string;
+    name: string;
+    type: string;
+    sequence: string;
+    errorSequence: string;
+}
+
+export interface CreateInboundEndpointResponse {
+    path: string;
+}
+
 export interface CreateProjectRequest {
     directory: string;
     name: string;
@@ -92,6 +104,11 @@ export interface ApiDirectoryResponse {
 export interface EndpointDirectoryResponse {
     data: string;
 }
+
+export interface InboundEndpointDirectoryResponse {
+    data: string;
+}
+
 export interface ShowErrorMessageRequest {
     message: string;
 }

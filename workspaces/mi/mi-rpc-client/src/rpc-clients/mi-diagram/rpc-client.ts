@@ -44,6 +44,7 @@ import {
     createEndpoint,
     createProject,
     createSequence,
+    createInboundEndpoint,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -52,19 +53,22 @@ import {
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
+    getInboundEndpointDirectory,
     getProjectRoot,
     getSTRequest,
     getSTResponse,
     getSequenceDirectory,
     getSyntaxTree,
     highlightCode,
-    onRefresh,
     openDiagram,
     openFile,
     showErrorMessage,
     writeContentToFile,
     WriteContentToFileRequest,
-    WriteContentToFileResponse
+    WriteContentToFileResponse,
+    InboundEndpointDirectoryResponse,
+    CreateInboundEndpointRequest,
+    CreateInboundEndpointResponse
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -132,6 +136,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(createSequence, HOST_EXTENSION, params);
     }
 
+    getInboundEndpointDirectory(): Promise<InboundEndpointDirectoryResponse> {
+        return this._messenger.sendRequest(getInboundEndpointDirectory, HOST_EXTENSION);
+    }
+
+    createInboundEndpoint(params: CreateInboundEndpointRequest): Promise<CreateInboundEndpointResponse> {
+        return this._messenger.sendRequest(createInboundEndpoint, HOST_EXTENSION, params);
+    }
+
     closeWebView(): void {
         return this._messenger.sendNotification(closeWebView, HOST_EXTENSION);
     }
@@ -142,10 +154,6 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     openFile(params: OpenDiagramRequest): void {
         return this._messenger.sendNotification(openFile, HOST_EXTENSION, params);
-    }
-
-    onRefresh(callback: () => void): void {
-        this._messenger.onNotification(onRefresh, callback);
     }
 
     closeWebViewNotification(): void {

@@ -39,6 +39,10 @@ export function Visualizer({ mode }: { mode: string }) {
         setState(newState);
     });
 
+    useEffect(() => {
+        rpcClient.webviewReady();
+    }, []);
+
     return (
         <>
             {(() => {

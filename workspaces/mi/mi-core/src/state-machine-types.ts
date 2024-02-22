@@ -10,7 +10,7 @@
 
 import { NotificationType, RequestType } from "vscode-messenger-common";
 
-export type MachineViews = "Overview" | "Diagram" | "ServiceDesigner" | "APIForm" | "EndPointForm" | "SequenceForm" | "ProjectCreationForm";
+export type MachineViews = "Overview" | "Diagram" | "ServiceDesigner" | "APIForm" | "EndPointForm" | "SequenceForm" | "InboundEPForm" | "ProjectCreationForm";
 
 export type MachineStateValue =
     | 'initialize' | 'projectDetected' | 'LSInit' | 'ready' | 'disabled'
@@ -41,3 +41,5 @@ export interface VisualizerLocation {
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
 export const getVisualizerState: RequestType<void, VisualizerLocation> = { method: 'getVisualizerState' };
+export const onFileContentUpdate: NotificationType<void> = { method: `onFileContentUpdate` };
+export const webviewReady: NotificationType<void> = { method: `webviewReady` };

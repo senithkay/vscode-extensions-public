@@ -41,7 +41,10 @@ import {
     getSTRequest,
     getSTResponse,
     WriteContentToFileRequest,
-    WriteContentToFileResponse
+    WriteContentToFileResponse,
+    InboundEndpointDirectoryResponse,
+    CreateInboundEndpointRequest,
+    CreateInboundEndpointResponse
 } from "@wso2-enterprise/mi-core";
 import * as fs from "fs";
 import * as os from 'os';
@@ -54,6 +57,8 @@ const { XMLParser } = require("fast-xml-parser");
 import axios from 'axios';
 import { Transform } from 'stream';
 import { MI_COPILOT_BACKEND_URL } from "../../constants";
+import { VisualizerWebview } from "../../visualizer/webview";
+import { getInboundEndpointXmlWrapper } from "../../util";
 
 const connectorsPath = path.join(".metadata", ".Connectors");
 export class MiDiagramRpcManager implements MiDiagramAPI {
@@ -292,6 +297,43 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
+    async getInboundEndpointDirectory(): Promise<InboundEndpointDirectoryResponse> {
+        try {
+            const workspaceFolder = workspace.workspaceFolders;
+            if (workspaceFolder) {
+                const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
+                const endpointDir = path.join(workspaceFolderPath, 'src', 'main', 'wso2mi', 'artifacts', 'inbound-endpoints');
+
+                const response: InboundEndpointDirectoryResponse = { data: endpointDir };
+
+                return response;
+            }
+
+            return { data: "" };
+        } catch (error) {
+            throw new Error("Failed to fetch workspace folders: " + error);
+        }
+    }
+
+    async createInboundEndpoint(params: CreateInboundEndpointRequest): Promise<CreateInboundEndpointResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, name, type, sequence, errorSequence } = params;
+
+            const getTemplateParams = {
+                name,
+                type: type.toLowerCase(),
+                sequence,
+                errorSequence
+            };
+
+            const xmlData = getInboundEndpointXmlWrapper(getTemplateParams);
+
+            const filePath = path.join(directory, `${name}.xml`);
+            fs.writeFileSync(filePath, xmlData);
+            resolve({ path: filePath });
+        });
+    }
+
     async getEndpointsAndSequences(): Promise<EndpointsAndSequencesResponse> {
         return new Promise(async (resolve) => {
             const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
@@ -301,18 +343,19 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (!!rootPath) {
                 const langClient = StateMachine.context().langClient!;
                 const resp = await langClient.getProjectStructure(rootPath);
+                const artifacts = (resp.directoryMap as any).src.main.wso2mi.artifacts;
 
                 const endpoints: string[] = [];
                 const sequences: string[] = [];
 
-                for (const esbConfig of resp.directoryMap.esbConfigs) {
-                    for (const endpoint of esbConfig.esbConfigs.endpoints) {
-                        endpoints.push(endpoint.name);
-                    }
-                    for (const sequence of esbConfig.esbConfigs.sequences) {
-                        sequences.push(sequence.name);
-                    }
+                for (const endpoint of artifacts.endpoints) {
+                    endpoints.push(endpoint.name);
                 }
+
+                for (const sequence of artifacts.sequences) {
+                    sequences.push(sequence.name);
+                }
+
                 resolve({ data: [endpoints, sequences] });
             }
 
@@ -409,8 +452,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     closeWebView(): void {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        if (VisualizerWebview.currentPanel) {
+            VisualizerWebview.currentPanel.dispose();
+        }
     }
 
     openFile(params: OpenDiagramRequest): void {
@@ -418,11 +462,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         workspace.openTextDocument(uri).then((document) => {
             window.showTextDocument(document);
         });
-    }
-
-    onRefresh(callback: () => void): void {
-        // USE THE RPC METHOD TO BROADCAST NOTIFICATIONS TO WEBVIEW
-        // EX: RPCLayer._messenger.send
     }
 
     async getProjectRoot(): Promise<ProjectRootResponse> {
@@ -454,23 +493,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const folderStructure: FileStructure = {
                 [name]: { // Project folder
-                    '.project': projectFileContent(name),
                     'pom.xml': rootPomXmlContent(name),
-                    [`${name}CompositeExporter`]: {
-                        '.project': compositeProjectContent(name),
-                        'pom.xml': compositePomXmlContent(name, directory),
-                    },
-                    [`${name}Configs`]: {
-                        'artifact.xml': artifactsContent(),
-                        '.project': configsProjectContent(name),
-                        'pom.xml': configsPomXmlContent(name, directory),
-                        'src': {
-                            'main': {
-                                'resources': {
-                                    'metadata': '',
-                                },
-                                'synapse-config': {
-                                    'api': '',
+                    'src': {
+                        'main': {
+                            'wso2mi': {
+                                'artifacts': {
+                                    'apis': '',
                                     'endpoints': '',
                                     'inbound-endpoints': '',
                                     'local-entries': '',
@@ -480,13 +508,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                     'sequences': '',
                                     'tasks': '',
                                     'templates': '',
+                                    'data-services': '',
+                                    'data-sources': '',
+                                },
+                                'resources': {
+                                    'metadata': '',
                                 },
                             },
-                        },
-                        'test': {
-                            'resources': {
-                                'mock-services': '',
-                            },
+                            'test': ''
                         },
                     },
                 },
@@ -517,7 +546,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 const ESBConfigs: string[] = [];
 
                 for (const esbConfig of resp.directoryMap.esbConfigs) {
-					const config = esbConfig.name;
+                    const config = esbConfig.name;
                     ESBConfigs.push(config);
                 }
                 resolve({ data: ESBConfigs });
@@ -541,12 +570,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     callback();
                 }
             }));
-            
+
             return new Promise((resolve, reject) => {
                 response.data.on('end', () => resolve(result));
                 response.data.on('error', (err: Error) => reject(err));
             });
-    
+
         } catch (error) {
             console.error('Error calling the AI endpoint:', error);
             throw new Error('Failed to call AI endpoint');
@@ -557,7 +586,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         let status = true;
         //if file exists, overwrite if not, create new file and write content.  if successful, return true, else false
         const { content, directoryPath } = params;
-    
+
         const length = content.length;
         for (let i = 0; i < length; i++) {
             //remove starting '''xml and ending '''
@@ -585,15 +614,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         default:
                             fileType = '';
                     }
-                    console.log("File type - ",fileType)
+                    console.log("File type - ", fileType)
                 }
                 //write the content to a file, if file exists, overwrite else create new file
-                const fullPath = path.join(directoryPath,'/temp/tempConfigs/src/main/synapse-config/',fileType,'/', `${name}.xml`);
+                const fullPath = path.join(directoryPath, '/temp/tempConfigs/src/main/synapse-config/', fileType, '/', `${name}.xml`);
                 try {
                     console.log('Writing content to file:', fullPath);
                     console.log('Content:', content[i]);
                     fs.writeFileSync(fullPath, content[i]);
-       
+
                 } catch (error) {
                     console.error('Error writing content to file:', error);
                     status = false;
@@ -601,10 +630,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
         }
 
-        if(status){
+        if (status) {
             window.showInformationMessage('Content written to file successfully');
             return { status: true };
-        }else{
+        } else {
             return { status: false };
         }
 

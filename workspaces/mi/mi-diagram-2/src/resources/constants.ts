@@ -37,6 +37,7 @@ export enum VSCodeColors {
     SECONDARY = "var(--vscode-editorLightBulb-foreground)",
     ON_SECONDARY = "var(--vscode-button-foreground)",
     SECONDARY_CONTAINER = "var(--vscode-sideBar-background)",
+    SECONDARY_BUTTON = "var(--button-secondary-background)",
 
     SURFACE_BRIGHT = "var(--vscode-editor-background)",
     SURFACE = "var(--vscode-sideBar-background)",
@@ -61,6 +62,7 @@ export const Colors = {
     ON_SECONDARY: VSCodeColors.ON_SECONDARY || DefaultColors.ON_SECONDARY,
     SECONDARY_CONTAINER:
         VSCodeColors.SECONDARY_CONTAINER || DefaultColors.SECONDARY_CONTAINER,
+    SECONDARY_BUTTON: VSCodeColors.SECONDARY_BUTTON || DefaultColors.SECONDARY,
 
     SURFACE_BRIGHT: VSCodeColors.SURFACE_BRIGHT || DefaultColors.SURFACE_BRIGHT,
     SURFACE: VSCodeColors.SURFACE || DefaultColors.SURFACE,
@@ -100,8 +102,8 @@ export const NODE_DIMENSIONS = {
         HEIGHT: 65,
     },
     CALL: {
-        WIDTH: 152,
-        FULL_WIDTH: 152 + 110,
+        WIDTH: 120,
+        FULL_WIDTH: 120 + 110,
         HEIGHT: 50,
     },
     EMPTY: {

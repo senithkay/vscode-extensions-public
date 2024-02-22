@@ -50,6 +50,11 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 		console.log('Add Sequence');
 	});
 
+	vscode.commands.registerCommand('project-explorer.add-inbound-endpoint', () => {
+		openView({ view: "InboundEPForm" });
+		console.log('Add Inbound API');
+	});
+
 	vscode.commands.registerCommand('project-explorer.create-project', () => {
 		// Update state machine to show the api wizard
 		// createApiWizardWebview(context);
@@ -65,7 +70,7 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 			// TODO: Open file logic should go here
 			// const document = await vscode.workspace.openTextDocument(info.path);
 			// await vscode.window.showTextDocument(document);
-			if (info.type === 'api') {
+			if (info.type.toLowerCase() === 'api') {
 				openView({ view: "ServiceDesigner", documentUri: info.path, identifier: info.name });
 			} else if (info.type === 'resource') {
 				openView({ view: "Diagram", documentUri: info.path, identifier: info.name });
