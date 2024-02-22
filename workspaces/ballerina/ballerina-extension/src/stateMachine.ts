@@ -2,7 +2,7 @@
 import { ExtendedLangClient, ballerinaExtInstance } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EventType, GetSyntaxTreeResponse, History, HistoryEntry, MachineStateValue, MachineViews, STByRangeRequest, SyntaxTreeResponse, VisualizerLocation, webviewReady } from "@wso2-enterprise/ballerina-core";
+import { EventType, GetSyntaxTreeResponse, History, HistoryEntry, MachineStateValue, MachineViews, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './library-browser';
 import { VisualizerWebview } from './visualizer/webview';
 import { Uri } from 'vscode';
@@ -24,6 +24,7 @@ type ViewFlow = {
 };
 
 export let history: History;
+export let undoRedoManager: UndoRedoManager;
 
 const viewFlow: ViewFlow = {
     Overview: [],
@@ -181,6 +182,7 @@ const stateMachine = createMachine<MachineContext>(
                     VisualizerWebview.currentPanel = new VisualizerWebview();
                     RPCLayer._messenger.onNotification(webviewReady, () => {
                         history = new History();
+                        undoRedoManager = new UndoRedoManager();
                         resolve(true);
                     });
                 } else {
