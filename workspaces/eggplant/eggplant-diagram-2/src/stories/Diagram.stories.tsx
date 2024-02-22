@@ -1,9 +1,8 @@
 import React from "react";
 import { Story, Meta } from "@storybook/react/types-6-0";
 import { Diagram, DiagramProps } from "../components/Diagram";
-import { Node } from "../utils/types";
 
-const resourceModel: Node = {
+const resourceModel: any = { // todo: need to fix types
     kind: "FLOW",
     name: "",
     children: [
