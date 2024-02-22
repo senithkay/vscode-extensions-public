@@ -38,6 +38,7 @@ import {
     ProjectRootResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
+    UndoRedoParams,
     getSTRequest,
     getSTResponse,
     WriteContentToFileRequest,
@@ -46,21 +47,25 @@ import {
     CreateInboundEndpointRequest,
     CreateInboundEndpointResponse
 } from "@wso2-enterprise/mi-core";
+import axios from 'axios';
 import * as fs from "fs";
 import * as os from 'os';
+import { Transform } from 'stream';
 import { Position, Range, Selection, Uri, WorkspaceEdit, commands, window, workspace } from "vscode";
+import { MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
+import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure } from "../../util";
-import { artifactsContent, compositePomXmlContent, compositeProjectContent, configsPomXmlContent, configsProjectContent, projectFileContent, rootPomXmlContent } from "../../util/templates";
+import { rootPomXmlContent } from "../../util/templates";
 import path = require("path");
 const { XMLParser } = require("fast-xml-parser");
-import axios from 'axios';
-import { Transform } from 'stream';
-import { MI_COPILOT_BACKEND_URL } from "../../constants";
 import { VisualizerWebview } from "../../visualizer/webview";
 import { getInboundEndpointXmlWrapper } from "../../util";
 
 const connectorsPath = path.join(".metadata", ".Connectors");
+
+const undoRedo = new UndoRedoManager();
+
 export class MiDiagramRpcManager implements MiDiagramAPI {
     async executeCommand(params: CommandsRequest): Promise<CommandsResponse> {
         return new Promise(async (resolve) => {
@@ -447,6 +452,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
             edit.replace(Uri.parse(params.documentUri), range, text);
             await workspace.applyEdit(edit);
+
+            const content = document.getText();
+            undoRedo.addModification(content);
+            
             resolve({ status: true });
         });
     }
@@ -647,6 +656,34 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             editor.selection = new Selection(range.start, range.end);
             editor.revealRange(range);
         }
+    }
+
+    async undo(params: UndoRedoParams): Promise<void> {
+        const lastsource = undoRedo.undo();
+        if(lastsource) {
+            fs.writeFileSync(params.path, lastsource);
+        }
+    }
+
+    async redo(params: UndoRedoParams): Promise<void> {
+        const lastsource = undoRedo.redo();
+        if(lastsource) {
+            fs.writeFileSync(params.path, lastsource);
+        }
+    }
+
+    async initUndoRedoManager(params: UndoRedoParams): Promise<void> {
+        let document = workspace.textDocuments.find(doc => doc.uri.fsPath === params.path);
+        
+        if (!document) {
+            document = await workspace.openTextDocument(Uri.parse(params.path));
+        }
+        
+        if (document) {
+            // Access the content of the document
+            const content = document.getText();
+            undoRedo.updateContent(params.path, content);
+        } 
     }
 }
 

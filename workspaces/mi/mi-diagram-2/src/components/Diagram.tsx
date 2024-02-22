@@ -25,7 +25,8 @@ import styled from "@emotion/styled";
 import { Colors } from "../resources/constants";
 import { VSCodePanelTab, VSCodePanelView, VSCodePanels } from '@vscode/webview-ui-toolkit/react';
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
 export interface DiagramProps {
     model: APIResource | Sequence;
     documentUri: string;
@@ -53,9 +54,11 @@ namespace S {
 }
 
 const SIDE_PANEL_WIDTH = 450;
+
 export function Diagram(props: DiagramProps) {
     const { model } = props;
     const [diagramDataMap, setDiagramDataMap] = useState(new Map());
+    const { rpcClient } = useVisualizerContext();
 
     const [diagramData, setDiagramData] = useState({
         flow: {
@@ -118,6 +121,19 @@ export function Diagram(props: DiagramProps) {
             }
         }
         updateDiagramData(flows);
+
+        const mouseTrapClient = KeyboardNavigationManager.getClient();
+        mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], async () => {
+            rpcClient.getMiDiagramRpcClient().undo({path: props.documentUri});
+        });
+
+        mouseTrapClient.bindNewKey(['command+shift+z', 'ctrl+y', 'ctrl+shift+z'], async () => {
+            rpcClient.getMiDiagramRpcClient().redo({path: props.documentUri});
+        });
+
+        return () => {
+            mouseTrapClient.resetMouseTrapInstance();
+        }
 
     }, [props.model, props.documentUri, activeTab]);
 

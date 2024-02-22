@@ -2311,6 +2311,7 @@ importers:
       '@projectstorm/react-diagrams-routing': ^6.7.4
       '@storybook/react': ^6.3.7
       '@types/lodash': ~4.14.202
+      '@types/mousetrap': ~1.6.15
       '@types/mustache': ~4.2.5
       '@types/react': ^17.0.14
       '@types/react-dom': ^17.0.9
@@ -2321,6 +2322,7 @@ importers:
       '@wso2-enterprise/mi-syntax-tree': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       lodash: ~4.17.21
+      mousetrap: ~1.6.5
       mustache: ~4.2.0
       react: ~18.2.0
       react-dom: ~18.2.0
@@ -2335,6 +2337,7 @@ importers:
       '@projectstorm/react-diagrams-defaults': 6.7.4_fsljbzwwjspvry7b3zix5agdhy
       '@projectstorm/react-diagrams-routing': 6.7.4_fsljbzwwjspvry7b3zix5agdhy
       '@types/lodash': 4.14.202
+      '@types/mousetrap': 1.6.15
       '@types/mustache': 4.2.5
       '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
       '@wso2-enterprise/mi-core': link:../mi-core
@@ -2342,6 +2345,7 @@ importers:
       '@wso2-enterprise/mi-syntax-tree': link:../syntax-tree
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       lodash: 4.17.21
+      mousetrap: 1.6.5
       mustache: 4.2.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -27350,6 +27354,7 @@ packages:
 
   /file-uri-to-path/1.0.0:
     resolution: {integrity: sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==}
+    requiresBuild: true
     dev: true
 
   /file-uri-to-path/2.0.0:
