@@ -64,7 +64,7 @@ export class NodeFactoryVisitor implements Visitor {
                         diagramNode as TargetNodeModel,
                         {
                             label: this.currentBranchName,
-                            stRange: this.currentAddPosition ?? previousStNode.range.endTagRange.end,
+                            stRange: this.currentAddPosition ?? (previousStNode.range.endTagRange?.end ? previousStNode.range.endTagRange.end : previousStNode.range.startTagRange.end),
                             brokenLine: type === NodeTypes.EMPTY_NODE || previousNode instanceof EmptyNodeModel,
                             previousNode: previousStNode.tag,
                             parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
