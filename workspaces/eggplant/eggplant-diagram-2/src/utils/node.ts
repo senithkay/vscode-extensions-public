@@ -7,16 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export function getNodeIdFromModel(model: any, prefix?: string) {
-    if (model.viewState?.id) {
-        return model.viewState.id;
+import { Node } from "./types";
+
+export function getNodeIdFromModel(node: Node, prefix?: string) {
+    if (!node) {
+        return null;
     }
-    if (model && model.tag && model.range) {
-        const id = `${model.tag}-${model.range.startTagRange.start.line}-${model.range.startTagRange.start.character}`;
-        if (prefix) {
-            return `${prefix}-${id}`;
-        }
-        return id;
+    if (prefix) {
+        return `${prefix}-${node.id}`;
     }
-    return null;
+    return node.id;
 }
