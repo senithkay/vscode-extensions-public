@@ -13,6 +13,7 @@ import {
     VisualizerLocation,
     addToHistory,
     getHistory,
+    getUndoRedoManager,
     goBack,
     goHome,
     goSelected,
@@ -24,6 +25,7 @@ import { VisualizerRpcManager } from "./rpc-manager";
 export function registerVisualizerRpcHandlers(messenger: Messenger) {
     const rpcManger = new VisualizerRpcManager();
     messenger.onNotification(openView, (args: VisualizerLocation) => rpcManger.openView(args));
+    messenger.onRequest(getUndoRedoManager, () => rpcManger.getUndoRedoManager());
     messenger.onRequest(getHistory, () => rpcManger.getHistory());
     messenger.onNotification(addToHistory, (args: HistoryEntry) => rpcManger.addToHistory(args));
     messenger.onNotification(goBack, () => rpcManger.goBack());

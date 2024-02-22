@@ -9,9 +9,11 @@
 
 import { HistoryEntry } from "../../history";
 import { VisualizerLocation } from "../../state-machine-types";
+import { UndoRedoManager } from "../../undo-redo-manager";
 
 export interface VisualizerAPI {
     openView: (params: VisualizerLocation) => void;
+    getUndoRedoManager: () => Promise<UndoRedoManager>;
     getHistory: () => Promise<HistoryEntry[]>;
     addToHistory: (entry: HistoryEntry) => void;
     goBack: () => void;

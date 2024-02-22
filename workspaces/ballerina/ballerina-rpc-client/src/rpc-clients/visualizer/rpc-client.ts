@@ -10,10 +10,12 @@
  */
 import {
     HistoryEntry,
+    UndoRedoManager,
     VisualizerAPI,
     VisualizerLocation,
     addToHistory,
     getHistory,
+    getUndoRedoManager,
     goBack,
     goHome,
     goSelected,
@@ -31,6 +33,10 @@ export class VisualizerRpcClient implements VisualizerAPI {
 
     openView(params: VisualizerLocation): void {
         return this._messenger.sendNotification(openView, HOST_EXTENSION, params);
+    }
+
+    getUndoRedoManager(): Promise<UndoRedoManager> {
+        return this._messenger.sendRequest(getUndoRedoManager, HOST_EXTENSION);
     }
 
     getHistory(): Promise<HistoryEntry[]> {

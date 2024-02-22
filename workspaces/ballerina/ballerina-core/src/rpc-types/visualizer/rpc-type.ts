@@ -10,10 +10,12 @@
  */
 import { HistoryEntry } from "../../history";
 import { VisualizerLocation } from "../../state-machine-types";
+import { UndoRedoManager } from "../../undo-redo-manager";
 import { NotificationType, RequestType } from "vscode-messenger-common";
 
 const _preFix = "visualizer";
 export const openView: NotificationType<VisualizerLocation> = { method: `${_preFix}/openView` };
+export const getUndoRedoManager: RequestType<void, UndoRedoManager> = { method: `${_preFix}/getUndoRedoManager` };
 export const getHistory: RequestType<void, HistoryEntry[]> = { method: `${_preFix}/getHistory` };
 export const addToHistory: NotificationType<HistoryEntry> = { method: `${_preFix}/addToHistory` };
 export const goBack: NotificationType<void> = { method: `${_preFix}/goBack` };
