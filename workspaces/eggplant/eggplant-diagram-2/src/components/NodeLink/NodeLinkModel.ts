@@ -9,7 +9,7 @@
 
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
 import { Colors, NODE_LINK, NodeTypes } from "../../resources/constants";
-import { SourceNodeModel, TargetNodeModel } from "../../utils/diagram";
+import { NodeModel } from "../../utils/diagram";
 
 export const LINK_BOTTOM_OFFSET = 30;
 
@@ -18,24 +18,18 @@ export interface NodeLinkModelOptions {
     showAddButton?: boolean; // default true
     showArrow?: boolean; // default true
     brokenLine?: boolean; // default false
-    stRange?: Range ;
     onAddClick?: () => void;
-    parentNode?: string;
-    previousNode?: string;
 }
 
 export class NodeLinkModel extends DefaultLinkModel {
     label: string;
-    sourceNode: SourceNodeModel;
-    targetNode: TargetNodeModel;
+    sourceNode: NodeModel;
+    targetNode: NodeModel;
     // options
     showAddButton = true;
     showArrow = true;
     brokenLine = false;
     linkBottomOffset = LINK_BOTTOM_OFFSET;
-    stRange: Range;
-    parentNode: string;
-    previousNode: string;
     onAddClick?: () => void;
 
     constructor(label?: string);
@@ -66,15 +60,6 @@ export class NodeLinkModel extends DefaultLinkModel {
                 if ((options as NodeLinkModelOptions).brokenLine === true) {
                     this.brokenLine = (options as NodeLinkModelOptions).brokenLine;
                 }
-                if ((options as NodeLinkModelOptions).stRange) {
-                    this.stRange = (options as NodeLinkModelOptions).stRange;
-                }
-                if ((options as NodeLinkModelOptions).parentNode) {
-                    this.parentNode = (options as NodeLinkModelOptions).parentNode;
-                }
-                if ((options as NodeLinkModelOptions).previousNode) {
-                    this.previousNode = (options as NodeLinkModelOptions).previousNode;
-                }
             }
             if ((options as NodeLinkModelOptions).onAddClick) {
                 this.onAddClick = (options as NodeLinkModelOptions).onAddClick;
@@ -82,11 +67,11 @@ export class NodeLinkModel extends DefaultLinkModel {
         }
     }
 
-    setSourceNode(node: SourceNodeModel) {
+    setSourceNode(node: NodeModel) {
         this.sourceNode = node;
     }
 
-    setTargetNode(node: TargetNodeModel) {
+    setTargetNode(node: NodeModel) {
         this.targetNode = node;
     }
 
@@ -195,13 +180,5 @@ export class NodeLinkModel extends DefaultLinkModel {
             return false;
         }
         return this.showArrow;
-    }
-
-    getParentNode(): string {
-        return this.parentNode;
-    }
-
-    getPreviousNode(): string {
-        return this.previousNode;
     }
 }

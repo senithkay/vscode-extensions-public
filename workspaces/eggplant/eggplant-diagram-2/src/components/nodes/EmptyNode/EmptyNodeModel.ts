@@ -7,14 +7,48 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { NodeModel } from "@projectstorm/react-diagrams";
+import { NodePortModel } from "../../NodePort/NodePortModel";
 import { NodeTypes } from "../../../resources/constants";
-import { BaseNodeModel } from "../BaseNodeModel";
 
-export class EmptyNodeModel extends BaseNodeModel {
-    constructor(stNode: any) {
-        super(
-            NodeTypes.EMPTY_NODE,
-            stNode,
-        );
+export class EmptyNodeModel extends NodeModel {
+    protected portIn: NodePortModel;
+    protected portOut: NodePortModel;
+
+    constructor() {
+        super({
+            type: NodeTypes.EMPTY_NODE,
+            locked: true,
+        });
+        this.addInPort("in");
+        this.addOutPort("out");
+    }
+
+    addPort<T extends NodePortModel>(port: T): T {
+        super.addPort(port);
+        if (port.getOptions().in) {
+            this.portIn = port;
+        } else {
+            this.portOut = port;
+        }
+        return port;
+    }
+
+    addInPort(label: string): NodePortModel {
+        const p = new NodePortModel(true, label);
+        return this.addPort(p);
+    }
+
+    addOutPort(label: string): NodePortModel {
+        const p = new NodePortModel(false, label);
+        return this.addPort(p);
+    }
+
+    getInPort(): NodePortModel {
+        return this.portIn;
+    }
+
+    getOutPort(): NodePortModel {
+        return this.portOut;
     }
 }

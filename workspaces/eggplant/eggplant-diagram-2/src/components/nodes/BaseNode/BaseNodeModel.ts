@@ -8,26 +8,23 @@
  */
 
 import { NodeModel } from "@projectstorm/react-diagrams";
-import { getNodeIdFromModel } from "../../utils/node";
-import { NodePortModel } from "../NodePort/NodePortModel";
-import { NodeTypes } from "../../resources/constants";
+import { NodePortModel } from "../../NodePort/NodePortModel";
+import { getNodeIdFromModel } from "../../../utils/node";
+import { NodeTypes } from "../../../resources/constants";
+import { Node } from "../../../utils/types";
 
 export class BaseNodeModel extends NodeModel {
-    readonly any: any;
+    readonly node: Node;
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
-    protected parentNode: any;
-    protected prevNodes: any[];
 
-    constructor(type: NodeTypes, any: any, parentNode?: any, prevNodes: any[] = []) {
+    constructor(node: Node) {
         super({
-            id: any.viewState?.id || getNodeIdFromModel(any),
-            type: type,
-            locked: true,
+            id: getNodeIdFromModel(node),
+            type: NodeTypes.BASE_NODE,
+            // locked: true,
         });
-        this.any = any;
-        this.parentNode = parentNode;
-        this.prevNodes = prevNodes;
+        this.node = node;
         this.addInPort("in");
         this.addOutPort("out");
     }
@@ -58,17 +55,5 @@ export class BaseNodeModel extends NodeModel {
 
     getOutPort(): NodePortModel {
         return this.portOut;
-    }
-
-    getany(): any {
-        return this.any;
-    }
-
-    getParentany(): any {
-        return this.parentNode;
-    }
-
-    getPrevanys(): any[] {
-        return this.prevNodes;
     }
 }

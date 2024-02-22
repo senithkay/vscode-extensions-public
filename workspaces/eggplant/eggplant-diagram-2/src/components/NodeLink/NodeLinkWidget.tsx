@@ -38,17 +38,6 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
     const handleAddNode = () => {
         if (link.onAddClick) {
             link.onAddClick();
-        } else {
-            const rangeOrPosition: any = link.stRange;
-            let nodeRange;
-            if (rangeOrPosition.start && rangeOrPosition.end) {
-                nodeRange = link.stRange as Range;
-            } else {
-                nodeRange = {
-                    start: rangeOrPosition,
-                    end: rangeOrPosition,
-                };
-            }
         }
     };
 
@@ -85,8 +74,9 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                                 justifyContent: "center",
                                 alignItems: "center",
                                 borderRadius: "20px",
-                                border: `2px solid ${link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY
-                                    }`,
+                                border: `2px solid ${
+                                    link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY
+                                }`,
                                 backgroundColor: `${Colors.SURFACE_BRIGHT}`,
                                 padding: "2px 10px",
                                 boxSizing: "border-box",

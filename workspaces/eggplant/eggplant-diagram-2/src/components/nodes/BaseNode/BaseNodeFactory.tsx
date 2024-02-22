@@ -10,23 +10,20 @@
 import React from "react";
 import { AbstractReactFactory, GenerateModelEvent, GenerateWidgetEvent } from "@projectstorm/react-canvas-core";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { MediatorNodeModel } from "./MediatorNodeModel";
-import { MediatorNodeWidget } from "./MediatorNodeWidget";
+import { BaseNodeModel } from "./BaseNodeModel";
+import { BaseNodeWidget } from "./BaseNodeWidget";
 import { NodeTypes } from "../../../resources/constants";
 
-export class MediatorNodeFactory extends AbstractReactFactory<MediatorNodeModel, DiagramEngine> {
+export class BaseNodeFactory extends AbstractReactFactory<BaseNodeModel, DiagramEngine> {
     constructor() {
-        super(NodeTypes.MEDIATOR_NODE);
+        super(NodeTypes.BASE_NODE);
     }
 
-    generateModel(event: GenerateModelEvent): MediatorNodeModel {
-        return new MediatorNodeModel(event.initialConfig.stNode, event.initialConfig.mediatorName, event.initialConfig.documentUri);
+    generateModel(event: GenerateModelEvent): BaseNodeModel {
+        return new BaseNodeModel(event.initialConfig);
     }
 
-    generateReactWidget(event: GenerateWidgetEvent<MediatorNodeModel>) {
-        return <MediatorNodeWidget
-            engine={this.engine}
-            node={event.model}
-        />;
+    generateReactWidget(event: GenerateWidgetEvent<BaseNodeModel>) {
+        return <BaseNodeWidget engine={this.engine} model={event.model} />;
     }
 }

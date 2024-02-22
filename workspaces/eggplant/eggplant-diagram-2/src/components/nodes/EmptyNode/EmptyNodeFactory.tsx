@@ -8,7 +8,7 @@
  */
 
 import React from "react";
-import { AbstractReactFactory, GenerateModelEvent, GenerateWidgetEvent } from "@projectstorm/react-canvas-core";
+import { AbstractReactFactory, GenerateWidgetEvent } from "@projectstorm/react-canvas-core";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { EmptyNodeModel } from "./EmptyNodeModel";
 import { EmptyNodeWidget } from "./EmptyNodeWidget";
@@ -19,8 +19,8 @@ export class EmptyNodeFactory extends AbstractReactFactory<EmptyNodeModel, Diagr
         super(NodeTypes.EMPTY_NODE);
     }
 
-    generateModel(event: GenerateModelEvent): EmptyNodeModel {
-        return new EmptyNodeModel(event.initialConfig.stNode);
+    generateModel(): EmptyNodeModel {
+        return new EmptyNodeModel();
     }
 
     generateReactWidget(event: GenerateWidgetEvent<EmptyNodeModel>) {
