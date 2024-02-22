@@ -110,7 +110,13 @@ import {
     browseFile,
     CreateRegistryResourceRequest,
     CreateRegistryResourceResponse,
-    createRegistryResource
+    createRegistryResource,
+    CreateTaskRequest,
+    CreateTaskResponse,
+    createTask,
+    GetTaskRequest,
+    GetTaskResponse,
+    getTask,
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -204,6 +210,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
   
     createProxyService(params: CreateProxyServiceRequest): Promise<CreateProxyServiceResponse> {
         return this._messenger.sendRequest(createProxyService, HOST_EXTENSION, params);
+    }
+
+    createTask(params: CreateTaskRequest): Promise<CreateTaskResponse> {
+        return this._messenger.sendRequest(createTask, HOST_EXTENSION, params);
+    }
+
+    getTask(params: GetTaskRequest): Promise<GetTaskResponse> {
+        return this._messenger.sendRequest(getTask, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {

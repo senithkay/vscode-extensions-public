@@ -71,7 +71,11 @@ import {
     BrowseFileResponse,
     BrowseFileRequest,
     CreateRegistryResourceRequest,
-    CreateRegistryResourceResponse
+    CreateRegistryResourceResponse,
+    CreateTaskRequest,
+    CreateTaskResponse,
+    GetTaskRequest,
+    GetTaskResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import * as fs from "fs";
@@ -81,7 +85,7 @@ import { Position, Range, Selection, Uri, WorkspaceEdit, commands, window, works
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { createFolderStructure, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper } from "../../util";
+import { createFolderStructure, getTaskXmlWrapper, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper } from "../../util";
 import { getMediatypeAndFileExtension, addNewEntryToArtifactXML } from "../../util/fileOperations";
 import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
 import { rootPomXmlContent } from "../../util/templates";
@@ -499,6 +503,77 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const filePath = path.join(directory, `${proxyServiceName}.xml`);
             fs.writeFileSync(filePath, xmlData);
             resolve({ path: filePath });
+        });
+    }
+
+    async createTask(params: CreateTaskRequest): Promise<CreateTaskResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, ...templateParams } = params;
+
+            const xmlData = getTaskXmlWrapper(templateParams);
+
+            let filePath: string;
+            
+            if(directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${templateParams.name}.xml`);
+            }
+
+            fs.writeFileSync(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getTask(params: GetTaskRequest): Promise<GetTaskResponse> {
+        const options = {
+            ignoreAttributes: false,
+            allowBooleanAttributes: true,
+            attributeNamePrefix: "@_",
+            attributesGroupName: "@_"
+        };
+        const parser = new XMLParser(options);
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (fs.existsSync(filePath)) {
+                const xmlData = fs.readFileSync(filePath, "utf8");
+                const jsonData = parser.parse(xmlData);
+
+                const response: GetTaskResponse = {
+                    name: jsonData.task["@_"]["@_name"],
+                    group: jsonData.task["@_"]["@_group"],
+                    implementation: jsonData.task["@_"]["@_class"],
+                    pinnedServers: jsonData.task["@_"]["@_pinnedServers"],
+                    triggerType: 'simple',
+                    triggerCount: 1,
+                    triggerInterval: 1,
+                    triggerCron: ''
+                };
+
+                if (jsonData.task.trigger["@_"]["@_count"] !== undefined) {
+                    response.triggerCount = Number(jsonData.task.trigger["@_"]["@_count"]);
+                    response.triggerInterval = Number(jsonData.task.trigger["@_"]["@_interval"]);
+                }
+                else if(jsonData.task.trigger["@_"]["@_cron"] !== undefined) {
+                    response.triggerType = 'cron';
+                    response.triggerCron = jsonData.task.trigger["@_"]["@_cron"];
+                }
+
+                resolve(response);
+            }
+
+            resolve({
+                name: '',
+                group: '',
+                implementation: '',
+                pinnedServers: '',
+                triggerType: 'simple',
+                triggerCount: 1,
+                triggerInterval: 1,
+                triggerCron: ''
+            });
         });
     }
 

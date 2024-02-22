@@ -15,6 +15,7 @@ import { getInboundEndpointdXml, GetInboundTemplatesArgs } from './template-engi
 import { getRegistryResource } from './template-engine/mustach-templates/registryResources';
 import { getMessageProcessorXml, MessageProcessorTemplateArgs } from './template-engine/mustach-templates/MessageProcessor';
 import { getProxyServiceXml, ProxyServiceTemplateArgs } from './template-engine/mustach-templates/ProxyService';
+import { GetTaskTemplatesArgs, getTaskXml } from './template-engine/mustach-templates/tasks';
 
 const isDevMode = process.env.WEB_VIEW_WATCH_MODE === "true";
 
@@ -56,4 +57,8 @@ export function getMessageProcessorXmlWrapper(props: MessageProcessorTemplateArg
 
 export function getProxyServiceXmlWrapper(props: ProxyServiceTemplateArgs) {
 	return getProxyServiceXml(props);
+}
+
+export function getTaskXmlWrapper(data: GetTaskTemplatesArgs) {
+    return getTaskXml(data);
 }

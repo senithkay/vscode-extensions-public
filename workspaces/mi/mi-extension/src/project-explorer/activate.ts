@@ -27,7 +27,8 @@ export function activateProjectExplorer(context: ExtensionContext) {
 			{ label: 'Sequence', description: 'Add new sequence' },
 			{ label: 'Inbound Endpoint', description: 'Add new inbound endpoint' },
 			{ label: 'Local Entry', description: 'Add new local entry' },
-			{ label: 'Message Processor', description: 'Add new message processor' }
+			{ label: 'Message Processor', description: 'Add new message processor' },
+			{ label: 'Task', description: 'Add new task' }
 		], {
 			placeHolder: 'Select the construct to add'
 		}).then(selection => {
@@ -41,6 +42,8 @@ export function activateProjectExplorer(context: ExtensionContext) {
 				commands.executeCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND);
 			} else if (selection?.label === 'Message Processor') {
 				commands.executeCommand(COMMANDS.ADD_MESSAGE_PROCESSOR_COMMAND);
+			} else if (selection?.label === 'Task') {
+				commands.executeCommand(COMMANDS.ADD_TASK_COMMAND);
 			} else if (selection?.label === 'New Project') {
 				commands.executeCommand(COMMANDS.CREATE_PROJECT_COMMAND);
 			} else if (selection?.label === 'Local Entry') {
@@ -82,6 +85,10 @@ export function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.ADD_PROXY_SERVICE_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProxyServiceForm, documentUri: entry.info?.path });
 		console.log('Add Proxy Service');
+	});
+
+	commands.registerCommand(COMMANDS.ADD_TASK_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TaskForm, documentUri:entry.info?.path });
 	});
 
 	commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
@@ -135,6 +142,10 @@ export function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.SHOW_DIAGRAM, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Diagram, documentUri: documentUri?.fsPath, identifier: resourceIndex });
+	})
+	commands.registerCommand(COMMANDS.SHOW_VIEW, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TaskForm, documentUri: documentUri?.fsPath });
 	})
 	commands.registerCommand(COMMANDS.SHOW_SOURCE, (e: any) => {
 		const documentUri = StateMachine.context().documentUri;
