@@ -16,12 +16,12 @@ import { generateEngine } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { BaseNodeModel } from "./nodes/BaseNode/BaseNodeModel";
-import { Flow } from "../utils/types";
-import { traverseFlow } from "../utils/ast";
+import { Flow, Node } from "../utils/types";
+import { traverseFlow, traverseNode } from "../utils/ast";
 import { NodeLinkModel } from "./NodeLink/NodeLinkModel";
 
 export interface DiagramProps {
-    model: Flow;
+    model: Node;
 }
 
 export function Diagram(props: DiagramProps) {
@@ -40,13 +40,13 @@ export function Diagram(props: DiagramProps) {
     const getDiagramData = () => {
         // run sizing visitor
         const sizingVisitor = new SizingVisitor();
-        traverseFlow(model, sizingVisitor);
+        traverseNode(model, sizingVisitor);
         // run position visitor
         const positionVisitor = new PositionVisitor();
-        traverseFlow(model, positionVisitor);
+        traverseNode(model, positionVisitor);
         // run node visitor
         const nodeVisitor = new NodeFactoryVisitor();
-        traverseFlow(model, nodeVisitor);
+        traverseNode(model, nodeVisitor);
 
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();

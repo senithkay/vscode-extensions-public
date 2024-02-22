@@ -25,43 +25,66 @@ export class PositionVisitor implements BaseVisitor {
         return this.skipChildrenVisit;
     }
 
-    beginVisitNode(node: Node): void {
-        if (!node.id) {
+    beginVisitNode(node: Node, parent: Node): void {
+        if (!node.id && node.kind !== "FLOW") {
             return;
         }
         if (node.viewState == undefined) {
             console.warn(">>> unvisited node", node);
         }
-        node.viewState.y = this.lastY + node.viewState.h + NODE_GAP_Y;
-        this.lastY = node.viewState.y;
+        if (parent?.viewState) {
+            node.viewState.x = parent.viewState.x + parent.viewState.w / 2;
+            this.nextX = node.viewState.x;
+        }
+
+        node.viewState.y = this.lastY + NODE_GAP_Y;
+        this.lastY = node.viewState.y + node.viewState.h;
+        console.log(">>> >>> begin visit node", node);
     }
 
-    endVisitNode(node: Node): void {
-        if (!node.id) {
-            return;
-        }
+    // endVisitNode(node: Node): void {
+    //     if (!node.id) {
+    //         return;
+    //     }
+    //     console.log(">>> end visit node", node);
+    //     if (node.viewState == undefined) {
+    //         console.warn(">>> unvisited node", node);
+    //     }
+    //     node.viewState.x = this.nextX;
+    //     this.lastY = node.viewState.y;
+    // }
+
+    beginVisitIf(node: Node, parent?: Node): void {
         if (node.viewState == undefined) {
             console.warn(">>> unvisited node", node);
         }
-        node.viewState.x = this.nextX;
-        this.lastY = node.viewState.y;
+        if (parent?.viewState) {
+            node.viewState.x = parent.viewState.x + parent.viewState.w / 2;
+            this.nextX = node.viewState.x;
+        }
+
+        node.viewState.y = this.lastY + NODE_GAP_Y;
+        this.lastY = node.viewState.y + node.viewState.h;
+
+        this.branchParentY = this.lastY;
     }
 
-    beginVisitIf(node: Node): void {
-        node.viewState.y = this.lastY + node.viewState.h + NODE_GAP_Y;
-        this.lastY = node.viewState.y;
-
-        this.branchParentY = node.viewState.y;
-    }
-
-    endVisitThenBranchBody(node: Node): void {
+    endVisitThenBranchBody(node: Node, parent?: Node): void {
+        console.log(">>> end visit then branch body", node);
         // set x for next branch
-        this.nextX = this.nextX + node.viewState.w + NODE_GAP_X;
+        this.nextX = parent.viewState.x + parent.viewState.w + NODE_GAP_X;
         this.lastY = this.branchParentY;
     }
 
-    endVisitElseBranchBody(node: Node): void {
-        // set x for root branch
-        this.nextX = this.nextX - (node.viewState.w + NODE_GAP_X) / 2;
-    }
+    // endVisitElseBranchBody(node: Node): void {
+    //     console.log(">>> end visit else branch body", node);
+    //     // set x for root branch
+    //     this.nextX = this.nextX - (node.viewState.w + NODE_GAP_X) / 2;
+    // }
+
+    // endVisitIf(node: Node): void {
+    //     console.log(">>> end visit if", node);
+    //     node.viewState.x = this.nextX;
+    //     this.lastY = node.viewState.y;
+    // }
 }

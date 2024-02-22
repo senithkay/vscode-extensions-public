@@ -15,6 +15,9 @@ export interface BaseVisitor {
     beginVisitNode?(node: Node, parent?: Node): void;
     endVisitNode?(node: Node, parent?: Node): void;
 
+    beginVisitFlow?(node: Node, parent?: Node): void;
+    endVisitFlow?(node: Node, parent?: Node): void;
+
     beginVisitIf?(node: Node, parent?: Node): void;
     endVisitIf?(node: Node, parent?: Node): void;
     
