@@ -23,7 +23,7 @@
     "commands": [
       {
         "command": "fhir-tools.hl7v2tofhir",
-        "title": "Convert HL7 v2 to FHIR",
+        "title": "Convert HL7v2 to FHIR",
         "category": "Health Care",
         "icon": "$(flame)",
         "when": "isHL7v2"
