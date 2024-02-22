@@ -38,7 +38,7 @@
    * LTS schedule: https://nodejs.org/en/about/releases/
    * LTS versions: https://nodejs.org/en/download/releases/
    */
-  "nodeSupportedVersionRange": ">=16.13.0 <=18.19.2",
+  "nodeSupportedVersionRange": ">=16.13.0 <=21.19.2",
   /**
    * If the version check above fails, Rush will display a message showing the current
    * node version and the supported version range. You can use this setting to provide
@@ -458,6 +458,26 @@
       "packageName": "@wso2-enterprise/choreo-vscode-webviews",
       "projectFolder": "workspaces/choreo/choreo-webviews",
       "versionPolicyName": "choreo-extension"
+    },
+    {
+      "packageName": "fhir-tools",
+      "projectFolder": "workspaces/fhir-tools/fhir-tools-extension",
+      "versionPolicyName": "fhir-tools-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/fhir-tools-webview",
+      "projectFolder": "workspaces/fhir-tools/webview",
+      "versionPolicyName": "fhir-tools-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/fhir-tools-core",
+      "projectFolder": "workspaces/fhir-tools/fhir-tools-core",
+      "versionPolicyName": "fhir-tools-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/fhir-tools-rpc-client",
+      "projectFolder": "workspaces/fhir-tools/fhir-tools-rpc-client",
+      "versionPolicyName": "fhir-tools-extension"
     },
     // {
     //   "packageName": "@wso2-enterprise/ballerina-data-mapper",
