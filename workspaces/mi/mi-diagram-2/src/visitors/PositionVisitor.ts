@@ -8,14 +8,13 @@
  */
 
 import { STNode, Visitor, Log, WithParam, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { MEDIATORS, NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
+import { NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
 
 export class PositionVisitor implements Visitor {
     private position = {
         x: 0,
         y: 40
     };
-    private nodes: STNode[] = [];
     private skipChildrenVisit = false;
 
     constructor(sequenceWidth: number) {
@@ -38,7 +37,7 @@ export class PositionVisitor implements Visitor {
         }
         node.viewState.x = this.position.x - (node.viewState.w / 2);
         node.viewState.y = this.position.y;
-        this.position.y += NODE_GAP.Y + node.viewState.h;
+        this.position.y += NODE_GAP.Y + Math.max(node.viewState.h, node.viewState.fh || 0);
     }
 
     private setAdvancedMediatorPosition(node: STNode, subSequences: { [x: string]: any; }): void {
@@ -76,7 +75,7 @@ export class PositionVisitor implements Visitor {
 
         this.position.x = centerX - (branchesWidth / 2);
         for (let i = 0; i < subSequenceKeys.length; i++) {
-            this.position.y = node.viewState.y + node.viewState.h + NODE_GAP.Y + 40 + NODE_GAP.BRANCH_TOP;
+            this.position.y = node.viewState.y + node.viewState.h + NODE_GAP.BRANCH_TOP;
             const subSequence = subSequences[subSequenceKeys[i]];
 
             this.position.x += i > 0 ? sequenceTypeOffsets[i].l : 0;
@@ -90,7 +89,7 @@ export class PositionVisitor implements Visitor {
 
         // set filter node positions after traversing children
         this.position.x = node.viewState.x + node.viewState.w / 2;
-        this.position.y = node.viewState.y + node.viewState.fh + 100 + NODE_GAP.BRANCH_BOTTOM;
+        this.position.y = node.viewState.y + node.viewState.fh;
         this.skipChildrenVisit = true;
     }
 
@@ -118,6 +117,7 @@ export class PositionVisitor implements Visitor {
         this.setBasicMediatorPosition(node);
     }
     endVisitInSequence = (node: Sequence): void => {
+        node.viewState.fh = this.position.y - node.viewState.y;
         this.position.y += NODE_GAP.Y + node.viewState.h;
     }
 

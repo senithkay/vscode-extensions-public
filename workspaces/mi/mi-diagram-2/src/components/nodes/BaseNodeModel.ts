@@ -76,7 +76,7 @@ export class BaseNodeModel extends NodeModel {
 
     onClicked(visualizerContext: ReturnType<typeof useVisualizerContext>): void {
         visualizerContext.rpcClient.getMiDiagramRpcClient().highlightCode({
-            range: { start: this.stNode.range.startTagRange.start, end: this.stNode.range.endTagRange.end },
+            range: { start: this.stNode.range.startTagRange.start, end: this.stNode.range.endTagRange.end || this.stNode.range.startTagRange.end },
         });
     }
 }

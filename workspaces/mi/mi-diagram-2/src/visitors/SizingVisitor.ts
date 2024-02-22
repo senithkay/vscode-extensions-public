@@ -53,7 +53,7 @@ export class SizingVisitor implements Visitor {
         }
 
         node.viewState.fw = subSequencesWidth;
-        node.viewState.fh = subSequencesHeight;
+        node.viewState.fh = subSequencesHeight + NODE_DIMENSIONS.CONDITION.HEIGHT + NODE_GAP.BRANCH_TOP + NODE_GAP.BRANCH_BOTTOM;
 
         this.sequenceWidth = Math.max(this.sequenceWidth, node.viewState.fw);
     }
@@ -64,9 +64,7 @@ export class SizingVisitor implements Visitor {
 
     // visitors
     endVisitCall = (node: Call): void => {
-        if (node.endpoint) {
-            node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CALL.WIDTH, fw: NODE_DIMENSIONS.CALL.FULL_WIDTH, h: NODE_DIMENSIONS.DEFAULT.HEIGHT, l: NODE_DIMENSIONS.CALL.WIDTH / 2, r: NODE_DIMENSIONS.CALL.FULL_WIDTH - NODE_DIMENSIONS.CALL.WIDTH / 2 };
-        }
+        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CALL.WIDTH, fw: NODE_DIMENSIONS.CALL.FULL_WIDTH, h: NODE_DIMENSIONS.DEFAULT.HEIGHT, l: NODE_DIMENSIONS.CALL.WIDTH / 2, r: NODE_DIMENSIONS.CALL.FULL_WIDTH - NODE_DIMENSIONS.CALL.WIDTH / 2 };
         this.calculateBasicMediator(node);
     }
     endVisitCallout = (node: Callout): void => this.calculateBasicMediator(node);
