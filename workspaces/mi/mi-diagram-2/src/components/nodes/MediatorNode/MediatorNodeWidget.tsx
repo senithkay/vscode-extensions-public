@@ -14,10 +14,11 @@ import { MediatorNodeModel } from "./MediatorNodeModel";
 import { Colors } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { Button, Popover } from "@wso2-enterprise/ui-toolkit";
-import { SendIcon, LogIcon, CodeIcon, MoreVertIcon } from "../../../resources";
+import { CodeIcon, MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { getDataFromXML } from "../../../utils/template-engine/mustach-templates/templateUtils";
+import { getSVGIcon } from "../../../resources/icons/mediatorIcons/icons";
 
 namespace S {
     export type NodeStyleProp = {
@@ -85,18 +86,6 @@ namespace S {
         text-overflow: ellipsis;
     `;
 }
-
-const getNodeIcon = (tag: string) => {
-    switch (tag) {
-        case "send":
-            return <SendIcon />;
-        case "log":
-            return <LogIcon />;
-        default:
-            return <CodeIcon />;
-    }
-};
-
 interface CallNodeWidgetProps {
     node: MediatorNodeModel;
     engine: DiagramEngine;
@@ -156,7 +145,7 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
             >
                 <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                 <S.Header>
-                    <S.IconContainer>{getNodeIcon(node.stNode.tag)}</S.IconContainer>
+                    <S.IconContainer>{getSVGIcon(node.stNode.tag)}</S.IconContainer>
                     <S.NodeText>{node.stNode.tag}</S.NodeText>
                     {isHovered && (
                         <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>

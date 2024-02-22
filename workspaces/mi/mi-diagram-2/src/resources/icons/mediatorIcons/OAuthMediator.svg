@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- 
+ Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+
+ This software is the property of WSO2 LLC. and its suppliers, if any.
+ Dissemination of any information or reproduction of any material contained
+ herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ You may not alter or remove any copyright or other notice from copies of this content.
+-->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   viewBox="0 0 20.668121 23.647999"
+   height="23.647999"
+   width="20.668121"
+   xml:space="preserve"
+   id="svg2"
+   version="1.1"><metadata
+     id="metadata8"><rdf:RDF><cc:Work
+         rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
+     id="defs6"><clipPath
+       id="clipPath18"
+       clipPathUnits="userSpaceOnUse"><path
+         id="path16"
+         d="M 0,25 H 25 V 0 H 0 Z" /></clipPath></defs><g
+     transform="matrix(1.3333333,0,0,-1.3333333,-6.332834,28.490399)"
+     id="g10"><g
+       id="g12"><g
+         clip-path="url(#clipPath18)"
+         id="g14"><g
+           transform="translate(17.3936,4.6318)"
+           id="g20"><path
+             id="path22"
+             style="fill:none;stroke:#34495e;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+             d="M 0,0 C -0.807,0 -1.515,0.511 -1.762,1.271 L -2.66,4.01 H -7.156 L -7.991,1.297 C -8.243,0.521 -8.957,0.002 -9.768,0.002 c -0.194,0 -0.388,0.031 -0.575,0.092 -0.969,0.291 -1.519,1.334 -1.222,2.324 l 3.794,12.02 c 0.247,0.765 0.972,1.298 1.765,1.298 h 2.018 c 0.796,0 1.521,-0.524 1.763,-1.275 L 1.766,2.445 C 2.085,1.464 1.557,0.409 0.589,0.094 0.397,0.031 0.199,0 0,0 Z" /></g></g></g></g></svg>

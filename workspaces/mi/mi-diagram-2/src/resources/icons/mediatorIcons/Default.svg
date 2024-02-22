@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- 
+ Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+
+ This software is the property of WSO2 LLC. and its suppliers, if any.
+ Dissemination of any information or reproduction of any material contained
+ herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ You may not alter or remove any copyright or other notice from copies of this content.
+-->
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" height="30" width="30" id="default-svg" version="1.1">
+   <circle cx="25" cy="25" r="20" stroke="black" stroke-width="2" fill="red" />
+</svg>

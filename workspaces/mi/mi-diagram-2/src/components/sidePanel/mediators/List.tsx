@@ -9,10 +9,10 @@
 
 import { Button, IconLabel } from '@wso2-enterprise/ui-toolkit';
 import React, { ReactNode } from 'react';
-import { LogIcon } from '../../../resources';
 import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
 import { getAllMediators } from './Values';
+import { getSVGIcon } from '../../../resources/icons/mediatorIcons/icons';
 
 const ButtonGrid = styled.div`
     display: grid;
@@ -91,7 +91,11 @@ export function Mediators(props: MediatorProps) {
                                         display: 'flex',
                                         alignItems: 'center',
                                     }}>
-                                        <LogIcon />
+                                        <div style={{
+                                            width: "50px",
+                                        }}>
+                                            {getSVGIcon(action.operationName as string)}
+                                        </div>
                                         <div >
                                             <IconLabel>{action.title.charAt(0).toUpperCase() + action.title.slice(1)}</IconLabel>
                                         </div>

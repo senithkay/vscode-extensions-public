@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- 
+ Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+
+ This software is the property of WSO2 LLC. and its suppliers, if any.
+ Dissemination of any information or reproduction of any material contained
+ herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ You may not alter or remove any copyright or other notice from copies of this content.
+-->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   viewBox="0 0 28.132088 14.49214"
+   height="14.49214"
+   width="28.132088"
+   xml:space="preserve"
+   id="svg2"
+   version="1.1"><metadata
+     id="metadata8"><rdf:RDF><cc:Work
+         rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
+     id="defs6"><clipPath
+       id="clipPath24"
+       clipPathUnits="userSpaceOnUse"><path
+         id="path22"
+         d="M 0,25 H 25 V 0 H 0 Z" /></clipPath><clipPath
+       id="clipPath38"
+       clipPathUnits="userSpaceOnUse"><path
+         id="path36"
+         d="M 0,25 H 25 V 0 H 0 Z" /></clipPath></defs><g
+     transform="matrix(1.3333333,0,0,-1.3333333,-2.5991171,23.912801)"
+     id="g10"><path
+       id="path12"
+       style="fill:none;stroke:#955ba5;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       d="M 17.962,7.854 H 4.265 v 9.291 h 13.697 z" /><g
+       transform="translate(7.3809,10.1865)"
+       id="g14"><path
+         id="path16"
+         style="fill:none;stroke:#955ba5;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+         d="M 0,0 2.102,2.101 0.033,4.17" /></g><g
+       id="g18"><g
+         clip-path="url(#clipPath24)"
+         id="g20"><g
+           transform="translate(9.4824,12.2876)"
+           id="g26"><path
+             id="path28"
+             style="fill:none;stroke:#955ba5;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+             d="M 0,0 -7.532,-0.016" /></g></g></g><path
+       id="path30"
+       style="fill:#955ba5;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       d="m 16.174,10.187 h -5.273 v 4.627 h 5.273 z" /><g
+       id="g32"><g
+         clip-path="url(#clipPath38)"
+         id="g34"><g
+           transform="translate(21.2324,17.9346)"
+           id="g40"><path
+             id="path42"
+             style="fill:#955ba5;fill-opacity:1;fill-rule:nonzero;stroke:none"
+             d="m 0,0 c -0.997,0.001 -1.808,-0.81 -1.806,-1.806 l 0.004,-2.241 c 0,-0.153 0.124,-0.277 0.278,-0.277 0.152,0 0.275,0.123 0.275,0.276 l -0.004,2.241 c -0.001,0.692 0.562,1.254 1.254,1.254 0.692,-0.001 1.258,-0.566 1.259,-1.258 l 0.004,-2.96 C 1.265,-5.105 1.135,-5.421 0.897,-5.658 0.661,-5.895 0.346,-6.024 0.01,-6.024 c -0.153,0 -0.277,-0.123 -0.276,-0.277 0,-0.152 0.124,-0.276 0.277,-0.276 0.483,-0.001 0.937,0.186 1.278,0.528 0.342,0.341 0.528,0.795 0.527,1.278 L 1.812,-1.812 C 1.811,-0.815 0.998,-0.002 0,0" /></g><g
+           transform="translate(22.4795,11.0615)"
+           id="g44"><path
+             id="path46"
+             style="fill:#955ba5;fill-opacity:1;fill-rule:nonzero;stroke:none"
+             d="m 0,0 0.004,-2.189 c 0,-0.335 -0.13,-0.651 -0.367,-0.888 -0.237,-0.236 -0.552,-0.367 -0.887,-0.366 -0.692,0.002 -1.257,0.566 -1.258,1.257 l -0.005,2.959 c -10e-4,0.693 0.562,1.256 1.254,1.255 0.153,-10e-4 0.277,0.123 0.276,0.276 0,0.153 -0.123,0.276 -0.277,0.277 -0.997,10e-4 -1.807,-0.81 -1.805,-1.807 l 0.003,-2.959 c 0.002,-0.997 0.815,-1.809 1.813,-1.811 0.482,-10e-4 0.937,0.186 1.277,0.527 0.342,0.342 0.53,0.796 0.529,1.279 L 0.553,-0.001 C 0.553,0.151 0.429,0.275 0.276,0.275 0.124,0.275 0,0.152 0,0" /></g></g></g></g></svg>
