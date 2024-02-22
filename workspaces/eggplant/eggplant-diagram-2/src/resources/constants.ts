@@ -37,7 +37,6 @@ export enum VSCodeColors {
     SECONDARY = "var(--vscode-editorLightBulb-foreground)",
     ON_SECONDARY = "var(--vscode-button-foreground)",
     SECONDARY_CONTAINER = "var(--vscode-sideBar-background)",
-    SECONDARY_BUTTON = "var(--button-secondary-background)",
 
     SURFACE_BRIGHT = "var(--vscode-editor-background)",
     SURFACE = "var(--vscode-sideBar-background)",
@@ -62,7 +61,6 @@ export const Colors = {
     ON_SECONDARY: VSCodeColors.ON_SECONDARY || DefaultColors.ON_SECONDARY,
     SECONDARY_CONTAINER:
         VSCodeColors.SECONDARY_CONTAINER || DefaultColors.SECONDARY_CONTAINER,
-    SECONDARY_BUTTON: VSCodeColors.SECONDARY_BUTTON || DefaultColors.SECONDARY,
 
     SURFACE_BRIGHT: VSCodeColors.SURFACE_BRIGHT || DefaultColors.SURFACE_BRIGHT,
     SURFACE: VSCodeColors.SURFACE || DefaultColors.SURFACE,
@@ -75,63 +73,22 @@ export const Colors = {
 
     OUTLINE: VSCodeColors.OUTLINE || DefaultColors.OUTLINE,
     OUTLINE_VARIANT:
-       DefaultColors.OUTLINE_VARIANT,
+        VSCodeColors.OUTLINE_VARIANT || DefaultColors.OUTLINE_VARIANT,
 
     ERROR: VSCodeColors.ERROR || DefaultColors.ERROR,
 };
 
-export const NODE_GAP = {
-    X: 0,
-    Y: 50,
-    BRANCH_X: 100,
-    BRANCH_TOP: 0,
-    BRANCH_BOTTOM: 80
-};
-
-export const NODE_DIMENSIONS = {
-    DEFAULT: {
-        WIDTH: 120,
-        HEIGHT: 40,
-    },
-    START: {
-        WIDTH: 24,
-        HEIGHT: 24,
-    },
-    CONDITION: {
-        WIDTH: 65,
-        HEIGHT: 65,
-    },
-    CALL: {
-        WIDTH: 120,
-        FULL_WIDTH: 120 + 110,
-        HEIGHT: 50,
-    },
-    EMPTY: {
-        WIDTH: 12,
-        HEIGHT: 12,
-    },
-};
-
-export const ENDPOINTS = {
-    ADDRESS: "Address",
-    DEFAULT: "Default",
-    FAILOVER: "Failover",
-    HTTP: "Http",
-    LOADBALANCE: "Loadbalance",
-    NAMED: "Named",
-    RECIPIENTLIST: "Recipientlist",
-    TEMPLATE: "Template",
-    WSDL: "wsdl",
-}
-
 export enum NodeTypes {
-    START_NODE = "start-node",
-    END_NODE = "end-node",
-    MEDIATOR_NODE = "mediator-node",
-    CONDITION_NODE = "condition-node",
-    CALL_NODE = "call-node",
+    BASE_NODE = "base-node",
     EMPTY_NODE = "empty-node",
 }
 
 export const NODE_LINK = "node-link";
 export const NODE_PORT = "node-port";
+
+// sizing
+export const NODE_WIDTH = 280;
+export const NODE_HEIGHT = 50;
+
+// position
+export const NODE_GAP = 100;
