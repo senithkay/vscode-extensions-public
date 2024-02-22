@@ -59,7 +59,7 @@ namespace S {
     `;
 
     export const BottomPortWidget = styled(PortWidget)`
-        margin-bottom: -3px;
+        margin-bottom: -2px;
     `;
 
     export const StyledText = styled.div`
@@ -120,6 +120,7 @@ export function BaseNodeWidget(props: CallNodeWidgetProps) {
                     <MoreVertIcon />
                 </S.StyledButton>
             </S.Header>
+            {/* todo: generate dynamic form with node attributes */}
             <S.Body>
                 <S.Row>
                     <S.StyledText>Condition </S.StyledText>

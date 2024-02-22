@@ -91,4 +91,5 @@ export const NODE_WIDTH = 280;
 export const NODE_HEIGHT = 50;
 
 // position
-export const NODE_GAP = 100;
+export const NODE_GAP_Y = 120;
+export const NODE_GAP_X = 100;

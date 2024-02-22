@@ -17,5 +17,10 @@ export interface BaseVisitor {
 
     beginVisitIf?(node: Node, parent?: Node): void;
     endVisitIf?(node: Node, parent?: Node): void;
+    
+    beginVisitThenBranchBody?(node: Node, parent?: Node): void;
+    endVisitThenBranchBody?(node: Node, parent?: Node): void;
 
+    beginVisitElseBranchBody?(node: Node, parent?: Node): void;
+    endVisitElseBranchBody?(node: Node, parent?: Node): void;
 }

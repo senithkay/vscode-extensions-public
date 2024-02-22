@@ -47,19 +47,15 @@ export function Diagram(props: DiagramProps) {
         // run node visitor
         const nodeVisitor = new NodeFactoryVisitor();
         traverseFlow(model, nodeVisitor);
+
         const nodes = nodeVisitor.getNodes();
-        console.log(">>> getNodes", nodes);
         const links = nodeVisitor.getLinks();
-        console.log(">>> getLinks", links);
         return { nodes, links };
     };
 
     const drawDiagram = (nodes: BaseNodeModel[], links: NodeLinkModel[]) => {
         const newDiagramModel = new DiagramModel();
         newDiagramModel.addAll(...nodes, ...links);
-        // uncomment below to see the sample diagram. comment above line
-        // sampleDiagram(model, newDiagramModel);
-
         diagramEngine.setModel(newDiagramModel);
         setDiagramModel(newDiagramModel);
     };

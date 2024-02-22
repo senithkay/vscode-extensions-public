@@ -11,14 +11,6 @@ import { NODE_HEIGHT, NODE_WIDTH } from "../resources/constants";
 import { Node } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
-const calculateBasicNode = (node: Node): void => {
-    if (node.viewState == undefined) {
-        node.viewState = { x: 0, y: 0, w: 0, h: 0 };
-    }
-    node.viewState.w = NODE_WIDTH;
-    node.viewState.h = NODE_HEIGHT;
-};
-
 export class SizingVisitor implements BaseVisitor {
     private nodes: Node[] = [];
     private skipChildrenVisit = false;
@@ -27,7 +19,16 @@ export class SizingVisitor implements BaseVisitor {
         console.log("sizing visitor started");
     }
 
-    endVisitNode = (node: Node): void => calculateBasicNode(node);
+    createBaseNode(node: Node): void {
+        if (node.viewState == undefined) {
+            node.viewState = { x: 0, y: 0, w: 0, h: 0 };
+        }
+        node.viewState.w = NODE_WIDTH;
+        node.viewState.h = NODE_HEIGHT;
+        this.nodes.push(node);
+    }
+
+    endVisitNode = (node: Node): void => this.createBaseNode(node);
 
     skipChildren(): boolean {
         return this.skipChildrenVisit;

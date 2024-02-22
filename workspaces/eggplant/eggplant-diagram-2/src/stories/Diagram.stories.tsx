@@ -28,6 +28,22 @@ const resourceModel: any = {
             fixed: true,
         },
         {
+            kind: "VARIABLE",
+            label: "Variable",
+            name: {
+                key: "name",
+                type: "string",
+                value: "kandy",
+                typeKind: "BTYPE",
+            },
+            id: "7",
+            lineRange: {
+                fileName: "",
+                startLine: [8, 9],
+                endLine: [8, 17],
+            },
+        },
+        {
             kind: "IF",
             label: "If",
             condition: {
@@ -36,132 +52,149 @@ const resourceModel: any = {
                 value: 'name == "kandy"',
                 typeKind: "BTYPE",
             },
-            thenBranch: [
-                {
-                    label: "HTTP GET",
-                    kind: "HTTP_API_GET_CALL",
-                    client: {
-                        key: "client",
-                        type: "http:Client",
-                        value: "asiri",
-                        typeKind: "BTYPE",
+            thenBranch: {
+                kind: "THEN_BRANCH_BODY",
+                children: [
+                    {
+                        label: "HTTP GET",
+                        kind: "HTTP_API_GET_CALL",
+                        client: {
+                            key: "client",
+                            type: "http:Client",
+                            value: "asiri",
+                            typeKind: "BTYPE",
+                        },
+                        path: {
+                            key: "path",
+                            type: "string",
+                            value: "/doctors/kandy",
+                            typeKind: "BTYPE",
+                        },
+                        headers: {
+                            key: "headers",
+                            type: "map<string|string[]>?",
+                            typeKind: "BTYPE",
+                            optional: true,
+                        },
+                        targetType: {
+                            key: "targetType",
+                            type: "Response|anydata",
+                            value: "json",
+                            typeKind: "BTYPE",
+                        },
+                        params: {
+                            key: "params",
+                            type: "http:QueryParamType",
+                            value: [],
+                            optional: true,
+                        },
+                        variable: {
+                            key: "j",
+                            type: "json",
+                            typeKind: "BTYPE",
+                        },
+                        id: "3",
+                        lineRange: {
+                            fileName: "",
+                            startLine: [9, 13],
+                            endLine: [9, 57],
+                        },
                     },
-                    path: {
-                        key: "path",
-                        type: "string",
-                        value: "/doctors/kandy",
-                        typeKind: "BTYPE",
+                    {
+                        expr: {
+                            key: "expression",
+                            type: "json",
+                            value: "j",
+                            typeKind: "BTYPE",
+                        },
+                        kind: "RETURN",
+                        returning: true,
+                        id: "5",
+                        lineRange: {
+                            fileName: "",
+                            startLine: [10, 13],
+                            endLine: [10, 22],
+                        },
                     },
-                    headers: {
-                        key: "headers",
-                        type: "map<string|string[]>?",
-                        typeKind: "BTYPE",
-                        optional: true,
+                ],
+            },
+            elseBranch: {
+                kind: "ELSE_BRANCH_BODY",
+                children: [
+                    {
+                        label: "HTTP GET",
+                        kind: "HTTP_API_GET_CALL",
+                        client: {
+                            key: "client",
+                            type: "http:Client",
+                            value: "nawaloka",
+                            typeKind: "BTYPE",
+                        },
+                        path: {
+                            key: "path",
+                            type: "string",
+                            value: "/doctors",
+                            typeKind: "BTYPE",
+                        },
+                        headers: {
+                            key: "headers",
+                            type: "map<string|string[]>?",
+                            typeKind: "BTYPE",
+                            optional: true,
+                        },
+                        targetType: {
+                            key: "targetType",
+                            type: "Response|anydata",
+                            value: "json",
+                            typeKind: "BTYPE",
+                        },
+                        params: {
+                            key: "params",
+                            type: "http:QueryParamType",
+                            value: [],
+                            optional: true,
+                        },
+                        variable: {
+                            key: "j",
+                            type: "json",
+                            typeKind: "BTYPE",
+                        },
+                        id: "4",
+                        lineRange: {
+                            fileName: "",
+                            startLine: [12, 13],
+                            endLine: [12, 60],
+                        },
                     },
-                    targetType: {
-                        key: "targetType",
-                        type: "Response|anydata",
-                        value: "json",
-                        typeKind: "BTYPE",
+                    {
+                        kind: "VARIABLE",
+                        label: "Variable",
+                        id: "8",
+                        name: {
+                            key: "name",
+                            type: "string",
+                            value: "j",
+                            typeKind: "BTYPE",
+                        },
                     },
-                    params: {
-                        key: "params",
-                        type: "http:QueryParamType",
-                        value: [],
-                        optional: true,
+                    {
+                        expr: {
+                            key: "expression",
+                            type: "json",
+                            value: "j",
+                            typeKind: "BTYPE",
+                        },
+                        kind: "RETURN",
+                        returning: true,
+                        id: "6",
+                        lineRange: {
+                            fileName: "",
+                            startLine: [13, 13],
+                            endLine: [13, 22],
+                        },
                     },
-                    variable: {
-                        key: "j",
-                        type: "json",
-                        typeKind: "BTYPE",
-                    },
-                    id: "3",
-                    lineRange: {
-                        fileName: "",
-                        startLine: [9, 13],
-                        endLine: [9, 57],
-                    },
-                },
-                {
-                    expr: {
-                        key: "expression",
-                        type: "json",
-                        value: "j",
-                        typeKind: "BTYPE",
-                    },
-                    kind: "RETURN",
-                    returning: true,
-                    id: "5",
-                    lineRange: {
-                        fileName: "",
-                        startLine: [10, 13],
-                        endLine: [10, 22],
-                    },
-                },
-            ],
-            elseBranch: [
-                {
-                    label: "HTTP GET",
-                    kind: "HTTP_API_GET_CALL",
-                    client: {
-                        key: "client",
-                        type: "http:Client",
-                        value: "nawaloka",
-                        typeKind: "BTYPE",
-                    },
-                    path: {
-                        key: "path",
-                        type: "string",
-                        value: "/doctors",
-                        typeKind: "BTYPE",
-                    },
-                    headers: {
-                        key: "headers",
-                        type: "map<string|string[]>?",
-                        typeKind: "BTYPE",
-                        optional: true,
-                    },
-                    targetType: {
-                        key: "targetType",
-                        type: "Response|anydata",
-                        value: "json",
-                        typeKind: "BTYPE",
-                    },
-                    params: {
-                        key: "params",
-                        type: "http:QueryParamType",
-                        value: [],
-                        optional: true,
-                    },
-                    variable: {
-                        key: "j",
-                        type: "json",
-                        typeKind: "BTYPE",
-                    },
-                    id: "4",
-                    lineRange: {
-                        fileName: "",
-                        startLine: [12, 13],
-                        endLine: [12, 60],
-                    },
-                },
-                {
-                    expr: {
-                        key: "expression",
-                        type: "json",
-                        value: "j",
-                        typeKind: "BTYPE",
-                    },
-                    kind: "RETURN",
-                    returning: true,
-                    id: "6",
-                    lineRange: {
-                        fileName: "",
-                        startLine: [13, 13],
-                        endLine: [13, 22],
-                    },
-                },
-            ],
+                ],
+            },
             id: "2",
             lineRange: {
                 fileName: "",

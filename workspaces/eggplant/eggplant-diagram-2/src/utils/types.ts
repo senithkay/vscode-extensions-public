@@ -9,57 +9,60 @@
 
 export type Flow = {
     nodes: Node[];
-    name:  string;
-}
+    name: string;
+};
 
 export type Node = {
-    kind:        string;
-    label:       string;
-    method?:     Expression;
-    path?:       Expression;
-    id:          string;
-    lineRange:   LineRange;
-    fixed?:      boolean;
-    condition?:  Expression;
-    thenBranch?: Branch[];
-    elseBranch?: Branch[];
-    viewState?:  ViewState;
-}
+    // todo: need to refactor node type with attributes and children
+    id: string;
+    kind: string;
+    label?: string;
+    method?: Expression;
+    path?: Expression;
+    client?: Expression;
+    headers?: Expression;
+    targetType?: Expression;
+    params?: Expression;
+    variable?: Expression;
+    lineRange: LineRange;
+    condition?: Expression;
+    thenBranch?: Node;
+    elseBranch?: Node;
+    children?: Node[];
+    fixed?: boolean;
+    expr?: Expression;
+    returning?: boolean;
+    viewState?: ViewState;
+};
 
 export type Expression = {
-    key:       string;
-    type:      null | string;
-    value?:    any[] | string;
+    key: string;
+    type: null | string;
+    value?: any[] | string;
     typeKind?: TypeKind;
     optional?: boolean;
-}
+};
 
 export type TypeKind = "BTYPE" | "IDENTIFIER" | "URI_PATH";
 
-export type Branch = {
-    label?:      string;
-    kind:        string;
-    client?:     Expression;
-    path?:       Expression;
-    headers?:    Expression;
-    targetType?: Expression;
-    params?:     Expression;
-    variable?:   Expression;
-    id:          string;
-    lineRange:   LineRange;
-    expr?:       Expression;
-    returning?:  boolean;
-}
-
 export type LineRange = {
-    fileName:  string;
+    fileName: string;
     startLine: number[];
-    endLine:   number[];
-}
+    endLine: number[];
+};
 
 export type ViewState = {
     x: number;
     y: number;
     w: number;
     h: number;
-}
+
+    startNodeId?: string;
+    // todo: implement positions for branches
+    branch?: {
+        id: string;
+        parentNodeId: string;
+        startNodeId?: string;
+        endNodeId?: string;
+    };
+};
