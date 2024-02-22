@@ -2369,6 +2369,7 @@ importers:
       '@wso2-enterprise/mi-core': workspace:*
       '@wso2-enterprise/mi-rpc-client': workspace:*
       '@wso2-enterprise/mi-syntax-tree': workspace:*
+      '@wso2-enterprise/mi-visualizer': workspace:*
       '@wso2-enterprise/playwright-vscode-tester': workspace:*
       axios: ~1.5.1
       copyfiles: ^2.4.1
@@ -2424,6 +2425,7 @@ importers:
       '@typescript-eslint/eslint-plugin': 6.20.0_mb4aacsok44wlk3qf5ewcirf74
       '@typescript-eslint/parser': 6.20.0_xdgzedli73k7lw4xlyzszm74om
       '@vscode/test-electron': 2.3.9
+      '@wso2-enterprise/mi-visualizer': link:../mi-visualizer
       eslint: 8.56.0
       glob: 10.3.10
       mocha: 10.2.0
