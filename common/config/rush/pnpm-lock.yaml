@@ -2357,6 +2357,7 @@ importers:
       '@playwright/test': ~1.37.1
       '@types/lodash': ~4.14.199
       '@types/mocha': ^10.0.1
+      '@types/mustache': ~4.2.5
       '@types/node': 16.x
       '@types/vscode': ^1.81.0
       '@types/xml2js': ~0.4.12
@@ -2377,6 +2378,7 @@ importers:
       jsonix: ~3.0.0
       lodash: ~4.17.21
       mocha: ^10.2.0
+      mustache: ~4.2.0
       node-fetch: ~2.6.2
       rimraf: ~5.0.5
       ts-loader: ^9.4.4
@@ -2393,6 +2395,7 @@ importers:
     dependencies:
       '@playwright/test': 1.37.1
       '@types/lodash': 4.14.202
+      '@types/mustache': 4.2.5
       '@types/xml2js': 0.4.14
       '@vscode/vsce': 2.21.1
       '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
@@ -2405,6 +2408,7 @@ importers:
       fast-xml-parser: 4.3.4
       jsonix: 3.0.0
       lodash: 4.17.21
+      mustache: 4.2.0
       node-fetch: 2.6.13
       vscode-extension-tester: 5.9.1_73fg3tqgzkq2e6aekvvil76q2i
       vscode-languageclient: 8.1.0
