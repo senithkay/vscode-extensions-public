@@ -2,7 +2,7 @@
     "name": "@wso2-enterprise/eggplant-diagram-2",
     "version": "1.0.0",
     "description": "",
-    "main": "lib/index.js",
+    "main": "src/index.tsx",
     "scripts": {
         "start": "tsc && node dist/index.js",
         "build": "tsc --pretty",
@@ -24,18 +24,12 @@
         "@projectstorm/react-diagrams-routing": "^6.7.4",
         "@emotion/react": "^11.9.3",
         "@emotion/styled": "^11.10.5",
-        "@wso2-enterprise/ui-toolkit": "workspace:*",
-        "@vscode/webview-ui-toolkit": "~1.4.0",
-        "mustache": "~4.2.0",
-        "@types/mustache": "~4.2.5",
-        "lodash": "~4.17.21",
-        "@types/lodash": "~4.14.202"
+        "@wso2-enterprise/ui-toolkit": "workspace:*"
     },
     "devDependencies": {
         "@storybook/react": "^6.3.7",
         "@types/react": "^17.0.14",
         "@types/react-dom": "^17.0.9",
-        "typescript": "^4.3.5",
-        "@typescript-eslint/eslint-plugin": "~7.0.2"
+        "typescript": "^4.3.5"
     }
 }
