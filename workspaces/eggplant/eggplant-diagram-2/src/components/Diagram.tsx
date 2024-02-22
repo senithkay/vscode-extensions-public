@@ -17,7 +17,8 @@ import { DiagramCanvas } from "./DiagramCanvas";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { BaseNodeModel } from "./nodes/BaseNode/BaseNodeModel";
 import { Flow } from "../utils/types";
-import { traverseFlow, traverseNode } from "../utils/ast";
+import { traverseFlow } from "../utils/ast";
+import { NodeLinkModel } from "./NodeLink/NodeLinkModel";
 
 export interface DiagramProps {
     model: Flow;
@@ -31,12 +32,12 @@ export function Diagram(props: DiagramProps) {
 
     useEffect(() => {
         if (diagramEngine) {
-            const nodes = getNodes();
-            drawDiagram(nodes);
+            const { nodes, links } = getDiagramData();
+            drawDiagram(nodes, links);
         }
     }, []);
 
-    const getNodes = () => {
+    const getDiagramData = () => {
         // run sizing visitor
         const sizingVisitor = new SizingVisitor();
         traverseFlow(model, sizingVisitor);
@@ -48,12 +49,14 @@ export function Diagram(props: DiagramProps) {
         traverseFlow(model, nodeVisitor);
         const nodes = nodeVisitor.getNodes();
         console.log(">>> getNodes", nodes);
-        return nodes;
+        const links = nodeVisitor.getLinks();
+        console.log(">>> getLinks", links);
+        return { nodes, links };
     };
 
-    const drawDiagram = (nodes: BaseNodeModel[]) => {
+    const drawDiagram = (nodes: BaseNodeModel[], links: NodeLinkModel[]) => {
         const newDiagramModel = new DiagramModel();
-        newDiagramModel.addAll(...nodes);
+        newDiagramModel.addAll(...nodes, ...links);
         // uncomment below to see the sample diagram. comment above line
         // sampleDiagram(model, newDiagramModel);
 

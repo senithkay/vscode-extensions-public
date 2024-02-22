@@ -13,15 +13,18 @@ import { Flow, Node } from "./types";
 const metaNodes = ["viewState", "position", "parent"];
 
 export function traverseFlow(flow: Flow, visitor: BaseVisitor, parent?: Node) {
+    let lastNode: Node = undefined;
     flow.nodes.forEach((node) => {
-        traverseNode(node, visitor, parent);
+        traverseNode(node, visitor, parent || lastNode);
+        lastNode = node;
     });
 }
 
 export function traverseNode(node: Node, visitor: BaseVisitor, parent?: Node) {
     let name = "";
+    // convert this kind to a camel case string
     node.kind.split("_").forEach((kind) => {
-        name += kind.charAt(0).toUpperCase() + kind.slice(1);
+        name += kind.charAt(0).toUpperCase() + kind.slice(1).toLowerCase();
     });
 
     let beginVisitFn: any = (visitor as any)[`beginVisit${name}`];
