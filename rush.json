@@ -39,6 +39,7 @@
    * LTS versions: https://nodejs.org/en/download/releases/
    */
   "nodeSupportedVersionRange": ">=16.13.0 <=21.19.2",
+  "nodeSupportedVersionRange": ">=16.13.0 <=21.19.2",
   /**
    * If the version check above fails, Rush will display a message showing the current
    * node version and the supported version range. You can use this setting to provide
