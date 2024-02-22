@@ -1,0 +1,35 @@
+{
+    "name": "@wso2-enterprise/eggplant-diagram-2",
+    "version": "1.0.0",
+    "description": "",
+    "main": "src/index.tsx",
+    "scripts": {
+        "start": "tsc && node dist/index.js",
+        "build": "tsc --pretty",
+        "storybook": "start-storybook -p 6006",
+        "watch": "tsc --pretty --watch",
+        "build-storybook": "build-storybook"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "react": "~18.2.0",
+        "react-dom": "~18.2.0",
+        "@projectstorm/geometry": "^6.7.4",
+        "@projectstorm/react-canvas-core": "^6.7.4",
+        "@projectstorm/react-diagrams": "^6.7.4",
+        "@projectstorm/react-diagrams-core": "^6.7.4",
+        "@projectstorm/react-diagrams-defaults": "^6.7.4",
+        "@projectstorm/react-diagrams-routing": "^6.7.4",
+        "@emotion/react": "^11.9.3",
+        "@emotion/styled": "^11.10.5",
+        "@wso2-enterprise/ui-toolkit": "workspace:*"
+    },
+    "devDependencies": {
+        "@storybook/react": "^6.3.7",
+        "@types/react": "^17.0.14",
+        "@types/react-dom": "^17.0.9",
+        "typescript": "^4.3.5"
+    }
+}
