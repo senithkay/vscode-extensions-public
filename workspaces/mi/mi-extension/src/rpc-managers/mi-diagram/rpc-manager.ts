@@ -302,7 +302,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const workspaceFolder = workspace.workspaceFolders;
             if (workspaceFolder) {
                 const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
-                const endpointDir = path.join(workspaceFolderPath, "helloConfigs", 'src', 'main', 'synapse-config', 'inbound-endpoints');
+                const endpointDir = path.join(workspaceFolderPath, 'src', 'main', 'wso2mi', 'artifacts', 'inbound-endpoints');
 
                 const response: InboundEndpointDirectoryResponse = { data: endpointDir };
 

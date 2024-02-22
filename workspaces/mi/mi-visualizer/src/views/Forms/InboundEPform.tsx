@@ -79,6 +79,8 @@ export function InboundEPWizard() {
     const [customSequence, setCustomSequence] = useState("");
     const [customOnErrorSequence, setCustomOnErrorSequence] = useState("");
 
+    const [nameError, setNameError] = useState(false);
+
     const defaultSequence = {
         content: "custom-sequence",
         value: "custom",
@@ -104,6 +106,17 @@ export function InboundEPWizard() {
             setOnErrorSequence(defaultSequence.value);
         })();
     }, []);
+
+    useEffect(() => {
+        const INVALID_CHARS_REGEX = /[@\\^+;:!%&,=*#[\]$?'"<>{}() /]/;
+
+        if (INVALID_CHARS_REGEX.test(inboundEPName) || INVALID_CHARS_REGEX.test(customSequence) || INVALID_CHARS_REGEX.test(customOnErrorSequence)) {
+            setNameError(true);  
+        }
+        else {
+            setNameError(false);
+        }
+    }, [inboundEPName, customSequence, customOnErrorSequence]);
 
     const creationTypes = ['CXF_WS_RM', 'Custom', 'Feed', 'File', 'HL7', 'HTTP', 'HTTPS', 'JMS', 'KAFKA', 'MQTT', 'RABBITMQ', 'WS', 'WSO2_MB', 'WSS'];
 
@@ -138,7 +151,7 @@ export function InboundEPWizard() {
         rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
     };
 
-    const isValid: boolean = inboundEPName.length > 0 && creationType.length > 0 && (excludeSubFormFrom.includes(creationType) ||
+    const isValid: boolean = !nameError && inboundEPName.length > 0 && creationType.length > 0 && (excludeSubFormFrom.includes(creationType) ||
         (selectedSequence !== defaultSequence.value ? selectedSequence.length > 0 : customSequence.length > 0) &&
         (onErrorSequence !== defaultSequence.value ? onErrorSequence.length > 0 : customOnErrorSequence.length > 0));
 
@@ -177,7 +190,6 @@ export function InboundEPWizard() {
                             items={sequences}
                         />
                         {selectedSequence === defaultSequence.value && <>
-                            {/* <span>Custom Sequence Name <span style={{ color: "#f48771" }}>*</span></span> */}
                             <TextField
                                 value={customSequence}
                                 id='custom-sequence'
@@ -196,7 +208,6 @@ export function InboundEPWizard() {
                             items={sequences}
                         />
                         {onErrorSequence === defaultSequence.value && <>
-                            {/* <span>Custom On Error Sequence Name <span style={{ color: "#f48771" }}>*</span></span> */}
                             <TextField
                                 value={customOnErrorSequence}
                                 id='custom-onerror-sequence'
@@ -209,6 +220,7 @@ export function InboundEPWizard() {
                         </>}
                     </HiddenFormWrapper>
                 )}
+                {nameError && <span style={{ color: "#f48771" }}>{`Invalid character(s) in a name field`}</span>}
                 <SubContainer>
                     <CardContainer>
                     </CardContainer>

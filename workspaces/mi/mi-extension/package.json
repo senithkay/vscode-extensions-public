@@ -181,7 +181,7 @@
         },
         {
             "command": "project-explorer.add-inbound-endpoint",
-            "when": "view == project-explorer && viewItem == inbound-endpoints",
+            "when": "view == project-explorer && viewItem == inboundEndpoints",
             "group": "inline"
         }
       ]
