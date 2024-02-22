@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- 
+ Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+
+ This software is the property of WSO2 LLC. and its suppliers, if any.
+ Dissemination of any information or reproduction of any material contained
+ herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ You may not alter or remove any copyright or other notice from copies of this content.
+-->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   viewBox="0 0 30.0236 21.291199"
+   height="21.291199"
+   width="30.0236"
+   xml:space="preserve"
+   id="svg2"
+   version="1.1"><metadata
+     id="metadata8"><rdf:RDF><cc:Work
+         rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
+     id="defs6"><clipPath
+       id="clipPath18"
+       clipPathUnits="userSpaceOnUse"><path
+         id="path16"
+         d="M 0,25 H 25 V 0 H 0 Z" /></clipPath></defs><g
+     transform="matrix(1.3333333,0,0,-1.3333333,-1.6546666,26.728533)"
+     id="g10"><g
+       id="g12"><g
+         clip-path="url(#clipPath18)"
+         id="g14"><g
+           transform="translate(19.8467,13.9424)"
+           id="g20"><path
+             id="path22"
+             style="fill:#4eba6e;fill-opacity:1;fill-rule:nonzero;stroke:none"
+             d="M 0,0 3.912,3.912 1.721,6.104 -2.191,2.191 -1.703,1.703 -4.168,-0.761 c -1.258,0.832 -2.767,1.318 -4.39,1.318 -4.333,0 -7.852,-3.458 -7.967,-7.764 h 4.824 c -10e-4,0.039 -0.011,0.076 -0.011,0.115 0,1.853 1.501,3.354 3.353,3.354 1.851,0 3.353,-1.501 3.353,-3.354 0,-0.039 -0.011,-0.076 -0.012,-0.115 h 4.428 c -0.056,2.076 -0.907,3.95 -2.255,5.339 l 2.357,2.356 z" /></g><g
+           transform="translate(12.7461,6.6035)"
+           id="g24"><path
+             id="path26"
+             style="fill:#4eba6e;fill-opacity:1;fill-rule:nonzero;stroke:none"
+             d="M 0,0 C -0.068,0.73 -0.675,1.305 -1.424,1.305 -2.172,1.305 -2.78,0.73 -2.848,0 Z" /></g><path
+           id="path28"
+           style="fill:#4eba6e;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           d="M 21.823,4.078 H 1.241 v 1.686 h 20.582 z" /></g></g></g></svg>
