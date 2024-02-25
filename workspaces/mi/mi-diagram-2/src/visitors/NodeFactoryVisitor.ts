@@ -15,7 +15,7 @@ import { NodeModel } from "@projectstorm/react-diagrams";
 import { ConditionNodeModel } from "../components/nodes/ConditionNode/ConditionNodeModel";
 import { EndNodeModel } from "../components/nodes/EndNode/EndNodeModel";
 import { CallNodeModel } from "../components/nodes/CallNode/CallNodeModel";
-import { ENDPOINTS, MEDIATORS, NODE_GAP, NodeTypes } from "../resources/constants";
+import { ENDPOINTS, MEDIATORS, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { SourceNodeModel, TargetNodeModel, createNodesLink } from "../utils/diagram";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
 
@@ -46,7 +46,7 @@ export class NodeFactoryVisitor implements Visitor {
             diagramNode = new EndNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.CALL_NODE) {
             diagramNode = new CallNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes, data);
-        } else if (type === NodeTypes.EMPTY_NODE) {
+        } else if (type === NodeTypes.EMPTY_NODE || type === NodeTypes.CONDITION_NODE_END) {
             diagramNode = new EmptyNodeModel(node);
         }
         diagramNode.setPosition(node.viewState.x, node.viewState.y);
@@ -57,23 +57,21 @@ export class NodeFactoryVisitor implements Visitor {
             for (let i = 0; i < this.previousSTNodes.length; i++) {
                 const previousStNode = this.previousSTNodes[i];
                 const previousNodes = this.nodes.filter((node) => node.getStNode() == previousStNode && node.getType() !== NodeTypes.END_NODE);
-                for (let j = 0; j < previousNodes.length; j++) {
-                    const previousNode = previousNodes[j];
-                    const link = createNodesLink(
-                        previousNode as SourceNodeModel,
-                        diagramNode as TargetNodeModel,
-                        {
-                            label: this.currentBranchName,
-                            stRange: this.currentAddPosition ?? (previousStNode.range.endTagRange?.end ? previousStNode.range.endTagRange.end : previousStNode.range.startTagRange.end),
-                            brokenLine: type === NodeTypes.EMPTY_NODE || previousNode instanceof EmptyNodeModel,
-                            previousNode: previousStNode.tag,
-                            parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
-                        }
-                    );
-                    this.links.push(link);
-                    this.currentBranchName = undefined;
-                    this.currentAddPosition = undefined;
-                }
+                const previousNode = previousNodes[previousNodes.length - 1];
+                const link = createNodesLink(
+                    previousNode as SourceNodeModel,
+                    diagramNode as TargetNodeModel,
+                    {
+                        label: this.currentBranchName,
+                        stRange: this.currentAddPosition ?? (previousStNode.range.endTagRange?.end ? previousStNode.range.endTagRange.end : previousStNode.range.startTagRange.end),
+                        brokenLine: type === NodeTypes.EMPTY_NODE || (previousNode instanceof EmptyNodeModel && type !== NodeTypes.CONDITION_NODE_END && type !== NodeTypes.END_NODE),
+                        previousNode: previousStNode.tag,
+                        parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
+                    }
+                );
+                this.links.push(link);
+                this.currentBranchName = undefined;
+                this.currentAddPosition = undefined;
             }
         }
 
@@ -112,6 +110,15 @@ export class NodeFactoryVisitor implements Visitor {
                 this.previousSTNodes.push(subSequences[sequenceKeys[i]]);
             }
         }
+
+        // add empty node
+        this.currentBranchName = undefined;
+        this.currentAddPosition = node.range.endTagRange.start;
+        const eNode = structuredClone(node);
+        eNode.viewState.id = JSON.stringify(eNode.range.endTagRange) + "_end";
+        eNode.viewState.y = eNode.viewState.y + eNode.viewState.fh - NODE_GAP.Y;
+        eNode.viewState.x = eNode.viewState.x + eNode.viewState.w / 2 - NODE_DIMENSIONS.EMPTY.WIDTH / 2;
+        this.createNodeAndLinks(eNode, "", NodeTypes.CONDITION_NODE_END);
     }
 
     getNodes(): NodeModel[] {

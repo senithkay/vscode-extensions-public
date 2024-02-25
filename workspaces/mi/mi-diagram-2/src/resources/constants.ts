@@ -85,7 +85,7 @@ export const NODE_GAP = {
     Y: 50,
     BRANCH_X: 100,
     BRANCH_TOP: 100,
-    BRANCH_BOTTOM: 35
+    BRANCH_BOTTOM: 20
 };
 
 export const NODE_DIMENSIONS = {
@@ -169,6 +169,7 @@ export enum NodeTypes {
     END_NODE = "end-node",
     MEDIATOR_NODE = "mediator-node",
     CONDITION_NODE = "condition-node",
+    CONDITION_NODE_END = "condition-node-end",
     CALL_NODE = "call-node",
     EMPTY_NODE = "empty-node",
 }
