@@ -50,8 +50,8 @@ export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
                         data-test-id="import-json"
                     >
                         <Icon
-                            sx={{ width: "16px", marginRight: "4px" }}
-                            iconSx={{ fontSize: "16px" }}
+                            sx={{ height: "18px", width: "18px", marginRight: "4px" }}
+                            iconSx={{ fontSize: "18px" }}
                             name="file-upload"
                         />
                         <LineButtonTitle variant="h5">{importJsonButtonText}</LineButtonTitle>
@@ -65,8 +65,8 @@ export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
                         disabled={onImportFromXml === null}
                     >
                         <Icon
-                            sx={{ width: "16px", marginRight: "4px" }}
-                            iconSx={{ fontSize: "16px" }}
+                            sx={{ height: "18px", width: "18px", marginRight: "4px" }}
+                            iconSx={{ fontSize: "18px" }}
                             name="file-upload"
                         />
                         <LineButtonTitle variant="h5">{importXmlButtonText}</LineButtonTitle>

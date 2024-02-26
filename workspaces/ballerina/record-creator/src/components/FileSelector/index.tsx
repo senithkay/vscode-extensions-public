@@ -45,8 +45,8 @@ export function FileSelector(props: FileSelectorProps) {
             <Button onClick={handleClick} appearance="icon">
                 <Icon
                     name="file-upload"
-                    sx={{ width: "16px", marginRight: "4px" }}
-                    iconSx={{ fontSize: "16px", color: "var(--vscode-charts-purple)" }}
+                    sx={{ height: "18px", width: "18px", marginRight: "4px" }}
+                    iconSx={{ fontSize: "18px", color: "var(--vscode-charts-purple)" }}
                 />
                 <Typography
                     variant="body3"
