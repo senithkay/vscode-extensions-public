@@ -26,7 +26,6 @@ import {
     FormWrapper,
     InputContainer,
     InputWrapper,
-    LabelWrapper,
     useStyles,
 } from "../style";
 import { Typography } from "@wso2-enterprise/ui-toolkit";
@@ -48,6 +47,7 @@ interface RecordFromXmlProps {
     onSave: (recordString: string, modifiedPosition: NodePosition) => void;
     onCancel: () => void;
     isHeaderHidden?: boolean;
+    onUpdate?: (updated: boolean) => void;
 }
 
 const debounceDelay = 300;
@@ -76,7 +76,7 @@ const reducer = (state: RecordState, action: { type: string; payload: any }) => 
 
 export function RecordFromXml(recordFromXmlProps: RecordFromXmlProps) {
     const classes = useStyles();
-    const { isHeaderHidden, undoRedoManager, onSave, onCancel } = recordFromXmlProps;
+    const { isHeaderHidden, undoRedoManager, onSave, onCancel, onUpdate } = recordFromXmlProps;
 
     const {
         props: { langServerRpcClient, recordCreatorRpcClient, targetPosition, fullST },
@@ -180,6 +180,7 @@ export function RecordFromXml(recordFromXmlProps: RecordFromXmlProps) {
                         });
                     }
                     onSave(updatedBlock, newPosition);
+                    onUpdate && onUpdate(true);
                 } else {
                     dispatchFromState({ type: "setXmlDiagnostics", payload: recordResponse?.diagnostics[0].message });
                 }

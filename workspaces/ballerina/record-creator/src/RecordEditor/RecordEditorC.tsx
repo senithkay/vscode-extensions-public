@@ -23,7 +23,7 @@ import { RecordEditorCProps } from ".";
 const undoRedoManager = new UndoRedoManager();
 
 export function RecordEditorC(props: RecordEditorCProps) {
-    const { model, isDataMapper, onCancel, showHeader } = props;
+    const { model, isDataMapper, onCancel, showHeader, onUpdate } = props;
 
     const {
         props: {
@@ -88,6 +88,7 @@ export function RecordEditorC(props: RecordEditorCProps) {
                     isDataMapper={isDataMapper}
                     undoRedoManager={undoRedoManager}
                     showHeader={showHeader}
+                    onUpdate={onUpdate}
                 />
             )}
         </>

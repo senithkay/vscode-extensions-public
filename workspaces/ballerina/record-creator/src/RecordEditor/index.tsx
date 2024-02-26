@@ -34,6 +34,7 @@ export interface RecordEditorCProps {
     isDataMapper?: boolean;
     onCancel: (createdNewRecord?: string) => void;
     showHeader?: boolean;
+    onUpdate?: (updated: boolean) => void;
 }
 
 export interface RecordEditorProps extends RecordEditorCProps, StatementEditorComponentProps {
@@ -56,6 +57,7 @@ export function RecordEditor(props: RecordEditorProps) {
         onClose,
         importStatements,
         currentReferences,
+        onUpdate
     } = props;
 
     return (
@@ -76,6 +78,7 @@ export function RecordEditor(props: RecordEditorProps) {
                     onClose={onClose}
                     importStatements={importStatements}
                     currentReferences={currentReferences}
+                    onUpdate={onUpdate}
                 />
             </IntlProvider>
         </QueryClientProvider>

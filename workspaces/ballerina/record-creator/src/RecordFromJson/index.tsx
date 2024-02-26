@@ -51,6 +51,7 @@ interface RecordFromJsonProps {
     onSave: (recordString: string, modifiedPosition: NodePosition) => void;
     onCancel: () => void;
     isHeaderHidden?: boolean;
+    onUpdate?: (updated: boolean) => void;
 }
 
 const debounceDelay = 300;
@@ -85,7 +86,7 @@ const reducer = (state: RecordState, action: { type: string; payload: any }) => 
 
 export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
     const classes = useStyles();
-    const { isHeaderHidden, undoRedoManager, onSave, onCancel } = recordFromJsonProps;
+    const { isHeaderHidden, undoRedoManager, onSave, onCancel, onUpdate } = recordFromJsonProps;
 
     const {
         props: { langServerRpcClient, recordCreatorRpcClient, currentFile, fullST, targetPosition },
@@ -221,6 +222,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                         });
                     }
                     onSave(updatedBlock, newPosition);
+                    onUpdate && onUpdate(true);
                 } else {
                     dispatchFromState({ type: "setJsonDiagnostics", payload: recordResponse?.diagnostics[0].message });
                 }

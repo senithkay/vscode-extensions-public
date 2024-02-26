@@ -29,6 +29,7 @@ export function RecordEditorWrapper(props: RecordEditorProps) {
         onClose,
         importStatements,
         currentReferences,
+        onUpdate,
     } = props;
     const { ballerinaVersion, isFetching: isFetchingBallerinaVersion } = useBallerinaVersion(langServerRpcClient);
     const { fullST, isFetching: isFetchingFullST } = useFullST(currentFile.path, langServerRpcClient);
@@ -64,7 +65,13 @@ export function RecordEditorWrapper(props: RecordEditorProps) {
     return (
         <Context.Provider value={contextValue}>
             {contextValue && (
-                <RecordEditorC model={model} isDataMapper={isDataMapper} onCancel={onCancel} showHeader={showHeader} />
+                <RecordEditorC
+                    model={model}
+                    isDataMapper={isDataMapper}
+                    onCancel={onCancel}
+                    showHeader={showHeader}
+                    onUpdate={onUpdate}
+                />
             )}
         </Context.Provider>
     );

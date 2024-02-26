@@ -31,10 +31,11 @@ export interface CreateRecordProps {
     onCancel: (createdNewRecord?: string) => void;
     onSave: (recordString: string, modifiedPosition: NodePosition) => void;
     showHeader?: boolean;
+    onUpdate?: (updated: boolean) => void;
 }
 
 export function CreateRecord(props: CreateRecordProps) {
-    const { isDataMapper, undoRedoManager, showHeader, onSave, onCancel } = props;
+    const { isDataMapper, undoRedoManager, showHeader, onSave, onCancel, onUpdate } = props;
     const {
         props: { targetPosition, ballerinaVersion },
     } = useContext(Context);
@@ -81,6 +82,7 @@ export function CreateRecord(props: CreateRecordProps) {
                         onCancel={onCancel}
                         onSave={handleImportJsonSave}
                         isHeaderHidden={showHeader ? false : isDataMapper}
+                        onUpdate={onUpdate}
                     />
                 )}
                 {editorState === ConfigState.IMPORT_FROM_XML && (
@@ -89,6 +91,7 @@ export function CreateRecord(props: CreateRecordProps) {
                         onCancel={onCancel}
                         onSave={handleImportXmlSave}
                         isHeaderHidden={showHeader ? false : isDataMapper}
+                        onUpdate={onUpdate}
                     />
                 )}
             </>
