@@ -9,6 +9,7 @@
 
 import { Call, CallTemplate, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, STNode, Send, Sequence, Store, Throttle, Validate, Visitor, WithParam } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
+import { LINK_BOTTOM_OFFSET } from "../components/NodeLink/NodeLinkModel";
 
 export class SizingVisitor implements Visitor {
     private skipChildrenVisit = false;
@@ -53,7 +54,7 @@ export class SizingVisitor implements Visitor {
         }
 
         node.viewState.fw = subSequencesWidth;
-        node.viewState.fh = subSequencesHeight + NODE_DIMENSIONS.CONDITION.HEIGHT + NODE_GAP.BRANCH_TOP + NODE_GAP.BRANCH_BOTTOM + NODE_GAP.Y;
+        node.viewState.fh = subSequencesHeight + NODE_DIMENSIONS.CONDITION.HEIGHT + NODE_GAP.BRANCH_TOP + LINK_BOTTOM_OFFSET + NODE_GAP.Y;
 
         this.sequenceWidth = Math.max(this.sequenceWidth, node.viewState.fw);
     }

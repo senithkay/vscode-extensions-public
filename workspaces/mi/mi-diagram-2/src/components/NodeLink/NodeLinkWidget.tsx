@@ -101,6 +101,8 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                                 padding: "2px 10px",
                                 boxSizing: "border-box",
                                 width: "fit-content",
+                                fontFamily: "var(--font-family)",
+                                fontSize: "var(--type-ramp-base-font-size)",
                             }}
                         >
                             <span
