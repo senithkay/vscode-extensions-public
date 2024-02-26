@@ -13,17 +13,10 @@ import { Dropdown } from "../Dropdown/Dropdown";
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { TextArea } from "../TextArea/TextArea";
 
-export enum Type {
-    TextField = "TextField",
-    Dropdown = "Dropdown",
-    Checkbox = "Checkbox",
-    TextArea = "TextArea"
-}
-
 export interface Param {
     id: number;
     label: string;
-    type: Type;
+    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea";
     value: string | boolean; // Boolean is for Checkbox
     isRequired?: boolean;
     errorMessage?: string;
@@ -49,17 +42,17 @@ export function TypeResolver(props: TypeResolverProps) {
     });
 
     switch (type) {
-        case Type.TextField:
+        case "TextField":
             return <TextField id={`txt-field-${id}`} label={label} value={value as string} disabled={disabled} errorMsg={errorMessage} required={isRequired} onChange={handleOnChange}/>;
-        case Type.Dropdown:
+        case "Dropdown":
             return <Dropdown id={`dropdown-${id}`} label={label} value={value as string} items={dropdownItems} disabled={disabled} errorMsg={errorMessage} isRequired={isRequired} onChange={handleOnChange}/>;
-        case Type.Checkbox:
+        case "Checkbox":
             return (
                 <VSCodeCheckbox id={`checkbox-${id}`} checked={value as boolean} onChange={handleOnChange} disabled={disabled}>
                     Is Required?
                 </VSCodeCheckbox>
             );
-        case Type.TextArea:
+        case "TextArea":
             return <TextArea id={`txt-area-${id}`} value={value as string} disabled={disabled} label={label} errorMsg={errorMessage} onChange={handleOnChange}/>;
         default:
             return null;

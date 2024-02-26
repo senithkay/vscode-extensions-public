@@ -14,7 +14,7 @@ import { ParamEditor } from './ParamEditor';
 import { ParamItem } from './ParamItem';
 import { LinkButton } from '../LinkButton/LinkButton';
 import { Codicon } from '../Codicon/Codicon';
-import { Param, Type } from './TypeResolver';
+import { Param } from './TypeResolver';
 
 export interface Parameters {
     id: number;
@@ -22,14 +22,15 @@ export interface Parameters {
 }
 
 export interface ParamField {
-    type: Type;
+    id?: number;
+    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea";
     label: string;
     defaultValue: string | boolean;
     isRequired?: boolean;
 }
 
 export interface ParamConfig {
-    param: Parameters[];
+    paramValues: Parameters[];
     paramFields: ParamField[];
 }
 
@@ -71,16 +72,16 @@ export function ParamManager(props: ParamManagerProps) {
     };
 
     const onAddClick = () => {
-        const updatedParameters = [...paramConfigs.param];
+        const updatedParameters = [...paramConfigs.paramValues];
         setEditingSegmentId(updatedParameters.length);
         const newParams: Parameters = getNewParam(paramConfigs.paramFields, updatedParameters.length);
         updatedParameters.push(newParams);
-        onChange({ ...paramConfigs, param: updatedParameters });
+        onChange({ ...paramConfigs, paramValues: updatedParameters });
         setIsNew(true);
     };
 
     const onDelete = (param: Parameters) => {
-        const updatedParameters = [...paramConfigs.param];
+        const updatedParameters = [...paramConfigs.paramValues];
         const indexToRemove = param.id;
         if (indexToRemove >= 0 && indexToRemove < updatedParameters.length) {
             updatedParameters.splice(indexToRemove, 1);
@@ -89,16 +90,16 @@ export function ParamManager(props: ParamManagerProps) {
             ...item,
             id: index
         }));
-        onChange({ ...paramConfigs, param: reArrangedParameters });
+        onChange({ ...paramConfigs, paramValues: reArrangedParameters });
     };
 
     const onChangeParam = (paramConfig: Parameters) => {
-        const updatedParameters = [...paramConfigs.param];
+        const updatedParameters = [...paramConfigs.paramValues];
         const index = updatedParameters.findIndex(param => param.id === paramConfig.id);
         if (index !== -1) {
             updatedParameters[index] = paramConfig;
         }
-        onChange({ ...paramConfigs, param: updatedParameters });
+        onChange({ ...paramConfigs, paramValues: updatedParameters });
     };
 
     const onSaveParam = (paramConfig: Parameters) => {
@@ -116,7 +117,7 @@ export function ParamManager(props: ParamManagerProps) {
     };
 
     const paramComponents: React.ReactElement[] = [];
-    paramConfigs?.param
+    paramConfigs?.paramValues
         .forEach((param: Parameters, index) => {
             if (editingSegmentId === index) {
                 paramComponents.push(
