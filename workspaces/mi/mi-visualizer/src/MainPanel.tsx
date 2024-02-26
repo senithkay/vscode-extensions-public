@@ -76,6 +76,7 @@ const MainPanel = (props: { state: MachineStateValue }) => {
                         setComponent(<Diagram model={resourceNode} documentUri={machineView.documentUri} />);
                     }
                 });
+                rpcClient.getMiDiagramRpcClient().initUndoRedoManager({path: machineView.documentUri});
                 break;
             case "ServiceDesigner":
                 setComponent(<ServiceDesignerView />);

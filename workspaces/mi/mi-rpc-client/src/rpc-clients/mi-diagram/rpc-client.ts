@@ -36,6 +36,7 @@ import {
     ProjectRootResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
+    UndoRedoParams,
     applyEdit,
     askProjectDirPath,
     closeWebView,
@@ -60,15 +61,18 @@ import {
     getSequenceDirectory,
     getSyntaxTree,
     highlightCode,
+    initUndoRedoManager,
     openDiagram,
     openFile,
+    redo,
     showErrorMessage,
     writeContentToFile,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
     InboundEndpointDirectoryResponse,
     CreateInboundEndpointRequest,
-    CreateInboundEndpointResponse
+    CreateInboundEndpointResponse,
+    undo,
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -179,8 +183,20 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
         return this._messenger.sendRequest(writeContentToFile, HOST_EXTENSION, params);
     }
-  
+
     highlightCode(params: HighlightCodeRequest): void {
         return this._messenger.sendNotification(highlightCode, HOST_EXTENSION, params);
+    }
+
+    initUndoRedoManager(params: UndoRedoParams): void {
+        return this._messenger.sendNotification(initUndoRedoManager, HOST_EXTENSION, params);
+    }
+
+    undo(params: UndoRedoParams): void {
+        return this._messenger.sendNotification(undo, HOST_EXTENSION, params);
+    }
+
+    redo(params: UndoRedoParams): void {
+        return this._messenger.sendNotification(redo, HOST_EXTENSION, params);
     }
 }

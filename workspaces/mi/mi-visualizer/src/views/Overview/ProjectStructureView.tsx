@@ -12,7 +12,7 @@ import { ComponentCard } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
-const allowedConfigs = ["sequences", "endpoints", "api", "inboundEndpoints"];
+const allowedConfigs = ["apis", "sequences", "endpoints", "api", "inboundEndpoints"];
 
 const IconWrapper = styled.div`
     display: flex;
@@ -60,7 +60,7 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
     };
 
     const handlePlusClick = async (key: string) => {
-        if (key === 'apis') {
+        if (key === 'api') {
             await rpcClient.getMiDiagramRpcClient().executeCommand({commands: ["project-explorer.add-api"]});
         } else if (key === 'endpoints') {
             await rpcClient.getMiDiagramRpcClient().executeCommand({commands: ["project-explorer.add-endpoint"]});

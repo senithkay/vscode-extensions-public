@@ -9,33 +9,47 @@
 import React, { useState } from "react";
 import { storiesOf } from "@storybook/react";
 import { ParamConfig, ParamManager } from "./ParamManager";
-import { Type } from "./TypeResolver";
 
 // Sample object for ParamManager
 const paramConfigs: ParamConfig = {
-    param: [
+    paramValues: [
         {
             id: 0,
             parameters: [
                 {
                     id: 0,
                     label: "Type",
-                    type: Type.TextField,
+                    type: "TextField",
                     value: "int",
                     isRequired: true
                 },
                 {
                     id: 1,
                     label: "Name",
-                    type: Type.TextField,
+                    type: "TextField",
                     value: "var1",
                     isRequired: true
                 },
                 {
                     id: 2,
-                    label: "Default Value",
-                    type: Type.TextField,
+                    label: "Dropdown Sample",
+                    type: "Dropdown",
                     value: "0",
+                    isRequired: false,
+                    values: ["0", "1", "2"],
+                },
+                {
+                    id: 3,
+                    label: "Is Required",
+                    type: "Checkbox",
+                    value: true,
+                    isRequired: false
+                },
+                {
+                    id: 4,
+                    label: "Description",
+                    type: "TextArea",
+                    value: "This is a description",
                     isRequired: false
                 }
             ]
@@ -43,21 +57,34 @@ const paramConfigs: ParamConfig = {
     ],
     paramFields: [
         {
-            type: Type.TextField,
+            type: "TextField",
             label: "Type",
             defaultValue: "John Doe",
             isRequired: true
         },
         {
-            type: Type.TextField,
+            type: "TextField",
             label: "Name",
             defaultValue: "var",
             isRequired: true
         },
         {
-            type: Type.TextField,
-            label: "Default Value",
+            type: "Dropdown",
+            label: "Dropdown Sample",
             defaultValue: "0",
+            isRequired: false,
+            values: ["0", "1", "2"]
+        },
+        {
+            type: "Checkbox",
+            label: "Is Required",
+            defaultValue: true,
+            isRequired: false
+        },
+        {
+            type: "TextArea",
+            label: "Description",
+            defaultValue: "This is a description",
             isRequired: false
         }
     ]
