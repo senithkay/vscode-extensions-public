@@ -7,12 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NODE_GAP_X, NODE_HEIGHT, NODE_WIDTH } from "../resources/constants";
+import { NODE_HEIGHT, NODE_WIDTH } from "../resources/constants";
 import { Node, ViewState } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
 export class SizingVisitor implements BaseVisitor {
-    // private nodes: Node[] = [];
     private skipChildrenVisit = false;
 
     constructor() {
@@ -33,34 +32,11 @@ export class SizingVisitor implements BaseVisitor {
 
     endVisitNode = (node: Node): void => this.createBaseNode(node);
 
-    endVisitFlow(node: Node, parent?: Node): void {
-        if (node.viewState == undefined) {
-            node.viewState = this.getDefaultViewState();
-        }
-        const maxChildWidth = Math.max(...node.children.map((child) => child.viewState.w));
-        node.viewState.w = maxChildWidth;
-    }
-
     endVisitIf(node: Node, parent?: Node): void {
         if (node.viewState == undefined) {
             node.viewState = this.getDefaultViewState();
         }
         this.createBaseNode(node);
-        node.viewState.w = node.thenBranch.viewState.w + NODE_GAP_X + node.elseBranch.viewState.w;
-    }
-
-    endVisitThenBranchBody(node: Node, parent?: Node): void {
-        if (node.viewState == undefined) {
-            node.viewState = this.getDefaultViewState();
-        }
-        node.viewState.w = Math.max(...node.children.map((child) => child.viewState.w));
-    }
-
-    endVisitElseBranchBody(node: Node, parent?: Node): void {
-        if (node.viewState == undefined) {
-            node.viewState = this.getDefaultViewState();
-        }
-        node.viewState.w = Math.max(...node.children.map((child) => child.viewState.w));
     }
 
     skipChildren(): boolean {

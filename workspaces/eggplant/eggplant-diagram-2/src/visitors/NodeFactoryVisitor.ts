@@ -25,10 +25,10 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     private createNode(node: Node): void {
         const nodeModel = new BaseNodeModel(node);
-        nodeModel.setPosition(node.viewState.x, node.viewState.y);
+        // nodeModel.setPosition(node.viewState.x, node.viewState.y); // handled by dagre
         this.nodes.push(nodeModel);
 
-        if (node.viewState.startNodeId) {
+        if (node.viewState?.startNodeId) {
             // new sub flow start
             const startNode = this.nodes.find((n) => n.getID() === node.viewState.startNodeId);
             const link = createNodesLink(startNode, nodeModel);
@@ -59,10 +59,18 @@ export class NodeFactoryVisitor implements BaseVisitor {
         this.createNode(node);
         // mark the first node of then and else branches as start node
         if (node.thenBranch && node.thenBranch.children.length > 0) {
-            node.thenBranch.children.at(0).viewState.startNodeId = node.id;
+            if (node.thenBranch.children.at(0).viewState) {
+                node.thenBranch.children.at(0).viewState.startNodeId = node.id;
+            } else {
+                node.thenBranch.children.at(0).viewState = { startNodeId: node.id, x: 0, y: 0, w: 0, h: 0 };
+            }
         }
         if (node.elseBranch && node.elseBranch.children.length > 0) {
-            node.elseBranch.children.at(0).viewState.startNodeId = node.id;
+            if (node.elseBranch.children.at(0).viewState) {
+                node.elseBranch.children.at(0).viewState.startNodeId = node.id;
+            } else {
+                node.elseBranch.children.at(0).viewState = { startNodeId: node.id, x: 0, y: 0, w: 0, h: 0 };
+            }
         }
     }
 

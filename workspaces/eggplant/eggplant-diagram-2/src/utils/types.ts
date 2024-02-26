@@ -56,13 +56,5 @@ export type ViewState = {
     y: number;
     w: number;
     h: number;
-
     startNodeId?: string;
-    // todo: implement positions for branches
-    branch?: {
-        id: string;
-        parentNodeId: string;
-        startNodeId?: string;
-        endNodeId?: string;
-    };
 };

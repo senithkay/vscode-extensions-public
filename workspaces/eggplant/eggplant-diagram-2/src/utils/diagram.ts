@@ -15,18 +15,35 @@ import { NodePortModel } from "../components/NodePort/NodePortModel";
 import { EmptyNodeFactory } from "../components/nodes/EmptyNode/EmptyNodeFactory";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
 import { BaseNodeModel } from "../components/nodes/BaseNode/BaseNodeModel";
+import { DagreEngine } from "../resources/dagre/DagreEngine";
+import { OverlayLayerFactory } from "../components/OverlayLoader/OverlayLayerFactory";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
         registerDefaultDeleteItemsAction: false,
         registerDefaultZoomCanvasAction: false,
+        registerDefaultPanAndZoomCanvasAction: true,
     });
 
     engine.getPortFactories().registerFactory(new NodePortFactory());
     engine.getLinkFactories().registerFactory(new NodeLinkFactory());
     engine.getNodeFactories().registerFactory(new BaseNodeFactory());
     engine.getNodeFactories().registerFactory(new EmptyNodeFactory());
+    engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
     return engine;
+}
+
+export function genDagreEngine() {
+    return new DagreEngine({
+        graph: {
+            rankdir: "TB",
+            nodesep: 60,
+            ranksep: 60,
+            marginx: 50,
+            marginy: 100,
+            ranker: "tight-tree",
+        },
+    });
 }
 
 // create link between ports

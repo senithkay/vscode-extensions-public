@@ -10,15 +10,14 @@
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
-import { SizingVisitor } from "../visitors/SizingVisitor";
-import { PositionVisitor } from "../visitors/PositionVisitor";
-import { generateEngine } from "../utils/diagram";
+import { genDagreEngine, generateEngine } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { BaseNodeModel } from "./nodes/BaseNode/BaseNodeModel";
-import { Flow, Node } from "../utils/types";
-import { traverseFlow, traverseNode } from "../utils/ast";
+import { Node } from "../utils/types";
+import { traverseNode } from "../utils/ast";
 import { NodeLinkModel } from "./NodeLink/NodeLinkModel";
+import { OverlayLayerModel } from "./OverlayLoader/OverlayLayerModel";
 
 export interface DiagramProps {
     model: Node;
@@ -38,12 +37,6 @@ export function Diagram(props: DiagramProps) {
     }, []);
 
     const getDiagramData = () => {
-        // run sizing visitor
-        const sizingVisitor = new SizingVisitor();
-        traverseNode(model, sizingVisitor);
-        // run position visitor
-        const positionVisitor = new PositionVisitor();
-        traverseNode(model, positionVisitor);
         // run node visitor
         const nodeVisitor = new NodeFactoryVisitor();
         traverseNode(model, nodeVisitor);
@@ -55,9 +48,32 @@ export function Diagram(props: DiagramProps) {
 
     const drawDiagram = (nodes: BaseNodeModel[], links: NodeLinkModel[]) => {
         const newDiagramModel = new DiagramModel();
+        newDiagramModel.addLayer(new OverlayLayerModel());
+        // add nodes and links to the diagram
         newDiagramModel.addAll(...nodes, ...links);
+
         diagramEngine.setModel(newDiagramModel);
         setDiagramModel(newDiagramModel);
+
+        setTimeout(() => {
+            const dagreEngine = genDagreEngine();
+            dagreEngine.redistribute(newDiagramModel);
+            diagramEngine.setModel(newDiagramModel);
+            // remove loader overlay layer
+            const overlayLayer = diagramEngine
+                .getModel()
+                .getLayers()
+                .find((layer) => layer instanceof OverlayLayerModel);
+            if (overlayLayer) {
+                diagramEngine.getModel().removeLayer(overlayLayer);
+            }
+            // change canvas position to first node
+            const firstNode = newDiagramModel.getNodes().at(0);
+            diagramEngine.zoomToFitNodes({nodes: [firstNode], maxZoom: 1});
+            diagramEngine.repaintCanvas();
+            // update the diagram model state
+            setDiagramModel(newDiagramModel);
+        }, 1000);
     };
 
     return (
