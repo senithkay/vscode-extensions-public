@@ -131,19 +131,18 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
     const { rpcClient } = useVisualizerContext();
 
-    const handleOnClickMenu = () => {
+    const handleOnClickMenu = (event: any) => {
         if (onClick) {
-            console.log("Call Node clicked", node.stNode);
             onClick(node.stNode);
+        } else {
+            setIsPopoverOpen(!isPopoverOpen);
+            setPopoverAnchorEl(event.currentTarget);
+            event.stopPropagation();
         }
     };
 
-    const handleOnClick = (event: any) => {
-        setIsPopoverOpen(!isPopoverOpen);
-        setPopoverAnchorEl(event.currentTarget);
-        event.stopPropagation();
+    const handleOnClick = () => {
         if (node.isSelected()) node.onClicked(visualizerContext);
-        
     };
 
     const handlePlusNode = () => {
@@ -194,7 +193,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                     </S.IconContainer>
                     <S.NodeText>{node.stNode.tag}</S.NodeText>
                     {isHovered && (
-                        <S.StyledButton appearance="icon" onClick={handleOnClick}>
+                        <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>
                             <MoreVertIcon />
                         </S.StyledButton>
                     )}
