@@ -85,6 +85,7 @@ export enum NodeTypes {
 
 export const NODE_LINK = "node-link";
 export const NODE_PORT = "node-port";
+export const LOADING_OVERLAY = "loading-overlay";
 
 // sizing
 export const NODE_WIDTH = 280;
