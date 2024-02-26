@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- 
+ Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+
+ This software is the property of WSO2 LLC. and its suppliers, if any.
+ Dissemination of any information or reproduction of any material contained
+ herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ You may not alter or remove any copyright or other notice from copies of this content.
+-->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   viewBox="0 0 29.437853 21.208399"
+   height="21.208399"
+   width="29.437853"
+   xml:space="preserve"
+   id="svg2"
+   version="1.1"><metadata
+     id="metadata8"><rdf:RDF><cc:Work
+         rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
+     id="defs6"><clipPath
+       id="clipPath18"
+       clipPathUnits="userSpaceOnUse"><path
+         id="path16"
+         d="M 0,25 H 25 V 0 H 0 Z" /></clipPath><clipPath
+       id="clipPath42"
+       clipPathUnits="userSpaceOnUse"><path
+         id="path40"
+         d="M 0,25 H 25 V 0 H 0 Z" /></clipPath><clipPath
+       id="clipPath62"
+       clipPathUnits="userSpaceOnUse"><path
+         id="path60"
+         d="M 0,25 H 25 V 0 H 0 Z" /></clipPath></defs><g
+     transform="matrix(1.3333333,0,0,-1.3333333,-2.1809333,26.858133)"
+     id="g10"><g
+       id="g12"><g
+         clip-path="url(#clipPath18)"
+         id="g14"><g
+           transform="translate(1.6362,19.6436)"
+           id="g20"><path
+             id="path22"
+             style="fill:none;stroke:#3e97d3;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+             d="M 0,0 H 15.516" /></g><g
+           transform="translate(1.6357,4.7373)"
+           id="g24"><path
+             id="path26"
+             style="fill:none;stroke:#3e97d3;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+             d="M 0,0 H 21.435" /></g><g
+           transform="translate(16.4092,10.3936)"
+           id="g28"><path
+             id="path30"
+             style="fill:none;stroke:#3e97d3;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+             d="m 0,0 3.324,-3.324 3.274,3.272" /></g></g></g><g
+       transform="translate(19.7334,7.0693)"
+       id="g32"><path
+         id="path34"
+         style="fill:none;stroke:#3e97d3;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+         d="M 0,0 V 13.057" /></g><g
+       id="g36"><g
+         clip-path="url(#clipPath42)"
+         id="g38"><g
+           transform="translate(1.6362,15.5757)"
+           id="g44"><path
+             id="path46"
+             style="fill:none;stroke:#3e97d3;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+             d="M 0,0 H 8.47" /></g></g></g><g
+       transform="translate(11.2339,15.5757)"
+       id="g48"><path
+         id="path50"
+         style="fill:none;stroke:#3e97d3;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+         d="M 0,0 H 5.918" /></g><g
+       transform="translate(4.5884,11.6611)"
+       id="g52"><path
+         id="path54"
+         style="fill:none;stroke:#3e97d3;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+         d="M 0,0 H 8.47" /></g><g
+       id="g56"><g
+         clip-path="url(#clipPath62)"
+         id="g58"><g
+           transform="translate(1.6362,8.2803)"
+           id="g64"><path
+             id="path66"
+             style="fill:none;stroke:#3e97d3;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+             d="M 0,0 H 5.918" /></g></g></g><g
+       transform="translate(8.8232,8.2803)"
+       id="g68"><path
+         id="path70"
+         style="fill:none;stroke:#3e97d3;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+         d="M 0,0 H 6.804" /></g></g></svg>

@@ -20,8 +20,9 @@ export class BaseNodeModel extends NodeModel {
     protected portOut: NodePortModel;
     protected parentNode: STNode;
     protected prevNodes: STNode[];
+    readonly documentUri: string;
 
-    constructor(type: NodeTypes, stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
+    constructor(type: NodeTypes, documentUri:string, stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode),
             type: type,
@@ -32,6 +33,7 @@ export class BaseNodeModel extends NodeModel {
         this.prevNodes = prevNodes;
         this.addInPort("in");
         this.addOutPort("out");
+        this.documentUri = documentUri;
     }
 
     addPort<T extends NodePortModel>(port: T): T {
@@ -76,7 +78,7 @@ export class BaseNodeModel extends NodeModel {
 
     onClicked(visualizerContext: ReturnType<typeof useVisualizerContext>): void {
         visualizerContext.rpcClient.getMiDiagramRpcClient().highlightCode({
-            range: { start: this.stNode.range.startTagRange.start, end: this.stNode.range.endTagRange.end },
+            range: { start: this.stNode.range.startTagRange.start, end: this.stNode.range.endTagRange.end || this.stNode.range.startTagRange.end },
         });
     }
 }

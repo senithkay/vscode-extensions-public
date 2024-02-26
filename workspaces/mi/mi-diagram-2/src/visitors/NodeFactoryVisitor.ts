@@ -39,15 +39,15 @@ export class NodeFactoryVisitor implements Visitor {
         if (type === NodeTypes.MEDIATOR_NODE) {
             diagramNode = new MediatorNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.CONDITION_NODE) {
-            diagramNode = new ConditionNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
+            diagramNode = new ConditionNodeModel(node, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.START_NODE) {
             diagramNode = new StartNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.END_NODE) {
             diagramNode = new EndNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.CALL_NODE) {
-            diagramNode = new CallNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes, data);
+            diagramNode = new CallNodeModel(node, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes, data);
         } else if (type === NodeTypes.EMPTY_NODE) {
-            diagramNode = new EmptyNodeModel(node);
+            diagramNode = new EmptyNodeModel(node, this.documentUri);
         }
         diagramNode.setPosition(node.viewState.x, node.viewState.y);
         this.nodes.push(diagramNode);
@@ -64,7 +64,7 @@ export class NodeFactoryVisitor implements Visitor {
                         diagramNode as TargetNodeModel,
                         {
                             label: this.currentBranchName,
-                            stRange: this.currentAddPosition ?? previousStNode.range.endTagRange.end,
+                            stRange: this.currentAddPosition ?? (previousStNode.range.endTagRange?.end ? previousStNode.range.endTagRange.end : previousStNode.range.startTagRange.end),
                             brokenLine: type === NodeTypes.EMPTY_NODE || previousNode instanceof EmptyNodeModel,
                             previousNode: previousStNode.tag,
                             parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
@@ -155,15 +155,14 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitInSequence(node: Sequence): void {
         const addPosition = {
             line: node.range.startTagRange.start.line,
-            character: node.range.startTagRange.end.character 
+            character: node.range.startTagRange.end.character
         }
         this.currentAddPosition = addPosition;
         this.createNodeAndLinks(node, "", NodeTypes.START_NODE);
         this.parents.push(node);
     }
     endVisitInSequence(node: Sequence): void {
-        const lastNode = this.nodes[this.nodes.length - 1].getStNode();
-        node.viewState.y = lastNode.viewState.y + lastNode.viewState.h + NODE_GAP.Y;
+        node.viewState.y = node.viewState.fh + NODE_GAP.Y;
         this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.endTagRange.end);
         this.parents.pop();
         this.previousSTNodes = undefined;
@@ -180,7 +179,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
     endVisitOutSequence(node: Sequence): void {
         const lastNode = this.nodes[this.nodes.length - 1].getStNode();
-        node.viewState.y = lastNode.viewState.y + lastNode.viewState.h + NODE_GAP.Y;
+        node.viewState.y = lastNode.viewState.y + Math.max(lastNode.viewState.h, lastNode.viewState.fh || 0) + NODE_GAP.Y;
         this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.endTagRange.end);
         this.parents.pop();
         this.previousSTNodes = undefined;
@@ -197,7 +196,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
     endVisitFaultSequence(node: Sequence): void {
         const lastNode = this.nodes[this.nodes.length - 1].getStNode();
-        node.viewState.y = lastNode.viewState.y + lastNode.viewState.h + NODE_GAP.Y;
+        node.viewState.y = lastNode.viewState.y + Math.max(lastNode.viewState.h, lastNode.viewState.fh || 0) + NODE_GAP.Y;
         this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.endTagRange.end);
         this.parents.pop();
         this.previousSTNodes = undefined;

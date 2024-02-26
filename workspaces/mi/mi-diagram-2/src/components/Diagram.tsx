@@ -18,12 +18,11 @@ import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { MediatorNodeModel } from "./nodes/MediatorNode/MediatorNodeModel";
 import { NodeLinkModel } from "./NodeLink/NodeLinkModel";
 import { SidePanelProvider } from "./sidePanel/SidePanelContexProvider";
-import { Button, SidePanel, SidePanelTitleContainer, NavigationWrapperCanvasWidget } from '@wso2-enterprise/ui-toolkit'
+import { SidePanel, NavigationWrapperCanvasWidget, Switch } from '@wso2-enterprise/ui-toolkit'
 import SidePanelList from './sidePanel';
 import { OverlayLayerModel } from "./OverlayLoader/OverlayLayerModel";
 import styled from "@emotion/styled";
 import { Colors } from "../resources/constants";
-import { VSCodePanelTab, VSCodePanelView, VSCodePanels } from '@vscode/webview-ui-toolkit/react';
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
@@ -59,6 +58,11 @@ export function Diagram(props: DiagramProps) {
     const { model } = props;
     const [diagramDataMap, setDiagramDataMap] = useState(new Map());
     const { rpcClient } = useVisualizerContext();
+    const [isTabPaneVisible, setTabPaneVisible] = useState(true);
+    const [isFaultFlow, setFlow] = useState(false);
+    const toggleFlow = () => {
+        setFlow(!isFaultFlow);
+    };
 
     const [diagramData, setDiagramData] = useState({
         flow: {
@@ -84,8 +88,6 @@ export function Diagram(props: DiagramProps) {
         title: "",
     });
 
-    const [activeTab, setActiveTab] = useState<DiagramType>(DiagramType.FLOW);
-
     useEffect(() => {
         const { flow, fault } = diagramData;
         const { engine: flowEngine } = flow;
@@ -97,7 +99,7 @@ export function Diagram(props: DiagramProps) {
         delete (modelCopy as APIResource).faultSequence;
         const key = JSON.stringify((STNode as APIResource).inSequence) + JSON.stringify((STNode as APIResource).outSequence);
 
-        if (diagramDataMap.get(DiagramType.FLOW) !== key && activeTab === DiagramType.FLOW) {
+        if (diagramDataMap.get(DiagramType.FLOW) !== key && !isFaultFlow) {
             diagramDataMap.set(DiagramType.FLOW, key);
             flows.push({
                 engine: flowEngine,
@@ -110,7 +112,7 @@ export function Diagram(props: DiagramProps) {
         const faultSequence = (STNode as APIResource).faultSequence;
         if (faultSequence) {
             const key = JSON.stringify(faultSequence);
-            if (diagramDataMap.get(DiagramType.FAULT) !== key && activeTab == DiagramType.FAULT) {
+            if (diagramDataMap.get(DiagramType.FAULT) !== key && isFaultFlow) {
                 diagramDataMap.set(DiagramType.FAULT, key);
                 flows.push({
                     engine: faultEngine,
@@ -135,7 +137,7 @@ export function Diagram(props: DiagramProps) {
             mouseTrapClient.resetMouseTrapInstance();
         }
 
-    }, [props.model, props.documentUri, activeTab]);
+    }, [props.model, props.documentUri, isFaultFlow]);
 
     // center diagram when side panel is opened
     useEffect(() => {
@@ -143,23 +145,14 @@ export function Diagram(props: DiagramProps) {
         const { model: flowModel, engine: flowEngine, width: flowWidth } = flow;
         const { model: faultModel, engine: faultEngine, width: faultWidth } = fault;
 
-        if (activeTab === DiagramType.FLOW) {
+        if (!isFaultFlow) {
             centerDiagram(true, flowModel, flowEngine, flowWidth);
-        } else if (activeTab === DiagramType.FAULT) {
+        } else {
             centerDiagram(true, faultModel, faultEngine, faultWidth);
         }
-    }, [sidePanelState.isOpen]);
 
-    const closeSidePanel = () => {
-        setSidePanelState({
-            ...sidePanelState,
-            nodeRange: undefined,
-            mediator: "",
-            isOpen: false,
-            formValues: {},
-            isEditing: false
-        });
-    };
+        setTabPaneVisible(!sidePanelState.isOpen);
+    }, [sidePanelState.isOpen]);
 
     const updateDiagramData = (data: DiagramData[]) => {
         const updatedDiagramData: any = {};
@@ -268,38 +261,40 @@ export function Diagram(props: DiagramProps) {
                     ...sidePanelState,
                     setSidePanelState,
                 }}>
-                    <VSCodePanels aria-label="Default">
-                        <VSCodePanelTab id={DiagramType.FLOW} onClick={(e: any) => { setActiveTab(e.target.id) }}>Flow</VSCodePanelTab>
-                        {(props.model as APIResource).faultSequence && <VSCodePanelTab id={DiagramType.FAULT} onClick={(e: any) => { setActiveTab(e.target.id) }}>Fault</VSCodePanelTab>}
+                    {isTabPaneVisible && <Switch
+                        leftLabel="Flow"
+                        rightLabel="Fault"
+                        checked={isFaultFlow}
+                        checkedColor="var(--vscode-button-background)"
+                        enableTransition={true}
+                        onChange={toggleFlow}
+                        sx={{
+                            "margin": "auto",
+                            fontFamily: "var(--font-family)",
+                            fontSize: "var(--type-ramp-base-font-size)",
+                        }}
+                    />}
+                    {/* Flow */}
+                    {diagramData.flow.engine && diagramData.flow.model && !isFaultFlow &&
+                        <DiagramCanvas height={diagramData.flow.height + 40}>
+                            <NavigationWrapperCanvasWidget
+                                diagramEngine={diagramData.flow.engine as any}
+                                overflow="hidden"
+                                cursor="Default"
+                            />
+                        </DiagramCanvas>
+                    }
 
-                        {/* Flow */}
-                        <VSCodePanelView id={DiagramType.FLOW} width={"1000px"}>
-                            {diagramData.flow.engine && diagramData.flow.model && (
-                                <DiagramCanvas height={diagramData.flow.height + 40}>
-                                    <NavigationWrapperCanvasWidget
-                                        diagramEngine={diagramData.flow.engine as any}
-                                        overflow="hidden"
-                                        cursor="Default"
-                                    />
-                                </DiagramCanvas>
-                            )}
-                        </VSCodePanelView>
-
-                        {/* Fault sequence */}
-                        {diagramData.fault.engine && diagramData.fault.model &&
-                            <VSCodePanelView id={DiagramType.FAULT}>
-                                <DiagramCanvas height={diagramData.fault.height + 40}>
-                                    <NavigationWrapperCanvasWidget
-                                        diagramEngine={diagramData.fault.engine as any}
-                                        overflow="hidden"
-                                        cursor="Default"
-                                    />
-                                </DiagramCanvas>
-
-                            </VSCodePanelView>
-                        }
-
-                    </VSCodePanels>
+                    {/* Fault sequence */}
+                    {diagramData.fault.engine && diagramData.fault.model && isFaultFlow &&
+                        <DiagramCanvas height={diagramData.fault.height + 40}>
+                            <NavigationWrapperCanvasWidget
+                                diagramEngine={diagramData.fault.engine as any}
+                                overflow="hidden"
+                                cursor="Default"
+                            />
+                        </DiagramCanvas>
+                    }
 
                     {/* side panel */}
                     {sidePanelState.isOpen && <SidePanel

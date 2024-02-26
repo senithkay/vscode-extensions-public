@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- 
+ Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+
+ This software is the property of WSO2 LLC. and its suppliers, if any.
+ Dissemination of any information or reproduction of any material contained
+ herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ You may not alter or remove any copyright or other notice from copies of this content.
+-->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   viewBox="0 0 25.280033 25.911999"
+   height="25.911999"
+   width="25.280033"
+   xml:space="preserve"
+   id="svg2"
+   version="1.1"><metadata
+     id="metadata8"><rdf:RDF><cc:Work
+         rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
+     id="defs6"><clipPath
+       id="clipPath18"
+       clipPathUnits="userSpaceOnUse"><path
+         id="path16"
+         d="M 0,25 H 25 V 0 H 0 Z" /></clipPath></defs><g
+     transform="matrix(1.3333333,0,0,-1.3333333,-3.8187726,29.541066)"
+     id="g10"><g
+       id="g12"><g
+         clip-path="url(#clipPath18)"
+         id="g14"><g
+           transform="translate(14.5195,12.4878)"
+           id="g20"><path
+             id="path22"
+             style="fill:#26b99a;fill-opacity:1;fill-rule:nonzero;stroke:none"
+             d="M 0,0 C -0.354,-0.481 -0.547,-1.063 -0.548,-1.661 V -7.46 l -3.255,-1.242 v 7.041 C -3.804,-1.063 -3.996,-0.481 -4.351,0 l -6.162,8.681 H 6.162 Z m 6.488,9.668 h -17.327 c -0.306,0 -0.585,-0.17 -0.725,-0.442 -0.142,-0.276 -0.117,-0.607 0.064,-0.859 l 6.348,-8.942 c 0.002,-0.004 0.004,-0.007 0.006,-0.009 0.231,-0.312 0.355,-0.689 0.356,-1.077 v -7.29 c -0.001,-0.216 0.084,-0.423 0.236,-0.576 0.152,-0.153 0.359,-0.239 0.575,-0.239 0.11,0 0.218,0.021 0.32,0.063 l 3.566,1.361 c 0.321,0.097 0.532,0.399 0.532,0.762 v 5.919 c 0,0.388 0.125,0.765 0.356,1.077 0.002,0.002 0.005,0.005 0.007,0.009 L 7.149,8.367 C 7.33,8.619 7.355,8.95 7.214,9.226 7.074,9.498 6.794,9.668 6.488,9.668" /></g></g></g></g></svg>
