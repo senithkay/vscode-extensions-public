@@ -24,7 +24,10 @@
         "@projectstorm/react-diagrams-routing": "^6.7.4",
         "@emotion/react": "^11.9.3",
         "@emotion/styled": "^11.10.5",
-        "@wso2-enterprise/ui-toolkit": "workspace:*"
+        "@wso2-enterprise/ui-toolkit": "workspace:*",
+        "dagre": "~0.8.5",
+        "lodash": "~4.17.21",
+        "@types/lodash": "~4.14.202"
     },
     "devDependencies": {
         "@storybook/react": "^6.3.7",
