@@ -9,6 +9,9 @@
 body {
     background-color: #000;
     --vscode-foreground: #cccccc;
+    --vscode-font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    --vscode-font-weight: normal;
+    --vscode-font-size: 13px;
     --vscode-disabledForeground: rgba(204, 204, 204, 0.5);
     --vscode-errorForeground: #f48771;
     --vscode-descriptionForeground: rgba(204, 204, 204, 0.7);
