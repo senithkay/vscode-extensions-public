@@ -162,7 +162,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
     const handleOnDeleteEndpoint = () => {
         rpcClient.getMiDiagramRpcClient().applyEdit({
             documentUri: node.documentUri,
-            range: { start: node.endpoint.range.startTagRange.start, end: node.endpoint.range.endTagRange.end },
+            range: { start: node.endpoint.range.startTagRange.start, end: node.endpoint.range.endTagRange.end ??  node.endpoint.range.startTagRange.end},
             text: "",
         });
     };
@@ -248,10 +248,10 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                     handleOnDelete();
                     setIsPopoverOpen(false); // Close the popover after action
                 }}>Delete</Button>
-                <Button appearance="secondary" onClick={() => {
+                {node.endpoint  && <Button appearance="secondary" onClick={() => {
                     handleOnDeleteEndpoint();
                     setIsPopoverOpen(false); // Close the popover after action
-                }}>Delete Endpoint</Button>
+                }}>Delete Endpoint</Button>}
             </Popover>
         </div>
     );
