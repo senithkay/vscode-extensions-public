@@ -43,6 +43,7 @@ import { DataMapperViewProps } from "../..";
 import { WarningBanner } from "./Warning/DataMapperWarning";
 
 import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
+import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 const classes = {
     root: css({
@@ -215,6 +216,7 @@ export function DataMapperC(props: DataMapperViewProps) {
 
     const typeStore = TypeDescriptorStore.getInstance();
     const typeStoreStatus = typeStore.getStatus();
+    const { rpcClient } = useVisualizerContext();
 
     const handleSelectedST = (mode: ViewOption, selectionState?: SelectionState, navIndex?: number) => {
         dispatchSelection({ type: mode, payload: selectionState, index: navIndex });
@@ -233,7 +235,7 @@ export function DataMapperC(props: DataMapperViewProps) {
         setConfigPanelOpen(false);
         if (showConfigPanel) {
             // Close data mapper when having incomplete fnST
-            onClose();
+            rpcClient.getVisualizerRpcClient().goHome();
         }
     }
 
