@@ -5,7 +5,7 @@
   "description": "",
   "version": "0.0.1",
   "repository": {
-    "url": "http://repo.url"
+    "url": "https://wso2.com/ballerina/vscode/docs"
   },
   "engines": {
     "vscode": "^1.84.0"
