@@ -18,6 +18,7 @@ import { CallIcon, MoreVertIcon, PlusIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { Range, Position } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { getSVGIcon } from "../../../resources/icons/mediatorIcons/icons";
 
 namespace S {
     export type NodeStyleProp = {
@@ -156,7 +157,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                 <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                 <S.Header>
                     <S.IconContainer>
-                        <CallIcon />
+                        {getSVGIcon(node.stNode.tag)}
                     </S.IconContainer>
                     <S.NodeText>{node.stNode.tag}</S.NodeText>
                     {isHovered && (

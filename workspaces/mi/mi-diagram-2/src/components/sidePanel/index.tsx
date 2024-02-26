@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, ProgressRing, Switch } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
@@ -32,7 +32,6 @@ const LoaderContainer = styled.div`
 
 const ButtonContainer = styled.div`
     display: flex;
-    flex-direction: row;
     justify-content: center;
     gap: 10px;
     align-items: center;
@@ -95,8 +94,8 @@ const SidePanelList = (props: SidePanelListProps) => {
     };
 
     const handleGenerateClick = () => {
-        setGenerate(true);
-        setAddMediator(false);
+        setGenerate(!isGenerate);
+        setAddMediator(isGenerate);
     };
 
     const setContent = async (content: any) => {
@@ -109,24 +108,36 @@ const SidePanelList = (props: SidePanelListProps) => {
                 < ProgressRing />
 
             </LoaderContainer > :
-                pageStack.length === 0 ? <>
+                <>
                     {/* Header */}
                     <ButtonContainer>
-                        <Button onClick={handleAddMediatorClick} appearance={isAddMediator ? 'primary' : 'secondary'} sx={{ ...BtnStyle, marginLeft: "auto" }}>Add Mediator</Button>
-                        <Button onClick={handleGenerateClick} appearance={isGenerate ? 'primary' : 'secondary'} sx={BtnStyle}>Generate</Button>
-                        <Codicon name="close" sx={{ marginLeft: "auto" }} onClick={handleClose} />
+                        {pageStack.length === 0 ? <div style={{ flex: "1" }}></div> :
+                            !sidePanelContext.isEditing && <Codicon name="arrow-left" sx={{ flex: "1" }} onClick={handleGoBack} />
+                        }
+
+                        {pageStack.length === 0 && <Switch
+                            leftLabel="Add"
+                            rightLabel="Generate"
+                            checked={isGenerate}
+                            checkedColor="var(--vscode-button-background)"
+                            enableTransition={true}
+                            onChange={handleGenerateClick}
+                            sx={{
+                                "margin": "auto",
+                                fontFamily: "var(--font-family)",
+                                fontSize: "var(--type-ramp-base-font-size)",
+                            }}
+                        />}
+                        <Codicon name="close" sx={{ flex: "1", textAlign: "right" }} onClick={handleClose} />
                     </ButtonContainer>
 
-                    {isAddMediator && <MediatorPage nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={setContent} />}
-                    {isGenerate && <AIPage />}
-                </> :
-                    <>
-                        <ButtonContainer>
-                            {!sidePanelContext.isEditing && <Codicon name="arrow-left" sx={{ flex: "1" }} onClick={handleGoBack} />}
-                            <Codicon name="close" sx={{ flex: "1", textAlign: "right" }} onClick={handleClose} />
-                        </ButtonContainer>
-                        {pageStack[pageStack.length - 1]}
+                    {/* Content */}
+                    {pageStack.length === 0 && <>
+                        {isAddMediator && <MediatorPage nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={setContent} />}
+                        {isGenerate && <AIPage />}
                     </>}
+                    {pageStack.length > 0 && pageStack[pageStack.length - 1]}
+                </>}
         </SidePanelContainer>
     );
 };

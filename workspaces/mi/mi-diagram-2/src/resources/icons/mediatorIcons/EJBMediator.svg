@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- 
+ Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+
+ This software is the property of WSO2 LLC. and its suppliers, if any.
+ Dissemination of any information or reproduction of any material contained
+ herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ You may not alter or remove any copyright or other notice from copies of this content.
+-->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   viewBox="0 0 30.797466 31.117599"
+   height="31.117599"
+   width="30.797466"
+   xml:space="preserve"
+   id="svg2"
+   version="1.1"><metadata
+     id="metadata8"><rdf:RDF><cc:Work
+         rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
+     id="defs6"><clipPath
+       id="clipPath18"
+       clipPathUnits="userSpaceOnUse"><path
+         id="path16"
+         d="M 0,25 H 25 V 0 H 0 Z" /></clipPath></defs><g
+     transform="matrix(1.3333333,0,0,-1.3333333,0,31.117599)"
+     id="g10"><g
+       id="g12"><g
+         clip-path="url(#clipPath18)"
+         id="g14"><g
+           transform="translate(11.5747,13.8228)"
+           id="g20"><path
+             id="path22"
+             style="fill:#e47d26;fill-opacity:1;fill-rule:nonzero;stroke:none"
+             d="m 0,0 c -0.25,-0.004 -0.417,-0.031 -0.505,-0.057 v -1.554 c 0.104,-0.024 0.232,-0.033 0.408,-0.034 0.659,-0.004 1.074,0.322 1.074,0.873 C 0.977,-0.277 0.62,0.012 0,0" /></g><g
+           transform="translate(22.2891,4.6162)"
+           id="g24"><path
+             id="path26"
+             style="fill:#e47d26;fill-opacity:1;fill-rule:nonzero;stroke:none"
+             d="m 0,0 c 0,-0.335 -0.272,-0.607 -0.606,-0.607 h -6.672 c -0.03,0 -0.059,0.004 -0.087,0.008 v 4.945 c 0.453,-0.064 1.085,-0.1 1.954,-0.1 2.415,0 3.474,0.442 3.648,0.63 0.175,0.187 -0.053,0.336 -0.053,0.336 0,0 0.08,-0.095 -0.027,-0.202 C -1.95,4.903 -2.93,4.636 -4.5,4.555 -5.59,4.498 -6.744,4.592 -7.366,4.721 v 0.451 c 0.21,0.057 0.412,0.093 0.412,0.093 -0.035,-0.004 -0.204,-0.011 -0.412,-0.03 v 2.206 c 0.348,-0.172 1.07,-0.272 2.163,-0.234 1.91,0.068 2.135,0.428 2.334,0.601 -1.107,-0.301 -4.044,-0.282 -4.066,-0.06 -0.019,0.221 0.907,0.402 0.907,0.402 0,0 -0.897,-0.001 -1.337,-0.177 v 8.089 c 0.028,0.004 0.057,0.009 0.087,0.009 h 6.672 C -0.272,16.071 0,15.799 0,15.465 Z m -0.606,16.88 h -6.672 c -0.03,0 -0.059,-0.003 -0.087,-0.005 v 1.847 L -20.387,16.984 V -1.531 l 13.022,-1.782 v 1.902 c 0.028,-0.002 0.057,-0.005 0.087,-0.005 h 6.672 c 0.78,0 1.415,0.636 1.415,1.416 v 15.465 c 0,0.78 -0.635,1.415 -1.415,1.415" /></g><g
+           transform="translate(18.4951,16.5693)"
+           id="g28"><path
+             id="path30"
+             style="fill:#e47d26;fill-opacity:1;fill-rule:nonzero;stroke:none"
+             d="m 0,0 c 0.481,0.785 -0.062,1.549 -0.062,1.549 0,0 0.122,-0.563 -0.2,-1.147 -0.322,-0.583 -1.51,-0.926 -1.972,-1.931 -0.462,-1.007 1.026,-2.154 1.026,-2.154 0,0 -0.544,1.047 -0.524,1.812 C -1.717,-1.325 -0.485,-0.784 0,0" /></g><g
+           transform="translate(19.3203,16.0659)"
+           id="g32"><path
+             id="path34"
+             style="fill:#e47d26;fill-opacity:1;fill-rule:nonzero;stroke:none"
+             d="m 0,0 c 0,0 -1.852,-0.704 -1.852,-1.509 0,-0.805 0.503,-1.066 0.583,-1.328 0.082,-0.262 -0.139,-0.704 -0.139,-0.704 0,0 0.723,0.502 0.602,1.087 -0.121,0.583 -0.684,0.765 -0.362,1.348 C -0.952,-0.715 0,0 0,0" /></g><g
+           transform="translate(19.7021,12.7256)"
+           id="g36"><path
+             id="path38"
+             style="fill:#e47d26;fill-opacity:1;fill-rule:nonzero;stroke:none"
+             d="m 0,0 c 0,0 0.825,0 0.905,-0.503 0.08,-0.503 -1.046,-1.247 -1.046,-1.247 0,0 1.774,0.357 1.609,1.267 C 1.267,0.624 0,0 0,0" /></g><g
+           transform="translate(15.7568,11.3984)"
+           id="g40"><path
+             id="path42"
+             style="fill:#e47d26;fill-opacity:1;fill-rule:nonzero;stroke:none"
+             d="m 0,0 c -0.079,0.141 0.142,0.221 0.142,0.221 -1.007,-0.242 -0.457,-0.663 0.722,-0.745 1.012,-0.069 2.142,0.302 2.142,0.302 L 3.354,0.06 c 0,0 -0.796,-0.112 -1.422,-0.181 C 1.094,-0.216 0.081,-0.142 0,0" /></g><g
+           transform="translate(16.1006,10.4316)"
+           id="g44"><path
+             id="path46"
+             style="fill:#e47d26;fill-opacity:1;fill-rule:nonzero;stroke:none"
+             d="m 0,0 c -0.041,0.094 0.04,0.147 0.04,0.147 0,0 -0.457,-0.012 -0.483,-0.254 -0.027,-0.241 0.141,-0.362 1.27,-0.335 1.344,0.031 1.569,0.191 1.707,0.307 L 2.861,0.112 C 1.982,-0.002 1.915,-0.032 1.417,-0.047 0.917,-0.062 0.04,-0.093 0,0" /></g><g
+           transform="translate(19.5879,8.7012)"
+           id="g48"><path
+             id="path50"
+             style="fill:#e47d26;fill-opacity:1;fill-rule:nonzero;stroke:none"
+             d="m 0,0 c -1.061,-0.215 -4.278,-0.08 -4.278,-0.08 0,0 2.091,-0.496 4.479,-0.08 C 1.343,0.038 1.409,0.592 1.409,0.592 1.409,0.592 1.06,0.215 0,0" /></g><text
+           id="text54"
+           style="font-variant:normal;font-weight:normal;font-stretch:normal;font-size:20.0802002px;font-family:Roboto;-inkscape-font-specification:Roboto-Regular;writing-mode:tb-rl;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           transform="matrix(1,0,0,-1,2.4392816,5.306529)"><tspan
+             id="tspan52"
+             y="0"
+             x="0">E</tspan></text>
+</g></g></g></svg>

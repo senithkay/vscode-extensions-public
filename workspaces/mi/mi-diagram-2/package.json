@@ -5,10 +5,11 @@
     "main": "lib/index.js",
     "scripts": {
         "start": "tsc && node dist/index.js",
-        "build": "tsc --pretty",
+        "build": "tsc --pretty && npm run copy-files",
         "storybook": "start-storybook -p 6006",
         "watch": "tsc --pretty --watch",
-        "build-storybook": "build-storybook"
+        "build-storybook": "build-storybook",
+        "copy-files": "copyfiles -u 1 src/**/*.svg lib"
     },
     "keywords": [],
     "author": "",
@@ -32,7 +33,9 @@
         "mustache": "~4.2.0",
         "@types/mustache": "~4.2.5",
         "lodash": "~4.17.21",
-        "@types/lodash": "~4.14.202"
+        "@types/lodash": "~4.14.202",
+        "@types/node": "~20.11.19",
+        "copyfiles": "~2.4.1"
     },
     "devDependencies": {
         "@storybook/react": "^6.3.7",

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- 
+ Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+
+ This software is the property of WSO2 LLC. and its suppliers, if any.
+ Dissemination of any information or reproduction of any material contained
+ herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ You may not alter or remove any copyright or other notice from copies of this content.
+-->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   viewBox="0 0 30.885332 20.924"
+   height="20.924"
+   width="30.885332"
+   xml:space="preserve"
+   id="svg2"
+   version="1.1"><metadata
+     id="metadata8"><rdf:RDF><cc:Work
+         rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
+     id="defs6"><clipPath
+       id="clipPath18"
+       clipPathUnits="userSpaceOnUse"><path
+         id="path16"
+         d="M 0,25 H 25 V 0 H 0 Z" /></clipPath></defs><g
+     transform="matrix(1.3333333,0,0,-1.3333333,-1.1044,27.007733)"
+     id="g10"><g
+       id="g12"><g
+         clip-path="url(#clipPath18)"
+         id="g14"><g
+           transform="translate(23.9863,12.3638)"
+           id="g20"><path
+             id="path22"
+             style="fill:#3e97d3;fill-opacity:1;fill-rule:nonzero;stroke:none"
+             d="m 0,0 c -0.005,2.608 -1.653,4.93 -4.113,5.796 l 1.925,0.746 -0.522,1.35 -4.491,-1.742 1.74,-4.49 1.35,0.523 -0.922,2.38 C -2.931,4.048 -1.451,2.165 -1.447,0 -1.312,-2.254 -3.029,-4.193 -5.284,-4.328 -5.364,-4.333 -5.443,-4.335 -5.523,-4.335 L -17.092,5.788 h -0.272 c -3.055,0.141 -5.646,-2.221 -5.788,-5.275 -0.008,-0.171 -0.008,-0.342 0,-0.513 0,-3.3 2.644,-5.788 6.15,-5.788 v 0.882 c -2.726,0 -4.703,2.391 -4.703,4.906 -0.135,2.255 1.583,4.192 3.837,4.328 0.08,0.005 0.16,0.007 0.239,0.007 L -6.061,-5.788 h 0.273 c 3.055,-0.141 5.646,2.22 5.788,5.276 0.008,0.17 0.008,0.341 0,0.512 m -22.978,-0.052 c 0.019,-2.566 1.652,-4.841 4.077,-5.68 l -1.891,-0.744 0.522,-1.325 4.408,1.737 -1.735,4.407 -1.325,-0.52 0.92,-2.337 c -2.072,0.495 -3.538,2.34 -3.552,4.47 -0.146,2.217 1.534,4.132 3.752,4.277 0.078,0.005 0.156,0.008 0.235,0.009 l 11.433,-9.898 0.268,10e-4 c 3.006,-0.123 5.543,2.214 5.666,5.221 0.007,0.168 0.006,0.336 -0.003,0.504 -0.018,3.246 -2.06,5.107 -5.509,5.089 2.681,0.014 4.716,-3.143 4.729,-5.617 0.145,-2.218 -1.875,-4.251 -4.093,-4.397 -0.078,-0.005 -0.528,0.051 -0.607,0.051 L -17.047,5.673 -17.314,5.672 c -3.007,0.123 -5.543,-2.214 -5.666,-5.22 -0.007,-0.168 -0.006,-0.336 0.002,-0.504" /></g></g></g></g></svg>

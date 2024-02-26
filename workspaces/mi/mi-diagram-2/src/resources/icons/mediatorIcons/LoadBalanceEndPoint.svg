@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- 
+ Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+
+ This software is the property of WSO2 LLC. and its suppliers, if any.
+ Dissemination of any information or reproduction of any material contained
+ herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ You may not alter or remove any copyright or other notice from copies of this content.
+-->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   viewBox="0 0 30.044077 21.385332"
+   height="21.385332"
+   width="30.044077"
+   xml:space="preserve"
+   id="svg2"
+   version="1.1"><metadata
+     id="metadata8"><rdf:RDF><cc:Work
+         rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
+     id="defs6"><clipPath
+       id="clipPath18"
+       clipPathUnits="userSpaceOnUse"><path
+         id="path16"
+         d="M 0,25 H 25 V 0 H 0 Z" /></clipPath><clipPath
+       id="clipPath38"
+       clipPathUnits="userSpaceOnUse"><path
+         id="path36"
+         d="M 0,25 H 25 V 0 H 0 Z" /></clipPath><clipPath
+       id="clipPath54"
+       clipPathUnits="userSpaceOnUse"><path
+         id="path52"
+         d="M 0,25 H 25 V 0 H 0 Z" /></clipPath></defs><g
+     transform="matrix(1.3333333,0,0,-1.3333333,-1.9772549,27.358666)"
+     id="g10"><g
+       id="g12"><g
+         clip-path="url(#clipPath18)"
+         id="g14"><path
+           id="path20"
+           style="fill:none;stroke:#955ba5;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+           d="m 23.38,14.065 h -8.778 v 5.954 h 8.778 z" /></g></g><g
+       transform="translate(15.4893,15.4219)"
+       id="g22"><path
+         id="path24"
+         style="fill:none;stroke:#955ba5;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+         d="m 0,0 1.563,1.564 -1.54,1.54" /></g><g
+       transform="translate(17.0313,16.9937)"
+       id="g26"><path
+         id="path28"
+         style="fill:none;stroke:#955ba5;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+         d="M 0,0 -9.195,-0.02" /></g><path
+       id="path30"
+       style="fill:#955ba5;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       d="m 22.233,15.56 h -3.379 v 2.966 h 3.379 z" /><g
+       id="g32"><g
+         clip-path="url(#clipPath38)"
+         id="g34"><path
+           id="path40"
+           style="fill:none;stroke:#955ba5;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+           d="m 23.516,4.98 h -8.778 v 5.954 h 8.778 z" /></g></g><path
+       id="path42"
+       style="fill:#955ba5;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       d="m 22.37,6.475 h -3.38 v 2.966 h 3.38 z" /><g
+       transform="translate(15.9756,6.4062)"
+       id="g44"><path
+         id="path46"
+         style="fill:none;stroke:#955ba5;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+         d="m 0,0 1.564,1.563 -1.54,1.54" /></g><g
+       id="g48"><g
+         clip-path="url(#clipPath54)"
+         id="g50"><g
+           transform="translate(17.54,7.9697)"
+           id="g56"><path
+             id="path58"
+             style="fill:none;stroke:#955ba5;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+             d="M 0,0 -16.056,-0.034" /></g></g></g><g
+       transform="translate(8.1826,17.4785)"
+       id="g60"><path
+         id="path62"
+         style="fill:none;stroke:#955ba5;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+         d="M 0,0 V -9.496" /></g></g></svg>
