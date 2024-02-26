@@ -71,6 +71,7 @@ export class NodeFactoryVisitor implements Visitor {
                         previousNode: previousStNode.tag,
                         parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
                         showArrow: !isSequnceConnect,
+                        showAddButton: !isSequnceConnect,
                     }
                 );
                 this.links.push(link);
