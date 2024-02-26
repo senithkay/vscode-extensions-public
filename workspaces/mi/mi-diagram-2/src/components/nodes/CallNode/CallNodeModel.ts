@@ -14,8 +14,8 @@ import { BaseNodeModel } from "../BaseNodeModel";
 export class CallNodeModel extends BaseNodeModel {
     readonly endpoint: Endpoint;
 
-    constructor(stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = [], endpoint?: Endpoint) {
-        super(NodeTypes.CALL_NODE, stNode, parentNode, prevNodes);
+    constructor(stNode: STNode, documentUri:string, parentNode?: STNode, prevNodes: STNode[] = [], endpoint?: Endpoint) {
+        super(NodeTypes.CALL_NODE, documentUri, stNode, parentNode, prevNodes);
         if (endpoint) {
             this.endpoint = endpoint;
         }

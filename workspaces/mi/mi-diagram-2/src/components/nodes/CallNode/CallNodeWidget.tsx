@@ -13,11 +13,11 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { CallNodeModel } from "./CallNodeModel";
 import { Colors } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { Button } from "@wso2-enterprise/ui-toolkit";
+import { Button, Popover } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon, PlusIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
-import { Range, Position } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getSVGIcon } from "../../../resources/icons/mediatorIcons/icons";
 
 namespace S {
@@ -126,7 +126,10 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine, onClick } = props;
     const [isHovered, setIsHovered] = React.useState(false);
     const visualizerContext = useVisualizerContext();
-    const sidePanelContext = React.useContext(SidePanelContext)
+    const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
+    const [popoverAnchorEl, setPopoverAnchorEl] = React.useState(null);
+    const sidePanelContext = React.useContext(SidePanelContext);
+    const { rpcClient } = useVisualizerContext();
 
     const handleOnClickMenu = () => {
         if (onClick) {
@@ -135,8 +138,12 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
         }
     };
 
-    const handleOnClick = () => {
+    const handleOnClick = (event: any) => {
+        setIsPopoverOpen(!isPopoverOpen);
+        setPopoverAnchorEl(event.currentTarget);
+        event.stopPropagation();
         if (node.isSelected()) node.onClicked(visualizerContext);
+        
     };
 
     const handlePlusNode = () => {
@@ -151,6 +158,22 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
             nodeRange: nodeRange,
             parentNode: node.getStNode()?.tag,
             previousNode: node.getPrevStNodes()[node.getPrevStNodes().length - 1]?.tag,
+        });
+    };
+
+    const handleOnDelete = () => {
+        rpcClient.getMiDiagramRpcClient().applyEdit({
+            documentUri: node.documentUri,
+            range: { start: node.stNode.range.startTagRange.start, end: node.stNode.range.endTagRange.end },
+            text: "",
+        });
+    };
+
+    const handleOnDeleteEndpoint = () => {
+        rpcClient.getMiDiagramRpcClient().applyEdit({
+            documentUri: node.documentUri,
+            range: { start: node.endpoint.range.startTagRange.start, end: node.endpoint.range.endTagRange.end },
+            text: "",
         });
     };
 
@@ -227,6 +250,23 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                     </S.StyledButton>
                 </S.EndpointContainer>
             )}
+            <Popover
+                anchorEl={popoverAnchorEl}
+                open={isPopoverOpen}
+                sx={{
+                    backgroundColor: Colors.SURFACE,
+                    marginLeft: "30px",
+                }}
+            >
+                <Button appearance="secondary" onClick={() => {
+                    handleOnDelete();
+                    setIsPopoverOpen(false); // Close the popover after action
+                }}>Delete</Button>
+                <Button appearance="secondary" onClick={() => {
+                    handleOnDeleteEndpoint();
+                    setIsPopoverOpen(false); // Close the popover after action
+                }}>Delete Endpoint</Button>
+            </Popover>
         </div>
     );
 }

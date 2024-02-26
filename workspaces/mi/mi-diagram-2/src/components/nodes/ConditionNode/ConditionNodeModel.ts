@@ -13,7 +13,7 @@ import { BaseNodeModel } from "../BaseNodeModel";
 
 export class ConditionNodeModel extends BaseNodeModel {
 
-    constructor(stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
-        super(NodeTypes.CONDITION_NODE, stNode, parentNode, prevNodes);
+    constructor(stNode: STNode, documentUri:string, parentNode?: STNode, prevNodes: STNode[] = []) {
+        super(NodeTypes.CONDITION_NODE, documentUri, stNode, parentNode, prevNodes);
     }
 }
