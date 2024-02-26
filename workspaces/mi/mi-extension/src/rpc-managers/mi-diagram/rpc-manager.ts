@@ -102,7 +102,31 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
           resolve(res);
       });
   }
+  async getLocalEntryDirectory(): Promise<LocalEntryDirectoryResponse> {
+    return new Promise(async (resolve) => {
+      const workspaceFolder = workspace.workspaceFolders;
+      if (workspaceFolder) {
+        const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
+        const synapseAPIPath = `${workspaceFolderPath}/${workspaceFolder[0].name}Configs/src/main/synapse-config/local-entries`;
+        const localEntryPath=path.join(workspaceFolderPath,"src","main","synapse-config","local-entries");
+        resolve({ data: localEntryPath });
+      }
+      resolve({ data: "" });
+    });
+  }
+  async createLocalEntry(
+    params: CreateLocalEntryRequest
+  ): Promise<CreateLocalEntryResponse> {
+    return new Promise(async (resolve) => {
+        const { directory, name, type, value, URL } = params;
 
+        const xmlData = generateXmlData(name, type, value, URL);
+        const filePath = path.join(directory, `${name}.xml`);
+
+        writeXmlDataToFile(filePath, xmlData);
+        resolve({ path: filePath });
+    });
+  }
   async getConnectors(): Promise<ConnectorsResponse> {
       return new Promise(async (resolve) => {
           const connectorNames: Connector[] = [];
