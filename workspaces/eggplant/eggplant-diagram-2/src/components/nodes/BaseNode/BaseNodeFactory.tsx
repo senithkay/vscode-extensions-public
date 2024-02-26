@@ -13,6 +13,9 @@ import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { BaseNodeModel } from "./BaseNodeModel";
 import { BaseNodeWidget } from "./BaseNodeWidget";
 import { NodeTypes } from "../../../resources/constants";
+import { IfNodeWidget } from "./IfNodeWidget";
+import { HttpEndpointNodeWidget } from "./HttpEndpointNodeWidget";
+import { HttpActionNodeWidget } from "./HttpActionNodeWidget";
 
 export class BaseNodeFactory extends AbstractReactFactory<BaseNodeModel, DiagramEngine> {
     constructor() {
@@ -24,6 +27,15 @@ export class BaseNodeFactory extends AbstractReactFactory<BaseNodeModel, Diagram
     }
 
     generateReactWidget(event: GenerateWidgetEvent<BaseNodeModel>) {
-        return <BaseNodeWidget engine={this.engine} model={event.model} />;
+        switch (event.model.node.kind) {
+            case "IF":
+                return <IfNodeWidget engine={this.engine} model={event.model} />;
+            case "EVENT_HTTP_API":
+                return <HttpEndpointNodeWidget engine={this.engine} model={event.model} />;
+            case "HTTP_API_GET_CALL":
+                return <HttpActionNodeWidget engine={this.engine} model={event.model} />;
+            default:
+                return <BaseNodeWidget engine={this.engine} model={event.model} />;
+        }
     }
 }
