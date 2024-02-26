@@ -48,7 +48,10 @@ export function DataMapper(props: DataMapperProps) {
         rpcClient.getVisualizerRpcClient().addToHistory(entry);
     };
 
-    const renderRecordPanel = (props: { closeAddNewRecord: (createdNewRecord?: string) => void } & StatementEditorComponentProps) => {
+    const renderRecordPanel = (props: {
+        closeAddNewRecord: (createdNewRecord?: string) => void,
+        onUpdate: (updated: boolean) => void
+    } & StatementEditorComponentProps) => {
         return (
             <RecordEditor
                 isDataMapper={true}

@@ -275,10 +275,12 @@ export function DataMapperC(props: DataMapperViewProps) {
         setShowLocalVarConfigPanel(showPanel);
     }
 
-    const recordPanel = (props: { targetPosition: NodePosition, closeAddNewRecord: (createdNewRecord?: string) => void}) => {
+    const recordPanel = (props: {
+        targetPosition: NodePosition,
+        closeAddNewRecord: (createdNewRecord?: string) => void,
+        onUpdate: (updated: boolean) => void
+    }) => {
             return renderRecordPanel({
-                closeAddNewRecord: props.closeAddNewRecord,
-                targetPosition: props.targetPosition,
                 langServerRpcClient,
                 libraryBrowserRpcClient,
                 applyModifications,
@@ -286,7 +288,8 @@ export function DataMapperC(props: DataMapperViewProps) {
                 onCancelStatementEditor: cancelStatementEditor,
                 onClose: closeStatementEditor,
                 importStatements,
-                currentReferences
+                currentReferences,
+                ...props
             });
     }
 

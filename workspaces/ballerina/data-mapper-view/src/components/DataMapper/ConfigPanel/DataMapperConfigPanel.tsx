@@ -64,7 +64,7 @@ export interface DataMapperConfigPanelProps {
     onClose: () => void;
     applyModifications: (modifications: STModification[]) => Promise<void>;
     langServerRpcClient: LangServerRpcClient;
-    recordPanel?: (props: {targetPosition: NodePosition, closeAddNewRecord: (createdNewRecord?: string) => void}) => React.ReactElement;
+    recordPanel?: (props: {targetPosition: NodePosition, closeAddNewRecord: (createdNewRecord?: string) => void, onUpdate: (updated: boolean) => void}) => React.ReactElement;
 }
 
 
@@ -101,6 +101,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
     const [isValidationInProgress, setValidationInProgress] = useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = React.useState(null);
     const [isClicked, setIsClicked] = React.useState<boolean>(false);
+    const [disableFnNameEditing, setDisableFnNameEditing] = React.useState<boolean>(false);
     const editConfirmMessage = useRef<string>();
     const buttonContainerRef = useRef<HTMLDivElement>(null);
     const editConfirmPopoverOpen = Boolean(popoverAnchorEl);
@@ -428,7 +429,11 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                         </FormTitleContainer>
                     )}
                     {isNewRecord &&
-                        recordPanel({ targetPosition: getModifiedTargetPosition(newRecords, targetPosition, projectComponents, filePath), closeAddNewRecord })
+                        recordPanel({
+                            targetPosition: getModifiedTargetPosition(newRecords, targetPosition, projectComponents, filePath),
+                            closeAddNewRecord,
+                            onUpdate: setDisableFnNameEditing
+                        })
                     }
                     {!isNewRecord && (
                         <>
@@ -439,6 +444,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                                     onChange={onNameChange}
                                     isValidating={!initiated || isValidationInProgress}
                                     errorMessage={dmFuncDiagnostic}
+                                    disabled={disableFnNameEditing}
                                 />
                                 <FormDivider />
                                 <InputParamsPanel

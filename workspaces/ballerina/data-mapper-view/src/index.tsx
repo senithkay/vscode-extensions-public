@@ -35,7 +35,10 @@ export interface DataMapperViewProps {
     applyModifications: (modifications: STModification[]) => Promise<void>;
     goToFunction?: (componentInfo: HistoryEntry) => Promise<void>;
     onClose?: () => void;
-  renderRecordPanel?: (props: { closeAddNewRecord: (createdNewRecord?: string) => void } & StatementEditorComponentProps) => React.ReactElement;
+    renderRecordPanel?: (props: {
+        closeAddNewRecord: (createdNewRecord?: string) => void,
+        onUpdate: (update: boolean) => void
+    } & StatementEditorComponentProps) => React.ReactElement;
 }
 
 export function DataMapperView(props: DataMapperViewProps) {
