@@ -37,23 +37,67 @@ export function TypeResolver(props: TypeResolverProps) {
         onChange({ ...param, value: newValue });
     }
 
+    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        onChange({ ...param, value: e.target.checked });
+    }
+
     const dropdownItems = values?.map(val => {
         return { value: val };
     });
 
     switch (type) {
         case "TextField":
-            return <TextField id={`txt-field-${id}`} label={label} value={value as string} disabled={disabled} errorMsg={errorMessage} required={isRequired} onChange={handleOnChange}/>;
+            return (
+                <TextField
+                    sx={{marginBottom: 5}}
+                    id={`txt-field-${id}`}
+                    label={label}
+                    value={value as string}
+                    disabled={disabled}
+                    errorMsg={errorMessage}
+                    required={isRequired}
+                    onChange={handleOnChange}
+                />
+            );
         case "Dropdown":
-            return <Dropdown id={`dropdown-${id}`} label={label} value={value as string} items={dropdownItems} disabled={disabled} errorMsg={errorMessage} isRequired={isRequired} onChange={handleOnChange}/>;
+            return (
+                <Dropdown
+                    containerSx={{width: 166, fontFamily: "var(--vscode-font-family)", fontSize: "var(--vscode-font-size)", marginBottom: 5}}
+                    id={`dropdown-${id}`}
+                    label={label}
+                    value={value as string}
+                    items={dropdownItems}
+                    disabled={disabled}
+                    errorMsg={errorMessage}
+                    isRequired={isRequired}
+                    onChange={handleOnChange}
+                />
+            );
         case "Checkbox":
             return (
-                <VSCodeCheckbox id={`checkbox-${id}`} checked={value as boolean} onChange={handleOnChange} disabled={disabled}>
-                    Is Required?
-                </VSCodeCheckbox>
+                <div style={{marginBottom: 5}}>
+                    <VSCodeCheckbox
+                        id={`checkbox-${id}`}
+                        checked={value as boolean}
+                        onChange={handleCheckboxChange}
+                        disabled={disabled}
+                    >
+                        Is Required?
+                    </VSCodeCheckbox>
+                </div>
             );
         case "TextArea":
-            return <TextArea id={`txt-area-${id}`} value={value as string} disabled={disabled} label={label} errorMsg={errorMessage} onChange={handleOnChange}/>;
+            return (
+                <TextArea
+                    sx={{marginBottom: 5, width: 200}}
+                    id={`txt-area-${id}`}
+                    value={value as string}
+                    disabled={disabled}
+                    label={label}
+                    errorMsg={errorMessage}
+                    onChange={handleOnChange}
+                />
+            );
         default:
             return null;
     }

@@ -27,6 +27,7 @@ export interface ParamField {
     label: string;
     defaultValue: string | boolean;
     isRequired?: boolean;
+    values?: string[]; // For Dropdown
 }
 
 export interface ParamConfig {
@@ -52,6 +53,7 @@ const getNewParam = (fields: ParamField[], index: number): Parameters => {
             label: field.label,
             type: field.type,
             value: field.defaultValue,
+            values: field.values,
             isRequired: field.isRequired            
         });
     });
@@ -118,7 +120,7 @@ export function ParamManager(props: ParamManagerProps) {
 
     const paramComponents: React.ReactElement[] = [];
     paramConfigs?.paramValues
-        .forEach((param: Parameters, index) => {
+        .forEach((param , index) => {
             if (editingSegmentId === index) {
                 paramComponents.push(
                     <ParamEditor

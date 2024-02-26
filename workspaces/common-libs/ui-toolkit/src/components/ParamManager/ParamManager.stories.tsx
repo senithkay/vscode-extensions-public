@@ -32,11 +32,25 @@ const paramConfigs: ParamConfig = {
                 },
                 {
                     id: 2,
-                    label: "Default Value",
+                    label: "Dropdown Sample",
                     type: "Dropdown",
                     value: "0",
                     isRequired: false,
-                    values: ["0", "1", "2"]
+                    values: ["0", "1", "2"],
+                },
+                {
+                    id: 3,
+                    label: "Is Required",
+                    type: "Checkbox",
+                    value: true,
+                    isRequired: false
+                },
+                {
+                    id: 4,
+                    label: "Description",
+                    type: "TextArea",
+                    value: "This is a description",
+                    isRequired: false
                 }
             ]
         }
@@ -56,8 +70,21 @@ const paramConfigs: ParamConfig = {
         },
         {
             type: "Dropdown",
-            label: "Default Value",
+            label: "Dropdown Sample",
             defaultValue: "0",
+            isRequired: false,
+            values: ["0", "1", "2"]
+        },
+        {
+            type: "Checkbox",
+            label: "Is Required",
+            defaultValue: true,
+            isRequired: false
+        },
+        {
+            type: "TextArea",
+            label: "Description",
+            defaultValue: "This is a description",
             isRequired: false
         }
     ]
