@@ -20,6 +20,7 @@ import {
     HighlightCodeRequest,
     OpenDiagramRequest,
     ShowErrorMessageRequest,
+    UndoRedoParams,
     applyEdit,
     askProjectDirPath,
     closeWebView,
@@ -41,14 +42,17 @@ import {
     getSequenceDirectory,
     getSyntaxTree,
     highlightCode,
+    initUndoRedoManager,
     openDiagram,
     openFile,
+    redo,
     showErrorMessage,
     writeContentToFile,
     WriteContentToFileRequest,
     getInboundEndpointDirectory,
     createInboundEndpoint,
-    CreateInboundEndpointRequest
+    CreateInboundEndpointRequest,
+    undo
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -81,4 +85,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAIResponse, (args: AIUserInput) => rpcManger.getAIResponse(args));
     messenger.onRequest(writeContentToFile, (args: WriteContentToFileRequest) => rpcManger.writeContentToFile(args));
     messenger.onNotification(highlightCode, (args: HighlightCodeRequest) => rpcManger.highlightCode(args));
+    messenger.onNotification(initUndoRedoManager, (args: UndoRedoParams) => rpcManger.initUndoRedoManager(args));
+    messenger.onNotification(undo, (args: UndoRedoParams) => rpcManger.undo(args));
+    messenger.onNotification(redo, (args: UndoRedoParams) => rpcManger.redo(args));
 }

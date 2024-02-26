@@ -176,3 +176,7 @@ export interface WriteContentToFileResponse {
 export interface HighlightCodeRequest {
     range: Range;
 }
+
+export interface UndoRedoParams {
+    path: string;
+}
