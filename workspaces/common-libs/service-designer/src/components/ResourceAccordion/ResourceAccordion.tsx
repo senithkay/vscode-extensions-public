@@ -208,11 +208,11 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                     )}
 
                     {isOpen ? 
-                        <Button appearance='icon' onClick={handleDeleteResource}>
+                        <Button appearance='icon' onClick={toggleAccordion}>
                             <Codicon iconSx={{marginTop: -3}} name="chevron-up" />
                         </Button>
                         : 
-                        <Button appearance='icon' onClick={handleDeleteResource}>
+                        <Button appearance='icon' onClick={toggleAccordion}>
                             <Codicon iconSx={{marginTop: -3}} name="chevron-down" />
                         </Button>
                     }
