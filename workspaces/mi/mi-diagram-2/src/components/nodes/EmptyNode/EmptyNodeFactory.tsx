@@ -20,7 +20,7 @@ export class EmptyNodeFactory extends AbstractReactFactory<EmptyNodeModel, Diagr
     }
 
     generateModel(event: GenerateModelEvent): EmptyNodeModel {
-        return new EmptyNodeModel(event.initialConfig.stNode);
+        return new EmptyNodeModel(event.initialConfig.stNode, event.initialConfig.documentUri);
     }
 
     generateReactWidget(event: GenerateWidgetEvent<EmptyNodeModel>) {
