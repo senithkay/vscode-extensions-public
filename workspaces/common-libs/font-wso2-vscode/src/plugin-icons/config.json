@@ -15,7 +15,7 @@
             "add-circle-outline.svg",
             "radio-button-checked.svg",
             "radio-button-unchecked.svg",
-        "file-upload.svg"
+            "file-upload.svg"
         ],
         "codiconFont" : [
             "file-submodule.svg",
