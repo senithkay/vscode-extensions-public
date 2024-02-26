@@ -11,6 +11,18 @@ import { ProjectWizard } from './views/Forms/ProjectForm';
 import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
+import { SidePanel } from '@wso2-enterprise/ui-toolkit';
+import { AIProjectGenerationChat } from './views/AIProjectGenerationChat';
+
+const MainContainer = styled.div`
+    display: flex;
+    overflow: hidden;
+`;
+
+const MainContent = styled.div`
+    flex-grow: 1;
+    margin-right: 500px;
+`;
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -95,18 +107,29 @@ const MainPanel = (props: { state: MachineStateValue }) => {
     };
 
     return (
-        <div style={{
-            overflow: "hidden",
-        }}>
-            {!component ? (
-                <LoaderWrapper>
-                    <ProgressRing />
-                </LoaderWrapper>
-            ) : <div>
-                <NavigationBar />
-                {component}
-            </div>}
-        </div>
+        <MainContainer>
+            <MainContent>
+                {!component ? (
+                    <LoaderWrapper>
+                        <ProgressRing />
+                    </LoaderWrapper>
+                ) : <div>
+                    <NavigationBar />
+                    {component}
+                </div>}
+            </MainContent>
+        
+            {true && (
+                <SidePanel
+                    isOpen={true}
+                    alignmanet="right"
+                    width={500}
+                    overlay={false}
+                >
+                    <AIProjectGenerationChat/>
+                </SidePanel>
+            )}
+        </MainContainer>
     );
 };
 
