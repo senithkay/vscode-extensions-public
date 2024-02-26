@@ -157,7 +157,7 @@ export const ENDPOINTS = {
     ADDRESS: "Address",
     DEFAULT: "Default",
     FAILOVER: "Failover",
-    HTTP: "Http",
+    HTTP: "HTTP_ENDPOINT",
     LOADBALANCE: "Loadbalance",
     NAMED: "Named",
     RECIPIENTLIST: "Recipientlist",
