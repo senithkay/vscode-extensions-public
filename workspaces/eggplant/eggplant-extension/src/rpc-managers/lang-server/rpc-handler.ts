@@ -54,7 +54,7 @@ import {
     rename,
     stModify,
     updateFileContent
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2-enterprise/eggplant-core";
 import { Messenger } from "vscode-messenger";
 import { LangServerRpcManager } from "./rpc-manager";
 

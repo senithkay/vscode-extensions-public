@@ -19,7 +19,7 @@ import {
     SwitchCaseBlock,
     SwitchNodeProperties,
     TransformNodeProperties,
-} from "../../rpc-types/webview/types";
+} from "../../interfaces/eggplant";
 import { getNodeMetadata } from "./metadata-utils";
 import { getComponentSource } from "./template-utils";
 

@@ -16,8 +16,11 @@ import {
     TypeResponse,
     UpdateSourceRequest,
     UpdateSourceResponse,
+    WorkspaceFileRequest,
+    WorkspacesFileResponse,
     deleteSource,
     getTypes,
+    getWorkspaceFiles,
     goToSource,
     updateSource
 } from "@wso2-enterprise/ballerina-core";
@@ -45,5 +48,9 @@ export class CommonRpcClient implements CommonRPCAPI {
 
     goToSource(params: GoToSourceRequest): void {
         return this._messenger.sendNotification(goToSource, HOST_EXTENSION, params);
+    }
+
+    getWorkspaceFiles(params: WorkspaceFileRequest): Promise<WorkspacesFileResponse> {
+        return this._messenger.sendRequest(getWorkspaceFiles, HOST_EXTENSION, params);
     }
 }

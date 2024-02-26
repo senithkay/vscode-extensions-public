@@ -97,7 +97,7 @@ export class LangServerRpcManager implements LangServerAPI {
                 });
 
                 const components = await StateMachine.langClient().getBallerinaProjectComponents({
-                    documentIdentifiers: workspaceUri
+                    documentIdentifiers: params?.documentIdentifiers || workspaceUri
                 });
                 resolve(components);
             } else {
