@@ -50,23 +50,27 @@ export class NodeFactoryVisitor implements Visitor {
             diagramNode = new EmptyNodeModel(node);
         }
         diagramNode.setPosition(node.viewState.x, node.viewState.y);
-        this.nodes.push(diagramNode);
 
         // create link
         if (this.previousSTNodes != undefined) {
             for (let i = 0; i < this.previousSTNodes.length; i++) {
                 const previousStNode = this.previousSTNodes[i];
-                const previousNodes = this.nodes.filter((node) => node.getStNode() == previousStNode && node.getType() !== NodeTypes.END_NODE);
+                const previousNodes = this.nodes.filter((node) => node.getStNode() == previousStNode);
                 const previousNode = previousNodes[previousNodes.length - 1];
+
+                const isSequnceConnect = diagramNode instanceof StartNodeModel && previousNode instanceof EndNodeModel;
+                const isEmptyNodeConnect = diagramNode instanceof EmptyNodeModel && previousNode instanceof EmptyNodeModel;
+
                 const link = createNodesLink(
                     previousNode as SourceNodeModel,
                     diagramNode as TargetNodeModel,
                     {
                         label: this.currentBranchName,
                         stRange: this.currentAddPosition ?? (previousStNode.range.endTagRange?.end ? previousStNode.range.endTagRange.end : previousStNode.range.startTagRange.end),
-                        brokenLine: type === NodeTypes.EMPTY_NODE || (previousNode instanceof EmptyNodeModel && type !== NodeTypes.CONDITION_NODE_END && type !== NodeTypes.END_NODE),
+                        brokenLine: type === NodeTypes.EMPTY_NODE || isSequnceConnect || isEmptyNodeConnect,
                         previousNode: previousStNode.tag,
                         parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
+                        showArrow: !isSequnceConnect,
                     }
                 );
                 this.links.push(link);
@@ -75,6 +79,7 @@ export class NodeFactoryVisitor implements Visitor {
             }
         }
 
+        this.nodes.push(diagramNode);
         this.previousSTNodes = [node];
     }
 
@@ -172,7 +177,7 @@ export class NodeFactoryVisitor implements Visitor {
         node.viewState.y = node.viewState.fh + NODE_GAP.Y;
         this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.endTagRange.end);
         this.parents.pop();
-        this.previousSTNodes = undefined;
+        this.previousSTNodes = [node];
     }
 
     beginVisitOutSequence(node: Sequence): void {

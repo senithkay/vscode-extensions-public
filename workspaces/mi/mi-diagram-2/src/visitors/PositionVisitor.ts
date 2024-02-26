@@ -118,7 +118,7 @@ export class PositionVisitor implements Visitor {
     }
     endVisitInSequence = (node: Sequence): void => {
         node.viewState.fh = this.position.y - node.viewState.y;
-        this.position.y += NODE_GAP.Y + node.viewState.h;
+        this.position.y += NODE_GAP.SEQUENCE_Y + node.viewState.h;
     }
 
     beginVisitOutSequence = (node: Sequence): void => {
