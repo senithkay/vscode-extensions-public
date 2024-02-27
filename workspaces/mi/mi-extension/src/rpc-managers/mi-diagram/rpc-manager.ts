@@ -455,7 +455,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const content = document.getText();
             undoRedo.addModification(content);
-            
             resolve({ status: true });
         });
     }
@@ -536,9 +535,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             if (open) {
                 commands.executeCommand('vscode.openFolder', Uri.file(`${directory}/${name}`));
+                resolve({ filePath: `${directory}/${name}` });
             }
 
-            return `${directory}/${name}`;
+            resolve({ filePath: `${directory}/${name}` });
         });
     }
 
@@ -660,30 +660,30 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async undo(params: UndoRedoParams): Promise<void> {
         const lastsource = undoRedo.undo();
-        if(lastsource) {
+        if (lastsource) {
             fs.writeFileSync(params.path, lastsource);
         }
     }
 
     async redo(params: UndoRedoParams): Promise<void> {
         const lastsource = undoRedo.redo();
-        if(lastsource) {
+        if (lastsource) {
             fs.writeFileSync(params.path, lastsource);
         }
     }
 
     async initUndoRedoManager(params: UndoRedoParams): Promise<void> {
         let document = workspace.textDocuments.find(doc => doc.uri.fsPath === params.path);
-        
+
         if (!document) {
             document = await workspace.openTextDocument(Uri.parse(params.path));
         }
-        
+
         if (document) {
             // Access the content of the document
             const content = document.getText();
             undoRedo.updateContent(params.path, content);
-        } 
+        }
     }
 }
 
