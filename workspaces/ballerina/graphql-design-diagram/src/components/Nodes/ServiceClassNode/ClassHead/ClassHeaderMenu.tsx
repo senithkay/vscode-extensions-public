@@ -10,19 +10,14 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
 import React, { useEffect, useState } from "react";
 
-import { Divider, ListItemIcon, ListItemText, MenuItem, MenuList, Paper } from "@material-ui/core";
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import Tooltip from "@mui/material/Tooltip";
 import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { ContextMenu, Item } from "@wso2-enterprise/ui-toolkit";
 
 import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
-import { FilterNodeMenuItem } from "../../../NodeActionMenu/FilterNodeMenuItem";
-import { GoToSourceMenuItem } from "../../../NodeActionMenu/GoToSourceMenuItem";
-import { NodeMenuItem } from "../../../NodeActionMenu/NodeMenuItem";
-import { useStyles } from "../../../NodeActionMenu/styles";
+import { getClassFunctionMenuItem, getFilterNodeMenuItem, getGoToSourceMenuItem } from "../../../MenuItems/menuItems";
 import { NodeCategory } from "../../../NodeFilter";
-import { Colors, FunctionType, Position } from "../../../resources/model";
+import { FunctionType, Position } from "../../../resources/model";
 import { getParentSTNodeFromRange } from "../../../utils/common-util";
 import { getSyntaxTree } from "../../../utils/ls-util";
 
@@ -33,8 +28,7 @@ interface ServiceHeaderMenuProps {
 
 export function ClassHeaderMenu(props: ServiceHeaderMenuProps) {
     const { location, nodeName } = props;
-    const { langClientPromise, currentFile, fullST, functionPanel } = useGraphQlContext();
-    const classes = useStyles();
+    const { langClientPromise, currentFile, fullST, functionPanel, setFilteredNode, goToSource } = useGraphQlContext();
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
     const [classModel, setClassModel] = useState<STNode>(null);
@@ -71,84 +65,42 @@ export function ClassHeaderMenu(props: ServiceHeaderMenuProps) {
                     setClassModel(parentNode);
                     setCurrentST(syntaxTree)
                 }
+                setTooltipStatus(false);
             })();
         }
     }, [showTooltip]);
 
+
+    const ItemWithIcon = () => {
+        return (
+            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                <LabelEditIcon />
+                <div style={{ marginLeft: '5px' }}>
+                    Rename Class
+                </div>
+            </div>
+        )
+    }
+
+    const getMenuItems = () => {
+        const menuItems: Item[] = [];
+        if (classModel) {
+            menuItems.push({ id: "edit-service", label: ItemWithIcon(), onClick: () => handleEditClassDef() });
+            menuItems.push(getClassFunctionMenuItem(location, classModel, FunctionType.CLASS_RESOURCE, currentST, functionPanel));
+
+        }
+        menuItems.push(getGoToSourceMenuItem(location, goToSource));
+        menuItems.push(getFilterNodeMenuItem({ name: nodeName, type: NodeCategory.SERVICE_CLASS }, setFilteredNode));
+        return menuItems;
+    }
+
+    // TODO: Recheck the tooltip active status with the required props allowed
     return (
         <>
             {location?.filePath && location?.startLine && location?.endLine &&
-            <Tooltip
-                open={showTooltip}
-                onClose={() => setTooltipStatus(false)}
-                title={
-                    <div onClick={() => setTooltipStatus(false)}>
-                        {classModel &&
-                        <Paper style={{ maxWidth: "100%" }}>
-                            <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
-                                <MenuItem onClick={() => handleEditClassDef()} style={{ paddingTop: "0px", paddingBottom: "0px" }}>
-                                    <ListItemIcon style={{ marginRight: "10px", minWidth: "0px" }}>
-                                        <LabelEditIcon />
-                                    </ListItemIcon>
-                                    <ListItemText className={classes.listItemText}>Rename Class</ListItemText>
-                                </MenuItem>
-                                <Divider />
-                                <NodeMenuItem
-                                    position={location}
-                                    model={classModel}
-                                    functionType={FunctionType.CLASS_RESOURCE}
-                                    currentST={currentST}
-                                />
-                                <Divider />
-                                <GoToSourceMenuItem location={location} />
-                                <FilterNodeMenuItem nodeType={{ name: nodeName, type: NodeCategory.SERVICE_CLASS }} />
-                            </MenuList>
-                        </Paper>
-                        }
-                    </div>
-                }
-                PopperProps={{
-                    modifiers: [
-                        {
-                            name: 'offset',
-                            options: {
-                                offset: [0, -10],
-                            },
-                        },
-                    ],
-                }}
-                componentsProps={{
-                    tooltip: {
-                        sx: {
-                            backgroundColor: 'none',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                            padding: 0
-                        }
-                    },
-                    arrow: {
-                        sx: {
-                            color: '#efeeee'
-                        }
-                    }
-                }}
-                arrow={true}
-                placement="right"
-            >
-                <MoreVertIcon
-                    cursor="pointer"
-                    onClick={() => setTooltipStatus(true)}
-                    sx={{
-                        backgroundColor: `${Colors.SECONDARY}`,
-                        borderRadius: '30%',
-                        fontSize: '18px',
-                        margin: '0px',
-                        position: 'absolute',
-                        right: 2.5
-                    }}
-                />
-            </Tooltip>
+                <div onClick={() => setTooltipStatus(true)}>
+                    <ContextMenu iconSx={{ transform: "rotate(90deg)" }} menuItems={getMenuItems()} />
+                </div>
             }
         </>
     );

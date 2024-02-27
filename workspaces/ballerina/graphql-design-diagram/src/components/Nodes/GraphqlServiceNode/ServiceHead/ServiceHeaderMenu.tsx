@@ -8,14 +8,13 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
-import React, { useState } from "react";
+import React from "react";
 
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import Tooltip from "@mui/material/Tooltip";
+import { ContextMenu, Item } from "@wso2-enterprise/ui-toolkit";
 
-import { Colors, Position } from "../../../resources/model";
-
-import { ServiceSubheader } from "./ServiceMenuActions/ServiceSubheader";
+import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
+import { getServiceSubHeaderMenuItems } from "../../../MenuItems/menuItems";
+import { Position } from "../../../resources/model";
 
 interface ServiceHeaderMenuProps {
     location: Position;
@@ -24,63 +23,25 @@ interface ServiceHeaderMenuProps {
 
 export function ServiceHeaderMenu(props: ServiceHeaderMenuProps) {
     const { location, nodeName } = props;
+    const { functionPanel, model, servicePanel, setFilteredNode, goToSource  } = useGraphQlContext();
 
-    const [showTooltip, setTooltipStatus] = useState<boolean>(false);
+    const verticalIconStyles = {
+        transform: "rotate(90deg)",
+        ":hover": {
+            backgroundColor: "var(--vscode-welcomePage-tileHoverBackground)",
+        }
+    }
+
+    const getMenuItems = () => {
+        let items: Item[] = [];
+        items = getServiceSubHeaderMenuItems(location, nodeName, setFilteredNode, goToSource, functionPanel, model, servicePanel);
+        return items;
+    }
 
     return (
         <>
             {location &&
-            <Tooltip
-                open={showTooltip}
-                onClose={() => setTooltipStatus(false)}
-                title={
-                    <div onClick={() => setTooltipStatus(false)}>
-                        <ServiceSubheader location={location} nodeName={nodeName} />
-                    </div>
-                }
-                PopperProps={{
-                    modifiers: [
-                        {
-                            name: 'offset',
-                            options: {
-                                offset: [0, -10],
-                            },
-                        },
-                    ],
-                }}
-                componentsProps={{
-                    tooltip: {
-                        sx: {
-                            backgroundColor: 'none',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                            padding: 0
-                        }
-                    },
-                    arrow: {
-                        sx: {
-                            color: '#efeeee'
-                        }
-                    }
-                }}
-                arrow={true}
-                placement="right"
-            >
-                <MoreVertIcon
-                    cursor="pointer"
-                    onClick={() => setTooltipStatus(true)}
-                    sx={{
-                        backgroundColor: `${Colors.SECONDARY}`,
-                        borderRadius: '30%',
-                        fontSize: '18px',
-                        margin: '0px',
-                        position: 'absolute',
-                        right: 2.5,
-                        marginLeft: '5px',
-                    }}
-                />
-            </Tooltip>
+                <ContextMenu iconSx={{ transform: "rotate(90deg)" }} menuItems={getMenuItems()} />
             }
         </>
     );

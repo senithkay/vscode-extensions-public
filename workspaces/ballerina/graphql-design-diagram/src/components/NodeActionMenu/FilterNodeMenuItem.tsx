@@ -9,13 +9,10 @@
 
 import React from "react";
 
-import { ListItemIcon, ListItemText, MenuItem } from "@material-ui/core";
-import CenterFocusWeakIcon from '@material-ui/icons/CenterFocusWeak';
+import { Icon, Item, MenuItem } from "@wso2-enterprise/ui-toolkit";
 
 import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { NodeType } from "../NodeFilter";
-
-import { useStyles } from "./styles";
 
 interface FocusToNodeMenuProps {
     nodeType: NodeType;
@@ -24,18 +21,30 @@ interface FocusToNodeMenuProps {
 export function FilterNodeMenuItem(props: FocusToNodeMenuProps) {
     const { nodeType } = props;
     const { setFilteredNode } = useGraphQlContext();
-    const menuStyles = useStyles();
 
     const handleOnClick = () => {
         setFilteredNode(nodeType);
     };
 
+    const ItemWithIcon = () => {
+        return (
+            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                <Icon name="center-focus-weak" />
+                <div style={{ marginLeft: '5px' }}>
+                    Show Subgraph
+                </div>
+            </div>
+        )
+    }
+
+    const menuItem: Item = { id: "Show Subgraph", label: ItemWithIcon(), onClick: () => handleOnClick() };
+
     return (
-        <MenuItem onClick={handleOnClick} className={menuStyles.menuItem} data-testid="show-subgraph-menu">
-            <ListItemIcon className={menuStyles.menuIcon}>
-                <CenterFocusWeakIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText className={menuStyles.listItemText}>Show Subgraph</ListItemText>
-        </MenuItem>
+        <MenuItem
+            sx={{ pointerEvents: "auto", userSelect: "none" }}
+            item={menuItem}
+
+            data-testid={`show-subgraph-menu`}
+        />
     )
 }

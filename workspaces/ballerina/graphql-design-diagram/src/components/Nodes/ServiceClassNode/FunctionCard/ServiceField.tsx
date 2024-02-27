@@ -10,13 +10,13 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline
 import React, { useEffect, useRef, useState } from "react";
 
-import { Popover } from "@material-ui/core";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
+import { Popover } from "@wso2-enterprise/ui-toolkit";
 
 import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { ChildActionMenu } from "../../../NodeActionMenu/ChildActionMenu";
 import { ParametersPopup } from "../../../Popup/ParametersPopup";
-import { popOverStyle } from "../../../Popup/styles";
+import { popOverCompStyle } from "../../../Popup/styles";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { FunctionType, ServiceClassField } from "../../../resources/model";
 import { FieldName, FieldType, NodeFieldContainer } from "../../../resources/styles/styles";
@@ -33,7 +33,8 @@ export function ServiceField(props: ServiceFieldProps) {
     const { setSelectedNode } = useGraphQlContext();
 
     const functionPorts = useRef<PortModel[]>([]);
-    const [anchorElement, setAnchorElement] = useState<HTMLDivElement | null>(null);
+    const [isOpen, setIsOpen] = useState(false);
+    const [anchorEvent, setAnchorEvent] = useState<null | HTMLElement>(null);
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
     const path = functionElement.identifier;
@@ -43,19 +44,19 @@ export function ServiceField(props: ServiceFieldProps) {
         functionPorts.current.push(node.getPortFromID(`right-${path}`));
     }, [functionElement]);
 
-    const onMouseOver = (event: React.MouseEvent<HTMLDivElement>) => {
-        setAnchorElement(event.currentTarget);
+    const openPanel = (event: React.MouseEvent<HTMLElement>) => {
+        setIsOpen(true);
+        setAnchorEvent(event.currentTarget);
+    };
+    const closePanel = () => {
+        setIsOpen(false);
+        setAnchorEvent(null);
     };
 
-    const onMouseLeave = () => {
-        setAnchorElement(null);
-    };
 
     const updateSelectedNode = () => {
         setSelectedNode(functionElement.returnType);
     }
-
-    const classes = popOverStyle();
 
     const handleOnHover = (task: string) => {
         setIsHovered(task === 'SELECT' ? true : false);
@@ -71,18 +72,18 @@ export function ServiceField(props: ServiceFieldProps) {
                 port={node.getPort(`left-${path}`)}
                 engine={engine}
             />
-            <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }} data-testid={`service-field-${functionElement.identifier}`}>
+            <FieldName onMouseOver={openPanel} onMouseLeave={closePanel} style={{ marginLeft: '7px' }} data-testid={`service-field-${functionElement.identifier}`}>
                 {functionElement.identifier}
             </FieldName>
             <div onClick={updateSelectedNode}>
                 <FieldType data-testid={`service-field-type-${functionElement.returnType}`}>{functionElement.returnType}</FieldType>
             </div>
             {isHovered &&
-            <ChildActionMenu
-                functionType={FunctionType.CLASS_RESOURCE}
-                location={node.classObject.position}
-                path={functionElement.identifier}
-            />
+                <ChildActionMenu
+                    functionType={FunctionType.CLASS_RESOURCE}
+                    location={node.classObject.position}
+                    path={functionElement.identifier}
+                />
             }
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${path}`)}
@@ -91,23 +92,21 @@ export function ServiceField(props: ServiceFieldProps) {
 
             {functionElement.parameters?.length > 0 && (
                 <Popover
-                    id="mouse-over-popover"
-                    open={Boolean(anchorElement)}
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'right',
-                    }}
-                    disableRestoreFocus={true}
-                    anchorEl={anchorElement}
-                    onClose={onMouseLeave}
-                    className={classes.popover}
-                    classes={{
-                        paper: classes.popoverContent,
-                    }}
-                    transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'center'
-                    }}
+                    anchorOrigin={
+                        {
+                            vertical: "bottom",
+                            horizontal: "center",
+                        }
+                    }
+                    transformOrigin={
+                        {
+                            vertical: "center",
+                            horizontal: "left",
+                        }
+                    }
+                    sx={popOverCompStyle}
+                    open={isOpen}
+                    anchorEl={anchorEvent}
                 >
                     <ParametersPopup parameters={functionElement.parameters} />
                 </Popover>

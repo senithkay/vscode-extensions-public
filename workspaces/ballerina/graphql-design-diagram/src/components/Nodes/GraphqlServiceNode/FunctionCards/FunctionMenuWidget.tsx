@@ -8,18 +8,14 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
-import React, { useState } from "react";
+import React from "react";
 
-import { MenuList, Paper } from "@material-ui/core";
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import Tooltip from "@mui/material/Tooltip";
+import { ContextMenu, Item } from "@wso2-enterprise/ui-toolkit";
+import { on } from "events";
 
-import { GoToSourceMenuItem } from "../../../NodeActionMenu/GoToSourceMenuItem";
+import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
+import { getDeleteOperationMenuItem, getDesignOperationMenuItem, getEditOperationMenuItem, getGoToSourceMenuItem } from "../../../MenuItems/menuItems";
 import { FunctionType, Position } from "../../../resources/model";
-
-import { DeleteFunctionWidget } from "./MenuActionComponents/DeleteFunction";
-import { DesignFunctionWidget } from "./MenuActionComponents/DesignFunction";
-import { EditFunctionWidget } from "./MenuActionComponents/EditFunction";
 
 interface FunctionMenuWidgetProps {
     location: Position;
@@ -28,69 +24,27 @@ interface FunctionMenuWidgetProps {
 
 export function FunctionMenuWidget(props: FunctionMenuWidgetProps) {
     const { location, functionType } = props;
+    const { onDelete, functionPanel, model, operationDesignView, goToSource } = useGraphQlContext();
 
-    const [showTooltip, setTooltipStatus] = useState<boolean>(false);
+    const getMenuItems = () => {
+        const items: Item[] = [];
+        if (location) {
+            items.push(getDesignOperationMenuItem(location, operationDesignView));
+            items.push(getEditOperationMenuItem(location, functionType, functionPanel, model));
+            items.push(getDeleteOperationMenuItem(location, onDelete));
+
+        }
+        if (location?.filePath) {
+            items.push(getGoToSourceMenuItem(location, goToSource));
+        }
+
+        return items;
+    }
 
     return (
         <>
             {location &&
-            <Tooltip
-                open={showTooltip}
-                onClose={() => setTooltipStatus(false)}
-                title={
-                    <div onClick={() => setTooltipStatus(false)}>
-                        <Paper style={{ maxWidth: "100%" }}>
-                            <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
-                                <DesignFunctionWidget position={location} />
-                                <EditFunctionWidget position={location} functionType={functionType} />
-                                <DeleteFunctionWidget position={location} />
-                                {location?.filePath &&
-                                <GoToSourceMenuItem location={location} />
-                                }
-                            </MenuList>
-                        </Paper>
-                    </div>
-                }
-                PopperProps={{
-                    modifiers: [
-                        {
-                            name: 'offset',
-                            options: {
-                                offset: [0, -10],
-                            },
-                        },
-                    ],
-                }}
-                componentsProps={{
-                    tooltip: {
-                        sx: {
-                            backgroundColor: 'none',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                            padding: 0
-                        }
-                    },
-                    arrow: {
-                        sx: {
-                            color: '#efeeee'
-                        }
-                    }
-                }}
-                arrow={true}
-                placement="right"
-            >
-                <MoreVertIcon
-                    cursor="pointer"
-                    onClick={() => setTooltipStatus(true)}
-                    sx={{
-                        fontSize: '18px',
-                        margin: '0px',
-                        position: 'absolute',
-                        right: 0.5
-                    }}
-                />
-            </Tooltip>
+                <ContextMenu iconSx={{ transform: "rotate(90deg)" }} menuItems={getMenuItems()} />
             }
         </>
     );

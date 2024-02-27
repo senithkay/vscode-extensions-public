@@ -10,12 +10,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useRef, useState } from "react";
 
-import { Popover } from "@material-ui/core";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
+import { Popover } from "@wso2-enterprise/ui-toolkit";
 
 import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { ParametersPopup } from "../../../Popup/ParametersPopup";
-import { popOverStyle } from "../../../Popup/styles";
+import { popOverCompStyle } from "../../../Popup/styles";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { ResourceFunction } from "../../../resources/model";
 import { FieldName, FieldType, NodeFieldContainer } from "../../../resources/styles/styles";
@@ -32,7 +32,8 @@ export function ResourceFunctionCard(props: ResourceFunctionCardProps) {
     const { setSelectedNode } = useGraphQlContext();
 
     const functionPorts = useRef<PortModel[]>([]);
-    const [anchorElement, setAnchorElement] = useState<HTMLDivElement | null>(null);
+    const [isOpen, setIsOpen] = useState(false);
+    const [anchorEvent, setAnchorEvent] = useState<null | HTMLElement>(null);
 
     const path = functionElement.identifier;
 
@@ -41,19 +42,22 @@ export function ResourceFunctionCard(props: ResourceFunctionCardProps) {
         functionPorts.current.push(node.getPortFromID(`right-${path}`));
     }, [functionElement]);
 
-    const onMouseOver = (event: React.MouseEvent<HTMLDivElement>) => {
-        setAnchorElement(event.currentTarget);
+
+    const openPanel = (event: React.MouseEvent<HTMLElement>) => {
+        setIsOpen(true);
+        setAnchorEvent(event.currentTarget);
+    };
+    const closePanel = () => {
+        setIsOpen(false);
+        setAnchorEvent(null);
     };
 
-    const onMouseLeave = () => {
-        setAnchorElement(null);
-    };
 
     const updateSelectedNode = () => {
         setSelectedNode(functionElement.returns);
     }
 
-    const classes = popOverStyle();
+
 
     return (
         <NodeFieldContainer data-testid={`interface-func-field-${functionElement.identifier}`}>
@@ -61,7 +65,7 @@ export function ResourceFunctionCard(props: ResourceFunctionCardProps) {
                 port={node.getPort(`left-${path}`)}
                 engine={engine}
             />
-            <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }} data-testid={`interface-func-${functionElement.identifier}`}>
+            <FieldName onMouseOver={openPanel} onMouseLeave={closePanel} style={{ marginLeft: '7px' }} data-testid={`interface-func-${functionElement.identifier}`}>
                 {functionElement.identifier}
             </FieldName>
             <div onClick={updateSelectedNode}>
@@ -74,23 +78,21 @@ export function ResourceFunctionCard(props: ResourceFunctionCardProps) {
 
             {functionElement.parameters?.length > 0 && (
                 <Popover
-                    id="mouse-over-popover"
-                    open={Boolean(anchorElement)}
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'right',
-                    }}
-                    disableRestoreFocus={true}
-                    anchorEl={anchorElement}
-                    onClose={onMouseLeave}
-                    className={classes.popover}
-                    classes={{
-                        paper: classes.popoverContent,
-                    }}
-                    transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'center'
-                    }}
+                    anchorOrigin={
+                        {
+                            vertical: "bottom",
+                            horizontal: "center",
+                        }
+                    }
+                    transformOrigin={
+                        {
+                            vertical: "center",
+                            horizontal: "left",
+                        }
+                    }
+                    sx={popOverCompStyle}
+                    open={isOpen}
+                    anchorEl={anchorEvent}
                 >
                     <ParametersPopup parameters={functionElement.parameters} />
                 </Popover>

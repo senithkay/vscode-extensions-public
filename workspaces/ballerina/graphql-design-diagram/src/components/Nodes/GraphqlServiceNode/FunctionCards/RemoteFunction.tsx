@@ -10,13 +10,13 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from 'react';
 
-import { Popover } from "@material-ui/core";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { GraphqlMutationIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Popover } from '@wso2-enterprise/ui-toolkit';
 
 import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { ParametersPopup } from "../../../Popup/ParametersPopup";
-import { popOverStyle } from "../../../Popup/styles";
+import { popOverCompStyle } from "../../../Popup/styles";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { RemoteFunction } from "../../../resources/model";
 import { FieldName, FieldType } from "../../../resources/styles/styles";
@@ -31,22 +31,22 @@ interface RemoteFunctionProps {
 
 export function RemoteFunctionWidget(props: RemoteFunctionProps) {
     const { engine, node, remoteFunc, remotePath } = props;
-    const [anchorElement, setAnchorElement] = useState<HTMLDivElement | null>(null);
     const { setSelectedNode } = useGraphQlContext();
 
-    const onMouseOver = (event: React.MouseEvent<HTMLDivElement>) => {
-        setAnchorElement(event.currentTarget);
+    const [isOpen, setIsOpen] = useState(false);
+    const [anchorEvent, setAnchorEvent] = useState<null | HTMLElement>(null);
+    const openPanel = (event: React.MouseEvent<HTMLElement>) => {
+        setIsOpen(true);
+        setAnchorEvent(event.currentTarget);
     };
-
-    const onMouseLeave = () => {
-        setAnchorElement(null);
+    const closePanel = () => {
+        setIsOpen(false);
+        setAnchorEvent(null);
     };
 
     const updateSelectedNode = () => {
         setSelectedNode(remoteFunc.returns);
     }
-
-    const classes = popOverStyle();
 
     return (
         <>
@@ -55,7 +55,7 @@ export function RemoteFunctionWidget(props: RemoteFunctionProps) {
                 engine={engine}
             />
             <GraphqlMutationIcon />
-            <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }} data-testid={`remote-identifier-${remoteFunc.identifier}`}>
+            <FieldName onMouseOver={openPanel} onMouseLeave={closePanel} style={{ marginLeft: '7px' }} data-testid={`remote-identifier-${remoteFunc.identifier}`}>
                 {remoteFunc.identifier}
             </FieldName>
             <div onClick={updateSelectedNode}>
@@ -67,23 +67,21 @@ export function RemoteFunctionWidget(props: RemoteFunctionProps) {
             />
             {remoteFunc.parameters?.length > 0 && (
                 <Popover
-                    id="mouse-over-popover"
-                    open={Boolean(anchorElement)}
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'right',
-                    }}
-                    disableRestoreFocus={true}
-                    anchorEl={anchorElement}
-                    onClose={onMouseLeave}
-                    className={classes.popover}
-                    classes={{
-                        paper: classes.popoverContent,
-                    }}
-                    transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'center'
-                    }}
+                    anchorOrigin={
+                        {
+                            vertical: "bottom",
+                            horizontal: "center",
+                        }
+                    }
+                    transformOrigin={
+                        {
+                            vertical: "center",
+                            horizontal: "left",
+                        }
+                    }
+                    sx={popOverCompStyle}
+                    open={isOpen}
+                    anchorEl={anchorEvent}
                 >
                     <ParametersPopup parameters={remoteFunc.parameters} />
                 </Popover>
