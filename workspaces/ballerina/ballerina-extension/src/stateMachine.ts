@@ -13,6 +13,7 @@ import { FindNodeByUidVisitor } from './history/find-node-by-uid';
 import { FindConstructByNameVisitor } from './history/find-construct-by-name-visitor';
 import { FindConstructByIndexVisitor } from './history/find-construct-by-index-visitor';
 import { getConstructBodyString } from './history/util';
+import { generateUid, getNodeByIndex, getNodeByName, getNodeByUid, getView } from './utils/state-machine-utils';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -200,103 +201,37 @@ const stateMachine = createMachine<MachineContext>(
                             identifier: context.identifier
                         }
                     });
-                    resolve();
-                    return;
+                    return resolve();
                 }
                 if (!context.view) {
                     if (!context.position || ("groupId" in context.position)) {
-                        resolve();
-                        return;
+                        return resolve();
                     }
-                    const req: STByRangeRequest = {
-                        documentIdentifier: { uri: Uri.file(context.documentUri).toString() },
-                        lineRange: {
-                            start: {
-                                line: context.position.startLine,
-                                character: context.position.startColumn
-                            },
-                            end: {
-                                line: context.position.endLine,
-                                character: context.position.endColumn
-                            }
+                    const view = await getView(context.documentUri, context.position);
+                    history.push(view);
+                    return resolve();
+                } else {
+                    history.push({
+                        location: {
+                            view: context.view,
+                            documentUri: context.documentUri,
+                            position: context.position,
+                            identifier: context.identifier
                         }
-                    };
-
-                    const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
-
-                if (node.parseSuccess) {
-                    if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
-                        const expr = node.syntaxTree.expressions[0];
-                        if (expr?.typeData?.typeSymbol?.signature?.includes("graphql")) {
-                            history.push({
-                                location: {
-                                    view: "GraphQLDiagram",
-                                    identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
-                                    documentUri: context.documentUri,
-                                    position: context.position
-                                }
-                            });
-                            resolve();
-                        } else {
-                            history.push({
-                                location: {
-                                    view: "ServiceDesigner",
-                                    identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
-                                    documentUri: context.documentUri,
-                                    position: context.position
-                                }
-                            });
-                            resolve();
-                        }
-                    } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) && STKindChecker.isExpressionFunctionBody(node.syntaxTree.functionBody)) {
-                        history.push({
-                            location: {
-                                view: "DataMapper",
-                                documentUri: context.documentUri,
-                                position: context.position,
-                                identifier: node.syntaxTree.functionName.value
-                            },
-                            dataMapperDepth: 0
-                        });
-                        resolve();
-                    } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) || STKindChecker.isResourceAccessorDefinition(node.syntaxTree)) {
-                        history.push({
-                            location: {
-                                view: "SequenceDiagram",
-                                documentUri: context.documentUri,
-                                position: context.position
-                            },
-                            dataMapperDepth: 0
-                        });
-                        resolve();
-                    } else {
-                        history.push({location: { view: "Overview", documentUri: context.documentUri }});
-                        resolve();
-                    }
+                    });
+                    return resolve();
                 }
-                return;
-            } else {
-                history.push({
-                    location: {
-                        view: context.view,
-                        documentUri: context.documentUri,
-                        position: context.position,
-                        identifier: context.identifier
-                    }
-                });
-                resolve();
-                return;
-            }
-        });},
+            });
+        },
         showView(context, event): Promise<VisualizerLocation> {
             return new Promise(async (resolve, reject) => {
                 const historyStack = history.get();
-                const selectedEntry: HistoryEntry = historyStack[historyStack.length - 1]?.location.view
-                    ? historyStack[historyStack.length - 1]
-                    : { location: { view: "Overview" } };
-                if (selectedEntry.location.view === "Overview") {
-                    resolve(selectedEntry.location);
-                    return;
+                const selectedEntry = historyStack[historyStack.length - 1];
+
+                if (!selectedEntry?.location.view) {
+                    return resolve({ view: "Overview", documentUri: context.documentUri });
+                } else if (selectedEntry.location.view === "Overview") {
+                    return resolve(selectedEntry.location);
                 }
 
                 const { location: { documentUri, position }, uid } = selectedEntry;
@@ -311,13 +246,8 @@ const stateMachine = createMachine<MachineContext>(
                 if (node.parseSuccess) {
                     const fullST = node.syntaxTree;
                     if (!uid && position) {
-                        const uidGenVisitor = new UIDGenerationVisitor(position);
-                        traversNode(fullST, uidGenVisitor);
-                        const generatedUid = uidGenVisitor.getUId();
-                        const nodeFindingVisitor = new FindNodeByUidVisitor(generatedUid);
-                        traversNode(fullST, nodeFindingVisitor);
-                        selectedST = nodeFindingVisitor.getNode();
-
+                        const generatedUid = generateUid(position, fullST);
+                        selectedST = getNodeByUid(generatedUid, fullST);
                         if (generatedUid) {
                             history.updateCurrentEntry({
                                 ...selectedEntry,
@@ -333,31 +263,26 @@ const stateMachine = createMachine<MachineContext>(
                     }
 
                     if (uid && position) {
-                        const nodeFindingVisitor = new FindNodeByUidVisitor(uid);
-                        traversNode(fullST, nodeFindingVisitor);
+                        selectedST = getNodeByUid(uid, fullST);
 
-                        if (!nodeFindingVisitor.getNode()) {
-                            const visitorToFindConstructByName = new FindConstructByNameVisitor(uid);
-                            traversNode(fullST, visitorToFindConstructByName);
+                        if (!selectedST) {
+                            const nodeWithUpdatedUid = getNodeByName(uid, fullST);
+                            selectedST = nodeWithUpdatedUid[0];
 
-                            if (visitorToFindConstructByName.getNode()) {
-                                selectedST = visitorToFindConstructByName.getNode();
-
+                            if (selectedST) {
                                 history.updateCurrentEntry({
                                     ...selectedEntry,
                                     location: {
                                         ...selectedEntry.location,
                                         position: selectedST.position
                                     },
-                                    uid: visitorToFindConstructByName.getUid()
+                                    uid: nodeWithUpdatedUid[1]
                                 });
                             } else {
-                                const visitorToFindConstructByIndex =
-                                    new FindConstructByIndexVisitor(uid, getConstructBodyString(fullST));
-                                traversNode(fullST, visitorToFindConstructByIndex);
-                                if (visitorToFindConstructByIndex.getNode()) {
-                                    selectedST = visitorToFindConstructByIndex.getNode();
+                                const nodeWithUpdatedUid = getNodeByIndex(uid, fullST);
+                                selectedST = nodeWithUpdatedUid[0];
 
+                                if (selectedST) {
                                     history.updateCurrentEntry({
                                         ...selectedEntry,
                                         location: {
@@ -365,14 +290,13 @@ const stateMachine = createMachine<MachineContext>(
                                             identifier: selectedST.functionName.value,
                                             position: selectedST.position
                                         },
-                                        uid: visitorToFindConstructByIndex.getUid()
+                                        uid: nodeWithUpdatedUid[1]
                                     });
                                 } else {
                                     // show identification failure message
                                 }
                             }
                         } else {
-                            selectedST = nodeFindingVisitor.getNode();
                             history.updateCurrentEntry({
                                 ...selectedEntry,
                                 location: {
