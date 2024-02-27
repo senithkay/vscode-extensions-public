@@ -25,7 +25,7 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Uri, workspace } from "vscode";
-import { StateMachine, openView } from "../../stateMachine";
+import { StateMachine, navigate, openView } from "../../stateMachine";
 import { goToSource } from "../../utils";
 import { applyModifications, updateFileContent } from "../../utils/modification";
 
@@ -66,15 +66,7 @@ export class CommonRpcManager implements CommonRPCAPI {
             const response = await applyModifications(context.documentUri!, [modification]) as SyntaxTreeResponse;
             if (response.parseSuccess) {
                 await updateFileContent({ fileUri: context.documentUri!, content: response.source });
-                const st = response.syntaxTree as ModulePart;
-                st.members.forEach(member => {
-                    if (STKindChecker.isServiceDeclaration(member)) {
-                        const identifier = member.absoluteResourcePath.reduce((result, obj) => result + obj.value, "");
-                        if (identifier === context.identifier) {
-                            openView("OPEN_VIEW", { position: member.position });
-                        }
-                    }
-                });
+                navigate();
             }
         });
     }
@@ -90,15 +82,7 @@ export class CommonRpcManager implements CommonRPCAPI {
             const response = await applyModifications(context.documentUri!, [modification]) as SyntaxTreeResponse;
             if (response.parseSuccess) {
                 await updateFileContent({ fileUri: context.documentUri!, content: response.source });
-                const st = response.syntaxTree as ModulePart;
-                st.members.forEach(member => {
-                    if (STKindChecker.isServiceDeclaration(member)) {
-                        const identifier = member.absoluteResourcePath.reduce((result, obj) => result + obj.value, "");
-                        if (identifier === context.identifier) {
-                            openView("OPEN_VIEW", { position: member.position });
-                        }
-                    }
-                });
+                navigate();
             }
         });
     }

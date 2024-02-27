@@ -2,11 +2,11 @@
 import { ExtendedLangClient, ballerinaExtInstance } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EventType, GetSyntaxTreeResponse, HistoryEntry, MachineStateValue, MachineViews, STByRangeRequest, SyntaxTreeResponse, VisualizerLocation, webviewReady } from "@wso2-enterprise/ballerina-core";
+import { EventType, GetSyntaxTreeResponse, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, VisualizerLocation, webviewReady } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './library-browser';
 import { VisualizerWebview } from './visualizer/webview';
 import { Uri } from 'vscode';
-import { STKindChecker, traversNode } from '@wso2-enterprise/syntax-tree';
+import { STKindChecker, STNode, traversNode } from '@wso2-enterprise/syntax-tree';
 import { RPCLayer } from './RPCLayer';
 import { history } from './history';
 import { UIDGenerationVisitor } from './history/utils/visitors/uid-generation-visitor';
@@ -18,25 +18,6 @@ import { getConstructBodyString } from './history/utils/visitors/util';
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
     errorCode: string | null;
-}
-
-type ViewFlow = {
-    [key in MachineViews]: MachineViews[];
-};
-
-const viewFlow: ViewFlow = {
-    Overview: [],
-    ServiceDesigner: ["Overview"],
-    DataMapper: ["Overview"],
-    ArchitectureDiagram: ["Overview"],
-    ERDiagram: ["Overview"],
-    GraphQLDiagram: ["Overview"],
-    SequenceDiagram: ["Overview"],
-    TypeDiagram: ["Overview"]
-};
-
-export function getPreviousView(currentView: MachineViews): MachineViews[] {
-    return viewFlow[currentView] || [];
 }
 
 const stateMachine = createMachine<MachineContext>(
@@ -111,6 +92,7 @@ const stateMachine = createMachine<MachineContext>(
                                     view: (context, event) => event.data.view,
                                     identifier: (context, event) => event.data.identifier,
                                     position: (context, event) => event.data.position,
+                                    syntaxTree: (context, event) => event.data.syntaxTree,
                                 })
                             }
                         }
@@ -210,6 +192,7 @@ const stateMachine = createMachine<MachineContext>(
                 }
                 if (!context.view) {
                     if (!context.position || ("groupId" in context.position)) {
+                        history.push({ location: { view: "Overview", documentUri: context.documentUri } });
                         resolve();
                         return;
                     }
@@ -229,80 +212,77 @@ const stateMachine = createMachine<MachineContext>(
 
                     const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
 
-                if (node.parseSuccess) {
-                    if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
-                        const expr = node.syntaxTree.expressions[0];
-                        if (expr?.typeData?.typeSymbol?.signature?.includes("graphql")) {
+                    if (node.parseSuccess) {
+                        if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
+                            const expr = node.syntaxTree.expressions[0];
+                            if (expr?.typeData?.typeSymbol?.signature?.includes("graphql")) {
+                                history.push({
+                                    location: {
+                                        view: "GraphQLDiagram",
+                                        identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
+                                        documentUri: context.documentUri,
+                                        position: context.position
+                                    }
+                                });
+                                resolve();
+                            } else {
+                                history.push({
+                                    location: {
+                                        view: "ServiceDesigner",
+                                        identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
+                                        documentUri: context.documentUri,
+                                        position: context.position
+                                    }
+                                });
+                                resolve();
+                            }
+                        } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) && STKindChecker.isExpressionFunctionBody(node.syntaxTree.functionBody)) {
                             history.push({
                                 location: {
-                                    view: "GraphQLDiagram",
-                                    identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
+                                    view: "DataMapper",
+                                    documentUri: context.documentUri,
+                                    position: context.position,
+                                    identifier: node.syntaxTree.functionName.value
+                                },
+                                dataMapperDepth: 0
+                            });
+                            resolve();
+                        } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) || STKindChecker.isResourceAccessorDefinition(node.syntaxTree)) {
+                            history.push({
+                                location: {
+                                    view: "SequenceDiagram",
                                     documentUri: context.documentUri,
                                     position: context.position
-                                }
+                                },
+                                dataMapperDepth: 0
                             });
                             resolve();
                         } else {
-                            history.push({
-                                location: {
-                                    view: "ServiceDesigner",
-                                    identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
-                                    documentUri: context.documentUri,
-                                    position: context.position
-                                }
-                            });
+                            history.push({ location: { view: "Overview", documentUri: context.documentUri } });
                             resolve();
                         }
-                    } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) && STKindChecker.isExpressionFunctionBody(node.syntaxTree.functionBody)) {
-                        history.push({
-                            location: {
-                                view: "DataMapper",
-                                documentUri: context.documentUri,
-                                position: context.position,
-                                identifier: node.syntaxTree.functionName.value
-                            },
-                            dataMapperDepth: 0
-                        });
-                        resolve();
-                    } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) || STKindChecker.isResourceAccessorDefinition(node.syntaxTree)) {
-                        history.push({
-                            location: {
-                                view: "SequenceDiagram",
-                                documentUri: context.documentUri,
-                                position: context.position
-                            },
-                            dataMapperDepth: 0
-                        });
-                        resolve();
-                    } else {
-                        history.push({location: { view: "Overview", documentUri: context.documentUri }});
-                        resolve();
                     }
+                    return;
+                } else {
+                    history.push({
+                        location: {
+                            view: context.view,
+                            documentUri: context.documentUri,
+                            position: context.position,
+                            identifier: context.identifier
+                        }
+                    });
+                    resolve();
+                    return;
                 }
-                return;
-            } else {
-                history.push({
-                    location: {
-                        view: context.view,
-                        documentUri: context.documentUri,
-                        position: context.position,
-                        identifier: context.identifier
-                    }
-                });
-                resolve();
-                return;
-            }
-        });},
+            });
+        },
         showView(context, event): Promise<VisualizerLocation> {
             return new Promise(async (resolve, reject) => {
                 const historyStack = history.get();
                 const selectedEntry: HistoryEntry = historyStack[historyStack.length - 1]?.location.view
                     ? historyStack[historyStack.length - 1]
                     : { location: { view: "Overview" } };
-                if (selectedEntry.location.view === "Overview") {
-                    resolve(selectedEntry.location);
-                    return;
-                }
 
                 const { location: { documentUri, position }, uid } = selectedEntry;
                 const node = await StateMachine.langClient().getSyntaxTree({
@@ -310,6 +290,11 @@ const stateMachine = createMachine<MachineContext>(
                         uri: Uri.file(documentUri).toString()
                     }
                 }) as GetSyntaxTreeResponse;
+
+                if (selectedEntry.location.view === "Overview") {
+                    resolve({ ...selectedEntry.location, syntaxTree: node.syntaxTree });
+                    return;
+                }
 
                 let selectedST;
 
@@ -328,7 +313,8 @@ const stateMachine = createMachine<MachineContext>(
                                 ...selectedEntry,
                                 location: {
                                     ...selectedEntry.location,
-                                    position: selectedST.position
+                                    position: selectedST.position,
+                                    syntaxTree: selectedST
                                 },
                                 uid: generatedUid
                             });
@@ -352,7 +338,8 @@ const stateMachine = createMachine<MachineContext>(
                                     ...selectedEntry,
                                     location: {
                                         ...selectedEntry.location,
-                                        position: selectedST.position
+                                        position: selectedST.position,
+                                        syntaxTree: selectedST
                                     },
                                     uid: visitorToFindConstructByName.getUid()
                                 });
@@ -367,7 +354,8 @@ const stateMachine = createMachine<MachineContext>(
                                         ...selectedEntry,
                                         location: {
                                             ...selectedEntry.location,
-                                            position: selectedST.position
+                                            position: selectedST.position,
+                                            syntaxTree: selectedST
                                         },
                                         uid: visitorToFindConstructByIndex.getUid()
                                     });
@@ -381,7 +369,8 @@ const stateMachine = createMachine<MachineContext>(
                                 ...selectedEntry,
                                 location: {
                                     ...selectedEntry.location,
-                                    position: selectedST.position
+                                    position: selectedST.position,
+                                    syntaxTree: selectedST
                                 }
                             });
                         }

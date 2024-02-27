@@ -15,6 +15,7 @@ import { debounce } from 'lodash';
 import { WebViewOptions, getComposerWebViewOptions, getLibraryWebViewContent } from '../utils/webview-utils';
 import { extension } from '../BalExtensionContext';
 import { onFileContentUpdate } from '@wso2-enterprise/ballerina-core';
+import { navigate } from '../stateMachine';
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
@@ -32,7 +33,7 @@ export class VisualizerWebview {
         // Handle the text change and diagram update with rpc notification
         const sendUpdateNotificationToWebview = debounce(() => {
             if (this._panel) {
-                RPCLayer._messenger.sendNotification(onFileContentUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType });
+                navigate();
             }
         }, 500);
 
