@@ -32,13 +32,6 @@ export class SizingVisitor implements BaseVisitor {
 
     endVisitNode = (node: Node): void => this.createBaseNode(node);
 
-    endVisitIf(node: Node, parent?: Node): void {
-        if (node.viewState == undefined) {
-            node.viewState = this.getDefaultViewState();
-        }
-        this.createBaseNode(node);
-    }
-
     skipChildren(): boolean {
         return this.skipChildrenVisit;
     }

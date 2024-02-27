@@ -27,46 +27,5 @@ export class PositionVisitor implements BaseVisitor {
     getNodePosition(node: Node, parent: Node) {
         return { x: node.viewState.x, y: node.viewState.y };
     }
-
-    beginVisitNode(node: Node, parent: Node): void {
-        if (!node.id && node.kind !== "FLOW") {
-            return;
-        }
-        if (node.viewState == undefined) {
-            console.warn(">>> unvisited node", node);
-        }
-        if (parent?.viewState) {
-            node.viewState.x = parent.viewState.x + parent.viewState.w / 2 - node.viewState.w / 2;
-        }
-
-        node.viewState.y = this.lastY + NODE_GAP_Y;
-        this.lastY = node.viewState.y + node.viewState.h;
-    }
-
-    beginVisitIf(node: Node, parent?: Node): void {
-        if (node.viewState == undefined) {
-            console.warn(">>> unvisited node", node);
-        }
-        if (parent?.viewState) {
-            node.viewState.x = parent.viewState.x + parent.viewState.w / 2;
-        }
-
-        let middleX = node.viewState.x + node.viewState.w / 2;
-
-        if (node.thenBranch.viewState) {
-            node.thenBranch.viewState.x = middleX - node.thenBranch.viewState.w - NODE_GAP_X / 2;
-        }
-        if (node.elseBranch.viewState) {
-            node.elseBranch.viewState.x = middleX + NODE_GAP_X / 2;
-        }
-
-        node.viewState.y = this.lastY + NODE_GAP_Y;
-        this.lastY = node.viewState.y + node.viewState.h;
-
-        this.branchParentY = this.lastY;
-    }
-
-    endVisitThenBranchBody(node: Node, parent?: Node): void {
-        this.lastY = this.branchParentY;
-    }
+    
 }
