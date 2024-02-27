@@ -62,7 +62,7 @@ const MainPanel = () => {
             } else {
                 switch (value?.view) {
                     case "Overview":
-                        setViewComponent(<Overview />);
+                        setViewComponent(<Overview visualizerLocation={value} />);
                         break;
                     case "ArchitectureDiagram":
                         setViewComponent(<ArchitectureDiagram />);

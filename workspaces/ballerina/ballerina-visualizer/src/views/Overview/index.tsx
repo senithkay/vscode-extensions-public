@@ -9,12 +9,13 @@
 
 import React from "react";
 import { Overview as OverviewComponent } from "@wso2-enterprise/overview-view";
+import { VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 
-export function Overview() {
+export function Overview(props: { visualizerLocation: VisualizerLocation }) {
     return (
         <>
             <h1>Overview</h1>
-            <OverviewComponent />
+            <OverviewComponent visualizerLocation={props.visualizerLocation} />
         </>
     );
 }

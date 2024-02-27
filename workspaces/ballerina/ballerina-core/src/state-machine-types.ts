@@ -17,7 +17,7 @@ export type MachineStateValue =
     | 'initialize'
     | 'lsError'
     | 'lsReady'
-    | 'viewActive' 
+    | 'viewActive'
     | 'disabled'
     | { viewActive: 'viewInit' } | { viewActive: 'webViewLoaded' } | { viewActive: 'viewReady' } | { viewActive: 'viewEditing' };
 
