@@ -33,7 +33,7 @@ export namespace NodeStyles {
             ${(props: NodeStyleProp) =>
                 props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
         border-radius: 10px;
-        background-color: ${Colors.SURFACE_BRIGHT};
+        background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
         cursor: pointer;
     `;
@@ -74,6 +74,10 @@ export namespace NodeStyles {
         font-family: "GilmerMedium";
     `;
 
+    export const HelpText = styled(StyledText)`
+        color: ${Colors.PRIMARY};
+    `;
+
     export const Body = styled.div`
         display: flex;
         flex-direction: column;
@@ -92,14 +96,17 @@ export namespace NodeStyles {
     `;
 }
 
-export interface BaseNodeWidgetProps {
+interface BaseNodeWidgetProps {
+    children: React.ReactNode;
     model: BaseNodeModel;
     engine: DiagramEngine;
     onClick?: (node: Node) => void;
 }
 
+export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {}
+
 export function BaseNodeWidget(props: BaseNodeWidgetProps) {
-    const { model, engine, onClick } = props;
+    const { children, model, engine, onClick } = props;
     const [isHovered, setIsHovered] = React.useState(false);
 
     const handleOnClick = () => {
@@ -122,10 +129,14 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
             </NodeStyles.Header>
             {/* todo: generate dynamic form with node attributes */}
             <NodeStyles.Body>
-                <NodeStyles.Row>
-                    <NodeStyles.StyledText>Value </NodeStyles.StyledText>
-                    <TextField value="" />
-                </NodeStyles.Row>
+                {children}
+                {model.node.nodeProperties.expression?.documentation && (
+                    <NodeStyles.Row>
+                        <NodeStyles.HelpText>
+                            {model.node.nodeProperties.expression.documentation}
+                        </NodeStyles.HelpText>
+                    </NodeStyles.Row>
+                )}
             </NodeStyles.Body>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
         </NodeStyles.Node>
