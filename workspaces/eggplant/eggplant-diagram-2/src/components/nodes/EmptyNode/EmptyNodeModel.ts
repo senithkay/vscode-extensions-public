@@ -15,13 +15,15 @@ export class EmptyNodeModel extends NodeModel {
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
 
-    constructor() {
+    constructor(id: string) {
         super({
+            id,
             type: NodeTypes.EMPTY_NODE,
             locked: true,
         });
         this.addInPort("in");
         this.addOutPort("out");
+        this.width = 100;
     }
 
     addPort<T extends NodePortModel>(port: T): T {
