@@ -14,50 +14,29 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { SectionWrapper } from "./Commons";
 
 const WizardContainer = styled.div`
-    width: 95%;
-    display  : flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 95vw;
+    height: calc(100vh - 140px);
+    overflow: auto;
 `;
 
 const ActionContainer = styled.div`
-    display  : flex;
+    display: flex;
     flex-direction: row;
     justify-content: flex-end;
     gap: 10px;
     padding-bottom: 20px;
 `;
 
-
-const CardContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 20px;
+const LocationText = styled.div`
+    max-width: 60vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 `;
 
-const SubContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-content: space-between;
-    gap: 20px;
-`;
-
-const TitleWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
-`;
-
-const BrowseBtn = styled(VSCodeButton)`
-    width: fit-content;
-    padding: 5px;
-`;
 
 export interface Region {
     label: string;
@@ -102,48 +81,41 @@ export function ProjectWizard() {
     const isValid: boolean = projectName.length > 0 && projectDir.length > 0;
 
     return (
-        <WizardContainer>
-            <TitleWrapper>
-                <h2>New Integration Project</h2>
-            </TitleWrapper>
-            <SectionWrapper>
-                <h3>Integration Project</h3>
-                <TextField
-                    value={projectName}
-                    id='name-input'
-                    label="Name"
-                    placeholder="Name"
-                    validationMessage="Project name is required"
-                    onChange={(text: string) => setProjectName(text)}
-                    autoFocus
-                    required
-                />
-                <span>  Project Location  </span>
-                {!!projectDir && <span>{projectDir}</span>}
-                {!projectDir && <span>Please choose a directory for project workspace. </span>}
-                <BrowseBtn onClick={handleProjecDirSelection} id="select-project-dir-btn">
-                    Select Directory to Save Project
-                </BrowseBtn>
-                <SubContainer>
-                    <CardContainer>
-                    </CardContainer>
-                </SubContainer>
-            </SectionWrapper>
-            <ActionContainer>
-                <Button
-                    appearance="secondary"
-                    onClick={handleCancel}
-                >
-                    Cancel
-                </Button>
-                <Button
-                    appearance="primary"
-                    onClick={handleCreateProject}
-                    disabled={!isValid}
-                >
-                    Create
-                </Button>
-            </ActionContainer>
-        </WizardContainer>
+            <WizardContainer>
+                <SectionWrapper>
+                    <h3>Integration Project</h3>
+                    <TextField
+                        value={projectName}
+                        id='name-input'
+                        label="Project Name"
+                        placeholder="Project Name"
+                        validationMessage="Project name is required"
+                        onChange={(text: string) => setProjectName(text)}
+                        autoFocus
+                        required
+                    />
+                    <span>  Project Location  </span>
+                    {!!projectDir && <LocationText>{projectDir}</LocationText>}
+                    {!projectDir && <span>Please choose a directory for project workspace. </span>}
+                    <Button appearance="secondary" onClick={handleProjecDirSelection} id="select-project-dir-btn">
+                        Select Location
+                    </Button>
+                    <ActionContainer>
+                        <Button
+                            appearance="secondary"
+                            onClick={handleCancel}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            appearance="primary"
+                            onClick={handleCreateProject}
+                            disabled={!isValid}
+                        >
+                            Create
+                        </Button>
+                    </ActionContainer>
+                </SectionWrapper>
+            </WizardContainer>
     );
 }
