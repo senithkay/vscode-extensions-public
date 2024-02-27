@@ -6,17 +6,16 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-
+// tslint:disable: jsx-no-lambda
 import React from "react";
 
-import { Box, FormControl, InputLabel, MenuItem } from "@material-ui/core";
-import Select from '@material-ui/core/Select';
+import { Dropdown, OptionProps } from "@wso2-enterprise/ui-toolkit";
 
 export enum OperationTypes {
-    Queries,
-    Mutations,
-    Subscriptions,
-    All_Operations
+    Queries = "Queries",
+    Mutations = "Mutations",
+    Subscriptions = "Subscriptions",
+    All_Operations = "All Operations"
 }
 
 interface TypeFilterProps {
@@ -29,32 +28,25 @@ export function TypeFilter(props: TypeFilterProps) {
     const { updateFilter, isFilterDisabled } = props;
     const [type, setType] = React.useState<OperationTypes>(OperationTypes.All_Operations);
 
-    const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-        setType(event.target.value as OperationTypes);
-        updateFilter(event.target.value as OperationTypes);
+    const handleChange = (value: string) => {
+        setType(value as OperationTypes);
+        updateFilter(value as OperationTypes);
     };
 
-    return (
-        <Box>
-            <FormControl style={{margin: "10px", width: "130px"}} variant="outlined">
-                <InputLabel id="demo-simple-select-label" >Operation Type</InputLabel>
-                <Select
-                    data-testid="operation-filter"
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={type}
-                    label="Operation Type"
-                    onChange={handleChange}
-                    disabled={isFilterDisabled}
-                    SelectDisplayProps={{ style: { padding: '10px' } }}
-                >
-                    <MenuItem value={OperationTypes.All_Operations} className="operation-type">All Operations</MenuItem>
-                    <MenuItem value={OperationTypes.Queries} className="operation-type">Queries</MenuItem>
-                    <MenuItem value={OperationTypes.Mutations} className="operation-type">Mutations</MenuItem>
-                    <MenuItem value={OperationTypes.Subscriptions}  className="operation-type">Subscriptions</MenuItem>
-                </Select>
-            </FormControl>
-        </Box>
-    );
+    const dropDownItems: OptionProps[] = [
+        { id: "All Operations", content: "All Operations", value: OperationTypes.All_Operations },
+        { id: "Queries", content: "Queries", value: OperationTypes.Queries },
+        { id: "Mutations", content: "Mutations", value: OperationTypes.Mutations },
+        { id: "Subscriptions", content: "Subscriptions", value: OperationTypes.Subscriptions }
+    ];
 
+    return (
+        <Dropdown
+            id={`operation-filter`}
+            label="Operation Type"
+            value={type}
+            onChange={(val: string) => handleChange(val)}
+            items={dropDownItems}
+        />
+    );
 }
