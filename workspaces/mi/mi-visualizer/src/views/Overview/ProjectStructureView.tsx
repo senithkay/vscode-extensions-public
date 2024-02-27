@@ -56,6 +56,8 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
     const handleClick = (directory: string, path?: string) => {
         if (directory.toLowerCase() === "api") {
             rpcClient.getMiVisualizerRpcClient().openView({view: "ServiceDesigner", documentUri: path});
+        } else if (directory.toLowerCase() === "sequence") {
+            rpcClient.getMiVisualizerRpcClient().openView({view: "Diagram", documentUri: path});
         }
     };
 

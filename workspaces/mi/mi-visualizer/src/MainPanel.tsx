@@ -71,12 +71,17 @@ const MainPanel = (props: { state: MachineStateValue }) => {
             case "Diagram":
                 rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri }).then((st) => {
                     const identifier = machineView.identifier || machineView.identifier === undefined;
-                    if (identifier && st?.syntaxTree?.api?.resource) {
-                        const resourceNode = st?.syntaxTree?.api.resource.find((resource: any) => (resource.uriTemplate === machineView.identifier) || resource.uriTemplate === undefined);
-                        setComponent(<Diagram model={resourceNode} documentUri={machineView.documentUri} />);
+                    if (identifier && st?.syntaxTree) {
+                        if (st?.syntaxTree?.api?.resource) {
+                            const resourceNode = st?.syntaxTree?.api.resource.find((resource: any) => (resource.uriTemplate === machineView.identifier) || resource.uriTemplate === undefined);
+                            setComponent(<Diagram model={resourceNode} documentUri={machineView.documentUri} />);
+                        } else if (st?.syntaxTree?.sequence) {
+                            const sequenceNode = st?.syntaxTree?.sequence;
+                            setComponent(<Diagram model={sequenceNode} documentUri={machineView.documentUri} />);
+                        }
                     }
                 });
-                rpcClient.getMiDiagramRpcClient().initUndoRedoManager({path: machineView.documentUri});
+                rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
                 break;
             case "ServiceDesigner":
                 setComponent(<ServiceDesignerView />);
