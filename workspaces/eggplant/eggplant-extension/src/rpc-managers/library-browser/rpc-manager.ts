@@ -15,8 +15,8 @@ import {
     LibraryDataRequest,
     LibraryDataResponse,
     LibrarySearchResponse
-} from "@wso2-enterprise/ballerina-core";
-import { getAllResources, getLibrariesList, getLibraryData } from "../../LibraryBrowser/activate";
+} from "@wso2-enterprise/eggplant-core";
+import { getAllResources, getLibrariesList, getLibraryData } from "../../library-browser/activate";
 
 export class LibraryBrowserRpcManager implements LibraryBrowserAPI {
     async getLibrariesList(params: LibrariesListRequest): Promise<LibrariesListResponse> {

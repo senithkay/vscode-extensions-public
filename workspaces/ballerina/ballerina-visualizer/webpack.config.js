@@ -14,6 +14,7 @@ module.exports = {
     alias: {
       'react': path.resolve(__dirname, 'node_modules/react'),
       'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+      'vscode': path.resolve(__dirname, 'node_modules/vscode-uri'),
     },
   },
   module: {

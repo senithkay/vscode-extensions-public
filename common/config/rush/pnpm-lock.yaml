@@ -2396,9 +2396,11 @@ importers:
   ../../workspaces/eggplant/eggplant-core:
     specifiers:
       '@types/vscode': ^1.83.1
+      '@types/vscode-webview': ^1.57.3
       '@typescript-eslint/eslint-plugin': ^6.9.1
       '@typescript-eslint/parser': ^6.9.1
       '@wso2-enterprise/ballerina-core': workspace:*
+      '@wso2-enterprise/ballerina-rpc-client': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
       copyfiles: ^2.4.1
       eslint: ^8.52.0
@@ -2410,7 +2412,9 @@ importers:
       vscode-languageserver-types: ^3.17.5
       vscode-messenger-common: ^0.4.5
     dependencies:
+      '@types/vscode-webview': 1.57.5
       '@wso2-enterprise/ballerina-core': link:../../ballerina/ballerina-core
+      '@wso2-enterprise/ballerina-rpc-client': link:../../ballerina/ballerina-rpc-client
       '@wso2-enterprise/syntax-tree': link:../../ballerina/syntax-tree
       vscode-languageclient: 8.1.0
       vscode-languageserver-types: 3.17.5
@@ -2453,7 +2457,6 @@ importers:
       '@typescript-eslint/eslint-plugin': ^6.9.1
       '@typescript-eslint/parser': ^6.9.1
       '@vscode/codicons': ~0.0.35
-      '@wso2-enterprise/ballerina-core': workspace:*
       '@wso2-enterprise/data-mapper-view': workspace:*
       '@wso2-enterprise/eggplant-core': workspace:*
       '@wso2-enterprise/eggplant-rpc-client': workspace:*
@@ -2488,7 +2491,6 @@ importers:
       '@types/lodash': 4.14.202
       '@types/node': 18.19.14
       '@vscode/codicons': 0.0.35
-      '@wso2-enterprise/ballerina-core': link:../../ballerina/ballerina-core
       '@wso2-enterprise/data-mapper-view': link:../../ballerina/data-mapper-view
       '@wso2-enterprise/eggplant-core': link:../eggplant-core
       '@wso2-enterprise/eggplant-rpc-client': link:../eggplant-rpc-client
@@ -2523,6 +2525,41 @@ importers:
       babel-loader: 8.3.0_@babel+core@7.23.9
       copyfiles: 2.4.1
 
+  ../../workspaces/eggplant/eggplant-diagram-2:
+    specifiers:
+      '@emotion/react': ^11.9.3
+      '@emotion/styled': ^11.10.5
+      '@projectstorm/geometry': ^6.7.4
+      '@projectstorm/react-canvas-core': ^6.7.4
+      '@projectstorm/react-diagrams': ^6.7.4
+      '@projectstorm/react-diagrams-core': ^6.7.4
+      '@projectstorm/react-diagrams-defaults': ^6.7.4
+      '@projectstorm/react-diagrams-routing': ^6.7.4
+      '@storybook/react': ^6.3.7
+      '@types/react': ^17.0.14
+      '@types/react-dom': ^17.0.9
+      '@wso2-enterprise/ui-toolkit': workspace:*
+      react: ~18.2.0
+      react-dom: ~18.2.0
+      typescript: ^4.3.5
+    dependencies:
+      '@emotion/react': 11.11.3_ujupp4aqvz5yjxfmu635blrdgm
+      '@emotion/styled': 11.11.0_a5ezjtzmbjq2agin6it3jktdwe
+      '@projectstorm/geometry': 6.7.4
+      '@projectstorm/react-canvas-core': 6.7.4_react@18.2.0
+      '@projectstorm/react-diagrams': 6.7.4_2jbui5nro4tb6hwabdsx6ymml4
+      '@projectstorm/react-diagrams-core': 6.7.4_react@18.2.0
+      '@projectstorm/react-diagrams-defaults': 6.7.4_2jbui5nro4tb6hwabdsx6ymml4
+      '@projectstorm/react-diagrams-routing': 6.7.4_2jbui5nro4tb6hwabdsx6ymml4
+      '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    devDependencies:
+      '@storybook/react': 6.5.16_ygqkwb4gg3aean7xjfdauovyqq
+      '@types/react': 17.0.75
+      '@types/react-dom': 17.0.14
+      typescript: 4.9.5
+
   ../../workspaces/eggplant/eggplant-extension:
     specifiers:
       '@types/mocha': ^10.0.3
@@ -2532,16 +2569,16 @@ importers:
       '@typescript-eslint/parser': ^6.9.0
       '@vscode/test-electron': ^2.3.6
       '@vscode/vsce': ^2.22.0
-      '@wso2-enterprise/ballerina-core': workspace:*
       '@wso2-enterprise/eggplant-core': workspace:*
       '@wso2-enterprise/eggplant-diagram': workspace:*
-      '@wso2-enterprise/eggplant-webview': workspace:*
+      '@wso2-enterprise/eggplant-visualizer': workspace:*
       '@wso2-enterprise/font-wso2-vscode': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
       copy-webpack-plugin: ^11.0.0
       copyfiles: ^2.4.1
       eslint: ^8.52.0
       glob: ^10.3.10
+      lodash: ^4.17.11
       mocha: ^10.2.0
       source-map-support: ^0.5.21
       ts-loader: ^9.4.1
@@ -2555,12 +2592,12 @@ importers:
       webpack-permissions-plugin: ^1.0.9
       xstate: ^4.38.3
     dependencies:
-      '@wso2-enterprise/ballerina-core': link:../../ballerina/ballerina-core
       '@wso2-enterprise/eggplant-core': link:../eggplant-core
       '@wso2-enterprise/eggplant-diagram': link:../eggplant-diagram
-      '@wso2-enterprise/eggplant-webview': link:../webview
+      '@wso2-enterprise/eggplant-visualizer': link:../eggplant-visualizer
       '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
       '@wso2-enterprise/syntax-tree': link:../../ballerina/syntax-tree
+      lodash: 4.17.21
       vscode-languageserver-types: 3.17.5
       vscode-messenger: 0.4.5
       vscode-messenger-common: 0.4.5
@@ -2636,8 +2673,6 @@ importers:
       '@types/vscode-webview': ^1.57.3
       '@typescript-eslint/eslint-plugin': ^6.9.1
       '@typescript-eslint/parser': ^6.9.1
-      '@wso2-enterprise/ballerina-core': workspace:*
-      '@wso2-enterprise/ballerina-rpc-client': workspace:*
       '@wso2-enterprise/eggplant-core': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
       copyfiles: ^2.4.1
@@ -2651,8 +2686,6 @@ importers:
       vscode-messenger-webview: ^0.4.5
     dependencies:
       '@types/vscode-webview': 1.57.5
-      '@wso2-enterprise/ballerina-core': link:../../ballerina/ballerina-core
-      '@wso2-enterprise/ballerina-rpc-client': link:../../ballerina/ballerina-rpc-client
       '@wso2-enterprise/eggplant-core': link:../eggplant-core
       '@wso2-enterprise/syntax-tree': link:../../ballerina/syntax-tree
       react: 18.2.0
@@ -2670,7 +2703,7 @@ importers:
       eslint-plugin-react-refresh: 0.4.5_eslint@8.56.0
       typescript: 5.3.3
 
-  ../../workspaces/eggplant/webview:
+  ../../workspaces/eggplant/eggplant-visualizer:
     specifiers:
       '@emotion/css': ^11.10.5
       '@emotion/react': ^11.9.3
@@ -2694,6 +2727,7 @@ importers:
       '@wso2-enterprise/eggplant-overview': workspace:*
       '@wso2-enterprise/eggplant-rpc-client': workspace:*
       '@wso2-enterprise/service-designer-view': workspace:*
+      '@wso2-enterprise/syntax-tree': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ^2.4.1
       css-loader: ^5.2.7
@@ -2722,6 +2756,7 @@ importers:
       '@wso2-enterprise/eggplant-overview': link:../eggplant-overview
       '@wso2-enterprise/eggplant-rpc-client': link:../eggplant-rpc-client
       '@wso2-enterprise/service-designer-view': link:../../ballerina/service-designer-view
+      '@wso2-enterprise/syntax-tree': link:../../ballerina/syntax-tree
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -5775,6 +5810,27 @@ packages:
       react: 18.2.0
     dev: false
 
+  /@emotion/react/11.11.3_ujupp4aqvz5yjxfmu635blrdgm:
+    resolution: {integrity: sha512-Cnn0kuq4DoONOMcnoVsTOR8E+AdnKFf//6kUWc4LCdnxj31pZWn7rIULd6Y7/Js1PiPHzn7SKCM9vB/jBni8eA==}
+    peerDependencies:
+      '@types/react': '*'
+      react: '>=16.8.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.23.9
+      '@emotion/babel-plugin': 11.11.0
+      '@emotion/cache': 11.11.0
+      '@emotion/serialize': 1.1.3
+      '@emotion/use-insertion-effect-with-fallbacks': 1.0.1_react@18.2.0
+      '@emotion/utils': 1.2.1
+      '@emotion/weak-memoize': 0.3.1
+      '@types/react': 17.0.75
+      hoist-non-react-statics: 3.3.2
+      react: 18.2.0
+    dev: false
+
   /@emotion/serialize/1.1.3:
     resolution: {integrity: sha512-iD4D6QVZFDhcbH0RAG1uVu1CwVLMWUkCvAqqlewO/rxf8+87yIBAlt4+AxMiiKPLs5hFc0owNk/sLLAOROw3cA==}
     dependencies:
@@ -5807,6 +5863,27 @@ packages:
       '@emotion/use-insertion-effect-with-fallbacks': 1.0.1
       '@emotion/utils': 1.2.1
       '@types/react': 18.2.55
+    dev: false
+
+  /@emotion/styled/11.11.0_a5ezjtzmbjq2agin6it3jktdwe:
+    resolution: {integrity: sha512-hM5Nnvu9P3midq5aaXj4I+lnSfNi7Pmd4EWk1fOZ3pxookaQTNew6bp4JaCBYM4HVFZF9g7UjJmsUmC2JlxOng==}
+    peerDependencies:
+      '@emotion/react': ^11.0.0-rc.0
+      '@types/react': '*'
+      react: '>=16.8.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.23.9
+      '@emotion/babel-plugin': 11.11.0
+      '@emotion/is-prop-valid': 1.2.1
+      '@emotion/react': 11.11.3_ujupp4aqvz5yjxfmu635blrdgm
+      '@emotion/serialize': 1.1.3
+      '@emotion/use-insertion-effect-with-fallbacks': 1.0.1_react@18.2.0
+      '@emotion/utils': 1.2.1
+      '@types/react': 17.0.75
+      react: 18.2.0
     dev: false
 
   /@emotion/styled/11.11.0_dyeqyavlplouzrsokk7bfa3ywm:
@@ -7949,6 +8026,16 @@ packages:
       lodash: 4.17.21
     dev: false
 
+  /@projectstorm/react-canvas-core/6.7.4_react@18.2.0:
+    resolution: {integrity: sha512-sY32kT//gQe5aw6RHkmKrbzBq9iWyfwyvvfRTplGPE1ll3zOBVCjbf3tdfw6vATCden+WR0TmirtBo2j3exiBg==}
+    peerDependencies:
+      lodash: 4.*
+      react: 16.* || 17.*
+    dependencies:
+      '@projectstorm/geometry': 6.7.4
+      react: 18.2.0
+    dev: false
+
   /@projectstorm/react-canvas-core/6.7.4_vcdvlsazmnbhnp7yjvhccw67ha:
     resolution: {integrity: sha512-sY32kT//gQe5aw6RHkmKrbzBq9iWyfwyvvfRTplGPE1ll3zOBVCjbf3tdfw6vATCden+WR0TmirtBo2j3exiBg==}
     peerDependencies:
@@ -8011,6 +8098,34 @@ packages:
       resize-observer-polyfill: 1.5.1
     dev: false
 
+  /@projectstorm/react-diagrams-core/6.7.4_react@18.2.0:
+    resolution: {integrity: sha512-AeqH1u58Ugk8mif/GgLEUeOMmTPaWDpl1isA1OJHCPGMbvAytRfv5mrGMvG2E+pYDB29BQ4Yo2z9/TbAy6/nvA==}
+    peerDependencies:
+      lodash: 4.*
+      react: 18.*
+      resize-observer-polyfill: ^1.5.1
+    dependencies:
+      '@projectstorm/geometry': 6.7.4
+      '@projectstorm/react-canvas-core': 6.7.4_react@18.2.0
+      react: 18.2.0
+    dev: false
+
+  /@projectstorm/react-diagrams-defaults/6.7.4_2jbui5nro4tb6hwabdsx6ymml4:
+    resolution: {integrity: sha512-j3pRlZq1Z5yIGKpI7VtVkvNK/kXKB2abNMVXTSLUECA4iRubPKDn08w6q4jg1nBZXLGidrHsrELqW+53G9VvLA==}
+    peerDependencies:
+      '@emotion/react': ^11.*
+      '@emotion/styled': ^11.*
+      lodash: 4.*
+      react: 18.*
+    dependencies:
+      '@emotion/react': 11.11.3_ujupp4aqvz5yjxfmu635blrdgm
+      '@emotion/styled': 11.11.0_a5ezjtzmbjq2agin6it3jktdwe
+      '@projectstorm/react-diagrams-core': 6.7.4_react@18.2.0
+      react: 18.2.0
+    transitivePeerDependencies:
+      - resize-observer-polyfill
+    dev: false
+
   /@projectstorm/react-diagrams-defaults/6.7.4_dvatlpsz4w5lez3horlcduv4de:
     resolution: {integrity: sha512-j3pRlZq1Z5yIGKpI7VtVkvNK/kXKB2abNMVXTSLUECA4iRubPKDn08w6q4jg1nBZXLGidrHsrELqW+53G9VvLA==}
     peerDependencies:
@@ -8058,6 +8173,25 @@ packages:
       '@projectstorm/react-diagrams-core': 6.7.4_lodash@4.17.21
       lodash: 4.17.21
     transitivePeerDependencies:
+      - resize-observer-polyfill
+    dev: false
+
+  /@projectstorm/react-diagrams-routing/6.7.4_2jbui5nro4tb6hwabdsx6ymml4:
+    resolution: {integrity: sha512-mB8YaRkNF6gdTlYvL0Cxc6m6XLwh7wvmjIsiEO6kW3j1uSvH7R7Gbl/iDYOdc0zUMqH9+pD+M064tWC4oAXa9A==}
+    peerDependencies:
+      dagre: ^0.8.5
+      lodash: 4.*
+      pathfinding: ^0.4.18
+      paths-js: ^0.4.11
+      react: 18.*
+    dependencies:
+      '@projectstorm/geometry': 6.7.4
+      '@projectstorm/react-diagrams-core': 6.7.4_react@18.2.0
+      '@projectstorm/react-diagrams-defaults': 6.7.4_2jbui5nro4tb6hwabdsx6ymml4
+      react: 18.2.0
+    transitivePeerDependencies:
+      - '@emotion/react'
+      - '@emotion/styled'
       - resize-observer-polyfill
     dev: false
 
@@ -8123,6 +8257,23 @@ packages:
     transitivePeerDependencies:
       - '@emotion/react'
       - '@emotion/styled'
+      - resize-observer-polyfill
+    dev: false
+
+  /@projectstorm/react-diagrams/6.7.4_2jbui5nro4tb6hwabdsx6ymml4:
+    resolution: {integrity: sha512-xK/bi7DqHKv15XZRESeSpvSmAVArJIXkV6E1mybSc/24toGmoE2imcS+puxG6wGS56NhR0gIrUiT5UYwBvyD5A==}
+    dependencies:
+      '@projectstorm/react-diagrams-core': 6.7.4_react@18.2.0
+      '@projectstorm/react-diagrams-defaults': 6.7.4_2jbui5nro4tb6hwabdsx6ymml4
+      '@projectstorm/react-diagrams-routing': 6.7.4_2jbui5nro4tb6hwabdsx6ymml4
+    transitivePeerDependencies:
+      - '@emotion/react'
+      - '@emotion/styled'
+      - dagre
+      - lodash
+      - pathfinding
+      - paths-js
+      - react
       - resize-observer-polyfill
     dev: false
 
@@ -14135,6 +14286,82 @@ packages:
       - webpack-command
     dev: true
 
+  /@storybook/core-server/6.5.16_ygqkwb4gg3aean7xjfdauovyqq:
+    resolution: {integrity: sha512-/3NPfmNyply395Dm0zaVZ8P9aruwO+tPx4D6/jpw8aqrRSwvAMndPMpoMCm0NXcpSm5rdX+Je4S3JW6JcggFkA==}
+    peerDependencies:
+      '@storybook/builder-webpack5': '*'
+      '@storybook/manager-webpack5': '*'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+      typescript: '*'
+    peerDependenciesMeta:
+      '@storybook/builder-webpack5':
+        optional: true
+      '@storybook/manager-webpack5':
+        optional: true
+      typescript:
+        optional: true
+    dependencies:
+      '@discoveryjs/json-ext': 0.5.7
+      '@storybook/builder-webpack4': 6.5.16_ygqkwb4gg3aean7xjfdauovyqq
+      '@storybook/core-client': 6.5.16_jphbg42sev35qgzqwzx5fa4ugu
+      '@storybook/core-common': 6.5.16_ygqkwb4gg3aean7xjfdauovyqq
+      '@storybook/core-events': 6.5.16
+      '@storybook/csf': 0.0.2--canary.4566f4d.1
+      '@storybook/csf-tools': 6.5.16
+      '@storybook/manager-webpack4': 6.5.16_ygqkwb4gg3aean7xjfdauovyqq
+      '@storybook/node-logger': 6.5.16
+      '@storybook/semver': 7.3.2
+      '@storybook/store': 6.5.16_biqbaboplfbrettd7655fr4n2y
+      '@storybook/telemetry': 6.5.16_ygqkwb4gg3aean7xjfdauovyqq
+      '@types/node': 16.18.79
+      '@types/node-fetch': 2.6.11
+      '@types/pretty-hrtime': 1.0.3
+      '@types/webpack': 4.41.38
+      better-opn: 2.1.1
+      boxen: 5.1.2
+      chalk: 4.1.2
+      cli-table3: 0.6.3
+      commander: 6.2.1
+      compression: 1.7.4
+      core-js: 3.35.1
+      cpy: 8.1.2
+      detect-port: 1.5.1
+      express: 4.18.2
+      fs-extra: 9.1.0
+      global: 4.4.0
+      globby: 11.1.0
+      ip: 2.0.0
+      lodash: 4.17.21
+      node-fetch: 2.7.0
+      open: 8.4.2
+      pretty-hrtime: 1.0.3
+      prompts: 2.4.2
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      regenerator-runtime: 0.13.11
+      serve-favicon: 2.5.0
+      slash: 3.0.0
+      telejson: 6.0.8
+      ts-dedent: 2.2.0
+      typescript: 4.9.5
+      util-deprecate: 1.0.2
+      watchpack: 2.4.0
+      webpack: 4.47.0
+      ws: 8.16.0
+      x-default-browser: 0.4.0
+    transitivePeerDependencies:
+      - '@storybook/mdx2-csf'
+      - bufferutil
+      - encoding
+      - eslint
+      - supports-color
+      - utf-8-validate
+      - vue-template-compiler
+      - webpack-cli
+      - webpack-command
+    dev: true
+
   /@storybook/core-server/7.6.13:
     resolution: {integrity: sha512-kcHhCL8XDv4k5QJqBVWOYJ2lwX6orQHnx0N7fvLhJ7IHtUp1YQYn1+ufnGFZBlpNGGvPwz3oX4hmOT1G+PQdlw==}
     dependencies:
@@ -14333,6 +14560,41 @@ packages:
       react-dom: 18.2.0_react@18.2.0
       typescript: 5.3.3
       webpack: 5.90.1_webpack-cli@4.10.0
+    transitivePeerDependencies:
+      - '@storybook/mdx2-csf'
+      - bufferutil
+      - encoding
+      - eslint
+      - supports-color
+      - utf-8-validate
+      - vue-template-compiler
+      - webpack-cli
+      - webpack-command
+    dev: true
+
+  /@storybook/core/6.5.16_vbrkzaottjtn7cf2piigorbtdm:
+    resolution: {integrity: sha512-CEF3QFTsm/VMnMKtRNr4rRdLeIkIG0g1t26WcmxTdSThNPBd8CsWzQJ7Jqu7CKiut+MU4A1LMOwbwCE5F2gmyA==}
+    peerDependencies:
+      '@storybook/builder-webpack5': '*'
+      '@storybook/manager-webpack5': '*'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+      typescript: '*'
+      webpack: '*'
+    peerDependenciesMeta:
+      '@storybook/builder-webpack5':
+        optional: true
+      '@storybook/manager-webpack5':
+        optional: true
+      typescript:
+        optional: true
+    dependencies:
+      '@storybook/core-client': 6.5.16_vbrkzaottjtn7cf2piigorbtdm
+      '@storybook/core-server': 6.5.16_ygqkwb4gg3aean7xjfdauovyqq
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      typescript: 4.9.5
+      webpack: 5.90.1
     transitivePeerDependencies:
       - '@storybook/mdx2-csf'
       - bufferutil
@@ -16144,6 +16406,93 @@ packages:
       typescript: 4.9.5
       util-deprecate: 1.0.2
       webpack: 5.90.1_webpack-cli@4.10.0
+    transitivePeerDependencies:
+      - '@storybook/mdx2-csf'
+      - '@swc/core'
+      - '@types/webpack'
+      - bufferutil
+      - encoding
+      - esbuild
+      - eslint
+      - sockjs-client
+      - supports-color
+      - type-fest
+      - uglify-js
+      - utf-8-validate
+      - vue-template-compiler
+      - webpack-cli
+      - webpack-command
+      - webpack-dev-server
+      - webpack-hot-middleware
+      - webpack-plugin-serve
+    dev: true
+
+  /@storybook/react/6.5.16_ygqkwb4gg3aean7xjfdauovyqq:
+    resolution: {integrity: sha512-cBtNlOzf/MySpNLBK22lJ8wFU22HnfTB2xJyBk7W7Zi71Lm7Uxkhv1Pz8HdiQndJ0SlsAAQOWjQYsSZsGkZIaA==}
+    engines: {node: '>=10.13.0'}
+    hasBin: true
+    peerDependencies:
+      '@babel/core': ^7.11.5
+      '@storybook/builder-webpack4': '*'
+      '@storybook/builder-webpack5': '*'
+      '@storybook/manager-webpack4': '*'
+      '@storybook/manager-webpack5': '*'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+      require-from-string: ^2.0.2
+      typescript: '*'
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      '@storybook/builder-webpack4':
+        optional: true
+      '@storybook/builder-webpack5':
+        optional: true
+      '@storybook/manager-webpack4':
+        optional: true
+      '@storybook/manager-webpack5':
+        optional: true
+      typescript:
+        optional: true
+    dependencies:
+      '@babel/preset-flow': 7.23.3
+      '@babel/preset-react': 7.23.3
+      '@pmmmwh/react-refresh-webpack-plugin': 0.5.11_dzluv2jgpeh4rdlo5ht6m2xgce
+      '@storybook/addons': 6.5.16_biqbaboplfbrettd7655fr4n2y
+      '@storybook/client-logger': 6.5.16
+      '@storybook/core': 6.5.16_vbrkzaottjtn7cf2piigorbtdm
+      '@storybook/core-common': 6.5.16_ygqkwb4gg3aean7xjfdauovyqq
+      '@storybook/csf': 0.0.2--canary.4566f4d.1
+      '@storybook/docs-tools': 6.5.16_biqbaboplfbrettd7655fr4n2y
+      '@storybook/node-logger': 6.5.16
+      '@storybook/react-docgen-typescript-plugin': 1.0.2-canary.6.9d540b91e815f8fc2f8829189deb00553559ff63.0_ahsu3n7nsuhdp6gozcsyrqnvra
+      '@storybook/semver': 7.3.2
+      '@storybook/store': 6.5.16_biqbaboplfbrettd7655fr4n2y
+      '@types/estree': 0.0.51
+      '@types/node': 16.18.79
+      '@types/webpack-env': 1.18.4
+      acorn: 7.4.1
+      acorn-jsx: 5.3.2_acorn@7.4.1
+      acorn-walk: 7.2.0
+      babel-plugin-add-react-displayname: 0.0.5
+      babel-plugin-react-docgen: 4.2.1
+      core-js: 3.35.1
+      escodegen: 2.1.0
+      fs-extra: 9.1.0
+      global: 4.4.0
+      html-tags: 3.3.1
+      lodash: 4.17.21
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      react-element-to-jsx-string: 14.3.4_biqbaboplfbrettd7655fr4n2y
+      react-refresh: 0.11.0
+      read-pkg-up: 7.0.1
+      regenerator-runtime: 0.13.11
+      ts-dedent: 2.2.0
+      typescript: 4.9.5
+      util-deprecate: 1.0.2
+      webpack: 5.90.1
     transitivePeerDependencies:
       - '@storybook/mdx2-csf'
       - '@swc/core'
