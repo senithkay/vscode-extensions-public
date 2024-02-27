@@ -35,6 +35,7 @@ export interface CommandProps {
 export interface VisualizerLocation {
     view: MachineViews | null;
     documentUri?: string;
+    projectUri?: string;
     identifier?: string;
     position?: any;
 }

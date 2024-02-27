@@ -1,4 +1,5 @@
 const path = require("path");
+const webpack = require("webpack");
 module.exports = {
     entry: "./src/index.tsx",
     target: "web",
@@ -14,7 +15,8 @@ module.exports = {
         alias: {
             'react': path.resolve(__dirname, 'node_modules/react'),
             'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
-                    },
+        },
+        fallback: { 'process/browser': require.resolve('process/browser'), }
     },
     module: {
         rules: [
@@ -60,5 +62,10 @@ module.exports = {
         devMiddleware: {
             mimeTypes: { 'text/css': ['css'] },
         },
-    }
+    },
+    plugins: [
+        new webpack.ProvidePlugin({
+            process: "process/browser",
+        }),
+    ],
 };
