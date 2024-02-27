@@ -742,14 +742,9 @@ importers:
       '@babel/core': ^7.15.0
       '@babel/preset-env': ^7.15.0
       '@date-io/date-fns': ^1.3.13
+      '@emotion/css': ~11.11.2
       '@emotion/react': ^11.9.3
       '@emotion/styled': ^11.9.3
-      '@material-ui/core': ^4.9.13
-      '@material-ui/icons': ^4.9.1
-      '@material-ui/lab': ^4.0.0-alpha.52
-      '@material-ui/pickers': ^3.2.10
-      '@mui/icons-material': ^5.10.3
-      '@mui/material': ^5.10.3
       '@projectstorm/geometry': ^6.7.4
       '@projectstorm/react-canvas-core': ^6.7.4
       '@projectstorm/react-diagrams': ^6.7.4
@@ -780,6 +775,7 @@ importers:
       '@wso2-enterprise/ballerina-low-code-edtior-commons': workspace:*
       '@wso2-enterprise/ballerina-low-code-edtior-ui-components': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
+      '@wso2-enterprise/ui-toolkit': workspace:*
       babel-loader: ^8.2.2
       babel-plugin-transform-typescript-metadata: ^0.3.2
       classnames: ^2.2.6
@@ -849,14 +845,9 @@ importers:
       webpack-dev-server: ^4.1.1
     dependencies:
       '@date-io/date-fns': 1.3.13_date-fns@2.30.0
+      '@emotion/css': 11.11.2
       '@emotion/react': 11.11.3_7nbm7nfx3p2z47ghw7mvcj2mjy
       '@emotion/styled': 11.11.0_ku5kn3mlo2pzkbrm3xhhve3cky
-      '@material-ui/core': 4.12.4_bljuhzqk2fxulovaiic5vr6rce
-      '@material-ui/icons': 4.11.3_jetzmixjich6tzwthd6mealwfi
-      '@material-ui/lab': 4.0.0-alpha.61_jetzmixjich6tzwthd6mealwfi
-      '@material-ui/pickers': 3.3.11_phlbjj2qqbzyjdfzujtmlw3coi
-      '@mui/icons-material': 5.15.8_2uj3gfb6ywqbu5rsmvc5fljexi
-      '@mui/material': 5.15.7_g266rn2hmi5f6dolkpwcs6fhjq
       '@projectstorm/geometry': 6.7.4
       '@projectstorm/react-canvas-core': 6.7.4_vcdvlsazmnbhnp7yjvhccw67ha
       '@projectstorm/react-diagrams': 6.7.4_vyxs6b5fnmcevxchnbicgoyhva
@@ -870,6 +861,7 @@ importers:
       '@wso2-enterprise/ballerina-low-code-edtior-commons': link:../low-code-editor-commons
       '@wso2-enterprise/ballerina-low-code-edtior-ui-components': link:../low-code-ui-components
       '@wso2-enterprise/syntax-tree': link:../syntax-tree
+      '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       babel-loader: 8.3.0_nbyk5unbhi5brwpch5tjfpnbyq
       babel-plugin-transform-typescript-metadata: 0.3.2
       classnames: 2.5.1
