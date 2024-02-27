@@ -7,24 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect } from "react";
-import { VisualizerLocation } from "@wso2-enterprise/ballerina-core";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import React from "react";
 import { Overview as OverviewComponent } from "@wso2-enterprise/overview-view";
 
 export function Overview() {
-    const { rpcClient } = useVisualizerContext();
-    const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
-
-    useEffect(() => {
-        if (rpcClient) {
-            rpcClient.getVisualizerLocation().then((value) => {
-                setVisualizerLocation(value);
-            });
-        }
-    }, [rpcClient]);
-
-
     return (
         <>
             <h1>Overview</h1>
