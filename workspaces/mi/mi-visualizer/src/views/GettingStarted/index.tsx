@@ -15,7 +15,6 @@ import styled from "@emotion/styled";
 import { Codicon, ComponentCard } from "@wso2-enterprise/ui-toolkit";
 import { ProjectWizard } from "../Forms/ProjectForm";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { AIProjectGenerationChat } from "../AIProjectGenerationChat";
 
 const HorizontalCardContainer = styled.div`
     display: flex;
@@ -108,14 +107,6 @@ export function GettingStarted() {
                             <TextWrapper>Create New Project</TextWrapper>
                         </ComponentCard>
                         <ComponentCard
-                            onClick={() => handleModeChange("AI")}
-                            sx={ComponentCardStyles}>
-                            <IconWrapper>
-                                <Codicon name="wand" iconSx={{ fontSize: 150 }} />
-                            </IconWrapper>
-                            <TextWrapper>Create Project using AI prompt</TextWrapper>
-                        </ComponentCard>
-                        <ComponentCard
                             onClick={() => handleModeChange("Samples")}
                             sx={ComponentCardStyles}>
                             <IconWrapper>
@@ -127,7 +118,6 @@ export function GettingStarted() {
                 </>
             )}
             {mode === "NewProject" && <ProjectWizard />}
-            {mode === "AI" && <AIProjectGenerationChat />}
             {mode === "Samples" && <SamplesView />}
         </>
     );
