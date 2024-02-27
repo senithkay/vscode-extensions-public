@@ -9,15 +9,16 @@
 
 import { NodeLinkModel } from "../components/NodeLink";
 import { BaseNodeModel } from "../components/nodes/BaseNode";
+import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { createNodesLink } from "../utils/diagram";
 import { Node } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
 export class NodeFactoryVisitor implements BaseVisitor {
-    nodes: BaseNodeModel[] = [];
+    nodes: (BaseNodeModel | EmptyNodeModel)[] = [];
     links: NodeLinkModel[] = [];
     private skipChildrenVisit = false;
-    private lastNodeModel: BaseNodeModel | undefined; // last visited flow node
+    private lastNodeModel: BaseNodeModel | EmptyNodeModel | undefined; // last visited flow node
 
     constructor() {
         console.log("node factory visitor started");
@@ -44,7 +45,13 @@ export class NodeFactoryVisitor implements BaseVisitor {
         this.lastNodeModel = nodeModel;
     }
 
-    getNodes(): BaseNodeModel[] {
+    private createEmptyNode(id: string): EmptyNodeModel {
+        const nodeModel = new EmptyNodeModel(id);
+        this.nodes.push(nodeModel);
+        return nodeModel;
+    }
+
+    getNodes(): (BaseNodeModel | EmptyNodeModel)[] {
         return this.nodes;
     }
 
@@ -66,9 +73,10 @@ export class NodeFactoryVisitor implements BaseVisitor {
             return;
         }
 
+        // create branches IN links
         node.branches?.forEach((branch) => {
             if (!branch.children || branch.children.length === 0) {
-                console.warn("Branch children not found", branch);
+                // this empty branch will be handled in OUT links
                 return;
             }
             const firstChildNodeModel = this.nodes.find((n) => n.getID() === branch.children.at(0).id);
@@ -77,11 +85,64 @@ export class NodeFactoryVisitor implements BaseVisitor {
                 return;
             }
 
-            const link = createNodesLink(ifNodeModel, firstChildNodeModel);
+            const link = createNodesLink(ifNodeModel, firstChildNodeModel, { label: branch.label });
             if (link) {
                 this.links.push(link);
             }
         });
+
+        // create branches OUT links
+        const endIfEmptyNode = this.createEmptyNode(`${node.id}-endif`);
+        let endIfLinkCount = 0;
+        node.branches?.forEach((branch) => {
+            if (!branch.children || branch.children.length === 0) {
+                // empty branch
+                let branchEmptyNode = this.createEmptyNode(`${node.id}-${branch.label}-branch`);
+                const linkIn = createNodesLink(ifNodeModel, branchEmptyNode, { label: branch.label, brokenLine: true });
+                const linkOut = createNodesLink(branchEmptyNode, endIfEmptyNode, {
+                    brokenLine: true,
+                    alignBottom: true,
+                });
+                if (linkIn && linkOut) {
+                    this.links.push(linkIn, linkOut);
+                    endIfLinkCount++;
+                }
+                return;
+            }
+
+            // get last child node model
+            // if last child is RETURN, don't create link
+            if (branch.children.at(-1).kind === "RETURN") {
+                return;
+            }
+            const lastNode = branch.children.at(-1);
+            let lastChildNodeModel;
+            if (branch.children.at(-1).kind === "IF") {
+                // if last child is IF, find endIf node
+                lastChildNodeModel = this.nodes.find((n) => n.getID() === `${lastNode.id}-endif`);
+            } else {
+                // if last child is not IF, find last child node
+                lastChildNodeModel = this.nodes.find((n) => n.getID() === lastNode.id);
+            }
+            if (!lastChildNodeModel) {
+                console.error("Branch node model not found", branch);
+                return;
+            }
+            const link = createNodesLink(lastChildNodeModel, endIfEmptyNode);
+            if (link) {
+                this.links.push(link);
+                endIfLinkCount++;
+            }
+        });
+        if (endIfLinkCount === 0) {
+            // remove endIf node if no links are created
+            const index = this.nodes.findIndex((n) => n.getID() === endIfEmptyNode.getID());
+            if (index !== -1) {
+                this.nodes.splice(index, 1);
+            }
+            return;
+        }
+        this.lastNodeModel = endIfEmptyNode;
     }
 
     endVisitBlock(node: Node, parent?: Node): void {
