@@ -35,21 +35,23 @@ export class SizingVisitor implements Visitor {
         let subSequencesHeight = 0;
         for (let i = 0; i < Object.keys(subSequences).length; i++) {
             const subSequence = subSequences[Object.keys(subSequences)[i]];
-            if (subSequence && subSequence.mediatorList && subSequence.mediatorList.length > 0) {
-                const subSequenceMediatorList = subSequence.mediatorList as any as STNode[];
-                let subSequenceWidth = NODE_DIMENSIONS.DEFAULT.WIDTH;
-                let subSequenceHeight = 0;
-                subSequenceMediatorList.forEach((childNode: STNode) => {
-                    if (childNode.viewState) {
-                        subSequenceWidth = Math.max(subSequenceWidth, childNode.viewState.fw ?? childNode.viewState.w);
-                        subSequenceHeight += childNode.viewState.h + NODE_GAP.Y;
-                    }
-                });
-                subSequencesWidth += subSequenceWidth + (i === Object.keys(subSequences).length - 1 ? 0 : NODE_GAP.BRANCH_X);
-                subSequencesHeight = Math.max(subSequencesHeight, subSequenceHeight);
-            } else {
-                subSequence.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.EMPTY.WIDTH, h: NODE_DIMENSIONS.EMPTY.HEIGHT };
-                subSequencesWidth += NODE_DIMENSIONS.EMPTY.WIDTH + (i === Object.keys(subSequences).length - 1 ? 0 : NODE_GAP.BRANCH_X);
+            if (subSequence) {
+                if (subSequence.mediatorList && subSequence.mediatorList.length > 0) {
+                    const subSequenceMediatorList = subSequence.mediatorList as any as STNode[];
+                    let subSequenceWidth = NODE_DIMENSIONS.DEFAULT.WIDTH;
+                    let subSequenceHeight = 0;
+                    subSequenceMediatorList.forEach((childNode: STNode) => {
+                        if (childNode.viewState) {
+                            subSequenceWidth = Math.max(subSequenceWidth, childNode.viewState.fw ?? childNode.viewState.w);
+                            subSequenceHeight += childNode.viewState.h + NODE_GAP.Y;
+                        }
+                    });
+                    subSequencesWidth += subSequenceWidth + (i === Object.keys(subSequences).length - 1 ? 0 : NODE_GAP.BRANCH_X);
+                    subSequencesHeight = Math.max(subSequencesHeight, subSequenceHeight);
+                } else {
+                    subSequence.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.EMPTY.WIDTH, h: NODE_DIMENSIONS.EMPTY.HEIGHT };
+                    subSequencesWidth += NODE_DIMENSIONS.EMPTY.WIDTH + (i === Object.keys(subSequences).length - 1 ? 0 : NODE_GAP.BRANCH_X);
+                }
             }
         }
 
