@@ -19,13 +19,14 @@ import { LoadingRing } from "../../components/Loader";
 interface DataMapperProps {
     filePath: string;
     fnLocation: NodePosition;
+    identifier?: string;
 }
 
 export function DataMapper(props: DataMapperProps) {
-    const { filePath, fnLocation } = props;
+    const { filePath, fnLocation, identifier } = props;
     const [rerender, setRerender] = useState(false);
     const [position, setPosition] = useState<NodePosition>(fnLocation);
-    const { data, isFetching } = useSyntaxTreeFromRange(position, filePath, rerender);
+    const { data, isFetching } = useSyntaxTreeFromRange(position, filePath, identifier, rerender);
     const { rpcClient } = useVisualizerContext();
     const langServerRpcClient = rpcClient.getLangServerRpcClient();
     const libraryBrowserRPCClient = rpcClient.getLibraryBrowserRPCClient();
@@ -40,10 +41,6 @@ export function DataMapper(props: DataMapperProps) {
             setMapperData(data);
         }
     }, [isFetching, data]);
-
-    rpcClient.onFileContentUpdate(() => {
-        setRerender(prevState => !prevState);
-    });
 
     const syntaxTree = mapperData?.syntaxTree as FunctionDefinition;
     let fnName = syntaxTree?.functionName.value;
@@ -73,7 +70,7 @@ export function DataMapper(props: DataMapperProps) {
 
             const st = fns.find((mem) => mem.functionName.value === fnName);
             setPosition(st.position);
-            setRerender(prevState => !prevState);
+            setRerender(prev => !prev);
         }
     };
 

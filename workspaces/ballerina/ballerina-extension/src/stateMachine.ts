@@ -362,6 +362,7 @@ const stateMachine = createMachine<MachineContext>(
                                         ...selectedEntry,
                                         location: {
                                             ...selectedEntry.location,
+                                            identifier: selectedST.functionName.value,
                                             position: selectedST.position
                                         },
                                         uid: visitorToFindConstructByIndex.getUid()

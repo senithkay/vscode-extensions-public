@@ -26,6 +26,7 @@ import { Overview } from './views/Overview';
 import { SequenceDiagram } from './views/SequenceDiagram';
 import { ServiceDesigner } from './views/ServiceDesigner';
 import { TypeDiagram } from './views/TypeDiagram';
+import { handleRedo, handleUndo } from './utils/utils';
 
 const globalStyles = css`
   *,
@@ -67,25 +68,9 @@ const MainPanel = () => {
     useEffect(() => {
         if (visualizerLocation?.view) {
             const mouseTrapClient = KeyboardNavigationManager.getClient();
-            mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], async () => {
-                const lastsource = await rpcClient.getVisualizerRpcClient().undo();
-                if (lastsource) {
-                    rpcClient.getLangServerRpcClient().updateFileContent({
-                        fileUri: visualizerLocation.documentUri,
-                        content: lastsource
-                    });
-                }
-            });
+            mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], () => handleUndo(rpcClient, visualizerLocation));
 
-            mouseTrapClient.bindNewKey(['command+shift+z', 'ctrl+y'], async () => {
-                const lastsource = await rpcClient.getVisualizerRpcClient().redo();
-                if (lastsource) {
-                    rpcClient.getLangServerRpcClient().updateFileContent({
-                        fileUri: visualizerLocation.documentUri,
-                        content: lastsource
-                    });
-                }
-            });
+            mouseTrapClient.bindNewKey(['command+shift+z', 'ctrl+y'], async () => handleRedo(rpcClient, visualizerLocation));
 
             return () => {
                 mouseTrapClient.resetMouseTrapInstance();
@@ -111,6 +96,7 @@ const MainPanel = () => {
                     <DataMapper
                         filePath={visualizerLocation.documentUri}
                         fnLocation={visualizerLocation.position}
+                        identifier={visualizerLocation.identifier}
                     />
                 );
             case "GraphQLDiagram":
@@ -122,7 +108,7 @@ const MainPanel = () => {
             default:
                 return <LoadingRing />;
         }
-    }, [visualizerLocation?.view, visualizerLocation?.identifier]);
+    }, [visualizerLocation?.view, visualizerLocation?.identifier, visualizerLocation?.position]);
 
     return (
         <>

@@ -45,6 +45,5 @@ export interface VisualizerLocation {
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
 export const getVisualizerLocation: RequestType<void, VisualizerLocation> = { method: 'getVisualizerLocation' };
-export const onFileContentUpdate: NotificationType<void> = { method: `onFileContentUpdate` };
 export const webviewReady: NotificationType<void> = { method: `webviewReady` };
 
