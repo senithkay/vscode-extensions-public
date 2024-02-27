@@ -32,7 +32,6 @@ const fadeInZoomIn = keyframes`
 
 export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) => {
     const [isHovered, setIsHovered] = useState(false);
-    const labelPosition = link.getLabelPosition();
     const addButtonPosition = link.getAddButtonPosition();
 
     const handleAddNode = () => {
@@ -57,10 +56,10 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 stroke={link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY}
                 strokeWidth={1.5}
                 strokeDasharray={link.brokenLine ? "5,5" : "0"}
-                markerEnd={link.showArrowToNode() && `url(#${link.getID()}-arrow-head)`}
+                markerEnd={link.showArrowToNode() ? `url(#${link.getID()}-arrow-head)` : ""}
             />
             {link.label && (
-                <foreignObject x={labelPosition.x - 50} y={labelPosition.y - 20} width="100" height="100">
+                <foreignObject x={addButtonPosition.x - 50} y={addButtonPosition.y - 10} width="100" height="100">
                     <div
                         style={{
                             display: "flex",

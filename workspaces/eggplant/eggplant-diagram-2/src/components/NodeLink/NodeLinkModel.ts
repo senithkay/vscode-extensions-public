@@ -18,6 +18,7 @@ export interface NodeLinkModelOptions {
     showAddButton?: boolean; // default true
     showArrow?: boolean; // default true
     brokenLine?: boolean; // default false
+    alignBottom?: boolean; // default false
     onAddClick?: () => void;
 }
 
@@ -29,6 +30,7 @@ export class NodeLinkModel extends DefaultLinkModel {
     showAddButton = true;
     showArrow = true;
     brokenLine = false;
+    alignBottom = false;
     linkBottomOffset = LINK_BOTTOM_OFFSET;
     onAddClick?: () => void;
 
@@ -49,7 +51,7 @@ export class NodeLinkModel extends DefaultLinkModel {
             } else {
                 if ((options as NodeLinkModelOptions).label) {
                     this.label = (options as NodeLinkModelOptions).label;
-                    this.linkBottomOffset = LINK_BOTTOM_OFFSET + 40;
+                    // this.linkBottomOffset = LINK_BOTTOM_OFFSET + 40;
                 }
                 if ((options as NodeLinkModelOptions).showAddButton === false) {
                     this.showAddButton = (options as NodeLinkModelOptions).showAddButton;
@@ -59,6 +61,9 @@ export class NodeLinkModel extends DefaultLinkModel {
                 }
                 if ((options as NodeLinkModelOptions).brokenLine === true) {
                     this.brokenLine = (options as NodeLinkModelOptions).brokenLine;
+                }
+                if ((options as NodeLinkModelOptions).alignBottom === true) {
+                    this.alignBottom = (options as NodeLinkModelOptions).alignBottom;
                 }
             }
             if ((options as NodeLinkModelOptions).onAddClick) {
@@ -82,6 +87,8 @@ export class NodeLinkModel extends DefaultLinkModel {
 
         let source = this.getFirstPoint().getPosition();
         let target = this.getLastPoint().getPosition();
+        // bending y position
+        let bendY = this.alignBottom ? target.y - this.linkBottomOffset : source.y + this.linkBottomOffset;
 
         // is lines are straight?
         let tolerance = 10;
@@ -98,52 +105,18 @@ export class NodeLinkModel extends DefaultLinkModel {
         let isRight = source.x < target.x;
 
         let path = `M ${source.x} ${source.y} `;
-        path += `L ${source.x} ${target.y - this.linkBottomOffset - curveOffset} `;
+        path += `L ${source.x} ${bendY - curveOffset} `;
         if (isRight) {
-            path += `A ${curveOffset},${curveOffset} 0 0 0 ${source.x + curveOffset},${
-                target.y - this.linkBottomOffset
-            } `;
-            path += `L ${target.x - curveOffset} ${target.y - this.linkBottomOffset} `;
-            path += `A ${curveOffset},${curveOffset} 0 0 1 ${target.x},${
-                target.y - this.linkBottomOffset + curveOffset
-            } `;
+            path += `A ${curveOffset},${curveOffset} 0 0 0 ${source.x + curveOffset},${bendY} `;
+            path += `L ${target.x - curveOffset} ${bendY} `;
+            path += `A ${curveOffset},${curveOffset} 0 0 1 ${target.x},${bendY + curveOffset} `;
         } else {
-            path += `A ${curveOffset},${curveOffset} 0 0 1 ${source.x - curveOffset},${
-                target.y - this.linkBottomOffset
-            } `;
-            path += `L ${target.x + curveOffset} ${target.y - this.linkBottomOffset} `;
-            path += `A ${curveOffset},${curveOffset} 0 0 0 ${target.x},${
-                target.y - this.linkBottomOffset + curveOffset
-            } `;
+            path += `A ${curveOffset},${curveOffset} 0 0 1 ${source.x - curveOffset},${bendY} `;
+            path += `L ${target.x + curveOffset} ${bendY} `;
+            path += `A ${curveOffset},${curveOffset} 0 0 0 ${target.x},${bendY + curveOffset} `;
         }
         path += `L ${target.x} ${target.y}`;
         return path;
-    }
-
-    // get label coordinates
-    getLabelPosition(): { x: number; y: number } {
-        if (this.points.length != 2) {
-            return { x: 0, y: 0 };
-        }
-
-        let source = this.getFirstPoint().getPosition();
-        let target = this.getLastPoint().getPosition();
-
-        // is lines are straight?
-        let tolerance = 10;
-        let isStraight = Math.abs(source.y - target.y) <= tolerance || Math.abs(source.x - target.x) <= tolerance;
-        if (isStraight) {
-            // is horizontal?
-            if (Math.abs(source.y - target.y) <= tolerance) {
-                return { x: (source.x + target.x) / 2, y: source.y + 5 };
-            }
-            return { x: (source.x + target.x) / 2, y: (source.y + target.y) / 2 };
-        }
-
-        // generate for 2 angle lines
-        let x = target.x;
-        let y = target.y - this.linkBottomOffset / 2 + 4;
-        return { x: x, y: y };
     }
 
     // get add button position
@@ -168,7 +141,8 @@ export class NodeLinkModel extends DefaultLinkModel {
         }
 
         // generate for 2 angle lines
-        return { x: (source.x + target.x) / 2, y: target.y - this.linkBottomOffset - 2 };
+        const bendY = this.alignBottom ? target.y - this.linkBottomOffset : source.y + this.linkBottomOffset;
+        return { x: (source.x + target.x) / 2, y: bendY - 2 };
     }
 
     // show node arrow. default true. but target node is a EmptyNodeModel, then false
