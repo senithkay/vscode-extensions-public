@@ -69,7 +69,7 @@ export function APIWizard() {
         }
         const file = await rpcClient.getMiDiagramRpcClient().createAPI(createAPIParams);
         console.log("API created");
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "Diagram", documentUri: file.path, identifier: `/resource` });
+        rpcClient.getMiVisualizerRpcClient().openView({ view: "ServiceDesigner", documentUri: file.path});
     };
 
     const handleCancel = () => {
