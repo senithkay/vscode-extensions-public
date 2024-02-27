@@ -41,8 +41,12 @@ const stateMachine = createMachine<MachineContext>({
             }
         },
         projectDetected: {
-            entry: 'openMiPerspective',
-            always: 'lsInit'
+            invoke: {
+                src: 'openWebPanel',
+                onDone: {
+                    target: 'lsInit'
+                }
+            }
         },
         lsInit: {
             invoke: {
@@ -66,7 +70,7 @@ const stateMachine = createMachine<MachineContext>({
             states: {
                 viewLoading: {
                     invoke: {
-                        src: 'waitForloading',
+                        src: 'openWebPanel',
                         onDone: {
                             target: 'viewReady'
                         }
@@ -108,15 +112,23 @@ const stateMachine = createMachine<MachineContext>({
             // define what should happen when the project is not detected
         },
         newProject: {
-            initial: 'welcome',
+            initial: "init",
             states: {
+                init: {
+                    invoke: {
+                        src: 'openWebPanel',
+                        onDone: {
+                            target: 'welcome'
+                        }
+                    }
+                },
                 welcome: {
                     on: {
                         GET_STARTED: {
                             target: "create",
                         },
                         OPEN_VIEW: {
-                            target: "create",
+                            target: "init",
                             actions: assign({
                                 view: (context, event) => event.viewLocation.view,
                             })
@@ -129,7 +141,7 @@ const stateMachine = createMachine<MachineContext>({
                             target: "welcome"
                         },
                         OPEN_VIEW: {
-                            target: "welcome",
+                            target: "init",
                             actions: assign({
                                 view: (context, event) => event.viewLocation.view,
                             })
@@ -144,10 +156,6 @@ const stateMachine = createMachine<MachineContext>({
 
     },
     actions: {
-        openMiPerspective: (context, event) => {
-            // replace this with actual logic to open the eggplant perspective
-            vscode.commands.executeCommand('integrationStudio.showDiagram');
-        }
     },
     services: {
         waitForLS: (context, event) => {
@@ -157,7 +165,7 @@ const stateMachine = createMachine<MachineContext>({
                 resolve(ls);
             });
         },
-        waitForloading: (context, event) => {
+        openWebPanel: (context, event) => {
             // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
             return new Promise((resolve, reject) => {
                 if (!VisualizerWebview.currentPanel) {

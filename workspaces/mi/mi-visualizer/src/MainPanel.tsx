@@ -40,6 +40,10 @@ const MainPanel = (props: { state: MachineStateValue }) => {
         setMainState(newState);
     });
 
+    rpcClient.onFileContentUpdate(() => {
+        setLastUpdated(Date.now());
+    });
+    
     useEffect(() => {
         if (typeof mainState === 'object' && 'ready' in mainState && mainState.ready === 'viewReady') {
             try {
@@ -51,9 +55,7 @@ const MainPanel = (props: { state: MachineStateValue }) => {
             }
         }
 
-        rpcClient.onFileContentUpdate(() => {
-            setLastUpdated(Date.now());
-        });
+       
     }, [mainState]);
 
     useEffect(() => {

@@ -10,19 +10,12 @@
 import * as vscode from 'vscode';
 import { VisualizerWebview } from './webview';
 import { commands, window } from 'vscode';
+import { openView } from '../stateMachine';
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
-    if (!VisualizerWebview.currentPanel) {
-        VisualizerWebview.currentPanel = new VisualizerWebview();
-    }
-    VisualizerWebview.currentPanel!.getWebview()?.reveal();
-
     context.subscriptions.push(
         vscode.commands.registerCommand('integrationStudio.showDiagram', () => {
-            if (!VisualizerWebview.currentPanel) {
-                VisualizerWebview.currentPanel = new VisualizerWebview();
-            }
-            VisualizerWebview.currentPanel!.getWebview()?.reveal();
+            openView({ view: "Overview" });
         })
     );
     context.subscriptions.push(
