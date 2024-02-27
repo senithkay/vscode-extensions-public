@@ -6,7 +6,7 @@ import { EventType, GetSyntaxTreeResponse, History, HistoryEntry, MachineStateVa
 import { fetchAndCacheLibraryData } from './library-browser';
 import { VisualizerWebview } from './visualizer/webview';
 import { Uri } from 'vscode';
-import { STKindChecker, traversNode } from '@wso2-enterprise/syntax-tree';
+import { STKindChecker, STNode, traversNode } from '@wso2-enterprise/syntax-tree';
 import { RPCLayer } from './RPCLayer';
 import { UIDGenerationVisitor } from './history/uid-generation-visitor';
 import { FindNodeByUidVisitor } from './history/find-node-by-uid';
@@ -20,27 +20,8 @@ interface MachineContext extends VisualizerLocation {
     errorCode: string | null;
 }
 
-type ViewFlow = {
-    [key in MachineViews]: MachineViews[];
-};
-
 export let history: History;
 export let undoRedoManager: UndoRedoManager;
-
-const viewFlow: ViewFlow = {
-    Overview: [],
-    ServiceDesigner: ["Overview"],
-    DataMapper: ["Overview"],
-    ArchitectureDiagram: ["Overview"],
-    ERDiagram: ["Overview"],
-    GraphQLDiagram: ["Overview"],
-    SequenceDiagram: ["Overview"],
-    TypeDiagram: ["Overview"]
-};
-
-export function getPreviousView(currentView: MachineViews): MachineViews[] {
-    return viewFlow[currentView] || [];
-}
 
 const stateMachine = createMachine<MachineContext>(
     {
@@ -114,6 +95,7 @@ const stateMachine = createMachine<MachineContext>(
                                     view: (context, event) => event.data.view,
                                     identifier: (context, event) => event.data.identifier,
                                     position: (context, event) => event.data.position,
+                                    syntaxTree: (context, event) => event.data.syntaxTree,
                                 })
                             }
                         }
@@ -205,6 +187,7 @@ const stateMachine = createMachine<MachineContext>(
                 }
                 if (!context.view) {
                     if (!context.position || ("groupId" in context.position)) {
+                        history.push({ location: { view: "Overview", documentUri: context.documentUri } });
                         return resolve();
                     }
                     const view = await getView(context.documentUri, context.position);
@@ -221,18 +204,12 @@ const stateMachine = createMachine<MachineContext>(
                     });
                     return resolve();
                 }
-            });
-        },
+                });
+            },
         showView(context, event): Promise<VisualizerLocation> {
             return new Promise(async (resolve, reject) => {
                 const historyStack = history.get();
                 const selectedEntry = historyStack[historyStack.length - 1];
-
-                if (!selectedEntry?.location.view) {
-                    return resolve({ view: "Overview", documentUri: context.documentUri });
-                } else if (selectedEntry.location.view === "Overview") {
-                    return resolve(selectedEntry.location);
-                }
 
                 const { location: { documentUri, position }, uid } = selectedEntry;
                 const node = await StateMachine.langClient().getSyntaxTree({
@@ -240,6 +217,12 @@ const stateMachine = createMachine<MachineContext>(
                         uri: Uri.file(documentUri).toString()
                     }
                 }) as GetSyntaxTreeResponse;
+
+                if (!selectedEntry?.location.view) {
+                    return resolve({ view: "Overview", documentUri: context.documentUri });
+                } else if (selectedEntry.location.view === "Overview") {
+                    return resolve({ ...selectedEntry.location, syntaxTree: node.syntaxTree });
+                }
 
                 let selectedST;
 
@@ -253,7 +236,8 @@ const stateMachine = createMachine<MachineContext>(
                                 ...selectedEntry,
                                 location: {
                                     ...selectedEntry.location,
-                                    position: selectedST.position
+                                    position: selectedST.position,
+                                    syntaxTree: selectedST
                                 },
                                 uid: generatedUid
                             });
@@ -274,7 +258,8 @@ const stateMachine = createMachine<MachineContext>(
                                     ...selectedEntry,
                                     location: {
                                         ...selectedEntry.location,
-                                        position: selectedST.position
+                                        position: selectedST.position,
+                                        syntaxTree: selectedST
                                     },
                                     uid: nodeWithUpdatedUid[1]
                                 });
@@ -288,7 +273,8 @@ const stateMachine = createMachine<MachineContext>(
                                         location: {
                                             ...selectedEntry.location,
                                             identifier: selectedST.functionName.value,
-                                            position: selectedST.position
+                                            position: selectedST.position,
+                                            syntaxTree: selectedST
                                         },
                                         uid: nodeWithUpdatedUid[1]
                                     });
@@ -301,7 +287,8 @@ const stateMachine = createMachine<MachineContext>(
                                 ...selectedEntry,
                                 location: {
                                     ...selectedEntry.location,
-                                    position: selectedST.position
+                                    position: selectedST.position,
+                                    syntaxTree: selectedST
                                 }
                             });
                         }

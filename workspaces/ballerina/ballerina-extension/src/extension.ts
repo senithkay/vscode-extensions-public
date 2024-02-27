@@ -94,20 +94,20 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         // start the features.
         // Enable Ballerina diagram
         // activateDiagram(ballerinaExtInstance);
-        // // Enable Ballerina by examples
-        // activateBBE(ballerinaExtInstance);
-        // // Enable Ballerina Debug Config Provider
-        // activateDebugConfigProvider(ballerinaExtInstance);
-        // // Enable Ballerina Project related features
-        // activateProjectFeatures();
+        // Enable Ballerina by examples
+        activateBBE(ballerinaExtInstance);
+        // Enable Ballerina Debug Config Provider
+        activateDebugConfigProvider(ballerinaExtInstance);
+        // Enable Ballerina Project related features
+        activateProjectFeatures();
         activateEditorSupport(ballerinaExtInstance);
         // // Enable performance forecaster
         // activatePerformanceForecaster(ballerinaExtInstance);
-        // // Enable try it views
-        // activateTryIt(ballerinaExtInstance);
-        // // Enable Ballerina Telemetry listener
-        // activateTelemetryListener(ballerinaExtInstance);
-        // activateTesting(ballerinaExtInstance);
+        // Enable try it views
+        activateTryIt(ballerinaExtInstance);
+        // Enable Ballerina Telemetry listener
+        activateTelemetryListener(ballerinaExtInstance);
+        activateTesting(ballerinaExtInstance);
         // // Enable Ballerina Notebook
         // activateNotebook(ballerinaExtInstance);
         // activateDesignDiagramView(ballerinaExtInstance);

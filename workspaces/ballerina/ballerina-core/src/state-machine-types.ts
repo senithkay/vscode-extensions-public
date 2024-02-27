@@ -9,7 +9,7 @@
  */
 
 import { NotificationType, RequestType } from "vscode-messenger-common";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 export type MachineViews = "Overview" | "SequenceDiagram" | "ServiceDesigner" | "ArchitectureDiagram" | "ERDiagram" | "DataMapper" | "GraphQLDiagram" | "SequenceDiagram" | "TypeDiagram";
 
@@ -17,7 +17,7 @@ export type MachineStateValue =
     | 'initialize'
     | 'lsError'
     | 'lsReady'
-    | 'viewActive' 
+    | 'viewActive'
     | 'disabled'
     | { viewActive: 'viewInit' } | { viewActive: 'webViewLoaded' } | { viewActive: 'viewReady' } | { viewActive: 'viewEditing' };
 
@@ -41,6 +41,7 @@ export interface VisualizerLocation {
     documentUri?: string;
     identifier?: string;
     position?: NodePosition;
+    syntaxTree?: STNode;
 }
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };

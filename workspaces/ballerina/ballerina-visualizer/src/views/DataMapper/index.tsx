@@ -18,36 +18,18 @@ import { LoadingRing } from "../../components/Loader";
 
 interface DataMapperProps {
     filePath: string;
-    fnLocation: NodePosition;
-    identifier?: string;
+    model: FunctionDefinition;
 }
 
 export function DataMapper(props: DataMapperProps) {
-    const { filePath, fnLocation, identifier } = props;
-    const [rerender, setRerender] = useState(false);
-    const [position, setPosition] = useState<NodePosition>(fnLocation);
-    const { data, isFetching } = useSyntaxTreeFromRange(position, filePath, identifier, rerender);
+    const { filePath, model } = props;
     const { rpcClient } = useVisualizerContext();
     const langServerRpcClient = rpcClient.getLangServerRpcClient();
     const libraryBrowserRPCClient = rpcClient.getLibraryBrowserRPCClient();
-    const [mapperData, setMapperData] = useState<SyntaxTreeResponse>(data);
-
-    useEffect(() => {
-        setPosition(fnLocation);
-    }, [fnLocation]);
-
-    useEffect(() => {
-        if (!isFetching) {
-            setMapperData(data);
-        }
-    }, [isFetching, data]);
-
-    const syntaxTree = mapperData?.syntaxTree as FunctionDefinition;
-    let fnName = syntaxTree?.functionName.value;
 
     const applyModifications = async (modifications: STModification[]) => {
         const langServerRPCClient = rpcClient.getLangServerRpcClient();
-        const { parseSuccess, source: newSource, syntaxTree } = await langServerRPCClient?.stModify({
+        const { parseSuccess, source: newSource } = await langServerRPCClient?.stModify({
             astModifications: modifications,
             documentIdentifier: {
                 uri: URI.file(filePath).toString()
@@ -58,19 +40,6 @@ export function DataMapper(props: DataMapperProps) {
                 content: newSource,
                 fileUri: filePath
             });
-
-            const modPart = syntaxTree as ModulePart;
-            const fns = modPart.members.filter((mem) =>
-                STKindChecker.isFunctionDefinition(mem)
-            ) as FunctionDefinition[];
-
-            if (modifications.length === 1 && modifications[0].type === "FUNCTION_DEFINITION_SIGNATURE") {
-                fnName = modifications[0].config.NAME;
-            }
-
-            const st = fns.find((mem) => mem.functionName.value === fnName);
-            setPosition(st.position);
-            setRerender(prev => !prev);
         }
     };
 
@@ -78,21 +47,14 @@ export function DataMapper(props: DataMapperProps) {
         rpcClient.getVisualizerRpcClient().addToHistory(entry);
     };
 
-    const view = useMemo(() => {
-        if (!mapperData) {
-            return <LoadingRing />;
-        }
-        return (
-            <DataMapperView
-                fnST={syntaxTree as FunctionDefinition}
-                filePath={filePath}
-                langServerRpcClient={langServerRpcClient}
-                libraryBrowserRpcClient={libraryBrowserRPCClient}
-                applyModifications={applyModifications}
-                goToFunction={goToFunction}
-            />
-        );
-    }, [mapperData]);
-
-    return view;
+    return (
+        <DataMapperView
+            fnST={model}
+            filePath={filePath}
+            langServerRpcClient={langServerRpcClient}
+            libraryBrowserRpcClient={libraryBrowserRPCClient}
+            applyModifications={applyModifications}
+            goToFunction={goToFunction}
+        />
+    );
 };
