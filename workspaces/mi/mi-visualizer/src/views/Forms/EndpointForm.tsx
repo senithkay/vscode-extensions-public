@@ -14,11 +14,12 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { CreateEndpointRequest, EndpointDirectoryResponse } from "@wso2-enterprise/mi-core";
 
 const WizardContainer = styled.div`
-    width: 95%;
-    display  : flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 95vw;
+    height: calc(100vh - 140px);
+    overflow: auto;
 `;
 
 const ActionContainer = styled.div`
@@ -126,9 +127,6 @@ export function EndpointWizard() {
 
     return (
         <WizardContainer>
-            <TitleWrapper>
-                <h2>New Endpoint Artifact</h2>
-            </TitleWrapper>
             <SectionWrapper>
                 <h3>Endpoint Artifact</h3>
                 <TextField
@@ -164,7 +162,7 @@ export function EndpointWizard() {
                         <span>Endpoint Type</span>
                         <AutoComplete items={methodsTypes} selectedItem={method} onChange={handleMethodChange}></AutoComplete>
                     </>
-                    )}
+                )}
                 <RadioBtnContainer>
                     <label>
                         <input
@@ -185,22 +183,22 @@ export function EndpointWizard() {
                         {endpointConfigurations[1]}
                     </label>
                 </RadioBtnContainer>
+                <ActionContainer>
+                    <Button
+                        appearance="secondary"
+                        onClick={handleCancel}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        appearance="primary"
+                        onClick={handleCreateEndpoint}
+                        disabled={!isValid}
+                    >
+                        Create
+                    </Button>
+                </ActionContainer>
             </SectionWrapper>
-            <ActionContainer>
-                <Button
-                    appearance="secondary"
-                    onClick={handleCancel}
-                >
-                    Cancel
-                </Button>
-                <Button
-                    appearance="primary"
-                    onClick={handleCreateEndpoint}
-                    disabled={!isValid}
-                >
-                    Create
-                </Button>
-            </ActionContainer>
         </WizardContainer>
     );
 }

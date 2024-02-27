@@ -14,11 +14,12 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { SectionWrapper } from "./Commons";
 
 const WizardContainer = styled.div`
-    width: 95%;
-    display  : flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 95vw;
+    height: calc(100vh - 140px);
+    overflow: auto;
 `;
 
 const ActionContainer = styled.div`
@@ -111,7 +112,7 @@ export function InboundEPWizard() {
         const INVALID_CHARS_REGEX = /[@\\^+;:!%&,=*#[\]$?'"<>{}() /]/;
 
         if (INVALID_CHARS_REGEX.test(inboundEPName) || INVALID_CHARS_REGEX.test(customSequence) || INVALID_CHARS_REGEX.test(customOnErrorSequence)) {
-            setNameError(true);  
+            setNameError(true);
         }
         else {
             setNameError(false);
@@ -157,9 +158,6 @@ export function InboundEPWizard() {
 
     return (
         <WizardContainer>
-            <TitleWrapper>
-                <h2>New Inbound Endpoint Artifact</h2>
-            </TitleWrapper>
             <SectionWrapper>
                 <h3>Inbound Endpoint Artifact</h3>
                 <TextField
@@ -169,7 +167,7 @@ export function InboundEPWizard() {
                     placeholder="Name"
                     validationMessage="Inbound Endpoint name is required"
                     onChange={(text: string) => setInboundEPName(text)}
-                    size={100}
+                    size={35}
                     autoFocus
                     required
                 />
@@ -221,26 +219,22 @@ export function InboundEPWizard() {
                     </HiddenFormWrapper>
                 )}
                 {nameError && <span style={{ color: "#f48771" }}>{`Invalid character(s) in a name field`}</span>}
-                <SubContainer>
-                    <CardContainer>
-                    </CardContainer>
-                </SubContainer>
+                <ActionContainer>
+                    <Button
+                        appearance="secondary"
+                        onClick={handleCancel}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        appearance="primary"
+                        onClick={handleCreateInboundEP}
+                        disabled={!isValid}
+                    >
+                        Create
+                    </Button>
+                </ActionContainer>
             </SectionWrapper>
-            <ActionContainer>
-                <Button
-                    appearance="secondary"
-                    onClick={handleCancel}
-                >
-                    Cancel
-                </Button>
-                <Button
-                    appearance="primary"
-                    onClick={handleCreateInboundEP}
-                    disabled={!isValid}
-                >
-                    Create
-                </Button>
-            </ActionContainer>
         </WizardContainer>
     );
 }

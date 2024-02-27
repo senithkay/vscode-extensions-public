@@ -13,12 +13,14 @@ export const SectionWrapper: any = styled.div`
     // Flex Props
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
     position: relative;
-    gap: 10px;
+    gap: 30px;
+    margin: auto 0;
+    min-width: 350px;
     // End Flex Props
     // Sizing Props
-    padding: 20px;
+    padding: 40px 120px;
     // End Sizing Props
     // Border Props
     border-radius: 10px;
@@ -26,6 +28,7 @@ export const SectionWrapper: any = styled.div`
     border-width: 1px;
     border-color: transparent;
     background-color: var(--vscode-welcomePage-tileBackground);
+    overflow: auto;
     &.active {
         border-color: var(--vscode-focusBorder);
     }

@@ -13,11 +13,12 @@ import { SectionWrapper } from "./Commons";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
 const WizardContainer = styled.div`
-    width: 95%;
-    display  : flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 95vw;
+    height: calc(100vh - 140px);
+    overflow: auto;
 `;
 
 const ActionContainer = styled.div`
@@ -27,14 +28,6 @@ const ActionContainer = styled.div`
     gap: 10px;
     padding-bottom: 20px;
 `;
-
-const TitleWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
-`;
-
 
 export interface Region {
     label: string;
@@ -51,7 +44,7 @@ export function SequenceWizard() {
     const [sequences, setSequences] = useState([]);
 
     useEffect(() => {
-        (async () => { 
+        (async () => {
             const data = await rpcClient.getMiDiagramRpcClient().getEndpointsAndSequences();
             setEndpoints(data.data[0]);
             setSequences(data.data[1]);
@@ -88,9 +81,6 @@ export function SequenceWizard() {
 
     return (
         <WizardContainer>
-            <TitleWrapper>
-                <h2>New Sequence Artifact</h2>
-            </TitleWrapper>
             <SectionWrapper>
                 <h3>Sequence Artifact</h3>
                 <TextField
@@ -108,22 +98,22 @@ export function SequenceWizard() {
                 <AutoComplete items={endpoints} selectedItem={selectedEndpoint} onChange={handleEndpointChange}></AutoComplete>
                 <span>On Error Sequence</span>
                 <AutoComplete items={sequences} selectedItem={onErrorSequence} onChange={handleErrorSequenceChange}></AutoComplete>
+                <ActionContainer>
+                    <Button
+                        appearance="secondary"
+                        onClick={handleCancel}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        appearance="primary"
+                        onClick={handleCreateProject}
+                        disabled={!isValid}
+                    >
+                        Create
+                    </Button>
+                </ActionContainer>
             </SectionWrapper>
-            <ActionContainer>
-                <Button
-                    appearance="secondary"
-                    onClick={handleCancel}
-                >
-                    Cancel
-                </Button>
-                <Button
-                    appearance="primary"
-                    onClick={handleCreateProject}
-                    disabled={!isValid}
-                >
-                    Create
-                </Button>
-            </ActionContainer>
         </WizardContainer>
     );
 }

@@ -13,11 +13,12 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { SectionWrapper } from "./Commons";
 
 const WizardContainer = styled.div`
-    width: 95%;
-    display  : flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 95vw;
+    height: calc(100vh - 140px);
+    overflow: auto;
 `;
 
 const ActionContainer = styled.div`
@@ -26,31 +27,6 @@ const ActionContainer = styled.div`
     justify-content: flex-end;
     gap: 10px;
     padding-bottom: 20px;
-`;
-
-
-const CardContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 20px;
-`;
-
-const SubContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-content: space-between;
-    gap: 20px;
-`;
-
-const TitleWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
 `;
 
 export interface Region {
@@ -98,9 +74,6 @@ export function APIWizard() {
 
     return (
         <WizardContainer>
-            <TitleWrapper>
-                <h2>New Synapse API</h2>
-            </TitleWrapper>
             <SectionWrapper>
                 <h3>Synapse API Artifact</h3>
                 <TextField
@@ -140,26 +113,22 @@ export function APIWizard() {
                     value={swaggerdefPath}
                     id='context-input'
                 />
-                <SubContainer>
-                    <CardContainer>
-                    </CardContainer>
-                </SubContainer>
+                <ActionContainer>
+                    <Button
+                        appearance="secondary"
+                        onClick={handleCancel}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        appearance="primary"
+                        onClick={handleCreateAPI}
+                        disabled={!isValid}
+                    >
+                        Create
+                    </Button>
+                </ActionContainer>
             </SectionWrapper>
-            <ActionContainer>
-                <Button
-                    appearance="secondary"
-                    onClick={handleCancel}
-                >
-                    Cancel
-                </Button>
-                <Button
-                    appearance="primary"
-                    onClick={handleCreateAPI}
-                    disabled={!isValid}
-                >
-                    Create
-                </Button>
-            </ActionContainer>
         </WizardContainer>
     );
 }
