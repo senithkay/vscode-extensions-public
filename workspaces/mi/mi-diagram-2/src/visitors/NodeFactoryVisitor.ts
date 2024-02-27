@@ -89,19 +89,21 @@ export class NodeFactoryVisitor implements Visitor {
         // travers sub sequences
         for (let i = 0; i < sequenceKeys.length; i++) {
             const sequence = subSequences[sequenceKeys[i]];
-            if (sequence && sequence.mediatorList && sequence.mediatorList.length > 0) {
-                this.previousSTNodes = [node];
-                this.currentBranchName = sequenceKeys[i];
+            if (sequence) {
+                if (sequence.mediatorList && sequence.mediatorList.length > 0) {
+                    this.previousSTNodes = [node];
+                    this.currentBranchName = sequenceKeys[i];
 
-                this.currentAddPosition = sequence.range.startTagRange.end;
-                (sequence.mediatorList as any).forEach((childNode: STNode) => {
-                    traversNode(childNode, this);
-                });
-            } else {
-                this.currentBranchName = sequenceKeys[i];
-                this.previousSTNodes = [node];
-                this.currentAddPosition = sequence.range.startTagRange.end;
-                this.createNodeAndLinks(sequence, "", NodeTypes.EMPTY_NODE);
+                    this.currentAddPosition = sequence.range.startTagRange.end;
+                    (sequence.mediatorList as any).forEach((childNode: STNode) => {
+                        traversNode(childNode, this);
+                    });
+                } else {
+                    this.currentBranchName = sequenceKeys[i];
+                    this.previousSTNodes = [node];
+                    this.currentAddPosition = sequence.range.startTagRange.end;
+                    this.createNodeAndLinks(sequence, "", NodeTypes.EMPTY_NODE);
+                }
             }
         }
 
@@ -109,11 +111,13 @@ export class NodeFactoryVisitor implements Visitor {
         this.previousSTNodes = [];
         for (let i = 0; i < sequenceKeys.length; i++) {
             const sequence = subSequences[sequenceKeys[i]];
-            if (sequence && sequence.mediatorList && sequence.mediatorList.length > 0) {
-                const lastNode = (sequence.mediatorList as any)[(sequence.mediatorList as any).length - 1];
-                this.previousSTNodes.push(lastNode);
-            } else {
-                this.previousSTNodes.push(subSequences[sequenceKeys[i]]);
+            if (sequence) {
+                if (sequence.mediatorList && sequence.mediatorList.length > 0) {
+                    const lastNode = (sequence.mediatorList as any)[(sequence.mediatorList as any).length - 1];
+                    this.previousSTNodes.push(lastNode);
+                } else {
+                    this.previousSTNodes.push(subSequences[sequenceKeys[i]]);
+                }
             }
         }
 
@@ -232,7 +236,22 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitSequence = (node: Sequence): void => this.createNodeAndLinks(node, MEDIATORS.SEQUENCE);
     beginVisitStore = (node: Store): void => this.createNodeAndLinks(node, MEDIATORS.STORE);
     beginVisitThrottle = (node: Throttle): void => this.createNodeAndLinks(node, MEDIATORS.THROTTLE);
-    beginVisitValidate = (node: Validate): void => this.createNodeAndLinks(node, MEDIATORS.VALIDATE);
+
+    // beginVisitValidate = (node: Validate): void => this.createNodeAndLinks(node, MEDIATORS.VALIDATE);
+    beginVisitValidate(node: Validate): void {
+        this.createNodeAndLinks(node, MEDIATORS.VALIDATE, NodeTypes.CONDITION_NODE)
+        this.parents.push(node);
+
+        this.visitSubSequences(node, {
+            OnFail: node.onFail,
+        });
+        this.skipChildrenVisit = true;
+    }
+    endVisitValidate(node: Validate): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+
     beginVisitWithParam = (node: WithParam): void => this.createNodeAndLinks(node, "");
     beginVisitCallTemplate = (node: CallTemplate): void => this.createNodeAndLinks(node, MEDIATORS.CALLTEMPLATE);
 
