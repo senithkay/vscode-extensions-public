@@ -16,7 +16,7 @@ import { Button, TextField, TypeSelector } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { Node } from "../../../utils/types";
 
-namespace S {
+export namespace NodeStyles {
     export type NodeStyleProp = {
         selected: boolean;
         hovered: boolean;
@@ -33,7 +33,7 @@ namespace S {
             ${(props: NodeStyleProp) =>
                 props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
         border-radius: 10px;
-        background-color: ${Colors.SURFACE_BRIGHT};
+        background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
         cursor: pointer;
     `;
@@ -74,6 +74,10 @@ namespace S {
         font-family: "GilmerMedium";
     `;
 
+    export const HelpText = styled(StyledText)`
+        color: ${Colors.PRIMARY};
+    `;
+
     export const Body = styled.div`
         display: flex;
         flex-direction: column;
@@ -92,14 +96,17 @@ namespace S {
     `;
 }
 
-interface CallNodeWidgetProps {
+interface BaseNodeWidgetProps {
+    children: React.ReactNode;
     model: BaseNodeModel;
     engine: DiagramEngine;
     onClick?: (node: Node) => void;
 }
 
-export function BaseNodeWidget(props: CallNodeWidgetProps) {
-    const { model, engine, onClick } = props;
+export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {}
+
+export function BaseNodeWidget(props: BaseNodeWidgetProps) {
+    const { children, model, engine, onClick } = props;
     const [isHovered, setIsHovered] = React.useState(false);
 
     const handleOnClick = () => {
@@ -107,31 +114,31 @@ export function BaseNodeWidget(props: CallNodeWidgetProps) {
     };
 
     return (
-        <S.Node
+        <NodeStyles.Node
             selected={model.isSelected()}
             hovered={isHovered}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <S.TopPortWidget port={model.getPort("in")!} engine={engine} />
-            <S.Header>
-                <S.Title>{model.node.label || model.node.kind}</S.Title>
-                <S.StyledButton appearance="icon" onClick={handleOnClick}>
+            <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
+            <NodeStyles.Header>
+                <NodeStyles.Title>{model.node.label || model.node.kind}</NodeStyles.Title>
+                <NodeStyles.StyledButton appearance="icon" onClick={handleOnClick}>
                     <MoreVertIcon />
-                </S.StyledButton>
-            </S.Header>
+                </NodeStyles.StyledButton>
+            </NodeStyles.Header>
             {/* todo: generate dynamic form with node attributes */}
-            <S.Body>
-                <S.Row>
-                    <S.StyledText>Condition </S.StyledText>
-                    <TextField value="" />
-                </S.Row>
-                <S.Row>
-                    <S.StyledText>Name </S.StyledText>
-                    <TextField value="Hello" />
-                </S.Row>
-            </S.Body>
-            <S.BottomPortWidget port={model.getPort("out")!} engine={engine} />
-        </S.Node>
+            <NodeStyles.Body>
+                {children}
+                {model.node.nodeProperties.expression?.documentation && (
+                    <NodeStyles.Row>
+                        <NodeStyles.HelpText>
+                            {model.node.nodeProperties.expression.documentation}
+                        </NodeStyles.HelpText>
+                    </NodeStyles.Row>
+                )}
+            </NodeStyles.Body>
+            <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
+        </NodeStyles.Node>
     );
 }

@@ -40,7 +40,7 @@ export enum VSCodeColors {
 
     SURFACE_BRIGHT = "var(--vscode-editor-background)",
     SURFACE = "var(--vscode-sideBar-background)",
-    SURFACE_DIM = "var(--vscode-activityBar-background)",
+    SURFACE_DIM = "var(--vscode-menu-background)",
     ON_SURFACE = "var(--vscode-foreground)",
     ON_SURFACE_VARIANT = "var(--vscode-icon-foreground)",
     SURFACE_CONTAINER = "var(--vscode-editor-inactiveSelectionBackground)",
@@ -85,6 +85,7 @@ export enum NodeTypes {
 
 export const NODE_LINK = "node-link";
 export const NODE_PORT = "node-port";
+export const LOADING_OVERLAY = "loading-overlay";
 
 // sizing
 export const NODE_WIDTH = 280;

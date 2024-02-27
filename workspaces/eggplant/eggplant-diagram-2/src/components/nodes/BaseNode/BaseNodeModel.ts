@@ -22,7 +22,7 @@ export class BaseNodeModel extends NodeModel {
         super({
             id: getNodeIdFromModel(node),
             type: NodeTypes.BASE_NODE,
-            // locked: true,
+            locked: true,
         });
         this.node = node;
         this.addInPort("in");
@@ -55,5 +55,9 @@ export class BaseNodeModel extends NodeModel {
 
     getOutPort(): NodePortModel {
         return this.portOut;
+    }
+
+    getHeight(): number {
+        return this.height;
     }
 }

@@ -25,10 +25,9 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     private createNode(node: Node): void {
         const nodeModel = new BaseNodeModel(node);
-        nodeModel.setPosition(node.viewState.x, node.viewState.y);
         this.nodes.push(nodeModel);
 
-        if (node.viewState.startNodeId) {
+        if (node.viewState?.startNodeId) {
             // new sub flow start
             const startNode = this.nodes.find((n) => n.getID() === node.viewState.startNodeId);
             const link = createNodesLink(startNode, nodeModel);
@@ -57,13 +56,36 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     beginVisitIf(node: Node): void {
         this.createNode(node);
-        // mark the first node of then and else branches as start node
-        if (node.thenBranch && node.thenBranch.children.length > 0) {
-            node.thenBranch.children.at(0).viewState.startNodeId = node.id;
+        this.lastNodeModel = undefined;
+    }
+
+    endVisitIf(node: Node, parent?: Node): void {
+        const ifNodeModel = this.nodes.find((n) => n.getID() === node.id);
+        if (!ifNodeModel) {
+            console.error("If node model not found", node);
+            return;
         }
-        if (node.elseBranch && node.elseBranch.children.length > 0) {
-            node.elseBranch.children.at(0).viewState.startNodeId = node.id;
-        }
+
+        node.branches?.forEach((branch) => {
+            if (!branch.children || branch.children.length === 0) {
+                console.warn("Branch children not found", branch);
+                return;
+            }
+            const firstChildNodeModel = this.nodes.find((n) => n.getID() === branch.children.at(0).id);
+            if (!firstChildNodeModel) {
+                console.error("Branch node model not found", branch);
+                return;
+            }
+
+            const link = createNodesLink(ifNodeModel, firstChildNodeModel);
+            if (link) {
+                this.links.push(link);
+            }
+        });
+    }
+
+    endVisitBlock(node: Node, parent?: Node): void {
+        this.lastNodeModel = undefined;
     }
 
     skipChildren(): boolean {
