@@ -59,6 +59,7 @@ export function Diagram(props: DiagramProps) {
     const [diagramDataMap, setDiagramDataMap] = useState(new Map());
     const { rpcClient } = useVisualizerContext();
     const [isTabPaneVisible, setTabPaneVisible] = useState(true);
+    const [isSequence, setSequence] = useState(false);
     const [isFaultFlow, setFlow] = useState(false);
     const toggleFlow = () => {
         setFlow(!isFaultFlow);
@@ -100,6 +101,7 @@ export function Diagram(props: DiagramProps) {
 
         if (STNode.tag !== "resource") {
             setTabPaneVisible(false);
+            setSequence(true);
         }
 
         const key = JSON.stringify((STNode as APIResource).inSequence) + JSON.stringify((STNode as APIResource).outSequence);
@@ -150,16 +152,20 @@ export function Diagram(props: DiagramProps) {
         const { model: flowModel, engine: flowEngine, width: flowWidth } = flow;
         const { model: faultModel, engine: faultEngine, width: faultWidth } = fault;
 
-        if (flowModel || faultModel) {
-            if (!isFaultFlow) {
-                centerDiagram(true, flowModel, flowEngine, flowWidth);
-            } else {
-                centerDiagram(true, faultModel, faultEngine, faultWidth);
-            }
+        if (!isFaultFlow) {
+            centerDiagram(true, flowModel, flowEngine, flowWidth);
+        } else {
+            centerDiagram(true, faultModel, faultEngine, faultWidth);
+        }
 
+        if (!isSequence) {
             setTabPaneVisible(!sidePanelState.isOpen);
         }
     }, [sidePanelState.isOpen]);
+
+    useEffect(() => {
+        setTabPaneVisible(!isSequence);
+    }, [isSequence]);
 
     const updateDiagramData = (data: DiagramData[]) => {
         const updatedDiagramData: any = {};
