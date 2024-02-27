@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { DefaultPortModel, DefaultPortModelOptions, LinkModel, PortModelAlignment } from "@projectstorm/react-diagrams";
-import { NodeLinkModel } from "../NodeLink/NodeLinkModel";
+import { NodeLinkModel } from "../NodeLink";
 import { AbstractModelFactory } from "@projectstorm/react-canvas-core";
 import { NODE_PORT } from "../../resources/constants";
 

@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
-import { BaseNodeModel } from "../components/nodes/BaseNode/BaseNodeModel";
+import { NodeLinkModel } from "../components/NodeLink";
+import { BaseNodeModel } from "../components/nodes/BaseNode";
 import { createNodesLink } from "../utils/diagram";
 import { Node } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";

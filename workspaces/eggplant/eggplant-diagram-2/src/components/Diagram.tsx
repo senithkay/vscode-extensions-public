@@ -12,12 +12,12 @@ import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { genDagreEngine, generateEngine } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
-import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
-import { BaseNodeModel } from "./nodes/BaseNode/BaseNodeModel";
 import { Flow } from "../utils/types";
 import { traverseFlow } from "../utils/ast";
-import { NodeLinkModel } from "./NodeLink/NodeLinkModel";
-import { OverlayLayerModel } from "./OverlayLoader/OverlayLayerModel";
+import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
+import { NodeLinkModel } from "./NodeLink";
+import { OverlayLayerModel } from "./OverlayLayer";
+import { BaseNodeModel } from "./nodes/BaseNode";
 
 export interface DiagramProps {
     model: Flow;
@@ -69,7 +69,7 @@ export function Diagram(props: DiagramProps) {
             }
             // change canvas position to first node
             const firstNode = newDiagramModel.getNodes().at(0);
-            diagramEngine.zoomToFitNodes({nodes: [firstNode], maxZoom: 1});
+            diagramEngine.zoomToFitNodes({ nodes: [firstNode], maxZoom: 1 });
             diagramEngine.repaintCanvas();
             // update the diagram model state
             setDiagramModel(newDiagramModel);

@@ -8,7 +8,7 @@
  */
 
 import { NodeModel } from "@projectstorm/react-diagrams";
-import { NodePortModel } from "../../NodePort/NodePortModel";
+import { NodePortModel } from "../../NodePort";
 import { NodeTypes } from "../../../resources/constants";
 
 export class EmptyNodeModel extends NodeModel {
