@@ -10,7 +10,22 @@
 export type Flow = {
     nodes: Node[];
     name: string;
+    clients: Client[];
 };
+
+export type Client = {
+    id: string;
+    label: string;
+    kind: ClientKind;
+    lineRange: LineRange;
+    scope: ClientScope;
+    value: string;
+    flags: number;
+};
+
+export type ClientKind = "HTTP" | "OTHER";
+
+export type ClientScope = "LOCAL" | "OBJECT" | "GLOBAL";
 
 export type Node = {
     kind: NodeKind;
@@ -24,11 +39,18 @@ export type Node = {
     viewState?: ViewState;
 };
 
-export type NodeKind = "EVENT_HTTP_API" | "IF" | "BLOCK" | "RETURN" | "HTTP_API_GET_CALL";
+export type NodeKind =
+    | "EVENT_HTTP_API"
+    | "BLOCK"
+    | "IF"
+    | "HTTP_API_GET_CALL"
+    | "HTTP_API_POST_CALL"
+    | "RETURN"
+    | "EXPRESSION";
 
 export type Branch = {
     kind: string;
-    key: string;
+    label: string;
     children: Node[];
 };
 
@@ -39,7 +61,7 @@ export type LineRange = {
 };
 
 export type Expression = {
-    key: string;
+    label: string;
     type: null | string;
     typeKind: TypeKind;
     optional: boolean;
