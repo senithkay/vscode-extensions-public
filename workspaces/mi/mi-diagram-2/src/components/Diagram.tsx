@@ -97,6 +97,11 @@ export function Diagram(props: DiagramProps) {
 
         const modelCopy = Object.assign({}, model);
         delete (modelCopy as APIResource).faultSequence;
+
+        if (STNode.tag !== "resource") {
+            setTabPaneVisible(false);
+        }
+
         const key = JSON.stringify((STNode as APIResource).inSequence) + JSON.stringify((STNode as APIResource).outSequence);
 
         if (diagramDataMap.get(DiagramType.FLOW) !== key && !isFaultFlow) {
@@ -126,11 +131,11 @@ export function Diagram(props: DiagramProps) {
 
         const mouseTrapClient = KeyboardNavigationManager.getClient();
         mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], async () => {
-            rpcClient.getMiDiagramRpcClient().undo({path: props.documentUri});
+            rpcClient.getMiDiagramRpcClient().undo({ path: props.documentUri });
         });
 
         mouseTrapClient.bindNewKey(['command+shift+z', 'ctrl+y', 'ctrl+shift+z'], async () => {
-            rpcClient.getMiDiagramRpcClient().redo({path: props.documentUri});
+            rpcClient.getMiDiagramRpcClient().redo({ path: props.documentUri });
         });
 
         return () => {
@@ -145,13 +150,15 @@ export function Diagram(props: DiagramProps) {
         const { model: flowModel, engine: flowEngine, width: flowWidth } = flow;
         const { model: faultModel, engine: faultEngine, width: faultWidth } = fault;
 
-        if (!isFaultFlow) {
-            centerDiagram(true, flowModel, flowEngine, flowWidth);
-        } else {
-            centerDiagram(true, faultModel, faultEngine, faultWidth);
-        }
+        if (flowModel || faultModel) {
+            if (!isFaultFlow) {
+                centerDiagram(true, flowModel, flowEngine, flowWidth);
+            } else {
+                centerDiagram(true, faultModel, faultEngine, faultWidth);
+            }
 
-        setTabPaneVisible(!sidePanelState.isOpen);
+            setTabPaneVisible(!sidePanelState.isOpen);
+        }
     }, [sidePanelState.isOpen]);
 
     const updateDiagramData = (data: DiagramData[]) => {

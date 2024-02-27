@@ -233,7 +233,34 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitPropertyGroup = (node: PropertyGroup): void => this.createNodeAndLinks(node, MEDIATORS.PROPERTYGROUP);
     beginVisitRespond = (node: Respond): void => this.createNodeAndLinks(node, MEDIATORS.RESPOND);
     beginVisitSend = (node: Send): void => this.createNodeAndLinks(node, MEDIATORS.SEND);
-    beginVisitSequence = (node: Sequence): void => this.createNodeAndLinks(node, MEDIATORS.SEQUENCE);
+
+    beginVisitSequence = (node: Sequence): void => {
+        const addPosition = {
+            line: node.range.startTagRange.start.line,
+            character: node.range.startTagRange.end.character
+        }
+        this.currentAddPosition = addPosition;
+
+        const isSequnce = node.mediatorList && node.mediatorList.length > 0;
+        if (!isSequnce) {
+            this.createNodeAndLinks(node, MEDIATORS.SEQUENCE);
+        } else {
+            this.createNodeAndLinks(node, "", NodeTypes.START_NODE);
+        }
+        this.parents.push(node);
+    }
+    endVisitSequence(node: Sequence): void {
+        const isSequnce = node.mediatorList && node.mediatorList.length > 0;
+
+        if (isSequnce) {
+            const lastNode = this.nodes[this.nodes.length - 1].getStNode();
+            node.viewState.y = lastNode.viewState.y + Math.max(lastNode.viewState.h, lastNode.viewState.fh || 0) + NODE_GAP.Y;
+            this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.endTagRange.end);
+            this.parents.pop();
+            this.previousSTNodes = undefined;
+        }
+    }
+
     beginVisitStore = (node: Store): void => this.createNodeAndLinks(node, MEDIATORS.STORE);
     beginVisitThrottle = (node: Throttle): void => this.createNodeAndLinks(node, MEDIATORS.THROTTLE);
 

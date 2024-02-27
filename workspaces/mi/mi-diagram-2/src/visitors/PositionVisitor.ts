@@ -123,17 +123,13 @@ export class PositionVisitor implements Visitor {
 
     beginVisitHeader = (node: Header): void => this.setBasicMediatorPosition(node);
 
-    beginVisitInSequence = (node: Sequence): void => {
-        this.setBasicMediatorPosition(node);
-    }
+    beginVisitInSequence = (node: Sequence): void => this.setBasicMediatorPosition(node);
     endVisitInSequence = (node: Sequence): void => {
         node.viewState.fh = this.position.y - node.viewState.y;
         this.position.y += NODE_GAP.SEQUENCE_Y + node.viewState.h;
     }
 
-    beginVisitOutSequence = (node: Sequence): void => {
-        this.setBasicMediatorPosition(node);
-    }
+    beginVisitOutSequence = (node: Sequence): void => this.setBasicMediatorPosition(node);
     endVisitOutSequence = (node: Sequence): void => {
         this.position.y += NODE_GAP.Y + node.viewState.h;
     }
@@ -158,7 +154,9 @@ export class PositionVisitor implements Visitor {
     beginVisitPropertyGroup = (node: PropertyGroup): void => this.setBasicMediatorPosition(node);
     beginVisitRespond = (node: Respond): void => this.setBasicMediatorPosition(node);
     beginVisitSend = (node: Send): void => this.setBasicMediatorPosition(node);
+
     beginVisitSequence = (node: Sequence): void => this.setBasicMediatorPosition(node);
+
     beginVisitStore = (node: Store): void => this.setBasicMediatorPosition(node);
 
     beginVisitThrottle = (node: Throttle): void => {

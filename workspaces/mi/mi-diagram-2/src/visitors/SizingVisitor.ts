@@ -114,7 +114,17 @@ export class SizingVisitor implements Visitor {
     endVisitPropertyGroup = (node: PropertyGroup): void => this.calculateBasicMediator(node);
     endVisitRespond = (node: Respond): void => this.calculateBasicMediator(node);
     endVisitSend = (node: Send): void => this.calculateBasicMediator(node);
-    endVisitSequence = (node: Sequence): void => this.calculateBasicMediator(node);
+
+    endVisitSequence = (node: Sequence): void => {
+        const isSequnce = node.mediatorList && node.mediatorList.length > 0;
+
+        if (isSequnce) {
+            node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.WIDTH, h: NODE_DIMENSIONS.START.HEIGHT };
+        } else {
+            this.calculateBasicMediator(node);
+        }
+    }
+
     endVisitStore = (node: Store): void => this.calculateBasicMediator(node);
 
     endVisitThrottle = (node: Throttle): void => this.calculateAdvancedMediator(node, {
