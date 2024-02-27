@@ -26,7 +26,8 @@ export function RecordHeaderMenu(props: RecordHeaderMenuProps) {
     const { recordEditor, langClientPromise, fullST, currentFile, goToSource, setFilteredNode } = useGraphQlContext();
 
     const getMenuItems = () => {
-        const menuItems: Item[] = getRecordMenuItems(location, nodeName, fullST, currentFile, recordEditor, langClientPromise, setFilteredNode, goToSource);
+        const menuItems: Item[] = getRecordMenuItems(location, nodeName, fullST, currentFile, recordEditor,
+            langClientPromise, setFilteredNode, goToSource);
         return menuItems;
     }
 

@@ -10,20 +10,22 @@
 
 import React from "react";
 
-import { DesignViewIcon, GraphqlMutationIcon, GraphqlQueryIcon, GraphqlSubscriptionIcon, LabelDeleteIcon, LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    DesignViewIcon,
+    GraphqlMutationIcon, GraphqlQueryIcon, GraphqlSubscriptionIcon, LabelDeleteIcon, LabelEditIcon
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { Codicon, Icon, Item } from "@wso2-enterprise/ui-toolkit";
 
-import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { NodeCategory, NodeType } from "../NodeFilter";
 import { FunctionType, Position } from "../resources/model";
 import { getFormattedPosition, getParentSTNodeFromRange, getSTNodeFromRange } from "../utils/common-util";
 import { getSyntaxTree } from "../utils/ls-util";
 
-export function getServiceSubHeaderMenuItems(location: Position, nodeName: string, setFilteredNode: (nodeType: NodeType) => void,
-                                             goToSource: (filePath: string, position: NodePosition) => void, functionPanel: any, model: any, servicePanel: any) {
-    // const { servicePanel } = useGraphQlContext();
-    // const servicePanel = getContext().servicePanel;
+export function getServiceSubHeaderMenuItems(location: Position,
+    nodeName: string, setFilteredNode: (nodeType: NodeType) => void,
+    goToSource: (filePath: string, position: NodePosition) => void, functionPanel: any, model: any, servicePanel: any) {
+
     const menuItem: Item[] = [];
 
     const ItemWithIcon = () => {
@@ -54,9 +56,6 @@ export function getServiceSubHeaderMenuItems(location: Position, nodeName: strin
 }
 
 function getAddFunctionMenuItem(position: Position, functionType: FunctionType, functionPanel: any, model: any) {
-    // const { functionPanel, model } = useGraphQlContext();
-    // const functionPanel = getContext().functionPanel;
-    // const model = getContext().model;
 
     const openFunctionPanel = () => {
         if (STKindChecker.isServiceDeclaration(model)) {
@@ -116,7 +115,6 @@ export function getGoToSourceMenuItem(location: Position, goToSource: (filePath:
     const filePath = location?.filePath;
     const position = getFormattedPosition(location);
 
-    // const { goToSource } = useGraphQlContext();
     const handleOnClick = () => {
         goToSource(filePath, position);
     };
@@ -141,8 +139,6 @@ export function getGoToSourceMenuItem(location: Position, goToSource: (filePath:
 
 
 export function getFilterNodeMenuItem(nodeType: NodeType, setFilteredNode: (nodeType: NodeType) => void) {
-    // const { setFilteredNode } = useGraphQlContext();
-    // const setFilteredNode = getContext().setFilteredNode;
 
     const handleOnClick = () => {
         setFilteredNode(nodeType);
@@ -164,8 +160,7 @@ export function getFilterNodeMenuItem(nodeType: NodeType, setFilteredNode: (node
 }
 
 export function getRecordMenuItems(location: Position, nodeName: string, fullST: STNode, currentFile: any, recordEditor: any, langClientPromise: any,
-                                   setFilteredNode: (nodeType: NodeType) => void, goToSource: (filePath: string, position: NodePosition) => void) {
-    // const { recordEditor, langClientPromise, fullST, currentFile } = useGraphQlContext();
+    setFilteredNode: (nodeType: NodeType) => void, goToSource: (filePath: string, position: NodePosition) => void) {
 
     const handleEditRecord = async () => {
         let recordModel: STNode;
@@ -211,11 +206,10 @@ export function getRecordMenuItems(location: Position, nodeName: string, fullST:
 }
 
 export function getClassFunctionMenuItem(position: Position,
-                                         model: STNode,
-                                         functionType: FunctionType,
-                                         currentST?: STNode,
-                                         functionPanel?: any) {
-    // const { functionPanel } = useGraphQlContext();
+    model: STNode,
+    functionType: FunctionType,
+    currentST?: STNode,
+    functionPanel?: any) {
 
     const openFunctionPanel = () => {
         if (model && currentST && STKindChecker.isClassDefinition(model)) {
@@ -246,12 +240,7 @@ export function getClassFunctionMenuItem(position: Position,
     return menuItem;
 }
 
-export function getServiceFieldEdit(model: STNode,
-                                    functionType: FunctionType,
-                                    location: Position,
-                                    st: STNode,
-                                    functionPanel: any) {
-    // const { functionPanel } = useGraphQlContext();
+export function getServiceFieldEdit(model: STNode, functionType: FunctionType, location: Position, st: STNode, functionPanel: any) {
 
     const openFunctionPanel = () => {
         if (STKindChecker.isResourceAccessorDefinition(model)) {
@@ -278,9 +267,8 @@ export function getServiceFieldEdit(model: STNode,
 }
 
 export function getDesignServiceField(model: STNode, location: Position,
-                                      operationDesignView:  (functionPosition: NodePosition, filePath?: string) => void) {
+    operationDesignView: (functionPosition: NodePosition, filePath?: string) => void) {
 
-    // const { operationDesignView } = useGraphQlContext();
     const openOperationDesignView = () => {
         operationDesignView(model.position, location.filePath);
     };
@@ -301,9 +289,7 @@ export function getDesignServiceField(model: STNode, location: Position,
 }
 
 export function getDesignOperationMenuItem(position: Position,
-                                           operationDesignView:  (functionPosition: NodePosition, filePath?: string) => void) {
-    // const operationDesignView = getContext().operationDesignView;
-
+    operationDesignView: (functionPosition: NodePosition, filePath?: string) => void) {
 
     const openFunctionDesignPanel = () => {
         // evt.stopPropagation();
@@ -332,7 +318,6 @@ export function getDesignOperationMenuItem(position: Position,
 }
 
 export function getEditOperationMenuItem(position: Position, functionType: FunctionType, functionPanel: any, model: any) {
-    // const {  model } = useGraphQlContext();
 
     const openFunctionPanel = () => {
         if (STKindChecker.isServiceDeclaration(model)) {
@@ -368,8 +353,6 @@ export function getEditOperationMenuItem(position: Position, functionType: Funct
 }
 
 export function getDeleteOperationMenuItem(position: Position, onDelete: (position: NodePosition) => void) {
-    // const { onDelete } = useGraphQlContext();
-    // const onDelete = getContext().onDelete;
 
     const handleDeleteClick = () => {
         // evt.stopPropagation();

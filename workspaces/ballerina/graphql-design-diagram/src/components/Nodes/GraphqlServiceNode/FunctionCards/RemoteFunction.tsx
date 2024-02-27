@@ -55,7 +55,12 @@ export function RemoteFunctionWidget(props: RemoteFunctionProps) {
                 engine={engine}
             />
             <GraphqlMutationIcon />
-            <FieldName onMouseOver={openPanel} onMouseLeave={closePanel} style={{ marginLeft: '7px' }} data-testid={`remote-identifier-${remoteFunc.identifier}`}>
+            <FieldName
+                onMouseOver={openPanel}
+                onMouseLeave={closePanel}
+                style={{ marginLeft: '7px' }}
+                data-testid={`remote-identifier-${remoteFunc.identifier}`}
+            >
                 {remoteFunc.identifier}
             </FieldName>
             <div onClick={updateSelectedNode}>

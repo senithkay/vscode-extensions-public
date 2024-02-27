@@ -30,7 +30,6 @@ export function UnionNodeHeadWidget(props: UnionNodeHeadWidgetProps) {
     const headPorts = useRef<PortModel[]>([]);
     const { setFilteredNode } = useGraphQlContext();
 
-
     const displayName: string = node.unionObject.name;
 
     useEffect(() => {

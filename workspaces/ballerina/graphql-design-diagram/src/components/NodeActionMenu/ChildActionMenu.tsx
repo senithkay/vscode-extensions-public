@@ -76,7 +76,6 @@ export function ChildActionMenu(props: ChildActionMenuProps) {
         return menuItems;
     }
 
-
     return (
         <>
             {location?.filePath && location?.startLine && location?.endLine &&

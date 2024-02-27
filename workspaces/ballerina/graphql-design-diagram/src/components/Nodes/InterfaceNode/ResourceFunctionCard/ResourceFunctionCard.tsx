@@ -52,11 +52,9 @@ export function ResourceFunctionCard(props: ResourceFunctionCardProps) {
         setAnchorEvent(null);
     };
 
-
     const updateSelectedNode = () => {
         setSelectedNode(functionElement.returns);
     }
-
 
 
     return (
@@ -65,7 +63,12 @@ export function ResourceFunctionCard(props: ResourceFunctionCardProps) {
                 port={node.getPort(`left-${path}`)}
                 engine={engine}
             />
-            <FieldName onMouseOver={openPanel} onMouseLeave={closePanel} style={{ marginLeft: '7px' }} data-testid={`interface-func-${functionElement.identifier}`}>
+            <FieldName
+                onMouseOver={openPanel}
+                onMouseLeave={closePanel}
+                style={{ marginLeft: '7px' }}
+                data-testid={`interface-func-${functionElement.identifier}`}
+            >
                 {functionElement.identifier}
             </FieldName>
             <div onClick={updateSelectedNode}>
