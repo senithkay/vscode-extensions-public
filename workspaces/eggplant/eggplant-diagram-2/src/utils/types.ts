@@ -13,42 +13,51 @@ export type Flow = {
 };
 
 export type Node = {
-    // todo: need to refactor node type with attributes and children
+    kind: NodeKind;
+    label: string;
+    nodeProperties: NodeProperties;
+    returning: boolean;
+    fixed: boolean;
     id: string;
-    kind: string;
-    label?: string;
-    method?: Expression;
-    path?: Expression;
-    client?: Expression;
-    headers?: Expression;
-    targetType?: Expression;
-    params?: Expression;
-    variable?: Expression;
     lineRange: LineRange;
-    condition?: Expression;
-    thenBranch?: Node;
-    elseBranch?: Node;
-    children?: Node[];
-    fixed?: boolean;
-    expr?: Expression;
-    returning?: boolean;
+    branches?: Branch[];
     viewState?: ViewState;
 };
 
-export type Expression = {
-    key: string;
-    type: null | string;
-    value?: any[] | string;
-    typeKind?: TypeKind;
-    optional?: boolean;
-};
+export type NodeKind = "EVENT_HTTP_API" | "IF" | "BLOCK" | "RETURN" | "HTTP_API_GET_CALL";
 
-export type TypeKind = "BTYPE" | "IDENTIFIER" | "URI_PATH";
+export type Branch = {
+    kind: string;
+    key: string;
+    children: Node[];
+};
 
 export type LineRange = {
     fileName: string;
     startLine: number[];
     endLine: number[];
+};
+
+export type Expression = {
+    key: string;
+    type: null | string;
+    typeKind: TypeKind;
+    optional: boolean;
+    editable: boolean;
+    documentation: string;
+    value: string;
+};
+
+export type TypeKind = "BTYPE" | "IDENTIFIER" | "URI_PATH";
+
+export type NodeProperties = {
+    method?: Expression;
+    path?: Expression;
+    condition?: Expression;
+    client?: Expression;
+    targetType?: Expression;
+    variable?: Expression;
+    expression?: Expression;
 };
 
 export type ViewState = {

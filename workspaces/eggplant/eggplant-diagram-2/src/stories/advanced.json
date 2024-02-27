@@ -1,312 +1,302 @@
 {
-    "kind": "FLOW",
     "name": "",
-    "children": [
+    "nodes": [
         {
             "kind": "EVENT_HTTP_API",
-            "label": "HTTP API Event",
-            "method": {
-                "key": "method",
-                "type": null,
-                "value": "GET",
-                "typeKind": "IDENTIFIER"
+            "label": "HTTP API",
+            "nodeProperties": {
+                "method": {
+                    "label": "Method",
+                    "type": null,
+                    "typeKind": "IDENTIFIER",
+                    "optional": false,
+                    "editable": true,
+                    "documentation": "HTTP Method",
+                    "value": "GET"
+                },
+                "path": {
+                    "label": "Path",
+                    "type": null,
+                    "typeKind": "URI_PATH",
+                    "optional": false,
+                    "editable": true,
+                    "documentation": "HTTP Path",
+                    "value": "/search/doctors/[string name]"
+                }
             },
-            "path": {
-                "key": "path",
-                "type": null,
-                "value": "/search/doctors/[string name]",
-                "typeKind": "URI_PATH"
-            },
+            "returning": false,
+            "fixed": true,
             "id": "1",
             "lineRange": {
-                "fileName": "",
-                "startLine": [7, 7],
-                "endLine": [15, 6]
+                "fileName": "main.bal",
+                "startLine": [
+                    7,
+                    7
+                ],
+                "endLine": [
+                    15,
+                    6
+                ]
             },
-            "fixed": true
-        },
-        {
-            "kind": "VARIABLE",
-            "label": "Variable",
-            "name": {
-                "key": "name",
-                "type": "string",
-                "value": "kandy",
-                "typeKind": "BTYPE"
-            },
-            "id": "7",
-            "lineRange": {
-                "fileName": "",
-                "startLine": [8, 9],
-                "endLine": [8, 17]
-            }
+            "flags": 0
         },
         {
             "kind": "IF",
             "label": "If",
-            "condition": {
-                "key": "condition",
-                "type": "boolean",
-                "value": "name == \"kandy\"",
-                "typeKind": "BTYPE"
+            "nodeProperties": {
+                "condition": {
+                    "label": "Condition",
+                    "type": "boolean",
+                    "typeKind": "BTYPE",
+                    "optional": false,
+                    "editable": true,
+                    "documentation": "Boolean Condition",
+                    "value": "name == \"kandy\""
+                }
             },
-            "thenBranch": {
-                "kind": "THEN_BRANCH_BODY",
-                "children": [
-                    {
-                        "label": "HTTP GET",
-                        "kind": "HTTP_API_GET_CALL",
-                        "client": {
-                            "key": "client",
-                            "type": "http:Client",
-                            "value": "asiri",
-                            "typeKind": "BTYPE"
-                        },
-                        "path": {
-                            "key": "path",
-                            "type": "string",
-                            "value": "/doctors/kandy",
-                            "typeKind": "BTYPE"
-                        },
-                        "headers": {
-                            "key": "headers",
-                            "type": "map<string|string[]>?",
-                            "typeKind": "BTYPE",
-                            "optional": true
-                        },
-                        "targetType": {
-                            "key": "targetType",
-                            "type": "Response|anydata",
-                            "value": "json",
-                            "typeKind": "BTYPE"
-                        },
-                        "params": {
-                            "key": "params",
-                            "type": "http:QueryParamType",
-                            "value": [],
-                            "optional": true
-                        },
-                        "variable": {
-                            "key": "j",
-                            "type": "json",
-                            "typeKind": "BTYPE"
-                        },
-                        "id": "3",
-                        "lineRange": {
-                            "fileName": "",
-                            "startLine": [9, 13],
-                            "endLine": [9, 57]
-                        }
-                    },
-                    {
-                        "kind": "IF",
-                        "label": "If",
-                        "condition": {
-                            "key": "condition",
-                            "type": "boolean",
-                            "value": "name == \"kandy\"",
-                            "typeKind": "BTYPE"
-                        },
-                        "thenBranch": {
-                            "kind": "THEN_BRANCH_BODY",
-                            "children": [
-                               
-                                {
-                                    "kind": "IF",
-                                    "label": "If",
-                                    "condition": {
-                                        "key": "condition",
-                                        "type": "boolean",
-                                        "value": "name == \"colombo\"",
-                                        "typeKind": "BTYPE"
-                                    },
-                                    "thenBranch": {
-                                        "kind": "THEN_BRANCH_BODY",
-                                        "children": [
-                                            {
-                                                "expr": {
-                                                    "key": "expression",
-                                                    "type": "json",
-                                                    "value": "j",
-                                                    "typeKind": "BTYPE"
-                                                },
-                                                "kind": "RETURN",
-                                                "returning": true,
-                                                "id": "511",
-                                                "lineRange": {
-                                                    "fileName": "",
-                                                    "startLine": [10, 13],
-                                                    "endLine": [10, 22]
-                                                }
-                                            }
-                                        ]
-                                    },
-                                    "elseBranch": {
-                                        "kind": "ELSE_BRANCH_BODY",
-                                        "children": [
-                                            {
-                                                "kind": "VARIABLE",
-                                                "label": "Variable",
-                                                "id": "811",
-                                                "name": {
-                                                    "key": "name",
-                                                    "type": "string",
-                                                    "value": "j",
-                                                    "typeKind": "BTYPE"
-                                                }
-                                            },
-                                            {
-                                                "expr": {
-                                                    "key": "expression",
-                                                    "type": "json",
-                                                    "value": "j",
-                                                    "typeKind": "BTYPE"
-                                                },
-                                                "kind": "RETURN",
-                                                "returning": true,
-                                                "id": "611",
-                                                "lineRange": {
-                                                    "fileName": "",
-                                                    "startLine": [13, 13],
-                                                    "endLine": [13, 22]
-                                                }
-                                            }
-                                        ]
-                                    },
-                                    "id": "211",
-                                    "lineRange": {
-                                        "fileName": "",
-                                        "startLine": [8, 9],
-                                        "endLine": [14, 10]
-                                    }
-                                }
-                            ]
-                        },
-                        "elseBranch": {
-                            "kind": "ELSE_BRANCH_BODY",
-                            "children": [
-                                {
-                                    "label": "HTTP GET",
-                                    "kind": "HTTP_API_GET_CALL",
-                                    "client": {
-                                        "key": "client",
-                                        "type": "http:Client",
-                                        "value": "nawaloka",
-                                        "typeKind": "BTYPE"
-                                    },
-                                    "path": {
-                                        "key": "path",
-                                        "type": "string",
-                                        "value": "/doctors",
-                                        "typeKind": "BTYPE"
-                                    },
-                                    "headers": {
-                                        "key": "headers",
-                                        "type": "map<string|string[]>?",
-                                        "typeKind": "BTYPE",
-                                        "optional": true
-                                    },
-                                    "targetType": {
-                                        "key": "targetType",
-                                        "type": "Response|anydata",
-                                        "value": "json",
-                                        "typeKind": "BTYPE"
-                                    },
-                                    "params": {
-                                        "key": "params",
-                                        "type": "http:QueryParamType",
-                                        "value": [],
-                                        "optional": true
-                                    },
-                                    "variable": {
-                                        "key": "j",
-                                        "type": "json",
-                                        "typeKind": "BTYPE"
-                                    },
-                                    "id": "41",
-                                    "lineRange": {
-                                        "fileName": "",
-                                        "startLine": [12, 13],
-                                        "endLine": [12, 60]
-                                    }
+            "branches": [
+                {
+                    "kind": "BLOCK",
+                    "label": "Then",
+                    "children": [
+                        {
+                            "label": "HTTP GET",
+                            "kind": "HTTP_API_GET_CALL",
+                            "nodeProperties": {
+                                "client": {
+                                    "label": "Client",
+                                    "type": "http:Client",
+                                    "typeKind": "BTYPE",
+                                    "optional": false,
+                                    "editable": true,
+                                    "documentation": "HTTP Client Connection",
+                                    "value": "asiri"
                                 },
-                                {
-                                    "kind": "VARIABLE",
+                                "path": {
+                                    "label": "Path",
+                                    "type": "string",
+                                    "typeKind": "BTYPE",
+                                    "optional": false,
+                                    "editable": true,
+                                    "documentation": "HTTP Path",
+                                    "value": "/doctors/kandy"
+                                },
+                                "targetType": {
+                                    "label": "Target Type",
+                                    "typeKind": "BTYPE",
+                                    "type": "http:Response|anydata",
+                                    "optional": false,
+                                    "editable": true,
+                                    "documentation": "HTTP Response Type",
+                                    "value": "json"
+                                },
+                                "variable": {
                                     "label": "Variable",
-                                    "id": "81",
-                                    "name": {
-                                        "key": "name",
-                                        "type": "string",
-                                        "value": "j",
-                                        "typeKind": "BTYPE"
-                                    }
-                                },
-                                {
-                                    "expr": {
-                                        "key": "expression",
-                                        "type": "json",
-                                        "value": "j",
-                                        "typeKind": "BTYPE"
-                                    },
-                                    "kind": "RETURN",
-                                    "returning": true,
-                                    "id": "61",
-                                    "lineRange": {
-                                        "fileName": "",
-                                        "startLine": [13, 13],
-                                        "endLine": [13, 22]
-                                    }
+                                    "typeKind": "BTYPE",
+                                    "optional": false,
+                                    "editable": true,
+                                    "documentation": "Result Variable",
+                                    "value": "j",
+                                    "type": "json"
                                 }
-                            ]
+                            },
+                            "returning": false,
+                            "fixed": false,
+                            "id": "3",
+                            "lineRange": {
+                                "fileName": "",
+                                "startLine": [
+                                    9,
+                                    13
+                                ],
+                                "endLine": [
+                                    9,
+                                    57
+                                ]
+                            },
+                            "flags": 0
                         },
-                        "id": "21",
-                        "lineRange": {
-                            "fileName": "",
-                            "startLine": [8, 9],
-                            "endLine": [14, 10]
+                        {
+                            "kind": "RETURN",
+                            "label": "Return",
+                            "nodeProperties": {
+                                "expression": {
+                                    "label": "Expression",
+                                    "type": "json",
+                                    "typeKind": "BTYPE",
+                                    "optional": false,
+                                    "editable": true,
+                                    "documentation": "Return value",
+                                    "value": "j"
+                                }
+                            },
+                            "returning": true,
+                            "fixed": false,
+                            "id": "5",
+                            "lineRange": {
+                                "fileName": "main.bal",
+                                "startLine": [
+                                    10,
+                                    13
+                                ],
+                                "endLine": [
+                                    10,
+                                    22
+                                ]
+                            },
+                            "flags": 0
                         }
-                    },
-                    {
-                        "expr": {
-                            "key": "expression",
-                            "type": "json",
-                            "value": "j",
-                            "typeKind": "BTYPE"
+                    ]
+                },
+                {
+                    "kind": "BLOCK",
+                    "label": "Else",
+                    "children": [
+                        {
+                            "label": "HTTP GET",
+                            "kind": "HTTP_API_GET_CALL",
+                            "nodeProperties": {
+                                "client": {
+                                    "label": "Client",
+                                    "type": "http:Client",
+                                    "typeKind": "BTYPE",
+                                    "optional": false,
+                                    "editable": true,
+                                    "documentation": "HTTP Client Connection",
+                                    "value": "nawaloka"
+                                },
+                                "path": {
+                                    "label": "Path",
+                                    "type": "string",
+                                    "typeKind": "BTYPE",
+                                    "optional": false,
+                                    "editable": true,
+                                    "documentation": "HTTP Path",
+                                    "value": "/doctors"
+                                },
+                                "targetType": {
+                                    "label": "Target Type",
+                                    "typeKind": "BTYPE",
+                                    "type": "http:Response|anydata",
+                                    "optional": false,
+                                    "editable": true,
+                                    "documentation": "HTTP Response Type",
+                                    "value": "json"
+                                },
+                                "variable": {
+                                    "label": "Variable",
+                                    "typeKind": "BTYPE",
+                                    "optional": false,
+                                    "editable": true,
+                                    "documentation": "Result Variable",
+                                    "value": "j",
+                                    "type": "json"
+                                }
+                            },
+                            "returning": false,
+                            "fixed": false,
+                            "id": "4",
+                            "lineRange": {
+                                "fileName": "",
+                                "startLine": [
+                                    12,
+                                    13
+                                ],
+                                "endLine": [
+                                    12,
+                                    60
+                                ]
+                            },
+                            "flags": 0
                         },
-                        "kind": "RETURN",
-                        "returning": true,
-                        "id": "5",
-                        "lineRange": {
-                            "fileName": "",
-                            "startLine": [10, 13],
-                            "endLine": [10, 22]
+                        {
+                            "kind": "RETURN",
+                            "label": "Return",
+                            "nodeProperties": {
+                                "expression": {
+                                    "label": "Expression",
+                                    "type": "json",
+                                    "typeKind": "BTYPE",
+                                    "optional": false,
+                                    "editable": true,
+                                    "documentation": "Return value",
+                                    "value": "j"
+                                }
+                            },
+                            "returning": true,
+                            "fixed": false,
+                            "id": "6",
+                            "lineRange": {
+                                "fileName": "",
+                                "startLine": [
+                                    13,
+                                    13
+                                ],
+                                "endLine": [
+                                    13,
+                                    22
+                                ]
+                            },
+                            "flags": 0
                         }
-                    }
-                ]
-            },
-            "elseBranch": {
-                "kind": "ELSE_BRANCH_BODY",
-                "children": [
-                   
-                    {
-                        "kind": "VARIABLE",
-                        "label": "Variable",
-                        "id": "8",
-                        "name": {
-                            "key": "name",
-                            "type": "string",
-                            "value": "j",
-                            "typeKind": "BTYPE"
-                        }
-                    }
-                ]
-            },
+                    ]
+                }
+            ],
+            "returning": false,
+            "fixed": false,
             "id": "2",
             "lineRange": {
-                "fileName": "",
-                "startLine": [8, 9],
-                "endLine": [14, 10]
-            }
+                "fileName": "main.bal",
+                "startLine": [
+                    8,
+                    9
+                ],
+                "endLine": [
+                    14,
+                    10
+                ]
+            },
+            "flags": 0
+        }
+    ],
+    "clients": [
+        {
+            "id": "cl1",
+            "label": "HTTP Client",
+            "kind": "HTTP",
+            "lineRange": {
+                "fileName": "main.bal",
+                "startLine": [
+                    2,
+                    1
+                ],
+                "endLine": [
+                    2,
+                    63
+                ]
+            },
+            "scope": "GLOBAL",
+            "value": "asiri",
+            "flags": 0
+        },
+        {
+            "id": "cl2",
+            "label": "HTTP Client",
+            "kind": "HTTP",
+            "lineRange": {
+                "fileName": "main.bal",
+                "startLine": [
+                    3,
+                    1
+                ],
+                "endLine": [
+                    3,
+                    66
+                ]
+            },
+            "scope": "GLOBAL",
+            "value": "nawaloka",
+            "flags": 0
         }
     ]
 }

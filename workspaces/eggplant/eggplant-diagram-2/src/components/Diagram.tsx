@@ -14,13 +14,13 @@ import { genDagreEngine, generateEngine } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { BaseNodeModel } from "./nodes/BaseNode/BaseNodeModel";
-import { Node } from "../utils/types";
-import { traverseNode } from "../utils/ast";
+import { Flow } from "../utils/types";
+import { traverseFlow } from "../utils/ast";
 import { NodeLinkModel } from "./NodeLink/NodeLinkModel";
 import { OverlayLayerModel } from "./OverlayLoader/OverlayLayerModel";
 
 export interface DiagramProps {
-    model: Node;
+    model: Flow;
 }
 
 export function Diagram(props: DiagramProps) {
@@ -39,7 +39,7 @@ export function Diagram(props: DiagramProps) {
     const getDiagramData = () => {
         // run node visitor
         const nodeVisitor = new NodeFactoryVisitor();
-        traverseNode(model, nodeVisitor);
+        traverseFlow(model, nodeVisitor);
 
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();
