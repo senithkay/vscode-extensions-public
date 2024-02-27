@@ -9,7 +9,7 @@
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { AutoComplete, Button, TextField } from "@wso2-enterprise/ui-toolkit";
-import { SectionWrapper } from "./Commons";
+import { FieldGroup, SectionWrapper } from "./Commons";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { CreateEndpointRequest, EndpointDirectoryResponse } from "@wso2-enterprise/mi-core";
 
@@ -140,8 +140,10 @@ export function EndpointWizard() {
                     autoFocus
                     required
                 />
-                <span>Endpoint Type</span>
-                <AutoComplete sx={{width: '370px'}} items={endpointTypes} selectedItem={endpointType} onChange={handleEndpointTypeChange}></AutoComplete>
+                <FieldGroup>
+                    <span>Endpoint Type</span>
+                    <AutoComplete sx={{ width: '370px' }} items={endpointTypes} selectedItem={endpointType} onChange={handleEndpointTypeChange}></AutoComplete>
+                </FieldGroup>
                 {endpointType === "Address Endpoint" && (
                     <TextField
                         placeholder="Address"
@@ -151,41 +153,44 @@ export function EndpointWizard() {
                         id='address-input'
                         size={35}
                     />)}
-                <h5>Endpoint Configuration</h5>
-                {endpointType === "HTTP Endpoint" && (
-                    <>
-                        <TextField
-                            placeholder="URI Template"
-                            label="URI Template"
-                            onChange={(text: string) => setURITemplate(text)}
-                            value={URITemplate}
-                            id='uri-template-input'
-                            size={35}
-                        />
-                        <span>Endpoint Type</span>
-                        <AutoComplete sx={{width: '370px'}} items={methodsTypes} selectedItem={method} onChange={handleMethodChange}></AutoComplete>
-                    </>
-                )}
-                <RadioBtnContainer>
-                    <label>
-                        <input
-                            type="radio"
-                            value={endpointConfigurations[0]}
-                            checked={endpointConfiguration === endpointConfigurations[0]}
-                            onChange={handleEndpointConfigurationChange}
-                        />
-                        {endpointConfigurations[0]}
-                    </label>
-                    <label>
-                        <input
-                            type="radio"
-                            value={endpointConfigurations[1]}
-                            checked={endpointConfiguration === endpointConfigurations[1]}
-                            onChange={handleEndpointConfigurationChange}
-                        />
-                        {endpointConfigurations[1]}
-                    </label>
-                </RadioBtnContainer>
+
+                <FieldGroup>
+                    <h5>Endpoint Configuration</h5>
+                    {endpointType === "HTTP Endpoint" && (
+                        <>
+                            <TextField
+                                placeholder="URI Template"
+                                label="URI Template"
+                                onChange={(text: string) => setURITemplate(text)}
+                                value={URITemplate}
+                                id='uri-template-input'
+                                size={35}
+                            />
+                            <span>Endpoint Type</span>
+                            <AutoComplete sx={{ width: '370px' }} items={methodsTypes} selectedItem={method} onChange={handleMethodChange}></AutoComplete>
+                        </>
+                    )}
+                    <RadioBtnContainer>
+                        <label>
+                            <input
+                                type="radio"
+                                value={endpointConfigurations[0]}
+                                checked={endpointConfiguration === endpointConfigurations[0]}
+                                onChange={handleEndpointConfigurationChange}
+                            />
+                            {endpointConfigurations[0]}
+                        </label>
+                        <label>
+                            <input
+                                type="radio"
+                                value={endpointConfigurations[1]}
+                                checked={endpointConfiguration === endpointConfigurations[1]}
+                                onChange={handleEndpointConfigurationChange}
+                            />
+                            {endpointConfigurations[1]}
+                        </label>
+                    </RadioBtnContainer>
+                </FieldGroup>
                 <ActionContainer>
                     <Button
                         appearance="secondary"

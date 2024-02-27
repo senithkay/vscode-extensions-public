@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 import { Button, TextField } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { SectionWrapper } from "./Commons";
+import { FieldGroup, SectionWrapper } from "./Commons";
 
 const WizardContainer = styled.div`
     display: flex;
@@ -95,12 +95,14 @@ export function ProjectWizard() {
                         autoFocus
                         required
                     />
-                    <span>  Project Location  </span>
-                    {!!projectDir && <LocationText>{projectDir}</LocationText>}
-                    {!projectDir && <span>Please choose a directory for project workspace. </span>}
-                    <Button appearance="secondary" onClick={handleProjecDirSelection} id="select-project-dir-btn">
-                        Select Location
-                    </Button>
+                    <FieldGroup>
+                        <span>  Project Location  </span>
+                        {!!projectDir && <LocationText>{projectDir}</LocationText>}
+                        {!projectDir && <span>Please choose a directory for project workspace. </span>}
+                        <Button appearance="secondary" onClick={handleProjecDirSelection} id="select-project-dir-btn">
+                            Select Location
+                        </Button>
+                    </FieldGroup>
                     <ActionContainer>
                         <Button
                             appearance="secondary"

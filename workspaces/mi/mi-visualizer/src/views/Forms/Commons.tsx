@@ -33,3 +33,9 @@ export const SectionWrapper: any = styled.div`
         border-color: var(--vscode-focusBorder);
     }
 `;
+
+export const FieldGroup: any = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+`;

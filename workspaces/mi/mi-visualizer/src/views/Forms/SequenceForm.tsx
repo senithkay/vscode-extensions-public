@@ -9,7 +9,7 @@
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { AutoComplete, Button, TextField } from "@wso2-enterprise/ui-toolkit";
-import { SectionWrapper } from "./Commons";
+import { FieldGroup, SectionWrapper } from "./Commons";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
 const WizardContainer = styled.div`
@@ -95,20 +95,24 @@ export function SequenceWizard() {
                     required
                 />
                 <h5>Advanced Configuration</h5>
-                <span>Available Endpoints</span>
-                <AutoComplete 
-                    items={endpoints}
-                    selectedItem={selectedEndpoint}
-                    onChange={handleEndpointChange}
-                    sx={{width: '370px'}}>
-                </AutoComplete>
-                <span>On Error Sequence</span>
-                <AutoComplete 
-                    items={sequences}
-                    selectedItem={onErrorSequence}
-                    onChange={handleErrorSequenceChange}
-                    sx={{width: '370px'}}>
-                </AutoComplete>
+                <FieldGroup>
+                    <span>Available Endpoints</span>
+                    <AutoComplete 
+                        items={endpoints}
+                        selectedItem={selectedEndpoint}
+                        onChange={handleEndpointChange}
+                        sx={{width: '370px'}}>
+                    </AutoComplete>
+                </FieldGroup>
+                <FieldGroup>
+                    <span>On Error Sequence</span>
+                    <AutoComplete 
+                        items={sequences}
+                        selectedItem={onErrorSequence}
+                        onChange={handleErrorSequenceChange}
+                        sx={{width: '370px'}}>
+                    </AutoComplete>
+                </FieldGroup>
                 <ActionContainer>
                     <Button
                         appearance="secondary"

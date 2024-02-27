@@ -10,7 +10,7 @@ import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { AutoComplete, Button, TextField } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { SectionWrapper } from "./Commons";
+import { FieldGroup, SectionWrapper } from "./Commons";
 
 const WizardContainer = styled.div`
     display: flex;
@@ -27,6 +27,13 @@ const ActionContainer = styled.div`
     justify-content: flex-end;
     gap: 10px;
     padding-bottom: 20px;
+`;
+
+const LocationText = styled.div`
+    max-width: 60vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 `;
 
 export interface Region {
@@ -70,6 +77,11 @@ export function APIWizard() {
         rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
     };
 
+    const handleSwaggerPathSelection = async () => {
+        const projectDirectory = await rpcClient.getMiDiagramRpcClient().askProjectDirPath();
+        setSwaggerdefPath(projectDirectory.path);
+    }
+
     const isValid: boolean = apiName.length > 0 && apiContext.length > 0 && versionType.length > 0;
 
     return (
@@ -97,26 +109,27 @@ export function APIWizard() {
                     required
                     size={35}
                 />
-                <span>Version Type</span>
-                <AutoComplete sx={{width: '370px'}} items={versionLabels} selectedItem={versionType} onChange={handleVersionTypeChange}></AutoComplete>
-                {versionType !== "none" && (
-                    <TextField
-                        placeholder="Version"
-                        label="Version"
-                        onChange={(text: string) => setVersion(text)}
-                        value={version}
-                        id='version-input'
-                        size={35}
-                    />)}
-                <TextField
-                    placeholder="Path to swagger definition"
-                    label="Path to swagger definition"
-                    onChange={(text: string) => setSwaggerdefPath(text)}
-                    validationMessage="API context is required"
-                    value={swaggerdefPath}
-                    id='context-input'
-                    size={35}
-                />
+                <FieldGroup>
+                    <span>Version Type</span>
+                    <AutoComplete sx={{ width: '370px' }} items={versionLabels} selectedItem={versionType} onChange={handleVersionTypeChange}></AutoComplete>
+                    {versionType !== "none" && (
+                        <TextField
+                            placeholder="Version"
+                            label="Version"
+                            onChange={(text: string) => setVersion(text)}
+                            value={version}
+                            id='version-input'
+                            size={35}
+                        />)}
+                </FieldGroup>
+                <FieldGroup>
+                    <span>  Swagger Def Path  </span>
+                    {!!swaggerdefPath && <LocationText>{swaggerdefPath}</LocationText>}
+                    {!swaggerdefPath && <span>Please choose a directory for swagger definition. </span>}
+                    <Button appearance="secondary" onClick={handleSwaggerPathSelection} id="select-swagger-path-btn">
+                        Select Location
+                    </Button>
+                </FieldGroup>
                 <ActionContainer>
                     <Button
                         appearance="secondary"

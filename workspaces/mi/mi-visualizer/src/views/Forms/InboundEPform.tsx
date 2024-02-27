@@ -11,7 +11,7 @@ import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { AutoComplete, Button, TextField, Dropdown } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { SectionWrapper } from "./Commons";
+import { FieldGroup, SectionWrapper } from "./Commons";
 
 const WizardContainer = styled.div`
     display: flex;
@@ -171,13 +171,15 @@ export function InboundEPWizard() {
                     autoFocus
                     required
                 />
-                <span>Creation Type</span>
-                <AutoComplete
-                    items={creationTypes}
-                    selectedItem={creationType}
-                    onChange={handleCreationTypeChange}
-                    sx={{width: '370px'}}
-                ></AutoComplete>
+                <FieldGroup>
+                    <span>Creation Type</span>
+                    <AutoComplete
+                        items={creationTypes}
+                        selectedItem={creationType}
+                        onChange={handleCreationTypeChange}
+                        sx={{width: '370px'}}
+                    ></AutoComplete>
+                </FieldGroup>
                 {!excludeSubFormFrom.includes(creationType) && (
                     <HiddenFormWrapper>
                         <span>Sequence</span>
