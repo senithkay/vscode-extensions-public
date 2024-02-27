@@ -165,8 +165,7 @@ export function APIWizard(props: APIWizardProps) {
                     size={46}
                 />
                 <FieldGroup>
-                    <span>Version Type</span>
-                    <AutoComplete sx={{ width: '370px' }} items={versionLabels} selectedItem={versionType} onChange={handleVersionTypeChange}></AutoComplete>
+                    <AutoComplete sx={{ width: '370px' }} label="Version Type" items={versionLabels} selectedItem={versionType} onChange={handleVersionTypeChange} />
                     {versionType !== "none" && (
                         <TextField
                             placeholder={versionType === "context" ? "0.0.1" : "https://example.com"}
