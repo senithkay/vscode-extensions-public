@@ -11,11 +11,11 @@ import React from "react";
 import { Flow } from "../utils/types";
 
 interface DiagramContextState {
-    flow: Flow | undefined;
+    flow: Flow;
 }
 
 export const DiagramContext = React.createContext<DiagramContextState>({
-    flow: undefined,
+    flow: { name: "", nodes: [], clients: [] },
 });
 
 export const useDiagramContext = () => React.useContext(DiagramContext);

@@ -7,18 +7,34 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
-import { TextField } from "@wso2-enterprise/ui-toolkit";
+import React, { useContext } from "react";
+import { Dropdown, TextField } from "@wso2-enterprise/ui-toolkit";
 import { NodeWidgetProps, NodeStyles, BaseNodeWidget } from "../BaseNodeWidget";
+import { DiagramContext } from "../../../DiagramContext";
 
 export function HttpActionNodeWidget(props: NodeWidgetProps) {
     const { model } = props;
+    const { flow } = useContext(DiagramContext);
+
+    const globalClients = flow.clients.filter((client) => client.scope === "GLOBAL");
+    const dropdownItems = globalClients.map((client) => {
+        return {
+            id: client.id,
+            content: client.value,
+            value: client.value,
+        };
+    });
 
     return (
         <BaseNodeWidget {...props}>
             <NodeStyles.Row>
                 <NodeStyles.StyledText>Client </NodeStyles.StyledText>
-                <TextField value={model.node.nodeProperties.client.value.toString()} />
+                <Dropdown
+                    id={`${model.node.id}-clients-dropdown`}
+                    value={model.node.nodeProperties.client.value.toString()}
+                    items={dropdownItems}
+                    sx={{ width: 166, marginBottom: 2}}
+                ></Dropdown>
             </NodeStyles.Row>
             <NodeStyles.Row>
                 <NodeStyles.StyledText>Path </NodeStyles.StyledText>
