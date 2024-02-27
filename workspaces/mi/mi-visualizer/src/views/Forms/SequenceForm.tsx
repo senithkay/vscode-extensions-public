@@ -90,14 +90,25 @@ export function SequenceWizard() {
                     placeholder="Name"
                     validationMessage="Sequence name is required"
                     onChange={(text: string) => setSequenceName(text)}
+                    size={35}
                     autoFocus
                     required
                 />
                 <h5>Advanced Configuration</h5>
                 <span>Available Endpoints</span>
-                <AutoComplete items={endpoints} selectedItem={selectedEndpoint} onChange={handleEndpointChange}></AutoComplete>
+                <AutoComplete 
+                    items={endpoints}
+                    selectedItem={selectedEndpoint}
+                    onChange={handleEndpointChange}
+                    sx={{width: '370px'}}>
+                </AutoComplete>
                 <span>On Error Sequence</span>
-                <AutoComplete items={sequences} selectedItem={onErrorSequence} onChange={handleErrorSequenceChange}></AutoComplete>
+                <AutoComplete 
+                    items={sequences}
+                    selectedItem={onErrorSequence}
+                    onChange={handleErrorSequenceChange}
+                    sx={{width: '370px'}}>
+                </AutoComplete>
                 <ActionContainer>
                     <Button
                         appearance="secondary"

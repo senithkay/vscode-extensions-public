@@ -176,7 +176,7 @@ export function InboundEPWizard() {
                     items={creationTypes}
                     selectedItem={creationType}
                     onChange={handleCreationTypeChange}
-                    sx={{ width: '50%' }}
+                    sx={{width: '370px'}}
                 ></AutoComplete>
                 {!excludeSubFormFrom.includes(creationType) && (
                     <HiddenFormWrapper>

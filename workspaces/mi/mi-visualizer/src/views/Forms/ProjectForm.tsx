@@ -91,6 +91,7 @@ export function ProjectWizard() {
                         placeholder="Project Name"
                         validationMessage="Project name is required"
                         onChange={(text: string) => setProjectName(text)}
+                        size={35}
                         autoFocus
                         required
                     />

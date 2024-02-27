@@ -136,11 +136,12 @@ export function EndpointWizard() {
                     placeholder="Name"
                     validationMessage="Endpoint name is required"
                     onChange={(text: string) => setEndpointName(text)}
+                    size={35}
                     autoFocus
                     required
                 />
                 <span>Endpoint Type</span>
-                <AutoComplete items={endpointTypes} selectedItem={endpointType} onChange={handleEndpointTypeChange}></AutoComplete>
+                <AutoComplete sx={{width: '370px'}} items={endpointTypes} selectedItem={endpointType} onChange={handleEndpointTypeChange}></AutoComplete>
                 {endpointType === "Address Endpoint" && (
                     <TextField
                         placeholder="Address"
@@ -148,6 +149,7 @@ export function EndpointWizard() {
                         onChange={(text: string) => setAddress(text)}
                         value={address}
                         id='address-input'
+                        size={35}
                     />)}
                 <h5>Endpoint Configuration</h5>
                 {endpointType === "HTTP Endpoint" && (
@@ -158,9 +160,10 @@ export function EndpointWizard() {
                             onChange={(text: string) => setURITemplate(text)}
                             value={URITemplate}
                             id='uri-template-input'
+                            size={35}
                         />
                         <span>Endpoint Type</span>
-                        <AutoComplete items={methodsTypes} selectedItem={method} onChange={handleMethodChange}></AutoComplete>
+                        <AutoComplete sx={{width: '370px'}} items={methodsTypes} selectedItem={method} onChange={handleMethodChange}></AutoComplete>
                     </>
                 )}
                 <RadioBtnContainer>

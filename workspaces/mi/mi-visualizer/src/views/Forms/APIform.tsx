@@ -83,6 +83,7 @@ export function APIWizard() {
                     placeholder="Name"
                     validationMessage="Project name is required"
                     onChange={(text: string) => setAPIName(text)}
+                    size={35}
                     autoFocus
                     required
                 />
@@ -94,9 +95,10 @@ export function APIWizard() {
                     value={apiContext}
                     id='context-input'
                     required
+                    size={35}
                 />
                 <span>Version Type</span>
-                <AutoComplete items={versionLabels} selectedItem={versionType} onChange={handleVersionTypeChange}></AutoComplete>
+                <AutoComplete sx={{width: '370px'}} items={versionLabels} selectedItem={versionType} onChange={handleVersionTypeChange}></AutoComplete>
                 {versionType !== "none" && (
                     <TextField
                         placeholder="Version"
@@ -104,6 +106,7 @@ export function APIWizard() {
                         onChange={(text: string) => setVersion(text)}
                         value={version}
                         id='version-input'
+                        size={35}
                     />)}
                 <TextField
                     placeholder="Path to swagger definition"
@@ -112,6 +115,7 @@ export function APIWizard() {
                     validationMessage="API context is required"
                     value={swaggerdefPath}
                     id='context-input'
+                    size={35}
                 />
                 <ActionContainer>
                     <Button
