@@ -22,9 +22,12 @@ import { FunctionType, Position } from "../resources/model";
 import { getFormattedPosition, getParentSTNodeFromRange, getSTNodeFromRange } from "../utils/common-util";
 import { getSyntaxTree } from "../utils/ls-util";
 
-export function getServiceSubHeaderMenuItems(location: Position,
-    nodeName: string, setFilteredNode: (nodeType: NodeType) => void,
-    goToSource: (filePath: string, position: NodePosition) => void, functionPanel: any, model: any, servicePanel: any) {
+export function getServiceSubHeaderMenuItems(
+    location: Position,
+    nodeName: string,
+    setFilteredNode: (nodeType: NodeType) => void,
+    goToSource: (filePath: string, position: NodePosition) => void,
+    functionPanel: any, model: any, servicePanel: any) {
 
     const menuItem: Item[] = [];
 
@@ -159,8 +162,15 @@ export function getFilterNodeMenuItem(nodeType: NodeType, setFilteredNode: (node
     return menuItem;
 }
 
-export function getRecordMenuItems(location: Position, nodeName: string, fullST: STNode, currentFile: any, recordEditor: any, langClientPromise: any,
-    setFilteredNode: (nodeType: NodeType) => void, goToSource: (filePath: string, position: NodePosition) => void) {
+export function getRecordMenuItems(
+    location: Position,
+    nodeName: string,
+    fullST: STNode,
+    currentFile: any,
+    recordEditor: any,
+    langClientPromise: any,
+    setFilteredNode: (nodeType: NodeType) => void,
+    goToSource: (filePath: string, position: NodePosition) => void) {
 
     const handleEditRecord = async () => {
         let recordModel: STNode;
@@ -205,7 +215,8 @@ export function getRecordMenuItems(location: Position, nodeName: string, fullST:
     return menuItem;
 }
 
-export function getClassFunctionMenuItem(position: Position,
+export function getClassFunctionMenuItem(
+    position: Position,
     model: STNode,
     functionType: FunctionType,
     currentST?: STNode,
@@ -266,7 +277,9 @@ export function getServiceFieldEdit(model: STNode, functionType: FunctionType, l
 
 }
 
-export function getDesignServiceField(model: STNode, location: Position,
+export function getDesignServiceField(
+    model: STNode,
+    location: Position,
     operationDesignView: (functionPosition: NodePosition, filePath?: string) => void) {
 
     const openOperationDesignView = () => {
@@ -288,7 +301,8 @@ export function getDesignServiceField(model: STNode, location: Position,
     return menuItem;
 }
 
-export function getDesignOperationMenuItem(position: Position,
+export function getDesignOperationMenuItem(
+    position: Position,
     operationDesignView: (functionPosition: NodePosition, filePath?: string) => void) {
 
     const openFunctionDesignPanel = () => {
