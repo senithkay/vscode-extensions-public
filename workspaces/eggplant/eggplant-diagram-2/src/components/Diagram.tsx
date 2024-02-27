@@ -18,6 +18,7 @@ import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { NodeLinkModel } from "./NodeLink";
 import { OverlayLayerModel } from "./OverlayLayer";
 import { BaseNodeModel } from "./nodes/BaseNode";
+import { DiagramContextProvider } from "./DiagramContext";
 
 export interface DiagramProps {
     model: Flow;
@@ -79,9 +80,11 @@ export function Diagram(props: DiagramProps) {
     return (
         <>
             {diagramEngine && diagramModel && (
-                <DiagramCanvas>
-                    <CanvasWidget engine={diagramEngine} />
-                </DiagramCanvas>
+                <DiagramContextProvider value={{ flow: model }}>
+                    <DiagramCanvas>
+                        <CanvasWidget engine={diagramEngine} />
+                    </DiagramCanvas>
+                </DiagramContextProvider>
             )}
         </>
     );
