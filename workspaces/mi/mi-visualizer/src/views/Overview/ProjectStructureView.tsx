@@ -52,7 +52,7 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
     };
 
     const handlePlusClick = async (key: string) => {
-        if (key === 'api') {
+        if (key === 'apis') {
             await rpcClient.getMiDiagramRpcClient().executeCommand({commands: ["project-explorer.add-api"]});
         } else if (key === 'endpoints') {
             await rpcClient.getMiDiagramRpcClient().executeCommand({commands: ["project-explorer.add-endpoint"]});

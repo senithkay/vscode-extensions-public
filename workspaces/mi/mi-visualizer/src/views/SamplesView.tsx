@@ -46,6 +46,12 @@ const ProgressRing = styled(VSCodeProgressRing)`
     padding: 4px;
 `;
 
+const GridContainer = styled.div`
+    max-height: 70vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+`;
+
 export function SamplesView() {
     const { rpcClient } = useVisualizerContext();
     const [state, setState] = React.useState<VisualizerLocation>(null);
@@ -110,39 +116,39 @@ export function SamplesView() {
     }
 
     return (
-        <>
-            <div>
-                <h2>Try out a sample</h2>
-                <p>Choose a sample from the list below to get started.</p>
-                <SearchWrapper>
-                    <Dropdown
-                        id="drop-down"
-                        items={categories ? categories.map(category => ({
-                            key: category.id - 1,
-                            text: category.title,
-                            value: category.title
-                        })) : null}
-                        label="Sample Category"
-                        onChange={handleChange}
-                        value={filterText}
-                        sx={{ width: 230 }}
-                    />
-                    <SearchBox
-                        value={searchText}
-                        autoFocus
-                        label="Search"
-                        type="text"
-                        onChange={handleSearch}
-                    />
-                </SearchWrapper>
-                <br />
+        <div>
+            <h2>Try out a sample</h2>
+            <p>Choose a sample from the list below to get started.</p>
+            <SearchWrapper>
+                <Dropdown
+                    id="drop-down"
+                    items={categories ? categories.map(category => ({
+                        key: category.id - 1,
+                        text: category.title,
+                        value: category.title
+                    })) : null}
+                    label="Sample Category"
+                    onChange={handleChange}
+                    value={filterText}
+                    sx={{ width: 230 }}
+                />
+                <SearchBox
+                    value={searchText}
+                    autoFocus
+                    label="Search"
+                    type="text"
+                    onChange={handleSearch}
+                />
+            </SearchWrapper>
+            <br />
+            <GridContainer>
                 <Grid
                     columns={5}
                     direction="column">
                     {filteredSampleData ? filteredSampleData.sort((a, b) => a.priority - b.priority).map((sample, index) => (
                         <ComponentCard
                             disbaleHoverEffect={true}
-                            sx={{ alignItems: "flex-start", width: "220px", marginBottom: "20px"}}>
+                            sx={{ alignItems: "flex-start", width: "220px", marginBottom: "20px" }}>
                             <SampleContainer key={sample.title}>
                                 <h2 className="card-title" style={{ margin: '0', fontSize: '16px' }}>{sample.title}</h2>
                                 <img src={images[sample.category]} className="card-image" style={{ width: '50%', height: 'auto' }} />
@@ -156,7 +162,7 @@ export function SamplesView() {
                         </LoaderWrapper>
                     )}
                 </Grid>
-            </div>
-        </>
+            </GridContainer>
+        </div>
     );
 }
