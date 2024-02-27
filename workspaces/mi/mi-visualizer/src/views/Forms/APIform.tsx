@@ -82,6 +82,19 @@ export function APIWizard() {
         setSwaggerdefPath(projectDirectory.path);
     }
 
+    const validateAPIName = (name: string) => {
+        // Check if the name is empty
+        if (!name.trim()) {
+            return "Name is required";
+        }
+
+        // Check if the name contains spaces or special characters
+        if (/[\s~`!@#$%^&*()_+={}[\]:;'",.<>?/\\|]+/.test(name)) {
+            return "Name cannot contain spaces or special characters";
+        }
+        return "";
+    };
+
     const isValid: boolean = apiName.length > 0 && apiContext.length > 0 && versionType.length > 0;
 
     return (
@@ -93,9 +106,9 @@ export function APIWizard() {
                     id='name-input'
                     label="Name"
                     placeholder="Name"
-                    validationMessage="Project name is required"
                     onChange={(text: string) => setAPIName(text)}
-                    size={35}
+                    errorMsg={validateAPIName(apiName)}
+                    size={46}
                     autoFocus
                     required
                 />
@@ -103,11 +116,11 @@ export function APIWizard() {
                     placeholder="Context"
                     label="Context"
                     onChange={(text: string) => setAPIContext(text)}
-                    validationMessage="API context is required"
                     value={apiContext}
                     id='context-input'
                     required
-                    size={35}
+                    errorMsg={validateAPIName(apiContext)}
+                    size={46}
                 />
                 <FieldGroup>
                     <span>Version Type</span>

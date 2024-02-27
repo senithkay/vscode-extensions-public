@@ -59,6 +59,19 @@ export function SequenceWizard() {
         setOnErrorSequence(sequence);
     };
 
+    const validateSequence = (name: string) => {
+        // Check if the name is empty
+        if (!name.trim()) {
+            return "Sequence name is required";
+        }
+
+        // Check if the name contains spaces or special characters
+        if (/[\s~`!@#$%^&*()_+={}[\]:;'",.<>?/\\|]+/.test(name)) {
+            return "Sequence name cannot contain spaces or special characters";
+        }
+        return "";
+    };
+
     const handleCreateProject = async () => {
         const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot()).path;
         const sequenceDir = `${projectDir}/src/main/wso2mi/artifacts/sequences`;
@@ -88,9 +101,9 @@ export function SequenceWizard() {
                     id='name-input'
                     label="Name"
                     placeholder="Name"
-                    validationMessage="Sequence name is required"
                     onChange={(text: string) => setSequenceName(text)}
-                    size={35}
+                    errorMsg={validateSequence(sequenceName)}
+                    size={40}
                     autoFocus
                     required
                 />

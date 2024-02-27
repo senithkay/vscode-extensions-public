@@ -120,6 +120,32 @@ export function EndpointWizard() {
         rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
     };
 
+    const validateEndpointName = (name: string) => {
+        // Check if the name is empty
+        if (!name.trim()) {
+            return "Enpoint name is required";
+        }
+
+        // Check if the name contains spaces or special characters
+        if (/[\s~`!@#$%^&*()_+={}[\]:;'",.<>?/\\|]+/.test(name)) {
+            return "Endpoint name cannot contain spaces or special characters";
+        }
+        return "";
+    };
+
+    const validateAddress = (name: string) => {
+        // Check if the name is empty
+        if (!name.trim()) {
+            return "Address is required";
+        }
+
+        // Check if the name is a valid HTTP address
+        const httpRegex = /^(http:\/\/|https:\/\/)/;
+        if (!httpRegex.test(name)) {
+            return "Provide a valid HTTP address";
+        }
+    };
+
     const isValid: boolean = endpointName.length > 0 &&
         endpointType.length > 0 &&
         (!(endpointType === "Address Endpoint") || address.length > 0) &&
@@ -134,9 +160,9 @@ export function EndpointWizard() {
                     id='name-input'
                     label="Endpoint Name"
                     placeholder="Name"
-                    validationMessage="Endpoint name is required"
                     onChange={(text: string) => setEndpointName(text)}
-                    size={35}
+                    errorMsg={validateEndpointName(endpointName)}
+                    size={46}
                     autoFocus
                     required
                 />
@@ -151,7 +177,8 @@ export function EndpointWizard() {
                         onChange={(text: string) => setAddress(text)}
                         value={address}
                         id='address-input'
-                        size={35}
+                        errorMsg={validateAddress(address)}
+                        size={46}
                     />)}
 
                 <FieldGroup>
@@ -164,7 +191,7 @@ export function EndpointWizard() {
                                 onChange={(text: string) => setURITemplate(text)}
                                 value={URITemplate}
                                 id='uri-template-input'
-                                size={35}
+                                size={46}
                             />
                             <span>Endpoint Type</span>
                             <AutoComplete sx={{ width: '370px' }} items={methodsTypes} selectedItem={method} onChange={handleMethodChange}></AutoComplete>

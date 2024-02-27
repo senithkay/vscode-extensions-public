@@ -78,47 +78,60 @@ export function ProjectWizard() {
 
     };
 
+    const validateProjectName = (name: string) => {
+        // Check if the name is empty
+        if (!name.trim()) {
+            return "Project name is required";
+        }
+
+        // Check if the name contains spaces or special characters
+        if (/[\s~`!@#$%^&*()_+={}[\]:;'",.<>?/\\|]+/.test(name)) {
+            return "Project name cannot contain spaces or special characters";
+        }
+        return "";
+    };
+
     const isValid: boolean = projectName.length > 0 && projectDir.length > 0;
 
     return (
-            <WizardContainer>
-                <SectionWrapper>
-                    <h3>Integration Project</h3>
-                    <TextField
-                        value={projectName}
-                        id='name-input'
-                        label="Project Name"
-                        placeholder="Project Name"
-                        validationMessage="Project name is required"
-                        onChange={(text: string) => setProjectName(text)}
-                        size={35}
-                        autoFocus
-                        required
-                    />
-                    <FieldGroup>
-                        <span>  Project Location  </span>
-                        {!!projectDir && <LocationText>{projectDir}</LocationText>}
-                        {!projectDir && <span>Please choose a directory for project workspace. </span>}
-                        <Button appearance="secondary" onClick={handleProjecDirSelection} id="select-project-dir-btn">
-                            Select Location
-                        </Button>
-                    </FieldGroup>
-                    <ActionContainer>
-                        <Button
-                            appearance="secondary"
-                            onClick={handleCancel}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            appearance="primary"
-                            onClick={handleCreateProject}
-                            disabled={!isValid}
-                        >
-                            Create
-                        </Button>
-                    </ActionContainer>
-                </SectionWrapper>
-            </WizardContainer>
+        <WizardContainer>
+            <SectionWrapper>
+                <h3>Integration Project</h3>
+                <TextField
+                    value={projectName}
+                    id='name-input'
+                    label="Project Name"
+                    placeholder="Project Name"
+                    onChange={(text: string) => setProjectName(text)}
+                    errorMsg={validateProjectName(projectName)}
+                    size={46}
+                    autoFocus
+                    required
+                />
+                <FieldGroup>
+                    <span>  Project Location  </span>
+                    {!!projectDir && <LocationText>{projectDir}</LocationText>}
+                    {!projectDir && <span>Please choose a directory for project workspace. </span>}
+                    <Button appearance="secondary" onClick={handleProjecDirSelection} id="select-project-dir-btn">
+                        Select Location
+                    </Button>
+                </FieldGroup>
+                <ActionContainer>
+                    <Button
+                        appearance="secondary"
+                        onClick={handleCancel}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        appearance="primary"
+                        onClick={handleCreateProject}
+                        disabled={!isValid}
+                    >
+                        Create
+                    </Button>
+                </ActionContainer>
+            </SectionWrapper>
+        </WizardContainer>
     );
 }

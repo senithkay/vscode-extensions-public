@@ -135,6 +135,19 @@ export function InboundEPWizard() {
         setOnErrorSequence(sequence);
     };
 
+    const validateName = (name: string) => {
+        // Check if the name is empty
+        if (!name.trim()) {
+            return "Name is required";
+        }
+
+        // Check if the name contains spaces or special characters
+        if (/[\s~`!@#$%^&*()_+={}[\]:;'",.<>?/\\|]+/.test(name)) {
+            return "Name cannot contain spaces or special characters";
+        }
+        return "";
+    };
+
     const handleCreateInboundEP = async () => {
         const createInboundEPParams = {
             directory: directoryPath,
@@ -165,9 +178,9 @@ export function InboundEPWizard() {
                     id='name-input'
                     label="Name"
                     placeholder="Name"
-                    validationMessage="Inbound Endpoint name is required"
                     onChange={(text: string) => setInboundEPName(text)}
-                    size={35}
+                    errorMsg={validateName(inboundEPName)}
+                    size={40}
                     autoFocus
                     required
                 />
@@ -194,9 +207,9 @@ export function InboundEPWizard() {
                                 value={customSequence}
                                 id='custom-sequence'
                                 placeholder="Custom Sequence Name"
-                                validationMessage="Custom sequence name is required"
                                 onChange={(text: string) => setCustomSequence(text)}
-                                size={50}
+                                errorMsg={validateName(customSequence)}
+                                size={40}
                                 required
                             />
                         </>}
@@ -212,15 +225,14 @@ export function InboundEPWizard() {
                                 value={customOnErrorSequence}
                                 id='custom-onerror-sequence'
                                 placeholder="Custom On Error Sequence Name"
-                                validationMessage="Custom on-error sequence name is required"
                                 onChange={(text: string) => setCustomOnErrorSequence(text)}
-                                size={50}
+                                errorMsg={validateName(customOnErrorSequence)}
+                                size={40}
                                 required
                             />
                         </>}
                     </HiddenFormWrapper>
                 )}
-                {nameError && <span style={{ color: "#f48771" }}>{`Invalid character(s) in a name field`}</span>}
                 <ActionContainer>
                     <Button
                         appearance="secondary"
