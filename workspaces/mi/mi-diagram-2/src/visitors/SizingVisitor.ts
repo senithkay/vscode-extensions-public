@@ -66,9 +66,11 @@ export class SizingVisitor implements Visitor {
     }
 
     // visitors
+    beginVisitCall = (node: Call): void => { this.skipChildrenVisit = true; }
     endVisitCall = (node: Call): void => {
         node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CALL.WIDTH, fw: NODE_DIMENSIONS.CALL.FULL_WIDTH, h: NODE_DIMENSIONS.DEFAULT.HEIGHT, l: NODE_DIMENSIONS.CALL.WIDTH / 2, r: NODE_DIMENSIONS.CALL.FULL_WIDTH - NODE_DIMENSIONS.CALL.WIDTH / 2 };
         this.calculateBasicMediator(node);
+        this.skipChildrenVisit = false;
     }
     endVisitCallout = (node: Callout): void => this.calculateBasicMediator(node);
     endVisitDrop = (node: Drop): void => this.calculateBasicMediator(node);

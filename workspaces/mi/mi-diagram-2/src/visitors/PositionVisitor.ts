@@ -73,7 +73,8 @@ export class PositionVisitor implements Visitor {
                 }
             }
         }
-        const branchesWidth = node.viewState.fw - sequenceTypeOffsets.length > 0 ? (sequenceTypeOffsets[0].l - sequenceTypeOffsets[sequenceTypeOffsets.length - 1].r) : 0;
+        const sequenceOffsets = sequenceTypeOffsets.length > 0 ? sequenceTypeOffsets[0].l + sequenceTypeOffsets[sequenceTypeOffsets.length - 1].r : 0;
+        const branchesWidth = node.viewState.fw - sequenceOffsets;
 
         this.position.x = centerX - (branchesWidth / 2);
         for (let i = 0; i < subSequenceKeys.length; i++) {
@@ -101,7 +102,12 @@ export class PositionVisitor implements Visitor {
         this.skipChildrenVisit = status;
     }
 
-    beginVisitCall = (node: Call): void => this.setBasicMediatorPosition(node);
+    beginVisitCall = (node: Call): void => {
+        this.setBasicMediatorPosition(node);
+        this.setSkipChildrenVisit(true);
+    }
+    endVisitCall = (node: Call): void => this.setSkipChildrenVisit(false);
+
     beginVisitCallout = (node: Callout): void => this.setBasicMediatorPosition(node);
     beginVisitDrop = (node: Drop): void => this.setBasicMediatorPosition(node);
     beginVisitEndpoint = (node: Endpoint): void => this.setBasicMediatorPosition(node);
