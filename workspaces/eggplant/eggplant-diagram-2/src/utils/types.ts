@@ -14,7 +14,15 @@ export type NodeModel = BaseNodeModel | EmptyNodeModel;
 
 export type {
     Flow,
+    Client,
+    ClientKind,
+    ClientScope,
     Node,
+    NodeKind,
+    Branch,
+    LineRange,
+    Expression,
+    TypeKind,
+    NodeProperties,
     ViewState,
-    NodeKind
 } from "@wso2-enterprise/eggplant-core";
