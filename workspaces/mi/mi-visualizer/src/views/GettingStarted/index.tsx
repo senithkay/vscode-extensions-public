@@ -180,7 +180,7 @@ export function GettingStarted() {
                             </Tab>
                             <Tab>
                                 <SubTitle>Troubleshooting</SubTitle>
-                                <span>Experiencing problems? Start with our <VSCodeLink onClick={openTroubleshootGuide}>troubleshooting guide</VSCodeLink>.</span>
+                                <span>Experiencing problems? Start with our <VSCodeLink onClick={openTroubleshootGuide}>Troubleshooting Guide</VSCodeLink>.</span>
                             </Tab>
                         </Pane>
                         <Pane>
