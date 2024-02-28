@@ -14,8 +14,9 @@ import { NodeTypes } from "../../../resources/constants";
 export class EmptyNodeModel extends NodeModel {
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
+    protected visible: boolean;
 
-    constructor(id: string) {
+    constructor(id: string, visible = true) {
         super({
             id,
             type: NodeTypes.EMPTY_NODE,
@@ -23,7 +24,7 @@ export class EmptyNodeModel extends NodeModel {
         });
         this.addInPort("in");
         this.addOutPort("out");
-        this.width = 100;
+        this.visible = visible;
     }
 
     addPort<T extends NodePortModel>(port: T): T {
@@ -52,5 +53,9 @@ export class EmptyNodeModel extends NodeModel {
 
     getOutPort(): NodePortModel {
         return this.portOut;
+    }
+
+    isVisible(): boolean {
+        return this.visible;
     }
 }

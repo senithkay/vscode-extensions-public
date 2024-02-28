@@ -45,8 +45,8 @@ export class NodeFactoryVisitor implements BaseVisitor {
         this.lastNodeModel = nodeModel;
     }
 
-    private createEmptyNode(id: string): EmptyNodeModel {
-        const nodeModel = new EmptyNodeModel(id);
+    private createEmptyNode(id: string, visible = true): EmptyNodeModel {
+        const nodeModel = new EmptyNodeModel(id, visible);
         this.nodes.push(nodeModel);
         return nodeModel;
     }
@@ -97,7 +97,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
         node.branches?.forEach((branch) => {
             if (!branch.children || branch.children.length === 0) {
                 // empty branch
-                let branchEmptyNode = this.createEmptyNode(`${node.id}-${branch.label}-branch`);
+                let branchEmptyNode = this.createEmptyNode(`${node.id}-${branch.label}-branch`, false);
                 const linkIn = createNodesLink(ifNodeModel, branchEmptyNode, { label: branch.label, brokenLine: true });
                 const linkOut = createNodesLink(branchEmptyNode, endIfEmptyNode, {
                     brokenLine: true,
