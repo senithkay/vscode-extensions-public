@@ -17,9 +17,9 @@ import { traverseFlow } from "../utils/ast";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { NodeLinkModel } from "./NodeLink";
 import { OverlayLayerModel } from "./OverlayLayer";
-import { BaseNodeModel } from "./nodes/BaseNode";
-import { DiagramContextProvider } from "./DiagramContext";
+import { DiagramContextProvider, DiagramContextState } from "./DiagramContext";
 import { EmptyNodeModel } from "./nodes/EmptyNode";
+import { ComponentList, ComponentPanel } from "./ComponentPanel";
 
 export interface DiagramProps {
     model: Flow;
@@ -30,6 +30,7 @@ export function Diagram(props: DiagramProps) {
 
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
+    const [showComponentPanel, setShowComponentPanel] = useState(true);
 
     useEffect(() => {
         if (diagramEngine) {
@@ -90,13 +91,33 @@ export function Diagram(props: DiagramProps) {
         }, 1000);
     };
 
+    const handleCloseComponentPanel = () => {
+        setShowComponentPanel(false);
+    };
+
+    const handleShowComponentPanel = () => {
+        setShowComponentPanel(true);
+    };
+
+    const context: DiagramContextState = {
+        flow: model,
+        componentPanel: {
+            visible: showComponentPanel,
+            show: handleShowComponentPanel,
+            hide: handleCloseComponentPanel,
+        },
+    };
+
     return (
         <>
             {diagramEngine && diagramModel && (
-                <DiagramContextProvider value={{ flow: model }}>
+                <DiagramContextProvider value={context}>
                     <DiagramCanvas>
                         <CanvasWidget engine={diagramEngine} />
                     </DiagramCanvas>
+                    <ComponentPanel show={showComponentPanel} onClose={handleCloseComponentPanel}>
+                        <ComponentList />
+                    </ComponentPanel>
                 </DiagramContextProvider>
             )}
         </>

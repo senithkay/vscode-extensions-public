@@ -13,6 +13,7 @@ import { useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { NodeLinkModel } from "./NodeLinkModel";
 import { Colors } from "../../resources/constants";
+import { useDiagramContext } from "../DiagramContext";
 
 interface NodeLinkWidgetProps {
     link: NodeLinkModel;
@@ -32,9 +33,12 @@ const fadeInZoomIn = keyframes`
 
 export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) => {
     const [isHovered, setIsHovered] = useState(false);
+    const {componentPanel} = useDiagramContext();
+
     const addButtonPosition = link.getAddButtonPosition();
 
     const handleAddNode = () => {
+        componentPanel.show();
         if (link.onAddClick) {
             link.onAddClick();
         }

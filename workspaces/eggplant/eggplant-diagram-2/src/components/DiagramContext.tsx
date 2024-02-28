@@ -10,12 +10,22 @@
 import React from "react";
 import { Flow } from "../utils/types";
 
-interface DiagramContextState {
+export interface DiagramContextState {
     flow: Flow;
+    componentPanel: {
+        visible: boolean;
+        show(): void;
+        hide(): void;
+    }
 }
 
 export const DiagramContext = React.createContext<DiagramContextState>({
     flow: { name: "", nodes: [], clients: [] },
+    componentPanel: {
+        visible: false,
+        show: () => {},
+        hide: () => {},
+    },
 });
 
 export const useDiagramContext = () => React.useContext(DiagramContext);
