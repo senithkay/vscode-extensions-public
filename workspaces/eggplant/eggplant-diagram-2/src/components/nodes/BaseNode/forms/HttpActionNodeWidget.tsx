@@ -24,26 +24,32 @@ export function HttpActionNodeWidget(props: NodeWidgetProps) {
             value: client.value,
         };
     });
+    const nodeProperties = model.node.nodeProperties;
 
     return (
         <BaseNodeWidget {...props}>
             <NodeStyles.Row>
-                <NodeStyles.StyledText>Client </NodeStyles.StyledText>
+                <NodeStyles.StyledText>{nodeProperties.client.label} </NodeStyles.StyledText>
                 <Dropdown
                     id={`${model.node.id}-clients-dropdown`}
-                    value={model.node.nodeProperties.client.value.toString()}
+                    value={nodeProperties.client.value.toString()}
                     items={dropdownItems}
                     sx={{ width: 166, marginBottom: 2}}
                 ></Dropdown>
             </NodeStyles.Row>
             <NodeStyles.Row>
-                <NodeStyles.StyledText>Path </NodeStyles.StyledText>
-                <TextField value={model.node.nodeProperties.path.value.toString()} />
+                <NodeStyles.StyledText>{nodeProperties.path.label} </NodeStyles.StyledText>
+                <TextField value={nodeProperties.path.value.toString()} />
             </NodeStyles.Row>
             <NodeStyles.Row>
-                <NodeStyles.StyledText>Headers </NodeStyles.StyledText>
-                <TextField value="" />
+                <NodeStyles.StyledText>{nodeProperties.targetType.label} </NodeStyles.StyledText>
+                <TextField value={nodeProperties.targetType.value} />
             </NodeStyles.Row>
+            <NodeStyles.Row>
+                <NodeStyles.StyledText>{nodeProperties.variable.label} </NodeStyles.StyledText>
+                <TextField value={nodeProperties.variable.value} />
+            </NodeStyles.Row>
+            
         </BaseNodeWidget>
     );
 }

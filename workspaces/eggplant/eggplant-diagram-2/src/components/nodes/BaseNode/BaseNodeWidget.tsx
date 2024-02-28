@@ -35,7 +35,7 @@ export namespace NodeStyles {
         border-radius: 10px;
         background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
-        cursor: pointer;
+        /* cursor: pointer; */
     `;
 
     export const Header = styled.div<{}>`

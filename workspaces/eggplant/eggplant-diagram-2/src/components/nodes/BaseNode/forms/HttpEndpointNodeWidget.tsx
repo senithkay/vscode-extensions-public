@@ -13,16 +13,17 @@ import { NodeWidgetProps, NodeStyles, BaseNodeWidget } from "../BaseNodeWidget";
 
 export function HttpEndpointNodeWidget(props: NodeWidgetProps) {
     const { model } = props;
+    const nodeProperties = model.node.nodeProperties;
 
     return (
         <BaseNodeWidget {...props}>
             <NodeStyles.Row>
-                <NodeStyles.StyledText>Method </NodeStyles.StyledText>
-                <TextField value={model.node.nodeProperties.method.value.toString()} />
+                <NodeStyles.StyledText>{nodeProperties.method.label} </NodeStyles.StyledText>
+                <TextField value={nodeProperties.method.value.toString()} />
             </NodeStyles.Row>
             <NodeStyles.Row>
-                <NodeStyles.StyledText>Path </NodeStyles.StyledText>
-                <TextField value={model.node.nodeProperties.path.value.toString()} />
+                <NodeStyles.StyledText>{nodeProperties.path.label} </NodeStyles.StyledText>
+                <TextField value={nodeProperties.path.value.toString()} />
             </NodeStyles.Row>
         </BaseNodeWidget>
     );

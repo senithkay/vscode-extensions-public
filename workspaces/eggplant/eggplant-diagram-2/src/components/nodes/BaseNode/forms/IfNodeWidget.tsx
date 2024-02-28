@@ -13,12 +13,13 @@ import { NodeWidgetProps, NodeStyles, BaseNodeWidget } from "../BaseNodeWidget";
 
 export function IfNodeWidget(props: NodeWidgetProps) {
     const { model } = props;
+    const nodeProperties = model.node.nodeProperties;
 
     return (
         <BaseNodeWidget {...props}>
             <NodeStyles.Row>
-                <NodeStyles.StyledText>Condition </NodeStyles.StyledText>
-                <TextField value={model.node.nodeProperties.condition.value.toString()} />
+                <NodeStyles.StyledText>{nodeProperties.condition.label} </NodeStyles.StyledText>
+                <TextField value={nodeProperties.condition.value.toString()} />
             </NodeStyles.Row>
         </BaseNodeWidget>
     );

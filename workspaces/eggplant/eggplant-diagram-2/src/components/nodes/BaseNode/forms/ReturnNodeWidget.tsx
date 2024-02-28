@@ -13,12 +13,13 @@ import { NodeWidgetProps, NodeStyles, BaseNodeWidget } from "../BaseNodeWidget";
 
 export function ReturnNodeWidget(props: NodeWidgetProps) {
     const { model } = props;
+    const nodeProperties = model.node.nodeProperties;
 
     return (
         <BaseNodeWidget {...props}>
             <NodeStyles.Row>
-                <NodeStyles.StyledText>Value </NodeStyles.StyledText>
-                <TextField value={model.node.nodeProperties.expression.value.toString()} />
+                <NodeStyles.StyledText>{nodeProperties.expression.label} </NodeStyles.StyledText>
+                <TextField value={nodeProperties.expression.value.toString()} />
             </NodeStyles.Row>
         </BaseNodeWidget>
     );
