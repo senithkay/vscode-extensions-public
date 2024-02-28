@@ -9,15 +9,16 @@
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { AutoComplete, Button, TextField } from "@wso2-enterprise/ui-toolkit";
-import { SectionWrapper } from "./Commons";
+import { FieldGroup, SectionWrapper } from "./Commons";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
 const WizardContainer = styled.div`
-    width: 95%;
-    display  : flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 95vw;
+    height: calc(100vh - 140px);
+    overflow: auto;
 `;
 
 const ActionContainer = styled.div`
@@ -27,14 +28,6 @@ const ActionContainer = styled.div`
     gap: 10px;
     padding-bottom: 20px;
 `;
-
-const TitleWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
-`;
-
 
 export interface Region {
     label: string;
@@ -51,7 +44,7 @@ export function SequenceWizard() {
     const [sequences, setSequences] = useState([]);
 
     useEffect(() => {
-        (async () => { 
+        (async () => {
             const data = await rpcClient.getMiDiagramRpcClient().getEndpointsAndSequences();
             setEndpoints(data.data[0]);
             setSequences(data.data[1]);
@@ -64,6 +57,19 @@ export function SequenceWizard() {
 
     const handleErrorSequenceChange = (sequence: string) => {
         setOnErrorSequence(sequence);
+    };
+
+    const validateSequence = (name: string) => {
+        // Check if the name is empty
+        if (!name.trim()) {
+            return "Sequence name is required";
+        }
+
+        // Check if the name contains spaces or special characters
+        if (/[\s~`!@#$%^&*()_+={}[\]:;'",.<>?/\\|]+/.test(name)) {
+            return "Sequence name cannot contain spaces or special characters";
+        }
+        return "";
     };
 
     const handleCreateProject = async () => {
@@ -88,9 +94,6 @@ export function SequenceWizard() {
 
     return (
         <WizardContainer>
-            <TitleWrapper>
-                <h2>New Sequence Artifact</h2>
-            </TitleWrapper>
             <SectionWrapper>
                 <h3>Sequence Artifact</h3>
                 <TextField
@@ -98,32 +101,47 @@ export function SequenceWizard() {
                     id='name-input'
                     label="Name"
                     placeholder="Name"
-                    validationMessage="Sequence name is required"
                     onChange={(text: string) => setSequenceName(text)}
+                    errorMsg={validateSequence(sequenceName)}
+                    size={40}
                     autoFocus
                     required
                 />
                 <h5>Advanced Configuration</h5>
-                <span>Available Endpoints</span>
-                <AutoComplete items={endpoints} selectedItem={selectedEndpoint} onChange={handleEndpointChange}></AutoComplete>
-                <span>On Error Sequence</span>
-                <AutoComplete items={sequences} selectedItem={onErrorSequence} onChange={handleErrorSequenceChange}></AutoComplete>
+                <FieldGroup>
+                    <span>Available Endpoints</span>
+                    <AutoComplete 
+                        items={endpoints}
+                        selectedItem={selectedEndpoint}
+                        onChange={handleEndpointChange}
+                        sx={{width: '370px'}}>
+                    </AutoComplete>
+                </FieldGroup>
+                <FieldGroup>
+                    <span>On Error Sequence</span>
+                    <AutoComplete 
+                        items={sequences}
+                        selectedItem={onErrorSequence}
+                        onChange={handleErrorSequenceChange}
+                        sx={{width: '370px'}}>
+                    </AutoComplete>
+                </FieldGroup>
+                <ActionContainer>
+                    <Button
+                        appearance="secondary"
+                        onClick={handleCancel}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        appearance="primary"
+                        onClick={handleCreateProject}
+                        disabled={!isValid}
+                    >
+                        Create
+                    </Button>
+                </ActionContainer>
             </SectionWrapper>
-            <ActionContainer>
-                <Button
-                    appearance="secondary"
-                    onClick={handleCancel}
-                >
-                    Cancel
-                </Button>
-                <Button
-                    appearance="primary"
-                    onClick={handleCreateProject}
-                    disabled={!isValid}
-                >
-                    Create
-                </Button>
-            </ActionContainer>
         </WizardContainer>
     );
 }

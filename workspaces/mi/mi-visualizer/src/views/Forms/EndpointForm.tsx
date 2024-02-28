@@ -9,16 +9,17 @@
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { AutoComplete, Button, TextField } from "@wso2-enterprise/ui-toolkit";
-import { SectionWrapper } from "./Commons";
+import { FieldGroup, SectionWrapper } from "./Commons";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { CreateEndpointRequest, EndpointDirectoryResponse } from "@wso2-enterprise/mi-core";
 
 const WizardContainer = styled.div`
-    width: 95%;
-    display  : flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 95vw;
+    height: calc(100vh - 140px);
+    overflow: auto;
 `;
 
 const ActionContainer = styled.div`
@@ -119,6 +120,32 @@ export function EndpointWizard() {
         rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
     };
 
+    const validateEndpointName = (name: string) => {
+        // Check if the name is empty
+        if (!name.trim()) {
+            return "Enpoint name is required";
+        }
+
+        // Check if the name contains spaces or special characters
+        if (/[\s~`!@#$%^&*()_+={}[\]:;'",.<>?/\\|]+/.test(name)) {
+            return "Endpoint name cannot contain spaces or special characters";
+        }
+        return "";
+    };
+
+    const validateAddress = (name: string) => {
+        // Check if the name is empty
+        if (!name.trim()) {
+            return "Address is required";
+        }
+
+        // Check if the name is a valid HTTP address
+        const httpRegex = /^(http:\/\/|https:\/\/)/;
+        if (!httpRegex.test(name)) {
+            return "Provide a valid HTTP address";
+        }
+    };
+
     const isValid: boolean = endpointName.length > 0 &&
         endpointType.length > 0 &&
         (!(endpointType === "Address Endpoint") || address.length > 0) &&
@@ -126,9 +153,6 @@ export function EndpointWizard() {
 
     return (
         <WizardContainer>
-            <TitleWrapper>
-                <h2>New Endpoint Artifact</h2>
-            </TitleWrapper>
             <SectionWrapper>
                 <h3>Endpoint Artifact</h3>
                 <TextField
@@ -136,13 +160,16 @@ export function EndpointWizard() {
                     id='name-input'
                     label="Endpoint Name"
                     placeholder="Name"
-                    validationMessage="Endpoint name is required"
                     onChange={(text: string) => setEndpointName(text)}
+                    errorMsg={validateEndpointName(endpointName)}
+                    size={46}
                     autoFocus
                     required
                 />
-                <span>Endpoint Type</span>
-                <AutoComplete items={endpointTypes} selectedItem={endpointType} onChange={handleEndpointTypeChange}></AutoComplete>
+                <FieldGroup>
+                    <span>Endpoint Type</span>
+                    <AutoComplete sx={{ width: '370px' }} items={endpointTypes} selectedItem={endpointType} onChange={handleEndpointTypeChange}></AutoComplete>
+                </FieldGroup>
                 {endpointType === "Address Endpoint" && (
                     <TextField
                         placeholder="Address"
@@ -150,57 +177,63 @@ export function EndpointWizard() {
                         onChange={(text: string) => setAddress(text)}
                         value={address}
                         id='address-input'
+                        errorMsg={validateAddress(address)}
+                        size={46}
                     />)}
-                <h5>Endpoint Configuration</h5>
-                {endpointType === "HTTP Endpoint" && (
-                    <>
-                        <TextField
-                            placeholder="URI Template"
-                            label="URI Template"
-                            onChange={(text: string) => setURITemplate(text)}
-                            value={URITemplate}
-                            id='uri-template-input'
-                        />
-                        <span>Endpoint Type</span>
-                        <AutoComplete items={methodsTypes} selectedItem={method} onChange={handleMethodChange}></AutoComplete>
-                    </>
+
+                <FieldGroup>
+                    <h5>Endpoint Configuration</h5>
+                    {endpointType === "HTTP Endpoint" && (
+                        <>
+                            <TextField
+                                placeholder="URI Template"
+                                label="URI Template"
+                                onChange={(text: string) => setURITemplate(text)}
+                                value={URITemplate}
+                                id='uri-template-input'
+                                size={46}
+                            />
+                            <span>Endpoint Type</span>
+                            <AutoComplete sx={{ width: '370px' }} items={methodsTypes} selectedItem={method} onChange={handleMethodChange}></AutoComplete>
+                        </>
                     )}
-                <RadioBtnContainer>
-                    <label>
-                        <input
-                            type="radio"
-                            value={endpointConfigurations[0]}
-                            checked={endpointConfiguration === endpointConfigurations[0]}
-                            onChange={handleEndpointConfigurationChange}
-                        />
-                        {endpointConfigurations[0]}
-                    </label>
-                    <label>
-                        <input
-                            type="radio"
-                            value={endpointConfigurations[1]}
-                            checked={endpointConfiguration === endpointConfigurations[1]}
-                            onChange={handleEndpointConfigurationChange}
-                        />
-                        {endpointConfigurations[1]}
-                    </label>
-                </RadioBtnContainer>
+                    <RadioBtnContainer>
+                        <label>
+                            <input
+                                type="radio"
+                                value={endpointConfigurations[0]}
+                                checked={endpointConfiguration === endpointConfigurations[0]}
+                                onChange={handleEndpointConfigurationChange}
+                            />
+                            {endpointConfigurations[0]}
+                        </label>
+                        <label>
+                            <input
+                                type="radio"
+                                value={endpointConfigurations[1]}
+                                checked={endpointConfiguration === endpointConfigurations[1]}
+                                onChange={handleEndpointConfigurationChange}
+                            />
+                            {endpointConfigurations[1]}
+                        </label>
+                    </RadioBtnContainer>
+                </FieldGroup>
+                <ActionContainer>
+                    <Button
+                        appearance="secondary"
+                        onClick={handleCancel}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        appearance="primary"
+                        onClick={handleCreateEndpoint}
+                        disabled={!isValid}
+                    >
+                        Create
+                    </Button>
+                </ActionContainer>
             </SectionWrapper>
-            <ActionContainer>
-                <Button
-                    appearance="secondary"
-                    onClick={handleCancel}
-                >
-                    Cancel
-                </Button>
-                <Button
-                    appearance="primary"
-                    onClick={handleCreateEndpoint}
-                    disabled={!isValid}
-                >
-                    Create
-                </Button>
-            </ActionContainer>
         </WizardContainer>
     );
 }
