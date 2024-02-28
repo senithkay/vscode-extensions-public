@@ -36,15 +36,15 @@ const MessageContent = styled.div({
 
 const EggplantDiagram = () => {
     const { rpcClient } = useVisualizerContext();
-    const [flowModel, setModel] = useState<Flow>(sampleModel);
+    const [flowModel, setModel] = useState<Flow>(undefined);
 
     useEffect(() => {
         try {
             rpcClient.getEggplantDiagramRpcClient().getEggplantModel().then((model) => {
-                setModel(sampleModel);
+                setModel(model);
             });
         } catch (error) {
-            setModel(sampleModel);
+            setModel(undefined);
         }
     }, []);
 

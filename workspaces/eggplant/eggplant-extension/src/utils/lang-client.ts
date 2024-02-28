@@ -2,7 +2,7 @@ import { BallerinaSTModifyResponse, EggplantModelRequest, LangClientInterface, S
 
 enum EXTENDED_APIS {
     DOCUMENT_ST_BY_RANGE = 'ballerinaDocument/syntaxTreeByRange',
-    EGGPLANT_MODEL = 'flowDesignService/getWorkerDesignModel'
+    EGGPLANT_MODEL = 'flowDesignService/getFlowDesignModel'
 }
 
 // YOU CAN ADD EGGPLANT SPECIFIC LANG CLIENT METHODS HERE
