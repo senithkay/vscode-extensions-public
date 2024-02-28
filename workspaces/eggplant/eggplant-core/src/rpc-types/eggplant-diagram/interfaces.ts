@@ -37,6 +37,7 @@ export type Node = {
     lineRange: LineRange;
     branches?: Branch[];
     viewState?: ViewState;
+    flags?: number;
 };
 
 export type NodeKind =
