@@ -13,19 +13,13 @@ import {
     Completion,
     CompletionParams,
     GoToSourceRequest,
-    STModification,
-    SyntaxTreeResponse,
     TypeResponse,
-    UpdateSourceRequest,
-    UpdateSourceResponse,
     WorkspaceFileRequest,
     WorkspacesFileResponse
 } from "@wso2-enterprise/ballerina-core";
-import { ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Uri, workspace } from "vscode";
-import { StateMachine, navigate, openView } from "../../stateMachine";
+import { StateMachine } from "../../stateMachine";
 import { goToSource } from "../../utils";
-import { applyModifications, updateFileContent } from "../../utils/modification";
 
 export class CommonRpcManager implements CommonRPCAPI {
     async getTypes(): Promise<TypeResponse> {

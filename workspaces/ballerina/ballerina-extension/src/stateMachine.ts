@@ -6,14 +6,8 @@ import { EventType, GetSyntaxTreeResponse, History, HistoryEntry, MachineStateVa
 import { fetchAndCacheLibraryData } from './library-browser';
 import { VisualizerWebview } from './visualizer/webview';
 import { Uri } from 'vscode';
-import { STKindChecker, STNode, traversNode } from '@wso2-enterprise/syntax-tree';
 import { RPCLayer } from './RPCLayer';
-import { UIDGenerationVisitor } from './history/uid-generation-visitor';
-import { FindNodeByUidVisitor } from './history/find-node-by-uid';
-import { FindConstructByNameVisitor } from './history/find-construct-by-name-visitor';
-import { FindConstructByIndexVisitor } from './history/find-construct-by-index-visitor';
-import { getConstructBodyString } from './history/util';
-import { generateUid, getNodeByIndex, getNodeByName, getNodeByUid, getView } from './utils/state-machine-utils';
+import { generateUid, getComponentIdentifier, getNodeByIndex, getNodeByName, getNodeByUid, getView } from './utils/state-machine-utils';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -74,19 +68,19 @@ const stateMachine = createMachine<MachineContext>(
                         invoke: {
                             src: 'openWebView',
                             onDone: {
-                                target: "webViewLoaded"
+                                target: "webViewLoading"
                             },
                         }
                     },
-                    webViewLoaded: {
+                    webViewLoading: {
                         invoke: {
                             src: 'findView', // NOTE: We only find the view and indentifer from this state as we already have the position and the file URL
                             onDone: {
-                                target: "updatedHistory"
+                                target: "webViewLoaded"
                             }
                         }
                     },
-                    updatedHistory: {
+                    webViewLoaded: {
                         invoke: {
                             src: 'showView',
                             onDone: {
@@ -111,8 +105,8 @@ const stateMachine = createMachine<MachineContext>(
                                     identifier: (context, event) => event.viewLocation.identifier
                                 })
                             },
-                            NAVIGATE: {
-                                target: "updatedHistory",
+                            VIEW_UPDATE: {
+                                target: "webViewLoaded",
                                 actions: assign({
                                     documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
                                     position: (context, event) => event.viewLocation.position,
@@ -272,7 +266,7 @@ const stateMachine = createMachine<MachineContext>(
                                         ...selectedEntry,
                                         location: {
                                             ...selectedEntry.location,
-                                            identifier: selectedST.functionName.value,
+                                            identifier: getComponentIdentifier(selectedST),
                                             position: selectedST.position,
                                             syntaxTree: selectedST
                                         },
@@ -296,8 +290,7 @@ const stateMachine = createMachine<MachineContext>(
                     undoRedoManager.updateContent(documentUri, node?.syntaxTree?.source);
                 }
                 const updatedHistory = history.get();
-                resolve(updatedHistory[updatedHistory.length - 1].location);
-                return;
+                return resolve(updatedHistory[updatedHistory.length - 1].location);
             });
         }
     }
@@ -330,8 +323,8 @@ export function openView(type: "OPEN_VIEW" | "FILE_EDIT" | "EDIT_DONE", viewLoca
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 
-export function navigate() {
+export function updateView() {
     const historyStack = history.get();
     const lastView = historyStack[historyStack.length - 1];
-    stateService.send({ type: "NAVIGATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
+    stateService.send({ type: "VIEW_UPDATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
 }

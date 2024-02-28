@@ -14,7 +14,7 @@ import { RPCLayer } from '../RPCLayer';
 import { debounce } from 'lodash';
 import { WebViewOptions, getComposerWebViewOptions, getLibraryWebViewContent } from '../utils/webview-utils';
 import { extension } from '../BalExtensionContext';
-import { navigate } from '../stateMachine';
+import { updateView } from '../stateMachine';
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
@@ -32,7 +32,7 @@ export class VisualizerWebview {
         // Handle the text change and diagram update with rpc notification
         const sendUpdateNotificationToWebview = debounce(() => {
             if (this._panel) {
-                navigate();
+                updateView();
             }
         }, 500);
 

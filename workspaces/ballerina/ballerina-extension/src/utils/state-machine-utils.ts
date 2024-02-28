@@ -75,6 +75,15 @@ export async function getView(documentUri: string, position: NodePosition): Prom
     return {location: { view: "Overview", documentUri: documentUri }};
 }
 
+export function getComponentIdentifier(node: STNode): string {
+    if (STKindChecker.isServiceDeclaration(node)) {
+        return node.absoluteResourcePath.map((path) => path.value).join('');
+    } else if (STKindChecker.isFunctionDefinition(node) || STKindChecker.isResourceAccessorDefinition(node)) {
+        return node.functionName.value;
+    }
+    return '';
+}
+
 export function generateUid(position: NodePosition, fullST: STNode): string {
     const uidGenVisitor = new UIDGenerationVisitor(position);
     traversNode(fullST, uidGenVisitor);
