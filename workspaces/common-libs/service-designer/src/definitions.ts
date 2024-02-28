@@ -39,7 +39,7 @@ export interface ServiceData {
 }
 
 export interface Resource {
-    method: string;
+    methods: string[];
     path: string;
     pathSegments?: ParameterConfig[];
     params?: ParameterConfig[];

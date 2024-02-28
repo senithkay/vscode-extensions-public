@@ -27,7 +27,7 @@ export function ServiceDesignerView() {
                     const resources: Resource[] = [];
                     st.resource.forEach((resource: any) => {
                         const value: Resource = {
-                            method: resource.methods[0],
+                            methods: resource.methods,
                             path: resource.uriTemplate,
                         }
                         resources.push(value);
