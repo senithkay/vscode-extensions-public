@@ -72,7 +72,7 @@ import { createFolderStructure, getInboundEndpointXmlWrapper } from "../../util"
 import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
-import { generateXmlData, writeXmlDataToFile } from "../../Logical-ops/createLocalEntry";
+import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
 const { XMLParser } = require("fast-xml-parser");
 
 const connectorsPath = path.join(".metadata", ".Connectors");
