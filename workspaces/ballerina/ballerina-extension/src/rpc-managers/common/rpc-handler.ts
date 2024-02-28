@@ -10,7 +10,6 @@
  */
 import {
     GoToSourceRequest,
-    UpdateSourceRequest,
     WorkspaceFileRequest,
     getTypes,
     getWorkspaceFiles,

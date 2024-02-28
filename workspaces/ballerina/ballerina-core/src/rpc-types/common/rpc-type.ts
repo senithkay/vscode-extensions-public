@@ -11,8 +11,6 @@
 import {
     GoToSourceRequest,
     TypeResponse,
-    UpdateSourceRequest,
-    UpdateSourceResponse,
     WorkspaceFileRequest,
     WorkspacesFileResponse
 } from "./interfaces";

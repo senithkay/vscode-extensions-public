@@ -12,8 +12,6 @@ import {
     CommonRPCAPI,
     GoToSourceRequest,
     TypeResponse,
-    UpdateSourceRequest,
-    UpdateSourceResponse,
     WorkspaceFileRequest,
     WorkspacesFileResponse,
     getTypes,

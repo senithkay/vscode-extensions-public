@@ -19,15 +19,6 @@ export interface GoToSourceRequest {
     position: NodePosition;
 }
 
-export interface UpdateSourceRequest {
-    position: NodePosition;
-    source: string;
-}
-
-export interface UpdateSourceResponse {
-    error?: string;
-}
-
 export interface WorkspaceFileRequest {
     glob?: string;
 }
