@@ -148,7 +148,7 @@ export function InboundEPWizard() {
     };
 
     const handleCancel = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: "OPEN_VIEW", location: { view: "Overview" } });
     };
 
     const isValid: boolean = !nameError && inboundEPName.length > 0 && creationType.length > 0 && (excludeSubFormFrom.includes(creationType) ||

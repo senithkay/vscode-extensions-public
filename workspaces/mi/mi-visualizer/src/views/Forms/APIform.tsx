@@ -86,12 +86,12 @@ export function APIWizard() {
         }
         const file = await rpcClient.getMiDiagramRpcClient().createAPI(createAPIParams);
         console.log("API created");
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "Diagram", documentUri: file.path, identifier: `/resource` });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: "OPEN_VIEW", location: { view: "Diagram", documentUri: file.path, identifier: `/resource` } });
     };
 
     const handleCancel = () => {
         console.log("cancel");
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: "OPEN_VIEW", location: { view: "Overview" } });
     };
 
     const isValid: boolean = apiName.length > 0 && apiContext.length > 0 && versionType.length > 0;

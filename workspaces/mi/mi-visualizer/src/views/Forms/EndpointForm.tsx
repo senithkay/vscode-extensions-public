@@ -111,12 +111,12 @@ export function EndpointWizard() {
         }
         const file = await rpcClient.getMiDiagramRpcClient().createEndpoint(createEndpointParams);
 
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: "OPEN_VIEW", location: { view: "Overview" } });
         rpcClient.getMiDiagramRpcClient().openFile(file);
     };
 
     const handleCancel = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: "OPEN_VIEW", location: { view: "Overview" } });
     };
 
     const isValid: boolean = endpointName.length > 0 &&

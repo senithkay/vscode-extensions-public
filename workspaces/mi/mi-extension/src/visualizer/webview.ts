@@ -15,6 +15,7 @@ import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
 import { onFileContentUpdate } from '@wso2-enterprise/mi-core';
 import { debounce } from 'lodash';
+import { openView } from '../stateMachine';
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
@@ -31,7 +32,7 @@ export class VisualizerWebview {
         // Handle the text change and diagram update with rpc notification
         const refreshDiagram = debounce(() => {
             if (this.getWebview()) {
-                RPCLayer._messenger.sendNotification(onFileContentUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType });
+                openView("FILE_EDIT");
             }
         }, 500);
 

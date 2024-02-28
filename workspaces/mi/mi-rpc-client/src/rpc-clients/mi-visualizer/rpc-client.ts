@@ -14,7 +14,7 @@ import {
     ProjectStructureRequest,
     ProjectStructureResponse,
     SampleDownloadRequest,
-    VisualizerLocation,
+    OpenViewRequest,
     WorkspacesResponse,
     getProjectStructure,
     getWorkspaces,
@@ -41,7 +41,7 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
         return this._messenger.sendRequest(getProjectStructure, HOST_EXTENSION, params);
     }
 
-    openView(params: VisualizerLocation): void {
+    openView(params: OpenViewRequest): void {
         return this._messenger.sendNotification(openView, HOST_EXTENSION, params);
     }
 

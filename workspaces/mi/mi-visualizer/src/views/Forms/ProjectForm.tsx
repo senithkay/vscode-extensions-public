@@ -95,7 +95,7 @@ export function ProjectWizard() {
 
     const handleCancel = () => {
         console.log("cancel");
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: "OPEN_VIEW", location: { view: "Overview" } });
 
     };
 
