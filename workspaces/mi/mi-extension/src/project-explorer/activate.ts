@@ -9,7 +9,7 @@
 
 import * as vscode from 'vscode';
 import { ProjectExplorerEntryProvider } from './project-explorer-provider';
-import { createView, openView } from '../stateMachine';
+import { openView } from '../stateMachine';
 
 export function activateProjectExplorer(context: vscode.ExtensionContext) {
 
@@ -28,7 +28,7 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 			if (selection?.label === 'API') {
 				vscode.commands.executeCommand('project-explorer.add-api');
 			} else if (selection?.label === 'Endpoint') {
-			 	vscode.commands.executeCommand('project-explorer.add-endpoint');
+				vscode.commands.executeCommand('project-explorer.add-endpoint');
 			} else if (selection?.label === 'Sequence') {
 				vscode.commands.executeCommand('project-explorer.add-sequence');
 			}
@@ -36,28 +36,28 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 
 	});
 	vscode.commands.registerCommand('project-explorer.add-api', () => {
-		openView({ view: "APIForm" });
+		openView("OPEN_VIEW", { view: "APIForm" });
 		console.log('Add API');
 	});
 
 	vscode.commands.registerCommand('project-explorer.add-endpoint', () => {
-		openView({ view: "EndPointForm" });
+		openView("OPEN_VIEW", { view: "EndPointForm" });
 		console.log('Add Endpoint');
 	});
 
 	vscode.commands.registerCommand('project-explorer.add-sequence', () => {
-		openView({ view: "SequenceForm" });
+		openView("OPEN_VIEW", { view: "SequenceForm" });
 		console.log('Add Sequence');
 	});
 
 	vscode.commands.registerCommand('project-explorer.add-inbound-endpoint', () => {
-		openView({ view: "InboundEPForm" });
+		openView("OPEN_VIEW", { view: "InboundEPForm" });
 		console.log('Add Inbound API');
 	});
 
 	vscode.commands.registerCommand('project-explorer.create-project', () => {
 		// Update state machine to show the api wizard
-		openView( { view: "ProjectCreationForm" });
+		openView("OPEN_VIEW", { view: "ProjectCreationForm" });
 		console.log('Create New Project');
 	});
 
@@ -69,9 +69,9 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 			// const document = await vscode.workspace.openTextDocument(info.path);
 			// await vscode.window.showTextDocument(document);
 			if (info.type.toLowerCase() === 'api') {
-				openView({ view: "ServiceDesigner", documentUri: info.path, identifier: info.name });
+				openView("OPEN_VIEW", { view: "ServiceDesigner", documentUri: info.path, identifier: info.name });
 			} else if (info.type === 'resource') {
-				openView({ view: "Diagram", documentUri: info.path, identifier: info.name });
+				openView("OPEN_VIEW", { view: "Diagram", documentUri: info.path, identifier: info.name });
 			}
 		}
 	});

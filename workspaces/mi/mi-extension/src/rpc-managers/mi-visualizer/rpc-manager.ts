@@ -14,7 +14,7 @@ import {
     ProjectStructureRequest,
     ProjectStructureResponse,
     SampleDownloadRequest,
-    VisualizerLocation,
+    OpenViewRequest,
     WorkspaceFolder,
     WorkspacesResponse,
     GettingStartedSample,
@@ -55,8 +55,8 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         });
     }
 
-    openView(params: VisualizerLocation): void {
-        openView(params);
+    openView(params: OpenViewRequest): void {
+        openView(params.type, params.location);
     }
 
     goBack(): void {
@@ -64,7 +64,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         const currentView = StateMachine.context().view;
         const currentDoc = StateMachine.context().documentUri;
         const view = getPreviousView(currentView!);
-        view.length > 0 && openView({ view: view[0], documentUri: currentDoc });
+        view.length > 0 && openView("OPEN_VIEW", { view: view[0], documentUri: currentDoc });
     }
 
     async fetchSamplesFromGithub(): Promise<GettingStartedData> {

@@ -15,7 +15,7 @@ import { openView } from '../stateMachine';
 export function activateVisualizer(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand('integrationStudio.showDiagram', () => {
-            openView({ view: "Overview" });
+            openView("OPEN_VIEW", { view: "Overview" });
         })
     );
     context.subscriptions.push(

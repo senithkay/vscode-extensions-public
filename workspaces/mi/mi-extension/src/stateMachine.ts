@@ -87,22 +87,14 @@ const stateMachine = createMachine<MachineContext>({
                             })
                         },
                         FILE_EDIT: {
-                            target: "viewEditing",
-                            actions: assign({
-                                documentUri: (context, event) => event.viewLocation.documentUri,
-                                view: (context, event) => event.viewLocation.view
-                            })
+                            target: "viewEditing"
                         }
                     }
                 },
                 viewEditing: {
                     on: {
                         EDIT_DONE: {
-                            target: "viewReady",
-                            actions: assign({
-                                documentUri: (context, event) => event.viewLocation.documentUri,
-                                view: (context, event) => event.viewLocation.view
-                            })
+                            target: "viewReady"
                         }
                     }
                 },
@@ -195,17 +187,10 @@ export const StateMachine = {
     sendEvent: (eventType: EventType) => { stateService.send({ type: eventType }); },
 };
 
-export function openView(viewLocation: VisualizerLocation) {
-    stateService.send({ type: "OPEN_VIEW", viewLocation: viewLocation });
+export function openView(type: EventType, viewLocation?: VisualizerLocation) {
+    stateService.send({ type: type, viewLocation: viewLocation });
 }
 
-export function createView(viewLocation: VisualizerLocation) {
-    stateService.send({ type: "GET_STARTED", viewLocation: viewLocation });
-}
-
-export function fileUpdated(viewLocation: VisualizerLocation) {
-    stateService.send({ type: "FILE_UPDATED", viewLocation: viewLocation });
-}
 
 async function checkIfMiProject() {
     let isMiProject = false;

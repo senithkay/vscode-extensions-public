@@ -14,10 +14,10 @@ export type MachineViews = "Overview" | "Diagram" | "ServiceDesigner" | "APIForm
 
 export type MachineStateValue =
     | 'initialize' | 'projectDetected' | 'LSInit' | 'ready' | 'disabled'
-    | { ready: 'viewReady' } | { ready: 'viewUpdate' }
+    | { ready: 'viewReady' } | { ready: 'viewEditing' }
     | { newProject: 'welcome' } | { newProject: 'create' };
 
-export type EventType = "OPEN_VIEW" | "GET_STARTED" | "CANCEL_CREATION";
+export type EventType = "OPEN_VIEW" | "FILE_EDIT" | "EDIT_DONE" | "GET_STARTED" | "CANCEL_CREATION";
 
 export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";
 

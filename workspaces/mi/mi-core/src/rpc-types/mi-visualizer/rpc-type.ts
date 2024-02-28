@@ -8,15 +8,14 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { VisualizerLocation } from "../../state-machine-types";
-import { ProjectStructureRequest, ProjectStructureResponse, WorkspacesResponse } from "./types";
+import { ProjectStructureRequest, ProjectStructureResponse, WorkspacesResponse, OpenViewRequest } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 
 const _preFix = "mi-visualizer";
 export const getWorkspaces: RequestType<void, WorkspacesResponse> = { method: `${_preFix}/getWorkspaces` };
 export const getProjectStructure: RequestType<ProjectStructureRequest, ProjectStructureResponse> = { method: `${_preFix}/getProjectStructure` };
-export const openView: NotificationType<VisualizerLocation> = { method: `${_preFix}/openView` };
+export const openView: NotificationType<OpenViewRequest> = { method: `${_preFix}/openView` };
 export const goBack: NotificationType<void> = { method: `${_preFix}/goBack` };
 export const fetchSamplesFromGithub: RequestType<void, GettingStartedData> = { method: `${_preFix}/fetchSamplesFromGithub` };
 export const downloadSelectedSampleFromGithub: NotificationType<SampleDownloadRequest> = { method: `${_preFix}/downloadSelectedSampleFromGithub` };

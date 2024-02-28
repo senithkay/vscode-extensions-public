@@ -10,7 +10,7 @@
  */
 import {
     ProjectStructureRequest,
-    VisualizerLocation,
+    OpenViewRequest,
     getProjectStructure,
     getWorkspaces,
     goBack,
@@ -26,7 +26,7 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     const rpcManger = new MiVisualizerRpcManager();
     messenger.onRequest(getWorkspaces, () => rpcManger.getWorkspaces());
     messenger.onRequest(getProjectStructure, (args: ProjectStructureRequest) => rpcManger.getProjectStructure(args));
-    messenger.onNotification(openView, (args: VisualizerLocation) => rpcManger.openView(args));
+    messenger.onNotification(openView, (args: OpenViewRequest) => rpcManger.openView(args));
     messenger.onNotification(goBack, () => rpcManger.goBack());
     messenger.onRequest(fetchSamplesFromGithub, () => rpcManger.fetchSamplesFromGithub());
     messenger.onNotification(downloadSelectedSampleFromGithub, (args: SampleDownloadRequest) => rpcManger.downloadSelectedSampleFromGithub(args));
