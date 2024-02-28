@@ -65,7 +65,7 @@
     "viewsWelcome": [
       {
         "view": "project-explorer",
-        "contents": "Welcome to Integration Studio. You can open a folder containing a MI project or [create a new project](command:integrationStudio.showDiagram).\n[Open MI Project](command:integrationStudio.openProject)\nTo learn more about how to use Integration Studio in VS Code [read our docs](https://ei.docs.wso2.com)."
+        "contents": "Welcome to Integration Studio. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:integrationStudio.openProject)\n[Create New Project](command:integrationStudio.showDiagramc)\nTo learn more about how to use Integration Studio in VS Code [read our docs](https://ei.docs.wso2.com)."
       }
     ],
     "commands": [

@@ -19,9 +19,11 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('project-explorer.refresh', () => { projectExplorerDataProvider.refresh(); });
 	vscode.commands.registerCommand('project-explorer.add', () => {
 		vscode.window.showQuickPick([
+			{ label: 'New Project', description: 'Create new project'},
 			{ label: 'API', description: 'Add new API' },
 			{ label: 'Endpoint', description: 'Add new endpoint' },
 			{ label: 'Sequence', description: 'Add new sequence' },
+			{ label: 'Inbound Endpoint', description: 'Add new inbound endpoint' }
 		], {
 			placeHolder: 'Select the construct to add'
 		}).then(selection => {
@@ -31,6 +33,10 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 				vscode.commands.executeCommand('project-explorer.add-endpoint');
 			} else if (selection?.label === 'Sequence') {
 				vscode.commands.executeCommand('project-explorer.add-sequence');
+			} else if (selection?.label === 'Inbound Endpoint') {
+				vscode.commands.executeCommand('project-explorer.add-inbound-endpoint');
+			} else if (selection?.label === 'New Project') {
+				vscode.commands.executeCommand('project-explorer.create-project');
 			}
 		});
 

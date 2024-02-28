@@ -10,14 +10,15 @@ import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { AutoComplete, Button, TextField } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { SectionWrapper } from "./Commons";
+import { FieldGroup, SectionWrapper } from "./Commons";
 
 const WizardContainer = styled.div`
-    width: 95%;
-    display  : flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 95vw;
+    height: calc(100vh - 140px);
+    overflow: auto;
 `;
 
 const ActionContainer = styled.div`
@@ -28,29 +29,11 @@ const ActionContainer = styled.div`
     padding-bottom: 20px;
 `;
 
-
-const CardContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 20px;
-`;
-
-const SubContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-content: space-between;
-    gap: 20px;
-`;
-
-const TitleWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
+const LocationText = styled.div`
+    max-width: 60vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 `;
 
 export interface Region {
@@ -86,7 +69,7 @@ export function APIWizard() {
         }
         const file = await rpcClient.getMiDiagramRpcClient().createAPI(createAPIParams);
         console.log("API created");
-        rpcClient.getMiVisualizerRpcClient().openView({ type: "OPEN_VIEW", location: { view: "Diagram", documentUri: file.path, identifier: `/resource` } });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: "OPEN_VIEW", location: { view: "ServiceDesigner", documentUri: file.path } });
     };
 
     const handleCancel = () => {
@@ -94,13 +77,28 @@ export function APIWizard() {
         rpcClient.getMiVisualizerRpcClient().openView({ type: "OPEN_VIEW", location: { view: "Overview" } });
     };
 
+    const handleSwaggerPathSelection = async () => {
+        const projectDirectory = await rpcClient.getMiDiagramRpcClient().askProjectDirPath();
+        setSwaggerdefPath(projectDirectory.path);
+    }
+
+    const validateAPIName = (name: string) => {
+        // Check if the name is empty
+        if (!name.trim()) {
+            return "Name is required";
+        }
+
+        // Check if the name contains spaces or special characters
+        if (/[\s~`!@#$%^&*()_+={}[\]:;'",.<>?/\\|]+/.test(name)) {
+            return "Name cannot contain spaces or special characters";
+        }
+        return "";
+    };
+
     const isValid: boolean = apiName.length > 0 && apiContext.length > 0 && versionType.length > 0;
 
     return (
         <WizardContainer>
-            <TitleWrapper>
-                <h2>New Synapse API</h2>
-            </TitleWrapper>
             <SectionWrapper>
                 <h3>Synapse API Artifact</h3>
                 <TextField
@@ -108,8 +106,9 @@ export function APIWizard() {
                     id='name-input'
                     label="Name"
                     placeholder="Name"
-                    validationMessage="Project name is required"
                     onChange={(text: string) => setAPIName(text)}
+                    errorMsg={validateAPIName(apiName)}
+                    size={46}
                     autoFocus
                     required
                 />
@@ -117,49 +116,49 @@ export function APIWizard() {
                     placeholder="Context"
                     label="Context"
                     onChange={(text: string) => setAPIContext(text)}
-                    validationMessage="API context is required"
                     value={apiContext}
                     id='context-input'
                     required
+                    errorMsg={validateAPIName(apiContext)}
+                    size={46}
                 />
-                <span>Version Type</span>
-                <AutoComplete items={versionLabels} selectedItem={versionType} onChange={handleVersionTypeChange}></AutoComplete>
-                {versionType !== "none" && (
-                    <TextField
-                        placeholder="Version"
-                        label="Version"
-                        onChange={(text: string) => setVersion(text)}
-                        value={version}
-                        id='version-input'
-                    />)}
-                <TextField
-                    placeholder="Path to swagger definition"
-                    label="Path to swagger definition"
-                    onChange={(text: string) => setSwaggerdefPath(text)}
-                    validationMessage="API context is required"
-                    value={swaggerdefPath}
-                    id='context-input'
-                />
-                <SubContainer>
-                    <CardContainer>
-                    </CardContainer>
-                </SubContainer>
+                <FieldGroup>
+                    <span>Version Type</span>
+                    <AutoComplete sx={{ width: '370px' }} items={versionLabels} selectedItem={versionType} onChange={handleVersionTypeChange}></AutoComplete>
+                    {versionType !== "none" && (
+                        <TextField
+                            placeholder="Version"
+                            label="Version"
+                            onChange={(text: string) => setVersion(text)}
+                            value={version}
+                            id='version-input'
+                            size={35}
+                        />)}
+                </FieldGroup>
+                <FieldGroup>
+                    <span>  Swagger Def Path  </span>
+                    {!!swaggerdefPath && <LocationText>{swaggerdefPath}</LocationText>}
+                    {!swaggerdefPath && <span>Please choose a directory for swagger definition. </span>}
+                    <Button appearance="secondary" onClick={handleSwaggerPathSelection} id="select-swagger-path-btn">
+                        Select Location
+                    </Button>
+                </FieldGroup>
+                <ActionContainer>
+                    <Button
+                        appearance="secondary"
+                        onClick={handleCancel}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        appearance="primary"
+                        onClick={handleCreateAPI}
+                        disabled={!isValid}
+                    >
+                        Create
+                    </Button>
+                </ActionContainer>
             </SectionWrapper>
-            <ActionContainer>
-                <Button
-                    appearance="secondary"
-                    onClick={handleCancel}
-                >
-                    Cancel
-                </Button>
-                <Button
-                    appearance="primary"
-                    onClick={handleCreateAPI}
-                    disabled={!isValid}
-                >
-                    Create
-                </Button>
-            </ActionContainer>
         </WizardContainer>
     );
 }
