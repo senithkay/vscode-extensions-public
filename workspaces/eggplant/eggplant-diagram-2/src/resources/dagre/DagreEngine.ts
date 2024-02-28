@@ -51,8 +51,6 @@ export class DagreEngine {
             }
         });
 
-		console.log(g);
-
         // layout the graph
         dagre.layout(g);
 

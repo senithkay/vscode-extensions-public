@@ -11,6 +11,7 @@ import React from "react";
 import { TextField, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { Expression } from "../../utils/types";
 import styled from "@emotion/styled";
+import { debounce } from "lodash";
 
 export namespace S {
     export const StyledText = styled.div`
@@ -38,15 +39,20 @@ export function TextInput(props: TextInputProps) {
         onChange({ ...expression, value });
     };
 
+    const debouncedOnChange = debounce(handleOnChange, 300);
+
     return (
         <S.Row>
-            <Tooltip content={expression.documentation} sx={{
-                fontFamily: "GilmerRegular",
-                fontSize: "12px",
-            }}>
+            <Tooltip
+                content={expression.documentation}
+                sx={{
+                    fontFamily: "GilmerRegular",
+                    fontSize: "12px",
+                }}
+            >
                 <S.StyledText>{expression.label} </S.StyledText>
             </Tooltip>
-            <TextField value={expression.value.toString()} onBlur={handleOnChange} />
+            <TextField value={expression.value.toString()} onChange={debouncedOnChange} />
         </S.Row>
     );
 }
