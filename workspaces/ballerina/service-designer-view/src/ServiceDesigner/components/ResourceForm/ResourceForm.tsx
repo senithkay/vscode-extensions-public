@@ -18,7 +18,7 @@ import styled from '@emotion/styled';
 import { HTTP_METHOD, generateNewResourceFunction, updateResourceFunction } from '../../utils/utils';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import { PARAM_TYPES, ParameterConfig, Resource, ResponseConfig } from '@wso2-enterprise/service-designer';
-import { CommonRPCAPI } from '@wso2-enterprise/ballerina-core';
+import { CommonRPCAPI, STModification } from '@wso2-enterprise/ballerina-core';
 
 const AdvancedParamTitleWrapper = styled.div`
 	display: flex;
@@ -35,10 +35,11 @@ export interface ResourceFormProps {
 	serviceEndPosition?: NodePosition;
 	commonRpcClient?: CommonRPCAPI;
 	onClose: () => void;
+	applyModifications?: (modifications: STModification[]) => Promise<void>;
 }
 
 export function ResourceForm(props: ResourceFormProps) {
-	const { isOpen, isBallerniaExt, resourceConfig, onClose, onSave, addNameRecord, serviceEndPosition, commonRpcClient } = props;
+	const { isOpen, isBallerniaExt, resourceConfig, onClose, onSave, addNameRecord, serviceEndPosition, commonRpcClient, applyModifications } = props;
 
 	const [method, setMethod] = useState<HTTP_METHOD>(resourceConfig?.method.toUpperCase() as HTTP_METHOD || HTTP_METHOD.GET);
 	const [path, setPath] = useState<string>(resourceConfig?.path || "path");
@@ -161,7 +162,7 @@ export function ResourceForm(props: ResourceFormProps) {
 					<Divider />
 
 					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Responses</Typography>
-					<ResourceResponse method={method} addNameRecord={addNameRecord} response={response} onChange={handleResponseChange} serviceEndPosition={serviceEndPosition} commonRpcClient={commonRpcClient} isBallerniaExt={isBallerniaExt}/>
+					<ResourceResponse method={method} addNameRecord={addNameRecord} response={response} onChange={handleResponseChange} serviceEndPosition={serviceEndPosition} commonRpcClient={commonRpcClient} isBallerniaExt={isBallerniaExt} applyModifications={applyModifications}/>
 
 					<ActionButtons
 						primaryButton={{ text: "Save", onClick: handleSave, tooltip: "Save" }}

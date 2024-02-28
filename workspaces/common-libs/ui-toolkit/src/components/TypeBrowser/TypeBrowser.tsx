@@ -20,7 +20,7 @@ import { Dropdown } from "./Dropdown";
 import styled from '@emotion/styled';
 import { Codicon } from '../Codicon/Codicon';
 import { Button } from '../Button/Button';
-import { CommonRPCAPI } from '@wso2-enterprise/ballerina-core';
+import { CommonRPCAPI, STModification } from '@wso2-enterprise/ballerina-core';
 
 const ComboboxButtonContainerActive = cx(css`
     height: 28px;
@@ -102,10 +102,11 @@ export interface TypeBrowserProps {
     sx?: React.CSSProperties;
     borderBox?: boolean; // Enable this if the box-sizing is border-box
     onChange: (item: string, index?: number) => void;
+    applyModifications?: (modifications: STModification[]) => Promise<void>;
 }
 
 export const TypeBrowser: React.FC<TypeBrowserProps> = (props: TypeBrowserProps) => {
-    const { id, commonRpcClient, selectedItem, serviceEndPosition, label, widthOffset = 157, sx, borderBox, onChange } = props;
+    const { id, commonRpcClient, selectedItem, serviceEndPosition, label, widthOffset = 157, sx, borderBox, onChange, applyModifications } = props;
     const [query, setQuery] = useState('');
     const [items, setItems] = useState([]);
     const [isCleared, setIsCleared] = useState(false);
@@ -123,7 +124,14 @@ export const TypeBrowser: React.FC<TypeBrowserProps> = (props: TypeBrowserProps)
 
     const handleCreateNewRecord = async (name: string) => {
         const source = `type ${name} readonly & record {};`;
-        commonRpcClient.updateSource({ position: serviceEndPosition, source });
+        await applyModifications([{
+            type: "INSERT",
+            isImport: false,
+            config: {
+                "STATEMENT": source
+            },
+            ...serviceEndPosition
+        }]);
         setQuery(name);
         fetchTypes();
     };

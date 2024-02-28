@@ -147,6 +147,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
                         endColumn: model.closeBraceToken.position.endColumn
                     }}
                     commonRpcClient={commonRpcClient}
+                    applyModifications={applyModifications}
                 />
             }
             {isServiceFormOpen &&
