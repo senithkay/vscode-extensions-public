@@ -14,7 +14,7 @@ import { MediatorNodeModel } from "./MediatorNodeModel";
 import { Colors } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { Button, Popover } from "@wso2-enterprise/ui-toolkit";
-import { CodeIcon, MoreVertIcon } from "../../../resources";
+import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { getDataFromXML } from "../../../utils/template-engine/mustach-templates/templateUtils";
@@ -107,8 +107,52 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
         event.stopPropagation();
     };
 
-    const handleOnClick = () => {
-        if (node.isSelected()) {
+    const handleOnClick = async (e: any) => {
+        if (e.ctrlKey || e.metaKey) {
+            // go to the diagram view of the selected mediator
+            const text = await rpcClient.getMiDiagramRpcClient().getTextAtRange({
+                documentUri: node.documentUri,
+                range: node.stNode.range.startTagRange,
+            });
+
+            const regex = /\s*key\s*=\s*(['"])(.*?)\1/;
+            const match = text.text.match(regex);
+            const keyPart = match[0].split("=")[0];
+            const valuePart = match[0].split("=")[1];
+            const keyLines = keyPart.split("\n");
+            const valueLines = valuePart.split("\n");
+            const offsetBeforeKey = (text.text.split(match[0])[0]).length;
+            // const range = keyPart ? [match.index + keyPart.length, match.index + keyPart.length + valuePart.length] : null;
+
+            let charPosition = 0
+
+            if (keyLines.length > 1) {
+                charPosition = keyLines[keyLines.length - 1].length + valueLines[valueLines.length - 1].length;
+            }
+            if (valueLines.length > 1) {
+                charPosition = valueLines[valueLines.length - 1].length;
+            }
+            const definitionPosition = {
+                line: node.stNode.range.startTagRange.start.line + keyLines.length - 1 + valueLines.length - 1,
+                character: keyLines.length > 1 || valueLines.length > 1 ?
+                    charPosition :
+                    node.stNode.range.startTagRange.start.character + offsetBeforeKey + match[0].length,
+            };
+
+            // if (range) {
+            const definition = await rpcClient.getMiDiagramRpcClient().getDefinition({
+                document: {
+                    uri: node.documentUri,
+                },
+                position: definitionPosition
+            });
+
+            if (definition && definition.uri) {
+                rpcClient.getMiVisualizerRpcClient().openView({ view: "Diagram", documentUri: definition.uri });
+            }
+            // }
+
+        } else if (node.isSelected()) {
             node.onClicked(visualizerContext);
 
             const formData = getDataFromXML(

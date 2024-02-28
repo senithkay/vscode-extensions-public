@@ -22,6 +22,8 @@ import {
     CreateAPIResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
+    CreateInboundEndpointRequest,
+    CreateInboundEndpointResponse,
     CreateProjectRequest,
     CreateProjectResponse,
     CreateSequenceRequest,
@@ -29,7 +31,12 @@ import {
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
+    GetDefinitionRequest,
+    GetDefinitionResponse,
+    GetTextAtRangeRequest,
+    GetTextAtRangeResponse,
     HighlightCodeRequest,
+    InboundEndpointDirectoryResponse,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectDirResponse,
@@ -37,20 +44,23 @@ import {
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
     UndoRedoParams,
+    WriteContentToFileRequest,
+    WriteContentToFileResponse,
     applyEdit,
     askProjectDirPath,
     closeWebView,
     closeWebViewNotification,
     createAPI,
     createEndpoint,
+    createInboundEndpoint,
     createProject,
     createSequence,
-    createInboundEndpoint,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
     getConnector,
     getConnectors,
+    getDefinition,
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
@@ -60,19 +70,15 @@ import {
     getSTResponse,
     getSequenceDirectory,
     getSyntaxTree,
+    getTextAtRange,
     highlightCode,
     initUndoRedoManager,
     openDiagram,
     openFile,
     redo,
     showErrorMessage,
-    writeContentToFile,
-    WriteContentToFileRequest,
-    WriteContentToFileResponse,
-    InboundEndpointDirectoryResponse,
-    CreateInboundEndpointRequest,
-    CreateInboundEndpointResponse,
     undo,
+    writeContentToFile
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -198,5 +204,13 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     redo(params: UndoRedoParams): void {
         return this._messenger.sendNotification(redo, HOST_EXTENSION, params);
+    }
+
+    getDefinition(params: GetDefinitionRequest): Promise<GetDefinitionResponse> {
+        return this._messenger.sendRequest(getDefinition, HOST_EXTENSION, params);
+    }
+
+    getTextAtRange(params: GetTextAtRangeRequest): Promise<GetTextAtRangeResponse> {
+        return this._messenger.sendRequest(getTextAtRange, HOST_EXTENSION, params);
     }
 }

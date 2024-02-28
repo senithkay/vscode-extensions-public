@@ -10,6 +10,7 @@
 import * as vscode from 'vscode';
 import { VisualizerWebview } from './webview';
 import { commands, window } from 'vscode';
+import { openView } from '../stateMachine';
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
     if (!VisualizerWebview.currentPanel) {
@@ -18,7 +19,7 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
     VisualizerWebview.currentPanel!.getWebview()?.reveal();
 
     context.subscriptions.push(
-        vscode.commands.registerCommand('integrationStudio.showDiagram', () => {
+        vscode.commands.registerCommand('integrationStudio.showDiagram', (e: any) => {
             if (!VisualizerWebview.currentPanel) {
                 VisualizerWebview.currentPanel = new VisualizerWebview();
             }

@@ -23,6 +23,8 @@ import {
     CreateAPIResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
+    CreateInboundEndpointRequest,
+    CreateInboundEndpointResponse,
     CreateProjectRequest,
     CreateProjectResponse,
     CreateSequenceRequest,
@@ -31,7 +33,12 @@ import {
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     FileStructure,
+    GetDefinitionRequest,
+    GetDefinitionResponse,
+    GetTextAtRangeRequest,
+    GetTextAtRangeResponse,
     HighlightCodeRequest,
+    InboundEndpointDirectoryResponse,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectDirResponse,
@@ -39,13 +46,10 @@ import {
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
     UndoRedoParams,
-    getSTRequest,
-    getSTResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
-    InboundEndpointDirectoryResponse,
-    CreateInboundEndpointRequest,
-    CreateInboundEndpointResponse
+    getSTRequest,
+    getSTResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import * as fs from "fs";
@@ -55,12 +59,11 @@ import { Position, Range, Selection, Uri, WorkspaceEdit, commands, window, works
 import { MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { createFolderStructure } from "../../util";
+import { createFolderStructure, getInboundEndpointXmlWrapper } from "../../util";
 import { rootPomXmlContent } from "../../util/templates";
+import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 const { XMLParser } = require("fast-xml-parser");
-import { VisualizerWebview } from "../../visualizer/webview";
-import { getInboundEndpointXmlWrapper } from "../../util";
 
 const connectorsPath = path.join(".metadata", ".Connectors");
 
@@ -85,6 +88,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: params.documentUri
                 },
             });
+
             resolve(res);
         });
     }
@@ -455,7 +459,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const content = document.getText();
             undoRedo.addModification(content);
-            
+
             resolve({ status: true });
         });
     }
@@ -660,30 +664,61 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async undo(params: UndoRedoParams): Promise<void> {
         const lastsource = undoRedo.undo();
-        if(lastsource) {
+        if (lastsource) {
             fs.writeFileSync(params.path, lastsource);
         }
     }
 
     async redo(params: UndoRedoParams): Promise<void> {
         const lastsource = undoRedo.redo();
-        if(lastsource) {
+        if (lastsource) {
             fs.writeFileSync(params.path, lastsource);
         }
     }
 
     async initUndoRedoManager(params: UndoRedoParams): Promise<void> {
         let document = workspace.textDocuments.find(doc => doc.uri.fsPath === params.path);
-        
+
         if (!document) {
             document = await workspace.openTextDocument(Uri.parse(params.path));
         }
-        
+
         if (document) {
             // Access the content of the document
             const content = document.getText();
             undoRedo.updateContent(params.path, content);
-        } 
+        }
+    }
+
+    async getDefinition(params: GetDefinitionRequest): Promise<GetDefinitionResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const definition = await langClient.getDefinition(params);
+
+            resolve(definition);
+        });
+    }
+
+    async getTextAtRange(params: GetTextAtRangeRequest): Promise<GetTextAtRangeResponse> {
+        return new Promise(async (resolve) => {
+            const file = fs.readFileSync(params.documentUri, "utf8");
+           
+            const start = params.range.start;
+            const end = params.range.end;
+            const lines = file.split("\n");
+            const text = lines.slice(start.line, end.line + 1).map((line, index) => {
+                if (index === 0 && start.line === end.line) {
+                    return line.substring(start.character, end.character);
+                } else if (index === 0) {
+                    return line.substring(start.character);
+                } else if (index === end.line - start.line) {
+                    return line.substring(0, end.character);
+                } else {
+                    return line;
+                }
+            }).join("\n");
+            resolve({ text });
+        });
     }
 }
 

@@ -9,6 +9,7 @@
  */
 
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { Position, TextDocumentIdentifier } from "vscode-languageserver-types";
 
 export interface ApplyEditRequest {
     text: string;
@@ -158,8 +159,8 @@ export interface FileStructure {
 export interface ChatEntry {
     role: string;
     content: string;
-  }
-  
+}
+
 export interface AIUserInput {
     chat_history: ChatEntry[];
 }
@@ -179,4 +180,23 @@ export interface HighlightCodeRequest {
 
 export interface UndoRedoParams {
     path: string;
+}
+
+export interface GetDefinitionRequest {
+    document: TextDocumentIdentifier;
+    position: Position;
+}
+
+export interface GetDefinitionResponse {
+    uri: string,
+    range: Range
+}
+
+export interface GetTextAtRangeRequest {
+    documentUri: string;
+    range: Range;
+}
+
+export interface GetTextAtRangeResponse {
+    text: string | undefined;
 }
