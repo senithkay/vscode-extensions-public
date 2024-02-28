@@ -21,7 +21,7 @@
     "@types/vscode-webview": "^1.57.4",
     "@vscode/webview-ui-toolkit": "^1.2.0",
     "@wso2-enterprise/eggplant-core": "workspace:*",
-    "@wso2-enterprise/eggplant-diagram": "workspace:*",
+    "@wso2-enterprise/eggplant-diagram-2": "workspace:*",
     "@wso2-enterprise/eggplant-overview": "workspace:*",
     "@wso2-enterprise/eggplant-rpc-client": "workspace:*",
     "@wso2-enterprise/service-designer-view": "workspace:*",

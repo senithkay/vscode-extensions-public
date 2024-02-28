@@ -27,7 +27,7 @@ export * from "./rpc-types/visualizer/rpc-type";
 export * from "./rpc-types/visualizer/interfaces";
 
 // ------ Util functions -------->
-export * from "./code-generation/utils/code-generator-utils";
+// export * from "./code-generation/utils/code-generator-utils";
 export * from "./code-generation/utils/metadata-utils";
 
 // ------ Ballerina exports -------->
