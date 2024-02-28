@@ -9,21 +9,23 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    GettingStartedCategory,
     GettingStartedData,
+    GettingStartedSample,
+    HistoryEntry,
+    HistoryEntryResponse,
     MIVisualizerAPI,
+    OpenViewRequest,
     ProjectStructureRequest,
     ProjectStructureResponse,
     SampleDownloadRequest,
-    OpenViewRequest,
     WorkspaceFolder,
-    WorkspacesResponse,
-    GettingStartedSample,
-    GettingStartedCategory
+    WorkspacesResponse
 } from "@wso2-enterprise/mi-core";
 import fetch from 'node-fetch';
 import { workspace } from "vscode";
-import { StateMachine, openView } from "../../stateMachine";
-import { getPreviousView } from "../../util";
+import { history } from "../../history";
+import { StateMachine, navigate, openView } from "../../stateMachine";
 import { handleOpenFile } from "../../util/fileOperations";
 
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
@@ -60,11 +62,8 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
 
     goBack(): void {
-        // Get current view
-        const currentView = StateMachine.context().view;
-        const currentDoc = StateMachine.context().documentUri;
-        const view = getPreviousView(currentView!);
-        view.length > 0 && openView("OPEN_VIEW", { view: view[0], documentUri: currentDoc });
+        history.pop();
+        navigate();
     }
 
     async fetchSamplesFromGithub(): Promise<GettingStartedData> {
@@ -116,5 +115,27 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     downloadSelectedSampleFromGithub(params: SampleDownloadRequest): void {
         const url = 'https://github.com/wso2/integration-studio/raw/main/SamplesForVSCode/samples/';
         handleOpenFile(params.zipFileName, url);
+    }
+
+    async getHistory(): Promise<HistoryEntryResponse> {
+        return new Promise(async (resolve) => {
+            const res = history.get();
+            resolve({ history: res });
+        });
+    }
+
+    goHome(): void {
+        history.clear();
+        navigate();
+    }
+
+    goSelected(index: number): void {
+        history.select(index);
+        navigate();
+    }
+
+    addToHistory(entry: HistoryEntry): void {
+        history.push(entry);
+        navigate();
     }
 }

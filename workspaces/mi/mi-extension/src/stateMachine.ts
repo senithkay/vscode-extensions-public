@@ -10,6 +10,7 @@ import { EventType, MachineStateValue, VisualizerLocation, webviewReady } from '
 import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
+import { history } from './history/activator';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -72,18 +73,39 @@ const stateMachine = createMachine<MachineContext>({
                     invoke: {
                         src: 'openWebPanel',
                         onDone: {
-                            target: 'viewReady'
+                            target: 'viewStacking'
                         }
                     }
+                },
+                viewStacking: {
+                    invoke: {
+                        src: 'updateStack',
+                        onDone: {
+                            target: "viewReady"
+                        }
+                    }
+                },
+                viewNavigated: {
+                    always: "viewReady",
                 },
                 viewReady: {
                     on: {
                         OPEN_VIEW: {
                             target: "viewLoading",
                             actions: assign({
-                                documentUri: (context, event) => event.viewLocation.documentUri,
                                 view: (context, event) => event.viewLocation.view,
-                                identifier: (context, event) => event.viewLocation.identifier
+                                identifier: (context, event) => event.viewLocation.identifier,
+                                documentUri: (context, event) => event.viewLocation.documentUri,
+                                position: (context, event) => event.viewLocation.position
+                            })
+                        },
+                        NAVIGATE: {
+                            target: "viewNavigated",
+                            actions: assign({
+                                view: (context, event) => event.viewLocation.view,
+                                identifier: (context, event) => event.viewLocation.identifier,
+                                documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
+                                position: (context, event) => event.viewLocation.position,
                             })
                         },
                         FILE_EDIT: {
@@ -170,7 +192,25 @@ const stateMachine = createMachine<MachineContext>({
                     resolve(true);
                 }
             });
-        }
+        },
+        updateStack: (context, event) => {
+            return new Promise(async (resolve, reject) => {
+                const historyStack = history.get();
+                if (historyStack.length === 0) {
+                    history.push({ location: { view: "Overview", } });
+                } else {
+                    history.push({
+                        location: {
+                            view: context.view,
+                            documentUri: context.documentUri,
+                            position: context.position,
+                            identifier: context.identifier
+                        }
+                    });
+                }
+                resolve(true);
+            });
+        },
     }
 });
 
@@ -189,6 +229,12 @@ export const StateMachine = {
 
 export function openView(type: EventType, viewLocation?: VisualizerLocation) {
     stateService.send({ type: type, viewLocation: viewLocation });
+}
+
+export function navigate() {
+    const historyStack = history.get();
+    const lastView = historyStack[historyStack.length - 1];
+    stateService.send({ type: "NAVIGATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
 }
 
 

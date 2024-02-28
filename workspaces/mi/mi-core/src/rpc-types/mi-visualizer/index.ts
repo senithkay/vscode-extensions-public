@@ -7,7 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ProjectStructureRequest, ProjectStructureResponse, WorkspacesResponse, OpenViewRequest } from "./types";
+import { HistoryEntry } from "../../history";
+import { ProjectStructureRequest, ProjectStructureResponse, WorkspacesResponse, OpenViewRequest, HistoryEntryResponse } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 export interface MIVisualizerAPI {
     getWorkspaces: () => Promise<WorkspacesResponse>;
@@ -16,4 +17,8 @@ export interface MIVisualizerAPI {
     goBack: () => void;
     fetchSamplesFromGithub: () => Promise<GettingStartedData>;
     downloadSelectedSampleFromGithub: (params: SampleDownloadRequest) => void;
+    getHistory: () => Promise<HistoryEntryResponse>;
+    addToHistory: (params: HistoryEntry) => void;
+    goHome: () => void;
+    goSelected: (params: number) => void;
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MachineStateValue, MachineViews } from '@wso2-enterprise/mi-core';
+import { MachineStateValue } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Overview } from './views/Overview';
 import { ServiceDesignerView } from './views/ServiceDesigner';
@@ -12,7 +12,6 @@ import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { InboundEPWizard } from './views/Forms/InboundEPform';
-import { DiagramView } from './views/DiagramView';
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -32,16 +31,20 @@ const ProgressRing = styled(VSCodeProgressRing)`
 const MainPanel = () => {
     const { rpcClient } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
-    const [view, setView] = useState<MachineViews>(null);
-
-    rpcClient?.onStateChanged((newState: MachineStateValue) => {
-        if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewReady') {
-            fetchContext();
-        }
-    });
 
     useEffect(() => {
         fetchContext();
+
+        rpcClient?.onStateChanged((newState: MachineStateValue) => {
+            if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewReady') {
+                fetchContext();
+            }
+            if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewEditing') {
+                rpcClient.getMiVisualizerRpcClient().openView({ type: "EDIT_DONE", location: null });
+                fetchContext();
+            }
+        });
+
     }, []);
 
 
@@ -52,7 +55,14 @@ const MainPanel = () => {
                     setViewComponent(<Overview />);
                     break;
                 case "Diagram":
-                    setViewComponent(<DiagramView />);
+                    rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri }).then((st) => {
+                        const identifier = machineView.identifier || machineView.identifier === undefined;
+                        if (identifier && st?.syntaxTree?.api?.resource) {
+                            const resourceNode = st?.syntaxTree?.api.resource.find((resource: any) => (resource.uriTemplate === machineView.identifier) || resource.uriTemplate === undefined);
+                            setViewComponent(<Diagram model={resourceNode} documentUri={machineView.documentUri} />);
+                        }
+                    });
+                    rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
                     break;
                 case "ServiceDesigner":
                     setViewComponent(<ServiceDesignerView />);
@@ -75,23 +85,20 @@ const MainPanel = () => {
                 default:
                     setViewComponent(null);
             }
-            setView(machineView.view);
         });
     }
-
-    const MemoizedComponent = React.useMemo(() => viewComponent, [view]);
 
     return (
         <div style={{
             overflow: "hidden",
         }}>
-            {!MemoizedComponent ? (
+            {!viewComponent ? (
                 <LoaderWrapper>
                     <ProgressRing />
                 </LoaderWrapper>
             ) : <div>
                 <NavigationBar />
-                {MemoizedComponent}
+                {viewComponent}
             </div>}
         </div>
     );
