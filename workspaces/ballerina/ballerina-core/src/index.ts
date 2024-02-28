@@ -68,3 +68,4 @@ export * from "./utils/form-component-utils";
 export * from "./utils/diagnostics-utils";
 export * from "./utils/visitors/records-finder-visitor";
 export * from "./utils/keyboard-navigation-manager";
+export * from "./utils/identifier-utils"
