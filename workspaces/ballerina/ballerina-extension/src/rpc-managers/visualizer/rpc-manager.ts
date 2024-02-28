@@ -9,10 +9,12 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    HistoryEntry,
     VisualizerAPI,
     VisualizerLocation
 } from "@wso2-enterprise/ballerina-core";
-import { StateMachine, getPreviousView, openView } from "../../stateMachine";
+import { history } from "../../history";
+import { navigate, openView } from "../../stateMachine";
 
 export class VisualizerRpcManager implements VisualizerAPI {
 
@@ -24,10 +26,26 @@ export class VisualizerRpcManager implements VisualizerAPI {
     }
 
     goBack(): void {
-        // Get current view
-        const currentView = StateMachine.context().view;
-        const currentDoc = StateMachine.context().documentUri;
-        const view = getPreviousView(currentView!);
-        view.length > 0 && openView("OPEN_VIEW", { view: view[0], documentUri: currentDoc });
+        history.pop();
+        navigate();
+    }
+
+    async getHistory(): Promise<HistoryEntry[]> {
+        return history.get();
+    }
+
+    goHome(): void {
+        history.clear();
+        navigate();
+    }
+
+    goSelected(index: number): void {
+        history.select(index);
+        navigate();
+    }
+
+    addToHistory(entry: HistoryEntry): void {
+        history.push(entry);
+        navigate();
     }
 }

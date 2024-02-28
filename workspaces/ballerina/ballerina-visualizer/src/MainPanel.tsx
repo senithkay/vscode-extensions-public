@@ -26,6 +26,7 @@ import { Overview } from './views/Overview';
 import { SequenceDiagram } from './views/SequenceDiagram';
 import { ServiceDesigner } from './views/ServiceDesigner';
 import { TypeDiagram } from './views/TypeDiagram';
+import { FunctionDefinition, ServiceDeclaration } from '@wso2-enterprise/syntax-tree';
 
 const globalStyles = css`
   *,
@@ -41,12 +42,12 @@ const VisualizerContainer = styled.div`
 `;
 
 const ComponentViewWrapper = styled.div`
-    height: 100vh;
+    height: calc(100% - 24px);
 `;
 
 const MainPanel = () => {
     const { rpcClient } = useVisualizerContext();
-    const [visualizerLocation, setVisualizerLocation] = useState<VisualizerLocation>();
+    const [viewComponent, setViewComponent] = useState<React.ReactNode>();
 
     rpcClient?.onStateChanged((newState: MachineStateValue) => {
         if (typeof newState === 'object' && 'viewActive' in newState && newState.viewActive === 'viewReady') {
@@ -56,44 +57,49 @@ const MainPanel = () => {
 
     const fetchContext = () => {
         rpcClient.getVisualizerLocation().then((value) => {
-            setVisualizerLocation(value);
+            if (!value?.view) {
+                setViewComponent(<LoadingRing />);
+            } else {
+                switch (value?.view) {
+                    case "Overview":
+                        setViewComponent(<Overview visualizerLocation={value} />);
+                        break;
+                    case "ArchitectureDiagram":
+                        setViewComponent(<ArchitectureDiagram />);
+                        break;
+                    case "ServiceDesigner":
+                        setViewComponent(<ServiceDesigner model={value?.syntaxTree as ServiceDeclaration} />);
+                        break;
+                    case "ERDiagram":
+                        setViewComponent(<ERDiagram />);
+                        break;
+                    case "DataMapper":
+                        setViewComponent((
+                            <DataMapper
+                                filePath={value.documentUri}
+                                model={value?.syntaxTree as FunctionDefinition}
+                            />
+                        ));
+                        break;
+                    case "GraphQLDiagram":
+                        setViewComponent(<GraphQLDiagram />);
+                        break;
+                    case "SequenceDiagram":
+                        setViewComponent(<SequenceDiagram />);
+                        break;
+                    case "TypeDiagram":
+                        setViewComponent(<TypeDiagram />);
+                        break;
+                    default:
+                        setViewComponent(<LoadingRing />);
+                }
+            }
         });
     }
 
     useEffect(() => {
         fetchContext();
     }, []);
-
-    const viewComponent = useMemo(() => {
-        if (!visualizerLocation?.view) {
-            return <LoadingRing />;
-        }
-        switch (visualizerLocation?.view) {
-            case "Overview":
-                return <Overview />;
-            case "ArchitectureDiagram":
-                return <ArchitectureDiagram />
-            case "ServiceDesigner":
-                return <ServiceDesigner />
-            case "ERDiagram":
-                return <ERDiagram />
-            case "DataMapper":
-                return (
-                    <DataMapper
-                        filePath={visualizerLocation.documentUri}
-                        fnLocation={visualizerLocation.position}
-                    />
-                );
-            case "GraphQLDiagram":
-                return <GraphQLDiagram />
-            case "SequenceDiagram":
-                return <SequenceDiagram />
-            case "TypeDiagram":
-                return <TypeDiagram />
-            default:
-                return <LoadingRing />;
-        }
-    }, [visualizerLocation?.view]);
 
     return (
         <>

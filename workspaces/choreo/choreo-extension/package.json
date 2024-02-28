@@ -262,7 +262,7 @@
     "compile-tests": "tsc -p . --outDir dist",
     "watch-tests": "tsc -p . -w --outDir dist",
     "e2e-test-setup": "npx extest get-vscode -c 1.83.1 && npx extest get-chromedriver -c 1.83.1 && npx extest install-vsix -f $(ls vsix/*.vsix) && npx extest install-vsix -f $(ls ../../../ballerina-*.vsix)",
-    "e2e-test": "pnpm run compile-tests",
+    "e2e-test": "pnpm run compile-tests && npx extest run-tests 'dist/src/tests/e2e-tests/*.test.js' --mocha_config src/tests/e2e-tests/.mocharc.js -o src/tests/e2e-tests/settings.json",
     "e2e-playwright": "pnpm run compile-tests && pnpm exec playwright test",
     "e2e-pw-record": "pnpm run compile-tests && node ./dist/tests/e2e-playwright/recorder.js",
     "integration-test": "pnpm run compile-tests && npx extest run-tests 'dist/tests/integration-tests/*.test.js' --mocha_config src/tests/integration-tests/.mocharc.js -o src/tests/integration-tests/settings.json",

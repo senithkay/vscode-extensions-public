@@ -7,16 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { createStyles, makeStyles } from "@material-ui/core/styles";
+import { css } from '@emotion/css';
 
-export const useStyles = makeStyles(() =>
-    createStyles({
-        controlButton: {
-            backgroundColor: "white !important",
-            border: "1px solid #E0E2E9 !important",
-            borderRadius: "2px !important",
-            height: "32px !important",
-            width: "32px !important"
-        }
+export const useStyles = () => ({
+    controlButton: css ({
+        background: "var(--vscode-input-background)",
+        display: "flex",
+        justifyContent: "center"
     })
-);
+});

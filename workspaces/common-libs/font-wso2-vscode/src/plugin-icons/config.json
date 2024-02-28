@@ -5,16 +5,7 @@
             "design-view.svg",
             "start.svg",
             "debug.svg",
-            "persist-diagram.svg",
-            "cached-round.svg",
-            "fit-to-screen.svg",
-            "explicit-outlined.svg",
-            "error-icon.svg",
-            "error-outline.svg",
-            "symbol-struct-icon.svg",
-            "add-circle-outline.svg",
-            "radio-button-checked.svg",
-            "radio-button-unchecked.svg"
+            "persist-diagram.svg"
         ],
         "codiconFont" : [
             "file-submodule.svg",

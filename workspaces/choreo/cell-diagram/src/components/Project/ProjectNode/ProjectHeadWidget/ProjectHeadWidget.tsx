@@ -27,7 +27,7 @@ interface ServiceHeadProps {
 export function ProjectHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected, isFocused } = props;
 
-    const cellHeight = 120;
+    const cellHeight = 80;
     const strokeWidth = 3;
     const isExposedToInternet = node.project.connections?.some(
         (connection) => connection.source?.boundary === CellBounds.NorthBound
@@ -46,7 +46,7 @@ export function ProjectHeadWidget(props: ServiceHeadProps) {
             borderWidth={strokeWidth}
             isSelected={isSelected || isFocused}
         >
-            {generateRoundedOctagonSVG(cellHeight)}
+            {generateRoundedOctagonSVG(cellHeight, 0.3)}
 
             {isExposedToInternet && (
                 <ProjectPortWidget

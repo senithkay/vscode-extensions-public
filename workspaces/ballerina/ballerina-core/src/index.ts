@@ -56,9 +56,13 @@ export * from "./rpc-types/project-design-diagram";
 export * from "./rpc-types/project-design-diagram/rpc-type";
 export * from "./rpc-types/project-design-diagram/interfaces";
 
+// ------ History class and interface -------->
+export * from "./history";
+
 // ------ Util functions -------->
 export * from "./utils/modification-utils";
 export * from "./utils/form-component-utils";
 export * from "./utils/diagnostics-utils";
 export * from "./utils/visitors/records-finder-visitor";
 export * from "./utils/keyboard-navigation-manager";
+export * from "./utils/identifier-utils"

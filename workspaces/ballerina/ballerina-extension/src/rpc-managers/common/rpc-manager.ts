@@ -19,13 +19,15 @@ import {
     SyntaxTreeResponse,
     TypeResponse,
     UpdateSourceRequest,
-    UpdateSourceResponse
+    UpdateSourceResponse,
+    WorkspaceFileRequest,
+    WorkspacesFileResponse
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { Uri } from "vscode";
-import { StateMachine, openView } from "../../stateMachine";
-import { applyModifications, updateFileContent } from "../../utils/modification";
+import { Uri, workspace } from "vscode";
+import { StateMachine, navigate, openView } from "../../stateMachine";
 import { goToSource } from "../../utils";
+import { applyModifications, updateFileContent } from "../../utils/modification";
 
 export class CommonRpcManager implements CommonRPCAPI {
     async getTypes(): Promise<TypeResponse> {
@@ -64,15 +66,7 @@ export class CommonRpcManager implements CommonRPCAPI {
             const response = await applyModifications(context.documentUri!, [modification]) as SyntaxTreeResponse;
             if (response.parseSuccess) {
                 await updateFileContent({ fileUri: context.documentUri!, content: response.source });
-                const st = response.syntaxTree as ModulePart;
-                st.members.forEach(member => {
-                    if (STKindChecker.isServiceDeclaration(member)) {
-                        const identifier = member.absoluteResourcePath.reduce((result, obj) => result + obj.value, "");
-                        if (identifier === context.identifier) {
-                            openView("OPEN_VIEW", { position: member.position });
-                        }
-                    }
-                });
+                navigate();
             }
         });
     }
@@ -88,15 +82,7 @@ export class CommonRpcManager implements CommonRPCAPI {
             const response = await applyModifications(context.documentUri!, [modification]) as SyntaxTreeResponse;
             if (response.parseSuccess) {
                 await updateFileContent({ fileUri: context.documentUri!, content: response.source });
-                const st = response.syntaxTree as ModulePart;
-                st.members.forEach(member => {
-                    if (STKindChecker.isServiceDeclaration(member)) {
-                        const identifier = member.absoluteResourcePath.reduce((result, obj) => result + obj.value, "");
-                        if (identifier === context.identifier) {
-                            openView("OPEN_VIEW", { position: member.position });
-                        }
-                    }
-                });
+                navigate();
             }
         });
     }
@@ -104,5 +90,18 @@ export class CommonRpcManager implements CommonRPCAPI {
     async goToSource(params: GoToSourceRequest): Promise<void> {
         const context = StateMachine.context();
         goToSource(params.position, context.documentUri!);
+    }
+
+    async getWorkspaceFiles(params: WorkspaceFileRequest): Promise<WorkspacesFileResponse> {
+        // Get the workspace files form vscode workspace
+        const files = [];
+        // Get workspace path
+        const workspaceRoot = workspace.workspaceFolders![0].uri.fsPath;
+        const workspaceFiles = params.glob ? await workspace.findFiles(params.glob) : await workspace.findFiles('**/*.bal', '**/*test.bal');
+        workspaceFiles.forEach(file => {
+            // Push the file path relative to the workspace root without the leading slash
+            files.push({relativePath: file.fsPath.replace(workspaceRoot, '').substring(1), path: file.fsPath});
+        });
+        return { files, workspaceRoot };
     }
 }

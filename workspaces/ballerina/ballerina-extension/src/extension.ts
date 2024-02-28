@@ -25,6 +25,7 @@ import { activate as activatePerformanceForecaster } from './forecaster';
 import { activate as activateTryIt } from './tryIt/tryit';
 import { activate as activateNotebook } from './notebook';
 import { activate as activateLibraryBrowser } from './library-browser';
+import { activate as activateHistory } from './history';
 import { activate as activateERDiagram } from './persist-layer-diagram';
 import { debug, handleResolveMissingDependencies, log } from './utils';
 import { activateUriHandlers } from './uri-handlers';
@@ -91,23 +92,24 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
     await ballerinaExtInstance.init(onBeforeInit).then(() => {
         activateLibraryBrowser(ballerinaExtInstance);
         activateSubscriptions();
+        activateHistory();
         // start the features.
         // Enable Ballerina diagram
         // activateDiagram(ballerinaExtInstance);
-        // // Enable Ballerina by examples
-        // activateBBE(ballerinaExtInstance);
-        // // Enable Ballerina Debug Config Provider
-        // activateDebugConfigProvider(ballerinaExtInstance);
-        // // Enable Ballerina Project related features
-        // activateProjectFeatures();
+        // Enable Ballerina by examples
+        activateBBE(ballerinaExtInstance);
+        // Enable Ballerina Debug Config Provider
+        activateDebugConfigProvider(ballerinaExtInstance);
+        // Enable Ballerina Project related features
+        activateProjectFeatures();
         activateEditorSupport(ballerinaExtInstance);
         // // Enable performance forecaster
         // activatePerformanceForecaster(ballerinaExtInstance);
-        // // Enable try it views
-        // activateTryIt(ballerinaExtInstance);
-        // // Enable Ballerina Telemetry listener
-        // activateTelemetryListener(ballerinaExtInstance);
-        // activateTesting(ballerinaExtInstance);
+        // Enable try it views
+        activateTryIt(ballerinaExtInstance);
+        // Enable Ballerina Telemetry listener
+        activateTelemetryListener(ballerinaExtInstance);
+        activateTesting(ballerinaExtInstance);
         // // Enable Ballerina Notebook
         // activateNotebook(ballerinaExtInstance);
         // activateDesignDiagramView(ballerinaExtInstance);
