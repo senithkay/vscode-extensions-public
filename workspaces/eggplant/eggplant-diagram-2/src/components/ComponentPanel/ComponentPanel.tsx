@@ -32,12 +32,13 @@ export function ComponentPanel(props: ComponentPanelProps) {
             isOpen={show}
             alignmanet="right"
             sx={{
-                top: "calc(50% - 300px)",
-                left: "calc(50% - 250px)",
-                width: "500px",
-                height: "600px",
+                // top: "calc(50% - 300px)",
+                // left: "calc(50% - 250px)",
+                // width: "500px",
+                width: "400px",
+                // height: "600px",
+                // borderRadius: "10px",
                 fontFamily: "GilmerRegular",
-                borderRadius: "10px",
                 backgroundColor: Colors.SURFACE_DIM,
                 boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",
             }}
