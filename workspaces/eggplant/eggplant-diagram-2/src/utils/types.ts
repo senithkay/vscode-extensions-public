@@ -7,6 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { BaseNodeModel } from "../components/nodes/BaseNode";
+import { EmptyNodeModel } from "../components/nodes/EmptyNode";
+
 export type Flow = {
     nodes: Node[];
     name: string;
@@ -89,3 +92,8 @@ export type ViewState = {
     h: number;
     startNodeId?: string;
 };
+
+
+// Diagram node types
+
+export type NodeModel = BaseNodeModel | EmptyNodeModel;

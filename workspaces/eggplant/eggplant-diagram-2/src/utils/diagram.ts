@@ -13,6 +13,7 @@ import { NodeLinkFactory, NodeLinkModel, NodeLinkModelOptions } from "../compone
 import { EmptyNodeFactory, EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { OverlayLayerFactory } from "../components/OverlayLayer";
 import { DagreEngine } from "../resources/dagre/DagreEngine";
+import { NodeModel } from "./types";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -52,7 +53,6 @@ export function createPortsLink(sourcePort: NodePortModel, targetPort: NodePortM
 }
 
 // create link between nodes
-export type NodeModel = BaseNodeModel | EmptyNodeModel;
 export function createNodesLink(sourceNode: NodeModel, targetNode: NodeModel, options?: NodeLinkModelOptions) {
     const sourcePort = sourceNode.getOutPort();
     const targetPort = targetNode.getInPort();

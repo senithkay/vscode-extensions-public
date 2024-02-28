@@ -11,14 +11,14 @@ import { NodeLinkModel } from "../components/NodeLink";
 import { BaseNodeModel } from "../components/nodes/BaseNode";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { createNodesLink } from "../utils/diagram";
-import { Node } from "../utils/types";
+import { Node, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
 export class NodeFactoryVisitor implements BaseVisitor {
-    nodes: (BaseNodeModel | EmptyNodeModel)[] = [];
+    nodes: (NodeModel)[] = [];
     links: NodeLinkModel[] = [];
     private skipChildrenVisit = false;
-    private lastNodeModel: BaseNodeModel | EmptyNodeModel | undefined; // last visited flow node
+    private lastNodeModel: NodeModel | undefined; // last visited flow node
 
     constructor() {
         console.log("node factory visitor started");
@@ -51,7 +51,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
         return nodeModel;
     }
 
-    getNodes(): (BaseNodeModel | EmptyNodeModel)[] {
+    getNodes(): (NodeModel)[] {
         return this.nodes;
     }
 
@@ -151,5 +151,9 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     skipChildren(): boolean {
         return this.skipChildrenVisit;
+    }
+
+    getLastNodeModel(): NodeModel | undefined {
+        return this.lastNodeModel;
     }
 }

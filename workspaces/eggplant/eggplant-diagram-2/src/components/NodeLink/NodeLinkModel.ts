@@ -9,7 +9,7 @@
 
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
 import { Colors, NODE_LINK, NodeTypes } from "../../resources/constants";
-import { NodeModel } from "../../utils/diagram";
+import { NodeModel } from "../../utils/types";
 
 export const LINK_BOTTOM_OFFSET = 30;
 
@@ -27,8 +27,8 @@ export class NodeLinkModel extends DefaultLinkModel {
     sourceNode: NodeModel;
     targetNode: NodeModel;
     // options
+    showArrow: boolean;
     showAddButton = true;
-    showArrow = true;
     brokenLine = false;
     alignBottom = false;
     linkBottomOffset = LINK_BOTTOM_OFFSET;
@@ -51,12 +51,11 @@ export class NodeLinkModel extends DefaultLinkModel {
             } else {
                 if ((options as NodeLinkModelOptions).label) {
                     this.label = (options as NodeLinkModelOptions).label;
-                    // this.linkBottomOffset = LINK_BOTTOM_OFFSET + 40;
                 }
                 if ((options as NodeLinkModelOptions).showAddButton === false) {
                     this.showAddButton = (options as NodeLinkModelOptions).showAddButton;
                 }
-                if ((options as NodeLinkModelOptions).showArrow === false) {
+                if ((options as NodeLinkModelOptions).showArrow) {
                     this.showArrow = (options as NodeLinkModelOptions).showArrow;
                 }
                 if ((options as NodeLinkModelOptions).brokenLine === true) {
@@ -147,12 +146,15 @@ export class NodeLinkModel extends DefaultLinkModel {
 
     // show node arrow. default true. but target node is a EmptyNodeModel, then false
     showArrowToNode(): boolean {
+        if (this.showArrow) {
+            return this.showArrow;
+        }
         if (this.points.length != 2) {
             return false;
         }
         if (this.targetNode?.getType() === NodeTypes.EMPTY_NODE) {
             return false;
         }
-        return this.showArrow;
+        return true;
     }
 }

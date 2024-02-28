@@ -10,15 +10,16 @@
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
-import { genDagreEngine, generateEngine } from "../utils/diagram";
+import { createNodesLink, genDagreEngine, generateEngine } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
-import { Flow } from "../utils/types";
+import { Flow, NodeModel } from "../utils/types";
 import { traverseFlow } from "../utils/ast";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { NodeLinkModel } from "./NodeLink";
 import { OverlayLayerModel } from "./OverlayLayer";
 import { BaseNodeModel } from "./nodes/BaseNode";
 import { DiagramContextProvider } from "./DiagramContext";
+import { EmptyNodeModel } from "./nodes/EmptyNode";
 
 export interface DiagramProps {
     model: Flow;
@@ -44,10 +45,22 @@ export function Diagram(props: DiagramProps) {
 
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();
+
+        // add plus link to last node
+        const lastNode = nodeVisitor.getLastNodeModel();
+        if (lastNode) {
+            const lastEmptyNode = new EmptyNodeModel("last-empty-node", false);
+            nodes.push(lastEmptyNode);
+            const link = createNodesLink(lastNode, lastEmptyNode, { showArrow: true });
+            if (link) {
+                links.push(link);
+            }
+        }
+
         return { nodes, links };
     };
 
-    const drawDiagram = (nodes: BaseNodeModel[], links: NodeLinkModel[]) => {
+    const drawDiagram = (nodes: NodeModel[], links: NodeLinkModel[]) => {
         const newDiagramModel = new DiagramModel();
         newDiagramModel.addLayer(new OverlayLayerModel());
         // add nodes and links to the diagram
