@@ -342,7 +342,17 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"command": COMMANDS.SHOW_VIEW,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
-		} else {
+		} 
+		else if (entry.type === "MESSAGE_STORE") {
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			explorerEntry.contextValue = 'messageStores';
+			explorerEntry.command = {
+				"title": "Show Message Store",
+				"command": COMMANDS.SHOW_MESSAGE_STORE,
+				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+			};
+		}		
+		else {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 		}
 

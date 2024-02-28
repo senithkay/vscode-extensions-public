@@ -26,6 +26,7 @@ export enum MACHINE_VIEW {
     ImportProjectForm = "Import Project Form",
     LocalEntryForm = "Local Entry Form",
     RegistryResourceForm = "Registry Resource Creation Form",
+    MessageStoreForm = "MessageStoreForm"
 }
 
 export type MachineStateValue =

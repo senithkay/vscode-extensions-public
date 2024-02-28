@@ -104,6 +104,9 @@ import {
     redo,
     showErrorMessage,
     undo,
+    CreateMessageStoreRequest,
+    CreateMessageStoreResponse,
+    createMessageStore,
     writeContentToFile,
     BrowseFileRequest,
     BrowseFileResponse,
@@ -111,6 +114,9 @@ import {
     CreateRegistryResourceRequest,
     CreateRegistryResourceResponse,
     createRegistryResource,
+    GetMessageStoreRequest,
+    GetMessageStoreResponse,
+    getMessageStore,
     CreateTaskRequest,
     CreateTaskResponse,
     createTask,
@@ -218,6 +224,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getTask(params: GetTaskRequest): Promise<GetTaskResponse> {
         return this._messenger.sendRequest(getTask, HOST_EXTENSION, params);
+    }
+    
+    createMessageStore(params: CreateMessageStoreRequest): Promise<CreateMessageStoreResponse>{
+        return this._messenger.sendRequest(createMessageStore, HOST_EXTENSION,params);
+    }
+
+    getMessageStore(params: GetMessageStoreRequest): Promise<GetMessageStoreResponse>{
+        return this._messenger.sendRequest(getMessageStore, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {

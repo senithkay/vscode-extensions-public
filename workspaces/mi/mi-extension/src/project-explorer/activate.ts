@@ -15,6 +15,7 @@ import { ExtensionContext, Uri, ViewColumn, commands, window, workspace } from '
 import { VisualizerWebview } from '../visualizer/webview';
 import path = require("path");
 import { deleteRegistryResource } from '../util/fileOperations';
+import { RpcClient } from '@wso2-enterprise/mi-rpc-client';
 
 export function activateProjectExplorer(context: ExtensionContext) {
 
@@ -29,6 +30,7 @@ export function activateProjectExplorer(context: ExtensionContext) {
 			{ label: 'Sequence', description: 'Add new sequence' },
 			{ label: 'Inbound Endpoint', description: 'Add new inbound endpoint' },
 			{ label: 'Local Entry', description: 'Add new local entry' },
+			{ label: 'Message Store', description: 'Add new message store'},
 			{ label: 'Message Processor', description: 'Add new message processor' },
 			{ label: 'Task', description: 'Add new task' }
 		], {
@@ -50,6 +52,8 @@ export function activateProjectExplorer(context: ExtensionContext) {
 				commands.executeCommand(COMMANDS.CREATE_PROJECT_COMMAND);
 			} else if (selection?.label === 'Local Entry') {
 				commands.executeCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND);
+			} else if (selection?.label === 'Message Store') {
+				commands.executeCommand(COMMANDS.ADD_MESSAGE_STORE_COMMAND);
 			}
 		});
 
@@ -119,6 +123,11 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		}
 	});
 
+	commands.registerCommand(COMMANDS.ADD_MESSAGE_STORE_COMMAND, (entry:ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MessageStoreForm, documentUri: entry.info?.path });
+		console.log('Add Message Store');
+	});
+
 	commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
 		// Update state machine to show the api wizard
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
@@ -171,6 +180,10 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Diagram, documentUri: documentUri?.fsPath, identifier: resourceIndex });
 	})
+	commands.registerCommand(COMMANDS.SHOW_MESSAGE_STORE, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MessageStoreForm, documentUri: documentUri?.fsPath });
+	})	
 	commands.registerCommand(COMMANDS.SHOW_VIEW, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TaskForm, documentUri: documentUri?.fsPath });
