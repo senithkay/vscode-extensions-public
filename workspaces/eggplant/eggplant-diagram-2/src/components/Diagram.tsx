@@ -30,7 +30,7 @@ export function Diagram(props: DiagramProps) {
 
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
-    const [showComponentPanel, setShowComponentPanel] = useState(true);
+    const [showComponentPanel, setShowComponentPanel] = useState(false);
 
     useEffect(() => {
         if (diagramEngine) {
