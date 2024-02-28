@@ -8,7 +8,7 @@
  */
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import { AutoComplete, Button, TextField } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, Button, Codicon, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import { FieldGroup, SectionWrapper } from "./Commons";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { CreateEndpointRequest, EndpointDirectoryResponse } from "@wso2-enterprise/mi-core";
@@ -49,6 +49,14 @@ export interface Region {
     label: string;
     value: string;
 }
+
+const Container = styled.div`
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+    align-items: center;
+    justify-content: flex-start;
+`;
 
 export function EndpointWizard() {
 
@@ -146,6 +154,10 @@ export function EndpointWizard() {
         }
     };
 
+    const handleBackButtonClick = () => {
+        rpcClient.getMiVisualizerRpcClient().goBack();
+    }
+
     const isValid: boolean = endpointName.length > 0 &&
         endpointType.length > 0 &&
         (!(endpointType === "Address Endpoint") || address.length > 0) &&
@@ -154,7 +166,12 @@ export function EndpointWizard() {
     return (
         <WizardContainer>
             <SectionWrapper>
-                <h3>Endpoint Artifact</h3>
+                <Container>
+                    <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
+                    <div style={{ marginLeft: 30 }}>
+                        <Typography variant="h3">Endpoint Artifact</Typography>
+                    </div>
+                </Container>
                 <TextField
                     value={endpointName}
                     id='name-input'
