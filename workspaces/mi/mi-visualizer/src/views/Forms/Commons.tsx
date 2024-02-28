@@ -27,7 +27,6 @@ export const SectionWrapper: any = styled.div`
     border-style: solid;
     border-width: 1px;
     border-color: transparent;
-    background-color: var(--vscode-welcomePage-tileBackground);
     overflow: auto;
     &.active {
         border-color: var(--vscode-focusBorder);
