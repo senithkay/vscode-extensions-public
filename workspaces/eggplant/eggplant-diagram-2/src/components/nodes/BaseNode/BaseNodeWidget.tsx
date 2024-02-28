@@ -74,10 +74,6 @@ export namespace NodeStyles {
         font-family: "GilmerMedium";
     `;
 
-    export const HelpText = styled(StyledText)`
-        color: ${Colors.PRIMARY};
-    `;
-
     export const Body = styled.div`
         display: flex;
         flex-direction: column;
@@ -130,13 +126,6 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
             {/* todo: generate dynamic form with node attributes */}
             <NodeStyles.Body>
                 {children}
-                {model.node.nodeProperties.expression?.documentation && (
-                    <NodeStyles.Row>
-                        <NodeStyles.HelpText>
-                            {model.node.nodeProperties.expression.documentation}
-                        </NodeStyles.HelpText>
-                    </NodeStyles.Row>
-                )}
             </NodeStyles.Body>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
         </NodeStyles.Node>

@@ -8,23 +8,22 @@
  */
 
 import React from "react";
-import { TextField } from "@wso2-enterprise/ui-toolkit";
-import { NodeWidgetProps, NodeStyles, BaseNodeWidget } from "../BaseNodeWidget";
+import { NodeWidgetProps, BaseNodeWidget } from "../BaseNodeWidget";
+import { TextInput } from "../../../TextInput";
+import { Expression } from "../../../../utils/types";
 
 export function HttpEndpointNodeWidget(props: NodeWidgetProps) {
     const { model } = props;
     const nodeProperties = model.node.nodeProperties;
 
+    const handleOnChange = (expression: Expression) => {
+        console.log(">>> expression changed", expression);
+    };
+
     return (
         <BaseNodeWidget {...props}>
-            <NodeStyles.Row>
-                <NodeStyles.StyledText>{nodeProperties.method.label} </NodeStyles.StyledText>
-                <TextField value={nodeProperties.method.value.toString()} />
-            </NodeStyles.Row>
-            <NodeStyles.Row>
-                <NodeStyles.StyledText>{nodeProperties.path.label} </NodeStyles.StyledText>
-                <TextField value={nodeProperties.path.value.toString()} />
-            </NodeStyles.Row>
+            <TextInput expression={nodeProperties.method} onChange={handleOnChange} />
+            <TextInput expression={nodeProperties.path} onChange={handleOnChange} />
         </BaseNodeWidget>
     );
 }

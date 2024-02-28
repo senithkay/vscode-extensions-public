@@ -8,9 +8,11 @@
  */
 
 import React, { useContext } from "react";
-import { Dropdown, TextField } from "@wso2-enterprise/ui-toolkit";
+import { Dropdown } from "@wso2-enterprise/ui-toolkit";
 import { NodeWidgetProps, NodeStyles, BaseNodeWidget } from "../BaseNodeWidget";
 import { DiagramContext } from "../../../DiagramContext";
+import { TextInput } from "../../../TextInput";
+import { Expression } from "../../../../utils/types";
 
 export function HttpActionNodeWidget(props: NodeWidgetProps) {
     const { model } = props;
@@ -26,6 +28,10 @@ export function HttpActionNodeWidget(props: NodeWidgetProps) {
     });
     const nodeProperties = model.node.nodeProperties;
 
+    const handleOnChange = (expression: Expression) => {
+        console.log(">>> expression changed", expression);
+    };
+
     return (
         <BaseNodeWidget {...props}>
             <NodeStyles.Row>
@@ -34,22 +40,12 @@ export function HttpActionNodeWidget(props: NodeWidgetProps) {
                     id={`${model.node.id}-clients-dropdown`}
                     value={nodeProperties.client.value.toString()}
                     items={dropdownItems}
-                    sx={{ width: 166, marginBottom: 2}}
+                    sx={{ width: 166, marginBottom: 2 }}
                 ></Dropdown>
             </NodeStyles.Row>
-            <NodeStyles.Row>
-                <NodeStyles.StyledText>{nodeProperties.path.label} </NodeStyles.StyledText>
-                <TextField value={nodeProperties.path.value.toString()} />
-            </NodeStyles.Row>
-            <NodeStyles.Row>
-                <NodeStyles.StyledText>{nodeProperties.targetType.label} </NodeStyles.StyledText>
-                <TextField value={nodeProperties.targetType.value} />
-            </NodeStyles.Row>
-            <NodeStyles.Row>
-                <NodeStyles.StyledText>{nodeProperties.variable.label} </NodeStyles.StyledText>
-                <TextField value={nodeProperties.variable.value} />
-            </NodeStyles.Row>
-            
+            <TextInput expression={nodeProperties.path} onChange={handleOnChange} />
+            <TextInput expression={nodeProperties.targetType} onChange={handleOnChange} />
+            <TextInput expression={nodeProperties.variable} onChange={handleOnChange} />
         </BaseNodeWidget>
     );
 }
