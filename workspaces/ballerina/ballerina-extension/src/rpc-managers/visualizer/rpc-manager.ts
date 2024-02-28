@@ -50,15 +50,11 @@ export class VisualizerRpcManager implements VisualizerAPI {
     }
 
     async undo(): Promise<string> {
-        const urMan = undoRedoManager;
-        const undoRes = urMan.undo();
-        return undoRes;
+        return undoRedoManager.undo();
     }
 
     async redo(): Promise<string> {
-        const urMan = undoRedoManager;
-        const redoRes = urMan.redo();
-        return redoRes;
+        return undoRedoManager.redo();
     }
 
     addToUndoStack(source: string): void {

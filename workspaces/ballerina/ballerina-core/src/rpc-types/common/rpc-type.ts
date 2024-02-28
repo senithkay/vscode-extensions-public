@@ -9,8 +9,6 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    DeleteSourceRequest,
-    DeleteSourceResponse,
     GoToSourceRequest,
     TypeResponse,
     UpdateSourceRequest,
@@ -22,7 +20,5 @@ import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "common";
 export const getTypes: RequestType<void, TypeResponse> = { method: `${_preFix}/getTypes` };
-export const updateSource: RequestType<UpdateSourceRequest, UpdateSourceResponse> = { method: `${_preFix}/updateSource` };
-export const deleteSource: RequestType<DeleteSourceRequest, DeleteSourceResponse> = { method: `${_preFix}/deleteSource` };
 export const goToSource: NotificationType<GoToSourceRequest> = { method: `${_preFix}/goToSource` };
 export const getWorkspaceFiles: RequestType<WorkspaceFileRequest, WorkspacesFileResponse> = { method: `${_preFix}/getWorkspaceFiles` };

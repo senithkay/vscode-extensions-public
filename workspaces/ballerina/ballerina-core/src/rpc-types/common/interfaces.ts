@@ -28,14 +28,6 @@ export interface UpdateSourceResponse {
     error?: string;
 }
 
-export interface DeleteSourceRequest {
-    position: NodePosition;
-}
-
-export interface DeleteSourceResponse {
-    error?: string;
-}
-
 export interface WorkspaceFileRequest {
     glob?: string;
 }

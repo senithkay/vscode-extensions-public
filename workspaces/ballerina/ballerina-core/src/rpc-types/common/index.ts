@@ -12,8 +12,6 @@
  */
 
 import {
-    DeleteSourceRequest,
-    DeleteSourceResponse,
     GoToSourceRequest,
     TypeResponse,
     UpdateSourceRequest,
@@ -24,8 +22,6 @@ import {
 
 export interface CommonRPCAPI {
     getTypes: () => Promise<TypeResponse>;
-    updateSource: (params: UpdateSourceRequest) => Promise<UpdateSourceResponse>;
-    deleteSource: (params: DeleteSourceRequest) => Promise<DeleteSourceResponse>;
     goToSource: (params: GoToSourceRequest) => void;
     getWorkspaceFiles: (params: WorkspaceFileRequest) => Promise<WorkspacesFileResponse>;
 }

@@ -12,8 +12,6 @@ import {
     CommonRPCAPI,
     Completion,
     CompletionParams,
-    DeleteSourceRequest,
-    DeleteSourceResponse,
     GoToSourceRequest,
     STModification,
     SyntaxTreeResponse,
@@ -49,41 +47,6 @@ export class CommonRpcManager implements CommonRPCAPI {
             const completions: Completion[] = await StateMachine.langClient().getCompletion(completionParams);
             const filteredCompletions: Completion[] = completions.filter(value => value.kind === 25);
             resolve({ data: { completions: filteredCompletions } });
-        });
-    }
-
-    async updateSource(params: UpdateSourceRequest): Promise<UpdateSourceResponse> {
-        return new Promise(async (resolve) => {
-            const context = StateMachine.context();
-            const modification: STModification = {
-                type: "INSERT",
-                isImport: false,
-                config: {
-                    "STATEMENT": params.source
-                },
-                ...params.position
-            };
-            const response = await applyModifications(context.documentUri!, [modification]) as SyntaxTreeResponse;
-            if (response.parseSuccess) {
-                await updateFileContent({ fileUri: context.documentUri!, content: response.source });
-                navigate();
-            }
-        });
-    }
-
-    async deleteSource(params: DeleteSourceRequest): Promise<DeleteSourceResponse> {
-        return new Promise(async (resolve) => {
-            const context = StateMachine.context();
-            const modification: STModification = {
-                type: 'DELETE',
-                ...params.position
-            };
-
-            const response = await applyModifications(context.documentUri!, [modification]) as SyntaxTreeResponse;
-            if (response.parseSuccess) {
-                await updateFileContent({ fileUri: context.documentUri!, content: response.source });
-                navigate();
-            }
         });
     }
 

@@ -6,7 +6,6 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
@@ -23,21 +22,23 @@ export function transformNodePosition(position: NodePosition) {
     };
 };
 
-export async function handleUndo(rpcClient: BallerinaRpcClient, visualizerLocation: VisualizerLocation) {
+export async function handleUndo(rpcClient: BallerinaRpcClient) {
     const lastsource = await rpcClient.getVisualizerRpcClient().undo();
+    const docUri = (await rpcClient.getVisualizerLocation()).documentUri;
     if (lastsource) {
         rpcClient.getLangServerRpcClient().updateFileContent({
-            fileUri: visualizerLocation.documentUri,
+            fileUri: docUri,
             content: lastsource
         });
     }
 }
 
-export async function handleRedo(rpcClient: BallerinaRpcClient, visualizerLocation: VisualizerLocation) {
+export async function handleRedo(rpcClient: BallerinaRpcClient) {
     const lastsource = await rpcClient.getVisualizerRpcClient().redo();
+    const docUri = (await rpcClient.getVisualizerLocation()).documentUri;
     if (lastsource) {
         rpcClient.getLangServerRpcClient().updateFileContent({
-            fileUri: visualizerLocation.documentUri,
+            fileUri: docUri,
             content: lastsource
         });
     }
