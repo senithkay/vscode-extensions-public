@@ -84,9 +84,11 @@ export function LocalEntryWizard() {
 
   useEffect(() => {
     (async () => {
-      const localEntryDirectory = await rpcClient.getMiDiagramRpcClient().getLocalEntryDirectory();
+      const localEntryDirectory = await rpcClient
+        .getMiDiagramRpcClient()
+        .getLocalEntryDirectory();
       setProjectDir(localEntryDirectory.data);
-  })();
+    })();
   }, []);
 
   useEffect(() => {
