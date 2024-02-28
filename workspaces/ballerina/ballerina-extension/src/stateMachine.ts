@@ -205,7 +205,7 @@ const stateMachine = createMachine<MachineContext>(
                 const historyStack = history.get();
                 const selectedEntry = historyStack[historyStack.length - 1];
 
-                const { location: { documentUri, position }, uid } = selectedEntry;
+                const { location: { documentUri, position } = { documentUri: context.documentUri, position: undefined }, uid } = selectedEntry ?? {};
                 const node = await StateMachine.langClient().getSyntaxTree({
                     documentIdentifier: {
                         uri: Uri.file(documentUri).toString()
