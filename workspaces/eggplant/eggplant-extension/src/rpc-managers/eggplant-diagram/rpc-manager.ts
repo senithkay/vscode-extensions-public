@@ -50,7 +50,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
         return StateMachine.langClient().getEggplantModel(params).then((model) => {
             console.log("===BackEndModel", model);
             //@ts-ignore
-            return model.workerDesignModel;
+            return model.flowDesignModel;
         }).catch((error) => {
             // demo hack
             //@ts-ignore
