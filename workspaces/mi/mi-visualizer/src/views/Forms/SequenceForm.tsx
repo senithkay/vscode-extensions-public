@@ -51,7 +51,7 @@ export function SequenceWizard() {
     const [sequences, setSequences] = useState([]);
 
     useEffect(() => {
-        (async () => { 
+        (async () => {
             const data = await rpcClient.getMiDiagramRpcClient().getEndpointsAndSequences();
             setEndpoints(data.data[0]);
             setSequences(data.data[1]);
@@ -76,12 +76,12 @@ export function SequenceWizard() {
             onErrorSequence: onErrorSequence,
         }
         const file = await rpcClient.getMiDiagramRpcClient().createSequence(createSequenceParams);
-        // rpcClient.getMiVisualizerRpcClient().openView({ view: "Diagram", documentUri: file.filePath, identifier: `` });
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
+        // rpcClient.getMiVisualizerRpcClient().openView("OPEN_VIEW", { view: "Diagram", documentUri: file.filePath, identifier: `` });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: "OPEN_VIEW", location: { view: "Overview" } });
     };
 
     const handleCancel = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: "OPEN_VIEW", location: { view: "Overview" } });
     };
 
     const isValid: boolean = sequenceName.length > 0;

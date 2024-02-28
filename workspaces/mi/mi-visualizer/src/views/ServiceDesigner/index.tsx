@@ -50,7 +50,7 @@ export function ServiceDesignerView() {
     }, [rpcClient]);
 
     const openDiagram = (resource: Resource) => {
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "Diagram", documentUri: doUri, identifier: resource.path })
+        rpcClient.getMiVisualizerRpcClient().openView({ type: "OPEN_VIEW", location: { view: "Diagram", documentUri: doUri, identifier: resource.path } })
     }
 
     return (
