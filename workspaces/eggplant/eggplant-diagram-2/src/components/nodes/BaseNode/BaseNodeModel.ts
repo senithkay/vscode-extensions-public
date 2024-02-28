@@ -8,7 +8,7 @@
  */
 
 import { NodeModel } from "@projectstorm/react-diagrams";
-import { NodePortModel } from "../../NodePort/NodePortModel";
+import { NodePortModel } from "../../NodePort";
 import { getNodeIdFromModel } from "../../../utils/node";
 import { NodeTypes } from "../../../resources/constants";
 import { Node } from "../../../utils/types";

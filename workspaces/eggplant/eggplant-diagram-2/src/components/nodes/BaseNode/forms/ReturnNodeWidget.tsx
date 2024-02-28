@@ -8,18 +8,21 @@
  */
 
 import React from "react";
-import { TextField } from "@wso2-enterprise/ui-toolkit";
-import { NodeWidgetProps, NodeStyles, BaseNodeWidget } from "../BaseNodeWidget";
+import { NodeWidgetProps, BaseNodeWidget } from "../BaseNodeWidget";
+import { TextInput } from "../../../TextInput";
+import { Expression } from "../../../../utils/types";
 
 export function ReturnNodeWidget(props: NodeWidgetProps) {
     const { model } = props;
+    const nodeProperties = model.node.nodeProperties;
+
+    const handleOnChange = (expression: Expression) => {
+        console.log(">>> expression changed", expression);
+    };
 
     return (
         <BaseNodeWidget {...props}>
-            <NodeStyles.Row>
-                <NodeStyles.StyledText>Value </NodeStyles.StyledText>
-                <TextField value={model.node.nodeProperties.expression.value.toString()} />
-            </NodeStyles.Row>
+            <TextInput expression={nodeProperties.expression} onChange={handleOnChange} />
         </BaseNodeWidget>
     );
 }

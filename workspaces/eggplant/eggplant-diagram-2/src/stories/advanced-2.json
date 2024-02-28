@@ -115,7 +115,7 @@
                                     "optional": false,
                                     "editable": true,
                                     "documentation": "Boolean Condition",
-                                    "value": "name == \"kandy\""
+                                    "value": "name == \"peradeniya\""
                                 }
                             },
                             "branches": [
@@ -179,59 +179,7 @@
                                 {
                                     "kind": "BLOCK",
                                     "label": "Else",
-                                    "children": [
-                                        {
-                                            "label": "HTTP GET",
-                                            "kind": "HTTP_API_GET_CALL",
-                                            "nodeProperties": {
-                                                "client": {
-                                                    "label": "Client",
-                                                    "type": "http:Client",
-                                                    "typeKind": "BTYPE",
-                                                    "optional": false,
-                                                    "editable": true,
-                                                    "documentation": "HTTP Client Connection",
-                                                    "value": "nawaloka"
-                                                },
-                                                "path": {
-                                                    "label": "Path",
-                                                    "type": "string",
-                                                    "typeKind": "BTYPE",
-                                                    "optional": false,
-                                                    "editable": true,
-                                                    "documentation": "HTTP Path",
-                                                    "value": "/doctors"
-                                                },
-                                                "targetType": {
-                                                    "label": "Target Type",
-                                                    "typeKind": "BTYPE",
-                                                    "type": "http:Response|anydata",
-                                                    "optional": false,
-                                                    "editable": true,
-                                                    "documentation": "HTTP Response Type",
-                                                    "value": "json"
-                                                },
-                                                "variable": {
-                                                    "label": "Variable",
-                                                    "typeKind": "BTYPE",
-                                                    "optional": false,
-                                                    "editable": true,
-                                                    "documentation": "Result Variable",
-                                                    "value": "j",
-                                                    "type": "json"
-                                                }
-                                            },
-                                            "returning": false,
-                                            "fixed": false,
-                                            "id": "14",
-                                            "lineRange": {
-                                                "fileName": "",
-                                                "startLine": [12, 13],
-                                                "endLine": [12, 60]
-                                            },
-                                            "flags": 0
-                                        }
-                                    ]
+                                    "children": []
                                 }
                             ],
                             "returning": false,

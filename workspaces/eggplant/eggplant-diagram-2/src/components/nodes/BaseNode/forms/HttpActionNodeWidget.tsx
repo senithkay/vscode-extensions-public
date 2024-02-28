@@ -7,27 +7,45 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
-import { TextField } from "@wso2-enterprise/ui-toolkit";
+import React, { useContext } from "react";
+import { Dropdown } from "@wso2-enterprise/ui-toolkit";
 import { NodeWidgetProps, NodeStyles, BaseNodeWidget } from "../BaseNodeWidget";
+import { DiagramContext } from "../../../DiagramContext";
+import { TextInput } from "../../../TextInput";
+import { Expression } from "../../../../utils/types";
 
 export function HttpActionNodeWidget(props: NodeWidgetProps) {
     const { model } = props;
+    const { flow } = useContext(DiagramContext);
+
+    const globalClients = flow.clients.filter((client) => client.scope === "GLOBAL");
+    const dropdownItems = globalClients.map((client) => {
+        return {
+            id: client.id,
+            content: client.value,
+            value: client.value,
+        };
+    });
+    const nodeProperties = model.node.nodeProperties;
+
+    const handleOnChange = (expression: Expression) => {
+        console.log(">>> expression changed", expression);
+    };
 
     return (
         <BaseNodeWidget {...props}>
             <NodeStyles.Row>
-                <NodeStyles.StyledText>Client </NodeStyles.StyledText>
-                <TextField value={model.node.nodeProperties.client.value.toString()} />
+                <NodeStyles.StyledText>{nodeProperties.client.label} </NodeStyles.StyledText>
+                <Dropdown
+                    id={`${model.node.id}-clients-dropdown`}
+                    value={nodeProperties.client.value.toString()}
+                    items={dropdownItems}
+                    sx={{ width: 166, marginBottom: 2 }}
+                ></Dropdown>
             </NodeStyles.Row>
-            <NodeStyles.Row>
-                <NodeStyles.StyledText>Path </NodeStyles.StyledText>
-                <TextField value={model.node.nodeProperties.path.value.toString()} />
-            </NodeStyles.Row>
-            <NodeStyles.Row>
-                <NodeStyles.StyledText>Headers </NodeStyles.StyledText>
-                <TextField value="" />
-            </NodeStyles.Row>
+            <TextInput expression={nodeProperties.path} onChange={handleOnChange} />
+            <TextInput expression={nodeProperties.targetType} onChange={handleOnChange} />
+            <TextInput expression={nodeProperties.variable} onChange={handleOnChange} />
         </BaseNodeWidget>
     );
 }

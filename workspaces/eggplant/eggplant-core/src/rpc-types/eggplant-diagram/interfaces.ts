@@ -13,6 +13,20 @@ export type Flow = {
     clients?: Client[];
 };
 
+export type Client = {
+    id: string;
+    label: string;
+    kind: ClientKind;
+    lineRange: LineRange;
+    scope: ClientScope;
+    value: string;
+    flags: number;
+};
+
+export type ClientKind = "HTTP" | "OTHER";
+
+export type ClientScope = "LOCAL" | "OBJECT" | "GLOBAL";
+
 export type Node = {
     kind: NodeKind;
     label: string;
@@ -23,10 +37,17 @@ export type Node = {
     lineRange: LineRange;
     branches?: Branch[];
     viewState?: ViewState;
-    flags: number;
+    flags?: number;
 };
 
-export type NodeKind = "EVENT_HTTP_API" | "IF" | "BLOCK" | "RETURN" | "HTTP_API_GET_CALL";
+export type NodeKind =
+    | "EVENT_HTTP_API"
+    | "BLOCK"
+    | "IF"
+    | "HTTP_API_GET_CALL"
+    | "HTTP_API_POST_CALL"
+    | "RETURN"
+    | "EXPRESSION";
 
 export type Branch = {
     kind: string;
@@ -39,28 +60,6 @@ export type LineRange = {
     startLine: number[];
     endLine: number[];
 };
-
-export type Client = {
-    id: string;
-    label?: string;
-    kind: ClientKind;
-    lineRange: LineRange;
-    scope: ClientScope;
-    value: string;
-    flags: number;
-};
-
-// Only for visualization purposes
-export enum ClientKind {
-    HTTP,
-    OTHER
-}
-
-export enum ClientScope {
-    LOCAL,
-    OBJECT,
-    GLOBAL
-}
 
 export type Expression = {
     label: string;
@@ -90,9 +89,4 @@ export type ViewState = {
     w: number;
     h: number;
     startNodeId?: string;
-};
-
-export type LinePosition = {
-    line: number;
-    offset: number;
 };

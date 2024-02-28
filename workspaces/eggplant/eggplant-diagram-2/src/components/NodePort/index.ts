@@ -7,22 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { BaseNodeModel } from "../components/nodes/BaseNode";
-import { EmptyNodeModel } from "../components/nodes/EmptyNode";
-
-export type NodeModel = BaseNodeModel | EmptyNodeModel;
-
-export type {
-    Flow,
-    Client,
-    ClientKind,
-    ClientScope,
-    Node,
-    NodeKind,
-    Branch,
-    LineRange,
-    Expression,
-    TypeKind,
-    NodeProperties,
-    ViewState,
-} from "@wso2-enterprise/eggplant-core";
+export * from "./NodePortModel";
+export * from "./NodePortWidget";
+export * from "./NodePortFactory";

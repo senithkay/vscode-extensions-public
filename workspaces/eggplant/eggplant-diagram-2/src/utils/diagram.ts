@@ -7,16 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import createEngine, { DiagramEngine } from "@projectstorm/react-diagrams";
-import { BaseNodeFactory } from "../components/nodes/BaseNode/BaseNodeFactory";
-import { NodeLinkFactory } from "../components/NodeLink/NodeLinkFactory";
-import { NodePortFactory } from "../components/NodePort/NodePortFactory";
-import { NodeLinkModel, NodeLinkModelOptions } from "../components/NodeLink/NodeLinkModel";
-import { NodePortModel } from "../components/NodePort/NodePortModel";
-import { EmptyNodeFactory } from "../components/nodes/EmptyNode/EmptyNodeFactory";
-import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
-import { BaseNodeModel } from "../components/nodes/BaseNode/BaseNodeModel";
+import { BaseNodeFactory, BaseNodeModel } from "../components/nodes/BaseNode";
+import { NodePortFactory, NodePortModel } from "../components/NodePort";
+import { NodeLinkFactory, NodeLinkModel, NodeLinkModelOptions } from "../components/NodeLink";
+import { EmptyNodeFactory, EmptyNodeModel } from "../components/nodes/EmptyNode";
+import { OverlayLayerFactory } from "../components/OverlayLayer";
 import { DagreEngine } from "../resources/dagre/DagreEngine";
-import { OverlayLayerFactory } from "../components/OverlayLoader/OverlayLayerFactory";
+import { NodeModel } from "./types";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -56,7 +53,6 @@ export function createPortsLink(sourcePort: NodePortModel, targetPort: NodePortM
 }
 
 // create link between nodes
-export type NodeModel = BaseNodeModel | EmptyNodeModel;
 export function createNodesLink(sourceNode: NodeModel, targetNode: NodeModel, options?: NodeLinkModelOptions) {
     const sourcePort = sourceNode.getOutPort();
     const targetPort = targetNode.getInPort();
