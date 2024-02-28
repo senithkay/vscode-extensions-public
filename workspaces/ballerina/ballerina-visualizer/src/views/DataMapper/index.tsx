@@ -13,6 +13,7 @@ import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { SyntaxTreeResponse, STModification, NodePosition, HistoryEntry } from "@wso2-enterprise/ballerina-core";
 import { useSyntaxTreeFromRange } from "../../Hooks";
 import { FunctionDefinition, ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { RecordEditor, StatementEditorComponentProps } from "@wso2-enterprise/record-creator";
 import { URI } from "vscode-uri";
 
 interface DataMapperProps {
@@ -25,6 +26,7 @@ export function DataMapper(props: DataMapperProps) {
     const { rpcClient } = useVisualizerContext();
     const langServerRpcClient = rpcClient.getLangServerRpcClient();
     const libraryBrowserRPCClient = rpcClient.getLibraryBrowserRPCClient();
+    const recordCreatorRpcClient = rpcClient.getRecordCreatorRpcClient();
 
     const applyModifications = async (modifications: STModification[]) => {
         const langServerRPCClient = rpcClient.getLangServerRpcClient();
@@ -46,6 +48,20 @@ export function DataMapper(props: DataMapperProps) {
         rpcClient.getVisualizerRpcClient().addToHistory(entry);
     };
 
+    const renderRecordPanel = (props: {
+        closeAddNewRecord: (createdNewRecord?: string) => void,
+        onUpdate: (updated: boolean) => void
+    } & StatementEditorComponentProps) => {
+        return (
+            <RecordEditor
+                isDataMapper={true}
+                onCancel={props.closeAddNewRecord}
+                recordCreatorRpcClient={recordCreatorRpcClient}
+                {...props}
+            />
+        );
+    };
+
     return (
         <DataMapperView
             fnST={model}
@@ -54,6 +70,7 @@ export function DataMapper(props: DataMapperProps) {
             libraryBrowserRpcClient={libraryBrowserRPCClient}
             applyModifications={applyModifications}
             goToFunction={goToFunction}
+                renderRecordPanel={renderRecordPanel}
         />
     );
 };

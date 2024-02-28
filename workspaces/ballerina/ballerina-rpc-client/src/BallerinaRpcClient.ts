@@ -15,7 +15,7 @@ import { MachineStateValue, VisualizerLocation, getVisualizerLocation, onFileCon
 import { LangServerRpcClient } from "./rpc-clients/lang-server/rpc-client";
 import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-client";
 import { HOST_EXTENSION } from "vscode-messenger-common";
-import { CommonRpcClient, GraphqlDesignerRpcClient, PersistDiagramRpcClient, ProjectDesignDiagramRpcClient, ServiceDesignerRpcClient } from "./rpc-clients";
+import { CommonRpcClient, GraphqlDesignerRpcClient, PersistDiagramRpcClient, RecordCreatorRpcClient, ProjectDesignDiagramRpcClient, ServiceDesignerRpcClient } from "./rpc-clients";
 
 export class BallerinaRpcClient {
 
@@ -27,6 +27,7 @@ export class BallerinaRpcClient {
     private _commn: CommonRpcClient;
     private _persistDiagram: PersistDiagramRpcClient;
     private _GraphqlDesigner: GraphqlDesignerRpcClient;
+    private _RecordCreator: RecordCreatorRpcClient;
     private _ProjectDesignDiagram: ProjectDesignDiagramRpcClient;
 
     constructor() {
@@ -39,6 +40,7 @@ export class BallerinaRpcClient {
         this._commn = new CommonRpcClient(this.messenger);
         this._persistDiagram = new PersistDiagramRpcClient(this.messenger);
         this._GraphqlDesigner = new GraphqlDesignerRpcClient(this.messenger);
+        this._RecordCreator = new RecordCreatorRpcClient(this.messenger);
         this._ProjectDesignDiagram = new ProjectDesignDiagramRpcClient(this.messenger);
     }
 
@@ -72,6 +74,10 @@ export class BallerinaRpcClient {
     
     getCommonRpcClient(): CommonRpcClient {
         return this._commn;
+    }
+
+    getRecordCreatorRpcClient(): RecordCreatorRpcClient {
+        return this._RecordCreator;
     }
 
     getVisualizerLocation(): Promise<VisualizerLocation> {
