@@ -310,6 +310,57 @@
                             "flags": 0
                         },
                         {
+                            "label": "HTTP GET",
+                            "kind": "HTTP_API_GET_CALL",
+                            "nodeProperties": {
+                                "client": {
+                                    "label": "Client",
+                                    "type": "http:Client",
+                                    "typeKind": "BTYPE",
+                                    "optional": false,
+                                    "editable": true,
+                                    "documentation": "HTTP Client Connection",
+                                    "value": "asiri"
+                                },
+                                "path": {
+                                    "label": "Path",
+                                    "type": "string",
+                                    "typeKind": "BTYPE",
+                                    "optional": false,
+                                    "editable": true,
+                                    "documentation": "HTTP Path",
+                                    "value": "/doctors"
+                                },
+                                "targetType": {
+                                    "label": "Target Type",
+                                    "typeKind": "BTYPE",
+                                    "type": "http:Response|anydata",
+                                    "optional": false,
+                                    "editable": true,
+                                    "documentation": "HTTP Response Type",
+                                    "value": "json"
+                                },
+                                "variable": {
+                                    "label": "Variable",
+                                    "typeKind": "BTYPE",
+                                    "optional": false,
+                                    "editable": true,
+                                    "documentation": "Result Variable",
+                                    "value": "j",
+                                    "type": "json"
+                                }
+                            },
+                            "returning": false,
+                            "fixed": false,
+                            "id": "44",
+                            "lineRange": {
+                                "fileName": "",
+                                "startLine": [12, 13],
+                                "endLine": [12, 60]
+                            },
+                            "flags": 0
+                        },
+                        {
                             "kind": "RETURN",
                             "label": "Return",
                             "nodeProperties": {
