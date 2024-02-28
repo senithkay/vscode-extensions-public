@@ -66,7 +66,7 @@
         "@wso2-enterprise/syntax-tree": "workspace:*",
         "@wso2-enterprise/eggplant-visualizer": "workspace:*",
         "@wso2-enterprise/eggplant-core": "workspace:*",
-        "@wso2-enterprise/eggplant-diagram": "workspace:*",
+        "@wso2-enterprise/eggplant-diagram-2": "workspace:*",
         "vscode-messenger": "^0.4.5",
         "vscode-messenger-common": "^0.4.5",
         "xstate": "^4.38.3",

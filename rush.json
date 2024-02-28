@@ -619,11 +619,11 @@
       "projectFolder": "workspaces/eggplant/eggplant-visualizer",
       "versionPolicyName": "eggplant-extension"
     },
-    {
-      "packageName": "@wso2-enterprise/eggplant-diagram",
-      "projectFolder": "workspaces/eggplant/eggplant-diagram",
-      "versionPolicyName": "eggplant-extension"
-    },
+    // {
+    //   "packageName": "@wso2-enterprise/eggplant-diagram",
+    //   "projectFolder": "workspaces/eggplant/eggplant-diagram",
+    //   "versionPolicyName": "eggplant-extension"
+    // },
     {
       "packageName": "@wso2-enterprise/eggplant-diagram-2",
       "projectFolder": "workspaces/eggplant/eggplant-diagram-2",

@@ -15,6 +15,7 @@ import { DiagramCanvas } from "./DiagramCanvas";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { BaseNodeModel } from "./nodes/BaseNode/BaseNodeModel";
 import { Flow } from "../utils/types";
+
 import { traverseFlow } from "../utils/ast";
 import { NodeLinkModel } from "./NodeLink/NodeLinkModel";
 import { OverlayLayerModel } from "./OverlayLoader/OverlayLayerModel";
