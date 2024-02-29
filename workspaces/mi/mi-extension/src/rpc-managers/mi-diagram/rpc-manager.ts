@@ -536,11 +536,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             window.showInformationMessage(`Successfully created ${name} project`);
 
             if (open) {
-                commands.executeCommand('vscode.openFolder', Uri.file(`${directory}/${name}`));
-                resolve({ filePath: `${directory}/${name}` });
+                commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory,name)));
+                resolve({ filePath: path.join(directory,name) });
             }
 
-            resolve({ filePath: `${directory}/${name}` });
+            resolve({ filePath: path.join(directory,name) });
         });
     }
 
