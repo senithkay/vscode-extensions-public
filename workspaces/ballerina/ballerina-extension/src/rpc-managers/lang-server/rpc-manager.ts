@@ -53,7 +53,7 @@ import { writeFileSync } from 'fs';
 import { normalize, resolve } from "path";
 import { Position, Range, WorkspaceEdit, workspace } from "vscode";
 import { URI } from "vscode-uri";
-import { StateMachine, navigate } from "../../stateMachine";
+import { StateMachine, updateView } from "../../stateMachine";
 import { ballerinaExtInstance } from "../../core";
 
 export class LangServerRpcManager implements LangServerAPI {
@@ -196,7 +196,7 @@ export class LangServerRpcManager implements LangServerAPI {
                 });
                 writeFileSync(normalizedFilePath, content);
                 StateMachine.langClient().updateStatusBar();
-                navigate();
+                updateView();
             }
             resolve({ status: false });
         });

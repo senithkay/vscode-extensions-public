@@ -12,7 +12,7 @@ import React, { useState } from 'react';
 
 import { ActionButtons, AutoComplete, TextField, TypeBrowser } from '@wso2-enterprise/ui-toolkit';
 import { EditorContainer, EditorContent } from '../../styles';
-import { CommonRPCAPI, NodePosition, responseCodes } from '@wso2-enterprise/ballerina-core';
+import { CommonRPCAPI, NodePosition, STModification, responseCodes } from '@wso2-enterprise/ballerina-core';
 import { getSourceFromResponseCode, getTitleFromResponseCode } from '../../utils/utils';
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { ResponseConfig } from '@wso2-enterprise/service-designer';
@@ -27,10 +27,11 @@ export interface ParamProps {
     typeCompletions?: string[];
     serviceEndPosition?: NodePosition;
     commonRpcClient?: CommonRPCAPI;
+    applyModifications?: (modifications: STModification[]) => Promise<void>;
 }
 
 export function ResponseEditor(props: ParamProps) {
-    const { response, isBallerniaExt, onSave, onChange, onCancel, typeCompletions, serviceEndPosition, commonRpcClient } = props;
+    const { response, isBallerniaExt, onSave, onChange, onCancel, typeCompletions, serviceEndPosition, commonRpcClient, applyModifications } = props;
 
     console.log("response", typeCompletions);
 
@@ -93,6 +94,7 @@ export function ResponseEditor(props: ParamProps) {
                     label="Type"
                     selectedItem={response.type}
                     onChange={handleTypeChange}
+                    applyModifications={applyModifications}
                 />
             </EditorContent>
             <VSCodeCheckbox checked={isNameRecord} onChange={handleReqFieldChange} id="is-name-rec-checkbox">

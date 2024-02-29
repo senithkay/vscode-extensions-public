@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { MachineStateValue, MachineViews, VisualizerLocation } from '@wso2-enterprise/ballerina-core';
+import { KeyboardNavigationManager, MachineStateValue, MachineViews, STModification, VisualizerLocation } from '@wso2-enterprise/ballerina-core';
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 /** @jsx jsx */
 import { Global, css } from '@emotion/react';
@@ -26,7 +26,9 @@ import { Overview } from './views/Overview';
 import { SequenceDiagram } from './views/SequenceDiagram';
 import { ServiceDesigner } from './views/ServiceDesigner';
 import { TypeDiagram } from './views/TypeDiagram';
+import { handleRedo, handleUndo } from './utils/utils';
 import { FunctionDefinition, ServiceDeclaration } from '@wso2-enterprise/syntax-tree';
+import { URI } from 'vscode-uri';
 
 const globalStyles = css`
   *,
@@ -55,6 +57,24 @@ const MainPanel = () => {
         }
     });
 
+    const applyModifications = async (modifications: STModification[]) => {
+        const langServerRPCClient = rpcClient.getLangServerRpcClient();
+        const filePath = (await rpcClient.getVisualizerLocation()).documentUri;
+        const { parseSuccess, source: newSource } = await langServerRPCClient?.stModify({
+            astModifications: modifications,
+            documentIdentifier: {
+                uri: URI.file(filePath).toString()
+            }
+        });
+        if (parseSuccess) {
+            rpcClient.getVisualizerRpcClient().addToUndoStack(newSource);
+            await langServerRPCClient.updateFileContent({
+                content: newSource,
+                fileUri: filePath
+            });
+        }
+    };
+
     const fetchContext = () => {
         rpcClient.getVisualizerLocation().then((value) => {
             if (!value?.view) {
@@ -68,7 +88,12 @@ const MainPanel = () => {
                         setViewComponent(<ArchitectureDiagram />);
                         break;
                     case "ServiceDesigner":
-                        setViewComponent(<ServiceDesigner model={value?.syntaxTree as ServiceDeclaration} />);
+                        setViewComponent(
+                            <ServiceDesigner
+                                model={value?.syntaxTree as ServiceDeclaration}
+                                applyModifications={applyModifications}
+                            />
+                        );
                         break;
                     case "ERDiagram":
                         setViewComponent(<ERDiagram />);
@@ -78,6 +103,7 @@ const MainPanel = () => {
                             <DataMapper
                                 filePath={value.documentUri}
                                 model={value?.syntaxTree as FunctionDefinition}
+                                applyModifications={applyModifications}
                             />
                         ));
                         break;
@@ -100,6 +126,17 @@ const MainPanel = () => {
     useEffect(() => {
         fetchContext();
     }, []);
+
+    useEffect(() => {
+        const mouseTrapClient = KeyboardNavigationManager.getClient();
+
+        mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], () => handleUndo(rpcClient));
+        mouseTrapClient.bindNewKey(['command+shift+z', 'ctrl+y'], async () => handleRedo(rpcClient));
+
+        return () => {
+            mouseTrapClient.resetMouseTrapInstance();
+        }
+    }, [viewComponent]);
 
     return (
         <>

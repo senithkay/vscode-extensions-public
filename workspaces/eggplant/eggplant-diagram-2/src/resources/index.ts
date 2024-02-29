@@ -15,3 +15,4 @@ export * from "./icons/nodes/LogIcon";
 export * from "./icons/nodes/SendIcon";
 export * from "./icons/nodes/MoreVertIcon";
 export * from "./icons/nodes/PlusIcon";
+export * from "./icons/nodes/CloseIcon";

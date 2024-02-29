@@ -11,13 +11,24 @@ import React from "react";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import { ServiceDesignerView } from "@wso2-enterprise/service-designer-view";
+import { STModification } from "@wso2-enterprise/ballerina-core";
 
-export function ServiceDesigner(props: {model: ServiceDeclaration}) {
+interface ServiceDesignerProps {
+    model: ServiceDeclaration;
+    applyModifications: (modifications: STModification[]) => Promise<void>;
+}
+
+export function ServiceDesigner(props: ServiceDesignerProps) {
+    const { model, applyModifications } = props;
     const { rpcClient } = useVisualizerContext();
 
     return (
         <>
-            <ServiceDesignerView model={props.model} rpcClients={{serviceDesignerRpcClient: rpcClient.getServiceDesignerRpcClient(), commonRpcClient: rpcClient.getCommonRpcClient()}} />
+            <ServiceDesignerView
+                model={model}
+                rpcClients={{serviceDesignerRpcClient: rpcClient.getServiceDesignerRpcClient(), commonRpcClient: rpcClient.getCommonRpcClient()}}
+                applyModifications={applyModifications}
+            />
         </>
     );
 }

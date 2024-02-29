@@ -277,7 +277,7 @@ export const sampleModel : Flow = {
         {
             "id": "cl1",
             "label": "HTTP Client",
-            "kind": ClientKind.HTTP,
+            "kind": "HTTP",
             "lineRange": {
                 "fileName": "main.bal",
                 "startLine": [
@@ -289,14 +289,14 @@ export const sampleModel : Flow = {
                     63
                 ]
             },
-            "scope": ClientScope.GLOBAL,
+            "scope": "GLOBAL",
             "value": "asiri",
             "flags": 0
         },
         {
             "id": "cl2",
             "label": "HTTP Client",
-            "kind": ClientKind.HTTP,
+            "kind": "HTTP",
             "lineRange": {
                 "fileName": "main.bal",
                 "startLine": [
@@ -308,7 +308,7 @@ export const sampleModel : Flow = {
                     66
                 ]
             },
-            "scope": ClientScope.GLOBAL,
+            "scope": "GLOBAL",
             "value": "nawaloka",
             "flags": 0
         }
