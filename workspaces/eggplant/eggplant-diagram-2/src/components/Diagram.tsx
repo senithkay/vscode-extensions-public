@@ -23,8 +23,8 @@ import { ComponentList, ComponentPanel } from "./ComponentPanel";
 
 export interface DiagramProps {
     model: Flow;
-    onAddNode?(kind: NodeKind, target: TargetMetadata): void;
-    onNodeChange?(node: Node): void;
+    onAddNode?: (kind: NodeKind, target: TargetMetadata) => void;
+    onNodeChange?: (node: Node) => void;
 }
 
 export function Diagram(props: DiagramProps) {
