@@ -11,7 +11,7 @@ import { VisualizerLocation } from "./state-machine-types";
 export interface HistoryEntry {
     location: VisualizerLocation;
     uid?: string;
-    dataMapperDepth?: number;
+    depth?: number;
 }
 
 export class History {
