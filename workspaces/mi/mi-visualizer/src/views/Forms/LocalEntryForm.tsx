@@ -107,7 +107,6 @@ export function LocalEntryWizard() {
   }, [localEntryType]);
 
   const localEntryTypes = [
-    // Add remaining two types
     "In-Line Text Entry",
     "In-Line XML Entry",
     "Source URL Entry",
@@ -127,7 +126,6 @@ export function LocalEntryWizard() {
   const isValidXML = (xmlString: string) => {
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlString, "text/xml");
-    // Check for parsing errors
     return !xmlDoc.getElementsByTagName("parsererror").length;
   };
   const XMLannotations = (xmlString: string) => {
@@ -142,7 +140,6 @@ export function LocalEntryWizard() {
     setErrors(getLintErrors(XMLannotations(text)));
     if (localEntryType === "In-Line XML Entry" && !isValidXML(text)) {
       setValidationMessage(false);
-      console.error("Invalid XML");
     }
   };
 
@@ -162,7 +159,6 @@ export function LocalEntryWizard() {
       const to = parserError.lastChild ? parserError.lastChild : parserError;
       errors.push({ from, to, message: "Syntax Error", severity: "error" });
     }
-    console.log(errors);
     return errors;
   };
   const handleCreateLocalEntry = async () => {
@@ -182,8 +178,8 @@ export function LocalEntryWizard() {
     const file = await rpcClient
       .getMiDiagramRpcClient()
       .createLocalEntry(createLocalEntryParams);
+    rpcClient.getMiDiagramRpcClient().openFile(file);  
     rpcClient.getMiDiagramRpcClient().closeWebView();
-    rpcClient.getMiDiagramRpcClient().openFile(file);
   };
 
   const handleCancel = () => {
