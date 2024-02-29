@@ -77,7 +77,14 @@ const MainPanel = () => {
                     rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
                     break;
                 case MACHINE_VIEW.ServiceDesigner:
-                    setViewComponent(<ServiceDesignerView />);
+                    rpcClient
+                        .getMiDiagramRpcClient()
+                        .getSyntaxTree({ documentUri: machineView.documentUri })
+                        .then((st) => {
+                            if (st) {
+                                setViewComponent(<ServiceDesignerView syntaxTree={st.syntaxTree} documentUri={machineView.documentUri} />);
+                            }
+                        });
                     break;
                 case MACHINE_VIEW.APIForm:
                     setViewComponent(<APIWizard path={machineView.documentUri} />);
