@@ -16,11 +16,9 @@ import CodeMirror from "@uiw/react-codemirror";
 import { xml } from "@codemirror/lang-xml";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { linter, lintGutter, Diagnostic } from "@codemirror/lint";
-import { openView } from "@wso2-enterprise/mi-core";
 
 import {
   CreateLocalEntryRequest,
-  LocalEntryDirectoryResponse,
 } from "@wso2-enterprise/mi-core";
 import { get, set } from "lodash";
 
@@ -40,13 +38,6 @@ const ActionContainer = styled.div`
   padding-bottom: 20px;
 `;
 
-const RadioBtnContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 10px;
-  padding-bottom: 5px;
-`;
 const TitleWrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -78,9 +69,6 @@ export function LocalEntryWizard() {
   const { rpcClient } = useVisualizerContext();
   const [localEntryName, setLocalEntryName] = useState("");
   const [localEntryType, setLocalEntryType] = useState("In-Line Text Entry");
-  const [endpointConfiguration, setEndpointConfiguration] = useState(
-    "Static Endpoint (Save in an ESB Project)"
-  );
   const [value, setValue] = useState("");
   const [errors, setErrors] = useState([]);
   const [URL, setURL] = useState("");
