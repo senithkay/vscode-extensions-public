@@ -41,7 +41,7 @@ const EggplantDiagram = () => {
     useEffect(() => {
         try {
             rpcClient.getEggplantDiagramRpcClient().getEggplantModel().then((model) => {
-                setModel(model);
+                setModel(model.flowDesignModel);
             });
         } catch (error) {
             setModel(undefined);

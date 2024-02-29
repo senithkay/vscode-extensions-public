@@ -10,6 +10,7 @@
  */
 import {
     EggplantDiagramAPI,
+    EggplantModelResponse,
     Flow,
     getEggplantModel,
     updateEggplantModel
@@ -24,7 +25,7 @@ export class EggplantDiagramRpcClient implements EggplantDiagramAPI {
         this._messenger = messenger;
     }
 
-    getEggplantModel(): Promise<Flow> {
+    getEggplantModel(): Promise<EggplantModelResponse> {
         return this._messenger.sendRequest(getEggplantModel, HOST_EXTENSION);
     }
 

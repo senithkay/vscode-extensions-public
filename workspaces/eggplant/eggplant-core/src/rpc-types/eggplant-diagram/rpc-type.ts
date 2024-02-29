@@ -8,9 +8,10 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { Flow } from "./interfaces";
+import { Flow } from "../../interfaces/eggplant";
+import { EggplantModelResponse } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "eggplant-diagram";
-export const getEggplantModel: RequestType<void, Flow> = { method: `${_preFix}/getEggplantModel` };
+export const getEggplantModel: RequestType<void, EggplantModelResponse> = { method: `${_preFix}/getEggplantModel` };
 export const updateEggplantModel: NotificationType<Flow> = { method: `${_preFix}/updateEggplantModel` };

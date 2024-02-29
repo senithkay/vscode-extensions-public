@@ -42,24 +42,15 @@ import {
     XMLToRecordRequest,
     XMLToRecordResponse
 } from "@wso2-enterprise/ballerina-core";
-import { Flow, LinePosition } from "./eggplant";
 import { LanguageClient } from "vscode-languageclient/node";
 import { Location, LocationLink, WorkspaceEdit as WorkspaceEditType } from "vscode-languageserver-types";
 import { CodeAction } from "vscode-languageserver-types";
-export interface EggplantModelRequest {
-    filePath: string;
-    startLine: LinePosition;
-    endLine: LinePosition;
-}
-export interface EggplantModelRequest {
-    filePath: string;
-    startLine: LinePosition;
-    endLine: LinePosition;
-}
+import { EggplantModelRequest, EggplantModelResponse } from "../rpc-types/eggplant-diagram/interfaces";
+
 export interface LangClientInterface extends LanguageClient {
     getBallerinaProjectComponents: (params: ProjectComponentsRequest) => Promise<BallerinaProjectComponents>;
     getSTByRange: (params: STByRangeRequest) => Promise<BallerinaSTModifyResponse>;
-    getEggplantModel: (params: EggplantModelRequest) => Promise<Flow>;
+    getEggplantModel: (params: EggplantModelRequest) => Promise<EggplantModelResponse>;
     stModify: (params: STModifyRequest) => Thenable<BallerinaSTModifyResponse>;
     didChange(params: DidChangeRequest): void;
     didOpen: (Params: DidOpenRequest) => void;
