@@ -169,6 +169,12 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
         })();
     }, [content, initiated]);
 
+    useEffect(() => {
+        if (isClicked && !isValidationInProgress && !editConfirmPopoverOpen) {
+            onSaveForm();
+        }
+    }, [isClicked, isValidationInProgress, editConfirmPopoverOpen]);
+
     const onSaveForm = () => {
         handleClosePopover();
         const parametersStr = inputParams
@@ -392,11 +398,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                 confirmMessage += "Are you sure you want to proceed?";
                 editConfirmMessage.current = confirmMessage;
                 setPopoverAnchorEl(event.currentTarget);
-            } else {
-                onSaveForm();
             }
-        } else {
-            onSaveForm();
         }
     };
 
@@ -444,7 +446,6 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                                     onChange={onNameChange}
                                     isValidating={!initiated || isValidationInProgress}
                                     errorMessage={dmFuncDiagnostic}
-                                    disabled={disableFnNameEditing}
                                 />
                                 <FormDivider />
                                 <InputParamsPanel
