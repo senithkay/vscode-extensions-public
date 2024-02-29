@@ -48,14 +48,14 @@ const EggplantDiagram = () => {
         }
     }, []);
 
-    // const onModelChange = async (model: Flow) => {
-    //     if (rpcClient) {
-    //         await rpcClient.getEggplantDiagramRpcClient().updateEggplantModel(model);
-    //     }
-    // }
+    const onModelChange = async (model: Flow) => {
+        if (rpcClient) {
+            await rpcClient.getEggplantDiagramRpcClient().updateEggplantModel(model);
+        }
+    }
 
     const eggplantDiagram = useMemo(() => {
-        return <Diagram model={flowModel}/>;
+        return <Diagram model={flowModel} onModelChange={onModelChange}/>;
     }, [flowModel]);
 
     return (

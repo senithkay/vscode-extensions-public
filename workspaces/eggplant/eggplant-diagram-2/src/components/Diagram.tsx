@@ -22,6 +22,7 @@ import { OverlayLayerModel } from "./OverlayLoader/OverlayLayerModel";
 
 export interface DiagramProps {
     model: Flow;
+    onModelChange: (flowModel: Flow) => void;
 }
 
 export function Diagram(props: DiagramProps) {
