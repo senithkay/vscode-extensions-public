@@ -94,5 +94,6 @@ export type ViewState = {
 // Add node target position metadata
 export type TargetMetadata = {
     topNodeId: string;
+    bottomNodeId?: string;
     linkLabel?: string;
 };

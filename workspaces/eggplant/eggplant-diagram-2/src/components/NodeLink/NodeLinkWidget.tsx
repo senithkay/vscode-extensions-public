@@ -41,7 +41,12 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
     const addButtonPosition = link.getAddButtonPosition();
 
     const handleAddNode = () => {
-        setTargetMetadata && setTargetMetadata({ topNodeId: link.sourceNode.getID(), linkLabel: link.label });
+        setTargetMetadata &&
+            setTargetMetadata({
+                topNodeId: link.sourceNode.getID(),
+                bottomNodeId: link.targetNode.getID(),
+                linkLabel: link.label,
+            });
         componentPanel.show();
         if (link.onAddClick) {
             link.onAddClick();
