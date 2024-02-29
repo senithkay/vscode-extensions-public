@@ -9,7 +9,7 @@
 
 import * as vscode from 'vscode';
 import { VisualizerWebview } from './webview';
-import { ViewColumn, commands, window } from 'vscode';
+import { Uri, ViewColumn, commands, window } from 'vscode';
 import { StateMachine } from '../stateMachine';
 import { openView } from '../stateMachine';
 import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
@@ -26,6 +26,20 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
                 VisualizerWebview.currentPanel = new VisualizerWebview(true);
             }
             VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
+        })
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand('MI.show.source', (e: any) => {
+            const documentUri = StateMachine.context().documentUri;
+            if (documentUri) {
+                console.log(window.visibleTextEditors.map(editor => editor.document.uri.fsPath));
+                const openedEditor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
+                if (openedEditor) {
+                    window.showTextDocument(openedEditor.document, { viewColumn: openedEditor.viewColumn });
+                } else {
+                    commands.executeCommand('vscode.open', Uri.parse(documentUri), { viewColumn: ViewColumn.Beside });
+                }
+            }
         })
     );
     context.subscriptions.push(
