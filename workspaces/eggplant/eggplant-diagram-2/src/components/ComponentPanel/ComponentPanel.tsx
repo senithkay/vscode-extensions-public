@@ -8,9 +8,10 @@
  */
 
 import React from "react";
-import { Button, Codicon, SidePanel, SidePanelBody, SidePanelTitleContainer } from "@wso2-enterprise/ui-toolkit";
+import { Button, SidePanel, SidePanelBody, SidePanelTitleContainer } from "@wso2-enterprise/ui-toolkit";
 import { Colors } from "../../resources/constants";
 import styled from "@emotion/styled";
+import { CloseIcon } from "../../resources";
 
 export interface ComponentPanelProps {
     children?: React.ReactNode;
@@ -45,8 +46,8 @@ export function ComponentPanel(props: ComponentPanelProps) {
         >
             <SidePanelTitleContainer>
                 <div>Components</div>
-                <S.StyledButton onClick={onClose} appearance="icon">
-                    <Codicon name="close" />
+                <S.StyledButton appearance="icon" onClick={onClose}>
+                    <CloseIcon />
                 </S.StyledButton>
             </SidePanelTitleContainer>
             <SidePanelBody>{children}</SidePanelBody>

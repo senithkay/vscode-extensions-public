@@ -13,6 +13,7 @@ import styled from "@emotion/styled";
 import { LogIcon } from "../../resources";
 import { Colors } from "../../resources/constants";
 import { useDiagramContext } from "../DiagramContext";
+import { NodeKind, TargetMetadata } from "../../utils/types";
 
 namespace S {
     export const Container = styled.div<{}>`
@@ -76,26 +77,33 @@ namespace S {
     `;
 }
 
-export function ComponentList() {
-    const [searchText, setSearchText] = useState<string>("");
-    const { flow } = useDiagramContext();
+interface ComponentListProps {
+    onAddNode: (kind: NodeKind, target: TargetMetadata) => void;
+}
 
-    const flowControls = [
-        "Log",
-        "If",
-        "Switch",
-        "Loop",
-        "Function",
-        "Endpoint",
-        "Variable",
-        "Return",
-        "Wait",
-        "Sleep",
-        "Timer",
+export function ComponentList(props: ComponentListProps) {
+    const { onAddNode } = props;
+
+    const [searchText, setSearchText] = useState<string>("");
+    const {
+        flow,
+        addNode: { targetMetadata },
+    } = useDiagramContext();
+
+    const flowControls: { kind: NodeKind; label: string }[] = [
+        { kind: "IF", label: "If" },
+        { kind: "RETURN", label: "Return" },
+        { kind: "HTTP_API_GET_CALL", label: "HTTP GET" },
+        { kind: "HTTP_API_POST_CALL", label: "HTTP POST" },
     ];
 
     const handleOnSearch = (text: string) => {
         setSearchText(text);
+        // TODO: Implement search
+    };
+
+    const handleAddNode = (kind: NodeKind) => {
+        onAddNode(kind, targetMetadata);
     };
 
     return (
@@ -108,11 +116,11 @@ export function ComponentList() {
             </S.Row>
             <S.Grid>
                 {flowControls.map((flowControl, index) => (
-                    <S.Component key={index}>
+                    <S.Component key={index} onClick={() => handleAddNode(flowControl.kind)}>
                         <S.IconContainer>
                             <LogIcon />
                         </S.IconContainer>
-                        <div>{flowControl}</div>
+                        <div>{flowControl.label}</div>
                     </S.Component>
                 ))}
             </S.Grid>

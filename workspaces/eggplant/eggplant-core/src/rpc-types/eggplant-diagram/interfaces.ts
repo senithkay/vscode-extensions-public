@@ -90,3 +90,9 @@ export type ViewState = {
     h: number;
     startNodeId?: string;
 };
+
+// Add node target position metadata
+export type TargetMetadata = {
+    topNodeId: string;
+    linkLabel?: string;
+};

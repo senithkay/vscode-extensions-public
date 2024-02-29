@@ -25,4 +25,5 @@ export type {
     TypeKind,
     NodeProperties,
     ViewState,
+    TargetMetadata,
 } from "@wso2-enterprise/eggplant-core";

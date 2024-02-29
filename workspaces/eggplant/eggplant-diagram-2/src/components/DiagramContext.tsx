@@ -8,7 +8,7 @@
  */
 
 import React from "react";
-import { Flow } from "../utils/types";
+import { Flow, NodeKind, TargetMetadata } from "../utils/types";
 
 export interface DiagramContextState {
     flow: Flow;
@@ -16,7 +16,13 @@ export interface DiagramContextState {
         visible: boolean;
         show(): void;
         hide(): void;
-    }
+    };
+    addNode: {
+        targetMetadata?: TargetMetadata;
+        kind?: NodeKind;
+        setTargetMetadata?(metadata: TargetMetadata): void;
+        setKind?(kind: NodeKind): void;
+    };
 }
 
 export const DiagramContext = React.createContext<DiagramContextState>({
@@ -26,10 +32,25 @@ export const DiagramContext = React.createContext<DiagramContextState>({
         show: () => {},
         hide: () => {},
     },
+    addNode: {},
 });
 
 export const useDiagramContext = () => React.useContext(DiagramContext);
 
 export function DiagramContextProvider(props: { children: React.ReactNode; value: DiagramContextState }) {
-    return <DiagramContext.Provider value={props.value}>{props.children}</DiagramContext.Provider>;
+    // add node states
+    const [addNodeTargetMetadata, setAddNodeTargetMetadata] = React.useState<TargetMetadata | undefined>();
+    const [addNodeKind, setAddNodeKind] = React.useState<NodeKind | undefined>();
+    // enrich context with optional states
+    const ctx = {
+        ...props.value,
+        addNode: {
+            targetMetadata: addNodeTargetMetadata,
+            kind: addNodeKind,
+            setTargetMetadata: setAddNodeTargetMetadata,
+            setKind: setAddNodeKind,
+        },
+    };
+
+    return <DiagramContext.Provider value={ctx}>{props.children}</DiagramContext.Provider>;
 }

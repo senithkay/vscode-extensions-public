@@ -7,12 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export * from "./icons/nodes/BranchIcon";
-export * from "./icons/nodes/CallIcon";
-export * from "./icons/nodes/CodeIcon";
-export * from "./icons/nodes/CallIcon";
-export * from "./icons/nodes/LogIcon";
-export * from "./icons/nodes/SendIcon";
-export * from "./icons/nodes/MoreVertIcon";
-export * from "./icons/nodes/PlusIcon";
-export * from "./icons/nodes/CloseIcon";
+import React from "react";
+
+export function CloseIcon() {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path
+                fill="currentColor"
+                d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6z"
+            />
+        </svg>
+    );
+}
