@@ -9,6 +9,7 @@
 
 import { Call, CallTemplate, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, STNode, Send, Sequence, Store, Throttle, Validate, Visitor, WithParam } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
+import { LINK_BOTTOM_OFFSET } from "../components/NodeLink/NodeLinkModel";
 
 export class SizingVisitor implements Visitor {
     private skipChildrenVisit = false;
@@ -34,28 +35,33 @@ export class SizingVisitor implements Visitor {
         let subSequencesHeight = 0;
         for (let i = 0; i < Object.keys(subSequences).length; i++) {
             const subSequence = subSequences[Object.keys(subSequences)[i]];
-            if (subSequence && subSequence.mediatorList && subSequence.mediatorList.length > 0) {
-                const subSequenceMediatorList = subSequence.mediatorList as any as STNode[];
-                let subSequenceWidth = NODE_DIMENSIONS.DEFAULT.WIDTH;
-                let subSequenceHeight = 0;
-                subSequenceMediatorList.forEach((childNode: STNode) => {
-                    if (childNode.viewState) {
-                        subSequenceWidth = Math.max(subSequenceWidth, childNode.viewState.fw ?? childNode.viewState.w);
-                        subSequenceHeight += childNode.viewState.h + NODE_GAP.Y;
-                    }
-                });
-                subSequencesWidth += subSequenceWidth + (i === Object.keys(subSequences).length - 1 ? 0 : NODE_GAP.BRANCH_X);
-                subSequencesHeight = Math.max(subSequencesHeight, subSequenceHeight);
-            } else {
-                subSequence.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.EMPTY.WIDTH, h: NODE_DIMENSIONS.EMPTY.HEIGHT };
-                subSequencesWidth += NODE_DIMENSIONS.EMPTY.WIDTH + (i === Object.keys(subSequences).length - 1 ? 0 : NODE_GAP.BRANCH_X);
+            if (subSequence) {
+                if (subSequence.mediatorList && subSequence.mediatorList.length > 0) {
+                    const subSequenceMediatorList = subSequence.mediatorList as any as STNode[];
+                    let subSequenceWidth = NODE_DIMENSIONS.DEFAULT.WIDTH;
+                    let subSequenceHeight = 0;
+                    subSequenceMediatorList.forEach((childNode: STNode) => {
+                        if (childNode.viewState) {
+                            subSequenceWidth = Math.max(subSequenceWidth, childNode.viewState.fw ?? childNode.viewState.w);
+                            subSequenceHeight += childNode.viewState.h + NODE_GAP.Y;
+                        }
+                    });
+                    subSequencesWidth += subSequenceWidth + (i === Object.keys(subSequences).length - 1 ? 0 : NODE_GAP.BRANCH_X);
+                    subSequencesHeight = Math.max(subSequencesHeight, subSequenceHeight);
+                } else {
+                    subSequence.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.EMPTY.WIDTH, h: NODE_DIMENSIONS.EMPTY.HEIGHT };
+                    subSequencesWidth += NODE_DIMENSIONS.EMPTY.WIDTH + (i === Object.keys(subSequences).length - 1 ? 0 : NODE_GAP.BRANCH_X);
+                }
             }
         }
 
         node.viewState.fw = subSequencesWidth;
-        node.viewState.fh = subSequencesHeight + NODE_DIMENSIONS.CONDITION.HEIGHT + NODE_GAP.BRANCH_TOP + NODE_GAP.BRANCH_BOTTOM;
+        node.viewState.fh = subSequencesHeight + NODE_DIMENSIONS.CONDITION.HEIGHT + NODE_GAP.BRANCH_TOP + LINK_BOTTOM_OFFSET + NODE_GAP.Y;
 
         this.sequenceWidth = Math.max(this.sequenceWidth, node.viewState.fw);
+
+        node.viewState.w = NODE_DIMENSIONS.CONDITION.WIDTH;
+        node.viewState.h = NODE_DIMENSIONS.CONDITION.HEIGHT;
     }
 
     getSequenceWidth(): number {
@@ -63,9 +69,11 @@ export class SizingVisitor implements Visitor {
     }
 
     // visitors
+    beginVisitCall = (node: Call): void => { this.skipChildrenVisit = true; }
     endVisitCall = (node: Call): void => {
         node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CALL.WIDTH, fw: NODE_DIMENSIONS.CALL.FULL_WIDTH, h: NODE_DIMENSIONS.DEFAULT.HEIGHT, l: NODE_DIMENSIONS.CALL.WIDTH / 2, r: NODE_DIMENSIONS.CALL.FULL_WIDTH - NODE_DIMENSIONS.CALL.WIDTH / 2 };
         this.calculateBasicMediator(node);
+        this.skipChildrenVisit = false;
     }
     endVisitCallout = (node: Callout): void => this.calculateBasicMediator(node);
     endVisitDrop = (node: Drop): void => this.calculateBasicMediator(node);
@@ -77,8 +85,6 @@ export class SizingVisitor implements Visitor {
             then: node.then,
             else: node.else_
         });
-        node.viewState.w = NODE_DIMENSIONS.CONDITION.WIDTH;
-        node.viewState.h = NODE_DIMENSIONS.CONDITION.HEIGHT;
     }
 
     endVisitHeader = (node: Header): void => this.calculateBasicMediator(node);
@@ -108,7 +114,17 @@ export class SizingVisitor implements Visitor {
     endVisitPropertyGroup = (node: PropertyGroup): void => this.calculateBasicMediator(node);
     endVisitRespond = (node: Respond): void => this.calculateBasicMediator(node);
     endVisitSend = (node: Send): void => this.calculateBasicMediator(node);
-    endVisitSequence = (node: Sequence): void => this.calculateBasicMediator(node);
+
+    endVisitSequence = (node: Sequence): void => {
+        const isSequnce = node.mediatorList && node.mediatorList.length > 0;
+
+        if (isSequnce) {
+            node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.WIDTH, h: NODE_DIMENSIONS.START.HEIGHT };
+        } else {
+            this.calculateBasicMediator(node);
+        }
+    }
+
     endVisitStore = (node: Store): void => this.calculateBasicMediator(node);
 
     endVisitThrottle = (node: Throttle): void => this.calculateAdvancedMediator(node, {

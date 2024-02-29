@@ -8,7 +8,7 @@
  */
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import { AutoComplete, Button, TextField } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, Button, Codicon, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import { FieldGroup, SectionWrapper } from "./Commons";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
@@ -28,6 +28,14 @@ const ActionContainer = styled.div`
     justify-content: flex-end;
     gap: 10px;
     padding-bottom: 20px;
+`;
+
+const Container = styled.div`
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+    align-items: center;
+    justify-content: flex-start;
 `;
 
 export interface Region {
@@ -91,12 +99,21 @@ export function SequenceWizard() {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
+    const handleBackButtonClick = () => {
+        rpcClient.getMiVisualizerRpcClient().goBack();
+    }
+
     const isValid: boolean = sequenceName.length > 0;
 
     return (
         <WizardContainer>
             <SectionWrapper>
-                <h3>Sequence Artifact</h3>
+                <Container>
+                    <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
+                    <div style={{ marginLeft: 30 }}>
+                        <Typography variant="h3">Sequence Artifact</Typography>
+                    </div>
+                </Container>
                 <TextField
                     value={sequenceName}
                     id='name-input'

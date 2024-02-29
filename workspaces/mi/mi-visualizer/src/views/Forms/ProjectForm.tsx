@@ -8,7 +8,7 @@
  */
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import { Button, TextField } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { FieldGroup, SectionWrapper } from "./Commons";
@@ -38,6 +38,13 @@ const LocationText = styled.div`
     white-space: nowrap;
 `;
 
+const Container = styled.div`
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+    align-items: center;
+    justify-content: flex-start;
+`;
 
 export interface Region {
     label: string;
@@ -79,6 +86,10 @@ export function ProjectWizard() {
 
     };
 
+    const handleBackButtonClick = () => {
+        rpcClient.getMiVisualizerRpcClient().goBack();
+    }
+
     const validateProjectName = (name: string) => {
         // Check if the name is empty
         if (!name.trim()) {
@@ -97,7 +108,12 @@ export function ProjectWizard() {
     return (
         <WizardContainer>
             <SectionWrapper>
-                <h3>Integration Project</h3>
+                <Container>
+                    <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
+                    <div style={{ marginLeft: 30 }}>
+                        <Typography variant="h3">Integration Project</Typography>
+                    </div>
+                </Container>
                 <TextField
                     value={projectName}
                     id='name-input'

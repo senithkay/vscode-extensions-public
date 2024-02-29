@@ -8,7 +8,7 @@
  */
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import { AutoComplete, Button, TextField } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, Button, Codicon, Icon, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { FieldGroup, SectionWrapper } from "./Commons";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
@@ -35,6 +35,14 @@ const LocationText = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+`;
+
+const Container = styled.div`
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+    align-items: center;
+    justify-content: flex-start;
 `;
 
 export interface Region {
@@ -89,19 +97,29 @@ export function APIWizard() {
             return "Name is required";
         }
 
-        // Check if the name contains spaces or special characters
-        if (/[\s~`!@#$%^&*()_+={}[\]:;'",.<>?/\\|]+/.test(name)) {
-            return "Name cannot contain spaces or special characters";
+        // Check if the name has spaces
+        if (/\s/.test(name)) {
+            return "Name cannot contain spaces";
         }
+
         return "";
     };
+
+    const handleBackButtonClick = () => {
+        rpcClient.getMiVisualizerRpcClient().goBack();
+    }
 
     const isValid: boolean = apiName.length > 0 && apiContext.length > 0 && versionType.length > 0;
 
     return (
         <WizardContainer>
             <SectionWrapper>
-                <h3>Synapse API Artifact</h3>
+                <Container>
+                    <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
+                    <div style={{ marginLeft: 30 }}>
+                        <Typography variant="h3">Synapse API Artifact</Typography>
+                    </div>
+                </Container>
                 <TextField
                     value={apiName}
                     id='name-input'

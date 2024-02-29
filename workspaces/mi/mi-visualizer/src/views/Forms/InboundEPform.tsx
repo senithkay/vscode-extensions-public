@@ -9,7 +9,7 @@
 
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import { AutoComplete, Button, TextField, Dropdown } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, Button, TextField, Dropdown, Typography, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { FieldGroup, SectionWrapper } from "./Commons";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
@@ -60,6 +60,14 @@ const HiddenFormWrapper = styled.div`
     flex-direction: column;
     gap: 10px;
     padding: 10px 40px;
+`;
+
+const Container = styled.div`
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+    align-items: center;
+    justify-content: flex-start;
 `;
 
 export interface Region {
@@ -166,6 +174,10 @@ export function InboundEPWizard() {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
+    const handleBackButtonClick = () => {
+        rpcClient.getMiVisualizerRpcClient().goBack();
+    }
+
     const isValid: boolean = !nameError && inboundEPName.length > 0 && creationType.length > 0 && (excludeSubFormFrom.includes(creationType) ||
         (selectedSequence !== defaultSequence.value ? selectedSequence.length > 0 : customSequence.length > 0) &&
         (onErrorSequence !== defaultSequence.value ? onErrorSequence.length > 0 : customOnErrorSequence.length > 0));
@@ -173,7 +185,12 @@ export function InboundEPWizard() {
     return (
         <WizardContainer>
             <SectionWrapper>
-                <h3>Inbound Endpoint Artifact</h3>
+                <Container>
+                    <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
+                    <div style={{ marginLeft: 30 }}>
+                        <Typography variant="h3">Inbound Endpoint Artifact</Typography>
+                    </div>
+                </Container>
                 <TextField
                     value={inboundEPName}
                     id='name-input'
