@@ -2497,6 +2497,7 @@ importers:
       '@storybook/addon-links': ~7.4.0
       '@storybook/react-webpack5': ~7.4.0
       '@types/lodash': ~4.14.198
+      '@types/mustache': ~4.2.5
       '@types/node': ^20.10.6
       '@types/react': ^18.2.33
       '@types/react-dom': ^18.2.14
@@ -2511,6 +2512,7 @@ importers:
       '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ^2.4.1
       css-loader: ^5.2.7
+      mustache: ~4.2.0
       path: ~0.12.7
       process: ~0.11.10
       react: ^18.2.0
@@ -2540,6 +2542,7 @@ importers:
       '@wso2-enterprise/mi-rpc-client': link:../mi-rpc-client
       '@wso2-enterprise/service-designer': link:../../common-libs/service-designer
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
+      mustache: 4.2.0
       path: 0.12.7
       process: 0.11.10
       react: 18.2.0
@@ -2554,6 +2557,7 @@ importers:
       '@storybook/addon-links': 7.4.6_biqbaboplfbrettd7655fr4n2y
       '@storybook/react-webpack5': 7.4.6_pcf232rc2nsn2g3anhbnxwmrba
       '@types/lodash': 4.14.202
+      '@types/mustache': 4.2.5
       '@types/node': 20.11.10
       '@types/react': 18.2.48
       '@types/react-dom': 18.2.18
@@ -18245,7 +18249,6 @@ packages:
 
   /@types/mustache/4.2.5:
     resolution: {integrity: sha512-PLwiVvTBg59tGFL/8VpcGvqOu3L4OuveNvPi0EYbWchRdEVP++yRUXJPFl+CApKEq13017/4Nf7aQ5lTtHUNsA==}
-    dev: false
 
   /@types/nock/11.1.0:
     resolution: {integrity: sha512-jI/ewavBQ7X5178262JQR0ewicPAcJhXS/iFaNJl0VHLfyosZ/kwSrsa6VNQNSO8i9d8SqdRgOtZSOKJ/+iNMw==}
