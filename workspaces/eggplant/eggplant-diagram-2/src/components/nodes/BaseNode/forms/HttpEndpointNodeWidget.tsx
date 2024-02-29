@@ -47,6 +47,7 @@ export function HttpEndpointNodeWidget(props: NodeWidgetProps) {
                     value={nodeProperties.method.value.toString().toUpperCase()}
                     items={dropdownItems}
                     sx={{ width: 166, marginBottom: 2 }}
+                    onChange={(e) => {}}
                 ></Dropdown>
             </NodeStyles.Row>
             <TextInput expression={nodeProperties.path} onChange={handleOnChange} />

@@ -41,6 +41,7 @@ export function HttpActionNodeWidget(props: NodeWidgetProps) {
                     value={nodeProperties.client.value.toString()}
                     items={dropdownItems}
                     sx={{ width: 166, marginBottom: 2 }}
+                    onChange={(e) => {}}
                 ></Dropdown>
             </NodeStyles.Row>
             <TextInput expression={nodeProperties.path} onChange={handleOnChange} />
