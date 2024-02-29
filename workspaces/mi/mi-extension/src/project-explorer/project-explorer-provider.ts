@@ -72,44 +72,43 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 		}
 		return element.children;
 	}
-
-
-
 }
 
 async function getProjectStructureData(context: vscode.ExtensionContext): Promise<ProjectExplorerEntry[]> {
-	const rootPath = vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0 ?
-		vscode.workspace.workspaceFolders[0].uri.fsPath
-		: undefined;
+	if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
+		const langClient = (await MILanguageClient.getInstance(context)).languageClient;
+		const data: ProjectExplorerEntry[] = [];
+		if (!!langClient) {
+			const workspaceFolders = vscode.workspace.workspaceFolders;
+			for (const workspace of workspaceFolders) {
+				const rootPath = workspace.uri.fsPath;
 
-	if (rootPath === undefined) {
-		vscode.commands.executeCommand('setContext', 'projectOpened', false);
-		throw new Error("Error identifying workspace root");
-	}
-
-	const langClient = (await MILanguageClient.getInstance(context)).languageClient;
-
-	if (!!langClient) {
-		const resp = await langClient.getProjectStructure(rootPath);
-		if (resp) {
-			vscode.commands.executeCommand('setContext', 'projectOpened', true);
+				const resp = await langClient.getProjectStructure(rootPath);
+				const projectTree = generateTreeData(workspace, resp);
+				if (projectTree) {
+					data.push(projectTree);
+				}
+			};
 		}
-		return generateTreeData(resp);
+		if (data.length > 0) {
+			vscode.commands.executeCommand('setContext', 'projectOpened', true);
+			return data;
+		} else {
+			vscode.commands.executeCommand('setContext', 'projectOpened', false);
+		}
 	}
 	vscode.commands.executeCommand('setContext', 'projectOpened', false);
 	return [];
 
 }
 
-function generateTreeData(data: ProjectStructureResponse): ProjectExplorerEntry[] {
-	const result: ProjectExplorerEntry[] = [];
+function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructureResponse): ProjectExplorerEntry | undefined {
 	const directoryMap = data.directoryMap;
 	if (directoryMap) {
-		const workspaceName = vscode.workspace.name ?? '';
 		const projectRoot = new ProjectExplorerEntry(
-			`Project ${workspaceName.length > 0 ? `: ${workspaceName}` : ''}`,
-			vscode.TreeItemCollapsibleState.Collapsed,
-			undefined,
+			`Project ${project.name}`,
+			vscode.TreeItemCollapsibleState.Expanded,
+			{ name: project.name, path: project.uri.fsPath, type: 'project' },
 			'project'
 		);
 
@@ -186,17 +185,15 @@ function generateTreeData(data: ProjectStructureResponse): ProjectExplorerEntry[
 
 				parentEntry.children = children;
 				parentEntry.contextValue = key;
-				parentEntry.id = key;
+				parentEntry.id = `${project.name}/${key}`;
 
 				projectRoot.children = projectRoot.children ?? [];
 				projectRoot.children.push(parentEntry);
 			}
 		}
 
-		result.push(projectRoot);
+		return projectRoot;
 	}
-
-	return result;
 }
 
 function isCollapsibleState(state: boolean): vscode.TreeItemCollapsibleState {
