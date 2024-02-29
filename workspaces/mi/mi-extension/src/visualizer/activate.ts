@@ -9,8 +9,8 @@
 
 import * as vscode from 'vscode';
 import { VisualizerWebview } from './webview';
-import { commands, window } from 'vscode';
-import { openView } from '../stateMachine';
+import { Uri, ViewColumn, commands, window } from 'vscode';
+import { StateMachine } from '../stateMachine';
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
     if (!VisualizerWebview.currentPanel) {
@@ -19,11 +19,25 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
     VisualizerWebview.currentPanel!.getWebview()?.reveal();
 
     context.subscriptions.push(
-        vscode.commands.registerCommand('integrationStudio.showDiagram', (e: any) => {
+        vscode.commands.registerCommand('MI.show.diagram', (e: any) => {
             if (!VisualizerWebview.currentPanel) {
-                VisualizerWebview.currentPanel = new VisualizerWebview();
+                VisualizerWebview.currentPanel = new VisualizerWebview(true);
             }
-            VisualizerWebview.currentPanel!.getWebview()?.reveal();
+            VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
+        })
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand('MI.show.source', (e: any) => {
+            const documentUri = StateMachine.context().documentUri;
+            if (documentUri) {
+                console.log(window.visibleTextEditors.map(editor => editor.document.uri.fsPath));
+                const openedEditor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
+                if (openedEditor) {
+                    window.showTextDocument(openedEditor.document, { viewColumn: openedEditor.viewColumn });
+                } else {
+                    commands.executeCommand('vscode.open', Uri.parse(documentUri), { viewColumn: ViewColumn.Beside });
+                }
+            }
         })
     );
     context.subscriptions.push(
@@ -36,4 +50,9 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
                 });
         })
     );
+    StateMachine.service().onTransition((state) => {
+        if (state?.event?.type === 'OPEN_VIEW') {
+            commands.executeCommand('setContext', 'isMIDiagram', state.event.viewLocation?.view === 'Diagram');
+        }
+    });
 }
