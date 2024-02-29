@@ -34,7 +34,7 @@ import { ModuleVariableNode } from '../Diagram/Node/ModuleVariable';
 import { EnumTypeNode } from '../Diagram/Node/EnumType';
 import { ExpandedMappingHeaderNode } from '../Diagram/Node/ExpandedMappingHeader';
 import { isDMSupported } from '../DataMapper/utils';
-import { ModulePart } from '@wso2-enterprise/syntax-tree';
+import { FunctionDefinition, ModulePart } from '@wso2-enterprise/syntax-tree';
 
 export const useProjectComponents = (langServerRpcClient: LangServerRpcClient, fileName: string): {
     projectComponents: BallerinaProjectComponents;
@@ -208,12 +208,13 @@ export const useDMMetaData = (langServerRpcClient: LangServerRpcClient): {
     return { ballerinaVersion, dMSupported, dMUnsupportedMessage, isFetching, isError, refetch };
 };
 
-export const useFileContent = (langServerRpcClient: LangServerRpcClient, filePath: string, fnSource: string): {
+export const useFileContent = (langServerRpcClient: LangServerRpcClient, filePath: string, fnST: FunctionDefinition): {
     content: [string, string[]];
     isFetching: boolean;
     isError: boolean;
     refetch: any;
 } => {
+    const { source, position } = fnST;
     const fetchContent = async () : Promise<[string, string[]]> => {
         const importStatements: string[] = [];
         try {
@@ -235,7 +236,7 @@ export const useFileContent = (langServerRpcClient: LangServerRpcClient, filePat
         isFetching,
         isError,
         refetch,
-    } = useQuery(['fetchContent', {filePath, fnSource}], () => fetchContent(), {});
+    } = useQuery(['fetchContent', {filePath, source, position}], () => fetchContent(), {});
 
     return { content, isFetching, isError, refetch };
 };

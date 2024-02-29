@@ -176,7 +176,7 @@ export function DataMapperC(props: DataMapperViewProps) {
         isFetching: isFetchingDMMetaData,
         isError: isErrorDMMetaData
     } = useDMMetaData(langServerRpcClient);
-    const { content, isFetching: isFetchingContent } = useFileContent(langServerRpcClient, filePath, fnST?.source);
+    const { content, isFetching: isFetchingContent } = useFileContent(langServerRpcClient, filePath, fnST);
 
     const targetPosition = fnST ? {
         ...fnST.position,
