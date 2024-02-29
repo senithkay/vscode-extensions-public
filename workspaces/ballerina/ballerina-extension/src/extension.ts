@@ -25,7 +25,6 @@ import { activate as activatePerformanceForecaster } from './forecaster';
 import { activate as activateTryIt } from './tryIt/tryit';
 import { activate as activateNotebook } from './notebook';
 import { activate as activateLibraryBrowser } from './library-browser';
-import { activate as activateHistory } from './history';
 import { activate as activateERDiagram } from './persist-layer-diagram';
 import { debug, handleResolveMissingDependencies, log } from './utils';
 import { activateUriHandlers } from './uri-handlers';
@@ -92,7 +91,6 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
     await ballerinaExtInstance.init(onBeforeInit).then(() => {
         activateLibraryBrowser(ballerinaExtInstance);
         activateSubscriptions();
-        activateHistory();
         // start the features.
         // Enable Ballerina diagram
         // activateDiagram(ballerinaExtInstance);

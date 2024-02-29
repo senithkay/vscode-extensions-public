@@ -59,6 +59,9 @@ export * from "./rpc-types/project-design-diagram/interfaces";
 // ------ History class and interface -------->
 export * from "./history";
 
+// ------ Undo Redo Manger class -------->
+export * from "./undo-redo-manager";
+
 // ------ Util functions -------->
 export * from "./utils/modification-utils";
 export * from "./utils/form-component-utils";
