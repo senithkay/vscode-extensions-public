@@ -9,7 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    AIUserInput,  
+    AIUserInput,
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
@@ -351,9 +351,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
       resolve({ data: "" });
     });
   }
-  async createLocalEntry(
-    params: CreateLocalEntryRequest
-  ): Promise<CreateLocalEntryResponse> {
+  async createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
     return new Promise(async (resolve) => {
         const { directory, name, type, value, URL } = params;
 
@@ -365,13 +363,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     });
   }  
 
-    async getInboundEndpointDirectory(params: GetInboundEpDirRequest): Promise<InboundEndpointDirectoryResponse> {
-        try {
-            const fileUri = Uri.file(params.path);
-            const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
-            if (workspaceFolder) {
-                const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
-                const endpointDir = path.join(workspaceFolderPath, 'src', 'main', 'wso2mi', 'artifacts', 'inbound-endpoints');
+  async getInboundEndpointDirectory(): Promise<InboundEndpointDirectoryResponse> {
+      try {
+          const workspaceFolder = workspace.workspaceFolders;
+          if (workspaceFolder) {
+              const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
+              const endpointDir = path.join(workspaceFolderPath, 'src', 'main', 'wso2mi', 'artifacts', 'inbound-endpoints');
 
               const response: InboundEndpointDirectoryResponse = { data: endpointDir };
 

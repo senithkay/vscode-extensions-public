@@ -8,7 +8,7 @@
  */
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import { AutoComplete, Button, TextField } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, Button, TextField , Codicon, Typography} from "@wso2-enterprise/ui-toolkit";
 import { SectionWrapper } from "./Commons";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
@@ -59,6 +59,14 @@ const BrowseBtn = styled(VSCodeButton)`
 `;
 const BrowseBtn2 = styled(VSCodeButton)`
   width: fit-content;
+`;
+
+const Container = styled.div`
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+    align-items: center;
+    justify-content: flex-start;
 `;
 
 export interface Region {
@@ -191,99 +199,100 @@ export function LocalEntryWizard() {
 
   return (
     <WizardContainer>
-      <TitleWrapper>
-        <h2>New Local Entry Artifact</h2>
-      </TitleWrapper>
-      <SectionWrapper>
-        <h3>Local Entry Artifact</h3>
-        <TextField
-          value={localEntryName}
-          id="name-input"
-          label="Local Entry Name"
-          placeholder="Name"
-          validationMessage="LocalEntry name is required"
-          onChange={(text: string) => setLocalEntryName(text)}
-          autoFocus
-          required
-        />
-
-        <span>Local Entry Creation Type</span>
-        <AutoComplete
-          items={localEntryTypes}
-          selectedItem={localEntryType}
-          onChange={handleLocalEntryTypeChange}
-          sx={{ width: "100%" }}
-        ></AutoComplete>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <span> Save Local Entry In: </span>
-          <TextField
-            placeholder="projectDir"
-            onChange={(text: string) => setProjectDir(text)}
-            value={projectDir}
-            id="dir-input"
-            size={100}
-            readonly={true}
-            //sx={{ flexGrow: 1, marginRight: '40px' }}
-          />
-        </div>
-
-        <h5>Advanced Configuration</h5>
-        {localEntryType === "In-Line Text Entry" && (
-          <TextField
-            placeholder="Value"
-            label="Value"
-            onChange={(text: string) => setValue(text)}
-            value={value}
-            id="value-input"
-            size={100}
-            required
-          />
-        )}
-        {localEntryType === "In-Line XML Entry" && (
-          <CodeMirror
-            value={code}
-            extensions={[xml(), linter(() => errors)]}
-            theme={oneDark}
-            onChange={(text: string) => handleXMLInputChange(text)}
-            height="200px"
-            autoFocus
-          />
-        )}
-        {localEntryType === "Source URL Entry" && (
-          <>
-            {" "}
+        <SectionWrapper>
+            <Container>
+                <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
+                <div style={{ marginLeft: 30 }}>
+                    <Typography variant="h3">Inbound Endpoint Artifact</Typography>
+                </div>
+            </Container>        
+            <TextField
+              value={localEntryName}
+              id="name-input"
+              label="Local Entry Name"
+              placeholder="Name"
+              validationMessage="LocalEntry name is required"
+              onChange={(text: string) => setLocalEntryName(text)}
+              autoFocus
+              required
+            />
+    
+            <span>Local Entry Creation Type</span>
+            <AutoComplete
+              items={localEntryTypes}
+              selectedItem={localEntryType}
+              onChange={handleLocalEntryTypeChange}
+              sx={{ width: "100%" }}
+            ></AutoComplete>
             <div style={{ display: "flex", alignItems: "center" }}>
+              <span> Save Local Entry In: </span>
               <TextField
-                placeholder="URL"
-                label="URL"
-                onChange={(text: string) => setURL(text)}
-                value={URL}
-                id="url-input"
+                placeholder="projectDir"
+                onChange={(text: string) => setProjectDir(text)}
+                value={projectDir}
+                id="dir-input"
                 size={100}
-                sx={{ flexGrow: 0.5 }}
+                readonly={true}
+                //sx={{ flexGrow: 1, marginRight: '40px' }}
               />
-              <BrowseBtn
-                onClick={handleURLDirSelection}
-                id="select-project-dir-btn"
-              >
-                Browse
-              </BrowseBtn>
             </div>
-          </>
-        )}
-      </SectionWrapper>
-      <ActionContainer>
-        <Button appearance="secondary" onClick={handleCancel}>
-          Cancel
-        </Button>
-        <Button
-          appearance="primary"
-          onClick={handleCreateLocalEntry}
-          disabled={!isValid}
-        >
-          Create
-        </Button>
-      </ActionContainer>
+    
+            <h5>Advanced Configuration</h5>
+            {localEntryType === "In-Line Text Entry" && (
+                <TextField
+                  placeholder="Value"
+                  label="Value"
+                  onChange={(text: string) => setValue(text)}
+                  value={value}
+                  id="value-input"
+                  size={100}
+                  required
+                />
+            )}
+            {localEntryType === "In-Line XML Entry" && (
+                <CodeMirror
+                  value={code}
+                  extensions={[xml(), linter(() => errors)]}
+                  theme={oneDark}
+                  onChange={(text: string) => handleXMLInputChange(text)}
+                  height="200px"
+                  autoFocus
+                />
+            )}
+            {localEntryType === "Source URL Entry" && (
+              <>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <TextField
+                    placeholder="URL"
+                    label="URL"
+                    onChange={(text: string) => setURL(text)}
+                    value={URL}
+                    id="url-input"
+                    size={100}
+                    sx={{ flexGrow: 0.5 }}
+                  />
+                  <BrowseBtn
+                    onClick={handleURLDirSelection}
+                    id="select-project-dir-btn"
+                  >
+                    Browse
+                  </BrowseBtn>
+                </div>
+              </>
+            )}
+        </SectionWrapper>
+        <ActionContainer>
+          <Button appearance="secondary" onClick={handleCancel}>
+            Cancel
+          </Button>
+          <Button
+            appearance="primary"
+            onClick={handleCreateLocalEntry}
+            disabled={!isValid}
+          >
+            Create
+          </Button>
+        </ActionContainer>
     </WizardContainer>
   );
 }
