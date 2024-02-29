@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Flow } from "../../interfaces/eggplant";
+import { Flow, Node } from "../../interfaces/eggplant";
 
 export interface EggplantModelRequest {
     filePath: string;
@@ -23,3 +23,7 @@ export type LinePosition = {
 export type EggplantModelResponse = {
     flowDesignModel: Flow;
 };
+
+export interface UpdateNodeRequest {
+    node: Node;
+}

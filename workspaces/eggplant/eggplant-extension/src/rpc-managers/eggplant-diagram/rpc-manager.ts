@@ -12,7 +12,9 @@ import {
     EggplantDiagramAPI,
     EggplantModelRequest,
     EggplantModelResponse,
-    Flow
+    Flow,
+    Node,
+    UpdateNodeRequest
 } from "@wso2-enterprise/eggplant-core";
 import { Uri } from "vscode";
 import { StateMachine } from "../../stateMachine";
@@ -174,5 +176,14 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
             //     }
             //     resolve();
         });
+    }
+
+    async updateNode(params: UpdateNodeRequest): Promise<void> {
+       const node : Node = params.node;
+       
+       const newNode: Node = { ...node };
+       delete newNode.viewState;
+        
+        // TODO: Add the LS call to get the modification array for the updated node
     }
 }

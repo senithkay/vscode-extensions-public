@@ -10,8 +10,10 @@
  */
 import {
     Flow,
+    UpdateNodeRequest,
     getEggplantModel,
-    updateEggplantModel
+    updateEggplantModel,
+    updateNode
 } from "@wso2-enterprise/eggplant-core";
 import { Messenger } from "vscode-messenger";
 import { EggplantDiagramRpcManager } from "./rpc-manager";
@@ -20,4 +22,5 @@ export function registerEggplantDiagramRpcHandlers(messenger: Messenger) {
     const rpcManger = new EggplantDiagramRpcManager();
     messenger.onRequest(getEggplantModel, () => rpcManger.getEggplantModel());
     messenger.onNotification(updateEggplantModel, (args: Flow) => rpcManger.updateEggplantModel(args));
+    messenger.onNotification(updateNode, (args: UpdateNodeRequest) => rpcManger.updateNode(args));
 }
