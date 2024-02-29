@@ -11,7 +11,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Diagram } from "@wso2-enterprise/eggplant-diagram-2";
 import {
-    Flow
+    Flow,
+    UpdateNodeRequest,
+    Node
 } from "@wso2-enterprise/eggplant-core";
 import styled from "@emotion/styled";
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
@@ -39,20 +41,30 @@ const EggplantDiagram = () => {
     const [flowModel, setModel] = useState<Flow>(undefined);
 
     useEffect(() => {
-        try {
-            rpcClient.getEggplantDiagramRpcClient().getEggplantModel().then((model) => {
-                setModel(model.flowDesignModel);
-            });
-        } catch (error) {
-            setModel(undefined);
-        }
+        getEggplantModel();
     }, []);
 
-    // const onModelChange = async (model: Flow) => {
+    rpcClient.onFileContentUpdate(() => {
+        getEggplantModel();
+        
+    });
+
+    const getEggplantModel = () => {
+        rpcClient.getEggplantDiagramRpcClient().getEggplantModel().then((model) => {
+            setModel(model.flowDesignModel);
+        });
+    };
+
+    // const OnNodeChange = (node: Node) => {
     //     if (rpcClient) {
-    //         await rpcClient.getEggplantDiagramRpcClient().updateEggplantModel(model);
+    //         const updateNodeRequest: UpdateNodeRequest = {
+    //             node: node
+    //         };
+    //         rpcClient.getEggplantDiagramRpcClient().updateNode(updateNodeRequest);
     //     }
-    // }
+    // };
+
+
 
     const eggplantDiagram = useMemo(() => {
         return <Diagram model={flowModel} />;
