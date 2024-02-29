@@ -7,16 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ProjectStructureResponse, getSyntaxTree } from "@wso2-enterprise/mi-core";
+import { GetDefinitionRequest, GetDefinitionResponse, ProjectStructureResponse } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { Position, Uri, workspace } from "vscode";
 import { CompletionParams, LanguageClient, TextEdit } from "vscode-languageclient/node";
 import { TextDocumentIdentifier } from "vscode-languageserver-protocol";
 
 export interface GetSyntaxTreeParams {
-    documentIdentifier: {
-        uri: string;
-    };
+    documentIdentifier: TextDocumentIdentifier;
 }
 
 export interface GetSyntaxTreeResponse {
@@ -56,6 +54,11 @@ export interface LogSnippetCompletionRequest {
     properties?: any;
 }
 
+export interface GetAvailableResourcesRequest {
+    documentIdentifier: TextDocumentIdentifier;
+    resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "template";
+}
+
 export interface LogSnippet {
     snippet: string;
 }
@@ -69,19 +72,6 @@ export interface DidOpenParams {
     };
 }
 
-export type TPosition = {
-    character: number;
-    line: number;
-};
-
-export interface GoToDefinitionResponse {
-    uri: string,
-    range: {
-        end: TPosition,
-        start: TPosition
-    }
-}
-
 export class ExtendedLanguageClient extends LanguageClient {
 
     async getSyntaxTree(req: GetSyntaxTreeParams): Promise<GetSyntaxTreeResponse> {
@@ -91,14 +81,14 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     private async didOpen(fileUri: string): Promise<void> {
         const content: string = readFileSync(fileUri, { encoding: 'utf-8' });
-		const didOpenParams = {
-			textDocument: {
-				uri: Uri.parse(fileUri).toString(),
-				languageId: 'xml',
-				version: 1,
-				text: content
-			}
-		};
+        const didOpenParams = {
+            textDocument: {
+                uri: Uri.parse(fileUri).toString(),
+                languageId: 'xml',
+                version: 1,
+                text: content
+            }
+        };
         await this.sendNotification("textDocument/didOpen", didOpenParams);
     }
 
@@ -106,8 +96,14 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest('synapse/directoryTree', { uri: Uri.parse(path).toString() });
     }
 
-    async getDefinition(document: TextDocumentIdentifier, position: Position): Promise<GoToDefinitionResponse> {
-        return this.sendRequest('synapse/definition', { textDocument: document, position: position })
+    async getDefinition(params: GetDefinitionRequest): Promise<GetDefinitionResponse> {
+        const doc = params.document;
+        doc.uri = Uri.parse(doc.uri).toString();
+
+        return this.sendRequest('synapse/definition', {
+            textDocument: doc,
+            position: params.position
+        })
     }
 
     async getCompletion(params: GetCompletionParams): Promise<CompletionResponse[]> {
@@ -134,4 +130,9 @@ export class ExtendedLanguageClient extends LanguageClient {
     async getSnippetCompletion(req: LogSnippetCompletionRequest): Promise<LogSnippet> {
         return this.sendRequest("xml/getSnippetCompletion", req);
     }
+
+    async getAvailableResources(req: GetAvailableResourcesRequest): Promise<string[]> {
+        return this.sendRequest("synapse/availableResource", req);
+    }
+
 }

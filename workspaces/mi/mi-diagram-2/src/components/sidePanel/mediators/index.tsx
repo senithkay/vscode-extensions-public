@@ -89,7 +89,7 @@ export function MediatorPage(props: MediatorPageProps) {
 
             <div style={{
                 overflowY: "auto",
-                height: "calc(100vh - 250px)",
+                height: "calc(100vh - 180px)",
                 scrollbarWidth: "none"
             }}>
                 {/* Mediator List */}

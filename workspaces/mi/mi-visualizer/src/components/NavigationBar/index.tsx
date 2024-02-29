@@ -7,7 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content."
  */
 // tslint:disable: jsx-no-multiline-js
-import React from "react";
 import { NavButtonGroup } from "./NavButtonGroup";
 import styled from "@emotion/styled";
 
@@ -21,6 +20,7 @@ export function NavigationBar(props: NavigationBarProps) {
         display: flex;
         flex-direction: row;
         padding-bottom: 10px;
+        align-items: center;
     `;
 
     return (

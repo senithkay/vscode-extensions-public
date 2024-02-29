@@ -22,8 +22,8 @@ export class VisualizerWebview {
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 
-    constructor() {
-        this._panel = VisualizerWebview.createWebview();
+    constructor(beside: boolean = false) {
+        this._panel = VisualizerWebview.createWebview(beside);
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.html = this.getWebviewContent(this._panel.webview);
         RPCLayer.create(this._panel);
@@ -41,11 +41,11 @@ export class VisualizerWebview {
         }, extension.context);
     }
 
-    private static createWebview(): vscode.WebviewPanel {
+    private static createWebview(beside: boolean): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
             VisualizerWebview.viewType,
             'Integration Studio',
-            ViewColumn.Active,
+            beside ? ViewColumn.Beside : ViewColumn.Active,
             {
                 enableScripts: true,
                 localResourceRoots: [Uri.file(path.join(extension.context.extensionPath, 'resources'))],

@@ -35,6 +35,7 @@ export function EndNodeWidget(props: CallNodeWidgetProps) {
             <svg width="24" height="24" viewBox="0 0 32 32">
                 <circle cx="16" cy="16" r="14" fill={Colors.PRIMARY} />
             </svg>
+            <PortWidget port={node.getPort("out")!} engine={engine} />
         </S.Node>
     );
 }

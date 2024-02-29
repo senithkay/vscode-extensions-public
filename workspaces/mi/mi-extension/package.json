@@ -65,12 +65,12 @@
     "viewsWelcome": [
       {
         "view": "project-explorer",
-        "contents": "Welcome to Integration Studio. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:integrationStudio.openProject)\n[Create New Project](command:integrationStudio.showDiagramc)\nTo learn more about how to use Integration Studio in VS Code [read our docs](https://ei.docs.wso2.com)."
+        "contents": "Welcome to Integration Studio. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:integrationStudio.openProject)\n[Create New Project](command:MI.show.diagramc)\nTo learn more about how to use Integration Studio in VS Code [read our docs](https://ei.docs.wso2.com)."
       }
     ],
     "commands": [
       {
-        "command": "integrationStudio.showDiagram",
+        "command": "MI.show.diagram",
         "title": "Show Diagram",
         "icon": "$(design-view)",
         "category": "MI"
@@ -136,6 +136,12 @@
       {
         "command": "project-explorer.view",
         "title": "View"
+      },
+      {
+          "command": "MI.show.source",
+          "title": "Show Source",
+          "icon": "$(distro-source-view)",
+          "category": "MI"
       }
     ],
     "menus": {
@@ -153,9 +159,14 @@
       ],
       "editor/title": [
         {
-          "command": "integrationStudio.showDiagram",
+          "command": "MI.show.diagram",
           "when": "editorLangId == SynapseXml",
           "group": "navigation@3"
+        },
+        {
+            "when": "isMIDiagram && editorLangId !== SynapseXml",
+            "command": "MI.show.source",
+            "group": "navigation@3"
         }
       ],
       "view/item/context": [
@@ -230,7 +241,8 @@
     "webpack-cli": "^5.1.4",
     "@vscode/test-electron": "^2.3.4",
     "rimraf": "~5.0.5",
-    "@wso2-enterprise/mi-visualizer": "workspace:*"
+    "@wso2-enterprise/mi-visualizer": "workspace:*",
+    "@wso2-enterprise/mi-rpc-client": "workspace:*"
   },
   "dependencies": {
     "copyfiles": "^2.4.1",

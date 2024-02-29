@@ -47,7 +47,7 @@ export class RPCLayer {
 async function getContext(): Promise<VisualizerLocation> {
     const context = StateMachine.context();
     return new Promise((resolve) => {
-        resolve({ documentUri: context.documentUri, view: context.view, identifier: context.identifier });
+        resolve({ documentUri: context.documentUri, view: context.view, identifier: context.identifier, projectUri: context.projectUri });
     });
 }
 

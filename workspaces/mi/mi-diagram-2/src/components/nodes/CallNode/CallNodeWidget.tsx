@@ -14,10 +14,10 @@ import { CallNodeModel } from "./CallNodeModel";
 import { Colors } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { Button, Popover } from "@wso2-enterprise/ui-toolkit";
-import { CallIcon, MoreVertIcon, PlusIcon } from "../../../resources";
+import { MoreVertIcon, PlusIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
-import { Range, Position } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getSVGIcon } from "../../../resources/icons/mediatorIcons/icons";
 
 namespace S {
@@ -40,6 +40,8 @@ namespace S {
         background-color: ${Colors.SURFACE_BRIGHT};
         color: ${Colors.ON_SURFACE};
         cursor: pointer;
+        font-family: var(--font-family);
+        font-size: var(--type-ramp-base-font-size);
     `;
 
     export const Header = styled.div<{}>`
@@ -54,6 +56,10 @@ namespace S {
         position: absolute;
         top: -5px;
         right: -110px;
+        color: ${Colors.ON_SURFACE};
+        cursor: pointer;
+        font-family: var(--font-family);
+        font-size: var(--type-ramp-base-font-size);
     `;
 
     export const IconContainer = styled.div`
@@ -103,6 +109,10 @@ namespace S {
         top: 50px;
         width: 100px;
         text-align: center;
+        color: ${Colors.ON_SURFACE};
+        cursor: pointer;
+        font-family: var(--font-family);
+        font-size: var(--type-ramp-base-font-size);
     `;
 }
 
@@ -121,19 +131,18 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
     const { rpcClient } = useVisualizerContext();
 
-    const handleOnClickMenu = () => {
+    const handleOnClickMenu = (event: any) => {
         if (onClick) {
-            console.log("Call Node clicked", node.stNode);
             onClick(node.stNode);
+        } else {
+            setIsPopoverOpen(!isPopoverOpen);
+            setPopoverAnchorEl(event.currentTarget);
+            event.stopPropagation();
         }
     };
 
-    const handleOnClick = (event: any) => {
-        setIsPopoverOpen(!isPopoverOpen);
-        setPopoverAnchorEl(event.currentTarget);
-        event.stopPropagation();
+    const handleOnClick = () => {
         if (node.isSelected()) node.onClicked(visualizerContext);
-        
     };
 
     const handlePlusNode = () => {
@@ -184,7 +193,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                     </S.IconContainer>
                     <S.NodeText>{node.stNode.tag}</S.NodeText>
                     {isHovered && (
-                        <S.StyledButton appearance="icon" onClick={handleOnClick}>
+                        <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>
                             <MoreVertIcon />
                         </S.StyledButton>
                     )}
@@ -201,6 +210,10 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                         stroke={Colors.OUTLINE_VARIANT}
                         strokeWidth={2}
                     />
+                    <g transform="translate(81,20)">
+                        <image x="-20" y="-20" width="40" height="40" xlinkHref={getSVGIcon(node.endpoint.type, true)} />
+                    </g>
+
                     <line
                         x1="0"
                         y1="20"
