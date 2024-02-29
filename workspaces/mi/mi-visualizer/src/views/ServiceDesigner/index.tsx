@@ -11,11 +11,16 @@ import React, { useEffect } from "react";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
+import { AddAPIFormProps, AddResourceForm } from "../Forms/AddResourceForm";
+import { SERVICE_DESIGNER } from "../../constants";
+import { getXML } from "../../utils/template-engine/mustache-templates/templateUtils";
 
 export function ServiceDesignerView() {
     const { rpcClient } = useVisualizerContext();
     const [serviceModel, setServiceModel] = React.useState<Service>(null);
-    const [doUri, setDocUri] = React.useState<string>("");
+    const [docUri, setDocUri] = React.useState<string>("");
+    const [isResourceFormOpen, setResourceFormOpen] = React.useState<boolean>(false);
+    const [apiInsertPosition, setApiInsertPosition] = React.useState<any>(null);
 
     useEffect(() => {
         if (rpcClient) {
@@ -31,6 +36,7 @@ export function ServiceDesignerView() {
                         }
                         resources.push(value);
                     })
+                    setApiInsertPosition(st.range.endTagRange.start);
                     const model: Service = {
                         path: st.context,
                         port: 0,
@@ -50,12 +56,42 @@ export function ServiceDesignerView() {
 
     const openDiagram = (resource: Resource) => {
         const resourceIndex = serviceModel.resources.findIndex((res) => res === resource);
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Diagram, documentUri: doUri, identifier: resourceIndex.toString() } })
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Diagram, documentUri: docUri, identifier: resourceIndex.toString() } })
+    }
+
+    const handleResourceAdd = () => {
+        setResourceFormOpen(true);
+    }
+
+    const handleCancel = () => {
+        setResourceFormOpen(false);
+    }
+
+    const handleCreateAPI = ({ methods, uri_template, url_mapping }: AddAPIFormProps) => {
+        setResourceFormOpen(false);
+        const formValues = {
+            methods: methods.join(" "),
+            uri_template,
+            url_mapping
+        }
+        
+        const xml = getXML(SERVICE_DESIGNER.ADD_RESOURCE, formValues);
+        rpcClient.getMiDiagramRpcClient().applyEdit({ text: xml, documentUri: docUri, range: {
+            start: {
+                line: apiInsertPosition.line,
+                character: apiInsertPosition.character
+            },
+            end: {
+                line: apiInsertPosition.line,
+                character: apiInsertPosition.character
+            }
+        }});
     }
 
     return (
         <>
-            {serviceModel && <ServiceDesigner model={serviceModel} goToSource={openDiagram} />}
+            {serviceModel && <ServiceDesigner model={serviceModel} goToSource={openDiagram} onResourceAdd={handleResourceAdd} />}
+            <AddResourceForm isOpen={isResourceFormOpen} handleCancel={handleCancel} handleCreateAPI={handleCreateAPI} />
         </>
     );
 }
