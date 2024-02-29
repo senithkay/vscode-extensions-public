@@ -12,7 +12,7 @@ import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { createNodesLink, genDagreEngine, generateEngine } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
-import { Flow, NodeKind, NodeModel, TargetMetadata } from "../utils/types";
+import { Flow, NodeKind, NodeModel, TargetMetadata, Node as EggplantNode } from "../utils/types";
 import { traverseFlow } from "../utils/ast";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { NodeLinkModel } from "./NodeLink";
@@ -24,11 +24,11 @@ import { ComponentList, ComponentPanel } from "./ComponentPanel";
 export interface DiagramProps {
     model: Flow;
     onAddNode?: (kind: NodeKind, target: TargetMetadata) => void;
-    onNodeChange?: (node: Node) => void;
+    onNodeChange?: (node: EggplantNode) => void;
 }
 
 export function Diagram(props: DiagramProps) {
-    const { model, onAddNode } = props;
+    const { model, onAddNode, onNodeChange } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
@@ -39,7 +39,7 @@ export function Diagram(props: DiagramProps) {
             const { nodes, links } = getDiagramData();
             drawDiagram(nodes, links);
         }
-    }, []);
+    }, [model]);
 
     const getDiagramData = () => {
         // run node visitor
