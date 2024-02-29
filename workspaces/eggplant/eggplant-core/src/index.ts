@@ -17,6 +17,7 @@ export * from "./state-machine-types";
 // ------ Eggplant related interfaces -------->
 export * from "./interfaces/lang-client";
 export * from "./interfaces/metadata-types";
+export * from "./interfaces/eggplant";
 
 // ------ RPC interfaces -------->
 export * from "./rpc-types/eggplant-diagram";

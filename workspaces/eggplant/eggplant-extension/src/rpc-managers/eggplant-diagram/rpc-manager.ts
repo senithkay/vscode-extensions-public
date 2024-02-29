@@ -9,174 +9,170 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    BallerinaProjectComponents,
-    // CodeGeneartionData,
     EggplantDiagramAPI,
     EggplantModelRequest,
-    Flow,
-    STModification,
-    // workerCodeGen,
+    EggplantModelResponse,
+    Flow
 } from "@wso2-enterprise/eggplant-core";
-import { ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { writeFileSync } from "fs";
-import { StateMachine, openView } from "../../stateMachine";
-import { Uri, workspace } from "vscode";
+import { Uri } from "vscode";
+import { StateMachine } from "../../stateMachine";
 
 export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
-    async getEggplantModel(): Promise<Flow> {
-        const context = StateMachine.context();
-        if (!context.position) {
-            // demo hack
-            //@ts-ignore
-            return new Promise((resolve) => {
+    async getEggplantModel(): Promise<EggplantModelResponse> {
+        return new Promise((resolve) => {
+            const context = StateMachine.context();
+            if (!context.position) {
+                // demo hack
                 //@ts-ignore
-                resolve(undefined);
-            });
-        }
-        const params: EggplantModelRequest = {
-            filePath: Uri.parse(context.documentUri!).fsPath,
-            startLine: {
-                line: context.position.startLine ?? 0,
-                offset: context.position.startColumn ?? 0
-            },
-            endLine: {
-                line: context.position.endLine ?? 0,
-                offset: context.position.endColumn ?? 0
+                return new Promise((resolve) => {
+                    //@ts-ignore
+                    resolve(undefined);
+                });
             }
+            const params: EggplantModelRequest = {
+                filePath: Uri.parse(context.documentUri!).fsPath,
+                startLine: {
+                    line: context.position.startLine ?? 0,
+                    offset: context.position.startColumn ?? 0
+                },
+                endLine: {
+                    line: context.position.endLine ?? 0,
+                    offset: context.position.endColumn ?? 0
+                }
 
-        }
+            };
 
 
-        return StateMachine.langClient().getEggplantModel(params).then((model) => {
-            console.log("===BackEndModel", model);
-            //@ts-ignore
-            return model.flowDesignModel;
-        }).catch((error) => {
-            // demo hack
-            //@ts-ignore
-            return new Promise((resolve) => {
+            StateMachine.langClient().getEggplantModel(params).then((model) => {
+                console.log("===BackEndModel", model);
+                resolve(model);
+            }).catch((error) => {
+                // demo hack
                 //@ts-ignore
-                resolve(undefined);
+                return new Promise((resolve) => {
+                    //@ts-ignore
+                    resolve(undefined);
+                });
             });
         });
     }
 
     async updateEggplantModel(params: Flow): Promise<void> {
         return new Promise(async (resolve) => {
-        //     const context = StateMachine.context();
-        //     const code: CodeGeneartionData = workerCodeGen(params);
-        //     const modificationList: STModification[] = [];
+            //     const context = StateMachine.context();
+            //     const code: CodeGeneartionData = workerCodeGen(params);
+            //     const modificationList: STModification[] = [];
 
-        //     const modification: STModification = {
-        //         startLine: params.bodyCodeLocation?.start.line,
-        //         startColumn: params.bodyCodeLocation?.start.offset,
-        //         endLine: params.bodyCodeLocation?.end.line,
-        //         endColumn: params.bodyCodeLocation?.end.offset,
-        //         type: "INSERT",
-        //         isImport: false,
-        //         config: {
-        //             "STATEMENT": code.workerBlocks
-        //         }
-        //     };
+            //     const modification: STModification = {
+            //         startLine: params.bodyCodeLocation?.start.line,
+            //         startColumn: params.bodyCodeLocation?.start.offset,
+            //         endLine: params.bodyCodeLocation?.end.line,
+            //         endColumn: params.bodyCodeLocation?.end.offset,
+            //         type: "INSERT",
+            //         isImport: false,
+            //         config: {
+            //             "STATEMENT": code.workerBlocks
+            //         }
+            //     };
 
-        //     modificationList.push(modification);
+            //     modificationList.push(modification);
 
-        //     if (code.transformFunctions && code.transformFunctions.length > 0) {
-        //         code.transformFunctions.forEach((transformFunction) => {
+            //     if (code.transformFunctions && code.transformFunctions.length > 0) {
+            //         code.transformFunctions.forEach((transformFunction) => {
 
-        //             const modification: STModification = {
-        //                 startLine: transformFunction.location ? transformFunction.location.start.line : params.fileSourceRange?.end.line,
-        //                 startColumn: transformFunction.location ? transformFunction.location.start.offset : params.fileSourceRange?.end.offset,
-        //                 endLine: transformFunction.location ? transformFunction.location.end.line : params.fileSourceRange?.end.line,
-        //                 endColumn: transformFunction.location ? transformFunction.location.end.offset : params.fileSourceRange?.end.offset,
-        //                 type: "INSERT",
-        //                 isImport: false,
-        //                 config: {
-        //                     "STATEMENT": transformFunction.code
-        //                 }
-        //             };
+            //             const modification: STModification = {
+            //                 startLine: transformFunction.location ? transformFunction.location.start.line : params.fileSourceRange?.end.line,
+            //                 startColumn: transformFunction.location ? transformFunction.location.start.offset : params.fileSourceRange?.end.offset,
+            //                 endLine: transformFunction.location ? transformFunction.location.end.line : params.fileSourceRange?.end.line,
+            //                 endColumn: transformFunction.location ? transformFunction.location.end.offset : params.fileSourceRange?.end.offset,
+            //                 type: "INSERT",
+            //                 isImport: false,
+            //                 config: {
+            //                     "STATEMENT": transformFunction.code
+            //                 }
+            //             };
 
-        //             modificationList.push(modification);
-        //         });
+            //             modificationList.push(modification);
+            //         });
 
-        //         // TODO: Remove this logic once verified with the LS team
-        //         // const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
-        //         //     documentIdentifier: { uri: Uri.file(params.fileName).toString() },
-        //         //     astModifications: [modification]
-        //         // });
+            //         // TODO: Remove this logic once verified with the LS team
+            //         // const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
+            //         //     documentIdentifier: { uri: Uri.file(params.fileName).toString() },
+            //         //     astModifications: [modification]
+            //         // });
 
-        //         // if (parseSuccess) {
-        //         //     writeFileSync(params.fileName, source);
-        //         //     await langClient.didChange({
-        //         //         textDocument: { uri: Uri.file(params.fileName).toString(), version: 1 },
-        //         //         contentChanges: [
-        //         //             {
-        //         //                 text: source
-        //         //             }
-        //         //         ],
-        //         //     });
-        //         // }
-        //     }
+            //         // if (parseSuccess) {
+            //         //     writeFileSync(params.fileName, source);
+            //         //     await langClient.didChange({
+            //         //         textDocument: { uri: Uri.file(params.fileName).toString(), version: 1 },
+            //         //         contentChanges: [
+            //         //             {
+            //         //                 text: source
+            //         //             }
+            //         //         ],
+            //         //     });
+            //         // }
+            //     }
 
-        //     // TODO: Remove this logic once verified with the LS team
-        //     // const modification: STModification = {
-        //     //     startLine: params.bodyCodeLocation?.start.line,
-        //     //     startColumn: params.bodyCodeLocation?.start.offset,
-        //     //     endLine: params.bodyCodeLocation?.end.line,
-        //     //     endColumn: params.bodyCodeLocation?.end.offset,
-        //     //     type: "INSERT",
-        //     //     isImport: false,
-        //     //     config: {
-        //     //         "STATEMENT": code.workerBlocks
-        //     //     }
-        //     // };
+            //     // TODO: Remove this logic once verified with the LS team
+            //     // const modification: STModification = {
+            //     //     startLine: params.bodyCodeLocation?.start.line,
+            //     //     startColumn: params.bodyCodeLocation?.start.offset,
+            //     //     endLine: params.bodyCodeLocation?.end.line,
+            //     //     endColumn: params.bodyCodeLocation?.end.offset,
+            //     //     type: "INSERT",
+            //     //     isImport: false,
+            //     //     config: {
+            //     //         "STATEMENT": code.workerBlocks
+            //     //     }
+            //     // };
 
-        //     // modificationList.push(modification);
+            //     // modificationList.push(modification);
 
-        //     const { parseSuccess, source, syntaxTree: newST } = await StateMachine.langClient().stModify({
-        //         documentIdentifier: { uri: Uri.file(params.fileName).toString() },
-        //         astModifications: modificationList
-        //     });
+            //     const { parseSuccess, source, syntaxTree: newST } = await StateMachine.langClient().stModify({
+            //         documentIdentifier: { uri: Uri.file(params.fileName).toString() },
+            //         astModifications: modificationList
+            //     });
 
-        //     if (parseSuccess) {
-        //         writeFileSync(params.fileName, source);
-        //         await StateMachine.langClient().didChange({
-        //             textDocument: { uri: Uri.file(params.fileName).toString(), version: 1 },
-        //             contentChanges: [
-        //                 {
-        //                     text: source
-        //                 }
-        //             ],
-        //         });
+            //     if (parseSuccess) {
+            //         writeFileSync(params.fileName, source);
+            //         await StateMachine.langClient().didChange({
+            //             textDocument: { uri: Uri.file(params.fileName).toString(), version: 1 },
+            //             contentChanges: [
+            //                 {
+            //                     text: source
+            //                 }
+            //             ],
+            //         });
 
 
-        //         const st = newST as ModulePart;
-        //         outerLoop: for (const member of st.members) {
-        //             if (STKindChecker.isServiceDeclaration(member)) {
-        //                 const service = member.absoluteResourcePath.reduce((result, obj) => result + obj.value, "");
-        //                 for (const resource of member.members) {
-        //                     if (STKindChecker.isResourceAccessorDefinition(resource)) {
-        //                         let resourcePath = "";
-        //                         resource.relativeResourcePath?.forEach((res: any) => {
-        //                             resourcePath += res.source ? res.source : res.value;
-        //                         })
-        //                         const identifier = service + `/${resource.functionName.value}/${resourcePath}`;
-        //                         if (identifier === context.identifier) {
-        //                             openView("OPEN_VIEW", { position: resource.position });
-        //                             break outerLoop;  // Break out of the inner loop
-        //                         }
-        //                     }
-        //                 }
-        //             } else if (STKindChecker.isFunctionDefinition(member)) {
-        //                 const identifier = member.functionName.value;
-        //                 if (identifier === context.identifier) {
-        //                     openView("OPEN_VIEW", { position: member.position });
-        //                     break outerLoop;
-        //                 }
-        //             }
-        //         }
-        //     }
-        //     resolve();
+            //         const st = newST as ModulePart;
+            //         outerLoop: for (const member of st.members) {
+            //             if (STKindChecker.isServiceDeclaration(member)) {
+            //                 const service = member.absoluteResourcePath.reduce((result, obj) => result + obj.value, "");
+            //                 for (const resource of member.members) {
+            //                     if (STKindChecker.isResourceAccessorDefinition(resource)) {
+            //                         let resourcePath = "";
+            //                         resource.relativeResourcePath?.forEach((res: any) => {
+            //                             resourcePath += res.source ? res.source : res.value;
+            //                         })
+            //                         const identifier = service + `/${resource.functionName.value}/${resourcePath}`;
+            //                         if (identifier === context.identifier) {
+            //                             openView("OPEN_VIEW", { position: resource.position });
+            //                             break outerLoop;  // Break out of the inner loop
+            //                         }
+            //                     }
+            //                 }
+            //             } else if (STKindChecker.isFunctionDefinition(member)) {
+            //                 const identifier = member.functionName.value;
+            //                 if (identifier === context.identifier) {
+            //                     openView("OPEN_VIEW", { position: member.position });
+            //                     break outerLoop;
+            //                 }
+            //             }
+            //         }
+            //     }
+            //     resolve();
         });
     }
 }

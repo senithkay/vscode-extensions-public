@@ -11,9 +11,10 @@
  *  associated services.
  */
 
-import { Flow } from "./interfaces";
+import { Flow } from "../../interfaces/eggplant";
+import { EggplantModelResponse } from "./interfaces";
 
 export interface EggplantDiagramAPI {
-    getEggplantModel: () => Promise<Flow>;
+    getEggplantModel: () => Promise<EggplantModelResponse>;
     updateEggplantModel: (params: Flow) => void;
 }
