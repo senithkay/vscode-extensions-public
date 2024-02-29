@@ -150,3 +150,4 @@ function revealWebviewPanel(beside: boolean = true) {
 		VisualizerWebview.currentPanel?.getWebview()?.reveal(beside ? ViewColumn.Beside : ViewColumn.Active);
 	}
 }
+
