@@ -56,6 +56,8 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
     const handleClick = (directory: string, path?: string) => {
         if (directory.toLowerCase() === "api") {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: path } });
+        } else if (directory.toLowerCase() === "sequence") {
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Diagram, documentUri: path } });
         }
     };
 
