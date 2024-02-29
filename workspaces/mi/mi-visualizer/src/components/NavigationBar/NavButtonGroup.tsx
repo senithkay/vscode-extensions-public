@@ -14,6 +14,7 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { VisualizerLocation } from "@wso2-enterprise/mi-core";
 import path from "path";
+import { MACHINE_VIEW, EVENT_TYPE } from "@wso2-enterprise/mi-core";
 
 interface NavButtonGroupProps {
     currentProjectPath?: string;
@@ -62,7 +63,10 @@ export function NavButtonGroup(props: NavButtonGroupProps) {
                     return <>
                         <Button appearance="icon" disabled={index === 0} onClick={() => {
                             if (segment.endsWith(".xml")) {
-                                rpcClient.getMiVisualizerRpcClient().openView({ view: "ServiceDesigner", documentUri: machineView.documentUri });
+                                rpcClient.getMiVisualizerRpcClient().openView({
+                                    type: EVENT_TYPE.OPEN_VIEW,
+                                    location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: machineView.documentUri }
+                                });
                             }
                         }}>
                             {segment}

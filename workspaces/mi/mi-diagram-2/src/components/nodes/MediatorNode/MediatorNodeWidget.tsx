@@ -19,6 +19,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { getDataFromXML } from "../../../utils/template-engine/mustach-templates/templateUtils";
 import { getSVGIcon } from "../../../resources/icons/mediatorIcons/icons";
+import { MACHINE_VIEW, EVENT_TYPE } from "@wso2-enterprise/mi-core";
 
 namespace S {
     export type NodeStyleProp = {
@@ -148,7 +149,13 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
             });
 
             if (definition && definition.uri) {
-                rpcClient.getMiVisualizerRpcClient().openView({ view: "Diagram", documentUri: definition.uri });
+                rpcClient.getMiVisualizerRpcClient().openView({
+                    type: EVENT_TYPE.OPEN_VIEW,
+                    location: {
+                        view: MACHINE_VIEW.Diagram,
+                        documentUri: definition.uri
+                    }
+                });
             }
             // }
 
