@@ -162,6 +162,7 @@ export class MILanguageClient {
 
             }
             let extensionPath = extensions.getExtension("wso2.integration-studio")!.extensionPath;
+            xml['xml']['extensionPath'] = [`${extensionPath}`];
             xml['xml']['catalogs'] = [`${extensionPath}/synapse-schemas/catalog.xml`];
             xml['xml']['useCache'] = true;
             return xml;
