@@ -48,6 +48,13 @@ const CheckBoxContainer = styled.div`
     gap: 2px;
 `;
 
+const SidePanelBodyWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+`
+
 export function AddResourceForm({ isOpen, handleCancel, handleCreateAPI }: APIResourceWizardProps) {
     const initialState = {
         urlStyle: "",
@@ -106,7 +113,7 @@ export function AddResourceForm({ isOpen, handleCancel, handleCreateAPI }: APIRe
                 </Button>
             </SidePanelTitleContainer>
             <SidePanelBody>
-                <SectionWrapper>
+                <SidePanelBodyWrapper>
                     <h3>API Resource</h3>
                     <CheckBoxContainer>
                         <label>URL Style</label>
@@ -271,7 +278,7 @@ export function AddResourceForm({ isOpen, handleCancel, handleCreateAPI }: APIRe
                             Create
                         </Button>
                     </ActionContainer>
-                </SectionWrapper>
+                </SidePanelBodyWrapper>
             </SidePanelBody>
         </SidePanel>
     );
