@@ -18,7 +18,7 @@ namespace S {
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 140px;
+        width: 180px;
         height: 16px;
     `;
 

@@ -10,7 +10,14 @@
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
-import { createNodesLink, genDagreEngine, generateEngine } from "../utils/diagram";
+import {
+    createNodesLink,
+    genDagreEngine,
+    generateEngine,
+    hasDiagramZoomAndPosition,
+    loadDiagramZoomAndPosition,
+    registerListeners,
+} from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { Flow, NodeKind, NodeModel, TargetMetadata, Node as EggplantNode } from "../utils/types";
 import { traverseFlow } from "../utils/ast";
@@ -71,6 +78,7 @@ export function Diagram(props: DiagramProps) {
 
         diagramEngine.setModel(newDiagramModel);
         setDiagramModel(newDiagramModel);
+        registerListeners(diagramEngine);
 
         setTimeout(() => {
             const dagreEngine = genDagreEngine();
@@ -84,9 +92,16 @@ export function Diagram(props: DiagramProps) {
             if (overlayLayer) {
                 diagramEngine.getModel().removeLayer(overlayLayer);
             }
-            // change canvas position to first node
-            const firstNode = newDiagramModel.getNodes().at(0);
-            diagramEngine.zoomToFitNodes({ nodes: [firstNode], maxZoom: 1 });
+
+            const hasPreviousPosition = hasDiagramZoomAndPosition();
+            if (hasPreviousPosition) {
+                // reset canvas position to previous position
+                loadDiagramZoomAndPosition(diagramEngine);
+            } else {
+                // change canvas position to first node
+                const firstNode = newDiagramModel.getNodes().at(0);
+                diagramEngine.zoomToFitNodes({ nodes: [firstNode], maxZoom: 1 });
+            }
             diagramEngine.repaintCanvas();
             // update the diagram model state
             setDiagramModel(newDiagramModel);
