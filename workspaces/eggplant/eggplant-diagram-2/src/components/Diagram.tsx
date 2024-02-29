@@ -12,7 +12,7 @@ import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { createNodesLink, genDagreEngine, generateEngine } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
-import { Flow, NodeModel } from "../utils/types";
+import { Flow, NodeKind, NodeModel, TargetMetadata } from "../utils/types";
 import { traverseFlow } from "../utils/ast";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { NodeLinkModel } from "./NodeLink";
@@ -23,10 +23,12 @@ import { ComponentList, ComponentPanel } from "./ComponentPanel";
 
 export interface DiagramProps {
     model: Flow;
+    onAddNode?: (kind: NodeKind, target: TargetMetadata) => void;
+    onNodeChange?: (node: Node) => void;
 }
 
 export function Diagram(props: DiagramProps) {
-    const { model } = props;
+    const { model, onAddNode } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
@@ -99,6 +101,11 @@ export function Diagram(props: DiagramProps) {
         setShowComponentPanel(true);
     };
 
+    const handleAddNode = (kind: NodeKind, target: TargetMetadata) => {
+        console.log("Add node", { kind, target });
+        onAddNode && onAddNode(kind, target);
+    };
+
     const context: DiagramContextState = {
         flow: model,
         componentPanel: {
@@ -106,6 +113,7 @@ export function Diagram(props: DiagramProps) {
             show: handleShowComponentPanel,
             hide: handleCloseComponentPanel,
         },
+        addNode: {},
     };
 
     return (
@@ -116,7 +124,7 @@ export function Diagram(props: DiagramProps) {
                         <CanvasWidget engine={diagramEngine} />
                     </DiagramCanvas>
                     <ComponentPanel show={showComponentPanel} onClose={handleCloseComponentPanel}>
-                        <ComponentList />
+                        <ComponentList onAddNode={handleAddNode} />
                     </ComponentPanel>
                 </DiagramContextProvider>
             )}

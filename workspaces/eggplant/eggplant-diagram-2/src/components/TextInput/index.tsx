@@ -41,6 +41,11 @@ export function TextInput(props: TextInputProps) {
 
     const debouncedOnChange = debounce(handleOnChange, 300);
 
+    if (!expression) {
+        console.warn("Expression value is undefined");
+        return null;
+    }
+
     return (
         <S.Row>
             <Tooltip

@@ -33,11 +33,20 @@ const fadeInZoomIn = keyframes`
 
 export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) => {
     const [isHovered, setIsHovered] = useState(false);
-    const {componentPanel} = useDiagramContext();
+    const {
+        componentPanel,
+        addNode: { setTargetMetadata },
+    } = useDiagramContext();
 
     const addButtonPosition = link.getAddButtonPosition();
 
     const handleAddNode = () => {
+        setTargetMetadata &&
+            setTargetMetadata({
+                topNodeId: link.sourceNode.getID(),
+                bottomNodeId: link.targetNode.getID(),
+                linkLabel: link.label,
+            });
         componentPanel.show();
         if (link.onAddClick) {
             link.onAddClick();

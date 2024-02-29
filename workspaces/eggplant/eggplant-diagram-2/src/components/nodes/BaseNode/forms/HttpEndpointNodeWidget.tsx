@@ -44,7 +44,7 @@ export function HttpEndpointNodeWidget(props: NodeWidgetProps) {
                 <NodeStyles.StyledText>{nodeProperties.method.label} </NodeStyles.StyledText>
                 <Dropdown
                     id={`${model.node.id}-method-dropdown`}
-                    value={nodeProperties.method.value.toString()}
+                    value={nodeProperties.method.value.toString().toUpperCase()}
                     items={dropdownItems}
                     sx={{ width: 166, marginBottom: 2 }}
                 ></Dropdown>
