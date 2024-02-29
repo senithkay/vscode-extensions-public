@@ -45,7 +45,9 @@ import {
     WriteContentToFileResponse,
     InboundEndpointDirectoryResponse,
     CreateInboundEndpointRequest,
-    CreateInboundEndpointResponse
+    CreateInboundEndpointResponse,
+    EVENT_TYPE,
+    MACHINE_VIEW
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import * as fs from "fs";
@@ -214,7 +216,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     openDiagram(params: OpenDiagramRequest): void {
-        openView({ view: "Diagram", documentUri: params.path });
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Diagram, documentUri: params.path });
     }
 
     async getEndpointDirectory(): Promise<EndpointDirectoryResponse> {
@@ -455,7 +457,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const content = document.getText();
             undoRedo.addModification(content);
-            
             resolve({ status: true });
         });
     }
@@ -535,10 +536,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             window.showInformationMessage(`Successfully created ${name} project`);
 
             if (open) {
-                commands.executeCommand('vscode.openFolder', Uri.file(`${directory}/${name}`));
+                commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory,name)));
+                resolve({ filePath: path.join(directory,name) });
             }
 
-            return `${directory}/${name}`;
+            resolve({ filePath: path.join(directory,name) });
         });
     }
 
@@ -660,30 +662,30 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async undo(params: UndoRedoParams): Promise<void> {
         const lastsource = undoRedo.undo();
-        if(lastsource) {
+        if (lastsource) {
             fs.writeFileSync(params.path, lastsource);
         }
     }
 
     async redo(params: UndoRedoParams): Promise<void> {
         const lastsource = undoRedo.redo();
-        if(lastsource) {
+        if (lastsource) {
             fs.writeFileSync(params.path, lastsource);
         }
     }
 
     async initUndoRedoManager(params: UndoRedoParams): Promise<void> {
         let document = workspace.textDocuments.find(doc => doc.uri.fsPath === params.path);
-        
+
         if (!document) {
             document = await workspace.openTextDocument(Uri.parse(params.path));
         }
-        
+
         if (document) {
             // Access the content of the document
             const content = document.getText();
             undoRedo.updateContent(params.path, content);
-        } 
+        }
     }
 }
 

@@ -37,7 +37,7 @@ export interface ResourceFormProps {
 export function ResourceForm(props: ResourceFormProps) {
 	const { isOpen, resourceConfig, onClose, onSave, addNameRecord, typeCompletions } = props;
 
-	const [method, setMethod] = useState<HTTP_METHOD>(resourceConfig?.method.toUpperCase() as HTTP_METHOD || HTTP_METHOD.GET);
+	const [method, setMethod] = useState<HTTP_METHOD>(resourceConfig?.methods[0].toUpperCase() as HTTP_METHOD || HTTP_METHOD.GET);
 	const [path, setPath] = useState<string>(resourceConfig?.path || "path");
 
 	const [parameters, setParameters] = useState<ParameterConfig[]>(resourceConfig?.params || []);
@@ -109,7 +109,7 @@ export function ResourceForm(props: ResourceFormProps) {
 
 		let genSource = "";
 		const config = {
-			method: method,
+			methods: [method],
 			path: path,
 			params: parameters,
 			advancedParams: advancedParams,

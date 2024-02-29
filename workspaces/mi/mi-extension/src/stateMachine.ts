@@ -6,10 +6,11 @@ import * as path from 'path';
 import { window } from 'vscode';
 import { MILanguageClient } from './lang-client/activator';
 import { extension } from './MIExtensionContext';
-import { EventType, MachineStateValue, VisualizerLocation, webviewReady } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MACHINE_VIEW, MachineStateValue, VisualizerLocation, webviewReady } from '@wso2-enterprise/mi-core';
 import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
+import { history } from './history/activator';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -24,7 +25,7 @@ const stateMachine = createMachine<MachineContext>({
     context: {
         langClient: null,
         errorCode: null,
-        view: "Overview"
+        view: MACHINE_VIEW.Overview
     },
     states: {
         initialize: {
@@ -41,8 +42,12 @@ const stateMachine = createMachine<MachineContext>({
             }
         },
         projectDetected: {
-            entry: 'openMiPerspective',
-            always: 'lsInit'
+            invoke: {
+                src: 'openWebPanel',
+                onDone: {
+                    target: 'lsInit'
+                }
+            }
         },
         lsInit: {
             invoke: {
@@ -66,39 +71,52 @@ const stateMachine = createMachine<MachineContext>({
             states: {
                 viewLoading: {
                     invoke: {
-                        src: 'waitForloading',
+                        src: 'openWebPanel',
                         onDone: {
-                            target: 'viewReady'
+                            target: 'viewStacking'
                         }
                     }
+                },
+                viewStacking: {
+                    invoke: {
+                        src: 'updateStack',
+                        onDone: {
+                            target: "viewReady"
+                        }
+                    }
+                },
+                viewNavigated: {
+                    always: "viewReady",
                 },
                 viewReady: {
                     on: {
                         OPEN_VIEW: {
                             target: "viewLoading",
                             actions: assign({
-                                documentUri: (context, event) => event.viewLocation.documentUri,
                                 view: (context, event) => event.viewLocation.view,
-                                identifier: (context, event) => event.viewLocation.identifier
+                                identifier: (context, event) => event.viewLocation.identifier,
+                                documentUri: (context, event) => event.viewLocation.documentUri,
+                                position: (context, event) => event.viewLocation.position
+                            })
+                        },
+                        NAVIGATE: {
+                            target: "viewNavigated",
+                            actions: assign({
+                                view: (context, event) => event.viewLocation.view,
+                                identifier: (context, event) => event.viewLocation.identifier,
+                                documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
+                                position: (context, event) => event.viewLocation.position,
                             })
                         },
                         FILE_EDIT: {
-                            target: "viewEditing",
-                            actions: assign({
-                                documentUri: (context, event) => event.viewLocation.documentUri,
-                                view: (context, event) => event.viewLocation.view
-                            })
+                            target: "viewEditing"
                         }
                     }
                 },
                 viewEditing: {
                     on: {
                         EDIT_DONE: {
-                            target: "viewReady",
-                            actions: assign({
-                                documentUri: (context, event) => event.viewLocation.documentUri,
-                                view: (context, event) => event.viewLocation.view
-                            })
+                            target: "viewReady"
                         }
                     }
                 },
@@ -108,15 +126,23 @@ const stateMachine = createMachine<MachineContext>({
             // define what should happen when the project is not detected
         },
         newProject: {
-            initial: 'welcome',
+            initial: "init",
             states: {
+                init: {
+                    invoke: {
+                        src: 'openWebPanel',
+                        onDone: {
+                            target: 'welcome'
+                        }
+                    }
+                },
                 welcome: {
                     on: {
                         GET_STARTED: {
                             target: "create",
                         },
                         OPEN_VIEW: {
-                            target: "create",
+                            target: "init",
                             actions: assign({
                                 view: (context, event) => event.viewLocation.view,
                             })
@@ -129,7 +155,7 @@ const stateMachine = createMachine<MachineContext>({
                             target: "welcome"
                         },
                         OPEN_VIEW: {
-                            target: "welcome",
+                            target: "init",
                             actions: assign({
                                 view: (context, event) => event.viewLocation.view,
                             })
@@ -144,10 +170,6 @@ const stateMachine = createMachine<MachineContext>({
 
     },
     actions: {
-        openMiPerspective: (context, event) => {
-            // replace this with actual logic to open the eggplant perspective
-            vscode.commands.executeCommand('integrationStudio.showDiagram');
-        }
     },
     services: {
         waitForLS: (context, event) => {
@@ -157,7 +179,7 @@ const stateMachine = createMachine<MachineContext>({
                 resolve(ls);
             });
         },
-        waitForloading: (context, event) => {
+        openWebPanel: (context, event) => {
             // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
             return new Promise((resolve, reject) => {
                 if (!VisualizerWebview.currentPanel) {
@@ -170,7 +192,25 @@ const stateMachine = createMachine<MachineContext>({
                     resolve(true);
                 }
             });
-        }
+        },
+        updateStack: (context, event) => {
+            return new Promise(async (resolve, reject) => {
+                const historyStack = history.get();
+                if (historyStack.length === 0) {
+                    history.push({ location: { view: MACHINE_VIEW.Overview, } });
+                } else {
+                    history.push({
+                        location: {
+                            view: context.view,
+                            documentUri: context.documentUri,
+                            position: context.position,
+                            identifier: context.identifier
+                        }
+                    });
+                }
+                resolve(true);
+            });
+        },
     }
 });
 
@@ -184,20 +224,19 @@ export const StateMachine = {
     service: () => { return stateService; },
     context: () => { return stateService.getSnapshot().context; },
     state: () => { return stateService.getSnapshot().value as MachineStateValue; },
-    sendEvent: (eventType: EventType) => { stateService.send({ type: eventType }); },
+    sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
 };
 
-export function openView(viewLocation: VisualizerLocation) {
-    stateService.send({ type: "OPEN_VIEW", viewLocation: viewLocation });
+export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
+    stateService.send({ type: type, viewLocation: viewLocation });
 }
 
-export function createView(viewLocation: VisualizerLocation) {
-    stateService.send({ type: "GET_STARTED", viewLocation: viewLocation });
+export function navigate() {
+    const historyStack = history.get();
+    const lastView = historyStack[historyStack.length - 1];
+    stateService.send({ type: "NAVIGATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
 }
 
-export function fileUpdated(viewLocation: VisualizerLocation) {
-    stateService.send({ type: "FILE_UPDATED", viewLocation: viewLocation });
-}
 
 async function checkIfMiProject() {
     let isMiProject = false;

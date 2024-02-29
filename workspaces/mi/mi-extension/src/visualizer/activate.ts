@@ -8,21 +8,14 @@
  */
 
 import * as vscode from 'vscode';
-import { VisualizerWebview } from './webview';
 import { commands, window } from 'vscode';
+import { openView } from '../stateMachine';
+import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
-    if (!VisualizerWebview.currentPanel) {
-        VisualizerWebview.currentPanel = new VisualizerWebview();
-    }
-    VisualizerWebview.currentPanel!.getWebview()?.reveal();
-
     context.subscriptions.push(
         vscode.commands.registerCommand('integrationStudio.showDiagram', () => {
-            if (!VisualizerWebview.currentPanel) {
-                VisualizerWebview.currentPanel = new VisualizerWebview();
-            }
-            VisualizerWebview.currentPanel!.getWebview()?.reveal();
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
         })
     );
     context.subscriptions.push(

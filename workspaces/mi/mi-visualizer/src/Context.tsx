@@ -10,7 +10,7 @@
 import React, { ReactNode, useState } from "react";
 import { Context, VisualizerContext} from "@wso2-enterprise/mi-rpc-client";
 import { RpcClient } from "@wso2-enterprise/mi-rpc-client/lib/RpcClient";
-import { VisualizerLocation } from "@wso2-enterprise/mi-core";
+import { MACHINE_VIEW, VisualizerLocation } from "@wso2-enterprise/mi-core";
 
 
 export function VisualizerContextProvider({ children }: { children: ReactNode }) {
@@ -23,7 +23,7 @@ export function VisualizerContextProvider({ children }: { children: ReactNode })
   };
 
   const [visualizerState, setVisualizerState] = useState<VisualizerContext>({
-    viewLocation: { view: "Overview" },
+    viewLocation: { view: MACHINE_VIEW.Overview },
     setViewLocation: setView,
     rpcClient: new RpcClient() // Create the root RPC layer client object
   });
