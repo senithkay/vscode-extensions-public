@@ -13,9 +13,8 @@ import { Uri, ViewColumn } from 'vscode';
 import { getComposerJSFiles } from '../util';
 import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
-import { onFileContentUpdate } from '@wso2-enterprise/mi-core';
 import { debounce } from 'lodash';
-import { openView } from '../stateMachine';
+import { navigate } from '../stateMachine';
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
@@ -32,7 +31,7 @@ export class VisualizerWebview {
         // Handle the text change and diagram update with rpc notification
         const refreshDiagram = debounce(() => {
             if (this.getWebview()) {
-                openView("FILE_EDIT");
+                navigate();
             }
         }, 500);
 

@@ -6,7 +6,7 @@ import * as path from 'path';
 import { window } from 'vscode';
 import { MILanguageClient } from './lang-client/activator';
 import { extension } from './MIExtensionContext';
-import { EventType, MachineStateValue, VisualizerLocation, webviewReady } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MACHINE_VIEW, MachineStateValue, VisualizerLocation, webviewReady } from '@wso2-enterprise/mi-core';
 import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
@@ -25,7 +25,7 @@ const stateMachine = createMachine<MachineContext>({
     context: {
         langClient: null,
         errorCode: null,
-        view: "Overview"
+        view: MACHINE_VIEW.Overview
     },
     states: {
         initialize: {
@@ -197,7 +197,7 @@ const stateMachine = createMachine<MachineContext>({
             return new Promise(async (resolve, reject) => {
                 const historyStack = history.get();
                 if (historyStack.length === 0) {
-                    history.push({ location: { view: "Overview", } });
+                    history.push({ location: { view: MACHINE_VIEW.Overview, } });
                 } else {
                     history.push({
                         location: {
@@ -224,10 +224,10 @@ export const StateMachine = {
     service: () => { return stateService; },
     context: () => { return stateService.getSnapshot().context; },
     state: () => { return stateService.getSnapshot().value as MachineStateValue; },
-    sendEvent: (eventType: EventType) => { stateService.send({ type: eventType }); },
+    sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
 };
 
-export function openView(type: EventType, viewLocation?: VisualizerLocation) {
+export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 

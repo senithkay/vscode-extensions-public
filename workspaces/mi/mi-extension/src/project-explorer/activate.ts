@@ -10,6 +10,7 @@
 import * as vscode from 'vscode';
 import { ProjectExplorerEntryProvider } from './project-explorer-provider';
 import { openView } from '../stateMachine';
+import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 
 export function activateProjectExplorer(context: vscode.ExtensionContext) {
 
@@ -42,28 +43,28 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 
 	});
 	vscode.commands.registerCommand('project-explorer.add-api', () => {
-		openView("OPEN_VIEW", { view: "APIForm" });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm });
 		console.log('Add API');
 	});
 
 	vscode.commands.registerCommand('project-explorer.add-endpoint', () => {
-		openView("OPEN_VIEW", { view: "EndPointForm" });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.EndPointForm });
 		console.log('Add Endpoint');
 	});
 
 	vscode.commands.registerCommand('project-explorer.add-sequence', () => {
-		openView("OPEN_VIEW", { view: "SequenceForm" });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceForm });
 		console.log('Add Sequence');
 	});
 
 	vscode.commands.registerCommand('project-explorer.add-inbound-endpoint', () => {
-		openView("OPEN_VIEW", { view: "InboundEPForm" });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.InboundEPForm });
 		console.log('Add Inbound API');
 	});
 
 	vscode.commands.registerCommand('project-explorer.create-project', () => {
 		// Update state machine to show the api wizard
-		openView("OPEN_VIEW", { view: "ProjectCreationForm" });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
 		console.log('Create New Project');
 	});
 
@@ -75,9 +76,9 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 			// const document = await vscode.workspace.openTextDocument(info.path);
 			// await vscode.window.showTextDocument(document);
 			if (info.type.toLowerCase() === 'api') {
-				openView("OPEN_VIEW", { view: "ServiceDesigner", documentUri: info.path, identifier: info.name });
+				openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: info.path, identifier: info.name });
 			} else if (info.type === 'resource') {
-				openView("OPEN_VIEW", { view: "Diagram", documentUri: info.path, identifier: info.name });
+				openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Diagram, documentUri: info.path, identifier: info.name });
 			}
 		}
 	});

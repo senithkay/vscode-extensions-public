@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ProjectStructureEntry, ProjectStructureResponse, ProjectDirectoryMap, EsbDirectoryMap } from '@wso2-enterprise/mi-core';
+import { ProjectStructureEntry, ProjectStructureResponse, ProjectDirectoryMap, EsbDirectoryMap, EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { ComponentCard, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
@@ -47,7 +47,7 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
 
     const handleClick = (directory: string, path?: string) => {
         if (directory.toLowerCase() === "api") {
-            rpcClient.getMiVisualizerRpcClient().openView({ type: "OPEN_VIEW", location: { view: "ServiceDesigner", documentUri: path } });
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: path } });
         }
     };
 

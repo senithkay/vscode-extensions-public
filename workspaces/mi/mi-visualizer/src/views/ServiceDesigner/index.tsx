@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect } from "react";
-import { VisualizerLocation } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
 
@@ -50,7 +50,7 @@ export function ServiceDesignerView() {
     }, [rpcClient]);
 
     const openDiagram = (resource: Resource) => {
-        rpcClient.getMiVisualizerRpcClient().openView({ type: "OPEN_VIEW", location: { view: "Diagram", documentUri: doUri, identifier: resource.path } })
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Diagram, documentUri: doUri, identifier: resource.path } })
     }
 
     return (

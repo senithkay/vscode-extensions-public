@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MachineStateValue } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MachineStateValue } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Overview } from './views/Overview';
 import { ServiceDesignerView } from './views/ServiceDesigner';
@@ -40,7 +40,7 @@ const MainPanel = () => {
                 fetchContext();
             }
             if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewEditing') {
-                rpcClient.getMiVisualizerRpcClient().openView({ type: "EDIT_DONE", location: null });
+                rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.EDIT_DONE, location: null });
                 fetchContext();
             }
         });
