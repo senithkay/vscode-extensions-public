@@ -15,10 +15,11 @@ import { debounce } from 'lodash';
 import { WebViewOptions, getComposerWebViewOptions, getLibraryWebViewContent } from '../utils/webview-utils';
 import { extension } from '../BalExtensionContext';
 import { updateView } from '../stateMachine';
+import { LANGUAGE } from '../core';
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
-	public static readonly viewType = 'ballerina.visualizer';
+    public static readonly viewType = 'ballerina.visualizer';
     public static readonly panelTitle = 'Ballerina Visualizer';
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
@@ -37,8 +38,10 @@ export class VisualizerWebview {
         }, 500);
 
         vscode.workspace.onDidChangeTextDocument(async function (document) {
-            await document.document.save();
-            sendUpdateNotificationToWebview();
+            if (document && document.document.languageId === LANGUAGE.BALLERINA) {
+                await document.document.save();
+                sendUpdateNotificationToWebview();
+            }
         }, extension.context);
     }
 
@@ -80,12 +83,12 @@ export class VisualizerWebview {
                 renderDiagrams();
             }
         `;
-    
+
         const webViewOptions: WebViewOptions = {
             ...getComposerWebViewOptions("Visualizer", webView),
             body, scripts, styles, bodyCss
         };
-    
+
         return getLibraryWebViewContent(webViewOptions, webView);
     }
 
