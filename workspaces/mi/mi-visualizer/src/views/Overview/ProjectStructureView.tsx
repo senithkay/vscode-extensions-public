@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ProjectStructureEntry, ProjectStructureResponse, ProjectDirectoryMap, EsbDirectoryMap } from '@wso2-enterprise/mi-core';
+import { ProjectStructureEntry, ProjectStructureResponse, ProjectDirectoryMap, EsbDirectoryMap, EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { ComponentCard } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
@@ -55,21 +55,19 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
 
     const handleClick = (directory: string, path?: string) => {
         if (directory.toLowerCase() === "api") {
-            rpcClient.getMiVisualizerRpcClient().openView({view: "ServiceDesigner", documentUri: path});
-        } else if (directory.toLowerCase() === "sequence") {
-            rpcClient.getMiVisualizerRpcClient().openView({view: "Diagram", documentUri: path});
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: path } });
         }
     };
 
     const handlePlusClick = async (key: string) => {
         if (key === 'apis') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({commands: ["project-explorer.add-api"]});
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["project-explorer.add-api"] });
         } else if (key === 'endpoints') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({commands: ["project-explorer.add-endpoint"]});
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["project-explorer.add-endpoint"] });
         } else if (key === 'sequences') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({commands: ["project-explorer.add-sequence"]});
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["project-explorer.add-sequence"] });
         } else if (key === 'inboundEndpoints') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({commands: ["project-explorer.add-inbound-endpoint"]});
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["project-explorer.add-inbound-endpoint"] });
         }
     };
 
@@ -77,7 +75,7 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
         return entries.map((entry, index) => (
             <ComponentCard key={index} onClick={() => handleClick(entry.type, entry.path)} sx={{ height: 40, marginTop: 15, margin: 10 }}>
                 <IconWrapper>
-                    <TextContainer>{entry.name.replace(".xml","")}</TextContainer>
+                    <TextContainer>{entry.name.replace(".xml", "")}</TextContainer>
                 </IconWrapper>
             </ComponentCard>
         ));

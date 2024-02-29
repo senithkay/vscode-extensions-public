@@ -25,23 +25,22 @@ export class RPCLayer {
             StateMachine.service().onTransition((state) => {
                 RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, state.value);
             });
-        } else {
-            RPCLayer._messenger.registerWebviewView(webViewPanel as WebviewView);
-            StateMachine.service().onTransition((state) => {
-                RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'activity.panel' }, state.value);
-            });
-        }
 
-        RPCLayer._messenger.onRequest(getVisualizerState, () => getContext());
-        registerMiDiagramRpcHandlers(RPCLayer._messenger);
-        registerMiVisualizerRpcHandlers(RPCLayer._messenger);
+            RPCLayer._messenger.onRequest(getVisualizerState, () => getContext());
+            registerMiDiagramRpcHandlers(RPCLayer._messenger);
+            registerMiVisualizerRpcHandlers(RPCLayer._messenger);
+        } else {
+            // NOTE: This section is used to handle the RPC registering for the activityPanel webviews.
+            // RPCLayer._messenger.registerWebviewView(webViewPanel as WebviewView);
+            // StateMachine.service().onTransition((state) => {
+            //     RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'activity.panel' }, state.value);
+            // });
+        }
     }
 
     static create(webViewPanel: WebviewPanel | WebviewView) {
         return new RPCLayer(webViewPanel);
     }
-
-
 
 }
 

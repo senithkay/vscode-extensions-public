@@ -49,7 +49,9 @@ import {
     WriteContentToFileRequest,
     WriteContentToFileResponse,
     getSTRequest,
-    getSTResponse
+    getSTResponse,
+    EVENT_TYPE,
+    MACHINE_VIEW
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import * as fs from "fs";
@@ -218,7 +220,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     openDiagram(params: OpenDiagramRequest): void {
-        openView({ view: "Diagram", documentUri: params.path });
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Diagram, documentUri: params.path });
     }
 
     async getEndpointDirectory(): Promise<EndpointDirectoryResponse> {
@@ -539,10 +541,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             window.showInformationMessage(`Successfully created ${name} project`);
 
             if (open) {
-                commands.executeCommand('vscode.openFolder', Uri.file(`${directory}/${name}`));
+                commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory,name)));
+                resolve({ filePath: path.join(directory,name) });
             }
 
-            return `${directory}/${name}`;
+            resolve({ filePath: path.join(directory,name) });
         });
     }
 

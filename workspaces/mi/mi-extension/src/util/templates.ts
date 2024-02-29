@@ -30,68 +30,104 @@ export const rootPomXmlContent = (projectName: string) => `<?xml version="1.0" e
   <packaging>pom</packaging>
   <name>${projectName}</name>
   <description>${projectName}</description>
-  <modules>
-    <module>${projectName}</module>
-    <module>${projectName}</module>
-  </modules>
-  <scm>
-    <connection>scm:git:https://github.com/username/repository.git</connection>
-    <developerConnection>scm:git:https://github.com/username/repository.git</developerConnection>
-    <url>https://github.com/username/repository.git</url>
-  </scm>
-  <distributionManagement>
-    <repository>
-      <id>release</id>
-      <name>Release Distribution Repository</name>
-      <url>https://example.com/nexus/repository</url>
-    </repository>
-  </distributionManagement>
   <properties>
     <projectType>integration-project</projectType>
+    <!-- <archiveLocation>configure a custom target directory for CAPP</archiveLocation> -->
   </properties>
+  <repositories>
+    <repository>
+        <id>wso2-nexus</id>
+        <name>WSO2 internal Repository</name>
+        <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+        <releases>
+          <enabled>true</enabled>
+          <updatePolicy>daily</updatePolicy>
+          <checksumPolicy>ignore</checksumPolicy>
+        </releases>
+    </repository>
+    <repository>
+        <id>wso2.releases</id>
+        <name>WSO2 internal Repository</name>
+        <url>https://maven.wso2.org/nexus/content/repositories/releases/</url>
+        <releases>
+          <enabled>true</enabled>
+          <updatePolicy>daily</updatePolicy>
+          <checksumPolicy>ignore</checksumPolicy>
+        </releases>
+    </repository>
+    <repository>
+        <id>wso2.snapshots</id>
+        <name>Apache Snapshot Repository</name>
+        <url>https://maven.wso2.org/nexus/content/repositories/snapshots/</url>
+        <snapshots>
+          <enabled>true</enabled>
+          <updatePolicy>daily</updatePolicy>
+        </snapshots>
+        <releases>
+          <enabled>false</enabled>
+        </releases>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>daily</updatePolicy>
+        <checksumPolicy>ignore</checksumPolicy>
+      </releases>
+      <id>wso2-nexus</id>
+      <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+    </pluginRepository>
+  </pluginRepositories>
   <build>
     <plugins>
       <plugin>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>3.0.0-M1</version>
-        <configuration />
-      </plugin>
-      <plugin>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <version>3.0.0-M1</version>
-        <configuration />
-      </plugin>
-      <plugin>
-        <artifactId>maven-eclipse-plugin</artifactId>
-        <version>2.9</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <projectnatures>
-            <projectnature>org.wso2.developerstudio.eclipse.mavenmultimodule.project.nature</projectnature>
-          </projectnatures>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.wso2.maven</groupId>
+        <artifactId>vscode-car-plugin</artifactId>
+        <version>5.2.49</version>
+        <extensions>true</extensions>
+        <executions>
+          <execution>
+            <goals>
+              <goal>car</goal>
+            </goals>
+            <configuration/>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>2.5.2</version>
+        <executions>
+          <execution>
+            <id>install-car</id>
+            <phase>install</phase>
+            <goals>
+              <goal>install-file</goal>
+            </goals>
+            <configuration>
+              <packaging>car</packaging>
+              <artifactId>\${project.artifactId}</artifactId>
+              <groupId>\${project.groupId}</groupId>
+              <version>\${project.version}</version>
+              <file>\${project.build.directory}/\${project.artifactId}_\${project.version}.car</file>
+              <!-- Use the following configuration when archiveLocation is configured -->
+              <!-- <file>\${archiveLocation}/\${project.artifactId}_\${project.version}.car</file> -->
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
-  <profiles>
-    <profile>
-      <id>Solution</id>
-      <build />
-    </profile>
-    <profile>
-      <id>Docker</id>
-      <build />
-    </profile>
-    <profile>
-      <id>Kubernetes</id>
-      <build />
-    </profile>
-    <profile>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <build />
-    </profile>
-  </profiles>
 </project>`;
 
 export const compositeProjectContent = (projectName: string) => `<?xml version="1.0" encoding="UTF-8"?>

@@ -8,27 +8,19 @@
  */
 
 import React, { useEffect } from "react";
-import { VisualizerLocation } from "@wso2-enterprise/mi-core";
+import { SampleDownloadRequest, VisualizerLocation } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { SamplesView } from "../SamplesView";
 import styled from "@emotion/styled";
-import { Codicon, ComponentCard } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ComponentCard, Grid } from "@wso2-enterprise/ui-toolkit";
 import { ProjectWizard } from "../Forms/ProjectForm";
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-
-const HorizontalCardContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    gap: 50px;
-    justify-content: center;
-`;
+import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 
 const TextWrapper = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
 `;
 
 const NavigationContainer = styled.div`
@@ -38,29 +30,80 @@ const NavigationContainer = styled.div`
 `;
 
 const IconWrapper = styled.div`
-    padding: 20px;
-    height: 150px;
-    width: 150px;
+    height: 20px;
+    width: 20px;
 `;
 
-const HeadlineWrapper = styled.div`
+const Wrapper = styled.div`
+    height: calc(100vh - 100px);
+    padding: 85px 120px;
+    overflow: auto;
+`;
+
+const TitlePanel = styled.div`
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    font-size: 18px;
-    height: 20vh;
-    padding: 40px;
+    padding-bottom: 40px;
 `;
 
-const ComponentCardStyles = { 
-    height: 350,
-    width: 300,
-    marginTop: 15,
-    marginBottom: 15,
+const Pane = styled.div`
+    display: flex;
+    padding: 0px !important;
+    flex-direction: column;
+    width: 100%;
+`;
+
+const ComponentCardStyles = {
+    height: 50,
+    width: "100%",
+    marginBottom: 10,
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    paddingLeft: 30
 };
+
+const CreateBtnStyles = {
+    gap: 10,
+    display: "flex",
+    flexDirection: "row"
+};
+
+const Tab = styled.div`
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0px;
+    gap: 5px;
+`;
+
+const Headline = styled.div`
+    font-size: 2.7em;
+    font-weight: 400;
+    font-size: 2.7em;
+    white-space: nowrap;
+    padding-bottom: 10px;
+`;
+
+const SubTitle = styled.div`
+    font-weight: 400;
+    margin-top: 0;
+    margin-bottom: 5px;
+    font-size: 1.5em;
+    line-height: normal;
+`;
+
+const SampleText = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
+
+const SampleTitle = {
+    margin:"4px 0px",
+    fontSize: 14,
+    fontWeight: 500,
+    textAlign: "left",
+    display: "inline-block"
+}
 
 export function GettingStarted() {
     const { rpcClient } = useVisualizerContext();
@@ -83,6 +126,24 @@ export function GettingStarted() {
         setMode("");
     }
 
+    const handleMoreSamples = () => {
+        setMode("Samples");
+    }
+
+    const openTroubleshootGuide = () => {
+
+    }
+
+    const openGettingStartedGuide = () => {
+    }
+
+    function downloadSample(sampleName: string) {
+        let request: SampleDownloadRequest = {
+            zipFileName: sampleName
+        }
+        rpcClient.getMiVisualizerRpcClient().downloadSelectedSampleFromGithub(request);
+    }
+
     return (
         <>
             {mode !== "" ? (
@@ -92,30 +153,81 @@ export function GettingStarted() {
                     </VSCodeButton>
                 </NavigationContainer>
             ) : (
-                <>  
-                    <HeadlineWrapper>
-                        <h1>Getting Started{state?.documentUri}</h1>
-                        <span>Select an option to get started.</span>
-                    </HeadlineWrapper>
-                    <HorizontalCardContainer>
-                        <ComponentCard
-                            onClick={() => handleModeChange("NewProject")}
-                            sx={ComponentCardStyles}>
-                            <IconWrapper>
-                                <Codicon name="folder-library" iconSx={{ fontSize: 150 }} />
-                            </IconWrapper>
-                            <TextWrapper>Create New Project</TextWrapper>
-                        </ComponentCard>
-                        <ComponentCard
-                            onClick={() => handleModeChange("Samples")}
-                            sx={ComponentCardStyles}>
-                            <IconWrapper>
-                                <Codicon name="notebook-template" iconSx={{ fontSize: 150 }} />
-                            </IconWrapper>
-                            <TextWrapper>Explore Samples</TextWrapper>
-                        </ComponentCard>
-                    </HorizontalCardContainer>
-                </>
+                <Wrapper>
+                    <TitlePanel>
+                        <Headline>MI for VS Code</Headline>
+                        <span>The Micro Integrator provides developers with a flawless experience in developing, testing, and deploying integration solutions. </span>
+                    </TitlePanel>
+                    <Grid
+                        columns={2}
+                        direction="column">
+                        <Pane>
+                            <Tab>
+                                <SubTitle>Getting started</SubTitle>
+                                <span>Learn about the Micro Integrator Extension in our <VSCodeLink onClick={openGettingStartedGuide}>Getting Started Guide</VSCodeLink>.</span>
+                            </Tab>
+                            <Tab>
+                                <SubTitle>Create New Project</SubTitle>
+                                <span>Create an empty project.</span>
+                                <Button appearance="primary" onClick={() => handleModeChange("NewProject")}>
+                                    <div style={CreateBtnStyles}>
+                                        <IconWrapper>
+                                            <Codicon name="folder-library" iconSx={{ fontSize: 20 }} />
+                                        </IconWrapper>
+                                        <TextWrapper>Create New Project</TextWrapper>
+                                    </div>
+                                </Button>
+                            </Tab>
+                            <Tab>
+                                <SubTitle>Troubleshooting</SubTitle>
+                                <span>Experiencing problems? Start with our <VSCodeLink onClick={openTroubleshootGuide}>Troubleshooting Guide</VSCodeLink>.</span>
+                            </Tab>
+                        </Pane>
+                        <Pane>
+                            <Tab>
+                                <SubTitle>Explore Samples</SubTitle>
+                                <span>Have a look at some examples.</span>
+                            </Tab>
+                            <ComponentCard
+                                onClick={() => downloadSample("HelloWorldService")}
+                                sx={ComponentCardStyles}>
+                                <img src="https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/Hello_World.png" className="card-image" />
+                                <SampleText>
+                                    <span style={SampleTitle}>Hello World Service</span>
+                                    <span style={{ fontSize: '12px' }} >A simple HTTP service.</span>
+                                </SampleText>
+                            </ComponentCard>
+                            <ComponentCard
+                                onClick={() => downloadSample("APITesting")}
+                                sx={ComponentCardStyles}>
+                                <img src="https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/Testing_Templates.png" className="card-image" />
+                                <SampleText>
+                                    <span style={SampleTitle}>API Testing</span>
+                                    <span style={{ fontSize: '12px' }} >Unit testing of a REST API artifact.</span>
+                                </SampleText>
+                            </ComponentCard>
+                            <ComponentCard
+                                onClick={() => downloadSample("ContentBasedRouting")}
+                                sx={ComponentCardStyles}>
+                                <img src="https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/Routing_Templates.png" className="card-image" />
+                                <SampleText>
+                                    <span style={SampleTitle}>Content Based Routing</span>
+                                    <span style={{ fontSize: '12px' }} >Content-based message routing.</span>
+                                </SampleText>
+                            </ComponentCard>
+                            <ComponentCard
+                                onClick={() => downloadSample("DatabasePolling")}
+                                sx={ComponentCardStyles}>
+                                <img src="https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/Task_Templates.png" className="card-image" />
+                                <SampleText>
+                                    <span style={SampleTitle}>Database Polling</span>
+                                    <span style={{ fontSize: '12px' }} >A simple HTTP service.</span>
+                                </SampleText>
+                            </ComponentCard>
+                            <span><VSCodeLink onClick={handleMoreSamples}>more...</VSCodeLink></span>
+                        </Pane>
+                    </Grid>
+                </Wrapper>
             )}
             {mode === "NewProject" && <ProjectWizard />}
             {mode === "Samples" && <SamplesView />}

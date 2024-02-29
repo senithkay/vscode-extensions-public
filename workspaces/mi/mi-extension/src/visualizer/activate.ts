@@ -9,35 +9,23 @@
 
 import * as vscode from 'vscode';
 import { VisualizerWebview } from './webview';
-import { Uri, ViewColumn, commands, window } from 'vscode';
+import { ViewColumn, commands, window } from 'vscode';
 import { StateMachine } from '../stateMachine';
+import { openView } from '../stateMachine';
+import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
-    if (!VisualizerWebview.currentPanel) {
-        VisualizerWebview.currentPanel = new VisualizerWebview();
-    }
-    VisualizerWebview.currentPanel!.getWebview()?.reveal();
-
+    context.subscriptions.push(
+        vscode.commands.registerCommand('integrationStudio.showDiagram', () => {
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+        })
+    );
     context.subscriptions.push(
         vscode.commands.registerCommand('MI.show.diagram', (e: any) => {
             if (!VisualizerWebview.currentPanel) {
                 VisualizerWebview.currentPanel = new VisualizerWebview(true);
             }
             VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
-        })
-    );
-    context.subscriptions.push(
-        vscode.commands.registerCommand('MI.show.source', (e: any) => {
-            const documentUri = StateMachine.context().documentUri;
-            if (documentUri) {
-                console.log(window.visibleTextEditors.map(editor => editor.document.uri.fsPath));
-                const openedEditor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
-                if (openedEditor) {
-                    window.showTextDocument(openedEditor.document, { viewColumn: openedEditor.viewColumn });
-                } else {
-                    commands.executeCommand('vscode.open', Uri.parse(documentUri), { viewColumn: ViewColumn.Beside });
-                }
-            }
         })
     );
     context.subscriptions.push(

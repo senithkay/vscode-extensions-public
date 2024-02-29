@@ -11,6 +11,7 @@ import React, { useEffect, useState } from "react";
 import { AutoComplete, Button, TextField } from "@wso2-enterprise/ui-toolkit";
 import { FieldGroup, SectionWrapper } from "./Commons";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 
 const WizardContainer = styled.div`
     display: flex;
@@ -82,12 +83,12 @@ export function SequenceWizard() {
             onErrorSequence: onErrorSequence,
         }
         const file = await rpcClient.getMiDiagramRpcClient().createSequence(createSequenceParams);
-        // rpcClient.getMiVisualizerRpcClient().openView({ view: "Diagram", documentUri: file.filePath, identifier: `` });
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
+        // rpcClient.getMiVisualizerRpcClient().openView("OPEN_VIEW", { view: "Diagram", documentUri: file.filePath, identifier: `` });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
     const handleCancel = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
     const isValid: boolean = sequenceName.length > 0;
