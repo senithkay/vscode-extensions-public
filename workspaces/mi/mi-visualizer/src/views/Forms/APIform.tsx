@@ -11,6 +11,7 @@ import React, { useEffect, useState } from "react";
 import { AutoComplete, Button, Codicon, Icon, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { FieldGroup, SectionWrapper } from "./Commons";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 
 const WizardContainer = styled.div`
     display: flex;
@@ -77,12 +78,12 @@ export function APIWizard() {
         }
         const file = await rpcClient.getMiDiagramRpcClient().createAPI(createAPIParams);
         console.log("API created");
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "ServiceDesigner", documentUri: file.path });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: file.path } });
     };
 
     const handleCancel = () => {
         console.log("cancel");
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
     const handleSwaggerPathSelection = async () => {

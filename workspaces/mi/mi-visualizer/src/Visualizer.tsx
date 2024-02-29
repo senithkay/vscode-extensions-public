@@ -61,7 +61,7 @@ export function Visualizer({ mode }: { mode: string }) {
 const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue }) => {
     switch (true) {
         case typeof state === 'object' && 'ready' in state:
-            return <MainPanel state={state} />;
+            return <MainPanel />;
         case typeof state === 'object' && 'newProject' in state && state.newProject === "welcome":
             return <GettingStarted />;
         case typeof state === 'object' && 'newProject' in state && state.newProject === "create":

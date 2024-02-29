@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 import { AutoComplete, Button, Codicon, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import { FieldGroup, SectionWrapper } from "./Commons";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { CreateEndpointRequest, EndpointDirectoryResponse } from "@wso2-enterprise/mi-core";
+import { CreateEndpointRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 
 const WizardContainer = styled.div`
     display: flex;
@@ -120,12 +120,12 @@ export function EndpointWizard() {
         }
         const file = await rpcClient.getMiDiagramRpcClient().createEndpoint(createEndpointParams);
 
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
         rpcClient.getMiDiagramRpcClient().openFile(file);
     };
 
     const handleCancel = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
     const validateEndpointName = (name: string) => {

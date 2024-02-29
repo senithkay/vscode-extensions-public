@@ -39,8 +39,7 @@ export function NavButtonGroup(props: NavButtonGroupProps) {
     }
 
     const handleHomeButtonClick = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
-        rpcClient.getVisualizerState
+        rpcClient.getMiVisualizerRpcClient().goHome();
     }
 
     return (

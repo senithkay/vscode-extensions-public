@@ -12,6 +12,7 @@ import React, { useEffect, useState } from "react";
 import { AutoComplete, Button, TextField, Dropdown, Typography, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { FieldGroup, SectionWrapper } from "./Commons";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 
 const WizardContainer = styled.div`
     display: flex;
@@ -170,7 +171,7 @@ export function InboundEPWizard() {
     };
 
     const handleCancel = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
     const handleBackButtonClick = () => {

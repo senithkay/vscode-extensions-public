@@ -6,6 +6,9 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+import { HistoryEntry } from "../../history";
+import { EVENT_TYPE, VisualizerLocation } from "../../state-machine-types";
+
 export interface WorkspacesResponse {
     workspaces: WorkspaceFolder[];
 }
@@ -79,4 +82,13 @@ export interface GettingStartedData {
 }
 export interface SampleDownloadRequest {
     zipFileName: string;
+}
+
+export interface OpenViewRequest {
+    type: EVENT_TYPE;
+    location: VisualizerLocation;
+}
+
+export interface HistoryEntryResponse {
+    history: HistoryEntry[];
 }

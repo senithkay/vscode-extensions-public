@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MachineStateValue, VisualizerLocation } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MachineStateValue } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Overview } from './views/Overview';
 import { ServiceDesignerView } from './views/ServiceDesigner';
@@ -28,88 +28,77 @@ const ProgressRing = styled(VSCodeProgressRing)`
     padding: 4px;
 `;
 
-const MainPanel = (props: { state: MachineStateValue }) => {
-    const { state } = props;
+const MainPanel = () => {
     const { rpcClient } = useVisualizerContext();
-    const [machineView, setMachineView] = useState<VisualizerLocation>(null);
-    const [mainState, setMainState] = React.useState<MachineStateValue>(state);
-    const [component, setComponent] = useState<JSX.Element | null>(null);
-    const [lastUpdated, setLastUpdated] = useState<number>(0);
-
-    rpcClient?.onStateChanged((newState: MachineStateValue) => {
-        setMainState(newState);
-    });
+    const [viewComponent, setViewComponent] = useState<React.ReactNode>();
 
     useEffect(() => {
-        if (typeof mainState === 'object' && 'ready' in mainState && mainState.ready === 'viewReady') {
-            try {
-                rpcClient.getVisualizerState().then((mState) => {
-                    setMachineView(mState);
-                });
-            } catch (error) {
+        fetchContext();
 
+        rpcClient?.onStateChanged((newState: MachineStateValue) => {
+            if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewReady') {
+                fetchContext();
             }
-        }
-
-        rpcClient.onFileContentUpdate(() => {
-            setLastUpdated(Date.now());
+            if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewEditing') {
+                rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.EDIT_DONE, location: null });
+                fetchContext();
+            }
         });
-    }, [mainState]);
 
-    useEffect(() => {
-        if (machineView) {
-            OverviewComponent();
-        }
+    }, []);
 
-    }, [machineView, lastUpdated]);
 
-    const OverviewComponent = () => {
-        switch (machineView.view) {
-            case "Overview":
-                setComponent(<Overview />);
-                break;
-            case "Diagram":
-                rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri }).then((st) => {
-                    const identifier = machineView.identifier || machineView.identifier === undefined;
-                    if (identifier && st?.syntaxTree?.api?.resource) {
-                        const resourceNode = st?.syntaxTree?.api.resource.find((resource: any) => (resource.uriTemplate === machineView.identifier) || resource.uriTemplate === undefined);
-                        setComponent(<Diagram model={resourceNode} documentUri={machineView.documentUri} />);
-                    }
-                });
-                rpcClient.getMiDiagramRpcClient().initUndoRedoManager({path: machineView.documentUri});
-                break;
-            case "ServiceDesigner":
-                setComponent(<ServiceDesignerView />);
-                break;
-            case "APIForm":
-                setComponent(<APIWizard />);
-                break;
-            case "EndPointForm":
-                setComponent(<EndpointWizard />);
-                break;
-            case "SequenceForm":
-                setComponent(<SequenceWizard />);
-                break;
-            case "InboundEPForm":
-                setComponent(<InboundEPWizard />);
-                break;
-            case "ProjectCreationForm":
-                setComponent(<ProjectWizard />);
-                break;
-        }
-    };
+    const fetchContext = () => {
+        rpcClient.getVisualizerState().then((machineView) => {
+            switch (machineView?.view) {
+                case "Overview":
+                    setViewComponent(<Overview />);
+                    break;
+                case "Diagram":
+                    rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri }).then((st) => {
+                        const identifier = machineView.identifier || machineView.identifier === undefined;
+                        if (identifier && st?.syntaxTree?.api?.resource) {
+                            const resourceNode = st?.syntaxTree?.api.resource.find((resource: any) => (resource.uriTemplate === machineView.identifier) || resource.uriTemplate === undefined);
+                            setViewComponent(<Diagram model={resourceNode} documentUri={machineView.documentUri} />);
+                        }
+                    });
+                    rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
+                    break;
+                case "ServiceDesigner":
+                    setViewComponent(<ServiceDesignerView />);
+                    break;
+                case "APIForm":
+                    setViewComponent(<APIWizard />);
+                    break;
+                case "EndPointForm":
+                    setViewComponent(<EndpointWizard />);
+                    break;
+                case "SequenceForm":
+                    setViewComponent(<SequenceWizard />);
+                    break;
+                case "InboundEPForm":
+                    setViewComponent(<InboundEPWizard />);
+                    break;
+                case "ProjectCreationForm":
+                    setViewComponent(<ProjectWizard />);
+                    break;
+                default:
+                    setViewComponent(null);
+            }
+        });
+    }
 
     return (
         <div style={{
             overflow: "hidden",
         }}>
-            {!component ? (
+            {!viewComponent ? (
                 <LoaderWrapper>
                     <ProgressRing />
                 </LoaderWrapper>
             ) : <div>
                 <NavigationBar />
-                {component}
+                {viewComponent}
             </div>}
         </div>
     );
