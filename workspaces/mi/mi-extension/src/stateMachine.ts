@@ -231,6 +231,7 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
         const projectRoot = vscode.workspace.getWorkspaceFolder(vscode.Uri.parse(viewLocation.documentUri));
         if (projectRoot) {
             viewLocation.projectUri = projectRoot.uri.fsPath;
+            vscode.commands.executeCommand('project-explorer.revealItem', viewLocation);
         }
     }
     stateService.send({ type: type, viewLocation: viewLocation });

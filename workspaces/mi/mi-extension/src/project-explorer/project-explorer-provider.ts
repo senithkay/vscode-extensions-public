@@ -72,6 +72,38 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 		}
 		return element.children;
 	}
+
+	getParent(element: ProjectExplorerEntry): vscode.ProviderResult<ProjectExplorerEntry> {
+		if (element.info?.path === undefined) return undefined;
+
+		const projects = (this._data);
+		for (const project of projects) {
+			if (project.children?.find(child => child.info?.path === element.info?.path)) {
+				return project;
+			}
+			const fileElement = this.recursiveSearchParent(project, element.info?.path);
+			if (fileElement) {
+				return fileElement;
+			}
+		}
+		return element;
+	}
+
+	recursiveSearchParent(element: ProjectExplorerEntry, path: string): ProjectExplorerEntry | undefined {
+		if (!element.children) {
+			return undefined;
+		}
+		for (const child of element.children) {
+			if (child.info?.path === path) {
+				return element;
+			}
+			const foundParent = this.recursiveSearchParent(child, path);
+			if (foundParent) {
+				return foundParent;
+			}
+		}
+		return undefined;
+	}
 }
 
 async function getProjectStructureData(context: vscode.ExtensionContext): Promise<ProjectExplorerEntry[]> {
@@ -215,9 +247,9 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			// Generate resource structure
 			for (const resource of entry.resources) {
 				const resourceEntry: ProjectStructureEntry = {
-					...entry,
 					name: resource.uriTemplate,
-					type: 'resource'
+					type: 'resource',
+					path: entry.path + resource.uriTemplate
 				};
 				apiEntry.children.push(new ProjectExplorerEntry(resource.uriTemplate ?? "/", isCollapsibleState(false), resourceEntry, 'code'));
 			}

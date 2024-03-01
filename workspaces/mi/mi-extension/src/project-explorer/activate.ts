@@ -10,7 +10,7 @@
 import * as vscode from 'vscode';
 import { ProjectExplorerEntryProvider } from './project-explorer-provider';
 import { openView } from '../stateMachine';
-import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from '@wso2-enterprise/mi-core';
 
 export function activateProjectExplorer(context: vscode.ExtensionContext) {
 
@@ -20,7 +20,7 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('project-explorer.refresh', () => { projectExplorerDataProvider.refresh(); });
 	vscode.commands.registerCommand('project-explorer.add', () => {
 		vscode.window.showQuickPick([
-			{ label: 'New Project', description: 'Create new project'},
+			{ label: 'New Project', description: 'Create new project' },
 			{ label: 'API', description: 'Add new API' },
 			{ label: 'Endpoint', description: 'Add new endpoint' },
 			{ label: 'Sequence', description: 'Add new sequence' },
@@ -68,17 +68,33 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 		console.log('Create New Project');
 	});
 
-	projectTree.onDidChangeSelection(async e => {
-		if (e.selection.length > 0 && e.selection[0].info) {
-			const info = e.selection[0].info;
-			console.log(info);
-			// TODO: Open file logic should go here
-			// const document = await vscode.workspace.openTextDocument(info.path);
-			// await vscode.window.showTextDocument(document);
-			if (info.type.toLowerCase() === 'api') {
-				openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: info.path, identifier: info.name });
-			} else if (info.type === 'resource') {
-				openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Diagram, documentUri: info.path, identifier: info.name });
+	vscode.commands.registerCommand('project-explorer.revealItem', async (viewLocation: VisualizerLocation) => {
+		const data = projectExplorerDataProvider.getChildren();
+
+		if (viewLocation.projectUri && viewLocation.projectUri && data) {
+			const project = (await data)?.find((project) => project.info?.path === viewLocation.projectUri);
+			if (project) {
+				projectTree.reveal(project, { select: true, focus: true });
+				const projectChildren = projectExplorerDataProvider.getChildren(project);
+				if (projectChildren) {
+					const projectResources = await projectChildren;
+					if (!projectResources) return;
+
+					for (const projectResource of projectResources) {
+						const fileEntry = projectResource.children?.find((file) => file.info?.path === viewLocation.documentUri);
+						if (fileEntry) {
+							projectTree.reveal(fileEntry, { select: true, focus: true });
+
+							if (viewLocation.identifier) {
+								const resourceEntry = fileEntry.children?.find((file) => file.info?.name === viewLocation.identifier);
+								if (resourceEntry) {
+									projectTree.reveal(resourceEntry, { select: true, focus: true });
+								}
+							}
+							break;
+						}
+					}
+				}
 			}
 		}
 	});
