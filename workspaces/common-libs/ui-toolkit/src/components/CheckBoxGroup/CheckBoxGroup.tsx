@@ -24,7 +24,8 @@ export type CheckBoxProps = {
 };
 
 export type CheckBoxGroupProps = React.ComponentPropsWithoutRef<"div"> & {
-    onLabelChange: (selected: string[]) => void;
+    values?: string[];
+    onChange: (selected: string[]) => void;
 };
 
 export const CheckBox = ({ label, value, checked, onClick }: CheckBoxProps) => {
@@ -35,8 +36,8 @@ export const CheckBox = ({ label, value, checked, onClick }: CheckBoxProps) => {
     );
 };
 
-export const CheckBoxGroup = ({ onLabelChange, children }: CheckBoxGroupProps) => {
-    const selected = React.useRef<string[]>([]);
+export const CheckBoxGroup = ({ values, onChange, children }: CheckBoxGroupProps) => {
+    const selected = React.useRef<string[]>(values || []);
 
     return (
         <CheckBoxContainer>
@@ -51,7 +52,7 @@ export const CheckBoxGroup = ({ onLabelChange, children }: CheckBoxGroupProps) =
                         } else {
                             selected.current = selected.current.filter(item => item !== label);
                         }
-                        onLabelChange(selected.current);
+                        onChange(selected.current);
                     },
                     checked: selected.current.indexOf(label) > -1,
                 });

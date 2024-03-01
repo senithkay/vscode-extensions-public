@@ -32,9 +32,10 @@ const Template: ComponentStory<typeof CheckBoxGroup> = (args: CheckBoxGroupProps
 
 export const Default = Template.bind();
 Default.args = {
-    onLabelChange: (selected: string[]) => {
+    onChange: (selected: string[]) => {
         console.log(selected);
     },
+    values: ["Option 1", "Option 3"],
 };
 
 export default { component: CheckBoxGroup, title: "CheckBoxGroup" };
