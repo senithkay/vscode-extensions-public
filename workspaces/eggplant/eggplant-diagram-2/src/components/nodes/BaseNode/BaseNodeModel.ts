@@ -8,7 +8,7 @@
  */
 
 import { NodeModel } from "@projectstorm/react-diagrams";
-import { NodePortModel } from "../../NodePort/NodePortModel";
+import { NodePortModel } from "../../NodePort";
 import { getNodeIdFromModel } from "../../../utils/node";
 import { NodeTypes } from "../../../resources/constants";
 import { Node } from "../../../utils/types";
@@ -22,7 +22,7 @@ export class BaseNodeModel extends NodeModel {
         super({
             id: getNodeIdFromModel(node),
             type: NodeTypes.BASE_NODE,
-            // locked: true,
+            locked: true,
         });
         this.node = node;
         this.addInPort("in");
@@ -55,5 +55,9 @@ export class BaseNodeModel extends NodeModel {
 
     getOutPort(): NodePortModel {
         return this.portOut;
+    }
+
+    getHeight(): number {
+        return this.height;
     }
 }

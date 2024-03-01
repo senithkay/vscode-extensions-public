@@ -19,7 +19,7 @@ export interface DiagramCanvasProps {
     children?: React.ReactNode;
 }
 
-namespace S {
+export namespace DiagramStyles {
     export const Container = styled.div<{ color: string; background: string }>`
         height: 100%;
         background-size: 50px 50px;
@@ -50,10 +50,10 @@ export function DiagramCanvas(props: DiagramCanvasProps) {
     const { color, background, children } = props;
     return (
         <>
-            <Global styles={S.Expand} />
-            <S.Container background={background || Colors.SURFACE_BRIGHT} color={color || Colors.ON_SURFACE}>
+            <Global styles={DiagramStyles.Expand} />
+            <DiagramStyles.Container background={background || Colors.SURFACE_BRIGHT} color={color || Colors.ON_SURFACE}>
                 {children}
-            </S.Container>
+            </DiagramStyles.Container>
         </>
     );
 }

@@ -7,62 +7,23 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export type Flow = {
-    nodes: Node[];
-    name: string;
-};
+import { BaseNodeModel } from "../components/nodes/BaseNode";
+import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 
-export type Node = {
-    // todo: need to refactor node type with attributes and children
-    id: string;
-    kind: string;
-    label?: string;
-    method?: Expression;
-    path?: Expression;
-    client?: Expression;
-    headers?: Expression;
-    targetType?: Expression;
-    params?: Expression;
-    variable?: Expression;
-    lineRange: LineRange;
-    condition?: Expression;
-    thenBranch?: Node;
-    elseBranch?: Node;
-    children?: Node[];
-    fixed?: boolean;
-    expr?: Expression;
-    returning?: boolean;
-    viewState?: ViewState;
-};
+export type NodeModel = BaseNodeModel | EmptyNodeModel;
 
-export type Expression = {
-    key: string;
-    type: null | string;
-    value?: any[] | string;
-    typeKind?: TypeKind;
-    optional?: boolean;
-};
-
-export type TypeKind = "BTYPE" | "IDENTIFIER" | "URI_PATH";
-
-export type LineRange = {
-    fileName: string;
-    startLine: number[];
-    endLine: number[];
-};
-
-export type ViewState = {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-
-    startNodeId?: string;
-    // todo: implement positions for branches
-    branch?: {
-        id: string;
-        parentNodeId: string;
-        startNodeId?: string;
-        endNodeId?: string;
-    };
-};
+export type {
+    Flow,
+    Client,
+    ClientKind,
+    ClientScope,
+    Node,
+    NodeKind,
+    Branch,
+    LineRange,
+    Expression,
+    TypeKind,
+    NodeProperties,
+    ViewState,
+    TargetMetadata,
+} from "@wso2-enterprise/eggplant-core";

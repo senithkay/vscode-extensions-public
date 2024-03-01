@@ -13,7 +13,12 @@ import { URI } from "vscode-uri";
 import { transformNodePosition } from './utils/utils';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
-export const useSyntaxTreeFromRange = (location: NodePosition, filePath: string, hasFileChanged?: boolean) => {
+export const useSyntaxTreeFromRange = (
+    location: NodePosition,
+    filePath: string,
+    identifier: string,
+    hasFileChanged?: boolean
+) => {
     const { rpcClient } = useVisualizerContext();
     const getST = async () => {
         if (location && filePath) {
@@ -36,7 +41,7 @@ export const useSyntaxTreeFromRange = (location: NodePosition, filePath: string,
         isFetching,
         isError,
         refetch,
-    } = useQuery(['getST', { location, filePath, hasFileChanged }], () => getST(), {});
+    } = useQuery(['getST', { location, filePath, identifier, hasFileChanged }], () => getST(), {});
 
     return { data, isFetching, isError, refetch };
 };

@@ -592,7 +592,28 @@
                 "description": "new-module",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f134"
+                    "fontCharacter": "\\f135"
+                }
+            },
+            "distro-refresh": {
+                "description": "refresh",
+                "default": {
+                    "fontPath": "./resources/codicons/codicon.ttf",
+                    "fontCharacter": "\\eb37"
+                }
+            },
+            "distro-new-file": {
+                "description": "new-file",
+                "default": {
+                    "fontPath": "./resources/codicons/codicon.ttf",
+                    "fontCharacter": "\\ea7f"
+                }
+            },
+            "distro-new-folder": {
+                "description": "new-folder",
+                "default": {
+                    "fontPath": "./resources/codicons/codicon.ttf",
+                    "fontCharacter": "\\ea80"
                 }
             },
             "distro-delete": {
@@ -627,7 +648,7 @@
                 "description": "source-view",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f148"
+                    "fontCharacter": "\\f149"
                 }
             },
             "distro-persist-diagram": {
@@ -707,32 +728,18 @@
                     "fontCharacter": "\\f135"
                 }
             },
+            "distro-file-upload": {
+                "description": "file-upload",
+                "default": {
+                    "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
+                    "fontCharacter": "\\f11f"
+                }
+            },
             "distro-file-submodule": {
                 "description": "file-submodule",
                 "default": {
                     "fontPath": "./resources/codicons/codicon.ttf",
                     "fontCharacter": "\\eaec"
-                }
-            },
-            "distro-new-file": {
-                "description": "new-file",
-                "default": {
-                    "fontPath": "./resources/codicons/codicon.ttf",
-                    "fontCharacter": "\\ea7f"
-                }
-            },
-            "distro-new-folder": {
-                "description": "new-folder",
-                "default": {
-                    "fontPath": "./resources/codicons/codicon.ttf",
-                    "fontCharacter": "\\ea80"
-                }
-            },
-            "distro-refresh": {
-                "description": "refresh",
-                "default": {
-                    "fontPath": "./resources/codicons/codicon.ttf",
-                    "fontCharacter": "\\eb37"
                 }
             }
         }

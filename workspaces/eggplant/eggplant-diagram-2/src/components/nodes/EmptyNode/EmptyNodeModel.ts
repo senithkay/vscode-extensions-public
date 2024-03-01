@@ -8,20 +8,23 @@
  */
 
 import { NodeModel } from "@projectstorm/react-diagrams";
-import { NodePortModel } from "../../NodePort/NodePortModel";
+import { NodePortModel } from "../../NodePort";
 import { NodeTypes } from "../../../resources/constants";
 
 export class EmptyNodeModel extends NodeModel {
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
+    protected visible: boolean;
 
-    constructor() {
+    constructor(id: string, visible = true) {
         super({
+            id,
             type: NodeTypes.EMPTY_NODE,
             locked: true,
         });
         this.addInPort("in");
         this.addOutPort("out");
+        this.visible = visible;
     }
 
     addPort<T extends NodePortModel>(port: T): T {
@@ -50,5 +53,9 @@ export class EmptyNodeModel extends NodeModel {
 
     getOutPort(): NodePortModel {
         return this.portOut;
+    }
+
+    isVisible(): boolean {
+        return this.visible;
     }
 }

@@ -21,6 +21,10 @@ export function traverseFlow(flow: Flow, visitor: BaseVisitor, parent?: Node) {
 }
 
 export function traverseNode(node: Node, visitor: BaseVisitor, parent?: Node) {
+    if (!node.kind) {
+        console.warn("Node kind is not defined", node);
+        return;
+    }
     let name = "";
     // convert this kind to a camel case string
     node.kind.split("_").forEach((kind) => {

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useMemo, useReducer, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 
 import { css } from "@emotion/css";
 import {
@@ -43,6 +43,7 @@ import { DataMapperViewProps } from "../..";
 import { WarningBanner } from "./Warning/DataMapperWarning";
 
 import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
+import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 const classes = {
     root: css({
@@ -159,12 +160,12 @@ export function DataMapperC(props: DataMapperViewProps) {
         libraryBrowserRpcClient,
         applyModifications,
         onClose,
-        goToFunction: updateSelectedComponent
+        goToFunction: updateSelectedComponent,
+        renderRecordPanel
     } = props;
     const openedViaPlus = false;
     const goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void = undefined;
     const onSave: (fnName: string) => void = undefined;
-    const recordPanel: (props: { targetPosition: NodePosition, closeAddNewRecord: () => void }) => JSX.Element = undefined;
     const updateActiveFile: (currentFile: FileListEntry) => void = undefined;
 
     const { projectComponents, isFetching: isFetchingComponents } = useProjectComponents(langServerRpcClient, filePath);
@@ -175,7 +176,7 @@ export function DataMapperC(props: DataMapperViewProps) {
         isFetching: isFetchingDMMetaData,
         isError: isErrorDMMetaData
     } = useDMMetaData(langServerRpcClient);
-    const { content, isFetching: isFetchingContent } = useFileContent(langServerRpcClient, filePath, fnST.source);
+    const { content, isFetching: isFetchingContent } = useFileContent(langServerRpcClient, filePath, fnST);
 
     const targetPosition = fnST ? {
         ...fnST.position,
@@ -215,6 +216,7 @@ export function DataMapperC(props: DataMapperViewProps) {
 
     const typeStore = TypeDescriptorStore.getInstance();
     const typeStoreStatus = typeStore.getStatus();
+    const { rpcClient } = useVisualizerContext();
 
     const handleSelectedST = (mode: ViewOption, selectionState?: SelectionState, navIndex?: number) => {
         dispatchSelection({ type: mode, payload: selectionState, index: navIndex });
@@ -233,7 +235,7 @@ export function DataMapperC(props: DataMapperViewProps) {
         setConfigPanelOpen(false);
         if (showConfigPanel) {
             // Close data mapper when having incomplete fnST
-            onClose();
+            rpcClient.getVisualizerRpcClient().goHome();
         }
     }
 
@@ -271,6 +273,24 @@ export function DataMapperC(props: DataMapperViewProps) {
 
     const handleLocalVarConfigPanel = (showPanel: boolean) => {
         setShowLocalVarConfigPanel(showPanel);
+    }
+
+    const recordPanel = (props: {
+        targetPosition: NodePosition,
+        closeAddNewRecord: (createdNewRecord?: string) => void,
+        onUpdate: (updated: boolean) => void
+    }) => {
+            return renderRecordPanel({
+                langServerRpcClient,
+                libraryBrowserRpcClient,
+                applyModifications,
+                currentFile,
+                onCancelStatementEditor: cancelStatementEditor,
+                onClose: closeStatementEditor,
+                importStatements,
+                currentReferences,
+                ...props
+            });
     }
 
     const referenceManager = {

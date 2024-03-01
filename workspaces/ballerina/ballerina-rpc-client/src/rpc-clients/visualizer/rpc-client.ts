@@ -10,14 +10,19 @@
  */
 import {
     HistoryEntry,
+    UpdateUndoRedoMangerRequest,
     VisualizerAPI,
     VisualizerLocation,
     addToHistory,
+    addToUndoStack,
     getHistory,
     goBack,
     goHome,
     goSelected,
-    openView
+    openView,
+    redo,
+    undo,
+    updateUndoRedoManager
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -51,5 +56,21 @@ export class VisualizerRpcClient implements VisualizerAPI {
 
     goSelected(index: number): void {
         return this._messenger.sendNotification(goSelected, HOST_EXTENSION, index);
+    }
+
+    undo(): Promise<string> {
+        return this._messenger.sendRequest(undo, HOST_EXTENSION);
+    }
+
+    redo(): Promise<string> {
+        return this._messenger.sendRequest(redo, HOST_EXTENSION);
+    }
+
+    addToUndoStack(source: string): void {
+        return this._messenger.sendNotification(addToUndoStack, HOST_EXTENSION, source);
+    }
+
+    updateUndoRedoManager(params: UpdateUndoRedoMangerRequest): void {
+        return this._messenger.sendNotification(updateUndoRedoManager, HOST_EXTENSION, params);
     }
 }

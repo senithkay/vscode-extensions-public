@@ -14,7 +14,7 @@ import { ServiceDeclaration, NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
 import { getService, updateServiceDecl } from "./utils/utils";
 import { ServiceForm } from "./components/ServiceForm/ServiceForm";
-import { ServiceDesignerAPI, CommonRPCAPI } from "@wso2-enterprise/ballerina-core";
+import { ServiceDesignerAPI, CommonRPCAPI, STModification } from "@wso2-enterprise/ballerina-core";
 
 interface RPCClients {
     serviceDesignerRpcClient: ServiceDesignerAPI;
@@ -25,12 +25,14 @@ interface ServiceDesignerProps {
     model?: ServiceDeclaration;
     // RPC client to communicate with the backend for ballerina
     rpcClients?: RPCClients;
+    // Callback to send modifications to update source
+    applyModifications?: (modifications: STModification[]) => Promise<void>;
     // Callback to send the position of the resource to navigae to code
     goToSource?: (resource: Resource) => void;
 }
 
 export function ServiceDesignerView(props: ServiceDesignerProps) {
-    const { model, rpcClients, goToSource } = props;
+    const { model, rpcClients, applyModifications, goToSource } = props;
 
     const [serviceConfig, setServiceConfig] = useState<Service>();
 
@@ -55,12 +57,22 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         setResourceFormOpen(true);
     };
     const handleResourceDelete = async (resource: Resource) => {
-        commonRpcClient.deleteSource({ position: resource.position });
+        await applyModifications([{
+            type: 'DELETE',
+            ...resource.position
+        }]);
     };
     const handleResourceFormSave = async (content: string, config: Resource, resourcePosition?: NodePosition) => {
         const position = model.closeBraceToken.position;
         position.endColumn = 0;
-        commonRpcClient.updateSource({ position: resourcePosition ? resourcePosition : position, source: content });
+        await applyModifications([{
+            type: "INSERT",
+            isImport: false,
+            config: {
+                "STATEMENT": content
+            },
+            ...(resourcePosition ? resourcePosition : position)
+        }]);
     };
 
     // Callbacks for service form
@@ -72,7 +84,14 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
     };
     const handleServiceFormSave = async (service: Service) => {
         const content = updateServiceDecl({BASE_PATH: service.path, PORT: `${service.port}`, SERVICE_TYPE: "http"});
-        commonRpcClient.updateSource({ position: service.position, source: content });
+        await applyModifications([{
+            type: "INSERT",
+            isImport: false,
+            config: {
+                "STATEMENT": content
+            },
+            ...service.position
+        }]);
     };
 
     const handleGoToSource = (resource: Resource) => {
@@ -93,7 +112,14 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
     const addNameRecord = async (source: string) => {
         const position = model.closeBraceToken.position;
         position.startColumn = position.endColumn;
-        commonRpcClient.updateSource({ position: position, source });
+        await applyModifications([{
+            type: "INSERT",
+            isImport: false,
+            config: {
+                "STATEMENT": source
+            },
+            ...position
+        }]);
     };
 
     return (
@@ -121,6 +147,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
                         endColumn: model.closeBraceToken.position.endColumn
                     }}
                     commonRpcClient={commonRpcClient}
+                    applyModifications={applyModifications}
                 />
             }
             {isServiceFormOpen &&

@@ -7,17 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
-import { BaseNodeModel } from "../components/nodes/BaseNode/BaseNodeModel";
+import { NodeLinkModel } from "../components/NodeLink";
+import { BaseNodeModel } from "../components/nodes/BaseNode";
+import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { createNodesLink } from "../utils/diagram";
-import { Node } from "../utils/types";
+import { Node, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
 export class NodeFactoryVisitor implements BaseVisitor {
-    nodes: BaseNodeModel[] = [];
+    nodes: (NodeModel)[] = [];
     links: NodeLinkModel[] = [];
     private skipChildrenVisit = false;
-    private lastNodeModel: BaseNodeModel | undefined; // last visited flow node
+    private lastNodeModel: NodeModel | undefined; // last visited flow node
 
     constructor() {
         console.log("node factory visitor started");
@@ -25,10 +26,9 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     private createNode(node: Node): void {
         const nodeModel = new BaseNodeModel(node);
-        nodeModel.setPosition(node.viewState.x, node.viewState.y);
         this.nodes.push(nodeModel);
 
-        if (node.viewState.startNodeId) {
+        if (node.viewState?.startNodeId) {
             // new sub flow start
             const startNode = this.nodes.find((n) => n.getID() === node.viewState.startNodeId);
             const link = createNodesLink(startNode, nodeModel);
@@ -45,7 +45,13 @@ export class NodeFactoryVisitor implements BaseVisitor {
         this.lastNodeModel = nodeModel;
     }
 
-    getNodes(): BaseNodeModel[] {
+    private createEmptyNode(id: string, visible = true): EmptyNodeModel {
+        const nodeModel = new EmptyNodeModel(id, visible);
+        this.nodes.push(nodeModel);
+        return nodeModel;
+    }
+
+    getNodes(): (NodeModel)[] {
         return this.nodes;
     }
 
@@ -57,16 +63,97 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     beginVisitIf(node: Node): void {
         this.createNode(node);
-        // mark the first node of then and else branches as start node
-        if (node.thenBranch && node.thenBranch.children.length > 0) {
-            node.thenBranch.children.at(0).viewState.startNodeId = node.id;
+        this.lastNodeModel = undefined;
+    }
+
+    endVisitIf(node: Node, parent?: Node): void {
+        const ifNodeModel = this.nodes.find((n) => n.getID() === node.id);
+        if (!ifNodeModel) {
+            console.error("If node model not found", node);
+            return;
         }
-        if (node.elseBranch && node.elseBranch.children.length > 0) {
-            node.elseBranch.children.at(0).viewState.startNodeId = node.id;
+
+        // create branches IN links
+        node.branches?.forEach((branch) => {
+            if (!branch.children || branch.children.length === 0) {
+                // this empty branch will be handled in OUT links
+                return;
+            }
+            const firstChildNodeModel = this.nodes.find((n) => n.getID() === branch.children.at(0).id);
+            if (!firstChildNodeModel) {
+                console.error("Branch node model not found", branch);
+                return;
+            }
+
+            const link = createNodesLink(ifNodeModel, firstChildNodeModel, { label: branch.label });
+            if (link) {
+                this.links.push(link);
+            }
+        });
+
+        // create branches OUT links
+        const endIfEmptyNode = this.createEmptyNode(`${node.id}-endif`);
+        let endIfLinkCount = 0;
+        node.branches?.forEach((branch) => {
+            if (!branch.children || branch.children.length === 0) {
+                // empty branch
+                let branchEmptyNode = this.createEmptyNode(`${node.id}-${branch.label}-branch`, false);
+                const linkIn = createNodesLink(ifNodeModel, branchEmptyNode, { label: branch.label, brokenLine: true });
+                const linkOut = createNodesLink(branchEmptyNode, endIfEmptyNode, {
+                    brokenLine: true,
+                    alignBottom: true,
+                });
+                if (linkIn && linkOut) {
+                    this.links.push(linkIn, linkOut);
+                    endIfLinkCount++;
+                }
+                return;
+            }
+
+            // get last child node model
+            // if last child is RETURN, don't create link
+            if (branch.children.at(-1).kind === "RETURN") {
+                return;
+            }
+            const lastNode = branch.children.at(-1);
+            let lastChildNodeModel;
+            if (branch.children.at(-1).kind === "IF") {
+                // if last child is IF, find endIf node
+                lastChildNodeModel = this.nodes.find((n) => n.getID() === `${lastNode.id}-endif`);
+            } else {
+                // if last child is not IF, find last child node
+                lastChildNodeModel = this.nodes.find((n) => n.getID() === lastNode.id);
+            }
+            if (!lastChildNodeModel) {
+                console.error("Branch node model not found", branch);
+                return;
+            }
+            const link = createNodesLink(lastChildNodeModel, endIfEmptyNode);
+            if (link) {
+                this.links.push(link);
+                endIfLinkCount++;
+            }
+        });
+        if (endIfLinkCount === 0) {
+            // remove endIf node if no links are created
+            const index = this.nodes.findIndex((n) => n.getID() === endIfEmptyNode.getID());
+            if (index !== -1) {
+                this.nodes.splice(index, 1);
+            }
+            return;
         }
+        this.lastNodeModel = endIfEmptyNode;
+    }
+
+    endVisitBlock(node: Node, parent?: Node): void {
+        this.lastNodeModel = undefined;
     }
 
     skipChildren(): boolean {
         return this.skipChildrenVisit;
+    }
+
+    getLastNodeModel(): NodeModel | undefined {
+        return this.lastNodeModel;
     }
 }

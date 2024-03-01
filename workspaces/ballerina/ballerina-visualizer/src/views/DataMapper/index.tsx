@@ -8,93 +8,52 @@
  */
 
 import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
-import React, { useEffect, useMemo, useState } from "react";
+import React from "react";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { SyntaxTreeResponse, STModification, NodePosition, HistoryEntry } from "@wso2-enterprise/ballerina-core";
-import { useSyntaxTreeFromRange } from "../../Hooks";
-import { FunctionDefinition, ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { URI } from "vscode-uri";
+import { STModification, HistoryEntry } from "@wso2-enterprise/ballerina-core";
+import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
+import { RecordEditor, StatementEditorComponentProps } from "@wso2-enterprise/record-creator";
 
 interface DataMapperProps {
     filePath: string;
-    fnLocation: NodePosition;
+    model: FunctionDefinition;
+    applyModifications: (modifications: STModification[]) => Promise<void>;
 }
 
 export function DataMapper(props: DataMapperProps) {
-    const { filePath, fnLocation } = props;
-    const [rerender, setRerender] = useState(false);
-    const [position, setPosition] = useState<NodePosition>(fnLocation);
-    const { data, isFetching } = useSyntaxTreeFromRange(position, filePath, rerender);
+    const { filePath, model, applyModifications } = props;
     const { rpcClient } = useVisualizerContext();
     const langServerRpcClient = rpcClient.getLangServerRpcClient();
     const libraryBrowserRPCClient = rpcClient.getLibraryBrowserRPCClient();
-    const [mapperData, setMapperData] = useState<SyntaxTreeResponse>(data);
-
-    useEffect(() => {
-        setPosition(fnLocation);
-    }, [fnLocation]);
-
-    useEffect(() => {
-        if (!isFetching) {
-            setMapperData(data);
-        }
-    }, [isFetching, data]);
-
-    rpcClient.onFileContentUpdate(() => {
-        setRerender(prevState => !prevState);
-    });
-
-    const syntaxTree = mapperData?.syntaxTree as FunctionDefinition;
-    let fnName = syntaxTree?.functionName.value;
-
-    const applyModifications = async (modifications: STModification[]) => {
-        const langServerRPCClient = rpcClient.getLangServerRpcClient();
-        const { parseSuccess, source: newSource, syntaxTree } = await langServerRPCClient?.stModify({
-            astModifications: modifications,
-            documentIdentifier: {
-                uri: URI.file(filePath).toString()
-            }
-        });
-        if (parseSuccess) {
-            await langServerRPCClient.updateFileContent({
-                content: newSource,
-                fileUri: filePath
-            });
-
-            const modPart = syntaxTree as ModulePart;
-            const fns = modPart.members.filter((mem) =>
-                STKindChecker.isFunctionDefinition(mem)
-            ) as FunctionDefinition[];
-
-            if (modifications.length === 1 && modifications[0].type === "FUNCTION_DEFINITION_SIGNATURE") {
-                fnName = modifications[0].config.NAME;
-            }
-
-            const st = fns.find((mem) => mem.functionName.value === fnName);
-            setPosition(st.position);
-            setRerender(prevState => !prevState);
-        }
-    };
+    const recordCreatorRpcClient = rpcClient.getRecordCreatorRpcClient();
 
     const goToFunction = async (entry: HistoryEntry) => {
         rpcClient.getVisualizerRpcClient().addToHistory(entry);
     };
 
-    const view = useMemo(() => {
-        if (!mapperData) {
-            return <div>DM Loading...</div>;
-        }
+    const renderRecordPanel = (props: {
+        closeAddNewRecord: (createdNewRecord?: string) => void,
+        onUpdate: (updated: boolean) => void
+    } & StatementEditorComponentProps) => {
         return (
-            <DataMapperView
-                fnST={syntaxTree as FunctionDefinition}
-                filePath={filePath}
-                langServerRpcClient={langServerRpcClient}
-                libraryBrowserRpcClient={libraryBrowserRPCClient}
-                applyModifications={applyModifications}
-                goToFunction={goToFunction}
+            <RecordEditor
+                isDataMapper={true}
+                onCancel={props.closeAddNewRecord}
+                recordCreatorRpcClient={recordCreatorRpcClient}
+                {...props}
             />
         );
-    }, [mapperData]);
+    };
 
-    return view;
+    return (
+        <DataMapperView
+            fnST={model}
+            filePath={filePath}
+            langServerRpcClient={langServerRpcClient}
+            libraryBrowserRpcClient={libraryBrowserRPCClient}
+            applyModifications={applyModifications}
+            goToFunction={goToFunction}
+            renderRecordPanel={renderRecordPanel}
+        />
+    );
 };

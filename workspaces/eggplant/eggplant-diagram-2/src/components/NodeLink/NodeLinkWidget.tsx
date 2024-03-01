@@ -13,6 +13,7 @@ import { useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { NodeLinkModel } from "./NodeLinkModel";
 import { Colors } from "../../resources/constants";
+import { useDiagramContext } from "../DiagramContext";
 
 interface NodeLinkWidgetProps {
     link: NodeLinkModel;
@@ -32,10 +33,21 @@ const fadeInZoomIn = keyframes`
 
 export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) => {
     const [isHovered, setIsHovered] = useState(false);
-    const labelPosition = link.getLabelPosition();
+    const {
+        componentPanel,
+        addNode: { setTargetMetadata },
+    } = useDiagramContext();
+
     const addButtonPosition = link.getAddButtonPosition();
 
     const handleAddNode = () => {
+        setTargetMetadata &&
+            setTargetMetadata({
+                topNodeId: link.sourceNode.getID(),
+                bottomNodeId: link.targetNode.getID(),
+                linkLabel: link.label,
+            });
+        componentPanel.show();
         if (link.onAddClick) {
             link.onAddClick();
         }
@@ -57,10 +69,10 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 stroke={link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY}
                 strokeWidth={1.5}
                 strokeDasharray={link.brokenLine ? "5,5" : "0"}
-                markerEnd={link.showArrowToNode() && `url(#${link.getID()}-arrow-head)`}
+                markerEnd={link.showArrowToNode() ? `url(#${link.getID()}-arrow-head)` : ""}
             />
             {link.label && (
-                <foreignObject x={labelPosition.x - 50} y={labelPosition.y - 20} width="100" height="100">
+                <foreignObject x={addButtonPosition.x - 50} y={addButtonPosition.y - 10} width="100" height="100">
                     <div
                         style={{
                             display: "flex",

@@ -16,12 +16,23 @@ import { Colors } from "../../../resources/constants";
 namespace S {
     export const Node = styled.div<{}>`
         display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 180px;
+        height: 16px;
+    `;
+
+    export type CircleStyleProp = {
+        show: boolean;
+    };
+    export const Circle = styled.div<CircleStyleProp>`
+        display: flex;
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
-        width: 8px;
-        height: 8px;
-        border: 2px solid ${Colors.PRIMARY};
+        width: ${(props: CircleStyleProp) => (props.show ? 8 : 0)}px;
+        height: ${(props: CircleStyleProp) => (props.show ? 8 : 0)}px;
+        border: 2px solid ${(props: CircleStyleProp) => (props.show ? Colors.PRIMARY : "transparent")};
         border-radius: 50%;
     `;
 
@@ -44,8 +55,10 @@ export function EmptyNodeWidget(props: EmptyNodeWidgetProps) {
 
     return (
         <S.Node>
-            <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
-            <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
+            <S.Circle show={node.isVisible()}>
+                <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
+                <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
+            </S.Circle>
         </S.Node>
     );
 }

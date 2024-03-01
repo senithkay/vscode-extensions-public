@@ -20,6 +20,7 @@ import { registerCommonRpcHandlers } from './rpc-managers/common/rpc-handler';
 import { registerPersistDiagramRpcHandlers } from './rpc-managers/persist-diagram/rpc-handler';
 import { registerGraphqlDesignerRpcHandlers } from './rpc-managers/graphql-designer/rpc-handler';
 import { registerProjectDesignDiagramRpcHandlers } from './rpc-managers/project-design-diagram/rpc-handler';
+import { registerRecordCreatorRpcHandlers } from './rpc-managers/record-creator/rpc-handler';
 
 export class RPCLayer {
     static _messenger: Messenger;
@@ -47,6 +48,7 @@ export class RPCLayer {
         registerPersistDiagramRpcHandlers(RPCLayer._messenger);
         registerGraphqlDesignerRpcHandlers(RPCLayer._messenger);
         registerProjectDesignDiagramRpcHandlers(RPCLayer._messenger);
+        registerRecordCreatorRpcHandlers(RPCLayer._messenger);
     }
 
     static create(webViewPanel: WebviewPanel | WebviewView) {
@@ -58,7 +60,7 @@ export class RPCLayer {
 async function getContext(): Promise<VisualizerLocation> {
     const context = StateMachine.context();
     return new Promise((resolve) => {
-        resolve({ documentUri: context.documentUri, view: context.view, identifier: context.identifier, position: context.position });
+        resolve({ documentUri: context.documentUri, view: context.view, identifier: context.identifier, position: context.position, syntaxTree: context.syntaxTree });
     });
 }
 

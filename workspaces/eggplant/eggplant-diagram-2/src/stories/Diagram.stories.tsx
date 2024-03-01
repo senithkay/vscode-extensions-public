@@ -2,210 +2,11 @@ import React from "react";
 import { Story, Meta } from "@storybook/react/types-6-0";
 import { Diagram, DiagramProps } from "../components/Diagram";
 
-const resourceModel: any = { // todo: need to fix types
-    kind: "FLOW",
-    name: "",
-    children: [
-        {
-            kind: "EVENT_HTTP_API",
-            label: "HTTP API Event",
-            method: {
-                key: "method",
-                type: null,
-                value: "GET",
-                typeKind: "IDENTIFIER",
-            },
-            path: {
-                key: "path",
-                type: null,
-                value: "/search/doctors/[string name]",
-                typeKind: "URI_PATH",
-            },
-            id: "1",
-            lineRange: {
-                fileName: "",
-                startLine: [7, 7],
-                endLine: [15, 6],
-            },
-            fixed: true,
-        },
-        {
-            kind: "VARIABLE",
-            label: "Variable",
-            name: {
-                key: "name",
-                type: "string",
-                value: "kandy",
-                typeKind: "BTYPE",
-            },
-            id: "7",
-            lineRange: {
-                fileName: "",
-                startLine: [8, 9],
-                endLine: [8, 17],
-            },
-        },
-        {
-            kind: "IF",
-            label: "If",
-            condition: {
-                key: "condition",
-                type: "boolean",
-                value: 'name == "kandy"',
-                typeKind: "BTYPE",
-            },
-            thenBranch: {
-                kind: "THEN_BRANCH_BODY",
-                children: [
-                    {
-                        label: "HTTP GET",
-                        kind: "HTTP_API_GET_CALL",
-                        client: {
-                            key: "client",
-                            type: "http:Client",
-                            value: "asiri",
-                            typeKind: "BTYPE",
-                        },
-                        path: {
-                            key: "path",
-                            type: "string",
-                            value: "/doctors/kandy",
-                            typeKind: "BTYPE",
-                        },
-                        headers: {
-                            key: "headers",
-                            type: "map<string|string[]>?",
-                            typeKind: "BTYPE",
-                            optional: true,
-                        },
-                        targetType: {
-                            key: "targetType",
-                            type: "Response|anydata",
-                            value: "json",
-                            typeKind: "BTYPE",
-                        },
-                        params: {
-                            key: "params",
-                            type: "http:QueryParamType",
-                            value: [],
-                            optional: true,
-                        },
-                        variable: {
-                            key: "j",
-                            type: "json",
-                            typeKind: "BTYPE",
-                        },
-                        id: "3",
-                        lineRange: {
-                            fileName: "",
-                            startLine: [9, 13],
-                            endLine: [9, 57],
-                        },
-                    },
-                    {
-                        expr: {
-                            key: "expression",
-                            type: "json",
-                            value: "j",
-                            typeKind: "BTYPE",
-                        },
-                        kind: "RETURN",
-                        returning: true,
-                        id: "5",
-                        lineRange: {
-                            fileName: "",
-                            startLine: [10, 13],
-                            endLine: [10, 22],
-                        },
-                    },
-                ],
-            },
-            elseBranch: {
-                kind: "ELSE_BRANCH_BODY",
-                children: [
-                    {
-                        label: "HTTP GET",
-                        kind: "HTTP_API_GET_CALL",
-                        client: {
-                            key: "client",
-                            type: "http:Client",
-                            value: "nawaloka",
-                            typeKind: "BTYPE",
-                        },
-                        path: {
-                            key: "path",
-                            type: "string",
-                            value: "/doctors",
-                            typeKind: "BTYPE",
-                        },
-                        headers: {
-                            key: "headers",
-                            type: "map<string|string[]>?",
-                            typeKind: "BTYPE",
-                            optional: true,
-                        },
-                        targetType: {
-                            key: "targetType",
-                            type: "Response|anydata",
-                            value: "json",
-                            typeKind: "BTYPE",
-                        },
-                        params: {
-                            key: "params",
-                            type: "http:QueryParamType",
-                            value: [],
-                            optional: true,
-                        },
-                        variable: {
-                            key: "j",
-                            type: "json",
-                            typeKind: "BTYPE",
-                        },
-                        id: "4",
-                        lineRange: {
-                            fileName: "",
-                            startLine: [12, 13],
-                            endLine: [12, 60],
-                        },
-                    },
-                    {
-                        kind: "VARIABLE",
-                        label: "Variable",
-                        id: "8",
-                        name: {
-                            key: "name",
-                            type: "string",
-                            value: "j",
-                            typeKind: "BTYPE",
-                        },
-                    },
-                    {
-                        expr: {
-                            key: "expression",
-                            type: "json",
-                            value: "j",
-                            typeKind: "BTYPE",
-                        },
-                        kind: "RETURN",
-                        returning: true,
-                        id: "6",
-                        lineRange: {
-                            fileName: "",
-                            startLine: [13, 13],
-                            endLine: [13, 22],
-                        },
-                    },
-                ],
-            },
-            id: "2",
-            lineRange: {
-                fileName: "",
-                startLine: [8, 9],
-                endLine: [14, 10],
-            },
-        },
-    ],
-};
+import basicModel from "./basic.json";
+import basic2Model from "./basic-2.json";
+import advancedModel from "./advanced.json";
+import advanced2Model from "./advanced-2.json";
+import advanced3Model from "./advanced-3.json";
 
 export default {
     title: "Example/Diagram",
@@ -214,7 +15,32 @@ export default {
 
 const Template: Story<DiagramProps> = (args: React.JSX.IntrinsicAttributes & DiagramProps) => <Diagram {...args} />;
 
-export const Primary = Template.bind({});
-Primary.args = {
-    model: resourceModel,
+export const Empty = Template.bind({});
+Empty.args = {
+    model: { name: "", nodes: [], clients: [] },
+};
+
+export const Basic = Template.bind({});
+Basic.args = {
+    model: basicModel,
+};
+
+export const Basic2 = Template.bind({});
+Basic2.args = {
+    model: basic2Model,
+};
+
+export const Advanced = Template.bind({});
+Advanced.args = {
+    model: advancedModel,
+};
+
+export const Advanced2 = Template.bind({});
+Advanced2.args = {
+    model: advanced2Model,
+};
+
+export const Advanced3 = Template.bind({});
+Advanced3.args = {
+    model: advanced3Model,
 };

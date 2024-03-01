@@ -17,6 +17,7 @@ export * from "./state-machine-types";
 // ------ Eggplant related interfaces -------->
 export * from "./interfaces/lang-client";
 export * from "./interfaces/metadata-types";
+export * from "./interfaces/eggplant";
 
 // ------ RPC interfaces -------->
 export * from "./rpc-types/eggplant-diagram";
@@ -27,7 +28,7 @@ export * from "./rpc-types/visualizer/rpc-type";
 export * from "./rpc-types/visualizer/interfaces";
 
 // ------ Util functions -------->
-export * from "./code-generation/utils/code-generator-utils";
+// export * from "./code-generation/utils/code-generator-utils";
 export * from "./code-generation/utils/metadata-utils";
 
 // ------ Ballerina exports -------->
@@ -42,14 +43,10 @@ export type {
     CommonRPCAPI,
     Completion,
     CompletionParams,
-    DeleteSourceRequest,
-    DeleteSourceResponse,
     GoToSourceRequest,
     STModification,
     SyntaxTreeResponse,
     TypeResponse,
-    UpdateSourceRequest,
-    UpdateSourceResponse,
     CodeActionRequest,
     CompletionRequest,
     DefinitionPositionRequest,
@@ -95,7 +92,6 @@ export {
     getLibrariesData,
     getLibrariesList,
     getLibraryData,
-    deleteSource,
     getTypes,
     goToSource,
     codeAction,
@@ -125,7 +121,6 @@ export {
     rename,
     stModify,
     updateFileContent,
-    updateSource,
     getRecordST,
     InsertorDelete,
     visitor,
