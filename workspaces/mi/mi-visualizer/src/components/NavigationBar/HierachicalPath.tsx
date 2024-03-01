@@ -43,16 +43,20 @@ export function HierachicalPath(props: HierachicalPathProps) {
         const filePath = path.relative(machineView.projectUri, machineView.documentUri).split(path.join("src", "main", "wso2mi", "artifacts"))[1];
         const pathItems = filePath.substring(1).split(path.sep);
 
-        if (machineView.identifier) {
-            pathItems.push(machineView.identifier);
-        }
-
         const segments: Segment[] = [];
         const updateSegments = async () => {
+            const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri });
+
+            if (machineView.identifier !== undefined) {
+                if (syntaxTree && syntaxTree?.syntaxTree && syntaxTree.syntaxTree?.api) {
+                    const resource = syntaxTree.syntaxTree.api.resource[machineView.identifier];
+                    pathItems.push(`${resource.uriTemplate} (${resource.methods.join(", ")})`);
+                }
+            }
+
             for (const pathItem of pathItems) {
                 if (pathItem.endsWith(".xml")) {
                     try {
-                        const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri });
                         if (!syntaxTree || !syntaxTree?.syntaxTree || !syntaxTree.syntaxTree?.api) {
                             continue;
                         }

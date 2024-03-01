@@ -22,7 +22,6 @@ export function ServiceDesignerView() {
             rpcClient.getVisualizerState().then((state) => {
                 setDocUri(state.documentUri);
                 rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: state.documentUri }).then((res) => {
-                    console.log(res.syntaxTree);
                     const st = res.syntaxTree.api;
                     const resources: Resource[] = [];
                     st.resource.forEach((resource: any) => {
@@ -50,7 +49,8 @@ export function ServiceDesignerView() {
     }, [rpcClient]);
 
     const openDiagram = (resource: Resource) => {
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Diagram, documentUri: doUri, identifier: resource.path } })
+        const resourceIndex = serviceModel.resources.findIndex((res) => res === resource);
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Diagram, documentUri: doUri, identifier: resourceIndex.toString() } })
     }
 
     return (

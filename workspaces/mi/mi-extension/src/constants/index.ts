@@ -15,4 +15,6 @@ export const COMMANDS = {
     CREATE_PROJECT_COMMAND: 'MI.project-explorer.create-project',
     REVEAL_ITEM_COMMAND: 'MI.project-explorer.revealItem',
     FOCUS_PROJECT_EXPLORER: 'MI.project-explorer.focus',
+    OPEN_SERVICE_DESIGNER: 'MI.project-explorer.open-service-designer',
+    OPEN_SERVICE_DESIGNER_BESIDE: 'MI.project-explorer.open-service-designer-beside',
 };

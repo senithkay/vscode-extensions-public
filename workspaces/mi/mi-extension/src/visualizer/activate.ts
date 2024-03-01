@@ -8,33 +8,11 @@
  */
 
 import * as vscode from 'vscode';
-import { VisualizerWebview } from './webview';
-import { Uri, ViewColumn, commands, window } from 'vscode';
+import { commands, window } from 'vscode';
 import { StateMachine } from '../stateMachine';
 import { COMMANDS } from '../constants';
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
-    context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.SHOW_DIAGRAM, (e: any) => {
-            if (!VisualizerWebview.currentPanel) {
-                VisualizerWebview.currentPanel = new VisualizerWebview(true);
-            }
-            VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
-        })
-    );
-    context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.SHOW_SOURCE, (e: any) => {
-            const documentUri = StateMachine.context().documentUri;
-            if (documentUri) {
-                const openedEditor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
-                if (openedEditor) {
-                    window.showTextDocument(openedEditor.document, { viewColumn: openedEditor.viewColumn });
-                } else {
-                    commands.executeCommand('vscode.open', Uri.parse(documentUri), { viewColumn: ViewColumn.Beside });
-                }
-            }
-        })
-    );
     context.subscriptions.push(
         vscode.commands.registerCommand(COMMANDS.OPEN_PROJECT, () => {
             window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Open MI Project' })

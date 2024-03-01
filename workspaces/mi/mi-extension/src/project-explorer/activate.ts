@@ -7,19 +7,20 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import * as vscode from 'vscode';
-import { ProjectExplorerEntryProvider } from './project-explorer-provider';
-import { openView } from '../stateMachine';
+import { ProjectExplorerEntry, ProjectExplorerEntryProvider } from './project-explorer-provider';
+import { StateMachine, openView } from '../stateMachine';
 import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from '@wso2-enterprise/mi-core';
 import { COMMANDS } from '../constants';
+import { ExtensionContext, Uri, ViewColumn, commands, window } from 'vscode';
+import { VisualizerWebview } from '../visualizer/webview';
 
-export function activateProjectExplorer(context: vscode.ExtensionContext) {
+export function activateProjectExplorer(context: ExtensionContext) {
 
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context);
-	const projectTree = vscode.window.createTreeView('project-explorer', { treeDataProvider: projectExplorerDataProvider });
-	vscode.commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { projectExplorerDataProvider.refresh(); });
-	vscode.commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
-		vscode.window.showQuickPick([
+	const projectTree = window.createTreeView('MI.project-explorer', { treeDataProvider: projectExplorerDataProvider });
+	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { projectExplorerDataProvider.refresh(); });
+	commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
+		window.showQuickPick([
 			{ label: 'New Project', description: 'Create new project' },
 			{ label: 'API', description: 'Add new API' },
 			{ label: 'Endpoint', description: 'Add new endpoint' },
@@ -29,45 +30,45 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 			placeHolder: 'Select the construct to add'
 		}).then(selection => {
 			if (selection?.label === 'API') {
-				vscode.commands.executeCommand(COMMANDS.ADD_API_COMMAND);
+				commands.executeCommand(COMMANDS.ADD_API_COMMAND);
 			} else if (selection?.label === 'Endpoint') {
-				vscode.commands.executeCommand(COMMANDS.ADD_ENDPOINT_COMMAND);
+				commands.executeCommand(COMMANDS.ADD_ENDPOINT_COMMAND);
 			} else if (selection?.label === 'Sequence') {
-				vscode.commands.executeCommand(COMMANDS.ADD_SEQUENCE_COMMAND);
+				commands.executeCommand(COMMANDS.ADD_SEQUENCE_COMMAND);
 			} else if (selection?.label === 'Inbound Endpoint') {
-				vscode.commands.executeCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND);
+				commands.executeCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND);
 			} else if (selection?.label === 'New Project') {
-				vscode.commands.executeCommand(COMMANDS.CREATE_PROJECT_COMMAND);
+				commands.executeCommand(COMMANDS.CREATE_PROJECT_COMMAND);
 			}
 		});
 
 	});
-	vscode.commands.registerCommand(COMMANDS.ADD_API_COMMAND, () => {
+	commands.registerCommand(COMMANDS.ADD_API_COMMAND, () => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm });
 		console.log('Add API');
 	});
 
-	vscode.commands.registerCommand(COMMANDS.ADD_ENDPOINT_COMMAND, () => {
+	commands.registerCommand(COMMANDS.ADD_ENDPOINT_COMMAND, () => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.EndPointForm });
 		console.log('Add Endpoint');
 	});
 
-	vscode.commands.registerCommand(COMMANDS.ADD_SEQUENCE_COMMAND, () => {
+	commands.registerCommand(COMMANDS.ADD_SEQUENCE_COMMAND, () => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceForm });
 		console.log('Add Sequence');
 	});
 
-	vscode.commands.registerCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND, () => {
+	commands.registerCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND, () => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.InboundEPForm });
 		console.log('Add Inbound API');
 	});
 
-	vscode.commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
+	commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
 		console.log('Create New Project');
 	});
 
-	vscode.commands.registerCommand(COMMANDS.REVEAL_ITEM_COMMAND, async (viewLocation: VisualizerLocation) => {
+	commands.registerCommand(COMMANDS.REVEAL_ITEM_COMMAND, async (viewLocation: VisualizerLocation) => {
 		const data = projectExplorerDataProvider.getChildren();
 
 		if (viewLocation.projectUri && viewLocation.projectUri && data) {
@@ -84,8 +85,8 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 						if (fileEntry) {
 							projectTree.reveal(fileEntry, { select: true, focus: true });
 
-							if (viewLocation.identifier) {
-								const resourceEntry = fileEntry.children?.find((file) => file.info?.name === viewLocation.identifier);
+							if (viewLocation.identifier !== undefined) {
+								const resourceEntry = fileEntry.children?.find((file) => file.info?.path === `${viewLocation.documentUri}/${viewLocation.identifier}`);
 								if (resourceEntry) {
 									projectTree.reveal(resourceEntry, { select: true, focus: true });
 								}
@@ -98,5 +99,41 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 		}
 	});
 
-	vscode.commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
+	// action items
+	commands.registerCommand(COMMANDS.SHOW_DIAGRAM, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Diagram, documentUri: documentUri.fsPath, identifier: resourceIndex });
+	})
+	commands.registerCommand(COMMANDS.SHOW_SOURCE, (e: any) => {
+		const documentUri = StateMachine.context().documentUri;
+		if (documentUri) {
+			const openedEditor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
+			if (openedEditor) {
+				window.showTextDocument(openedEditor.document, { viewColumn: openedEditor.viewColumn });
+			} else {
+				commands.executeCommand('vscode.open', Uri.parse(documentUri), { viewColumn: ViewColumn.Beside });
+			}
+		}
+	})
+	commands.registerCommand(COMMANDS.OPEN_SERVICE_DESIGNER, async (entry: ProjectExplorerEntry) => {
+		revealWebviewPanel(false);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: entry.info?.path });
+	});
+	commands.registerCommand(COMMANDS.OPEN_SERVICE_DESIGNER_BESIDE, async (file: Uri) => {
+		revealWebviewPanel(true);
+		setTimeout(() => {
+			openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: file.fsPath });
+		}, 100);
+	});
+
+	commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
+}
+
+function revealWebviewPanel(beside: boolean = true) {
+	if (!VisualizerWebview.currentPanel) {
+		VisualizerWebview.currentPanel = new VisualizerWebview(true);
+		VisualizerWebview.currentPanel?.getWebview()?.reveal(beside ? ViewColumn.Beside : ViewColumn.One);
+	} else {
+		VisualizerWebview.currentPanel?.getWebview()?.reveal(beside ? ViewColumn.Beside : ViewColumn.Active);
+	}
 }

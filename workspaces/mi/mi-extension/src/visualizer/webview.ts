@@ -44,7 +44,7 @@ export class VisualizerWebview {
     private static createWebview(beside: boolean): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
             VisualizerWebview.viewType,
-            'Micro Integrator',
+            'Overview',
             beside ? ViewColumn.Beside : ViewColumn.Active,
             {
                 enableScripts: true,

@@ -10,6 +10,7 @@
 import * as vscode from 'vscode';
 import { MILanguageClient } from '../lang-client/activator';
 import { ProjectStructureResponse, ProjectStructureEntry } from '@wso2-enterprise/mi-core';
+import { COMMANDS } from '../constants';
 
 export class ProjectExplorerEntry extends vscode.TreeItem {
 	children: ProjectExplorerEntry[] | undefined;
@@ -245,13 +246,19 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			apiEntry.children = [];
 
 			// Generate resource structure
-			for (const resource of entry.resources) {
-				const resourceEntry: ProjectStructureEntry = {
+			for (let i = 0; i < entry.resources.length; i++) {
+				const resource = entry.resources[i];
+				const resourceEntry = new ProjectExplorerEntry(resource.uriTemplate ?? "/", isCollapsibleState(false), {
 					name: resource.uriTemplate,
 					type: 'resource',
-					path: entry.path + resource.uriTemplate
+					path: `${entry.path}/${i}`
+				}, 'code');
+				resourceEntry.command = {
+					"title": "Show Diagram",
+					"command": COMMANDS.SHOW_DIAGRAM,
+					"arguments": [vscode.Uri.parse(entry.path), i, false]
 				};
-				apiEntry.children.push(new ProjectExplorerEntry(resource.uriTemplate ?? "/", isCollapsibleState(false), resourceEntry, 'code'));
+				apiEntry.children.push(resourceEntry);
 			}
 			explorerEntry = apiEntry;
 

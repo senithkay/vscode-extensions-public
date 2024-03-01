@@ -236,9 +236,10 @@ export function navigate() {
         stateService.send({ type: "NAVIGATE", viewLocation: { view: MACHINE_VIEW.Overview } });
     } else {
         const location = historyStack[historyStack.length - 1].location;
-        updateProjectExplorer(location);
         stateService.send({ type: "NAVIGATE", viewLocation: location });
     }
+    const location = history.get()[history.get().length - 1].location;
+    updateProjectExplorer(location);
 }
 
 function updateProjectExplorer(location: VisualizerLocation | undefined) {
@@ -254,8 +255,6 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
     if (webview) {
         if (location && location.view) {
             webview.title = location.view;
-        } else {
-            webview.title = "Micro Integrator";
         }
     }
 }
