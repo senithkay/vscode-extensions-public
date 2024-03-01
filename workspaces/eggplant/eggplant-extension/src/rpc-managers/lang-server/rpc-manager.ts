@@ -44,13 +44,16 @@ import {
     TypesFromFnDefinitionRequest,
     TypesFromSymbolResponse,
     UpdateFileContentRequest,
-    UpdateFileContentResponse
+    UpdateFileContentResponse,
+    onFileContentUpdate
 } from "@wso2-enterprise/eggplant-core";
 import { writeFileSync } from 'fs';
 import { normalize } from "path";
 import { Position, Range, WorkspaceEdit, extensions, workspace } from "vscode";
 import { URI } from "vscode-uri";
 import { StateMachine } from "../../stateMachine";
+import { RPCLayer } from "../../RPCLayer";
+import { VisualizerWebview } from "../../visualizer/webview";
 
 export class LangServerRpcManager implements LangServerAPI {
 
@@ -192,6 +195,7 @@ export class LangServerRpcManager implements LangServerAPI {
                 });
                 writeFileSync(normalizedFilePath, content);
                 StateMachine.langClient().updateStatusBar();
+                RPCLayer._messenger.sendNotification(onFileContentUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType });
             }
             resolve({ status: false });
         });

@@ -11,6 +11,8 @@ import React, { useEffect } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
 import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import { Resource, ServiceDesignerView } from "@wso2-enterprise/service-designer-view";
+import { STModification } from "@wso2-enterprise/eggplant-core";
+import { URI } from 'vscode-uri';
 
 export function ServiceDesigner() {
     const { rpcClient } = useVisualizerContext();
@@ -38,12 +40,30 @@ export function ServiceDesigner() {
         rpcClient.getVisualizerRpcClient().openView(context);
     }
 
+    const applyModifications = async (modifications: STModification[]) => {
+        const langServerRPCClient = rpcClient.getLangServerRpcClient();
+        const filePath = (await rpcClient.getVisualizerLocation()).documentUri;
+        const { parseSuccess, source: newSource } = await langServerRPCClient?.stModify({
+            astModifications: modifications,
+            documentIdentifier: {
+                uri: URI.file(filePath).toString()
+            }
+        });
+        if (parseSuccess) {
+            await langServerRPCClient.updateFileContent({
+                content: newSource,
+                fileUri: filePath
+            });
+        }
+    };
+
     return (
         <>
             <ServiceDesignerView
                 model={st}
                 rpcClients={{ serviceDesignerRpcClient: rpcClient.getServiceDesignerRpcClient(), commonRpcClient: rpcClient.getCommonRpcClient() }}
                 goToSource={showDiagram}
+                applyModifications={applyModifications}
             />
         </>
     );
