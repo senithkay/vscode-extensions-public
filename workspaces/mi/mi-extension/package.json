@@ -65,7 +65,7 @@
     "viewsWelcome": [
       {
         "view": "project-explorer",
-        "contents": "Welcome to Micro Integrator. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:integrationStudio.openProject)\n[Create New Project](command:MI.show.diagramc)\nTo learn more about how to use Micro Integrator in VS Code [read our docs](https://ei.docs.wso2.com)."
+        "contents": "Welcome to Micro Integrator. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:MI.openProject)\n[Create New Project](command:MI.show.diagramc)\nTo learn more about how to use Micro Integrator in VS Code [read our docs](https://ei.docs.wso2.com)."
       }
     ],
     "commands": [
@@ -76,7 +76,7 @@
         "category": "MI"
       },
       {
-        "command": "integrationStudio.openProject",
+        "command": "MI.openProject",
         "title": "Open Project",
         "category": "MI"
       },
