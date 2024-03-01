@@ -2732,6 +2732,7 @@ importers:
       typescript: ^5.2.2
       vscode-messenger-common: ^0.4.5
       vscode-messenger-webview: ^0.4.5
+      vscode-uri: ^3.0.8
       webpack: ^5.89.0
       webpack-cli: ^4.10.0
       webpack-dev-server: ^4.15.1
@@ -2752,6 +2753,7 @@ importers:
       react-dom: 18.2.0_react@18.2.0
       vscode-messenger-common: 0.4.5
       vscode-messenger-webview: 0.4.5
+      vscode-uri: 3.0.8
     devDependencies:
       '@storybook/addon-actions': 6.5.16_biqbaboplfbrettd7655fr4n2y
       '@storybook/addon-essentials': 6.5.16_e5nukceqgxgpq6mdqksbcxp5ny
