@@ -351,6 +351,14 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"command": COMMANDS.SHOW_VIEW,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
+		} else if (entry.type === "INBOUND_ENDPOINT") {
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			explorerEntry.contextValue = 'inboundEndpoint';
+			explorerEntry.command = {
+				"title": "Show View",
+				"command": COMMANDS.SHOW_VIEW,
+				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+			};
 		} 
 		else if (entry.type === "MESSAGE_STORE") {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');

@@ -42,13 +42,11 @@ import {
     GetDefinitionResponse,
     GetDiagnosticsReqeust,
     GetDiagnosticsResponse,
-    GetInboundEpDirRequest,
     GetProjectRootRequest,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
     FileDirResponse,
     HighlightCodeRequest,
-    InboundEndpointDirectoryResponse,
     LocalEntryDirectoryResponse,
     MiDiagramAPI,
     OpenDiagramRequest,
@@ -74,6 +72,8 @@ import {
     CreateTemplateResponse,
     RetrieveTemplateRequest,
     RetrieveTemplateResponse,
+    GetInboundEndpointRequest,
+    GetInboundEndpointResponse,
     BrowseFileResponse,
     BrowseFileRequest,
     CreateRegistryResourceRequest,
@@ -536,41 +536,75 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }    
 
-    async getInboundEndpointDirectory(): Promise<InboundEndpointDirectoryResponse> {
-        try {
-            const workspaceFolder = workspace.workspaceFolders;
-            if (workspaceFolder) {
-                const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
-                const endpointDir = path.join(workspaceFolderPath, 'src', 'main', 'wso2mi', 'artifacts', 'inbound-endpoints');
-
-                const response: InboundEndpointDirectoryResponse = { data: endpointDir };
-
-                return response;
-            }
-
-            return { data: "" };
-        } catch (error) {
-            throw new Error("Failed to fetch workspace folders: " + error);
-        }
-    }
-
     async createInboundEndpoint(params: CreateInboundEndpointRequest): Promise<CreateInboundEndpointResponse> {
         return new Promise(async (resolve) => {
-            const { directory, name, type, sequence, errorSequence } = params;
+            const { directory, ...templateParams } = params;
 
-            const getTemplateParams = {
-                name,
-                type: type.toLowerCase(),
-                sequence,
-                errorSequence
-            };
+            let filePath: string = directory;
+            let isNew = true;
+            templateParams.type = templateParams.type.toLowerCase();
 
-            const xmlData = getInboundEndpointXmlWrapper(getTemplateParams);
+            if (filePath.includes('inboundEndpoints')) {
+                filePath = filePath.replace('inboundEndpoints', 'inbound-endpoints');
+            }
 
-            const filePath = path.join(directory, `${name}.xml`);
+            if (filePath.endsWith('.xml')) {
+                isNew = false;
+            } else {
+                filePath = path.join(filePath, `${templateParams.name}.xml`);
+            }
+
+            const xmlData = getInboundEndpointXmlWrapper(isNew, templateParams);
+
             fs.writeFileSync(filePath, xmlData);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
+        });
+    }
+
+    async getInboundEndpoint(params: GetInboundEndpointRequest): Promise<GetInboundEndpointResponse> {
+        const options = {
+            ignoreAttributes: false,
+            allowBooleanAttributes: true,
+            attributeNamePrefix: "@_",
+        };
+        const parser = new XMLParser(options);
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (fs.existsSync(filePath)) {
+                const xmlData = fs.readFileSync(filePath, "utf8");
+                const jsonData = parser.parse(xmlData);
+
+                const params: { [key: string]: string | number | boolean } = {};
+                jsonData.inboundEndpoint.parameters.parameter.map((param: any) => {
+                    params[param["@_name"]] = param["#text"];
+                });
+
+                const response: GetInboundEndpointResponse = {
+                    name: jsonData.inboundEndpoint["@_name"],
+                    type: jsonData.inboundEndpoint["@_protocol"],
+                    sequence: jsonData.inboundEndpoint["@_sequence"],
+                    errorSequence: jsonData.inboundEndpoint["@_errorSequence"],
+                    parameters: params,
+                    additionalParameters: {
+                        suspend: jsonData.inboundEndpoint["@_suspend"] === 'true',
+                        trace: jsonData.inboundEndpoint["@_trace"] ? true : false,
+                        statistics: jsonData.inboundEndpoint["@_statistics"] ? true : false,
+                    }
+                };
+
+                resolve(response);
+            }
+
+            resolve({
+                name: '',
+                type: '',
+                sequence: '',
+                errorSequence: '',
+                parameters: {},
+                additionalParameters: {}
+            });
         });
     }
 

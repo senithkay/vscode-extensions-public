@@ -67,6 +67,8 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.TaskForm, documentUri: path } });
         } else if (directory.toLowerCase() === "template") {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.TemplateForm, documentUri: path } });
+        } else if (directory.toLowerCase() === "inbound_endpoint") {
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.InboundEPForm, documentUri: path } });
         }
     };
 
