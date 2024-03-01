@@ -248,6 +248,15 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
             location.projectUri = projectRoot.uri.fsPath;
             vscode.commands.executeCommand(COMMANDS.REVEAL_ITEM_COMMAND, location);
         }
+
+    }
+    const webview = VisualizerWebview.currentPanel?.getWebview();
+    if (webview) {
+        if (location && location.view) {
+            webview.title = location.view;
+        } else {
+            webview.title = "Micro Integrator";
+        }
     }
 }
 

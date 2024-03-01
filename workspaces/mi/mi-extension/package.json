@@ -164,7 +164,7 @@
           "group": "navigation@3"
         },
         {
-            "when": "isMIDiagram && editorLangId !== SynapseXml",
+            "when": "showGoToSource && editorLangId !== SynapseXml",
             "command": "MI.show.source",
             "group": "navigation@3"
         }

@@ -46,8 +46,8 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
         })
     );
     StateMachine.service().onTransition((state) => {
-        if (state?.event?.type === 'OPEN_VIEW') {
-            commands.executeCommand('setContext', 'isMIDiagram', state.event.viewLocation?.view === 'Diagram');
+        if (state.event.viewLocation?.view) {
+            commands.executeCommand('setContext', 'showGoToSource', state.event.viewLocation?.documentUri !== undefined);
         }
     });
 }
