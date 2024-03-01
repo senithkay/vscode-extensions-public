@@ -10,9 +10,7 @@
 import React, { ReactNode } from "react";
 
 import { useStyles } from "./style";
-import "./style.scss";
 import { cx } from "@emotion/css";
-import { FormContainer } from "../../../../style";
 import { Typography } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeRadio, VSCodeRadioGroup } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";

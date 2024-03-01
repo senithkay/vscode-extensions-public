@@ -8,8 +8,6 @@
  */
 import React from "react";
 import { Button, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
-import "./style.scss";
-import styled from "@emotion/styled";
 
 export interface FileSelectorProps {
     label: string;
