@@ -81,26 +81,26 @@
         "category": "MI"
       },
       {
-        "command": "project-explorer.add",
+        "command": "MI.project-explorer.add",
         "title": "Add Construct",
         "icon": "$(add)",
         "category": "MI"
       },
       {
-        "command": "project-explorer.refresh",
+        "command": "MI.project-explorer.refresh",
         "title": "Refresh Project Explorer",
         "icon": "$(refresh)",
         "group": "navigation"
       },
       {
-        "command": "project-explorer.add-api",
+        "command": "MI.project-explorer.add-api",
         "title": "Add API",
         "icon": "$(add)",
         "group": "navigation",
         "category": "MI"
       },
       {
-        "command": "project-explorer.create-project",
+        "command": "MI.project-explorer.create-project",
         "title": "Create New Project",
         "icon": "$(add)",
         "group": "navigation",
@@ -113,21 +113,21 @@
         "group": "navigation"
       },
       {
-        "command": "project-explorer.add-endpoint",
+        "command": "MI.project-explorer.add-endpoint",
         "title": "Add Endpoint",
         "icon": "$(add)",
         "group": "navigation",
         "category": "MI"
       },
       {
-        "command": "project-explorer.add-sequence",
+        "command": "MI.project-explorer.add-sequence",
         "title": "Add Sequence",
         "icon": "$(add)",
         "group": "navigation",
         "category": "MI"
       },
       {
-        "command": "project-explorer.add-inbound-endpoint",
+        "command": "MI.project-explorer.add-inbound-endpoint",
         "title": "Add Inbound Endpoint",
         "icon": "$(add)",
         "group": "navigation",
@@ -147,12 +147,12 @@
     "menus": {
       "view/title": [
         {
-          "command": "project-explorer.refresh",
+          "command": "MI.project-explorer.refresh",
           "when": "view == project-explorer && projectOpened",
           "group": "navigation"
         },
         {
-          "command": "project-explorer.add",
+          "command": "MI.project-explorer.add",
           "when": "view == project-explorer && projectOpened",
           "group": "navigation"
         }
@@ -171,7 +171,7 @@
       ],
       "view/item/context": [
         {
-          "command": "project-explorer.add-api",
+          "command": "MI.project-explorer.add-api",
           "when": "view == project-explorer && viewItem == apis",
           "group": "inline"
         },
@@ -181,17 +181,17 @@
           "group": "inline"
         },
         {
-          "command": "project-explorer.add-endpoint",
+          "command": "MI.project-explorer.add-endpoint",
           "when": "view == project-explorer && viewItem == endpoints",
           "group": "inline"
         },
         {
-          "command": "project-explorer.add-sequence",
+          "command": "MI.project-explorer.add-sequence",
           "when": "view == project-explorer && viewItem == sequences",
           "group": "inline"
         },
         {
-            "command": "project-explorer.add-inbound-endpoint",
+            "command": "MI.project-explorer.add-inbound-endpoint",
             "when": "view == project-explorer && viewItem == inboundEndpoints",
             "group": "inline"
         }

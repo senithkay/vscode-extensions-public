@@ -9,10 +9,11 @@
 
 import * as vscode from 'vscode';
 import { generatePrompt } from './prompt';
+import { COMMANDS } from '../constants';
 
 export function activateAiPrompt(context: vscode.ExtensionContext) {
 
-	let prompt = vscode.commands.registerCommand('MI.addMediator', async () => {
+	let prompt = vscode.commands.registerCommand(COMMANDS.ADD_MEDIATOR, async () => {
 		let userInput = await vscode.window.showInputBox({ prompt: 'What you want to add?' });
 		let editor = vscode.window.activeTextEditor;
 		if (userInput && editor) {

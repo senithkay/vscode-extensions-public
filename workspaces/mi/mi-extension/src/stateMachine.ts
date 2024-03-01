@@ -9,6 +9,7 @@ import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
 import { history } from './history/activator';
+import { COMMANDS } from './constants';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -228,7 +229,7 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
         const projectRoot = vscode.workspace.getWorkspaceFolder(vscode.Uri.parse(viewLocation.documentUri));
         if (projectRoot) {
             viewLocation.projectUri = projectRoot.uri.fsPath;
-            vscode.commands.executeCommand('project-explorer.revealItem', viewLocation);
+            vscode.commands.executeCommand(COMMANDS.REVEAL_ITEM_COMMAND, viewLocation);
         }
     }
     stateService.send({ type: type, viewLocation: viewLocation });

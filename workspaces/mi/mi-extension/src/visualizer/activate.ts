@@ -11,17 +11,11 @@ import * as vscode from 'vscode';
 import { VisualizerWebview } from './webview';
 import { Uri, ViewColumn, commands, window } from 'vscode';
 import { StateMachine } from '../stateMachine';
-import { openView } from '../stateMachine';
-import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { COMMANDS } from '../constants';
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
     context.subscriptions.push(
-        vscode.commands.registerCommand('MI.showDiagram', () => {
-            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
-        })
-    );
-    context.subscriptions.push(
-        vscode.commands.registerCommand('MI.show.diagram', (e: any) => {
+        vscode.commands.registerCommand(COMMANDS.SHOW_DIAGRAM, (e: any) => {
             if (!VisualizerWebview.currentPanel) {
                 VisualizerWebview.currentPanel = new VisualizerWebview(true);
             }
@@ -29,10 +23,9 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
         })
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand('MI.show.source', (e: any) => {
+        vscode.commands.registerCommand(COMMANDS.SHOW_SOURCE, (e: any) => {
             const documentUri = StateMachine.context().documentUri;
             if (documentUri) {
-                console.log(window.visibleTextEditors.map(editor => editor.document.uri.fsPath));
                 const openedEditor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
                 if (openedEditor) {
                     window.showTextDocument(openedEditor.document, { viewColumn: openedEditor.viewColumn });
@@ -43,7 +36,7 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
         })
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand('MI.openProject', () => {
+        vscode.commands.registerCommand(COMMANDS.OPEN_PROJECT, () => {
             window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Open MI Project' })
                 .then(uri => {
                     if (uri && uri[0]) {

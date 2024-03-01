@@ -11,14 +11,14 @@ import * as vscode from 'vscode';
 import { ProjectExplorerEntryProvider } from './project-explorer-provider';
 import { openView } from '../stateMachine';
 import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from '@wso2-enterprise/mi-core';
+import { COMMANDS } from '../constants';
 
 export function activateProjectExplorer(context: vscode.ExtensionContext) {
 
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context);
-	// vscode.window.registerTreeDataProvider('project-explorer', projectExplorerDataProvider)
 	const projectTree = vscode.window.createTreeView('project-explorer', { treeDataProvider: projectExplorerDataProvider });
-	vscode.commands.registerCommand('project-explorer.refresh', () => { projectExplorerDataProvider.refresh(); });
-	vscode.commands.registerCommand('project-explorer.add', () => {
+	vscode.commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { projectExplorerDataProvider.refresh(); });
+	vscode.commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
 		vscode.window.showQuickPick([
 			{ label: 'New Project', description: 'Create new project' },
 			{ label: 'API', description: 'Add new API' },
@@ -29,46 +29,45 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 			placeHolder: 'Select the construct to add'
 		}).then(selection => {
 			if (selection?.label === 'API') {
-				vscode.commands.executeCommand('project-explorer.add-api');
+				vscode.commands.executeCommand(COMMANDS.ADD_API_COMMAND);
 			} else if (selection?.label === 'Endpoint') {
-				vscode.commands.executeCommand('project-explorer.add-endpoint');
+				vscode.commands.executeCommand(COMMANDS.ADD_ENDPOINT_COMMAND);
 			} else if (selection?.label === 'Sequence') {
-				vscode.commands.executeCommand('project-explorer.add-sequence');
+				vscode.commands.executeCommand(COMMANDS.ADD_SEQUENCE_COMMAND);
 			} else if (selection?.label === 'Inbound Endpoint') {
-				vscode.commands.executeCommand('project-explorer.add-inbound-endpoint');
+				vscode.commands.executeCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND);
 			} else if (selection?.label === 'New Project') {
-				vscode.commands.executeCommand('project-explorer.create-project');
+				vscode.commands.executeCommand(COMMANDS.CREATE_PROJECT_COMMAND);
 			}
 		});
 
 	});
-	vscode.commands.registerCommand('project-explorer.add-api', () => {
+	vscode.commands.registerCommand(COMMANDS.ADD_API_COMMAND, () => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm });
 		console.log('Add API');
 	});
 
-	vscode.commands.registerCommand('project-explorer.add-endpoint', () => {
+	vscode.commands.registerCommand(COMMANDS.ADD_ENDPOINT_COMMAND, () => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.EndPointForm });
 		console.log('Add Endpoint');
 	});
 
-	vscode.commands.registerCommand('project-explorer.add-sequence', () => {
+	vscode.commands.registerCommand(COMMANDS.ADD_SEQUENCE_COMMAND, () => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceForm });
 		console.log('Add Sequence');
 	});
 
-	vscode.commands.registerCommand('project-explorer.add-inbound-endpoint', () => {
+	vscode.commands.registerCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND, () => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.InboundEPForm });
 		console.log('Add Inbound API');
 	});
 
-	vscode.commands.registerCommand('project-explorer.create-project', () => {
-		// Update state machine to show the api wizard
+	vscode.commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
 		console.log('Create New Project');
 	});
 
-	vscode.commands.registerCommand('project-explorer.revealItem', async (viewLocation: VisualizerLocation) => {
+	vscode.commands.registerCommand(COMMANDS.REVEAL_ITEM_COMMAND, async (viewLocation: VisualizerLocation) => {
 		const data = projectExplorerDataProvider.getChildren();
 
 		if (viewLocation.projectUri && viewLocation.projectUri && data) {
@@ -99,6 +98,5 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 		}
 	});
 
-	vscode.commands.executeCommand('project-explorer.focus');
+	vscode.commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
 }
-
