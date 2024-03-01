@@ -147,6 +147,14 @@ export class NodeInitVisitor implements Visitor {
                                     typeDesc,
                                     returnType
                                 );
+                            } else {
+                                this.outputNode = new PrimitiveTypeNode(
+                                    this.context,
+                                    selectClause,
+                                    typeDesc,
+                                    returnType,
+                                    bodyExpr
+                                );
                             }
                         } else if (returnType?.typeName === PrimitiveBalType.Record) {
                             this.outputNode = new MappingConstructorNode(

@@ -83,6 +83,7 @@ export const useDiagramModel = (
     const noOfNodes = nodes.length;
     const context = nodes.find(node => node.context)?.context;
 	const fnSource = context ? context.selection.selectedST.stNode.source : undefined;
+    const fieldPath = context?.selection.selectedST.fieldPath;
     const collapsedFields = context?.collapsedFields;
     const { inputSearch, outputSearch } = useDMSearchStore();
 
@@ -126,7 +127,7 @@ export const useDiagramModel = (
         isFetching,
         isError,
         refetch,
-    } = useQuery(['genModel', {fnSource, noOfNodes, inputSearch, outputSearch, collapsedFields}], () => genModel(), {});
+    } = useQuery(['genModel', {fnSource, fieldPath, noOfNodes, inputSearch, outputSearch, collapsedFields}], () => genModel(), {});
 
     return { updatedModel, isFetching, isError, refetch };
 };
