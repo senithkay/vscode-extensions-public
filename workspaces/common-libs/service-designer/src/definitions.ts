@@ -48,6 +48,7 @@ export interface Resource {
     responses?: ResponseConfig[];
     updatePosition?: NodePosition; // Insert or Edit position of the resource
     position?: NodePosition; // Actual position of the resource which is used to render the resource
+    additionalInfo?: JSX.Element; // Addtional information to be displayed in the resource
 }
 
 export interface PathConfig {

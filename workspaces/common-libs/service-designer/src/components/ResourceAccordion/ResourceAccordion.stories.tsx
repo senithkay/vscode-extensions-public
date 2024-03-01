@@ -10,6 +10,7 @@
 import React from "react";
 import ResourceAccordion from "./ResourceAccordion";
 import { PARAM_TYPES, Resource } from "../../definitions";
+import { Typography } from "@wso2-enterprise/ui-toolkit";
 
 export default {
     component: ResourceAccordion,
@@ -101,7 +102,10 @@ const resource: Resource = {
         startLine: 0,
         endColumn: 0,
         endLine: 0
-    }
+    },
+    additionalInfo: (
+        <Typography variant="h3">Add additional information here...</Typography>
+    )
 };
 
 export const ResourceAccordionStory = () => {

@@ -255,6 +255,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                     {responses.length > 0 &&
                         <AccordionTable key="responses" titile="Responses" headers={["Code", "Description"]} content={responses} />
                     }
+                    {resource?.additionalInfo && resource?.additionalInfo}
                 </AccordionContent>
             )}
             <ConfirmDialog
