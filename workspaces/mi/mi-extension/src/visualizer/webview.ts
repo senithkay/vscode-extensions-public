@@ -18,7 +18,7 @@ import { navigate } from '../stateMachine';
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
-    public static readonly viewType = 'integration-studio.visualizer';
+    public static readonly viewType = 'micro-integrator.visualizer';
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 
@@ -44,7 +44,7 @@ export class VisualizerWebview {
     private static createWebview(beside: boolean): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
             VisualizerWebview.viewType,
-            'Integration Studio',
+            'Micro Integrator',
             beside ? ViewColumn.Beside : ViewColumn.Active,
             {
                 enableScripts: true,
@@ -74,7 +74,7 @@ export class VisualizerWebview {
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
           <meta name="theme-color" content="#000000">
-          <title>Integration Studio</title>
+          <title>Micro Integrator</title>
          
           <style>
             body, html, #root {

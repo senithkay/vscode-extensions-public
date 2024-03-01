@@ -95,7 +95,8 @@ const stateMachine = createMachine<MachineContext>({
                                 identifier: (context, event) => event.viewLocation.identifier,
                                 documentUri: (context, event) => event.viewLocation.documentUri,
                                 projectUri: (context, event) => event.viewLocation.projectUri,
-                                position: (context, event) => event.viewLocation.position
+                                position: (context, event) => event.viewLocation.position,
+                                projectOpened: (context, event) => true 
                             })
                         },
                         NAVIGATE: {
@@ -105,6 +106,7 @@ const stateMachine = createMachine<MachineContext>({
                                 identifier: (context, event) => event.viewLocation.identifier,
                                 documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
                                 position: (context, event) => event.viewLocation.position,
+                                projectOpened: (context, event) => true 
                             })
                         },
                         FILE_EDIT: {

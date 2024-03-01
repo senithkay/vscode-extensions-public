@@ -47,12 +47,12 @@ export class RPCLayer {
 async function getContext(): Promise<VisualizerLocation> {
     const context = StateMachine.context();
     return new Promise((resolve) => {
-        resolve({ documentUri: context.documentUri, view: context.view, identifier: context.identifier, projectUri: context.projectUri });
+        resolve({ documentUri: context.documentUri, view: context.view, identifier: context.identifier, projectUri: context.projectUri, projectOpened: context.projectOpened });
     });
 }
 
 function isWebviewPanel(webview: WebviewPanel | WebviewView): boolean {
     const title = webview.title;
-    const panelTitle = 'Integration Studio';
+    const panelTitle = 'Micro Integrator';
     return title === panelTitle;
 }

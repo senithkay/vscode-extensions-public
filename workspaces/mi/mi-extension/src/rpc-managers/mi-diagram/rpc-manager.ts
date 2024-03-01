@@ -539,13 +539,39 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             createFolderStructure(directory, folderStructure);
 
             window.showInformationMessage(`Successfully created ${name} project`);
+            const projectOpened = StateMachine.context().projectOpened;
 
             if (open) {
-                commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory,name)));
-                resolve({ filePath: path.join(directory,name) });
+
+                if (projectOpened) {
+                    const answer = await window.showInformationMessage(
+                        "Do you want to open the created project in the current window or new window?",
+                        "Current Window",
+                        "New Window"
+                    );
+    
+                    if (answer === "Current Window") {
+                        const folderUri = Uri.file(path.join(directory, name));
+    
+                        // Get the currently opened workspaces
+                        const workspaceFolders = workspace.workspaceFolders || [];
+    
+                        // Check if the folder is not already part of the workspace
+                        if (!workspaceFolders.some(folder => folder.uri.fsPath === folderUri.fsPath)) {
+                            workspace.updateWorkspaceFolders(workspaceFolders.length, 0, { uri: folderUri });
+                        }
+                    } else {
+                        commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
+                        resolve({ filePath: path.join(directory, name) });
+                    }
+
+                } else {
+                    commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
+                    resolve({ filePath: path.join(directory, name) });
+                }
             }
 
-            resolve({ filePath: path.join(directory,name) });
+            resolve({ filePath: path.join(directory, name) });
         });
     }
 
@@ -705,7 +731,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async getTextAtRange(params: GetTextAtRangeRequest): Promise<GetTextAtRangeResponse> {
         return new Promise(async (resolve) => {
             const file = fs.readFileSync(params.documentUri, "utf8");
-           
+
             const start = params.range.start;
             const end = params.range.end;
             const lines = file.split("\n");

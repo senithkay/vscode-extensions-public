@@ -146,7 +146,7 @@ export function APIWizard() {
                     <AutoComplete sx={{ width: '370px' }} items={versionLabels} selectedItem={versionType} onChange={handleVersionTypeChange}></AutoComplete>
                     {versionType !== "none" && (
                         <TextField
-                            placeholder="Version"
+                            placeholder={versionType === "context" ? "0.0.1" : "https://example.com"}
                             label="Version"
                             onChange={(text: string) => setVersion(text)}
                             value={version}
