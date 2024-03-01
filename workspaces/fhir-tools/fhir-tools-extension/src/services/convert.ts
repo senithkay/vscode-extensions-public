@@ -86,6 +86,14 @@ export function handleError(errResponse: AxiosResponse, convType: string): strin
     if (errResponse.status === 503){
         return ERROR_MESSAGES.INTERNET_CONNECTION_ERROR + "::LOG::" + (convType === 'HL7v2' ? ERROR_MESSAGES.HL7V2_SERVICE_NOT_ACTIVE : ERROR_MESSAGES.CDA_SERVICE_NOT_ACTIVE);
     }
+    if (errResponse.status === 404){
+        if (convType === "HL7v2") {
+            return ERROR_MESSAGES.INVALID_HL7V2_API + "::LOG::" + ERROR_MESSAGES.INVALID_HL7V2_API;
+        }
+        else{
+            return ERROR_MESSAGES.INVALID_CDA_API + "::LOG::" + ERROR_MESSAGES.INVALID_CDA_API;
+        }
+    }
 
     if (convType === 'CDA') {
         let body = errResponse.data as CCDAErrorResponse;

@@ -39,23 +39,17 @@ let user_settings = false;
  * @returns - void
  */
 export function listenToConfigurationChanges() {
+    updateConfigs();
     vscode.workspace.onDidChangeConfiguration((event) => {
         if (
             event.affectsConfiguration('fhir-tools.HL7v2_Api') ||
             event.affectsConfiguration('fhir-tools.CCDA_Api') ||
             event.affectsConfiguration('fhir-tools.tokenEndpoint') ||
             event.affectsConfiguration('fhir-tools.consumerKey') ||
-            event.affectsConfiguration('fhir-tools.consumerSecret')
+            event.affectsConfiguration('fhir-tools.consumerSecret') ||
+            event. affectsConfiguration('fhir-tools.enableAuthorization')
         ) {
             updateConfigs();
-        }
-        if (event.affectsConfiguration('fhir-tools.enableAuthorization')) {
-            ENABLE_AUTHORIZATION = vscode.workspace
-                .getConfiguration()
-                .get('fhir-tools.enableAuthorization') as boolean;
-        }
-        if (event.affectsConfiguration('enableAuthorization')){
-            ENABLE_AUTHORIZATION = vscode.workspace.getConfiguration().get('enableAuthorization') as boolean;
         }
     });
 }
@@ -83,13 +77,17 @@ function updateConfigs() {
     let APIKEY_USER = Buffer.from(
         `${CONSUMER_KEY}:${CONSUMER_SECRET}`,
     ).toString('base64');
+    let ENABLE_AUTHORIZATION_USER = vscode.workspace
+        .getConfiguration()
+        .get('fhir-tools.enableAuthorization') as boolean;
 
     if (
         (HL7v2_API_USER === '' || HL7v2_API_USER === undefined) &&
         (CDA_API_USER === '' || CDA_API_USER === undefined) &&
         (TOKEN_ENDPOINT_USER === '' || TOKEN_ENDPOINT_USER === undefined) &&
         (CONSUMER_KEY === '' || CONSUMER_KEY === undefined) &&
-        (CONSUMER_SECRET === '' || CONSUMER_SECRET === undefined)
+        (CONSUMER_SECRET === '' || CONSUMER_SECRET === undefined) &&
+        (ENABLE_AUTHORIZATION === true)
     ) {
         APIKEY = DEFAULT_APIKEY;
         TOKEN_ENDPOINT = DEFAULT_TOKEN_ENDPOINT;
@@ -101,6 +99,7 @@ function updateConfigs() {
         TOKEN_ENDPOINT = TOKEN_ENDPOINT_USER;
         HL7v2_API = HL7v2_API_USER;
         CDA_API = CDA_API_USER;
+        ENABLE_AUTHORIZATION = ENABLE_AUTHORIZATION_USER;
         
         if (!user_settings){
             clearCachedToken();

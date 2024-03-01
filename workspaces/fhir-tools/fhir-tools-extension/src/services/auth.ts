@@ -54,7 +54,6 @@ export async function getToken(refresh = false): Promise<string | Error> {
                 ERROR_MESSAGES.API_KEY_NOT_FOUND,
         );
     }
-
     if (TOKEN_ENDPOINT === '' || TOKEN_ENDPOINT === undefined) {
         return new Error(
             ERROR_MESSAGES.TOKEN_ENDPOINT_NOT_FOUND +
@@ -63,21 +62,20 @@ export async function getToken(refresh = false): Promise<string | Error> {
         );
     }
 
-    const response = await auth.post('/', "grant_type=client_credentials", {
-        headers: {
-            Authorization: `Basic ${Buffer.from(APIKEY).toString('base64')}`
-        }
-    });
-
-    if (response.status !== 200) {
-        return new Error(
+    try{
+        const response = await auth.post('/', "grant_type=client_credentials", {
+            headers: {
+                Authorization: `Basic ${Buffer.from(APIKEY).toString('base64')}`
+            }
+        });
+        cachedToken = response.data.access_token;
+        return cachedToken;
+    }
+    catch (error) {
+        throw new Error(
             ERROR_MESSAGES.INVALID_AUTH_CREDETIALS +
                 '::LOG::' +
                 ERROR_MESSAGES.INVALID_AUTH_CREDENTIALS_LOG,
         );
     }
-
-    cachedToken = response.data.access_token;
-
-    return cachedToken;
 }

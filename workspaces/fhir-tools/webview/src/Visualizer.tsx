@@ -22,10 +22,8 @@ export function Webview() {
     const [outputData, setOutputData] = React.useState<string>("");
 
     useEffect(() => {
-        console.log('Webview component mounted');
         rpcClient?.onStateChanged((stateChangeEvent: StateChangeEvent) => {
-            console.log("Current state: ", state);
-            if (stateChangeEvent.state === 'themeChanged' && state === 'DisplayOutput'){
+            if (stateChangeEvent.state == 'themeChanged' && (state === 'DisplayOutput' || state === 'Error')){
                 setTheme(stateChangeEvent.theme);
             } else{
                 setState(stateChangeEvent.state);

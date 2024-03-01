@@ -14,6 +14,7 @@ import { WebView } from './WebView/WebView';
 import { Logger } from './logger/logger';
 import { readFileSync } from 'fs';
 import { StateMachineContext, SetInputDataEvent } from '@wso2-enterprise/fhir-tools-core';  
+import { ERROR_MESSAGES } from './constants/messages';
 
 const assignInputData = assign<StateMachineContext, SetInputDataEvent>({
     xRequestId: (context, event) => uuidv4(),
@@ -33,17 +34,33 @@ const convert = async (context: StateMachineContext, event: any) => {
                         Logger.log({message: 'Conversion successful', type: 'INFO'});
                         resolve({"outputData": JSON.stringify(response.data, null, 2)});
                     })
-                    .catch((error) => {
+                    .catch  ((error) => {
                         Logger.log({message: 'Conversion failed', type: 'ERROR'});
-                        const errMsg = handleError(error.response, context.convType).split('::LOG::');
+                        console.log(error.message);
+                        let errMsg: string[] = [];
+                        if (error.message.includes('ECONNREFUSED')) {
+                            errMsg = [context.convType === "HL7v2" ? ERROR_MESSAGES.INVALID_HL7V2_API : ERROR_MESSAGES.INVALID_CDA_API, error.message];
+                        }
+                        else if (error.message.includes('::LOG::')) {
+                            errMsg = error.message.split('::LOG::');
+                        }
+                        else{
+                            errMsg = handleError(error.response, context.convType).split('::LOG::');
+                        }
                         Logger.log({message: errMsg[1], type: 'ERROR'});
                         reject({"error": errMsg[0]});
                     });
             })
             .catch((error) => {
+                console.log(error);
                 Logger.log({message: 'Conversion failed', type: 'ERROR'});
-                const errMsg = handleError(error.response, context.convType).split('::LOG::');
-                Logger.log({message: errMsg[1], type: 'ERROR'});
+                let errMsg: string[] = [];
+                if (error.message.includes('::LOG::')) {
+                    errMsg = error.message.split('::LOG::');
+                }
+                else{
+                    errMsg = handleError(error.response, context.convType).split('::LOG::');
+                }
                 reject({"error": errMsg[0]});
             });
     });
