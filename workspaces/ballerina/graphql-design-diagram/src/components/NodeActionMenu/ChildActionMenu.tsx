@@ -18,6 +18,7 @@ import { getDesignServiceField, getServiceFieldEdit } from "../MenuItems/menuIte
 import { FunctionType, Position } from "../resources/model";
 import { getParentSTNodeFromRange } from "../utils/common-util";
 import { getSyntaxTree } from "../utils/ls-util";
+import { verticalIconStyles } from "../MenuItems/style";
 
 interface ChildActionMenuProps {
     functionType: FunctionType;
@@ -80,7 +81,7 @@ export function ChildActionMenu(props: ChildActionMenuProps) {
         <>
             {location?.filePath && location?.startLine && location?.endLine &&
                 <div onClick={() => setTooltipStatus(true)}>
-                    <ContextMenu iconSx={{ transform: "rotate(90deg)" }} menuItems={getMenuItems()} />
+                    <ContextMenu iconSx={verticalIconStyles} menuItems={getMenuItems()} />
                 </div>
             }
         </>

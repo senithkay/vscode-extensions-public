@@ -61,32 +61,18 @@ export const NodeContainer: React.FC<any> = styled.div`
 
 export const NodeHeader: React.FC<any> = styled.div`
   align-items: center;
-  border-bottom: ${`1px solid ${Colors.PRIMARY}`};
+  border-bottom: ${(props: StyleProps) =>
+          `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
   display: flex;
   font-family: GilmerRegular;
   font-size: 13px;
   height: 32px;
-  justify-content: center;
+  justify-content: space-between;
   line-height: 24px;
   padding-inline: 8px;
-  min-width: 160px;
+  min-width: calc(100% - 16px);
   text-align: center;
   white-space: nowrap;
-`;
-
-export const InterfaceNodeHeader: React.FC<any> = styled.div`
-  align-items: center;
-  display: flex;
-  font-family: GilmerRegular;
-  border-bottom: ${`1px solid ${Colors.PRIMARY}`};
-  font-size: 13px;
-  justify-content: center;
-  line-height: 24px;
-  padding-inline: 8px;
-  min-width: 160px;
-  text-align: center;
-  white-space: nowrap;
-  flex-direction: column;
 `;
 
 export const InterfaceSubHeader: React.FC<any> = styled.div`

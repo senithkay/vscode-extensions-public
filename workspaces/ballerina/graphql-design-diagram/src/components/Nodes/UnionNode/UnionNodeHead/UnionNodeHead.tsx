@@ -19,6 +19,7 @@ import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { UnionIcon } from "../../../resources/assets/icons/UnionIcon";
 import { HeaderName, NodeHeader } from "../../../resources/styles/styles";
 import { UnionNodeModel } from "../UnionNodeModel";
+import { verticalIconStyles } from "../../../MenuItems/style";
 
 interface UnionNodeHeadWidgetProps {
     engine: DiagramEngine;
@@ -51,7 +52,7 @@ export function UnionNodeHeadWidget(props: UnionNodeHeadWidgetProps) {
                 engine={engine}
             />
             <HeaderName>{displayName}</HeaderName>
-            <ContextMenu iconSx={{ transform: "rotate(90deg)" }} menuItems={getMenuItems()} />
+            <ContextMenu iconSx={verticalIconStyles} menuItems={getMenuItems()} />
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}

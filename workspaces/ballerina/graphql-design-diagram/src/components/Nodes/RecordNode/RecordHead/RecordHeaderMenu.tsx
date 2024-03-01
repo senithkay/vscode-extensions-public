@@ -15,6 +15,7 @@ import { ContextMenu, Item } from "@wso2-enterprise/ui-toolkit";
 import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { getRecordMenuItems } from "../../../MenuItems/menuItems";
 import { Position } from "../../../resources/model";
+import { verticalIconStyles } from "../../../MenuItems/style";
 
 interface RecordHeaderMenuProps {
     location: Position;
@@ -34,7 +35,7 @@ export function RecordHeaderMenu(props: RecordHeaderMenuProps) {
     return (
         <>
             {location?.filePath && location?.startLine && location?.endLine &&
-                <ContextMenu iconSx={{ transform: "rotate(90deg)" }} menuItems={getMenuItems()} />
+                <ContextMenu iconSx={verticalIconStyles} menuItems={getMenuItems()} />
             }
         </>
     );

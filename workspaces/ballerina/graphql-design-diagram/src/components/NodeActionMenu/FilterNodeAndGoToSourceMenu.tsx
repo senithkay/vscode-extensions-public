@@ -16,6 +16,7 @@ import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { getFilterNodeMenuItem, getGoToSourceMenuItem } from "../MenuItems/menuItems";
 import { NodeType } from "../NodeFilter";
 import { Position } from "../resources/model";
+import { verticalIconStyles } from "../MenuItems/style";
 
 interface GoToSourceNodeMenuProps {
     location: Position;
@@ -36,7 +37,7 @@ export function FilterNodeAndGoToSourceMenu(props: GoToSourceNodeMenuProps) {
     return (
         <>
             {location?.filePath && location?.startLine && location?.endLine &&
-                <ContextMenu iconSx={{ transform: "rotate(90deg)" }} menuItems={getMenuItems()} />
+                <ContextMenu iconSx={verticalIconStyles} menuItems={getMenuItems()} />
             }
         </>
     );

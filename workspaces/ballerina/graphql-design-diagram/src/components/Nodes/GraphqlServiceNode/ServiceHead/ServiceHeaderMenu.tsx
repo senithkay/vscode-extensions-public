@@ -15,6 +15,7 @@ import { ContextMenu, Item } from "@wso2-enterprise/ui-toolkit";
 import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { getServiceSubHeaderMenuItems } from "../../../MenuItems/menuItems";
 import { Position } from "../../../resources/model";
+import { verticalIconStyles } from "../../../MenuItems/style";
 
 interface ServiceHeaderMenuProps {
     location: Position;
@@ -25,13 +26,6 @@ export function ServiceHeaderMenu(props: ServiceHeaderMenuProps) {
     const { location, nodeName } = props;
     const { functionPanel, model, servicePanel, setFilteredNode, goToSource  } = useGraphQlContext();
 
-    const verticalIconStyles = {
-        transform: "rotate(90deg)",
-        ":hover": {
-            backgroundColor: "var(--vscode-welcomePage-tileHoverBackground)",
-        }
-    }
-
     const getMenuItems = () => {
         let items: Item[] = [];
         items = getServiceSubHeaderMenuItems(location, nodeName, setFilteredNode, goToSource, functionPanel, model, servicePanel);
@@ -41,7 +35,7 @@ export function ServiceHeaderMenu(props: ServiceHeaderMenuProps) {
     return (
         <>
             {location &&
-                <ContextMenu iconSx={{ transform: "rotate(90deg)" }} menuItems={getMenuItems()} />
+                <ContextMenu iconSx={verticalIconStyles} menuItems={getMenuItems()} />
             }
         </>
     );

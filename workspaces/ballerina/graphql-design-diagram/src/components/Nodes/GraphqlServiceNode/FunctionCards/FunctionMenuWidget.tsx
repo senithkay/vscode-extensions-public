@@ -16,6 +16,7 @@ import { on } from "events";
 import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { getDeleteOperationMenuItem, getDesignOperationMenuItem, getEditOperationMenuItem, getGoToSourceMenuItem } from "../../../MenuItems/menuItems";
 import { FunctionType, Position } from "../../../resources/model";
+import { verticalIconStyles } from "../../../MenuItems/style";
 
 interface FunctionMenuWidgetProps {
     location: Position;
@@ -44,7 +45,7 @@ export function FunctionMenuWidget(props: FunctionMenuWidgetProps) {
     return (
         <>
             {location &&
-                <ContextMenu iconSx={{ transform: "rotate(90deg)" }} menuItems={getMenuItems()} />
+                <ContextMenu iconSx={verticalIconStyles} menuItems={getMenuItems()} />
             }
         </>
     );

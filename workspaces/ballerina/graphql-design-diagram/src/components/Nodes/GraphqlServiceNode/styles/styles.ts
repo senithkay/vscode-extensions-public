@@ -33,22 +33,6 @@ export const ServiceNode: React.FC<any> = styled.div`
   min-width: 160px;
 `;
 
-export const ServiceHead: React.FC<any> = styled.div`
-  align-items: center;
-  border-bottom: ${(props: StyleProps) =>
-          `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
-  display: flex;
-  font-family: ${(props: StyleProps) => props.isSelected ? `GilmerMedium` : `GilmerRegular`};
-  font-size: 13px;
-  height: 32px;
-  justify-content: center;
-  line-height: 24px;
-  padding-inline: 8px;
-  min-width: calc(100% - 16px);
-  text-align: center;
-  white-space: nowrap;
-`;
-
 export const ServiceName: React.FC<any> = styled.span`
   margin-left: 8px;
 `;
