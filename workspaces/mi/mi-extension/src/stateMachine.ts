@@ -194,19 +194,14 @@ const stateMachine = createMachine<MachineContext>({
         },
         updateStack: (context, event) => {
             return new Promise(async (resolve, reject) => {
-                const historyStack = history.get();
-                if (historyStack.length === 0) {
-                    history.push({ location: { view: MACHINE_VIEW.Overview, } });
-                } else {
-                    history.push({
-                        location: {
-                            view: context.view,
-                            documentUri: context.documentUri,
-                            position: context.position,
-                            identifier: context.identifier
-                        }
-                    });
-                }
+                history.push({
+                    location: {
+                        view: context.view,
+                        documentUri: context.documentUri,
+                        position: context.position,
+                        identifier: context.identifier
+                    }
+                });
                 resolve(true);
             });
         },
@@ -238,8 +233,12 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
 
 export function navigate() {
     const historyStack = history.get();
-    const lastView = historyStack[historyStack.length - 1];
-    stateService.send({ type: "NAVIGATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
+    if (historyStack.length === 0) {
+        history.push({ location: { view: MACHINE_VIEW.Overview, } });
+        stateService.send({ type: "NAVIGATE", viewLocation: { view: MACHINE_VIEW.Overview } });
+    } else {
+        stateService.send({ type: "NAVIGATE", viewLocation: historyStack[historyStack.length - 1].location });
+    }
 }
 
 
