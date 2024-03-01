@@ -14,6 +14,7 @@ import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-des
 import { AddAPIFormProps, AddResourceForm } from "../Forms/AddResourceForm";
 import { SERVICE_DESIGNER } from "../../constants";
 import { getXML } from "../../utils/template-engine/mustache-templates/templateUtils";
+import { getSequenceComponentView } from "../../utils/service-designer";
 
 interface ServiceDesignerProps {
     syntaxTree: any;
@@ -32,6 +33,9 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
             const value: Resource = {
                 methods: resource.methods,
                 path: resource.uriTemplate,
+                additionalInfo: getSequenceComponentView({
+                    onOpenInSequence: () => rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Diagram, documentUri: documentUri, identifier: resource.path } })
+                })
             }
             resources.push(value);
         })
