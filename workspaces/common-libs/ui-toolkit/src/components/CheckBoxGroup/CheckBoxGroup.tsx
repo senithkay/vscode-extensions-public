@@ -8,7 +8,7 @@
  */
 import styled from "@emotion/styled";
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import React from "react";
+import React, { PropsWithChildren } from "react";
 
 const CheckBoxContainer = styled.div`
     display: flex;
@@ -23,7 +23,7 @@ export type CheckBoxProps = {
     onClick?: (e: React.SyntheticEvent) => void;
 };
 
-export type CheckBoxGroupProps = React.ComponentPropsWithoutRef<"div"> & {
+export type CheckBoxGroupProps = {
     values?: string[];
     onChange: (selected: string[]) => void;
 };
@@ -36,7 +36,7 @@ export const CheckBox = ({ label, value, checked, onClick }: CheckBoxProps) => {
     );
 };
 
-export const CheckBoxGroup = ({ values, onChange, children }: CheckBoxGroupProps) => {
+export const CheckBoxGroup = ({ values, onChange, children }: PropsWithChildren<CheckBoxGroupProps>) => {
     const selected = React.useRef<string[]>(values || []);
 
     return (
