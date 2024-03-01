@@ -53,6 +53,7 @@ export interface VisualizerLocation {
     projectUri?: string;
     identifier?: string;
     position?: any;
+    projectOpened?: boolean;
 }
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
