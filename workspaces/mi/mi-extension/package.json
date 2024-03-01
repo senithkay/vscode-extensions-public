@@ -1,8 +1,8 @@
 {
-  "name": "integration-studio",
-  "displayName": "Integration Studio",
+  "name": "micro-integrator",
+  "displayName": "Micro Integrator",
   "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
-  "version": "0.0.1",
+  "version": "0.9.0",
   "publisher": "wso2",
   "engines": {
     "vscode": "^1.81.0"
@@ -48,14 +48,14 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "wso2-integration-studio",
-          "title": "Integration Studio",
+          "id": "micro-integrator",
+          "title": "Micro Integrator",
           "icon": "assets/icon.svg"
         }
       ]
     },
     "views": {
-      "wso2-integration-studio": [
+      "micro-integrator": [
         {
           "id": "project-explorer",
           "name": "Project Explorer"
@@ -65,7 +65,7 @@
     "viewsWelcome": [
       {
         "view": "project-explorer",
-        "contents": "Welcome to Integration Studio. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:integrationStudio.openProject)\n[Create New Project](command:MI.show.diagramc)\nTo learn more about how to use Integration Studio in VS Code [read our docs](https://ei.docs.wso2.com)."
+        "contents": "Welcome to Micro Integrator. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:MI.openProject)\n[Create New Project](command:MI.show.diagramc)\nTo learn more about how to use Micro Integrator in VS Code [read our docs](https://ei.docs.wso2.com)."
       }
     ],
     "commands": [
@@ -76,7 +76,7 @@
         "category": "MI"
       },
       {
-        "command": "integrationStudio.openProject",
+        "command": "MI.openProject",
         "title": "Open Project",
         "category": "MI"
       },

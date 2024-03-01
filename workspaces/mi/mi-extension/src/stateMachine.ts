@@ -95,7 +95,8 @@ const stateMachine = createMachine<MachineContext>({
                                 identifier: (context, event) => event.viewLocation.identifier,
                                 documentUri: (context, event) => event.viewLocation.documentUri,
                                 projectUri: (context, event) => event.viewLocation.projectUri,
-                                position: (context, event) => event.viewLocation.position
+                                position: (context, event) => event.viewLocation.position,
+                                projectOpened: (context, event) => true 
                             })
                         },
                         NAVIGATE: {
@@ -105,6 +106,7 @@ const stateMachine = createMachine<MachineContext>({
                                 identifier: (context, event) => event.viewLocation.identifier,
                                 documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
                                 position: (context, event) => event.viewLocation.position,
+                                projectOpened: (context, event) => true 
                             })
                         },
                         FILE_EDIT: {
@@ -194,19 +196,14 @@ const stateMachine = createMachine<MachineContext>({
         },
         updateStack: (context, event) => {
             return new Promise(async (resolve, reject) => {
-                const historyStack = history.get();
-                if (historyStack.length === 0) {
-                    history.push({ location: { view: MACHINE_VIEW.Overview, } });
-                } else {
-                    history.push({
-                        location: {
-                            view: context.view,
-                            documentUri: context.documentUri,
-                            position: context.position,
-                            identifier: context.identifier
-                        }
-                    });
-                }
+                history.push({
+                    location: {
+                        view: context.view,
+                        documentUri: context.documentUri,
+                        position: context.position,
+                        identifier: context.identifier
+                    }
+                });
                 resolve(true);
             });
         },
@@ -239,8 +236,12 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
 
 export function navigate() {
     const historyStack = history.get();
-    const lastView = historyStack[historyStack.length - 1];
-    stateService.send({ type: "NAVIGATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
+    if (historyStack.length === 0) {
+        history.push({ location: { view: MACHINE_VIEW.Overview, } });
+        stateService.send({ type: "NAVIGATE", viewLocation: { view: MACHINE_VIEW.Overview } });
+    } else {
+        stateService.send({ type: "NAVIGATE", viewLocation: historyStack[historyStack.length - 1].location });
+    }
 }
 
 

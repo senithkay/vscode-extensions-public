@@ -23,7 +23,7 @@ export function createEndpointWizardWebview(context: ExtensionContext) {
     // Create a new webview panel
     const panel = window.createWebviewPanel(
         'diagram',
-        'Integration Studio Endpoints Wizard',
+        'Micro Integrator Endpoints Wizard',
         ViewColumn.Active,
         {
             enableScripts: true,
@@ -59,7 +59,7 @@ export function createEndpointWizardWebview(context: ExtensionContext) {
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
                     <meta name="theme-color" content="#000000">
-                    <title>Integration Studio Endpoint Wizard</title>
+                    <title>Micro Integrator Endpoint Wizard</title>
                 </head>
                 <body>
                     <noscript>You need to enable JavaScript to run this app.</noscript>

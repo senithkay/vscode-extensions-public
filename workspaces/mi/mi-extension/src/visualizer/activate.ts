@@ -16,7 +16,7 @@ import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
     context.subscriptions.push(
-        vscode.commands.registerCommand('integrationStudio.showDiagram', () => {
+        vscode.commands.registerCommand('MI.showDiagram', () => {
             openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
         })
     );
@@ -43,7 +43,7 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
         })
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand('integrationStudio.openProject', () => {
+        vscode.commands.registerCommand('MI.openProject', () => {
             window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Open MI Project' })
                 .then(uri => {
                     if (uri && uri[0]) {
