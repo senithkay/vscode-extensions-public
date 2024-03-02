@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
-import { window } from 'vscode';
+import { Uri, window } from 'vscode';
 import { MILanguageClient } from './lang-client/activator';
 import { extension } from './MIExtensionContext';
 import { EVENT_TYPE, MACHINE_VIEW, MachineStateValue, VisualizerLocation, webviewReady } from '@wso2-enterprise/mi-core';
@@ -225,6 +225,8 @@ export const StateMachine = {
 };
 
 export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
+    if (viewLocation?.documentUri) viewLocation.documentUri = Uri.parse(viewLocation.documentUri).fsPath;
+
     updateProjectExplorer(viewLocation);
     if (history.get().length > 0 && history.get()[history.get().length - 1].location !== viewLocation) {
         stateService.send({ type: type, viewLocation: viewLocation });
