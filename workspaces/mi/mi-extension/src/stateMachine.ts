@@ -226,7 +226,9 @@ export const StateMachine = {
 
 export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
     updateProjectExplorer(viewLocation);
-    stateService.send({ type: type, viewLocation: viewLocation });
+    if (history.get().length > 0 && history.get()[history.get().length - 1].location !== viewLocation) {
+        stateService.send({ type: type, viewLocation: viewLocation });
+    }
 }
 
 export function navigate() {
