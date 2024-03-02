@@ -11,6 +11,7 @@ import * as vscode from 'vscode';
 import { MILanguageClient } from '../lang-client/activator';
 import { ProjectStructureResponse, ProjectStructureEntry } from '@wso2-enterprise/mi-core';
 import { COMMANDS } from '../constants';
+import { window } from 'vscode';
 
 export class ProjectExplorerEntry extends vscode.TreeItem {
 	children: ProjectExplorerEntry[] | undefined;
@@ -37,30 +38,26 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 		= this._onDidChangeTreeData.event;
 
 	refresh(): void {
-		getProjectStructureData(this.context)
-			.then(data => {
-				this._data = data;
-			})
-			.catch(err => {
-				console.error(err);
-				this._data = [];
-			});
+		window.withProgress({
+			location: { viewId: 'MI.project-explorer' },
+			title: 'Loading project structure'
+		}, async () => {
+			await getProjectStructureData(this.context)
+				.then(data => {
+					this._data = data;
+				})
+				.catch(err => {
+					console.error(err);
+					this._data = [];
+				});
 
-		this._onDidChangeTreeData.fire();
+			this._onDidChangeTreeData.fire();
+		});
 	}
 
 	constructor(private context: vscode.ExtensionContext) {
 		this._data = [];
-
-		getProjectStructureData(context)
-			.then(data => {
-				this._data = data;
-				this._onDidChangeTreeData.fire();
-			})
-			.catch(err => {
-				console.error(err);
-				this._data = [];
-			});
+		this.refresh();
 	}
 
 	getTreeItem(element: ProjectExplorerEntry): vscode.TreeItem | Thenable<vscode.TreeItem> {
