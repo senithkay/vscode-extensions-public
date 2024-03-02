@@ -52,7 +52,5 @@ async function getContext(): Promise<VisualizerLocation> {
 }
 
 function isWebviewPanel(webview: WebviewPanel | WebviewView): boolean {
-    const title = webview.title;
-    const panelTitle = 'Micro Integrator';
-    return title === panelTitle;
+    return webview.viewType === VisualizerWebview.viewType;
 }
