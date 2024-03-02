@@ -111,9 +111,8 @@ const SidePanelList = (props: SidePanelListProps) => {
                 <>
                     {/* Header */}
                     <ButtonContainer>
-                        {pageStack.length === 0 ? <div style={{ flex: "1" }}></div> :
-                            !sidePanelContext.isEditing && <Codicon name="arrow-left" sx={{ flex: "1" }} onClick={handleGoBack} />
-                        }
+                        {(pageStack.length === 0 || sidePanelContext.isEditing) ? <div style={{ flex: "1" }}></div> :
+                            <Codicon name="arrow-left" sx={{ flex: "1" }} onClick={handleGoBack} />}
 
                         {pageStack.length === 0 && <Switch
                             leftLabel="Add"
@@ -128,6 +127,8 @@ const SidePanelList = (props: SidePanelListProps) => {
                                 fontSize: "var(--type-ramp-base-font-size)",
                             }}
                         />}
+
+                        {pageStack.length > 0 && sidePanelContext.title !== undefined && <h3 style={{ flex: "1", textAlign: "center" }}>{sidePanelContext.title}</h3>}
                         <Codicon name="close" sx={{ flex: "1", textAlign: "right" }} onClick={handleClose} />
                     </ButtonContainer>
 
