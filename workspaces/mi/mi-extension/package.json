@@ -157,12 +157,12 @@
       "view/title": [
         {
           "command": "MI.project-explorer.refresh",
-          "when": "view == project-explorer && projectOpened",
+          "when": "view == MI.project-explorer && projectOpened",
           "group": "navigation"
         },
         {
           "command": "MI.project-explorer.add",
-          "when": "view == project-explorer && projectOpened",
+          "when": "view == MI.project-explorer && projectOpened",
           "group": "navigation"
         }
       ],
@@ -181,7 +181,7 @@
       "view/item/context": [
         {
           "command": "MI.project-explorer.add-api",
-          "when": "view == project-explorer && viewItem == apis",
+          "when": "view == MI.project-explorer && viewItem == apis",
           "group": "inline"
         },
         {
@@ -191,17 +191,17 @@
         },
         {
           "command": "MI.project-explorer.add-endpoint",
-          "when": "view == project-explorer && viewItem == endpoints",
+          "when": "view == MI.project-explorer && viewItem == endpoints",
           "group": "inline"
         },
         {
           "command": "MI.project-explorer.add-sequence",
-          "when": "view == project-explorer && viewItem == sequences",
+          "when": "view == MI.project-explorer && viewItem == sequences",
           "group": "inline"
         },
         {
           "command": "MI.project-explorer.add-inbound-endpoint",
-          "when": "view == project-explorer && viewItem == inboundEndpoints",
+          "when": "view == MI.project-explorer && viewItem == inboundEndpoints",
           "group": "inline"
         }
       ]
