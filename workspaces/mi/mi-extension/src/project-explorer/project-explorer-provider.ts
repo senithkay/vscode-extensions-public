@@ -9,7 +9,7 @@
 
 import * as vscode from 'vscode';
 import { MILanguageClient } from '../lang-client/activator';
-import { ProjectStructureResponse, ProjectStructureEntry } from '@wso2-enterprise/mi-core';
+import { ProjectStructureResponse, ProjectStructureEntry, RegistryResourcesFolder } from '@wso2-enterprise/mi-core';
 import { COMMANDS } from '../constants';
 import { window } from 'vscode';
 import path = require('path');
@@ -225,6 +225,49 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 				projectRoot.children.push(parentEntry);
 			}
 		}
+		const resources = (directoryMap as any)?.src?.main?.wso2mi?.resources;
+		if (resources && resources['registry']) {
+			const regPath = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
+			const parentEntry = new ProjectExplorerEntry(
+				'Registry',
+				isCollapsibleState(Object.keys(resources['registry']).length > 0),
+				{ name: 'Registry', path: regPath, type: 'registry' },
+
+				'type-hierarchy'
+			);
+			parentEntry.contextValue = 'registry';
+			parentEntry.id = 'registry';
+			const gov = resources['registry']['gov'];
+			const conf = resources['registry']['conf'];
+			if (gov) {
+				const govEntry = new ProjectExplorerEntry(
+					'gov',
+					isCollapsibleState(gov.files.length > 0 || gov.folders.length > 0),
+					{ name: 'gov', path: path.join(regPath, 'gov'), type: 'gov' },
+					'root-folder'
+				);
+				govEntry.id = 'gov';
+				govEntry.contextValue = 'gov';
+				govEntry.children = genRegistryProjectStructureEntry(gov);
+				parentEntry.children = parentEntry.children ?? [];
+				parentEntry.children.push(govEntry);
+			}
+			if (conf) {
+				const confEntry = new ProjectExplorerEntry(
+					'conf',
+					isCollapsibleState(conf.files.length > 0 || conf.folders.length > 0),
+					{ name: 'conf', path: path.join(regPath, 'conf'), type: 'conf' },
+					'root-folder-opened'
+				);
+				confEntry.id = 'conf';
+				confEntry.contextValue = 'conf';
+				confEntry.children = genRegistryProjectStructureEntry(conf);
+				parentEntry.children = parentEntry.children ?? [];
+				parentEntry.children.push(confEntry);
+			}
+			projectRoot.children = projectRoot.children ?? [];
+			projectRoot.children.push(parentEntry);
+		}
 
 		return projectRoot;
 	}
@@ -281,3 +324,25 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 	return result;
 }
 
+function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): ProjectExplorerEntry[] {
+	const result: ProjectExplorerEntry[] = [];
+	if (data) {
+		if (data.files) {
+			for (const entry of data.files) {
+				const explorerEntry = new ProjectExplorerEntry(entry.name, isCollapsibleState(false), undefined, 'code');
+				explorerEntry.contextValue = "registry-file";
+				explorerEntry.id = entry.path;
+				result.push(explorerEntry);
+			}
+		}
+		if (data.folders) {
+			for (const entry of data.folders) {
+				const explorerEntry = new ProjectExplorerEntry(entry.name, isCollapsibleState(true), undefined, 'folder');
+				explorerEntry.children = genRegistryProjectStructureEntry(entry);
+				explorerEntry.contextValue = "registry-folder";
+				result.push(explorerEntry);
+			}
+		}
+	}
+	return result;
+}

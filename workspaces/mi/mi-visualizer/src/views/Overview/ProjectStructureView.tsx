@@ -70,6 +70,8 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
             await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-sequence"] });
         } else if (key === 'inboundEndpoints') {
             await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-inbound-endpoint"] });
+        } else if (key === 'registry') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-registry-resource"] });
         }
     };
 
