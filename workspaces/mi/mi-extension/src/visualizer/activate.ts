@@ -8,28 +8,13 @@
  */
 
 import * as vscode from 'vscode';
-import { VisualizerWebview } from './webview';
-import { ViewColumn, commands, window } from 'vscode';
+import { commands, window } from 'vscode';
 import { StateMachine } from '../stateMachine';
-import { openView } from '../stateMachine';
-import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { COMMANDS } from '../constants';
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
     context.subscriptions.push(
-        vscode.commands.registerCommand('MI.showDiagram', () => {
-            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
-        })
-    );
-    context.subscriptions.push(
-        vscode.commands.registerCommand('MI.show.diagram', (e: any) => {
-            if (!VisualizerWebview.currentPanel) {
-                VisualizerWebview.currentPanel = new VisualizerWebview(true);
-            }
-            VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
-        })
-    );
-    context.subscriptions.push(
-        vscode.commands.registerCommand('MI.openProject', () => {
+        vscode.commands.registerCommand(COMMANDS.OPEN_PROJECT, () => {
             window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Open MI Project' })
                 .then(uri => {
                     if (uri && uri[0]) {
@@ -39,8 +24,8 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
         })
     );
     StateMachine.service().onTransition((state) => {
-        if (state?.event?.type === 'OPEN_VIEW') {
-            commands.executeCommand('setContext', 'isMIDiagram', state.event.viewLocation?.view === 'Diagram');
+        if (state.event.viewLocation?.view) {
+            commands.executeCommand('setContext', 'showGoToSource', state.event.viewLocation?.documentUri !== undefined);
         }
     });
 }

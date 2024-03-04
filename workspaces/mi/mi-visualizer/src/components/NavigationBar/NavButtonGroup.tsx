@@ -9,12 +9,11 @@
 
 import { useEffect, useState } from "react";
 
-import { Codicon, Button } from "@wso2-enterprise/ui-toolkit";
+import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { VisualizerLocation } from "@wso2-enterprise/mi-core";
-import path from "path";
-import { MACHINE_VIEW, EVENT_TYPE } from "@wso2-enterprise/mi-core";
+import { HierachicalPath } from "./HierachicalPath";
 
 interface NavButtonGroupProps {
     currentProjectPath?: string;
@@ -44,52 +43,20 @@ export function NavButtonGroup(props: NavButtonGroupProps) {
         rpcClient.getMiVisualizerRpcClient().goHome();
     }
 
-    const HierarchicalPath = () => {
-        if (!machineView?.projectUri || !machineView?.documentUri) {
-            return <></>
-        }
-
-        const filePath = path.relative(machineView.projectUri, machineView.documentUri).split(path.join("src", "main", "wso2mi", "artifacts"))[1];
-        const segments = filePath.substring(1).split(path.sep);
-
-        if (machineView.identifier) {
-            segments.push(machineView.identifier);
-        }
-
-        return (
-            <>
-                <Codicon name="chevron-right" sx={{ paddingTop: "2px" }} />
-                {segments.map((segment, index) => {
-                    return <>
-                        <Button appearance="icon" disabled={index === 0} onClick={() => {
-                            if (segment.endsWith(".xml")) {
-                                rpcClient.getMiVisualizerRpcClient().openView({
-                                    type: EVENT_TYPE.OPEN_VIEW,
-                                    location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: machineView.documentUri }
-                                });
-                            }
-                        }}>
-                            {segment}
-                        </Button>
-                        {index < segments.length - 1 && <Codicon name="chevron-right" sx={{ paddingTop: "2px" }} />}
-                    </>
-                })}
-            </>
-        );
-    }
-
     return (
         <>
             <>
                 {machineView?.view !== "Overview" && (
-                    <VSCodeButton appearance="icon" title="Go Back" onClick={handleBackButtonClick}>
-                        <Codicon name="arrow-left" />
-                    </VSCodeButton>
+                    <>
+                        <VSCodeButton appearance="icon" title="Go Back" onClick={handleBackButtonClick}>
+                            <Codicon name="arrow-left" />
+                        </VSCodeButton>
+                        <VSCodeButton appearance="icon" title="Home" onClick={handleHomeButtonClick}>
+                            <Codicon name="home" />
+                        </VSCodeButton>
+                    </>
                 )}
-                <VSCodeButton appearance="icon" title="Home" onClick={handleHomeButtonClick}>
-                    <Codicon name="home" />
-                </VSCodeButton>
-                <HierarchicalPath />
+                <HierachicalPath />
             </>
 
         </>

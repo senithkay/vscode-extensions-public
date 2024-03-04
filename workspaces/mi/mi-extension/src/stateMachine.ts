@@ -9,6 +9,7 @@ import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
 import { history } from './history/activator';
+import { COMMANDS } from './constants';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -96,7 +97,7 @@ const stateMachine = createMachine<MachineContext>({
                                 documentUri: (context, event) => event.viewLocation.documentUri,
                                 projectUri: (context, event) => event.viewLocation.projectUri,
                                 position: (context, event) => event.viewLocation.position,
-                                projectOpened: (context, event) => true 
+                                projectOpened: (context, event) => true
                             })
                         },
                         NAVIGATE: {
@@ -106,7 +107,7 @@ const stateMachine = createMachine<MachineContext>({
                                 identifier: (context, event) => event.viewLocation.identifier,
                                 documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
                                 position: (context, event) => event.viewLocation.position,
-                                projectOpened: (context, event) => true 
+                                projectOpened: (context, event) => true
                             })
                         },
                         FILE_EDIT: {
@@ -224,13 +225,10 @@ export const StateMachine = {
 };
 
 export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
-    if (viewLocation && viewLocation.documentUri) {
-        const projectRoot = vscode.workspace.getWorkspaceFolder(vscode.Uri.parse(viewLocation.documentUri));
-        if (projectRoot) {
-            viewLocation.projectUri = projectRoot.uri.fsPath;
-        }
+    updateProjectExplorer(viewLocation);
+    if (history.get().length > 0 && history.get()[history.get().length - 1].location !== viewLocation) {
+        stateService.send({ type: type, viewLocation: viewLocation });
     }
-    stateService.send({ type: type, viewLocation: viewLocation });
 }
 
 export function navigate() {
@@ -239,10 +237,29 @@ export function navigate() {
         history.push({ location: { view: MACHINE_VIEW.Overview, } });
         stateService.send({ type: "NAVIGATE", viewLocation: { view: MACHINE_VIEW.Overview } });
     } else {
-        stateService.send({ type: "NAVIGATE", viewLocation: historyStack[historyStack.length - 1].location });
+        const location = historyStack[historyStack.length - 1].location;
+        stateService.send({ type: "NAVIGATE", viewLocation: location });
     }
+    const location = history.get()[history.get().length - 1].location;
+    updateProjectExplorer(location);
 }
 
+function updateProjectExplorer(location: VisualizerLocation | undefined) {
+    if (location && location.documentUri) {
+        const projectRoot = vscode.workspace.getWorkspaceFolder(vscode.Uri.parse(location.documentUri));
+        if (projectRoot) {
+            location.projectUri = projectRoot.uri.fsPath;
+            vscode.commands.executeCommand(COMMANDS.REVEAL_ITEM_COMMAND, location);
+        }
+
+    }
+    const webview = VisualizerWebview.currentPanel?.getWebview();
+    if (webview) {
+        if (location && location.view) {
+            webview.title = location.view;
+        }
+    }
+}
 
 async function checkIfMiProject() {
     let isMiProject = false;

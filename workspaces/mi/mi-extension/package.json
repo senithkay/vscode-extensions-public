@@ -57,143 +57,152 @@
     "views": {
       "micro-integrator": [
         {
-          "id": "project-explorer",
+          "id": "MI.project-explorer",
           "name": "Project Explorer"
         }
       ]
     },
     "viewsWelcome": [
       {
-        "view": "project-explorer",
+        "view": "MI.project-explorer",
         "contents": "Welcome to Micro Integrator. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:MI.openProject)\n[Create New Project](command:MI.show.diagramc)\nTo learn more about how to use Micro Integrator in VS Code [read our docs](https://ei.docs.wso2.com)."
       }
     ],
     "commands": [
-      {
-        "command": "MI.show.diagram",
-        "title": "Show Diagram",
-        "icon": "$(design-view)",
-        "category": "MI"
-      },
       {
         "command": "MI.openProject",
         "title": "Open Project",
         "category": "MI"
       },
       {
-        "command": "project-explorer.add",
+        "command": "MI.project-explorer.add",
         "title": "Add Construct",
         "icon": "$(add)",
         "category": "MI"
       },
       {
-        "command": "project-explorer.refresh",
+        "command": "MI.project-explorer.refresh",
         "title": "Refresh Project Explorer",
         "icon": "$(refresh)",
         "group": "navigation"
       },
       {
-        "command": "project-explorer.add-api",
+        "command": "MI.project-explorer.add-api",
         "title": "Add API",
         "icon": "$(add)",
         "group": "navigation",
         "category": "MI"
       },
       {
-        "command": "project-explorer.create-project",
+        "command": "MI.project-explorer.create-project",
         "title": "Create New Project",
         "icon": "$(add)",
         "group": "navigation",
         "category": "MI"
       },
       {
-        "command": "project-explorer.open-service-designer",
+        "command": "MI.project-explorer.open-service-designer",
         "title": "Open Service Designer",
         "icon": "$(design-view)",
-        "group": "navigation"
+        "when": "false"
       },
       {
-        "command": "project-explorer.add-endpoint",
+        "command": "MI.project-explorer.open-service-designer-beside",
+        "title": "Open Service Designer",
+        "icon": "$(design-view)"
+      },
+      {
+        "command": "MI.project-explorer.add-endpoint",
         "title": "Add Endpoint",
         "icon": "$(add)",
         "group": "navigation",
         "category": "MI"
       },
       {
-        "command": "project-explorer.add-sequence",
+        "command": "MI.project-explorer.add-sequence",
         "title": "Add Sequence",
         "icon": "$(add)",
         "group": "navigation",
         "category": "MI"
       },
       {
-        "command": "project-explorer.add-inbound-endpoint",
+        "command": "MI.project-explorer.add-inbound-endpoint",
         "title": "Add Inbound Endpoint",
         "icon": "$(add)",
         "group": "navigation",
         "category": "MI"
       },
       {
-        "command": "project-explorer.view",
+        "command": "MI.project-explorer.view",
         "title": "View"
       },
       {
-          "command": "MI.show.source",
-          "title": "Show Source",
-          "icon": "$(distro-source-view)",
-          "category": "MI"
+        "command": "MI.show.source",
+        "title": "Show Source",
+        "icon": "$(distro-source-view)",
+        "category": "MI"
       }
     ],
     "menus": {
+      "commandPalette": [
+        {
+          "command": "MI.project-explorer.open-service-designer",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.open-service-designer-beside",
+          "when": "false"
+        }
+      ],
       "view/title": [
         {
-          "command": "project-explorer.refresh",
-          "when": "view == project-explorer && projectOpened",
+          "command": "MI.project-explorer.refresh",
+          "when": "view == MI.project-explorer && projectOpened",
           "group": "navigation"
         },
         {
-          "command": "project-explorer.add",
-          "when": "view == project-explorer && projectOpened",
+          "command": "MI.project-explorer.add",
+          "when": "view == MI.project-explorer && projectOpened",
           "group": "navigation"
         }
       ],
       "editor/title": [
         {
-          "command": "MI.show.diagram",
+          "command": "MI.project-explorer.open-service-designer-beside",
           "when": "editorLangId == SynapseXml",
           "group": "navigation@3"
         },
         {
-            "when": "isMIDiagram && editorLangId !== SynapseXml",
-            "command": "MI.show.source",
-            "group": "navigation@3"
+          "when": "showGoToSource && editorLangId !== SynapseXml",
+          "command": "MI.show.source",
+          "group": "navigation@3"
         }
       ],
       "view/item/context": [
         {
-          "command": "project-explorer.add-api",
-          "when": "view == project-explorer && viewItem == apis",
+          "command": "MI.project-explorer.add-api",
+          "when": "view == MI.project-explorer && viewItem == apis",
           "group": "inline"
         },
         {
-          "command": "project-explorer.open-service-designer",
-          "when": "view == project-explorer && viewItem == api",
+          "command": "MI.project-explorer.open-service-designer",
+          "when": "viewItem == api",
           "group": "inline"
         },
         {
-          "command": "project-explorer.add-endpoint",
-          "when": "view == project-explorer && viewItem == endpoints",
+          "command": "MI.project-explorer.add-endpoint",
+          "when": "view == MI.project-explorer && viewItem == endpoints",
           "group": "inline"
         },
         {
-          "command": "project-explorer.add-sequence",
-          "when": "view == project-explorer && viewItem == sequences",
+          "command": "MI.project-explorer.add-sequence",
+          "when": "view == MI.project-explorer && viewItem == sequences",
           "group": "inline"
         },
         {
-            "command": "project-explorer.add-inbound-endpoint",
-            "when": "view == project-explorer && viewItem == inboundEndpoints",
-            "group": "inline"
+          "command": "MI.project-explorer.add-inbound-endpoint",
+          "when": "view == MI.project-explorer && viewItem == inboundEndpoints",
+          "group": "inline"
         }
       ]
     },

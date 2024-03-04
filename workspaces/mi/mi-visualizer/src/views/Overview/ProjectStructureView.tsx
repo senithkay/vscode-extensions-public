@@ -56,18 +56,20 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
     const handleClick = (directory: string, path?: string) => {
         if (directory.toLowerCase() === "api") {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: path } });
+        } else if (directory.toLowerCase() === "sequence") {
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Diagram, documentUri: path } });
         }
     };
 
     const handlePlusClick = async (key: string) => {
         if (key === 'apis') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["project-explorer.add-api"] });
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-api"] });
         } else if (key === 'endpoints') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["project-explorer.add-endpoint"] });
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-endpoint"] });
         } else if (key === 'sequences') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["project-explorer.add-sequence"] });
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-sequence"] });
         } else if (key === 'inboundEndpoints') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["project-explorer.add-inbound-endpoint"] });
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-inbound-endpoint"] });
         }
     };
 
