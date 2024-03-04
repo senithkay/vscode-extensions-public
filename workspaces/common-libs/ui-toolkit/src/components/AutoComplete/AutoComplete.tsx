@@ -10,13 +10,14 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import { css, cx } from "@emotion/css";
 import { Combobox } from '@headlessui/react'
 
 import { Dropdown } from "./Dropdown";
 import styled from '@emotion/styled';
+import { RequiredFormInput } from '../Commons/RequiredInput';
 
 const ComboboxButtonContainerActive = cx(css`
     height: 28px;
@@ -52,7 +53,7 @@ export const SearchableInput = cx(css`
     color: var(--vscode-input-foreground);
     background-color: var(--vscode-input-background);
     height: 24px;
-    width: 80%;
+    width: calc(100% - 40px);
     padding-left: 8px;
     border-left: 1px solid var(--vscode-dropdown-border);
     border-bottom: 1px solid var(--vscode-dropdown-border);
@@ -67,10 +68,11 @@ export const SearchableInput = cx(css`
     }
 `);
 
-const DropdownLabelDiv = cx(css`
+const LabelContainer = styled.div`
+    display: flex;
+    flex-direction: row;
     margin-bottom: 4px;
-    font-family: var(--font-family);
-`);
+`;
 
 interface ContainerProps {
     sx?: React.CSSProperties;
@@ -84,6 +86,7 @@ export const Container = styled.div<ContainerProps>`
 export interface AutoCompleteProps {
     id?: string;
     items: string[];
+    required?: boolean;
     label?: string;
     notItemsFoundMessage?: string;
     selectedItem?: string;
@@ -94,10 +97,11 @@ export interface AutoCompleteProps {
 }
 
 export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompleteProps) => {
-    const { id, selectedItem, items, label, notItemsFoundMessage, widthOffset = 157, nullable, sx, onChange } = props;
+    const { id, selectedItem, items, required, label, notItemsFoundMessage, widthOffset = 157, nullable, sx, onChange } = props;
     const [query, setQuery] = useState('');
     const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
     const [isUpButton, setIsUpButton] = useState(false);
+    const [dropdownWidth, setDropdownWidth] = useState<number>();
     const inputRef = useRef(null);
 
     const handleChange = (item: string) => {
@@ -136,12 +140,17 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
                 item.toLowerCase().replace(/\s+/g, '').includes(query.toLowerCase().replace(/\s+/g, ''))
             );
 
+    useEffect(() => {
+        setDropdownWidth(inputRef.current?.clientWidth);
+    }, []);
+
     return (
         <Container sx={sx}>
             <Combobox value={selectedItem} onChange={handleChange} {...(nullable && { nullable })}>
-                <div className={DropdownLabelDiv}>
-                    <label>{label}</label>
-                </div>
+                <LabelContainer>
+                    <label htmlFor={id}>{label}</label>
+                    {(required && label) && (<RequiredFormInput />)}
+                </LabelContainer>
                 <div>
                     <div>
                         <Combobox.Input
@@ -169,6 +178,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
                     </div>
                     <Dropdown
                         query={query}
+                        dropdownWidth={dropdownWidth}
                         notItemsFoundMessage={notItemsFoundMessage}
                         widthOffset={widthOffset}
                         filteredResults={filteredResults}
