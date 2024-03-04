@@ -54,7 +54,7 @@ export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
                             iconSx={{ fontSize: "18px" }}
                             name="file-upload"
                         />
-                        <LineButtonTitle variant="h5">{importJsonButtonText}</LineButtonTitle>
+                        <LineButtonTitle variant="h4">{importJsonButtonText}</LineButtonTitle>
                     </LinePrimaryButton>
 
                     <LinePrimaryButton
@@ -69,7 +69,7 @@ export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
                             iconSx={{ fontSize: "18px" }}
                             name="file-upload"
                         />
-                        <LineButtonTitle variant="h5">{importXmlButtonText}</LineButtonTitle>
+                        <LineButtonTitle variant="h4">{importXmlButtonText}</LineButtonTitle>
                     </LinePrimaryButton>
                     {onImportFromXml === null && (
                         <BallerinaLabel>

@@ -9,7 +9,6 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useRef, useState } from "react";
 
-import "./style.scss";
 import { useStyles } from "./style";
 import { cx } from "@emotion/css";
 import { TextArea, Typography } from "@wso2-enterprise/ui-toolkit";
