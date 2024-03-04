@@ -31,7 +31,7 @@ const StyledPopover = styled.div<ContainerProps>`
     position: absolute;
     z-index: 200;
     background-color: var(--vscode-editor-background);;
-    padding: 8px;
+    padding: 6px;
     border-style: solid;
     border-width: 0.1px;
     font-size: 14px;
@@ -43,14 +43,15 @@ const StyledPopover = styled.div<ContainerProps>`
 `;
 
 const Container = styled.div`
-    width: 350px;
-    padding: 5px;
+    width: 360px;
+    padding: 3px;
 `;
 
 const PopoverButtonContainer = styled.div`
     display: flex;
     gap: 10px;
     width: 100%;
+    padding-top: 15px;
 
     & :nth-of-type(1) {
         margin-left: auto;
