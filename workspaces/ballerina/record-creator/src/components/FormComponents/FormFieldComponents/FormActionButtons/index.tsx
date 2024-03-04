@@ -12,6 +12,7 @@ import { useStyles } from "./style";
 import { Switch } from "@headlessui/react";
 import { FormGroup } from "../../../../style";
 import { Button, Typography } from "@wso2-enterprise/ui-toolkit";
+import styled from "@emotion/styled";
 
 export interface FormActionButtonsProps {
     cancelBtnText?: string;
@@ -49,7 +50,7 @@ export function FormActionButtons(props: FormActionButtonsProps) {
             </div>
             <div className={classes.buttonWrapper}>
                 <Button appearance="secondary" onClick={() => onCancel()}>
-                    <Typography variant="h5">{cancelBtnText}</Typography>
+                    <ButtonText variant="h4">{cancelBtnText}</ButtonText>
                 </Button>
                 <Button
                     appearance="primary"
@@ -57,9 +58,15 @@ export function FormActionButtons(props: FormActionButtonsProps) {
                     onClick={onSave}
                     data-testid="save-btn"
                 >
-                    <Typography variant="h5">{saveBtnText}</Typography>
+                    <ButtonText variant="h4">{saveBtnText}</ButtonText>
                 </Button>
             </div>
         </div>
     );
 }
+
+const ButtonText = styled(Typography)`
+    margin: 0;
+    padding: 0;
+`;
+
