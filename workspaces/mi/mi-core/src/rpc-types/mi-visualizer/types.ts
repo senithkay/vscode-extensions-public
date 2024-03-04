@@ -50,7 +50,7 @@ export interface EsbDirectoryMap {
 }
 
 export interface ProjectStructureEntry {
-    resources: ResourceStructureEntry[],
+    resources?: ResourceStructureEntry[],
     sequences?: ProjectStructureEntry[],
     endpoints?: ProjectStructureEntry[],
     type: string,

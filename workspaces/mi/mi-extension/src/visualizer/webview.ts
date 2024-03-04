@@ -18,12 +18,12 @@ import { navigate } from '../stateMachine';
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
-    public static readonly viewType = 'integration-studio.visualizer';
+    public static readonly viewType = 'micro-integrator.visualizer';
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 
-    constructor() {
-        this._panel = VisualizerWebview.createWebview();
+    constructor(beside: boolean = false) {
+        this._panel = VisualizerWebview.createWebview(beside);
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.html = this.getWebviewContent(this._panel.webview);
         RPCLayer.create(this._panel);
@@ -41,11 +41,11 @@ export class VisualizerWebview {
         }, extension.context);
     }
 
-    private static createWebview(): vscode.WebviewPanel {
+    private static createWebview(beside: boolean): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
             VisualizerWebview.viewType,
-            'Integration Studio',
-            ViewColumn.Active,
+            'Overview',
+            beside ? ViewColumn.Beside : ViewColumn.Active,
             {
                 enableScripts: true,
                 localResourceRoots: [Uri.file(path.join(extension.context.extensionPath, 'resources'))],
@@ -74,7 +74,7 @@ export class VisualizerWebview {
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
           <meta name="theme-color" content="#000000">
-          <title>Integration Studio</title>
+          <title>Micro Integrator</title>
          
           <style>
             body, html, #root {

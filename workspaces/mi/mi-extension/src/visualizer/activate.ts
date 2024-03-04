@@ -9,17 +9,12 @@
 
 import * as vscode from 'vscode';
 import { commands, window } from 'vscode';
-import { openView } from '../stateMachine';
-import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { StateMachine } from '../stateMachine';
+import { COMMANDS } from '../constants';
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
     context.subscriptions.push(
-        vscode.commands.registerCommand('integrationStudio.showDiagram', () => {
-            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
-        })
-    );
-    context.subscriptions.push(
-        vscode.commands.registerCommand('integrationStudio.openProject', () => {
+        vscode.commands.registerCommand(COMMANDS.OPEN_PROJECT, () => {
             window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Open MI Project' })
                 .then(uri => {
                     if (uri && uri[0]) {
@@ -28,4 +23,9 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
                 });
         })
     );
+    StateMachine.service().onTransition((state) => {
+        if (state.event.viewLocation?.view) {
+            commands.executeCommand('setContext', 'showGoToSource', state.event.viewLocation?.documentUri !== undefined);
+        }
+    });
 }

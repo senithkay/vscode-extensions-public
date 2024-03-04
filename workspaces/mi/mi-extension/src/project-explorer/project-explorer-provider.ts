@@ -10,6 +10,8 @@
 import * as vscode from 'vscode';
 import { MILanguageClient } from '../lang-client/activator';
 import { ProjectStructureResponse, ProjectStructureEntry } from '@wso2-enterprise/mi-core';
+import { COMMANDS } from '../constants';
+import { window } from 'vscode';
 
 export class ProjectExplorerEntry extends vscode.TreeItem {
 	children: ProjectExplorerEntry[] | undefined;
@@ -36,30 +38,26 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 		= this._onDidChangeTreeData.event;
 
 	refresh(): void {
-		getProjectStructureData(this.context)
-			.then(data => {
-				this._data = data;
-			})
-			.catch(err => {
-				console.error(err);
-				this._data = [];
-			});
+		window.withProgress({
+			location: { viewId: 'MI.project-explorer' },
+			title: 'Loading project structure'
+		}, async () => {
+			await getProjectStructureData(this.context)
+				.then(data => {
+					this._data = data;
+				})
+				.catch(err => {
+					console.error(err);
+					this._data = [];
+				});
 
-		this._onDidChangeTreeData.fire();
+			this._onDidChangeTreeData.fire();
+		});
 	}
 
 	constructor(private context: vscode.ExtensionContext) {
 		this._data = [];
-
-		getProjectStructureData(context)
-			.then(data => {
-				this._data = data;
-				this._onDidChangeTreeData.fire();
-			})
-			.catch(err => {
-				console.error(err);
-				this._data = [];
-			});
+		this.refresh();
 	}
 
 	getTreeItem(element: ProjectExplorerEntry): vscode.TreeItem | Thenable<vscode.TreeItem> {
@@ -73,43 +71,74 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 		return element.children;
 	}
 
+	getParent(element: ProjectExplorerEntry): vscode.ProviderResult<ProjectExplorerEntry> {
+		if (element.info?.path === undefined) return undefined;
 
+		const projects = (this._data);
+		for (const project of projects) {
+			if (project.children?.find(child => child.info?.path === element.info?.path)) {
+				return project;
+			}
+			const fileElement = this.recursiveSearchParent(project, element.info?.path);
+			if (fileElement) {
+				return fileElement;
+			}
+		}
+		return element;
+	}
 
+	recursiveSearchParent(element: ProjectExplorerEntry, path: string): ProjectExplorerEntry | undefined {
+		if (!element.children) {
+			return undefined;
+		}
+		for (const child of element.children) {
+			if (child.info?.path === path) {
+				return element;
+			}
+			const foundParent = this.recursiveSearchParent(child, path);
+			if (foundParent) {
+				return foundParent;
+			}
+		}
+		return undefined;
+	}
 }
 
 async function getProjectStructureData(context: vscode.ExtensionContext): Promise<ProjectExplorerEntry[]> {
-	const rootPath = vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0 ?
-		vscode.workspace.workspaceFolders[0].uri.fsPath
-		: undefined;
+	if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
+		const langClient = (await MILanguageClient.getInstance(context)).languageClient;
+		const data: ProjectExplorerEntry[] = [];
+		if (!!langClient) {
+			const workspaceFolders = vscode.workspace.workspaceFolders;
+			for (const workspace of workspaceFolders) {
+				const rootPath = workspace.uri.fsPath;
 
-	if (rootPath === undefined) {
-		vscode.commands.executeCommand('setContext', 'projectOpened', false);
-		throw new Error("Error identifying workspace root");
-	}
-
-	const langClient = (await MILanguageClient.getInstance(context)).languageClient;
-
-	if (!!langClient) {
-		const resp = await langClient.getProjectStructure(rootPath);
-		if (resp) {
-			vscode.commands.executeCommand('setContext', 'projectOpened', true);
+				const resp = await langClient.getProjectStructure(rootPath);
+				const projectTree = generateTreeData(workspace, resp);
+				if (projectTree) {
+					data.push(projectTree);
+				}
+			};
 		}
-		return generateTreeData(resp);
+		if (data.length > 0) {
+			vscode.commands.executeCommand('setContext', 'projectOpened', true);
+			return data;
+		} else {
+			vscode.commands.executeCommand('setContext', 'projectOpened', false);
+		}
 	}
 	vscode.commands.executeCommand('setContext', 'projectOpened', false);
 	return [];
 
 }
 
-function generateTreeData(data: ProjectStructureResponse): ProjectExplorerEntry[] {
-	const result: ProjectExplorerEntry[] = [];
+function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructureResponse): ProjectExplorerEntry | undefined {
 	const directoryMap = data.directoryMap;
 	if (directoryMap) {
-		const workspaceName = vscode.workspace.name ?? '';
 		const projectRoot = new ProjectExplorerEntry(
-			`Project ${workspaceName.length > 0 ? `: ${workspaceName}` : ''}`,
-			vscode.TreeItemCollapsibleState.Collapsed,
-			undefined,
+			`Project ${project.name}`,
+			vscode.TreeItemCollapsibleState.Expanded,
+			{ name: project.name, path: project.uri.fsPath, type: 'project' },
 			'project'
 		);
 
@@ -186,17 +215,15 @@ function generateTreeData(data: ProjectStructureResponse): ProjectExplorerEntry[
 
 				parentEntry.children = children;
 				parentEntry.contextValue = key;
-				parentEntry.id = key;
+				parentEntry.id = `${project.name}/${key}`;
 
 				projectRoot.children = projectRoot.children ?? [];
 				projectRoot.children.push(parentEntry);
 			}
 		}
 
-		result.push(projectRoot);
+		return projectRoot;
 	}
-
-	return result;
 }
 
 function isCollapsibleState(state: boolean): vscode.TreeItemCollapsibleState {
@@ -216,13 +243,19 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			apiEntry.children = [];
 
 			// Generate resource structure
-			for (const resource of entry.resources) {
-				const resourceEntry: ProjectStructureEntry = {
-					...entry,
+			for (let i = 0; i < entry.resources.length; i++) {
+				const resource = entry.resources[i];
+				const resourceEntry = new ProjectExplorerEntry(resource.uriTemplate ?? "/", isCollapsibleState(false), {
 					name: resource.uriTemplate,
-					type: 'resource'
+					type: 'resource',
+					path: `${entry.path}/${i}`
+				}, 'code');
+				resourceEntry.command = {
+					"title": "Show Diagram",
+					"command": COMMANDS.SHOW_DIAGRAM,
+					"arguments": [vscode.Uri.parse(entry.path), i, false]
 				};
-				apiEntry.children.push(new ProjectExplorerEntry(resource.uriTemplate ?? "/", isCollapsibleState(false), resourceEntry, 'code'));
+				apiEntry.children.push(resourceEntry);
 			}
 			explorerEntry = apiEntry;
 

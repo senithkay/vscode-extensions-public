@@ -2292,10 +2292,12 @@ importers:
       '@wso2-enterprise/mi-syntax-tree': workspace:*
       eslint: ^8.52.0
       typescript: ^5.2.2
+      vscode-languageserver-types: ~3.17.5
       vscode-messenger-common: ^0.4.5
     dependencies:
       '@types/vscode-webview': 1.57.4
       '@wso2-enterprise/mi-syntax-tree': link:../syntax-tree
+      vscode-languageserver-types: 3.17.5
       vscode-messenger-common: 0.4.5
     devDependencies:
       '@typescript-eslint/eslint-plugin': 6.20.0_mb4aacsok44wlk3qf5ewcirf74
@@ -2503,6 +2505,8 @@ importers:
       '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ^2.4.1
       css-loader: ^5.2.7
+      path: ~0.12.7
+      process: ~0.11.10
       react: ^18.2.0
       react-dom: ^18.2.0
       react-markdown: ~9.0.1
@@ -2526,6 +2530,8 @@ importers:
       '@wso2-enterprise/mi-rpc-client': link:../mi-rpc-client
       '@wso2-enterprise/service-designer': link:../../common-libs/service-designer
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
+      path: 0.12.7
+      process: 0.11.10
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-markdown: 9.0.1_7kh72gklg5qjlh5zc6s6v3p6v4
@@ -28459,7 +28465,7 @@ packages:
       fs.realpath: 1.0.0
       inflight: 1.0.6
       inherits: 2.0.4
-      minimatch: 3.0.8
+      minimatch: 3.1.2
       once: 1.4.0
       path-is-absolute: 1.0.1
     dev: true

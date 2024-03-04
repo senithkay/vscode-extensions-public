@@ -23,6 +23,8 @@ import {
     CreateAPIResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
+    CreateInboundEndpointRequest,
+    CreateInboundEndpointResponse,
     CreateProjectRequest,
     CreateProjectResponse,
     CreateSequenceRequest,
@@ -31,7 +33,12 @@ import {
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     FileStructure,
+    GetDefinitionRequest,
+    GetDefinitionResponse,
+    GetTextAtRangeRequest,
+    GetTextAtRangeResponse,
     HighlightCodeRequest,
+    InboundEndpointDirectoryResponse,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectDirResponse,
@@ -39,13 +46,10 @@ import {
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
     UndoRedoParams,
-    getSTRequest,
-    getSTResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
-    InboundEndpointDirectoryResponse,
-    CreateInboundEndpointRequest,
-    CreateInboundEndpointResponse,
+    getSTRequest,
+    getSTResponse,
     EVENT_TYPE,
     MACHINE_VIEW
 } from "@wso2-enterprise/mi-core";
@@ -57,12 +61,11 @@ import { Position, Range, Selection, Uri, WorkspaceEdit, commands, window, works
 import { MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { createFolderStructure } from "../../util";
+import { createFolderStructure, getInboundEndpointXmlWrapper } from "../../util";
 import { rootPomXmlContent } from "../../util/templates";
+import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 const { XMLParser } = require("fast-xml-parser");
-import { VisualizerWebview } from "../../visualizer/webview";
-import { getInboundEndpointXmlWrapper } from "../../util";
 
 const connectorsPath = path.join(".metadata", ".Connectors");
 
@@ -87,6 +90,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: params.documentUri
                 },
             });
+
             resolve(res);
         });
     }
@@ -457,6 +461,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const content = document.getText();
             undoRedo.addModification(content);
+
             resolve({ status: true });
         });
     }
@@ -534,13 +539,39 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             createFolderStructure(directory, folderStructure);
 
             window.showInformationMessage(`Successfully created ${name} project`);
+            const projectOpened = StateMachine.context().projectOpened;
 
             if (open) {
-                commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory,name)));
-                resolve({ filePath: path.join(directory,name) });
+
+                if (projectOpened) {
+                    const answer = await window.showInformationMessage(
+                        "Do you want to open the created project in the current window or new window?",
+                        "Current Window",
+                        "New Window"
+                    );
+    
+                    if (answer === "Current Window") {
+                        const folderUri = Uri.file(path.join(directory, name));
+    
+                        // Get the currently opened workspaces
+                        const workspaceFolders = workspace.workspaceFolders || [];
+    
+                        // Check if the folder is not already part of the workspace
+                        if (!workspaceFolders.some(folder => folder.uri.fsPath === folderUri.fsPath)) {
+                            workspace.updateWorkspaceFolders(workspaceFolders.length, 0, { uri: folderUri });
+                        }
+                    } else {
+                        commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
+                        resolve({ filePath: path.join(directory, name) });
+                    }
+
+                } else {
+                    commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
+                    resolve({ filePath: path.join(directory, name) });
+                }
             }
 
-            resolve({ filePath: path.join(directory,name) });
+            resolve({ filePath: path.join(directory, name) });
         });
     }
 
@@ -686,6 +717,37 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const content = document.getText();
             undoRedo.updateContent(params.path, content);
         }
+    }
+
+    async getDefinition(params: GetDefinitionRequest): Promise<GetDefinitionResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const definition = await langClient.getDefinition(params);
+
+            resolve(definition);
+        });
+    }
+
+    async getTextAtRange(params: GetTextAtRangeRequest): Promise<GetTextAtRangeResponse> {
+        return new Promise(async (resolve) => {
+            const file = fs.readFileSync(params.documentUri, "utf8");
+
+            const start = params.range.start;
+            const end = params.range.end;
+            const lines = file.split("\n");
+            const text = lines.slice(start.line, end.line + 1).map((line, index) => {
+                if (index === 0 && start.line === end.line) {
+                    return line.substring(start.character, end.character);
+                } else if (index === 0) {
+                    return line.substring(start.character);
+                } else if (index === end.line - start.line) {
+                    return line.substring(0, end.character);
+                } else {
+                    return line;
+                }
+            }).join("\n");
+            resolve({ text });
+        });
     }
 }
 

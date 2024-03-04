@@ -7,12 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content."
  */
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { VisualizerLocation } from "@wso2-enterprise/mi-core";
+import { HierachicalPath } from "./HierachicalPath";
 
 interface NavButtonGroupProps {
     currentProjectPath?: string;
@@ -44,17 +45,20 @@ export function NavButtonGroup(props: NavButtonGroupProps) {
 
     return (
         <>
-            {machineView?.view !== "Overview" && (
-                <>
-                    <VSCodeButton appearance="icon" title="Go Back" onClick={handleBackButtonClick}>
-                        <Codicon name="arrow-left" />
-                    </VSCodeButton>
-                    <VSCodeButton appearance="icon" title="Home" onClick={handleHomeButtonClick}>
-                        <Codicon name="home" />
-                    </VSCodeButton>
-                </>
-            )}
-            
+            <>
+                {machineView?.view !== "Overview" && (
+                    <>
+                        <VSCodeButton appearance="icon" title="Go Back" onClick={handleBackButtonClick}>
+                            <Codicon name="arrow-left" />
+                        </VSCodeButton>
+                        <VSCodeButton appearance="icon" title="Home" onClick={handleHomeButtonClick}>
+                            <Codicon name="home" />
+                        </VSCodeButton>
+                    </>
+                )}
+                <HierachicalPath />
+            </>
+
         </>
     );
 }
