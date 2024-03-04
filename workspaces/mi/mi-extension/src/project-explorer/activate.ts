@@ -74,7 +74,7 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		if (viewLocation.documentUri && viewLocation.projectUri && data) {
 			const project = (await data)?.find((project) => project.info?.path === viewLocation.projectUri);
 			if (project) {
-				projectTree.reveal(project, { select: true, focus: true });
+				projectTree.reveal(project, { select: true });
 				const projectChildren = projectExplorerDataProvider.getChildren(project);
 				if (projectChildren) {
 					const projectResources = await projectChildren;
@@ -83,12 +83,12 @@ export function activateProjectExplorer(context: ExtensionContext) {
 					for (const projectResource of projectResources) {
 						const fileEntry = projectResource.children?.find((file) => file.info?.path === viewLocation.documentUri);
 						if (fileEntry) {
-							projectTree.reveal(fileEntry, { select: true, focus: true });
+							projectTree.reveal(fileEntry, { select: true });
 
 							if (viewLocation.identifier !== undefined) {
 								const resourceEntry = fileEntry.children?.find((file) => file.info?.path === `${viewLocation.documentUri}/${viewLocation.identifier}`);
 								if (resourceEntry) {
-									projectTree.reveal(resourceEntry, { select: true, focus: true });
+									projectTree.reveal(resourceEntry, { select: true });
 								}
 							}
 							break;
