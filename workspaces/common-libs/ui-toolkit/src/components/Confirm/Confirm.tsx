@@ -15,6 +15,7 @@ import { SxStyle } from "../Commons/Definitions";
 import { ClickAwayListener } from "../ClickAwayListener/ClickAwayListener";
 import { debounce } from "lodash";
 import { Button } from "../Button/Button";
+import { ContainerProps } from "../Popover/Popover";
 
 interface Position {
     top: number;
@@ -24,12 +25,6 @@ interface Position {
 interface Origin {
     vertical: "top" | "center" | "bottom";
     horizontal: "left" | "center" | "right";
-}
-
-export interface ContainerProps {
-    top?: number;
-    left?: number;
-    sx?: SxStyle;
 }
 
 const StyledPopover = styled.div<ContainerProps>`
