@@ -43,8 +43,8 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		});
 
 	});
-	commands.registerCommand(COMMANDS.ADD_API_COMMAND, () => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm });
+	commands.registerCommand(COMMANDS.ADD_API_COMMAND, async (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm, documentUri:entry.info?.path });
 		console.log('Add API');
 	});
 

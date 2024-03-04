@@ -33,6 +33,8 @@ import {
     EndpointsAndSequencesResponse,
     GetDefinitionRequest,
     GetDefinitionResponse,
+    GetInboundEpDirRequest,
+    GetProjectRootRequest,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
     HighlightCodeRequest,
@@ -71,6 +73,7 @@ import {
     getSequenceDirectory,
     getSyntaxTree,
     getTextAtRange,
+    getWorkspaceRoot,
     highlightCode,
     initUndoRedoManager,
     openDiagram,
@@ -146,8 +149,8 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(createSequence, HOST_EXTENSION, params);
     }
 
-    getInboundEndpointDirectory(): Promise<InboundEndpointDirectoryResponse> {
-        return this._messenger.sendRequest(getInboundEndpointDirectory, HOST_EXTENSION);
+    getInboundEndpointDirectory(params: GetInboundEpDirRequest): Promise<InboundEndpointDirectoryResponse> {
+        return this._messenger.sendRequest(getInboundEndpointDirectory, HOST_EXTENSION, params);
     }
 
     createInboundEndpoint(params: CreateInboundEndpointRequest): Promise<CreateInboundEndpointResponse> {
@@ -170,8 +173,12 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendNotification(closeWebViewNotification, HOST_EXTENSION);
     }
 
-    getProjectRoot(): Promise<ProjectRootResponse> {
-        return this._messenger.sendRequest(getProjectRoot, HOST_EXTENSION);
+    getWorkspaceRoot(): Promise<ProjectRootResponse> {
+        return this._messenger.sendRequest(getWorkspaceRoot, HOST_EXTENSION);
+    }
+
+    getProjectRoot(params: GetProjectRootRequest): Promise<ProjectRootResponse> {
+        return this._messenger.sendRequest(getProjectRoot, HOST_EXTENSION, params);
     }
 
     askProjectDirPath(): Promise<ProjectDirResponse> {

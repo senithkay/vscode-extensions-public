@@ -146,6 +146,7 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 		if (artifacts) {
 			for (const key in artifacts) {
 
+				artifacts[key].path = project.uri.fsPath + '/src/main/wso2mi/artifacts/' + key;
 				let icon = 'folder';
 				let label = key;
 
@@ -208,7 +209,7 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 				const parentEntry = new ProjectExplorerEntry(
 					label,
 					isCollapsibleState(artifacts[key].length > 0),
-					undefined,
+					artifacts[key],
 					icon
 				);
 				const children = genProjectStructureEntry(artifacts[key]);
