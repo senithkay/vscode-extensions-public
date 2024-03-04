@@ -133,7 +133,7 @@
         "category": "MI"
       },
       {
-        "command": "MI.project-explorer.add-localEntry",
+        "command": "MI.project-explorer.add-local-entry",
         "title": "Add Local Entry",
         "icon": "$(add)",
         "group": "navigation",
@@ -212,7 +212,7 @@
           "group": "inline"
         },
         {
-          "command": "MI.project-explorer.add-localEntry",
+          "command": "MI.project-explorer.add-local-entry",
           "when": "view == MI.project-explorer && viewItem == localEntries",
           "group": "inline"
         }
