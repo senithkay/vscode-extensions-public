@@ -306,7 +306,6 @@ export function getDesignOperationMenuItem(
     operationDesignView: (functionPosition: NodePosition, filePath?: string) => void) {
 
     const openFunctionDesignPanel = () => {
-        // evt.stopPropagation();
         const functionPosition: NodePosition = {
             endColumn: position.endLine.offset,
             endLine: position.endLine.line,
@@ -369,7 +368,6 @@ export function getEditOperationMenuItem(position: Position, functionType: Funct
 export function getDeleteOperationMenuItem(position: Position, onDelete: (position: NodePosition) => void) {
 
     const handleDeleteClick = () => {
-        // evt.stopPropagation();
         const functionPosition: NodePosition = {
             endColumn: position.endLine.offset,
             endLine: position.endLine.line,
