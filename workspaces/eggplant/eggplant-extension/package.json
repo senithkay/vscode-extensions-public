@@ -15,9 +15,6 @@
     "activationEvents": [
         "workspaceContains:**/Ballerina.toml"
     ],
-    "extensionDependencies": [
-        "wso2.ballerina"
-    ],
     "main": "./out/extension",
     "contributes": {
         "viewsContainers": {

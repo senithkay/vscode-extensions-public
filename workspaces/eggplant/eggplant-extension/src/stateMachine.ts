@@ -260,7 +260,6 @@ async function checkIfEggplantProject() {
         console.error(err);
     }
     if (!isEggplant) {
-        window.showInformationMessage("Eggplant project not found.");
         throw new Error("Eggplant project not found");
     }
     return isEggplant;

@@ -22,6 +22,11 @@ export function activate(context: vscode.ExtensionContext) {
 	activateLowCodeWebViews(context);
 
 	StateMachine.initialize();
+	
+	const ballerinaExt = vscode.extensions.getExtension('wso2.ballerina');
+	if (!ballerinaExt) {
+		vscode.window.showErrorMessage('Ballerina extension is required to operate Eggplant extension effectively. Please install it from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=wso2.ballerina).');
+	} 
 }
 
 
