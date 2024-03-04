@@ -98,7 +98,7 @@ export function ResourceField(props: ResourceFieldProps) {
             )}
             <div style={{width: '10px'}}>
                 {resource.subscription ?
-                
+
                     <FunctionMenuWidget location={resource.position} functionType={FunctionType.SUBSCRIPTION} /> :
                     <FunctionMenuWidget location={resource.position} functionType={FunctionType.QUERY} />
                 }
