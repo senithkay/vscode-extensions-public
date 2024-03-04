@@ -7,7 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { WheelEvent } from "react";
 import { Action, ActionEvent, InputType } from "@projectstorm/react-canvas-core";
 
 export interface PanAndZoomCanvasActionOptions {
