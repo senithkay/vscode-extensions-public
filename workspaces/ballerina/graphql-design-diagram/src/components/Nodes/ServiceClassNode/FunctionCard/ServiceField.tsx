@@ -78,13 +78,15 @@ export function ServiceField(props: ServiceFieldProps) {
             <div onClick={updateSelectedNode}>
                 <FieldType data-testid={`service-field-type-${functionElement.returnType}`}>{functionElement.returnType}</FieldType>
             </div>
-            {isHovered &&
-                <ChildActionMenu
-                    functionType={FunctionType.CLASS_RESOURCE}
-                    location={node.classObject.position}
-                    path={functionElement.identifier}
-                />
-            }
+            <div style={{width: '10px'}}>
+                {isHovered &&
+                    <ChildActionMenu
+                        functionType={FunctionType.CLASS_RESOURCE}
+                        location={node.classObject.position}
+                        path={functionElement.identifier}
+                    />
+                }
+            </div>
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${path}`)}
                 engine={engine}

@@ -100,6 +100,6 @@ export const NodeFieldContainer: React.FC<any> = styled.div`
   justify-content: center;
   line-height: 16px;
   min-width: calc(100% - 16px);
-  padding: 8px 8px 8px 8px;
+  padding: 8px 0px 8px 8px;
   text-align: center;
 `;

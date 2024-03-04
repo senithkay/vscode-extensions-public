@@ -14,12 +14,12 @@ import { ContextMenu, Item } from "@wso2-enterprise/ui-toolkit";
 
 import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { getFilterNodeMenuItem } from "../../../MenuItems/menuItems";
+import { verticalIconStyle, verticalIconWrapper } from "../../../MenuItems/style";
 import { NodeCategory } from "../../../NodeFilter";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { UnionIcon } from "../../../resources/assets/icons/UnionIcon";
 import { HeaderName, NodeHeader } from "../../../resources/styles/styles";
 import { UnionNodeModel } from "../UnionNodeModel";
-import { verticalIconStyles } from "../../../MenuItems/style";
 
 interface UnionNodeHeadWidgetProps {
     engine: DiagramEngine;
@@ -52,7 +52,7 @@ export function UnionNodeHeadWidget(props: UnionNodeHeadWidgetProps) {
                 engine={engine}
             />
             <HeaderName>{displayName}</HeaderName>
-            <ContextMenu iconSx={verticalIconStyles} menuItems={getMenuItems()} />
+            <ContextMenu iconSx={verticalIconStyle} sx={verticalIconWrapper} menuItems={getMenuItems()} />
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}

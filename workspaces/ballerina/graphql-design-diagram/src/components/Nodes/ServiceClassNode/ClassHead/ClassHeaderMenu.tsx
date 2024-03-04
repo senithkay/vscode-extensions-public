@@ -16,11 +16,11 @@ import { ContextMenu, Item } from "@wso2-enterprise/ui-toolkit";
 
 import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { getClassFunctionMenuItem, getFilterNodeMenuItem, getGoToSourceMenuItem } from "../../../MenuItems/menuItems";
+import { verticalIconStyle, verticalIconWrapper } from "../../../MenuItems/style";
 import { NodeCategory } from "../../../NodeFilter";
 import { FunctionType, Position } from "../../../resources/model";
 import { getParentSTNodeFromRange } from "../../../utils/common-util";
 import { getSyntaxTree } from "../../../utils/ls-util";
-import { verticalIconStyles } from "../../../MenuItems/style";
 
 interface ServiceHeaderMenuProps {
     location: Position;
@@ -100,7 +100,7 @@ export function ClassHeaderMenu(props: ServiceHeaderMenuProps) {
         <>
             {location?.filePath && location?.startLine && location?.endLine &&
                 <div onClick={() => setTooltipStatus(true)}>
-                    <ContextMenu iconSx={verticalIconStyles} menuItems={getMenuItems()} />
+                    <ContextMenu iconSx={verticalIconStyle} sx={verticalIconWrapper} menuItems={getMenuItems()} />
                 </div>
             }
         </>

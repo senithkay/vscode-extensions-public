@@ -14,9 +14,9 @@ import { ContextMenu, Item } from "@wso2-enterprise/ui-toolkit";
 
 import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { getFilterNodeMenuItem, getGoToSourceMenuItem } from "../MenuItems/menuItems";
+import { verticalIconStyle, verticalIconWrapper } from "../MenuItems/style";
 import { NodeType } from "../NodeFilter";
 import { Position } from "../resources/model";
-import { verticalIconStyles } from "../MenuItems/style";
 
 interface GoToSourceNodeMenuProps {
     location: Position;
@@ -37,7 +37,7 @@ export function FilterNodeAndGoToSourceMenu(props: GoToSourceNodeMenuProps) {
     return (
         <>
             {location?.filePath && location?.startLine && location?.endLine &&
-                <ContextMenu iconSx={verticalIconStyles} menuItems={getMenuItems()} />
+                <ContextMenu iconSx={verticalIconStyle} sx={verticalIconWrapper} menuItems={getMenuItems()} />
             }
         </>
     );

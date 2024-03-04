@@ -7,10 +7,27 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export const verticalIconStyles = {
-    transform: "rotate(90deg)",
+export const verticalIconStyle = {
+    transform: "rotate(90deg)"
+}
+
+export const verticalIconWrapper = {
     ":hover": {
         backgroundColor: "var(--vscode-inputOption-hoverBackground)",
     },
     borderRadius: "3px"
+}
+
+export const verticalIconSubMenu = {
+    transform: "rotate(90deg)",
+    fontSize: "10px"
+}
+
+export const verticalIconWrapperSubMenu = {
+    ":hover": {
+        backgroundColor: "var(--vscode-inputOption-hoverBackground)",
+    },
+    borderRadius: "3px",
+    width: "10px",
+    height: "15px"
 }

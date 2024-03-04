@@ -96,10 +96,13 @@ export function ResourceField(props: ResourceFieldProps) {
                     <ParametersPopup parameters={resource.parameters} />
                 </Popover>
             )}
-            {resource.subscription ?
-                <FunctionMenuWidget location={resource.position} functionType={FunctionType.SUBSCRIPTION} /> :
-                <FunctionMenuWidget location={resource.position} functionType={FunctionType.QUERY} />
-            }
+            <div style={{width: '10px'}}>
+                {resource.subscription ?
+                
+                    <FunctionMenuWidget location={resource.position} functionType={FunctionType.SUBSCRIPTION} /> :
+                    <FunctionMenuWidget location={resource.position} functionType={FunctionType.QUERY} />
+                }
+            </div>
         </NodeFieldContainer>
     );
 }

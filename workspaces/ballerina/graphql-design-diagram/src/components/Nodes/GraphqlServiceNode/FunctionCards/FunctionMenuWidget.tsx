@@ -11,12 +11,11 @@
 import React from "react";
 
 import { ContextMenu, Item } from "@wso2-enterprise/ui-toolkit";
-import { on } from "events";
 
 import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { getDeleteOperationMenuItem, getDesignOperationMenuItem, getEditOperationMenuItem, getGoToSourceMenuItem } from "../../../MenuItems/menuItems";
+import { verticalIconSubMenu, verticalIconWrapperSubMenu } from "../../../MenuItems/style";
 import { FunctionType, Position } from "../../../resources/model";
-import { verticalIconStyles } from "../../../MenuItems/style";
 
 interface FunctionMenuWidgetProps {
     location: Position;
@@ -45,7 +44,7 @@ export function FunctionMenuWidget(props: FunctionMenuWidgetProps) {
     return (
         <>
             {location &&
-                <ContextMenu iconSx={verticalIconStyles} menuItems={getMenuItems()} />
+                <ContextMenu iconSx={verticalIconSubMenu} sx={verticalIconWrapperSubMenu} menuItems={getMenuItems()} />
             }
         </>
     );

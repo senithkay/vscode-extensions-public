@@ -15,10 +15,10 @@ import { ContextMenu, Item } from "@wso2-enterprise/ui-toolkit";
 
 import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { getDesignServiceField, getServiceFieldEdit } from "../MenuItems/menuItems";
+import { verticalIconSubMenu, verticalIconWrapperSubMenu } from "../MenuItems/style";
 import { FunctionType, Position } from "../resources/model";
 import { getParentSTNodeFromRange } from "../utils/common-util";
 import { getSyntaxTree } from "../utils/ls-util";
-import { verticalIconStyles } from "../MenuItems/style";
 
 interface ChildActionMenuProps {
     functionType: FunctionType;
@@ -81,7 +81,7 @@ export function ChildActionMenu(props: ChildActionMenuProps) {
         <>
             {location?.filePath && location?.startLine && location?.endLine &&
                 <div onClick={() => setTooltipStatus(true)}>
-                    <ContextMenu iconSx={verticalIconStyles} menuItems={getMenuItems()} />
+                    <ContextMenu iconSx={verticalIconSubMenu} sx={verticalIconWrapperSubMenu} menuItems={getMenuItems()} />
                 </div>
             }
         </>

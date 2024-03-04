@@ -93,7 +93,10 @@ export function FunctionCard(props: FunctionCardProps) {
                         />
                     )
                 }
-                {isHovered && addFunctionMenu()}
+                <div style={{width: '10px'}}>
+                    { isHovered && addFunctionMenu()}
+                </div>
+
             </FunctionContainer>
         </CtrlClickHandler>
     );
