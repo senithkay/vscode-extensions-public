@@ -54,7 +54,7 @@ export function APIWizard() {
 
     const { rpcClient } = useVisualizerContext();
     const [apiName, setAPIName] = useState("");
-    const [apiContext, setAPIContext] = useState("");
+    const [apiContext, setAPIContext] = useState("/");
     const [versionType, setVersionType] = useState("none");
     const [version, setVersion] = useState("");
     const [swaggerdefPath, setSwaggerdefPath] = useState("");;
@@ -105,6 +105,25 @@ export function APIWizard() {
         return "";
     };
 
+    const validateAPIContext = (name: string) => { 
+        // Check if the name is empty
+        if (!name.trim()) {
+            return "Context is required";
+        }
+
+        // Check if the name has spaces
+        if (/\s/.test(name)) {
+            return "Context cannot contain spaces";
+        }
+
+        // Check if the name starts with /
+        if (!name.startsWith("/")) {
+            return "Context should start with /";
+        }
+
+        return "";
+    }
+
     const handleBackButtonClick = () => {
         rpcClient.getMiVisualizerRpcClient().goBack();
     }
@@ -138,7 +157,7 @@ export function APIWizard() {
                     value={apiContext}
                     id='context-input'
                     required
-                    errorMsg={validateAPIName(apiContext)}
+                    errorMsg={validateAPIContext(apiContext)}
                     size={46}
                 />
                 <FieldGroup>
