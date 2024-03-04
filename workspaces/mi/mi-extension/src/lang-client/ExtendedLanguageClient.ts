@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { GetDefinitionRequest, GetDefinitionResponse, ProjectStructureResponse } from "@wso2-enterprise/mi-core";
+import { GetDefinitionRequest, GetDefinitionResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, ProjectStructureResponse } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { Position, Uri, workspace } from "vscode";
 import { CompletionParams, LanguageClient, TextEdit } from "vscode-languageclient/node";
@@ -135,4 +135,7 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest("synapse/availableResource", req);
     }
 
+    async getDiagnostics(req: GetDiagnosticsReqeust): Promise<GetDiagnosticsResponse> {
+        return this.sendRequest("synapse/diagnostic", { uri: Uri.parse(req.documentUri).toString() });
+    }
 }

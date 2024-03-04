@@ -7,16 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Call, CallTemplate, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, STNode, Send, Sequence, Store, Throttle, Validate, Visitor, WithParam } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Call, CallTemplate, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Range, Respond, STNode, Send, Sequence, Store, TagRange, Throttle, Validate, Visitor, WithParam } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
 import { LINK_BOTTOM_OFFSET } from "../components/NodeLink/NodeLinkModel";
+import { Diagnostic } from "vscode-languageserver-types";
 
 export class SizingVisitor implements Visitor {
     private skipChildrenVisit = false;
     private sequenceWidth = 0;
+    private diagnostic: Diagnostic[];
 
-    constructor() {
-        console.log("SizingVisitor");
+    constructor(diagnostic: Diagnostic[]) {
+        this.diagnostic = diagnostic;
     }
 
     calculateBasicMediator = (node: STNode): void => {
@@ -24,6 +26,7 @@ export class SizingVisitor implements Visitor {
             node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.DEFAULT.WIDTH, h: NODE_DIMENSIONS.DEFAULT.HEIGHT }
         }
         this.sequenceWidth = Math.max(this.sequenceWidth, node.viewState.w);
+        this.addDiagnostics(node);
     }
 
     calculateAdvancedMediator = (node: STNode, subSequences: { [x: string]: any; }): void => {
@@ -52,6 +55,7 @@ export class SizingVisitor implements Visitor {
                     subSequence.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.EMPTY.WIDTH, h: NODE_DIMENSIONS.EMPTY.HEIGHT };
                     subSequencesWidth += NODE_DIMENSIONS.EMPTY.WIDTH + (i === Object.keys(subSequences).length - 1 ? 0 : NODE_GAP.BRANCH_X);
                 }
+                this.addDiagnostics(subSequence);
             }
         }
 
@@ -62,6 +66,37 @@ export class SizingVisitor implements Visitor {
 
         node.viewState.w = NODE_DIMENSIONS.CONDITION.WIDTH;
         node.viewState.h = NODE_DIMENSIONS.CONDITION.HEIGHT;
+
+        this.addDiagnostics(node);
+    }
+
+    addDiagnostics(node: STNode) {
+        for (const diagnostic of this.diagnostic) {
+            // if diagnostic is in the range of the node
+            if (this.isInRange(node.range, diagnostic.range)) {
+                if (node.diagnostics == undefined) {
+                    node.diagnostics = [];
+                }
+                node.diagnostics.push(diagnostic);
+            }
+        }
+        // remove the diagnostics from the global list
+        this.diagnostic = this.diagnostic.filter(d => !node.diagnostics?.includes(d));
+    }
+
+    isInRange(nodeRange: TagRange, diagnosticRange: Range) {
+        if (!nodeRange?.startTagRange?.start || !nodeRange?.endTagRange?.end || !diagnosticRange?.start || !diagnosticRange?.end || !diagnosticRange?.start?.line || !diagnosticRange?.end?.line) {
+            return false;
+        }
+        const isMatchStart = (diagnosticRange.start.line === nodeRange.startTagRange.start.line &&
+            diagnosticRange.start.character >= nodeRange.startTagRange.start.character) ||
+            diagnosticRange.start.line > nodeRange.startTagRange.start.line;
+
+        const isMatchEnd = (diagnosticRange.end.line === nodeRange.endTagRange.end.line &&
+            diagnosticRange.end.character <= nodeRange.endTagRange.end.character) ||
+            diagnosticRange.end.line < nodeRange.endTagRange.end.line;
+
+        return isMatchStart && isMatchEnd;
     }
 
     getSequenceWidth(): number {
@@ -71,6 +106,9 @@ export class SizingVisitor implements Visitor {
     // visitors
     beginVisitCall = (node: Call): void => { this.skipChildrenVisit = true; }
     endVisitCall = (node: Call): void => {
+        if (node.endpoint) {
+            this.addDiagnostics(node.endpoint);
+        }
         node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CALL.WIDTH, fw: NODE_DIMENSIONS.CALL.FULL_WIDTH, h: NODE_DIMENSIONS.DEFAULT.HEIGHT, l: NODE_DIMENSIONS.CALL.WIDTH / 2, r: NODE_DIMENSIONS.CALL.FULL_WIDTH - NODE_DIMENSIONS.CALL.WIDTH / 2 };
         this.calculateBasicMediator(node);
         this.skipChildrenVisit = false;

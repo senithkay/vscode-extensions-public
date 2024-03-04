@@ -18,14 +18,19 @@ import { CallNodeModel } from "../components/nodes/CallNode/CallNodeModel";
 import { ENDPOINTS, MEDIATORS, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { SourceNodeModel, TargetNodeModel, createNodesLink } from "../utils/diagram";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
+import { Diagnostic } from "vscode-languageserver-types";
 
+interface BranchData {
+    name: string;
+    diagnostics: Diagnostic[];
+}
 export class NodeFactoryVisitor implements Visitor {
     nodes: (MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel)[] = [];
     links: NodeLinkModel[] = [];
     private parents: STNode[] = [];
     private skipChildrenVisit = false;
     private previousSTNodes: STNode[] = [];
-    private currentBranchName: string;
+    private currentBranchData: BranchData;
     private currentAddPosition: Position;
     private documentUri: string;
 
@@ -65,17 +70,18 @@ export class NodeFactoryVisitor implements Visitor {
                     previousNode as SourceNodeModel,
                     diagramNode as TargetNodeModel,
                     {
-                        label: this.currentBranchName,
+                        label: this.currentBranchData?.name,
                         stRange: this.currentAddPosition ?? (previousStNode.range.endTagRange?.end ? previousStNode.range.endTagRange.end : previousStNode.range.startTagRange.end),
                         brokenLine: type === NodeTypes.EMPTY_NODE || isSequnceConnect || isEmptyNodeConnect,
                         previousNode: previousStNode.tag,
                         parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
                         showArrow: !isSequnceConnect,
                         showAddButton: !isSequnceConnect,
+                        diagnostics: this.currentBranchData?.diagnostics || [],
                     }
                 );
                 this.links.push(link);
-                this.currentBranchName = undefined;
+                this.currentBranchData = undefined;
                 this.currentAddPosition = undefined;
             }
         }
@@ -92,14 +98,14 @@ export class NodeFactoryVisitor implements Visitor {
             if (sequence) {
                 if (sequence.mediatorList && sequence.mediatorList.length > 0) {
                     this.previousSTNodes = [node];
-                    this.currentBranchName = sequenceKeys[i];
+                    this.currentBranchData = { name: sequenceKeys[i], diagnostics: sequence.diagnostics };
 
                     this.currentAddPosition = sequence.range.startTagRange.end;
                     (sequence.mediatorList as any).forEach((childNode: STNode) => {
                         traversNode(childNode, this);
                     });
                 } else {
-                    this.currentBranchName = sequenceKeys[i];
+                    this.currentBranchData = { name: sequenceKeys[i], diagnostics: sequence.diagnostics };
                     this.previousSTNodes = [node];
                     this.currentAddPosition = sequence.range.startTagRange.end;
                     this.createNodeAndLinks(sequence, "", NodeTypes.EMPTY_NODE);
@@ -122,7 +128,7 @@ export class NodeFactoryVisitor implements Visitor {
         }
 
         // add empty node
-        this.currentBranchName = undefined;
+        this.currentBranchData = undefined;
         this.currentAddPosition = node.range.endTagRange.start;
         const eNode = structuredClone(node);
         eNode.viewState.id = JSON.stringify(eNode.range.endTagRange) + "_end";

@@ -9,7 +9,7 @@
  */
 
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
-import { Position, TextDocumentIdentifier } from "vscode-languageserver-types";
+import { Diagnostic, Position, TextDocumentIdentifier } from "vscode-languageserver-types";
 
 export interface ApplyEditRequest {
     text: string;
@@ -199,4 +199,13 @@ export interface GetTextAtRangeRequest {
 
 export interface GetTextAtRangeResponse {
     text: string | undefined;
+}
+
+export interface GetDiagnosticsReqeust {
+    documentUri: string;
+}
+
+export interface GetDiagnosticsResponse {
+    documentUri: string;
+    diagnostics: Diagnostic[];
 }

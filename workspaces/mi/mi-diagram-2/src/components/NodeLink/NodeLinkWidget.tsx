@@ -15,6 +15,7 @@ import { NodeLinkModel } from "./NodeLinkModel";
 import { Colors } from "../../resources/constants";
 import SidePanelContext from "../sidePanel/SidePanelContexProvider";
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Tooltip } from "@wso2-enterprise/ui-toolkit";
 
 interface NodeLinkWidgetProps {
     link: NodeLinkModel;
@@ -37,6 +38,8 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
     const labelPosition = link.getLabelPosition();
     const addButtonPosition = link.getAddButtonPosition();
     const sidePanelContext = useContext(SidePanelContext)
+    const hasDiagnotics = link.hasDiagnotics();
+    const tooltip = hasDiagnotics ? link.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
 
     const handleAddNode = () => {
         if (link.onAddClick) {
@@ -89,64 +92,69 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                             alignItems: "center",
                         }}
                     >
-                        <div
-                            style={{
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                borderRadius: "20px",
-                                border: `2px solid ${link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY
-                                    }`,
-                                backgroundColor: `${Colors.SURFACE_BRIGHT}`,
-                                padding: "2px 10px",
-                                boxSizing: "border-box",
-                                width: "fit-content",
-                                fontFamily: "var(--font-family)",
-                                fontSize: "var(--type-ramp-base-font-size)",
-                            }}
-                        >
-                            <span
+                        <Tooltip content={tooltip} position={'bottom'}>
+                            <div
                                 style={{
-                                    color: link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY,
-                                    fontSize: "14px",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    borderRadius: "20px",
+                                    border: `2px solid ${link.hasDiagnotics() ? Colors.ERROR : link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY
+                                        }`,
+                                    backgroundColor: `${Colors.SURFACE_BRIGHT}`,
+                                    padding: "2px 10px",
+                                    boxSizing: "border-box",
+                                    width: "fit-content",
+                                    fontFamily: "var(--font-family)",
+                                    fontSize: "var(--type-ramp-base-font-size)",
                                 }}
                             >
-                                {link.label}
-                            </span>
-                        </div>
+                                <span
+                                    style={{
+                                        color: link.hasDiagnotics() ? Colors.ERROR : link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY,
+                                        fontSize: "14px",
+                                    }}
+                                >
+                                    {link.label}
+                                </span>
+                            </div>
+                        </Tooltip>
                     </div>
                 </foreignObject>
-            )}
-            {link.showAddButton && isHovered && (
-                <foreignObject
-                    x={addButtonPosition.x - 10}
-                    y={addButtonPosition.y - 10}
-                    width="20"
-                    height="20"
-                    onClick={handleAddNode}
-                >
-                    <div
-                        css={css`
+            )
+            }
+            {
+                link.showAddButton && isHovered && (
+                    <foreignObject
+                        x={addButtonPosition.x - 10}
+                        y={addButtonPosition.y - 10}
+                        width="20"
+                        height="20"
+                        onClick={handleAddNode}
+                    >
+                        <div
+                            css={css`
                             display: flex;
                             justify-content: center;
                             align-items: center;
                             cursor: pointer;
                             animation: ${fadeInZoomIn} 0.2s ease-out forwards;
                         `}
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                            <path
-                                fill={Colors.SURFACE_BRIGHT}
-                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
-                            />
-                            <path
-                                fill={Colors.ON_SURFACE}
-                                d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
-                            />
-                        </svg>
-                    </div>
-                </foreignObject>
-            )}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                <path
+                                    fill={Colors.SURFACE_BRIGHT}
+                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                                />
+                                <path
+                                    fill={Colors.ON_SURFACE}
+                                    d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                                />
+                            </svg>
+                        </div>
+                    </foreignObject>
+                )
+            }
             <defs>
                 <marker
                     markerWidth="4"
@@ -163,6 +171,6 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                     ></polygon>
                 </marker>
             </defs>
-        </g>
+        </g >
     );
 };

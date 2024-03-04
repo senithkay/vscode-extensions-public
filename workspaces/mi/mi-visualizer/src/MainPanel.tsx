@@ -56,14 +56,21 @@ const MainPanel = () => {
                     break;
                 case "Diagram":
                     rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri }).then((st) => {
-                        const identifier = machineView.identifier;
-                        if (identifier != undefined && st?.syntaxTree?.api?.resource) {
-                            const resourceNode = st.syntaxTree.api.resource[identifier];
-                            setViewComponent(<Diagram model={resourceNode} documentUri={machineView.documentUri} />);
-                        } else if (st?.syntaxTree?.sequence) {
-                            const sequenceNode = st.syntaxTree.sequence;
-                            setViewComponent(<Diagram model={sequenceNode} documentUri={machineView.documentUri} />);
+                        if (!st?.syntaxTree) {
+                            return;
                         }
+
+                        rpcClient.getMiDiagramRpcClient().getDiagnostics({ documentUri: machineView.documentUri }).then((diagnostics) => {
+
+                            const identifier = machineView.identifier;
+                            let model;
+                            if (identifier != undefined && st.syntaxTree.api?.resource) {
+                                model = st.syntaxTree.api.resource[identifier];
+                            } else if (st.syntaxTree.sequence) {
+                                model = st.syntaxTree.sequence;
+                            }
+                            setViewComponent(<Diagram model={model} documentUri={machineView.documentUri} diagnostics={diagnostics.diagnostics} />);
+                        });
                     });
                     rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
                     break;

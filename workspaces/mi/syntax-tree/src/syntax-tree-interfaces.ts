@@ -6,6 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
+import { Diagnostic } from "vscode-languageserver-types";
 
 export interface STNode {
     hasTextNode: boolean;
@@ -13,6 +14,7 @@ export interface STNode {
     range: TagRange;
     tag: string;
     viewState?: ViewState;
+    diagnostics?: Diagnostic[];
 }
 
 export interface ViewState {

@@ -11,7 +11,7 @@ import { createPortal } from 'react-dom';
 import styled from "@emotion/styled";
 import { getOffsetMultiplier } from './utils';
 
-export type PositionType = 
+export type PositionType =
     'bottom-end' |
     'bottom-start' |
     'bottom' |
@@ -24,7 +24,7 @@ export type PositionType =
     'top-end' |
     'top-start' |
     'top'
-;
+    ;
 
 export interface Position {
     top?: number;
@@ -38,7 +38,7 @@ export interface OffsetMultiplier {
     tooltipEl: Position;
 }
 
-export type ElementProperties = 
+export type ElementProperties =
     Position & {
         width: number;
         height: number;
@@ -50,11 +50,16 @@ export interface TooltipProps {
     content?: string | ReactNode;
     position?: PositionType;
     children?: ReactNode;
+    containerPosition?: string;
     sx?: any;
 }
 
-const TooltipContainer = styled.div`
-    position: relative;
+export interface TooltipConatinerProps {
+    position?: string;
+}
+
+const TooltipContainer = styled.div<TooltipConatinerProps>`
+    position: ${(props: TooltipConatinerProps) => props.position || 'relative'};
     display: inline-block;
     cursor: pointer;
     pointer-events: auto;
@@ -105,7 +110,7 @@ export const Tooltip: React.FC<TooltipProps> = (props: TooltipProps) => {
                 })
             }
         }
-        
+
         hoverEl.addEventListener('mouseenter', observer);
 
         return () => {
@@ -118,6 +123,7 @@ export const Tooltip: React.FC<TooltipProps> = (props: TooltipProps) => {
             ref={hoverElRef}
             id={id}
             className={className}
+            position={props.containerPosition}
             onMouseEnter={() => setIsVisible(true)}
             onMouseLeave={() => setIsVisible(false)}
         >
@@ -126,13 +132,13 @@ export const Tooltip: React.FC<TooltipProps> = (props: TooltipProps) => {
                 <TooltipContent
                     ref={tooltipElRef}
                     style={{
-                        opacity: isVisible ? 1 : 0,
-                        visibility: isVisible ? 'visible' : 'hidden',
+                        opacity: isVisible && content ? 1 : 0,
+                        visibility: isVisible && content ? 'visible' : 'hidden',
                         ...diagramPosition
                     }}
                     sx={sx}
                 >
-                    {content}
+                    {content && content.toString().split('\n').map((line, index) => <div key={index}>{line}</div>)}
                 </TooltipContent>,
                 document.body
             )}

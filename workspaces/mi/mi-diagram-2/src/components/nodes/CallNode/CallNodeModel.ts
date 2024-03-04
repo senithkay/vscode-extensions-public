@@ -10,11 +10,12 @@
 import { Endpoint, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodeTypes } from "../../../resources/constants";
 import { BaseNodeModel } from "../BaseNodeModel";
+import { Diagnostic } from "vscode-languageserver-types";
 
 export class CallNodeModel extends BaseNodeModel {
     readonly endpoint: Endpoint;
 
-    constructor(stNode: STNode, documentUri:string, parentNode?: STNode, prevNodes: STNode[] = [], endpoint?: Endpoint) {
+    constructor(stNode: STNode, documentUri: string, parentNode?: STNode, prevNodes: STNode[] = [], endpoint?: Endpoint) {
         super(NodeTypes.CALL_NODE, documentUri, stNode, parentNode, prevNodes);
         if (endpoint) {
             this.endpoint = endpoint;
@@ -23,5 +24,13 @@ export class CallNodeModel extends BaseNodeModel {
 
     getEndpoint(): STNode {
         return this.endpoint;
+    }
+
+    endpointHasDiagnostics(): boolean {
+        return this.endpoint.diagnostics && this.endpoint.diagnostics.length > 0;
+    }
+
+    getEndpointDiagnostics(): Diagnostic[] {
+        return this.endpoint.diagnostics || [];
     }
 }

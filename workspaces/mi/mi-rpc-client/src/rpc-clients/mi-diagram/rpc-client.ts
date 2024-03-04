@@ -33,6 +33,8 @@ import {
     EndpointsAndSequencesResponse,
     GetDefinitionRequest,
     GetDefinitionResponse,
+    GetDiagnosticsReqeust,
+    GetDiagnosticsResponse,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
     HighlightCodeRequest,
@@ -61,6 +63,7 @@ import {
     getConnector,
     getConnectors,
     getDefinition,
+    getDiagnostics,
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
@@ -212,5 +215,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getTextAtRange(params: GetTextAtRangeRequest): Promise<GetTextAtRangeResponse> {
         return this._messenger.sendRequest(getTextAtRange, HOST_EXTENSION, params);
+    }
+
+    getDiagnostics(params: GetDiagnosticsReqeust): Promise<GetDiagnosticsResponse> {
+        return this._messenger.sendRequest(getDiagnostics, HOST_EXTENSION, params);
     }
 }
