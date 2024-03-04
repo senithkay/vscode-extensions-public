@@ -30,6 +30,11 @@ export interface CreateAPIRequest {
     version: string;
 }
 
+export interface GetInboundEpDirRequest{
+    path: string;
+
+}
+
 export interface CreateEndpointRequest {
     directory: string;
     name: string;
@@ -89,6 +94,11 @@ export interface getSTRequest {
 export interface getSTResponse {
     syntaxTree: any;
     defFilePath: string;
+}
+
+export interface GetProjectRootRequest {
+    path: string;
+
 }
 
 export interface ConnectorRequest {

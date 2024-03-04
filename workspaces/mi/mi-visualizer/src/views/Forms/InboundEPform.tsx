@@ -75,7 +75,11 @@ export interface Region {
     value: string;
 }
 
-export function InboundEPWizard() {
+export interface InboundEPWizardProps {
+    path: string;
+}
+
+export function InboundEPWizard(props: InboundEPWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
 
@@ -97,7 +101,7 @@ export function InboundEPWizard() {
     };
 
     useEffect(() => {
-        rpcClient.getMiDiagramRpcClient().getInboundEndpointDirectory().then((path) => {
+        rpcClient.getMiDiagramRpcClient().getInboundEndpointDirectory({path: props.path}).then((path) => {
             setDirectoryPath(path.data);
         }).catch((error) => {
             console.error("Error getting project directory", error);

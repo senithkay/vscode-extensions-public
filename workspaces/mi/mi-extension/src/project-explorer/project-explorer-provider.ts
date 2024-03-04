@@ -12,6 +12,7 @@ import { MILanguageClient } from '../lang-client/activator';
 import { ProjectStructureResponse, ProjectStructureEntry } from '@wso2-enterprise/mi-core';
 import { COMMANDS } from '../constants';
 import { window } from 'vscode';
+import path = require('path');
 
 export class ProjectExplorerEntry extends vscode.TreeItem {
 	children: ProjectExplorerEntry[] | undefined;
@@ -146,6 +147,7 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 		if (artifacts) {
 			for (const key in artifacts) {
 
+				artifacts[key].path = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'artifacts', key);
 				let icon = 'folder';
 				let label = key;
 
@@ -208,7 +210,7 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 				const parentEntry = new ProjectExplorerEntry(
 					label,
 					isCollapsibleState(artifacts[key].length > 0),
-					undefined,
+					artifacts[key],
 					icon
 				);
 				const children = genProjectStructureEntry(artifacts[key]);

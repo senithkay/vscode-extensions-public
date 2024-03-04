@@ -50,7 +50,11 @@ export interface Region {
     value: string;
 }
 
-export function APIWizard() {
+export interface APIWizardProps {
+    path: string;
+}
+
+export function APIWizard(props: APIWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
     const [apiName, setAPIName] = useState("");
@@ -66,7 +70,7 @@ export function APIWizard() {
     };
 
     const handleCreateAPI = async () => {
-        const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot()).path;
+        const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({path: props.path})).path;
         const APIDir = `${projectDir}/src/main/wso2mi/artifacts/apis`;
         const createAPIParams = {
             name: apiName,

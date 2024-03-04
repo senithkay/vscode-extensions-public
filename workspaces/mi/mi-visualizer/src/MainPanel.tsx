@@ -78,16 +78,16 @@ const MainPanel = () => {
                     setViewComponent(<ServiceDesignerView />);
                     break;
                 case "APIForm":
-                    setViewComponent(<APIWizard />);
+                    setViewComponent(<APIWizard path={machineView.documentUri} />);
                     break;
                 case "EndPointForm":
-                    setViewComponent(<EndpointWizard />);
+                    setViewComponent(<EndpointWizard path={machineView.documentUri} />);
                     break;
                 case "SequenceForm":
-                    setViewComponent(<SequenceWizard />);
+                    setViewComponent(<SequenceWizard path={machineView.documentUri} />);
                     break;
                 case "InboundEPForm":
-                    setViewComponent(<InboundEPWizard />);
+                    setViewComponent(<InboundEPWizard path={machineView.documentUri} />);
                     break;
                 case "ProjectCreationForm":
                     setViewComponent(<ProjectWizard />);

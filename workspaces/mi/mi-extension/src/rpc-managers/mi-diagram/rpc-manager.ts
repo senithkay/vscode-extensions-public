@@ -38,6 +38,8 @@ import {
     GetDefinitionResponse,
     GetDiagnosticsReqeust,
     GetDiagnosticsResponse,
+    GetInboundEpDirRequest,
+    GetProjectRootRequest,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
     HighlightCodeRequest,
@@ -53,7 +55,7 @@ import {
     WriteContentToFileRequest,
     WriteContentToFileResponse,
     getSTRequest,
-    getSTResponse
+    getSTResponse,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import * as fs from "fs";
@@ -310,9 +312,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
-    async getInboundEndpointDirectory(): Promise<InboundEndpointDirectoryResponse> {
+    async getInboundEndpointDirectory(params: GetInboundEpDirRequest): Promise<InboundEndpointDirectoryResponse> {
         try {
-            const workspaceFolder = workspace.workspaceFolders;
+            const fileUri = Uri.file(params.path);
+            const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
             if (workspaceFolder) {
                 const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
                 const endpointDir = path.join(workspaceFolderPath, 'src', 'main', 'wso2mi', 'artifacts', 'inbound-endpoints');
@@ -481,16 +484,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
-    async getProjectRoot(): Promise<ProjectRootResponse> {
-        return new Promise(async (resolve) => {
-            const workspaceFolders = workspace.workspaceFolders;
-            if (workspaceFolders) {
-                resolve({ path: workspaceFolders[0].uri.fsPath });
-            }
-            resolve({ path: "" });
-        });
-    }
-
     async askProjectDirPath(): Promise<ProjectDirResponse> {
         return new Promise(async (resolve) => {
             const selectedDir = await askProjectPath();
@@ -597,6 +590,28 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             resolve({ data: [] });
+        });
+    }
+
+    async getProjectRoot(params: GetProjectRootRequest): Promise<ProjectRootResponse> {
+        return new Promise(async (resolve) => {
+            const fileUri = Uri.file(params.path);
+            const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
+
+            if (workspaceFolder) {
+                resolve({ path: workspaceFolder.uri.fsPath });
+            }
+            resolve({ path: "" });
+        });
+    }
+
+    async getWorkspaceRoot(): Promise<ProjectRootResponse> {
+        return new Promise(async (resolve) => {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (workspaceFolders) {
+                resolve({ path: workspaceFolders[0].uri.fsPath });
+            }
+            resolve({ path: "" });
         });
     }
 

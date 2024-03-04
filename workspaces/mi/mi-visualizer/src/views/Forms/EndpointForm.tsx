@@ -58,7 +58,11 @@ const Container = styled.div`
     justify-content: flex-start;
 `;
 
-export function EndpointWizard() {
+export interface EndpointWizardProps {
+    path: string;
+}
+
+export function EndpointWizard(props: EndpointWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
     const [endpointName, setEndpointName] = useState("");
@@ -107,7 +111,7 @@ export function EndpointWizard() {
     };
 
     const handleCreateEndpoint = async () => {
-        const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot()).path;
+        const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({path: props.path})).path;
         const endpointDir = `${projectDir}/src/main/wso2mi/artifacts/endpoints`;
         const createEndpointParams: CreateEndpointRequest = {
             directory: endpointDir,
