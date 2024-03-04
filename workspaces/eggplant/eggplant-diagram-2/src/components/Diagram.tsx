@@ -35,8 +35,7 @@ export interface DiagramProps {
 }
 
 export function Diagram(props: DiagramProps) {
-    const { model, onAddNode, onNodeChange } = props;
-
+    const { model, onAddNode } = props;
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
     const [showComponentPanel, setShowComponentPanel] = useState(false);
