@@ -71,7 +71,7 @@ export function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.REVEAL_ITEM_COMMAND, async (viewLocation: VisualizerLocation) => {
 		const data = projectExplorerDataProvider.getChildren();
 
-		if (viewLocation.projectUri && viewLocation.projectUri && data) {
+		if (viewLocation.documentUri && viewLocation.projectUri && data) {
 			const project = (await data)?.find((project) => project.info?.path === viewLocation.projectUri);
 			if (project) {
 				projectTree.reveal(project, { select: true, focus: true });
