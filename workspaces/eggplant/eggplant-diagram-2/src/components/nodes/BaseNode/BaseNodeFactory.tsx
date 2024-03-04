@@ -30,14 +30,14 @@ export class BaseNodeFactory extends AbstractReactFactory<BaseNodeModel, Diagram
 
     generateReactWidget(event: GenerateWidgetEvent<BaseNodeModel>) {
         switch (event.model.node.kind as NodeKind) {
-            case "IF":
-                return <IfNodeWidget engine={this.engine} model={event.model} />;
-            case "EVENT_HTTP_API":
-                return <HttpEndpointNodeWidget engine={this.engine} model={event.model} />;
-            case "HTTP_API_GET_CALL":
-                return <HttpActionNodeWidget engine={this.engine} model={event.model} />;
-            case "RETURN":
-                return <ReturnNodeWidget engine={this.engine} model={event.model} />;
+            // case "IF":
+            //     return <IfNodeWidget engine={this.engine} model={event.model} />;
+            // case "EVENT_HTTP_API":
+            //     return <HttpEndpointNodeWidget engine={this.engine} model={event.model} />;
+            // case "HTTP_API_GET_CALL":
+            //     return <HttpActionNodeWidget engine={this.engine} model={event.model} />;
+            // case "RETURN":
+            //     return <ReturnNodeWidget engine={this.engine} model={event.model} />;
             default:
                 return (
                     <BaseNodeWidget engine={this.engine} model={event.model}>
