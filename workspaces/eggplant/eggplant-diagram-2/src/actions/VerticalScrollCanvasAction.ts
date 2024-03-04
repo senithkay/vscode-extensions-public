@@ -18,7 +18,7 @@ export class VerticalScrollCanvasAction extends Action {
     constructor(options: PanAndZoomCanvasActionOptions = {}) {
         super({
             type: InputType.MOUSE_WHEEL,
-            fire: (actionEvent: ActionEvent<WheelEvent>) => {
+            fire: (actionEvent: ActionEvent<any>) => {
                 const { event } = actionEvent;
                 for (let layer of this.engine.getModel().getLayers()) {
                     layer.allowRepaint(false);
