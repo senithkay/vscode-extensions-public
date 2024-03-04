@@ -8,7 +8,7 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { CheckBox, CheckBoxGroup, CheckBoxGroupProps } from "./CheckBoxGroup";
+import { CheckBoxGroup, CheckBoxGroupProps } from "./CheckBoxGroup";
 import styled from "@emotion/styled";
 
 const Container = styled.div`
@@ -19,19 +19,18 @@ const Container = styled.div`
 const Template: ComponentStory<typeof CheckBoxGroup> = (args: CheckBoxGroupProps) => {
     return (
         <Container>
-            <CheckBoxGroup {...args}>
-                <CheckBox label="Option 1" value="option1" />
-                <CheckBox label="Option 2" value="option2" />
-                <CheckBox label="Option 3" value="option3" />
-                <CheckBox label="Option 4" value="option4" />
-                <CheckBox label="Option 5" value="option5" />
-            </CheckBoxGroup>
+            <CheckBoxGroup {...args} />
         </Container>
     );
 };
 
 export const Default = Template.bind();
 Default.args = {
+    items: [
+        { label: "Option 1", value: "Option 1" },
+        { label: "Option 2", value: "Option 2" },
+        { label: "Option 3", value: "Option 3" },
+    ],
     onChange: (selected: string[]) => {
         console.log(selected);
     },
