@@ -174,6 +174,10 @@ export function LocalEntryWizard() {
     rpcClient.getMiDiagramRpcClient().closeWebView();
   };
 
+  const handleBackButtonClick = () => {
+    rpcClient.getMiVisualizerRpcClient().goBack();
+  }  
+
   const isValid: boolean =
     localEntryName.length > 0 &&
     localEntryType.length > 0 &&
