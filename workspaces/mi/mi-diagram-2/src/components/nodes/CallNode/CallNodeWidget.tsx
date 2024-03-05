@@ -55,8 +55,8 @@ namespace S {
 
     export const CircleContainer = styled.div`
         position: absolute;
-        top: 10px;
-        right: -110px;
+        top: -5px;
+        left: 120px;
         color: ${Colors.ON_SURFACE};
         cursor: pointer;
         font-family: var(--font-family);
@@ -184,7 +184,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
 
     return (
         <div>
-            <Tooltip content={tooltip} position={'bottom'} >
+            <Tooltip content={tooltip} position={'bottom'} containerPosition={"absolute"} >
                 <S.Node
                     selected={node.isSelected()}
                     hovered={isHovered}
