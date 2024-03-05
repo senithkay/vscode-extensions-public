@@ -70,7 +70,6 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
         });
         const model: Service = {
             path: st.context,
-            port: 0,
             resources: resources,
             position: {
                 startLine: st.range.startTagRange.start.line,

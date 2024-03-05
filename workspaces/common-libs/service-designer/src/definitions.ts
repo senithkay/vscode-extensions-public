@@ -59,7 +59,7 @@ export interface PathConfig {
 
 export interface Service {
     path: string;
-    port: number;
+    port?: number;
     serviceType?: string;
     resources: Resource[];
     position?: NodePosition;

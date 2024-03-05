@@ -99,7 +99,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         <div data-testid="service-design-view">
             <ServiceHeader>
                 <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Service {model.path} </Typography>
-                <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Listening {model.port}</Typography>
+                {model.port && <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Listening {model.port}</Typography>}
                 <VSCodeButton appearance="icon" title="Edit Service" onClick={handleServiceEdit}>
                     <Codicon name="settings-gear" />
                 </VSCodeButton>
