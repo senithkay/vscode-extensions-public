@@ -7,11 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import styled from "@emotion/styled";
-import React, { useEffect, useState } from "react";
-import { Button, Codicon, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { useEffect, useState } from "react";
+import { Button, Codicon, LocationSelector, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { FieldGroup, SectionWrapper } from "./Commons";
+import { SectionWrapper } from "./Commons";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 
 const WizardContainer = styled.div`
@@ -125,14 +124,13 @@ export function ProjectWizard() {
                     autoFocus
                     required
                 />
-                <FieldGroup>
-                    <span>  Project Location  </span>
-                    {!!projectDir && <LocationText>{projectDir}</LocationText>}
-                    {!projectDir && <span>Please choose a directory for project workspace. </span>}
-                    <Button appearance="secondary" onClick={handleProjecDirSelection} id="select-project-dir-btn">
-                        Select Location
-                    </Button>
-                </FieldGroup>
+                <LocationSelector 
+                    label="Select Project Directory"
+                    selectionText="Project Location"
+                    selectedFile={projectDir}
+                    required
+                    onSelect={handleProjecDirSelection}
+                />
                 <ActionContainer>
                     <Button
                         appearance="secondary"
