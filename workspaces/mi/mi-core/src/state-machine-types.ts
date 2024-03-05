@@ -35,6 +35,13 @@ export enum EVENT_TYPE {
     EDIT_DONE = "EDIT_DONE",
 }
 
+export const SEQUENCE_TYPE = {
+    IN: "IN",
+    FAULT: "FAULT",
+} as const;
+
+export type SequenceType = (typeof SEQUENCE_TYPE)[keyof typeof SEQUENCE_TYPE];
+
 export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";
 
 export interface MachineEvent {
@@ -55,6 +62,7 @@ export interface VisualizerLocation {
     identifier?: string;
     position?: any;
     projectOpened?: boolean;
+    flowType?: SequenceType;
 }
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };

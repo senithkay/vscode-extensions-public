@@ -20,9 +20,10 @@ const CustomDataGridCell = styled(VSCodeDataGridCell)`
 
 export type SequenceComponentViewProps = {
     onOpenInSequence: () => void;
+    onOpenFaultSequence: () => void;
 }
 
-export const getSequenceComponentView = ({ onOpenInSequence }: SequenceComponentViewProps) => {
+export const getSequenceComponentView = ({ onOpenInSequence, onOpenFaultSequence }: SequenceComponentViewProps) => {
     return (
         <React.Fragment>
             <Typography sx={{ marginBlockEnd: 10 }} variant="h3">
@@ -35,9 +36,6 @@ export const getSequenceComponentView = ({ onOpenInSequence }: SequenceComponent
                         In Sequence
                     </VSCodeDataGridCell>
                     <VSCodeDataGridCell cell-type="columnheader" grid-column={2}>
-                        Out Sequence
-                    </VSCodeDataGridCell>
-                    <VSCodeDataGridCell cell-type="columnheader" grid-column={3}>
                         Fault Sequence
                     </VSCodeDataGridCell>
                 </VSCodeDataGridRow>
@@ -54,16 +52,7 @@ export const getSequenceComponentView = ({ onOpenInSequence }: SequenceComponent
                     <CustomDataGridCell grid-column={2}>
                         <Button
                             appearance="primary"
-                            onClick={() => console.log("Expand Out Sequence")}
-                        >
-                            Open Diagram
-                            <Codicon name="export" sx={{ marginLeft: "4px", width: "18px" }} iconSx={{ fontSize: "18px" }} />
-                        </Button>
-                    </CustomDataGridCell>
-                    <CustomDataGridCell grid-column={3}>
-                        <Button
-                            appearance="primary"
-                            onClick={() => console.log("Expand Fault Sequence")}
+                            onClick={onOpenFaultSequence}
                         >
                             Open Diagram
                             <Codicon name="export" sx={{ marginLeft: "4px", width: "18px" }} iconSx={{ fontSize: "18px" }} />
