@@ -84,8 +84,8 @@ export const NODE_GAP = {
     X: 0,
     Y: 50,
     BRANCH_X: 100,
-    BRANCH_TOP: 100,
-    BRANCH_BOTTOM: 20,
+    BRANCH_TOP: 100 + 10,
+    BRANCH_BOTTOM: 80,
     SEQUENCE_Y: 100,
 };
 

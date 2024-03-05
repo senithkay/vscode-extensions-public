@@ -60,7 +60,7 @@ export class NodeFactoryVisitor implements Visitor {
         if (this.previousSTNodes && this.previousSTNodes.length > 0) {
             for (let i = 0; i < this.previousSTNodes.length; i++) {
                 const previousStNode = this.previousSTNodes[i];
-                const previousNodes = this.nodes.filter((node) => node.getStNode() == previousStNode);
+                const previousNodes = this.nodes.filter((node) => JSON.stringify(node.getStNode().range) === JSON.stringify(previousStNode.range));
                 const previousNode = previousNodes[previousNodes.length - 1];
 
                 const isSequnceConnect = diagramNode instanceof StartNodeModel && previousNode instanceof EndNodeModel;
@@ -132,7 +132,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.currentAddPosition = node.range.endTagRange.start;
         const eNode = structuredClone(node);
         eNode.viewState.id = JSON.stringify(eNode.range.endTagRange) + "_end";
-        eNode.viewState.y = eNode.viewState.y + eNode.viewState.fh - NODE_GAP.Y;
+        eNode.viewState.y = eNode.viewState.y + eNode.viewState.fh;
         eNode.viewState.x = eNode.viewState.x + eNode.viewState.w / 2 - NODE_DIMENSIONS.EMPTY.WIDTH / 2;
         this.createNodeAndLinks(eNode, "", NodeTypes.CONDITION_NODE_END);
     }

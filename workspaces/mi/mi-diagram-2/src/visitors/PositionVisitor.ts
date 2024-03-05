@@ -94,7 +94,7 @@ export class PositionVisitor implements Visitor {
 
         // set filter node positions after traversing children
         this.position.x = node.viewState.x + node.viewState.w / 2;
-        this.position.y = node.viewState.y + node.viewState.fh;
+        this.position.y = node.viewState.y + node.viewState.fh + NODE_GAP.Y;
         this.skipChildrenVisit = true;
     }
 

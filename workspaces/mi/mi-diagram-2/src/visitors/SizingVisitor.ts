@@ -35,7 +35,7 @@ export class SizingVisitor implements Visitor {
         }
 
         let subSequencesWidth = 0;
-        let subSequencesHeight = 0;
+        let subSequencesHeight = 10;
         for (let i = 0; i < Object.keys(subSequences).length; i++) {
             const subSequence = subSequences[Object.keys(subSequences)[i]];
             if (subSequence) {
@@ -46,7 +46,7 @@ export class SizingVisitor implements Visitor {
                     subSequenceMediatorList.forEach((childNode: STNode) => {
                         if (childNode.viewState) {
                             subSequenceWidth = Math.max(subSequenceWidth, childNode.viewState.fw ?? childNode.viewState.w);
-                            subSequenceHeight += childNode.viewState.h + NODE_GAP.Y;
+                            subSequenceHeight += (childNode.viewState.fh || childNode.viewState.h);
                         }
                     });
                     subSequencesWidth += subSequenceWidth + (i === Object.keys(subSequences).length - 1 ? 0 : NODE_GAP.BRANCH_X);
@@ -60,7 +60,7 @@ export class SizingVisitor implements Visitor {
         }
 
         node.viewState.fw = subSequencesWidth;
-        node.viewState.fh = subSequencesHeight + NODE_DIMENSIONS.CONDITION.HEIGHT + NODE_GAP.BRANCH_TOP + LINK_BOTTOM_OFFSET + NODE_GAP.Y;
+        node.viewState.fh = NODE_DIMENSIONS.CONDITION.HEIGHT + NODE_GAP.BRANCH_TOP + subSequencesHeight + NODE_GAP.BRANCH_BOTTOM;
 
         this.sequenceWidth = Math.max(this.sequenceWidth, node.viewState.fw);
 
