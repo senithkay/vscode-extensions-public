@@ -8,9 +8,8 @@
  */
 
 import React from 'react';
-import Fab from '@mui/material/Fab';
-import SearchIcon from '@mui/icons-material/Search';
 import { useStyles } from './style';
+import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
 
 export interface PromptScreenProps {
     userMessage: string;
@@ -25,17 +24,15 @@ export function PromptScreen(props: PromptScreenProps) {
         <div className={styles.container}>
             <h3 className={styles.messageBox}>{userMessage}</h3>
             {showProblemPanel &&
-                <Fab
+                <Button
                     aria-label='add'
                     className={styles.button}
                     id={'add-component-btn'}
                     onClick={showProblemPanel}
-                    size='small'
-                    variant='extended'
                 >
-                    <SearchIcon sx={{ marginRight: '5px' }} />
+                    <Codicon name='search' iconSx={{ marginRight: '5px' }} />
                     View Diagnostics
-                </Fab>
+                </Button>
             }
         </div>
     );

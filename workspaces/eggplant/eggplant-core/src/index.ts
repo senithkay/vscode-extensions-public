@@ -11,19 +11,122 @@
  *  associated services.
  */
 
-// EXPORT ALL THE TYPES FROM HERE -------------------->
+// ------ State machine interfaces -------->
+export * from "./state-machine-types";
 
-export * from "./extension-interfaces/state-machine-types";
-export * from "./lang-server-interfaces/lang-client-interface";
+// ------ Eggplant related interfaces -------->
+export * from "./interfaces/lang-client";
+export * from "./interfaces/metadata-types";
+export * from "./interfaces/eggplant";
 
-export * from "./rpc-types/webview";
-export * from "./rpc-types/webview/rpc-type";
-export * from "./rpc-types/webview/types";
+// ------ RPC interfaces -------->
+export * from "./rpc-types/eggplant-diagram";
+export * from "./rpc-types/eggplant-diagram/rpc-type";
+export * from "./rpc-types/eggplant-diagram/interfaces";
+export * from "./rpc-types/visualizer";
+export * from "./rpc-types/visualizer/rpc-type";
+export * from "./rpc-types/visualizer/interfaces";
 
-export * from "./code-generation/utils/code-generator-utils";
-
-export * from "./rpc-types/webview/metadata-types";
+// ------ Util functions -------->
+// export * from "./code-generation/utils/code-generator-utils";
 export * from "./code-generation/utils/metadata-utils";
 
-export type { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
+// ------ Ballerina exports -------->
 export type { STNode, NodePosition } from "@wso2-enterprise/syntax-tree";
+export type {
+    BallerinaProjectComponents,
+    LibraryDataResponse,
+    LibrariesListResponse,
+    LibrarySearchResponse,
+    STByRangeRequest,
+    BallerinaSTModifyResponse,
+    CommonRPCAPI,
+    Completion,
+    CompletionParams,
+    GoToSourceRequest,
+    STModification,
+    SyntaxTreeResponse,
+    TypeResponse,
+    CodeActionRequest,
+    CompletionRequest,
+    DefinitionPositionRequest,
+    DidChangeRequest,
+    DidCloseRequest,
+    DidOpenRequest,
+    ExecutorPositionsRequest,
+    PartialSTRequest,
+    ProjectComponentsRequest,
+    RenameRequest,
+    STModifyRequest,
+    STRequest,
+    SymbolInfoRequest,
+    TypeFromExpressionRequest,
+    TypeFromSymbolRequest,
+    TypesFromFnDefinitionRequest,
+    UpdateFileContentRequest,
+    BallerinaVersionResponse,
+    CodeActionResponse,
+    CompletionResponse,
+    DefinitionResponse,
+    DiagnosticData,
+    DiagnosticsResponse,
+    ExecutorPositionsResponse,
+    LangServerAPI,
+    PartialSTResponse,
+    RenameResponse,
+    SymbolInfoResponse,
+    TypesFromExpressionResponse,
+    TypesFromSymbolResponse,
+    UpdateFileContentResponse,
+    LibrariesListRequest,
+    LibraryDataRequest,
+    LibraryBrowserAPI,
+    RecordSTRequest,
+    RecordSTResponse,
+    ServiceDesignerAPI,
+    WorkspaceFileRequest,
+    WorkspacesFileResponse
+} from "@wso2-enterprise/ballerina-core";
+export {
+    LibraryKind,
+    getLibrariesData,
+    getLibrariesList,
+    getLibraryData,
+    getTypes,
+    goToSource,
+    codeAction,
+    definition,
+    didChange,
+    didClose,
+    didOpen,
+    getBallerinaProjectComponents,
+    getBallerinaVersion,
+    getCompletion,
+    getDefinitionPosition,
+    getDiagnostics,
+    getExecutorPositions,
+    getST,
+    getSTByRange,
+    getSTForExpression,
+    getSTForFunction,
+    getSTForModuleMembers,
+    getSTForModulePart,
+    getSTForResource,
+    getSTForSingleStatement,
+    getSymbolDocumentation,
+    getSyntaxTree,
+    getTypeFromExpression,
+    getTypeFromSymbol,
+    getTypesFromFnDefinition,
+    rename,
+    stModify,
+    updateFileContent,
+    getRecordST,
+    InsertorDelete,
+    visitor,
+    vscode,
+    getWorkspaceFiles
+} from "@wso2-enterprise/ballerina-core";
+export { CommonRpcClient, LangServerRpcClient, LibraryBrowserRpcClient, ServiceDesignerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+
+

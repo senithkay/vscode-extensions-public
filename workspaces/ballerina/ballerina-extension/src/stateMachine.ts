@@ -2,36 +2,20 @@
 import { ExtendedLangClient, ballerinaExtInstance } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EventType, MachineStateValue, MachineViews, STByRangeRequest, SyntaxTreeResponse, VisualizerLocation, webviewReady } from "@wso2-enterprise/ballerina-core";
+import { EventType, GetSyntaxTreeResponse, History, HistoryEntry, MachineStateValue, MachineViews, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './library-browser';
 import { VisualizerWebview } from './visualizer/webview';
 import { Uri } from 'vscode';
-import { STKindChecker } from '@wso2-enterprise/syntax-tree';
 import { RPCLayer } from './RPCLayer';
+import { generateUid, getComponentIdentifier, getNodeByIndex, getNodeByName, getNodeByUid, getView } from './utils/state-machine-utils';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
     errorCode: string | null;
 }
 
-type ViewFlow = {
-    [key in MachineViews]: MachineViews[];
-};
-
-const viewFlow: ViewFlow = {
-    Overview: [],
-    ServiceDesigner: ["Overview"],
-    DataMapper: ["Overview"],
-    ArchitectureDiagram: ["Overview"],
-    ERDiagram: ["Overview"],
-    GraphQLDiagram: ["Overview"],
-    SequenceDiagram: ["Overview"],
-    TypeDiagram: ["Overview"]
-};
-
-export function getPreviousView(currentView: MachineViews): MachineViews[] {
-    return viewFlow[currentView] || [];
-}
+export let history: History;
+export let undoRedoManager: UndoRedoManager;
 
 const stateMachine = createMachine<MachineContext>(
     {
@@ -69,8 +53,10 @@ const stateMachine = createMachine<MachineContext>(
                     OPEN_VIEW: {
                         target: "viewActive",
                         actions: assign({
+                            view: (context, event) => event.viewLocation.view,
                             documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
-                            position: (context, event) => event.viewLocation.position
+                            position: (context, event) => event.viewLocation.position,
+                            identifier: (context, event) => event.viewLocation.identifier
                         })
                     }
                 }
@@ -82,18 +68,28 @@ const stateMachine = createMachine<MachineContext>(
                         invoke: {
                             src: 'openWebView',
                             onDone: {
-                                target: "webViewLoaded"
+                                target: "webViewLoading"
                             },
+                        }
+                    },
+                    webViewLoading: {
+                        invoke: {
+                            src: 'findView', // NOTE: We only find the view and indentifer from this state as we already have the position and the file URL
+                            onDone: {
+                                target: "webViewLoaded"
+                            }
                         }
                     },
                     webViewLoaded: {
                         invoke: {
-                            src: 'findView', // NOTE: We only find the view and indentifer from this state as we already have the position and the file URL
+                            src: 'showView',
                             onDone: {
                                 target: "viewReady",
                                 actions: assign({
                                     view: (context, event) => event.data.view,
-                                    identifier: (context, event) => event.data.identifier
+                                    identifier: (context, event) => event.data.identifier,
+                                    position: (context, event) => event.data.position,
+                                    syntaxTree: (context, event) => event.data.syntaxTree,
                                 })
                             }
                         }
@@ -103,8 +99,18 @@ const stateMachine = createMachine<MachineContext>(
                             OPEN_VIEW: {
                                 target: "viewInit",
                                 actions: assign({
+                                    view: (context, event) => event.viewLocation.view,
                                     documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
                                     position: (context, event) => event.viewLocation.position,
+                                    identifier: (context, event) => event.viewLocation.identifier
+                                })
+                            },
+                            VIEW_UPDATE: {
+                                target: "webViewLoaded",
+                                actions: assign({
+                                    documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
+                                    position: (context, event) => event.viewLocation.position,
+                                    view: (context, event) => event.viewLocation.view,
                                     identifier: (context, event) => event.viewLocation.identifier
                                 })
                             },
@@ -152,6 +158,8 @@ const stateMachine = createMachine<MachineContext>(
                 if (!VisualizerWebview.currentPanel) {
                     VisualizerWebview.currentPanel = new VisualizerWebview();
                     RPCLayer._messenger.onNotification(webviewReady, () => {
+                        history = new History();
+                        undoRedoManager = new UndoRedoManager();
                         resolve(true);
                     });
                 } else {
@@ -160,59 +168,129 @@ const stateMachine = createMachine<MachineContext>(
                 }
             });
         },
-        findView(context, event): Promise<VisualizerLocation> {
+        findView(context, event): Promise<void> {
             return new Promise(async (resolve, reject) => {
                 if (ballerinaExtInstance.getPersistDiagramStatus()) {
-                    resolve({
-                        view: "ERDiagram",
-                        identifier: context.identifier
-                    });
-                    return;
-                }
-                if (!context.position) {
-                    resolve({ view: "Overview" });
-                    return;
-                }
-                
-                const req: STByRangeRequest = {
-                    documentIdentifier: { uri: Uri.file(context.documentUri).toString() },
-                    lineRange: {
-                        start: {
-                            line: context.position.startLine,
-                            character: context.position.startColumn
-                        },
-                        end: {
-                            line: context.position.endLine,
-                            character: context.position.endColumn
+                    history.push({
+                        location: {
+                            view: "ERDiagram",
+                            identifier: context.identifier
                         }
+                    });
+                    return resolve();
+                }
+                if (!context.view) {
+                    if (!context.position || ("groupId" in context.position)) {
+                        history.push({ location: { view: "Overview", documentUri: context.documentUri } });
+                        return resolve();
                     }
-                };
+                    const view = await getView(context.documentUri, context.position);
+                    history.push(view);
+                    return resolve();
+                } else {
+                    history.push({
+                        location: {
+                            view: context.view,
+                            documentUri: context.documentUri,
+                            position: context.position,
+                            identifier: context.identifier
+                        }
+                    });
+                    return resolve();
+                }
+                });
+            },
+        showView(context, event): Promise<VisualizerLocation> {
+            return new Promise(async (resolve, reject) => {
+                const historyStack = history.get();
+                const selectedEntry = historyStack[historyStack.length - 1];
 
-                const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
+                const { location: { documentUri, position } = { documentUri: context.documentUri, position: undefined }, uid } = selectedEntry ?? {};
+                const node = await StateMachine.langClient().getSyntaxTree({
+                    documentIdentifier: {
+                        uri: Uri.file(documentUri).toString()
+                    }
+                }) as GetSyntaxTreeResponse;
+
+                if (!selectedEntry?.location.view) {
+                    return resolve({ view: "Overview", documentUri: context.documentUri });
+                } else if (selectedEntry.location.view === "Overview") {
+                    return resolve({ ...selectedEntry.location, syntaxTree: node.syntaxTree });
+                }
+
+                let selectedST;
 
                 if (node.parseSuccess) {
-                    if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
-                        const expr = node.syntaxTree.expressions[0];
-                        if (expr?.typeData?.typeSymbol?.signature?.includes("graphql")) {
-                            resolve({
-                                view: "GraphQLDiagram",
-                                identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join('')
+                    const fullST = node.syntaxTree;
+                    if (!uid && position) {
+                        const generatedUid = generateUid(position, fullST);
+                        selectedST = getNodeByUid(generatedUid, fullST);
+                        if (generatedUid) {
+                            history.updateCurrentEntry({
+                                ...selectedEntry,
+                                location: {
+                                    ...selectedEntry.location,
+                                    position: selectedST.position,
+                                    syntaxTree: selectedST
+                                },
+                                uid: generatedUid
                             });
                         } else {
-                            resolve({
-                                view: "ServiceDesigner",
-                                identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join('')
+                            // show identification failure message
+                        }
+                    }
+
+                    if (uid && position) {
+                        selectedST = getNodeByUid(uid, fullST);
+
+                        if (!selectedST) {
+                            const nodeWithUpdatedUid = getNodeByName(uid, fullST);
+                            selectedST = nodeWithUpdatedUid[0];
+
+                            if (selectedST) {
+                                history.updateCurrentEntry({
+                                    ...selectedEntry,
+                                    location: {
+                                        ...selectedEntry.location,
+                                        position: selectedST.position,
+                                        syntaxTree: selectedST
+                                    },
+                                    uid: nodeWithUpdatedUid[1]
+                                });
+                            } else {
+                                const nodeWithUpdatedUid = getNodeByIndex(uid, fullST);
+                                selectedST = nodeWithUpdatedUid[0];
+
+                                if (selectedST) {
+                                    history.updateCurrentEntry({
+                                        ...selectedEntry,
+                                        location: {
+                                            ...selectedEntry.location,
+                                            identifier: getComponentIdentifier(selectedST),
+                                            position: selectedST.position,
+                                            syntaxTree: selectedST
+                                        },
+                                        uid: nodeWithUpdatedUid[1]
+                                    });
+                                } else {
+                                    // show identification failure message
+                                }
+                            }
+                        } else {
+                            history.updateCurrentEntry({
+                                ...selectedEntry,
+                                location: {
+                                    ...selectedEntry.location,
+                                    position: selectedST.position,
+                                    syntaxTree: selectedST
+                                }
                             });
                         }
-                    } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) && STKindChecker.isExpressionFunctionBody(node.syntaxTree.functionBody)) {
-                        resolve({ view: "DataMapper", documentUri: context.documentUri, position: context.position });
-                    } else if (STKindChecker.isTypeDefinition(node.syntaxTree) && STKindChecker.isRecordTypeDesc(node.syntaxTree.typeDescriptor)) {
-                        resolve({ view: "ArchitectureDiagram", documentUri: context.documentUri });
-                    } else {
-                        resolve({ view: "Overview", documentUri: context.documentUri });
                     }
+                    undoRedoManager.updateContent(documentUri, node?.syntaxTree?.source);
                 }
-                return;
+                const updatedHistory = history.get();
+                return resolve(updatedHistory[updatedHistory.length - 1].location);
             });
         }
     }
@@ -245,3 +323,8 @@ export function openView(type: "OPEN_VIEW" | "FILE_EDIT" | "EDIT_DONE", viewLoca
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 
+export function updateView() {
+    const historyStack = history.get();
+    const lastView = historyStack[historyStack.length - 1];
+    stateService.send({ type: "VIEW_UPDATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
+}

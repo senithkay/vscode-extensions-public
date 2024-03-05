@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { MachineStateValue, MachineViews, VisualizerLocation } from '@wso2-enterprise/ballerina-core';
+import { KeyboardNavigationManager, MachineStateValue, MachineViews, STModification, VisualizerLocation } from '@wso2-enterprise/ballerina-core';
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 /** @jsx jsx */
 import { Global, css } from '@emotion/react';
@@ -26,6 +26,9 @@ import { Overview } from './views/Overview';
 import { SequenceDiagram } from './views/SequenceDiagram';
 import { ServiceDesigner } from './views/ServiceDesigner';
 import { TypeDiagram } from './views/TypeDiagram';
+import { handleRedo, handleUndo } from './utils/utils';
+import { FunctionDefinition, ServiceDeclaration } from '@wso2-enterprise/syntax-tree';
+import { URI } from 'vscode-uri';
 
 const globalStyles = css`
   *,
@@ -41,12 +44,12 @@ const VisualizerContainer = styled.div`
 `;
 
 const ComponentViewWrapper = styled.div`
-    height: calc(100% - 22px);
+    height: calc(100% - 24px);
 `;
 
 const MainPanel = () => {
     const { rpcClient } = useVisualizerContext();
-    const [visualizerLocation, setVisualizerLocation] = useState<VisualizerLocation>();
+    const [viewComponent, setViewComponent] = useState<React.ReactNode>();
 
     rpcClient?.onStateChanged((newState: MachineStateValue) => {
         if (typeof newState === 'object' && 'viewActive' in newState && newState.viewActive === 'viewReady') {
@@ -54,58 +57,95 @@ const MainPanel = () => {
         }
     });
 
+    const applyModifications = async (modifications: STModification[]) => {
+        const langServerRPCClient = rpcClient.getLangServerRpcClient();
+        const filePath = (await rpcClient.getVisualizerLocation()).documentUri;
+        const { parseSuccess, source: newSource } = await langServerRPCClient?.stModify({
+            astModifications: modifications,
+            documentIdentifier: {
+                uri: URI.file(filePath).toString()
+            }
+        });
+        if (parseSuccess) {
+            rpcClient.getVisualizerRpcClient().addToUndoStack(newSource);
+            await langServerRPCClient.updateFileContent({
+                content: newSource,
+                fileUri: filePath
+            });
+        }
+    };
+
     const fetchContext = () => {
         rpcClient.getVisualizerLocation().then((value) => {
-            setVisualizerLocation(value);
+            if (!value?.view) {
+                setViewComponent(<LoadingRing />);
+            } else {
+                switch (value?.view) {
+                    case "Overview":
+                        setViewComponent(<Overview visualizerLocation={value} />);
+                        break;
+                    case "ArchitectureDiagram":
+                        setViewComponent(<ArchitectureDiagram />);
+                        break;
+                    case "ServiceDesigner":
+                        setViewComponent(
+                            <ServiceDesigner
+                                model={value?.syntaxTree as ServiceDeclaration}
+                                applyModifications={applyModifications}
+                            />
+                        );
+                        break;
+                    case "ERDiagram":
+                        setViewComponent(<ERDiagram />);
+                        break;
+                    case "DataMapper":
+                        setViewComponent((
+                            <DataMapper
+                                filePath={value.documentUri}
+                                model={value?.syntaxTree as FunctionDefinition}
+                                applyModifications={applyModifications}
+                            />
+                        ));
+                        break;
+                    case "GraphQLDiagram":
+                        setViewComponent(<GraphQLDiagram />);
+                        break;
+                    case "SequenceDiagram":
+                        setViewComponent(<SequenceDiagram />);
+                        break;
+                    case "TypeDiagram":
+                        setViewComponent(<TypeDiagram />);
+                        break;
+                    default:
+                        setViewComponent(<LoadingRing />);
+                }
+            }
         });
     }
- 
+
     useEffect(() => {
         fetchContext();
     }, []);
 
-    const viewComponent = useMemo(() => {
-        switch (visualizerLocation?.view) {
-            case "Overview":
-                return <Overview />;
-            case "ArchitectureDiagram":
-                return <ArchitectureDiagram />
-            case "ServiceDesigner":
-                return <ServiceDesigner />
-            case "ERDiagram":
-                return <ERDiagram />
-            case "DataMapper":
-                return (
-                    <DataMapper
-                        filePath={visualizerLocation.documentUri}
-                        fnLocation={visualizerLocation.position}
-                    />
-                );
-            case "GraphQLDiagram":
-                return <GraphQLDiagram />
-            case "SequenceDiagram":
-                return <SequenceDiagram />
-            case "TypeDiagram":
-                return <TypeDiagram />
-            default:
-                return <LoadingRing />;
-        }
-    }, [visualizerLocation]);
+    useEffect(() => {
+        const mouseTrapClient = KeyboardNavigationManager.getClient();
 
-    const RenderComponentView = () => {
-        return viewComponent;
-    };
+        mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], () => handleUndo(rpcClient));
+        mouseTrapClient.bindNewKey(['command+shift+z', 'ctrl+y'], async () => handleRedo(rpcClient));
+
+        return () => {
+            mouseTrapClient.resetMouseTrapInstance();
+        }
+    }, [viewComponent]);
 
     return (
         <>
             <Global styles={globalStyles} />
             <VisualizerContainer>
                 <NavigationBar />
-                {visualizerLocation && (
-                    <ComponentViewWrapper>
-                        <RenderComponentView />
-                    </ComponentViewWrapper>
-                )}
+                <ComponentViewWrapper>
+                    {viewComponent}
+                </ComponentViewWrapper>
             </VisualizerContainer>
         </>
     );

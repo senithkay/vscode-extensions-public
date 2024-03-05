@@ -45,36 +45,39 @@ const LabelContainer = styled.div<ContainerProps>`
     margin-bottom: 4px;
 `;
 
-export function TextArea(props: TextAreaProps) {
-    const { label, value, id, className, autoFocus, required, onChange, placeholder, validationMessage, cols = 40, 
-        rows, disabled, resize, readonly, errorMsg, sx
-    } = props;
-    const handleChange = (e: any) => {
-        onChange && onChange(e.target.value);
+export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
+    function TextArea(props: TextAreaProps, ref: React.ForwardedRef<HTMLTextAreaElement>) {
+        const { label, value, id, className, autoFocus, required, onChange, placeholder, validationMessage, cols = 40, 
+            rows, disabled, resize, readonly, errorMsg, sx
+        } = props;
+        const handleChange = (e: any) => {
+            onChange && onChange(e.target.value);
+        }
+        return (
+            <Container sx={sx}>
+                <VSCodeTextArea
+                    ref={ref}
+                    autoFocus={autoFocus}
+                    validationMessage={validationMessage}
+                    placeholder={placeholder}
+                    onInput={handleChange}
+                    value={value}
+                    cols={cols}
+                    rows={rows}
+                    disabled={disabled}
+                    readOnly={readonly}
+                    resize={resize}
+                    id={id}
+                    className={className}
+                >
+                    <LabelContainer><div style={{color: "var(--vscode-editor-foreground)"}}>
+                        <label htmlFor={`${id}-label`}>{label}</label></div> {(required && label) && (<RequiredFormInput />)}
+                    </LabelContainer>
+                </VSCodeTextArea>
+                {errorMsg && (
+                    <ErrorBanner errorMsg={errorMsg} />
+                )}
+            </Container>
+        );
     }
-    return (
-        <Container sx={sx}>
-            <VSCodeTextArea
-                autoFocus={autoFocus}
-                validationMessage={validationMessage}
-                placeholder={placeholder}
-                onInput={handleChange}
-                value={value}
-                cols={cols}
-                rows={rows}
-                disabled={disabled}
-                readOnly={readonly}
-                resize={resize}
-                id={id}
-                className={className}
-            >
-                <LabelContainer><div style={{color: "var(--vscode-editor-foreground)"}}>
-                    <label htmlFor={`${id}-label`}>{label}</label></div> {(required && label) && (<RequiredFormInput />)}
-                </LabelContainer>
-            </VSCodeTextArea>
-            {errorMsg && (
-                <ErrorBanner errorMsg={errorMsg} />
-            )}
-        </Container>
-    );
-}
+);

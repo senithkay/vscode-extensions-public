@@ -9,10 +9,12 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    HistoryEntry,
+    UpdateUndoRedoMangerRequest,
     VisualizerAPI,
     VisualizerLocation
 } from "@wso2-enterprise/ballerina-core";
-import { StateMachine, getPreviousView, openView } from "../../stateMachine";
+import { history, updateView, openView, undoRedoManager } from "../../stateMachine";
 
 export class VisualizerRpcManager implements VisualizerAPI {
 
@@ -24,10 +26,42 @@ export class VisualizerRpcManager implements VisualizerAPI {
     }
 
     goBack(): void {
-        // Get current view
-        const currentView = StateMachine.context().view;
-        const currentDoc = StateMachine.context().documentUri;
-        const view = getPreviousView(currentView!);
-        view.length > 0 && openView("OPEN_VIEW", { view: view[0], documentUri: currentDoc });
+        history.pop();
+        updateView();
+    }
+
+    async getHistory(): Promise<HistoryEntry[]> {
+        return history.get();
+    }
+
+    goHome(): void {
+        history.clear();
+        updateView();
+    }
+
+    goSelected(index: number): void {
+        history.select(index);
+        updateView();
+    }
+
+    addToHistory(entry: HistoryEntry): void {
+        history.push(entry);
+        updateView();
+    }
+
+    async undo(): Promise<string> {
+        return undoRedoManager.undo();
+    }
+
+    async redo(): Promise<string> {
+        return undoRedoManager.redo();
+    }
+
+    addToUndoStack(source: string): void {
+        undoRedoManager.addModification(source);
+    }
+
+    updateUndoRedoManager(params: UpdateUndoRedoMangerRequest): void {
+        undoRedoManager.updateContent(params.filePath, params.fileContent);
     }
 }

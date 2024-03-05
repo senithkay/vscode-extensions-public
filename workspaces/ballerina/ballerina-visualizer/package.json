@@ -29,11 +29,13 @@
     "@wso2-enterprise/syntax-tree": "workspace:*",
     "@wso2-enterprise/persist-layer-diagram": "workspace:*",
     "@wso2-enterprise/ballerina-graphql-design-diagram": "workspace:*",
+    "@wso2-enterprise/project-design-diagrams": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "vscode-uri": "^3.0.8",
     "@tanstack/react-query": "4.0.10",
-    "@tanstack/query-core": "^4.0.0-beta.1"
+    "@tanstack/query-core": "^4.0.0-beta.1",
+    "@wso2-enterprise/record-creator": "workspace:*"
   },
   "devDependencies": {
     "@types/webpack": "^4.41.26",

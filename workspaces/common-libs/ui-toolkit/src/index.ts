@@ -37,6 +37,8 @@ export * from './components/Grid/Grid';
 export * from './components/Grid/GridItem';
 export * from './components/SeachBox/SearchBox';
 export * from './components/ClickAwayListener/ClickAwayListener';
+export * from './components/TypeBrowser/TypeBrowser';
+export * from './components/Confirm/Confirm';
 
 export * from './components/SampleForm/Header/Header';
 export * from './components/SampleForm/HorizontalIcons/HorizontalIcons';

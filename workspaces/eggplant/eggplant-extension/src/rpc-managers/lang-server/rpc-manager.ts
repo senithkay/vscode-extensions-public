@@ -9,7 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    BallerinaSTModifyResponse,
+    BallerinaProjectComponents,
     BallerinaVersionResponse,
     CodeActionRequest,
     CodeActionResponse,
@@ -17,22 +17,18 @@ import {
     CompletionResponse,
     DefinitionPositionRequest,
     DefinitionResponse,
-    DiagnosticsResponse,
     DiagnosticData,
+    DiagnosticsResponse,
     DidChangeRequest,
     DidCloseRequest,
     DidOpenRequest,
     ExecutorPositionsRequest,
     ExecutorPositionsResponse,
-    GetSyntaxTreeResponse,
     InsertorDelete,
-    JsonToRecordRequest,
-    JsonToRecordResponse,
     LangServerAPI,
     PartialSTRequest,
     PartialSTResponse,
     ProjectComponentsRequest,
-    BallerinaProjectComponents,
     RenameRequest,
     RenameResponse,
     STByRangeRequest,
@@ -43,17 +39,21 @@ import {
     SyntaxTreeResponse,
     TypeFromExpressionRequest,
     TypeFromSymbolRequest,
+    TypeResponse,
     TypesFromExpressionResponse,
     TypesFromFnDefinitionRequest,
     TypesFromSymbolResponse,
     UpdateFileContentRequest,
     UpdateFileContentResponse,
-} from "@wso2-enterprise/ballerina-core";
+    onFileContentUpdate
+} from "@wso2-enterprise/eggplant-core";
 import { writeFileSync } from 'fs';
-import { normalize, resolve } from "path";
+import { normalize } from "path";
 import { Position, Range, WorkspaceEdit, extensions, workspace } from "vscode";
 import { URI } from "vscode-uri";
 import { StateMachine } from "../../stateMachine";
+import { RPCLayer } from "../../RPCLayer";
+import { VisualizerWebview } from "../../visualizer/webview";
 
 export class LangServerRpcManager implements LangServerAPI {
 
@@ -195,6 +195,7 @@ export class LangServerRpcManager implements LangServerAPI {
                 });
                 writeFileSync(normalizedFilePath, content);
                 StateMachine.langClient().updateStatusBar();
+                RPCLayer._messenger.sendNotification(onFileContentUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType });
             }
             resolve({ status: false });
         });

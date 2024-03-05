@@ -7,9 +7,19 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { HistoryEntry } from "../../history";
 import { VisualizerLocation } from "../../state-machine-types";
+import { UpdateUndoRedoMangerRequest } from "./interfaces";
 
 export interface VisualizerAPI {
     openView: (params: VisualizerLocation) => void;
+    getHistory: () => Promise<HistoryEntry[]>;
+    addToHistory: (entry: HistoryEntry) => void;
     goBack: () => void;
+    goHome: () => void;
+    goSelected: (index: number) => void;
+    undo: () => Promise<string>;
+    redo: () => Promise<string>;
+    addToUndoStack: (source: string) => void;
+    updateUndoRedoManager: (params: UpdateUndoRedoMangerRequest) => void;
 }

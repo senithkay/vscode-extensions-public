@@ -7,37 +7,69 @@
  * You may not alter or remove any copyright or other notice from copies of this content."
  */
 
-import React from "react";
+import React, { useState } from "react";
 
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { HistoryEntry } from "@wso2-enterprise/ballerina-core";
+import styled from "@emotion/styled";
 
 interface NavButtonGroupProps {
-    currentProjectPath?: string;
+    historyStack?: HistoryEntry[];
 }
+
+const LeftSection = styled.div``;
+const RightSection = styled.div``;
 
 export function NavButtonGroup(props: NavButtonGroupProps) {
 
+    const { historyStack } = props;
     const { rpcClient } = useVisualizerContext();
-
+    const isHistoryAvailable = historyStack && historyStack.length > 0;
 
     const handleBackButtonClick = () => {
         rpcClient.getVisualizerRpcClient().goBack();
     }
 
     const handleHomeButtonClick = () => {
-        rpcClient.getVisualizerRpcClient().openView({ view: "Overview" });
+        rpcClient.getVisualizerRpcClient().goHome();
+    }
+    const handleProjectDesignClick = () => {
+        rpcClient.getVisualizerRpcClient().openView({ view: "ArchitectureDiagram" });
     }
 
     return (
         <>
-            <VSCodeButton appearance="icon" title="Go Back" onClick={handleBackButtonClick}>
-                <Codicon name="arrow-left" />
-            </VSCodeButton>
-            <VSCodeButton appearance="icon" title="Home" onClick={handleHomeButtonClick}>
-                <Codicon name="home" />
-            </VSCodeButton>
+            <LeftSection>
+                <VSCodeButton
+                appearance="icon"
+                title="Go Back"
+                onClick={isHistoryAvailable ? handleBackButtonClick : undefined}
+                style={{color: isHistoryAvailable
+                    ? "var(--vscode-activityBar-foreground)"
+                    : "var(--vscode-activityBar-inactiveForeground)"
+                }}
+            >
+                    <Codicon name="arrow-left" />
+                </VSCodeButton>
+                <VSCodeButton
+                appearance="icon"
+                title="Home"
+                onClick={isHistoryAvailable ? handleHomeButtonClick : undefined}
+                style={{color: isHistoryAvailable
+                    ? "var(--vscode-activityBar-foreground)"
+                    : "var(--vscode-activityBar-inactiveForeground)"
+                }}
+            >
+                    <Codicon name="home" />
+                </VSCodeButton>
+            </LeftSection>
+            <RightSection>
+                <VSCodeButton appearance="icon" title="Architecture Diagram" onClick={handleProjectDesignClick}>
+                    <Codicon name="type-hierarchy-sub" />
+                </VSCodeButton>
+            </RightSection>
         </>
     );
 }

@@ -15,13 +15,8 @@ import { extension } from '../BalExtensionContext';
 export function activateSubscriptions() {
     const context = extension.context;
     context.subscriptions.push(
-        vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, (path, position) => {
-            openView("OPEN_VIEW", { view: "Overview", documentUri: path, position: position });
-        })
-    );
-    context.subscriptions.push(
-        vscode.commands.registerCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, (path, position) => {
-            openView("OPEN_VIEW", { view: "Overview", documentUri: path, position: position });
+        vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_VISUALIZER, (path: vscode.Uri, position) => {
+            openView("OPEN_VIEW", { documentUri: path.fsPath || vscode.window.activeTextEditor.document.uri.fsPath, position: position });
         })
     );
     context.subscriptions.push(
@@ -30,21 +25,9 @@ export function activateSubscriptions() {
         })
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_SERVICE_DESIGNER_VIEW, (path, position) => {
-            openView("OPEN_VIEW", { view: 'ServiceDesigner', documentUri: path || vscode.window.activeTextEditor.document.uri.fsPath, position: position });
-        })
-    );
-    context.subscriptions.push(
         vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_ENTITY_DIAGRAM, (path, selectedRecord = "") => {
             openView("OPEN_VIEW", { view: 'ERDiagram', documentUri: path?.fsPath || vscode.window.activeTextEditor.document.uri.fsPath, identifier: selectedRecord});
         })
     );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_GRAPHQL_DESIGNER_VIEW, (path, position) => {
-            openView("OPEN_VIEW", { view: "GraphQLDiagram", documentUri: path, position: position });
-        })
-    );
-
 
 }

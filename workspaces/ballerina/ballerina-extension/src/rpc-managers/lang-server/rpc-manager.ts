@@ -53,7 +53,7 @@ import { writeFileSync } from 'fs';
 import { normalize, resolve } from "path";
 import { Position, Range, WorkspaceEdit, workspace } from "vscode";
 import { URI } from "vscode-uri";
-import { StateMachine } from "../../stateMachine";
+import { StateMachine, updateView } from "../../stateMachine";
 import { ballerinaExtInstance } from "../../core";
 
 export class LangServerRpcManager implements LangServerAPI {
@@ -97,7 +97,7 @@ export class LangServerRpcManager implements LangServerAPI {
                 });
 
                 const components = await StateMachine.langClient().getBallerinaProjectComponents({
-                    documentIdentifiers: workspaceUri
+                    documentIdentifiers: params?.documentIdentifiers || workspaceUri
                 });
                 resolve(components);
             } else {
@@ -196,6 +196,7 @@ export class LangServerRpcManager implements LangServerAPI {
                 });
                 writeFileSync(normalizedFilePath, content);
                 StateMachine.langClient().updateStatusBar();
+                updateView();
             }
             resolve({ status: false });
         });

@@ -272,7 +272,7 @@ export async function getResponseConfig(resource: ResourceAccessorDefinition, rp
                     getInlineRecordConfig(resource, index, member)
                 );
                 index++;
-            } else if (member.typeKind === "typeReference") {
+            } else if (member.typeKind === "typeReference" && !member.signature?.includes("ballerina")) {
                 const recordST: string = await getRecordSource(member.name, rpcClient);
                 response.push({
                     id: index,

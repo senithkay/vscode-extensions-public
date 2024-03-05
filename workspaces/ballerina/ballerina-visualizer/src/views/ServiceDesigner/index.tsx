@@ -7,33 +7,28 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect } from "react";
+import React from "react";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import { ServiceDesignerView } from "@wso2-enterprise/service-designer-view";
+import { STModification } from "@wso2-enterprise/ballerina-core";
 
-export function ServiceDesigner() {
+interface ServiceDesignerProps {
+    model: ServiceDeclaration;
+    applyModifications: (modifications: STModification[]) => Promise<void>;
+}
+
+export function ServiceDesigner(props: ServiceDesignerProps) {
+    const { model, applyModifications } = props;
     const { rpcClient } = useVisualizerContext();
-    const [st, setSt] = React.useState<ServiceDeclaration>();
-
-    rpcClient.onFileContentUpdate(() => {
-        fetchServiceSt();
-    });
-
-    useEffect(() => {
-        fetchServiceSt();
-    }, []);
-
-    const fetchServiceSt = () => {
-        rpcClient.getLangServerRpcClient().getSyntaxTree().then((value) => {
-            const serviceSt = value.syntaxTree as ServiceDeclaration;
-            setSt(serviceSt);
-        });
-    }
 
     return (
         <>
-            <ServiceDesignerView model={st} rpcClient={rpcClient.getServiceDesignerRpcClient()} />
+            <ServiceDesignerView
+                model={model}
+                rpcClients={{serviceDesignerRpcClient: rpcClient.getServiceDesignerRpcClient(), commonRpcClient: rpcClient.getCommonRpcClient()}}
+                applyModifications={applyModifications}
+            />
         </>
     );
 }
