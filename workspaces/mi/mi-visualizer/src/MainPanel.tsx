@@ -93,9 +93,9 @@ const MainPanel = () => {
                 case MACHINE_VIEW.ProjectCreationForm:
                     setViewComponent(<ProjectWizard />);
                     break;
-                case "LocalEntryForm":
+                case MACHINE_VIEW.LocalEntryForm:
                     setViewComponent(<LocalEntryWizard />);
-                    break;    
+                    break;
                 default:
                     setViewComponent(null);
             }
