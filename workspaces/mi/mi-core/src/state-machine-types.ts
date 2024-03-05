@@ -19,6 +19,7 @@ export enum MACHINE_VIEW {
     SequenceForm = "SequenceForm",
     InboundEPForm = "InboundEPForm",
     ProjectCreationForm = "ProjectCreationForm",
+    LocalEntryForm = "LocalEntryForm"
 }
 
 export type MachineStateValue =

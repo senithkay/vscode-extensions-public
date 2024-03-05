@@ -5,7 +5,7 @@
  * Dissemination of any information or reproduction of any material contained
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
- * 
+ *
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
@@ -25,6 +25,8 @@ import {
     CreateEndpointResponse,
     CreateInboundEndpointRequest,
     CreateInboundEndpointResponse,
+    CreateLocalEntryRequest,
+    CreateLocalEntryResponse,
     CreateProjectRequest,
     CreateProjectResponse,
     CreateSequenceRequest,
@@ -42,9 +44,10 @@ import {
     GetProjectRootRequest,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
+    FileDirResponse,
     HighlightCodeRequest,
     InboundEndpointDirectoryResponse,
-    MACHINE_VIEW,
+    LocalEntryDirectoryResponse,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectDirResponse,
@@ -56,6 +59,7 @@ import {
     WriteContentToFileResponse,
     getSTRequest,
     getSTResponse,
+    MACHINE_VIEW
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import * as fs from "fs";
@@ -69,6 +73,7 @@ import { createFolderStructure, getInboundEndpointXmlWrapper } from "../../util"
 import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
+import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
 const { XMLParser } = require("fast-xml-parser");
 
 const connectorsPath = path.join(".metadata", ".Connectors");
@@ -117,7 +122,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             connectors.filter(dirent => dirent.isDirectory()).forEach(connectorDir => {
                 const connectorPath = path.join(connectorsRoot, connectorDir.name);
                 const connectorInfoFile = path.join(connectorPath, `connector.xml`);
-                const connectorIconFile = path.join(connectorPath, "icon", `icon-large.png`);
+                const connectorIconFile = path.join(connectorPath, "icon", `icon - large.png`);
                 if (fs.existsSync(connectorInfoFile)) {
                     const connectorDefinition = fs.readFileSync(connectorInfoFile, "utf8");
                     const options = {
@@ -188,24 +193,24 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             let versionAttributes = '';
             let swaggerAttributes = '';
             if (version && type !== 'none') {
-                versionAttributes = ` version="${version}" version-type="${type}"`;
+                versionAttributes = ` version = "${version}" version - type="${type}"`;
             }
 
             if (swaggerDef) {
-                swaggerAttributes = ` publishSwagger="${swaggerDef}"`;
+                swaggerAttributes = ` publishSwagger = "${swaggerDef}"`;
             }
 
-            const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
-    <api context="${context}" name="${name}" ${swaggerAttributes}${versionAttributes} xmlns="http://ws.apache.org/ns/synapse">
-        <resource methods="GET" uri-template="/resource">
-            <inSequence>
-            </inSequence>
-            <outSequence>
-            </outSequence>
-            <faultSequence>
-            </faultSequence>
-        </resource>
-    </api>`;
+            const xmlData = `<? xml version = "1.0" encoding = "UTF-8" ?>
+                <api context="${context}" name = "${name}" ${swaggerAttributes}${versionAttributes} xmlns = "http://ws.apache.org/ns/synapse" >
+                    <resource methods="GET" uri - template="/resource" >
+                        <inSequence>
+                        </inSequence>
+                        < outSequence >
+                        </outSequence>
+                        < faultSequence >
+                        </faultSequence>
+                        < /resource>
+                        < /api>`;
 
             const filePath = path.join(directory, `${name}.xml`);
             fs.writeFileSync(filePath, xmlData);
@@ -273,38 +278,38 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             } else if (endpointType === 'fail') {
                 endpointAttributes = `failover`;
                 otherAttributes = `<endpoint name="endpoint_urn_uuid">
-            <address uri="http://localhost">`;
+          <address uri="http://localhost">`;
                 closingAttributes = `       </address>
-        </endpoint>
-    </failover>`;
+      </endpoint>
+  </failover>`;
             } else if (endpointType === 'load') {
                 endpointAttributes = `loadbalance algorithm="org.apache.synapse.endpoints.algorithms.RoundRobin"`;
                 otherAttributes = `<endpoint name="endpoint_urn_uuid">
-            <address uri="http://localhost">`;
+          <address uri="http://localhost">`;
                 closingAttributes = `       </address>
-        </endpoint>
-    </loadbalance>`;
+      </endpoint>
+  </loadbalance>`;
             } else if (endpointType === 'recipient') {
                 endpointAttributes = `recipientlist`;
                 otherAttributes = `<endpoint>
-            <default>`;
+          <default>`;
                 closingAttributes = `       </default>
-        </endpoint>
-    </recipientlist>`;
+      </endpoint>
+  </recipientlist>`;
             }
 
             const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
 <endpoint name="${name}" xmlns="http://ws.apache.org/ns/synapse">
-    <${endpointAttributes}>
-        ${otherAttributes}
-        <suspendOnFailure>
-            <initialDuration>-1</initialDuration>
-            <progressionFactor>1.0</progressionFactor>
-        </suspendOnFailure>
-        <markForSuspension>
-            <retriesBeforeSuspension>0</retriesBeforeSuspension>
-        </markForSuspension>
-    ${closingAttributes}
+  <${endpointAttributes}>
+      ${otherAttributes}
+      <suspendOnFailure>
+          <initialDuration>-1</initialDuration>
+          <progressionFactor>1.0</progressionFactor>
+      </suspendOnFailure>
+      <markForSuspension>
+          <retriesBeforeSuspension>0</retriesBeforeSuspension>
+      </markForSuspension>
+  ${closingAttributes}
 </endpoint>`;
 
             const filePath = path.join(directory, `${name}.xml`);
@@ -314,10 +319,32 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
-    async getInboundEndpointDirectory(params: GetInboundEpDirRequest): Promise<InboundEndpointDirectoryResponse> {
+    async getLocalEntryDirectory(): Promise<LocalEntryDirectoryResponse> {
+        return new Promise(async (resolve) => {
+            const workspaceFolder = workspace.workspaceFolders;
+            if (workspaceFolder) {
+                const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
+                const synapseAPIPath = `${workspaceFolderPath}/${workspaceFolder[0].name}Configs/src/main/synapse-config/local-entries`;
+                resolve({ data: synapseAPIPath });
+            }
+            resolve({ data: "" });
+        });
+    }
+    async createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, name, type, value, URL } = params;
+
+            const xmlData = generateXmlData(name, type, value, URL);
+            const filePath = path.join(directory, `${name}.xml`);
+
+            writeXmlDataToFile(filePath, xmlData);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getInboundEndpointDirectory(): Promise<InboundEndpointDirectoryResponse> {
         try {
-            const fileUri = Uri.file(params.path);
-            const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
+            const workspaceFolder = workspace.workspaceFolders;
             if (workspaceFolder) {
                 const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
                 const endpointDir = path.join(workspaceFolderPath, 'src', 'main', 'wso2mi', 'artifacts', 'inbound-endpoints');
@@ -420,8 +447,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             let errorSequence = ``;
             if (endpoint) {
                 endpointAttributes = `<send>
-            <endpoint key="${endpoint.replace(".xml", "")}"/>
-        </send>`;
+          <endpoint key="${endpoint.replace(".xml", "")}"/>
+      </send>`;
             }
 
             if (onErrorSequence) {
@@ -430,7 +457,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
 <sequence name="${name}" ${errorSequence} trace="disable" xmlns="http://ws.apache.org/ns/synapse">
-    ${endpointAttributes}
+  ${endpointAttributes}
 </sequence>`;
 
             const filePath = path.join(directory, `${name}.xml`);
@@ -496,6 +523,19 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 resolve({ path: "" });
             } else {
                 const parentDir = selectedDir[0].fsPath;
+                resolve({ path: parentDir });
+            }
+        });
+    }
+
+    async askFileDirPath(): Promise<FileDirResponse> {
+        return new Promise(async (resolve) => {
+            const selectedFile = await askFilePath();
+            if (!selectedFile || selectedFile.length === 0) {
+                window.showErrorMessage('A folder must be selected to create project');
+                resolve({ path: "" });
+            } else {
+                const parentDir = selectedFile[0].fsPath;
                 resolve({ path: parentDir });
             }
         });
@@ -685,7 +725,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     console.log('Writing content to file:', fullPath);
                     console.log('Content:', content[i]);
                     fs.writeFileSync(fullPath, content[i]);
-                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
 
                 } catch (error) {
                     console.error('Error writing content to file:', error);
@@ -784,5 +823,14 @@ export async function askProjectPath() {
         canSelectMany: false,
         defaultUri: Uri.file(os.homedir()),
         title: "Select a folder to create the Project"
+    });
+}
+export async function askFilePath() {
+    return await window.showOpenDialog({
+        canSelectFiles: true,
+        canSelectFolders: false,
+        canSelectMany: false,
+        defaultUri: Uri.file(os.homedir()),
+        title: "Select a file",
     });
 }
