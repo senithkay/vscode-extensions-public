@@ -74,7 +74,6 @@ export class WebView {
             "Visualizer.js"
         ]);
 
-        const codiconUri = webview.asWebviewUri(Uri.joinPath(ext.context.extensionUri, "resources", "codicons", "codicon.css"));
         const fontsUri = webview.asWebviewUri(Uri.joinPath(ext.context.extensionUri, "node_modules", "@wso2-enterprise", "font-wso2-vscode", "dist", "wso2-vscode.css"));
 
         return /*html*/ `
@@ -85,7 +84,6 @@ export class WebView {
           <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
           <meta name="theme-color" content="#000000">
           <title>FHIR Tools Overview</title>
-          <link rel="stylesheet" href="${codiconUri}">
           <link rel="stylesheet" href="${fontsUri}">
           <script src="${scriptUri}"></script>
         </head>
