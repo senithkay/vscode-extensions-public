@@ -9,26 +9,36 @@
 import { useEffect, useState } from "react";
 import {
     Button,
-    Dropdown,
     TextField,
     CheckBoxGroup,
-    CheckBox,
     SidePanel,
     SidePanelTitleContainer,
     SidePanelBody,
     Codicon,
+    CheckBox,
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { SectionWrapper } from "./Commons";
 import { VSCodeRadio, VSCodeRadioGroup } from "@vscode/webview-ui-toolkit/react";
 
+export type Protocol = "http" | "https";
+
+export type Method = "get" | "post" | "put" | "delete" | "patch" | "head" | "options";
+
 export type AddAPIFormProps = {
-    methods: string[];
-    uri_template?: string;
-    url_mapping?: string;
+    position?: any;
+    urlStyle: string;
+    uriTemplate?: string;
+    urlMapping?: string;
+    protocol: {
+        [K in Protocol]: boolean;
+    };
+    methods: {
+        [K in Method]: boolean;
+    };
 };
 
 export type APIResourceWizardProps = {
+    resourceData?: AddAPIFormProps;
     isOpen: boolean;
     handleCancel: () => void;
     handleCreateAPI: (data: AddAPIFormProps) => void;
@@ -53,57 +63,53 @@ const SidePanelBodyWrapper = styled.div`
     flex-direction: column;
     gap: 10px;
     padding: 20px;
-`
+`;
 
-export function AddResourceForm({ isOpen, handleCancel, handleCreateAPI }: APIResourceWizardProps) {
-    const initialState = {
-        urlStyle: "",
-        uriTemplate: "/",
-        urlMapping: "/",
-        protocol: [] as string[],
-        methods: [] as string[],
-        inSequence: "inline",
-        inSequenceRegistryReference: "",
-        inSequenceNamedReference: "",
-        outSequence: "inline",
-        outSequenceRegistryReference: "",
-        outSequenceNamedReference: "",
-        faultSequence: "inline",
-        faultSequenceRegistryReference: "",
-        faultSequenceNamedReference: "",
+export function AddResourceForm({ resourceData, isOpen, handleCancel, handleCreateAPI }: APIResourceWizardProps) {
+    const defaultProtocol = {
+        http: true,
+        https: true,
     };
-    const [state, setState] = useState(initialState);
-    const [validUriTemplate, setValidUriTemplate] = useState(true);
-    const [validUrlMapping, setValidUrlMapping] = useState(true);
-    const {
-        urlStyle,
-        uriTemplate,
-        urlMapping,
-        protocol,
-        methods,
-        inSequence,
-        inSequenceRegistryReference,
-        inSequenceNamedReference,
-        outSequence,
-        outSequenceRegistryReference,
-        outSequenceNamedReference,
-        faultSequence,
-        faultSequenceRegistryReference,
-        faultSequenceNamedReference,
-    } = state;
+    const defaultMethods = {
+        get: false,
+        post: false,
+        put: false,
+        delete: false,
+        patch: false,
+        head: false,
+        options: false,
+    };
 
-    const resetForm = () => {
-        setState(initialState);
-    };
+    const [urlStyle, setUrlStyle] = useState<string>("none");
+    const [uriTemplate, setUriTemplate] = useState<string>("/");
+    const [urlMapping, setUrlMapping] = useState<string>("/");
+    const [protocol, setProtocol] = useState<{ [K in Protocol]: boolean }>(defaultProtocol);
+    const [methods, setMethods] = useState<{ [K in Method]: boolean }>(defaultMethods);
+    const [validUriTemplate, setValidUriTemplate] = useState<boolean>(true);
+    const [validUrlMapping, setValidUrlMapping] = useState<boolean>(true);
 
     useEffect(() => {
-        if (isOpen) {
-            resetForm();
+        if (resourceData) {
+            setUrlStyle(resourceData.urlStyle);
+            setUriTemplate(resourceData.uriTemplate || "/");
+            setUrlMapping(resourceData.urlMapping || "/");
+            setProtocol(resourceData.protocol);
+            setMethods(resourceData.methods);
         }
+        return () => {
+            setUrlStyle("none");
+            setUriTemplate("/");
+            setUrlMapping("/");
+            setProtocol(defaultProtocol);
+            setMethods(defaultMethods);
+        };
     }, [isOpen]);
 
-    const isValid = urlStyle && validUriTemplate && validUrlMapping && protocol.length > 0 && methods.length > 0;
-
+    const isValid =
+        validUriTemplate &&
+        validUrlMapping &&
+        Object.values(protocol).some((value) => value) &&
+        Object.values(methods).some((value) => value);
     return (
         <SidePanel isOpen={isOpen} alignmanet="right" sx={{ transition: "all 0.3s ease-in-out" }}>
             <SidePanelTitleContainer>
@@ -119,9 +125,8 @@ export function AddResourceForm({ isOpen, handleCancel, handleCreateAPI }: APIRe
                         <label>URL Style</label>
                         <VSCodeRadioGroup
                             orientation="vertical"
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                setState({ ...state, urlStyle: e.target.value })
-                            }
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUrlStyle(e.target.value)}
+                            value={urlStyle}
                         >
                             <VSCodeRadio value="none">NONE</VSCodeRadio>
                             <VSCodeRadio value="uri-template">URI_TEMPLATE</VSCodeRadio>
@@ -134,7 +139,7 @@ export function AddResourceForm({ isOpen, handleCancel, handleCreateAPI }: APIRe
                             label="URI Template"
                             value={uriTemplate}
                             onChange={(text: string) => {
-                                setState({ ...state, uriTemplate: text });
+                                setUriTemplate(text);
                                 setValidUriTemplate(text.match(/^\//) ? true : false);
                             }}
                             size={150}
@@ -147,7 +152,7 @@ export function AddResourceForm({ isOpen, handleCancel, handleCreateAPI }: APIRe
                             label="URL Mapping"
                             value={urlMapping}
                             onChange={(text: string) => {
-                                setState({ ...state, urlMapping: text });
+                                setUrlMapping(text);
                                 setValidUrlMapping(text.match(/^\//) ? true : false);
                             }}
                             size={150}
@@ -156,110 +161,68 @@ export function AddResourceForm({ isOpen, handleCancel, handleCreateAPI }: APIRe
                     )}
                     <CheckBoxContainer>
                         <label>Methods</label>
-                        <CheckBoxGroup onLabelChange={(labels: string[]) => setState({ ...state, methods: labels })}>
-                            <CheckBox label="GET" value="get" />
-                            <CheckBox label="POST" value="post" />
-                            <CheckBox label="PUT" value="put" />
-                            <CheckBox label="DELETE" value="delete" />
-                            <CheckBox label="PATCH" value="patch" />
-                            <CheckBox label="HEAD" value="head" />
-                            <CheckBox label="OPTIONS" value="options" />
+                        <CheckBoxGroup>
+                            <CheckBox
+                                label="GET"
+                                value="get"
+                                checked={methods.get}
+                                onChange={(isChecked: boolean) => setMethods({ ...methods, get: isChecked })}
+                            />
+                            <CheckBox
+                                label="POST"
+                                value="post"
+                                checked={methods.post}
+                                onChange={(isChecked: boolean) => setMethods({ ...methods, post: isChecked })}
+                            />
+                            <CheckBox
+                                label="PUT"
+                                value="put"
+                                checked={methods.put}
+                                onChange={(isChecked: boolean) => setMethods({ ...methods, put: isChecked })}
+                            />
+                            <CheckBox
+                                label="DELETE"
+                                value="delete"
+                                checked={methods.delete}
+                                onChange={(isChecked: boolean) => setMethods({ ...methods, delete: isChecked })}
+                            />
+                            <CheckBox
+                                label="PATCH"
+                                value="patch"
+                                checked={methods.patch}
+                                onChange={(isChecked: boolean) => setMethods({ ...methods, patch: isChecked })}
+                            />
+                            <CheckBox
+                                label="HEAD"
+                                value="head"
+                                checked={methods.head}
+                                onChange={(isChecked: boolean) => setMethods({ ...methods, head: isChecked })}
+                            />
+                            <CheckBox
+                                label="OPTIONS"
+                                value="options"
+                                checked={methods.options}
+                                onChange={(isChecked: boolean) => setMethods({ ...methods, options: isChecked })}
+                            />
                         </CheckBoxGroup>
                     </CheckBoxContainer>
                     <CheckBoxContainer>
                         <label>Protocol</label>
-                        <CheckBoxGroup onLabelChange={(labels: string[]) => setState({ ...state, protocol: labels })}>
-                            <CheckBox label="http" value="http" />
-                            <CheckBox label="https" value="https" />
+                        <CheckBoxGroup>
+                            <CheckBox
+                                label="HTTP"
+                                value="http"
+                                checked={protocol.http}
+                                onChange={(isChecked: boolean) => setProtocol({ ...protocol, http: isChecked })}
+                            />
+                            <CheckBox
+                                label="HTTPS"
+                                value="https"
+                                checked={protocol.https}
+                                onChange={(isChecked: boolean) => setProtocol({ ...protocol, https: isChecked })}
+                            />
                         </CheckBoxGroup>
                     </CheckBoxContainer>
-                    <Dropdown
-                        id="in-sequence"
-                        label="In Sequence Type"
-                        items={[
-                            { id: "inline", value: "inline", content: "Inline" },
-                            { id: "registry-reference", value: "registry-reference", content: "Registry Reference" },
-                            { id: "named-reference", value: "named-reference", content: "Named Reference" },
-                        ]}
-                        onChange={(text: string) => setState({ ...state, inSequence: text })}
-                        value={inSequence}
-                    />
-                    {inSequence === "registry-reference" && (
-                        <TextField
-                            id="in-sequence-registry-reference"
-                            label="In Sequence Key"
-                            value={inSequenceRegistryReference}
-                            onChange={(text: string) => setState({ ...state, inSequenceRegistryReference: text })}
-                            size={150}
-                        />
-                    )}
-                    {inSequence === "named-reference" && (
-                        <TextField
-                            id="in-sequence-named-reference"
-                            label="In Sequence Name"
-                            value={inSequenceNamedReference}
-                            onChange={(text: string) => setState({ ...state, inSequenceNamedReference: text })}
-                            size={150}
-                        />
-                    )}
-                    <Dropdown
-                        id="out-sequence"
-                        label="Out Sequence Type"
-                        items={[
-                            { id: "inline", value: "inline", content: "Inline" },
-                            { id: "registry-reference", value: "registry-reference", content: "Registry Reference" },
-                            { id: "named-reference", value: "named-reference", content: "Named Reference" },
-                        ]}
-                        onChange={(text: string) => setState({ ...state, outSequence: text })}
-                        value={outSequence}
-                    />
-                    {outSequence === "registry-reference" && (
-                        <TextField
-                            id="out-sequence-registry-reference"
-                            label="Out Sequence Key"
-                            value={outSequenceRegistryReference}
-                            onChange={(text: string) => setState({ ...state, outSequenceRegistryReference: text })}
-                            size={150}
-                        />
-                    )}
-                    {outSequence === "named-reference" && (
-                        <TextField
-                            id="out-sequence-named-reference"
-                            label="Out Sequence Name"
-                            value={outSequenceNamedReference}
-                            onChange={(text: string) => setState({ ...state, outSequenceNamedReference: text })}
-                            size={150}
-                        />
-                    )}
-                    <Dropdown
-                        id="fault-sequence"
-                        label="Fault Sequence Type"
-                        items={[
-                            { id: "inline", value: "inline", content: "Inline" },
-                            { id: "registry-reference", value: "registry-reference", content: "Registry Reference" },
-                            { id: "named-reference", value: "named-reference", content: "Named Reference" },
-                        ]}
-                        onChange={(text: string) => setState({ ...state, faultSequence: text })}
-                        value={faultSequence}
-                    />
-                    {faultSequence === "registry-reference" && (
-                        <TextField
-                            id="fault-sequence-registry-reference"
-                            label="Fault Sequence Key"
-                            value={faultSequenceRegistryReference}
-                            onChange={(text: string) => setState({ ...state, faultSequenceRegistryReference: text })}
-                            size={150}
-                        />
-                    )}
-                    {faultSequence === "named-reference" && (
-                        <TextField
-                            id="fault-sequence-named-reference"
-                            label="Fault Sequence Name"
-                            value={faultSequenceNamedReference}
-                            onChange={(text: string) => setState({ ...state, faultSequenceNamedReference: text })}
-                            size={150}
-                        />
-                    )}
                     <ActionContainer>
                         <Button appearance="secondary" onClick={handleCancel}>
                             Cancel
@@ -268,9 +231,12 @@ export function AddResourceForm({ isOpen, handleCancel, handleCreateAPI }: APIRe
                             appearance="primary"
                             onClick={() =>
                                 handleCreateAPI({
+                                    position: resourceData?.position,
+                                    urlStyle,
+                                    uriTemplate: urlStyle === "uri-template" ? uriTemplate : "",
+                                    urlMapping: urlStyle === "url-mapping" ? urlMapping : "",
                                     methods,
-                                    uri_template: urlStyle === "uri-template" ? uriTemplate : "",
-                                    url_mapping: urlStyle === "url-mapping" ? urlMapping : "",
+                                    protocol,
                                 })
                             }
                             disabled={!isValid}

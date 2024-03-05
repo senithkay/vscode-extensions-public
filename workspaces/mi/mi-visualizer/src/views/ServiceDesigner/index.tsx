@@ -8,11 +8,11 @@
  */
 
 import React, { useEffect } from "react";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, SEQUENCE_TYPE } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
-import { AddAPIFormProps, AddResourceForm } from "../Forms/AddResourceForm";
-import { SERVICE_DESIGNER } from "../../constants";
+import { AddAPIFormProps, AddResourceForm, Method } from "../Forms/AddResourceForm";
+import { TAB_SIZE, SERVICE_DESIGNER } from "../../constants";
 import { getXML } from "../../utils/template-engine/mustache-templates/templateUtils";
 import { getSequenceComponentView } from "../../utils/service-designer";
 
@@ -24,22 +24,49 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
     const { rpcClient } = useVisualizerContext();
     const [serviceModel, setServiceModel] = React.useState<Service>(null);
     const [isResourceFormOpen, setResourceFormOpen] = React.useState<boolean>(false);
-    const [apiInsertPosition, setApiInsertPosition] = React.useState<any>(null);
+    const [resourceData, setResourceData] = React.useState<AddAPIFormProps>(null);
+    const [resourceBodyRange, setResourceBodyRange] = React.useState<any>(null);
 
     useEffect(() => {
         const st = syntaxTree.api;
         const resources: Resource[] = [];
-        st.resource.forEach((resource: any) => {
+        st.resource.forEach((resource: any, index: number) => {
             const value: Resource = {
                 methods: resource.methods,
                 path: resource.uriTemplate,
+                position: {
+                    startLine: resource.range.startTagRange.start.line,
+                    startColumn: resource.range.startTagRange.start.character,
+                    endLine: resource.range.endTagRange.end.line,
+                    endColumn: resource.range.endTagRange.end.character
+                },
                 additionalInfo: getSequenceComponentView({
-                    onOpenInSequence: () => rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Diagram, documentUri: documentUri, identifier: resource.path } })
+                    onOpenInSequence: () => rpcClient.getMiVisualizerRpcClient().openView({ 
+                        type: EVENT_TYPE.OPEN_VIEW, 
+                        location: { 
+                            view: MACHINE_VIEW.Diagram, 
+                            documentUri: documentUri, 
+                            identifier: index.toString(), 
+                            flowType: SEQUENCE_TYPE.IN
+                        }
+                    }),
+                    onOpenFaultSequence: () => rpcClient.getMiVisualizerRpcClient().openView({ 
+                        type: EVENT_TYPE.OPEN_VIEW, 
+                        location: { 
+                            view: MACHINE_VIEW.Diagram, 
+                            documentUri: documentUri, 
+                            identifier: index.toString(), 
+                            flowType: SEQUENCE_TYPE.FAULT
+                        }
+                    })
                 })
             }
             resources.push(value);
         })
-        setApiInsertPosition(st.range.endTagRange.start);
+        setResourceBodyRange({
+            start: st.range.startTagRange.end,
+            end: st.range.endTagRange.start
+        });
         const model: Service = {
             path: st.context,
             port: 0,
@@ -63,42 +90,109 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
         setResourceFormOpen(true);
     };
 
+    const handleEditResource = (resource: Resource) => {
+        setResourceData({
+            position: resource.position,
+            urlStyle: "none",
+            methods: resource.methods
+                .map(method => method.toLowerCase())
+                .reduce<{ [K in Method]: boolean }>((acc, method) => ({ ...acc, [method]: true }), {
+                    get: false,
+                    post: false,
+                    put: false,
+                    delete: false,
+                    patch: false,
+                    head: false,
+                    options: false,
+                }), // Extract boolean values for each method
+            protocol: {
+                http: true,
+                https: true,
+            }, // Extract boolean values for each protocol
+            uriTemplate: resource.path,
+            urlMapping: resource.path
+        });
+        setResourceFormOpen(true);
+    }
+
     const handleCancel = () => {
         setResourceFormOpen(false);
+        setResourceData(null);
     };
 
-    const handleCreateAPI = ({ methods, uri_template, url_mapping }: AddAPIFormProps) => {
+    const handleCreateAPI = ({ position, methods, uriTemplate, urlMapping }: AddAPIFormProps) => {
         const formValues = {
-            methods: methods.join(" "),
-            uri_template,
-            url_mapping,
+            indentation: position ? undefined : " ".repeat(TAB_SIZE),
+            methods: Object
+                .keys(methods)
+                .filter((method) => methods[method as keyof typeof methods])
+                .map(method => method.toUpperCase())
+                .join(" "), // Extract selected methods and create string containing the methods for the XML
+            uri_template: uriTemplate,
+            url_mapping: urlMapping,
         };
 
         const xml = getXML(SERVICE_DESIGNER.ADD_RESOURCE, formValues);
         rpcClient.getMiDiagramRpcClient().applyEdit({
             text: xml,
             documentUri: documentUri,
-            range: {
+            range:  {
                 start: {
-                    line: apiInsertPosition.line,
-                    character: apiInsertPosition.character,
+                    line: position?.startLine || resourceBodyRange.end.line,
+                    character: position?.startColumn || resourceBodyRange.end.character,
                 },
                 end: {
-                    line: apiInsertPosition.line,
-                    character: apiInsertPosition.character,
+                    line: position?.endLine || resourceBodyRange.end.line,
+                    character: position?.endColumn || resourceBodyRange.end.character,
                 },
             },
         });
         setResourceFormOpen(false);
+        setResourceData(null);
     };
+
+    const handleResourceDelete = (resource: Resource) => {
+        const resourceIndex = serviceModel.resources.findIndex((res) => res === resource);
+        let startPosition;
+        // Selecting the start position as the end position of the previous XML tag
+        if (resourceIndex === 0) {
+            startPosition = {
+                line: resourceBodyRange.start.line,
+                character: resourceBodyRange.start.character,
+            };
+        } else {
+            startPosition = {
+                line: serviceModel.resources[resourceIndex - 1].position.endLine,
+                character: serviceModel.resources[resourceIndex - 1].position.endColumn,
+            };
+        }
+        rpcClient.getMiDiagramRpcClient().applyEdit({
+            text: "",
+            documentUri: documentUri,
+            range: {
+                start: startPosition,
+                end: {
+                    line: resource.position.endLine,
+                    character: resource.position.endColumn,
+                },
+            },
+        });
+    }
 
     return (
         <>
             {serviceModel && (
-                <ServiceDesigner model={serviceModel} goToSource={openDiagram} onResourceAdd={handleResourceAdd} />
+                <ServiceDesigner
+                    model={serviceModel}
+                    goToSource={openDiagram}
+                    onResourceAdd={handleResourceAdd}
+                    onResourceEdit={handleEditResource}
+                    onResourceDelete={handleResourceDelete}
+                />
             )}
             <AddResourceForm
                 isOpen={isResourceFormOpen}
+                resourceData={resourceData}
                 handleCancel={handleCancel}
                 handleCreateAPI={handleCreateAPI}
             />
