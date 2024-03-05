@@ -86,7 +86,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getEndpointsAndSequences, () => rpcManger.getEndpointsAndSequences());
     messenger.onRequest(getSequenceDirectory, () => rpcManger.getSequenceDirectory());
     messenger.onRequest(createSequence, (args: CreateSequenceRequest) => rpcManger.createSequence(args));
-    messenger.onRequest(getInboundEndpointDirectory, (args: GetInboundEpDirRequest) => rpcManger.getInboundEndpointDirectory(args));
+    messenger.onRequest(getInboundEndpointDirectory, (args: GetInboundEpDirRequest) => rpcManger.getInboundEndpointDirectory());
     messenger.onRequest(createInboundEndpoint, (args: CreateInboundEndpointRequest) => rpcManger.createInboundEndpoint(args));
     messenger.onNotification(closeWebView, () => rpcManger.closeWebView());
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));
