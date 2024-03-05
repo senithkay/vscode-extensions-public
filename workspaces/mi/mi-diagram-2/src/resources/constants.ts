@@ -159,7 +159,7 @@ export const ENDPOINTS = {
     FAILOVER: "Failover",
     HTTP: "HTTP_ENDPOINT",
     LOADBALANCE: "Loadbalance",
-    NAMED: "Named",
+    NAMED: "NAMED_ENDPOINT",
     RECIPIENTLIST: "Recipientlist",
     TEMPLATE: "Template",
     WSDL: "wsdl",

@@ -58,9 +58,9 @@ namespace S {
         display: flex;
         align-items: center;
         justify-content: center;
-        & svg {
-            height: 16px;
-            width: 16px;
+        & img {
+            height: 25px;
+            width: 25px;
             fill: ${Colors.ON_SURFACE};
             stroke: ${Colors.ON_SURFACE};
         }

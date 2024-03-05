@@ -20,6 +20,14 @@ const ButtonGrid = styled.div`
     gap: 5px 10px;
 `;
 
+const IconContainer = styled.div`
+    width: 40px;
+
+    & img {
+        width: 25px;
+    }
+`;
+
 interface MediatorProps {
     nodePosition: any;
     documentUri: string;
@@ -95,11 +103,9 @@ export function Mediators(props: MediatorProps) {
                                         display: 'flex',
                                         alignItems: 'center',
                                     }}>
-                                        <div style={{
-                                            width: "50px",
-                                        }}>
+                                        <IconContainer>
                                             {getSVGIcon(action.operationName as string)}
-                                        </div>
+                                        </IconContainer>
                                         <div >
                                             <IconLabel>{action.title.charAt(0).toUpperCase() + action.title.slice(1)}</IconLabel>
                                         </div>

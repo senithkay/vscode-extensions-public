@@ -68,9 +68,9 @@ namespace S {
         display: flex;
         align-items: center;
         justify-content: center;
-        & svg {
-            height: 16px;
-            width: 16px;
+        & img {
+            height: 25px;
+            width: 25px;
             fill: ${Colors.ON_SURFACE};
             stroke: ${Colors.ON_SURFACE};
         }
@@ -221,7 +221,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                             strokeWidth={2}
                         />
                         {node.endpoint && <g transform="translate(81,20)">
-                            <image x="-20" y="-20" width="40" height="40" xlinkHref={getSVGIcon(node.endpoint.type, true)} />
+                            <image x="-17" y="-15" width="30" height="30" xlinkHref={getSVGIcon(node.endpoint.type, true)} />
                         </g>}
 
                         <line
