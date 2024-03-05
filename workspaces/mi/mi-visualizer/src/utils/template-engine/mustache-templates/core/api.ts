@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 export function getAddApiResourceTemplate() {
-    return `    <resource methods="{{methods}}"{{#uri_template}} uri-template="{{{uri_template}}}"{{/uri_template}}{{#url_mapping}} url-mapping="{{{url_mapping}}}"{{/url_mapping}}>
-        <inSequence>
-        </inSequence>
-        <faultSequence>
-        </faultSequence>
-    </resource>`;
+    return `{{{indentation}}}<resource methods="{{methods}}"{{#uri_template}} uri-template="{{{uri_template}}}"{{/uri_template}}{{#url_mapping}} url-mapping="{{{url_mapping}}}"{{/url_mapping}}>
+    {{{indentation}}}<inSequence>
+    {{{indentation}}}</inSequence>
+    {{{indentation}}}<faultSequence>
+    {{{indentation}}}</faultSequence>
+{{{indentation}}}</resource>`;
 }

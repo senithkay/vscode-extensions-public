@@ -10,3 +10,6 @@ export const FAULT_SEQUENCE_TAG = "faultSequence";
 export const SERVICE_DESIGNER = {
     ADD_RESOURCE: "service-designer-add-resource",
 }
+
+// Default Editor Info
+export const TAB_SIZE = 4; // 4 spaces
