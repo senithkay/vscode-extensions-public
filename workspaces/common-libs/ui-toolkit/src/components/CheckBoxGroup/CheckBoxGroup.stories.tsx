@@ -8,7 +8,7 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { CheckBoxGroup, CheckBoxGroupProps } from "./CheckBoxGroup";
+import { CheckBox, CheckBoxGroup, CheckBoxGroupProps } from "./CheckBoxGroup";
 import styled from "@emotion/styled";
 
 const Container = styled.div`
@@ -17,24 +17,30 @@ const Container = styled.div`
 `;
 
 const Template: ComponentStory<typeof CheckBoxGroup> = (args: CheckBoxGroupProps) => {
+    const [values, setValues] = React.useState({
+        "option1": true,
+        "option2": false,
+        "option3": true,
+        "option4": false,
+        "option5": false,
+    });
+
     return (
         <Container>
-            <CheckBoxGroup {...args} />
+            <CheckBoxGroup {...args}>
+                <CheckBox label="Option 1" value="option-1" checked={values.option1} onChange={(checked: boolean) => setValues({...values, option1: checked })} />
+                <CheckBox label="Option 2" value="option-2" checked={values.option2} onChange={(checked: boolean) => setValues({...values, option2: checked })} />
+                <CheckBox label="Option 3" value="option-3" checked={values.option3} onChange={(checked: boolean) => setValues({...values, option3: checked })} />
+                <CheckBox label="Option 4" value="option-4" checked={values.option4} onChange={(checked: boolean) => setValues({...values, option4: checked })} />
+                <CheckBox label="Option 5" value="option-5" checked={values.option5} onChange={(checked: boolean) => setValues({...values, option5: checked })} />
+            </CheckBoxGroup>
         </Container>
     );
 };
 
 export const Default = Template.bind();
 Default.args = {
-    items: [
-        { label: "Option 1", value: "Option 1" },
-        { label: "Option 2", value: "Option 2" },
-        { label: "Option 3", value: "Option 3" },
-    ],
-    onChange: (selected: string[]) => {
-        console.log(selected);
-    },
-    values: ["Option 1", "Option 3"],
+    direction: "horizontal",
 };
 
 export default { component: CheckBoxGroup, title: "CheckBoxGroup" };

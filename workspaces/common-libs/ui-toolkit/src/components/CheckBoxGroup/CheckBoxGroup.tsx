@@ -8,78 +8,44 @@
  */
 import styled from "@emotion/styled";
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import React from "react";
-
-const CheckBoxContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-`;
+import React, { ComponentPropsWithRef } from "react";
 
 export type CheckBoxProps = {
     label: string;
     value: string;
-    checked?: boolean;
-    onChange?: (value: string, checked: boolean) => void;
+    checked: boolean;
+    onChange: (checked: boolean) => void;
 };
 
-export type CheckBoxGroupProps = {
-    items: CheckBoxProps[];
-    selected?: string[];
-    onChange: (selected: string[]) => void;
+export type CheckBoxGroupProps = ComponentPropsWithRef<"div"> & {
+    containerSx?: React.CSSProperties;
+    direction?: "vertical" | "horizontal";
 };
+
+const CheckBoxContainer = styled.div<CheckBoxGroupProps>`
+    display: flex;
+    gap: 2px;
+    flex-direction: ${({ direction }: CheckBoxGroupProps) =>
+        direction ? (direction === "vertical" ? "column" : "row") : "column"};
+    ${({ containerSx }: CheckBoxGroupProps) => containerSx};
+`;
 
 export const CheckBox = ({ label, value, checked, onChange }: CheckBoxProps) => {
-    const [selected, toggleSelected] = React.useState<boolean>(false);
-
-    React.useEffect(() => {
-        if (checked) {
-            toggleSelected(checked);
-        }
-    }, [checked]);
-
-    const handleCheckBoxChange = () => {
-        toggleSelected(!selected);
-        onChange!(label, !selected);
-    };
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        onChange(e.target.checked);
+    }
 
     return (
-        <VSCodeCheckbox value={value} checked={selected} onClick={handleCheckBoxChange}>
+        <VSCodeCheckbox key={`checkbox-${value}`} value={value} checked={checked} onClick={handleChange}>
             {label}
         </VSCodeCheckbox>
     );
-}
+};
 
-export const CheckBoxGroup = ({ items, selected, onChange }: CheckBoxGroupProps) => {
-    const [selectedItems, setSelectedItems] = React.useState<string[]>([]);
-
-    React.useEffect(() => {
-        if (selected && selected.length > 0) {
-            setSelectedItems(selected);
-        }
-    }, [selected]);
-
-    const handleCheckBoxChange = (label: string, checked: boolean) => {
-        if (checked) {
-            setSelectedItems([...selectedItems, label]);
-            onChange([...selectedItems, label]);
-        } else {
-            setSelectedItems(selectedItems.filter(item => item !== label));
-            onChange(selectedItems.filter(item => item !== label));
-        }
-    };
-
+export const CheckBoxGroup = ({ id, className, direction, containerSx, children }: CheckBoxGroupProps) => {
     return (
-        <CheckBoxContainer>
-            {items.map((item, index) => (
-                <CheckBox
-                    key={index}
-                    label={item.label}
-                    value={item.value}
-                    checked={selectedItems.indexOf(item.label) > -1}
-                    onChange={handleCheckBoxChange}
-                />
-            ))}
+        <CheckBoxContainer id={id} className={className} direction={direction} containerSx={containerSx}>
+            {children}
         </CheckBoxContainer>
     );
 };
