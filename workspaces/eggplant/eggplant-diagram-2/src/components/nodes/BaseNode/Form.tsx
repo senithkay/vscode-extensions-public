@@ -14,6 +14,7 @@ import { NodeStyles } from "./BaseNodeWidget";
 import { generateEditor } from "../../editors/EditorFactory";
 import { Expression, NodePropertyKey } from "../../../utils/types";
 import { DiagramContext } from "../../DiagramContext";
+import { debounce } from "lodash";
 
 interface FormWidgetProps {
     model: BaseNodeModel;
@@ -33,6 +34,7 @@ export function FormWidget(props: FormWidgetProps) {
         onNodeUpdate(model.node);
     };
 
+    const debouncedOnChange = debounce(handleOnChange, 300);
 
     
     for (const [key, expression] of Object.entries(model.node?.nodeProperties)) {
@@ -47,7 +49,7 @@ export function FormWidget(props: FormWidgetProps) {
                 >
                     <NodeStyles.StyledText>{expression.label}</NodeStyles.StyledText>
                 </Tooltip>
-                {generateEditor(key, expression, id, index++, handleOnChange.bind(null, key as NodePropertyKey))}
+                {generateEditor(key, expression, id, index++, debouncedOnChange.bind(null, key as NodePropertyKey))}
             </NodeStyles.Row>
         );
         (expression.optional ? opt : required).push(el);
