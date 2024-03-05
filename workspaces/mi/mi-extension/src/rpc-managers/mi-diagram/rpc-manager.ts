@@ -30,6 +30,7 @@ import {
     CreateSequenceRequest,
     CreateSequenceResponse,
     ESBConfigsResponse,
+    EVENT_TYPE,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     FileStructure,
@@ -39,6 +40,7 @@ import {
     GetTextAtRangeResponse,
     HighlightCodeRequest,
     InboundEndpointDirectoryResponse,
+    MACHINE_VIEW,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectDirResponse,
@@ -49,9 +51,7 @@ import {
     WriteContentToFileRequest,
     WriteContentToFileResponse,
     getSTRequest,
-    getSTResponse,
-    EVENT_TYPE,
-    MACHINE_VIEW
+    getSTResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import * as fs from "fs";
@@ -504,11 +504,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {
         return new Promise(async (resolve) => {
-            const { directory, name, open } = params;
+            const { directory, name, open, groupID, artifactID } = params;
 
             const folderStructure: FileStructure = {
                 [name]: { // Project folder
-                    'pom.xml': rootPomXmlContent(name),
+                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name),
                     'src': {
                         'main': {
                             'wso2mi': {
