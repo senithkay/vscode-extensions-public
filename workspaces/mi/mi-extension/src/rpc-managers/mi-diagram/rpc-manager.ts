@@ -62,7 +62,7 @@ import * as fs from "fs";
 import * as os from 'os';
 import { Transform } from 'stream';
 import { Position, Range, Selection, Uri, WorkspaceEdit, commands, window, workspace } from "vscode";
-import { MI_COPILOT_BACKEND_URL } from "../../constants";
+import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getInboundEndpointXmlWrapper } from "../../util";
@@ -209,6 +209,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const filePath = path.join(directory, `${name}.xml`);
             fs.writeFileSync(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
     }
@@ -308,6 +309,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const filePath = path.join(directory, `${name}.xml`);
             fs.writeFileSync(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
     }
@@ -346,6 +348,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const filePath = path.join(directory, `${name}.xml`);
             fs.writeFileSync(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
     }
@@ -432,6 +435,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const filePath = path.join(directory, `${name}.xml`);
             fs.writeFileSync(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ filePath: filePath });
         });
     }
@@ -681,6 +685,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     console.log('Writing content to file:', fullPath);
                     console.log('Content:', content[i]);
                     fs.writeFileSync(fullPath, content[i]);
+                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
 
                 } catch (error) {
                     console.error('Error writing content to file:', error);
