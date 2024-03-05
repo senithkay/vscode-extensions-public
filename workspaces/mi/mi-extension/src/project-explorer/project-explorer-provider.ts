@@ -143,6 +143,8 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 			'project'
 		);
 
+		projectRoot.contextValue = 'project';
+
 		const artifacts = (directoryMap as any)?.src?.main?.wso2mi?.artifacts;
 		if (artifacts) {
 			for (const key in artifacts) {

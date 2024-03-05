@@ -101,6 +101,12 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.open-project-overview",
+        "title": "Open Project Overview",
+        "icon": "$(list-unordered)",
+        "when": "false"
+      },
+      {
         "command": "MI.project-explorer.open-service-designer",
         "title": "Open Service Designer",
         "icon": "$(design-view)",
@@ -179,6 +185,11 @@
         }
       ],
       "view/item/context": [
+        {
+          "command": "MI.project-explorer.open-project-overview",
+          "when": "viewItem == project",
+          "group": "inline" 
+        },
         {
           "command": "MI.project-explorer.add-api",
           "when": "view == MI.project-explorer && viewItem == apis",
