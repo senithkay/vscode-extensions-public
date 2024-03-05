@@ -152,7 +152,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
 
     const handlePlusNode = () => {
         const nodeRange: Range = {
-            start: node.stNode.range.startTagRange.end,
+            start: node.stNode.range.endTagRange.start,
             end: node.stNode.range.endTagRange.start,
         }
 
