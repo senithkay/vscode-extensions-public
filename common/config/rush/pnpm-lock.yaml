@@ -2298,12 +2298,12 @@ importers:
   ../../workspaces/common-libs/font-wso2-vscode:
     specifiers:
       '@vscode/codicons': 0.0.33
-      fantasticon: ^2.0.0
+      fantasticon: ^1.2.3
       icon-font-generator: ^2.1.11
       jsonc-parser: ^3.2.0
     devDependencies:
       '@vscode/codicons': 0.0.33
-      fantasticon: 2.0.0
+      fantasticon: 1.2.3
       icon-font-generator: 2.1.11
       jsonc-parser: 3.2.1
 
