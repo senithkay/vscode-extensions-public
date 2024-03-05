@@ -128,7 +128,7 @@ export function ProjectWizard() {
         <WizardContainer>
             <SectionWrapper>
                 <Container>
-                    <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSiGroupze: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
+                    <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
                     <div style={{ marginLeft: 30 }}>
                         <Typography variant="h3">Integration Project</Typography>
                     </div>
