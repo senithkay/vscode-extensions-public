@@ -34,7 +34,8 @@ export function FormWidget(props: FormWidgetProps) {
     };
 
 
-    for (const [key, expression] of Object.entries(model.node.nodeProperties)) {
+    
+    for (const [key, expression] of Object.entries(model.node?.nodeProperties)) {
         const el = (
             <NodeStyles.Row key={key}>
                 <Tooltip
