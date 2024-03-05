@@ -11,6 +11,7 @@ import { DefaultLinkModel } from "@projectstorm/react-diagrams";
 import { Colors, NODE_LINK, NodeTypes } from "../../resources/constants";
 import { SourceNodeModel, TargetNodeModel } from "../../utils/diagram";
 import { Position, Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Diagnostic } from "vscode-languageserver-types";
 
 export const LINK_BOTTOM_OFFSET = 50;
 
@@ -23,6 +24,7 @@ export interface NodeLinkModelOptions {
     onAddClick?: () => void;
     parentNode?: string;
     previousNode?: string;
+    diagnostics?: Diagnostic[];
 }
 
 export class NodeLinkModel extends DefaultLinkModel {
@@ -38,6 +40,7 @@ export class NodeLinkModel extends DefaultLinkModel {
     parentNode: string;
     previousNode: string;
     onAddClick?: () => void;
+    diagnostics?: Diagnostic[];
 
     constructor(label?: string);
     constructor(options: NodeLinkModelOptions);
@@ -75,6 +78,9 @@ export class NodeLinkModel extends DefaultLinkModel {
                 }
                 if ((options as NodeLinkModelOptions).previousNode) {
                     this.previousNode = (options as NodeLinkModelOptions).previousNode;
+                }
+                if ((options as NodeLinkModelOptions).diagnostics) {
+                    this.diagnostics = (options as NodeLinkModelOptions).diagnostics;
                 }
             }
             if ((options as NodeLinkModelOptions).onAddClick) {
@@ -203,5 +209,13 @@ export class NodeLinkModel extends DefaultLinkModel {
 
     getPreviousNode(): string {
         return this.previousNode;
+    }
+
+    hasDiagnotics(): boolean {
+        return this.diagnostics !== undefined && this.diagnostics.length > 0;
+    }
+
+    getDiagnostics(): Diagnostic[] {
+        return this.diagnostics || [];
     }
 }

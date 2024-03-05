@@ -26,9 +26,12 @@ import { Colors } from "../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
+import { Diagnostic } from "vscode-languageserver-types";
+
 export interface DiagramProps {
     model: APIResource | Sequence;
     documentUri: string;
+    diagnostics?: Diagnostic[];
 }
 
 export enum DiagramType {
@@ -55,7 +58,7 @@ namespace S {
 const SIDE_PANEL_WIDTH = 450;
 
 export function Diagram(props: DiagramProps) {
-    const { model } = props;
+    const { model , diagnostics } = props;
     const [diagramDataMap, setDiagramDataMap] = useState(new Map());
     const { rpcClient } = useVisualizerContext();
     const [isTabPaneVisible, setTabPaneVisible] = useState(true);
@@ -189,7 +192,7 @@ export function Diagram(props: DiagramProps) {
 
     const getDiagramData = (model: STNode) => {
         // run sizing visitor
-        const sizingVisitor = new SizingVisitor();
+        const sizingVisitor = new SizingVisitor(diagnostics || []);
         traversNode(model, sizingVisitor);
         const width = sizingVisitor.getSequenceWidth();
 

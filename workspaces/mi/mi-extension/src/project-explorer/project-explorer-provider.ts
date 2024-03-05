@@ -238,7 +238,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 	for (const entry of data) {
 		let explorerEntry;
 
-		if (entry.resources) {
+		if (entry.type === 'API' && entry.resources) {
 			const apiEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(true), entry, 'code');
 			apiEntry.contextValue = 'api';
 			apiEntry.iconPath = new vscode.ThemeIcon('notebook-open-as-text');
@@ -261,6 +261,14 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			}
 			explorerEntry = apiEntry;
 
+		} else if (entry.type === "SEQUENCE") {
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			explorerEntry.contextValue = 'sequence';
+			explorerEntry.command = {
+				"title": "Show Diagram",
+				"command": COMMANDS.SHOW_DIAGRAM,
+				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+			};
 		} else {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 		}

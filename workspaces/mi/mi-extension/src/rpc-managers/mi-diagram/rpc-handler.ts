@@ -19,6 +19,7 @@ import {
     CreateProjectRequest,
     CreateSequenceRequest,
     GetDefinitionRequest,
+    GetDiagnosticsReqeust,
     GetInboundEpDirRequest,
     GetProjectRootRequest,
     GetTextAtRangeRequest,
@@ -42,6 +43,7 @@ import {
     getConnector,
     getConnectors,
     getDefinition,
+    getDiagnostics,
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
@@ -98,4 +100,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(redo, (args: UndoRedoParams) => rpcManger.redo(args));
     messenger.onRequest(getDefinition, (args: GetDefinitionRequest) => rpcManger.getDefinition(args));
     messenger.onRequest(getTextAtRange, (args: GetTextAtRangeRequest) => rpcManger.getTextAtRange(args));
+    messenger.onRequest(getDiagnostics, (args: GetDiagnosticsReqeust) => rpcManger.getDiagnostics(args));
 }

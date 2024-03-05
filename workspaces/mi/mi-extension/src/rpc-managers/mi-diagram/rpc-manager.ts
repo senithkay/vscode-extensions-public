@@ -36,6 +36,8 @@ import {
     FileStructure,
     GetDefinitionRequest,
     GetDefinitionResponse,
+    GetDiagnosticsReqeust,
+    GetDiagnosticsResponse,
     GetInboundEpDirRequest,
     GetProjectRootRequest,
     GetTextAtRangeRequest,
@@ -542,13 +544,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         "Current Window",
                         "New Window"
                     );
-    
+
                     if (answer === "Current Window") {
                         const folderUri = Uri.file(path.join(directory, name));
-    
+
                         // Get the currently opened workspaces
                         const workspaceFolders = workspace.workspaceFolders || [];
-    
+
                         // Check if the folder is not already part of the workspace
                         if (!workspaceFolders.some(folder => folder.uri.fsPath === folderUri.fsPath)) {
                             workspace.updateWorkspaceFolders(workspaceFolders.length, 0, { uri: folderUri });
@@ -763,6 +765,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }).join("\n");
             resolve({ text });
         });
+    }
+
+    async getDiagnostics(params: GetDiagnosticsReqeust): Promise<GetDiagnosticsResponse> {
+        return StateMachine.context().langClient!.getDiagnostics(params);
     }
 }
 
