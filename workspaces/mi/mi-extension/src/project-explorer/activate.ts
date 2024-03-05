@@ -102,7 +102,7 @@ export function activateProjectExplorer(context: ExtensionContext) {
 	// action items
 	commands.registerCommand(COMMANDS.SHOW_DIAGRAM, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Diagram, documentUri: documentUri.fsPath, identifier: resourceIndex });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Diagram, documentUri: documentUri?.fsPath, identifier: resourceIndex });
 	})
 	commands.registerCommand(COMMANDS.SHOW_SOURCE, (e: any) => {
 		const documentUri = StateMachine.context().documentUri;
@@ -131,7 +131,7 @@ export function activateProjectExplorer(context: ExtensionContext) {
 
 function revealWebviewPanel(beside: boolean = true) {
 	if (!VisualizerWebview.currentPanel) {
-		VisualizerWebview.currentPanel = new VisualizerWebview(true);
+		VisualizerWebview.currentPanel = new VisualizerWebview(MACHINE_VIEW.Overview, true);
 		VisualizerWebview.currentPanel?.getWebview()?.reveal(beside ? ViewColumn.Beside : ViewColumn.One);
 	} else {
 		VisualizerWebview.currentPanel?.getWebview()?.reveal(beside ? ViewColumn.Beside : ViewColumn.Active);

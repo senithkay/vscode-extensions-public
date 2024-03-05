@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { VisualizerLocation } from "@wso2-enterprise/mi-core";
+import { MACHINE_VIEW, VisualizerLocation } from "@wso2-enterprise/mi-core";
 import { HierachicalPath } from "./HierachicalPath";
 
 interface NavButtonGroupProps {
@@ -46,7 +46,7 @@ export function NavButtonGroup(props: NavButtonGroupProps) {
     return (
         <>
             <>
-                {machineView?.view !== "Overview" && (
+                {machineView?.view !== MACHINE_VIEW.Overview && (
                     <>
                         <VSCodeButton appearance="icon" title="Go Back" onClick={handleBackButtonClick}>
                             <Codicon name="arrow-left" />
