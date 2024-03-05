@@ -13,6 +13,7 @@ export const COMMANDS = {
     ADD_ENDPOINT_COMMAND: 'MI.project-explorer.add-endpoint',
     ADD_SEQUENCE_COMMAND: 'MI.project-explorer.add-sequence',
     ADD_INBOUND_ENDPOINT_COMMAND: 'MI.project-explorer.add-inbound-endpoint',
+    ADD_LOCAL_ENTRY_COMMAND: 'MI.project-explorer.add-local-entry',
     CREATE_PROJECT_COMMAND: 'MI.project-explorer.create-project',
     REVEAL_ITEM_COMMAND: 'MI.project-explorer.revealItem',
     FOCUS_PROJECT_EXPLORER: 'MI.project-explorer.focus',

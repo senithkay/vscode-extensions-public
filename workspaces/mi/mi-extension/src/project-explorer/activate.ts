@@ -25,7 +25,8 @@ export function activateProjectExplorer(context: ExtensionContext) {
 			{ label: 'API', description: 'Add new API' },
 			{ label: 'Endpoint', description: 'Add new endpoint' },
 			{ label: 'Sequence', description: 'Add new sequence' },
-			{ label: 'Inbound Endpoint', description: 'Add new inbound endpoint' }
+			{ label: 'Inbound Endpoint', description: 'Add new inbound endpoint' },
+			{ label: 'Local Entry', description: 'Add new local entry'}
 		], {
 			placeHolder: 'Select the construct to add'
 		}).then(selection => {
@@ -39,6 +40,8 @@ export function activateProjectExplorer(context: ExtensionContext) {
 				commands.executeCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND);
 			} else if (selection?.label === 'New Project') {
 				commands.executeCommand(COMMANDS.CREATE_PROJECT_COMMAND);
+			} else if (selection?.label === 'Local Entry') {
+				commands.executeCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND);
 			}
 		});
 
@@ -66,6 +69,11 @@ export function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
 		console.log('Create New Project');
+	});
+
+	commands.registerCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND, () => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.LocalEntryForm });
+		console.log('Add Local Entry');
 	});
 
 	commands.registerCommand(COMMANDS.REVEAL_ITEM_COMMAND, async (viewLocation: VisualizerLocation) => {
@@ -137,3 +145,4 @@ function revealWebviewPanel(beside: boolean = true) {
 		VisualizerWebview.currentPanel?.getWebview()?.reveal(beside ? ViewColumn.Beside : ViewColumn.Active);
 	}
 }
+

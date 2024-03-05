@@ -12,6 +12,7 @@ import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { InboundEPWizard } from './views/Forms/InboundEPform';
+import { LocalEntryWizard } from './views/Forms/LocalEntryForm';
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -92,6 +93,9 @@ const MainPanel = () => {
                 case MACHINE_VIEW.ProjectCreationForm:
                     setViewComponent(<ProjectWizard />);
                     break;
+                case "LocalEntryForm":
+                    setViewComponent(<LocalEntryWizard />);
+                    break;    
                 default:
                     setViewComponent(null);
             }
