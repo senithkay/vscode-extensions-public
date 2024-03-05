@@ -7,12 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useContext } from "react";
 import { Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { BaseNodeModel } from "./BaseNodeModel";
 import { NodeStyles } from "./BaseNodeWidget";
 import { generateEditor } from "../../editors/EditorFactory";
 import { Expression, NodePropertyKey } from "../../../utils/types";
+import { DiagramContext } from "../../DiagramContext";
 
 interface FormWidgetProps {
     model: BaseNodeModel;
@@ -20,6 +21,7 @@ interface FormWidgetProps {
 
 export function FormWidget(props: FormWidgetProps) {
     const { model } = props;
+    const { onNodeUpdate } = useContext(DiagramContext);
 
     const id = model.node.id;
     const required: React.JSX.Element[] = [];
@@ -28,6 +30,7 @@ export function FormWidget(props: FormWidgetProps) {
 
     const handleOnChange = (key: NodePropertyKey, expression: Expression) => {
         model.node.nodeProperties[key] = expression;
+        onNodeUpdate(model.node);
     };
 
 
