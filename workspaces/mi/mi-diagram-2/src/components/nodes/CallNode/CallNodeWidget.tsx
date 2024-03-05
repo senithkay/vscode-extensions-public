@@ -100,8 +100,8 @@ namespace S {
 
     export const EndpointContainer = styled.div`
         position: absolute;
-        left: 223px;
-        top: 8px;
+        left: 222.5px;
+        top: 9px;
     `;
 
     export const EndpointTextWrapper = styled.div`
@@ -220,9 +220,9 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                             stroke={endpointHasDiagnotics ? Colors.ERROR : Colors.OUTLINE_VARIANT}
                             strokeWidth={2}
                         />
-                        <g transform="translate(81,20)">
+                        {node.endpoint && <g transform="translate(81,20)">
                             <image x="-20" y="-20" width="40" height="40" xlinkHref={getSVGIcon(node.endpoint.type, true)} />
-                        </g>
+                        </g>}
 
                         <line
                             x1="0"

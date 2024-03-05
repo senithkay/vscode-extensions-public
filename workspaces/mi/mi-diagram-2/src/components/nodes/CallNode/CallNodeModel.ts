@@ -27,10 +27,10 @@ export class CallNodeModel extends BaseNodeModel {
     }
 
     endpointHasDiagnostics(): boolean {
-        return this.endpoint.diagnostics && this.endpoint.diagnostics.length > 0;
+        return this.endpoint?.diagnostics && this.endpoint.diagnostics.length > 0;
     }
 
     getEndpointDiagnostics(): Diagnostic[] {
-        return this.endpoint.diagnostics || [];
+        return this.endpoint?.diagnostics || [];
     }
 }
