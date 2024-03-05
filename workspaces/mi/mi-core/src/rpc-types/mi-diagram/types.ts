@@ -92,6 +92,8 @@ export interface CreateProjectRequest {
     directory: string;
     name: string;
     open: boolean;
+    groupID?: string;
+    artifactID?: string;
 }
 
 export interface Connector {

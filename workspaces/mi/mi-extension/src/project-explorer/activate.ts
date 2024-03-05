@@ -51,18 +51,18 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		console.log('Add API');
 	});
 
-	commands.registerCommand(COMMANDS.ADD_ENDPOINT_COMMAND, () => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.EndPointForm });
+	commands.registerCommand(COMMANDS.ADD_ENDPOINT_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.EndPointForm, documentUri:entry.info?.path });
 		console.log('Add Endpoint');
 	});
 
-	commands.registerCommand(COMMANDS.ADD_SEQUENCE_COMMAND, () => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceForm });
+	commands.registerCommand(COMMANDS.ADD_SEQUENCE_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceForm, documentUri:entry.info?.path });
 		console.log('Add Sequence');
 	});
 
-	commands.registerCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND, () => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.InboundEPForm });
+	commands.registerCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.InboundEPForm, documentUri:entry.info?.path });
 		console.log('Add Inbound API');
 	});
 
@@ -123,6 +123,10 @@ export function activateProjectExplorer(context: ExtensionContext) {
 			}
 		}
 	})
+	commands.registerCommand(COMMANDS.OPEN_PROJECT_OVERVIEW, async (entry: ProjectExplorerEntry) => {
+		revealWebviewPanel(false);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+	});
 	commands.registerCommand(COMMANDS.OPEN_SERVICE_DESIGNER, async (entry: ProjectExplorerEntry) => {
 		revealWebviewPanel(false);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: entry.info?.path });

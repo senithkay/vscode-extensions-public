@@ -56,6 +56,8 @@ export function ProjectWizard() {
     const { rpcClient } = useVisualizerContext();
     const [projectName, setProjectName] = useState("");
     const [projectDir, setProjectDir] = useState("");
+    const [groupID, setGroupID] = useState("");
+    const [artifactID, setArtifactID] = useState("");
 
     useEffect(() => {
         (async () => {
@@ -74,7 +76,9 @@ export function ProjectWizard() {
         const createProjectParams = {
             name: projectName,
             directory: projectDir,
-            open: true
+            open: true,
+            groupID: groupID,
+            artifactID: artifactID
         }
         await rpcClient.getMiDiagramRpcClient().createProject(createProjectParams);
         console.log("Project created");
@@ -103,7 +107,22 @@ export function ProjectWizard() {
         return "";
     };
 
-    const isValid: boolean = projectName.length > 0 && projectDir.length > 0;
+    const validateGroupID = (name: string) => {
+        // Check if the name is empty
+        if (!name.trim()) {
+            return "ID cannot be empty";
+        }
+
+        // Check if the name contains spaces
+        if (/\s/.test(name)) {
+            return "ID cannot contain spaces";
+        }
+
+        return "";
+    };
+
+
+    const isValid: boolean = projectName.length > 0 && projectDir.length > 0 && groupID.length > 0 && artifactID.length > 0;
 
     return (
         <WizardContainer>
@@ -121,6 +140,28 @@ export function ProjectWizard() {
                     placeholder="Project Name"
                     onChange={(text: string) => setProjectName(text)}
                     errorMsg={validateProjectName(projectName)}
+                    size={46}
+                    autoFocus
+                    required
+                />
+                <TextField
+                    value={groupID}
+                    id='groupid-input'
+                    label="Group ID"
+                    placeholder="Group ID"
+                    onChange={(text: string) => setGroupID(text)}
+                    errorMsg={validateGroupID(groupID)}
+                    size={46}
+                    autoFocus
+                    required
+                />
+                <TextField
+                    value={artifactID}
+                    id='artifactID-input'
+                    label="Atrifact ID"
+                    placeholder="Artifact ID"
+                    onChange={(text: string) => setArtifactID(text)}
+                    errorMsg={validateGroupID(artifactID)}
                     size={46}
                     autoFocus
                     required

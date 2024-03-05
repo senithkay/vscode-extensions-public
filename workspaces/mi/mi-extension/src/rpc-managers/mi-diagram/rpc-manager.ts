@@ -66,7 +66,7 @@ import * as fs from "fs";
 import * as os from 'os';
 import { Transform } from 'stream';
 import { Position, Range, Selection, Uri, WorkspaceEdit, commands, window, workspace } from "vscode";
-import { MI_COPILOT_BACKEND_URL } from "../../constants";
+import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getInboundEndpointXmlWrapper } from "../../util";
@@ -81,223 +81,224 @@ const connectorsPath = path.join(".metadata", ".Connectors");
 const undoRedo = new UndoRedoManager();
 
 export class MiDiagramRpcManager implements MiDiagramAPI {
-  async executeCommand(params: CommandsRequest): Promise<CommandsResponse> {
-      return new Promise(async (resolve) => {
-          if (params.commands.length >= 1) {
-              const cmdArgs = params.commands.length > 1 ? params.commands.slice(1) : [];
-              await commands.executeCommand(params.commands[0], ...cmdArgs);
-              resolve({ data: "SUCCESS" });
-          }
-      });
-  }
+    async executeCommand(params: CommandsRequest): Promise<CommandsResponse> {
+        return new Promise(async (resolve) => {
+            if (params.commands.length >= 1) {
+                const cmdArgs = params.commands.length > 1 ? params.commands.slice(1) : [];
+                await commands.executeCommand(params.commands[0], ...cmdArgs);
+                resolve({ data: "SUCCESS" });
+            }
+        });
+    }
 
-  async getSyntaxTree(params: getSTRequest): Promise<getSTResponse> {
-      return new Promise(async (resolve) => {
-          const langClient = StateMachine.context().langClient!;
-          const res = await langClient.getSyntaxTree({
-              documentIdentifier: {
-                  uri: params.documentUri
-              },
-          });
+    async getSyntaxTree(params: getSTRequest): Promise<getSTResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getSyntaxTree({
+                documentIdentifier: {
+                    uri: params.documentUri
+                },
+            });
 
-          resolve(res);
-      });
-  }
-  
-  async getConnectors(): Promise<ConnectorsResponse> {
-      return new Promise(async (resolve) => {
-          const connectorNames: Connector[] = [];
-          const workspaceFolders = workspace.workspaceFolders;
+            resolve(res);
+        });
+    }
 
-          if (!workspaceFolders) {
-              return resolve({ data: connectorNames });
-          }
+    async getConnectors(): Promise<ConnectorsResponse> {
+        return new Promise(async (resolve) => {
+            const connectorNames: Connector[] = [];
+            const workspaceFolders = workspace.workspaceFolders;
 
-          if (!fs.existsSync(path.join(workspaceFolders[0].uri.path, connectorsPath))) {
-              return resolve({ data: connectorNames });
-          }
+            if (!workspaceFolders) {
+                return resolve({ data: connectorNames });
+            }
 
-          const connectorsRoot = path.join(workspaceFolders[0].uri.path, connectorsPath);
-          const connectors = fs.readdirSync(connectorsRoot, { withFileTypes: true });
-          connectors.filter(dirent => dirent.isDirectory()).forEach(connectorDir => {
-              const connectorPath = path.join(connectorsRoot, connectorDir.name);
-              const connectorInfoFile = path.join(connectorPath, `connector.xml`);
-              const connectorIconFile = path.join(connectorPath, "icon", `icon-large.png`);
-              if (fs.existsSync(connectorInfoFile)) {
-                  const connectorDefinition = fs.readFileSync(connectorInfoFile, "utf8");
-                  const options = {
-                      ignoreAttributes: false,
-                      attributeNamePrefix: "@_"
-                  };
-                  const parser = new XMLParser(options);
-                  const connectorInfo = parser.parse(connectorDefinition);
-                  const connectorName = connectorInfo["connector"]["component"]["@_name"];
-                  const connectorDescription = connectorInfo["connector"]["component"]["description"];
-                  const connectorIcon = Buffer.from(fs.readFileSync(connectorIconFile)).toString('base64');
-                  connectorNames.push({ path: connectorPath, name: connectorName, description: connectorDescription, icon: connectorIcon });
-              }
-          });
+            if (!fs.existsSync(path.join(workspaceFolders[0].uri.path, connectorsPath))) {
+                return resolve({ data: connectorNames });
+            }
 
-          resolve({ data: connectorNames });
-      });
-  }
+            const connectorsRoot = path.join(workspaceFolders[0].uri.path, connectorsPath);
+            const connectors = fs.readdirSync(connectorsRoot, { withFileTypes: true });
+            connectors.filter(dirent => dirent.isDirectory()).forEach(connectorDir => {
+                const connectorPath = path.join(connectorsRoot, connectorDir.name);
+                const connectorInfoFile = path.join(connectorPath, `connector.xml`);
+                const connectorIconFile = path.join(connectorPath, "icon", `icon - large.png`);
+                if (fs.existsSync(connectorInfoFile)) {
+                    const connectorDefinition = fs.readFileSync(connectorInfoFile, "utf8");
+                    const options = {
+                        ignoreAttributes: false,
+                        attributeNamePrefix: "@_"
+                    };
+                    const parser = new XMLParser(options);
+                    const connectorInfo = parser.parse(connectorDefinition);
+                    const connectorName = connectorInfo["connector"]["component"]["@_name"];
+                    const connectorDescription = connectorInfo["connector"]["component"]["description"];
+                    const connectorIcon = Buffer.from(fs.readFileSync(connectorIconFile)).toString('base64');
+                    connectorNames.push({ path: connectorPath, name: connectorName, description: connectorDescription, icon: connectorIcon });
+                }
+            });
 
-  async getConnector(params: ConnectorRequest): Promise<ConnectorResponse> {
-      return new Promise(async (resolve) => {
-          const connectorFiles: string[] = [];
-          const uiSchemas = path.join(params.path, "uischema");
-          if (fs.existsSync(uiSchemas)) {
-              const connectorFilesList = fs.readdirSync(uiSchemas);
-              connectorFilesList.forEach(file => {
-                  const connectorFile = fs.readFileSync(path.join(uiSchemas, file), "utf8");
-                  connectorFiles.push(connectorFile);
-              });
-          }
-          resolve({ data: connectorFiles });
-      });
-  }
+            resolve({ data: connectorNames });
+        });
+    }
 
-  async getAPIDirectory(): Promise<ApiDirectoryResponse> {
-      return new Promise(async (resolve) => {
-          let result = '';
-          const findSynapseAPIPath = (startPath: string) => {
-              const files = fs.readdirSync(startPath);
-              for (let i = 0; i < files.length; i++) {
-                  const filename = path.join(startPath, files[i]);
-                  const stat = fs.lstatSync(filename);
-                  if (stat.isDirectory()) {
-                      if (filename.includes('synapse-config/api')) {
-                          result = filename;
-                          return result;
-                      } else {
-                          result = findSynapseAPIPath(filename);
-                      }
-                  }
-              }
-              return result;
-          };
+    async getConnector(params: ConnectorRequest): Promise<ConnectorResponse> {
+        return new Promise(async (resolve) => {
+            const connectorFiles: string[] = [];
+            const uiSchemas = path.join(params.path, "uischema");
+            if (fs.existsSync(uiSchemas)) {
+                const connectorFilesList = fs.readdirSync(uiSchemas);
+                connectorFilesList.forEach(file => {
+                    const connectorFile = fs.readFileSync(path.join(uiSchemas, file), "utf8");
+                    connectorFiles.push(connectorFile);
+                });
+            }
+            resolve({ data: connectorFiles });
+        });
+    }
 
-          const workspaceFolder = workspace.workspaceFolders;
-          if (workspaceFolder) {
-              const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
-              const synapseAPIPath = findSynapseAPIPath(workspaceFolderPath);
-              return synapseAPIPath;
-          }
-          resolve({ data: "" });
-      });
-  }
+    async getAPIDirectory(): Promise<ApiDirectoryResponse> {
+        return new Promise(async (resolve) => {
+            let result = '';
+            const findSynapseAPIPath = (startPath: string) => {
+                const files = fs.readdirSync(startPath);
+                for (let i = 0; i < files.length; i++) {
+                    const filename = path.join(startPath, files[i]);
+                    const stat = fs.lstatSync(filename);
+                    if (stat.isDirectory()) {
+                        if (filename.includes('synapse-config/api')) {
+                            result = filename;
+                            return result;
+                        } else {
+                            result = findSynapseAPIPath(filename);
+                        }
+                    }
+                }
+                return result;
+            };
 
-  async createAPI(params: CreateAPIRequest): Promise<CreateAPIResponse> {
-      return new Promise(async (resolve) => {
-          const { directory, name, context, swaggerDef, type, version } = params;
-          let versionAttributes = '';
-          let swaggerAttributes = '';
-          if (version && type !== 'none') {
-              versionAttributes = ` version="${version}" version-type="${type}"`;
-          }
+            const workspaceFolder = workspace.workspaceFolders;
+            if (workspaceFolder) {
+                const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
+                const synapseAPIPath = findSynapseAPIPath(workspaceFolderPath);
+                return synapseAPIPath;
+            }
+            resolve({ data: "" });
+        });
+    }
 
-          if (swaggerDef) {
-              swaggerAttributes = ` publishSwagger="${swaggerDef}"`;
-          }
+    async createAPI(params: CreateAPIRequest): Promise<CreateAPIResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, name, context, swaggerDef, type, version } = params;
+            let versionAttributes = '';
+            let swaggerAttributes = '';
+            if (version && type !== 'none') {
+                versionAttributes = ` version = "${version}" version - type="${type}"`;
+            }
 
-          const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
-  <api context="${context}" name="${name}" ${swaggerAttributes}${versionAttributes} xmlns="http://ws.apache.org/ns/synapse">
-      <resource methods="GET" uri-template="/resource">
-          <inSequence>
-          </inSequence>
-          <outSequence>
-          </outSequence>
-          <faultSequence>
-          </faultSequence>
-      </resource>
-  </api>`;
+            if (swaggerDef) {
+                swaggerAttributes = ` publishSwagger = "${swaggerDef}"`;
+            }
 
-          const filePath = path.join(directory, `${name}.xml`);
-          fs.writeFileSync(filePath, xmlData);
-          resolve({ path: filePath });
-      });
-  }
+            const xmlData = `<? xml version = "1.0" encoding = "UTF-8" ?>
+                <api context="${context}" name = "${name}" ${swaggerAttributes}${versionAttributes} xmlns = "http://ws.apache.org/ns/synapse" >
+                    <resource methods="GET" uri - template="/resource" >
+                        <inSequence>
+                        </inSequence>
+                        < outSequence >
+                        </outSequence>
+                        < faultSequence >
+                        </faultSequence>
+                        < /resource>
+                        < /api>`;
 
-  showErrorMessage(params: ShowErrorMessageRequest): void {
-      window.showErrorMessage(params.message);
-  }
+            const filePath = path.join(directory, `${name}.xml`);
+            fs.writeFileSync(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
 
-  closeWebViewNotification(): void {
-      // if ("dispose" in view) {
-      //     view.dispose();
-      // }
-  }
+    showErrorMessage(params: ShowErrorMessageRequest): void {
+        window.showErrorMessage(params.message);
+    }
 
-  openDiagram(params: OpenDiagramRequest): void {
-      openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Diagram, documentUri: params.path });
-  }
+    closeWebViewNotification(): void {
+        // if ("dispose" in view) {
+        //     view.dispose();
+        // }
+    }
 
-  async getEndpointDirectory(): Promise<EndpointDirectoryResponse> {
-      return new Promise(async (resolve) => {
-          let result = '';
-          const findSynapseEndpointPath = (startPath: string) => {
-              const files = fs.readdirSync(startPath);
-              for (let i = 0; i < files.length; i++) {
-                  const filename = path.join(startPath, files[i]);
-                  const stat = fs.lstatSync(filename);
-                  if (stat.isDirectory()) {
-                      if (filename.includes('synapse-config/endpoints')) {
-                          result = filename;
-                          return result;
-                      } else {
-                          result = findSynapseEndpointPath(filename);
-                      }
-                  }
-              }
-              return result;
-          };
+    openDiagram(params: OpenDiagramRequest): void {
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Diagram, documentUri: params.path });
+    }
 
-          const workspaceFolder = workspace.workspaceFolders;
-          if (workspaceFolder) {
-              const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
-              const synapseEndpointPath = findSynapseEndpointPath(workspaceFolderPath);
-              return synapseEndpointPath;
-          }
-          resolve({ data: "" });
-      });
-  }
+    async getEndpointDirectory(): Promise<EndpointDirectoryResponse> {
+        return new Promise(async (resolve) => {
+            let result = '';
+            const findSynapseEndpointPath = (startPath: string) => {
+                const files = fs.readdirSync(startPath);
+                for (let i = 0; i < files.length; i++) {
+                    const filename = path.join(startPath, files[i]);
+                    const stat = fs.lstatSync(filename);
+                    if (stat.isDirectory()) {
+                        if (filename.includes('synapse-config/endpoints')) {
+                            result = filename;
+                            return result;
+                        } else {
+                            result = findSynapseEndpointPath(filename);
+                        }
+                    }
+                }
+                return result;
+            };
 
-  async createEndpoint(params: CreateEndpointRequest): Promise<CreateEndpointResponse> {
-      return new Promise(async (resolve) => {
-          const { directory, name, address, configuration, method, type, uriTemplate } = params;
-          const endpointType = type.split(" ")[0].toLowerCase();
+            const workspaceFolder = workspace.workspaceFolders;
+            if (workspaceFolder) {
+                const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
+                const synapseEndpointPath = findSynapseEndpointPath(workspaceFolderPath);
+                return synapseEndpointPath;
+            }
+            resolve({ data: "" });
+        });
+    }
 
-          let endpointAttributes = `${endpointType}`;
-          let otherAttributes = '';
-          let closingAttributes = `</${endpointType}>`;
-          if (endpointType === 'http') {
-              endpointAttributes = `${endpointAttributes} method="${method.toLowerCase()}" uri-template="${uriTemplate}"`;
-          } else if (endpointType === 'address') {
-              endpointAttributes = `${endpointAttributes} uri="${address}"`;
-          } else if (endpointType === 'fail') {
-              endpointAttributes = `failover`;
-              otherAttributes = `<endpoint name="endpoint_urn_uuid">
+    async createEndpoint(params: CreateEndpointRequest): Promise<CreateEndpointResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, name, address, configuration, method, type, uriTemplate } = params;
+            const endpointType = type.split(" ")[0].toLowerCase();
+
+            let endpointAttributes = `${endpointType}`;
+            let otherAttributes = '';
+            let closingAttributes = `</${endpointType}>`;
+            if (endpointType === 'http') {
+                endpointAttributes = `${endpointAttributes} method="${method.toLowerCase()}" uri-template="${uriTemplate}"`;
+            } else if (endpointType === 'address') {
+                endpointAttributes = `${endpointAttributes} uri="${address}"`;
+            } else if (endpointType === 'fail') {
+                endpointAttributes = `failover`;
+                otherAttributes = `<endpoint name="endpoint_urn_uuid">
           <address uri="http://localhost">`;
-              closingAttributes = `       </address>
+                closingAttributes = `       </address>
       </endpoint>
   </failover>`;
-          } else if (endpointType === 'load') {
-              endpointAttributes = `loadbalance algorithm="org.apache.synapse.endpoints.algorithms.RoundRobin"`;
-              otherAttributes = `<endpoint name="endpoint_urn_uuid">
+            } else if (endpointType === 'load') {
+                endpointAttributes = `loadbalance algorithm="org.apache.synapse.endpoints.algorithms.RoundRobin"`;
+                otherAttributes = `<endpoint name="endpoint_urn_uuid">
           <address uri="http://localhost">`;
-              closingAttributes = `       </address>
+                closingAttributes = `       </address>
       </endpoint>
   </loadbalance>`;
-          } else if (endpointType === 'recipient') {
-              endpointAttributes = `recipientlist`;
-              otherAttributes = `<endpoint>
+            } else if (endpointType === 'recipient') {
+                endpointAttributes = `recipientlist`;
+                otherAttributes = `<endpoint>
           <default>`;
-              closingAttributes = `       </default>
+                closingAttributes = `       </default>
       </endpoint>
   </recipientlist>`;
-          }
+            }
 
-          const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
+            const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
 <endpoint name="${name}" xmlns="http://ws.apache.org/ns/synapse">
   <${endpointAttributes}>
       ${otherAttributes}
@@ -311,198 +312,201 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
   ${closingAttributes}
 </endpoint>`;
 
-          const filePath = path.join(directory, `${name}.xml`);
-          fs.writeFileSync(filePath, xmlData);
-          resolve({ path: filePath });
-      });
-  }
+            const filePath = path.join(directory, `${name}.xml`);
+            fs.writeFileSync(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
 
-  async getLocalEntryDirectory(): Promise<LocalEntryDirectoryResponse> {
-    return new Promise(async (resolve) => {
-      const workspaceFolder = workspace.workspaceFolders;
-      if (workspaceFolder) {
-        const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
-        const synapseAPIPath = `${workspaceFolderPath}/${workspaceFolder[0].name}Configs/src/main/synapse-config/local-entries`;
-        resolve({ data: synapseAPIPath });
-      }
-      resolve({ data: "" });
-    });
-  }
-  async createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
-    return new Promise(async (resolve) => {
-        const { directory, name, type, value, URL } = params;
+    async getLocalEntryDirectory(): Promise<LocalEntryDirectoryResponse> {
+        return new Promise(async (resolve) => {
+            const workspaceFolder = workspace.workspaceFolders;
+            if (workspaceFolder) {
+                const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
+                const synapseAPIPath = `${workspaceFolderPath}/${workspaceFolder[0].name}Configs/src/main/synapse-config/local-entries`;
+                resolve({ data: synapseAPIPath });
+            }
+            resolve({ data: "" });
+        });
+    }
+    async createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, name, type, value, URL } = params;
 
-        const xmlData = generateXmlData(name, type, value, URL);
-        const filePath = path.join(directory, `${name}.xml`);
+            const xmlData = generateXmlData(name, type, value, URL);
+            const filePath = path.join(directory, `${name}.xml`);
 
-        writeXmlDataToFile(filePath, xmlData);
-        resolve({ path: filePath });
-    });
-  }  
+            writeXmlDataToFile(filePath, xmlData);
+            resolve({ path: filePath });
+        });
+    }
 
-  async getInboundEndpointDirectory(): Promise<InboundEndpointDirectoryResponse> {
-      try {
-          const workspaceFolder = workspace.workspaceFolders;
-          if (workspaceFolder) {
-              const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
-              const endpointDir = path.join(workspaceFolderPath, 'src', 'main', 'wso2mi', 'artifacts', 'inbound-endpoints');
+    async getInboundEndpointDirectory(): Promise<InboundEndpointDirectoryResponse> {
+        try {
+            const workspaceFolder = workspace.workspaceFolders;
+            if (workspaceFolder) {
+                const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
+                const endpointDir = path.join(workspaceFolderPath, 'src', 'main', 'wso2mi', 'artifacts', 'inbound-endpoints');
 
-              const response: InboundEndpointDirectoryResponse = { data: endpointDir };
+                const response: InboundEndpointDirectoryResponse = { data: endpointDir };
 
-              return response;
-          }
+                return response;
+            }
 
-          return { data: "" };
-      } catch (error) {
-          throw new Error("Failed to fetch workspace folders: " + error);
-      }
-  }
+            return { data: "" };
+        } catch (error) {
+            throw new Error("Failed to fetch workspace folders: " + error);
+        }
+    }
 
-  async createInboundEndpoint(params: CreateInboundEndpointRequest): Promise<CreateInboundEndpointResponse> {
-      return new Promise(async (resolve) => {
-          const { directory, name, type, sequence, errorSequence } = params;
+    async createInboundEndpoint(params: CreateInboundEndpointRequest): Promise<CreateInboundEndpointResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, name, type, sequence, errorSequence } = params;
 
-          const getTemplateParams = {
-              name,
-              type: type.toLowerCase(),
-              sequence,
-              errorSequence
-          };
+            const getTemplateParams = {
+                name,
+                type: type.toLowerCase(),
+                sequence,
+                errorSequence
+            };
 
-          const xmlData = getInboundEndpointXmlWrapper(getTemplateParams);
+            const xmlData = getInboundEndpointXmlWrapper(getTemplateParams);
 
-          const filePath = path.join(directory, `${name}.xml`);
-          fs.writeFileSync(filePath, xmlData);
-          resolve({ path: filePath });
-      });
-  }
+            const filePath = path.join(directory, `${name}.xml`);
+            fs.writeFileSync(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
 
-  async getEndpointsAndSequences(): Promise<EndpointsAndSequencesResponse> {
-      return new Promise(async (resolve) => {
-          const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
-              workspace.workspaceFolders[0].uri.fsPath
-              : undefined;
+    async getEndpointsAndSequences(): Promise<EndpointsAndSequencesResponse> {
+        return new Promise(async (resolve) => {
+            const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
+                workspace.workspaceFolders[0].uri.fsPath
+                : undefined;
 
-          if (!!rootPath) {
-              const langClient = StateMachine.context().langClient!;
-              const resp = await langClient.getProjectStructure(rootPath);
-              const artifacts = (resp.directoryMap as any).src.main.wso2mi.artifacts;
+            if (!!rootPath) {
+                const langClient = StateMachine.context().langClient!;
+                const resp = await langClient.getProjectStructure(rootPath);
+                const artifacts = (resp.directoryMap as any).src.main.wso2mi.artifacts;
 
-              const endpoints: string[] = [];
-              const sequences: string[] = [];
+                const endpoints: string[] = [];
+                const sequences: string[] = [];
 
-              for (const endpoint of artifacts.endpoints) {
-                  endpoints.push(endpoint.name);
-              }
+                for (const endpoint of artifacts.endpoints) {
+                    endpoints.push(endpoint.name);
+                }
 
-              for (const sequence of artifacts.sequences) {
-                  sequences.push(sequence.name);
-              }
+                for (const sequence of artifacts.sequences) {
+                    sequences.push(sequence.name);
+                }
 
-              resolve({ data: [endpoints, sequences] });
-          }
+                resolve({ data: [endpoints, sequences] });
+            }
 
-          resolve({ data: [] });
-      });
-  }
+            resolve({ data: [] });
+        });
+    }
 
-  async getSequenceDirectory(): Promise<SequenceDirectoryResponse> {
-      return new Promise(async (resolve) => {
-          let result = '';
-          const findSynapseSequencePath = (startPath: string) => {
-              const files = fs.readdirSync(startPath);
-              for (let i = 0; i < files.length; i++) {
-                  const filename = path.join(startPath, files[i]);
-                  const stat = fs.lstatSync(filename);
-                  if (stat.isDirectory()) {
-                      if (filename.includes('synapse-config/sequences')) {
-                          result = filename;
-                          return result;
-                      } else {
-                          result = findSynapseSequencePath(filename);
-                      }
-                  }
-              }
-              return result;
-          };
+    async getSequenceDirectory(): Promise<SequenceDirectoryResponse> {
+        return new Promise(async (resolve) => {
+            let result = '';
+            const findSynapseSequencePath = (startPath: string) => {
+                const files = fs.readdirSync(startPath);
+                for (let i = 0; i < files.length; i++) {
+                    const filename = path.join(startPath, files[i]);
+                    const stat = fs.lstatSync(filename);
+                    if (stat.isDirectory()) {
+                        if (filename.includes('synapse-config/sequences')) {
+                            result = filename;
+                            return result;
+                        } else {
+                            result = findSynapseSequencePath(filename);
+                        }
+                    }
+                }
+                return result;
+            };
 
-          const workspaceFolder = workspace.workspaceFolders;
-          if (workspaceFolder) {
-              const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
-              const synapseSequencePath = findSynapseSequencePath(workspaceFolderPath);
-              return synapseSequencePath;
-          }
-          return "";
-      });
-  }
+            const workspaceFolder = workspace.workspaceFolders;
+            if (workspaceFolder) {
+                const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
+                const synapseSequencePath = findSynapseSequencePath(workspaceFolderPath);
+                return synapseSequencePath;
+            }
+            return "";
+        });
+    }
 
-  async createSequence(params: CreateSequenceRequest): Promise<CreateSequenceResponse> {
-      return new Promise(async (resolve) => {
-          const { directory, name, endpoint, onErrorSequence } = params;
+    async createSequence(params: CreateSequenceRequest): Promise<CreateSequenceResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, name, endpoint, onErrorSequence } = params;
 
-          let endpointAttributes = ``;
-          let errorSequence = ``;
-          if (endpoint) {
-              endpointAttributes = `<send>
+            let endpointAttributes = ``;
+            let errorSequence = ``;
+            if (endpoint) {
+                endpointAttributes = `<send>
           <endpoint key="${endpoint.replace(".xml", "")}"/>
       </send>`;
-          }
+            }
 
-          if (onErrorSequence) {
-              errorSequence = `onError="${onErrorSequence}"`;
-          }
+            if (onErrorSequence) {
+                errorSequence = `onError="${onErrorSequence}"`;
+            }
 
-          const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
+            const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
 <sequence name="${name}" ${errorSequence} trace="disable" xmlns="http://ws.apache.org/ns/synapse">
   ${endpointAttributes}
 </sequence>`;
 
-          const filePath = path.join(directory, `${name}.xml`);
-          fs.writeFileSync(filePath, xmlData);
-          resolve({ filePath: filePath });
-      });
-  }
+            const filePath = path.join(directory, `${name}.xml`);
+            fs.writeFileSync(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ filePath: filePath });
+        });
+    }
 
-  async applyEdit(params: ApplyEditRequest): Promise<ApplyEditResponse> {
-      return new Promise(async (resolve) => {
-          const edit = new WorkspaceEdit();
-          let document = workspace.textDocuments.find(doc => doc.uri.fsPath === params.documentUri);
+    async applyEdit(params: ApplyEditRequest): Promise<ApplyEditResponse> {
+        return new Promise(async (resolve) => {
+            const edit = new WorkspaceEdit();
+            let document = workspace.textDocuments.find(doc => doc.uri.fsPath === params.documentUri);
 
-          if (!document) {
-              document = await workspace.openTextDocument(Uri.parse(params.documentUri));
-          }
+            if (!document) {
+                document = await workspace.openTextDocument(Uri.parse(params.documentUri));
+            }
 
-          const range = new Range(new Position(params.range.start.line, params.range.start.character),
-              new Position(params.range.end.line, params.range.end.character));
-          const startLine = document.lineAt(range.start.line).text;
-          const startLineIndentation = startLine.match(/^\s*/);
-          const endLine = document.lineAt(range.end.line).text;
-          const endLineIndentation = endLine.match(/^\s*/);
+            const range = new Range(new Position(params.range.start.line, params.range.start.character),
+                new Position(params.range.end.line, params.range.end.character));
+            const startLine = document.lineAt(range.start.line).text;
+            const startLineIndentation = startLine.match(/^\s*/);
+            const endLine = document.lineAt(range.end.line).text;
+            const endLineIndentation = endLine.match(/^\s*/);
 
-          const sIndentation = startLineIndentation ? startLineIndentation[0] : "";
-          const eIndentation = endLineIndentation ? endLineIndentation[0] : "";
-          const textEmpty = params.text.trim().length === 0;
-          const textBefore = startLine.substring(0, range.start.character).trim();
-          const textAfter = endLine.substring(range.end.character).trim();
-          let text = params.text;
-          if (!textEmpty) {
-              text = `${textBefore.length > 0 ? "\n" + sIndentation : ""}${params.text.replace(/\n/g, "\n" + sIndentation)}${textAfter.length > 0 ? "\n" + eIndentation : ""}`;
-          }
-          edit.replace(Uri.parse(params.documentUri), range, text);
-          await workspace.applyEdit(edit);
+            const sIndentation = startLineIndentation ? startLineIndentation[0] : "";
+            const eIndentation = endLineIndentation ? endLineIndentation[0] : "";
+            const textEmpty = params.text.trim().length === 0;
+            const textBefore = startLine.substring(0, range.start.character).trim();
+            const textAfter = endLine.substring(range.end.character).trim();
+            let text = params.text;
+            if (!textEmpty) {
+                text = `${textBefore.length > 0 ? "\n" + sIndentation : ""}${params.text.replace(/\n/g, "\n" + sIndentation)}${textAfter.length > 0 ? "\n" + eIndentation : ""}`;
+            }
+            edit.replace(Uri.parse(params.documentUri), range, text);
+            await workspace.applyEdit(edit);
 
-          const content = document.getText();
-          undoRedo.addModification(content);
+            const content = document.getText();
+            undoRedo.addModification(content);
 
-          resolve({ status: true });
-      });
-  }
+            resolve({ status: true });
+        });
+    }
 
-  closeWebView(): void {
-      if (VisualizerWebview.currentPanel) {
-          VisualizerWebview.currentPanel.dispose();
-      }
-  }
+    closeWebView(): void {
+        if (VisualizerWebview.currentPanel) {
+            VisualizerWebview.currentPanel.dispose();
+        }
+    }
 
     openFile(params: OpenDiagramRequest): void {
         const uri = Uri.file(params.path);
@@ -511,72 +515,72 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
-  async askProjectDirPath(): Promise<ProjectDirResponse> {
-      return new Promise(async (resolve) => {
-          const selectedDir = await askProjectPath();
-          if (!selectedDir || selectedDir.length === 0) {
-              window.showErrorMessage('A folder must be selected to create project');
-              resolve({ path: "" });
-          } else {
-              const parentDir = selectedDir[0].fsPath;
-              resolve({ path: parentDir });
-          }
-      });
-  }
+    async askProjectDirPath(): Promise<ProjectDirResponse> {
+        return new Promise(async (resolve) => {
+            const selectedDir = await askProjectPath();
+            if (!selectedDir || selectedDir.length === 0) {
+                window.showErrorMessage('A folder must be selected to create project');
+                resolve({ path: "" });
+            } else {
+                const parentDir = selectedDir[0].fsPath;
+                resolve({ path: parentDir });
+            }
+        });
+    }
 
-  async askFileDirPath(): Promise<FileDirResponse> {
-    return new Promise(async (resolve) => {
-        const selectedFile = await askFilePath();
-        if (!selectedFile || selectedFile.length === 0) {
-            window.showErrorMessage('A folder must be selected to create project');
-            resolve({ path: "" });
-        } else {
-            const parentDir = selectedFile[0].fsPath;
-            resolve({ path: parentDir });
-        }
-    });
-  }  
+    async askFileDirPath(): Promise<FileDirResponse> {
+        return new Promise(async (resolve) => {
+            const selectedFile = await askFilePath();
+            if (!selectedFile || selectedFile.length === 0) {
+                window.showErrorMessage('A folder must be selected to create project');
+                resolve({ path: "" });
+            } else {
+                const parentDir = selectedFile[0].fsPath;
+                resolve({ path: parentDir });
+            }
+        });
+    }
 
-  async createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {
-      return new Promise(async (resolve) => {
-          const { directory, name, open } = params;
+    async createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, name, open, groupID, artifactID } = params;
 
-          const folderStructure: FileStructure = {
-              [name]: { // Project folder
-                  'pom.xml': rootPomXmlContent(name),
-                  'src': {
-                      'main': {
-                          'wso2mi': {
-                              'artifacts': {
-                                  'apis': '',
-                                  'endpoints': '',
-                                  'inbound-endpoints': '',
-                                  'local-entries': '',
-                                  'message-processors': '',
-                                  'message-stores': '',
-                                  'proxy-services': '',
-                                  'sequences': '',
-                                  'tasks': '',
-                                  'templates': '',
-                                  'data-services': '',
-                                  'data-sources': '',
-                              },
-                              'resources': {
-                                  'metadata': '',
-                              },
-                          },
-                          'test': ''
-                      },
-                  },
-              },
-          };
+            const folderStructure: FileStructure = {
+                [name]: { // Project folder
+                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name),
+                    'src': {
+                        'main': {
+                            'wso2mi': {
+                                'artifacts': {
+                                    'apis': '',
+                                    'endpoints': '',
+                                    'inbound-endpoints': '',
+                                    'local-entries': '',
+                                    'message-processors': '',
+                                    'message-stores': '',
+                                    'proxy-services': '',
+                                    'sequences': '',
+                                    'tasks': '',
+                                    'templates': '',
+                                    'data-services': '',
+                                    'data-sources': '',
+                                },
+                                'resources': {
+                                    'metadata': '',
+                                },
+                            },
+                            'test': ''
+                        },
+                    },
+                },
+            };
 
-          createFolderStructure(directory, folderStructure);
+            createFolderStructure(directory, folderStructure);
 
-          window.showInformationMessage(`Successfully created ${name} project`);
-          const projectOpened = StateMachine.context().projectOpened;
+            window.showInformationMessage(`Successfully created ${name} project`);
+            const projectOpened = StateMachine.context().projectOpened;
 
-          if (open) {
+            if (open) {
 
                 if (projectOpened) {
                     const answer = await window.showInformationMessage(
@@ -600,34 +604,34 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         resolve({ filePath: path.join(directory, name) });
                     }
 
-              } else {
-                  commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
-                  resolve({ filePath: path.join(directory, name) });
-              }
-          }
+                } else {
+                    commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
+                    resolve({ filePath: path.join(directory, name) });
+                }
+            }
 
-          resolve({ filePath: path.join(directory, name) });
-      });
-  }
+            resolve({ filePath: path.join(directory, name) });
+        });
+    }
 
-  async getESBConfigs(): Promise<ESBConfigsResponse> {
-      return new Promise(async (resolve) => {
-          const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
-              workspace.workspaceFolders[0].uri.fsPath
-              : undefined;
+    async getESBConfigs(): Promise<ESBConfigsResponse> {
+        return new Promise(async (resolve) => {
+            const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
+                workspace.workspaceFolders[0].uri.fsPath
+                : undefined;
 
-          if (!!rootPath) {
-              const langClient = StateMachine.context().langClient!;
-              const resp = await langClient.getProjectStructure(rootPath);
+            if (!!rootPath) {
+                const langClient = StateMachine.context().langClient!;
+                const resp = await langClient.getProjectStructure(rootPath);
 
-              const ESBConfigs: string[] = [];
+                const ESBConfigs: string[] = [];
 
-              for (const esbConfig of resp.directoryMap.esbConfigs) {
-                  const config = esbConfig.name;
-                  ESBConfigs.push(config);
-              }
-              resolve({ data: ESBConfigs });
-          }
+                for (const esbConfig of resp.directoryMap.esbConfigs) {
+                    const config = esbConfig.name;
+                    ESBConfigs.push(config);
+                }
+                resolve({ data: ESBConfigs });
+            }
 
             resolve({ data: [] });
         });
@@ -655,139 +659,139 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
-  async getAIResponse(params: AIUserInput): Promise<string> {
-      let result = '';
-      try {
-          const response = await axios.post(MI_COPILOT_BACKEND_URL, {
-              chat_history: params.chat_history,
-          }, { responseType: 'stream' });
+    async getAIResponse(params: AIUserInput): Promise<string> {
+        let result = '';
+        try {
+            const response = await axios.post(MI_COPILOT_BACKEND_URL, {
+                chat_history: params.chat_history,
+            }, { responseType: 'stream' });
 
-          response.data.pipe(new Transform({
-              transform(chunk, encoding, callback) {
-                  const chunkAsString = chunk.toString();
-                  result += chunkAsString;
-                  callback();
-              }
-          }));
+            response.data.pipe(new Transform({
+                transform(chunk, encoding, callback) {
+                    const chunkAsString = chunk.toString();
+                    result += chunkAsString;
+                    callback();
+                }
+            }));
 
-          return new Promise((resolve, reject) => {
-              response.data.on('end', () => resolve(result));
-              response.data.on('error', (err: Error) => reject(err));
-          });
+            return new Promise((resolve, reject) => {
+                response.data.on('end', () => resolve(result));
+                response.data.on('error', (err: Error) => reject(err));
+            });
 
-      } catch (error) {
-          console.error('Error calling the AI endpoint:', error);
-          throw new Error('Failed to call AI endpoint');
-      }
-  }
+        } catch (error) {
+            console.error('Error calling the AI endpoint:', error);
+            throw new Error('Failed to call AI endpoint');
+        }
+    }
 
-  async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
-      let status = true;
-      //if file exists, overwrite if not, create new file and write content.  if successful, return true, else false
-      const { content, directoryPath } = params;
+    async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
+        let status = true;
+        //if file exists, overwrite if not, create new file and write content.  if successful, return true, else false
+        const { content, directoryPath } = params;
 
-      const length = content.length;
-      for (let i = 0; i < length; i++) {
-          //remove starting '''xml and ending '''
-          content[i] = content[i].replace(/```xml/g, '');
-          content[i] = content[i].replace(/```/g, '');
-          //name of file is in the code somewhere in the format name="example", extract the name
-          const match = content[i].match(/name="([^"]+)"/);
-          if (match) {
-              const name = match[1]; // get the name
-              //identify type of the file from the first tag of the content
-              const tagMatch = content[i].match(/<(\w+)/);
-              let fileType = '';
-              if (tagMatch) {
-                  const tag = tagMatch[1];
-                  switch (tag) {
-                      case 'api':
-                          fileType = 'api';
-                          break;
-                      case 'endpoint':
-                          fileType = 'endpoints';
-                          break;
-                      case 'sequence':
-                          fileType = 'sequences'
-                          break;
-                      default:
-                          fileType = '';
-                  }
-                  console.log("File type - ", fileType)
-              }
-              //write the content to a file, if file exists, overwrite else create new file
-              const fullPath = path.join(directoryPath, '/temp/tempConfigs/src/main/synapse-config/', fileType, '/', `${name}.xml`);
-              try {
-                  console.log('Writing content to file:', fullPath);
-                  console.log('Content:', content[i]);
-                  fs.writeFileSync(fullPath, content[i]);
+        const length = content.length;
+        for (let i = 0; i < length; i++) {
+            //remove starting '''xml and ending '''
+            content[i] = content[i].replace(/```xml/g, '');
+            content[i] = content[i].replace(/```/g, '');
+            //name of file is in the code somewhere in the format name="example", extract the name
+            const match = content[i].match(/name="([^"]+)"/);
+            if (match) {
+                const name = match[1]; // get the name
+                //identify type of the file from the first tag of the content
+                const tagMatch = content[i].match(/<(\w+)/);
+                let fileType = '';
+                if (tagMatch) {
+                    const tag = tagMatch[1];
+                    switch (tag) {
+                        case 'api':
+                            fileType = 'api';
+                            break;
+                        case 'endpoint':
+                            fileType = 'endpoints';
+                            break;
+                        case 'sequence':
+                            fileType = 'sequences'
+                            break;
+                        default:
+                            fileType = '';
+                    }
+                    console.log("File type - ", fileType)
+                }
+                //write the content to a file, if file exists, overwrite else create new file
+                const fullPath = path.join(directoryPath, '/temp/tempConfigs/src/main/synapse-config/', fileType, '/', `${name}.xml`);
+                try {
+                    console.log('Writing content to file:', fullPath);
+                    console.log('Content:', content[i]);
+                    fs.writeFileSync(fullPath, content[i]);
 
-              } catch (error) {
-                  console.error('Error writing content to file:', error);
-                  status = false;
-              }
-          }
-      }
+                } catch (error) {
+                    console.error('Error writing content to file:', error);
+                    status = false;
+                }
+            }
+        }
 
-      if (status) {
-          window.showInformationMessage('Content written to file successfully');
-          return { status: true };
-      } else {
-          return { status: false };
-      }
+        if (status) {
+            window.showInformationMessage('Content written to file successfully');
+            return { status: true };
+        } else {
+            return { status: false };
+        }
 
 
-  }
-  async highlightCode(params: HighlightCodeRequest) {
-      const documentUri = StateMachine.context().documentUri;
-      const editor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
-      if (editor) {
-          const range = new Range(params.range.start.line, params.range.start.character, params.range.end.line, params.range.end.character);
-          editor.selection = new Selection(range.start, range.end);
-          editor.revealRange(range);
-      }
-  }
+    }
+    async highlightCode(params: HighlightCodeRequest) {
+        const documentUri = StateMachine.context().documentUri;
+        const editor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
+        if (editor) {
+            const range = new Range(params.range.start.line, params.range.start.character, params.range.end.line, params.range.end.character);
+            editor.selection = new Selection(range.start, range.end);
+            editor.revealRange(range);
+        }
+    }
 
-  async undo(params: UndoRedoParams): Promise<void> {
-      const lastsource = undoRedo.undo();
-      if (lastsource) {
-          fs.writeFileSync(params.path, lastsource);
-      }
-  }
+    async undo(params: UndoRedoParams): Promise<void> {
+        const lastsource = undoRedo.undo();
+        if (lastsource) {
+            fs.writeFileSync(params.path, lastsource);
+        }
+    }
 
-  async redo(params: UndoRedoParams): Promise<void> {
-      const lastsource = undoRedo.redo();
-      if (lastsource) {
-          fs.writeFileSync(params.path, lastsource);
-      }
-  }
+    async redo(params: UndoRedoParams): Promise<void> {
+        const lastsource = undoRedo.redo();
+        if (lastsource) {
+            fs.writeFileSync(params.path, lastsource);
+        }
+    }
 
-  async initUndoRedoManager(params: UndoRedoParams): Promise<void> {
-      let document = workspace.textDocuments.find(doc => doc.uri.fsPath === params.path);
+    async initUndoRedoManager(params: UndoRedoParams): Promise<void> {
+        let document = workspace.textDocuments.find(doc => doc.uri.fsPath === params.path);
 
-      if (!document) {
-          document = await workspace.openTextDocument(Uri.parse(params.path));
-      }
+        if (!document) {
+            document = await workspace.openTextDocument(Uri.parse(params.path));
+        }
 
-      if (document) {
-          // Access the content of the document
-          const content = document.getText();
-          undoRedo.updateContent(params.path, content);
-      }
-  }
+        if (document) {
+            // Access the content of the document
+            const content = document.getText();
+            undoRedo.updateContent(params.path, content);
+        }
+    }
 
-  async getDefinition(params: GetDefinitionRequest): Promise<GetDefinitionResponse> {
-      return new Promise(async (resolve) => {
-          const langClient = StateMachine.context().langClient!;
-          const definition = await langClient.getDefinition(params);
+    async getDefinition(params: GetDefinitionRequest): Promise<GetDefinitionResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const definition = await langClient.getDefinition(params);
 
-          resolve(definition);
-      });
-  }
+            resolve(definition);
+        });
+    }
 
-  async getTextAtRange(params: GetTextAtRangeRequest): Promise<GetTextAtRangeResponse> {
-      return new Promise(async (resolve) => {
-          const file = fs.readFileSync(params.documentUri, "utf8");
+    async getTextAtRange(params: GetTextAtRangeRequest): Promise<GetTextAtRangeResponse> {
+        return new Promise(async (resolve) => {
+            const file = fs.readFileSync(params.documentUri, "utf8");
 
             const start = params.range.start;
             const end = params.range.end;
@@ -813,20 +817,20 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 }
 
 export async function askProjectPath() {
-  return await window.showOpenDialog({
-      canSelectFiles: false,
-      canSelectFolders: true,
-      canSelectMany: false,
-      defaultUri: Uri.file(os.homedir()),
-      title: "Select a folder to create the Project"
-  });
+    return await window.showOpenDialog({
+        canSelectFiles: false,
+        canSelectFolders: true,
+        canSelectMany: false,
+        defaultUri: Uri.file(os.homedir()),
+        title: "Select a folder to create the Project"
+    });
 }
 export async function askFilePath() {
-  return await window.showOpenDialog({
-    canSelectFiles: true,
-    canSelectFolders: false,
-    canSelectMany: false,
-    defaultUri: Uri.file(os.homedir()),
-    title: "Select a file",
-  });
+    return await window.showOpenDialog({
+        canSelectFiles: true,
+        canSelectFolders: false,
+        canSelectMany: false,
+        defaultUri: Uri.file(os.homedir()),
+        title: "Select a file",
+    });
 }

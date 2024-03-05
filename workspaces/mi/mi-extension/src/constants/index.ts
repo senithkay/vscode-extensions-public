@@ -19,4 +19,5 @@ export const COMMANDS = {
     FOCUS_PROJECT_EXPLORER: 'MI.project-explorer.focus',
     OPEN_SERVICE_DESIGNER: 'MI.project-explorer.open-service-designer',
     OPEN_SERVICE_DESIGNER_BESIDE: 'MI.project-explorer.open-service-designer-beside',
+    OPEN_PROJECT_OVERVIEW: 'MI.project-explorer.open-project-overview',
 };
