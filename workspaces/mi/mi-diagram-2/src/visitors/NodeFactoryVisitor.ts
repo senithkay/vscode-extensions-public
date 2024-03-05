@@ -57,7 +57,7 @@ export class NodeFactoryVisitor implements Visitor {
         diagramNode.setPosition(node.viewState.x, node.viewState.y);
 
         // create link
-        if (this.previousSTNodes != undefined) {
+        if (this.previousSTNodes && this.previousSTNodes.length > 0) {
             for (let i = 0; i < this.previousSTNodes.length; i++) {
                 const previousStNode = this.previousSTNodes[i];
                 const previousNodes = this.nodes.filter((node) => node.getStNode() == previousStNode);
@@ -186,24 +186,25 @@ export class NodeFactoryVisitor implements Visitor {
     }
     endVisitInSequence(node: Sequence): void {
         node.viewState.y = node.viewState.fh + NODE_GAP.Y;
-        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.endTagRange.end);
+        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE);
         this.parents.pop();
         this.previousSTNodes = [node];
     }
 
     beginVisitOutSequence(node: Sequence): void {
         const addPosition = {
-            line: node.range.startTagRange.end.line,
+            line: node.range.startTagRange.start.line,
             character: node.range.startTagRange.end.character
         }
         this.currentAddPosition = addPosition;
         this.createNodeAndLinks(node, "", NodeTypes.START_NODE);
+        this.currentAddPosition = addPosition;
         this.parents.push(node);
     }
     endVisitOutSequence(node: Sequence): void {
         const lastNode = this.nodes[this.nodes.length - 1].getStNode();
         node.viewState.y = lastNode.viewState.y + Math.max(lastNode.viewState.h, lastNode.viewState.fh || 0) + NODE_GAP.Y;
-        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.endTagRange.end);
+        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE);
         this.parents.pop();
         this.previousSTNodes = undefined;
     }
@@ -220,7 +221,7 @@ export class NodeFactoryVisitor implements Visitor {
     endVisitFaultSequence(node: Sequence): void {
         const lastNode = this.nodes[this.nodes.length - 1].getStNode();
         node.viewState.y = lastNode.viewState.y + Math.max(lastNode.viewState.h, lastNode.viewState.fh || 0) + NODE_GAP.Y;
-        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.endTagRange.end);
+        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE);
         this.parents.pop();
         this.previousSTNodes = undefined;
     }
