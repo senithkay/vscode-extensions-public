@@ -13,6 +13,7 @@ import { getNodeIdFromModel } from "../../utils/node";
 import { NodePortModel } from "../NodePort/NodePortModel";
 import { NodeTypes } from "../../resources/constants";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { Diagnostic } from "vscode-languageserver-types";
 
 export class BaseNodeModel extends NodeModel {
     readonly stNode: STNode;
@@ -22,7 +23,7 @@ export class BaseNodeModel extends NodeModel {
     protected prevNodes: STNode[];
     readonly documentUri: string;
 
-    constructor(type: NodeTypes, documentUri:string, stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
+    constructor(type: NodeTypes, documentUri: string, stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode),
             type: type,
@@ -80,5 +81,13 @@ export class BaseNodeModel extends NodeModel {
         visualizerContext.rpcClient.getMiDiagramRpcClient().highlightCode({
             range: { start: this.stNode.range.startTagRange.start, end: this.stNode.range.endTagRange.end || this.stNode.range.startTagRange.end },
         });
+    }
+
+    hasDiagnotics(): boolean {
+        return this.stNode.diagnostics !== undefined && this.stNode.diagnostics.length > 0;
+    }
+
+    getDiagnostics(): Diagnostic[] {
+        return this.stNode.diagnostics || [];
     }
 }

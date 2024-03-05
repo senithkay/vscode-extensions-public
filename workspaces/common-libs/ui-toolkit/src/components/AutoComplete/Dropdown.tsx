@@ -22,12 +22,13 @@ export interface ComboboxOptionProps {
 
 export interface DropdownContainerProps {
     widthOffset?: number;
+    dropdownWidth?: number;
 }
 
-const DropdownContainer: React.FC<any> = styled.div`
+const DropdownContainer: React.FC<DropdownContainerProps> = styled.div`
     position: absolute;
     max-height: 100px;
-    width: ${(props: DropdownContainerProps) => `calc(var(--input-min-width) + ${props.widthOffset}px)`};
+    width: ${(props: DropdownContainerProps) => `${props.dropdownWidth}px`};
     overflow: auto;
     background-color: var(--vscode-editor-background);
     color: var(--vscode-editor-foreground);
@@ -92,12 +93,13 @@ export interface DropdownProps {
     query: string;
     filteredResults: string[];
     notItemsFoundMessage?: string;
+    dropdownWidth?: number;
     widthOffset?: number;
     onQueryChange: (query: string) => void;
 }
 
 export function Dropdown(props: DropdownProps) {
-    const { query, filteredResults, notItemsFoundMessage, widthOffset = 108, onQueryChange } = props;
+    const { query, filteredResults, notItemsFoundMessage, dropdownWidth, widthOffset = 108, onQueryChange } = props;
 
     const handleQueryChange = (q: string) => {
         onQueryChange(q);
@@ -115,7 +117,7 @@ export function Dropdown(props: DropdownProps) {
             as={Fragment}
             afterLeave={handleAfterLeave}
         >
-            <DropdownContainer widthOffset={widthOffset}>
+            <DropdownContainer widthOffset={widthOffset} dropdownWidth={dropdownWidth}>
                 <Combobox.Options>
                     {filteredResults.length === 0 && query !== '' ? (
                         <NothingFound>

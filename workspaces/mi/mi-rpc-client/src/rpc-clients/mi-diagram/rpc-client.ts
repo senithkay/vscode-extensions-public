@@ -33,6 +33,10 @@ import {
     EndpointsAndSequencesResponse,
     GetDefinitionRequest,
     GetDefinitionResponse,
+    GetDiagnosticsReqeust,
+    GetDiagnosticsResponse,
+    GetInboundEpDirRequest,
+    GetProjectRootRequest,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
     HighlightCodeRequest,
@@ -61,6 +65,7 @@ import {
     getConnector,
     getConnectors,
     getDefinition,
+    getDiagnostics,
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
@@ -71,6 +76,7 @@ import {
     getSequenceDirectory,
     getSyntaxTree,
     getTextAtRange,
+    getWorkspaceRoot,
     highlightCode,
     initUndoRedoManager,
     openDiagram,
@@ -146,8 +152,8 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(createSequence, HOST_EXTENSION, params);
     }
 
-    getInboundEndpointDirectory(): Promise<InboundEndpointDirectoryResponse> {
-        return this._messenger.sendRequest(getInboundEndpointDirectory, HOST_EXTENSION);
+    getInboundEndpointDirectory(params: GetInboundEpDirRequest): Promise<InboundEndpointDirectoryResponse> {
+        return this._messenger.sendRequest(getInboundEndpointDirectory, HOST_EXTENSION, params);
     }
 
     createInboundEndpoint(params: CreateInboundEndpointRequest): Promise<CreateInboundEndpointResponse> {
@@ -170,8 +176,12 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendNotification(closeWebViewNotification, HOST_EXTENSION);
     }
 
-    getProjectRoot(): Promise<ProjectRootResponse> {
-        return this._messenger.sendRequest(getProjectRoot, HOST_EXTENSION);
+    getWorkspaceRoot(): Promise<ProjectRootResponse> {
+        return this._messenger.sendRequest(getWorkspaceRoot, HOST_EXTENSION);
+    }
+
+    getProjectRoot(params: GetProjectRootRequest): Promise<ProjectRootResponse> {
+        return this._messenger.sendRequest(getProjectRoot, HOST_EXTENSION, params);
     }
 
     askProjectDirPath(): Promise<ProjectDirResponse> {
@@ -212,5 +222,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getTextAtRange(params: GetTextAtRangeRequest): Promise<GetTextAtRangeResponse> {
         return this._messenger.sendRequest(getTextAtRange, HOST_EXTENSION, params);
+    }
+
+    getDiagnostics(params: GetDiagnosticsReqeust): Promise<GetDiagnosticsResponse> {
+        return this._messenger.sendRequest(getDiagnostics, HOST_EXTENSION, params);
     }
 }

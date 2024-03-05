@@ -12,6 +12,7 @@ import { MILanguageClient } from '../lang-client/activator';
 import { ProjectStructureResponse, ProjectStructureEntry } from '@wso2-enterprise/mi-core';
 import { COMMANDS } from '../constants';
 import { window } from 'vscode';
+import path = require('path');
 
 export class ProjectExplorerEntry extends vscode.TreeItem {
 	children: ProjectExplorerEntry[] | undefined;
@@ -146,6 +147,7 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 		if (artifacts) {
 			for (const key in artifacts) {
 
+				artifacts[key].path = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'artifacts', key);
 				let icon = 'folder';
 				let label = key;
 
@@ -208,7 +210,7 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 				const parentEntry = new ProjectExplorerEntry(
 					label,
 					isCollapsibleState(artifacts[key].length > 0),
-					undefined,
+					artifacts[key],
 					icon
 				);
 				const children = genProjectStructureEntry(artifacts[key]);
@@ -236,7 +238,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 	for (const entry of data) {
 		let explorerEntry;
 
-		if (entry.resources) {
+		if (entry.type === 'API' && entry.resources) {
 			const apiEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(true), entry, 'code');
 			apiEntry.contextValue = 'api';
 			apiEntry.iconPath = new vscode.ThemeIcon('notebook-open-as-text');
@@ -259,6 +261,14 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			}
 			explorerEntry = apiEntry;
 
+		} else if (entry.type === "SEQUENCE") {
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			explorerEntry.contextValue = 'sequence';
+			explorerEntry.command = {
+				"title": "Show Diagram",
+				"command": COMMANDS.SHOW_DIAGRAM,
+				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+			};
 		} else {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 		}

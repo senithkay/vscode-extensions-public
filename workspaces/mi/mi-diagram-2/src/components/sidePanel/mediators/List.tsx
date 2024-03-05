@@ -36,6 +36,10 @@ export function Mediators(props: MediatorProps) {
     });
 
     const setContent = (content: any) => {
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            title: `${sidePanelContext.isEditing ? "Edit" : "Add"} ${content.title}`,
+        });
         props.setContent(content.form);
     }
 

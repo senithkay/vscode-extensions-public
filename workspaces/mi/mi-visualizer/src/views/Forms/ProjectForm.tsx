@@ -61,7 +61,7 @@ export function ProjectWizard() {
 
     useEffect(() => {
         (async () => {
-            const currentDir = await rpcClient.getMiDiagramRpcClient().getProjectRoot();
+            const currentDir = await rpcClient.getMiDiagramRpcClient().getWorkspaceRoot();
             setProjectDir(currentDir.path);
         })();
 

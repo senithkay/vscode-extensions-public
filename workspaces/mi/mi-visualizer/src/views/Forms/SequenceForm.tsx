@@ -43,7 +43,11 @@ export interface Region {
     value: string;
 }
 
-export function SequenceWizard() {
+export interface SequenceWizardProps {
+    path: string;
+}
+
+export function SequenceWizard(props: SequenceWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
     const [sequenceName, setSequenceName] = useState("");
@@ -82,7 +86,7 @@ export function SequenceWizard() {
     };
 
     const handleCreateProject = async () => {
-        const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot()).path;
+        const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({path: props.path})).path;
         const sequenceDir = `${projectDir}/src/main/wso2mi/artifacts/sequences`;
         const createSequenceParams = {
             name: sequenceName,

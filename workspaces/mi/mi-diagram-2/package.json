@@ -37,7 +37,8 @@
         "mousetrap": "~1.6.5",
         "@types/mousetrap": "~1.6.15",
         "@types/node": "~20.11.19",
-        "copyfiles": "~2.4.1"
+        "copyfiles": "~2.4.1",
+        "vscode-languageserver-types": "~3.17.5"
     },
     "devDependencies": {
         "@storybook/react": "^6.3.7",
