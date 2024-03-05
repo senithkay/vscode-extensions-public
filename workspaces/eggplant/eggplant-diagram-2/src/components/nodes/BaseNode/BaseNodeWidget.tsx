@@ -12,9 +12,10 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { BaseNodeModel } from "./BaseNodeModel";
 import { Colors, NODE_HEIGHT, NODE_WIDTH } from "../../../resources/constants";
-import { Button, TextField, TypeSelector } from "@wso2-enterprise/ui-toolkit";
+import { Button, Dropdown, TextField, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
-import { Node } from "../../../utils/types";
+import { Expression, Node, NodePropertyKey } from "../../../utils/types";
+import { generateEditor } from "../../editors/EditorFactory";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -90,6 +91,10 @@ export namespace NodeStyles {
         align-items: center;
         width: 100%;
     `;
+
+    export const Hr = styled.hr`
+        width: 100%;
+    `;
 }
 
 interface BaseNodeWidgetProps {
@@ -109,6 +114,33 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
         onClick && onClick(model.node);
     };
 
+    const handleOnChange = (key: NodePropertyKey, expression: Expression) => {
+        model.node.nodeProperties[key] = expression;
+    };
+
+    const id = model.node.id;
+    const required:React.JSX.Element[] = [];
+    const opt:React.JSX.Element[] = [];
+    let index = 0;
+    for (const [key, expression] of Object.entries(model.node.nodeProperties)) {
+        const el  = (
+            <NodeStyles.Row key={key}>
+                <Tooltip
+                    content={expression.documentation}
+                    sx={{
+                        fontFamily: "GilmerRegular",
+                        fontSize: "12px",
+                    }}
+                >
+                    <NodeStyles.StyledText>{expression.label}</NodeStyles.StyledText>
+                </Tooltip>
+                {generateEditor(key, expression, id, index++, handleOnChange.bind(null, key as NodePropertyKey))}
+            </NodeStyles.Row>
+        );
+        (expression.optional ? opt : required).push(el);
+    }
+
+
     return (
         <NodeStyles.Node
             selected={model.isSelected()}
@@ -125,6 +157,9 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
             </NodeStyles.Header>
             {/* todo: generate dynamic form with node attributes */}
             <NodeStyles.Body>
+                {required}
+                {opt.length > 0 && <NodeStyles.Hr />}
+                {opt}
                 {children}
             </NodeStyles.Body>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
