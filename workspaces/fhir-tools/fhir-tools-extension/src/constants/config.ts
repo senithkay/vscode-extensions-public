@@ -74,9 +74,7 @@ function updateConfigs() {
     let CONSUMER_SECRET = vscode.workspace
         .getConfiguration()
         .get('fhir-tools.consumerSecret') as string;
-    let APIKEY_USER = Buffer.from(
-        `${CONSUMER_KEY}:${CONSUMER_SECRET}`,
-    ).toString('base64');
+    let APIKEY_USER = `${CONSUMER_KEY}:${CONSUMER_SECRET}`;
     let ENABLE_AUTHORIZATION_USER = vscode.workspace
         .getConfiguration()
         .get('fhir-tools.enableAuthorization') as boolean;

@@ -17,6 +17,7 @@
   "dependencies": {
     "@wso2-enterprise/fhir-tools-core": "workspace:*",
     "@wso2-enterprise/fhir-tools-rpc-client": "workspace:*",
+    "@wso2-enterprise/ui-toolkit": "workspace:*",
     "@emotion/css": "^11.10.5",
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.11.0",

@@ -8,8 +8,7 @@
  */
 
 import { StatusMessage } from "./StyledComp";
-import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
-import { Codicon } from '../Codicon/Codicon';
+import { Codicon, Button } from "@wso2-enterprise/ui-toolkit";
 import { RpcClient } from "@wso2-enterprise/fhir-tools-rpc-client/lib/RpcClient";
 
 export function Retry({ errorMessage, rpcClient }:{errorMessage: string, rpcClient: RpcClient}) {
@@ -25,9 +24,10 @@ export function Retry({ errorMessage, rpcClient }:{errorMessage: string, rpcClie
         Error: {errorMessage}
       </div>
 
-      <VSCodeButton onClick={reTry}>
-        <Codicon name="refresh" /> Retry
-      </VSCodeButton>
+      <Button onClick={reTry} appearance="primary" tooltip="Refresh">
+        <Codicon name="refresh" sx={{ marginRight: 5, padding:2 }}  onClick={reTry}/>
+        Retry
+      </Button>
     </StatusMessage>
   );
 }

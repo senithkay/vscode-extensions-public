@@ -7,12 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { StatusMessage, SmallProgressRing } from "./StyledComp";
+import { StatusMessage } from "./StyledComp";
+import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 export function Loading() {
     return (
         <StatusMessage>
-            <SmallProgressRing />
+            <ProgressRing sx={{height:20, width:20}} />
             <div>Transforming into FHIR resource, Please wait ...</div>
         </StatusMessage>
     );
