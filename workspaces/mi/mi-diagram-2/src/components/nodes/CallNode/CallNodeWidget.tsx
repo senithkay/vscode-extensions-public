@@ -107,7 +107,7 @@ namespace S {
     export const EndpointTextWrapper = styled.div`
         position: absolute;
         left: 150px;
-        top: 65px;
+        top: 45px;
         width: 100px;
         text-align: center;
         color: ${Colors.ON_SURFACE};
