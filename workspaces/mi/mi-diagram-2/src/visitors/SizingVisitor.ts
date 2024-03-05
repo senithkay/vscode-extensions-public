@@ -85,17 +85,24 @@ export class SizingVisitor implements Visitor {
     }
 
     isInRange(nodeRange: TagRange, diagnosticRange: Range) {
-        if (!nodeRange?.startTagRange?.start || !nodeRange?.endTagRange?.end || !diagnosticRange?.start || !diagnosticRange?.end || !diagnosticRange?.start?.line || !diagnosticRange?.end?.line) {
+        if (!nodeRange?.startTagRange?.start || !nodeRange?.startTagRange?.end || !diagnosticRange?.start) {
             return false;
         }
         const isMatchStart = (diagnosticRange.start.line === nodeRange.startTagRange.start.line &&
             diagnosticRange.start.character >= nodeRange.startTagRange.start.character) ||
             diagnosticRange.start.line > nodeRange.startTagRange.start.line;
 
-        const isMatchEnd = (diagnosticRange.end.line === nodeRange.endTagRange.end.line &&
-            diagnosticRange.end.character <= nodeRange.endTagRange.end.character) ||
-            diagnosticRange.end.line < nodeRange.endTagRange.end.line;
-
+        let isMatchEnd;
+        if (nodeRange.endTagRange && nodeRange.endTagRange.start && nodeRange.endTagRange.end) {
+            isMatchEnd = (diagnosticRange.end.line === nodeRange.endTagRange.end.line &&
+                diagnosticRange.end.character <= nodeRange.endTagRange.end.character) ||
+                diagnosticRange.end.line < nodeRange.endTagRange.end.line;
+        }
+        else {
+            isMatchEnd = (diagnosticRange.end.line === nodeRange.startTagRange.end.line &&
+                diagnosticRange.end.character <= nodeRange.startTagRange.end.character) ||
+                diagnosticRange.end.line < nodeRange.startTagRange.end.line;
+        }
         return isMatchStart && isMatchEnd;
     }
 
