@@ -103,7 +103,7 @@ const resource: Resource = {
         endColumn: 0,
         endLine: 0
     },
-    additionalInfo: (
+    addtionalInfo: (
         <Typography variant="h3">Add additional information here...</Typography>
     )
 };

@@ -8,7 +8,7 @@
  */
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, Icon, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { AccordionTable } from '../AccordionTable/AccordionTable';
 import { Resource } from '../../definitions';
@@ -23,6 +23,11 @@ type ContainerProps = {
     borderColor?: string;
 };
 
+type HeaderProps = {
+    expandable?: boolean;
+    supportImplement?: boolean;
+}
+
 const AccordionContainer = styled.div<ContainerProps>`
     margin-top: 10px;
     overflow: hidden;
@@ -33,12 +38,22 @@ const AccordionContainer = styled.div<ContainerProps>`
     }
 `;
 
-const AccordionHeader = styled.div`
+const AccordionHeader = styled.div<HeaderProps>`
     padding: 10px;
-    cursor: pointer;
+    cursor: ${({ expandable }: HeaderProps) => expandable ? "pointer" : "default"};
+    display: grid;
+    grid-template-columns: ${({ supportImplement }: HeaderProps) => supportImplement ? "3fr 1fr 1fr" : "3fr 1fr"};
+`;
+
+const LinkButtonWrapper = styled.div`
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+    height: 100%;
+
+    :active {
+        border: 1px solid var(--vscode-inputOption-activeBorder);
+    }
 `;
 
 const ButtonWrapper = styled.div`
@@ -66,7 +81,7 @@ const MethodBox = styled.div<MethodProp>`
 
 const MethodSection = styled.div`
     display: flex;
-    justify-content: space-between;
+    gap: 4px;
 `;
 
 type ButtonSectionProps = {
@@ -75,8 +90,9 @@ type ButtonSectionProps = {
 
 const ButtonSection = styled.div<ButtonSectionProps>`
     display: flex;
-    justify-content: space-between;
-    width: ${(p: ButtonSectionProps) => p.isExpanded ? 120 : 90};;
+    align-items: center;
+    margin-left: auto;
+    gap: ${(p: ButtonSectionProps) => p.isExpanded ? "8px" : "6px"};
 `;
 
 const AccordionContent = styled.div`
@@ -115,13 +131,15 @@ function getColorByMethod(method: string) {
 
 export interface ResourceAccordionProps {
     resource: Resource;
-    goToSource: (resource: Resource) =>  void;
-    onEditResource: (resource: Resource) => void;
+    goToSource?: (resource: Resource) =>  void;
+    onEditResource?: (resource: Resource) => void;
     onDeleteResource?: (resource: Resource) => void;
+    onResourceImplement?: (resource: Resource) => void;
 }
 
 const ResourceAccordion = (params: ResourceAccordionProps) => {
-    const { resource, goToSource, onEditResource, onDeleteResource } = params;
+    const { resource, goToSource, onEditResource, onDeleteResource, onResourceImplement } = params;
+    const { expandable = true } = resource;
     const [isOpen, setIsOpen] = useState(false);
     const [isConfirmOpen, setConfirmOpen] = useState(false);
 
@@ -177,9 +195,13 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
         setConfirmOpen(false);
     };
 
+    const handleResourceImplement = () => {
+        onResourceImplement(resource)
+    }
+
     return (
         <AccordionContainer>
-            <AccordionHeader onClick={toggleAccordion}>
+            <AccordionHeader supportImplement={!!onResourceImplement} onClick={toggleAccordion}>
                 <MethodSection>
                     {resource?.methods?.map((method, index) => {
                         return (
@@ -190,61 +212,85 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                     })}
                     <MethodPath>{resource?.path}</MethodPath>
                 </MethodSection>
-                <ButtonSection isExpanded={isOpen}>
-                    {isOpen ? (
+                {onResourceImplement && (
+                    <LinkButtonWrapper>
+                        <LinkButton onClick={handleResourceImplement}>
+                            <Typography variant="h4">Implement</Typography>
+                            <Codicon name="arrow-right" />
+                        </LinkButton>
+                    </LinkButtonWrapper>
+                )}
+                <ButtonSection isExpanded={expandable && isOpen}>
+                    {expandable && isOpen ? (
                         <>
-                            <ButtonWrapper>
-                                <VSCodeButton appearance="icon" title="Show Diagram" onClick={handleShowDiagram}>
-                                    <Icon name='design-view' />
-                                </VSCodeButton>
-                                <>
-                                    Diagram
-                                </>
-                            </ButtonWrapper>
-                            <ButtonWrapper>
-                                <VSCodeButton appearance="icon" title="Edit Resource" onClick={handleEditResource}>
-                                    <Icon name="editIcon" />
-                                </VSCodeButton>
-                                <>
-                                    Edit
-                                </>
-                            </ButtonWrapper>
-                            <ButtonWrapper>
-                                <VSCodeButton appearance="icon" title="Delete Resource" onClick={handleDeleteResource}>
-                                    <Icon name="delete" />
-                                </VSCodeButton>
-                                <>
-                                    Delete
-                                </>
-                            </ButtonWrapper>
+                            {goToSource && (
+                                <ButtonWrapper>
+                                    <VSCodeButton appearance="icon" title="Show Diagram" onClick={handleShowDiagram}>
+                                        <Icon name='design-view' />
+                                    </VSCodeButton>
+                                    <>
+                                        Diagram
+                                    </>
+                                </ButtonWrapper>
+                            )}
+                            {onEditResource && (
+                                <ButtonWrapper>
+                                    <VSCodeButton appearance="icon" title="Edit Resource" onClick={handleEditResource}>
+                                        <Icon name="editIcon" />
+                                    </VSCodeButton>
+                                    <>
+                                        Edit
+                                    </>
+                                </ButtonWrapper>
+                            )}
+                            {onDeleteResource && (
+                                <ButtonWrapper>
+                                    <VSCodeButton appearance="icon" title="Delete Resource" onClick={handleDeleteResource}>
+                                        <Icon name="delete" />
+                                    </VSCodeButton>
+                                    <>
+                                        Delete
+                                    </>
+                                </ButtonWrapper>
+                            )}
                         </>
                     ) : (
                         <>
-                            <VSCodeButton appearance="icon" title="Show Diagram" onClick={handleShowDiagram}>
-                                <Icon name='design-view' />
-                            </VSCodeButton>
-                            <VSCodeButton appearance="icon" title="Edit Resource" onClick={handleEditResource}>
-                                <Icon name="editIcon" />
-                            </VSCodeButton>
-                            <VSCodeButton appearance="icon" title="Delete Resource" onClick={handleDeleteResource}>
-                                <Icon name="delete" />
-                            </VSCodeButton>
+                            {goToSource && (
+                                <VSCodeButton appearance="icon" title="Show Diagram" onClick={handleShowDiagram}>
+                                    <Icon name='design-view' />
+                                </VSCodeButton>
+                            )}
+                            {onEditResource && (
+                                <VSCodeButton appearance="icon" title="Edit Resource" onClick={handleEditResource}>
+                                    <Icon name="editIcon" />
+                                </VSCodeButton>
+                            )}
+                            {onDeleteResource && (
+                                <VSCodeButton appearance="icon" title="Delete Resource" onClick={handleDeleteResource}>
+                                    <Icon name="delete" />
+                                </VSCodeButton>
+                            )}
                         </>
                     )}
 
-                    {isOpen ? 
-                        <Codicon
-                            sx={{"&:hover": {"backgroundColor": "var(--button-icon-hover-background)"}}}
-                            name="chevron-up" 
-                        /> : 
-                        <Codicon
-                            name="chevron-down"
-                            sx={{"&:hover": {"backgroundColor": "var(--button-icon-hover-background)"}}}
-                        />
+                    {expandable ?
+                        isOpen ? (
+                            <Codicon
+                                sx={{"&:hover": {"backgroundColor": "var(--button-icon-hover-background)"}}}
+                                name="chevron-up" 
+                            />
+                        ) : ( 
+                            <Codicon
+                                name="chevron-down"
+                                sx={{"&:hover": {"backgroundColor": "var(--button-icon-hover-background)"}}}
+                            />
+                        )
+                        : undefined
                     }
                 </ButtonSection>
             </AccordionHeader>
-            {isOpen && (
+            {expandable && isOpen && (
                 <AccordionContent>
                     {resourceParams?.length > 0 &&
                         <AccordionTable key="params" titile="Parameters" headers={["Type", "Description"]} content={resourceParams} /> 
@@ -255,7 +301,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                     {responses.length > 0 &&
                         <AccordionTable key="responses" titile="Responses" headers={["Code", "Description"]} content={responses} />
                     }
-                    {resource?.additionalInfo && resource?.additionalInfo}
+                    {resource?.addtionalInfo && resource?.addtionalInfo}
                 </AccordionContent>
             )}
             <ConfirmDialog
