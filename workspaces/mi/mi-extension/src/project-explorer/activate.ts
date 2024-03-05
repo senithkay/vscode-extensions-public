@@ -25,7 +25,8 @@ export function activateProjectExplorer(context: ExtensionContext) {
 			{ label: 'API', description: 'Add new API' },
 			{ label: 'Endpoint', description: 'Add new endpoint' },
 			{ label: 'Sequence', description: 'Add new sequence' },
-			{ label: 'Inbound Endpoint', description: 'Add new inbound endpoint' }
+			{ label: 'Inbound Endpoint', description: 'Add new inbound endpoint' },
+			{ label: 'Local Entry', description: 'Add new local entry'}
 		], {
 			placeHolder: 'Select the construct to add'
 		}).then(selection => {
@@ -39,6 +40,8 @@ export function activateProjectExplorer(context: ExtensionContext) {
 				commands.executeCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND);
 			} else if (selection?.label === 'New Project') {
 				commands.executeCommand(COMMANDS.CREATE_PROJECT_COMMAND);
+			} else if (selection?.label === 'Local Entry') {
+				commands.executeCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND);
 			}
 		});
 
@@ -48,24 +51,29 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		console.log('Add API');
 	});
 
-	commands.registerCommand(COMMANDS.ADD_ENDPOINT_COMMAND, () => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.EndPointForm });
+	commands.registerCommand(COMMANDS.ADD_ENDPOINT_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.EndPointForm, documentUri:entry.info?.path });
 		console.log('Add Endpoint');
 	});
 
-	commands.registerCommand(COMMANDS.ADD_SEQUENCE_COMMAND, () => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceForm });
+	commands.registerCommand(COMMANDS.ADD_SEQUENCE_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceForm, documentUri:entry.info?.path });
 		console.log('Add Sequence');
 	});
 
-	commands.registerCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND, () => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.InboundEPForm });
+	commands.registerCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.InboundEPForm, documentUri:entry.info?.path });
 		console.log('Add Inbound API');
 	});
 
 	commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
 		console.log('Create New Project');
+	});
+
+	commands.registerCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND, () => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.LocalEntryForm });
+		console.log('Add Local Entry');
 	});
 
 	commands.registerCommand(COMMANDS.REVEAL_ITEM_COMMAND, async (viewLocation: VisualizerLocation) => {
@@ -102,7 +110,7 @@ export function activateProjectExplorer(context: ExtensionContext) {
 	// action items
 	commands.registerCommand(COMMANDS.SHOW_DIAGRAM, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Diagram, documentUri: documentUri.fsPath, identifier: resourceIndex });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Diagram, documentUri: documentUri?.fsPath, identifier: resourceIndex });
 	})
 	commands.registerCommand(COMMANDS.SHOW_SOURCE, (e: any) => {
 		const documentUri = StateMachine.context().documentUri;
@@ -115,6 +123,10 @@ export function activateProjectExplorer(context: ExtensionContext) {
 			}
 		}
 	})
+	commands.registerCommand(COMMANDS.OPEN_PROJECT_OVERVIEW, async (entry: ProjectExplorerEntry) => {
+		revealWebviewPanel(false);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+	});
 	commands.registerCommand(COMMANDS.OPEN_SERVICE_DESIGNER, async (entry: ProjectExplorerEntry) => {
 		revealWebviewPanel(false);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: entry.info?.path });
@@ -131,9 +143,10 @@ export function activateProjectExplorer(context: ExtensionContext) {
 
 function revealWebviewPanel(beside: boolean = true) {
 	if (!VisualizerWebview.currentPanel) {
-		VisualizerWebview.currentPanel = new VisualizerWebview(true);
+		VisualizerWebview.currentPanel = new VisualizerWebview(MACHINE_VIEW.Overview, true);
 		VisualizerWebview.currentPanel?.getWebview()?.reveal(beside ? ViewColumn.Beside : ViewColumn.One);
 	} else {
 		VisualizerWebview.currentPanel?.getWebview()?.reveal(beside ? ViewColumn.Beside : ViewColumn.Active);
 	}
 }
+

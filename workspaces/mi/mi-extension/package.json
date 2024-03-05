@@ -65,7 +65,7 @@
     "viewsWelcome": [
       {
         "view": "MI.project-explorer",
-        "contents": "Welcome to Micro Integrator. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:MI.openProject)\n[Create New Project](command:MI.show.diagramc)\nTo learn more about how to use Micro Integrator in VS Code [read our docs](https://ei.docs.wso2.com)."
+        "contents": "Welcome to Micro Integrator. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:MI.openProject)\n[Create New Project](command:MI.openWelcome)\nTo learn more about how to use Micro Integrator in VS Code [read our docs](https://ei.docs.wso2.com)."
       }
     ],
     "commands": [
@@ -101,6 +101,12 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.open-project-overview",
+        "title": "Open Project Overview",
+        "icon": "$(list-unordered)",
+        "when": "false"
+      },
+      {
         "command": "MI.project-explorer.open-service-designer",
         "title": "Open Service Designer",
         "icon": "$(design-view)",
@@ -128,6 +134,13 @@
       {
         "command": "MI.project-explorer.add-inbound-endpoint",
         "title": "Add Inbound Endpoint",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
+        "command": "MI.project-explorer.add-local-entry",
+        "title": "Add Local Entry",
         "icon": "$(add)",
         "group": "navigation",
         "category": "MI"
@@ -180,6 +193,11 @@
       ],
       "view/item/context": [
         {
+          "command": "MI.project-explorer.open-project-overview",
+          "when": "viewItem == project",
+          "group": "inline" 
+        },
+        {
           "command": "MI.project-explorer.add-api",
           "when": "view == MI.project-explorer && viewItem == apis",
           "group": "inline"
@@ -202,6 +220,11 @@
         {
           "command": "MI.project-explorer.add-inbound-endpoint",
           "when": "view == MI.project-explorer && viewItem == inboundEndpoints",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-local-entry",
+          "when": "view == MI.project-explorer && viewItem == localEntries",
           "group": "inline"
         }
       ]

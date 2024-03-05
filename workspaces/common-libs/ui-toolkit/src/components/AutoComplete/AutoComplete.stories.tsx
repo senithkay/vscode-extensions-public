@@ -13,6 +13,6 @@ import { AutoComplete, AutoCompleteProps } from "./AutoComplete";
 const Template: ComponentStory<typeof AutoComplete> = (args: AutoCompleteProps) => <div style={{ width: 300 }}><AutoComplete {...args} /></div>;
 
 export const Select = Template.bind();
-Select.args = { id: "autoComplete", label: "Words", nullable: false, onChange: (value: string) => { console.log(value); }, items: ["foo", "boo"] };
+Select.args = { id: "autoComplete", label: "Words", required: true, nullable: false, onChange: (value: string) => { console.log(value); }, items: ["foo", "boo"] };
 
 export default { component: Select, title: "AutoComplete" };
