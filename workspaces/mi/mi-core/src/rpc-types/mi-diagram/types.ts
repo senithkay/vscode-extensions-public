@@ -60,6 +60,34 @@ export interface CreateInboundEndpointResponse {
     path: string;
 }
 
+export interface CreateInboundEndpointRequest {
+    directory: string;
+    name: string;
+    type: string;
+    sequence: string;
+    errorSequence: string;
+}
+
+export interface CreateInboundEndpointResponse {
+    path: string;
+}
+
+export interface CreateLocalEntryRequest {
+    directory: string;
+    name: string;
+    type: string;
+    value: string;
+    URL: string;
+}
+export interface CreateLocalEntryResponse {
+    path: string;
+}
+export interface LocalEntryDirectoryResponse {
+    data: string;
+}
+export interface FileDirResponse{
+    path: string;
+}
 export interface CreateProjectRequest {
     directory: string;
     name: string;
