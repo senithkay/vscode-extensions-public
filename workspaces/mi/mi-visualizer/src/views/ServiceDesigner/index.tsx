@@ -40,7 +40,8 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
                     endLine: resource.range.endTagRange.end.line,
                     endColumn: resource.range.endTagRange.end.character
                 },
-                additionalInfo: getSequenceComponentView({
+                expandable: false,
+                addtionalInfo: getSequenceComponentView({
                     onOpenInSequence: () => rpcClient.getMiVisualizerRpcClient().openView({ 
                         type: EVENT_TYPE.OPEN_VIEW, 
                         location: { 
@@ -184,10 +185,9 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
             {serviceModel && (
                 <ServiceDesigner
                     model={serviceModel}
-                    goToSource={openDiagram}
                     onResourceAdd={handleResourceAdd}
-                    onResourceEdit={handleEditResource}
                     onResourceDelete={handleResourceDelete}
+                    onResourceImplement={openDiagram}
                 />
             )}
             <AddResourceForm
