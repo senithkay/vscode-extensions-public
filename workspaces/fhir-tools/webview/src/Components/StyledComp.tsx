@@ -8,7 +8,6 @@
  */
 
 import styled from "@emotion/styled";
-import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 
 export const StatusMessage = styled.div({
     display: "flex",
@@ -21,8 +20,3 @@ export const StatusMessage = styled.div({
     height: "90vh",
     fontSize: "16px"
 });
-
-export const SmallProgressRing = styled(VSCodeProgressRing)`
-    height: 20px;
-    width: 20px;
-`;
