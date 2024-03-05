@@ -32,6 +32,8 @@ interface ServiceDesignerProps {
     onServiceEdit?: (service: Service) =>  void;
     // Callback to send the resource back for implementing
     onResourceImplement?: (resource: Resource) => void;
+    // Callback to send the resource back upon clicking on it
+    onResourceClick?: (resource: Resource) => void;
 }
 
 const defaultService: Service = {
@@ -66,7 +68,15 @@ const emptyView = (
 );
 
 export function ServiceDesigner(props: ServiceDesignerProps) {
-    const { model = defaultService, goToSource, onResourceAdd, onResourceEdit, onResourceDelete, onServiceEdit, onResourceImplement } = props;
+    const {
+        model = defaultService,
+        goToSource, onResourceAdd,
+        onResourceEdit,
+        onResourceDelete,
+        onServiceEdit,
+        onResourceImplement,
+        onResourceClick
+    } = props;
     const [resources, setResources] = useState<JSX.Element[]>([]);
 
     const handleServiceEdit = () => {
@@ -87,6 +97,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                         onDeleteResource={onResourceDelete && onResourceDelete}
                         goToSource={goToSource}
                         onResourceImplement={onResourceImplement}
+                        onResourceClick={onResourceClick}
                     />
                 );
             });

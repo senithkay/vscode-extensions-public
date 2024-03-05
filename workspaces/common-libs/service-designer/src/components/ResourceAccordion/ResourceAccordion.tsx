@@ -135,10 +135,11 @@ export interface ResourceAccordionProps {
     onEditResource?: (resource: Resource) => void;
     onDeleteResource?: (resource: Resource) => void;
     onResourceImplement?: (resource: Resource) => void;
+    onResourceClick?: (resource: Resource) => void;
 }
 
 const ResourceAccordion = (params: ResourceAccordionProps) => {
-    const { resource, goToSource, onEditResource, onDeleteResource, onResourceImplement } = params;
+    const { resource, goToSource, onEditResource, onDeleteResource, onResourceImplement, onResourceClick } = params;
     const { expandable = true } = resource;
     const [isOpen, setIsOpen] = useState(false);
     const [isConfirmOpen, setConfirmOpen] = useState(false);
@@ -199,9 +200,15 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
         onResourceImplement(resource)
     }
 
+    const handleResourceClick = (e: React.SyntheticEvent) => {
+        e.stopPropagation();
+        onResourceClick && onResourceClick(resource);
+        toggleAccordion();
+    }
+
     return (
         <AccordionContainer>
-            <AccordionHeader supportImplement={!!onResourceImplement} onClick={toggleAccordion}>
+            <AccordionHeader supportImplement={!!onResourceImplement} onClick={handleResourceClick}>
                 <MethodSection>
                     {resource?.methods?.map((method, index) => {
                         return (

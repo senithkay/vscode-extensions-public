@@ -179,6 +179,22 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
         });
     }
 
+    const handleResourceClick = (resource: Resource) => {
+        rpcClient.getMiDiagramRpcClient().highlightCode({
+            range: {
+                start: {
+                    line: resource.position.startLine,
+                    character: resource.position.startColumn,
+                
+                },
+                end: {
+                    line: resource.position.endLine,
+                    character: resource.position.endColumn,
+                },
+            },
+        });
+    }
+
     return (
         <>
             {serviceModel && (
@@ -187,6 +203,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
                     onResourceAdd={handleResourceAdd}
                     onResourceDelete={handleResourceDelete}
                     onResourceImplement={openDiagram}
+                    onResourceClick={handleResourceClick}
                 />
             )}
             <AddResourceForm
