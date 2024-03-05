@@ -12,11 +12,11 @@ import { Dropdown } from "@wso2-enterprise/ui-toolkit";
 import { NodeWidgetProps, NodeStyles, BaseNodeWidget } from "../BaseNodeWidget";
 import { DiagramContext } from "../../../DiagramContext";
 import { TextInput } from "../../../TextInput";
-import { Expression } from "../../../../utils/types";
+import { Expression, Node } from "../../../../utils/types";
 
 export function HttpActionNodeWidget(props: NodeWidgetProps) {
     const { model } = props;
-    const { flow } = useContext(DiagramContext);
+    const { flow, onNodeUpdate } = useContext(DiagramContext);
 
     const globalClients = flow.clients.filter((client) => client.scope === "GLOBAL");
     const dropdownItems = globalClients.map((client) => {
@@ -29,8 +29,22 @@ export function HttpActionNodeWidget(props: NodeWidgetProps) {
     const nodeProperties = model.node.nodeProperties;
 
     const handleOnChange = (expression: Expression) => {
-        console.log(">>> expression changed", expression);
+        if (expression.label === "Variable") {
+            nodeProperties.variable = expression;
+        } else if (expression.label === "Path") {
+            nodeProperties.path = expression;
+        }
+
+        const updatedNode: Node = { ...model.node, nodeProperties: { ...nodeProperties } };
+        onNodeUpdate(updatedNode);
+
     };
+
+    const handleDropdownChange = (value: string) => {
+        nodeProperties.client.value = value;
+        const updatedNode: Node = { ...model.node, nodeProperties: { ...nodeProperties } };
+        onNodeUpdate(updatedNode);
+    }
 
     return (
         <BaseNodeWidget {...props}>
@@ -41,7 +55,7 @@ export function HttpActionNodeWidget(props: NodeWidgetProps) {
                     value={nodeProperties.client.value.toString()}
                     items={dropdownItems}
                     sx={{ width: 166, marginBottom: 2 }}
-                    onChange={(e) => {}}
+                    onChange={handleDropdownChange}
                 ></Dropdown>
             </NodeStyles.Row>
             <TextInput expression={nodeProperties.path} onChange={handleOnChange} />

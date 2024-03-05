@@ -45,12 +45,13 @@ import {
 import { LanguageClient } from "vscode-languageclient/node";
 import { Location, LocationLink, WorkspaceEdit as WorkspaceEditType } from "vscode-languageserver-types";
 import { CodeAction } from "vscode-languageserver-types";
-import { EggplantModelRequest, EggplantModelResponse } from "../rpc-types/eggplant-diagram/interfaces";
+import { EggplantModelRequest, EggplantModelResponse, UpdateNodeRequest, UpdateNodeResponse } from "../rpc-types/eggplant-diagram/interfaces";
 
 export interface LangClientInterface extends LanguageClient {
     getBallerinaProjectComponents: (params: ProjectComponentsRequest) => Promise<BallerinaProjectComponents>;
     getSTByRange: (params: STByRangeRequest) => Promise<BallerinaSTModifyResponse>;
     getEggplantModel: (params: EggplantModelRequest) => Promise<EggplantModelResponse>;
+    getUpdatedNodeModifications: (params: UpdateNodeRequest) => Promise<UpdateNodeResponse>;
     stModify: (params: STModifyRequest) => Thenable<BallerinaSTModifyResponse>;
     didChange(params: DidChangeRequest): void;
     didOpen: (Params: DidOpenRequest) => void;
