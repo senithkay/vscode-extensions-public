@@ -8,6 +8,7 @@
  */
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { Item } from "@wso2-enterprise/ui-toolkit";
 
 export interface ResponseConfig {
     id: number;
@@ -50,6 +51,7 @@ export interface Resource {
     updatePosition?: NodePosition; // Insert or Edit position of the resource
     position?: NodePosition; // Actual position of the resource which is used to render the resource
     addtionalInfo?: JSX.Element; // Addtional information to be displayed in the resource expanded view
+    additionalActions?: Item[]; // Additional actions for the resource
 }
 
 export interface PathConfig {

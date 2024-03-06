@@ -15,6 +15,8 @@ import { AddAPIFormProps, AddResourceForm, Method } from "../Forms/AddResourceFo
 import { TAB_SIZE, SERVICE_DESIGNER } from "../../constants";
 import { getXML } from "../../utils/template-engine/mustache-templates/templateUtils";
 import { APIData, APIWizardProps } from "../Forms/APIform";
+import { Item } from "@wso2-enterprise/ui-toolkit";
+import { Position } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 interface ServiceDesignerProps {
     syntaxTree: any;
@@ -27,6 +29,18 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
     const [serviceData, setServiceData] = React.useState<APIData>(null);
     const [resourceData, setResourceData] = React.useState<AddAPIFormProps>(null);
     const [resourceBodyRange, setResourceBodyRange] = React.useState<any>(null);
+
+    const enrichResources = (resources: Resource[], deleteStartPosition: Position): Resource[] => {
+        return resources.map((resource) => {
+            const goToSourceAction: Item = { id: "go-to-source", label: "Go to Source", onClick: () => highlightCode(resource) };
+            const deleteAction: Item = { id: "delete", label: "Delete", onClick: () => handleResourceDelete(resource, resources, deleteStartPosition) };
+            const moreActions: Item[] = [goToSourceAction, deleteAction];
+            return {
+                ...resource,
+                additionalActions: moreActions,
+            }
+        })
+    }
 
     useEffect(() => {
         const st = syntaxTree.api;
@@ -46,7 +60,8 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
 
         // Create service model
         const resources: Resource[] = [];
-        st.resource.forEach((resource: any, index: number) => {
+        const items: Item[] = []; // More actions for resources
+        st.resource.forEach((resource: any) => {
             const value: Resource = {
                 methods: resource.methods,
                 path: resource.uriTemplate,
@@ -60,13 +75,14 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
             }
             resources.push(value);
         })
+        const enrichedResources: Resource[] = enrichResources(resources, st.range.startTagRange.end);
         setResourceBodyRange({
             start: st.range.startTagRange.end,
             end: st.range.endTagRange.start
         });
         const model: Service = {
             path: st.context,
-            resources: resources,
+            resources: enrichedResources,
             position: {
                 startLine: st.range.startTagRange.start.line,
                 startColumn: st.range.startTagRange.start.character,
@@ -76,6 +92,22 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
         }
         setServiceModel(model);
     }, [syntaxTree, documentUri]);
+
+    const highlightCode = (resource: Resource, force?: boolean) => {
+        rpcClient.getMiDiagramRpcClient().highlightCode({
+            range: {
+                start: {
+                    line: resource.position.startLine,
+                    character: resource.position.startColumn,
+                
+                },
+                end: {
+                    line: resource.position.endLine,
+                    character: resource.position.endColumn,
+                },
+            },
+        });
+    }
 
     const openDiagram = (resource: Resource) => {
         const resourceIndex = serviceModel.resources.findIndex((res) => res === resource);
@@ -147,19 +179,20 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
         setResourceData(null);
     };
 
-    const handleResourceDelete = (resource: Resource) => {
-        const resourceIndex = serviceModel.resources.findIndex((res) => res === resource);
+    const handleResourceDelete = (resource: Resource, resourceList: Resource[], deleteStartPosition: Position) => {
+        const position: Position = deleteStartPosition;
+        const resourceIndex = resourceList.findIndex((res) => res === resource);
         let startPosition;
         // Selecting the start position as the end position of the previous XML tag
         if (resourceIndex === 0) {
             startPosition = {
-                line: resourceBodyRange.start.line,
-                character: resourceBodyRange.start.character,
+                line: position.line,
+                character: position.character,
             };
         } else {
             startPosition = {
-                line: serviceModel.resources[resourceIndex - 1].position.endLine,
-                character: serviceModel.resources[resourceIndex - 1].position.endColumn,
+                line: resourceList[resourceIndex - 1].position.endLine,
+                character: resourceList[resourceIndex - 1].position.endColumn,
             };
         }
         rpcClient.getMiDiagramRpcClient().applyEdit({
@@ -175,21 +208,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
         });
     }
 
-    const handleResourceClick = (resource: Resource) => {
-        rpcClient.getMiDiagramRpcClient().highlightCode({
-            range: {
-                start: {
-                    line: resource.position.startLine,
-                    character: resource.position.startColumn,
-                
-                },
-                end: {
-                    line: resource.position.endLine,
-                    character: resource.position.endColumn,
-                },
-            },
-        });
-    }
+    const handleResourceClick = (resource: Resource) => highlightCode(resource);
 
     const handleServiceEdit = () => {
         rpcClient.getMiVisualizerRpcClient().openView({
@@ -208,7 +227,6 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
                 <ServiceDesigner
                     model={serviceModel}
                     onResourceAdd={handleResourceAdd}
-                    onResourceDelete={handleResourceDelete}
                     onResourceImplement={openDiagram}
                     onResourceClick={handleResourceClick}
                     onServiceEdit={handleServiceEdit}

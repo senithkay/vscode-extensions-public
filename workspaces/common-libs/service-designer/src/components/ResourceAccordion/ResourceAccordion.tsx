@@ -8,7 +8,7 @@
  */
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { Codicon, Icon, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, ContextMenu, Icon, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { AccordionTable } from '../AccordionTable/AccordionTable';
 import { Resource } from '../../definitions';
@@ -25,7 +25,6 @@ type ContainerProps = {
 
 type HeaderProps = {
     expandable?: boolean;
-    supportImplement?: boolean;
 }
 
 const AccordionContainer = styled.div<ContainerProps>`
@@ -40,9 +39,9 @@ const AccordionContainer = styled.div<ContainerProps>`
 
 const AccordionHeader = styled.div<HeaderProps>`
     padding: 10px;
-    cursor: ${({ expandable }: HeaderProps) => expandable ? "pointer" : "default"};
+    cursor: pointer;
     display: grid;
-    grid-template-columns: ${({ supportImplement }: HeaderProps) => supportImplement ? "3fr 1fr 1fr" : "3fr 1fr"};
+    grid-template-columns: 3fr 1fr;
 `;
 
 const LinkButtonWrapper = styled.div`
@@ -50,8 +49,9 @@ const LinkButtonWrapper = styled.div`
     justify-content: center;
     align-items: center;
     height: 100%;
+    padding: 0 16px;
 
-    :active {
+    :hover {
         border: 1px solid var(--vscode-inputOption-activeBorder);
     }
 `;
@@ -83,6 +83,13 @@ const MethodSection = styled.div`
     display: flex;
     gap: 4px;
 `;
+
+const verticalIconStyles = {
+    transform: "rotate(90deg)",
+    ":hover": {
+        backgroundColor: "var(--vscode-welcomePage-tileHoverBackground)",
+    }
+};
 
 type ButtonSectionProps = {
     isExpanded?: boolean;
@@ -140,7 +147,7 @@ export interface ResourceAccordionProps {
 
 const ResourceAccordion = (params: ResourceAccordionProps) => {
     const { resource, goToSource, onEditResource, onDeleteResource, onResourceImplement, onResourceClick } = params;
-    const { expandable = true } = resource;
+    const { expandable = true, additionalActions } = resource;
     const [isOpen, setIsOpen] = useState(false);
     const [isConfirmOpen, setConfirmOpen] = useState(false);
 
@@ -208,7 +215,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
 
     return (
         <AccordionContainer>
-            <AccordionHeader supportImplement={!!onResourceImplement} onClick={handleResourceClick}>
+            <AccordionHeader onClick={handleResourceClick}>
                 <MethodSection>
                     {resource?.methods?.map((method, index) => {
                         return (
@@ -219,15 +226,15 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                     })}
                     <MethodPath>{resource?.path}</MethodPath>
                 </MethodSection>
-                {onResourceImplement && (
-                    <LinkButtonWrapper>
-                        <LinkButton onClick={handleResourceImplement}>
-                            <Typography variant="h4">Implement</Typography>
-                            <Codicon name="arrow-right" />
-                        </LinkButton>
-                    </LinkButtonWrapper>
-                )}
                 <ButtonSection isExpanded={expandable && isOpen}>
+                    {onResourceImplement && (
+                        <LinkButtonWrapper>
+                            <LinkButton sx={{ gap: "4px" }} onClick={handleResourceImplement}>
+                                <Typography variant="h4">Implement</Typography>
+                                <Codicon name="arrow-right" />
+                            </LinkButton>
+                        </LinkButtonWrapper>
+                    )}
                     {expandable && isOpen ? (
                         <>
                             {goToSource && (
@@ -260,6 +267,18 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                                     </>
                                 </ButtonWrapper>
                             )}
+                            {additionalActions && (
+                                <ButtonWrapper>
+                                    <ContextMenu
+                                        sx={{ transform: "translateX(-50%)" }}
+                                        iconSx={verticalIconStyles}
+                                        menuItems={additionalActions}
+                                    />
+                                    <>
+                                        More Actions
+                                    </>
+                                </ButtonWrapper> 
+                            )}
                         </>
                     ) : (
                         <>
@@ -277,6 +296,13 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                                 <VSCodeButton appearance="icon" title="Delete Resource" onClick={handleDeleteResource}>
                                     <Icon name="delete" />
                                 </VSCodeButton>
+                            )}
+                            {additionalActions && (
+                                <ContextMenu
+                                    sx={{ transform: "translateX(-50%)" }}
+                                    iconSx={verticalIconStyles}
+                                    menuItems={additionalActions}
+                                />
                             )}
                         </>
                     )}
