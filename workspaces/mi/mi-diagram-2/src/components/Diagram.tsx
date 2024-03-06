@@ -28,12 +28,10 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
 import { Diagnostic } from "vscode-languageserver-types";
 
-import { SEQUENCE_TYPE, SequenceType } from "@wso2-enterprise/mi-core";
 export interface DiagramProps {
     model: APIResource | Sequence;
     documentUri: string;
     diagnostics?: Diagnostic[];
-    flowType?: SequenceType;
 }
 
 export enum DiagramType {
@@ -93,10 +91,6 @@ export function Diagram(props: DiagramProps) {
         formValues: {},
         title: "",
     });
-
-    useEffect(() => {
-        if (props.flowType === SEQUENCE_TYPE.FAULT) setFlow(true);
-    }, [props.flowType])
 
     useEffect(() => {
         const { flow, fault } = diagramData;
