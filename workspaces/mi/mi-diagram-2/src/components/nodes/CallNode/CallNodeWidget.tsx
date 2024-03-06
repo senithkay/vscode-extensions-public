@@ -55,8 +55,8 @@ namespace S {
 
     export const CircleContainer = styled.div`
         position: absolute;
-        top: 10px;
-        right: -110px;
+        top: -5px;
+        left: 120px;
         color: ${Colors.ON_SURFACE};
         cursor: pointer;
         font-family: var(--font-family);
@@ -68,9 +68,9 @@ namespace S {
         display: flex;
         align-items: center;
         justify-content: center;
-        & svg {
-            height: 16px;
-            width: 16px;
+        & img {
+            height: 25px;
+            width: 25px;
             fill: ${Colors.ON_SURFACE};
             stroke: ${Colors.ON_SURFACE};
         }
@@ -100,14 +100,14 @@ namespace S {
 
     export const EndpointContainer = styled.div`
         position: absolute;
-        left: 223px;
-        top: 8px;
+        left: 222.5px;
+        top: 9px;
     `;
 
     export const EndpointTextWrapper = styled.div`
         position: absolute;
         left: 150px;
-        top: 65px;
+        top: 45px;
         width: 100px;
         text-align: center;
         color: ${Colors.ON_SURFACE};
@@ -152,7 +152,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
 
     const handlePlusNode = () => {
         const nodeRange: Range = {
-            start: node.stNode.range.startTagRange.end,
+            start: node.stNode.range.endTagRange.start,
             end: node.stNode.range.endTagRange.start,
         }
 
@@ -184,7 +184,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
 
     return (
         <div>
-            <Tooltip content={tooltip} position={'bottom'} >
+            <Tooltip content={tooltip} position={'bottom'} containerPosition={"absolute"} >
                 <S.Node
                     selected={node.isSelected()}
                     hovered={isHovered}
@@ -220,9 +220,9 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                             stroke={endpointHasDiagnotics ? Colors.ERROR : Colors.OUTLINE_VARIANT}
                             strokeWidth={2}
                         />
-                        <g transform="translate(81,20)">
-                            <image x="-20" y="-20" width="40" height="40" xlinkHref={getSVGIcon(node.endpoint.type, true)} />
-                        </g>
+                        {node.endpoint && <g transform="translate(81,20)">
+                            <image x="-17" y="-15" width="30" height="30" xlinkHref={getSVGIcon(node.endpoint.type, true)} />
+                        </g>}
 
                         <line
                             x1="0"
