@@ -615,6 +615,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     switch (tag) {
                         case 'api':
                             fileType = 'apis';
+                            fileType = 'apis';
                             break;
                         case 'endpoint':
                             fileType = 'endpoints';

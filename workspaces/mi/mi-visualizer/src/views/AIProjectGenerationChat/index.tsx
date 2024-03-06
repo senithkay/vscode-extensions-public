@@ -58,16 +58,7 @@ var projectUuid = "";
 export function AIProjectGenerationChat() {
   const { rpcClient } = useVisualizerContext();
   const [state, setState] = useState<VisualizerLocation | null>(null);
-  const [messages, setMessages] = useState<Array<{ role: string; content: string; type: string }>>([]);
-  // const [messages, setMessages] = useState<Array<{ role: string; content: string; type:string }>>(
-  //   chatArray.length === 0 ? [
-  //     { role: "", content: "Welcome to the AI Powered Generation and Editing Tool. You may use this tool to generate entirely new Artifacts or to do changes to existing artifacts simply using text based prompts. The context of your generation shall always be the window you have currenly opened.", type: "label" },
-  //     { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
-  //     { role: "" , content: "Generate a Sample Hello World API", type: "question"},
-  //     { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
-  //     { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
-  //   ]: []
-  // );
+  const [messages, setMessages] = useState<Array<{ role: string; content: string; type:string }>>([]);
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false); 
   const [lastQuestionIndex, setLastQuestionIndex] = useState(-1);

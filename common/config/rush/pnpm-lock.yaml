@@ -2511,6 +2511,7 @@ importers:
       react-resizable: ~3.0.5
       react-spinners: ~0.13.8
       react-split-pane: ~0.1.92
+      react-spinners: ~0.13.8
       react-syntax-highlighter: ~15.5.0
       source-map-loader: ^4.0.1
       style-loader: ^1.3.0
@@ -2545,6 +2546,7 @@ importers:
       react-resizable: 3.0.5_biqbaboplfbrettd7655fr4n2y
       react-spinners: 0.13.8_biqbaboplfbrettd7655fr4n2y
       react-split-pane: 0.1.92_biqbaboplfbrettd7655fr4n2y
+      react-spinners: 0.13.8_biqbaboplfbrettd7655fr4n2y
       react-syntax-highlighter: 15.5.0_react@18.2.0
     devDependencies:
       '@babel/plugin-syntax-flow': 7.22.5
@@ -39426,6 +39428,16 @@ packages:
     resolution: {integrity: sha512-ywYLSjNkxKHiZOqNlso9PZByNEY+FTyh3C+7uuziK0xFXu9xzdyfHwg4S9iyiRRoPCR4k2LqaBBsWVmSBwCWYQ==}
     dependencies:
       prop-types: 15.8.1
+    dev: false
+
+  /react-spinners/0.13.8_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-3e+k56lUkPj0vb5NDXPVFAOkPC//XyhKPJjvcGjyMNPWsBKpplfeyialP74G7H7+It7KzhtET+MvGqbKgAqpZA==}
+    peerDependencies:
+      react: ^16.0.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
     dev: false
 
   /react-style-singleton/2.2.1_7kh72gklg5qjlh5zc6s6v3p6v4:
