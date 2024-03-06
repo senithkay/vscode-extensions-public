@@ -58,18 +58,17 @@ export interface APIData {
     apiContext: string;
     version?: string;
     swaggerdefPath?: string;
-    documentUri: string;
     range: Range;
 }
 
 export interface APIWizardProps {
-    path: string;
     apiData?: APIData;
+    path: string;
 }
 
 type VersionType = "none" | "context" | "url";
 
-export function APIWizard(props: APIWizardProps{ apiData }: APIWizardProps) {
+export function APIWizard({ apiData, path }: APIWizardProps) {
     const { rpcClient } = useVisualizerContext();
     const [apiName, setAPIName] = useState("");
     const [apiContext, setAPIContext] = useState("/");
@@ -108,7 +107,7 @@ export function APIWizard(props: APIWizardProps{ apiData }: APIWizardProps) {
     const handleCreateAPI = async () => {
         if (!apiData) {
             // Create API
-            const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({path: props.path})).path;
+            const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({path: path})).path;
             const APIDir = `${projectDir}/src/main/wso2mi/artifacts/apis`;
             const createAPIParams = {
                 name: apiName,
@@ -132,10 +131,10 @@ export function APIWizard(props: APIWizardProps{ apiData }: APIWizardProps) {
             const xml = getXML(SERVICE_DESIGNER.EDIT_SERVICE, formValues);
             rpcClient.getMiDiagramRpcClient().applyEdit({
                 text: xml,
-                documentUri: apiData.documentUri,
+                documentUri: path,
                 range: apiData.range
             });
-            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: apiData.documentUri } });
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: path } });
         }
     };
 

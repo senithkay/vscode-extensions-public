@@ -50,7 +50,6 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
             apiName: st.name,
             apiContext: st.context,
             version: st.version,
-            documentUri: documentUri,
             range: {
                 start: st.range.startTagRange.start,
                 end: st.range.startTagRange.end
