@@ -30,6 +30,7 @@
     "react-markdown": "~9.0.1",
     "@types/react-syntax-highlighter": "~15.5.11",
     "react-spinners": "~0.13.8",
+    "react-spinners": "~0.13.8",
     "re-resizable": "~6.9.11",
     "react-resizable": "~3.0.5",
     "@types/react-resizable": "~3.0.7",

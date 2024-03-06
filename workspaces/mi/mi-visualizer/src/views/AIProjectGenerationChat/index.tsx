@@ -58,16 +58,7 @@ var projectUuid = "";
 export function AIProjectGenerationChat() {
   const { rpcClient } = useVisualizerContext();
   const [state, setState] = useState<VisualizerLocation | null>(null);
-  const [messages, setMessages] = useState<Array<{ role: string; content: string; type: string }>>([]);
-  // const [messages, setMessages] = useState<Array<{ role: string; content: string; type:string }>>(
-  //   chatArray.length === 0 ? [
-  //     { role: "", content: "Welcome to the AI Powered Generation and Editing Tool. You may use this tool to generate entirely new Artifacts or to do changes to existing artifacts simply using text based prompts. The context of your generation shall always be the window you have currenly opened.", type: "label" },
-  //     { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
-  //     { role: "" , content: "Generate a Sample Hello World API", type: "question"},
-  //     { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
-  //     { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
-  //   ]: []
-  // );
+  const [messages, setMessages] = useState<Array<{ role: string; content: string; type:string }>>([]);
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false); 
   const [lastQuestionIndex, setLastQuestionIndex] = useState(-1);
@@ -330,15 +321,15 @@ export function AIProjectGenerationChat() {
     chatArray.length = 0;
 
     setMessages((prevMessages) => [
-      { role: "", content: "Welcome to MI Copilot Chat! I am here to assist you with WSO2 Micro Integrator. You can ask me to explain about WSO2 Integrations, get help on coding or development.", type: "label" },
+      { role: "", content: "Welcome to the AI Powered Generation and Editing Tool. You may use this tool to generate entirely new Artifacts or to do changes to existing artifacts simply using text based prompts. The context of your generation shall always be the window you have currenly opened.", type: "label" },
       { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
-      { role: "", content: "Explain me about this Artifact", type: "question" },
-      { role: "", content: "What are the possible use cases in using WSO2 Micro Integrator?", type: "question" },
-      { role: "", content: "How to use the File Connector?", type: "question" }
+      { role: "" , content: "Generate a Sample Hello World API", type: "question"},
+      { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
+      { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
     ]);
 
     //clear the local storage
-    localStorage.removeItem(`chatArray-AIChat-${projectUuid}`);
+    localStorage.removeItem(`chatArray-AIGenerationChat-${projectUuid}`);
     
   }
 
