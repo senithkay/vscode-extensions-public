@@ -239,10 +239,11 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 			parentEntry.id = 'registry';
 			const gov = resources['registry']['gov'];
 			const conf = resources['registry']['conf'];
+			const isCollapsible = gov && ((gov.files && gov.files.length > 0) || (gov.folders && gov.folders.length > 0));
 			if (gov) {
 				const govEntry = new ProjectExplorerEntry(
 					'gov',
-					isCollapsibleState(gov.files.length > 0 || gov.folders.length > 0),
+					isCollapsibleState(isCollapsible),
 					{ name: 'gov', path: path.join(regPath, 'gov'), type: 'gov' },
 					'root-folder'
 				);
@@ -255,7 +256,7 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 			if (conf) {
 				const confEntry = new ProjectExplorerEntry(
 					'conf',
-					isCollapsibleState(conf.files.length > 0 || conf.folders.length > 0),
+					isCollapsibleState(isCollapsible),
 					{ name: 'conf', path: path.join(regPath, 'conf'), type: 'conf' },
 					'root-folder-opened'
 				);
