@@ -9,10 +9,12 @@
 
 import Mustache from "mustache";
 import { SERVICE_DESIGNER } from "../../../constants";
-import { getAddApiResourceTemplate } from "./core/api";
+import { getAddApiResourceTemplate, getEditServiceTemplate } from "./core/api";
 
 export function getXML(name: string, data: { [key: string]: any }) {
     switch (name) {
+        case SERVICE_DESIGNER.EDIT_SERVICE:
+            return Mustache.render(getEditServiceTemplate(), data);
         case SERVICE_DESIGNER.ADD_RESOURCE:
             return Mustache.render(getAddApiResourceTemplate(), data);
         default:

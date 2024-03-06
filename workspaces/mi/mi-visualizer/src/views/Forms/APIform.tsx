@@ -12,6 +12,9 @@ import { AutoComplete, Button, Codicon, Icon, TextField, Typography } from "@wso
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { FieldGroup, SectionWrapper } from "./Commons";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { getXML } from "../../utils/template-engine/mustache-templates/templateUtils";
+import { SERVICE_DESIGNER } from "../../constants";
 
 const WizardContainer = styled.div`
     display: flex;
@@ -50,18 +53,51 @@ export interface Region {
     value: string;
 }
 
-export interface APIWizardProps {
-    path: string;
+export interface APIData {
+    apiName: string;
+    apiContext: string;
+    version?: string;
+    swaggerdefPath?: string;
+    documentUri: string;
+    range: Range;
 }
 
-export function APIWizard(props: APIWizardProps) {
+export interface APIWizardProps {
+    path: string;
+    apiData?: APIData;
+}
 
+type VersionType = "none" | "context" | "url";
+
+export function APIWizard(props: APIWizardProps{ apiData }: APIWizardProps) {
     const { rpcClient } = useVisualizerContext();
     const [apiName, setAPIName] = useState("");
     const [apiContext, setAPIContext] = useState("/");
     const [versionType, setVersionType] = useState("none");
     const [version, setVersion] = useState("");
-    const [swaggerdefPath, setSwaggerdefPath] = useState("");;
+    const [swaggerdefPath, setSwaggerdefPath] = useState("");
+
+    const identifyVersionType = (version: string): VersionType => {
+        if (!version) {
+            return "none";
+        } else if (version.startsWith("http")) {
+            return "url";
+        } else {
+            return "context";
+        }
+    }
+
+    useEffect(() => {
+        if (apiData) {
+            const versionType = identifyVersionType(apiData.version);
+
+            setAPIName(apiData.apiName);
+            setAPIContext(apiData.apiContext);
+            setVersionType(versionType);
+            setVersion(apiData.version || "");
+            setSwaggerdefPath(apiData.swaggerdefPath || "");
+        }
+    }, [apiData]);
 
     const versionLabels = ['none', 'context', 'url'];
 
@@ -70,19 +106,37 @@ export function APIWizard(props: APIWizardProps) {
     };
 
     const handleCreateAPI = async () => {
-        const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({path: props.path})).path;
-        const APIDir = `${projectDir}/src/main/wso2mi/artifacts/apis`;
-        const createAPIParams = {
-            name: apiName,
-            context: apiContext,
-            directory: APIDir,
-            swaggerDef: swaggerdefPath,
-            type: versionType,
-            version: version
+        if (!apiData) {
+            // Create API
+            const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({path: props.path})).path;
+            const APIDir = `${projectDir}/src/main/wso2mi/artifacts/apis`;
+            const createAPIParams = {
+                name: apiName,
+                context: apiContext,
+                directory: APIDir,
+                swaggerDef: swaggerdefPath,
+                type: versionType,
+                version: version
+            }
+            const file = await rpcClient.getMiDiagramRpcClient().createAPI(createAPIParams);
+            console.log("API created");
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: file.path } });
+        } else {
+            // Update API
+            const formValues = {
+                name: apiName,
+                context: apiContext,
+                version_type: versionType,
+                version: version
+            }
+            const xml = getXML(SERVICE_DESIGNER.EDIT_SERVICE, formValues);
+            rpcClient.getMiDiagramRpcClient().applyEdit({
+                text: xml,
+                documentUri: apiData.documentUri,
+                range: apiData.range
+            });
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: apiData.documentUri } });
         }
-        const file = await rpcClient.getMiDiagramRpcClient().createAPI(createAPIParams);
-        console.log("API created");
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: file.path } });
     };
 
     const handleCancel = () => {
@@ -133,6 +187,12 @@ export function APIWizard(props: APIWizardProps) {
     }
 
     const isValid: boolean = apiName.length > 0 && apiContext.length > 0 && versionType.length > 0;
+    const contentUpdated: boolean = apiData ?
+        (apiData.apiName !== apiName)
+        || (apiData.apiContext !== apiContext)
+        || (apiData?.version ? apiData?.version !== version : false)
+        || (apiData?.swaggerdefPath ? apiData?.swaggerdefPath !== swaggerdefPath : false) 
+        : true;
 
     return (
         <WizardContainer>
@@ -194,9 +254,9 @@ export function APIWizard(props: APIWizardProps) {
                     <Button
                         appearance="primary"
                         onClick={handleCreateAPI}
-                        disabled={!isValid}
+                        disabled={!isValid || !contentUpdated}
                     >
-                        Create
+                        {apiData ? "Update" : "Create"}
                     </Button>
                 </ActionContainer>
             </SectionWrapper>

@@ -32,6 +32,7 @@
     "mustache": "~4.2.0",
     "process": "~0.11.10",
     "path": "~0.12.7",
+    "@wso2-enterprise/mi-syntax-tree": "workspace:*",
     "@uiw/react-codemirror": "~4.21.22",
     "@codemirror/lang-xml": "~6.0.2",
     "@codemirror/theme-one-dark": "~6.1.2",

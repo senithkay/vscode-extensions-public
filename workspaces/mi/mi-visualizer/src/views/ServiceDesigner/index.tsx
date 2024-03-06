@@ -8,13 +8,13 @@
  */
 
 import React, { useEffect } from "react";
-import { EVENT_TYPE, MACHINE_VIEW, SEQUENCE_TYPE } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
 import { AddAPIFormProps, AddResourceForm, Method } from "../Forms/AddResourceForm";
 import { TAB_SIZE, SERVICE_DESIGNER } from "../../constants";
 import { getXML } from "../../utils/template-engine/mustache-templates/templateUtils";
-import { getSequenceComponentView } from "../../utils/service-designer";
+import { APIData, APIWizardProps } from "../Forms/APIform";
 
 interface ServiceDesignerProps {
     syntaxTree: any;
@@ -24,11 +24,27 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
     const { rpcClient } = useVisualizerContext();
     const [serviceModel, setServiceModel] = React.useState<Service>(null);
     const [isResourceFormOpen, setResourceFormOpen] = React.useState<boolean>(false);
+    const [serviceData, setServiceData] = React.useState<APIData>(null);
     const [resourceData, setResourceData] = React.useState<AddAPIFormProps>(null);
     const [resourceBodyRange, setResourceBodyRange] = React.useState<any>(null);
 
     useEffect(() => {
         const st = syntaxTree.api;
+
+        // Set metadata for the service
+        const serviceData: APIData = {
+            apiName: st.name,
+            apiContext: st.context,
+            version: st.version,
+            documentUri: documentUri,
+            range: {
+                start: st.range.startTagRange.start,
+                end: st.range.startTagRange.end
+            }
+        }
+        setServiceData(serviceData);
+
+        // Create service model
         const resources: Resource[] = [];
         st.resource.forEach((resource: any, index: number) => {
             const value: Resource = {
@@ -40,27 +56,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
                     endLine: resource.range.endTagRange.end.line,
                     endColumn: resource.range.endTagRange.end.character
                 },
-                expandable: false,
-                addtionalInfo: getSequenceComponentView({
-                    onOpenInSequence: () => rpcClient.getMiVisualizerRpcClient().openView({ 
-                        type: EVENT_TYPE.OPEN_VIEW, 
-                        location: { 
-                            view: MACHINE_VIEW.Diagram, 
-                            documentUri: documentUri, 
-                            identifier: index.toString(), 
-                            flowType: SEQUENCE_TYPE.IN
-                        }
-                    }),
-                    onOpenFaultSequence: () => rpcClient.getMiVisualizerRpcClient().openView({ 
-                        type: EVENT_TYPE.OPEN_VIEW, 
-                        location: { 
-                            view: MACHINE_VIEW.Diagram, 
-                            documentUri: documentUri, 
-                            identifier: index.toString(), 
-                            flowType: SEQUENCE_TYPE.FAULT
-                        }
-                    })
-                })
+                expandable: false
             }
             resources.push(value);
         })
@@ -195,6 +191,17 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
         });
     }
 
+    const handleServiceEdit = () => {
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.APIForm,
+                documentUri: documentUri,
+                customProps: { apiData: serviceData } as APIWizardProps
+            }
+        });
+    }
+
     return (
         <>
             {serviceModel && (
@@ -204,6 +211,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
                     onResourceDelete={handleResourceDelete}
                     onResourceImplement={openDiagram}
                     onResourceClick={handleResourceClick}
+                    onServiceEdit={handleServiceEdit}
                 />
             )}
             <AddResourceForm

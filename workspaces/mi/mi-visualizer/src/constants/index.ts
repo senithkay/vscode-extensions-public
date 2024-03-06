@@ -8,6 +8,7 @@ export const FAULT_SEQUENCE_TAG = "faultSequence";
 
 // Service Designer Templates
 export const SERVICE_DESIGNER = {
+    EDIT_SERVICE: "service-designer-edit-resource",
     ADD_RESOURCE: "service-designer-add-resource",
 }
 

@@ -2508,6 +2508,7 @@ importers:
       '@wso2-enterprise/mi-core': workspace:*
       '@wso2-enterprise/mi-diagram-2': workspace:*
       '@wso2-enterprise/mi-rpc-client': workspace:*
+      '@wso2-enterprise/mi-syntax-tree': workspace:*
       '@wso2-enterprise/service-designer': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ^2.4.1
@@ -2540,6 +2541,7 @@ importers:
       '@wso2-enterprise/mi-core': link:../mi-core
       '@wso2-enterprise/mi-diagram-2': link:../mi-diagram-2
       '@wso2-enterprise/mi-rpc-client': link:../mi-rpc-client
+      '@wso2-enterprise/mi-syntax-tree': link:../syntax-tree
       '@wso2-enterprise/service-designer': link:../../common-libs/service-designer
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       mustache: 4.2.0
