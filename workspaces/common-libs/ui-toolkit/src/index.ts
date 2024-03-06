@@ -37,6 +37,7 @@ export * from './components/Grid/Grid';
 export * from './components/SeachBox/SearchBox';
 export * from './components/ParamManager/ParamManager';
 export * from './components/Swich/Swich';
+export * from './components/ClickAwayListener/ClickAwayListener';
 
 export * from './components/SampleForm/Header/Header';
 export * from './components/SampleForm/HorizontalIcons/HorizontalIcons';

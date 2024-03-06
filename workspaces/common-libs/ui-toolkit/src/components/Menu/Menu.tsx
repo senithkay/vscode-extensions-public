@@ -31,7 +31,10 @@ const Container = styled.div<ContainerProps>`
     flex-direction: column;
     background-color: var(--vscode-list-activeSelectionForeground);
     box-shadow: var(--vscode-widget-shadow) 0px 4px 10px;
-    padding: 8px 16px;
+    padding: 8px 0;
+    border: 1px solid var(--vscode-editor-lineHighlightBorder);
+    background-color: var(--vscode-editor-background);
+    color: var(--vscode-editor-foreground);
     ${(props: ContainerProps) => props.sx};
 `;
 

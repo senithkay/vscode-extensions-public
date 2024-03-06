@@ -13,7 +13,7 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { MediatorNodeModel } from "./MediatorNodeModel";
 import { Colors } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { Button, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
@@ -188,6 +188,15 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
         });
     };
 
+    const handleDeleleClick = () => {
+        handleOnDelete();
+        setIsPopoverOpen(false); // Close the popover after action
+    }
+
+    const handlePopoverClose = () => {
+        setIsPopoverOpen(false);
+    }
+
     return (
         <div >
             <Tooltip content={!isPopoverOpen ? tooltip : ""} position={'bottom'} containerPosition={'absolute'}>
@@ -218,12 +227,14 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
                 sx={{
                     backgroundColor: Colors.SURFACE,
                     marginLeft: "30px",
+                    padding: 0
                 }}
             >
-                <Button appearance="secondary" onClick={() => {
-                    handleOnDelete();
-                    setIsPopoverOpen(false); // Close the popover after action
-                }}>Delete</Button>
+                <ClickAwayListener onClickAway={handlePopoverClose}>
+                    <Menu>
+                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: handleDeleleClick }} />
+                    </Menu>
+                </ClickAwayListener>
             </Popover>
 
         </div >

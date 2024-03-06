@@ -13,7 +13,7 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { CallNodeModel } from "./CallNodeModel";
 import { Colors } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { Button, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Button, Menu, MenuItem, Popover, Tooltip, ClickAwayListener } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon, PlusIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
@@ -181,6 +181,19 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
         });
     };
 
+    const handleDeleleClick = () => {
+        handleOnDelete();
+        setIsPopoverOpen(false); // Close the popover after action
+    }
+
+    const handleOnDeleteEndpointClick = () => {
+        handleOnDeleteEndpoint();
+        setIsPopoverOpen(false); // Close the popover after action
+    }
+
+    const handlePopoverClose = () => {
+        setIsPopoverOpen(false);
+    }
 
     return (
         <div>
@@ -267,16 +280,15 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                 sx={{
                     backgroundColor: Colors.SURFACE,
                     marginLeft: "30px",
+                    padding: 0,
                 }}
             >
-                <Button appearance="secondary" onClick={() => {
-                    handleOnDelete();
-                    setIsPopoverOpen(false); // Close the popover after action
-                }}>Delete</Button>
-                {node.endpoint && <Button appearance="secondary" onClick={() => {
-                    handleOnDeleteEndpoint();
-                    setIsPopoverOpen(false); // Close the popover after action
-                }}>Delete Endpoint</Button>}
+                <ClickAwayListener onClickAway={handlePopoverClose}>
+                    <Menu>
+                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: handleDeleleClick }} />
+                        <MenuItem key={'delete-endpoint-btn'} item={{ label: 'Delete Endpoint', id: "delete-endpoint", onClick: handleOnDeleteEndpointClick }} />
+                    </Menu>
+                </ClickAwayListener>
             </Popover>
         </div>
     );
