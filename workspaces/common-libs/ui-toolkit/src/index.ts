@@ -34,9 +34,13 @@ export * from './components/ProgressRing/ProgressRing';
 export * from './components/Tooltip/Tooltip';
 export * from './components/Breadcrumb/Breadcrumb';
 export * from './components/Grid/Grid';
+export * from './components/Grid/GridItem';
 export * from './components/SeachBox/SearchBox';
 export * from './components/ParamManager/ParamManager';
 export * from './components/Swich/Swich';
+export * from './components/ClickAwayListener/ClickAwayListener';
+export * from './components/TypeBrowser/TypeBrowser';
+export * from './components/Confirm/Confirm';
 
 export * from './components/SampleForm/Header/Header';
 export * from './components/SampleForm/HorizontalIcons/HorizontalIcons';

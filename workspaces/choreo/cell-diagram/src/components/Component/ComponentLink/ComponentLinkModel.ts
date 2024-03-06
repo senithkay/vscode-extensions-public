@@ -8,7 +8,7 @@
  */
 
 import { COMPONENT_LINK } from "../../../resources";
-import { SharedLinkModel } from "../../shared-link/shared-link";
+import { SharedLinkModel } from "../../SharedLink/SharedLink";
 
 interface LinkOrigins {
     nodeId: string;

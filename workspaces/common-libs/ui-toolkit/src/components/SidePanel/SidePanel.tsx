@@ -12,30 +12,30 @@ import { Overlay } from './../Commons/Overlay';
 import { colors } from '../Commons/Colors';
 
 export interface SidePanelProps {
-	id?: string;
+    id?: string;
     className?: string;
 	isOpen?: boolean;
 	overlay?: boolean;
-	alignmanet?: "left" | "right";
-	width?: number;
 	children?: React.ReactNode;
-	sx?: any;
+    alignmanet?: "left" | "right";
+    width?: number;
+    sx?: any;
 }
 
 const SidePanelContainer = styled.div<SidePanelProps>`
-	position: fixed;
-	top: 0;
-	left: ${(props: SidePanelProps) => props.alignmanet === "left" ? 0 : "auto"};
-	right: ${(props: SidePanelProps) => props.alignmanet === "right" ? 0 : "auto"};
-	width: ${(props: SidePanelProps) => `${props.width}px`};
-	height: 100%;
-	background-color: var(--vscode-editor-background);
-	color: var(--vscode-editor-foreground);
-	box-shadow: 0 5px 10px 0 var(--vscode-badge-background);
-	z-index: 200;
-	opacity: ${(props: SidePanelProps) => props.isOpen ? 1 : 0};
-	display: ${(props: SidePanelProps) => !props.isOpen && "none" };
-	${(props: SidePanelProps) => props.sx};
+    position: fixed;
+    top: 0;
+    left: ${(props: SidePanelProps) => props.alignmanet === "left" ? 0 : "auto"};
+    right: ${(props: SidePanelProps) => props.alignmanet === "right" ? 0 : "auto"};
+    width: ${(props: SidePanelProps) => `${props.width}px`};
+    height: 100%;
+    background-color: var(--vscode-editor-background);
+    color: var(--vscode-editor-foreground);
+    box-shadow: 0 5px 10px 0 var(--vscode-badge-background);
+    z-index: 200;
+    opacity: ${(props: SidePanelProps) => props.isOpen ? 1 : 0};
+    display: ${(props: SidePanelProps) => !props.isOpen && "none" };
+    ${(props: SidePanelProps) => props.sx};
 `;
     
 export const SidePanel: React.FC<SidePanelProps> = (props: SidePanelProps) => {
@@ -53,3 +53,4 @@ export const SidePanel: React.FC<SidePanelProps> = (props: SidePanelProps) => {
         </div>
     );
 };
+

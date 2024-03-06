@@ -9,10 +9,10 @@
 
 import React from 'react';
 import { render } from 'react-dom';
-import { CellDiagram } from './Diagram';
+import { ProjectDiagram } from './diagrams/ProjectDiagram';
 import { Project } from './types';
 
-export { CellDiagram } from "./Diagram";
+export { ProjectDiagram as CellDiagram } from "./diagrams/ProjectDiagram";
 export * from "./types";
 
 export function renderDiagram(
@@ -21,7 +21,7 @@ export function renderDiagram(
 ) {
     const project: Project = JSON.parse(JSON.stringify(projectModel));
     render(
-        <CellDiagram project={project}/>,
+        <ProjectDiagram project={project}/>,
         target
     );
 }

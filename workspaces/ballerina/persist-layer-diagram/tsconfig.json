@@ -1,15 +1,16 @@
 {
   "compilerOptions": {
     "rootDir": "./src",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "outDir": "./lib",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
     "allowJs": false,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationDir": "./lib",
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
@@ -25,11 +26,11 @@
     ]
   },
   "include": [
-    "src/index.tsx",
-    "src/custom.d.ts"
-  ],
-  "exclude": [
+    "./src/**/*.*",
+    "./src/custom.d.ts"
+],
+"exclude": [
     "node_modules",
-    "build"
-  ]
+    "lib"
+]
 }

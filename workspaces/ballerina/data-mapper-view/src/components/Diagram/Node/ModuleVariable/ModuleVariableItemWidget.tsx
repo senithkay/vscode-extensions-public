@@ -11,7 +11,7 @@ import React, { useState } from "react";
 
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Port';
 import { getTypeName } from "../../utils/dm-utils";
@@ -22,7 +22,7 @@ import { useStyles } from "./style";
 
 export interface ModuleVariableItemProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
-    typeDesc: Type;
+    typeDesc: TypeField;
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
     handleCollapse: (portName: string, isExpanded?: boolean) => void;

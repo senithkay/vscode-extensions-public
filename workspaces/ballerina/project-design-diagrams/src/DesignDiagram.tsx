@@ -12,7 +12,6 @@ import {
     ComponentModel,
     CMEntryPoint as EntryPoint,
     CMLocation as Location,
-    GetComponentModelResponse,
     CMService as Service,
     ComponentModelDeprecated
 } from '@wso2-enterprise/ballerina-languageclient';
@@ -21,12 +20,13 @@ import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader, PromptScreen } from './components/common';
 import { ConnectorWizard } from './components/connector/ConnectorWizard';
-import { Colors, ConsoleView, DagreLayout, EditLayerAPI, Views } from './resources';
+import { Colors, ConsoleView, DagreLayout, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
 import { EditForm } from './editing';
 
 import './resources/assets/font/fonts.css';
 import { isVersionBelow, transformToV4Models } from "./utils/utils";
+import { ProjectDesignDiagramAPI } from '@wso2-enterprise/ballerina-core';
 
 interface ContainerStyleProps {
     backgroundColor?: string;
@@ -48,10 +48,8 @@ interface DiagramProps {
     isChoreoProject: boolean;
     isCellView?: boolean;
     selectedNodeId?: string;
-    getComponentModel(): Promise<GetComponentModelResponse>;
-    showChoreoProjectOverview?: () => Promise<void>;
-    deleteComponent?: (location: Location, deletePkg: boolean) => Promise<void>;
-    editLayerAPI?: EditLayerAPI;
+    deleteComponent?: (location: Location, deletePkg: boolean) => void;
+    editLayerAPI?: ProjectDesignDiagramAPI;
     consoleView?: ConsoleView;
     addComponent?: () => void;
 }
@@ -61,8 +59,6 @@ export function DesignDiagram(props: DiagramProps) {
         isChoreoProject,
         isEditable,
         selectedNodeId,
-        getComponentModel,
-        showChoreoProjectOverview = undefined,
         editLayerAPI = undefined,
         consoleView = undefined,
         deleteComponent = undefined,
@@ -115,7 +111,7 @@ export function DesignDiagram(props: DiagramProps) {
     };
 
     const refreshDiagram = async () => {
-        await getComponentModel().then((response) => {
+        await editLayerAPI.getComponentModel().then((response) => {
             const components: Map<string, ComponentModel | ComponentModelDeprecated> =
                 new Map(Object.entries(response.componentModels));
             if (components && components.size > 0) {
@@ -146,7 +142,7 @@ export function DesignDiagram(props: DiagramProps) {
     // If the diagram should be rendered on edit mode, the editLayerAPI is a required prop as it contains the
     // utils required to handle the edit-mode features
     const editingEnabled: boolean = isEditable && editLayerAPI !== undefined;
-
+    const showChoreoProjectOverview: any = undefined;
     const ctx = {
         editingEnabled,
         isChoreoProject,

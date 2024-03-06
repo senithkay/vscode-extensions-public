@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -9,11 +9,20 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    HistoryEntry,
+    UpdateUndoRedoMangerRequest,
     VisualizerAPI,
-    VisualizerLocationContext,
-    getVisualizerState,
-    openVisualizerView,
-    updateVisualizerView
+    VisualizerLocation,
+    addToHistory,
+    addToUndoStack,
+    getHistory,
+    goBack,
+    goHome,
+    goSelected,
+    openView,
+    redo,
+    undo,
+    updateUndoRedoManager
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -25,15 +34,43 @@ export class VisualizerRpcClient implements VisualizerAPI {
         this._messenger = messenger;
     }
 
-    getVisualizerState(): Promise<VisualizerLocationContext> {
-        return this._messenger.sendRequest(getVisualizerState, HOST_EXTENSION);
+    openView(params: VisualizerLocation): void {
+        return this._messenger.sendNotification(openView, HOST_EXTENSION, params);
     }
 
-    openVisualizerView(params: VisualizerLocationContext): Promise<VisualizerLocationContext> {
-        return this._messenger.sendRequest(openVisualizerView, HOST_EXTENSION, params);
+    getHistory(): Promise<HistoryEntry[]> {
+        return this._messenger.sendRequest(getHistory, HOST_EXTENSION);
     }
 
-    updateVisualizerView(params: VisualizerLocationContext): Promise<VisualizerLocationContext> {
-        return this._messenger.sendRequest(updateVisualizerView, HOST_EXTENSION, params);
+    addToHistory(params: HistoryEntry): void {
+        return this._messenger.sendNotification(addToHistory, HOST_EXTENSION, params);
+    }
+
+    goBack(): void {
+        return this._messenger.sendNotification(goBack, HOST_EXTENSION);
+    }
+
+    goHome(): void {
+        return this._messenger.sendNotification(goHome, HOST_EXTENSION);
+    }
+
+    goSelected(index: number): void {
+        return this._messenger.sendNotification(goSelected, HOST_EXTENSION, index);
+    }
+
+    undo(): Promise<string> {
+        return this._messenger.sendRequest(undo, HOST_EXTENSION);
+    }
+
+    redo(): Promise<string> {
+        return this._messenger.sendRequest(redo, HOST_EXTENSION);
+    }
+
+    addToUndoStack(source: string): void {
+        return this._messenger.sendNotification(addToUndoStack, HOST_EXTENSION, source);
+    }
+
+    updateUndoRedoManager(params: UpdateUndoRedoMangerRequest): void {
+        return this._messenger.sendNotification(updateUndoRedoManager, HOST_EXTENSION, params);
     }
 }

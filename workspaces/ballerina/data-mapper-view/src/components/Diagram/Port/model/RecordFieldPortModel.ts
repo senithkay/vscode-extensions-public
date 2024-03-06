@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
-import { Type } from "@wso2-enterprise/ballerina-core";
+import { TypeField } from "@wso2-enterprise/ballerina-core";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { DataMapperLinkModel } from "../../Link";
@@ -32,7 +32,7 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 	public linkedPorts: PortModel[];
 
 	constructor(
-		public field: Type,
+		public field: TypeField,
 		public portName: string,
 		public portType: "IN" | "OUT",
 		public parentId: string,

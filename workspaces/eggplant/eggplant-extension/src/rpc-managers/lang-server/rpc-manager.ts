@@ -9,257 +9,298 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    BallerinaFunctionSTRequest,
     BallerinaProjectComponents,
-    BallerinaProjectParams,
-    BallerinaSTModifyRequest,
-    BallerinaSTModifyResponse,
-    CodeActionParams,
-    CompletionParams,
+    BallerinaVersionResponse,
+    CodeActionRequest,
+    CodeActionResponse,
+    CompletionRequest,
     CompletionResponse,
-    DidChangeTextDocumentParams,
-    DidCloseTextDocumentParams,
-    DidOpenTextDocumentParams,
+    DefinitionPositionRequest,
+    DefinitionResponse,
+    DiagnosticData,
+    DiagnosticsResponse,
+    DidChangeRequest,
+    DidCloseRequest,
+    DidOpenRequest,
+    ExecutorPositionsRequest,
     ExecutorPositionsResponse,
-    GetBallerinaProjectParams,
-    GetSyntaxTreeParams,
-    GetSyntaxTreeResponse,
-    JsonToRecordRequest,
-    JsonToRecordResponse,
-    NOT_SUPPORTED_TYPE,
+    InsertorDelete,
     LangServerAPI,
-    RenameParams,
-    PublishDiagnosticsParams,
-    TextDocumentPositionParams,
+    PartialSTRequest,
+    PartialSTResponse,
+    ProjectComponentsRequest,
+    RenameRequest,
+    RenameResponse,
+    STByRangeRequest,
+    STModifyRequest,
+    STRequest,
+    SymbolInfoRequest,
+    SymbolInfoResponse,
+    SyntaxTreeResponse,
     TypeFromExpressionRequest,
     TypeFromSymbolRequest,
+    TypeResponse,
     TypesFromExpressionResponse,
     TypesFromFnDefinitionRequest,
     TypesFromSymbolResponse,
     UpdateFileContentRequest,
-    InsertorDelete,
-    PartialSTResponse,
-    SymbolInfoResponse,
-    SymbolInfoRequest,
-    PartialSTRequest
-} from "@wso2-enterprise/ballerina-core";
-import { URI } from "vscode-uri";
-import { Position, Range, WorkspaceEdit, extensions, workspace } from "vscode";
-import { CodeAction, WorkspaceEdit as WorkspaceEditType, Location, LocationLink } from "vscode-languageserver-types";
+    UpdateFileContentResponse,
+    onFileContentUpdate
+} from "@wso2-enterprise/eggplant-core";
 import { writeFileSync } from 'fs';
-import { STNode } from "@wso2-enterprise/syntax-tree";
-import { stateService } from "../../stateMachine";
-import { LangClientInterface } from "@wso2-enterprise/eggplant-core";
 import { normalize } from "path";
+import { Position, Range, WorkspaceEdit, extensions, workspace } from "vscode";
+import { URI } from "vscode-uri";
+import { StateMachine } from "../../stateMachine";
+import { RPCLayer } from "../../RPCLayer";
+import { VisualizerWebview } from "../../visualizer/webview";
 
 export class LangServerRpcManager implements LangServerAPI {
 
-    async getSyntaxTree(): Promise<STNode> {
-        const context = stateService.getSnapshot().context;
-        const langClient = context.langServer as LangClientInterface;
+    async getSyntaxTree(): Promise<SyntaxTreeResponse> {
         return new Promise(async (resolve) => {
-            if (context?.position) {
-                const req: BallerinaFunctionSTRequest = {
-                    documentIdentifier: { uri: URI.file(context.fileName!).toString() },
-                    lineRange: {
-                        start : {
-                            line: context.position.startLine || 0,
-                            character: context.position.startColumn || 0
-                        },
-                        end : {
-                            line: context.position.endLine || 0,
-                            character: context.position.endColumn || 0
-                        }
+            const context = StateMachine.context();
+            const req: STByRangeRequest = {
+                documentIdentifier: { uri: URI.file(context.documentUri).toString() },
+                lineRange: {
+                    start: {
+                        line: context.position.startLine,
+                        character: context.position.startColumn
+                    },
+                    end: {
+                        line: context.position.endLine,
+                        character: context.position.endColumn
                     }
-                };
-                const node = await langClient.getSTByRange(req);
-                if (node.parseSuccess) {
-                    resolve(node.syntaxTree);
                 }
+            };
+            const node = await StateMachine.langClient().getSTByRange(req);
+            if (node.parseSuccess) {
+                resolve({ syntaxTree: node.syntaxTree });
+            } else {
+                resolve(undefined);
             }
         });
     }
 
-    async getBallerinaProjectComponents(params: any): Promise<BallerinaProjectComponents> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        // Check if there is at least one workspace folder
-        if (workspace.workspaceFolders?.length) {
-            const workspaceUri: { uri: string }[] = [];
-            workspace.workspaceFolders.forEach(folder => {
-                workspaceUri.push(
-                    {
-                        uri: folder.uri.toString(),
-                    }
-                );
-            });
-            return langClient.getBallerinaProjectComponents({
-                documentIdentifiers: workspaceUri
-            });
-        } else {
-            // Handle the case where there are no workspace folders
-            throw new Error("No workspace folders are open");
-        }
-    }
+    async getBallerinaProjectComponents(params: ProjectComponentsRequest): Promise<BallerinaProjectComponents> {
+        return new Promise(async (resolve) => {
+            // Check if there is at least one workspace folder
+            if (workspace.workspaceFolders?.length) {
+                const workspaceUri = [];
+                workspace.workspaceFolders.forEach(folder => {
+                    workspaceUri.push(
+                        {
+                            uri: folder.uri.toString(),
+                        }
+                    );
+                });
 
-    async getCompletion(params: CompletionParams): Promise<CompletionResponse[]> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return langClient.getCompletion(params);
-    }
-
-    async getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[]|NOT_SUPPORTED_TYPE> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return langClient.getDiagnostics(params);
-    }
-
-    async codeAction(params: CodeActionParams): Promise<CodeAction[]> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return langClient.codeAction(params);
-    }
-
-    async rename(params: RenameParams): Promise<WorkspaceEditType> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return langClient.rename(params);
-    }
-
-    async getDefinitionPosition(params: TextDocumentPositionParams): Promise<BallerinaSTModifyResponse|NOT_SUPPORTED_TYPE> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return langClient.getDefinitionPosition(params);
-    }
-
-    async convert(params: JsonToRecordRequest): Promise<JsonToRecordResponse|NOT_SUPPORTED_TYPE> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return langClient.convertJsonToRecord(params);
-    }
-
-    async getST(params: GetSyntaxTreeParams): Promise<GetSyntaxTreeResponse> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return await langClient.getSyntaxTree(params) as GetSyntaxTreeResponse;
-    }
-
-    async getSTByRange(params: BallerinaFunctionSTRequest): Promise<BallerinaSTModifyResponse> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return await langClient.getSTByRange(params) as BallerinaSTModifyResponse;
-    }
-
-    async stModify(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return await langClient.stModify({
-            astModifications: await InsertorDelete(params.astModifications),
-            documentIdentifier: params.documentIdentifier,
-        }) as BallerinaSTModifyResponse;
-    }
-
-    async updateFileContent(params: UpdateFileContentRequest): Promise<boolean> {
-        const { fileUri, content, skipForceSave } = params;
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        const normalizedFilePath = normalize(fileUri);
-        const doc = workspace.textDocuments.find((doc) => normalize(doc.fileName) === normalizedFilePath);
-        if (doc) {
-            const edit = new WorkspaceEdit();
-            edit.replace(URI.file(normalizedFilePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), content);
-            await workspace.applyEdit(edit);
-            langClient.updateStatusBar();
-            if (skipForceSave) {
-                // Skip saving document and keep in dirty mode
-                return true;
+                const components = await StateMachine.langClient().getBallerinaProjectComponents({
+                    documentIdentifiers: workspaceUri
+                });
+                resolve(components);
+            } else {
+                // Handle the case where there are no workspace folders
+                throw new Error("No workspace folders are open");
             }
-            return doc.save();
-        } else {
-            langClient.didChange({
-                contentChanges: [
-                    {
-                        text: content
-                    }
-                ],
-                textDocument: {
-                    uri: URI.file(normalizedFilePath).toString(),
-                    version: 1
+        });
+    }
+
+    async getCompletion(params: CompletionRequest): Promise<CompletionResponse> {
+        return new Promise(async (resolve) => {
+            const completions = await StateMachine.langClient().getCompletion(params);
+            resolve({ completions });
+        });
+    }
+
+    async getDiagnostics(params: STRequest): Promise<DiagnosticsResponse> {
+        return new Promise(async (resolve) => {
+            const diagnostics = await StateMachine.langClient().getDiagnostics(params) as DiagnosticData[];
+            resolve({ diagnostics });
+        });
+    }
+
+    async codeAction(params: CodeActionRequest): Promise<CodeActionResponse> {
+        return new Promise(async (resolve) => {
+            const codeActions = await StateMachine.langClient().codeAction(params);
+            resolve({ codeActions });
+        });
+    }
+
+    async rename(params: RenameRequest): Promise<RenameResponse> {
+        return new Promise(async (resolve) => {
+            const workspaceEdit = await StateMachine.langClient().rename(params);
+            resolve({ workspaceEdit });
+        });
+    }
+
+    async getDefinitionPosition(params: DefinitionPositionRequest): Promise<SyntaxTreeResponse> {
+        return new Promise(async (resolve) => {
+            const definition = await StateMachine.langClient().getDefinitionPosition(params) as SyntaxTreeResponse;
+            resolve(definition);
+        });
+    }
+
+    async getST(params: STRequest): Promise<SyntaxTreeResponse> {
+        return new Promise(async (resolve) => {
+            const st = await StateMachine.langClient().getSyntaxTree(params) as SyntaxTreeResponse;
+            resolve(st);
+        });
+    }
+
+    async getSTByRange(params: STByRangeRequest): Promise<SyntaxTreeResponse> {
+        return new Promise(async (resolve) => {
+            const st = await StateMachine.langClient().getSTByRange(params) as SyntaxTreeResponse;
+            resolve(st);
+        });
+    }
+
+    async stModify(params: STModifyRequest): Promise<SyntaxTreeResponse> {
+        return new Promise(async (resolve) => {
+            const st = await StateMachine.langClient().stModify({
+                astModifications: await InsertorDelete(params.astModifications),
+                documentIdentifier: params.documentIdentifier,
+            }) as SyntaxTreeResponse;
+            resolve(st);
+        });
+    }
+
+    async updateFileContent(params: UpdateFileContentRequest): Promise<UpdateFileContentResponse> {
+        return new Promise(async (resolve) => {
+            const { fileUri, content, skipForceSave } = params;
+            const normalizedFilePath = normalize(fileUri);
+            const doc = workspace.textDocuments.find((doc) => normalize(doc.fileName) === normalizedFilePath);
+            if (doc) {
+                const edit = new WorkspaceEdit();
+                edit.replace(URI.file(normalizedFilePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), content);
+                await workspace.applyEdit(edit);
+                StateMachine.langClient().updateStatusBar();
+                if (skipForceSave) {
+                    // Skip saving document and keep in dirty mode
+                    resolve({ status: true });
                 }
-            });
-            writeFileSync(normalizedFilePath, content);
-            langClient.updateStatusBar();
-        }
-        return false;
+                const status = await doc.save();
+                resolve({ status });
+            } else {
+                StateMachine.langClient().didChange({
+                    contentChanges: [
+                        {
+                            text: content
+                        }
+                    ],
+                    textDocument: {
+                        uri: URI.file(normalizedFilePath).toString(),
+                        version: 1
+                    }
+                });
+                writeFileSync(normalizedFilePath, content);
+                StateMachine.langClient().updateStatusBar();
+                RPCLayer._messenger.sendNotification(onFileContentUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType });
+            }
+            resolve({ status: false });
+        });
     }
 
     async getTypeFromExpression(params: TypeFromExpressionRequest): Promise<TypesFromExpressionResponse> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return langClient.getTypeFromExpression(params);
+        return new Promise(async (resolve) => {
+            const type = await StateMachine.langClient().getTypeFromExpression(params);
+            resolve(type);
+        });
     }
 
     async getTypeFromSymbol(params: TypeFromSymbolRequest): Promise<TypesFromSymbolResponse> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return langClient.getTypeFromSymbol(params);
+        return new Promise(async (resolve) => {
+            const type = await StateMachine.langClient().getTypeFromSymbol(params);
+            resolve(type);
+        });
     }
 
     async getTypesFromFnDefinition(params: TypesFromFnDefinitionRequest): Promise<TypesFromSymbolResponse> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return langClient.getTypesFromFnDefinition(params);
+        return new Promise(async (resolve) => {
+            const type = await StateMachine.langClient().getTypesFromFnDefinition(params);
+            resolve(type);
+        });
     }
 
-    async definition(params: TextDocumentPositionParams): Promise<Location | Location[] | LocationLink[] | null> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return langClient.definition(params);
+    async definition(params: DefinitionPositionRequest): Promise<DefinitionResponse> {
+        return new Promise(async (resolve) => {
+            const location = await StateMachine.langClient().definition(params);
+            resolve({ location });
+        });
     }
 
-    async getSTForFunction(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return await langClient.getSTForFunction(params) as BallerinaSTModifyResponse;
+    async getSTForFunction(params: STModifyRequest): Promise<SyntaxTreeResponse> {
+        return new Promise(async (resolve) => {
+            const st = await StateMachine.langClient().getSTForFunction(params) as SyntaxTreeResponse;
+            resolve(st);
+        });
     }
 
-    async getExecutorPositions(params: GetBallerinaProjectParams): Promise<ExecutorPositionsResponse> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return await langClient.getExecutorPositions(params) as ExecutorPositionsResponse;
+    async getExecutorPositions(params: ExecutorPositionsRequest): Promise<ExecutorPositionsResponse> {
+        return new Promise(async (resolve) => {
+            const position = await StateMachine.langClient().getExecutorPositions(params) as ExecutorPositionsResponse;
+            resolve(position);
+        });
     }
 
     async getSTForExpression(params: PartialSTRequest): Promise<PartialSTResponse> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return await langClient.getSTForExpression(params) as PartialSTResponse;
+        return new Promise(async (resolve) => {
+            const st = await StateMachine.langClient().getSTForExpression(params) as PartialSTResponse;
+            resolve(st);
+        });
     }
 
     async getSTForSingleStatement(params: PartialSTRequest): Promise<PartialSTResponse> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return await langClient.getSTForSingleStatement(params) as PartialSTResponse;
+        return new Promise(async (resolve) => {
+            const st = await StateMachine.langClient().getSTForSingleStatement(params) as PartialSTResponse;
+            resolve(st);
+        });
     }
 
     async getSTForResource(params: PartialSTRequest): Promise<PartialSTResponse> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return await langClient.getSTForResource(params) as PartialSTResponse;
+        return new Promise(async (resolve) => {
+            const st = await StateMachine.langClient().getSTForResource(params) as PartialSTResponse;
+            resolve(st);
+        });
     }
 
     async getSTForModuleMembers(params: PartialSTRequest): Promise<PartialSTResponse> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return await langClient.getSTForModuleMembers(params) as PartialSTResponse;
+        return new Promise(async (resolve) => {
+            const st = await StateMachine.langClient().getSTForModuleMembers(params) as PartialSTResponse;
+            resolve(st);
+        });
     }
 
     async getSTForModulePart(params: PartialSTRequest): Promise<PartialSTResponse> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return await langClient.getSTForModulePart(params) as PartialSTResponse;
+        return new Promise(async (resolve) => {
+            const st = await StateMachine.langClient().getSTForModulePart(params) as PartialSTResponse;
+            resolve(st);
+        });
     }
 
     async getSymbolDocumentation(params: SymbolInfoRequest): Promise<SymbolInfoResponse> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return await langClient.getSymbolDocumentation(params) as SymbolInfoResponse;
+        return new Promise(async (resolve) => {
+            const st = await StateMachine.langClient().getSymbolDocumentation(params) as SymbolInfoResponse;
+            resolve(st);
+        });
     }
 
-    async didOpen(params: DidOpenTextDocumentParams): Promise<void> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return langClient.didOpen(params);
+    didOpen(params: DidOpenRequest): void {
+        return StateMachine.langClient().didOpen(params);
     }
 
-    async didChange(params: DidChangeTextDocumentParams): Promise<void> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return langClient.didChange(params);
+    didChange(params: DidChangeRequest): void {
+        return StateMachine.langClient().didChange(params);
     }
 
-    async didClose(params: DidCloseTextDocumentParams): Promise<void> {
-        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
-        return langClient.didClose(params);
+    didClose(params: DidCloseRequest): void {
+        return StateMachine.langClient().didClose(params);
     }
 
-    async getBallerinaVersion(): Promise<string | undefined> {
-        const balExtContext = extensions.getExtension('wso2.ballerina');
-        return Promise.resolve(balExtContext?.exports.ballerinaVersion);
+    async getBallerinaVersion(): Promise<BallerinaVersionResponse> {
+        return new Promise(async (resolve) => {
+            const balExtContext = extensions.getExtension('wso2.ballerina');
+            resolve({ version: balExtContext?.exports.ballerinaVersion });
+        });
     }
 }
-

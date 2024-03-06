@@ -17,6 +17,8 @@ import { filterCodeActions } from "../../utils";
 import { CodeActionButton } from "../CodeActionButton";
 import { useStatementEditorDiagnosticStyles } from "../styles";
 
+export const DiagnosticsPaneId = "data-mapper-diagnostic-pane";
+
 export function Diagnostics() {
     const statementEditorDiagnosticClasses = useStatementEditorDiagnosticStyles();
     const stmtCtx = useContext(StatementEditorContext);
@@ -34,33 +36,39 @@ export function Diagnostics() {
         }
     }
 
-    return (
-        <div className={statementEditorDiagnosticClasses.diagnosticsPane} data-testid="diagnostics-pane">
+    const diagnosticsMessages = diagnostics && diagnostics.map((diag: StatementSyntaxDiagnostics, index: number) =>
+        !diag.isPlaceHolderDiag && (
             <div className={statementEditorDiagnosticClasses.diagnosticsPaneInner}>
-                {diagnostics &&
-                    diagnostics.map(
-                        (diag: StatementSyntaxDiagnostics, index: number) =>
-                            !diag.isPlaceHolderDiag && (
-                                <>
-                                    {actionButton(diag, index)}
-                                    <Codicon name="error" />
-                                    <Typography
-                                        variant="body2"
-                                        sx={{marginLeft: "5px"}}
-                                    >
-                                        {diag.message}
-                                    </Typography>
-                                </>
-                            )
-                    )}
-                {errorMsg && errorMsg.length > 0 && (
-                    <Typography
-                        variant="body2"
-                        data-testid="error-message"
-                    >
-                        {errorMsg}
-                    </Typography>
-                )}
+                {actionButton(diag, index)}
+                <Codicon name="error" sx={{marginTop: '3px', cursor: 'unset'}} />
+                <Typography
+                    variant="body2"
+                    sx={{marginLeft: "5px"}}
+                >
+                    {diag.message}
+                </Typography>
+            </div>
+        )
+    );
+
+    const errorMessage = errorMsg && errorMsg.length > 0 && (
+        <Typography
+            variant="body2"
+            data-testid="error-message"
+        >
+            {errorMsg}
+        </Typography>
+    );
+
+    return (
+        <div
+            id={DiagnosticsPaneId}
+            className={(diagnosticsMessages.length > 0 || errorMessage) && statementEditorDiagnosticClasses.diagnosticsPane}
+            data-testid="diagnostics-pane"
+        >
+            <div>
+                {diagnostics && diagnosticsMessages}
+                {errorMsg && errorMsg.length > 0 && errorMessage}
             </div>
         </div>
     );

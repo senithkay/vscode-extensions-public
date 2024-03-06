@@ -16,7 +16,7 @@ import { FilterNodeAndGoToSourceMenu } from "../../../NodeActionMenu/FilterNodeA
 import { NodeCategory } from "../../../NodeFilter";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { ServiceClassIcon } from "../../../resources/assets/icons/ServiceClassIcon";
-import { HeaderName, InterfaceNodeHeader, InterfaceSubHeader } from "../../../resources/styles/styles";
+import { HeaderName, InterfaceSubHeader, NodeHeader } from "../../../resources/styles/styles";
 import { getFormattedPosition } from "../../../utils/common-util";
 import { InterfaceNodeModel } from "../InterfaceNodeModel";
 
@@ -41,7 +41,7 @@ export function InterfaceHeadWidget(props: InterfaceHeadProps) {
             filePath={node.interfaceObject?.position?.filePath}
             position={node.interfaceObject?.position && getFormattedPosition(node.interfaceObject.position)}
         >
-            <InterfaceNodeHeader data-testid={`interface-head-${displayName}`}>
+            <NodeHeader data-testid={`interface-head-${displayName}`}>
                 <div>{"<<interface>>"}</div>
                 <InterfaceSubHeader>
                     <ServiceClassIcon />
@@ -63,7 +63,7 @@ export function InterfaceHeadWidget(props: InterfaceHeadProps) {
                         engine={engine}
                     />
                 </InterfaceSubHeader>
-            </InterfaceNodeHeader>
+            </NodeHeader>
         </CtrlClickHandler>
     );
 }

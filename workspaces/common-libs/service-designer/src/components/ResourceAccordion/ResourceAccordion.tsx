@@ -8,11 +8,10 @@
  */
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Confirm, Icon } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { AccordionTable } from '../AccordionTable/AccordionTable';
 import { Resource } from '../../definitions';
-import ConfirmDialog from '../ConfirmBox/ConfirmBox';
 
 type MethodProp = {
     color: string;
@@ -21,6 +20,10 @@ type MethodProp = {
 
 type ContainerProps = {
     borderColor?: string;
+};
+
+type ButtonSectionProps = {
+    isExpanded?: boolean;
 };
 
 const AccordionContainer = styled.div<ContainerProps>`
@@ -69,14 +72,10 @@ const MethodSection = styled.div`
     justify-content: space-between;
 `;
 
-type ButtonSectionProps = {
-    isExpanded?: boolean;
-};
-
 const ButtonSection = styled.div<ButtonSectionProps>`
     display: flex;
     justify-content: space-between;
-    width: ${(p: ButtonSectionProps) => p.isExpanded ? 120 : 90};;
+    width: ${(p: ButtonSectionProps) => p.isExpanded ? 120 : 90};
 `;
 
 const AccordionContent = styled.div`
@@ -113,9 +112,24 @@ function getColorByMethod(method: string) {
     }
 }
 
+function getCalculateWidth(goToSource: (resource: Resource) => void, onEditResource: (resource: Resource) => void,
+    onDeleteResource: (resource: Resource) => void) {
+    let width = 15;
+    if (goToSource) {
+        width += 25;
+    }
+    if (onEditResource) {
+        width += 25;
+    }
+    if (onDeleteResource) {
+        width += 25;
+    }
+    return width;
+}
+
 export interface ResourceAccordionProps {
     resource: Resource;
-    goToSource: (resource: Resource) =>  void;
+    goToSource: (resource: Resource) => void;
     onEditResource: (resource: Resource) => void;
     onDeleteResource?: (resource: Resource) => void;
 }
@@ -124,6 +138,8 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
     const { resource, goToSource, onEditResource, onDeleteResource } = params;
     const [isOpen, setIsOpen] = useState(false);
     const [isConfirmOpen, setConfirmOpen] = useState(false);
+    const [confirmEl, setConfirmEl] = React.useState(null);
+
 
     const toggleAccordion = () => {
         setIsOpen(!isOpen);
@@ -143,8 +159,9 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
         setConfirmOpen(true);
     };
 
-    const handleDeleteResource = (e: Event) => {
+    const handleDeleteResource = (e: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         e.stopPropagation(); // Stop the event propagation
+        setConfirmEl(e.currentTarget);
         handleOpenConfirm();
     };
 
@@ -166,15 +183,12 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
         responses.push([`${response.code}`, response.type]);
     });
 
-    const handleConfirm = async () => {
-        // Handle confirmation logic
-        // Modify the resource object delete position to the model position
-        onDeleteResource && onDeleteResource(resource);
+    const handleConfirm = (status: boolean) => {
+        if (status) {
+            onDeleteResource && onDeleteResource(resource);
+        }
         setConfirmOpen(false);
-    };
-
-    const handleCloseConfirm = () => {
-        setConfirmOpen(false);
+        setConfirmEl(null);
     };
 
     return (
@@ -232,35 +246,38 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                         </>
                     )}
 
-                    {isOpen ? 
-                        <Codicon
-                            sx={{"&:hover": {"backgroundColor": "var(--button-icon-hover-background)"}}}
-                            name="chevron-up" 
-                        /> : 
-                        <Codicon
-                            name="chevron-down"
-                            sx={{"&:hover": {"backgroundColor": "var(--button-icon-hover-background)"}}}
-                        />
+                    {isOpen ?
+                        <Button appearance='icon' onClick={toggleAccordion}>
+                            <Codicon iconSx={{ marginTop: -3 }} name="chevron-up" />
+                        </Button>
+                        :
+                        <Button appearance='icon' onClick={toggleAccordion}>
+                            <Codicon iconSx={{ marginTop: -3 }} name="chevron-down" />
+                        </Button>
                     }
                 </ButtonSection>
             </AccordionHeader>
             {isOpen && (
                 <AccordionContent>
                     {resourceParams?.length > 0 &&
-                        <AccordionTable key="params" titile="Parameters" headers={["Type", "Description"]} content={resourceParams} /> 
+                        <AccordionTable key="params" titile="Parameters" headers={["Type", "Description"]} content={resourceParams} />
                     }
-                    {payloadInfo.length > 0 && 
-                        <AccordionTable key="body" titile="Body"  headers={["Description"]} content={payloadInfo} />
+                    {payloadInfo.length > 0 &&
+                        <AccordionTable key="body" titile="Body" headers={["Description"]} content={payloadInfo} />
                     }
                     {responses.length > 0 &&
                         <AccordionTable key="responses" titile="Responses" headers={["Code", "Description"]} content={responses} />
                     }
                 </AccordionContent>
             )}
-            <ConfirmDialog
+            <Confirm
                 isOpen={isConfirmOpen}
-                onClose={handleCloseConfirm}
                 onConfirm={handleConfirm}
+                confirmText="Okay"
+                message="Are you sure want to delete this resource?"
+                anchorEl={confirmEl}
+                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
             />
         </AccordionContainer>
     );

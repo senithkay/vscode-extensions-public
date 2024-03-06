@@ -15,7 +15,7 @@
             "env": {
                 "LS_EXTENSIONS_PATH": "",
                 "LSDEBUG": "false",
-                "WEB_VIEW_DEV_MODE": "false",
+                "WEB_VIEW_DEV_MODE": "true",
                 "WEB_VIEW_DEV_HOST": "http://localhost:9000",
                 "BALLERINA_STAGE_CENTRAL": "false"
             },
@@ -185,16 +185,36 @@
             "preLaunchTask": "npm: watch-api-chat"
         },
         {
-            "name": "APK Extension",
+			"name": "APK Extension",
+			"type": "extensionHost",
+			"request": "launch",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}/workspaces/apk/apk-extension"
+			],
+			"outFiles": [
+				"${workspaceFolder}/workspaces/apk/apk-extension/out/**/*.js"
+			],
+			"preLaunchTask": "npm: watch-apk"
+		},
+        {
+            "name": "FHIR Tools Extension",
             "type": "extensionHost",
             "request": "launch",
+            "runtimeExecutable": "${execPath}",
             "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/apk/apk-extension"
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/fhir-tools/fhir-tools-extension"
             ],
+            "env": {
+                "LS_EXTENSIONS_PATH": "",
+                "LSDEBUG": "false",
+                "WEB_VIEW_DEV_MODE": "false",
+                "WEB_VIEW_DEV_HOST": "http://localhost:9000",
+                "BALLERINA_STAGE_CENTRAL": "false"
+            },
             "outFiles": [
-                "${workspaceFolder}/workspaces/apk/apk-extension/out/**/*.js"
+                "${workspaceFolder}/workspaces/fhir-tools/fhir-tools-extension/out/**/*.js"
             ],
-            "preLaunchTask": "npm: watch-apk"
+            "preLaunchTask": "npm: watch-fhir-tools"
         },
     ]
 }

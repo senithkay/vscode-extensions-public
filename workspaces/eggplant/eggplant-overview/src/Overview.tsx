@@ -42,10 +42,10 @@ export function Overview() {
     const [currentComponents, setCurrentComponents] = useState<any>();
     const [selectedComponent, setSelectedComponent] = useState<SelectedComponent>();
     const [loading, setLoading] = useState(true);
-    const { eggplantRpcClient } = useVisualizerContext();
+    const { rpcClient } = useVisualizerContext();
 
     const [isPanelOpen, setPanelOpen] = useState(false);
-    const [isFetching, setIsFetching] = useState(false);
+    const [isFetching, setIsFetching] = useState(true);
 
     const openPanel = () => {
         setPanelOpen(!isPanelOpen);
@@ -55,42 +55,31 @@ export function Overview() {
         setIsFetching(value);
     }
 
-    eggplantRpcClient?.onStateChanged((newState: MachineStateValue) => {
-        if (typeof newState === 'object' && 'ready' in newState && newState.ready === "viewReady") {
-            setIsFetching(true);
-            fetchData();
-        }
-    });
-
-
     const fetchData = async () => {
         try {
-            const res = await eggplantRpcClient?.getWebviewRpcClient()?.getBallerinaProjectComponents();
+            const res = await rpcClient?.getLangServerRpcClient()?.getBallerinaProjectComponents(undefined);
             setCurrentComponents(res);
-            if (selected) {
-                const projectComponentProcessor = new ProjectComponentProcessor(res);
-                projectComponentProcessor.process();
-                const updatedComps = projectComponentProcessor.getComponents();
-                Object.keys(updatedComps)
-                    .filter((key) => updatedComps[key].length)
-                    .forEach((key, index) => {
-                        const filteredComponents = updatedComps[key];
+            // if (selected) {
+            //     const projectComponentProcessor = new ProjectComponentProcessor(res);
+            //     projectComponentProcessor.process();
+            //     const updatedComps = projectComponentProcessor.getComponents();
+            //     Object.keys(updatedComps)
+            //         .filter((key) => updatedComps[key].length)
+            //         .forEach((key, index) => {
+            //             const filteredComponents = updatedComps[key];
 
-                        filteredComponents.forEach(async (comp: ComponentViewInfo, compIndex: number) => {
-                            if (selected && selected.name == comp.name) {
-                                const context: VisualizerLocation = {
-                                    fileName: comp.filePath,
-                                    position: comp.position,
-                                    identifier: comp.name
-                                }
-                                const serviceST = await eggplantRpcClient.getWebviewRpcClient().getSTNodeFromLocation(context);
-                                if (STKindChecker.isServiceDeclaration(serviceST)) {
-                                    setSelectedComponent({ fileName: comp.filePath, serviceST });
-                                }
-                            }
-                        });
-                    })
-            }
+            //             filteredComponents.forEach(async (comp: ComponentViewInfo, compIndex: number) => {
+            //                 if (selected && selected.name == comp.name) {
+            //                     const context: VisualizerLocation = {
+            //                         documentUri: comp.filePath,
+            //                         position: comp.position,
+            //                         identifier: comp.name
+            //                     }
+            //                     await rpcClient.getVisualizerRpcClient().openView(context);
+            //                 }
+            //             });
+            //         })
+            // }
         } catch (error) {
             console.error('Error fetching data:', error);
         } finally {
@@ -139,12 +128,11 @@ export function Overview() {
     const handleServiceView = () => {
         // Open service designer view
         const context: VisualizerLocation = {
-            view: "ServiceDesigner",
-            fileName: selectedComponent.fileName,
+            documentUri: selectedComponent.fileName,
             position: selectedComponent.serviceST.position,
             identifier: selectedComponent.serviceST.absoluteResourcePath.reduce((result, obj) => result + obj.value, "")
         }
-        eggplantRpcClient.getWebviewRpcClient().openVisualizerView(context);
+        rpcClient.getVisualizerRpcClient().openView(context);
     }
 
     return (

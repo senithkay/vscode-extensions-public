@@ -10,18 +10,15 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
 import React, { useEffect, useState } from "react";
 
-import { MenuList, Paper } from "@material-ui/core";
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import Tooltip from "@mui/material/Tooltip";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { ContextMenu, Item } from "@wso2-enterprise/ui-toolkit";
 
 import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
+import { getDesignServiceField, getServiceFieldEdit } from "../MenuItems/menuItems";
+import { verticalIconSubMenu, verticalIconWrapperSubMenu } from "../MenuItems/style";
 import { FunctionType, Position } from "../resources/model";
 import { getParentSTNodeFromRange } from "../utils/common-util";
 import { getSyntaxTree } from "../utils/ls-util";
-
-import { DesignNode } from "./DesignNode";
-import { EditNode } from "./EditNode";
 
 interface ChildActionMenuProps {
     functionType: FunctionType;
@@ -31,7 +28,7 @@ interface ChildActionMenuProps {
 
 export function ChildActionMenu(props: ChildActionMenuProps) {
     const { functionType, location, path } = props;
-    const { langClientPromise, currentFile, fullST } = useGraphQlContext();
+    const { langClientPromise, currentFile, fullST, operationDesignView, functionPanel } = useGraphQlContext();
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
     const [currentModel, setCurrentModel] = useState<STNode>(null);
@@ -67,65 +64,25 @@ export function ChildActionMenu(props: ChildActionMenuProps) {
                     });
                 }
             })();
+            setTooltipStatus(false);
         }
     }, [showTooltip]);
+
+    const getMenuItems = () => {
+        const menuItems: Item[] = [];
+        if (currentModel && currentST) {
+            menuItems.push(getServiceFieldEdit(currentModel, functionType, location, currentST, functionPanel));
+            menuItems.push(getDesignServiceField(currentModel, location, operationDesignView));
+        }
+        return menuItems;
+    }
 
     return (
         <>
             {location?.filePath && location?.startLine && location?.endLine &&
-            <Tooltip
-                open={showTooltip}
-                onClose={() => setTooltipStatus(false)}
-                title={
-                    <div onClick={() => setTooltipStatus(false)}>
-                        <Paper style={{ maxWidth: "100%" }}>
-                            <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
-                                <EditNode model={currentModel} functionType={functionType} location={location} st={currentST} />
-                                <DesignNode model={currentModel} location={location} />
-                            </MenuList>
-                        </Paper>
-                    </div>
-                }
-                PopperProps={{
-                    modifiers: [
-                        {
-                            name: 'offset',
-                            options: {
-                                offset: [0, -10],
-                            },
-                        },
-                    ],
-                }}
-                componentsProps={{
-                    tooltip: {
-                        sx: {
-                            backgroundColor: 'none',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                            padding: 0
-                        }
-                    },
-                    arrow: {
-                        sx: {
-                            color: '#efeeee'
-                        }
-                    }
-                }}
-                arrow={true}
-                placement="right"
-            >
-                <MoreVertIcon
-                    cursor="pointer"
-                    onClick={() => setTooltipStatus(true)}
-                    sx={{
-                        fontSize: '18px',
-                        margin: '0px',
-                        position: 'absolute',
-                        right: 0.5
-                    }}
-                />
-            </Tooltip>
+                <div onClick={() => setTooltipStatus(true)}>
+                    <ContextMenu iconSx={verticalIconSubMenu} sx={verticalIconWrapperSubMenu} menuItems={getMenuItems()} />
+                </div>
             }
         </>
     );

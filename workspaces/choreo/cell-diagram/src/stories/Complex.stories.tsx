@@ -857,19 +857,19 @@ const observationsModel: Project = {
     modelVersion: "0.4.0",
 };
 
-storiesOf("Complex", module).add("Component links", () => (
+storiesOf("Project", module).add("Component links", () => (
     <Container>
         <CellDiagram project={simpleModel} showControls={false} animation={false} onComponentDoubleClick={handleComponentDoubleClick} />
     </Container>
 ));
 
-storiesOf("Complex", module).add("With unused configurations", () => (
+storiesOf("Project", module).add("With unused configurations", () => (
     <Container>
         <CellDiagram project={complexModel} onComponentDoubleClick={handleComponentDoubleClick} />
     </Container>
 ));
 
-storiesOf("Complex", module).add("With observability data", () => (
+storiesOf("Project", module).add("With observability data", () => (
     <Container>
         <CellDiagram project={observationsModel} showControls={true} componentMenu={componentMenu} onComponentDoubleClick={handleComponentDoubleClick} />
     </Container>

@@ -29,7 +29,7 @@ export function DeleteComponentButton(props: DeleteComponentProps) {
         if (canDelete) {
             handleDialogStatus(true);
         } else {
-            editLayerAPI.showErrorMessage(RESTRICTED_DELETE_MSG);
+            editLayerAPI.showErrorMessage({message: RESTRICTED_DELETE_MSG});
         }
     }
 

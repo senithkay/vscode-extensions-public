@@ -41,7 +41,7 @@
         "defaultViewContainer": "activitybar:eggplant",
         "commands": [
             {
-                "command": "eggplant.openLowCode",
+                "command": "eggplant.show.visualizer",
                 "title": "Open Low Code"
             }
         ]
@@ -64,15 +64,15 @@
     "dependencies": {
         "@wso2-enterprise/font-wso2-vscode": "workspace:*",
         "@wso2-enterprise/syntax-tree": "workspace:*",
-        "@wso2-enterprise/ballerina-core": "workspace:*",
-        "@wso2-enterprise/eggplant-webview": "workspace:*",
+        "@wso2-enterprise/eggplant-visualizer": "workspace:*",
         "@wso2-enterprise/eggplant-core": "workspace:*",
-        "@wso2-enterprise/eggplant-diagram": "workspace:*",
+        "@wso2-enterprise/eggplant-diagram-2": "workspace:*",
         "vscode-messenger": "^0.4.5",
         "vscode-messenger-common": "^0.4.5",
         "xstate": "^4.38.3",
         "vscode-languageserver-types": "^3.17.5",
-        "vscode-uri": "^3.0.8"
+        "vscode-uri": "^3.0.8",
+        "lodash": "^4.17.11"
     },
     "devDependencies": {
         "@vscode/vsce": "^2.22.0",
@@ -82,7 +82,6 @@
         "@typescript-eslint/eslint-plugin": "^6.9.0",
         "@typescript-eslint/parser": "^6.9.0",
         "@vscode/test-electron": "^2.3.6",
-        "@wso2-enterprise/eggplant-webview": "workspace:*",
         "eslint": "^8.52.0",
         "glob": "^10.3.10",
         "mocha": "^10.2.0",

@@ -38,7 +38,8 @@
    * LTS schedule: https://nodejs.org/en/about/releases/
    * LTS versions: https://nodejs.org/en/download/releases/
    */
-  "nodeSupportedVersionRange": ">=16.13.0 <=18.19.2",
+  "nodeSupportedVersionRange": ">=16.13.0 <=21.19.2",
+  "nodeSupportedVersionRange": ">=16.13.0 <=21.19.2",
   /**
    * If the version check above fails, Rush will display a message showing the current
    * node version and the supported version range. You can use this setting to provide
@@ -460,6 +461,26 @@
       "projectFolder": "workspaces/choreo/choreo-webviews",
       "versionPolicyName": "choreo-extension"
     },
+    {
+      "packageName": "fhir-tools",
+      "projectFolder": "workspaces/fhir-tools/fhir-tools-extension",
+      "versionPolicyName": "fhir-tools-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/fhir-tools-webview",
+      "projectFolder": "workspaces/fhir-tools/webview",
+      "versionPolicyName": "fhir-tools-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/fhir-tools-core",
+      "projectFolder": "workspaces/fhir-tools/fhir-tools-core",
+      "versionPolicyName": "fhir-tools-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/fhir-tools-rpc-client",
+      "projectFolder": "workspaces/fhir-tools/fhir-tools-rpc-client",
+      "versionPolicyName": "fhir-tools-extension"
+    },
     // {
     //   "packageName": "@wso2-enterprise/ballerina-data-mapper",
     //   "projectFolder": "workspaces/ballerina/data-mapper",
@@ -475,11 +496,11 @@
     //   "projectFolder": "workspaces/ballerina/graphql",
     //   "versionPolicyName": "ballerina-extension"
     // },
-    // {
-    //   "packageName": "@wso2-enterprise/ballerina-graphql-design-diagram",
-    //   "projectFolder": "workspaces/ballerina/graphql-design-diagram",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
+    {
+      "packageName": "@wso2-enterprise/ballerina-graphql-design-diagram",
+      "projectFolder": "workspaces/ballerina/graphql-design-diagram",
+      "versionPolicyName": "ballerina-extension"
+    },
     // {
     //   "packageName": "@wso2-enterprise/lang-service",
     //   "projectFolder": "workspaces/ballerina/lang-service",
@@ -516,8 +537,8 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
-      "packageName": "@wso2-enterprise/visualizer-view",
-      "projectFolder": "workspaces/ballerina/visualizer-view",
+      "packageName": "@wso2-enterprise/ballerina-visualizer",
+      "projectFolder": "workspaces/ballerina/ballerina-visualizer",
       "versionPolicyName": "ballerina-extension"
     },
     {
@@ -540,11 +561,11 @@
       "projectFolder": "workspaces/ballerina/low-code-editor-commons",
       "versionPolicyName": "ballerina-extension"
     },
-    // {
-    //   "packageName": "@wso2-enterprise/ballerina-low-code-edtior-ui-components",
-    //   "projectFolder": "workspaces/ballerina/low-code-ui-components",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
+    {
+      "packageName": "@wso2-enterprise/ballerina-low-code-edtior-ui-components",
+      "projectFolder": "workspaces/ballerina/low-code-ui-components",
+      "versionPolicyName": "ballerina-extension"
+    },
     // {
     //   "packageName": "notebook-renderer",
     //   "projectFolder": "workspaces/ballerina/notebook-renderer",
@@ -565,11 +586,11 @@
       "projectFolder": "workspaces/ballerina/project-design-diagrams",
       "versionPolicyName": "ballerina-extension"
     },
-    // {
-    //   "packageName": "@wso2-enterprise/persist-layer-diagram",
-    //   "projectFolder": "workspaces/ballerina/persist-layer-diagram",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
+    {
+      "packageName": "@wso2-enterprise/persist-layer-diagram",
+      "projectFolder": "workspaces/ballerina/persist-layer-diagram",
+      "versionPolicyName": "ballerina-extension"
+    },
     {
       "packageName": "@wso2-enterprise/ballerina-statement-editor",
       "projectFolder": "workspaces/ballerina/statement-editor",
@@ -640,13 +661,18 @@
       "versionPolicyName": "eggplant-extension"
     },
     {
-      "packageName": "@wso2-enterprise/eggplant-webview",
-      "projectFolder": "workspaces/eggplant/webview",
+      "packageName": "@wso2-enterprise/eggplant-visualizer",
+      "projectFolder": "workspaces/eggplant/eggplant-visualizer",
       "versionPolicyName": "eggplant-extension"
     },
+    // {
+    //   "packageName": "@wso2-enterprise/eggplant-diagram",
+    //   "projectFolder": "workspaces/eggplant/eggplant-diagram",
+    //   "versionPolicyName": "eggplant-extension"
+    // },
     {
-      "packageName": "@wso2-enterprise/eggplant-diagram",
-      "projectFolder": "workspaces/eggplant/eggplant-diagram",
+      "packageName": "@wso2-enterprise/eggplant-diagram-2",
+      "projectFolder": "workspaces/eggplant/eggplant-diagram-2",
       "versionPolicyName": "eggplant-extension"
     },
     {
@@ -663,6 +689,11 @@
       "packageName": "@wso2-enterprise/eggplant-rpc-client",
       "projectFolder": "workspaces/eggplant/eggplant-rpc-client",
       "versionPolicyName": "eggplant-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/record-creator",
+      "projectFolder": "workspaces/ballerina/record-creator",
+      "versionPolicyName": "ballerina-extension"
     }
   ]
 }

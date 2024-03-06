@@ -10,8 +10,11 @@
 import React, { useEffect, useRef } from "react";
 
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
+import { ContextMenu, Item } from "@wso2-enterprise/ui-toolkit";
 
-import { FilterNodeMenu } from "../../../NodeActionMenu/FilterNodeMenu";
+import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
+import { getFilterNodeMenuItem } from "../../../MenuItems/menuItems";
+import { verticalIconStyle, verticalIconWrapper } from "../../../MenuItems/style";
 import { NodeCategory } from "../../../NodeFilter";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { UnionIcon } from "../../../resources/assets/icons/UnionIcon";
@@ -26,6 +29,7 @@ interface UnionNodeHeadWidgetProps {
 export function UnionNodeHeadWidget(props: UnionNodeHeadWidgetProps) {
     const { engine, node } = props;
     const headPorts = useRef<PortModel[]>([]);
+    const { setFilteredNode } = useGraphQlContext();
 
     const displayName: string = node.unionObject.name;
 
@@ -33,6 +37,12 @@ export function UnionNodeHeadWidget(props: UnionNodeHeadWidgetProps) {
         headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
         headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
     }, [node]);
+
+    const getMenuItems = () => {
+        const menuItems: Item[] = [];
+        menuItems.push(getFilterNodeMenuItem({ name: displayName, type: NodeCategory.UNION }, setFilteredNode));
+        return menuItems;
+    }
 
     return (
         <NodeHeader data-testid={`union-head-${displayName}`}>
@@ -42,7 +52,7 @@ export function UnionNodeHeadWidget(props: UnionNodeHeadWidgetProps) {
                 engine={engine}
             />
             <HeaderName>{displayName}</HeaderName>
-            <FilterNodeMenu nodeType={{ name: displayName, type: NodeCategory.UNION }} />
+            <ContextMenu iconSx={verticalIconStyle} sx={verticalIconWrapper} menuItems={getMenuItems()} />
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}

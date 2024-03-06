@@ -10,11 +10,17 @@ import React, { ReactNode } from 'react';
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
 import { ErrorBanner } from "../Commons/ErrorBanner";
 import { RequiredFormInput } from "../Commons/RequiredInput";
-import styled from '@emotion/styled';
+import styled from "@emotion/styled";
+import { Typography } from "../Typography/Typography";
 
 interface IconProps {
     iconComponent: ReactNode;
     position?: "start" | "end";
+}
+
+interface InputProps {
+    startAdornment?: string | ReactNode;
+    endAdornment?: string | ReactNode;
 }
 
 export interface TextFieldProps {
@@ -33,6 +39,8 @@ export interface TextFieldProps {
     validationMessage?: string;
     sx?: any;
     onChange?: (e: string) => void;
+    onBlur?: (e: string) => void;
+    InputProps?: InputProps;
 }
 
 interface ContainerProps {
@@ -51,14 +59,32 @@ const LabelContainer = styled.div<ContainerProps>`
 
 export function TextField(props: TextFieldProps) {
     const { label, type = "text", size = 20, disabled, icon, readonly, value = "", id, autoFocus, required, onChange,
-        placeholder, validationMessage, errorMsg, sx
+        onBlur, placeholder, validationMessage, errorMsg, sx, InputProps
     } = props;
     const { iconComponent, position = "start" } = icon || {};
     const handleChange = (e: any) => {
         onChange && onChange(e.target.value);
-    }
+    };
+
+    const startAdornment = InputProps?.startAdornment ? (
+        typeof InputProps.startAdornment === "string" ? (
+            <Typography variant="body1">{InputProps.startAdornment}</Typography>
+        ) : (
+            InputProps.startAdornment
+        )
+    ) : undefined;
+
+    const endAdornment = InputProps?.endAdornment ? (
+        typeof InputProps.endAdornment === "string" ? (
+            <Typography variant="body1">{InputProps.endAdornment}</Typography>
+        ) : (
+            InputProps.endAdornment
+        )
+    ) : undefined;
+
     return (
         <Container sx={sx}>
+            {startAdornment && startAdornment}
             <VSCodeTextField
                 style={{ width: "100%" }}
                 autoFocus={autoFocus}
@@ -69,13 +95,14 @@ export function TextField(props: TextFieldProps) {
                 validationMessage={validationMessage}
                 placeholder={placeholder}
                 onInput={handleChange}
+                onBlur={onBlur}
                 value={value}
                 id={id}
             >
-                {iconComponent && (<span slot={position}>{iconComponent}</span>)}
+                {iconComponent && <span slot={position}>{iconComponent}</span>}
                 <LabelContainer>
-                    <div style={{color: "var(--vscode-editor-foreground	)"}}> 
-                        <label htmlFor={`${id}-label`}>{label}</label> 
+                    <div style={{color: "var(--vscode-editor-foreground	)"}}>
+                        <label htmlFor={`${id}-label`}>{label}</label>
                     </div>
                     {(required && label) && (<RequiredFormInput />)}
                 </LabelContainer>
@@ -83,6 +110,7 @@ export function TextField(props: TextFieldProps) {
             {errorMsg && (
                 <ErrorBanner errorMsg={errorMsg} />
             )}
+            {endAdornment && endAdornment}
         </Container>
     );
 }

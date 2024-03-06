@@ -10,14 +10,12 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline
 import React from "react";
 
-import { ListItemIcon, ListItemText, MenuItem } from "@material-ui/core";
 import { GraphqlMutationIcon, GraphqlQueryIcon, GraphqlSubscriptionIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { Item, MenuItem } from "@wso2-enterprise/ui-toolkit";
 
 import { useGraphQlContext } from "../../../../DiagramContext/GraphqlDiagramContext";
 import { FunctionType, Position } from "../../../../resources/model";
-
-import { useStyles } from "./styles";
 
 interface AddFunctionWidgetProps {
     position: Position;
@@ -27,8 +25,6 @@ interface AddFunctionWidgetProps {
 export function AddFunctionWidget(props: AddFunctionWidgetProps) {
     const { position, functionType } = props;
     const { functionPanel, model } = useGraphQlContext();
-
-    const classes = useStyles();
 
     const openFunctionPanel = () => {
         if (STKindChecker.isServiceDeclaration(model)) {
@@ -60,23 +56,34 @@ export function AddFunctionWidget(props: AddFunctionWidgetProps) {
 
     const popupIcon = () => {
         if (functionType === FunctionType.QUERY) {
-            return <GraphqlQueryIcon/>;
+            return <GraphqlQueryIcon />;
         } else if (functionType === FunctionType.MUTATION) {
-            return <GraphqlMutationIcon/>;
+            return <GraphqlMutationIcon />;
         } else {
-            return <GraphqlSubscriptionIcon/>;
+            return <GraphqlSubscriptionIcon />;
         }
     };
+
+    const ItemWithIcon = () => {
+        return (
+            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                {popupIcon()}
+                <div style={{ marginLeft: '5px' }}>
+                    {popupTitle()}
+                </div>
+            </div>
+        )
+    }
+
+    const menuItem: Item = { id: popupTitle(), label: ItemWithIcon(), onClick: () => openFunctionPanel() };
 
     return (
         <>
             {position &&
-                <MenuItem onClick={() => openFunctionPanel()} style={{paddingTop: "0px", paddingBottom: "0px"}}>
-                    <ListItemIcon style={{marginRight: "10px", minWidth: "0px"}}>
-                        {popupIcon()}
-                    </ListItemIcon>
-                    <ListItemText className={classes.listItemText}>{popupTitle()}</ListItemText>
-                </MenuItem>
+                <MenuItem
+                    sx={{ pointerEvents: "auto", userSelect: "none" }}
+                    item={menuItem}
+                />
             }
         </>
     );

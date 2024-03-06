@@ -9,25 +9,25 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    LibrariesListRequest,
+    LibrariesListResponse,
     LibraryBrowserAPI,
     LibraryDataRequest,
     LibraryDataResponse,
-    LibraryDocResponse,
-    LibraryKind,
     LibrarySearchResponse
-} from "@wso2-enterprise/ballerina-core";
-import { getAllResources, getLibrariesList, getLibraryData } from "../../LibraryBrowser/activate";
+} from "@wso2-enterprise/eggplant-core";
+import { getAllResources, getLibrariesList, getLibraryData } from "../../library-browser/activate";
 
 export class LibraryBrowserRpcManager implements LibraryBrowserAPI {
-    async getLibrariesList(params?: LibraryKind): Promise<LibraryDocResponse | undefined> {
-        return getLibrariesList(params);
+    async getLibrariesList(params: LibrariesListRequest): Promise<LibrariesListResponse> {
+        return getLibrariesList(params.kind);
     }
 
-    async getLibrariesData(): Promise<LibrarySearchResponse | undefined> {
+    async getLibrariesData(): Promise<LibrarySearchResponse> {
         return getAllResources();
     }
 
-    async getLibraryData(params: LibraryDataRequest): Promise<LibraryDataResponse | undefined> {
+    async getLibraryData(params: LibraryDataRequest): Promise<LibraryDataResponse> {
         return getLibraryData(params.orgName, params.moduleName, params.version);
     }
 }

@@ -7,23 +7,4 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from 'react';
-import { render } from 'react-dom';
-import { GetPersistERModelResponse } from '@wso2-enterprise/ballerina-languageclient';
-import { PersistDiagram } from './Diagram';
-
-export function renderDiagram(
-    getPersistModel: () => Promise<GetPersistERModelResponse>,
-    selectedRecord: string,
-    showProblemPanel: () => void,
-    target: HTMLDivElement
-) {
-    render(
-        <PersistDiagram
-            getPersistModel={getPersistModel}
-            selectedRecordName={selectedRecord}
-            showProblemPanel={showProblemPanel}
-        />,
-        target
-    );
-}
+export { PersistDiagram } from "./Diagram";

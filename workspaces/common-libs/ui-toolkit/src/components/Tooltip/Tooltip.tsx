@@ -6,20 +6,15 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ReactNode, useEffect } from 'react';
+import React, { PropsWithChildren, ReactNode, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import styled from "@emotion/styled";
-import { getOffsetMultiplier } from './utils';
 
 export type PositionType =
     'bottom-end' |
     'bottom-start' |
     'bottom' |
-    'left-end' |
-    'left-start' |
     'left' |
-    'right-end' |
-    'right-start' |
     'right' |
     'top-end' |
     'top-start' |
@@ -27,30 +22,20 @@ export type PositionType =
     ;
 
 export interface Position {
-    top?: number;
-    bottom?: number;
-    left?: number;
-    right?: number;
+    top: number;
+    left: number;
 }
 
-export interface OffsetMultiplier {
-    hoverEl: Position;
-    tooltipEl: Position;
+export type ElementProperties = {
+    width: number;
+    height: number;
 }
-
-export type ElementProperties =
-    Position & {
-        width: number;
-        height: number;
-    }
 
 export interface TooltipProps {
     id?: string;
     className?: string;
     content?: string | ReactNode;
     position?: PositionType;
-    children?: ReactNode;
-    containerPosition?: string;
     sx?: any;
 }
 
@@ -79,62 +64,98 @@ const TooltipContent = styled.div<TooltipProps>`
     visibility: hidden;
     transition: opacity 0.2s ease-in-out;
     white-space: nowrap;
-    z-index: 1;
+    z-index: 210;
     ${(props: TooltipProps) => props.sx}
 `;
 
-export const Tooltip: React.FC<TooltipProps> = (props: TooltipProps) => {
+const OffsetCalculator = (position: PositionType, height: number, width: number): Position => {
+    const offset: Position = { top: 0, left: 0 };
+    switch (position) {
+        case 'bottom-end':
+            break;
+        case 'bottom':
+            offset.left = -(width / 2);
+            break;
+        case 'bottom-start':
+            offset.left = -width;
+            break;
+        case 'left':
+            offset.top = -(height / 2);
+            offset.left = -width;
+            break;
+        case 'top-start':
+            offset.top = -height;
+            offset.left = -width;
+            break;
+        case 'top':
+            offset.top = -height;
+            offset.left = -(width / 2);
+            break;
+        case 'top-end':
+            offset.top = -height;
+            break;
+        case 'right':
+            offset.top = -(height / 2);
+            break;
+    }
+
+    return offset;
+}
+
+export const Tooltip: React.FC<PropsWithChildren<TooltipProps>> = (props: PropsWithChildren<TooltipProps>) => {
     const { id, className, content, position, children, sx } = props;
-    const [isVisible, setIsVisible] = React.useState(false);
-    const [diagramPosition, setDiagramPosition] = React.useState<Position>({ top: 0, bottom: 0, left: 0, right: 0 });
-    const hoverElRef = React.useRef(null);
-    const tooltipElRef = React.useRef(null);
+
+    const tooltipEl = React.useRef<HTMLDivElement>(null);
+
+    const [isVisible, setIsVisible] = useState<boolean>(false);
+    const [isHovering, setIsHovering] = useState<boolean>(false);
+    const [tooltipElPosition, setTooltipElPosition] = useState<Position>({ top: 0, left: 0 });
+    const [timer, setTimer] = useState<number | null>(null);
+
+    const updatePosition = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (timer) clearTimeout(timer);
+        setTimer(setTimeout(() => {
+            if (!isHovering && tooltipEl.current) {
+                const { height, width } = tooltipEl.current.getBoundingClientRect() as ElementProperties;
+                const { top: offsetTop, left: offsetLeft } = OffsetCalculator(position || 'bottom-end', height, width);
+
+                setTooltipElPosition({
+                    top: e.clientY + offsetTop,
+                    left: e.clientX + offsetLeft
+                });
+                if (!isVisible) setIsVisible(true);
+            }
+        }, 500))
+    }
+
+    const onMouseLeave = () => {
+        if (timer) clearTimeout(timer);
+        setIsVisible(false);
+    }
 
     useEffect(() => {
-        const hoverEl = hoverElRef.current;
-        const tooltipEl = tooltipElRef.current;
-        const observer = () => {
-            if (hoverEl && tooltipEl) {
-                const hoverElProps = (hoverEl as any).getBoundingClientRect() as ElementProperties;
-                const tooltipElProps = (tooltipEl as any).getBoundingClientRect() as ElementProperties;
-                const offsetMultiplier: OffsetMultiplier = getOffsetMultiplier(position);
-                const viewportWidth = window.innerWidth;
-                const viewportHeight = window.innerHeight;
-
-                setDiagramPosition({
-                    // updated position = initial position + adjustment of position w.r.t. hover element + adjustment of position w.r.t. tooltip element
-                    ...(offsetMultiplier.hoverEl.top && { top: hoverElProps.top + (hoverElProps.height * offsetMultiplier.hoverEl.top) + (tooltipElProps.height * offsetMultiplier.tooltipEl.top) }),
-                    ...(offsetMultiplier.hoverEl.bottom && { bottom: (viewportHeight - hoverElProps.bottom) + (hoverElProps.height * offsetMultiplier.hoverEl.bottom) + (tooltipElProps.height * offsetMultiplier.tooltipEl.bottom) }),
-                    ...(offsetMultiplier.hoverEl.left && { left: hoverElProps.left + (hoverElProps.width * offsetMultiplier.hoverEl.left) + (tooltipElProps.width * offsetMultiplier.tooltipEl.left) }),
-                    ...(offsetMultiplier.hoverEl.right && { right: (viewportWidth - hoverElProps.right) + (hoverElProps.width * offsetMultiplier.hoverEl.right) + (tooltipElProps.width * offsetMultiplier.tooltipEl.right) })
-                })
-            }
-        }
-
-        hoverEl.addEventListener('mouseenter', observer);
-
         return () => {
-            hoverEl.removeEventListener('mouseenter', observer);
+            if (timer) clearTimeout(timer);
         }
-    }, [position])
+    }, [timer])
 
     return (
         <TooltipContainer
-            ref={hoverElRef}
             id={id}
             className={className}
-            position={props.containerPosition}
-            onMouseEnter={() => setIsVisible(true)}
-            onMouseLeave={() => setIsVisible(false)}
+            onMouseMove={updatePosition}
+            onMouseLeave={onMouseLeave}
         >
             {children}
             {createPortal(
                 <TooltipContent
-                    ref={tooltipElRef}
+                    ref={tooltipEl}
+                    onMouseEnter={() => setIsHovering(true)}
+                    onMouseLeave={() => setIsHovering(false)}
                     style={{
-                        opacity: isVisible && content ? 1 : 0,
-                        visibility: isVisible && content ? 'visible' : 'hidden',
-                        ...diagramPosition
+                        opacity: isVisible ? 1 : 0,
+                        visibility: isVisible ? 'visible' : 'hidden',
+                        ...tooltipElPosition
                     }}
                     sx={sx}
                 >

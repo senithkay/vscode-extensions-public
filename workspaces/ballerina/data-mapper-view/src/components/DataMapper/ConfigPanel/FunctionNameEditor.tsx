@@ -1,33 +1,34 @@
-export {}
-// import React from "react";
 
-// import { ProgressIndicator, TextField } from "@wso2-enterprise/ui-toolkit";
-// // import { LinearProgress } from "@material-ui/core";
-// // import { FormTextInput } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import React from "react";
 
-// export interface FunctionNameEditorProps {
-//     // value: string;
-//     // onBlur: (event: unknown) => void;
-//     onChange: (newVal: string) => void;
-//     isValidating: boolean;
-//     // errorMessage?: string;
-// }
+import { ProgressIndicator, TextField } from "@wso2-enterprise/ui-toolkit";
 
-// export function FunctionNameEditor(props: FunctionNameEditorProps)  {
-//     const { onChange, isValidating } = props;
-//     return (
-//         <>
-//             <TextField
-//                 // customProps={{ readonly: false, isErrored: errorMessage !== "" }}
-//                 // onBlur={onBlur}
-//                 onChange={onChange}
-//                 // defaultValue={value}
-//                 value="Name"
-//                 placeholder="Data Mapper Name"
-//                 // errorMessage={errorMessage}
-//                 // dataTestId={`data-mapper-config-fn-name`}
-//             />
-//             {isValidating && <ProgressIndicator />}
-//         </>
-//     );
-// }
+export interface FunctionNameEditorProps {
+    value: string;
+    onBlur?: (event: unknown) => void;
+    onChange: (newVal: string) => void;
+    isValidating: boolean;
+    errorMessage?: string;
+    disabled?: boolean;
+}
+
+export function FunctionNameEditor(props: FunctionNameEditorProps)  {
+    const { value, onChange, onBlur, isValidating, errorMessage, disabled } = props;
+    return (
+        <>
+            <TextField
+                size={80}
+                onBlur={onBlur}
+                onChange={onChange}
+                label="Name"
+                required={true}
+                value={value}
+                placeholder="Data Mapper Name"
+                errorMsg={errorMessage}
+                data-testid={`data-mapper-config-fn-name`}
+                disabled={disabled}
+            />
+            {isValidating && <ProgressIndicator />}
+        </>
+    );
+}
