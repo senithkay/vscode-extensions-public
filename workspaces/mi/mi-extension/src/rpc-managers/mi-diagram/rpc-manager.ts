@@ -200,17 +200,18 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 swaggerAttributes = ` publishSwagger = "${swaggerDef}"`;
             }
 
-            const xmlData = `<? xml version = "1.0" encoding = "UTF-8" ?>
-                <api context="${context}" name = "${name}" ${swaggerAttributes}${versionAttributes} xmlns = "http://ws.apache.org/ns/synapse" >
-                    <resource methods="GET" uri - template="/resource" >
-                        <inSequence>
-                        </inSequence>
-                        < outSequence >
-                        </outSequence>
-                        < faultSequence >
-                        </faultSequence>
-                        < /resource>
-                        < /api>`;
+            const xmlData = 
+`<?xml version="1.0" encoding="UTF-8" ?>
+    <api context="${context}" name="${name}" ${swaggerAttributes}${versionAttributes} xmlns="http://ws.apache.org/ns/synapse">
+        <resource methods="GET" uri-template="/resource">
+            <inSequence>
+            </inSequence>
+            <outSequence>
+            </outSequence>
+            <faultSequence>
+            </faultSequence>
+        </resource>
+    </api>`;
 
             const filePath = path.join(directory, `${name}.xml`);
             fs.writeFileSync(filePath, xmlData);
