@@ -40,7 +40,7 @@ export function HierachicalPath(props: HierachicalPathProps) {
             return;
         }
 
-        const filePath = path.relative(machineView.projectUri, machineView.documentUri).split(path.join("src", "main", "wso2mi", "artifacts"))[1];
+        const filePath = path.relative(machineView.projectUri, machineView.documentUri).split(path.join("src", "main", "wso2mi"))[1];
         const pathItems = filePath.substring(1).split(path.sep);
 
         const segments: Segment[] = [];

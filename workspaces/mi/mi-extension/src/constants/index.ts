@@ -20,4 +20,5 @@ export const COMMANDS = {
     OPEN_SERVICE_DESIGNER: 'MI.project-explorer.open-service-designer',
     OPEN_SERVICE_DESIGNER_BESIDE: 'MI.project-explorer.open-service-designer-beside',
     OPEN_PROJECT_OVERVIEW: 'MI.project-explorer.open-project-overview',
+    ADD_REGISTERY_RESOURCE_COMMAND: 'MI.project-explorer.add-registry-resource',
 };

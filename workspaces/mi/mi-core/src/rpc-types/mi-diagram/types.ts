@@ -30,7 +30,7 @@ export interface CreateAPIRequest {
     version: string;
 }
 
-export interface GetInboundEpDirRequest{
+export interface GetInboundEpDirRequest {
     path: string;
 
 }
@@ -248,4 +248,27 @@ export interface GetDiagnosticsReqeust {
 export interface GetDiagnosticsResponse {
     documentUri: string;
     diagnostics: Diagnostic[];
+}
+
+export interface CreateRegistryResourceRequest {
+    projectDirectory: string;
+    templateType: string;
+    filePath: string;
+    resourceName: string;
+    artifactName: string;
+    registryPath: string;
+    registryRoot: string;
+    createOption: string;
+}
+
+export interface CreateRegistryResourceResponse {
+    path: string;
+}
+
+export interface BrowseFileResponse {
+    filePath: string;
+}
+
+export interface BrowseFileRequest {
+    dialogTitle: string;
 }
