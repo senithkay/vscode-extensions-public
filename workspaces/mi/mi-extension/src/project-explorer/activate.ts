@@ -26,7 +26,7 @@ export function activateProjectExplorer(context: ExtensionContext) {
 			{ label: 'Endpoint', description: 'Add new endpoint' },
 			{ label: 'Sequence', description: 'Add new sequence' },
 			{ label: 'Inbound Endpoint', description: 'Add new inbound endpoint' },
-			{ label: 'Local Entry', description: 'Add new local entry'}
+			{ label: 'Local Entry', description: 'Add new local entry' }
 		], {
 			placeHolder: 'Select the construct to add'
 		}).then(selection => {
@@ -47,26 +47,32 @@ export function activateProjectExplorer(context: ExtensionContext) {
 
 	});
 	commands.registerCommand(COMMANDS.ADD_API_COMMAND, async (entry: ProjectExplorerEntry) => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm, documentUri:entry.info?.path });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm, documentUri: entry.info?.path });
 		console.log('Add API');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_ENDPOINT_COMMAND, (entry: ProjectExplorerEntry) => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.EndPointForm, documentUri:entry.info?.path });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.EndPointForm, documentUri: entry.info?.path });
 		console.log('Add Endpoint');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_SEQUENCE_COMMAND, (entry: ProjectExplorerEntry) => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceForm, documentUri:entry.info?.path });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceForm, documentUri: entry.info?.path });
 		console.log('Add Sequence');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND, (entry: ProjectExplorerEntry) => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.InboundEPForm, documentUri:entry.info?.path });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.InboundEPForm, documentUri: entry.info?.path });
 		console.log('Add Inbound API');
 	});
 
+	commands.registerCommand(COMMANDS.ADD_REGISTERY_RESOURCE_COMMAND, async (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: entry.info?.path });
+		console.log('Add Registry Resource');
+	});
+
 	commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
+		// Update state machine to show the api wizard
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
 		console.log('Create New Project');
 	});

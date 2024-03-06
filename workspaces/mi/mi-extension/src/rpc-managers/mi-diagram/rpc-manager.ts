@@ -59,7 +59,11 @@ import {
     WriteContentToFileResponse,
     getSTRequest,
     getSTResponse,
-    MACHINE_VIEW
+    MACHINE_VIEW,
+    BrowseFileResponse,
+    BrowseFileRequest,
+    CreateRegistryResourceRequest,
+    CreateRegistryResourceResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import * as fs from "fs";
@@ -69,7 +73,8 @@ import { Position, Range, Selection, Uri, WorkspaceEdit, commands, window, works
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { createFolderStructure, getInboundEndpointXmlWrapper } from "../../util";
+import { createFolderStructure, getInboundEndpointXmlWrapper, getRegistryResourceContent } from "../../util";
+import { getMediatypeAndFileExtension, addNewEntryToArtifactXML } from "../../util/fileOperations";
 import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
@@ -568,6 +573,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                 },
                                 'resources': {
                                     'metadata': '',
+                                    'registry': '',
                                 },
                             },
                             'test': ''
@@ -582,7 +588,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const projectOpened = StateMachine.context().projectOpened;
 
             if (open) {
-
                 if (projectOpened) {
                     const answer = await window.showInformationMessage(
                         "Do you want to open the created project in the current window or new window?",
@@ -815,6 +820,57 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async getDiagnostics(params: GetDiagnosticsReqeust): Promise<GetDiagnosticsResponse> {
         return StateMachine.context().langClient!.getDiagnostics(params);
     }
+
+    async browseFile(params: BrowseFileRequest): Promise<BrowseFileResponse> {
+        return new Promise(async (resolve) => {
+            const selectedFile = await window.showOpenDialog({
+                canSelectFiles: true,
+                canSelectFolders: false,
+                canSelectMany: false,
+                defaultUri: Uri.file(os.homedir()),
+                title: params.dialogTitle
+            });
+            if (selectedFile) {
+                resolve({ filePath: selectedFile[0].fsPath });
+            }
+        });
+    }
+
+    async createRegistryResource(params: CreateRegistryResourceRequest): Promise<CreateRegistryResourceResponse> {
+        return new Promise(async (resolve) => {
+            var registryDir = path.join(params.projectDirectory, 'src', 'main', 'wso2mi', 'resources', 'registry', params.registryRoot);
+            if (params.createOption === "import") {
+                if (fs.existsSync(params.filePath)) {
+                    const fileName = path.basename(params.filePath);
+                    const registryPath = path.join(registryDir, params.registryPath);
+                    const destPath = path.join(registryPath, fileName);
+                    if (!fs.existsSync(registryPath)) {
+                        fs.mkdirSync(registryPath, { recursive: true });
+                    }
+                    fs.copyFileSync(params.filePath, destPath);
+                    resolve({ path: destPath });
+                }
+            } else {
+                var fileName = params.resourceName;
+                const fileData = getMediatypeAndFileExtension(params.templateType);
+                fileName = fileName + "." + fileData.fileExtension;
+                const fileContent = getRegistryResourceContent(params.templateType, params.resourceName);
+                const registryPath = path.join(registryDir, params.registryPath);
+                const destPath = path.join(registryPath, fileName);
+                if (!fs.existsSync(registryPath)) {
+                    fs.mkdirSync(registryPath, { recursive: true });
+                }
+                fs.writeFileSync(destPath, fileContent ? fileContent : "");
+                //add the new entry to artifact.xml
+                var transformedPath = params.registryRoot === "gov" ? "/_system/governance" : "/_system/config";
+                transformedPath = path.join(transformedPath, params.registryPath);
+                addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, fileData.mediaType);
+                resolve({ path: destPath });
+            }
+        });
+    }
+
+
 }
 
 export async function askProjectPath() {

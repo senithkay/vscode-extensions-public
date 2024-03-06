@@ -65,7 +65,11 @@ import {
     redo,
     showErrorMessage,
     undo,
-    writeContentToFile
+    writeContentToFile,
+    browseFile,
+    BrowseFileRequest,
+    CreateRegistryResourceRequest,
+    createRegistryResource
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -108,4 +112,6 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getDefinition, (args: GetDefinitionRequest) => rpcManger.getDefinition(args));
     messenger.onRequest(getTextAtRange, (args: GetTextAtRangeRequest) => rpcManger.getTextAtRange(args));
     messenger.onRequest(getDiagnostics, (args: GetDiagnosticsReqeust) => rpcManger.getDiagnostics(args));
+    messenger.onRequest(browseFile, (args: BrowseFileRequest) => rpcManger.browseFile(args));
+    messenger.onRequest(createRegistryResource, (args: CreateRegistryResourceRequest) => rpcManger.createRegistryResource(args));
 }

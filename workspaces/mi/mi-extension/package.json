@@ -146,6 +146,20 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.add-registry-resource",
+        "title": "Add Registry Resource",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
+        "command": "MI.project-explorer.delete-reg-resource",
+        "title": "Delete Registry Resource",
+        "icon": "$(notebook-delete-cell)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.view",
         "title": "View"
       },
@@ -195,7 +209,7 @@
         {
           "command": "MI.project-explorer.open-project-overview",
           "when": "viewItem == project",
-          "group": "inline" 
+          "group": "inline"
         },
         {
           "command": "MI.project-explorer.add-api",
@@ -225,6 +239,16 @@
         {
           "command": "MI.project-explorer.add-local-entry",
           "when": "view == MI.project-explorer && viewItem == localEntries",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-registry-resource",
+          "when": "view == MI.project-explorer && viewItem == registry",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.delete-reg-resource",
+          "when": "view == MI.project-explorer && (viewItem == registry-folder || viewItem == registry-file)",
           "group": "inline"
         }
       ]

@@ -13,6 +13,7 @@ import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { InboundEPWizard } from './views/Forms/InboundEPform';
 import { LocalEntryWizard } from './views/Forms/LocalEntryForm';
+import { RegistryResourceForm } from './views/Forms/RegistryResourceForm';
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -89,6 +90,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.InboundEPForm:
                     setViewComponent(<InboundEPWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.RegistryResourceForm:
+                    setViewComponent(<RegistryResourceForm path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.ProjectCreationForm:
                     setViewComponent(<ProjectWizard />);
