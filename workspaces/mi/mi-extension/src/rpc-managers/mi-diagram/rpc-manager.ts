@@ -23,6 +23,8 @@ import {
     CreateAPIResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
+    CreateInboundEndpointRequest,
+    CreateInboundEndpointResponse,
     CreateProjectRequest,
     CreateProjectResponse,
     CreateSequenceRequest,
@@ -31,34 +33,36 @@ import {
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     FileStructure,
+    GetProjectUuidResponse,
+    GetWorkspaceContextResponse,
     HighlightCodeRequest,
+    InboundEndpointDirectoryResponse,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectDirResponse,
     ProjectRootResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
-    getSTRequest,
-    getSTResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
-    InboundEndpointDirectoryResponse,
-    CreateInboundEndpointRequest,
-    CreateInboundEndpointResponse
+    getSTRequest,
+    getSTResponse,
 } from "@wso2-enterprise/mi-core";
+import axios from 'axios';
 import * as fs from "fs";
 import * as os from 'os';
-import { Position, Range, Selection, Uri, WorkspaceEdit, commands, window, workspace } from "vscode";
-import { StateMachine, openView } from "../../stateMachine";
-import { createFolderStructure } from "../../util";
-import { artifactsContent, compositePomXmlContent, compositeProjectContent, configsPomXmlContent, configsProjectContent, projectFileContent, rootPomXmlContent } from "../../util/templates";
-import path = require("path");
-const { XMLParser } = require("fast-xml-parser");
-import axios from 'axios';
 import { Transform } from 'stream';
+import { v4 as uuidv4 } from 'uuid';
+import { Position, Range, Selection, Uri, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { MI_COPILOT_BACKEND_URL } from "../../constants";
+import { StateMachine, openView } from "../../stateMachine";
+import { createFolderStructure, getInboundEndpointXmlWrapper } from "../../util";
+import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";
-import { getInboundEndpointXmlWrapper } from "../../util";
+import path = require("path");
+import * as xml2js from 'xml2js';
+const { XMLParser } = require("fast-xml-parser");
+
 
 const connectorsPath = path.join(".metadata", ".Connectors");
 export class MiDiagramRpcManager implements MiDiagramAPI {
@@ -490,10 +494,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {
         return new Promise(async (resolve) => {
             const { directory, name, open } = params;
-
+            const projectUuid = uuidv4();
             const folderStructure: FileStructure = {
                 [name]: { // Project folder
-                    'pom.xml': rootPomXmlContent(name),
+                    'pom.xml': rootPomXmlContent(name, projectUuid),
                     'src': {
                         'main': {
                             'wso2mi': {
@@ -585,7 +589,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
         let status = true;
         //if file exists, overwrite if not, create new file and write content.  if successful, return true, else false
-        const { content, directoryPath } = params;
+        const { content } = params;
+        
+        //get current workspace folder 
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders) {
+            throw new Error('No workspace is currently open');
+        }
+        const directoryPath = workspaceFolders[0].uri.fsPath;
 
         const length = content.length;
         for (let i = 0; i < length; i++) {
@@ -617,7 +628,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     console.log("File type - ", fileType)
                 }
                 //write the content to a file, if file exists, overwrite else create new file
-                const fullPath = path.join(directoryPath, '/temp/src/main/wso2mi/artifacts/', fileType, '/', `${name}.xml`);
+                const fullPath = path.join(directoryPath, '/src/main/wso2mi/artifacts/', fileType, '/', `${name}.xml`);
                 try {
                     console.log('Writing content to file:', fullPath);
                     console.log('Content:', content[i]);
@@ -647,6 +658,62 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             editor.selection = new Selection(range.start, range.end);
             editor.revealRange(range);
         }
+    }
+
+    async getWorkspaceContext(): Promise<GetWorkspaceContextResponse> {
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders) {
+            throw new Error('No workspace is currently open');
+        }
+    
+        var rootPath = workspaceFolders[0].uri.fsPath;
+        rootPath += '/src/main/wso2mi/artifacts';
+        const fileContents: string[] = [];
+        var resourceFolders = ['apis', 'endpoints', 'inbound-endpoints', 'local-entries', 'message-processors', 'message-stores', 'proxy-services', 'sequences', 'tasks', 'templates', 'data-services', 'data-sources'];
+        for (const folder of resourceFolders) {
+            const folderPath = path.join(rootPath, folder);
+            const files = await fs.promises.readdir(folderPath);
+            
+        
+            for (const file of files) {
+                const filePath = path.join(folderPath, file);
+                const stats = await fs.promises.stat(filePath);
+        
+                if (stats.isFile()) {
+                    const content = await fs.promises.readFile(filePath, 'utf-8');
+                    fileContents.push(content);
+                }
+            }
+        }
+
+
+    
+        return { context: fileContents };
+    }
+
+    async getProjectUuid(): Promise<GetProjectUuidResponse> {
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders) {
+            throw new Error('No workspace is currently open');
+        }
+        var rootPath = workspaceFolders[0].uri.fsPath;
+        const pomPath = path.join(rootPath, 'pom.xml');
+    
+        return new Promise((resolve, reject) => {
+            fs.readFile(pomPath, 'utf8', (err, data) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    //get the part within <uuid> and <uuid> tags
+                    const uuid = data.match(/<uuid>(.*?)<\/uuid>/s);
+                    if (uuid) {
+                        resolve({ uuid: uuid[1] });
+                    } else {
+                        resolve({ uuid: '' });
+                    }
+                }
+            });
+        });
     }
 }
 

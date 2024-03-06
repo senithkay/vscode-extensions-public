@@ -22,6 +22,8 @@ import {
     CreateAPIResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
+    CreateInboundEndpointRequest,
+    CreateInboundEndpointResponse,
     CreateProjectRequest,
     CreateProjectResponse,
     CreateSequenceRequest,
@@ -29,22 +31,27 @@ import {
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
+    GetProjectUuidResponse,
+    GetWorkspaceContextResponse,
     HighlightCodeRequest,
+    InboundEndpointDirectoryResponse,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectDirResponse,
     ProjectRootResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
+    WriteContentToFileRequest,
+    WriteContentToFileResponse,
     applyEdit,
     askProjectDirPath,
     closeWebView,
     closeWebViewNotification,
     createAPI,
     createEndpoint,
+    createInboundEndpoint,
     createProject,
     createSequence,
-    createInboundEndpoint,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -55,20 +62,17 @@ import {
     getEndpointsAndSequences,
     getInboundEndpointDirectory,
     getProjectRoot,
+    getProjectUuid,
     getSTRequest,
     getSTResponse,
     getSequenceDirectory,
     getSyntaxTree,
+    getWorkspaceContext,
     highlightCode,
     openDiagram,
     openFile,
     showErrorMessage,
-    writeContentToFile,
-    WriteContentToFileRequest,
-    WriteContentToFileResponse,
-    InboundEndpointDirectoryResponse,
-    CreateInboundEndpointRequest,
-    CreateInboundEndpointResponse
+    writeContentToFile
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -179,8 +183,16 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
         return this._messenger.sendRequest(writeContentToFile, HOST_EXTENSION, params);
     }
-  
+
     highlightCode(params: HighlightCodeRequest): void {
         return this._messenger.sendNotification(highlightCode, HOST_EXTENSION, params);
+    }
+
+    getWorkspaceContext(): Promise<GetWorkspaceContextResponse> {
+        return this._messenger.sendRequest(getWorkspaceContext, HOST_EXTENSION);
+    }
+
+    getProjectUuid(): Promise<GetProjectUuidResponse> {
+        return this._messenger.sendRequest(getProjectUuid, HOST_EXTENSION);
     }
 }

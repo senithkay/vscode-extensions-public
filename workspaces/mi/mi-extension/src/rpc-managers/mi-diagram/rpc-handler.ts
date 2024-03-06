@@ -15,17 +15,20 @@ import {
     ConnectorRequest,
     CreateAPIRequest,
     CreateEndpointRequest,
+    CreateInboundEndpointRequest,
     CreateProjectRequest,
     CreateSequenceRequest,
     HighlightCodeRequest,
     OpenDiagramRequest,
     ShowErrorMessageRequest,
+    WriteContentToFileRequest,
     applyEdit,
     askProjectDirPath,
     closeWebView,
     closeWebViewNotification,
     createAPI,
     createEndpoint,
+    createInboundEndpoint,
     createProject,
     createSequence,
     executeCommand,
@@ -36,19 +39,18 @@ import {
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
+    getInboundEndpointDirectory,
     getProjectRoot,
+    getProjectUuid,
     getSTRequest,
     getSequenceDirectory,
     getSyntaxTree,
+    getWorkspaceContext,
     highlightCode,
     openDiagram,
     openFile,
     showErrorMessage,
     writeContentToFile,
-    WriteContentToFileRequest,
-    getInboundEndpointDirectory,
-    createInboundEndpoint,
-    CreateInboundEndpointRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -81,4 +83,6 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAIResponse, (args: AIUserInput) => rpcManger.getAIResponse(args));
     messenger.onRequest(writeContentToFile, (args: WriteContentToFileRequest) => rpcManger.writeContentToFile(args));
     messenger.onNotification(highlightCode, (args: HighlightCodeRequest) => rpcManger.highlightCode(args));
+    messenger.onRequest(getWorkspaceContext, () => rpcManger.getWorkspaceContext());
+    messenger.onRequest(getProjectUuid, () => rpcManger.getProjectUuid());
 }

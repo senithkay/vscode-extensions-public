@@ -107,14 +107,14 @@ export function GettingStarted() {
                             </IconWrapper>
                             <TextWrapper>Create New Project</TextWrapper>
                         </ComponentCard>
-                        <ComponentCard
+                        {/* <ComponentCard
                             onClick={() => handleModeChange("AI")}
                             sx={ComponentCardStyles}>
                             <IconWrapper>
                                 <Codicon name="wand" iconSx={{ fontSize: 150 }} />
                             </IconWrapper>
                             <TextWrapper>Create Project using AI prompt</TextWrapper>
-                        </ComponentCard>
+                        </ComponentCard> */}
                         <ComponentCard
                             onClick={() => handleModeChange("Samples")}
                             sx={ComponentCardStyles}>

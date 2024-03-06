@@ -34,3 +34,6 @@ ui-toolkit/
 
 - Run `npm run storybook` from the root directory.
 It will open the storybook in `http://localhost:6006/`
+- If you get the error '0308010C:digital envelope routines::unsupported' add the following line 
+'export NODE_OPTIONS=--openssl-legacy-provider'
+
