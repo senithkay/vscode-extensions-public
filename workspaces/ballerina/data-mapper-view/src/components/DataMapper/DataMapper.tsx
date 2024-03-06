@@ -116,8 +116,12 @@ export interface ExpressionInfo {
 }
 
 export interface DMNode {
+    // the parent node of the selected node
     stNode: STNode;
+    // fqn for identifying the query expression view
     fieldPath: string;
+    // position of the chanined query expression (query expressions comes under select clauses)
+    position?: NodePosition;
 }
 
 enum DMState {

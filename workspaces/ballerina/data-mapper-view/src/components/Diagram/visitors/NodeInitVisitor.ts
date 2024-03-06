@@ -48,7 +48,7 @@ import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { UnionTypeNode } from "../Node/UnionType";
 import { UnsupportedExprNodeKind, UnsupportedIONode } from "../Node/UnsupportedIO";
 import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel";
-import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "../utils/constants";
+import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS, SELECT_CALUSE_QUERY } from "../utils/constants";
 import {
     getEnumTypes,
     getExprBodyFromLetExpression,
@@ -58,6 +58,7 @@ import {
     getInputNodes,
     getModuleVariables,
     getPrevOutputType,
+    getSubArrayType,
     getTypeFromStore,
     getTypeOfOutput,
     isComplexExpression
@@ -65,6 +66,7 @@ import {
 import { constructTypeFromSTNode } from "../utils/type-utils";
 
 import { QueryParentFindingVisitor } from "./QueryParentFindingVisitor"
+import { QueryExpressionFindingVisitor } from "./QueryExpressionFindingVisitor";
 
 export class NodeInitVisitor implements Visitor {
 
@@ -242,6 +244,135 @@ export class NodeInitVisitor implements Visitor {
                         queryNode.height = intermediateClausesHeight;
                         moduleVariables = getModuleVariables(selectClause.expression, this.context.moduleVariables);
                         enumTypes = getEnumTypes(selectClause.expression, this.context.moduleVariables);
+                    } else if (this.context.selection.selectedST.fieldPath === SELECT_CALUSE_QUERY) {
+                        isFnBodyQueryExpr = true;
+                        const queryExprFindingVisitor = new QueryExpressionFindingVisitor(this.selection.selectedST.position);
+                        traversNode(bodyExpr, queryExprFindingVisitor);
+                        const queryExpr = queryExprFindingVisitor.getQueryExpression();
+                        const selectClauseIndex = queryExprFindingVisitor.getSelectClauseIndex();
+                        returnType = getSubArrayType(returnType, selectClauseIndex);
+                        const selectClause = queryExpr.selectClause || queryExpr.resultClause;
+                        const intermediateClausesHeight = 100 + bodyExpr.queryPipeline.intermediateClauses.length * OFFSETS.INTERMEDIATE_CLAUSE_HEIGHT;
+                        if (returnType?.typeName === PrimitiveBalType.Array) {
+                            const { memberType } = returnType;
+                            if (memberType?.typeName === PrimitiveBalType.Record) {
+                                this.outputNode = new MappingConstructorNode(
+                                    this.context,
+                                    selectClause,
+                                    typeDesc,
+                                    returnType,
+                                    bodyExpr
+                                );
+                            } else if (memberType?.typeName === PrimitiveBalType.Array) {
+                                this.outputNode = new ListConstructorNode(
+                                    this.context,
+                                    selectClause,
+                                    typeDesc,
+                                    returnType,
+                                    bodyExpr
+                                );
+                            } else if (memberType?.typeName === PrimitiveBalType.Union) {
+                                this.outputNode = new UnionTypeNode(
+                                    this.context,
+                                    selectClause,
+                                    typeDesc,
+                                    returnType
+                                );
+                            } else {
+                                this.outputNode = new PrimitiveTypeNode(
+                                    this.context,
+                                    selectClause,
+                                    typeDesc,
+                                    returnType,
+                                    bodyExpr
+                                );
+                            }
+                        } else if (returnType?.typeName === PrimitiveBalType.Record) {
+                            this.outputNode = new MappingConstructorNode(
+                                this.context,
+                                selectClause,
+                                typeDesc,
+                                returnType,
+                                bodyExpr
+                            );
+                        } else if (returnType?.typeName === PrimitiveBalType.Union) {
+                            const message = "Union types within query expressions are not supported at the moment"
+                            this.outputNode = new UnsupportedIONode(
+                                this.context,
+                                UnsupportedExprNodeKind.Output,
+                                message,
+                                undefined
+                            );
+                            // TODO: Uncomment this once the union type support is added in the lang
+                            //  (https://github.com/ballerina-platform/ballerina-lang/issues/40012)
+                            // this.outputNode = new UnionTypeNode(
+                            //     this.context,
+                            //     selectClause,
+                            //     parentIdentifier,
+                            //     exprType
+                            // );
+                        } else {
+                            this.outputNode = new PrimitiveTypeNode(
+                                this.context,
+                                selectClause,
+                                typeDesc,
+                                returnType,
+                                bodyExpr
+                            );
+                        }
+
+                        this.outputNode.setPosition(OFFSETS.TARGET_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
+
+                        const expandedHeaderPorts: RightAnglePortModel[] = [];
+                        const fromClauseNode = new FromClauseNode(this.context, queryExpr.queryPipeline.fromClause);
+                        fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
+                        this.inputParamNodes.push(fromClauseNode);
+
+                        const fromClauseNodeValueLabel = (bodyExpr.queryPipeline.fromClause?.typedBindingPattern?.bindingPattern as CaptureBindingPattern
+                        )?.variableName?.value;
+                        const fromClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${fromClauseNodeValueLabel}`);
+                        expandedHeaderPorts.push(fromClausePort);
+                        fromClauseNode.addPort(fromClausePort);
+
+                        const letClauses = bodyExpr.queryPipeline.intermediateClauses?.filter((item) => {
+                            return (
+                                (STKindChecker.isLetClause(item) && item.typeData?.diagnostics?.length === 0) ||
+                                (STKindChecker.isJoinClause(item) && item.typeData?.diagnostics?.length === 0)
+                            );
+                        });
+
+                        for (const [, item] of letClauses.entries()) {
+                            if (STKindChecker.isLetClause(item)) {
+                                const paramNode = new LetClauseNode(this.context, item as LetClause);
+                                paramNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, 0);
+                                this.inputParamNodes.push(paramNode);
+                                const letClauseValueLabel = (
+                                    ((item as LetClause)?.letVarDeclarations[0] as LetVarDecl)?.typedBindingPattern
+                                        ?.bindingPattern as CaptureBindingPattern
+                                )?.variableName?.value;
+                                const letClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${letClauseValueLabel}`);
+                                expandedHeaderPorts.push(letClausePort);
+                                paramNode.addPort(letClausePort);
+                            } else if (STKindChecker.isJoinClause(item)) {
+                                const paramNode = new JoinClauseNode(this.context, item as JoinClause);
+                                if (paramNode.getSourceType()){
+                                    paramNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, 0);
+                                    this.inputParamNodes.push(paramNode);
+                                    const joinClauseValueLabel = ((item as JoinClause)?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value;
+                                    const joinClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${joinClauseValueLabel}`);
+                                    expandedHeaderPorts.push(joinClausePort);
+                                    paramNode.addPort(joinClausePort);
+                                }
+                            }
+                        }
+
+                        const queryNode = new ExpandedMappingHeaderNode(this.context, bodyExpr);
+                        queryNode.setLocked(true)
+                        this.queryNode = queryNode;
+                        queryNode.targetPorts = expandedHeaderPorts;
+                        queryNode.height = intermediateClausesHeight;
+                        moduleVariables = getModuleVariables(selectClause.expression, this.context.moduleVariables);
+                        enumTypes = getEnumTypes(selectClause.expression, this.context.moduleVariables);
                     } else {
                         if (returnType.typeName === PrimitiveBalType.Array) {
                             this.outputNode = new ListConstructorNode(
@@ -352,6 +483,7 @@ export class NodeInitVisitor implements Visitor {
     beginVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
         // TODO: Implement a way to identify the selected query expr without using the positions since positions might change with imports, etc.
         const selectedSTNode = this.selection.selectedST.stNode;
+        const position = this.selection.selectedST.position;
         const isLetVarDecl = STKindChecker.isLetVarDecl(parent);
         let parentIdentifier: IdentifierToken;
         let parentNode = parent;
@@ -373,7 +505,8 @@ export class NodeInitVisitor implements Visitor {
 
         const isSelectedExpr = parentNode
             && (STKindChecker.isSpecificField(selectedSTNode) || STKindChecker.isLetVarDecl(selectedSTNode))
-            && isPositionsEquals(parentNode.position, selectedSTNode.position);
+            && isPositionsEquals(parentNode.position, selectedSTNode.position)
+            && isPositionsEquals(node.position, position);
 
         if (isSelectedExpr) {
             if (parentIdentifier) {

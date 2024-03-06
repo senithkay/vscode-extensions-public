@@ -16,7 +16,7 @@ import classnames from "classnames";
 
 import { ViewOption } from "../../../DataMapper/DataMapper";
 import { DataMapperPortWidget } from '../../Port';
-import { FUNCTION_BODY_QUERY } from "../../utils/constants";
+import { FUNCTION_BODY_QUERY, SELECT_CALUSE_QUERY } from "../../utils/constants";
 import { isRepresentFnBody } from "../../utils/dm-utils";
 import { QueryParentFindingVisitor } from '../../visitors/QueryParentFindingVisitor';
 
@@ -24,6 +24,7 @@ import {
     QueryExpressionNode,
 } from './QueryExpressionNode';
 import { Button, Codicon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { isPositionsEquals } from '../../../../utils/st-utils';
 
 export const useStyles = () => ({
     root: css({
@@ -120,6 +121,7 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
 
     const onClickOnExpand = () => {
         let isExprBodyQuery: boolean;
+        let isSelectClauseQuery: boolean;
 
         if (STKindChecker.isBracedExpression(node.parentNode)) {
             // Handle scenarios where user tries to expand into
@@ -132,13 +134,20 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
             }
         } else if (exprFnBody && isRepresentFnBody(node.parentNode, exprFnBody)) {
             isExprBodyQuery = true;
+        } else if (STKindChecker.isSelectClause(node.parentNode)
+            || (STKindChecker.isSpecificField(node.parentNode)
+                && STKindChecker.isQueryExpression(node.parentNode.valueExpr)
+                && !isPositionsEquals(node.value.position, node.parentNode.valueExpr.position))
+        ) {
+            isSelectClauseQuery = true;
         }
         node.context.changeSelection(ViewOption.EXPAND,
             {
                 ...node.context.selection,
                 selectedST: {
-                    stNode: isExprBodyQuery ? node.context.selection.selectedST.stNode : node.parentNode,
-                    fieldPath: isExprBodyQuery ? FUNCTION_BODY_QUERY : node.targetFieldFQN
+                    stNode: isExprBodyQuery || isSelectClauseQuery ? node.context.selection.selectedST.stNode : node.parentNode,
+                    fieldPath: isExprBodyQuery ? FUNCTION_BODY_QUERY : isSelectClauseQuery ? SELECT_CALUSE_QUERY : node.targetFieldFQN,
+                    position: node.value.position
                 }
             })
     }

@@ -34,6 +34,7 @@ import {
 	OptionalFieldAccess,
 	QueryExpression,
 	RequiredParam,
+	SelectClause,
 	SimpleNameReference,
 	SpecificField,
 	STKindChecker,
@@ -1046,6 +1047,23 @@ export function getTypeOfOutput(typeIdentifier: TypeDescriptor | IdentifierToken
 		endColumn: typeIdentifierPosition.startColumn
 	});
 }
+
+export function getTypeOfSelectClause(selectClause: SelectClause): TypeField {
+	let typeIdentifierPosition = selectClause.expression.position;
+	return getTypeFromStore(typeIdentifierPosition);
+}
+
+export function getSubArrayType(arrayType: TypeField, index: number): TypeField {
+    if (index <= 0) {
+        return arrayType;
+    }
+
+	if (arrayType.memberType) {
+		return getSubArrayType(arrayType.memberType, index - 1);
+	}
+	return undefined;
+}
+    
 
 export function getTypeFromStore(position: NodePosition): TypeField {
 	const recordTypeDescriptors = TypeDescriptorStore.getInstance();
