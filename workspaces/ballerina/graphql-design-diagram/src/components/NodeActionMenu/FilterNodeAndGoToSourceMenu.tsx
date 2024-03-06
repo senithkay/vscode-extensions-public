@@ -8,17 +8,15 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
-import React, { useState } from "react";
+import React from "react";
 
-import { MenuList, Paper } from "@material-ui/core";
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import Tooltip from "@mui/material/Tooltip";
+import { ContextMenu, Item } from "@wso2-enterprise/ui-toolkit";
 
+import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
+import { getFilterNodeMenuItem, getGoToSourceMenuItem } from "../MenuItems/menuItems";
+import { verticalIconStyle, verticalIconWrapper } from "../MenuItems/style";
 import { NodeType } from "../NodeFilter";
 import { Position } from "../resources/model";
-
-import { FilterNodeMenuItem } from "./FilterNodeMenuItem";
-import { GoToSourceMenuItem } from "./GoToSourceMenuItem";
 
 interface GoToSourceNodeMenuProps {
     location: Position;
@@ -27,65 +25,19 @@ interface GoToSourceNodeMenuProps {
 
 export function FilterNodeAndGoToSourceMenu(props: GoToSourceNodeMenuProps) {
     const { location, nodeType } = props;
+    const { setFilteredNode, goToSource } = useGraphQlContext();
 
-    const [showTooltip, setTooltipStatus] = useState<boolean>(false);
+    const getMenuItems = () => {
+        const items: Item[] = [];
+        items.push(getGoToSourceMenuItem(location, goToSource));
+        items.push(getFilterNodeMenuItem(nodeType, setFilteredNode));
+        return items;
+    }
 
     return (
         <>
             {location?.filePath && location?.startLine && location?.endLine &&
-            <Tooltip
-                open={showTooltip}
-                onClose={() => setTooltipStatus(false)}
-                title={
-                    <div onClick={() => setTooltipStatus(false)}>
-                        <Paper style={{ maxWidth: "100%" }}>
-                            <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
-                                <GoToSourceMenuItem location={location} />
-                                <FilterNodeMenuItem nodeType={nodeType} />
-                            </MenuList>
-                        </Paper>
-                    </div>
-                }
-                PopperProps={{
-                    modifiers: [
-                        {
-                            name: 'offset',
-                            options: {
-                                offset: [0, -10],
-                            },
-                        },
-                    ],
-                }}
-                componentsProps={{
-                    tooltip: {
-                        sx: {
-                            backgroundColor: 'none',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                            padding: 0
-                        }
-                    },
-                    arrow: {
-                        sx: {
-                            color: '#efeeee'
-                        }
-                    }
-                }}
-                arrow={true}
-                placement="right"
-            >
-                <MoreVertIcon
-                    cursor="pointer"
-                    onClick={() => setTooltipStatus(true)}
-                    sx={{
-                        fontSize: '18px',
-                        margin: '0px',
-                        position: 'absolute',
-                        right: 0.5
-                    }}
-                />
-            </Tooltip>
+                <ContextMenu iconSx={verticalIconStyle} sx={verticalIconWrapper} menuItems={getMenuItems()} />
             }
         </>
     );

@@ -10,17 +10,11 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline no-implicit-dependencies no-submodule-imports
 import React from "react";
 
-import { Divider, ListItemIcon, ListItemText, MenuItem, MenuList, Paper } from "@material-ui/core";
 import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Item } from "@wso2-enterprise/ui-toolkit";
 
 import { useGraphQlContext } from "../../../../DiagramContext/GraphqlDiagramContext";
-import { FilterNodeMenuItem } from "../../../../NodeActionMenu/FilterNodeMenuItem";
-import { GoToSourceMenuItem } from "../../../../NodeActionMenu/GoToSourceMenuItem";
-import { NodeCategory } from "../../../../NodeFilter";
-import { FunctionType, Position } from "../../../../resources/model";
-
-import { AddFunctionWidget } from "./AddFunctionWidget";
-import { useStyles } from "./styles";
+import { Position } from "../../../../resources/model";
 
 interface ServiceSubheaderProps {
     location: Position;
@@ -28,33 +22,22 @@ interface ServiceSubheaderProps {
 }
 
 export function ServiceSubheader(props: ServiceSubheaderProps) {
-    const { location, nodeName } = props;
     const { servicePanel } = useGraphQlContext();
-    const classes = useStyles();
+
+    const ItemWithIcon = () => {
+        return (
+            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                <LabelEditIcon />
+                <div style={{ marginLeft: '5px' }}>
+                    Edit Service
+                </div>
+            </div>
+        )
+    }
+
+    const menuItem: Item = { id: "edit-service", label: ItemWithIcon(), onClick: () => servicePanel() };
 
     return (
-        <>
-            <Paper style={{ maxWidth: "100%" }}>
-                <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
-                    <MenuItem onClick={() => servicePanel()} style={{ paddingTop: "0px", paddingBottom: "0px" }}>
-                        <ListItemIcon style={{ marginRight: "10px", minWidth: "0px" }}>
-                            <LabelEditIcon />
-                        </ListItemIcon>
-                        <ListItemText className={classes.listItemText}>Edit Service</ListItemText>
-                    </MenuItem>
-                    <Divider />
-                    <AddFunctionWidget position={location} functionType={FunctionType.QUERY} />
-                    <AddFunctionWidget position={location} functionType={FunctionType.MUTATION} />
-                    <AddFunctionWidget position={location} functionType={FunctionType.SUBSCRIPTION} />
-                    {location?.filePath &&
-                    <>
-                        <Divider />
-                        <GoToSourceMenuItem location={location} />
-                        <FilterNodeMenuItem nodeType={{ name: nodeName, type: NodeCategory.GRAPHQL_SERVICE }} />
-                    </>
-                    }
-                </MenuList>
-            </Paper>
-        </>
+        { menuItem }
     );
 }

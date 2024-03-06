@@ -133,7 +133,7 @@ export function updatedGraphqlModel(graphqlModel: GraphqlDesignModel, typeFilter
     return updatedModel;
 }
 
-export function createFilteredNodeModel(updatedNodeList: string[], graphqlModel: GraphqlDesignModel, updatedModel: GraphqlDesignModel){
+export function createFilteredNodeModel(updatedNodeList: string[], graphqlModel: GraphqlDesignModel, updatedModel: GraphqlDesignModel) {
     // iterate with the current model and obtain only the ones with the updatedNodeList
     const unionMap = new Map<string, UnionComponent>();
     const enumMap = new Map<string, EnumComponent>();
@@ -293,8 +293,7 @@ export function graphqlServiceModelMapper(service: Service) {
 function filterFromOperationType(operationType: OperationTypes, service: Service) {
     const filteredResourceFunctions: ResourceFunction[] = [];
     let filteredRemoteFunctions: RemoteFunction[] = [];
-
-    if (operationType === OperationTypes.Queries) {
+    if (operationType.valueOf() === OperationTypes.Queries.valueOf()) {
         service.resourceFunctions.forEach((resourceFunction) => {
             if (!resourceFunction.subscription) {
                 filteredResourceFunctions.push(resourceFunction);

@@ -8,7 +8,6 @@
  */
 
 import styled from "@emotion/styled";
-import { makeStyles } from "@material-ui/core/styles";
 
 export const Container: React.FC<any> = styled.div`
   display: flex;
@@ -16,14 +15,15 @@ export const Container: React.FC<any> = styled.div`
   font-family: GilmerRegular;
   font-size: 13px;
   letter-spacing: 0.8px;
-  padding: 15px;
 `;
 
-export const popOverStyle = makeStyles(theme => ({
-    popover: {
-        pointerEvents: 'none',
-    },
-    popoverContent: {
-        pointerEvents: 'auto',
-    },
-}));
+export const popOverCompStyle = {
+  backgroundColor: "white",
+  border: "1px solid black",
+  padding: "10px",
+  borderRadius: "5px",
+  display: "flex",
+  flexDirection: "column",
+  maxWidth: "280px",
+  gap: "8px",
+};
