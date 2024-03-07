@@ -11,6 +11,7 @@ import { ProjectStructureEntry, ProjectStructureResponse, ProjectDirectoryMap, E
 import { ComponentCard } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import path from 'path';
 
 const allowedConfigs = ["apis", "sequences", "endpoints", "api", "inboundEndpoints"];
 
@@ -49,7 +50,7 @@ const Title = styled.div`
     line-height: normal;
 `;
 
-const ProjectStructureView = (props: { projectStructure: ProjectStructureResponse }) => {
+const ProjectStructureView = (props: { projectStructure: ProjectStructureResponse, workspaceDir: string }) => {
     const { projectStructure } = props;
     const { rpcClient } = useVisualizerContext();
 
@@ -62,16 +63,18 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
     };
 
     const handlePlusClick = async (key: string) => {
+        const dir = path.join(props.workspaceDir, 'src', 'main', 'wso2mi', 'artifacts', key);
+        const entry = { info: { path: dir } };
         if (key === 'apis') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-api"] });
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-api", entry] });
         } else if (key === 'endpoints') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-endpoint"] });
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-endpoint", entry] });
         } else if (key === 'sequences') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-sequence"] });
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-sequence", entry] });
         } else if (key === 'inboundEndpoints') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-inbound-endpoint"] });
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-inbound-endpoint", entry] });
         } else if (key === 'registry') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-registry-resource"] });
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-registry-resource", entry] });
         }
     };
 

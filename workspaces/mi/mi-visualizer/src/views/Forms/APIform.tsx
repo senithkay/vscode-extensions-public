@@ -185,7 +185,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
         rpcClient.getMiVisualizerRpcClient().goBack();
     }
 
-    const isValid: boolean = apiName.length > 0 && apiContext.length > 0 && versionType.length > 0;
+    const isValid: boolean = !validateAPIName(apiName) && !validateAPIContext(apiContext) && versionType.length > 0;
     const contentUpdated: boolean = apiData ?
         (apiData.apiName !== apiName)
         || (apiData.apiContext !== apiContext)
