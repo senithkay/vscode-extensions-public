@@ -705,7 +705,18 @@ export class NodeInitVisitor implements Visitor {
                     this.otherInputNodes.push(enumTypeNode);
                 }
             }
+            if (isSelectClauseQueryExpr(fieldPath)) {
+                const currentSelectClause = node?.resultClause || node.selectClause;
+                if (STKindChecker.isQueryExpression(currentSelectClause.expression)) {
+                    // query expr as the select clause expr of a query expr declared as a specific field
+                    // (eg: when an ouput field is multi dimensional array and the mapped input is also a multi dimensional array)
+                    const queryNode = new QueryExpressionNode(this.context, currentSelectClause.expression, parentNode);
+                    this.intermediateNodes.push(queryNode);
+                    this.isWithinQuery += 1;
+                }
+            }
         } else if (!isFnBodyQueryExpr(fieldPath) && !isSelectClauseQueryExpr(fieldPath) && !isLetVarDecl && parentNode) {
+            // query expr as the value expr of a specific field
             const queryNode = new QueryExpressionNode(this.context, node, parentNode);
             if (this.isWithinQuery === 0) {
                 this.intermediateNodes.push(queryNode);
@@ -725,6 +736,7 @@ export class NodeInitVisitor implements Visitor {
 
                 if (isFnBodyQueryExpr(fieldPath)) {
                     if (!isPositionsEquals(queryExpr.position, node.position) && this.isWithinQuery === 0) {
+                        // query expr as the function body
                         const queryNode = new QueryExpressionNode(this.context, node, parentNode);
                         this.intermediateNodes.push(queryNode);
                         this.isWithinQuery += 1;
@@ -736,6 +748,8 @@ export class NodeInitVisitor implements Visitor {
                     const currentSelectClause = currentQueryExpr?.resultClause || currentQueryExpr.selectClause;
                     if (isPositionsEquals(currentQueryExpr.position, node.position)
                         && STKindChecker.isQueryExpression(currentSelectClause.expression)) {
+                        // query expr as the select clause expr of a query expr declared as a function body
+                        // (eg: when output is multi dimensional array and the mapped input is also a multi dimensional array)
                         const queryNode = new QueryExpressionNode(this.context, currentSelectClause.expression, parentNode);
                         this.intermediateNodes.push(queryNode);
                         this.isWithinQuery += 1;
