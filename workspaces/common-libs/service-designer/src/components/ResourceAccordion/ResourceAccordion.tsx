@@ -52,7 +52,7 @@ const LinkButtonWrapper = styled.div`
     padding: 0 16px;
 
     :hover {
-        border: 1px solid var(--vscode-inputOption-activeBorder);
+        outline: 1px solid var(--vscode-inputOption-activeBorder);
     }
 `;
 
