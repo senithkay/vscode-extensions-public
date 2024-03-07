@@ -122,7 +122,8 @@ export function ProjectWizard() {
     };
 
 
-    const isValid: boolean = projectName.length > 0 && projectDir.length > 0 && groupID.length > 0 && artifactID.length > 0;
+    const isValid: boolean = !validateProjectName(projectName) && projectDir.length > 0 && !validateGroupID(groupID)
+        && !validateGroupID(artifactID);
 
     return (
         <WizardContainer>

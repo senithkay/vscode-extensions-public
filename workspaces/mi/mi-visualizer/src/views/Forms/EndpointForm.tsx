@@ -162,9 +162,8 @@ export function EndpointWizard(props: EndpointWizardProps) {
         rpcClient.getMiVisualizerRpcClient().goBack();
     }
 
-    const isValid: boolean = endpointName.length > 0 &&
-        endpointType.length > 0 &&
-        (!(endpointType === "Address Endpoint") || address.length > 0) &&
+    const isValid: boolean = !validateEndpointName(endpointName) && endpointType.length > 0 &&
+        (!(endpointType === "Address Endpoint") || !validateAddress(address)) &&
         (!(endpointType === "HTTP Endpoint") || (method.length > 0 && URITemplate.length > 0));
 
     return (

@@ -111,7 +111,7 @@ export interface ESBConfigsResponse {
 }
 
 export interface CommandsRequest {
-    commands: string[];
+    commands: any[];
 }
 
 export interface CommandsResponse {
