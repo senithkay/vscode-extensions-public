@@ -339,12 +339,14 @@ export function AIProjectGenerationChat() {
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "90%", width: "100%", margin: "auto" }}>
       <div style={{ flex: 1, overflowY: "auto", padding: "10px", borderBottom: "1px solid #ccc" }}>
-      <FontAwesomeIcon
+      <div style={{ textAlign: "right" }}>
+          <FontAwesomeIcon
             icon={faTrash}
             size="lg"
             style={{ cursor: "pointer", color: "white" }}
             onClick={() => handleClearChat()}
           />
+        </div>
        {otherMessages.map((message, index) => (
         <div key={index} style={{ marginBottom: "8px" }}>
         {message.type !== "question" && message.type !== "label" && <strong>{message.role}:</strong>}
