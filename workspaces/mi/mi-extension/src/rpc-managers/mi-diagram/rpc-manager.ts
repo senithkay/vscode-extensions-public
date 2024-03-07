@@ -86,7 +86,7 @@ import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getTaskXmlWrapper, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper } from "../../util";
-import { getMediatypeAndFileExtension, addNewEntryToArtifactXML } from "../../util/fileOperations";
+import { getMediatypeAndFileExtension, addNewEntryToArtifactXML, detectMediaType } from "../../util/fileOperations";
 import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
 import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";
@@ -218,8 +218,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 swaggerAttributes = ` publishSwagger="${swaggerDef}"`;
             }
 
-            const xmlData = 
-`<?xml version="1.0" encoding="UTF-8" ?>
+            const xmlData =
+                `<?xml version="1.0" encoding="UTF-8" ?>
     <api context="${context}" name="${name}" ${swaggerAttributes}${versionAttributes} xmlns="http://ws.apache.org/ns/synapse">
         <resource methods="GET" uri-template="/resource">
             <inSequence>
@@ -513,8 +513,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const xmlData = getTaskXmlWrapper(templateParams);
 
             let filePath: string;
-            
-            if(directory.endsWith('.xml')) {
+
+            if (directory.endsWith('.xml')) {
                 filePath = directory;
             } else {
                 filePath = path.join(directory, `${templateParams.name}.xml`);
@@ -556,7 +556,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     response.triggerCount = Number(jsonData.task.trigger["@_"]["@_count"]);
                     response.triggerInterval = Number(jsonData.task.trigger["@_"]["@_interval"]);
                 }
-                else if(jsonData.task.trigger["@_"]["@_cron"] !== undefined) {
+                else if (jsonData.task.trigger["@_"]["@_cron"] !== undefined) {
                     response.triggerType = 'cron';
                     response.triggerCron = jsonData.task.trigger["@_"]["@_cron"];
                 }
@@ -727,24 +727,24 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         }];
 
                     const ScheduledMessageForwardingProcessor = {
-                            'client.retry.interval': 'retryInterval',
-                            'member.count': 'taskCount',
-                            'message.processor.reply.sequence': 'replySequence',
-                            'axis2.config': 'axis2Config',
-                            'quartz.conf': 'quartzConfigPath',
-                            'non.retry.status.codes': 'statusCodes',
-                            'message.processor.deactivate.sequence': 'deactivateSequence',
-                            'is.active': 'processorState',
-                            'axis2.repo': 'clientRepository',
-                            cronExpression: 'cron',
-                            'max.delivery.attempts': 'maxRedeliveryAttempts',
-                            'message.processor.fault.sequence': 'faultSequence',
-                            'store.connection.retry.interval': 'connectionAttemptInterval',
-                            'max.store.connection.attempts': 'maxConnectionAttempts',
-                            'max.delivery.drop': 'dropMessageOption',
-                            interval: 'forwardingInterval',
-                            'message.processor.failMessagesStore': 'failMessageStoreType'
-                        },
+                        'client.retry.interval': 'retryInterval',
+                        'member.count': 'taskCount',
+                        'message.processor.reply.sequence': 'replySequence',
+                        'axis2.config': 'axis2Config',
+                        'quartz.conf': 'quartzConfigPath',
+                        'non.retry.status.codes': 'statusCodes',
+                        'message.processor.deactivate.sequence': 'deactivateSequence',
+                        'is.active': 'processorState',
+                        'axis2.repo': 'clientRepository',
+                        cronExpression: 'cron',
+                        'max.delivery.attempts': 'maxRedeliveryAttempts',
+                        'message.processor.fault.sequence': 'faultSequence',
+                        'store.connection.retry.interval': 'connectionAttemptInterval',
+                        'max.store.connection.attempts': 'maxConnectionAttempts',
+                        'max.delivery.drop': 'dropMessageOption',
+                        interval: 'forwardingInterval',
+                        'message.processor.failMessagesStore': 'failMessageStoreType'
+                    },
                         ScheduledFailoverMessageForwardingProcessor = {
                             'client.retry.interval': 'retryInterval',
                             cronExpression: 'cron',
@@ -894,7 +894,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                 },
                                 'resources': {
                                     'metadata': '',
-                                    'registry': '',
+                                    'registry': {
+                                        'gov': '',
+                                        'conf': '',
+                                    },
                                 },
                             },
                             'test': ''
@@ -945,7 +948,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const { source, directory, open } = params;
 
-            let {projectName, groupId, artifactId} = getProjectDetails(source);
+            let { projectName, groupId, artifactId } = getProjectDetails(source);
 
             if (projectName && groupId && artifactId) {
                 const folderStructure: FileStructure = {
@@ -992,11 +995,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 window.showInformationMessage(`Successfully imported ${projectName} project`);
 
                 if (open) {
-                    commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory,projectName)));
-                    resolve({ filePath: path.join(directory,projectName) });
+                    commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, projectName)));
+                    resolve({ filePath: path.join(directory, projectName) });
                 }
 
-                resolve({ filePath: path.join(directory,projectName) });
+                resolve({ filePath: path.join(directory, projectName) });
             } else {
                 window.showErrorMessage('Could not find the project details from the provided project: ', source);
                 resolve({ filePath: "" });
@@ -1223,6 +1226,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async createRegistryResource(params: CreateRegistryResourceRequest): Promise<CreateRegistryResourceResponse> {
         return new Promise(async (resolve) => {
             var registryDir = path.join(params.projectDirectory, 'src', 'main', 'wso2mi', 'resources', 'registry', params.registryRoot);
+            var transformedPath = params.registryRoot === "gov" ? "/_system/governance" : "/_system/config";
             if (params.createOption === "import") {
                 if (fs.existsSync(params.filePath)) {
                     const fileName = path.basename(params.filePath);
@@ -1232,6 +1236,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         fs.mkdirSync(registryPath, { recursive: true });
                     }
                     fs.copyFileSync(params.filePath, destPath);
+                    transformedPath = path.join(transformedPath, params.registryPath);
+                    const mediaType = await detectMediaType(params.filePath);
+                    addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, mediaType);
                     resolve({ path: destPath });
                 }
             } else {
@@ -1246,7 +1253,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
                 fs.writeFileSync(destPath, fileContent ? fileContent : "");
                 //add the new entry to artifact.xml
-                var transformedPath = params.registryRoot === "gov" ? "/_system/governance" : "/_system/config";
                 transformedPath = path.join(transformedPath, params.registryPath);
                 addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, fileData.mediaType);
                 resolve({ path: destPath });
