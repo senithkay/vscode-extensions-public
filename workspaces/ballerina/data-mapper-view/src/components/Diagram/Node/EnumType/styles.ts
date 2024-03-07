@@ -81,9 +81,9 @@ export const useStyles = () => ({
         minWidth: "100px",
         display: "flex",
         minHeight: "24px",
-        background: "var(--vscode-input-background)",
+        background: "var(--vscode-sideBar-background)",
         '&:hover': {
-            backgroundColor: 'var(--vscode-tab-inactiveBackground)'
+            backgroundColor: 'var(--vscode-list-hoverBackground)'
         }
     }),
     headerTreeLabel: css({
@@ -92,7 +92,7 @@ export const useStyles = () => ({
         minWidth: "100px",
         display: "flex",
         minHeight: "24px",
-        backgroundColor: "var(--vscode-editorWidget-background)"
+        backgroundColor: "var(--vscode-sideBar-background)"
     }),
     treeLabelParentHovered: css({
         backgroundColor: 'var(--vscode-list-hoverBackground)'

@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ReactNode } from 'react';
+import React, { PropsWithChildren } from 'react';
 import styled from "@emotion/styled";
 import { Overlay } from '../Commons/Overlay';
 import { colors } from '../Commons/Colors';
@@ -16,7 +16,6 @@ export interface DialogProps {
     className?: string;
     isOpen?: boolean;
     onClose?: (event?: React.MouseEvent<HTMLElement, MouseEvent>) => void;
-    children?: ReactNode;
     sx?: any;
 }
 
@@ -36,7 +35,7 @@ const Container = styled.div<DialogProps>`
     ${(props: DialogProps) => props.sx};
 `;
 
-export const Dialog: React.FC<DialogProps> = (props: DialogProps) => {
+export const Dialog: React.FC<PropsWithChildren<DialogProps>> = (props: PropsWithChildren<DialogProps>) => {
     const { id, className, isOpen, onClose, children, sx } = props;
 
     return (
@@ -52,3 +51,4 @@ export const Dialog: React.FC<DialogProps> = (props: DialogProps) => {
         </div>
     );
 };
+

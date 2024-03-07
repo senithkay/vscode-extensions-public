@@ -90,7 +90,7 @@ export async function getFnDefsForFnCalls(
     const fnDefs: FnDefInfo[] = [];
     const fnInfo: Map<string, FunctionInfo[]> = new Map();
     for (const position of fnCallPositions) {
-        const reply = await langServerRpcClient.definition({
+        const definition = await langServerRpcClient.definition({
             position: {
                 line: position.line,
                 character: position.offset
@@ -99,6 +99,7 @@ export async function getFnDefsForFnCalls(
                 uri: fileUri
             }
         });
+        const reply = definition.location;
         let defLoc: Location;
         if (Array.isArray(reply)) {
             if (!reply.length) {

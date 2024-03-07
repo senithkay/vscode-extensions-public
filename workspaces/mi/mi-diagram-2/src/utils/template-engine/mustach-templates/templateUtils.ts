@@ -9,7 +9,7 @@
 
 import Mustache from "mustache";
 import { getCallFormDataFromSTNode, getCallMustacheTemplate, getCallXml } from "./core/call";
-import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogMustacheTemplate, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutMustacheTemplate, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode, getHeaderMustacheTemplate } from "./core/header";
@@ -35,6 +35,12 @@ import { getFilterMustacheTemplate } from "./core/filter";
 import { getSequenceMustacheTemplate } from "./core/sequence";
 import { getStoreMustacheTemplate } from "./core/store";
 import { getValidateMustacheTemplate } from "./core/validate";
+import { getBeanFormDataFromSTNode, getBeanMustacheTemplate, getBeanXml } from "./extension/bean";
+import { getClassFormDataFromSTNode, getClassMustacheTemplate, getClassXml } from "./extension/class";
+import { getCommandFormDataFromSTNode, getCommandMustacheTemplate, getCommandXml } from "./extension/command";
+import { getEjbFormDataFromSTNode, getEjbMustacheTemplate, getEjbXml } from "./extension/ejb";
+import { getScriptFormDataFromSTNode, getScriptMustacheTemplate, getScriptXml } from "./extension/script";
+import { getSpringMustacheTemplate } from "./extension/spring";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -70,6 +76,19 @@ export function getMustacheTemplate(name: string) {
             return getStoreMustacheTemplate();
         case MEDIATORS.VALIDATE:
             return getValidateMustacheTemplate();
+        //Extension Mediators
+        case MEDIATORS.BEAN:
+            return getBeanMustacheTemplate()
+        case MEDIATORS.CLASS:
+            return getClassMustacheTemplate();
+        case MEDIATORS.COMMAND:
+            return getCommandMustacheTemplate();
+        case MEDIATORS.EJB:
+            return getEjbMustacheTemplate();
+        case MEDIATORS.SCRIPT:
+            return getScriptMustacheTemplate();
+        case MEDIATORS.SPRING:
+            return getSpringMustacheTemplate();
 
         // Endpoints
         case ENDPOINTS.ADDRESS:
@@ -106,9 +125,20 @@ export function getXML(name: string, data: { [key: string]: any }) {
         case MEDIATORS.PAYLOAD:
             return getPayloadXml(data);
         case ENDPOINTS.NAMED:
-            return getNamedEndpointXml(data);    
+            return getNamedEndpointXml(data);
+        //Extension Mediators    
+        case MEDIATORS.BEAN:
+            return getBeanXml(data);
+        case MEDIATORS.CLASS:
+            return getClassXml(data);
+        case MEDIATORS.EJB:
+            return getEjbXml(data);
+        case MEDIATORS.SCRIPT:
+            return getScriptXml(data).trim();
+        case MEDIATORS.COMMAND:
+            return getCommandXml(data);
         default:
-            return Mustache.render(getMustacheTemplate(name), data);
+            return Mustache.render(getMustacheTemplate(name), data).trim();
     }
 }
 
@@ -131,6 +161,17 @@ export function getDataFromXML(name: string, node: STNode) {
             return getPayloadFormDataFromSTNode(formData, node as PayloadFactory);
         case MEDIATORS.PROPERTY:
             return getPropertyFormDataFromSTNode(formData, node as Property);
+        //Extension Mediators
+        case MEDIATORS.CLASS:
+            return getClassFormDataFromSTNode(formData, node as Class);
+        case MEDIATORS.COMMAND:
+            return getCommandFormDataFromSTNode(formData, node as PojoCommand);
+        case MEDIATORS.EJB:
+            return getEjbFormDataFromSTNode(formData, node as Ejb);
+        case MEDIATORS.BEAN:
+            return getBeanFormDataFromSTNode(formData, node as Bean);
+        case MEDIATORS.SCRIPT:
+            return getScriptFormDataFromSTNode(formData, node as Script);
         default:
             return formData;
     }

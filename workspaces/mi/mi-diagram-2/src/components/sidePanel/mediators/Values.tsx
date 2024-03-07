@@ -46,6 +46,12 @@ import WSDLEndpointForm from "../Pages/endpoint/anonymous/wsdl"
 import AggregateForm from "../Pages/mediators/eip/aggregate"
 import ForEachMediatorForm from "../Pages/mediators/eip/foreach"
 import IterateForm from "../Pages/mediators/eip/iterate"
+import BeanForm from "../Pages/mediators/extension/bean"
+import ClassForm from "../Pages/mediators/extension/class"
+import CommandForm from "../Pages/mediators/extension/command"
+import EJBForm from "../Pages/mediators/extension/ejb"
+import ScriptForm from "../Pages/mediators/extension/script"
+import SpringForm from "../Pages/mediators/extension/spring"
 
 export interface GetMediatorsProps {
     nodePosition: any;
@@ -126,6 +132,38 @@ export function getAllMediators(props: GetMediatorsProps) {
                 title: "Validate",
                 operationName: MEDIATORS.VALIDATE,
                 form: <ValidateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ValidateForm>,
+            }
+        ],
+        "extension": [
+            {
+                title: "Bean",
+                operationName: MEDIATORS.BEAN,
+                form: <BeanForm nodePosition={props.nodePosition} documentUri={props.documentUri}></BeanForm>,
+            },
+            {
+                title: "Class",
+                operationName: MEDIATORS.CLASS,
+                form: <ClassForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ClassForm>,
+            },
+            {
+                title: "Command",
+                operationName: MEDIATORS.COMMAND,
+                form: <CommandForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CommandForm>,
+            },
+            {
+                title: "EJB",
+                operationName: MEDIATORS.EJB,
+                form: <EJBForm nodePosition={props.nodePosition} documentUri={props.documentUri}></EJBForm>,
+            },
+            {
+                title: "Script",
+                operationName: MEDIATORS.SCRIPT,
+                form: <ScriptForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ScriptForm>,
+            },
+            {
+                title: "Spring",
+                operationName: MEDIATORS.SPRING,
+                form: <SpringForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SpringForm>,
             }
         ],
         "transformation": [

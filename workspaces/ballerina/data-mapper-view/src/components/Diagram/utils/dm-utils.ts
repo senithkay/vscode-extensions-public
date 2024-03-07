@@ -8,14 +8,12 @@
  */
 import { NodeModel } from "@projectstorm/react-diagrams";
 import {
-	keywords,
-	PrimitiveBalType
-} from "@wso2-enterprise/ballerina-core";
-import {
 	LinePosition,
 	NonPrimitiveBal,
 	STModification,
-	Type
+	keywords,
+	PrimitiveBalType,
+	TypeField
 } from "@wso2-enterprise/ballerina-core";
 import {
 	CaptureBindingPattern,
@@ -431,7 +429,7 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 		}
 		else {
 			let targetPos: NodePosition;
-			let targetType: Type;
+			let targetType: TypeField;
 			Object.keys(targetPort.getLinks()).forEach((linkId) => {
 				if (linkId !== link.getID()) {
 					const targerPortLink = targetPort.getLinks()[linkId]
@@ -727,17 +725,17 @@ export function getInputPortsForExpr(node: RequiredParamNode
 	if (typeDesc && typeDesc.typeName === PrimitiveBalType.Record) {
 		if (STKindChecker.isFieldAccess(expr) || STKindChecker.isOptionalFieldAccess(expr)) {
 			const fieldNames = getFieldNames(expr);
-			let nextTypeNode: Type = typeDesc;
+			let nextTypeNode: TypeField = typeDesc;
 			for (let i = 1; i < fieldNames.length; i++) {
 				const fieldName = fieldNames[i];
 				portIdBuffer += fieldName.isOptional ? `?.${fieldName.name}` : `.${fieldName.name}`;
-				let recField: Type;
+				let recField: TypeField;
 				const optionalRecordField = getOptionalRecordField(nextTypeNode);
 				if (optionalRecordField) {
-					recField = optionalRecordField?.fields.find((field: Type) => getBalRecFieldName(field.name) === fieldName.name);
+					recField = optionalRecordField?.fields.find((field: TypeField) => getBalRecFieldName(field.name) === fieldName.name);
 				} else if (nextTypeNode.typeName === PrimitiveBalType.Record) {
 					recField = nextTypeNode.fields.find(
-						(field: Type) => getBalRecFieldName(field.name) === fieldName.name);
+						(field: TypeField) => getBalRecFieldName(field.name) === fieldName.name);
 				}
 
 				if (recField) {
@@ -888,7 +886,7 @@ export function isConnectedViaLink(field: STNode) {
 		&& !isMappingConstruct && !isListConstruct;
 }
 
-export function getTypeName(field: Type): string {
+export function getTypeName(field: TypeField): string {
 	if (!field) {
 		return '';
 	}
@@ -960,7 +958,7 @@ export function getDefaultValue(typeName: string): string {
 	return draftParameter;
 }
 
-export function isArrayOrRecord(field: Type) {
+export function isArrayOrRecord(field: TypeField) {
 	return field.typeName === PrimitiveBalType.Array || field.typeName === PrimitiveBalType.Record;
 }
 
@@ -999,7 +997,7 @@ export function getFieldLabel(fieldId: string) {
 	return fieldLabel;
 }
 
-export function getTypeOfValue(editableRecField: EditableRecordField, targetPosition: NodePosition): Type {
+export function getTypeOfValue(editableRecField: EditableRecordField, targetPosition: NodePosition): TypeField {
 	if (editableRecField.hasValue()) {
 		if (isPositionsEquals(editableRecField.value.position, targetPosition)) {
 			return editableRecField.type;
@@ -1022,7 +1020,7 @@ export function getTypeOfValue(editableRecField: EditableRecordField, targetPosi
 	return undefined;
 }
 
-export function getTypeOfInputParam(param: RequiredParam, balVersion: string): Type {
+export function getTypeOfInputParam(param: RequiredParam, balVersion: string): TypeField {
 	const paramPosition = isArraysSupported(balVersion) && param?.paramName
 		? param.paramName.position
 		: STKindChecker.isQualifiedNameReference(param.typeName)
@@ -1036,7 +1034,7 @@ export function getTypeOfInputParam(param: RequiredParam, balVersion: string): T
 	});
 }
 
-export function getTypeOfOutput(typeIdentifier: TypeDescriptor | IdentifierToken, balVersion: string): Type {
+export function getTypeOfOutput(typeIdentifier: TypeDescriptor | IdentifierToken, balVersion: string): TypeField {
 	let typeIdentifierPosition = typeIdentifier.position;
 	if (!isArraysSupported(balVersion) && STKindChecker.isQualifiedNameReference(typeIdentifier)) {
 		typeIdentifierPosition = typeIdentifier.identifier.position;
@@ -1049,12 +1047,12 @@ export function getTypeOfOutput(typeIdentifier: TypeDescriptor | IdentifierToken
 	});
 }
 
-export function getTypeFromStore(position: NodePosition): Type {
+export function getTypeFromStore(position: NodePosition): TypeField {
 	const recordTypeDescriptors = TypeDescriptorStore.getInstance();
 	return recordTypeDescriptors.getTypeDescriptor(position);
 }
 
-export function findTypeByNameFromStore(typeName: string): Type {
+export function findTypeByNameFromStore(typeName: string): TypeField {
 	const recordTypeDescriptors = TypeDescriptorStore.getInstance();
 	for (const type of recordTypeDescriptors.typeDescriptors.values()) {
 		if (type?.name && type.name === typeName) {
@@ -1064,7 +1062,7 @@ export function findTypeByNameFromStore(typeName: string): Type {
 	return undefined;
 }
 
-export function findTypeByInfoFromStore(typeInfo: NonPrimitiveBal): Type {
+export function findTypeByInfoFromStore(typeInfo: NonPrimitiveBal): TypeField {
 	const recordTypeDescriptors = TypeDescriptorStore.getInstance();
 
 	for (const type of recordTypeDescriptors.typeDescriptors.values()) {
@@ -1103,7 +1101,7 @@ export function getExprBodyFromTypeCastExpression(typeCastExpression: TypeCastEx
 	return typeCastExpression.expression;
 }
 
-export function getPrevOutputType(prevSTNodes: DMNode[], ballerinaVersion: string): Type {
+export function getPrevOutputType(prevSTNodes: DMNode[], ballerinaVersion: string): TypeField {
 	if (prevSTNodes.length === 0) {
 		return undefined;
 	}
@@ -1133,7 +1131,7 @@ export function hasIONodesPresent(nodes: DataMapperNodeModel[]) {
 	).length >= 2;
 }
 
-export function hasNoMatchFound(originalTypeDef: Type, valueEnrichedType: EditableRecordField): boolean {
+export function hasNoMatchFound(originalTypeDef: TypeField, valueEnrichedType: EditableRecordField): boolean {
 	const searchValue = useDMSearchStore.getState().outputSearch;
 	const filteredTypeDef = valueEnrichedType.type;
 	if (!searchValue) {
@@ -1168,7 +1166,7 @@ export function getMethodCallElements(methodCall: MethodCall): string[] {
 	return elements;
 }
 
-export function isDefaultValue(field: Type, value: string): boolean {
+export function isDefaultValue(field: TypeField, value: string): boolean {
 	if (value === '()'){
 		return true;
 	}
@@ -1241,7 +1239,7 @@ async function createValueExprSource(
 	return `${rhs}: ${lhs}`;
 }
 
-function isTypeMatch(type: Type, typeInfo: NonPrimitiveBal): boolean {
+function isTypeMatch(type: TypeField, typeInfo: NonPrimitiveBal): boolean {
 	return (
 		type.typeInfo &&
 		type.typeInfo.orgName === typeInfo.orgName &&
@@ -1303,7 +1301,7 @@ export function getInnermostExpressionBody(expr: STNode): STNode {
 	return innerExpr;
 }
 
-export function getInnermostMemberTypeFromArrayType(arrayType: Type): Type {
+export function getInnermostMemberTypeFromArrayType(arrayType: TypeField): TypeField {
 	let memberType = arrayType.memberType;
 	while (memberType.typeName === PrimitiveBalType.Array) {
 		memberType = memberType.memberType;
@@ -1484,7 +1482,7 @@ function getFieldNameFromOutputPort(outputPort: RecordFieldPortModel): string {
 	return fieldName;
 }
 
-export const getOptionalRecordField = (field: Type): Type | undefined => {
+export const getOptionalRecordField = (field: TypeField): TypeField | undefined => {
 	if (PrimitiveBalType.Record === field.typeName && field.optional) {
 		return field;
 	} else if (PrimitiveBalType.Union === field.typeName) {
@@ -1495,7 +1493,7 @@ export const getOptionalRecordField = (field: Type): Type | undefined => {
 	}
 }
 
-export const getOptionalArrayField = (field: Type): Type | undefined => {
+export const getOptionalArrayField = (field: TypeField): TypeField | undefined => {
 	if (PrimitiveBalType.Array === field.typeName && field.optional) {
 		return field;
 	} else if (PrimitiveBalType.Union === field.typeName) {
@@ -1507,7 +1505,7 @@ export const getOptionalArrayField = (field: Type): Type | undefined => {
 }
 
 /** Filter out error and nill types and return only the types that can be displayed as mapping as target nodes */
-export const getFilteredUnionOutputTypes = (type: Type) => type.members?.filter(member => member && !["error", "()"].includes(member.typeName));
+export const getFilteredUnionOutputTypes = (type: TypeField) => type.members?.filter(member => member && !["error", "()"].includes(member.typeName));
 
 
 export const getNewFieldAdditionModification = (node: STNode, fieldName: string, fieldValue = '') => {
@@ -1541,7 +1539,7 @@ export const getNewFieldAdditionModification = (node: STNode, fieldName: string,
 	}
 }
 
-export const getSearchFilteredInput = (typeDef: Type, varName?: string) => {
+export const getSearchFilteredInput = (typeDef: TypeField, varName?: string) => {
 	const searchValue = useDMSearchStore.getState().inputSearch;
 	if (!searchValue) {
 		return typeDef;
@@ -1557,7 +1555,7 @@ export const getSearchFilteredInput = (typeDef: Type, varName?: string) => {
 	}
 }
 
-export const getFilteredSubFields = (type: Type, searchValue: string) => {
+export const getFilteredSubFields = (type: TypeField, searchValue: string) => {
 	if (!type) {
 		return null;
 	}
@@ -1568,7 +1566,7 @@ export const getFilteredSubFields = (type: Type, searchValue: string) => {
 
 	const optionalRecordField = getOptionalRecordField(type);
 	if (optionalRecordField && type?.typeName === PrimitiveBalType.Union) {
-		const matchedSubFields: Type[] = optionalRecordField?.fields?.map(fieldItem => getFilteredSubFields(fieldItem, searchValue)).filter(fieldItem => fieldItem);
+		const matchedSubFields: TypeField[] = optionalRecordField?.fields?.map(fieldItem => getFilteredSubFields(fieldItem, searchValue)).filter(fieldItem => fieldItem);
 		const matchingName = type?.name?.toLowerCase().includes(searchValue.toLowerCase());
 		if (matchingName || matchedSubFields?.length > 0) {
 			return {
@@ -1580,7 +1578,7 @@ export const getFilteredSubFields = (type: Type, searchValue: string) => {
 			};
 		}
 	} else if (type?.typeName === PrimitiveBalType.Record) {
-		const matchedSubFields: Type[] = type?.fields?.map(fieldItem => getFilteredSubFields(fieldItem, searchValue)).filter(fieldItem => fieldItem);
+		const matchedSubFields: TypeField[] = type?.fields?.map(fieldItem => getFilteredSubFields(fieldItem, searchValue)).filter(fieldItem => fieldItem);
 		const matchingName = type?.name?.toLowerCase().includes(searchValue.toLowerCase());
 		if (matchingName || matchedSubFields?.length > 0) {
 			return {
@@ -1589,7 +1587,7 @@ export const getFilteredSubFields = (type: Type, searchValue: string) => {
 			}
 		}
 	} else if (type?.typeName === PrimitiveBalType.Array) {
-		const matchedSubFields: Type[] = type?.memberType?.fields?.map(fieldItem => getFilteredSubFields(fieldItem, searchValue)).filter(fieldItem => fieldItem);
+		const matchedSubFields: TypeField[] = type?.memberType?.fields?.map(fieldItem => getFilteredSubFields(fieldItem, searchValue)).filter(fieldItem => fieldItem);
 		const matchingName = type?.name?.toLowerCase().includes(searchValue.toLowerCase());
 		if (matchingName || matchedSubFields?.length > 0) {
 			return {
@@ -1607,7 +1605,7 @@ export const getFilteredSubFields = (type: Type, searchValue: string) => {
 	return null;
 }
 
-export const getSearchFilteredOutput = (type: Type) => {
+export const getSearchFilteredOutput = (type: TypeField) => {
 	const searchValue = useDMSearchStore.getState().outputSearch;
 	if (!type) {
 		return null
@@ -1616,7 +1614,7 @@ export const getSearchFilteredOutput = (type: Type) => {
 		return type;
 	}
 
-	let searchType: Type = type;
+	let searchType: TypeField = type;
 
 	if (type?.typeName === PrimitiveBalType.Union) {
 		const filteredTypes = getFilteredUnionOutputTypes(type);

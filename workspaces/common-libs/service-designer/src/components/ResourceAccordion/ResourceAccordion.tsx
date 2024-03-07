@@ -8,11 +8,10 @@
  */
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { Codicon, ContextMenu, Icon, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Confirm, ContextMenu, Icon, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { AccordionTable } from '../AccordionTable/AccordionTable';
 import { Resource } from '../../definitions';
-import ConfirmDialog from '../ConfirmBox/ConfirmBox';
 
 type MethodProp = {
     color: string;
@@ -21,6 +20,10 @@ type MethodProp = {
 
 type ContainerProps = {
     borderColor?: string;
+};
+
+type ButtonSectionProps = {
+    isExpanded?: boolean;
 };
 
 type HeaderProps = {
@@ -91,10 +94,6 @@ const verticalIconStyles = {
     }
 };
 
-type ButtonSectionProps = {
-    isExpanded?: boolean;
-};
-
 const ButtonSection = styled.div<ButtonSectionProps>`
     display: flex;
     align-items: center;
@@ -150,6 +149,8 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
     const { expandable = true, additionalActions } = resource;
     const [isOpen, setIsOpen] = useState(false);
     const [isConfirmOpen, setConfirmOpen] = useState(false);
+    const [confirmEl, setConfirmEl] = React.useState(null);
+
 
     const toggleAccordion = () => {
         setIsOpen(!isOpen);
@@ -169,8 +170,9 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
         setConfirmOpen(true);
     };
 
-    const handleDeleteResource = (e: Event) => {
+    const handleDeleteResource = (e: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         e.stopPropagation(); // Stop the event propagation
+        setConfirmEl(e.currentTarget);
         handleOpenConfirm();
     };
 
@@ -192,15 +194,12 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
         responses.push([`${response.code}`, response.type]);
     });
 
-    const handleConfirm = async () => {
-        // Handle confirmation logic
-        // Modify the resource object delete position to the model position
-        onDeleteResource && onDeleteResource(resource);
+    const handleConfirm = (status: boolean) => {
+        if (status) {
+            onDeleteResource && onDeleteResource(resource);
+        }
         setConfirmOpen(false);
-    };
-
-    const handleCloseConfirm = () => {
-        setConfirmOpen(false);
+        setConfirmEl(null);
     };
 
     const handleResourceImplement = () => {
@@ -260,7 +259,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                             {onDeleteResource && (
                                 <ButtonWrapper>
                                     <VSCodeButton appearance="icon" title="Delete Resource" onClick={handleDeleteResource}>
-                                        <Icon name="delete" />
+                                        <Codicon name="trash" />
                                     </VSCodeButton>
                                     <>
                                         Delete
@@ -294,7 +293,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                             )}
                             {onDeleteResource && (
                                 <VSCodeButton appearance="icon" title="Delete Resource" onClick={handleDeleteResource}>
-                                    <Icon name="delete" />
+                                    <Codicon name="trash" />
                                 </VSCodeButton>
                             )}
                             {additionalActions && (
@@ -309,15 +308,13 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
 
                     {expandable ?
                         isOpen ? (
-                            <Codicon
-                                sx={{"&:hover": {"backgroundColor": "var(--button-icon-hover-background)"}}}
-                                name="chevron-up" 
-                            />
+                            <Button appearance='icon' onClick={toggleAccordion}>
+                                <Codicon iconSx={{ marginTop: -3 }} name="chevron-up" />
+                            </Button>
                         ) : ( 
-                            <Codicon
-                                name="chevron-down"
-                                sx={{"&:hover": {"backgroundColor": "var(--button-icon-hover-background)"}}}
-                            />
+                            <Button appearance='icon' onClick={toggleAccordion}>
+                                <Codicon iconSx={{ marginTop: -3 }} name="chevron-down" />
+                            </Button>
                         )
                         : undefined
                     }
@@ -326,10 +323,10 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
             {expandable && isOpen && (
                 <AccordionContent>
                     {resourceParams?.length > 0 &&
-                        <AccordionTable key="params" titile="Parameters" headers={["Type", "Description"]} content={resourceParams} /> 
+                        <AccordionTable key="params" titile="Parameters" headers={["Type", "Description"]} content={resourceParams} />
                     }
-                    {payloadInfo.length > 0 && 
-                        <AccordionTable key="body" titile="Body"  headers={["Description"]} content={payloadInfo} />
+                    {payloadInfo.length > 0 &&
+                        <AccordionTable key="body" titile="Body" headers={["Description"]} content={payloadInfo} />
                     }
                     {responses.length > 0 &&
                         <AccordionTable key="responses" titile="Responses" headers={["Code", "Description"]} content={responses} />
@@ -337,10 +334,14 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                     {resource?.addtionalInfo && resource?.addtionalInfo}
                 </AccordionContent>
             )}
-            <ConfirmDialog
+            <Confirm
                 isOpen={isConfirmOpen}
-                onClose={handleCloseConfirm}
                 onConfirm={handleConfirm}
+                confirmText="Okay"
+                message="Are you sure want to delete this resource?"
+                anchorEl={confirmEl}
+                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
             />
         </AccordionContainer>
     );

@@ -10,7 +10,7 @@
 import * as React from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { ComponentViewInfo } from "@wso2-enterprise/ballerina-core";
+import { HistoryEntry } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Button, Codicon, Icon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css'
@@ -21,18 +21,20 @@ import { DataMapperPortWidget } from '../../Port';
 import { getFieldLabel } from '../../utils/dm-utils';
 
 import { LinkConnectorNode } from './LinkConnectorNode';
+import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 
 const styles = () => ({
     root: css({
         width: '100%',
         backgroundColor: "var(--vscode-sideBar-background)",
         padding: "2px",
-        borderRadius: "6px",
+        borderRadius: "2px",
         display: "flex",
         flexDirection: "column",
         gap: "5px",
         color: "var(--vscode-checkbox-border)",
         alignItems: "center",
+        border: "1px solid var(--vscode-welcomePage-tileBorder)",
     }),
     element: css({
         backgroundColor: 'var(--vscode-input-background)',
@@ -128,6 +130,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const diagnostic = hasError ? node.diagnostics[0] : null;
     const fnDef = node.fnDefForFnCall;
     const isTnfFunctionCall = fnDef && fnDef.isExprBodiedFn;
+    const { rpcClient } = useVisualizerContext();
 
     const {
         enableStatementEditor,
@@ -176,12 +179,17 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         evt.stopPropagation();
         const {fnDefPosition, fileUri, fnName} = fnDef;
         const fnDefFilePath = fileUri.replace(/^file:\/\//, "");
-        const componentViewInfo: ComponentViewInfo = {
-            filePath: fnDefFilePath,
-            position: fnDefPosition,
-            name: fnName
+        const history = await rpcClient.getVisualizerRpcClient().getHistory();
+        const entry: HistoryEntry = {
+            location: {
+                documentUri: fnDefFilePath,
+                position: fnDefPosition,
+                view: "DataMapper",
+                identifier: fnName
+            },
+            dataMapperDepth: history[history.length - 1].dataMapperDepth + 1
         }
-        updateSelectedComponent(componentViewInfo);
+        updateSelectedComponent(entry);
     }
 
     const loadingScreen = (
@@ -197,8 +205,8 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                     position="bottom-end"
                 >
                     {isTnfFunctionCall ? (
-                        <Icon name="function-icon" sx={{ height: "20px", width: "20px" }} iconSx={{ fontSize: "20px" }} />) : (
-                        <Icon name="explicit-outlined" sx={{ height: "20px", width: "20px" }} iconSx={{ fontSize: "20px" }} />
+                        <Icon name="function-icon" iconSx={{ fontSize: "15px", color: "var(--vscode-input-placeholderForeground)" }} />) : (
+                        <Icon name="explicit-outlined" sx={{ height: "20px", width: "20px" }} iconSx={{ fontSize: "20px", color: "var(--vscode-input-placeholderForeground)" }} />
                     )}
                 </Tooltip>
                 {isTnfFunctionCall && (

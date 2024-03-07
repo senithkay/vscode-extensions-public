@@ -7,21 +7,19 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { createStyles, makeStyles } from '@material-ui/core/styles';
 import styled from '@emotion/styled';
 
-import { CanvasBackground } from '../resources';
+import { css } from '@emotion/css';
 
-export const useStyles = makeStyles(() =>
-    createStyles({
-        canvas: {
-            backgroundImage: `url('${CanvasBackground}')`,
-            backgroundRepeat: 'repeat',
-            minHeight: 'calc(100vh - 50px)',
-            minWidth: '100vw'
-        }
+export const useStyles = () => ({
+    canvas: css({
+        backgroundImage: 'radial-gradient(circle at 0.5px 0.5px, var(--vscode-textBlockQuote-border) 1px, transparent 0)',
+        backgroundColor: 'var(--vscode-input-background)',
+        backgroundSize: '8px 8px',
+        minHeight: 'calc(100vh - 50px)',
+        minWidth: '100vw'
     })
-);
+});
 
 export const Container = styled.div`
     align-items: center;
@@ -34,7 +32,9 @@ export const Container = styled.div`
 
 export const DiagramContainer = styled.div`
     align-items: center;
-    background-image: url(${CanvasBackground});
+    backgroundImage: 'radial-gradient(circle at 0.5px 0.5px, var(--vscode-textBlockQuote-border) 1px, transparent 0)',
+    backgroundColor: 'var(--vscode-input-background)',
+    backgroundSize: '8px 8px',
     display: flex;
     flex-direction: column;
     height: calc(100vh - 50px);

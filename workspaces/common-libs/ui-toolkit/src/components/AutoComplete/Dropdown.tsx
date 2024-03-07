@@ -36,7 +36,7 @@ const DropdownContainer: React.FC<DropdownContainerProps> = styled.div`
     border: 1px solid var(--vscode-list-dropBackground);
     padding-top: 5px;
     padding-bottom: 5px;
-    z-index: 100;
+    z-index: 1;
     ul {
         margin: 0;
         padding: 0;

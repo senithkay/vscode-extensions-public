@@ -10,28 +10,20 @@ import * as React from "react";
 
 import ErrorGenSvg from "./ErrorSvg";
 import { useStyles } from "./style";
-import { Grid, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Typography } from "@wso2-enterprise/ui-toolkit";
 
 export default function Default() {
     const classes = useStyles();
 
     return (
         <div className={classes.root}>
-            <Grid>
-                <Grid item={true}>
-                    <ErrorGenSvg />
-                </Grid>
-                <Grid item={true}>
-                    <Typography variant="h4" className={classes.errorTitle}>
-                        A problem occurred while rendering the Data Mapper.
-                    </Typography>
-                </Grid>
-                <Grid item={true}>
-                    <Typography variant="h6" className={classes.errorMsg}>
-                        Please raise an issue with the sample code in our <a href="https://github.com/wso2/ballerina-plugin-vscode/issues">issue tracker</a>
-                    </Typography>
-                </Grid>
-            </Grid>
+            <ErrorGenSvg />
+            <Typography variant="h4" className={classes.errorTitle}>
+                A problem occurred while rendering the Data Mapper.
+            </Typography>
+            <Typography variant="body2" className={classes.errorMsg}>
+                Please raise an issue with the sample code in our <a href="https://github.com/wso2/ballerina-plugin-vscode/issues">issue tracker</a>
+            </Typography>
         </div>
     );
 }

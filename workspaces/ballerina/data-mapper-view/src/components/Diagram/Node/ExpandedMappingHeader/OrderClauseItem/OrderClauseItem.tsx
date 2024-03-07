@@ -118,63 +118,64 @@ export function OrderByClauseItem(props: {
             <div className={classes.clauseItem}>
                 <div className={classes.clauseKeyWrap}>{`${intermediateNode.orderKeyword.value} ${intermediateNode.byKeyword.value}`}</div>
 
-                <div className={classes.clauseWrap}>
-                    {intermediateNode.orderKey.map((item, index) => {
-                        if (STKindChecker.isOrderKey(item)) {
-                            return (
-                                <span className={classes.clauseExpressionLight}>
-                                    <ClickableExpression
-                                        node={item.expression}
-                                        onEditClick={() =>
-                                            onEditClick(
-                                                item.expression?.source,
-                                                item.expression?.position,
-                                                "Order by clause"
-                                            )
-                                        }
-                                        index={itemIndex}
-                                    />
-                                    <Dropdown
-                                        id={`order-direction-${itemIndex}-${index}`}
-                                        value="ascending"
-                                        onChange={(val: string) => onOrderDirectionChange(val, item)}
-                                        items={dropDownItems}
-                                    />
-
-                                    {intermediateNode.orderKey.length > 1 && (
-                                        <Button
-                                            appearance="icon"
-                                            onClick={() => onDeleteOrderKey(index)}
-                                        >
-                                            <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
-                                        </Button>
-                                    )}
-                                </span>
-                            );
-                        } else if (STKindChecker.isCommaToken(item)) {
-                            return <span>{item.value}</span>;
-                        }
-                    })}
-                    <Button
-                        appearance="icon"
-                        onClick={addOrderKey}
-                        data-testid={`order-clause-add-${itemIndex}`}
-                    >
-                        <Codicon name="add" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
-                    </Button>
+                <div className={classes.clauseItemBody}>
+                    <div className={classes.clauseWrap}>
+                        {intermediateNode.orderKey.map((item, index) => {
+                            if (STKindChecker.isOrderKey(item)) {
+                                return (
+                                    <span className={classes.clauseExpressionLight}>
+                                        <ClickableExpression
+                                            node={item.expression}
+                                            onEditClick={() =>
+                                                onEditClick(
+                                                    item.expression?.source,
+                                                    item.expression?.position,
+                                                    "Order by clause"
+                                                )
+                                            }
+                                            index={itemIndex}
+                                        />
+                                        <Dropdown
+                                            id={`order-direction-${itemIndex}-${index}`}
+                                            value="ascending"
+                                            onChange={(val: string) => onOrderDirectionChange(val, item)}
+                                            items={dropDownItems}
+                                        />
+                                        {intermediateNode.orderKey.length > 1 && (
+                                            <Button
+                                                appearance="icon"
+                                                onClick={() => onDeleteOrderKey(index)}
+                                            >
+                                                <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
+                                            </Button>
+                                        )}
+                                    </span>
+                                );
+                            } else if (STKindChecker.isCommaToken(item)) {
+                                return <span>{item.value}</span>;
+                            }
+                        })}
+                        <Button
+                            appearance="icon"
+                            onClick={addOrderKey}
+                            data-testid={`order-clause-add-${itemIndex}`}
+                        >
+                            <Codicon name="add" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
+                        </Button>
+                    </div>
+                    {isLoading ? (
+                        <ProgressRing sx={{ height: '16px', width: '16px', marginRight: '10px' }} />
+                    ) : (
+                        <Button
+                            appearance="icon"
+                            onClick={onDelete}
+                            data-testid={`order-clause-delete-${itemIndex}`}
+                            sx={{ marginRight: "10px"}}
+                        >
+                            <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
+                        </Button>
+                    )}
                 </div>
-
-                {isLoading ? (
-                    <ProgressRing sx={{ height: '16px', width: '16px' }} />
-                ) : (
-                    <Button
-                        appearance="icon"
-                        onClick={onDelete}
-                        data-testid={`order-clause-delete-${itemIndex}`}
-                    >
-                        <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
-                    </Button>
-                )}
             </div>
 
             <ClauseAddButton context={context} queryExprNode={queryExprNode} addIndex={itemIndex} />

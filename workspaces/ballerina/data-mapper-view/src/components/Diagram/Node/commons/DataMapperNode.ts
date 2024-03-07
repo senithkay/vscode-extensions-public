@@ -8,7 +8,7 @@
  */
 // tslint:disable: no-empty-interface
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
-import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 import {
 	AnydataTypeDesc,
 	AnyTypeDesc,
@@ -72,6 +72,7 @@ export type TypeDescriptor = AnyTypeDesc | AnydataTypeDesc | ArrayTypeDesc | Boo
 	| SingletonTypeDesc | StreamTypeDesc | StringTypeDesc | TableTypeDesc | TupleTypeDesc | TypedescTypeDesc | UnionTypeDesc
 	| XmlTypeDesc;
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface IDataMapperNodeFactory {
 
 }
@@ -100,7 +101,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	abstract initLinks(): void;
 	// extend this class to add link init, port init logics
 
-	protected addPortsForInputRecordField(field: Type, type: "IN" | "OUT", parentId: string,
+	protected addPortsForInputRecordField(field: TypeField, type: "IN" | "OUT", parentId: string,
 		                                     portPrefix?: string,
 		                                     parent?: RecordFieldPortModel,
 		                                     collapsedFields?: string[],
@@ -172,7 +173,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		}
 	}
 
-	protected addPortsForHeaderField(field: Type, name: string,
+	protected addPortsForHeaderField(field: TypeField, name: string,
 		                                type: "IN" | "OUT",
 		                                portPrefix: string,
 		                                collapsedFields?: string[],

@@ -111,15 +111,19 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             <ServiceHeader>
                 <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Service {model.path} </Typography>
                 {model.port && <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Listening {model.port}</Typography>}
-                <VSCodeButton appearance="icon" title="Edit Service" onClick={handleServiceEdit}>
-                    <Codicon name="settings-gear" />
-                </VSCodeButton>
+                {onServiceEdit && (
+                    <VSCodeButton appearance="icon" title="Edit Service" onClick={handleServiceEdit}>
+                        <Codicon name="settings-gear" />
+                    </VSCodeButton>
+                )}
             </ServiceHeader>
             <ResourceListHeader>
                 <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Available resources </Typography>
-                <VSCodeButton appearance="primary" title="Edit Service" onClick={onResourceAdd}>
-                    <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
-                </VSCodeButton>
+                {onResourceAdd && (
+                    <VSCodeButton appearance="primary" title="Edit Service" onClick={onResourceAdd}>
+                        <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
+                    </VSCodeButton>
+                )}
             </ResourceListHeader>
             <>
                 {resources?.length > 0 ? resources : emptyView}

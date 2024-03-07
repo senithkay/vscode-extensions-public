@@ -32,7 +32,7 @@ export function DiagramControls(props: ControlProps) {
 
     const diagnosticsOnClick = () => {
         if (editingEnabled) {
-            editLayerAPI?.executeCommand('workbench.action.problems.focus');
+            editLayerAPI?.executeCommand({ command: 'workbench.action.problems.focus' });
         }
     }
 

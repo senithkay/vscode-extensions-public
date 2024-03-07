@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Visitor, STNode, WithParam, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Visitor, STNode, WithParam, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
@@ -288,6 +288,67 @@ export class NodeFactoryVisitor implements Visitor {
 
     beginVisitWithParam = (node: WithParam): void => this.createNodeAndLinks(node, "");
     beginVisitCallTemplate = (node: CallTemplate): void => this.createNodeAndLinks(node, MEDIATORS.CALLTEMPLATE);
+
+    // Extension Mediators
+    beginVisitBean(node: Bean): void {
+        this.createNodeAndLinks(node, MEDIATORS.BEAN);
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitBean(node: Bean): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+
+    beginVisitClass(node: Class): void {
+        this.createNodeAndLinks(node, MEDIATORS.CLASS);
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitClass(node: Class): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+
+    beginVisitPojoCommand(node: PojoCommand): void {
+        this.createNodeAndLinks(node, MEDIATORS.COMMAND);
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitPojoCommand(node: PojoCommand): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+
+    beginVisitEjb(node: Ejb): void {
+        this.createNodeAndLinks(node, MEDIATORS.EJB);
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitEjb(node: Ejb): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+
+    beginVisitScript(node: Script): void {
+        this.createNodeAndLinks(node, MEDIATORS.SCRIPT);
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitScript(node: Script): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+
+    beginVisitSpring(node: Spring): void {
+        this.createNodeAndLinks(node, MEDIATORS.SPRING);
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitSpring(node: Spring): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
 
     skipChildren(): boolean {
         return this.skipChildrenVisit;
