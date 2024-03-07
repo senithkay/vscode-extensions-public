@@ -126,7 +126,7 @@ export const MEDIATORS = {
     DATASERVICE: "DataService",
     DROP: "Drop",
     ENRICH: "Enrich",
-    ENTITLEMENT: "Entitlement",
+    ENTITLEMENT: "EntitlementService",
     FASTXSLT: "FastXSLT",
     FAULT: "Fault",
     FILTER: "Filter",
@@ -151,6 +151,12 @@ export const MEDIATORS = {
     VALIDATE: "Validate",
     XQUERY: "XQuery",
     XSLT: "XSLT",
+    BEAN: "Bean",
+    CLASS: "Class",
+    COMMAND: "Command",
+    EJB: "Ejb",
+    SCRIPT: "Script",
+    SPRING: "Spring",
 }
 
 export const ENDPOINTS = {
