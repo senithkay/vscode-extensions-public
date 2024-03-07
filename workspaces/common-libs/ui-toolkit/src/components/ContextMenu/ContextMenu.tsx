@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ReactNode, useState, useEffect, useRef } from "react";
+import React, { ReactNode, useState } from "react";
 import {
     VSCodeButton,
     VSCodeDataGrid,
@@ -17,6 +17,7 @@ import {
 import styled from "@emotion/styled";
 import { Overlay } from "../Commons/Overlay";
 import { Codicon } from "../Codicon/Codicon";
+import { ClickAwayListener } from "../ClickAwayListener/ClickAwayListener";
 
 interface Item {
     id: number | string;
@@ -82,7 +83,6 @@ const Container = styled.div`
 export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps) => {
     const { id, className, isLoading, isOpen, menuId, sx, iconSx, menuItems, icon } = props;
     const [isMenuOpen, setIsMenuOpen] = useState(isOpen);
-    const contextRef = useRef(null);
 
     const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
         event.stopPropagation();
@@ -94,63 +94,51 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
         setIsMenuOpen(false);
     };
 
-    const handleClickOutside = (event: MouseEvent) => {
-        if (contextRef.current && !contextRef.current.contains(event.target as Node)) {
-            setIsMenuOpen(false);
-        }
-    }
-
-    useEffect(() => {
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
-
     return (
-        <Container ref={contextRef} id={id} className={className}>
-            {isLoading ? (
-                <SmallProgressRing />
-            ) : (
-                iconSx ? (
-                    <IconWrapper onClick={handleClick} sx={iconSx} id={`component-list-menu-${menuId ? menuId : "btn"}`}>
-                        {icon ? icon : <Codicon name="ellipsis"/>}
-                    </IconWrapper>
+        <ClickAwayListener onClickAway={() => setIsMenuOpen(false)}>
+            <Container id={id} className={className}>
+                {isLoading ? (
+                    <SmallProgressRing />
                 ) : (
-                    <VSCodeButton appearance="icon" onClick={handleClick} title="More Actions" id={`component-list-menu-${menuId ? menuId : "btn"}`}>
-                        {icon ? icon : <Codicon name="ellipsis"/>}
-                    </VSCodeButton>
-                )
-            )}
-
-            {isMenuOpen && (
-                <ExpandedMenu sx={sx}>
-                    <VSCodeDataGrid aria-label="Context Menu">
-                        {menuItems?.map(item => (
-                            <VSCodeDataGridRow
-                                key={item.id}
-                                onClick={(event: React.MouseEvent<HTMLElement, MouseEvent>) => {
-                                    if (!item?.disabled) {
-                                        event.stopPropagation();
-                                        if (item?.onClick) {
-                                            item.onClick();
+                    iconSx ? (
+                        <IconWrapper onClick={handleClick} id={`component-list-menu-${menuId ? menuId : "btn"}`}>
+                            {icon ? icon : <Codicon name="ellipsis" iconSx={iconSx} sx={sx}/>}
+                        </IconWrapper>
+                    ) : (
+                        <VSCodeButton appearance="icon" onClick={handleClick} title="More Actions" id={`component-list-menu-${menuId ? menuId : "btn"}`}>
+                            {icon ? icon : <Codicon name="ellipsis"/>}
+                        </VSCodeButton>
+                    )
+                )}
+                {isMenuOpen && (
+                    <ExpandedMenu>
+                        <VSCodeDataGrid aria-label="Context Menu">
+                            {menuItems?.map(item => (
+                                <VSCodeDataGridRow
+                                    key={item.id}
+                                    onClick={(event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+                                        if (!item?.disabled) {
+                                            event.stopPropagation();
+                                            if (item?.onClick) {
+                                                item.onClick();
+                                            }
+                                            setIsMenuOpen(false);
                                         }
-                                        setIsMenuOpen(false);
-                                    }
-                                }}
-                                style={{
-                                    cursor: item.disabled ? "not-allowed" : "pointer",
-                                    opacity: item.disabled ? 0.5 : 1,
-                                }}
-                                id={`component-list-menu-${item.id}`}
-                            >
-                                <VSCodeDataGridInlineCell>{item.label}</VSCodeDataGridInlineCell>
-                            </VSCodeDataGridRow>
-                        ))}
-                    </VSCodeDataGrid>
-                </ExpandedMenu>
-            )}
-            {isMenuOpen && <Overlay onClose={handleMenuClose} />}
-        </Container>
+                                    }}
+                                    style={{
+                                        cursor: item.disabled ? "not-allowed" : "pointer",
+                                        opacity: item.disabled ? 0.5 : 1,
+                                    }}
+                                    id={`component-list-menu-${item.id}`}
+                                >
+                                    <VSCodeDataGridInlineCell>{item.label}</VSCodeDataGridInlineCell>
+                                </VSCodeDataGridRow>
+                            ))}
+                        </VSCodeDataGrid>
+                    </ExpandedMenu>
+                )}
+                {isMenuOpen && <Overlay onClose={handleMenuClose} />}
+            </Container>
+        </ClickAwayListener>
     );
 };

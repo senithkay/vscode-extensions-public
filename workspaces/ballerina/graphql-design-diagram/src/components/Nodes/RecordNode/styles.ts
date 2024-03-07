@@ -28,22 +28,6 @@ export const RecordNode: React.FC<any> = styled.div`
   opacity: 1;
 `;
 
-export const RecordHead: React.FC<any> = styled.div`
-  align-items: center;
-  border-bottom: ${(props: StyleProps) =>
-          `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
-  display: flex;
-  font-family: ${(props: StyleProps) => props.isSelected ? `GilmerMedium` : `GilmerRegular`};
-  font-size: 13px;
-  height: 32px;
-  justify-content: center;
-  line-height: 24px;
-  padding-inline: 8px;
-  min-width: calc(100% - 16px);
-  text-align: center;
-  white-space: nowrap;
-`;
-
 export const RecordFieldContainer: React.FC<any> = styled.div`
   align-items: center;
   background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};

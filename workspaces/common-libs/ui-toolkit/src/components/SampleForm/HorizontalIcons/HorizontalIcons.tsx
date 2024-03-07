@@ -8,9 +8,9 @@
  */
 import React from 'react';
 import { ComponentCard } from '../../ComponentCard/ComponentCard';
-import { Icon } from '../../Icon/Icon';
 import styled from '@emotion/styled';
 import { Codicon } from '../../Codicon/Codicon';
+import { Icon } from '../../Icon/Icon';
 
 const FORM_WIDTH = 600;
 
@@ -36,7 +36,9 @@ export interface HorizontalIconProps {
     id?: string;
     className?: string;
     leftIconName?: string;
+    isLeftIconCodicon?: boolean;
     rightIconName?: string;
+    isRightIconCodicon?: boolean;
     title?: string;
     description?: string;
     sx?: any;
@@ -81,20 +83,26 @@ const plusStyles = {
 };
 
 export const HorizontalIcons = (props: HorizontalIconProps) => {
-    const { id, className, title, leftIconName, rightIconName,  description, sx, onClick } = props;
+    const { id, className, title, leftIconName, isLeftIconCodicon = false, rightIconName, isRightIconCodicon = false,  description, sx, onClick } = props;
     return (
         <Container id={id} className={className} sx={sx} onClick={onClick}>
             <ComponentCard sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-start", width: FORM_WIDTH, padding: "10px 0" }}>
                 <CardContent>
                     <ComponentIconWrapper>
-                        <Icon iconSx={iconStyles} name={leftIconName} />
+                        {isLeftIconCodicon ?
+                            (<Codicon iconSx={iconStyles} name={leftIconName}/>) :
+                            (<Icon iconSx={iconStyles} name={leftIconName}/>)
+                        }
                     </ComponentIconWrapper>
                     <TextContainer>
                         <TopTextContainer>{title}</TopTextContainer>
                         <BottomTextContainer>{description}</BottomTextContainer>
                     </TextContainer>
                     <PlusIconWrapper>
-                        <Codicon iconSx={plusStyles} name={rightIconName}/>
+                        {isRightIconCodicon ?
+                            (<Codicon iconSx={plusStyles} name={rightIconName}/>) :
+                            (<Icon iconSx={plusStyles} name={rightIconName}/>)
+                        }
                     </PlusIconWrapper>
                 </CardContent>
             </ComponentCard>

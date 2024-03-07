@@ -7,7 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Call, CallTemplate, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Range, Respond, STNode, Send, Sequence, Store, TagRange, Throttle, Validate, Visitor, WithParam } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+
+import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange,Range, Throttle, Validate, Visitor, WithParam } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
 import { LINK_BOTTOM_OFFSET } from "../components/NodeLink/NodeLinkModel";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -183,6 +184,15 @@ export class SizingVisitor implements Visitor {
 
     endVisitWithParam = (node: WithParam): void => this.calculateBasicMediator(node);
     endVisitCallTemplate = (node: CallTemplate): void => this.calculateBasicMediator(node);
+
+    //Extesnion Mediators
+    beginVisitBean = (node: Bean): void => this.calculateBasicMediator(node);
+    beginVisitClass = (node: Class): void => this.calculateBasicMediator(node);
+    beginVisitPojoCommand = (node: PojoCommand): void => this.calculateBasicMediator(node);
+    beginVisitEjb = (node: Ejb): void => this.calculateBasicMediator(node);
+    beginVisitScript = (node: Script): void => this.calculateBasicMediator(node);
+    beginVisitSpring = (node: Spring): void => this.calculateBasicMediator(node);
+
     skipChildren(): boolean {
         return this.skipChildrenVisit;
     }

@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { window, Uri, workspace, ProgressLocation, ConfigurationTarget, MessageItem, Progress, commands, StatusBarAlignment, languages } from "vscode";
+import { window, Uri, workspace, ProgressLocation, ConfigurationTarget, MessageItem, Progress, commands, StatusBarAlignment, languages, Range, TextEditorRevealType, Selection } from "vscode";
 import { GetSyntaxTreeResponse } from "@wso2-enterprise/ballerina-languageclient";
 import axios from "axios";
 import { createHash } from "crypto";
@@ -27,6 +27,8 @@ import {
     TM_EVENT_OPEN_REPO_SAME_FOLDER,
     sendTelemetryEvent
 } from "../telemetry";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { existsSync } from "fs";
 interface ProgressMessage {
     message: string;
     increment?: number;
@@ -501,4 +503,28 @@ function urlToUniqueID(url) {
     const hash = createHash('sha256');
     hash.update(url);
     return hash.digest('hex');
+}
+
+export function goToSource(nodePosition: NodePosition, filePath: string) {
+    const { startLine, startColumn } = nodePosition;
+    if (!existsSync(filePath)) {
+        return;
+    }
+    workspace.openTextDocument(filePath).then((sourceFile) => {
+        const openedDocument = window.visibleTextEditors.find((editor) => editor.document.fileName === filePath);
+        if (openedDocument) {
+            const range: Range = new Range(startLine, startColumn, startLine!, startColumn!);
+            window.visibleTextEditors[0].revealRange(range, TextEditorRevealType.InCenter);
+            window.showTextDocument(
+                openedDocument.document,
+                { preview: false, viewColumn: openedDocument.viewColumn, preserveFocus: false }
+            );
+        } else {
+            window.showTextDocument(sourceFile, { preview: false, preserveFocus: false }).then((textEditor) => {
+                const range: Range = new Range(startLine, startColumn, startLine!, startColumn!);
+                textEditor.revealRange(range, TextEditorRevealType.InCenter);
+                textEditor.selection = new Selection(range.start, range.start);
+            });
+        }
+    });
 }

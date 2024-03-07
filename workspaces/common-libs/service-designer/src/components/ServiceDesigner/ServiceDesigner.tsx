@@ -67,16 +67,6 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     const { model = defaultService, goToSource, onResourceAdd, onResourceEdit, onResourceDelete, onServiceEdit } = props;
     const [resources, setResources] = useState<JSX.Element[]>([]);
 
-    const handleResourceEdit = (resource: Resource) => {
-        if (onResourceEdit) {
-            onResourceEdit(resource);
-        }
-    };
-    const handleResourceDelete = (resource: Resource) => {
-        if (onResourceDelete) {
-            onResourceDelete(resource);
-        }
-    };
     const handleServiceEdit = () => {
         if (onServiceEdit) {
             onServiceEdit(model);
@@ -91,8 +81,8 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                     <ResourceAccordion
                         key={i}
                         resource={resource}
-                        onEditResource={handleResourceEdit}
-                        onDeleteResource={handleResourceDelete}
+                        onEditResource={onResourceEdit}
+                        onDeleteResource={onResourceDelete}
                         goToSource={goToSource} 
                     />
                 );
@@ -107,15 +97,19 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             <ServiceHeader>
                 <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Service {model.path} </Typography>
                 <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Listening {model.port}</Typography>
-                <VSCodeButton appearance="icon" title="Edit Service" onClick={handleServiceEdit}>
-                    <Codicon name="settings-gear" />
-                </VSCodeButton>
+                {onServiceEdit && (
+                    <VSCodeButton appearance="icon" title="Edit Service" onClick={handleServiceEdit}>
+                        <Codicon name="settings-gear" />
+                    </VSCodeButton>
+                )}
             </ServiceHeader>
             <ResourceListHeader>
                 <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Available resources </Typography>
-                <VSCodeButton appearance="primary" title="Edit Service" onClick={onResourceAdd}>
-                    <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
-                </VSCodeButton>
+                {onResourceAdd && (
+                    <VSCodeButton appearance="primary" title="Edit Service" onClick={onResourceAdd}>
+                        <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
+                    </VSCodeButton>
+                )}
             </ResourceListHeader>
             <>
                 {resources?.length > 0 ? resources : emptyView}

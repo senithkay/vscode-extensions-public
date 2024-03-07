@@ -32,3 +32,8 @@ export enum TypeNature {
     PARAM_NAME_UNAVAILABLE,
     DUMMY
 }
+
+export interface WarningBannerProps {
+    message: React.ReactNode | string;
+}
+

@@ -22,6 +22,7 @@ export interface SearchBoxProps {
     disabled?: boolean;
     readonly?: boolean;
     placeholder?: string;
+    sx?: any;
     onChange?: (e: string) => void;
 }
 
@@ -29,7 +30,7 @@ const searchIcon = (<Codicon name="search" sx= {{cursor: "auto"}}/>);
 
 export function SearchBox(props: SearchBoxProps) {
     const { label, size, disabled, readonly, value, id,
-        icon, iconPosition, autoFocus, onChange, placeholder
+        icon, iconPosition, autoFocus, onChange, placeholder, sx
     } = props;
     const handleChange = (value: string) => {
         onChange && onChange(value);
@@ -46,6 +47,7 @@ export function SearchBox(props: SearchBoxProps) {
             onChange={handleChange}
             value={value}
             id={id}
+            sx={sx}
         />
     );
 }

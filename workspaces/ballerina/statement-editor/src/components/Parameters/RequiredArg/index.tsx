@@ -9,7 +9,6 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-// tslint:disable-next-line:no-submodule-imports
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { ParameterInfo } from "@wso2-enterprise/ballerina-core";
 import { Typography } from "@wso2-enterprise/ui-toolkit";

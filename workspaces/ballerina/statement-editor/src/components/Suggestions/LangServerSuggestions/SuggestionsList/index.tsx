@@ -6,11 +6,12 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React from "react";
 
-import { List } from "@material-ui/core";
+import { Grid, GridItem } from "@wso2-enterprise/ui-toolkit";
 
+import { MAX_COLUMN_WIDTH, SUGGESTION_COLUMN_SIZE } from "../../../../constants";
 import { Suggestion, SuggestionItem } from "../../../../models/definitions";
 import { useStmtEditorHelperPanelStyles } from "../../../styles";
 import { SuggestionListItem } from "../SuggestionListItem";
@@ -54,23 +55,37 @@ export function SuggestionsList(props: SuggestionsListProps) {
                     <br/>
                 </>
             )}
-            <List className={stmtEditorHelperClasses.suggestionList} data-testid="suggestion-list">
+            <Grid columns={SUGGESTION_COLUMN_SIZE}>
                 {
-                    lsSuggestions.map((suggestion: SuggestionItem, index: number) => (
-                        <SuggestionListItem
-                            key={index}
-                            isSelected={ selectedSuggestion && (
-                                index === selectedSuggestion.selectedListItem &&
-                                currentGroup === selectedSuggestion.selectedGroup
-                            )
-                            }
-                            suggestion={suggestion}
-                            onClickLSSuggestion={onClickLSSuggestion}
-                            isReference={isReference}
-                        />
-                    ))
+                    lsSuggestions.map((suggestion: SuggestionItem, index: number) => {
+                        const isSelected = selectedSuggestion && (
+                            index === selectedSuggestion.selectedListItem &&
+                            currentGroup === selectedSuggestion.selectedGroup
+                        )
+                        return (
+                            <GridItem
+                                key={index}
+                                id={index}
+                                onClick={() => onClickLSSuggestion(suggestion)}
+                                sx={{
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                    maxWidth: MAX_COLUMN_WIDTH,
+                                    color: isSelected ? 'var(--vscode-list-activeSelectionForeground)' : 'var(--foreground)'
+                                }}
+                                selected={isSelected}
+                            >
+                                <SuggestionListItem
+                                    key={index}
+                                    suggestion={suggestion}
+                                    isReference={isReference}
+                                />
+                            </GridItem>
+                        )
+                    })
                 }
-            </List>
+            </Grid>
             {isReference && (
                 <div className={stmtEditorHelperClasses.suggestionDividerWrapper}>
                     <div className={stmtEditorHelperClasses.selectionSeparator} />

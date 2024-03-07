@@ -87,13 +87,9 @@ export function MediatorPage(props: MediatorPageProps) {
                 <Button onClick={handleConnectorsClicked} appearance={isConnectors ? 'primary' : 'secondary'} sx={BtnStyle}>Connectors</Button>
             </ButtonContainer>
 
-            <div style={{
-                overflowY: "auto",
-                height: "calc(100vh - 180px)",
-                scrollbarWidth: "none"
-            }}>
+            <div>
                 {/* Mediator List */}
-                <Mediators nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={props.setContent} searchValue={searchValue}/>
+                <Mediators nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={props.setContent} searchValue={searchValue} />
             </div>
         </>
     )

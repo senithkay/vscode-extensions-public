@@ -203,11 +203,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             let versionAttributes = '';
             let swaggerAttributes = '';
             if (version && type !== 'none') {
-                versionAttributes = ` version = "${version}" version - type="${type}"`;
+                versionAttributes = ` version="${version}" version-type="${type}"`;
             }
 
             if (swaggerDef) {
-                swaggerAttributes = ` publishSwagger = "${swaggerDef}"`;
+                swaggerAttributes = ` publishSwagger="${swaggerDef}"`;
             }
 
             const xmlData = 

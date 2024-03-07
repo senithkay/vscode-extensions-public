@@ -49,11 +49,11 @@ export const useLibrariesList = (libraryBrowserRpcClient: LibraryBrowserRpcClien
         try {
             let response;
             if (libraryType === LANG_LIBS_IDENTIFIER) {
-                response = await libraryBrowserRpcClient.getLibrariesList(LibraryKind.langLib);
+                response = await libraryBrowserRpcClient.getLibrariesList({kind: LibraryKind.langLib});
             } else if (libraryType === STD_LIBS_IDENTIFIER) {
-                response = await libraryBrowserRpcClient.getLibrariesList(LibraryKind.stdLib);
+                response = await libraryBrowserRpcClient.getLibrariesList({kind: LibraryKind.stdLib});
             } else {
-                response = await libraryBrowserRpcClient.getLibrariesList();
+                response = await libraryBrowserRpcClient.getLibrariesList({});
             }
             return response.librariesList;
         } catch (networkError: any) {

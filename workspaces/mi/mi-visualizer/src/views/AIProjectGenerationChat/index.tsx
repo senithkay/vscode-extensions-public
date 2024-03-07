@@ -65,7 +65,7 @@ export function AIProjectGenerationChat() {
   const messagesEndRef = React.createRef<HTMLDivElement>();
 
   useEffect(() => {
-    rpcClient.getMiDiagramRpcClient().getProjectUuid().then((response) => {
+    rpcClient?.getMiDiagramRpcClient().getProjectUuid().then((response) => {
       projectUuid = response.uuid;
       const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
       const storedChatArray = localStorage.getItem(localStorageFile);
@@ -142,7 +142,7 @@ export function AIProjectGenerationChat() {
   async function handleSend (isQuestion: boolean = false) {
     setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
     setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'question'));
-    await rpcClient.getMiDiagramRpcClient().getWorkspaceContext().then((response) => {
+    await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
       console.log(response);
     } );
 
@@ -172,7 +172,7 @@ export function AIProjectGenerationChat() {
         },
         body: JSON.stringify({messages: chatArray}),
     })
-    const reader = response.body.getReader();
+    const reader = response.body?.getReader();
     const decoder = new TextDecoder();
     let result = '';
 
@@ -385,7 +385,7 @@ export function AIProjectGenerationChat() {
         <TextArea
           onChange={(e) => setUserInput(e)}
           placeholder="Type your message here"
-          required
+          required={true}
           value={userInput}
           className="custom-textarea-style"
         />

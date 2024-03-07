@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React from "react";
 
-import { Type } from "@wso2-enterprise/ballerina-core";
+import { TypeField } from "@wso2-enterprise/ballerina-core";
 import { IdentifierToken, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -26,7 +26,7 @@ import { UnionTypesList } from "./UnionTypesList";
 export interface UnionTypeSelectorProps {
     context: IDataMapperContext;
     typeIdentifier: TypeDescriptor | IdentifierToken;
-    typeDef: Type;
+    typeDef: TypeField;
     hasInvalidTypeCast: boolean;
     innermostExpr: STNode;
     typeCastExpr: STNode;

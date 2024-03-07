@@ -17,7 +17,7 @@ interface IDiagramContext {
     focusedNodeId?: string;
     componentMenu?: MoreVertMenuItem[];
     zoomLevel: number;
-    observationSummary: ObservationSummary;
+    observationSummary?: ObservationSummary;
     setSelectedNodeId: (id: string) => void;
     setFocusedNodeId?: (id: string) => void;
     onComponentDoubleClick?: (componentId: string) => void;

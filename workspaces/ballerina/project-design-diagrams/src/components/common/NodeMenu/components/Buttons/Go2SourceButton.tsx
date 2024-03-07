@@ -20,7 +20,7 @@ export function Go2SourceButton(props: { location: Location, isBalPackage?: bool
     const { editLayerAPI } = useContext(DiagramContext);
 
     return (
-        <MenuItem onClick={() => editLayerAPI?.go2source(location)}>
+        <MenuItem onClick={() => editLayerAPI?.go2source({ location })}>
             <ListItemIcon>
                 <CodeIcon fontSize="small" />
             </ListItemIcon>

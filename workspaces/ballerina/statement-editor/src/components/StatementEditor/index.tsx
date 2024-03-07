@@ -7,12 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
-import * as monaco from "monaco-editor";
-import { Diagnostic } from "vscode-languageserver-protocol";
+import { Diagnostic } from "vscode-languageserver-types";
+import { URI } from 'vscode-uri';
 
 import { ACTION, CONNECTOR, CUSTOM_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE, HTTP_ACTION } from "../../constants";
 import {
@@ -120,7 +120,7 @@ export function StatementEditor(props: StatementEditorProps) {
         updateEditor
     } = editorManager;
 
-    const fileURI = monaco.Uri.file(currentFile.path).toString();
+    const fileURI = URI.file(currentFile.path).toString();
     const initSymbolInfo : DocumentationInfo = {
         modelPosition: null,
         documentation: {}

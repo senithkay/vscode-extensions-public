@@ -11,8 +11,7 @@
         "no-submodule-imports": [
             true,
             "@material-ui",
-            "monaco-editor",
-            "monaco-languageclient",
+            "@vscode",
             "@ballerina",
             "components",
             "store",

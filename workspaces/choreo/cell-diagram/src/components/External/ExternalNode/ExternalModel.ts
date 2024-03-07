@@ -8,7 +8,7 @@
  */
 
 import { PortModelAlignment } from "@projectstorm/react-diagrams";
-import { SharedNodeModel } from "../../shared-node/shared-node";
+import { SharedNodeModel } from "../../SharedNode/SharedNode";
 import { CellPortModel } from "../../Cell/CellPort/CellPortModel";
 import { EXTERNAL_NODE } from "../../../resources";
 import { getExternalNodeName } from "../external-node-util";
