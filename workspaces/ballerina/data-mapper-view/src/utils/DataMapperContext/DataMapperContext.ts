@@ -11,7 +11,7 @@ import { Diagnostic } from "vscode-languageserver-types";
 
 import { ExpressionInfo, SelectionState, ViewOption } from "../../components/DataMapper/DataMapper";
 import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { STModification } from "@wso2-enterprise/ballerina-core";
+import { HistoryEntry, STModification } from "@wso2-enterprise/ballerina-core";
 
 export interface IDataMapperContext {
     functionST: FunctionDefinition;
@@ -36,7 +36,7 @@ export interface IDataMapperContext {
     handleLocalVarConfigPanel: (showPanel: boolean) => void;
     applyModifications: (modifications: STModification[]) => Promise<void>;
     updateActiveFile?: (currentFile: any) => void;
-    updateSelectedComponent?: (info: any) => void;
+    updateSelectedComponent?: (info: HistoryEntry) => void;
     referenceManager?: {
         currentReferences: string[],
         handleCurrentReferences: (referencedFields: string[]) => void
@@ -68,7 +68,7 @@ export class DataMapperContext implements IDataMapperContext {
         public handleLocalVarConfigPanel: (showPanel: boolean) => void,
         public applyModifications: (modifications: STModification[]) => Promise<void>,
         public updateActiveFile?: (currentFile: any) => void,
-        public updateSelectedComponent?: (info: any) => void,
+        public updateSelectedComponent?: (info: HistoryEntry) => void,
         public referenceManager?: {
             currentReferences: string[],
             handleCurrentReferences: (referencedFields: string[]) => void;

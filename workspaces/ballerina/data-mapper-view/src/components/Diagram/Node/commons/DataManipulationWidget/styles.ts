@@ -50,7 +50,7 @@ export const useStyles = () => ({
         display: "flex",
         alignItems: 'center',
         '&:hover': {
-            backgroundColor: 'var(--vscode-tab-inactiveBackground)',
+            backgroundColor: 'inherit',
         }
     }),
     ArrayFieldRowDisabled: css({

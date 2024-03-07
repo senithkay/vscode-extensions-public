@@ -64,7 +64,7 @@ export function UnionTypeListItem(props: UnionTypeListItemProps) {
     return (
         <Tooltip
             content={type}
-            position="right-end"
+            position="right"
         >
             <div
                 key={key}

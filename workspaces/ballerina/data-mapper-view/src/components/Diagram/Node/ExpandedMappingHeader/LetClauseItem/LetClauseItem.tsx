@@ -103,59 +103,61 @@ export function LetClauseItem(props: {
             <div className={classes.clauseItem}>
                 <div className={classes.clauseKeyWrap}>{intermediateNode.letKeyword.value}</div>
 
-                <div className={classes.clauseWrap}>
-                    <span className={classes.clauseExpression}>
-                        {nameEditable ? (
-                            <input
-                                spellCheck={false}
-                                className={classes.input}
-                                autoFocus={true}
-                                value={updatedName}
-                                onChange={(event) => setUpdatedName(event.target.value)}
-                                onKeyUp={(event) =>
-                                    onKeyUp(
-                                        event.key,
-                                        (
-                                            letVarDeclaration.typedBindingPattern
-                                                .bindingPattern as CaptureBindingPattern
-                                        )?.variableName
-                                    )
-                                }
-                                onBlur={() => {
-                                    setNameEditable(false);
-                                    setUpdatedName(variableName);
-                                }}
-                                data-testid={`let-clause-name-input-${itemIndex}`}
-                            />
-                        ) : (
-                            <span onClick={() => setNameEditable(true)} data-testid={`let-clause-name-${itemIndex}`}>{updatedName}</span>
-                        )}
-                    </span>
-                    <span>{letVarDeclaration.equalsToken.value}</span>
-                    <ClickableExpression
-                        node={letVarDeclaration.expression}
-                        onEditClick={() =>
-                            onEditClick(
-                                letVarDeclaration?.expression?.source,
-                                letVarDeclaration?.expression?.position,
-                                "Let clause"
-                            )
-                        }
-                        index={itemIndex}
-                    />
+                <div className={classes.clauseItemBody}>
+                    <div className={classes.clauseWrap}>
+                        <span className={classes.clauseExpression}>
+                            {nameEditable ? (
+                                <input
+                                    spellCheck={false}
+                                    className={classes.input}
+                                    autoFocus={true}
+                                    value={updatedName}
+                                    onChange={(event) => setUpdatedName(event.target.value)}
+                                    onKeyUp={(event) =>
+                                        onKeyUp(
+                                            event.key,
+                                            (
+                                                letVarDeclaration.typedBindingPattern
+                                                    .bindingPattern as CaptureBindingPattern
+                                            )?.variableName
+                                        )
+                                    }
+                                    onBlur={() => {
+                                        setNameEditable(false);
+                                        setUpdatedName(variableName);
+                                    }}
+                                    data-testid={`let-clause-name-input-${itemIndex}`}
+                                />
+                            ) : (
+                                <span onClick={() => setNameEditable(true)} data-testid={`let-clause-name-${itemIndex}`}>{updatedName}</span>
+                            )}
+                        </span>
+                        <span>{letVarDeclaration.equalsToken.value}</span>
+                        <ClickableExpression
+                            node={letVarDeclaration.expression}
+                            onEditClick={() =>
+                                onEditClick(
+                                    letVarDeclaration?.expression?.source,
+                                    letVarDeclaration?.expression?.position,
+                                    "Let clause"
+                                )
+                            }
+                            index={itemIndex}
+                        />
+                    </div>
+                    {isLoading ? (
+                        <ProgressRing sx={{ height: '16px', width: '16px', marginRight: '10px' }} />
+                    ) : (
+                        <Button
+                            appearance="icon"
+                            onClick={onDelete}
+                            data-testid={`let-clause-delete-${itemIndex}`}
+                            sx={{ marginRight: "10px"}}
+                        >
+                            <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
+                        </Button>
+                    )}
                 </div>
-
-                {isLoading ? (
-                    <ProgressRing sx={{ height: '16px', width: '16px' }} />
-                ) : (
-                    <Button
-                        appearance="icon"
-                        onClick={onDelete}
-                        data-testid={`let-clause-delete-${itemIndex}`}
-                    >
-                        <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
-                    </Button>
-                )}
             </div>
 
             <ClauseAddButton context={context} queryExprNode={queryExprNode} addIndex={itemIndex} />

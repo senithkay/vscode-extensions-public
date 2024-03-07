@@ -11,8 +11,7 @@
  * associated services.
  */
 
-import { OtherBalType, PrimitiveBalType } from "@wso2-enterprise/ballerina-core";
-import { Type } from "@wso2-enterprise/ballerina-core";
+import { OtherBalType, PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 import {
 	ExpressionFunctionBody,
 	SelectClause,
@@ -32,7 +31,7 @@ import {
 } from "./dm-utils";
 
 export interface UnionTypeInfo {
-	unionType: Type;
+	unionType: TypeField;
 	typeNames: string[];
 	resolvedTypeName: string;
 	isResolvedViaTypeCast: boolean;
@@ -42,7 +41,7 @@ export interface UnionTypeInfo {
 export const CLEAR_EXISTING_MAPPINGS_WARNING = "This will clear the existing mappings associated with current type";
 export const INCOMPATIBLE_CASTING_WARNING = "This may leads to syntax errors if the type is not matched";
 
-export function resolveUnionType(expr: STNode, unionType: Type): Type {
+export function resolveUnionType(expr: STNode, unionType: TypeField): TypeField {
 	let innerExpr = expr;
 	if (STKindChecker.isLetExpression(expr)) {
 		innerExpr = getExprBodyFromLetExpression(expr);
@@ -85,11 +84,11 @@ export function resolveUnionType(expr: STNode, unionType: Type): Type {
 	}
 }
 
-export function getResolvedType(type: Type, typeDesc: TypeDescriptor): Type {
+export function getResolvedType(type: TypeField, typeDesc: TypeDescriptor): TypeField {
 	const memberName = getTypeName(type).replace(/\s/g, '');
 	const typeDescSource = typeDesc.source.replace(/\s/g, '');
 	if (type.typeName === PrimitiveBalType.Union) {
-		let resolvedType: Type;
+		let resolvedType: TypeField;
 		for (const member of type.members) {
 			resolvedType = getResolvedType(member, typeDesc);
 			if (resolvedType) {
@@ -118,11 +117,11 @@ export function getUnsupportedTypesFromTypeDesc(typeDesc: STNode): string[] {
 	return unsupportedTypes;
 }
 
-export function getUnsupportedTypesFromType(unionType: Type): string[] {
+export function getUnsupportedTypesFromType(unionType: TypeField): string[] {
 	const unsupportedTypes: string[] = [];
 	for (const member of unionType?.members || []) {
 		const memberType = getTypeName(member);
-		let type: Type = member;
+		let type: TypeField = member;
 		if (member.typeName === PrimitiveBalType.Array) {
 			type = getInnermostMemberTypeFromArrayType(member);
 		}
@@ -133,7 +132,7 @@ export function getUnsupportedTypesFromType(unionType: Type): string[] {
 	return unsupportedTypes;
 }
 
-export function getSupportedUnionTypes(typeDef: Type, typeDesc?: STNode): string[] {
+export function getSupportedUnionTypes(typeDef: TypeField, typeDesc?: STNode): string[] {
 	if (!typeDef.typeName && typeDef.typeInfo) {
 		typeDef = findTypeByInfoFromStore(typeDef.typeInfo) || typeDef;
 	}
@@ -152,7 +151,7 @@ export function getSupportedUnionTypes(typeDef: Type, typeDesc?: STNode): string
 	return Array.from(new Set(filteredTypes));
 }
 
-export function getUnionTypes(unionType: Type): string[] {
+export function getUnionTypes(unionType: TypeField): string[] {
 	if (unionType?.members !== undefined) {
 		return unionType.members.map(member => {
 			return getTypeName(member);
@@ -182,7 +181,7 @@ function isUnsupportedTypeDesc(typeDesc: STNode): boolean {
 		|| typeDesc?.typeData?.symbol?.definition?.kind === "ENUM";
 }
 
-function isUnsupportedType(type: Type): boolean {
+function isUnsupportedType(type: TypeField): boolean {
 	if (type.typeName === PrimitiveBalType.Union) {
 		return type.members.some(member => {
 			return isUnsupportedType(member);

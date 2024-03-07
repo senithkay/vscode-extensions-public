@@ -7,20 +7,20 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import {
+    Completion,
     CompletionParams,
-    CompletionResponse,
+    DiagnosticData,
     PartialSTRequest,
-    PublishDiagnosticsParams,
     SymbolInfoResponse
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
 import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import {
     NodePosition,
     STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
-import { Uri } from "monaco-editor";
-import { CodeAction, Diagnostic, WorkspaceEdit } from "vscode-languageserver-protocol";
+import { CodeAction, Diagnostic, WorkspaceEdit } from "vscode-languageserver-types";
+import { URI } from "vscode-uri";
 
 import {
     acceptedCompletionKindForExpressions,
@@ -72,14 +72,14 @@ export async function getRenameEdits(
     langServerRpcClient: LangServerRpcClient
 ): Promise<WorkspaceEdit> {
     const renameEdits = await langServerRpcClient.rename({
-        textDocument: { uri: Uri.file(fileURI).toString() },
+        textDocument: { uri: URI.file(fileURI).toString() },
         position: {
             line: position.startLine,
             character: position?.startColumn
         },
         newName
     });
-    return renameEdits;
+    return renameEdits.workspaceEdit;
 }
 
 export async function getCompletions(
@@ -116,9 +116,9 @@ export async function getCompletions(
     // CodeSnippet is split to get the suggestions for field-access-expr (expression.field-name)
     const inputElements = userInput.split('.');
 
-    const completions: CompletionResponse[] = await langServerRpcClient.getCompletion(completionParams);
+    const completions: Completion[] = (await langServerRpcClient.getCompletion(completionParams)).completions;
 
-    const filteredCompletionItems = completions.filter((completionResponse: CompletionResponse) => (
+    const filteredCompletionItems = completions.filter((completionResponse: Completion) => (
         (!completionResponse.kind ||
             (isTypeDescriptor ?
                 acceptedCompletionKindForTypes.includes(completionResponse.kind) :
@@ -187,10 +187,10 @@ export async function getCompletionsForType(
     }
 
     // CodeSnippet is split to get the suggestions for field-access-expr (expression.field-name)
-    const completions: CompletionResponse[] = await langServerRpcClient.getCompletion(completionParams);
+    const completions: Completion[] = (await langServerRpcClient.getCompletion(completionParams)).completions;
 
     completions
-        .filter((completionResponse: CompletionResponse) => (
+        .filter((completionResponse: Completion) => (
             (!completionResponse.kind || completionKinds.includes(completionResponse.kind) || !completionKinds || completionKinds.length <= 0)
         ))
         .sort(sortSuggestions)
@@ -260,14 +260,14 @@ export async function sendDidChange(
 export async function getDiagnostics(
     docUri: string,
     langServerRpcClient: LangServerRpcClient
-): Promise<PublishDiagnosticsParams[]> {
+): Promise<DiagnosticData[]> {
     const diagnostics = await langServerRpcClient.getDiagnostics({
         documentIdentifier: {
             uri: docUri,
         }
     });
 
-    return diagnostics;
+    return diagnostics.diagnostics;
 }
 
 export async function getCodeAction(
@@ -311,7 +311,7 @@ export async function getCodeAction(
         },
     });
 
-    return codeAction;
+    return codeAction.codeActions;
 }
 
 export async function getSymbolDocumentation(
@@ -346,7 +346,7 @@ export async function updateFileContent(
         content,
         skipForceSave
     });
-    return response;
+    return response.status;
 }
 
 export const handleDiagnostics = async (

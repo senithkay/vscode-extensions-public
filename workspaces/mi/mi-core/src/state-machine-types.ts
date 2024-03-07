@@ -20,7 +20,8 @@ export enum MACHINE_VIEW {
     SequenceForm = "Sequence Form",
     InboundEPForm = "Inbound EP Form",
     ProjectCreationForm = "Project Creation Form",
-    LocalEntryForm = "Local Entry Form"
+    LocalEntryForm = "Local Entry Form",
+    RegistryResourceForm = "Registry Resource Creation Form",
 }
 
 export type MachineStateValue =
@@ -54,6 +55,7 @@ export interface VisualizerLocation {
     identifier?: string;
     position?: any;
     projectOpened?: boolean;
+    customProps?: any;
 }
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };

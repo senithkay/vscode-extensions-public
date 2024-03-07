@@ -12,7 +12,8 @@ import * as fs from 'fs';
 import * as os from 'os';
 import axios from "axios";
 import * as path from 'path';
-
+import { XMLBuilder } from "fast-xml-parser";
+import { XMLParser } from "fast-xml-parser";
 
 interface ProgressMessage {
     message: string;
@@ -108,4 +109,159 @@ export async function handleOpenFile(sampleName: string, repoUrl: string) {
             successMsg,
         );
     }
+}
+
+/**
+    * Add new entry to artifact.xml in registry resources folder.
+    * @param artifactName  The name of the artifact.
+    * @param file          The file name of the artifact.
+    * @param artifactPath  The path of the artifact.
+    * @param mediaType     The media type of the artifact.
+    */
+export async function addNewEntryToArtifactXML(projectDir: string, artifactName: string, file: string, artifactPath: string, mediaType: string) {
+    return new Promise(async (resolve) => {
+        const options = {
+            ignoreAttributes: false,
+            attributeNamePrefix: "@",
+            parseTagValue: true
+        };
+        const parser = new XMLParser(options);
+        const artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
+        if (!fs.existsSync(artifactXMLPath)) {
+            fs.writeFileSync(artifactXMLPath, `<?xml version="1.0" encoding="UTF-8"?><artifacts></artifacts>`);
+        }
+        const mvnInfo = await getMavenInfoFromRootPom(projectDir);
+        const artifactXML = fs.readFileSync(artifactXMLPath, "utf8");
+        const artifactXMLData = parser.parse(artifactXML);
+        if (artifactXMLData.artifacts === '') {
+            artifactXMLData.artifacts = {};
+            artifactXMLData.artifacts.artifact = [];
+        } else if (!Array.isArray(artifactXMLData.artifacts.artifact)) {
+            const temp = artifactXMLData.artifacts.artifact;
+            artifactXMLData.artifacts.artifact = [];
+            artifactXMLData.artifacts.artifact.push(temp);
+        }
+        artifactXMLData.artifacts.artifact.push({
+            '@name': artifactName,
+            '@groupId': mvnInfo.groupId,
+            '@version': mvnInfo.version,
+            '@type': 'registry/resource',
+            '@serverRole': 'EnterpriseIntegrator',
+            item: {
+                file: file,
+                path: artifactPath,
+                mediaType: mediaType,
+                properties: null,
+            }
+        });
+        const builder = new XMLBuilder(options);
+        const updatedXmlString = builder.build(artifactXMLData);
+        fs.writeFileSync(artifactXMLPath, updatedXmlString);
+    });
+}
+
+/**
+ * Get the maven information from the root pom.xml file.
+ * @returns The maven information.
+ */
+export async function getMavenInfoFromRootPom(projectDir: string): Promise<{ groupId: string, artifactId: string, version: string }> {
+    return new Promise(async (resolve) => {
+        const pomXMLPath = path.join(projectDir, 'pom.xml');
+        if (fs.existsSync(pomXMLPath)) {
+            const pomXML = fs.readFileSync(pomXMLPath, "utf8");
+            const options = {
+                ignoreAttributes: true
+            };
+            const parser = new XMLParser(options);
+            const pomXMLData = parser.parse(pomXML);
+            const artifactId = pomXMLData["project"]["artifactId"];
+            const groupId = pomXMLData["project"]["groupId"];
+            const version = pomXMLData["project"]["version"];
+            const response = {
+                groupId: groupId,
+                artifactId: artifactId,
+                version: version
+            };
+            resolve(response);
+        }
+
+    });
+}
+
+/**
+ * Get media type and file extension of the registry resource for the given template type.
+ * @param templateType  The template type of the registry resource.
+ * @returns             The media type and file extension of the registry resource.
+ */
+export function getMediatypeAndFileExtension(templateType: string): { mediaType: string, fileExtension: string } {
+    let mediaType = 'application/vnd.wso2.esb.endpoint';
+    let fileExtension = 'xml';
+    switch (templateType) {
+        case "Address endpoint":
+        case "Default Endpoint":
+        case "Failover Endpoint":
+        case "HTTP Endpoint":
+        case "Load Balance Endpoint":
+        case "Recipient List Endpoint":
+        case "Template Endpoint":
+        case "WSDL Endpoint":
+            break;
+        case "Default Endpoint Template":
+        case "HTTP Endpoint Template":
+        case "WSDL Endpoint Template":
+        case "Address endpoint template":
+            mediaType = 'application/vnd.wso2.template.endpoint';
+            break;
+        case "XSLT File":
+            mediaType = 'application/xslt+xml';
+            fileExtension = 'xslt';
+            break;
+        case "XSD File":
+            mediaType = 'application/x-xsd+xml';
+            fileExtension = 'xsd';
+            break;
+        case "XSL File":
+            mediaType = 'application/xsl+xml';
+            fileExtension = 'xsl';
+            break;
+        case "WSDL File":
+            mediaType = 'application/wsdl+xml';
+            fileExtension = 'wsdl';
+            break;
+        case "Data Mapper":
+            mediaType = 'application/datamapper';
+            fileExtension = 'dmc';
+            break;
+        case "Javascript File":
+            mediaType = 'application/javascript';
+            fileExtension = 'js';
+            break;
+        case "SQL Script File":
+            mediaType = '';
+            fileExtension = 'sql';
+            break;
+        case "JSON File":
+            mediaType = 'application/json';
+            fileExtension = 'json';
+            break;
+        case "YAML File":
+            mediaType = 'application/yaml';
+            fileExtension = 'yaml';
+            break;
+        case "Local Entry":
+            mediaType = 'application/vnd.wso2.esb.localentry';
+            break;
+        case "Sequence":
+            mediaType = 'application/vnd.wso2.sequence';
+            break;
+        case "Sequence Template":
+            mediaType = 'application/vnd.wso2.template';
+            break;
+        case "WS-Policy":
+            mediaType = 'application/wspolicy+xml';
+            break;
+        default:
+            break;
+    }
+    return { mediaType, fileExtension };
 }

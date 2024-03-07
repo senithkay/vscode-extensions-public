@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { AnydataType, PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-core";
+import { AnydataType, PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 import {
     ListConstructor,
     MappingConstructor,
@@ -30,8 +30,8 @@ import {
 } from "./dm-utils";
 import { resolveUnionType } from "./union-type-utils";
 
-export function enrichAndProcessType(typeToBeProcessed: Type, node: STNode,
-                                     selectedST: STNode): [EditableRecordField, Type] {
+export function enrichAndProcessType(typeToBeProcessed: TypeField, node: STNode,
+                                     selectedST: STNode): [EditableRecordField, TypeField] {
     let type = {...typeToBeProcessed};
     let valueEnrichedType = getEnrichedRecordType(type, node, selectedST);
     const [updatedType, isUpdated] = addMissingTypes(valueEnrichedType);
@@ -42,7 +42,7 @@ export function enrichAndProcessType(typeToBeProcessed: Type, node: STNode,
     return [valueEnrichedType, type];
 }
 
-export function getEnrichedRecordType(type: Type,
+export function getEnrichedRecordType(type: TypeField,
                                       node: STNode,
                                       selectedST: STNode,
                                       parentType?: EditableRecordField,
@@ -50,7 +50,7 @@ export function getEnrichedRecordType(type: Type,
     let editableRecordField: EditableRecordField = null;
     let valueNode: STNode;
     let nextNode: STNode;
-    let originalType: Type = type;
+    let originalType: TypeField = type;
 
     if (!type.typeName && type?.typeInfo) {
         type = findTypeByInfoFromStore(type.typeInfo) || type;
@@ -88,7 +88,7 @@ export function getEnrichedRecordType(type: Type,
     return editableRecordField;
 }
 
-export function getEnrichedPrimitiveType(field: Type,
+export function getEnrichedPrimitiveType(field: TypeField,
                                          node: STNode,
                                          selectedST: STNode,
                                          parentType?: EditableRecordField,
@@ -107,7 +107,7 @@ export function getEnrichedPrimitiveType(field: Type,
     return members;
 }
 
-export function getEnrichedArrayType(field: Type,
+export function getEnrichedArrayType(field: TypeField,
                                      node: ListConstructor,
                                      selectedST: STNode,
                                      parentType?: EditableRecordField,
@@ -146,7 +146,7 @@ export function getEnrichedArrayType(field: Type,
     return members;
 }
 
-export function addMissingTypes(field: EditableRecordField): [Type, boolean] {
+export function addMissingTypes(field: EditableRecordField): [TypeField, boolean] {
     let type = { ...field.type };
     const value = field.value;
     let hasTypeUpdated = false;
@@ -171,7 +171,7 @@ export function addMissingTypes(field: EditableRecordField): [Type, boolean] {
     return [type, hasTypeUpdated];
 }
 
-export function addResolvedUnionTypes(field: EditableRecordField): [Type, boolean] {
+export function addResolvedUnionTypes(field: EditableRecordField): [TypeField, boolean] {
     const type = { ...field.type };
     const value = field.value;
     let hasTypeUpdated = false;
@@ -206,8 +206,8 @@ export function addResolvedUnionTypes(field: EditableRecordField): [Type, boolea
     return [type, hasTypeUpdated];
 }
 
-export function constructTypeFromSTNode(node: STNode, fieldName?: string): Type {
-    let type: Type;
+export function constructTypeFromSTNode(node: STNode, fieldName?: string): TypeField {
+    let type: TypeField;
     if (STKindChecker.isMappingConstructor(node)) {
         type = {
             typeName: PrimitiveBalType.Record,
@@ -256,7 +256,7 @@ export function constructTypeFromSTNode(node: STNode, fieldName?: string): Type 
 
 function getValueNodeAndNextNodeForParentType(node: STNode,
                                               parentType: EditableRecordField,
-                                              originalType: Type,
+                                              originalType: TypeField,
                                               selectedST: STNode): [STNode, STNode] {
     const innerExpr = getInnermostExpressionBody(node);
     if (innerExpr && STKindChecker.isMappingConstructor(innerExpr)) {
@@ -309,7 +309,7 @@ function getNextNodeForNoParentType(node: STNode): STNode {
     return node;
 }
 
-function addChildrenTypes(type: Type,
+function addChildrenTypes(type: TypeField,
                           childrenTypes: EditableRecordField[],
                           nextNode: STNode,
                           selectedST: STNode,
@@ -326,7 +326,7 @@ function addChildrenTypes(type: Type,
 }
 
 function addEnrichedArrayElements(nextNode: STNode,
-                                  type: Type,
+                                  type: TypeField,
                                   selectedST: STNode,
                                   editableRecordField: EditableRecordField,
                                   childrenTypes?: EditableRecordField[]) {
@@ -371,7 +371,7 @@ function addEnrichedArrayElements(nextNode: STNode,
     }
 }
 
-function addArrayElements(type: Type,
+function addArrayElements(type: TypeField,
                           parentType: EditableRecordField,
                           selectedST: STNode,
                           editableRecordField: EditableRecordField,

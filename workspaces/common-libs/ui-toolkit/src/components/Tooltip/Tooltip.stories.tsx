@@ -9,11 +9,27 @@
 import React from "react";
 import { ComponentStory } from "@storybook/react";
 import { Tooltip, TooltipProps } from "./Tooltip";
+import styled from "@emotion/styled";
+
+const Container = styled.div`
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+const Text = styled.div`
+    border: 1px solid black;
+    padding: 10px;
+`;
 
 const Template: ComponentStory<typeof Tooltip> = (args: TooltipProps) =>
-    <Tooltip {...args}>
-        <>Test Tooltip</>
-    </Tooltip> 
+    <Container>
+        <Tooltip {...args}>
+            <Text>Hover Over Me</Text>
+        </Tooltip>
+    </Container>
 ;
 
 export const TooltipText = Template.bind();

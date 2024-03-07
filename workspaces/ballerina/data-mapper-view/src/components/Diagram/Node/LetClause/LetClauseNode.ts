@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
-import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 import {
     CaptureBindingPattern,
     LetClause,
@@ -28,12 +28,12 @@ export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc-let
 export class LetClauseNode extends DataMapperNodeModel {
 
     public sourceTypeDesc: RecordTypeDesc;
-    public typeDef: Type;
+    public typeDef: TypeField;
     public sourceBindingPattern: CaptureBindingPattern;
     public x: number;
     public numberOfFields:  number;
     public hasNoMatchingFields: boolean;
-    originalTypeDef: Type;
+    originalTypeDef: TypeField;
     letVarDecl: LetVarDecl;
 
     constructor(

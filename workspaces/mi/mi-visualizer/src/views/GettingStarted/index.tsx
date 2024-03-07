@@ -98,7 +98,7 @@ const SampleText = styled.div`
 `;
 
 const SampleTitle = {
-    margin:"4px 0px",
+    margin: "4px 0px",
     fontSize: 14,
     fontWeight: 500,
     textAlign: "left",
@@ -160,7 +160,7 @@ export function GettingStarted() {
                     </TitlePanel>
                     <Grid
                         columns={2}
-                        direction="column">
+                    >
                         <Pane>
                             <Tab>
                                 <SubTitle>Getting started</SubTitle>

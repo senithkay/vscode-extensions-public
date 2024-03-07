@@ -63,6 +63,19 @@ export interface ResourceStructureEntry {
     uriTemplate: string,
     method: string
 }
+
+export interface RegistryResourcesFolder {
+    name: string,
+    path: string,
+    files: RegistryResourceFile[];
+    folders: RegistryResourcesFolder[];
+}
+
+export interface RegistryResourceFile {
+    name: string,
+    path: string
+}
+
 export interface GettingStartedSample {
     category: number;
     priority: number;

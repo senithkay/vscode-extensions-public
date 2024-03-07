@@ -10,14 +10,11 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline no-submodule-imports
 import React from "react";
 
-import { ListItemIcon, ListItemText, MenuItem } from "@material-ui/core";
-import CodeIcon from "@mui/icons-material/Code";
+import { Codicon, Item, MenuItem } from "@wso2-enterprise/ui-toolkit";
 
 import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { Position } from "../resources/model";
 import { getFormattedPosition } from "../utils/common-util";
-
-import { useStyles } from "./styles";
 
 interface GoToSourceMenuProps {
     location: Position;
@@ -25,7 +22,6 @@ interface GoToSourceMenuProps {
 
 export function GoToSourceMenuItem(props: GoToSourceMenuProps) {
     const { location } = props;
-    const menuStyles = useStyles();
 
     const filePath = location?.filePath;
     const position = getFormattedPosition(location);
@@ -35,16 +31,29 @@ export function GoToSourceMenuItem(props: GoToSourceMenuProps) {
         goToSource(filePath, position);
     };
 
+    const ItemWithIcon = () => {
+        return (
+            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                <Codicon name="code" />
+                <div style={{ marginLeft: '5px' }}>
+                    Go to Source
+                </div>
+                <div style={{ marginLeft: '5px', color: '#595959F4' }}>
+                    Ctrl + left click
+                </div>
+            </div>
+        )
+    }
+
+    const menuItem: Item = { id: "go-to-source", label: ItemWithIcon(), onClick: () => handleOnClick() };
+
     return (
         <>
             {filePath && position &&
-            <MenuItem onClick={handleOnClick} className={menuStyles.shortcutMenuItem}>
-                <ListItemIcon className={menuStyles.menuIcon}>
-                    <CodeIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText className={menuStyles.listItemText}>Go to Source</ListItemText>
-                <ListItemText className={menuStyles.shortcutItem}>Ctrl + left click</ListItemText>
-            </MenuItem>
+                <MenuItem
+                    sx={{ pointerEvents: "auto", userSelect: "none" }}
+                    item={menuItem}
+                />
             }
         </>
     );

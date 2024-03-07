@@ -9,7 +9,7 @@
 
 import { PortModelAlignment } from "@projectstorm/react-diagrams";
 import { BezierCurve, Point } from "@projectstorm/geometry";
-import { SharedLinkModel } from "../../shared-link/shared-link";
+import { SharedLinkModel } from "../../SharedLink/SharedLink";
 
 interface LinkOrigins {
     nodeId: string;

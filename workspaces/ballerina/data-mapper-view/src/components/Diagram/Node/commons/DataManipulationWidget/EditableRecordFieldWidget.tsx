@@ -10,7 +10,7 @@
 import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { AnydataType, PrimitiveBalType, STModification, Type } from "@wso2-enterprise/ballerina-core";
+import { AnydataType, PrimitiveBalType, STModification, TypeField } from "@wso2-enterprise/ballerina-core";
 import {
     MappingConstructor,
     NodePosition,
@@ -205,7 +205,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         return targetPosition;
     }
 
-    const handleWrapWithTypeCast = async (type: Type, shouldReInitialize?: boolean) => {
+    const handleWrapWithTypeCast = async (type: TypeField, shouldReInitialize?: boolean) => {
         setIsAddingTypeCast(true)
         try {
             const name = getTypeName(type);
@@ -297,7 +297,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         isDisabled && !hasHoveredParent ? classes.typeLabelDisabled : ""
                     )}
                 >
-				    {field.originalType.typeName === PrimitiveBalType.Union ? getUnionType() : typeName || ''}
+                    {field.originalType.typeName === PrimitiveBalType.Union ? getUnionType() : typeName || ''}
                 </span>
             )}
             {value && !connectedViaLink && (
@@ -349,7 +349,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         onClick: handleDeleteValue
     };
 
-    const getTypeCastMenuItem = (unionMember: Type, shouldWarn?: boolean): ValueConfigMenuItem => {
+    const getTypeCastMenuItem = (unionMember: TypeField, shouldWarn?: boolean): ValueConfigMenuItem => {
         const memberTypeName = getTypeName(unionMember);
         return {
             title: `Cast type as ${memberTypeName}`,
@@ -359,7 +359,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         };
     };
 
-    const getReInitMenuItem = (unionMember: Type): ValueConfigMenuItem => {
+    const getReInitMenuItem = (unionMember: TypeField): ValueConfigMenuItem => {
         const memberTypeName = getTypeName(unionMember);
         return {
             title: `Re-initialize as ${memberTypeName}`,
@@ -444,12 +444,12 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         if (expanded && fields) {
             fields?.forEach(fieldItem => {
                 if (fieldItem.value && STKindChecker.isSpecificField(fieldItem.value)) {
-                        fieldNames.push(fieldItem.value?.fieldName?.value)
-                    }
+                    fieldNames.push(fieldItem.value?.fieldName?.value)
+                }
             })
         }
         return fieldNames;
-	}, [fields, expanded])
+    }, [fields, expanded])
 
     return (
         <>
@@ -484,7 +484,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                                 onClick={handleExpand}
                                 data-testid={`${portIn?.getName()}-expand-icon-element`}
                             >
-                               {expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />} 
+                                {expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />}
                             </Button>
                         )}
                         {label}

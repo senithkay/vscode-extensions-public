@@ -16,10 +16,9 @@ import { FilterNodeAndGoToSourceMenu } from "../../../NodeActionMenu/FilterNodeA
 import { NodeCategory } from "../../../NodeFilter";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { EnumIcon } from "../../../resources/assets/icons/EnumIcon";
-import { HeaderName } from "../../../resources/styles/styles";
+import { HeaderName, NodeHeader } from "../../../resources/styles/styles";
 import { getFormattedPosition } from "../../../utils/common-util";
 import { EnumNodeModel } from "../EnumNodeModel";
-import { EnumHead } from "../styles";
 
 interface EnumHeadProps {
     engine: DiagramEngine;
@@ -43,7 +42,7 @@ export function EnumHeadWidget(props: EnumHeadProps) {
             filePath={node.enumObject?.position?.filePath}
             position={node.enumObject?.position && getFormattedPosition(node.enumObject.position)}
         >
-            <EnumHead data-testid={`enum-head-${displayName}`}>
+            <NodeHeader data-testid={`enum-head-${displayName}`}>
                 <EnumIcon />
                 <GraphqlBasePortWidget
                     port={node.getPort(`left-${node.getID()}`)}
@@ -62,7 +61,7 @@ export function EnumHeadWidget(props: EnumHeadProps) {
                     port={node.getPort(`top-${node.getID()}`)}
                     engine={engine}
                 />
-            </EnumHead>
+            </NodeHeader>
         </CtrlClickHandler>
     );
 }

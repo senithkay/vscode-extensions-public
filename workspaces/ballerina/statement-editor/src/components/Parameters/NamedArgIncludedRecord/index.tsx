@@ -8,7 +8,6 @@
  */
 import React, { useState } from "react";
 
-// tslint:disable-next-line:no-submodule-imports
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 
 import { useStmtEditorHelperPanelStyles } from "../../styles";

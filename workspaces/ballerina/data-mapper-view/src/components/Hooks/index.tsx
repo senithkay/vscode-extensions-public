@@ -34,6 +34,7 @@ import { ModuleVariableNode } from '../Diagram/Node/ModuleVariable';
 import { EnumTypeNode } from '../Diagram/Node/EnumType';
 import { ExpandedMappingHeaderNode } from '../Diagram/Node/ExpandedMappingHeader';
 import { isDMSupported } from '../DataMapper/utils';
+import { FunctionDefinition, ModulePart } from '@wso2-enterprise/syntax-tree';
 
 export const useProjectComponents = (langServerRpcClient: LangServerRpcClient, fileName: string): {
     projectComponents: BallerinaProjectComponents;
@@ -186,7 +187,7 @@ export const useDMMetaData = (langServerRpcClient: LangServerRpcClient): {
 } => {
     const fetchDMMetaData = async () => {
         try {
-            const ballerinaVersion = await langServerRpcClient.getBallerinaVersion();
+            const ballerinaVersion = (await langServerRpcClient.getBallerinaVersion()).version;
             const dMSupported = isDMSupported(ballerinaVersion);
             const dMUnsupportedMessage = `The current ballerina version ${ballerinaVersion.replace(
                 "(swan lake)", "").trim()
@@ -207,3 +208,35 @@ export const useDMMetaData = (langServerRpcClient: LangServerRpcClient): {
     return { ballerinaVersion, dMSupported, dMUnsupportedMessage, isFetching, isError, refetch };
 };
 
+export const useFileContent = (langServerRpcClient: LangServerRpcClient, filePath: string, fnST: FunctionDefinition): {
+    content: [string, string[]];
+    isFetching: boolean;
+    isError: boolean;
+    refetch: any;
+} => {
+    const { source, position } = fnST;
+    const fetchContent = async () : Promise<[string, string[]]> => {
+        const importStatements: string[] = [];
+        try {
+            const fullST = await langServerRpcClient.getST({
+                documentIdentifier: { uri: URI.file(filePath).toString() }
+            });
+            const modulePart = fullST.syntaxTree as ModulePart;
+            modulePart?.imports.map((importDeclaration: any) => (
+                importStatements.push(importDeclaration.source.trim())
+            ));
+            return [modulePart.source, importStatements];
+        } catch (networkError: any) {
+            console.error('Error while fetching content', networkError);
+        }
+    };
+
+    const {
+        data: content,
+        isFetching,
+        isError,
+        refetch,
+    } = useQuery(['fetchContent', {filePath, source, position}], () => fetchContent(), {});
+
+    return { content, isFetching, isError, refetch };
+};

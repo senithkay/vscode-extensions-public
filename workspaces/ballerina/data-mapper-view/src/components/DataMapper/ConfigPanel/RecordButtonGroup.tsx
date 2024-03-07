@@ -1,31 +1,41 @@
-export {}
-// import React from "react";
 
-// import Button from "@material-ui/core/Button";
-// import AddIcon from "@material-ui/icons/Add";
+import styled from "@emotion/styled";
+import { Button, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
+import React from "react";
 
-// export interface RecordButtonGroupProps {
-//   openRecordEditor: () => void;
-//   showTypeList: () => void;
-// }
+export interface RecordButtonGroupProps {
+  openRecordEditor: () => void;
+  showTypeList: () => void;
+}
 
-// export function RecordButtonGroup(props: RecordButtonGroupProps) {
-//   const { openRecordEditor, showTypeList } = props;
+export function RecordButtonGroup(props: RecordButtonGroupProps) {
+  const { openRecordEditor, showTypeList } = props;
 
-//   return (
-//     <>
-//       <Button
-//         onClick={openRecordEditor}
-//         startIcon={<AddIcon />}
-//         color="primary"
-//         data-testid='new-record'
-//       >
-//         New Record
-//       </Button>
-//       OR
-//       <Button onClick={showTypeList} color="primary" data-testid='exiting-record'>
-//         Existing Record
-//       </Button>
-//     </>
-//   );
-// }
+  return (
+    <Container>
+      <Button
+        onClick={openRecordEditor}
+        appearance="icon"
+        data-testid='new-record'
+      >
+        <Codicon name="add" sx={{ marginRight: "4px" }} iconSx={{ color: "var(--vscode-focusBorder)" }} />
+        <Typography variant="body3" sx={{ color: "var(--vscode-focusBorder)" }}>NEW RECORD</Typography>
+      </Button>
+      <Typography variant="body1">OR</Typography>
+      <Button
+        onClick={showTypeList}
+        appearance="icon"
+        data-testid='exiting-record'
+      >
+        <Codicon name="add" sx={{ marginRight: "4px" }} iconSx={{ color: "var(--vscode-focusBorder)" }} />
+        <Typography variant="body3" sx={{ color: "var(--vscode-focusBorder)" }}>EXISTING RECORD</Typography>
+      </Button>
+    </Container>
+  );
+}
+
+const Container = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;

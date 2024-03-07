@@ -86,7 +86,7 @@ export function DiagramLegend(props: DiagramLegendProps) {
                                 y1="25"
                                 x2="200"
                                 y2="25"
-                                marker-end={hasObservabilityLayer ? "" : "url(#solidLinkArrow)"}
+                                markerEnd={hasObservabilityLayer ? "" : "url(#solidLinkArrow)"}
                                 stroke={hasObservabilityLayer ? Colors.PRIMARY : Colors.ON_SURFACE_VARIANT}
                             ></line>
                         </g>
@@ -119,7 +119,7 @@ export function DiagramLegend(props: DiagramLegendProps) {
                                 y1="25"
                                 x2="200"
                                 y2="25"
-                                marker-end={hasObservabilityLayer ? "" : "url(#solidLinkArrow)"}
+                                markerEnd={hasObservabilityLayer ? "" : "url(#solidLinkArrow)"}
                                 stroke={Colors.ON_SURFACE_VARIANT}
                             ></line>
                         </g>
@@ -145,7 +145,7 @@ export function DiagramLegend(props: DiagramLegendProps) {
                 <LegendRow>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" width={50} height={10}>
                         <g stroke-width={10} stroke="hsl(0, 0%, 30%)" fill="none">
-                            <line x1={0} y1={25} x2={200} y2={25} marker-end={hasObservabilityLayer ? "" : "url(#redLinkArrow)"} stroke={Colors.ERROR}></line>
+                            <line x1={0} y1={25} x2={200} y2={25} markerEnd={hasObservabilityLayer ? "" : "url(#redLinkArrow)"} stroke={Colors.ERROR}></line>
                         </g>
                         <defs>
                             <marker
@@ -174,7 +174,7 @@ export function DiagramLegend(props: DiagramLegendProps) {
                                 y1="25"
                                 x2="200"
                                 y2="25"
-                                marker-end={hasObservabilityLayer ? "" : "url(#dashLinkArrow)"}
+                                markerEnd={hasObservabilityLayer ? "" : "url(#dashLinkArrow)"}
                                 strokeDasharray={"20,20"}
                             ></line>
                         </g>

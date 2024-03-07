@@ -50,7 +50,7 @@ export function EditLabelDialog(props: EditLabelDialogProps) {
             id: annotation?.id || uuid(),
             sourceLocation: getAnnotationLocation()
         }
-        await editLayerAPI.editDisplayLabel(updatedAnnotation);
+        await editLayerAPI.editDisplayLabel({ annotation: updatedAnnotation });
         refreshDiagram();
         handleDialogClose();
     }
