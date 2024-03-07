@@ -112,21 +112,6 @@ function getColorByMethod(method: string) {
     }
 }
 
-function getCalculateWidth(goToSource: (resource: Resource) => void, onEditResource: (resource: Resource) => void,
-    onDeleteResource: (resource: Resource) => void) {
-    let width = 15;
-    if (goToSource) {
-        width += 25;
-    }
-    if (onEditResource) {
-        width += 25;
-    }
-    if (onDeleteResource) {
-        width += 25;
-    }
-    return width;
-}
-
 export interface ResourceAccordionProps {
     resource: Resource;
     goToSource: (resource: Resource) => void;
