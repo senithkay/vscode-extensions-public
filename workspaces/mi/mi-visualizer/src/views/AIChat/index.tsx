@@ -11,7 +11,7 @@
 import React, { useEffect, useState } from "react";
 import { VisualizerLocation, CreateProjectRequest } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import {TextArea, Button, Switch} from "@wso2-enterprise/ui-toolkit";
+import {TextArea, Button, Switch, Icon} from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from 'react-markdown';
 import './AIChat.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -31,9 +31,6 @@ import {
   dracula,
   materialOceanic,
 } from 'react-syntax-highlighter/dist/cjs/styles/prism'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { FaMagic } from "react-icons/fa";
 
 
 interface MarkdownRendererProps {
@@ -298,17 +295,16 @@ export function AIChat() {
   const questionMessages = messages.filter(message => message.type === "question");
   const otherMessages = messages.filter(message => message.type !== "question");
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "90%", width: "100%", margin: "auto" }}>
+      <div style={{ display: "flex", flexDirection: "column", height: "90%", width: "100%", margin: "auto" }}>
       <div style={{ flex: 1, overflowY: "auto", padding: "10px", borderBottom: "1px solid #ccc" }}>
-      <div style={{ display: "flex", justifyContent: "flex-end", padding: "10px" }}>
-          <FontAwesomeIcon
-            icon={faTrash}
-            size="lg"
-            style={{ cursor: "pointer", color: "white" }}
+      <div style={{ textAlign: "right" }}>
+          <Icon
+            name="trash-solid"
+            sx="width: 100%; height: 100%; cursor: pointer;"
             onClick={() => handleClearChat()}
           />
-      </div>
-       {otherMessages.map((message, index) => (
+        </div>
+      {otherMessages.map((message, index) => (
         <div key={index} style={{ marginBottom: "8px" }}>
         {message.type !== "question" && message.type !== "label" && <strong>{message.role}:</strong>}
                 {splitContent(message.content).map((segment, i) =>
@@ -336,10 +332,12 @@ export function AIChat() {
                   e.preventDefault();
                   handleQuestionClick(message.content);
                 }}
-                style={{ color: 'lightblue', textDecoration: 'underline' }}
+                style={{ textDecoration: 'none' }}
               >
-                <FaMagic style={{ marginRight: '5px' }} />
-                {message.content.replace(/^\d+\.\s/, "")}
+                 <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Icon name="wand-magic-sparkles-solid" sx="marginRight:5px"/>
+                    {message.content.replace(/^\d+\.\s/, "")}
+                </div>
               </a>
             </div>
           ))}

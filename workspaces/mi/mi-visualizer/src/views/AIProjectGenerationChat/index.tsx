@@ -11,7 +11,7 @@
 import React, { useEffect, useState } from "react";
 import { VisualizerLocation, CreateProjectRequest } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import {TextArea, Button, Switch} from "@wso2-enterprise/ui-toolkit";
+import {TextArea, Button, Switch, Icon} from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from 'react-markdown';
 import './AIProjectGenerationChat.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -31,8 +31,6 @@ import {
   dracula,
   materialOceanic,
 } from 'react-syntax-highlighter/dist/cjs/styles/prism'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FaMagic } from "react-icons/fa";
 
 
@@ -331,10 +329,9 @@ export function AIProjectGenerationChat() {
     <div style={{ display: "flex", flexDirection: "column", height: "90%", width: "100%", margin: "auto" }}>
       <div style={{ flex: 1, overflowY: "auto", padding: "10px", borderBottom: "1px solid #ccc" }}>
       <div style={{ textAlign: "right" }}>
-          <FontAwesomeIcon
-            icon={faTrash}
-            size="lg"
-            style={{ cursor: "pointer", color: "white" }}
+          <Icon
+            name="trash-solid"
+            sx="width: 100%; height: 100%; cursor: pointer;"
             onClick={() => handleClearChat()}
           />
         </div>
@@ -366,10 +363,13 @@ export function AIProjectGenerationChat() {
                   e.preventDefault();
                   handleQuestionClick(message.content);
                 }}
-                style={{ color: 'lightblue', textDecoration: 'underline' }}
+                style={{ textDecoration: 'none' }}
               >
-                <FaMagic style={{ marginRight: '5px' }} />
-                {message.content.replace(/^\d+\.\s/, "")}
+                 <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Icon name="wand-magic-sparkles-solid" sx="marginRight:5px"/>
+                    {message.content.replace(/^\d+\.\s/, "")}
+                </div>
+
               </a>
             </div>
           ))}
