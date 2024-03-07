@@ -67,12 +67,9 @@ export function AIProjectGenerationChat() {
   useEffect(() => {
     rpcClient.getMiDiagramRpcClient().getProjectUuid().then((response) => {
       projectUuid = response.uuid;
-      console.log("Project UUID: " + projectUuid);
       const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
-    console.log("Local Storage File: " + localStorageFile);
-    const storedChatArray = localStorage.getItem(localStorageFile);
+      const storedChatArray = localStorage.getItem(localStorageFile);
     if (storedChatArray) {
-      console.log("Stored Chat: " + storedChatArray);
       const chatArrayFromStorage = JSON.parse(storedChatArray);
   
       chatArray = chatArrayFromStorage;
@@ -110,7 +107,6 @@ export function AIProjectGenerationChat() {
       { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
         ]);
       }
-      console.log("No stored chat");
     }
     } );
     
@@ -154,7 +150,6 @@ export function AIProjectGenerationChat() {
     let assistant_response = "";
     addChatEntry("user", userInput);
     setUserInput("");
-    console.log(chatArray);
     setMessages(prevMessages => prevMessages.filter((message, index) => index <= lastQuestionIndex || message.type !== 'question'));
     if(isQuestion){
           setLastQuestionIndex(messages.length-4);
@@ -170,7 +165,7 @@ export function AIProjectGenerationChat() {
         ]);
     }
 
-    const response = await fetch('http://127.0.0.1:8000/code-gen-chat', {
+    const response = await fetch(MI_COPILOT_BACKEND_URL, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -196,11 +191,8 @@ export function AIProjectGenerationChat() {
           try {
             const json = JSON.parse(lines[i]);
             if(json.content==null){
-                  console.log("Question Found");
                   addChatEntry("assistant", assistant_response);
-                  console.log(json.questions);
                   const questions = json.questions
-                    // .filter((question: string) => /^\d/.test(question)) // filter out questions that start with a number
                     .map((question: string, index: number) => {
                       return { type: "question", role: "Question", content: question, id: index };
                     });
@@ -235,7 +227,6 @@ export function AIProjectGenerationChat() {
       if (result) {
           try {
             const json = JSON.parse(result);
-            console.log(json); 
           } catch (error) {
             console.error('Error parsing JSON:', error);
           }

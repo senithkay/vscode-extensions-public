@@ -73,22 +73,34 @@ const ProgressRing = styled(VSCodeProgressRing)`
 `;
 
 const MainPanel = () => {
-    const [machineView, setMachineView] = useState<VisualizerLocation>(null);
-    const [mainState, setMainState] = React.useState<MachineStateValue>(state);
-    const [component, setComponent] = useState<JSX.Element | null>(null);
-    const [lastUpdated, setLastUpdated] = useState<number>(0);
+    const { rpcClient } = useVisualizerContext();
+    const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [showAIWindow, setShowAIWindow] = useState<boolean>(false);
-    
-
-    rpcClient?.onStateChanged((newState: MachineStateValue) => {
-        setMainState(newState);
-    });
+    const [machineView, setMachineView] = useState<MACHINE_VIEW>();
 
     useEffect(() => {
-        if (component && machineView.view === 'Overview') {
-            setShowAIWindow(true);
-        }
-    }, [component]); 
+        fetchContext();
+
+        rpcClient?.onStateChanged((newState: MachineStateValue) => {
+            if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewReady') {
+                fetchContext();
+            }
+            if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewEditing') {
+                rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.EDIT_DONE, location: null });
+                fetchContext();
+            }
+        });
+
+    }, []);
+
+    useEffect(() => {
+        rpcClient.getVisualizerState().then((machineView) => {
+            setMachineView(machineView.view);
+            if (viewComponent && machineView.view == MACHINE_VIEW.Overview) {
+                setShowAIWindow(true);
+            }
+        });
+    }, [viewComponent]); 
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -105,7 +117,6 @@ const MainPanel = () => {
         };
     }, []);
                 
-    const [viewComponent, setViewComponent] = useState<React.ReactNode>();
 
     const fetchContext = () => {
         rpcClient.getVisualizerState().then((machineView) => {
@@ -165,23 +176,23 @@ const MainPanel = () => {
 
     return (
         <Allotment >
-        <div style={{
-            overflow: "hidden",
-        }}>
-            {!viewComponent ? (
-                <LoaderWrapper>
-                    <ProgressRing />
-                </LoaderWrapper>
-            ) : <div>
-                <NavigationBar />
-                {viewComponent}
-            </div>}
-        </div>
-        {showAIWindow && (
-        <FadeInContainer>
-            {machineView.view == "Overview" ? <AIOverviewWindow /> : <AIArtifactWindow />}
-        </FadeInContainer>
-        )}
+            <div style={{
+                overflow: "hidden",
+            }}>
+                {!viewComponent ? (
+                    <LoaderWrapper>
+                        <ProgressRing />
+                    </LoaderWrapper>
+                ) : <div>
+                    <NavigationBar />
+                    {viewComponent}
+                </div>}
+            </div>
+            {showAIWindow && (
+            <FadeInContainer>
+                {machineView == MACHINE_VIEW.Overview ? <AIOverviewWindow /> : <AIArtifactWindow />}
+            </FadeInContainer>
+            )}
         </Allotment>
 
     );

@@ -38,8 +38,6 @@ import {
     FileStructure,
     GetProjectUuidResponse,
     GetWorkspaceContextResponse,
-    HighlightCodeRequest,
-    InboundEndpointDirectoryResponse,
     GetDefinitionRequest,
     GetDefinitionResponse,
     GetDiagnosticsReqeust,
@@ -75,7 +73,7 @@ import * as os from 'os';
 import { Transform } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
 import { Position, Range, Selection, Uri, WorkspaceEdit, commands, window, workspace } from "vscode";
-import { MI_COPILOT_BACKEND_URL } from "../../constants";
+import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";

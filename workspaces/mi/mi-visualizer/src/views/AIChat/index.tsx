@@ -59,7 +59,6 @@ var projectUuid = "";
 export function AIChat() {
   const { rpcClient } = useVisualizerContext();
   const [state, setState] = useState<VisualizerLocation | null>(null);
-  console.log(chatArray.length);
   const [messages, setMessages] = useState<Array<{ role: string; content: string; type: string }>>([]);
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false); 
@@ -69,12 +68,9 @@ export function AIChat() {
   useEffect(() => {
     rpcClient.getMiDiagramRpcClient().getProjectUuid().then((response) => {
       projectUuid = response.uuid;
-      console.log("Project UUID: " + projectUuid);
       const localStorageFile = `chatArray-AIChat-${projectUuid}`;
-    console.log("Local Storage File: " + localStorageFile);
     const storedChatArray = localStorage.getItem(localStorageFile);
     if (storedChatArray) {
-      console.log("Stored Chat: " + storedChatArray);
       const chatArrayFromStorage = JSON.parse(storedChatArray);
   
       chatArray = chatArrayFromStorage;
@@ -112,7 +108,6 @@ export function AIChat() {
           { role: "", content: "How to use the File Connector?", type: "question" }
         ]);
       }
-      console.log("No stored chat");
     }
     } );
     
@@ -150,13 +145,11 @@ export function AIChat() {
       setMessages(prevMessages => prevMessages.slice(2));
     }
     await rpcClient.getMiDiagramRpcClient().getWorkspaceContext().then((response) => {
-      console.log(response);
     } );
     setIsLoading(true);
     let assistant_response = "";
     addChatEntry("user", userInput);
     setUserInput("");
-    console.log(chatArray);
     setMessages(prevMessages => prevMessages.filter((message, index) => index <= lastQuestionIndex || message.type !== 'question'));
     if(isQuestion){
           setLastQuestionIndex(messages.length-4);
@@ -172,7 +165,7 @@ export function AIChat() {
         ]);
     }
 
-    const response = await fetch('http://127.0.0.1:8000/code-gen-chat', {
+    const response = await fetch(MI_COPILOT_BACKEND_URL, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -199,9 +192,7 @@ export function AIChat() {
             const json = JSON.parse(lines[i]);
             if(json.content==null){
                   addChatEntry("assistant", assistant_response);
-                  console.log(json.questions);
                   const questions = json.questions
-                    // .filter((question: string) => /^\d/.test(question)) // filter out questions that start with a number
                     .map((question: string, index: number) => {
                       return { type: "question", role: "Question", content: question, id: index };
                     });
@@ -236,22 +227,11 @@ export function AIChat() {
       if (result) {
           try {
             const json = JSON.parse(result);
-            console.log(json); 
           } catch (error) {
             console.error('Error parsing JSON:', error);
           }
         }
   };
-
-
-  const handleAddtoWorkspace = async () => {
-
-       await rpcClient.getMiDiagramRpcClient().writeContentToFile({content: codeBlocks}).then((response) => {
-          console.log(response);
-        } );
-
-  }
-
 
   function splitContent(content: string) {
     const segments = [];

@@ -29,7 +29,6 @@ export const createLocalEntry: RequestType<CreateLocalEntryRequest, CreateLocalE
 export const getEndpointsAndSequences: RequestType<void, EndpointsAndSequencesResponse> = { method: `${_preFix}/getEndpointsAndSequences` };
 export const getSequenceDirectory: RequestType<void, SequenceDirectoryResponse> = { method: `${_preFix}/getSequenceDirectory` };
 export const createSequence: RequestType<CreateSequenceRequest, CreateSequenceResponse> = { method: `${_preFix}/createSequence` };
-export const getInboundEndpointDirectory: RequestType<void, InboundEndpointDirectoryResponse> = { method: `${_preFix}/getInboundEndpointDirectory` };
 export const getInboundEndpointDirectory: RequestType<GetInboundEpDirRequest, InboundEndpointDirectoryResponse> = { method: `${_preFix}/getInboundEndpointDirectory` };
 export const createInboundEndpoint: RequestType<CreateInboundEndpointRequest, CreateInboundEndpointResponse> = { method: `${_preFix}/createInboundEndpoint` };
 export const closeWebView: NotificationType<void> = { method: `${_preFix}/closeWebView` };

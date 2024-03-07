@@ -35,8 +35,6 @@ import {
     EndpointsAndSequencesResponse,
     GetProjectUuidResponse,
     GetWorkspaceContextResponse,
-    HighlightCodeRequest,
-    InboundEndpointDirectoryResponse,
     GetDefinitionRequest,
     GetDefinitionResponse,
     GetDiagnosticsReqeust,
