@@ -210,7 +210,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                             </ButtonWrapper>
                             <ButtonWrapper>
                                 <VSCodeButton appearance="icon" title="Delete Resource" onClick={handleDeleteResource}>
-                                    <Icon name="delete" />
+                                    <Codicon name="trash" />
                                 </VSCodeButton>
                                 <>
                                     Delete
@@ -226,7 +226,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                                 <Icon name="editIcon" />
                             </VSCodeButton>
                             <VSCodeButton appearance="icon" title="Delete Resource" onClick={handleDeleteResource}>
-                                <Icon name="delete" />
+                                <Codicon name="trash" />
                             </VSCodeButton>
                         </>
                     )}
