@@ -41,6 +41,7 @@ export * from './components/Swich/Swich';
 export * from './components/ClickAwayListener/ClickAwayListener';
 export * from './components/TypeBrowser/TypeBrowser';
 export * from './components/Confirm/Confirm';
+export * from './components/CheckBoxGroup/CheckBoxGroup';
 
 export * from './components/SampleForm/Header/Header';
 export * from './components/SampleForm/HorizontalIcons/HorizontalIcons';

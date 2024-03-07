@@ -407,6 +407,9 @@ const handleGoToSource = (resource: Resource,) => {
 const handleServiceEdit = (service: Service) => {
     console.log("Edit service ", service);
 };
+const handleResourceImplement = (resource: Resource) => {
+    console.log("Implement resource ", resource);
+};
 
 const serviceModel: Service = {
     path: "foo",
@@ -434,3 +437,18 @@ export const ServiceDesignerStory = () => {
         />
     );
 };
+
+export const ServiceDesignerStoryWithImplement = () => {
+    return (
+        <ServiceDesigner
+            model={serviceModel}
+            onResourceAdd={handleResourceAdd}
+            goToSource={handleGoToSource}
+            onResourceDelete={handleResourceDelete}
+            onResourceEdit={handleResourceEdit}
+            onServiceEdit={handleServiceEdit}
+            onResourceImplement={handleResourceImplement}
+        />
+    );
+}
+
