@@ -430,7 +430,7 @@ export const ServiceDesignerStory = () => {
             goToSource={handleGoToSource}
             onResourceDelete={handleResourceDelete}
             onResourceEdit={handleResourceEdit}
-            onServiceEdit={handleServiceEdit} 
+            onServiceEdit={handleServiceEdit}
         />
     );
 };

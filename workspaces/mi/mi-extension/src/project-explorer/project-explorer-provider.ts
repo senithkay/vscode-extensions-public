@@ -253,7 +253,7 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 				parentEntry.children = parentEntry.children ?? [];
 				parentEntry.children.push(govEntry);
 			}
-			if (conf) {
+			if (conf && conf.length > 0) {
 				const confEntry = new ProjectExplorerEntry(
 					'conf',
 					isCollapsibleState(isCollapsible),

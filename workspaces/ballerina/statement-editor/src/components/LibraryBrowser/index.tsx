@@ -10,20 +10,15 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 
 import {
-    Box,
-    CircularProgress,
-    Grid,
-    Typography
-} from "@material-ui/core";
-import {
     LibraryDataResponse,
     LibrarySearchResponse
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { Button, Codicon, Icon, SearchBox } from "@wso2-enterprise/ui-toolkit";
+} from "@wso2-enterprise/ballerina-core";
+import { Button, Codicon, Icon, ProgressRing, SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
 import debounce from "lodash.debounce";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../styles";
+import { DiagnosticsPaneId } from "../Diagnostics";
+import { useStmtEditorHelperPanelStyles } from "../styles";
 
 import { useLibrariesList, useLibrarySearchData } from "./Hooks";
 import { LibrariesList } from "./LibrariesList";
@@ -45,7 +40,6 @@ const DEFAULT_SEARCH_SCOPE = "distribution";
 export function LibraryBrowser(props: LibraryBrowserProps) {
     const { libraryType } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
-    const statementEditorClasses = useStatementEditorStyles();
     const { libraryBrowserRpcClient } = useContext(StatementEditorContext);
 
     const [libraryBrowserMode, setLibraryBrowserMode] = useState(LibraryBrowserMode.LIB_LIST);
@@ -56,9 +50,17 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
     const [moduleSelected, setModuleSelected] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [searchValue, setSearchValue] = useState('');
+    const [diagnosticsHeight, setDiagnosticsHeight] = useState(0);
 
     const { librariesSearchData, isFetchingSearchData } = useLibrarySearchData(libraryBrowserRpcClient);
     const { libraries, isFetchingLibList } = useLibrariesList(libraryBrowserRpcClient, libraryType);
+
+    const {
+        statementCtx: {
+            diagnostics,
+            errorMsg
+        }
+    } = useContext(StatementEditorContext);
 
     useEffect(() => {
         setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
@@ -68,6 +70,18 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
         resetKeyword();
         libraryDataFetchingHandler(false);
     }, [libraryType]);
+
+    // A workaround for https://github.com/microsoft/vscode-webview-ui-toolkit/issues/464
+    useEffect(() => {
+        const handleResize = () => {
+            const diagnosticsElement = document.getElementById(DiagnosticsPaneId);
+            if (diagnosticsElement) {
+                const height = diagnosticsElement.offsetHeight;
+                setDiagnosticsHeight(height);
+            }
+        };
+        handleResize();
+    }, [diagnostics, errorMsg]);
 
     const libraryBrowsingHandler = (data: LibraryDataResponse) => {
         setLibraryData(data);
@@ -102,16 +116,10 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
     }
 
     const loadingScreen = (
-        <Grid sm={12} item={true} container={true} className={stmtEditorHelperClasses.loadingContainer}>
-            <Grid item={true} sm={12}>
-                <Box display="flex" justifyContent="center">
-                    <CircularProgress />
-                </Box>
-                <Box display="flex" justifyContent="center" mt={2}>
-                    <Typography variant="body1">Loading...</Typography>
-                </Box>
-            </Grid>
-        </Grid>
+        <div className={stmtEditorHelperClasses.loadingContainer}>
+            <ProgressRing sx={{height: '35px', width: '35px', marginBottom: '12px'}} />
+            <Typography variant="body2">Loading...</Typography>
+        </div>
     );
 
     const searchLibrary = (value: string) => {
@@ -173,7 +181,10 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
             </div>
             {isLoading || isFetchingSearchData || isFetchingLibList ? loadingScreen : (
                 <>
-                    <div className={stmtEditorHelperClasses.libraryWrapper}>
+                    <div
+                        className={stmtEditorHelperClasses.libraryWrapper}
+                        style={{maxHeight: `calc(100vh - ${ 305 + diagnosticsHeight}px)`}}
+                    >
                         {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && !moduleTitle && (
                             <LibrariesList
                                 libraries={libraries}
@@ -191,9 +202,12 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                         {libraryBrowserMode === LibraryBrowserMode.LIB_SEARCH && filteredSearchData &&
                         (isEmptyFilteredList ?
                             (
-                                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                                    <p>No result found for the searched keyword</p>
-                                </div>
+                                <Typography
+                                    variant="body3"
+                                    sx={{marginTop: '15px'}}
+                                >
+                                    No result found for the searched keyword
+                                </Typography>
                             ) :
                             (
                                 <SearchResult

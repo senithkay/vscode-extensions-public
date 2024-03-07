@@ -50,7 +50,7 @@ function ConnectorForm(props: ConnectorFormProps) {
     const moduleName = (connector.displayAnnotation?.label || `${connector.package?.name} / ${connector.name}`).replace(/["']/g, "");
 
     useEffect(() => {
-        editLayerAPI?.pullConnector(connector, source)
+        editLayerAPI?.pullConnector({ connector, source })
             .then((pulled) => {
                 console.log('pullConnector', pulled)
                 if (!pulled) {
@@ -64,7 +64,7 @@ function ConnectorForm(props: ConnectorFormProps) {
 
     const handleConnectorSave = () => {
         setShowLoader(true);
-        editLayerAPI?.addConnector(connector, source)
+        editLayerAPI?.addConnector({ connector: connector, source })
             .then((res) => {
                 console.log('addConnector', res)
                 if (!res) {
@@ -98,7 +98,7 @@ function ConnectorForm(props: ConnectorFormProps) {
                     </IconCard>
                     <ConnectorDetails>{connector.package.summary}</ConnectorDetails>
                     <ActionContainer>
-                        <CreateButton label={`Add Connector`} onClick={handleConnectorSave} color={Colors.PRIMARY} disabled={showLoader}/>
+                        <CreateButton label={`Add Connector`} onClick={handleConnectorSave} color={Colors.PRIMARY} disabled={showLoader} />
                     </ActionContainer>
                 </DetailContainer>
             )}

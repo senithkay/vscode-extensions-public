@@ -8,8 +8,9 @@
  */
 
 import styled from "@emotion/styled";
-import { TextField, Button, Dropdown } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Button, Dropdown, ButtonProps } from "@wso2-enterprise/ui-toolkit";
 import { Colors } from "../../resources";
+import { PropsWithChildren } from "react";
 
 export namespace Form {
     export const Tray = styled.div`
@@ -110,7 +111,7 @@ export namespace Form {
         }
     `;
 
-    export const ActionButton = styled(Button)`
+    export const ActionButton: React.FC<PropsWithChildren<ButtonProps>> = styled(Button)`
         width: 100%;
     `;
 

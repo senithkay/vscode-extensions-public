@@ -98,64 +98,66 @@ export function JoinClauseItem(props: {
                     intermediateNode.outerKeyword ? `${intermediateNode?.outerKeyword.value} ` : ""
                 }${intermediateNode.joinKeyword.value}`}</div>
 
-                <div className={classes.clauseWrap}>
-                    <span>{intermediateNode.typedBindingPattern.typeDescriptor.source}</span>
-                    <span className={classes.clauseExpression}>
-                        {nameEditable ? (
-                            <input
-                                spellCheck={false}
-                                className={classes.input}
-                                autoFocus={true}
-                                value={updatedName}
-                                onChange={(event) => setUpdatedName(event.target.value)}
-                                onKeyUp={(event) => onKeyUp(event.key, variableName)}
-                                onBlur={() => {
-                                    setNameEditable(false);
-                                    setUpdatedName(variableName.value);
-                                }}
-                                data-testid={`let-clause-name-input-${itemIndex}`}
-                            />
-                        ) : (
-                            <span onClick={() => setNameEditable(true)} data-testid={`join-clause-name-${itemIndex}`}>
-                                {updatedName}
-                            </span>
-                        )}
-                    </span>
-                    <span>{intermediateNode.inKeyword.value}</span>
-                    <ClickableExpression
-                        node={expression}
-                        onEditClick={() => onEditClick(expression?.source, expression?.position, "Join expression")}
-                        index={itemIndex}
-                    />
-                    <span>{intermediateNode.joinOnCondition?.onKeyword?.value}</span>
-                    <ClickableExpression
-                        node={onExpression}
-                        onEditClick={() => onEditClick(onExpression?.source, onExpression?.position, "Join on expression")}
-                        index={itemIndex}
-                        testIdPrefix='join-clause-on-expression'
-                        expressionPlaceholder='<add-on-expression>'
-                    />
-                    <span>{intermediateNode.joinOnCondition?.equalsKeyword?.value}</span>
-                    <ClickableExpression
-                        node={equalsExpression}
-                        onEditClick={() => onEditClick(equalsExpression?.source, equalsExpression?.position, "Join equals expression")}
-                        index={itemIndex}
-                        testIdPrefix='join-clause-equals-on-expression'
-                        expressionPlaceholder='<add-equals-expression>'
-                    />
+                <div className={classes.clauseItemBody}>
+                    <div className={classes.clauseWrap}>
+                        <span>{intermediateNode.typedBindingPattern.typeDescriptor.source}</span>
+                        <span className={classes.clauseExpression}>
+                            {nameEditable ? (
+                                <input
+                                    spellCheck={false}
+                                    className={classes.input}
+                                    autoFocus={true}
+                                    value={updatedName}
+                                    onChange={(event) => setUpdatedName(event.target.value)}
+                                    onKeyUp={(event) => onKeyUp(event.key, variableName)}
+                                    onBlur={() => {
+                                        setNameEditable(false);
+                                        setUpdatedName(variableName.value);
+                                    }}
+                                    data-testid={`let-clause-name-input-${itemIndex}`}
+                                />
+                            ) : (
+                                <span onClick={() => setNameEditable(true)} data-testid={`join-clause-name-${itemIndex}`}>
+                                    {updatedName}
+                                </span>
+                            )}
+                        </span>
+                        <span>{intermediateNode.inKeyword.value}</span>
+                        <ClickableExpression
+                            node={expression}
+                            onEditClick={() => onEditClick(expression?.source, expression?.position, "Join expression")}
+                            index={itemIndex}
+                        />
+                        <span>{intermediateNode.joinOnCondition?.onKeyword?.value}</span>
+                        <ClickableExpression
+                            node={onExpression}
+                            onEditClick={() => onEditClick(onExpression?.source, onExpression?.position, "Join on expression")}
+                            index={itemIndex}
+                            testIdPrefix='join-clause-on-expression'
+                            expressionPlaceholder='<add-on-expression>'
+                        />
+                        <span>{intermediateNode.joinOnCondition?.equalsKeyword?.value}</span>
+                        <ClickableExpression
+                            node={equalsExpression}
+                            onEditClick={() => onEditClick(equalsExpression?.source, equalsExpression?.position, "Join equals expression")}
+                            index={itemIndex}
+                            testIdPrefix='join-clause-equals-on-expression'
+                            expressionPlaceholder='<add-equals-expression>'
+                        />
+                    </div>
+                    {isLoading ? (
+                        <ProgressRing sx={{ height: '16px', width: '16px', marginRight: "10px" }} />
+                    ) : (
+                        <Button
+                            appearance="icon"
+                            onClick={onDelete}
+                            data-testid={`join-clause-delete-${itemIndex}`}
+                            sx={{ marginRight: "10px"}}
+                        >
+                            <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
+                        </Button>
+                    )}
                 </div>
-
-                {isLoading ? (
-                    <ProgressRing sx={{ height: '16px', width: '16px' }} />
-                ) : (
-                    <Button
-                        appearance="icon"
-                        onClick={onDelete}
-                        data-testid={`join-clause-delete-${itemIndex}`}
-                    >
-                        <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
-                    </Button>
-                )}
             </div>
 
             <ClauseAddButton context={context} queryExprNode={queryExprNode} addIndex={itemIndex} />

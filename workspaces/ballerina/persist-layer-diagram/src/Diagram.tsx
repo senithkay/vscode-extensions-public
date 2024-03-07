@@ -10,7 +10,7 @@
 import React, { useEffect, useState } from 'react';
 import { ComponentModel, GetPersistERModelResponse } from '@wso2-enterprise/ballerina-languageclient';
 import { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
-import CircularProgress from '@mui/material/CircularProgress';
+import { ProgressRing } from '@wso2-enterprise/ui-toolkit';
 import { CMEntity as Entity } from '@wso2-enterprise/ballerina-languageclient';
 import { modelMapper, generateEngine } from './utils';
 import { DiagramControls, HeaderWidget, OverlayLayerModel, PersistDiagramContext, PromptScreen } from './components';
@@ -134,7 +134,7 @@ export function PersistDiagram(props: PersistDiagramProps) {
                                 userMessage={userMessage}
                                 showProblemPanel={hasDiagnostics ? showProblemPanel : undefined}
                             /> :
-                            <CircularProgress sx={{ color: Colors.PRIMARY }} />
+                            <ProgressRing sx={{ color: Colors.PRIMARY }} />
                     }
                 </DiagramContainer>
             </PersistDiagramContext>

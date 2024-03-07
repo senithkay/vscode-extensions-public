@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
+import React, { PropsWithChildren } from "react";
 
 import styled from "@emotion/styled";
 
@@ -37,19 +37,20 @@ const LinkContainer = styled.div<LinkContainerProps>`
 export interface LinkButtonProps {
     id?: string;
     className?: string;
-	children?: React.ReactNode;
     sx?: any;
     onClick?: () => void;
 }
 
-export const LinkButton: React.FC<LinkButtonProps> = (props: LinkButtonProps) => {
-    const { id, className, children, sx, onClick } = props;
-    const handleComponentClick = () => {
-        onClick();
-    }
-    return (
-        <LinkContainer id={id} className={className} sx={sx} onClick={handleComponentClick}>
-            {children}
-        </LinkContainer>
-    );
-};
+export const LinkButton: React.FC<PropsWithChildren<LinkButtonProps>> = 
+    (props: PropsWithChildren<LinkButtonProps>) => {
+        const { id, className, children, sx, onClick } = props;
+        const handleComponentClick = () => {
+            onClick();
+        }
+        return (
+            <LinkContainer id={id} className={className} sx={sx} onClick={handleComponentClick}>
+                {children}
+            </LinkContainer>
+        );
+    };
+

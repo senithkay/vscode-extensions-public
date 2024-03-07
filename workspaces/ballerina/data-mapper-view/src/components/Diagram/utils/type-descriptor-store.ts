@@ -9,7 +9,7 @@
 import {
     ExpressionRange,
     LinePosition,
-    Type
+    TypeField
 } from "@wso2-enterprise/ballerina-core";
 import {
     FunctionDefinition,
@@ -31,7 +31,7 @@ export enum TypeStoreStatus {
 
 export class TypeDescriptorStore {
 
-    typeDescriptors: Map<NodePosition, Type>;
+    typeDescriptors: Map<NodePosition, TypeField>;
     stNode: FunctionDefinition;
     status: TypeStoreStatus;
     static instance : TypeDescriptorStore;
@@ -139,7 +139,7 @@ export class TypeDescriptorStore {
         }
     }
 
-    setTypeDescriptors(type: Type, startPosition: LinePosition, endPosition?: LinePosition) {
+    setTypeDescriptors(type: TypeField, startPosition: LinePosition, endPosition?: LinePosition) {
         if (startPosition) {
             const position: NodePosition = {
                 startLine: startPosition.line,
@@ -167,7 +167,7 @@ export class TypeDescriptorStore {
         return noOfParams + noOfExpressions + noOfSymbols + (hasReturnType ? 1 : 0);
     }
 
-    public getTypeDescriptor(position : NodePosition) : Type {
+    public getTypeDescriptor(position : NodePosition) : TypeField {
         for (const [key, value] of this.typeDescriptors) {
             if (isPositionsEquals(key, position)) {
                 return value;
