@@ -133,7 +133,7 @@ export class NodeInitVisitor implements Visitor {
                                     this.context,
                                     selectClause,
                                     typeDesc,
-                                    returnType,
+                                    memberType,
                                     bodyExpr
                                 );
                             } else if (memberType?.typeName === PrimitiveBalType.Array) {
@@ -141,7 +141,7 @@ export class NodeInitVisitor implements Visitor {
                                     this.context,
                                     selectClause,
                                     typeDesc,
-                                    returnType,
+                                    memberType,
                                     bodyExpr
                                 );
                             } else if (memberType?.typeName === PrimitiveBalType.Union) {
@@ -149,14 +149,14 @@ export class NodeInitVisitor implements Visitor {
                                     this.context,
                                     selectClause,
                                     typeDesc,
-                                    returnType
+                                    memberType
                                 );
                             } else {
                                 this.outputNode = new PrimitiveTypeNode(
                                     this.context,
                                     selectClause,
                                     typeDesc,
-                                    returnType,
+                                    memberType,
                                     bodyExpr
                                 );
                             }
@@ -262,7 +262,7 @@ export class NodeInitVisitor implements Visitor {
                                     this.context,
                                     selectClause,
                                     typeDesc,
-                                    returnType,
+                                    memberType,
                                     queryExpr
                                 );
                             } else if (memberType?.typeName === PrimitiveBalType.Array) {
@@ -270,7 +270,7 @@ export class NodeInitVisitor implements Visitor {
                                     this.context,
                                     selectClause,
                                     typeDesc,
-                                    returnType,
+                                    memberType,
                                     queryExpr
                                 );
                             } else if (memberType?.typeName === PrimitiveBalType.Union) {
@@ -278,14 +278,14 @@ export class NodeInitVisitor implements Visitor {
                                     this.context,
                                     selectClause,
                                     typeDesc,
-                                    returnType
+                                    memberType
                                 );
                             } else {
                                 this.outputNode = new PrimitiveTypeNode(
                                     this.context,
                                     selectClause,
                                     typeDesc,
-                                    returnType,
+                                    memberType,
                                     queryExpr
                                 );
                             }
@@ -501,6 +501,11 @@ export class NodeInitVisitor implements Visitor {
             && (isPositionsEquals(parentNode.position, selectedSTNode.position) || isSelectClauseQueryExpr(fieldPath))
             && isPositionsEquals(node.position, position);
 
+        // const isSelectedExpr = parentNode
+        //     && (STKindChecker.isSpecificField(selectedSTNode) || STKindChecker.isLetVarDecl(selectedSTNode))
+        //     && (isPositionsEquals(parentNode.position, selectedSTNode.position) || isSelectClauseQueryExpr(fieldPath))
+        //     && (!isSelectClauseQueryExpr(fieldPath) || isPositionsEquals(node.position, position));
+
         if (isSelectedExpr) {
             if (parentIdentifier) {
                 const intermediateClausesHeight = 100 + node.queryPipeline.intermediateClauses.length * OFFSETS.INTERMEDIATE_CLAUSE_HEIGHT;
@@ -539,35 +544,36 @@ export class NodeInitVisitor implements Visitor {
                         innerExpr,
                     );
                 } else if (exprType?.typeName === PrimitiveBalType.Array) {
-                    if (exprType.memberType.typeName === PrimitiveBalType.Record) {
+                    const { memberType } = exprType;
+                    if (memberType.typeName === PrimitiveBalType.Record) {
                         this.outputNode = new MappingConstructorNode(
                             this.context,
                             selectClause,
                             parentIdentifier,
-                            exprType,
+                            memberType,
                             node
                         );
-                    } else if (exprType.memberType.typeName === PrimitiveBalType.Array) {
+                    } else if (memberType.typeName === PrimitiveBalType.Array) {
                         this.outputNode = new ListConstructorNode(
                             this.context,
                             selectClause,
                             parentIdentifier,
-                            exprType,
+                            memberType,
                             node
                         );
-                    } else if (exprType.memberType.typeName === PrimitiveBalType.Union) {
+                    } else if (memberType.typeName === PrimitiveBalType.Union) {
                         this.outputNode = new UnionTypeNode(
                             this.context,
                             selectClause,
                             parentIdentifier,
-                            exprType
+                            memberType
                         );
                     } else {
                         this.outputNode = new PrimitiveTypeNode(
                             this.context,
                             selectClause,
                             parentIdentifier,
-                            exprType,
+                            memberType,
                             node
                         );
                     }
