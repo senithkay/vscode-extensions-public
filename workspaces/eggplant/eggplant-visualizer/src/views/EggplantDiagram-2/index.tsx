@@ -46,7 +46,7 @@ const EggplantDiagram = () => {
 
     rpcClient.onFileContentUpdate(() => {
         getEggplantModel();
-        
+
     });
 
     const getEggplantModel = () => {
@@ -55,19 +55,19 @@ const EggplantDiagram = () => {
         });
     };
 
-    // const OnNodeChange = (node: Node) => {
-    //     if (rpcClient) {
-    //         const updateNodeRequest: UpdateNodeRequest = {
-    //             node: node
-    //         };
-    //         rpcClient.getEggplantDiagramRpcClient().updateNode(updateNodeRequest);
-    //     }
-    // };
+    const OnNodeChange = (node: Node) => {
+        if (rpcClient) {
+            const updateNodeRequest: UpdateNodeRequest = {
+                diagramNode: node
+            };
+            rpcClient.getEggplantDiagramRpcClient().updateNode(updateNodeRequest);
+        }
+    };
 
 
 
     const eggplantDiagram = useMemo(() => {
-        return <Diagram model={flowModel} />;
+        return <Diagram model={flowModel} onNodeChange={OnNodeChange} />;
     }, [flowModel]);
 
     return (

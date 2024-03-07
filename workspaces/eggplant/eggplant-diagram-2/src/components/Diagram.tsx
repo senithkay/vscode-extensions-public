@@ -19,7 +19,7 @@ import {
     registerListeners,
 } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
-import { Flow, NodeKind, NodeModel, TargetMetadata, Node as EggplantNode } from "../utils/types";
+import { Flow, NodeKind, NodeModel, TargetMetadata, Node } from "../utils/types";
 import { traverseFlow } from "../utils/ast";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { NodeLinkModel } from "./NodeLink";
@@ -31,11 +31,11 @@ import { ComponentList, ComponentPanel } from "./ComponentPanel";
 export interface DiagramProps {
     model: Flow;
     onAddNode?: (kind: NodeKind, target: TargetMetadata) => void;
-    onNodeChange?: (node: EggplantNode) => void;
+    onNodeChange?: (node: Node) => void;
 }
 
 export function Diagram(props: DiagramProps) {
-    const { model, onAddNode } = props;
+    const { model, onAddNode, onNodeChange } = props;
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
     const [showComponentPanel, setShowComponentPanel] = useState(false);
@@ -128,6 +128,7 @@ export function Diagram(props: DiagramProps) {
             hide: handleCloseComponentPanel,
         },
         addNode: {},
+        onNodeUpdate: onNodeChange,
     };
 
     return (

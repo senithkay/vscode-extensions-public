@@ -16,10 +16,9 @@ import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { CtrlClickHandler } from '../../../CtrlClickHandler';
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { GraphQLIcon } from "../../../resources/assets/icons/GraphQL";
-import { HeaderName } from "../../../resources/styles/styles";
+import { HeaderName, NodeHeader } from "../../../resources/styles/styles";
 import { getFormattedPosition } from "../../../utils/common-util";
 import { GraphqlServiceNodeModel } from "../GraphqlServiceNodeModel";
-import { ServiceHead } from '../styles/styles';
 
 import { ServiceHeaderMenu } from "./ServiceHeaderMenu";
 
@@ -44,7 +43,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
             filePath={node.serviceObject?.position?.filePath}
             position={node.serviceObject?.position && getFormattedPosition(node.serviceObject.position)}
         >
-            <ServiceHead data-testid={`graphql-root-head-${displayName}`}>
+            <NodeHeader data-testid={`graphql-root-head-${displayName}`}>
                 <GraphQLIcon />
                 <GraphqlBasePortWidget
                     port={node.getPort(`left-${node.getID()}`)}
@@ -60,7 +59,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                     port={node.getPort(`top-${node.getID()}`)}
                     engine={engine}
                 />
-            </ServiceHead>
+            </NodeHeader>
         </CtrlClickHandler>
     );
 }

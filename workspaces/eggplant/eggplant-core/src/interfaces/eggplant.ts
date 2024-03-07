@@ -73,15 +73,9 @@ export type Expression = {
 
 export type TypeKind = "BTYPE" | "IDENTIFIER" | "URI_PATH";
 
-export type NodeProperties = {
-    method?: Expression;
-    path?: Expression;
-    condition?: Expression;
-    client?: Expression;
-    targetType?: Expression;
-    variable?: Expression;
-    expression?: Expression;
-};
+export type NodePropertyKey = "method" | "path" | "condition" | "client" | "targetType" | "variable" | "expression";
+
+export type NodeProperties = { [P in NodePropertyKey]?: Expression; };
 
 export type ViewState = {
     x: number;

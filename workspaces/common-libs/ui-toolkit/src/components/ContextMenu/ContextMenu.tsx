@@ -101,8 +101,8 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
                     <SmallProgressRing />
                 ) : (
                     iconSx ? (
-                        <IconWrapper onClick={handleClick} sx={iconSx} id={`component-list-menu-${menuId ? menuId : "btn"}`}>
-                            {icon ? icon : <Codicon name="ellipsis"/>}
+                        <IconWrapper onClick={handleClick} id={`component-list-menu-${menuId ? menuId : "btn"}`}>
+                            {icon ? icon : <Codicon name="ellipsis" iconSx={iconSx} sx={sx}/>}
                         </IconWrapper>
                     ) : (
                         <VSCodeButton appearance="icon" onClick={handleClick} title="More Actions" id={`component-list-menu-${menuId ? menuId : "btn"}`}>
@@ -111,7 +111,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
                     )
                 )}
                 {isMenuOpen && (
-                    <ExpandedMenu sx={sx}>
+                    <ExpandedMenu>
                         <VSCodeDataGrid aria-label="Context Menu">
                             {menuItems?.map(item => (
                                 <VSCodeDataGridRow
