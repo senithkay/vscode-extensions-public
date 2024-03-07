@@ -90,6 +90,11 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		console.log('Create New Project');
 	});
 
+	commands.registerCommand(COMMANDS.IMPORT_PROJECT_COMMAND, () => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ImportProjectForm });
+		console.log('Import a Project');
+	});
+
 	commands.registerCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND, () => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.LocalEntryForm });
 		console.log('Add Local Entry');

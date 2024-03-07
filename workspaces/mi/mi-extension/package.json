@@ -107,6 +107,13 @@
         "when": "false"
       },
       {
+        "command": "project-explorer.import-project",
+        "title": "Import Project",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.open-service-designer",
         "title": "Open Service Designer",
         "icon": "$(design-view)",

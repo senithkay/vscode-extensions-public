@@ -120,7 +120,6 @@ export function ProjectWizard() {
         return "";
     };
 
-
     const isValid: boolean = !validateProjectName(projectName) && projectDir.length > 0 && !validateGroupID(groupID)
         && !validateGroupID(artifactID);
 

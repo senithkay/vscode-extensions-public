@@ -17,6 +17,7 @@ import {
     CreateEndpointRequest,
     CreateInboundEndpointRequest,
     CreateProjectRequest,
+    ImportProjectRequest,
     CreateSequenceRequest,
     CreateMessageProcessorRequest,
     RetrieveMessageProcessorRequest,
@@ -34,6 +35,7 @@ import {
     WriteContentToFileRequest,
     applyEdit,
     askProjectDirPath,
+    askProjectImportDirPath,
     askFileDirPath,
     closeWebView,
     closeWebViewNotification,
@@ -42,6 +44,7 @@ import {
     createInboundEndpoint,
     createLocalEntry,
     createProject,
+    importProject,
     createSequence,
     createMessageProcessor,
     createProxyService,
@@ -108,8 +111,10 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getWorkspaceRoot, () => rpcManger.getWorkspaceRoot());
     messenger.onRequest(getProjectRoot, (args: GetProjectRootRequest) => rpcManger.getProjectRoot(args));
     messenger.onRequest(askProjectDirPath, () => rpcManger.askProjectDirPath());
+    messenger.onRequest(askProjectImportDirPath, () => rpcManger.askProjectImportDirPath());
     messenger.onRequest(askFileDirPath, () => rpcManger.askFileDirPath());
     messenger.onRequest(createProject, (args: CreateProjectRequest) => rpcManger.createProject(args));
+    messenger.onRequest(importProject, (args: ImportProjectRequest) => rpcManger.importProject(args));
     messenger.onRequest(getAIResponse, (args: AIUserInput) => rpcManger.getAIResponse(args));
     messenger.onRequest(writeContentToFile, (args: WriteContentToFileRequest) => rpcManger.writeContentToFile(args));
     messenger.onNotification(highlightCode, (args: HighlightCodeRequest) => rpcManger.highlightCode(args));
