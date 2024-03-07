@@ -24,11 +24,10 @@ interface ParamItemProps {
 const getParamComponent = (p: Param, isReadonly: boolean) => {
     return (
         <div data-test-id={`${p.label}-param`} className={isReadonly ? disabledHeaderLabel : headerLabelStyles}>
-            <>{p.value}</>
+            <>{p.value.toString()}</>
         </div>
     )
 };
-    
 
 export function ParamItem(props: ParamItemProps) {
     const { params, readonly, onDelete, onEditClick } = props;
@@ -50,7 +49,7 @@ export function ParamItem(props: ParamItemProps) {
 
     return (
         <HeaderLabel data-testid={`${label}-item`}>
-            <IconTextWrapper onClick={handleEdit}>
+            <IconTextWrapper readonly={readonly} onClick={handleEdit}>
                 {params.parameters.map(param => getParamComponent(param, readonly))}
             </IconTextWrapper>
             <ContentSection>

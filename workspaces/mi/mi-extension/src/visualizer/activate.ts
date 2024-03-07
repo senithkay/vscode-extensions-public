@@ -8,25 +8,14 @@
  */
 
 import * as vscode from 'vscode';
-import { VisualizerWebview } from './webview';
 import { commands, window } from 'vscode';
+import { StateMachine, openView } from '../stateMachine';
+import { COMMANDS } from '../constants';
+import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
-    if (!VisualizerWebview.currentPanel) {
-        VisualizerWebview.currentPanel = new VisualizerWebview();
-    }
-    VisualizerWebview.currentPanel!.getWebview()?.reveal();
-
     context.subscriptions.push(
-        vscode.commands.registerCommand('integrationStudio.showDiagram', () => {
-            if (!VisualizerWebview.currentPanel) {
-                VisualizerWebview.currentPanel = new VisualizerWebview();
-            }
-            VisualizerWebview.currentPanel!.getWebview()?.reveal();
-        })
-    );
-    context.subscriptions.push(
-        vscode.commands.registerCommand('integrationStudio.openProject', () => {
+        vscode.commands.registerCommand(COMMANDS.OPEN_PROJECT, () => {
             window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Open MI Project' })
                 .then(uri => {
                     if (uri && uri[0]) {
@@ -35,4 +24,14 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
                 });
         })
     );
+    context.subscriptions.push(
+        vscode.commands.registerCommand(COMMANDS.OPEN_WELCOME, () => {
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Welcome });
+        })
+    );
+    StateMachine.service().onTransition((state) => {
+        if (state.event.viewLocation?.view) {
+            commands.executeCommand('setContext', 'showGoToSource', state.event.viewLocation?.documentUri !== undefined);
+        }
+    });
 }

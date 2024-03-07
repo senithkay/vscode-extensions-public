@@ -18,17 +18,26 @@ import {
     CreateInboundEndpointRequest,
     CreateProjectRequest,
     CreateSequenceRequest,
+    GetDefinitionRequest,
+    GetDiagnosticsReqeust,
+    GetInboundEpDirRequest,
+    GetProjectRootRequest,
+    GetTextAtRangeRequest,
+    CreateLocalEntryRequest,
     HighlightCodeRequest,
     OpenDiagramRequest,
     ShowErrorMessageRequest,
+    UndoRedoParams,
     WriteContentToFileRequest,
     applyEdit,
     askProjectDirPath,
+    askFileDirPath,
     closeWebView,
     closeWebViewNotification,
     createAPI,
     createEndpoint,
     createInboundEndpoint,
+    createLocalEntry,
     createProject,
     createSequence,
     executeCommand,
@@ -36,21 +45,33 @@ import {
     getAPIDirectory,
     getConnector,
     getConnectors,
+    getDefinition,
+    getDiagnostics,
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
     getInboundEndpointDirectory,
+    getLocalEntryDirectory,
     getProjectRoot,
     getProjectUuid,
     getSTRequest,
     getSequenceDirectory,
     getSyntaxTree,
     getWorkspaceContext,
+    getTextAtRange,
+    getWorkspaceRoot,
     highlightCode,
+    initUndoRedoManager,
     openDiagram,
     openFile,
+    redo,
     showErrorMessage,
+    undo,
     writeContentToFile,
+    browseFile,
+    BrowseFileRequest,
+    CreateRegistryResourceRequest,
+    createRegistryResource
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -71,18 +92,30 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getEndpointsAndSequences, () => rpcManger.getEndpointsAndSequences());
     messenger.onRequest(getSequenceDirectory, () => rpcManger.getSequenceDirectory());
     messenger.onRequest(createSequence, (args: CreateSequenceRequest) => rpcManger.createSequence(args));
-    messenger.onRequest(getInboundEndpointDirectory, () => rpcManger.getInboundEndpointDirectory());
+    messenger.onRequest(getInboundEndpointDirectory, (args: GetInboundEpDirRequest) => rpcManger.getInboundEndpointDirectory());
     messenger.onRequest(createInboundEndpoint, (args: CreateInboundEndpointRequest) => rpcManger.createInboundEndpoint(args));
     messenger.onNotification(closeWebView, () => rpcManger.closeWebView());
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));
     messenger.onNotification(openFile, (args: OpenDiagramRequest) => rpcManger.openFile(args));
     messenger.onNotification(closeWebViewNotification, () => rpcManger.closeWebViewNotification());
-    messenger.onRequest(getProjectRoot, () => rpcManger.getProjectRoot());
+    messenger.onRequest(getWorkspaceRoot, () => rpcManger.getWorkspaceRoot());
+    messenger.onRequest(getProjectRoot, (args: GetProjectRootRequest) => rpcManger.getProjectRoot(args));
     messenger.onRequest(askProjectDirPath, () => rpcManger.askProjectDirPath());
+    messenger.onRequest(askFileDirPath, () => rpcManger.askFileDirPath());
     messenger.onRequest(createProject, (args: CreateProjectRequest) => rpcManger.createProject(args));
     messenger.onRequest(getAIResponse, (args: AIUserInput) => rpcManger.getAIResponse(args));
     messenger.onRequest(writeContentToFile, (args: WriteContentToFileRequest) => rpcManger.writeContentToFile(args));
     messenger.onNotification(highlightCode, (args: HighlightCodeRequest) => rpcManger.highlightCode(args));
     messenger.onRequest(getWorkspaceContext, () => rpcManger.getWorkspaceContext());
     messenger.onRequest(getProjectUuid, () => rpcManger.getProjectUuid());
+    messenger.onRequest(getLocalEntryDirectory, () => rpcManger.getLocalEntryDirectory());
+    messenger.onRequest(createLocalEntry, (args: CreateLocalEntryRequest) => rpcManger.createLocalEntry(args));
+    messenger.onNotification(initUndoRedoManager, (args: UndoRedoParams) => rpcManger.initUndoRedoManager(args));
+    messenger.onNotification(undo, (args: UndoRedoParams) => rpcManger.undo(args));
+    messenger.onNotification(redo, (args: UndoRedoParams) => rpcManger.redo(args));
+    messenger.onRequest(getDefinition, (args: GetDefinitionRequest) => rpcManger.getDefinition(args));
+    messenger.onRequest(getTextAtRange, (args: GetTextAtRangeRequest) => rpcManger.getTextAtRange(args));
+    messenger.onRequest(getDiagnostics, (args: GetDiagnosticsReqeust) => rpcManger.getDiagnostics(args));
+    messenger.onRequest(browseFile, (args: BrowseFileRequest) => rpcManger.browseFile(args));
+    messenger.onRequest(createRegistryResource, (args: CreateRegistryResourceRequest) => rpcManger.createRegistryResource(args));
 }

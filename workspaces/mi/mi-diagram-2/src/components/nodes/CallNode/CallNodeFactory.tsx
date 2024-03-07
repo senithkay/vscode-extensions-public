@@ -20,7 +20,7 @@ export class CallNodeFactory extends AbstractReactFactory<CallNodeModel, Diagram
     }
 
     generateModel(event: GenerateModelEvent): CallNodeModel {
-        return new CallNodeModel(event.initialConfig.stNode);
+        return new CallNodeModel(event.initialConfig.stNode, event.initialConfig.documentUri);
     }
 
     generateReactWidget(event: GenerateWidgetEvent<CallNodeModel>) {

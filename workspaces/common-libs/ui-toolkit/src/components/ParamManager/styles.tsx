@@ -11,6 +11,10 @@ import { css, cx } from "@emotion/css";
 import { CSSObject } from "@emotion/react";
 import styled from "@emotion/styled";
 
+export interface ContainerProps {
+    readonly?: boolean;
+}
+
 export const EditorContainer = styled.div<CSSObject>`
     display: flex;
     margin: 10px 0;
@@ -60,17 +64,17 @@ export const IconWrapper = styled.div`
     margin-left: 10px;
 `;
 
-export const IconTextWrapper = styled.div`
+export const IconTextWrapper = styled.div<ContainerProps>`
     display: flex;
     justify-content: flex-start;
     align-items: center;
     flex-direction: row;
-    width: calc(100% - 60px);
-    cursor: pointer;
+    width: ${(props: ContainerProps) => `${props.readonly ? "100%" : "calc(100% - 60px)"}`};
+    cursor: ${(props: ContainerProps) => `${props.readonly ? "default" : "pointer"}`};
     height: 100%;
     color: var(--vscode-editor-foreground);
     &:hover, &.active {
-        background: var(--vscode-welcomePage-tileHoverBackground);
+        ${(props: ContainerProps) => `${props.readonly ? "" : "background: var(--vscode-welcomePage-tileHoverBackground)"}`};
     };
 `;
 
@@ -95,11 +99,15 @@ export const OptionLabel = styled.div`
 `;
 
 export const disabledHeaderLabel = cx(css`
+    height: 100%;
     display: flex;
+    margin-left: 10px;
     align-items: center;
-    width: 320px;
-    margin-left: 12px;
+    justify-content: flex-start;
+    width: calc(100% - 75px);
     line-height: 14px;
+    border: 1px solid var(--vscode-dropdown-border);
+    border-left: none;
 `);
 
 export const HeaderLabel = styled.div`

@@ -84,8 +84,9 @@ export const NODE_GAP = {
     X: 0,
     Y: 50,
     BRANCH_X: 100,
-    BRANCH_TOP: 100,
-    BRANCH_BOTTOM: 35
+    BRANCH_TOP: 100 + 10,
+    BRANCH_BOTTOM: 80,
+    SEQUENCE_Y: 100,
 };
 
 export const NODE_DIMENSIONS = {
@@ -156,9 +157,9 @@ export const ENDPOINTS = {
     ADDRESS: "Address",
     DEFAULT: "Default",
     FAILOVER: "Failover",
-    HTTP: "Http",
+    HTTP: "HTTP_ENDPOINT",
     LOADBALANCE: "Loadbalance",
-    NAMED: "Named",
+    NAMED: "NAMED_ENDPOINT",
     RECIPIENTLIST: "Recipientlist",
     TEMPLATE: "Template",
     WSDL: "wsdl",
@@ -169,6 +170,7 @@ export enum NodeTypes {
     END_NODE = "end-node",
     MEDIATOR_NODE = "mediator-node",
     CONDITION_NODE = "condition-node",
+    CONDITION_NODE_END = "condition-node-end",
     CALL_NODE = "call-node",
     EMPTY_NODE = "empty-node",
 }

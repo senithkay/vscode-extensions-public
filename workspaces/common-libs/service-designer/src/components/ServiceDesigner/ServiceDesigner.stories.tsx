@@ -12,7 +12,7 @@ import { ServiceDesigner } from "./ServiceDesigner";
 import { PARAM_TYPES, Resource, Service } from "../../definitions";
 
 const GET: Resource = {
-    method: "GET",
+    methods: ["GET", "POST", "DELETE", "PATCH"],
     path: "pathGet",
     pathSegments: [
         {
@@ -97,7 +97,7 @@ const GET: Resource = {
 
 // Generate a similar PUT as above
 const putResource: Resource = {
-    method: "PUT",
+    methods: ["PUT"],
     path: "pathPut",
     pathSegments: [
         {
@@ -170,7 +170,7 @@ const putResource: Resource = {
 
 // Create a simalar POST resource
 const postResource: Resource = {
-    method: "POST",
+    methods: ["POST"],
     path: "pathPost",
     pathSegments: [
         {
@@ -243,7 +243,7 @@ const postResource: Resource = {
 
 // Create a simalar DELETE resource
 const deleteResource: Resource = {
-    method: "DELETE",
+    methods: ["DELETE"],
     path: "pathDelete",
     pathSegments: [
         {
@@ -316,7 +316,7 @@ const deleteResource: Resource = {
 
 // Create a simalar PATCH resource
 const patchResource: Resource = {
-    method: "PATCH",
+    methods: ["PATCH"],
     path: "pathPatch",
     pathSegments: [
         {

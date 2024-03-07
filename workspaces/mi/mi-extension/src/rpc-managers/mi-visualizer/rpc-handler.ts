@@ -9,15 +9,20 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    HistoryEntry,
+    OpenViewRequest,
     ProjectStructureRequest,
-    VisualizerLocation,
+    SampleDownloadRequest,
+    addToHistory,
+    downloadSelectedSampleFromGithub,
+    fetchSamplesFromGithub,
+    getHistory,
     getProjectStructure,
     getWorkspaces,
     goBack,
-    openView,
-    fetchSamplesFromGithub,
-    downloadSelectedSampleFromGithub,
-    SampleDownloadRequest
+    goHome,
+    goSelected,
+    openView
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiVisualizerRpcManager } from "./rpc-manager";
@@ -26,8 +31,12 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     const rpcManger = new MiVisualizerRpcManager();
     messenger.onRequest(getWorkspaces, () => rpcManger.getWorkspaces());
     messenger.onRequest(getProjectStructure, (args: ProjectStructureRequest) => rpcManger.getProjectStructure(args));
-    messenger.onNotification(openView, (args: VisualizerLocation) => rpcManger.openView(args));
+    messenger.onNotification(openView, (args: OpenViewRequest) => rpcManger.openView(args));
     messenger.onNotification(goBack, () => rpcManger.goBack());
     messenger.onRequest(fetchSamplesFromGithub, () => rpcManger.fetchSamplesFromGithub());
     messenger.onNotification(downloadSelectedSampleFromGithub, (args: SampleDownloadRequest) => rpcManger.downloadSelectedSampleFromGithub(args));
+    messenger.onRequest(getHistory, () => rpcManger.getHistory());
+    messenger.onNotification(addToHistory, (args: HistoryEntry) => rpcManger.addToHistory(args));
+    messenger.onNotification(goHome, () => rpcManger.goHome());
+    messenger.onNotification(goSelected, (args: number) => rpcManger.goSelected(args));
 }

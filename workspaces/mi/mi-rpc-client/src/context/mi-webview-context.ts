@@ -10,7 +10,7 @@
 
 import { createContext, useContext } from "react";
 import { RpcClient } from "../RpcClient";
-import { VisualizerLocation } from "@wso2-enterprise/mi-core";
+import { MACHINE_VIEW, VisualizerLocation } from "@wso2-enterprise/mi-core";
 
 export interface VisualizerContext {
     viewLocation: VisualizerLocation,
@@ -23,7 +23,7 @@ export interface VisualizerContext {
  * This will be used within all the other components
  */
 const defaultState: VisualizerContext = {
-    viewLocation: { view: "Overview" }
+    viewLocation: { view: MACHINE_VIEW.Overview }
 }
 export const Context = createContext<VisualizerContext>(defaultState);
 

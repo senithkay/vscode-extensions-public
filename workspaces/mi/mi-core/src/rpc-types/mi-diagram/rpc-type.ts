@@ -8,7 +8,8 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { ApiDirectoryResponse, ApplyEditRequest, ApplyEditResponse, CommandsRequest, CommandsResponse, ConnectorRequest, ConnectorResponse, ConnectorsResponse, CreateAPIRequest, CreateAPIResponse, CreateEndpointRequest, CreateEndpointResponse, CreateSequenceRequest, CreateSequenceResponse, EndpointDirectoryResponse, EndpointsAndSequencesResponse, ProjectRootResponse, OpenDiagramRequest, SequenceDirectoryResponse, ShowErrorMessageRequest, getSTRequest, getSTResponse, CreateProjectRequest, ProjectDirResponse, CreateProjectResponse, ESBConfigsResponse, HighlightCodeRequest, AIUserInput, WriteContentToFileRequest, WriteContentToFileResponse, InboundEndpointDirectoryResponse, CreateInboundEndpointRequest, CreateInboundEndpointResponse, GetWorkspaceContextResponse, GetProjectUuidResponse } from "./types";
+
+import { ApiDirectoryResponse, ApplyEditRequest, ApplyEditResponse, CommandsRequest, CommandsResponse, ConnectorRequest, ConnectorResponse, ConnectorsResponse, CreateAPIRequest, CreateAPIResponse, CreateEndpointRequest, CreateEndpointResponse, CreateSequenceRequest, CreateSequenceResponse, EndpointDirectoryResponse, EndpointsAndSequencesResponse, ProjectRootResponse, OpenDiagramRequest, SequenceDirectoryResponse, ShowErrorMessageRequest, getSTRequest, getSTResponse, CreateProjectRequest, ProjectDirResponse, CreateProjectResponse, ESBConfigsResponse, HighlightCodeRequest, AIUserInput, WriteContentToFileRequest, WriteContentToFileResponse, InboundEndpointDirectoryResponse, CreateLocalEntryRequest, CreateLocalEntryResponse, FileDirResponse, LocalEntryDirectoryResponse, CreateInboundEndpointRequest, CreateInboundEndpointResponse, UndoRedoParams, GetDefinitionRequest, GetDefinitionResponse, GetTextAtRangeRequest, GetTextAtRangeResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, GetInboundEpDirRequest, GetProjectRootRequest, BrowseFileResponse, CreateRegistryResourceRequest, CreateRegistryResourceResponse, BrowseFileRequest, GetWorkspaceContextResponse, GetProjectUuidResponse } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "mi-diagram";
@@ -22,21 +23,34 @@ export const getConnector: RequestType<ConnectorRequest, ConnectorResponse> = { 
 export const getAPIDirectory: RequestType<void, ApiDirectoryResponse> = { method: `${_preFix}/getAPIDirectory` };
 export const createAPI: RequestType<CreateAPIRequest, CreateAPIResponse> = { method: `${_preFix}/createAPI` };
 export const getEndpointDirectory: RequestType<void, EndpointDirectoryResponse> = { method: `${_preFix}/getEndpointDirectory` };
+export const getLocalEntryDirectory: RequestType<void, LocalEntryDirectoryResponse> = { method: `${_preFix}/getLocalEntryDirectory` };
 export const createEndpoint: RequestType<CreateEndpointRequest, CreateEndpointResponse> = { method: `${_preFix}/createEndpoint` };
+export const createLocalEntry: RequestType<CreateLocalEntryRequest, CreateLocalEntryResponse> = { method: `${_preFix}/createLocalEntry` };
 export const getEndpointsAndSequences: RequestType<void, EndpointsAndSequencesResponse> = { method: `${_preFix}/getEndpointsAndSequences` };
 export const getSequenceDirectory: RequestType<void, SequenceDirectoryResponse> = { method: `${_preFix}/getSequenceDirectory` };
 export const createSequence: RequestType<CreateSequenceRequest, CreateSequenceResponse> = { method: `${_preFix}/createSequence` };
 export const getInboundEndpointDirectory: RequestType<void, InboundEndpointDirectoryResponse> = { method: `${_preFix}/getInboundEndpointDirectory` };
+export const getInboundEndpointDirectory: RequestType<GetInboundEpDirRequest, InboundEndpointDirectoryResponse> = { method: `${_preFix}/getInboundEndpointDirectory` };
 export const createInboundEndpoint: RequestType<CreateInboundEndpointRequest, CreateInboundEndpointResponse> = { method: `${_preFix}/createInboundEndpoint` };
 export const closeWebView: NotificationType<void> = { method: `${_preFix}/closeWebView` };
 export const openDiagram: NotificationType<OpenDiagramRequest> = { method: `${_preFix}/openDiagram` };
 export const openFile: NotificationType<OpenDiagramRequest> = { method: `${_preFix}/openFile` };
 export const closeWebViewNotification: NotificationType<void> = { method: `${_preFix}/closeWebViewNotification` };
-export const getProjectRoot: RequestType<void, ProjectRootResponse> = { method: `${_preFix}/getProjectRoot` };
+export const getWorkspaceRoot: RequestType<void, ProjectRootResponse> = { method: `${_preFix}/getWorkspaceRoot` };
+export const getProjectRoot: RequestType<GetProjectRootRequest, ProjectRootResponse> = { method: `${_preFix}/getProjectRoot` };
 export const askProjectDirPath: RequestType<void, ProjectDirResponse> = { method: `${_preFix}/askProjectDirPath` };
+export const askFileDirPath: RequestType<void, FileDirResponse> = { method: `${_preFix}/askFileDirPath` };
 export const createProject: RequestType<CreateProjectRequest, CreateProjectResponse> = { method: `${_preFix}/createProject` };
 export const getAIResponse: RequestType<AIUserInput, string> = { method: `${_preFix}/getAIResponse` };
 export const writeContentToFile: RequestType<WriteContentToFileRequest, WriteContentToFileResponse> = { method: `${_preFix}/writeContentToFile` };
 export const highlightCode: NotificationType<HighlightCodeRequest> = { method: `${_preFix}/highlightCode` };
 export const getWorkspaceContext: RequestType<void, GetWorkspaceContextResponse> = { method: `${_preFix}/getWorkspaceContext` };
 export const getProjectUuid: RequestType<void, GetProjectUuidResponse> = { method: `${_preFix}/getProjectUuid` };
+export const initUndoRedoManager: NotificationType<UndoRedoParams> = { method: `${_preFix}/initUndoRedoManager` };
+export const undo: NotificationType<UndoRedoParams> = { method: `${_preFix}/undo` };
+export const redo: NotificationType<UndoRedoParams> = { method: `${_preFix}/redo` };
+export const getDefinition: RequestType<GetDefinitionRequest, GetDefinitionResponse> = { method: `${_preFix}/getDefinition` };
+export const getTextAtRange: RequestType<GetTextAtRangeRequest, GetTextAtRangeResponse> = { method: `${_preFix}/getTextAtRange` };
+export const getDiagnostics: RequestType<GetDiagnosticsReqeust, GetDiagnosticsResponse> = { method: `${_preFix}/getDiagnostics` };
+export const browseFile: RequestType<BrowseFileRequest, BrowseFileResponse> = { method: `${_preFix}/browseFile` };
+export const createRegistryResource: RequestType<CreateRegistryResourceRequest, CreateRegistryResourceResponse> = { method: `${_preFix}/createRegistryResource` };

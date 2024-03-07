@@ -20,7 +20,7 @@ export class ConditionNodeFactory extends AbstractReactFactory<ConditionNodeMode
     }
 
     generateModel(event: GenerateModelEvent): ConditionNodeModel {
-        return new ConditionNodeModel(event.initialConfig.stNode);
+        return new ConditionNodeModel(event.initialConfig.stNode, event.initialConfig.documentUri);
     }
 
     generateReactWidget(event: GenerateWidgetEvent<ConditionNodeModel>) {

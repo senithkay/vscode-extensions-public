@@ -596,7 +596,7 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
-      "packageName": "integration-studio",
+      "packageName": "micro-integrator",
       "projectFolder": "workspaces/mi/mi-extension"
     },
     {

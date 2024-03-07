@@ -12,12 +12,14 @@ import { StateMachine } from './stateMachine';
 import { extension } from './MIExtensionContext';
 import { activateProjectExplorer } from './project-explorer/activate';
 import { activateAiPrompt } from './ai-prompt/activate';
+import { activate as activateHistory } from './history';
 import { activateVisualizer } from './visualizer/activate';
 import { activateActivityPanel } from './activity-panel/activate';
 
 export async function activate(context: vscode.ExtensionContext) {
 
 	extension.context = context;
+	activateHistory();
 	// activateActivityPanel(context);
 	activateProjectExplorer(context);
 	// activateAiPrompt(context);

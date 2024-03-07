@@ -15,7 +15,8 @@ import { NodeTypes } from "../../../resources/constants";
 
 export class StartNodeModel extends NodeModel {
     readonly stNode: STNode;
-    protected port: NodePortModel;
+    protected portIn: NodePortModel;
+    protected portOut: NodePortModel;
     protected parentNode: STNode;
     protected prevNodes: STNode[];
 
@@ -26,23 +27,50 @@ export class StartNodeModel extends NodeModel {
             locked: true,
         });
         this.stNode = stNode;
+        this.addInPort("in");
         this.addOutPort("out");
+    }
+
+    addPort<T extends NodePortModel>(port: T): T {
+        super.addPort(port);
+        if (port.getOptions().in) {
+            this.portIn = port;
+        } else {
+            this.portOut = port;
+        }
+        return port;
+    }
+
+    addInPort(label: string): NodePortModel {
+        const port = new NodePortModel({
+            in: true,
+            name: "in",
+            label: label,
+            alignment: PortModelAlignment.TOP,
+        });
+        super.addPort(port);
+        this.portIn = port;
+        return port;
     }
 
     addOutPort(label: string): NodePortModel {
         const port = new NodePortModel({
-            in: false,
+            in: true,
             name: "out",
             label: label,
             alignment: PortModelAlignment.BOTTOM,
         });
         super.addPort(port);
-        this.port = port;
+        this.portOut = port;
         return port;
     }
 
+    getInPort(): NodePortModel {
+        return this.portIn;
+    }
+
     getOutPort(): NodePortModel {
-        return this.port;
+        return this.portOut;
     }
 
     getStNode(): STNode {

@@ -34,21 +34,21 @@ export function sampleDiagram(model: APIResource | Sequence, diagramModel: Diagr
     var node1 = new MediatorNodeModel(mediatorList[0], "", "");
     node1.setPosition(x, (y += gapY - 30));
 
-    var node2 = new ConditionNodeModel(mediatorList[1]); // condition node
+    var node2 = new ConditionNodeModel(mediatorList[1], ""); // condition node
     node2.setPosition(x + 60 - 28, (y += gapY));
 
-    var node3 = new CallNodeModel(mediatorList[2]);
+    var node3 = new CallNodeModel(mediatorList[2], "");
     node3.setPosition(x + conY, (y += gapY + 50));
 
     // var node5 = new MediatorNodeModel(mediatorList[6]);
     // node5.setPosition(x - conY, y);
-    var node5 = new EmptyNodeModel(undefined);
+    var node5 = new EmptyNodeModel(undefined, "");
     node5.setPosition(x - conY + 40, y);
 
-    var node4 = new CallNodeModel(mediatorList[12], mediatorList[5]);
+    var node4 = new CallNodeModel(mediatorList[12], "", mediatorList[5]);
     node4.setPosition(x + conY, (y += gapY));
 
-    var nodeempty = new EmptyNodeModel(undefined);
+    var nodeempty = new EmptyNodeModel(undefined, "");
     nodeempty.setPosition(x + 60 - 4, (y += gapY));
 
     var nodeend = new EndNodeModel(mediatorList[0]);

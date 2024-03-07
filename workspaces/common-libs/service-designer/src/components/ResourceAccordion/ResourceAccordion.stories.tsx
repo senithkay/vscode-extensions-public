@@ -27,7 +27,7 @@ const handleGoToSource = (resource: Resource) => {
 };
 
 const resource: Resource = {
-    method: "GET",
+    methods: ["GET"],
     path: "foo",
     pathSegments: [
         {

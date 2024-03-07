@@ -18,14 +18,16 @@ export class GoToDefinitionProvider implements vscode.DefinitionProvider {
         position: vscode.Position,
         token: vscode.CancellationToken
     ): Thenable<vscode.Definition> {
-        return this.langClient.getDefinition(this.langClient.code2ProtocolConverter
-            .asTextDocumentIdentifier(document), position).then(definition => {
-                const uri = vscode.Uri.parse(definition.uri);
-                const start = new vscode.Position(definition.range.start.line, definition.range.start.character);
-                const end = new vscode.Position(definition.range.end.line, definition.range.end.character);
-                const range = new vscode.Range(start, end);
-                const location = new vscode.Location(uri, range);
-                return location;
-            });
+        return this.langClient.getDefinition({
+            document: this.langClient.code2ProtocolConverter
+                .asTextDocumentIdentifier(document), position
+        }).then(definition => {
+            const uri = vscode.Uri.parse(definition.uri);
+            const start = new vscode.Position(definition.range.start.line, definition.range.start.character);
+            const end = new vscode.Position(definition.range.end.line, definition.range.end.character);
+            const range = new vscode.Range(start, end);
+            const location = new vscode.Location(uri, range);
+            return location;
+        });
     }
 }

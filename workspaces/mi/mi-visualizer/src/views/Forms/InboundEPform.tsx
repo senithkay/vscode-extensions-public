@@ -9,16 +9,18 @@
 
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import { AutoComplete, Button, TextField, Dropdown } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, Button, TextField, Dropdown, Typography, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { SectionWrapper } from "./Commons";
+import { FieldGroup, SectionWrapper } from "./Commons";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 
 const WizardContainer = styled.div`
-    width: 95%;
-    display  : flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 95vw;
+    height: calc(100vh - 140px);
+    overflow: auto;
 `;
 
 const ActionContainer = styled.div`
@@ -60,12 +62,24 @@ const HiddenFormWrapper = styled.div`
     padding: 10px 40px;
 `;
 
+const Container = styled.div`
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+    align-items: center;
+    justify-content: flex-start;
+`;
+
 export interface Region {
     label: string;
     value: string;
 }
 
-export function InboundEPWizard() {
+export interface InboundEPWizardProps {
+    path: string;
+}
+
+export function InboundEPWizard(props: InboundEPWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
 
@@ -87,7 +101,7 @@ export function InboundEPWizard() {
     };
 
     useEffect(() => {
-        rpcClient.getMiDiagramRpcClient().getInboundEndpointDirectory().then((path) => {
+        rpcClient.getMiDiagramRpcClient().getInboundEndpointDirectory({path: props.path}).then((path) => {
             setDirectoryPath(path.data);
         }).catch((error) => {
             console.error("Error getting project directory", error);
@@ -111,7 +125,7 @@ export function InboundEPWizard() {
         const INVALID_CHARS_REGEX = /[@\\^+;:!%&,=*#[\]$?'"<>{}() /]/;
 
         if (INVALID_CHARS_REGEX.test(inboundEPName) || INVALID_CHARS_REGEX.test(customSequence) || INVALID_CHARS_REGEX.test(customOnErrorSequence)) {
-            setNameError(true);  
+            setNameError(true);
         }
         else {
             setNameError(false);
@@ -134,6 +148,19 @@ export function InboundEPWizard() {
         setOnErrorSequence(sequence);
     };
 
+    const validateName = (name: string) => {
+        // Check if the name is empty
+        if (!name.trim()) {
+            return "Name is required";
+        }
+
+        // Check if the name contains spaces or special characters
+        if (/[\s~`!@#$%^&*()_+={}[\]:;'",.<>?/\\|]+/.test(name)) {
+            return "Name cannot contain spaces or special characters";
+        }
+        return "";
+    };
+
     const handleCreateInboundEP = async () => {
         const createInboundEPParams = {
             directory: directoryPath,
@@ -148,8 +175,12 @@ export function InboundEPWizard() {
     };
 
     const handleCancel = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
+
+    const handleBackButtonClick = () => {
+        rpcClient.getMiVisualizerRpcClient().goBack();
+    }
 
     const isValid: boolean = !nameError && inboundEPName.length > 0 && creationType.length > 0 && (excludeSubFormFrom.includes(creationType) ||
         (selectedSequence !== defaultSequence.value ? selectedSequence.length > 0 : customSequence.length > 0) &&
@@ -157,29 +188,33 @@ export function InboundEPWizard() {
 
     return (
         <WizardContainer>
-            <TitleWrapper>
-                <h2>New Inbound Endpoint Artifact</h2>
-            </TitleWrapper>
             <SectionWrapper>
-                <h3>Inbound Endpoint Artifact</h3>
+                <Container>
+                    <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
+                    <div style={{ marginLeft: 30 }}>
+                        <Typography variant="h3">Inbound Endpoint Artifact</Typography>
+                    </div>
+                </Container>
                 <TextField
                     value={inboundEPName}
                     id='name-input'
                     label="Name"
                     placeholder="Name"
-                    validationMessage="Inbound Endpoint name is required"
                     onChange={(text: string) => setInboundEPName(text)}
-                    size={100}
+                    errorMsg={validateName(inboundEPName)}
+                    size={40}
                     autoFocus
                     required
                 />
-                <span>Creation Type</span>
-                <AutoComplete
-                    items={creationTypes}
-                    selectedItem={creationType}
-                    onChange={handleCreationTypeChange}
-                    sx={{ width: '50%' }}
-                ></AutoComplete>
+                <FieldGroup>
+                    <span>Creation Type</span>
+                    <AutoComplete
+                        items={creationTypes}
+                        selectedItem={creationType}
+                        onChange={handleCreationTypeChange}
+                        sx={{width: '370px'}}
+                    ></AutoComplete>
+                </FieldGroup>
                 {!excludeSubFormFrom.includes(creationType) && (
                     <HiddenFormWrapper>
                         <span>Sequence</span>
@@ -194,9 +229,9 @@ export function InboundEPWizard() {
                                 value={customSequence}
                                 id='custom-sequence'
                                 placeholder="Custom Sequence Name"
-                                validationMessage="Custom sequence name is required"
                                 onChange={(text: string) => setCustomSequence(text)}
-                                size={50}
+                                errorMsg={validateName(customSequence)}
+                                size={40}
                                 required
                             />
                         </>}
@@ -212,35 +247,30 @@ export function InboundEPWizard() {
                                 value={customOnErrorSequence}
                                 id='custom-onerror-sequence'
                                 placeholder="Custom On Error Sequence Name"
-                                validationMessage="Custom on-error sequence name is required"
                                 onChange={(text: string) => setCustomOnErrorSequence(text)}
-                                size={50}
+                                errorMsg={validateName(customOnErrorSequence)}
+                                size={40}
                                 required
                             />
                         </>}
                     </HiddenFormWrapper>
                 )}
-                {nameError && <span style={{ color: "#f48771" }}>{`Invalid character(s) in a name field`}</span>}
-                <SubContainer>
-                    <CardContainer>
-                    </CardContainer>
-                </SubContainer>
+                <ActionContainer>
+                    <Button
+                        appearance="secondary"
+                        onClick={handleCancel}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        appearance="primary"
+                        onClick={handleCreateInboundEP}
+                        disabled={!isValid}
+                    >
+                        Create
+                    </Button>
+                </ActionContainer>
             </SectionWrapper>
-            <ActionContainer>
-                <Button
-                    appearance="secondary"
-                    onClick={handleCancel}
-                >
-                    Cancel
-                </Button>
-                <Button
-                    appearance="primary"
-                    onClick={handleCreateInboundEP}
-                    disabled={!isValid}
-                >
-                    Create
-                </Button>
-            </ActionContainer>
         </WizardContainer>
     );
 }

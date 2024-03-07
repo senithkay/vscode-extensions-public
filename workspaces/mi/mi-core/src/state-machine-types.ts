@@ -10,19 +10,35 @@
 
 import { NotificationType, RequestType } from "vscode-messenger-common";
 
-export type MachineViews = "Overview" | "Diagram" | "ServiceDesigner" | "APIForm" | "EndPointForm" | "SequenceForm" | "InboundEPForm" | "ProjectCreationForm";
+export enum MACHINE_VIEW {
+    Welcome = "Welcome to MI",
+    Overview = "MI Overview",
+    Diagram = "MI Diagram",
+    ServiceDesigner = "Service Designer",
+    APIForm = "API Form",
+    EndPointForm = "Endpoint Form",
+    SequenceForm = "Sequence Form",
+    InboundEPForm = "Inbound EP Form",
+    ProjectCreationForm = "Project Creation Form",
+    LocalEntryForm = "Local Entry Form",
+    RegistryResourceForm = "Registry Resource Creation Form",
+}
 
 export type MachineStateValue =
     | 'initialize' | 'projectDetected' | 'LSInit' | 'ready' | 'disabled'
-    | { ready: 'viewReady' } | { ready: 'viewUpdate' }
-    | { newProject: 'welcome' } | { newProject: 'create' };
+    | { ready: 'viewReady' } | { ready: 'viewEditing' }
+    | { newProject: 'viewReady' };
 
-export type EventType = "OPEN_VIEW" | "GET_STARTED" | "CANCEL_CREATION";
+export enum EVENT_TYPE {
+    OPEN_VIEW = "OPEN_VIEW",
+    FILE_EDIT = "FILE_EDIT",
+    EDIT_DONE = "EDIT_DONE",
+}
 
 export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";
 
 export interface MachineEvent {
-    type: EventType;
+    type: EVENT_TYPE;
 }
 
 export interface CommandProps {
@@ -33,10 +49,12 @@ export interface CommandProps {
 
 // State Machine context values
 export interface VisualizerLocation {
-    view: MachineViews | null;
+    view: MACHINE_VIEW | null;
     documentUri?: string;
+    projectUri?: string;
     identifier?: string;
     position?: any;
+    projectOpened?: boolean;
 }
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };

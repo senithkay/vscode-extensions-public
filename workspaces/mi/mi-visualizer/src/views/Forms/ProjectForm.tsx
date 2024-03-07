@@ -8,55 +8,42 @@
  */
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import { Button, TextField } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { SectionWrapper } from "./Commons";
+import { FieldGroup, SectionWrapper } from "./Commons";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 
 const WizardContainer = styled.div`
-    width: 95%;
-    display  : flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 95vw;
+    height: calc(100vh - 140px);
+    overflow: auto;
 `;
 
 const ActionContainer = styled.div`
-    display  : flex;
+    display: flex;
     flex-direction: row;
     justify-content: flex-end;
     gap: 10px;
     padding-bottom: 20px;
 `;
 
+const LocationText = styled.div`
+    max-width: 60vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+`;
 
-const CardContainer = styled.div`
+const Container = styled.div`
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
+    height: 50px;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 20px;
-`;
-
-const SubContainer = styled.div`
-    display: flex;
-    flex-direction: column;
     justify-content: flex-start;
-    align-content: space-between;
-    gap: 20px;
-`;
-
-const TitleWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
-`;
-
-const BrowseBtn = styled(VSCodeButton)`
-    width: fit-content;
-    padding: 5px;
 `;
 
 export interface Region {
@@ -69,10 +56,12 @@ export function ProjectWizard() {
     const { rpcClient } = useVisualizerContext();
     const [projectName, setProjectName] = useState("");
     const [projectDir, setProjectDir] = useState("");
+    const [groupID, setGroupID] = useState("");
+    const [artifactID, setArtifactID] = useState("");
 
     useEffect(() => {
         (async () => {
-            const currentDir = await rpcClient.getMiDiagramRpcClient().getProjectRoot();
+            const currentDir = await rpcClient.getMiDiagramRpcClient().getWorkspaceRoot();
             setProjectDir(currentDir.path);
         })();
 
@@ -87,7 +76,9 @@ export function ProjectWizard() {
         const createProjectParams = {
             name: projectName,
             directory: projectDir,
-            open: true
+            open: true,
+            groupID: groupID,
+            artifactID: artifactID
         }
         await rpcClient.getMiDiagramRpcClient().createProject(createProjectParams);
         console.log("Project created");
@@ -95,55 +86,110 @@ export function ProjectWizard() {
 
     const handleCancel = () => {
         console.log("cancel");
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
 
     };
 
-    const isValid: boolean = projectName.length > 0 && projectDir.length > 0;
+    const handleBackButtonClick = () => {
+        rpcClient.getMiVisualizerRpcClient().goBack();
+    }
+
+    const validateProjectName = (name: string) => {
+        // Check if the name is empty
+        if (!name.trim()) {
+            return "Project name is required";
+        }
+
+        // Check if the name contains spaces or special characters
+        if (/[\s~`!@#$%^&*()_+={}[\]:;'",.<>?/\\|]+/.test(name)) {
+            return "Project name cannot contain spaces or special characters";
+        }
+        return "";
+    };
+
+    const validateGroupID = (name: string) => {
+        // Check if the name is empty
+        if (!name.trim()) {
+            return "ID cannot be empty";
+        }
+
+        // Check if the name contains spaces
+        if (/\s/.test(name)) {
+            return "ID cannot contain spaces";
+        }
+
+        return "";
+    };
+
+
+    const isValid: boolean = projectName.length > 0 && projectDir.length > 0 && groupID.length > 0 && artifactID.length > 0;
 
     return (
         <WizardContainer>
-            <TitleWrapper>
-                <h2>New Integration Project</h2>
-            </TitleWrapper>
             <SectionWrapper>
-                <h3>Integration Project</h3>
+                <Container>
+                    <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
+                    <div style={{ marginLeft: 30 }}>
+                        <Typography variant="h3">Integration Project</Typography>
+                    </div>
+                </Container>
                 <TextField
                     value={projectName}
                     id='name-input'
-                    label="Name"
-                    placeholder="Name"
-                    validationMessage="Project name is required"
+                    label="Project Name"
+                    placeholder="Project Name"
                     onChange={(text: string) => setProjectName(text)}
+                    errorMsg={validateProjectName(projectName)}
+                    size={46}
                     autoFocus
                     required
                 />
-                <span>  Project Location  </span>
-                {!!projectDir && <span>{projectDir}</span>}
-                {!projectDir && <span>Please choose a directory for project workspace. </span>}
-                <BrowseBtn onClick={handleProjecDirSelection} id="select-project-dir-btn">
-                    Select Directory to Save Project
-                </BrowseBtn>
-                <SubContainer>
-                    <CardContainer>
-                    </CardContainer>
-                </SubContainer>
+                <TextField
+                    value={groupID}
+                    id='groupid-input'
+                    label="Group ID"
+                    placeholder="Group ID"
+                    onChange={(text: string) => setGroupID(text)}
+                    errorMsg={validateGroupID(groupID)}
+                    size={46}
+                    autoFocus
+                    required
+                />
+                <TextField
+                    value={artifactID}
+                    id='artifactID-input'
+                    label="Atrifact ID"
+                    placeholder="Artifact ID"
+                    onChange={(text: string) => setArtifactID(text)}
+                    errorMsg={validateGroupID(artifactID)}
+                    size={46}
+                    autoFocus
+                    required
+                />
+                <FieldGroup>
+                    <span>  Project Location  </span>
+                    {!!projectDir && <LocationText>{projectDir}</LocationText>}
+                    {!projectDir && <span>Please choose a directory for project workspace. </span>}
+                    <Button appearance="secondary" onClick={handleProjecDirSelection} id="select-project-dir-btn">
+                        Select Location
+                    </Button>
+                </FieldGroup>
+                <ActionContainer>
+                    <Button
+                        appearance="secondary"
+                        onClick={handleCancel}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        appearance="primary"
+                        onClick={handleCreateProject}
+                        disabled={!isValid}
+                    >
+                        Create
+                    </Button>
+                </ActionContainer>
             </SectionWrapper>
-            <ActionContainer>
-                <Button
-                    appearance="secondary"
-                    onClick={handleCancel}
-                >
-                    Cancel
-                </Button>
-                <Button
-                    appearance="primary"
-                    onClick={handleCreateProject}
-                    disabled={!isValid}
-                >
-                    Create
-                </Button>
-            </ActionContainer>
         </WizardContainer>
     );
 }

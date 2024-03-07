@@ -12,7 +12,7 @@ import { getComposerJSFiles } from '../util';
 import { extension } from '../MIExtensionContext';
 
 export class ActivityPanel implements vscode.WebviewViewProvider {
-	public static readonly viewType = 'integration-studio.activity.panel';
+	public static readonly viewType = 'micro-integrator.activity.panel';
 	private _view?: vscode.WebviewView;
 
 	constructor(private readonly _extensionContext: vscode.ExtensionContext) { }
@@ -46,7 +46,7 @@ export class ActivityPanel implements vscode.WebviewViewProvider {
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
           <meta name="theme-color" content="#000000">
-          <title>Integration Studio</title>
+          <title>Micro Integrator</title>
          
           ${scriptUri}
         </head>

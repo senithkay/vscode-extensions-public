@@ -7,11 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { FileStructure, MachineViews } from '@wso2-enterprise/mi-core';
+import { FileStructure } from '@wso2-enterprise/mi-core';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ExtensionContext, Uri, Webview } from "vscode";
 import { getInboundEndpointdXml, GetInboundTemplatesArgs } from './template-engine/mustach-templates/inboundEndpoints';
+import { getRegistryResource } from './template-engine/mustach-templates/registryResources';
 
 const isDevMode = process.env.WEB_VIEW_WATCH_MODE === "true";
 
@@ -22,26 +23,6 @@ export function getComposerJSFiles(context: ExtensionContext, componentName: str
 			: webView.asWebviewUri(Uri.file(filePath)).toString(),
 		isDevMode ? 'http://localhost:8097' : '' // For React Dev Tools
 	];
-}
-
-
-type ViewFlow = {
-	[key in MachineViews]: MachineViews[];
-};
-
-const viewFlow: ViewFlow = {
-	Overview: [],
-	ServiceDesigner: ["Overview"],
-	Diagram: ["ServiceDesigner"],
-	APIForm: ["Overview"],
-	EndPointForm: ["Overview"],
-	SequenceForm: ["Overview"],
-	InboundEPForm: ["Overview"],
-	ProjectCreationForm: ["Overview"]
-};
-
-export function getPreviousView(currentView: MachineViews): MachineViews[] {
-	return viewFlow[currentView] || [];
 }
 
 export function createFolderStructure(targetPath: string, structure: FileStructure) {
@@ -61,4 +42,8 @@ export function createFolderStructure(targetPath: string, structure: FileStructu
 
 export function getInboundEndpointXmlWrapper(props: GetInboundTemplatesArgs) {
 	return getInboundEndpointdXml(props);
+}
+
+export function getRegistryResourceContent(type: string, resourceName: string) {
+	return getRegistryResource(type, resourceName);
 }

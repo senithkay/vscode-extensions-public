@@ -25,6 +25,6 @@ jobs:
       - name: Notification - MI
         uses: ./.github/actions/dailyBuildNotification
         with:
-          title: Intergration Studio
-          fileName: integration-studio
+          title: Micro Integrator
+          fileName: micro-integrator
           api: ${{ secrets.MI_EXT_CHAT_API }}

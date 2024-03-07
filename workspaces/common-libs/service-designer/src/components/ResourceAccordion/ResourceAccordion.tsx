@@ -16,6 +16,7 @@ import ConfirmDialog from '../ConfirmBox/ConfirmBox';
 
 type MethodProp = {
     color: string;
+    hasLeftMargin?: boolean;
 };
 
 type ContainerProps = {
@@ -40,11 +41,21 @@ const AccordionHeader = styled.div`
     align-items: center;
 `;
 
+const ButtonWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    font-size: 10px;
+    width: 40px;
+`;
+
 const MethodBox = styled.div<MethodProp>`
     display: flex;
     justify-content: center;
     height: 25px;
     width: 70px;
+    margin-left: ${(p: MethodProp) => p.hasLeftMargin ? "10px" : "0px"};
     text-align: center;
     padding: 3px 0px 3px 0px;
     background-color: ${(p: MethodProp) => p.color};
@@ -58,10 +69,14 @@ const MethodSection = styled.div`
     justify-content: space-between;
 `;
 
-const ButtonSection = styled.div`
+type ButtonSectionProps = {
+    isExpanded?: boolean;
+};
+
+const ButtonSection = styled.div<ButtonSectionProps>`
     display: flex;
     justify-content: space-between;
-    width: 90px;
+    width: ${(p: ButtonSectionProps) => p.isExpanded ? 120 : 90};;
 `;
 
 const AccordionContent = styled.div`
@@ -163,24 +178,59 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
     };
 
     return (
-        <AccordionContainer borderColor={getColorByMethod(resource.method)}>
+        <AccordionContainer>
             <AccordionHeader onClick={toggleAccordion}>
                 <MethodSection>
-                    <MethodBox color={getColorByMethod(resource.method)}>{resource.method.toUpperCase()}</MethodBox>
+                    {resource?.methods?.map((method, index) => {
+                        return (
+                            <MethodBox key={index} color={getColorByMethod(method)} hasLeftMargin={index >= 1}>
+                                {method}
+                            </MethodBox>
+                        );
+                    })}
                     <MethodPath>{resource?.path}</MethodPath>
                 </MethodSection>
-                <ButtonSection>
-                    <VSCodeButton appearance="icon" title="Show Diagram" onClick={handleShowDiagram}>
-                        <Icon name='design-view' />
-                    </VSCodeButton>
-
-                    <VSCodeButton appearance="icon" title="Edit Resource" onClick={handleEditResource}>
-                        <Icon name="editIcon" />
-                    </VSCodeButton>
-
-                    <VSCodeButton appearance="icon" title="Delete Resource" onClick={handleDeleteResource}>
-                        <Icon name="delete" />
-                    </VSCodeButton>
+                <ButtonSection isExpanded={isOpen}>
+                    {isOpen ? (
+                        <>
+                            <ButtonWrapper>
+                                <VSCodeButton appearance="icon" title="Show Diagram" onClick={handleShowDiagram}>
+                                    <Icon name='design-view' />
+                                </VSCodeButton>
+                                <>
+                                    Diagram
+                                </>
+                            </ButtonWrapper>
+                            <ButtonWrapper>
+                                <VSCodeButton appearance="icon" title="Edit Resource" onClick={handleEditResource}>
+                                    <Icon name="editIcon" />
+                                </VSCodeButton>
+                                <>
+                                    Edit
+                                </>
+                            </ButtonWrapper>
+                            <ButtonWrapper>
+                                <VSCodeButton appearance="icon" title="Delete Resource" onClick={handleDeleteResource}>
+                                    <Icon name="delete" />
+                                </VSCodeButton>
+                                <>
+                                    Delete
+                                </>
+                            </ButtonWrapper>
+                        </>
+                    ) : (
+                        <>
+                            <VSCodeButton appearance="icon" title="Show Diagram" onClick={handleShowDiagram}>
+                                <Icon name='design-view' />
+                            </VSCodeButton>
+                            <VSCodeButton appearance="icon" title="Edit Resource" onClick={handleEditResource}>
+                                <Icon name="editIcon" />
+                            </VSCodeButton>
+                            <VSCodeButton appearance="icon" title="Delete Resource" onClick={handleDeleteResource}>
+                                <Icon name="delete" />
+                            </VSCodeButton>
+                        </>
+                    )}
 
                     {isOpen ? 
                         <Codicon

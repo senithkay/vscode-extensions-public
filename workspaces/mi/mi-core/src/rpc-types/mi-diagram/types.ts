@@ -9,6 +9,7 @@
  */
 
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { Diagnostic, Position, TextDocumentIdentifier } from "vscode-languageserver-types";
 
 export interface ApplyEditRequest {
     text: string;
@@ -27,6 +28,11 @@ export interface CreateAPIRequest {
     swaggerDef: string;
     type: string;
     version: string;
+}
+
+export interface GetInboundEpDirRequest {
+    path: string;
+
 }
 
 export interface CreateEndpointRequest {
@@ -54,10 +60,40 @@ export interface CreateInboundEndpointResponse {
     path: string;
 }
 
+export interface CreateInboundEndpointRequest {
+    directory: string;
+    name: string;
+    type: string;
+    sequence: string;
+    errorSequence: string;
+}
+
+export interface CreateInboundEndpointResponse {
+    path: string;
+}
+
+export interface CreateLocalEntryRequest {
+    directory: string;
+    name: string;
+    type: string;
+    value: string;
+    URL: string;
+}
+export interface CreateLocalEntryResponse {
+    path: string;
+}
+export interface LocalEntryDirectoryResponse {
+    data: string;
+}
+export interface FileDirResponse{
+    path: string;
+}
 export interface CreateProjectRequest {
     directory: string;
     name: string;
     open: boolean;
+    groupID?: string;
+    artifactID?: string;
 }
 
 export interface Connector {
@@ -88,6 +124,11 @@ export interface getSTRequest {
 export interface getSTResponse {
     syntaxTree: any;
     defFilePath: string;
+}
+
+export interface GetProjectRootRequest {
+    path: string;
+
 }
 
 export interface ConnectorRequest {
@@ -158,8 +199,8 @@ export interface FileStructure {
 export interface ChatEntry {
     role: string;
     content: string;
-  }
-  
+}
+
 export interface AIUserInput {
     chat_history: ChatEntry[];
 }
@@ -176,10 +217,66 @@ export interface HighlightCodeRequest {
     range: Range;
 }
 
+
 export interface GetWorkspaceContextResponse {
     context: string[];
 }
 
 export interface GetProjectUuidResponse{
     uuid: string;
+}
+
+export interface UndoRedoParams {
+    path: string;
+}
+
+export interface GetDefinitionRequest {
+    document: TextDocumentIdentifier;
+    position: Position;
+}
+
+export interface GetDefinitionResponse {
+    uri: string,
+    range: Range
+}
+
+export interface GetTextAtRangeRequest {
+    documentUri: string;
+    range: Range;
+}
+
+export interface GetTextAtRangeResponse {
+    text: string | undefined;
+}
+
+export interface GetDiagnosticsReqeust {
+    documentUri: string;
+}
+
+export interface GetDiagnosticsResponse {
+    documentUri: string;
+    diagnostics: Diagnostic[];
+}
+
+export interface CreateRegistryResourceRequest {
+    projectDirectory: string;
+    templateType: string;
+    filePath: string;
+    resourceName: string;
+    artifactName: string;
+    registryPath: string;
+    registryRoot: string;
+    createOption: string;
+}
+
+export interface CreateRegistryResourceResponse {
+    path: string;
+}
+
+export interface BrowseFileResponse {
+    filePath: string;
+}
+
+export interface BrowseFileRequest {
+    dialogTitle: string;
 }

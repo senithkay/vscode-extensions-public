@@ -222,7 +222,7 @@ export async function getResource(resource: ResourceAccessorDefinition, rpcClien
         endColumn: resource?.functionSignature?.position?.endColumn
     };
     return {
-        method: resource.functionName.value,
+        methods: [resource.functionName.value],
         path: pathConfig.path,
         pathSegments: pathConfig.resources,
         params: queryParams,

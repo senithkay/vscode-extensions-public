@@ -12,9 +12,10 @@ import { BaseNodeModel } from "../BaseNodeModel";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export class EmptyNodeModel extends BaseNodeModel {
-    constructor(stNode: STNode) {
+    constructor(stNode: STNode, documentUri:string) {
         super(
             NodeTypes.EMPTY_NODE,
+            documentUri,
             stNode,
         );
     }

@@ -10,18 +10,24 @@
  */
 import {
     GettingStartedData,
+    HistoryEntry,
+    HistoryEntryResponse,
     MIVisualizerAPI,
+    OpenViewRequest,
     ProjectStructureRequest,
     ProjectStructureResponse,
     SampleDownloadRequest,
-    VisualizerLocation,
     WorkspacesResponse,
+    addToHistory,
+    downloadSelectedSampleFromGithub,
+    fetchSamplesFromGithub,
+    getHistory,
     getProjectStructure,
     getWorkspaces,
     goBack,
-    openView,
-    fetchSamplesFromGithub,
-    downloadSelectedSampleFromGithub
+    goHome,
+    goSelected,
+    openView
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -41,7 +47,7 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
         return this._messenger.sendRequest(getProjectStructure, HOST_EXTENSION, params);
     }
 
-    openView(params: VisualizerLocation): void {
+    openView(params: OpenViewRequest): void {
         return this._messenger.sendNotification(openView, HOST_EXTENSION, params);
     }
 
@@ -55,5 +61,21 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     downloadSelectedSampleFromGithub(params: SampleDownloadRequest): void {
         return this._messenger.sendNotification(downloadSelectedSampleFromGithub, HOST_EXTENSION, params);
+    }
+
+    getHistory(): Promise<HistoryEntryResponse> {
+        return this._messenger.sendRequest(getHistory, HOST_EXTENSION);
+    }
+
+    addToHistory(params: HistoryEntry): void {
+        return this._messenger.sendNotification(addToHistory, HOST_EXTENSION, params);
+    }
+
+    goHome(): void {
+        return this._messenger.sendNotification(goHome, HOST_EXTENSION);
+    }
+
+    goSelected(params: number): void {
+        return this._messenger.sendNotification(goSelected, HOST_EXTENSION, params);
     }
 }

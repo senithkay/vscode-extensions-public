@@ -7,77 +7,152 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import * as vscode from 'vscode';
-import { ProjectExplorerEntryProvider } from './project-explorer-provider';
-import { createView, openView } from '../stateMachine';
+import { ProjectExplorerEntry, ProjectExplorerEntryProvider } from './project-explorer-provider';
+import { StateMachine, openView } from '../stateMachine';
+import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from '@wso2-enterprise/mi-core';
+import { COMMANDS } from '../constants';
+import { ExtensionContext, Uri, ViewColumn, commands, window } from 'vscode';
+import { VisualizerWebview } from '../visualizer/webview';
 
-export function activateProjectExplorer(context: vscode.ExtensionContext) {
+export function activateProjectExplorer(context: ExtensionContext) {
 
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context);
-	// vscode.window.registerTreeDataProvider('project-explorer', projectExplorerDataProvider)
-	const projectTree = vscode.window.createTreeView('project-explorer', { treeDataProvider: projectExplorerDataProvider });
-	vscode.commands.registerCommand('project-explorer.refresh', () => { projectExplorerDataProvider.refresh(); });
-	vscode.commands.registerCommand('project-explorer.add', () => {
-		vscode.window.showQuickPick([
+	const projectTree = window.createTreeView('MI.project-explorer', { treeDataProvider: projectExplorerDataProvider });
+	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { projectExplorerDataProvider.refresh(); });
+	commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
+		window.showQuickPick([
+			{ label: 'New Project', description: 'Create new project' },
 			{ label: 'API', description: 'Add new API' },
 			{ label: 'Endpoint', description: 'Add new endpoint' },
 			{ label: 'Sequence', description: 'Add new sequence' },
+			{ label: 'Inbound Endpoint', description: 'Add new inbound endpoint' },
+			{ label: 'Local Entry', description: 'Add new local entry' }
 		], {
 			placeHolder: 'Select the construct to add'
 		}).then(selection => {
 			if (selection?.label === 'API') {
-				vscode.commands.executeCommand('project-explorer.add-api');
+				commands.executeCommand(COMMANDS.ADD_API_COMMAND);
 			} else if (selection?.label === 'Endpoint') {
-			 	vscode.commands.executeCommand('project-explorer.add-endpoint');
+				commands.executeCommand(COMMANDS.ADD_ENDPOINT_COMMAND);
 			} else if (selection?.label === 'Sequence') {
-				vscode.commands.executeCommand('project-explorer.add-sequence');
+				commands.executeCommand(COMMANDS.ADD_SEQUENCE_COMMAND);
+			} else if (selection?.label === 'Inbound Endpoint') {
+				commands.executeCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND);
+			} else if (selection?.label === 'New Project') {
+				commands.executeCommand(COMMANDS.CREATE_PROJECT_COMMAND);
+			} else if (selection?.label === 'Local Entry') {
+				commands.executeCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND);
 			}
 		});
 
 	});
-	vscode.commands.registerCommand('project-explorer.add-api', () => {
-		openView({ view: "APIForm" });
+	commands.registerCommand(COMMANDS.ADD_API_COMMAND, async (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm, documentUri: entry.info?.path });
 		console.log('Add API');
 	});
 
-	vscode.commands.registerCommand('project-explorer.add-endpoint', () => {
-		openView({ view: "EndPointForm" });
+	commands.registerCommand(COMMANDS.ADD_ENDPOINT_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.EndPointForm, documentUri: entry.info?.path });
 		console.log('Add Endpoint');
 	});
 
-	vscode.commands.registerCommand('project-explorer.add-sequence', () => {
-		openView({ view: "SequenceForm" });
+	commands.registerCommand(COMMANDS.ADD_SEQUENCE_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceForm, documentUri: entry.info?.path });
 		console.log('Add Sequence');
 	});
 
-	vscode.commands.registerCommand('project-explorer.add-inbound-endpoint', () => {
-		openView({ view: "InboundEPForm" });
+	commands.registerCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.InboundEPForm, documentUri: entry.info?.path });
 		console.log('Add Inbound API');
 	});
 
-	vscode.commands.registerCommand('project-explorer.create-project', () => {
+	commands.registerCommand(COMMANDS.ADD_REGISTERY_RESOURCE_COMMAND, async (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: entry.info?.path });
+		console.log('Add Registry Resource');
+	});
+
+	commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
 		// Update state machine to show the api wizard
-		// createApiWizardWebview(context);
-		openView( { view: "ProjectCreationForm" });
-		vscode.commands.executeCommand('integrationStudio.showDiagram');
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
 		console.log('Create New Project');
 	});
 
-	projectTree.onDidChangeSelection(async e => {
-		if (e.selection.length > 0 && e.selection[0].info) {
-			const info = e.selection[0].info;
-			console.log(info);
-			// TODO: Open file logic should go here
-			// const document = await vscode.workspace.openTextDocument(info.path);
-			// await vscode.window.showTextDocument(document);
-			if (info.type.toLowerCase() === 'api') {
-				openView({ view: "ServiceDesigner", documentUri: info.path, identifier: info.name });
-			} else if (info.type === 'resource') {
-				openView({ view: "Diagram", documentUri: info.path, identifier: info.name });
+	commands.registerCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND, () => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.LocalEntryForm });
+		console.log('Add Local Entry');
+	});
+
+	commands.registerCommand(COMMANDS.REVEAL_ITEM_COMMAND, async (viewLocation: VisualizerLocation) => {
+		const data = projectExplorerDataProvider.getChildren();
+
+		if (viewLocation.documentUri && viewLocation.projectUri && data) {
+			const project = (await data)?.find((project) => project.info?.path === viewLocation.projectUri);
+			if (project) {
+				projectTree.reveal(project, { select: true });
+				const projectChildren = projectExplorerDataProvider.getChildren(project);
+				if (projectChildren) {
+					const projectResources = await projectChildren;
+					if (!projectResources) return;
+
+					for (const projectResource of projectResources) {
+						const fileEntry = projectResource.children?.find((file) => file.info?.path === viewLocation.documentUri);
+						if (fileEntry) {
+							projectTree.reveal(fileEntry, { select: true });
+
+							if (viewLocation.identifier !== undefined) {
+								const resourceEntry = fileEntry.children?.find((file) => file.info?.path === `${viewLocation.documentUri}/${viewLocation.identifier}`);
+								if (resourceEntry) {
+									projectTree.reveal(resourceEntry, { select: true });
+								}
+							}
+							break;
+						}
+					}
+				}
 			}
 		}
 	});
 
-	vscode.commands.executeCommand('project-explorer.focus');
+	// action items
+	commands.registerCommand(COMMANDS.SHOW_DIAGRAM, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Diagram, documentUri: documentUri?.fsPath, identifier: resourceIndex });
+	})
+	commands.registerCommand(COMMANDS.SHOW_SOURCE, (e: any) => {
+		const documentUri = StateMachine.context().documentUri;
+		if (documentUri) {
+			const openedEditor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
+			if (openedEditor) {
+				window.showTextDocument(openedEditor.document, { viewColumn: openedEditor.viewColumn });
+			} else {
+				commands.executeCommand('vscode.open', Uri.parse(documentUri), { viewColumn: ViewColumn.Beside });
+			}
+		}
+	})
+	commands.registerCommand(COMMANDS.OPEN_PROJECT_OVERVIEW, async (entry: ProjectExplorerEntry) => {
+		revealWebviewPanel(false);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+	});
+	commands.registerCommand(COMMANDS.OPEN_SERVICE_DESIGNER, async (entry: ProjectExplorerEntry) => {
+		revealWebviewPanel(false);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: entry.info?.path });
+	});
+	commands.registerCommand(COMMANDS.OPEN_SERVICE_DESIGNER_BESIDE, async (file: Uri) => {
+		revealWebviewPanel(true);
+		setTimeout(() => {
+			openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: file.fsPath });
+		}, 100);
+	});
+
+	commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
+}
+
+function revealWebviewPanel(beside: boolean = true) {
+	if (!VisualizerWebview.currentPanel) {
+		VisualizerWebview.currentPanel = new VisualizerWebview(MACHINE_VIEW.Overview, true);
+		VisualizerWebview.currentPanel?.getWebview()?.reveal(beside ? ViewColumn.Beside : ViewColumn.One);
+	} else {
+		VisualizerWebview.currentPanel?.getWebview()?.reveal(beside ? ViewColumn.Beside : ViewColumn.Active);
+	}
 }
 

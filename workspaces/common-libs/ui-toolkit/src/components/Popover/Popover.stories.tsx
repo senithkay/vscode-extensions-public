@@ -15,8 +15,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, { useState } from "react";
-import { storiesOf } from "@storybook/react";
-import { Popover } from "./Popover";
+import { ComponentStory } from "@storybook/react";
+import { Popover, PopoverProps } from "./Popover";
+import styled from "@emotion/styled";
 
 const popOverStyle = {
     backgroundColor: "white",
@@ -29,9 +30,13 @@ const popOverStyle = {
     gap: "8px",
 };
 
-export default { component: Popover, title: "Popover" };
+const TextContainer = styled.div`
+    width: fit-content;
+    padding: 16px;
+    border: 1px solid black;
+`;
 
-const PopoverDefault = () => {
+const Template: ComponentStory<typeof Popover> = (args: PopoverProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const [anchorEvent, setAnchorEvent] = useState<null | HTMLElement>(null);
     const openPanel = (event: React.MouseEvent<HTMLElement>) => {
@@ -44,15 +49,25 @@ const PopoverDefault = () => {
     };
     return (
         <>
-            <div onMouseOver={openPanel} onMouseLeave={closePanel}> Hover Over </div>
-            <Popover
-                open={isOpen}
-                anchorEl={anchorEvent}
-                sx={popOverStyle}
-            >
+            <TextContainer onMouseOver={openPanel} onMouseLeave={closePanel}> Hover Over </TextContainer>
+            <Popover {...args} open={isOpen} anchorEl={anchorEvent}>
                 <div>Test Content</div>
             </Popover>
         </>
     );
 };
-storiesOf("Popover").add("PopoverDefaullt", () => <PopoverDefault />);
+
+export const PopoverDefault = Template.bind();
+PopoverDefault.args = {
+    anchorOrigin: {
+        vertical: "bottom",
+        horizontal: "center",
+    },
+    transformOrigin: {
+        vertical: "center",
+        horizontal: "left",
+    },
+    sx: popOverStyle,
+};
+
+export default { component: Popover, title: "Popover" };

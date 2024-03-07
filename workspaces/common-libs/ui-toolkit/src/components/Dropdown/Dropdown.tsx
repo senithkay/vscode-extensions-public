@@ -32,6 +32,7 @@ export interface DropdownProps {
     items?: OptionProps[];
     errorMsg?: string;
     sx?: any;
+    containerSx?: any;
     onChange?: (value: string) => void;
 }
 
@@ -63,10 +64,10 @@ const LabelContainer = styled.div<ContainerProps>`
 `;
 
 export const Dropdown: React.FC<DropdownProps> = (props: DropdownProps) => {
-    const { isLoading, isRequired, value, id, items, label, errorMsg, disabled, sx, onChange } = props;
+    const { isLoading, isRequired, value, id, items, label, errorMsg, disabled, sx, containerSx, onChange } = props;
 
     return (
-        <Container>
+        <Container sx={containerSx}>
             {isLoading ? (
                 <SmallProgressRing />
             ) : (

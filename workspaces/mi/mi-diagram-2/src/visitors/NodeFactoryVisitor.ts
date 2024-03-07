@@ -15,17 +15,22 @@ import { NodeModel } from "@projectstorm/react-diagrams";
 import { ConditionNodeModel } from "../components/nodes/ConditionNode/ConditionNodeModel";
 import { EndNodeModel } from "../components/nodes/EndNode/EndNodeModel";
 import { CallNodeModel } from "../components/nodes/CallNode/CallNodeModel";
-import { ENDPOINTS, MEDIATORS, NODE_GAP, NodeTypes } from "../resources/constants";
+import { ENDPOINTS, MEDIATORS, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { SourceNodeModel, TargetNodeModel, createNodesLink } from "../utils/diagram";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
+import { Diagnostic } from "vscode-languageserver-types";
 
+interface BranchData {
+    name: string;
+    diagnostics: Diagnostic[];
+}
 export class NodeFactoryVisitor implements Visitor {
     nodes: (MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel)[] = [];
     links: NodeLinkModel[] = [];
     private parents: STNode[] = [];
     private skipChildrenVisit = false;
     private previousSTNodes: STNode[] = [];
-    private currentBranchName: string;
+    private currentBranchData: BranchData;
     private currentAddPosition: Position;
     private documentUri: string;
 
@@ -39,44 +44,49 @@ export class NodeFactoryVisitor implements Visitor {
         if (type === NodeTypes.MEDIATOR_NODE) {
             diagramNode = new MediatorNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.CONDITION_NODE) {
-            diagramNode = new ConditionNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
+            diagramNode = new ConditionNodeModel(node, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.START_NODE) {
             diagramNode = new StartNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.END_NODE) {
             diagramNode = new EndNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.CALL_NODE) {
-            diagramNode = new CallNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes, data);
-        } else if (type === NodeTypes.EMPTY_NODE) {
-            diagramNode = new EmptyNodeModel(node);
+            diagramNode = new CallNodeModel(node, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes, data);
+        } else if (type === NodeTypes.EMPTY_NODE || type === NodeTypes.CONDITION_NODE_END) {
+            diagramNode = new EmptyNodeModel(node, this.documentUri);
         }
         diagramNode.setPosition(node.viewState.x, node.viewState.y);
-        this.nodes.push(diagramNode);
 
         // create link
-        if (this.previousSTNodes != undefined) {
+        if (this.previousSTNodes && this.previousSTNodes.length > 0) {
             for (let i = 0; i < this.previousSTNodes.length; i++) {
                 const previousStNode = this.previousSTNodes[i];
-                const previousNodes = this.nodes.filter((node) => node.getStNode() == previousStNode && node.getType() !== NodeTypes.END_NODE);
-                for (let j = 0; j < previousNodes.length; j++) {
-                    const previousNode = previousNodes[j];
-                    const link = createNodesLink(
-                        previousNode as SourceNodeModel,
-                        diagramNode as TargetNodeModel,
-                        {
-                            label: this.currentBranchName,
-                            stRange: this.currentAddPosition ?? (previousStNode.range.endTagRange?.end ? previousStNode.range.endTagRange.end : previousStNode.range.startTagRange.end),
-                            brokenLine: type === NodeTypes.EMPTY_NODE || previousNode instanceof EmptyNodeModel,
-                            previousNode: previousStNode.tag,
-                            parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
-                        }
-                    );
-                    this.links.push(link);
-                    this.currentBranchName = undefined;
-                    this.currentAddPosition = undefined;
-                }
+                const previousNodes = this.nodes.filter((node) => JSON.stringify(node.getStNode().range) === JSON.stringify(previousStNode.range));
+                const previousNode = previousNodes[previousNodes.length - 1];
+
+                const isSequnceConnect = diagramNode instanceof StartNodeModel && previousNode instanceof EndNodeModel;
+                const isEmptyNodeConnect = diagramNode instanceof EmptyNodeModel && previousNode instanceof EmptyNodeModel;
+
+                const link = createNodesLink(
+                    previousNode as SourceNodeModel,
+                    diagramNode as TargetNodeModel,
+                    {
+                        label: this.currentBranchData?.name,
+                        stRange: this.currentAddPosition ?? (previousStNode.range.endTagRange?.end ? previousStNode.range.endTagRange.end : previousStNode.range.startTagRange.end),
+                        brokenLine: type === NodeTypes.EMPTY_NODE || isSequnceConnect || isEmptyNodeConnect,
+                        previousNode: previousStNode.tag,
+                        parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
+                        showArrow: !isSequnceConnect,
+                        showAddButton: !isSequnceConnect,
+                        diagnostics: this.currentBranchData?.diagnostics || [],
+                    }
+                );
+                this.links.push(link);
+                this.currentBranchData = undefined;
+                this.currentAddPosition = undefined;
             }
         }
 
+        this.nodes.push(diagramNode);
         this.previousSTNodes = [node];
     }
 
@@ -85,19 +95,21 @@ export class NodeFactoryVisitor implements Visitor {
         // travers sub sequences
         for (let i = 0; i < sequenceKeys.length; i++) {
             const sequence = subSequences[sequenceKeys[i]];
-            if (sequence && sequence.mediatorList && sequence.mediatorList.length > 0) {
-                this.previousSTNodes = [node];
-                this.currentBranchName = sequenceKeys[i];
+            if (sequence) {
+                if (sequence.mediatorList && sequence.mediatorList.length > 0) {
+                    this.previousSTNodes = [node];
+                    this.currentBranchData = { name: sequenceKeys[i], diagnostics: sequence.diagnostics };
 
-                this.currentAddPosition = sequence.range.startTagRange.end;
-                (sequence.mediatorList as any).forEach((childNode: STNode) => {
-                    traversNode(childNode, this);
-                });
-            } else {
-                this.currentBranchName = sequenceKeys[i];
-                this.previousSTNodes = [node];
-                this.currentAddPosition = sequence.range.startTagRange.end;
-                this.createNodeAndLinks(sequence, "", NodeTypes.EMPTY_NODE);
+                    this.currentAddPosition = sequence.range.startTagRange.end;
+                    (sequence.mediatorList as any).forEach((childNode: STNode) => {
+                        traversNode(childNode, this);
+                    });
+                } else {
+                    this.currentBranchData = { name: sequenceKeys[i], diagnostics: sequence.diagnostics };
+                    this.previousSTNodes = [node];
+                    this.currentAddPosition = sequence.range.startTagRange.end;
+                    this.createNodeAndLinks(sequence, "", NodeTypes.EMPTY_NODE);
+                }
             }
         }
 
@@ -105,13 +117,24 @@ export class NodeFactoryVisitor implements Visitor {
         this.previousSTNodes = [];
         for (let i = 0; i < sequenceKeys.length; i++) {
             const sequence = subSequences[sequenceKeys[i]];
-            if (sequence && sequence.mediatorList && sequence.mediatorList.length > 0) {
-                const lastNode = (sequence.mediatorList as any)[(sequence.mediatorList as any).length - 1];
-                this.previousSTNodes.push(lastNode);
-            } else {
-                this.previousSTNodes.push(subSequences[sequenceKeys[i]]);
+            if (sequence) {
+                if (sequence.mediatorList && sequence.mediatorList.length > 0) {
+                    const lastNode = (sequence.mediatorList as any)[(sequence.mediatorList as any).length - 1];
+                    this.previousSTNodes.push(lastNode);
+                } else {
+                    this.previousSTNodes.push(subSequences[sequenceKeys[i]]);
+                }
             }
         }
+
+        // add empty node
+        this.currentBranchData = undefined;
+        this.currentAddPosition = node.range.endTagRange.start;
+        const eNode = structuredClone(node);
+        eNode.viewState.id = JSON.stringify(eNode.range.endTagRange) + "_end";
+        eNode.viewState.y = eNode.viewState.y + eNode.viewState.fh;
+        eNode.viewState.x = eNode.viewState.x + eNode.viewState.w / 2 - NODE_DIMENSIONS.EMPTY.WIDTH / 2;
+        this.createNodeAndLinks(eNode, "", NodeTypes.CONDITION_NODE_END);
     }
 
     getNodes(): NodeModel[] {
@@ -163,24 +186,25 @@ export class NodeFactoryVisitor implements Visitor {
     }
     endVisitInSequence(node: Sequence): void {
         node.viewState.y = node.viewState.fh + NODE_GAP.Y;
-        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.endTagRange.end);
+        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE);
         this.parents.pop();
-        this.previousSTNodes = undefined;
+        this.previousSTNodes = [node];
     }
 
     beginVisitOutSequence(node: Sequence): void {
         const addPosition = {
-            line: node.range.startTagRange.end.line,
+            line: node.range.startTagRange.start.line,
             character: node.range.startTagRange.end.character
         }
         this.currentAddPosition = addPosition;
         this.createNodeAndLinks(node, "", NodeTypes.START_NODE);
+        this.currentAddPosition = addPosition;
         this.parents.push(node);
     }
     endVisitOutSequence(node: Sequence): void {
         const lastNode = this.nodes[this.nodes.length - 1].getStNode();
         node.viewState.y = lastNode.viewState.y + Math.max(lastNode.viewState.h, lastNode.viewState.fh || 0) + NODE_GAP.Y;
-        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.endTagRange.end);
+        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE);
         this.parents.pop();
         this.previousSTNodes = undefined;
     }
@@ -197,7 +221,7 @@ export class NodeFactoryVisitor implements Visitor {
     endVisitFaultSequence(node: Sequence): void {
         const lastNode = this.nodes[this.nodes.length - 1].getStNode();
         node.viewState.y = lastNode.viewState.y + Math.max(lastNode.viewState.h, lastNode.viewState.fh || 0) + NODE_GAP.Y;
-        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.endTagRange.end);
+        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE);
         this.parents.pop();
         this.previousSTNodes = undefined;
     }
@@ -216,10 +240,52 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitPropertyGroup = (node: PropertyGroup): void => this.createNodeAndLinks(node, MEDIATORS.PROPERTYGROUP);
     beginVisitRespond = (node: Respond): void => this.createNodeAndLinks(node, MEDIATORS.RESPOND);
     beginVisitSend = (node: Send): void => this.createNodeAndLinks(node, MEDIATORS.SEND);
-    beginVisitSequence = (node: Sequence): void => this.createNodeAndLinks(node, MEDIATORS.SEQUENCE);
+
+    beginVisitSequence = (node: Sequence): void => {
+        const addPosition = {
+            line: node.range.startTagRange.start.line,
+            character: node.range.startTagRange.end.character
+        }
+        this.currentAddPosition = addPosition;
+
+        const isSequnce = node.mediatorList && node.mediatorList.length > 0;
+        if (!isSequnce) {
+            this.createNodeAndLinks(node, MEDIATORS.SEQUENCE);
+        } else {
+            this.createNodeAndLinks(node, "", NodeTypes.START_NODE);
+        }
+        this.parents.push(node);
+    }
+    endVisitSequence(node: Sequence): void {
+        const isSequnce = node.mediatorList && node.mediatorList.length > 0;
+
+        if (isSequnce) {
+            const lastNode = this.nodes[this.nodes.length - 1].getStNode();
+            node.viewState.y = lastNode.viewState.y + Math.max(lastNode.viewState.h, lastNode.viewState.fh || 0) + NODE_GAP.Y;
+            this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.endTagRange.end);
+            this.parents.pop();
+            this.previousSTNodes = undefined;
+        }
+    }
+
     beginVisitStore = (node: Store): void => this.createNodeAndLinks(node, MEDIATORS.STORE);
     beginVisitThrottle = (node: Throttle): void => this.createNodeAndLinks(node, MEDIATORS.THROTTLE);
-    beginVisitValidate = (node: Validate): void => this.createNodeAndLinks(node, MEDIATORS.VALIDATE);
+
+    // beginVisitValidate = (node: Validate): void => this.createNodeAndLinks(node, MEDIATORS.VALIDATE);
+    beginVisitValidate(node: Validate): void {
+        this.createNodeAndLinks(node, MEDIATORS.VALIDATE, NodeTypes.CONDITION_NODE)
+        this.parents.push(node);
+
+        this.visitSubSequences(node, {
+            OnFail: node.onFail,
+        });
+        this.skipChildrenVisit = true;
+    }
+    endVisitValidate(node: Validate): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+
     beginVisitWithParam = (node: WithParam): void => this.createNodeAndLinks(node, "");
     beginVisitCallTemplate = (node: CallTemplate): void => this.createNodeAndLinks(node, MEDIATORS.CALLTEMPLATE);
 

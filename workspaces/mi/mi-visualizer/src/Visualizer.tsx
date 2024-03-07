@@ -48,7 +48,7 @@ export function Visualizer({ mode }: { mode: string }) {
             {(() => {
                 switch (mode) {
                     case "visualizer":
-                        return <VisualizerComponent state={state}/>
+                        return <VisualizerComponent state={state} />
                     // TODO: Below is to render another webview in the activity panel
                     // case "activityPanel":
                     //     return <ActivityPanelComponent state={state}/>
@@ -61,11 +61,9 @@ export function Visualizer({ mode }: { mode: string }) {
 const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue }) => {
     switch (true) {
         case typeof state === 'object' && 'ready' in state:
-            return <MainPanel state={state} />;
-        case typeof state === 'object' && 'newProject' in state && state.newProject === "welcome":
+            return <MainPanel />;
+        case typeof state === 'object' && 'newProject' in state && state.newProject === "viewReady":
             return <GettingStarted />;
-        case typeof state === 'object' && 'newProject' in state && state.newProject === "create":
-            return <ProjectWizard />;
 
         default:
             return (

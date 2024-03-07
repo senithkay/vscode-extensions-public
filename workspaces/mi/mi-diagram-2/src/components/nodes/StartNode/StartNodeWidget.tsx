@@ -31,6 +31,7 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine } = props;
     return (
         <S.Node>
+            <PortWidget port={node.getPort("in")!} engine={engine} />
             <svg width="24" height="24" viewBox="0 0 32 32">
                 <circle cx="16" cy="16" r="10" fill={Colors.PRIMARY} />
                 <path

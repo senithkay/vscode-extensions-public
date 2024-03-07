@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MachineStateValue, VisualizerLocation } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MACHINE_VIEW, MachineStateValue } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Overview } from './views/Overview';
 import { ServiceDesignerView } from './views/ServiceDesigner';
@@ -54,6 +54,8 @@ const FadeInContainer = styled.div`
 const MainContent = styled.div`
     flex-grow: 1;
 `;
+import { LocalEntryWizard } from './views/Forms/LocalEntryForm';
+import { RegistryResourceForm } from './views/Forms/RegistryResourceForm';
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -70,9 +72,7 @@ const ProgressRing = styled(VSCodeProgressRing)`
     padding: 4px;
 `;
 
-const MainPanel = (props: { state: MachineStateValue }) => {
-    const { state } = props;
-    const { rpcClient } = useVisualizerContext();
+const MainPanel = () => {
     const [machineView, setMachineView] = useState<VisualizerLocation>(null);
     const [mainState, setMainState] = React.useState<MachineStateValue>(state);
     const [component, setComponent] = useState<JSX.Element | null>(null);
@@ -104,85 +104,87 @@ const MainPanel = (props: { state: MachineStateValue }) => {
             window.removeEventListener('keydown', handleKeyDown);
         };
     }, []);
+                
+    const [viewComponent, setViewComponent] = useState<React.ReactNode>();
 
-    useEffect(() => {
-        
-        if (typeof mainState === 'object' && 'ready' in mainState && mainState.ready === 'viewReady') {
-            try {
-                rpcClient.getVisualizerState().then((mState) => {
-                    setMachineView(mState);
-                });
-            } catch (error) {
+    const fetchContext = () => {
+        rpcClient.getVisualizerState().then((machineView) => {
+            switch (machineView?.view) {
+                case MACHINE_VIEW.Overview:
+                    setViewComponent(<Overview />);
+                    break;
+                case MACHINE_VIEW.Diagram:
+                    rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri }).then((st) => {
+                        if (!st?.syntaxTree) {
+                            return;
+                        }
 
+                        rpcClient.getMiDiagramRpcClient().getDiagnostics({ documentUri: machineView.documentUri }).then((diagnostics) => {
+
+                            const identifier = machineView.identifier;
+                            let model;
+                            if (identifier != undefined && st.syntaxTree.api?.resource) {
+                                model = st.syntaxTree.api.resource[identifier];
+                            } else if (st.syntaxTree.sequence) {
+                                model = st.syntaxTree.sequence;
+                            }
+                            setViewComponent(<Diagram model={model} documentUri={machineView.documentUri} diagnostics={diagnostics.diagnostics} />);
+                        });
+                    });
+                    rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
+                    break;
+                case MACHINE_VIEW.ServiceDesigner:
+                    setViewComponent(<ServiceDesignerView />);
+                    break;
+                case MACHINE_VIEW.APIForm:
+                    setViewComponent(<APIWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.EndPointForm:
+                    setViewComponent(<EndpointWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.SequenceForm:
+                    setViewComponent(<SequenceWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.InboundEPForm:
+                    setViewComponent(<InboundEPWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.RegistryResourceForm:
+                    setViewComponent(<RegistryResourceForm path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.ProjectCreationForm:
+                    setViewComponent(<ProjectWizard />);
+                    break;
+                case MACHINE_VIEW.LocalEntryForm:
+                    setViewComponent(<LocalEntryWizard />);
+                    break;
+                default:
+                    setViewComponent(null);
             }
-        }
-
-        rpcClient.onFileContentUpdate(() => {
-            setLastUpdated(Date.now());
         });
-    }, [mainState]);
+    }
 
-    useEffect(() => {
-        if (machineView) {
-            OverviewComponent();
-        }
-
-    }, [machineView, lastUpdated]);
-
-    const OverviewComponent = () => {
-        switch (machineView.view) {
-            case "Overview":
-                setComponent(<Overview />);
-                break;
-            case "Diagram":
-                rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri }).then((st) => {
-                    const identifier = machineView.identifier || machineView.identifier === undefined;
-                    if (identifier && st?.syntaxTree?.api?.resource) {
-                        const resourceNode = st?.syntaxTree?.api.resource.find((resource: any) => (resource.uriTemplate === machineView.identifier) || resource.uriTemplate === undefined);
-                        setComponent(<Diagram model={resourceNode} documentUri={machineView.documentUri} />);
-                    }
-                });
-                break;
-            case "ServiceDesigner":
-                setComponent(<ServiceDesignerView />);
-                break;
-            case "APIForm":
-                setComponent(<APIWizard />);
-                break;
-            case "EndPointForm":
-                setComponent(<EndpointWizard />);
-                break;
-            case "SequenceForm":
-                setComponent(<SequenceWizard />);
-                break;
-            case "InboundEPForm":
-                setComponent(<InboundEPWizard />);
-                break;
-            case "ProjectCreationForm":
-                setComponent(<ProjectWizard />);
-                break;
-        }
-    };
     return (
-            
-            <Allotment >
-                <MainContent>
-                    {!component ? (
-                        <LoaderWrapper>
-                            <ProgressRing />
-                        </LoaderWrapper>
-                    ) : <div>
-                        <NavigationBar />
-                        {component}
-                    </div>}
-                </MainContent>
-                {showAIWindow && (
-                <FadeInContainer>
-                    {machineView.view == "Overview" ? <AIOverviewWindow /> : <AIArtifactWindow />}
-                </FadeInContainer>
-        )}       
-             </Allotment>
+        <Allotment >
+        <div style={{
+            overflow: "hidden",
+        }}>
+            {!viewComponent ? (
+                <LoaderWrapper>
+                    <ProgressRing />
+                </LoaderWrapper>
+            ) : <div>
+                <NavigationBar />
+                {viewComponent}
+            </div>}
+        </div>
+        {showAIWindow && (
+        <FadeInContainer>
+            {machineView.view == "Overview" ? <AIOverviewWindow /> : <AIArtifactWindow />}
+        </FadeInContainer>
+        )}
+        </Allotment>
+
     );
 };
 
-export default MainPanel;
+export default MainPanel;   

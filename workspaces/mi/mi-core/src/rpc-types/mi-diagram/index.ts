@@ -7,7 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ApiDirectoryResponse, ApplyEditRequest, ApplyEditResponse, CommandsRequest, CommandsResponse, ConnectorRequest, ConnectorResponse, ConnectorsResponse, CreateAPIRequest, CreateAPIResponse, CreateEndpointRequest, CreateEndpointResponse, CreateSequenceRequest, CreateSequenceResponse, EndpointDirectoryResponse, EndpointsAndSequencesResponse, ProjectRootResponse, OpenDiagramRequest, SequenceDirectoryResponse, ShowErrorMessageRequest, getSTRequest, getSTResponse, CreateProjectRequest, ProjectDirResponse, CreateProjectResponse, ESBConfigsResponse, HighlightCodeRequest, AIUserInput, WriteContentToFileRequest, WriteContentToFileResponse, InboundEndpointDirectoryResponse, CreateInboundEndpointRequest, CreateInboundEndpointResponse, GetWorkspaceContextResponse, GetProjectUuidResponse } from "./types";
+
+
+import { ApiDirectoryResponse, ApplyEditRequest, ApplyEditResponse, CommandsRequest, CommandsResponse, ConnectorRequest, ConnectorResponse, ConnectorsResponse, CreateAPIRequest, CreateAPIResponse, CreateEndpointRequest, CreateEndpointResponse, CreateSequenceRequest, CreateSequenceResponse, EndpointDirectoryResponse, EndpointsAndSequencesResponse, ProjectRootResponse, OpenDiagramRequest, SequenceDirectoryResponse, ShowErrorMessageRequest, getSTRequest, getSTResponse, CreateProjectRequest, ProjectDirResponse, CreateProjectResponse, ESBConfigsResponse, HighlightCodeRequest, AIUserInput, WriteContentToFileRequest, WriteContentToFileResponse, CreateLocalEntryRequest, CreateLocalEntryResponse, FileDirResponse, LocalEntryDirectoryResponse, InboundEndpointDirectoryResponse, CreateInboundEndpointRequest, CreateInboundEndpointResponse, UndoRedoParams, GetDefinitionRequest, GetDefinitionResponse, GetTextAtRangeRequest, GetTextAtRangeResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, GetInboundEpDirRequest, GetProjectRootRequest, BrowseFileResponse, CreateRegistryResourceRequest, CreateRegistryResourceResponse, BrowseFileRequest, GetWorkspaceContextResponse, GetProjectUuidResponse  } from "./types";
+
 
 export interface MiDiagramAPI {
     executeCommand: (params: CommandsRequest) => Promise<CommandsResponse>;
@@ -20,23 +23,34 @@ export interface MiDiagramAPI {
     getAPIDirectory: () => Promise<ApiDirectoryResponse>;
     createAPI: (params: CreateAPIRequest) => Promise<CreateAPIResponse>;
     getEndpointDirectory: () => Promise<EndpointDirectoryResponse>;
+    getLocalEntryDirectory: () => Promise<LocalEntryDirectoryResponse>;
     createEndpoint: (params: CreateEndpointRequest) => Promise<CreateEndpointResponse>;
+    createLocalEntry: (params: CreateLocalEntryRequest) => Promise<CreateLocalEntryResponse>;
     getEndpointsAndSequences: () => Promise<EndpointsAndSequencesResponse>;
     getSequenceDirectory: () => Promise<SequenceDirectoryResponse>;
     createSequence: (params: CreateSequenceRequest) => Promise<CreateSequenceResponse>;
-    getInboundEndpointDirectory: () => Promise<InboundEndpointDirectoryResponse>;
+    getInboundEndpointDirectory: (params: GetInboundEpDirRequest) => Promise<InboundEndpointDirectoryResponse>;
     createInboundEndpoint: (params: CreateInboundEndpointRequest) => Promise<CreateInboundEndpointResponse>;
     closeWebView: () => void;
     openDiagram: (params: OpenDiagramRequest) => void;
     openFile: (params: OpenDiagramRequest) => void;
     closeWebViewNotification: () => void;
-    getProjectRoot: () => Promise<ProjectRootResponse>;
+    getWorkspaceRoot: () => Promise<ProjectRootResponse>;
+    getProjectRoot: (params: GetProjectRootRequest) => Promise<ProjectRootResponse>;
     askProjectDirPath: () => Promise<ProjectDirResponse>;
+    askFileDirPath: () => Promise<FileDirResponse>;
     createProject: (params: CreateProjectRequest) => Promise<CreateProjectResponse>;
     getAIResponse: (params: AIUserInput) => Promise<string>;
     writeContentToFile: (params: WriteContentToFileRequest) => Promise<WriteContentToFileResponse>;
     highlightCode: (params: HighlightCodeRequest) => void;
     getWorkspaceContext: () => Promise<GetWorkspaceContextResponse>;
     getProjectUuid: () => Promise<GetProjectUuidResponse>;
-
+    initUndoRedoManager: (params: UndoRedoParams) => void;
+    undo: (params: UndoRedoParams) => void;
+    redo: (params: UndoRedoParams) => void;
+    getDefinition: (params: GetDefinitionRequest) => Promise<GetDefinitionResponse>;
+    getTextAtRange: (params: GetTextAtRangeRequest) => Promise<GetTextAtRangeResponse>;
+    getDiagnostics: (params: GetDiagnosticsReqeust) => Promise<GetDiagnosticsResponse>;
+    browseFile: (params: BrowseFileRequest) => Promise<BrowseFileResponse>;
+    createRegistryResource: (params: CreateRegistryResourceRequest) => Promise<CreateRegistryResourceResponse>;
 }

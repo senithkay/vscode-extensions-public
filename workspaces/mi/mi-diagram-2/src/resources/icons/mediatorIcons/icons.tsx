@@ -10,7 +10,7 @@
 import React from "react";
 import { ENDPOINTS, MEDIATORS } from "../../constants";
 
-export function getSVGIcon(mediator: string) {
+export function getSVGIcon(mediator: string, returnPath: boolean = false) {
     let icon = null;
     switch (mediator.toLowerCase()) {
         // Mediators
@@ -123,7 +123,7 @@ export function getSVGIcon(mediator: string) {
         // Endpoints
         case ENDPOINTS.ADDRESS.toLowerCase():
             icon = require("./AddressEndPoint.svg");
-            break;    
+            break;
         case ENDPOINTS.DEFAULT.toLowerCase():
             icon = require("./DefaultEndPoint.svg");
             break;
@@ -149,7 +149,7 @@ export function getSVGIcon(mediator: string) {
         //     icon = require("./WSDL.svg");
         //     break;
         default:
-            icon = require("./Default.svg");    
+            icon = require("./Default.svg");
     }
-    return <img src={icon} alt={mediator} />;
+    return returnPath ? icon : <img src={icon} alt={mediator} />;
 }

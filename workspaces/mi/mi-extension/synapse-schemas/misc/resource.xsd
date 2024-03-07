@@ -40,17 +40,11 @@
         </xs:all>
         <xs:attribute name="methods" use="required">
             <xs:simpleType>
-                <xs:restriction base="xs:token">
-                    <xs:enumeration value="GET"/>
-                    <xs:enumeration value="POST"/>
-                    <xs:enumeration value="PUT"/>
-                    <xs:enumeration value="DELETE"/>
-                    <xs:enumeration value="OPTIONS"/>
-                    <xs:enumeration value="HEAD"/>
-                    <xs:enumeration value="PATCH"/>
+                <xs:restriction base="xs:string">
+                    <xs:pattern
+                        value="(GET|POST|PUT|DELETE|OPTIONS|HEAD|PATCH)( (GET|POST|PUT|DELETE|OPTIONS|HEAD|PATCH))*" />
                 </xs:restriction>
             </xs:simpleType>
-
         </xs:attribute>
          <xs:attribute name="protocol" use="optional">
             <xs:simpleType>

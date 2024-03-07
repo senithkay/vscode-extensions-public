@@ -8,17 +8,18 @@
  */
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import { AutoComplete, Button, TextField } from "@wso2-enterprise/ui-toolkit";
-import { SectionWrapper } from "./Commons";
+import { AutoComplete, Button, Codicon, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { FieldGroup, SectionWrapper } from "./Commons";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { CreateEndpointRequest, EndpointDirectoryResponse } from "@wso2-enterprise/mi-core";
+import { CreateEndpointRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 
 const WizardContainer = styled.div`
-    width: 95%;
-    display  : flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 95vw;
+    height: calc(100vh - 140px);
+    overflow: auto;
 `;
 
 const ActionContainer = styled.div`
@@ -49,7 +50,19 @@ export interface Region {
     value: string;
 }
 
-export function EndpointWizard() {
+const Container = styled.div`
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+    align-items: center;
+    justify-content: flex-start;
+`;
+
+export interface EndpointWizardProps {
+    path: string;
+}
+
+export function EndpointWizard(props: EndpointWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
     const [endpointName, setEndpointName] = useState("");
@@ -98,7 +111,7 @@ export function EndpointWizard() {
     };
 
     const handleCreateEndpoint = async () => {
-        const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot()).path;
+        const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({path: props.path})).path;
         const endpointDir = `${projectDir}/src/main/wso2mi/artifacts/endpoints`;
         const createEndpointParams: CreateEndpointRequest = {
             directory: endpointDir,
@@ -111,13 +124,43 @@ export function EndpointWizard() {
         }
         const file = await rpcClient.getMiDiagramRpcClient().createEndpoint(createEndpointParams);
 
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
         rpcClient.getMiDiagramRpcClient().openFile(file);
     };
 
     const handleCancel = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ view: "Overview" });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
+
+    const validateEndpointName = (name: string) => {
+        // Check if the name is empty
+        if (!name.trim()) {
+            return "Enpoint name is required";
+        }
+
+        // Check if the name contains spaces or special characters
+        if (/[\s~`!@#$%^&*()_+={}[\]:;'",.<>?/\\|]+/.test(name)) {
+            return "Endpoint name cannot contain spaces or special characters";
+        }
+        return "";
+    };
+
+    const validateAddress = (name: string) => {
+        // Check if the name is empty
+        if (!name.trim()) {
+            return "Address is required";
+        }
+
+        // Check if the name is a valid HTTP address
+        const httpRegex = /^(http:\/\/|https:\/\/)/;
+        if (!httpRegex.test(name)) {
+            return "Provide a valid HTTP address";
+        }
+    };
+
+    const handleBackButtonClick = () => {
+        rpcClient.getMiVisualizerRpcClient().goBack();
+    }
 
     const isValid: boolean = endpointName.length > 0 &&
         endpointType.length > 0 &&
@@ -126,23 +169,28 @@ export function EndpointWizard() {
 
     return (
         <WizardContainer>
-            <TitleWrapper>
-                <h2>New Endpoint Artifact</h2>
-            </TitleWrapper>
             <SectionWrapper>
-                <h3>Endpoint Artifact</h3>
+                <Container>
+                    <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
+                    <div style={{ marginLeft: 30 }}>
+                        <Typography variant="h3">Endpoint Artifact</Typography>
+                    </div>
+                </Container>
                 <TextField
                     value={endpointName}
                     id='name-input'
                     label="Endpoint Name"
                     placeholder="Name"
-                    validationMessage="Endpoint name is required"
                     onChange={(text: string) => setEndpointName(text)}
+                    errorMsg={validateEndpointName(endpointName)}
+                    size={46}
                     autoFocus
                     required
                 />
-                <span>Endpoint Type</span>
-                <AutoComplete items={endpointTypes} selectedItem={endpointType} onChange={handleEndpointTypeChange}></AutoComplete>
+                <FieldGroup>
+                    <span>Endpoint Type</span>
+                    <AutoComplete sx={{ width: '370px' }} items={endpointTypes} selectedItem={endpointType} onChange={handleEndpointTypeChange}></AutoComplete>
+                </FieldGroup>
                 {endpointType === "Address Endpoint" && (
                     <TextField
                         placeholder="Address"
@@ -150,57 +198,63 @@ export function EndpointWizard() {
                         onChange={(text: string) => setAddress(text)}
                         value={address}
                         id='address-input'
+                        errorMsg={validateAddress(address)}
+                        size={46}
                     />)}
-                <h5>Endpoint Configuration</h5>
-                {endpointType === "HTTP Endpoint" && (
-                    <>
-                        <TextField
-                            placeholder="URI Template"
-                            label="URI Template"
-                            onChange={(text: string) => setURITemplate(text)}
-                            value={URITemplate}
-                            id='uri-template-input'
-                        />
-                        <span>Endpoint Type</span>
-                        <AutoComplete items={methodsTypes} selectedItem={method} onChange={handleMethodChange}></AutoComplete>
-                    </>
+
+                <FieldGroup>
+                    <h5>Endpoint Configuration</h5>
+                    {endpointType === "HTTP Endpoint" && (
+                        <>
+                            <TextField
+                                placeholder="URI Template"
+                                label="URI Template"
+                                onChange={(text: string) => setURITemplate(text)}
+                                value={URITemplate}
+                                id='uri-template-input'
+                                size={46}
+                            />
+                            <span>Endpoint Type</span>
+                            <AutoComplete sx={{ width: '370px' }} items={methodsTypes} selectedItem={method} onChange={handleMethodChange}></AutoComplete>
+                        </>
                     )}
-                <RadioBtnContainer>
-                    <label>
-                        <input
-                            type="radio"
-                            value={endpointConfigurations[0]}
-                            checked={endpointConfiguration === endpointConfigurations[0]}
-                            onChange={handleEndpointConfigurationChange}
-                        />
-                        {endpointConfigurations[0]}
-                    </label>
-                    <label>
-                        <input
-                            type="radio"
-                            value={endpointConfigurations[1]}
-                            checked={endpointConfiguration === endpointConfigurations[1]}
-                            onChange={handleEndpointConfigurationChange}
-                        />
-                        {endpointConfigurations[1]}
-                    </label>
-                </RadioBtnContainer>
+                    <RadioBtnContainer>
+                        <label>
+                            <input
+                                type="radio"
+                                value={endpointConfigurations[0]}
+                                checked={endpointConfiguration === endpointConfigurations[0]}
+                                onChange={handleEndpointConfigurationChange}
+                            />
+                            {endpointConfigurations[0]}
+                        </label>
+                        <label>
+                            <input
+                                type="radio"
+                                value={endpointConfigurations[1]}
+                                checked={endpointConfiguration === endpointConfigurations[1]}
+                                onChange={handleEndpointConfigurationChange}
+                            />
+                            {endpointConfigurations[1]}
+                        </label>
+                    </RadioBtnContainer>
+                </FieldGroup>
+                <ActionContainer>
+                    <Button
+                        appearance="secondary"
+                        onClick={handleCancel}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        appearance="primary"
+                        onClick={handleCreateEndpoint}
+                        disabled={!isValid}
+                    >
+                        Create
+                    </Button>
+                </ActionContainer>
             </SectionWrapper>
-            <ActionContainer>
-                <Button
-                    appearance="secondary"
-                    onClick={handleCancel}
-                >
-                    Cancel
-                </Button>
-                <Button
-                    appearance="primary"
-                    onClick={handleCreateEndpoint}
-                    disabled={!isValid}
-                >
-                    Create
-                </Button>
-            </ActionContainer>
         </WizardContainer>
     );
 }

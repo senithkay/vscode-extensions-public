@@ -24,10 +24,14 @@ import { OverlayLayerModel } from "./OverlayLoader/OverlayLayerModel";
 import styled from "@emotion/styled";
 import { Colors } from "../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
+import { Diagnostic } from "vscode-languageserver-types";
 
 export interface DiagramProps {
     model: APIResource | Sequence;
     documentUri: string;
+    diagnostics?: Diagnostic[];
 }
 
 export enum DiagramType {
@@ -52,10 +56,13 @@ namespace S {
 }
 
 const SIDE_PANEL_WIDTH = 450;
+
 export function Diagram(props: DiagramProps) {
-    const { model } = props;
+    const { model , diagnostics } = props;
     const [diagramDataMap, setDiagramDataMap] = useState(new Map());
+    const { rpcClient } = useVisualizerContext();
     const [isTabPaneVisible, setTabPaneVisible] = useState(true);
+    const [isSequence, setSequence] = useState(false);
     const [isFaultFlow, setFlow] = useState(false);
     const toggleFlow = () => {
         setFlow(!isFaultFlow);
@@ -94,6 +101,12 @@ export function Diagram(props: DiagramProps) {
 
         const modelCopy = Object.assign({}, model);
         delete (modelCopy as APIResource).faultSequence;
+
+        if (STNode.tag !== "resource") {
+            setTabPaneVisible(false);
+            setSequence(true);
+        }
+
         const key = JSON.stringify((STNode as APIResource).inSequence) + JSON.stringify((STNode as APIResource).outSequence);
 
         if (diagramDataMap.get(DiagramType.FLOW) !== key && !isFaultFlow) {
@@ -121,6 +134,19 @@ export function Diagram(props: DiagramProps) {
         }
         updateDiagramData(flows);
 
+        const mouseTrapClient = KeyboardNavigationManager.getClient();
+        mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], async () => {
+            rpcClient.getMiDiagramRpcClient().undo({ path: props.documentUri });
+        });
+
+        mouseTrapClient.bindNewKey(['command+shift+z', 'ctrl+y', 'ctrl+shift+z'], async () => {
+            rpcClient.getMiDiagramRpcClient().redo({ path: props.documentUri });
+        });
+
+        return () => {
+            mouseTrapClient.resetMouseTrapInstance();
+        }
+
     }, [props.model, props.documentUri, isFaultFlow]);
 
     // center diagram when side panel is opened
@@ -135,8 +161,14 @@ export function Diagram(props: DiagramProps) {
             centerDiagram(true, faultModel, faultEngine, faultWidth);
         }
 
-        setTabPaneVisible(!sidePanelState.isOpen);
+        if (!isSequence) {
+            setTabPaneVisible(!sidePanelState.isOpen);
+        }
     }, [sidePanelState.isOpen]);
+
+    useEffect(() => {
+        setTabPaneVisible(!isSequence);
+    }, [isSequence]);
 
     const updateDiagramData = (data: DiagramData[]) => {
         const updatedDiagramData: any = {};
@@ -160,7 +192,7 @@ export function Diagram(props: DiagramProps) {
 
     const getDiagramData = (model: STNode) => {
         // run sizing visitor
-        const sizingVisitor = new SizingVisitor();
+        const sizingVisitor = new SizingVisitor(diagnostics || []);
         traversNode(model, sizingVisitor);
         const width = sizingVisitor.getSequenceWidth();
 

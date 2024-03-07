@@ -60,6 +60,7 @@ export function TextField(props: TextFieldProps) {
     return (
         <Container sx={sx}>
             <VSCodeTextField
+                style={{ width: "100%" }}
                 autoFocus={autoFocus}
                 type={type}
                 size={size}

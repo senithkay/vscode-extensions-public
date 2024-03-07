@@ -13,10 +13,8 @@ import { BaseNodeModel } from "../BaseNodeModel";
 
 export class MediatorNodeModel extends BaseNodeModel {
     readonly mediatorName: string;
-    readonly documentUri: string;
     constructor(stNode: STNode, mediatorName:string, documentUri:string, parentNode?: STNode, prevNodes: STNode[] = []) {
-        super(NodeTypes.MEDIATOR_NODE, stNode, parentNode, prevNodes);
+        super(NodeTypes.MEDIATOR_NODE, documentUri, stNode, parentNode, prevNodes);
         this.mediatorName = mediatorName;
-        this.documentUri = documentUri;
     }
 }

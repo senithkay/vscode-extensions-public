@@ -24,6 +24,8 @@ import {
     CreateEndpointResponse,
     CreateInboundEndpointRequest,
     CreateInboundEndpointResponse,
+    CreateLocalEntryRequest,
+    CreateLocalEntryResponse,
     CreateProjectRequest,
     CreateProjectResponse,
     CreateSequenceRequest,
@@ -35,21 +37,36 @@ import {
     GetWorkspaceContextResponse,
     HighlightCodeRequest,
     InboundEndpointDirectoryResponse,
+    GetDefinitionRequest,
+    GetDefinitionResponse,
+    GetDiagnosticsReqeust,
+    GetDiagnosticsResponse,
+    GetInboundEpDirRequest,
+    GetProjectRootRequest,
+    GetTextAtRangeRequest,
+    GetTextAtRangeResponse,
+    FileDirResponse,
+    HighlightCodeRequest,
+    InboundEndpointDirectoryResponse,
+    LocalEntryDirectoryResponse,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectDirResponse,
     ProjectRootResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
+    UndoRedoParams,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
     applyEdit,
+    askFileDirPath,
     askProjectDirPath,
     closeWebView,
     closeWebViewNotification,
     createAPI,
     createEndpoint,
     createInboundEndpoint,
+    createLocalEntry,
     createProject,
     createSequence,
     executeCommand,
@@ -57,9 +74,12 @@ import {
     getAPIDirectory,
     getConnector,
     getConnectors,
+    getDefinition,
+    getDiagnostics,
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
+    getLocalEntryDirectory,
     getInboundEndpointDirectory,
     getProjectRoot,
     getProjectUuid,
@@ -68,11 +88,22 @@ import {
     getSequenceDirectory,
     getSyntaxTree,
     getWorkspaceContext,
+    getTextAtRange,
+    getWorkspaceRoot,
     highlightCode,
+    initUndoRedoManager,
     openDiagram,
     openFile,
+    redo,
     showErrorMessage,
-    writeContentToFile
+    undo,
+    writeContentToFile,
+    BrowseFileRequest,
+    BrowseFileResponse,
+    browseFile,
+    CreateRegistryResourceRequest,
+    CreateRegistryResourceResponse,
+    createRegistryResource
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -127,6 +158,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     createEndpoint(params: CreateEndpointRequest): Promise<CreateEndpointResponse> {
         return this._messenger.sendRequest(createEndpoint, HOST_EXTENSION, params);
     }
+    
+    getLocalEntryDirectory(): Promise<LocalEntryDirectoryResponse> {
+        return this._messenger.sendRequest(getLocalEntryDirectory, HOST_EXTENSION);
+    }
+
+    createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse>{
+        return this._messenger.sendRequest(createLocalEntry, HOST_EXTENSION, params);
+    }
 
     getEndpointsAndSequences(): Promise<EndpointsAndSequencesResponse> {
         return this._messenger.sendRequest(getEndpointsAndSequences, HOST_EXTENSION);
@@ -140,8 +179,8 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(createSequence, HOST_EXTENSION, params);
     }
 
-    getInboundEndpointDirectory(): Promise<InboundEndpointDirectoryResponse> {
-        return this._messenger.sendRequest(getInboundEndpointDirectory, HOST_EXTENSION);
+    getInboundEndpointDirectory(params: GetInboundEpDirRequest): Promise<InboundEndpointDirectoryResponse> {
+        return this._messenger.sendRequest(getInboundEndpointDirectory, HOST_EXTENSION, params);
     }
 
     createInboundEndpoint(params: CreateInboundEndpointRequest): Promise<CreateInboundEndpointResponse> {
@@ -164,12 +203,20 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendNotification(closeWebViewNotification, HOST_EXTENSION);
     }
 
-    getProjectRoot(): Promise<ProjectRootResponse> {
-        return this._messenger.sendRequest(getProjectRoot, HOST_EXTENSION);
+    getWorkspaceRoot(): Promise<ProjectRootResponse> {
+        return this._messenger.sendRequest(getWorkspaceRoot, HOST_EXTENSION);
+    }
+
+    getProjectRoot(params: GetProjectRootRequest): Promise<ProjectRootResponse> {
+        return this._messenger.sendRequest(getProjectRoot, HOST_EXTENSION, params);
     }
 
     askProjectDirPath(): Promise<ProjectDirResponse> {
         return this._messenger.sendRequest(askProjectDirPath, HOST_EXTENSION);
+    }
+    
+    askFileDirPath(): Promise<FileDirResponse>{
+        return this._messenger.sendRequest(askFileDirPath, HOST_EXTENSION);
     }
 
     createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {
@@ -194,5 +241,36 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getProjectUuid(): Promise<GetProjectUuidResponse> {
         return this._messenger.sendRequest(getProjectUuid, HOST_EXTENSION);
+    }
+    initUndoRedoManager(params: UndoRedoParams): void {
+        return this._messenger.sendNotification(initUndoRedoManager, HOST_EXTENSION, params);
+    }
+
+    undo(params: UndoRedoParams): void {
+        return this._messenger.sendNotification(undo, HOST_EXTENSION, params);
+    }
+
+    redo(params: UndoRedoParams): void {
+        return this._messenger.sendNotification(redo, HOST_EXTENSION, params);
+    }
+
+    getDefinition(params: GetDefinitionRequest): Promise<GetDefinitionResponse> {
+        return this._messenger.sendRequest(getDefinition, HOST_EXTENSION, params);
+    }
+
+    getTextAtRange(params: GetTextAtRangeRequest): Promise<GetTextAtRangeResponse> {
+        return this._messenger.sendRequest(getTextAtRange, HOST_EXTENSION, params);
+    }
+
+    getDiagnostics(params: GetDiagnosticsReqeust): Promise<GetDiagnosticsResponse> {
+        return this._messenger.sendRequest(getDiagnostics, HOST_EXTENSION, params);
+    }
+
+    browseFile(params: BrowseFileRequest): Promise<BrowseFileResponse> {
+        return this._messenger.sendRequest(browseFile, HOST_EXTENSION, params);
+    }
+
+    createRegistryResource(params: CreateRegistryResourceRequest): Promise<CreateRegistryResourceResponse> {
+        return this._messenger.sendRequest(createRegistryResource, HOST_EXTENSION, params);
     }
 }
