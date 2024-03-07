@@ -14,10 +14,13 @@ import {
     EggplantModelResponse,
     Flow,
     Node,
-    UpdateNodeRequest
+    STModification,
+    UpdateNodeRequest,
+    UpdateNodeResponse
 } from "@wso2-enterprise/eggplant-core";
 import { Uri } from "vscode";
 import { StateMachine } from "../../stateMachine";
+import { writeFileSync } from "fs";
 
 export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     async getEggplantModel(): Promise<EggplantModelResponse> {
@@ -179,11 +182,55 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     }
 
     async updateNode(params: UpdateNodeRequest): Promise<void> {
-       const node : Node = params.node;
-       
-       const newNode: Node = { ...node };
-       delete newNode.viewState;
-        
-        // TODO: Add the LS call to get the modification array for the updated node
+        const node: Node = params.diagramNode;
+
+        const newNode: Node = { ...node };
+        delete newNode?.viewState;
+
+        const updatedNodeRequest = {
+            diagramNode: newNode
+        };
+        const response: UpdateNodeResponse = await StateMachine.langClient().getUpdatedNodeModifications(updatedNodeRequest);
+
+        if (response.textEdits && response.textEdits.length > 0) {
+            const modificationList: STModification[] = [];
+
+            for (const edit of response.textEdits) {
+                const stModification: STModification = {
+                    startLine: edit.range.start.line,
+                    startColumn: edit.range.start.character,
+                    endLine: edit.range.end.line,
+                    endColumn: edit.range.end.character,
+                    type: "INSERT",
+                    isImport: false,
+                    config: {
+                        "STATEMENT": edit.newText
+                    }
+                };
+
+                modificationList.push(stModification);
+            }
+
+            const context = StateMachine.context();
+            const fileUri = Uri.parse(context.documentUri!);
+
+            const { parseSuccess, source, syntaxTree: newST } =
+                await StateMachine.langClient().stModify({
+                    documentIdentifier: { uri: fileUri.toString() },
+                    astModifications: modificationList
+                });
+
+            if (parseSuccess) {
+                writeFileSync(fileUri.fsPath, source);
+                await StateMachine.langClient().didChange({
+                    textDocument: { uri: fileUri.toString(), version: 1 },
+                    contentChanges: [
+                        {
+                            text: source
+                        }
+                    ],
+                });
+            }
+        }
     }
 }

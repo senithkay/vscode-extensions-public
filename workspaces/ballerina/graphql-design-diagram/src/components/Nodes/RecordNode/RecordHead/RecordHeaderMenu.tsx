@@ -8,22 +8,14 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
-import React, { useState } from "react";
+import React from "react";
 
-import { Divider, ListItemIcon, ListItemText, MenuItem, MenuList, Paper } from "@material-ui/core";
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import Tooltip from "@mui/material/Tooltip";
-import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { ContextMenu, Item } from "@wso2-enterprise/ui-toolkit";
 
 import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
-import { FilterNodeMenuItem } from "../../../NodeActionMenu/FilterNodeMenuItem";
-import { GoToSourceMenuItem } from "../../../NodeActionMenu/GoToSourceMenuItem";
-import { useStyles } from "../../../NodeActionMenu/styles";
-import { NodeCategory } from "../../../NodeFilter";
-import { Colors, Position } from "../../../resources/model";
-import { getParentSTNodeFromRange } from "../../../utils/common-util";
-import { getSyntaxTree } from "../../../utils/ls-util";
+import { getRecordMenuItems } from "../../../MenuItems/menuItems";
+import { verticalIconStyle, verticalIconWrapper } from "../../../MenuItems/style";
+import { Position } from "../../../resources/model";
 
 interface RecordHeaderMenuProps {
     location: Position;
@@ -32,100 +24,18 @@ interface RecordHeaderMenuProps {
 
 export function RecordHeaderMenu(props: RecordHeaderMenuProps) {
     const { location, nodeName } = props;
-    const classes = useStyles();
+    const { recordEditor, langClientPromise, fullST, currentFile, goToSource, setFilteredNode } = useGraphQlContext();
 
-    const { recordEditor, langClientPromise, fullST, currentFile } = useGraphQlContext();
-
-    const [showTooltip, setTooltipStatus] = useState<boolean>(false);
-
-    const handleEditRecord = async () => {
-        let recordModel: STNode;
-        let currentST: STNode = fullST;
-        const nodePosition: NodePosition = {
-            endColumn: location.endLine.offset,
-            endLine: location.endLine.line,
-            startColumn: location.startLine.offset,
-            startLine: location.startLine.line
-        };
-        if (location.filePath === currentFile.path) {
-            const parentNode = getParentSTNodeFromRange(nodePosition, fullST);
-            recordModel = parentNode;
-        } else {
-            const syntaxTree: STNode = await getSyntaxTree(location.filePath, langClientPromise);
-            const parentNode = getParentSTNodeFromRange(nodePosition, syntaxTree);
-            recordModel = parentNode;
-            currentST = syntaxTree;
-        }
-        if (recordModel && (STKindChecker.isRecordTypeDesc(recordModel) || STKindChecker.isTypeDefinition(recordModel))) {
-            recordEditor(recordModel, location.filePath, currentST);
-        }
+    const getMenuItems = () => {
+        const menuItems: Item[] = getRecordMenuItems(location, nodeName, fullST, currentFile, recordEditor,
+            langClientPromise, setFilteredNode, goToSource);
+        return menuItems;
     }
 
     return (
         <>
             {location?.filePath && location?.startLine && location?.endLine &&
-            <Tooltip
-                open={showTooltip}
-                onClose={() => setTooltipStatus(false)}
-                title={
-                    <div onClick={() => setTooltipStatus(false)}>
-                        <Paper style={{ maxWidth: "100%" }}>
-                            <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
-                                <MenuItem onClick={() => handleEditRecord()} style={{ paddingTop: "0px", paddingBottom: "0px" }}>
-                                    <ListItemIcon style={{ marginRight: "10px", minWidth: "0px" }}>
-                                        <LabelEditIcon />
-                                    </ListItemIcon>
-                                    <ListItemText className={classes.listItemText}>Edit Record</ListItemText>
-                                </MenuItem>
-                                <Divider />
-                                <GoToSourceMenuItem location={location} />
-                                <FilterNodeMenuItem nodeType={{ name: nodeName, type: NodeCategory.RECORD }} />
-                            </MenuList>
-                        </Paper>
-                    </div>
-                }
-                PopperProps={{
-                    modifiers: [
-                        {
-                            name: 'offset',
-                            options: {
-                                offset: [0, -10],
-                            },
-                        },
-                    ],
-                }}
-                componentsProps={{
-                    tooltip: {
-                        sx: {
-                            backgroundColor: 'none',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                            padding: 0
-                        }
-                    },
-                    arrow: {
-                        sx: {
-                            color: '#efeeee'
-                        }
-                    }
-                }}
-                arrow={true}
-                placement="right"
-            >
-                <MoreVertIcon
-                    cursor="pointer"
-                    onClick={() => setTooltipStatus(true)}
-                    sx={{
-                        backgroundColor: `${Colors.SECONDARY}`,
-                        borderRadius: '30%',
-                        fontSize: '18px',
-                        margin: '0px',
-                        position: 'absolute',
-                        right: 2.5
-                    }}
-                />
-            </Tooltip>
+                <ContextMenu iconSx={verticalIconStyle} sx={verticalIconWrapper} menuItems={getMenuItems()} />
             }
         </>
     );

@@ -14,12 +14,13 @@ import { EmptyNodeFactory } from "../components/nodes/EmptyNode";
 import { OverlayLayerFactory } from "../components/OverlayLayer";
 import { DagreEngine } from "../resources/dagre/DagreEngine";
 import { NodeModel } from "./types";
+import { VerticalScrollCanvasAction } from "../actions/VerticalScrollCanvasAction";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
         registerDefaultDeleteItemsAction: false,
         registerDefaultZoomCanvasAction: false,
-        registerDefaultPanAndZoomCanvasAction: true,
+        registerDefaultPanAndZoomCanvasAction: false,
     });
 
     engine.getPortFactories().registerFactory(new NodePortFactory());
@@ -27,10 +28,12 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new BaseNodeFactory());
     engine.getNodeFactories().registerFactory(new EmptyNodeFactory());
     engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
+
+    engine.getActionEventBus().registerAction(new VerticalScrollCanvasAction());
     return engine;
 }
 
-export function registerListeners(engine: DiagramEngine){
+export function registerListeners(engine: DiagramEngine) {
     engine.getModel().registerListener({
         offsetUpdated: (event: any) => {
             saveDiagramZoomAndPosition(engine.getModel());
@@ -69,7 +72,6 @@ export function createNodesLink(sourceNode: NodeModel, targetNode: NodeModel, op
     link.setTargetNode(targetNode);
     return link;
 }
-
 
 // save diagram zoom level and position to local storage
 export const saveDiagramZoomAndPosition = (model: DiagramModel) => {

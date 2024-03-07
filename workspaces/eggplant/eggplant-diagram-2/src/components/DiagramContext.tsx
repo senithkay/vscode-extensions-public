@@ -8,7 +8,7 @@
  */
 
 import React from "react";
-import { Flow, NodeKind, TargetMetadata } from "../utils/types";
+import { Flow, NodeKind, TargetMetadata, Node } from "../utils/types";
 
 export interface DiagramContextState {
     flow: Flow;
@@ -23,16 +23,18 @@ export interface DiagramContextState {
         setTargetMetadata?(metadata: TargetMetadata): void;
         setKind?(kind: NodeKind): void;
     };
+    onNodeUpdate: (node: Node) => void;
 }
 
 export const DiagramContext = React.createContext<DiagramContextState>({
     flow: { name: "", nodes: [], clients: [] },
     componentPanel: {
         visible: false,
-        show: () => {},
-        hide: () => {},
+        show: () => { },
+        hide: () => { },
     },
     addNode: {},
+    onNodeUpdate: () => { },
 });
 
 export const useDiagramContext = () => React.useContext(DiagramContext);

@@ -8,15 +8,15 @@
  */
 
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 
-import { Popover } from "@material-ui/core";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { GraphqlQueryIcon, GraphqlSubscriptionIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Popover } from '@wso2-enterprise/ui-toolkit';
 
-import { DiagramContext, useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
+import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { ParametersPopup } from "../../../Popup/ParametersPopup";
-import { popOverStyle } from "../../../Popup/styles";
+import { popOverCompStyle } from "../../../Popup/styles";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { ResourceFunction } from "../../../resources/model";
 import { FieldName, FieldType, } from "../../../resources/styles/styles";
@@ -31,18 +31,18 @@ interface ResourceFunctionProps {
 
 export function ResourceFunctionWidget(props: ResourceFunctionProps) {
     const { engine, node, resource, resourcePath } = props;
-    const [anchorElement, setAnchorElement] = useState<HTMLDivElement | null>(null);
     const { setSelectedNode } = useGraphQlContext();
 
-    const onMouseOver = (event: React.MouseEvent<HTMLDivElement>) => {
-        setAnchorElement(event.currentTarget);
+    const [isOpen, setIsOpen] = useState(false);
+    const [anchorEvent, setAnchorEvent] = useState<null | HTMLElement>(null);
+    const openPanel = (event: React.MouseEvent<HTMLElement>) => {
+        setIsOpen(true);
+        setAnchorEvent(event.currentTarget);
     };
-
-    const onMouseLeave = () => {
-        setAnchorElement(null);
+    const closePanel = () => {
+        setIsOpen(false);
+        setAnchorEvent(null);
     };
-
-    const classes = popOverStyle();
 
     const updateSelectedNode = () => {
         setSelectedNode(resource.returns);
@@ -55,7 +55,7 @@ export function ResourceFunctionWidget(props: ResourceFunctionProps) {
                 engine={engine}
             />
             {resource.subscription ? <GraphqlSubscriptionIcon /> : <GraphqlQueryIcon />}
-            <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }}  data-testid={`resource-identifier-${resource.identifier}`}>
+            <FieldName onMouseOver={openPanel} onMouseLeave={closePanel} style={{ marginLeft: '7px' }} data-testid={`resource-identifier-${resource.identifier}`}>
                 {resource.identifier}
             </FieldName>
             <div onClick={updateSelectedNode}>
@@ -68,23 +68,21 @@ export function ResourceFunctionWidget(props: ResourceFunctionProps) {
 
             {resource.parameters?.length > 0 && (
                 <Popover
-                    id="mouse-over-popover"
-                    open={Boolean(anchorElement)}
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'right',
-                    }}
-                    disableRestoreFocus={true}
-                    anchorEl={anchorElement}
-                    onClose={onMouseLeave}
-                    className={classes.popover}
-                    classes={{
-                        paper: classes.popoverContent,
-                    }}
-                    transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'center'
-                    }}
+                    anchorOrigin={
+                        {
+                            vertical: "bottom",
+                            horizontal: "center",
+                        }
+                    }
+                    transformOrigin={
+                        {
+                            vertical: "center",
+                            horizontal: "left",
+                        }
+                    }
+                    sx={popOverCompStyle}
+                    open={isOpen}
+                    anchorEl={anchorEvent}
                 >
                     <ParametersPopup parameters={resource.parameters} />
                 </Popover>

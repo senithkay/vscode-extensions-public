@@ -19,7 +19,7 @@ import { RequiredFormInput } from "../Commons/RequiredInput";
 export interface OptionProps {
     id?: string;
     content?: string | ReactNode;
-    value: string;
+    value: any;
 }
 
 export interface DropdownProps {

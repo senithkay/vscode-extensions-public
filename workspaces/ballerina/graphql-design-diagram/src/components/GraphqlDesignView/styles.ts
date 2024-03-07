@@ -6,11 +6,11 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { css } from '@emotion/css';
 
-export const GraphqlUnsupportedStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        overlayWrapper: {
+export const GraphqlUnsupportedStyles = () => ({
+    overlayWrapper: css(
+        {
             height: 'calc(100vh - 110px)',
             '&.overlay': {
                 display: 'block',
@@ -24,20 +24,26 @@ export const GraphqlUnsupportedStyles = makeStyles((theme: Theme) =>
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center'
-        },
-        title: {
+        }
+    ),
+    title: css(
+        {
             fontWeight: 600,
             fontSize: "17px",
             lineHeight: "24px",
             marginTop: "28px",
             marginBottom: "4px",
-            color: theme.palette.text.primary
-        },
-        subtitle: {
+            color: "var(--vscode-editor-foreground)"
+        }
+    ),
+    subtitle: css(
+        {
             fontWeight: 400,
             fontSize: "13px",
             lineHeight: "20px",
-            color: theme.palette.text.hint
-        },
-    }),
-);
+            color: "var(--vscode-editorInlayHint-foreground)"
+        }
+    ),
+
+})
+

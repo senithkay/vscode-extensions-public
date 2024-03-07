@@ -12,9 +12,10 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { BaseNodeModel } from "./BaseNodeModel";
 import { Colors, NODE_HEIGHT, NODE_WIDTH } from "../../../resources/constants";
-import { Button, TextField, TypeSelector } from "@wso2-enterprise/ui-toolkit";
+import { Button } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { Node } from "../../../utils/types";
+import { FormWidget } from "./Form";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -31,7 +32,7 @@ export namespace NodeStyles {
         padding: 0 8px;
         border: 1.5px solid
             ${(props: NodeStyleProp) =>
-                props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+            props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
@@ -90,19 +91,22 @@ export namespace NodeStyles {
         align-items: center;
         width: 100%;
     `;
+
+    export const Hr = styled.hr`
+        width: 100%;
+    `;
 }
 
 interface BaseNodeWidgetProps {
-    children: React.ReactNode;
     model: BaseNodeModel;
     engine: DiagramEngine;
     onClick?: (node: Node) => void;
 }
 
-export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> { }
 
 export function BaseNodeWidget(props: BaseNodeWidgetProps) {
-    const { children, model, engine, onClick } = props;
+    const { model, engine, onClick } = props;
     const [isHovered, setIsHovered] = React.useState(false);
 
     const handleOnClick = () => {
@@ -123,9 +127,8 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
                     <MoreVertIcon />
                 </NodeStyles.StyledButton>
             </NodeStyles.Header>
-            {/* todo: generate dynamic form with node attributes */}
             <NodeStyles.Body>
-                {children}
+                <FormWidget model={model} />
             </NodeStyles.Body>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
         </NodeStyles.Node>

@@ -166,6 +166,26 @@
 				"${workspaceFolder}/workspaces/apk/apk-extension/out/**/*.js"
 			],
 			"preLaunchTask": "npm: watch-apk"
-		}
+		},
+        {
+            "name": "FHIR Tools Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/fhir-tools/fhir-tools-extension"
+            ],
+            "env": {
+                "LS_EXTENSIONS_PATH": "",
+                "LSDEBUG": "false",
+                "WEB_VIEW_DEV_MODE": "false",
+                "WEB_VIEW_DEV_HOST": "http://localhost:9000",
+                "BALLERINA_STAGE_CENTRAL": "false"
+            },
+            "outFiles": [
+                "${workspaceFolder}/workspaces/fhir-tools/fhir-tools-extension/out/**/*.js"
+            ],
+            "preLaunchTask": "npm: watch-fhir-tools"
+        },
     ]
 }

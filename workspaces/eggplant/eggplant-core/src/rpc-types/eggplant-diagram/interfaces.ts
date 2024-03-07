@@ -25,5 +25,23 @@ export type EggplantModelResponse = {
 };
 
 export interface UpdateNodeRequest {
-    node: Node;
+    diagramNode: Node;
+}
+
+export interface UpdateNodeResponse {
+    textEdits: TextEdit[];
+}
+
+export interface TextEdit {
+    newText: string,
+    range: {
+        end: {
+            character: number;
+            line: number;
+        },
+        start: {
+            character: number;
+            line: number;
+        }
+    }
 }
