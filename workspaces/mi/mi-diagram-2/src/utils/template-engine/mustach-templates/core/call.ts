@@ -22,9 +22,9 @@ export function getCallMustacheTemplate() {
     {{#bodyTarget}}
     <target type="{{targetType}}"/>
     {{/bodyTarget}}
-    {{#propertySource}}
+    {{#targetProperty}}
     <target type="{{targetType}}">{{targetProperty}}</target>
-{{/propertySource}}
+    {{/targetProperty}}
 </call>`
 }
 

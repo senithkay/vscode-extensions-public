@@ -12,7 +12,7 @@ import React, { useEffect, useState } from 'react';
 import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, filterFormValues, getRangeFromTagRange } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
@@ -42,10 +42,14 @@ const StoreForm = (props: AddMediatorProps) => {
    const sidePanelContext = React.useContext(SidePanelContext);
    const [formValues, setFormValues] = useState({} as { [key: string]: any });
    const [errors, setErrors] = useState({} as any);
-
-   useEffect(() => {
-       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-           setFormValues({ ...formValues, ...sidePanelContext.formValues });
+    const messageStores: string[] = []
+    useEffect(() => {
+        //TODO: get message stores
+        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
+            if (formValues["messageStores"]?.includes(sidePanelContext.formValues["messageStore"])) {
+                sidePanelContext.formValues["availableMessageStores"] = sidePanelContext.formValues["messageStore"];
+            }
+            setFormValues({ ...formValues, ...sidePanelContext.formValues });
        } else {
            setFormValues({
        "specifyAs": "Value",
@@ -64,9 +68,16 @@ const StoreForm = (props: AddMediatorProps) => {
        if (Object.keys(newErrors).length > 0) {
            setErrors(newErrors);
        } else {
+           const keysToExclude = [];
+           if (formValues["specifyAs"] == "Value") {
+               keysToExclude.push(...["expression"]);
+           } else {
+               keysToExclude.push(...["messageStore"]);
+           }
+           setFormValues(filterFormValues(formValues, null, keysToExclude));
            const xml = getXML(MEDIATORS.STORE, formValues);
            rpcClient.getMiDiagramRpcClient().applyEdit({
-               documentUri: props.documentUri, range: props.nodePosition, text: xml
+               documentUri: props.documentUri, range: getRangeFromTagRange(props.nodePosition), text: xml
            });
            sidePanelContext.setSidePanelState({
                 ...sidePanelContext,

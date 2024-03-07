@@ -23,7 +23,8 @@ export function getLogXml(data: { [key: string]: any }) {
   const properties = data.properties.map((property: string[]) => {
     return {
       propertyName: property[0],
-      value: property[2]
+      value: property[1] == "LITERAL" ? property[2] : undefined,
+      expression: property[1] == "EXPRESSION" ? property[2] : undefined,
     }
   });
   const modifiedData = {

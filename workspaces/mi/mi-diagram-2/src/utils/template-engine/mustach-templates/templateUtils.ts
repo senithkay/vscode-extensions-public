@@ -9,16 +9,16 @@
 
 import Mustache from "mustache";
 import { getCallFormDataFromSTNode, getCallMustacheTemplate, getCallXml } from "./core/call";
-import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogMustacheTemplate, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutMustacheTemplate, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode, getHeaderMustacheTemplate } from "./core/header";
 import { getCallTemplateFormDataFromSTNode, getCallTemplateMustacheTemplate, getCallTemplateXml } from "./core/call-template";
 import { getPayloadMustacheTemplate, getPayloadFormDataFromSTNode, getPayloadXml } from "./core/payloadFactory";
-import { getPropertyFormDataFromSTNode, getPropertyMustacheTemplate } from "./core/property";
+import { getPropertyFormDataFromSTNode, getPropertyMustacheTemplate, getPropertyXml } from "./core/property";
 import { getDropMustacheTemplate } from "./core/drop";
 import { getLoopbackMustacheTemplate } from "./core/loopback";
-import { getPropertyGroupMustacheTemplate } from "./core/propertyGroup";
+import { getPropertyGroupMustacheTemplate, getPropertyGroupXml } from "./core/propertyGroup";
 import { getReponseMustacheTemplate } from "./core/respond";
 import { getSendMustacheTemplate } from "./core/send";
 import { getHTTPEndpointMustacheTemplate } from "./endpoints/http";
@@ -33,8 +33,8 @@ import { getWSDLEndpointMustacheTemplate } from "./endpoints/wsdl";
 import { MEDIATORS, ENDPOINTS } from "../../../resources/constants";
 import { getFilterMustacheTemplate } from "./core/filter";
 import { getSequenceMustacheTemplate, getSequenceDataFromSTNode, getSequenceXml } from "./core/sequence";
-import { getStoreMustacheTemplate } from "./core/store";
-import { getValidateMustacheTemplate } from "./core/validate";
+import { getStoreFormDataFromSTNode, getStoreMustacheTemplate, getStoreXml } from "./core/store";
+import { getValidateFormDataFromSTNode, getValidateMustacheTemplate, getValidateXml } from "./core/validate";
 import { getBeanFormDataFromSTNode, getBeanMustacheTemplate, getBeanXml } from "./extension/bean";
 import { getClassFormDataFromSTNode, getClassMustacheTemplate, getClassXml } from "./extension/class";
 import { getCommandFormDataFromSTNode, getCommandMustacheTemplate, getCommandXml } from "./extension/command";
@@ -114,6 +114,7 @@ export function getMustacheTemplate(name: string) {
 
 export function getXML(name: string, data: { [key: string]: any }) {
     switch (name) {
+        //Core Mediators
         case MEDIATORS.CALL:
             return getCallXml(data);
         case MEDIATORS.LOG:
@@ -122,6 +123,14 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getCalloutXml(data);
         case MEDIATORS.CALLTEMPLATE:
             return getCallTemplateXml(data)
+        case MEDIATORS.PROPERTY:
+            return getPropertyXml(data);
+        case MEDIATORS.PROPERTYGROUP:
+            return getPropertyGroupXml(data);
+        case MEDIATORS.STORE:
+            return getStoreXml(data);
+        case MEDIATORS.VALIDATE:
+            return getValidateXml(data);
         case MEDIATORS.PAYLOAD:
             return getPayloadXml(data);
         case ENDPOINTS.NAMED:
@@ -163,6 +172,10 @@ export function getDataFromXML(name: string, node: STNode) {
             return getPayloadFormDataFromSTNode(formData, node as PayloadFactory);
         case MEDIATORS.PROPERTY:
             return getPropertyFormDataFromSTNode(formData, node as Property);
+        case MEDIATORS.STORE:
+            return getStoreFormDataFromSTNode(formData, node as Store);
+        case MEDIATORS.VALIDATE:
+            return getValidateFormDataFromSTNode(formData, node as Validate);
         //Extension Mediators
         case MEDIATORS.CLASS:
             return getClassFormDataFromSTNode(formData, node as Class);

@@ -12,7 +12,7 @@ import React, { useEffect, useState } from 'react';
 import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, filterFormValues, getRangeFromTagRange } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
@@ -36,6 +36,14 @@ const Field = styled.div`
 
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
+const propertyNames = ["New Property...", "Action", "COPY_CONTENT_LENGTH_FROM_INCOMING", "CacheLevel", "ClientApiNonBlocking",
+    "ConcurrentConsumers", "ContentType", "disableAddressingForOutMessages", "DISABLE_CHUNKING", "DISABLE_SMOOKS_RESULT_PAYLOAD",
+    "ERROR_CODE", "ERROR_DETAIL", "ERROR_EXCEPTION", "ERROR_MESSAGE", "FAULTS_AS_HTTP_200", "FORCE_ERROR_ON_SOAP_FAULT",
+    "FORCE_HTTP_1_0", "FORCE_HTTP_CONTENT_LENGTH", "FORCE_POST_PUT_NOBODY", "FORCE_SC_ACCEPTED", "FaultTo", "From",
+    "HTTP_ETAG", "HTTP_SC", "JMS_COORELATION_ID", "messageType", "MESSAGE_FORMAT", "MaxConcurrentConsumers", "MercuryLastMessage",
+    "MercurySequenceKey", "MessageID", "NO_ENTITY_BODY", "NO_KEEPALIVE", "OUT_ONLY", "OperationName", "POST_TO_URI",
+    "preserveProcessedHeaders", "PRESERVE_WS_ADDRESSING", "REQUEST_HOST_HEADER", "RESPONSE", "REST_URL_POSTFIX", "RelatesTo",
+    "ReplyTo", "SERVER_IP", "SYSTEM_DATE", "SYSTEM_TIME", "TRANSPORT_HEADERS", "TRANSPORT_IN_NAME", "To", "transportNonBlocking"];
 
 const PropertyForm = (props: AddMediatorProps) => {
    const { rpcClient } = useVisualizerContext();
@@ -45,13 +53,20 @@ const PropertyForm = (props: AddMediatorProps) => {
 
    useEffect(() => {
        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
+           if (!propertyNames.includes(sidePanelContext.formValues["propertyName"])) {
+               sidePanelContext.formValues["newPropertyName"] = sidePanelContext.formValues["propertyName"];
+               sidePanelContext.formValues["propertyName"] = "New Property...";
+           }
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
        } else {
            setFormValues({
-       "propertyDataType": "STRING",
-       "propertyAction": "set",
-       "propertyScope": "DEFAULT",
-       "valueStringCapturingGroup": "0",});
+               "propertyName": "New Property...",
+               "propertyDataType": "STRING",
+               "propertyAction": "set",
+               "propertyScope": "DEFAULT",
+               "propertyValueType": "LITERAL",
+               "valueStringCapturingGroup": "0",
+           });
        }
    }, [sidePanelContext.formValues]);
 
@@ -66,9 +81,13 @@ const PropertyForm = (props: AddMediatorProps) => {
        if (Object.keys(newErrors).length > 0) {
            setErrors(newErrors);
        } else {
+           if (formValues["propertyAction"] == "remove") {
+               const keysToInclude = ["propertyName", "newPropertyName", "propertyAction", "propertyScope", "description"];
+               setFormValues(filterFormValues(formValues, keysToInclude, null));
+           }
            const xml = getXML(MEDIATORS.PROPERTY, formValues);
            rpcClient.getMiDiagramRpcClient().applyEdit({
-               documentUri: props.documentUri, range: props.nodePosition, text: xml
+               documentUri: props.documentUri, range: getRangeFromTagRange(props.nodePosition), text: xml
            });
            sidePanelContext.setSidePanelState({
                 ...sidePanelContext,
@@ -87,6 +106,7 @@ const PropertyForm = (props: AddMediatorProps) => {
        "propertyDataType": (e?: any) => validateField("propertyDataType", e, false),
        "propertyAction": (e?: any) => validateField("propertyAction", e, false),
        "propertyScope": (e?: any) => validateField("propertyScope", e, false),
+       "propertyValueType": (e?: any) => validateField("propertyValueType", e, false),
        "value": (e?: any) => validateField("value", e, false),
        "expression": (e?: any) => validateField("expression", e, false),
        "valueStringPattern": (e?: any) => validateField("valueStringPattern", e, false),
@@ -123,14 +143,14 @@ const PropertyForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Property Name</label>
-                    <AutoComplete items={["Action", "COPY_CONTENT_LENGTH_FROM_INCOMING", "CacheLevel", "ClientApiNonBlocking", "ConcurrentConsumers", "ContentType", "disableAddressingForOutMessages", "DISABLE_CHUNKING", "DISABLE_SMOOKS_RESULT_PAYLOAD", "ERROR_CODE", "ERROR_DETAIL", "ERROR_EXCEPTION", "ERROR_MESSAGE", "FAULTS_AS_HTTP_200", "FORCE_ERROR_ON_SOAP_FAULT", "FORCE_HTTP_1_0", "FORCE_HTTP_CONTENT_LENGTH", "FORCE_POST_PUT_NOBODY", "FORCE_SC_ACCEPTED", "FaultTo", "From", "HTTP_ETAG", "HTTP_SC", "JMS_COORELATION_ID", "messageType", "MESSAGE_FORMAT", "MaxConcurrentConsumers", "MercuryLastMessage", "MercurySequenceKey", "MessageID", "NO_ENTITY_BODY", "NO_KEEPALIVE", "OUT_ONLY", "OperationName", "POST_TO_URI", "preserveProcessedHeaders", "PRESERVE_WS_ADDRESSING", "REQUEST_HOST_HEADER", "RESPONSE", "REST_URL_POSTFIX", "RelatesTo", "ReplyTo", "SERVER_IP", "SYSTEM_DATE", "SYSTEM_TIME", "TRANSPORT_HEADERS", "TRANSPORT_IN_NAME", "To", "transportNonBlocking"]} selectedItem={formValues["propertyName"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "propertyName": e });
-                        formValidators["propertyName"](e);
+                   <AutoComplete items={propertyNames} selectedItem={formValues["propertyName"]} onChange={(e: any) => {
+                       setFormValues({ ...formValues, "propertyName": e, "newPropertyName": e == "New Property..." ? "" : e });
+                       formValidators["propertyName"](e);
                     }} />
                     {errors["propertyName"] && <Error>{errors["propertyName"]}</Error>}
                 </Field>
 
-                <Field>
+               {formValues["propertyName"] == "New Property..." && <Field>
                     <TextField
                         label="New Property Name"
                         size={50}
@@ -143,21 +163,26 @@ const PropertyForm = (props: AddMediatorProps) => {
                         required={false}
                     />
                     {errors["newPropertyName"] && <Error>{errors["newPropertyName"]}</Error>}
-                </Field>
+               </Field>}
 
-                <Field>
+               {formValues["propertyAction"] == "set" && <Field>
                     <label>Property Data Type</label>
                     <AutoComplete items={["STRING", "INTEGER", "BOOLEAN", "DOUBLE", "FLOAT", "LONG", "SHORT", "OM", "JSON"]} selectedItem={formValues["propertyDataType"]} onChange={(e: any) => {
                         setFormValues({ ...formValues, "propertyDataType": e });
                         formValidators["propertyDataType"](e);
                     }} />
                     {errors["propertyDataType"] && <Error>{errors["propertyDataType"]}</Error>}
-                </Field>
+               </Field>}
 
                 <Field>
                     <label>Property Action</label>
                     <AutoComplete items={["set", "remove"]} selectedItem={formValues["propertyAction"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "propertyAction": e });
+                       const newValues: { [key: string]: any } = { "propertyAction": e }
+                       if (formValues["propertyAction"] == "remove" && e == "set") {
+                           newValues["propertyDataType"] = "STRING";
+                           newValues["propertyValueType"] = "LITERAL";
+                       }
+                       setFormValues({ ...formValues, ...newValues });
                         formValidators["propertyAction"](e);
                     }} />
                     {errors["propertyAction"] && <Error>{errors["propertyAction"]}</Error>}
@@ -172,10 +197,19 @@ const PropertyForm = (props: AddMediatorProps) => {
                     {errors["propertyScope"] && <Error>{errors["propertyScope"]}</Error>}
                 </Field>
 
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+               {formValues["propertyAction"] == "set" && <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <h3>Value</h3>
 
-                    <Field>
+                   <Field>
+                       <label>Property Value Type</label>
+                       <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["propertyValueType"]} onChange={(e: any) => {
+                           setFormValues({ ...formValues, "propertyValueType": e });
+                           formValidators["propertyValueType"](e);
+                       }} />
+                       {errors["propertyValueType"] && <Error>{errors["propertyValueType"]}</Error>}
+                   </Field>
+
+                   {formValues["propertyValueType"] == "LITERAL" && <Field>
                         <TextField
                             label="Value"
                             size={50}
@@ -188,9 +222,9 @@ const PropertyForm = (props: AddMediatorProps) => {
                             required={false}
                         />
                         {errors["value"] && <Error>{errors["value"]}</Error>}
-                    </Field>
+                   </Field>}
 
-                    <Field>
+                   {formValues["propertyValueType"] == "EXPRESSION" && <Field>
                         <TextField
                             label="Expression"
                             size={50}
@@ -203,7 +237,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                             required={false}
                         />
                         {errors["expression"] && <Error>{errors["expression"]}</Error>}
-                    </Field>
+                   </Field>}
 
                     <Field>
                         <TextField
@@ -235,7 +269,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                         {errors["valueStringCapturingGroup"] && <Error>{errors["valueStringCapturingGroup"]}</Error>}
                     </Field>
 
-                </ComponentCard>
+               </ComponentCard>}
 
                 <Field>
                     <TextField
