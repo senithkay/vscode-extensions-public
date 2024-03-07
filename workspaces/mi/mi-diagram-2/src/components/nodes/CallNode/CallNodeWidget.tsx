@@ -184,7 +184,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
 
     return (
         <div>
-            <Tooltip content={tooltip} position={'bottom'} containerPosition={"absolute"} >
+            <Tooltip content={tooltip} position={'bottom'}>
                 <S.Node
                     selected={node.isSelected()}
                     hovered={isHovered}
