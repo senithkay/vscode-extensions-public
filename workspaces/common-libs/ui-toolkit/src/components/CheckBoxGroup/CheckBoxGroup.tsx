@@ -49,3 +49,4 @@ export const CheckBoxGroup = ({ id, className, direction, containerSx, children 
         </CheckBoxContainer>
     );
 };
+

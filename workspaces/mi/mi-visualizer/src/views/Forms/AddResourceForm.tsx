@@ -249,3 +249,4 @@ export function AddResourceForm({ resourceData, isOpen, handleCancel, handleCrea
         </SidePanel>
     );
 }
+

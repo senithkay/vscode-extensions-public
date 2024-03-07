@@ -11,12 +11,12 @@ import React, { useEffect } from "react";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
+import { Item } from "@wso2-enterprise/ui-toolkit";
+import { Position } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { AddAPIFormProps, AddResourceForm, Method } from "../Forms/AddResourceForm";
 import { TAB_SIZE, SERVICE_DESIGNER } from "../../constants";
 import { getXML } from "../../utils/template-engine/mustache-templates/templateUtils";
 import { APIData, APIWizardProps } from "../Forms/APIform";
-import { Item } from "@wso2-enterprise/ui-toolkit";
-import { Position } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 interface ServiceDesignerProps {
     syntaxTree: any;

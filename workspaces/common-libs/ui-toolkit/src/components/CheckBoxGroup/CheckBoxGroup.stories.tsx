@@ -44,3 +44,4 @@ Default.args = {
 };
 
 export default { component: CheckBoxGroup, title: "CheckBoxGroup" };
+

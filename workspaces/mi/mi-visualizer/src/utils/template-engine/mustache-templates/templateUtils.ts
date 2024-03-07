@@ -21,3 +21,4 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return "";
     }
 }
+

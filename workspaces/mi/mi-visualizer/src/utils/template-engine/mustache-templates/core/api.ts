@@ -18,3 +18,4 @@ export function getAddApiResourceTemplate() {
     {{{indentation}}}</faultSequence>
 {{{indentation}}}</resource>`;
 }
+
