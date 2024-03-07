@@ -14,7 +14,7 @@ import { getLogFormDataFromSTNode, getLogMustacheTemplate, getLogXml } from "./c
 import { getCalloutFormDataFromSTNode, getCalloutMustacheTemplate, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode, getHeaderMustacheTemplate } from "./core/header";
 import { getCallTemplateFormDataFromSTNode, getCallTemplateMustacheTemplate, getCallTemplateXml } from "./core/call-template";
-import { getPayloadMustacheTemplate, getPayloadFormDataFromSTNode, getPayloadXml } from "./transformation/payloadFactory";
+import { getPayloadMustacheTemplate, getPayloadFormDataFromSTNode, getPayloadXml } from "./core/payloadFactory";
 import { getPropertyFormDataFromSTNode, getPropertyMustacheTemplate } from "./core/property";
 import { getDropMustacheTemplate } from "./core/drop";
 import { getLoopbackMustacheTemplate } from "./core/loopback";
