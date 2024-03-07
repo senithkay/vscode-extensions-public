@@ -7,35 +7,30 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import {
-    NodePosition,
     QueryExpression,
     SelectClause,
     STKindChecker,
     Visitor,
 } from "@wso2-enterprise/syntax-tree";
 
-import { isPositionsEquals } from "../../../utils/st-utils";
-
-export class QueryExpressionFindingVisitor implements Visitor {
+export class QueryExprFindingVisitorByIndex implements Visitor {
     private queryExpression: QueryExpression;
-    private selectClauseIndex: number ;
+    private selectClauseIndex: number;
 
-    constructor(private position: NodePosition) {
+    constructor(private index: number) {
         this.selectClauseIndex = 0;
     }
 
     public beginVisitSelectClause(node: SelectClause): void {
-        this.selectClauseIndex++;
-        if (STKindChecker.isQueryExpression(node.expression) && isPositionsEquals(node.expression.position, this.position)) {
-            this.queryExpression = node.expression;
+        if (!this.queryExpression) {
+            this.selectClauseIndex++;
+            if (STKindChecker.isQueryExpression(node.expression) && this.selectClauseIndex === this.index) {
+                this.queryExpression = node.expression;
+            }
         }
     }
 
     public getQueryExpression() {
         return this.queryExpression;
-    }
-
-    public getSelectClauseIndex() {
-        return this.selectClauseIndex;
     }
 }

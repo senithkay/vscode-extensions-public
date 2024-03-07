@@ -61,12 +61,14 @@ import {
     getSubArrayType,
     getTypeFromStore,
     getTypeOfOutput,
-    isComplexExpression
+    isComplexExpression,
+    isFnBodyQueryExpr,
+    isSelectClauseQueryExpr
 } from "../utils/dm-utils";
 import { constructTypeFromSTNode } from "../utils/type-utils";
 
 import { QueryParentFindingVisitor } from "./QueryParentFindingVisitor"
-import { QueryExpressionFindingVisitor } from "./QueryExpressionFindingVisitor";
+import { QueryExprFindingVisitorByPosition } from "./QueryExprFindingVisitorByPosition";
 
 export class NodeInitVisitor implements Visitor {
 
@@ -246,12 +248,12 @@ export class NodeInitVisitor implements Visitor {
                         enumTypes = getEnumTypes(selectClause.expression, this.context.moduleVariables);
                     } else if (this.context.selection.selectedST.fieldPath === SELECT_CALUSE_QUERY) {
                         isFnBodyQueryExpr = true;
-                        const queryExprFindingVisitor = new QueryExpressionFindingVisitor(this.selection.selectedST.position);
+                        const queryExprFindingVisitor = new QueryExprFindingVisitorByPosition(this.selection.selectedST.position);
                         traversNode(bodyExpr, queryExprFindingVisitor);
                         const queryExpr = queryExprFindingVisitor.getQueryExpression();
                         const selectClauseIndex = queryExprFindingVisitor.getSelectClauseIndex();
                         returnType = getSubArrayType(returnType, selectClauseIndex);
-                        const selectClause = queryExpr.selectClause || queryExpr.resultClause;
+                        const selectClause = queryExpr?.selectClause || queryExpr?.resultClause;
                         const intermediateClausesHeight = 100 + bodyExpr.queryPipeline.intermediateClauses.length * OFFSETS.INTERMEDIATE_CLAUSE_HEIGHT;
                         if (returnType?.typeName === PrimitiveBalType.Array) {
                             const { memberType } = returnType;
@@ -261,7 +263,7 @@ export class NodeInitVisitor implements Visitor {
                                     selectClause,
                                     typeDesc,
                                     returnType,
-                                    bodyExpr
+                                    queryExpr
                                 );
                             } else if (memberType?.typeName === PrimitiveBalType.Array) {
                                 this.outputNode = new ListConstructorNode(
@@ -269,7 +271,7 @@ export class NodeInitVisitor implements Visitor {
                                     selectClause,
                                     typeDesc,
                                     returnType,
-                                    bodyExpr
+                                    queryExpr
                                 );
                             } else if (memberType?.typeName === PrimitiveBalType.Union) {
                                 this.outputNode = new UnionTypeNode(
@@ -284,7 +286,7 @@ export class NodeInitVisitor implements Visitor {
                                     selectClause,
                                     typeDesc,
                                     returnType,
-                                    bodyExpr
+                                    queryExpr
                                 );
                             }
                         } else if (returnType?.typeName === PrimitiveBalType.Record) {
@@ -293,7 +295,7 @@ export class NodeInitVisitor implements Visitor {
                                 selectClause,
                                 typeDesc,
                                 returnType,
-                                bodyExpr
+                                queryExpr
                             );
                         } else if (returnType?.typeName === PrimitiveBalType.Union) {
                             const message = "Union types within query expressions are not supported at the moment"
@@ -303,21 +305,13 @@ export class NodeInitVisitor implements Visitor {
                                 message,
                                 undefined
                             );
-                            // TODO: Uncomment this once the union type support is added in the lang
-                            //  (https://github.com/ballerina-platform/ballerina-lang/issues/40012)
-                            // this.outputNode = new UnionTypeNode(
-                            //     this.context,
-                            //     selectClause,
-                            //     parentIdentifier,
-                            //     exprType
-                            // );
                         } else {
                             this.outputNode = new PrimitiveTypeNode(
                                 this.context,
                                 selectClause,
                                 typeDesc,
                                 returnType,
-                                bodyExpr
+                                queryExpr
                             );
                         }
 
@@ -482,8 +476,7 @@ export class NodeInitVisitor implements Visitor {
 
     beginVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
         // TODO: Implement a way to identify the selected query expr without using the positions since positions might change with imports, etc.
-        const selectedSTNode = this.selection.selectedST.stNode;
-        const position = this.selection.selectedST.position;
+        const { stNode: selectedSTNode, position, fieldPath  } = this.selection.selectedST;
         const isLetVarDecl = STKindChecker.isLetVarDecl(parent);
         let parentIdentifier: IdentifierToken;
         let parentNode = parent;
@@ -710,7 +703,7 @@ export class NodeInitVisitor implements Visitor {
                     this.otherInputNodes.push(enumTypeNode);
                 }
             }
-        } else if (this.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY && !isLetVarDecl && parentNode) {
+        } else if (!isFnBodyQueryExpr(fieldPath) && !isSelectClauseQueryExpr(fieldPath) && !isLetVarDecl && parentNode) {
             const queryNode = new QueryExpressionNode(this.context, node, parentNode);
             if (this.isWithinQuery === 0) {
                 this.intermediateNodes.push(queryNode);
@@ -728,13 +721,25 @@ export class NodeInitVisitor implements Visitor {
                     queryExpr = node;
                 }
 
-                if (!isPositionsEquals(queryExpr.position, node.position) && this.isWithinQuery === 0) {
-                    const queryNode = new QueryExpressionNode(this.context, node, parentNode);
-                    this.intermediateNodes.push(queryNode);
-                    this.isWithinQuery += 1;
+                if (isFnBodyQueryExpr(fieldPath)) {
+                    if (!isPositionsEquals(queryExpr.position, node.position) && this.isWithinQuery === 0) {
+                        const queryNode = new QueryExpressionNode(this.context, node, parentNode);
+                        this.intermediateNodes.push(queryNode);
+                        this.isWithinQuery += 1;
+                    }
+                } else if (isSelectClauseQueryExpr(fieldPath)) {
+                    const queryExprFindingVisitor = new QueryExprFindingVisitorByPosition(this.selection.selectedST.position);
+                    traversNode(queryExpr, queryExprFindingVisitor);
+                    const currentQueryExpr = queryExprFindingVisitor.getQueryExpression();
+                    const currentSelectClause = currentQueryExpr?.resultClause || currentQueryExpr.selectClause;
+                    if (isPositionsEquals(currentQueryExpr.position, node.position)
+                        && STKindChecker.isQueryExpression(currentSelectClause.expression)) {
+                        const queryNode = new QueryExpressionNode(this.context, currentSelectClause.expression, parentNode);
+                        this.intermediateNodes.push(queryNode);
+                        this.isWithinQuery += 1;
+                    }
                 }
             }
-
         }
     }
 
@@ -747,7 +752,7 @@ export class NodeInitVisitor implements Visitor {
         }
         if (this.isWithinQuery === 0
             && (this.isWithinLetVarDecl === 0
-                || (this.isWithinLetVarDecl > 0 && STKindChecker.isLetVarDecl(this.selection.selectedST.stNode)))
+                || (this.isWithinLetVarDecl > 0 && STKindChecker.isLetVarDecl(selectedSTNode)))
             && innerExpr
             && !STKindChecker.isMappingConstructor(innerExpr)
             && !STKindChecker.isListConstructor(innerExpr)

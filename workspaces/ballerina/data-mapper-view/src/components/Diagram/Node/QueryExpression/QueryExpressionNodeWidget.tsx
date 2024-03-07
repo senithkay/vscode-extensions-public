@@ -25,6 +25,7 @@ import {
 } from './QueryExpressionNode';
 import { Button, Codicon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import { isPositionsEquals } from '../../../../utils/st-utils';
+import { QueryExprFindingVisitorByPosition } from '../../visitors/QueryExprFindingVisitorByPosition';
 
 export const useStyles = () => ({
     root: css({
@@ -141,13 +142,20 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
         ) {
             isSelectClauseQuery = true;
         }
+        let selectClauseIndex: number;
+        if (isSelectClauseQuery) {
+            const queryExprFindingVisitor = new QueryExprFindingVisitorByPosition(node.value.position);
+            traversNode(node.parentNode, queryExprFindingVisitor);
+            selectClauseIndex = queryExprFindingVisitor.getSelectClauseIndex();
+        }
         node.context.changeSelection(ViewOption.EXPAND,
             {
                 ...node.context.selection,
                 selectedST: {
                     stNode: isExprBodyQuery || isSelectClauseQuery ? node.context.selection.selectedST.stNode : node.parentNode,
                     fieldPath: isExprBodyQuery ? FUNCTION_BODY_QUERY : isSelectClauseQuery ? SELECT_CALUSE_QUERY : node.targetFieldFQN,
-                    position: node.value.position
+                    position: node.value.position,
+                    index: selectClauseIndex
                 }
             })
     }

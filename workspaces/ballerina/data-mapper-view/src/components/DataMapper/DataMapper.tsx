@@ -120,8 +120,10 @@ export interface DMNode {
     stNode: STNode;
     // fqn for identifying the query expression view
     fieldPath: string;
-    // position of the chanined query expression (query expressions comes under select clauses)
+    // position of the query expression (use to identify query expressions comes under select clauses)
     position?: NodePosition;
+    // index of the select clause of chanined query expression
+    index?: number;
 }
 
 enum DMState {

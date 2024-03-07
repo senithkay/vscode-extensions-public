@@ -157,9 +157,9 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         }
         const fieldNamePosition = STKindChecker.isSpecificField(innerMostExpr)
             && innerMostExpr.fieldName.position as NodePosition;
-        const isSelectClauseQuery = fieldNamePosition
+        const isSelectClauseQuery = STKindChecker.isSelectClause(this.parentNode) || (fieldNamePosition
             && STKindChecker.isQueryExpression(innerMostExpr.valueExpr)
-            && !isPositionsEquals(innerMostExpr.valueExpr.position, this.value.position);
+            && !isPositionsEquals(innerMostExpr.valueExpr.position, this.value.position));
 
         if (fieldNamePosition && !isSelectClauseQuery) {
             this.getModel().getNodes().map((node) => {
@@ -180,7 +180,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     });
                 }
             });
-        } else if (isSelectClauseQuery || isRepresentFnBody(this.parentNode, exprFuncBody) || STKindChecker.isSelectClause(this.parentNode)) {
+        } else if (isSelectClauseQuery || isRepresentFnBody(this.parentNode, exprFuncBody)) {
             this.getModel().getNodes().forEach((node) => {
                 if (node instanceof ListConstructorNode) {
                     const ports = Object.entries(node.getPorts());
