@@ -492,13 +492,13 @@ export class NodeInitVisitor implements Visitor {
             const specificField = specificFieldFindingVisitor.getSpecificField();
             if (specificField && STKindChecker.isSpecificField(specificField) && STKindChecker.isIdentifierToken(specificField.fieldName)) {
                 parentIdentifier = specificField.fieldName as IdentifierToken
-                parentNode = specificField;
+                parentNode = isSelectClauseQueryExpr(fieldPath) ? parent : specificField;
             }
         }
 
         const isSelectedExpr = parentNode
             && (STKindChecker.isSpecificField(selectedSTNode) || STKindChecker.isLetVarDecl(selectedSTNode))
-            && isPositionsEquals(parentNode.position, selectedSTNode.position)
+            && (isPositionsEquals(parentNode.position, selectedSTNode.position) || isSelectClauseQueryExpr(fieldPath))
             && isPositionsEquals(node.position, position);
 
         if (isSelectedExpr) {
@@ -509,6 +509,8 @@ export class NodeInitVisitor implements Visitor {
                 // Fetch types from let var decl expression to ensure the backward compatibility
                 if (!exprType && STKindChecker.isLetVarDecl(parentNode)) {
                     exprType = getTypeFromStore(parentNode.expression.position as NodePosition);
+                } else if (exprType && isSelectClauseQueryExpr(fieldPath)) {
+                    exprType = getSubArrayType(exprType, this.selection.selectedST.index);
                 }
 
                 const isAnydataTypedField = exprType
