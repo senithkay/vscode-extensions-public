@@ -8,7 +8,7 @@
  */
 
 
-import { ApiDirectoryResponse, ApplyEditRequest, ApplyEditResponse, CommandsRequest, CommandsResponse, ConnectorRequest, ConnectorResponse, ConnectorsResponse, CreateAPIRequest, CreateAPIResponse, CreateEndpointRequest, CreateEndpointResponse, CreateSequenceRequest, CreateSequenceResponse, EndpointDirectoryResponse, EndpointsAndSequencesResponse, ProjectRootResponse, OpenDiagramRequest, SequenceDirectoryResponse, ShowErrorMessageRequest, getSTRequest, getSTResponse, CreateProjectRequest, ProjectDirResponse, CreateProjectResponse, ESBConfigsResponse, HighlightCodeRequest, AIUserInput, WriteContentToFileRequest, WriteContentToFileResponse, CreateLocalEntryRequest, CreateLocalEntryResponse, FileDirResponse, LocalEntryDirectoryResponse, InboundEndpointDirectoryResponse, CreateInboundEndpointRequest, CreateInboundEndpointResponse, UndoRedoParams, GetDefinitionRequest, GetDefinitionResponse, GetTextAtRangeRequest, GetTextAtRangeResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, GetInboundEpDirRequest, GetProjectRootRequest, BrowseFileResponse, CreateRegistryResourceRequest, CreateRegistryResourceResponse, BrowseFileRequest } from "./types";
+import { ApiDirectoryResponse, ApplyEditRequest, ApplyEditResponse, CommandsRequest, CommandsResponse, ConnectorRequest, ConnectorResponse, ConnectorsResponse, CreateAPIRequest, CreateAPIResponse, CreateEndpointRequest, CreateEndpointResponse, CreateSequenceRequest, CreateSequenceResponse, EndpointDirectoryResponse, EndpointsAndSequencesResponse, ProjectRootResponse, OpenDiagramRequest, SequenceDirectoryResponse, ShowErrorMessageRequest, getSTRequest, getSTResponse, CreateProjectRequest, ProjectDirResponse, CreateProjectResponse, ESBConfigsResponse, HighlightCodeRequest, AIUserInput, WriteContentToFileRequest, WriteContentToFileResponse, CreateLocalEntryRequest, CreateLocalEntryResponse, FileDirResponse, LocalEntryDirectoryResponse, InboundEndpointDirectoryResponse, CreateInboundEndpointRequest, CreateInboundEndpointResponse, UndoRedoParams, GetDefinitionRequest, GetDefinitionResponse, GetTextAtRangeRequest, GetTextAtRangeResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, GetInboundEpDirRequest, GetProjectRootRequest, BrowseFileResponse, CreateRegistryResourceRequest, CreateRegistryResourceResponse, BrowseFileRequest, CreateMessageProcessorRequest, CreateMessageProcessorResponse, RetrieveMessageProcessorRequest, RetrieveMessageProcessorResponse } from "./types";
 
 export interface MiDiagramAPI {
     executeCommand: (params: CommandsRequest) => Promise<CommandsResponse>;
@@ -29,6 +29,8 @@ export interface MiDiagramAPI {
     createSequence: (params: CreateSequenceRequest) => Promise<CreateSequenceResponse>;
     getInboundEndpointDirectory: (params: GetInboundEpDirRequest) => Promise<InboundEndpointDirectoryResponse>;
     createInboundEndpoint: (params: CreateInboundEndpointRequest) => Promise<CreateInboundEndpointResponse>;
+    createMessageProcessor: (params: CreateMessageProcessorRequest) => Promise<CreateMessageProcessorResponse>;
+    getMessageProcessor: (params: RetrieveMessageProcessorRequest) => Promise<RetrieveMessageProcessorResponse>;
     closeWebView: () => void;
     openDiagram: (params: OpenDiagramRequest) => void;
     openFile: (params: OpenDiagramRequest) => void;

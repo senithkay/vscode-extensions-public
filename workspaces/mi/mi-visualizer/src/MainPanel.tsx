@@ -9,6 +9,7 @@ import { SequenceWizard } from './views/Forms/SequenceForm';
 import { NavigationBar } from './components/NavigationBar';
 import { ProjectWizard } from './views/Forms/ProjectForm';
 import { Diagram } from '@wso2-enterprise/mi-diagram-2';
+import { MessageProcessorWizard } from "./views/Forms/MessageProcessorForm";
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { InboundEPWizard } from './views/Forms/InboundEPform';
@@ -100,6 +101,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.RegistryResourceForm:
                     setViewComponent(<RegistryResourceForm path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.MessageProcessorForm:
+                    setViewComponent(<MessageProcessorWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.ProjectCreationForm:
                     setViewComponent(<ProjectWizard />);

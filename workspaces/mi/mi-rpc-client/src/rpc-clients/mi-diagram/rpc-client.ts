@@ -30,6 +30,10 @@ import {
     CreateProjectResponse,
     CreateSequenceRequest,
     CreateSequenceResponse,
+    CreateMessageProcessorRequest,
+    CreateMessageProcessorResponse,
+    RetrieveMessageProcessorRequest,
+    RetrieveMessageProcessorResponse,
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
@@ -65,6 +69,7 @@ import {
     createLocalEntry,
     createProject,
     createSequence,
+    createMessageProcessor,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -81,6 +86,7 @@ import {
     getSTRequest,
     getSTResponse,
     getSequenceDirectory,
+    getMessageProcessor,
     getSyntaxTree,
     getTextAtRange,
     getWorkspaceRoot,
@@ -179,6 +185,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     createInboundEndpoint(params: CreateInboundEndpointRequest): Promise<CreateInboundEndpointResponse> {
         return this._messenger.sendRequest(createInboundEndpoint, HOST_EXTENSION, params);
+    }
+
+    createMessageProcessor(params: CreateMessageProcessorRequest): Promise<CreateMessageProcessorResponse> {
+        return this._messenger.sendRequest(createMessageProcessor, HOST_EXTENSION, params);
+    }
+
+    getMessageProcessor(params: RetrieveMessageProcessorRequest): Promise<RetrieveMessageProcessorResponse> {
+        return this._messenger.sendRequest(getMessageProcessor, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {
