@@ -35,6 +35,7 @@
     ],
     "paths": {
       "@wso2-enterprise/mi-diagram-2": ["../mi-diagram-2/lib"],
+      "react": ["./node_modules/@types/react"]
     }
   },
   "include": ["src"],
