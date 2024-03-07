@@ -133,11 +133,17 @@ const SidePanelList = (props: SidePanelListProps) => {
                     </ButtonContainer>
 
                     {/* Content */}
-                    {pageStack.length === 0 && <>
-                        {isAddMediator && <MediatorPage nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={setContent} />}
-                        {isGenerate && <AIPage />}
-                    </>}
-                    {pageStack.length > 0 && pageStack[pageStack.length - 1]}
+                    <div style={{
+                        overflowY: "auto",
+                        height: "calc(100vh - 180px)",
+                        scrollbarWidth: "none"
+                    }}>
+                        {pageStack.length === 0 && <>
+                            {isAddMediator && <MediatorPage nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={setContent} />}
+                            {isGenerate && <AIPage />}
+                        </>}
+                        {pageStack.length > 0 && pageStack[pageStack.length - 1]}
+                    </div>
                 </>}
         </SidePanelContainer>
     );

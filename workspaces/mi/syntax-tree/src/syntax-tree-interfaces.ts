@@ -179,6 +179,7 @@ export interface And extends STNode {
 
 export interface Script extends STNode {
     content: any[];
+    include: string[];
     language: string;
     key: string;
     function: string;
@@ -264,6 +265,7 @@ export interface TTypes extends TExtensibleDocumented, STNode {
 export interface Bean extends STNode {
     action: string;
     var: string;
+    target:string;
     clazz: string;
     property: string;
     value: string;
