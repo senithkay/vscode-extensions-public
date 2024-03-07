@@ -199,7 +199,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 <Container>
                     <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
                     <div style={{ marginLeft: 30 }}>
-                        <Typography variant="h3">Synapse API Artifact</Typography>
+                        <Typography variant="h3">{apiData && "Edit "}Synapse API Artifact</Typography>
                     </div>
                 </Container>
                 <TextField
