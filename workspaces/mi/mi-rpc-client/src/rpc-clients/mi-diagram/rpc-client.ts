@@ -30,6 +30,8 @@ import {
     CreateProjectResponse,
     CreateSequenceRequest,
     CreateSequenceResponse,
+    CreateProxyServiceRequest,
+    CreateProxyServiceResponse,
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
@@ -65,6 +67,7 @@ import {
     createLocalEntry,
     createProject,
     createSequence,
+    createProxyService,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -179,6 +182,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     createInboundEndpoint(params: CreateInboundEndpointRequest): Promise<CreateInboundEndpointResponse> {
         return this._messenger.sendRequest(createInboundEndpoint, HOST_EXTENSION, params);
+    }
+
+    createProxyService(params: CreateProxyServiceRequest): Promise<CreateProxyServiceResponse> {
+        return this._messenger.sendRequest(createProxyService, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {

@@ -18,6 +18,7 @@ import {
     CreateInboundEndpointRequest,
     CreateProjectRequest,
     CreateSequenceRequest,
+    CreateProxyServiceRequest,
     GetDefinitionRequest,
     GetDiagnosticsReqeust,
     GetInboundEpDirRequest,
@@ -40,6 +41,7 @@ import {
     createLocalEntry,
     createProject,
     createSequence,
+    createProxyService,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -90,6 +92,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getEndpointsAndSequences, () => rpcManger.getEndpointsAndSequences());
     messenger.onRequest(getSequenceDirectory, () => rpcManger.getSequenceDirectory());
     messenger.onRequest(createSequence, (args: CreateSequenceRequest) => rpcManger.createSequence(args));
+    messenger.onRequest(createProxyService, (args: CreateProxyServiceRequest) => rpcManger.createProxyService(args));
     messenger.onRequest(getInboundEndpointDirectory, (args: GetInboundEpDirRequest) => rpcManger.getInboundEndpointDirectory());
     messenger.onRequest(createInboundEndpoint, (args: CreateInboundEndpointRequest) => rpcManger.createInboundEndpoint(args));
     messenger.onNotification(closeWebView, () => rpcManger.closeWebView());

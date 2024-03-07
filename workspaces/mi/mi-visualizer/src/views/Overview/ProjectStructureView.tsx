@@ -13,7 +13,7 @@ import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import path from 'path';
 
-const allowedConfigs = ["apis", "sequences", "endpoints", "api", "inboundEndpoints"];
+const allowedConfigs = ["apis", "sequences", "endpoints", "api", "inboundEndpoints", "proxyServices"];
 
 const IconWrapper = styled.div`
     display: flex;
@@ -59,6 +59,8 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: path } });
         } else if (directory.toLowerCase() === "sequence") {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Diagram, documentUri: path } });
+        } else if (directory.toLowerCase() === "proxy_service") {
+            rpcClient.getMiDiagramRpcClient().openFile({ path: path });
         }
     };
 
@@ -75,6 +77,8 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
             await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-inbound-endpoint", entry] });
         } else if (key === 'registry') {
             await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-registry-resource", entry] });
+        } else if (key === 'proxyServices') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-proxy-service", entry] });
         }
     };
 
