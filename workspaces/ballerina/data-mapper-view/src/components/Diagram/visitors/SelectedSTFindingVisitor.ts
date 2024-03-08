@@ -37,7 +37,10 @@ export class SelectedSTFindingVisitor implements Visitor {
         const isOutputAnydata = fnST && STKindChecker.isFunctionDefinition(fnST)
             && fnST.functionSignature?.returnTypeDesc
             && STKindChecker.isAnydataTypeDesc(fnST.functionSignature.returnTypeDesc.type);
-        this.pathSegmentIndex = isOutputAnydata ? 0 : 1; // If the output type is available, the field path starts with the record root name, hence segmentIndex = 1
+        const isOutputInlineRecord = fnST && STKindChecker.isFunctionDefinition(fnST)
+            && fnST.functionSignature?.returnTypeDesc
+            && STKindChecker.isRecordTypeDesc(fnST.functionSignature.returnTypeDesc.type);
+        this.pathSegmentIndex = isOutputAnydata || isOutputInlineRecord ? 0 : 1; // If the output type is available, the field path starts with the record root name, hence segmentIndex = 1
     }
 
     beginVisitSTNode(node: FunctionDefinition | SpecificField | LetVarDecl) {
