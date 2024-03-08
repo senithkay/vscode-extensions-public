@@ -96,6 +96,12 @@ export interface CreateProjectRequest {
     artifactID?: string;
 }
 
+export interface ImportProjectRequest {
+    source: string;
+    directory: string;
+    open: boolean;
+}
+
 export interface Connector {
     path: string;
     name: string;
@@ -294,6 +300,10 @@ export interface ProjectDirResponse {
 }
 
 export interface CreateProjectResponse {
+    filePath: string;
+}
+
+export interface ImportProjectResponse {
     filePath: string;
 }
 

@@ -19,6 +19,7 @@ export const COMMANDS = {
     ADD_LOCAL_ENTRY_COMMAND: 'MI.project-explorer.add-local-entry',
     ADD_MESSAGE_PROCESSOR_COMMAND: 'MI.project-explorer.add-message-processor',
     CREATE_PROJECT_COMMAND: 'MI.project-explorer.create-project',
+    IMPORT_PROJECT_COMMAND: 'MI.project-explorer.import-project',
     REVEAL_ITEM_COMMAND: 'MI.project-explorer.revealItem',
     FOCUS_PROJECT_EXPLORER: 'MI.project-explorer.focus',
     OPEN_SERVICE_DESIGNER: 'MI.project-explorer.open-service-designer',

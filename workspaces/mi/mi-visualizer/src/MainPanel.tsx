@@ -8,6 +8,7 @@ import { EndpointWizard } from './views/Forms/EndpointForm';
 import { SequenceWizard } from './views/Forms/SequenceForm';
 import { NavigationBar } from './components/NavigationBar';
 import { ProjectWizard } from './views/Forms/ProjectForm';
+import { ImportProjectWizard } from './views/Forms/ImportProjectForm';
 import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 import { MessageProcessorWizard } from "./views/Forms/MessageProcessorForm";
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
@@ -114,6 +115,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.LocalEntryForm:
                     setViewComponent(<LocalEntryWizard />);
+                    break;
+                case MACHINE_VIEW.ImportProjectForm:
+                    setViewComponent(<ImportProjectWizard />);
                     break;
                 default:
                     setViewComponent(null);
