@@ -291,6 +291,37 @@ export interface CreateProxyServiceResponse {
     path: string;
 }
 
+export interface CreateTaskRequest {
+    directory: string;
+    name: string;
+    group: string;
+    implementation: string;
+    pinnedServers: string;
+    triggerType: "simple" | "cron";
+    triggerCount: number;
+    triggerInterval: number;
+    triggerCron: string;
+}
+
+export interface CreateTaskResponse {
+    path: string;
+}
+
+export interface GetTaskRequest {
+    path: string;
+}
+
+export interface GetTaskResponse {
+    name: string;
+    group: string;
+    implementation: string;
+    pinnedServers: string;
+    triggerType: "simple" | "cron";
+    triggerCount: number;
+    triggerInterval: number;
+    triggerCron: string;
+}
+
 export interface ProjectRootResponse {
     path: string;
 }

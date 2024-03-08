@@ -181,6 +181,13 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.add-task",
+        "title": "Add Scheduled Task",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.view",
         "title": "View"
       },
@@ -280,6 +287,11 @@
         {
           "command": "MI.project-explorer.add-proxy-service",
           "when": "view == MI.project-explorer && viewItem == proxyServices",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-task",
+          "when": "view == MI.project-explorer && viewItem == tasks",
           "group": "inline"
         }
       ]
