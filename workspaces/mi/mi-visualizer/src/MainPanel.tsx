@@ -8,6 +8,7 @@ import { EndpointWizard } from './views/Forms/EndpointForm';
 import { SequenceWizard } from './views/Forms/SequenceForm';
 import { NavigationBar } from './components/NavigationBar';
 import { ProjectWizard } from './views/Forms/ProjectForm';
+import { ImportProjectWizard } from './views/Forms/ImportProjectForm';
 import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 import { MessageProcessorWizard } from "./views/Forms/MessageProcessorForm";
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
@@ -15,6 +16,7 @@ import styled from '@emotion/styled';
 import { InboundEPWizard } from './views/Forms/InboundEPform';
 import { LocalEntryWizard } from './views/Forms/LocalEntryForm';
 import { RegistryResourceForm } from './views/Forms/RegistryResourceForm';
+import { ProxyServiceWizard } from "./views/Forms/ProxyServiceForm";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -105,11 +107,17 @@ const MainPanel = () => {
                 case MACHINE_VIEW.MessageProcessorForm:
                     setViewComponent(<MessageProcessorWizard path={machineView.documentUri} />);
                     break;
+                case MACHINE_VIEW.ProxyServiceForm:
+                    setViewComponent(<ProxyServiceWizard path={machineView.documentUri} />);
+                    break;
                 case MACHINE_VIEW.ProjectCreationForm:
                     setViewComponent(<ProjectWizard />);
                     break;
                 case MACHINE_VIEW.LocalEntryForm:
                     setViewComponent(<LocalEntryWizard />);
+                    break;
+                case MACHINE_VIEW.ImportProjectForm:
+                    setViewComponent(<ImportProjectWizard />);
                     break;
                 default:
                     setViewComponent(null);

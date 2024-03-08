@@ -8,7 +8,7 @@
  */
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
-import { Button, Codicon, LocationSelector, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, LocationSelector, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { SectionWrapper } from "./Commons";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
@@ -50,13 +50,10 @@ export interface Region {
     value: string;
 }
 
-export function ProjectWizard() {
-
+export function ImportProjectWizard() {
     const { rpcClient } = useVisualizerContext();
-    const [projectName, setProjectName] = useState("");
+    const [sourceDir, setSourceDir] = useState("");
     const [projectDir, setProjectDir] = useState("");
-    const [groupID, setGroupID] = useState("");
-    const [artifactID, setArtifactID] = useState("");
 
     useEffect(() => {
         (async () => {
@@ -66,21 +63,23 @@ export function ProjectWizard() {
 
     }, []);
 
-    const handleProjecDirSelection = async () => {
+    const handleProjectSourceDirSelection = async () => {
+        const projectDirectory = await rpcClient.getMiDiagramRpcClient().askProjectImportDirPath();
+        setSourceDir(projectDirectory.path);
+    }
+    const handleProjectDirSelection = async () => {
         const projectDirectory = await rpcClient.getMiDiagramRpcClient().askProjectDirPath();
         setProjectDir(projectDirectory.path);
     }
 
-    const handleCreateProject = async () => {
-        const createProjectParams = {
-            name: projectName,
+    const handleImportProject = async () => {
+        const importProjectParams = {
+            source: sourceDir,
             directory: projectDir,
-            open: true,
-            groupID: groupID,
-            artifactID: artifactID
+            open: true
         }
-        await rpcClient.getMiDiagramRpcClient().createProject(createProjectParams);
-        console.log("Project created");
+        await rpcClient.getMiDiagramRpcClient().importProject(importProjectParams);
+        console.log("Project imported.");
     };
 
     const handleCancel = () => {
@@ -93,35 +92,7 @@ export function ProjectWizard() {
         rpcClient.getMiVisualizerRpcClient().goBack();
     }
 
-    const validateProjectName = (name: string) => {
-        // Check if the name is empty
-        if (!name.trim()) {
-            return "Project name is required";
-        }
-
-        // Check if the name contains spaces or special characters
-        if (/[\s~`!@#$%^&*()_+={}[\]:;'",.<>?/\\|]+/.test(name)) {
-            return "Project name cannot contain spaces or special characters";
-        }
-        return "";
-    };
-
-    const validateGroupID = (name: string) => {
-        // Check if the name is empty
-        if (!name.trim()) {
-            return "ID cannot be empty";
-        }
-
-        // Check if the name contains spaces
-        if (/\s/.test(name)) {
-            return "ID cannot contain spaces";
-        }
-
-        return "";
-    };
-
-    const isValid: boolean = !validateProjectName(projectName) && projectDir.length > 0 && !validateGroupID(groupID)
-        && !validateGroupID(artifactID);
+    const isValid: boolean = sourceDir.length > 0 && projectDir.length > 0;
 
     return (
         <WizardContainer>
@@ -129,48 +100,21 @@ export function ProjectWizard() {
                 <Container>
                     <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
                     <div style={{ marginLeft: 30 }}>
-                        <Typography variant="h3">Integration Project</Typography>
+                        <Typography variant="h3">Import Integration Project</Typography>
                     </div>
                 </Container>
-                <TextField
-                    value={projectName}
-                    id='name-input'
-                    label="Project Name"
-                    placeholder="Project Name"
-                    onChange={(text: string) => setProjectName(text)}
-                    errorMsg={validateProjectName(projectName)}
-                    size={46}
-                    autoFocus
+                <LocationSelector 
+                    label="Select Project Source Location to Import"
+                    selectedFile={projectDir}
                     required
-                />
-                <TextField
-                    value={groupID}
-                    id='groupid-input'
-                    label="Group ID"
-                    placeholder="Group ID"
-                    onChange={(text: string) => setGroupID(text)}
-                    errorMsg={validateGroupID(groupID)}
-                    size={46}
-                    autoFocus
-                    required
-                />
-                <TextField
-                    value={artifactID}
-                    id='artifactID-input'
-                    label="Atrifact ID"
-                    placeholder="Artifact ID"
-                    onChange={(text: string) => setArtifactID(text)}
-                    errorMsg={validateGroupID(artifactID)}
-                    size={46}
-                    autoFocus
-                    required
+                    onSelect={handleProjectSourceDirSelection}
                 />
                 <LocationSelector 
                     label="Select Project Directory"
                     selectionText="Project Location"
                     selectedFile={projectDir}
                     required
-                    onSelect={handleProjecDirSelection}
+                    onSelect={handleProjectDirSelection}
                 />
                 <ActionContainer>
                     <Button
@@ -181,7 +125,7 @@ export function ProjectWizard() {
                     </Button>
                     <Button
                         appearance="primary"
-                        onClick={handleCreateProject}
+                        onClick={handleImportProject}
                         disabled={!isValid}
                     >
                         Create

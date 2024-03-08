@@ -28,12 +28,16 @@ import {
     CreateLocalEntryResponse,
     CreateProjectRequest,
     CreateProjectResponse,
+    ImportProjectRequest,
+    ImportProjectResponse,
     CreateSequenceRequest,
     CreateSequenceResponse,
     CreateMessageProcessorRequest,
     CreateMessageProcessorResponse,
     RetrieveMessageProcessorRequest,
     RetrieveMessageProcessorResponse,
+    CreateProxyServiceRequest,
+    CreateProxyServiceResponse,
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
@@ -61,6 +65,7 @@ import {
     applyEdit,
     askFileDirPath,
     askProjectDirPath,
+    askProjectImportDirPath,
     closeWebView,
     closeWebViewNotification,
     createAPI,
@@ -68,8 +73,10 @@ import {
     createInboundEndpoint,
     createLocalEntry,
     createProject,
+    importProject,
     createSequence,
     createMessageProcessor,
+    createProxyService,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -194,6 +201,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     getMessageProcessor(params: RetrieveMessageProcessorRequest): Promise<RetrieveMessageProcessorResponse> {
         return this._messenger.sendRequest(getMessageProcessor, HOST_EXTENSION, params);
     }
+  
+    createProxyService(params: CreateProxyServiceRequest): Promise<CreateProxyServiceResponse> {
+        return this._messenger.sendRequest(createProxyService, HOST_EXTENSION, params);
+    }
 
     closeWebView(): void {
         return this._messenger.sendNotification(closeWebView, HOST_EXTENSION);
@@ -222,6 +233,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     askProjectDirPath(): Promise<ProjectDirResponse> {
         return this._messenger.sendRequest(askProjectDirPath, HOST_EXTENSION);
     }
+
+    askProjectImportDirPath(): Promise<ProjectDirResponse> {
+        return this._messenger.sendRequest(askProjectImportDirPath, HOST_EXTENSION);
+    }
     
     askFileDirPath(): Promise<FileDirResponse>{
         return this._messenger.sendRequest(askFileDirPath, HOST_EXTENSION);
@@ -229,6 +244,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {
         return this._messenger.sendRequest(createProject, HOST_EXTENSION, params);
+    }
+
+    importProject(params: ImportProjectRequest): Promise<ImportProjectResponse> {
+        return this._messenger.sendRequest(importProject, HOST_EXTENSION, params);
     }
 
     getAIResponse(params: AIUserInput): Promise<string> {

@@ -29,6 +29,8 @@ import {
     CreateLocalEntryResponse,
     CreateProjectRequest,
     CreateProjectResponse,
+    ImportProjectRequest,
+    ImportProjectResponse,
     CreateSequenceRequest,
     CreateSequenceResponse,
     ESBConfigsResponse,
@@ -64,6 +66,8 @@ import {
     CreateMessageProcessorResponse,
     RetrieveMessageProcessorRequest,
     RetrieveMessageProcessorResponse,
+    CreateProxyServiceRequest,
+    CreateProxyServiceResponse,
     BrowseFileResponse,
     BrowseFileRequest,
     CreateRegistryResourceRequest,
@@ -77,8 +81,9 @@ import { Position, Range, Selection, Uri, ViewColumn, WorkspaceEdit, commands, w
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { createFolderStructure, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper } from "../../util";
+import { createFolderStructure, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper } from "../../util";
 import { getMediatypeAndFileExtension, addNewEntryToArtifactXML } from "../../util/fileOperations";
+import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
 import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
@@ -477,6 +482,26 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
+    async createProxyService(params: CreateProxyServiceRequest): Promise<CreateProxyServiceResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, proxyServiceName, proxyServiceType, selectedTransports, endpointType, endpoint,
+                requestLogLevel, responseLogLevel, securityPolicy, requestXslt, responseXslt, transformResponse,
+                wsdlUri, wsdlService, wsdlPort, publishContract } = params;
+
+            const getTemplateParams = {
+                proxyServiceName, proxyServiceType, selectedTransports, endpointType, endpoint,
+                requestLogLevel, responseLogLevel, securityPolicy, requestXslt, responseXslt, transformResponse,
+                wsdlUri, wsdlService, wsdlPort, publishContract
+            };
+
+            const xmlData = getProxyServiceXmlWrapper(getTemplateParams);
+
+            const filePath = path.join(directory, `${proxyServiceName}.xml`);
+            fs.writeFileSync(filePath, xmlData);
+            resolve({ path: filePath });
+        });
+    }
+
     async applyEdit(params: ApplyEditRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
             const edit = new WorkspaceEdit();
@@ -742,6 +767,19 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
+    async askProjectImportDirPath(): Promise<ProjectDirResponse> {
+        return new Promise(async (resolve) => {
+            const selectedDir = await askImportProjectPath();
+            if (!selectedDir || selectedDir.length === 0) {
+                window.showErrorMessage('The root directory of the project must be selected to import project');
+                resolve({ path: "" });
+            } else {
+                const parentDir = selectedDir[0].fsPath;
+                resolve({ path: parentDir });
+            }
+        });
+    }
+
     async askFileDirPath(): Promise<FileDirResponse> {
         return new Promise(async (resolve) => {
             const selectedFile = await askFilePath();
@@ -825,6 +863,69 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             resolve({ filePath: path.join(directory, name) });
+        });
+    }
+
+    async importProject(params: ImportProjectRequest): Promise<ImportProjectResponse> {
+        return new Promise(async (resolve) => {
+            const { source, directory, open } = params;
+
+            let {projectName, groupId, artifactId} = getProjectDetails(source);
+
+            if (projectName && groupId && artifactId) {
+                const folderStructure: FileStructure = {
+                    [projectName]: {
+                        'pom.xml': rootPomXmlContent(projectName, groupId, artifactId),
+                        'src': {
+                            'main': {
+                                'wso2mi': {
+                                    'artifacts': {
+                                        'apis': '',
+                                        'endpoints': '',
+                                        'inbound-endpoints': '',
+                                        'local-entries': '',
+                                        'message-processors': '',
+                                        'message-stores': '',
+                                        'proxy-services': '',
+                                        'sequences': '',
+                                        'tasks': '',
+                                        'templates': '',
+                                        'data-services': '',
+                                        'data-sources': '',
+                                    },
+                                    'resources': {
+                                        'registry': {
+                                            'gov': '',
+                                            'conf': '',
+                                        },
+                                        'metadata': '',
+                                        'connectors': '',
+                                    },
+                                },
+                                'test': {
+                                    'wso2mi': '',
+                                }
+                            },
+                        },
+                    },
+                };
+
+                createFolderStructure(directory, folderStructure);
+                console.log("Created project structure for project: " + projectName)
+                migrateConfigs(source, path.join(directory, projectName));
+
+                window.showInformationMessage(`Successfully imported ${projectName} project`);
+
+                if (open) {
+                    commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory,projectName)));
+                    resolve({ filePath: path.join(directory,projectName) });
+                }
+
+                resolve({ filePath: path.join(directory,projectName) });
+            } else {
+                window.showErrorMessage('Could not find the project details from the provided project: ', source);
+                resolve({ filePath: "" });
+            }
         });
     }
 
@@ -1095,6 +1196,17 @@ export async function askProjectPath() {
         title: "Select a folder to create the Project"
     });
 }
+
+export async function askImportProjectPath() {
+    return await window.showOpenDialog({
+        canSelectFiles: false,
+        canSelectFolders: true,
+        canSelectMany: false,
+        defaultUri: Uri.file(os.homedir()),
+        title: "Select the root directory of the project to import"
+    });
+}
+
 export async function askFilePath() {
     return await window.showOpenDialog({
         canSelectFiles: true,

@@ -20,7 +20,9 @@ export enum MACHINE_VIEW {
     SequenceForm = "Sequence Form",
     InboundEPForm = "Inbound EP Form",
     MessageProcessorForm = "MessageProcessorForm",
+    ProxyServiceForm = "ProxyServiceForm",
     ProjectCreationForm = "Project Creation Form",
+    ImportProjectForm = "Import Project Form",
     LocalEntryForm = "Local Entry Form",
     RegistryResourceForm = "Registry Resource Creation Form",
 }

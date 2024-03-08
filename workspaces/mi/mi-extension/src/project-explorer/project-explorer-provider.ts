@@ -315,6 +315,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"command": COMMANDS.SHOW_DIAGRAM,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
+
 		} else if (entry.type === "MESSAGE_PROCESSOR") {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 			explorerEntry.contextValue = 'message-processor';
@@ -323,6 +324,16 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"command": COMMANDS.SHOW_MESSAGE_PROCESSOR,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
+    
+    } else if (entry.type === "PROXY_SERVICE") {
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			explorerEntry.contextValue = 'proxy-service';
+			explorerEntry.command = {
+				"title": "Show Proxy Service",
+				"command": COMMANDS.SHOW_XML,
+				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+			};
+
 		} else {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 		}
