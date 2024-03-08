@@ -79,10 +79,10 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		console.log('Add Message Processor');
 	});
   
-  commands.registerCommand(COMMANDS.ADD_PROXY_SERVICE_COMMAND, (entry: ProjectExplorerEntry) => {
+    commands.registerCommand(COMMANDS.ADD_PROXY_SERVICE_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProxyServiceForm, documentUri: entry.info?.path });
 		console.log('Add Proxy Service');
-  });
+    });
 
 	commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
 		// Update state machine to show the api wizard
@@ -146,12 +146,12 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MessageProcessorForm, documentUri: documentUri?.fsPath });
 	});
-  commands.registerCommand(COMMANDS.SHOW_XML, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+    commands.registerCommand(COMMANDS.SHOW_XML, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		const uri = Uri.file(documentUri?.fsPath);
 		workspace.openTextDocument(uri).then((document) => {
 			window.showTextDocument(document);
 		});
-  })
+    })
 	commands.registerCommand(COMMANDS.OPEN_PROJECT_OVERVIEW, async (entry: ProjectExplorerEntry) => {
 		revealWebviewPanel(false);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });

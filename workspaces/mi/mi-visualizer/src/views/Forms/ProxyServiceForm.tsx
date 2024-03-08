@@ -8,6 +8,7 @@
  */
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
+import * as path from 'path';
 import {Button, TextField, Dropdown, Typography, Codicon} from "@wso2-enterprise/ui-toolkit";
 import { SectionWrapper } from "./Commons";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
@@ -113,7 +114,7 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
 
         (async () => {
             const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({path: props.path})).path;
-            const proxyServicesDir = `${projectDir}/src/main/wso2mi/artifacts/proxy-services`;
+            const proxyServicesDir = path.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts', 'proxy-services');
             setDirectoryPath(proxyServicesDir);
             const items = await rpcClient.getMiDiagramRpcClient().getEndpointsAndSequences();
             const endpoints = items.data[0].map((seq: string) => {
