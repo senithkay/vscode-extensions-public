@@ -73,7 +73,7 @@ import axios from 'axios';
 import * as fs from "fs";
 import * as os from 'os';
 import { Transform } from 'stream';
-import { Position, Range, Selection, Uri, WorkspaceEdit, commands, window, workspace } from "vscode";
+import { Position, Range, Selection, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
@@ -209,8 +209,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 swaggerAttributes = ` publishSwagger="${swaggerDef}"`;
             }
 
-            const xmlData = 
-`<?xml version="1.0" encoding="UTF-8" ?>
+            const xmlData =
+                `<?xml version="1.0" encoding="UTF-8" ?>
     <api context="${context}" name="${name}" ${swaggerAttributes}${versionAttributes} xmlns="http://ws.apache.org/ns/synapse">
         <resource methods="GET" uri-template="/resource">
             <inSequence>
@@ -627,24 +627,24 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         }];
 
                     const ScheduledMessageForwardingProcessor = {
-                            'client.retry.interval': 'retryInterval',
-                            'member.count': 'taskCount',
-                            'message.processor.reply.sequence': 'replySequence',
-                            'axis2.config': 'axis2Config',
-                            'quartz.conf': 'quartzConfigPath',
-                            'non.retry.status.codes': 'statusCodes',
-                            'message.processor.deactivate.sequence': 'deactivateSequence',
-                            'is.active': 'processorState',
-                            'axis2.repo': 'clientRepository',
-                            cronExpression: 'cron',
-                            'max.delivery.attempts': 'maxRedeliveryAttempts',
-                            'message.processor.fault.sequence': 'faultSequence',
-                            'store.connection.retry.interval': 'connectionAttemptInterval',
-                            'max.store.connection.attempts': 'maxConnectionAttempts',
-                            'max.delivery.drop': 'dropMessageOption',
-                            interval: 'forwardingInterval',
-                            'message.processor.failMessagesStore': 'failMessageStoreType'
-                        },
+                        'client.retry.interval': 'retryInterval',
+                        'member.count': 'taskCount',
+                        'message.processor.reply.sequence': 'replySequence',
+                        'axis2.config': 'axis2Config',
+                        'quartz.conf': 'quartzConfigPath',
+                        'non.retry.status.codes': 'statusCodes',
+                        'message.processor.deactivate.sequence': 'deactivateSequence',
+                        'is.active': 'processorState',
+                        'axis2.repo': 'clientRepository',
+                        cronExpression: 'cron',
+                        'max.delivery.attempts': 'maxRedeliveryAttempts',
+                        'message.processor.fault.sequence': 'faultSequence',
+                        'store.connection.retry.interval': 'connectionAttemptInterval',
+                        'max.store.connection.attempts': 'maxConnectionAttempts',
+                        'max.delivery.drop': 'dropMessageOption',
+                        interval: 'forwardingInterval',
+                        'message.processor.failMessagesStore': 'failMessageStoreType'
+                    },
                         ScheduledFailoverMessageForwardingProcessor = {
                             'client.retry.interval': 'retryInterval',
                             cronExpression: 'cron',
@@ -958,7 +958,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
     async highlightCode(params: HighlightCodeRequest) {
         const documentUri = StateMachine.context().documentUri;
-        const editor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
+        let editor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
+        if (!editor && params.force && documentUri) {
+            const document = await workspace.openTextDocument(Uri.parse(documentUri));
+            editor = await window.showTextDocument(document, ViewColumn.Beside);
+        }
+
         if (editor) {
             const range = new Range(params.range.start.line, params.range.start.character, params.range.end.line, params.range.end.character);
             editor.selection = new Selection(range.start, range.end);
