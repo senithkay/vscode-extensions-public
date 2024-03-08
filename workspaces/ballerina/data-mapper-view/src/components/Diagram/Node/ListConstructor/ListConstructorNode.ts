@@ -105,9 +105,6 @@ export class ListConstructorNode extends DataMapperNodeModel {
             const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
                 LIST_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields, isSelectClause, this.recordField);
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Array) {
-                if (isSelectClause && !STKindChecker.isQueryExpression(valueEnrichedType?.value) && !isSelectClauseQueryExpr(this.context.selection.selectedST.fieldPath)) {
-                    this.recordField = valueEnrichedType.elements[0]?.member;
-                }
                 if (this.recordField?.elements && this.recordField.elements.length > 0) {
                     this.recordField.elements.forEach((field, index) => {
                         this.addPortsForOutputRecordField(field.member, "IN", this.rootName, index,

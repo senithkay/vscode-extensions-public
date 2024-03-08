@@ -597,11 +597,13 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 		}
 		if (valueExpr && STKindChecker.isSimpleNameReference(valueExpr)) {
 			const { selectedST } = dmNode.context.selection;
-			const selectedSTNode = selectedST.stNode;
-			const isQueryExpr = STKindChecker.isSpecificField(selectedSTNode)
+			const { stNode: selectedSTNode, fieldPath, position } = selectedST;
+			const isSpecificFieldValueQueryExpr = STKindChecker.isSpecificField(selectedSTNode)
 				&& STKindChecker.isQueryExpression(selectedSTNode.valueExpr);
+			const isSelectClauseExprQueryExpr = isSelectClauseQueryExpr(fieldPath);
 			paramNode = dmNode.context.functionST.functionSignature.parameters.find((param) =>
-					!isQueryExpr
+					!isSpecificFieldValueQueryExpr
+					&& !isSelectClauseExprQueryExpr
 					&& STKindChecker.isRequiredParam(param)
 					&& param.paramName?.value === (valueExpr as SimpleNameReference).name.value
 				) as RequiredParam;
@@ -639,8 +641,13 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 			}
 
 			if (!paramNode) {
-				if (isQueryExpr) {
+				if (isSpecificFieldValueQueryExpr && !isSelectClauseExprQueryExpr) {
 					paramNode = (selectedSTNode.valueExpr as QueryExpression).queryPipeline.fromClause;
+				} else if (isSelectClauseExprQueryExpr) {
+					const queryExprFindingVisitor = new QueryExprFindingVisitorByPosition(position);
+					traversNode(selectedSTNode, queryExprFindingVisitor);
+					const queryExpr = queryExprFindingVisitor.getQueryExpression();
+					paramNode = queryExpr ? queryExpr.queryPipeline.fromClause : paramNode;
 				} else if (STKindChecker.isSpecificField(selectedSTNode)
 					&& STKindChecker.isBracedExpression(selectedSTNode.valueExpr)
 					&& STKindChecker.isQueryExpression(selectedSTNode.valueExpr.expression)) {
@@ -665,12 +672,6 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 						: selectedSTNode.functionBody.expression;
 					if (STKindChecker.isQueryExpression(bodyExpr)) {
 						paramNode = bodyExpr.queryPipeline.fromClause;
-						if (isSelectClauseQueryExpr(selectedST.fieldPath)) {
-							const queryExprFindingVisitor = new QueryExprFindingVisitorByPosition(selectedST.position);
-							traversNode(bodyExpr, queryExprFindingVisitor);
-							const queryExpr = queryExprFindingVisitor.getQueryExpression();
-							paramNode = queryExpr ? queryExpr.queryPipeline.fromClause : paramNode;
-						}
 					}
 				}
 			}

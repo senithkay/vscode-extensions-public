@@ -100,6 +100,8 @@ export class SelectedSTFindingVisitor implements Visitor {
                 traversNode(prevST.stNode, queryExprFindingVisitor);
                 const queryExpr = queryExprFindingVisitor.getQueryExpression();
                 updatedDMNode = {...updatedDMNode, position: queryExpr.position}
+            } else if (STKindChecker.isSpecificField(node) && STKindChecker.isQueryExpression(node.valueExpr)) {
+                updatedDMNode = {...updatedDMNode, position: node.valueExpr.position}
             }
             this.updatedPrevST = [...this.updatedPrevST, updatedDMNode];
             this.pathSegmentIndex = 1;
