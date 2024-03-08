@@ -13,6 +13,8 @@ import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from '@wso2-enterprise/m
 import { COMMANDS } from '../constants';
 import { ExtensionContext, Uri, ViewColumn, commands, window, workspace } from 'vscode';
 import { VisualizerWebview } from '../visualizer/webview';
+import path = require("path");
+import { deleteRegistryResource } from '../util/fileOperations';
 
 export function activateProjectExplorer(context: ExtensionContext) {
 
@@ -88,7 +90,33 @@ export function activateProjectExplorer(context: ExtensionContext) {
 	});
 
 	commands.registerCommand(COMMANDS.ADD_TASK_COMMAND, (entry: ProjectExplorerEntry) => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TaskForm, documentUri:entry.info?.path });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TaskForm, documentUri: entry.info?.path });
+	});
+
+	commands.registerCommand(COMMANDS.EDIT_REGISTERY_RESOURCE_COMMAND, async (entry: string) => {
+		workspace.openTextDocument(entry).then((doc) => {
+			window.showTextDocument(doc, { preview: false });
+		});
+	});
+
+	commands.registerCommand(COMMANDS.DELETE_REGISTERY_RESOURCE_COMMAND, async (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+		if (entry.info && entry.info?.path) {
+			const filePath = entry.info.path;
+			const fileName = path.basename(filePath);
+			window.showInformationMessage("Do you want to do delete : " + fileName, "Yes", "No")
+				.then(async answer => {
+					if (answer === "Yes") {
+						const res = await deleteRegistryResource(filePath);
+						if (res.status === true) {
+							window.showInformationMessage(res.info);
+							projectExplorerDataProvider.refresh();
+						} else {
+							window.showErrorMessage(res.info);
+						}
+					}
+				});
+		}
 	});
 
 	commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
