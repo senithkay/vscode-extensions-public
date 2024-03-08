@@ -145,7 +145,7 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
         let selectClauseIndex: number;
         if (isSelectClauseQuery) {
             const queryExprFindingVisitor = new QueryExprFindingVisitorByPosition(node.value.position);
-            traversNode(node.parentNode, queryExprFindingVisitor);
+            traversNode(selectedST, queryExprFindingVisitor);
             selectClauseIndex = queryExprFindingVisitor.getSelectClauseIndex();
         }
         node.context.changeSelection(ViewOption.EXPAND,
