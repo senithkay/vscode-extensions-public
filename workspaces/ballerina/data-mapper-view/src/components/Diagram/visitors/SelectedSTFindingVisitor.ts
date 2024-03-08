@@ -96,17 +96,32 @@ export class SelectedSTFindingVisitor implements Visitor {
             && nodeIdentifierName === itemIdentifierName
             && this.areValExprKindsEqual(item.stNode, node))
         {
-            const prevST = this.prevST.shift();
-            let updatedDMNode: DMNode = { ...prevST, stNode: node };
-            if (prevST.fieldPath === SELECT_CALUSE_QUERY) {
-                const queryExprFindingVisitor = new QueryExprFindingVisitorByIndex(prevST.index);
-                traversNode(prevST.stNode, queryExprFindingVisitor);
-                const queryExpr = queryExprFindingVisitor.getQueryExpression();
-                updatedDMNode = {...updatedDMNode, position: queryExpr.position}
-            } else if (STKindChecker.isSpecificField(node) && STKindChecker.isQueryExpression(node.valueExpr)) {
-                updatedDMNode = {...updatedDMNode, position: node.valueExpr.position}
+            if (this.prevST.some(prevST => prevST.fieldPath === SELECT_CALUSE_QUERY)) {
+                // Specific fields are repeated when value expression containes chained query expressions
+                // (Query expression as the expression value of a select clause)
+                [...this.prevST].forEach(_ => {
+                    const prevST = this.prevST.shift();
+                    let updatedDMNode: DMNode = { ...prevST, stNode: node };
+                    if (prevST.fieldPath === SELECT_CALUSE_QUERY) {
+                        const queryExprFindingVisitor = new QueryExprFindingVisitorByIndex(prevST.index);
+                        traversNode(prevST.stNode, queryExprFindingVisitor);
+                        const queryExpr = queryExprFindingVisitor.getQueryExpression();
+                        updatedDMNode = {...updatedDMNode, position: queryExpr.position}
+                    } else if (STKindChecker.isSpecificField(node) && STKindChecker.isQueryExpression(node.valueExpr)) {
+                        // Update the position of the query expressions declared as the value expression of specific fields
+                        updatedDMNode = {...updatedDMNode, position: node.valueExpr.position};
+                    }
+                    this.updatedPrevST = [...this.updatedPrevST, updatedDMNode];
+                });
+            } else {
+                const prevST = this.prevST.shift();
+                let updatedDMNode: DMNode = { ...prevST, stNode: node };
+                if (STKindChecker.isSpecificField(node) && STKindChecker.isQueryExpression(node.valueExpr)) {
+                    // Update the position of the query expressions declared as the value expression of specific fields
+                    updatedDMNode = {...updatedDMNode, position: node.valueExpr.position};
+                }
+                this.updatedPrevST = [...this.updatedPrevST, updatedDMNode];
             }
-            this.updatedPrevST = [...this.updatedPrevST, updatedDMNode];
             this.pathSegmentIndex = 1;
             const expr = STKindChecker.isSpecificField(node)
                 ? node.valueExpr
