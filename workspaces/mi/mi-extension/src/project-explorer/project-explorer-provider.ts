@@ -315,6 +315,14 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"command": COMMANDS.SHOW_DIAGRAM,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
+		} else if (entry.type === "MESSAGE_PROCESSOR") {
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			explorerEntry.contextValue = 'message-processor';
+			explorerEntry.command = {
+				"title": "Show Message Processor",
+				"command": COMMANDS.SHOW_MESSAGE_PROCESSOR,
+				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+			};
 		} else {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 		}
