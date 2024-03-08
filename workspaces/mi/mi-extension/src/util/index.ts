@@ -13,6 +13,7 @@ import * as path from 'path';
 import { ExtensionContext, Uri, Webview } from "vscode";
 import { getInboundEndpointdXml, GetInboundTemplatesArgs } from './template-engine/mustach-templates/inboundEndpoints';
 import { getRegistryResource } from './template-engine/mustach-templates/registryResources';
+import { getMessageProcessorXml, MessageProcessorTemplateArgs } from './template-engine/mustach-templates/MessageProcessor';
 import { getProxyServiceXml, ProxyServiceTemplateArgs } from './template-engine/mustach-templates/ProxyService';
 
 const isDevMode = process.env.WEB_VIEW_WATCH_MODE === "true";
@@ -47,6 +48,10 @@ export function getInboundEndpointXmlWrapper(props: GetInboundTemplatesArgs) {
 
 export function getRegistryResourceContent(type: string, resourceName: string) {
 	return getRegistryResource(type, resourceName);
+}
+
+export function getMessageProcessorXmlWrapper(props: MessageProcessorTemplateArgs) {
+	return getMessageProcessorXml(props);
 }
 
 export function getProxyServiceXmlWrapper(props: ProxyServiceTemplateArgs) {

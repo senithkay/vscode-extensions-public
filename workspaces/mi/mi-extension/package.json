@@ -139,6 +139,13 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.add-message-processor",
+        "title": "Add Message Processor",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.add-proxy-service",
         "title": "Add Proxy Service",
         "icon": "$(add)",
@@ -256,6 +263,11 @@
         {
           "command": "MI.project-explorer.delete-reg-resource",
           "when": "view == MI.project-explorer && (viewItem == registry-folder || viewItem == registry-file)",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-message-processor",
+          "when": "view == MI.project-explorer && viewItem == messageProcessors",
           "group": "inline"
         },
         {

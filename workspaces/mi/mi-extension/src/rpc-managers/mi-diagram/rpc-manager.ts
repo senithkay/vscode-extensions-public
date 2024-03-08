@@ -60,6 +60,10 @@ import {
     getSTRequest,
     getSTResponse,
     MACHINE_VIEW,
+    CreateMessageProcessorRequest,
+    CreateMessageProcessorResponse,
+    RetrieveMessageProcessorRequest,
+    RetrieveMessageProcessorResponse,
     CreateProxyServiceRequest,
     CreateProxyServiceResponse,
     BrowseFileResponse,
@@ -75,7 +79,7 @@ import { Position, Range, Selection, Uri, WorkspaceEdit, commands, window, works
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { createFolderStructure, getInboundEndpointXmlWrapper, getRegistryResourceContent, getProxyServiceXmlWrapper } from "../../util";
+import { createFolderStructure, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper } from "../../util";
 import { getMediatypeAndFileExtension, addNewEntryToArtifactXML } from "../../util/fileOperations";
 import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";
@@ -527,6 +531,210 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             undoRedo.addModification(content);
 
             resolve({ status: true });
+        });
+    }
+
+    async createMessageProcessor(params: CreateMessageProcessorRequest): Promise<CreateMessageProcessorResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, messageProcessorName, messageProcessorType, messageStoreType, failMessageStoreType,
+                targetMessageStoreType, processorState, dropMessageOption, quartzConfigPath, cron, forwardingInterval,
+                retryInterval, maxRedeliveryAttempts, maxConnectionAttempts, connectionAttemptInterval, taskCount,
+                statusCodes, clientRepository, axis2Config, endpointType, sequenceType, replySequenceType,
+                faultSequenceType, deactivateSequenceType, endpoint, sequence, replySequence,
+                faultSequence, deactivateSequence,
+                samplingInterval, samplingConcurrency,
+                providerClass, properties } = params;
+
+            const getTemplateParams = {
+                messageProcessorName, messageProcessorType, messageStoreType, failMessageStoreType, targetMessageStoreType,
+                processorState, dropMessageOption, quartzConfigPath, cron, forwardingInterval, retryInterval,
+                maxRedeliveryAttempts, maxConnectionAttempts, connectionAttemptInterval, taskCount, statusCodes,
+                clientRepository, axis2Config, endpointType, sequenceType, replySequenceType, faultSequenceType,
+                deactivateSequenceType, endpoint, sequence,
+                replySequence, faultSequence,
+                deactivateSequence, samplingInterval, samplingConcurrency, providerClass, properties
+            };
+
+            const xmlData = getMessageProcessorXmlWrapper(getTemplateParams);
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${messageProcessorName}.xml`);
+            }
+
+            if (filePath.includes('/messageProcessors')) {
+                filePath = filePath.replace('/messageProcessors', '/message-processors');
+            }
+
+            fs.writeFileSync(filePath, xmlData);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getMessageProcessor(params: RetrieveMessageProcessorRequest): Promise<RetrieveMessageProcessorResponse> {
+        const options = {
+            ignoreAttributes: false,
+            allowBooleanAttributes: true,
+            attributeNamePrefix: "@_",
+            attributesGroupName: "@_"
+        };
+        const parser = new XMLParser(options);
+
+        interface Parameter {
+            name: string;
+            value: string;
+        }
+
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (fs.existsSync(filePath)) {
+                const xmlData = fs.readFileSync(filePath, "utf8");
+                const jsonData = parser.parse(xmlData);
+                let parameters: Parameter[];
+                const className = jsonData.messageProcessor["@_"]["@_class"];
+                let response: RetrieveMessageProcessorResponse = {
+                    messageProcessorName: jsonData.messageProcessor["@_"]["@_name"],
+                    messageProcessorType: '',
+                    messageStoreType: jsonData.messageProcessor["@_"]["@_messageStore"],
+                    failMessageStoreType: '',
+                    sourceMessageStoreType: 'TestMBStore',
+                    targetMessageStoreType: 'TestMBStore',
+                    processorState: 'true',
+                    dropMessageOption: 'Disabled',
+                    quartzConfigPath: '',
+                    cron: '',
+                    forwardingInterval: 1000,
+                    retryInterval: 1000,
+                    maxRedeliveryAttempts: 4,
+                    maxConnectionAttempts: -1,
+                    connectionAttemptInterval: 1000,
+                    taskCount: null,
+                    statusCodes: '',
+                    clientRepository: '',
+                    axis2Config: '',
+                    endpointType: '',
+                    sequenceType: '',
+                    replySequenceType: '',
+                    faultSequenceType: '',
+                    deactivateSequenceType: '',
+                    endpoint: '',
+                    sequence: '',
+                    replySequence: '',
+                    faultSequence: '',
+                    deactivateSequence: '',
+                    samplingInterval: 1000,
+                    samplingConcurrency: 1,
+                    providerClass: '',
+                    properties: [],
+                    hasCustomProperties: false
+                };
+
+                if (jsonData.messageProcessor["@_"]["@_targetEndpoint"] !== undefined) {
+                    response.endpoint = jsonData.messageProcessor["@_"]["@_targetEndpoint"];
+                }
+
+                if (jsonData && jsonData.messageProcessor && jsonData.messageProcessor.parameter) {
+                    parameters = Array.isArray(jsonData.messageProcessor.parameter)
+                        ? jsonData.messageProcessor.parameter.map((param: any) => ({
+                            name: param["@_"]['@_name'],
+                            value: param['#text']
+                        }))
+                        : [{
+                            name: jsonData.messageProcessor.parameter["@_"]['@_name'],
+                            value: jsonData.messageProcessor.parameter['#text']
+                        }];
+
+                    const ScheduledMessageForwardingProcessor = {
+                            'client.retry.interval': 'retryInterval',
+                            'member.count': 'taskCount',
+                            'message.processor.reply.sequence': 'replySequence',
+                            'axis2.config': 'axis2Config',
+                            'quartz.conf': 'quartzConfigPath',
+                            'non.retry.status.codes': 'statusCodes',
+                            'message.processor.deactivate.sequence': 'deactivateSequence',
+                            'is.active': 'processorState',
+                            'axis2.repo': 'clientRepository',
+                            cronExpression: 'cron',
+                            'max.delivery.attempts': 'maxRedeliveryAttempts',
+                            'message.processor.fault.sequence': 'faultSequence',
+                            'store.connection.retry.interval': 'connectionAttemptInterval',
+                            'max.store.connection.attempts': 'maxConnectionAttempts',
+                            'max.delivery.drop': 'dropMessageOption',
+                            interval: 'forwardingInterval',
+                            'message.processor.failMessagesStore': 'failMessageStoreType'
+                        },
+                        ScheduledFailoverMessageForwardingProcessor = {
+                            'client.retry.interval': 'retryInterval',
+                            cronExpression: 'cron',
+                            'max.delivery.attempts': 'maxRedeliveryAttempts',
+                            'member.count': 'taskCount',
+                            'message.processor.fault.sequence': 'faultSequence',
+                            'quartz.conf': 'quartzConfigPath',
+                            'max.delivery.drop': 'dropMessageOption',
+                            interval: 'forwardingInterval',
+                            'store.connection.retry.interval': 'connectionAttemptInterval',
+                            'max.store.connection.attempts': 'maxConnectionAttempts',
+                            'message.processor.deactivate.sequence': 'deactivateSequence',
+                            'is.active': 'processorState',
+                            'message.target.store.name': 'targetMessageStoreType'
+                        },
+                        MessageSamplingProcessor = {
+                            cronExpression: 'cron',
+                            sequence: 'sequence',
+                            'quartz.conf': 'quartzConfigPath',
+                            interval: 'samplingInterval',
+                            'is.active': 'processorState',
+                            concurrency: 'samplingConcurrency',
+                        };
+
+                    const customProperties: { key: string, value: any }[] = [];
+                    if (className === 'org.apache.synapse.message.processor.impl.forwarder.ScheduledMessageForwardingProcessor') {
+                        response.messageProcessorType = 'Scheduled Message Forwarding Processor';
+                        parameters.forEach((param: Parameter) => {
+                            if (ScheduledMessageForwardingProcessor.hasOwnProperty(param.name)) {
+                                response[ScheduledMessageForwardingProcessor[param.name]] = param.value;
+                            } else {
+                                customProperties.push({ key: param.name, value: param.value });
+                            }
+
+                        });
+                    } else if (className === 'org.apache.synapse.message.processor.impl.sampler.SamplingProcessor') {
+                        response.messageProcessorType = 'Message Sampling Processor';
+                        parameters.forEach((param: Parameter) => {
+                            if (MessageSamplingProcessor.hasOwnProperty(param.name)) {
+                                response[MessageSamplingProcessor[param.name]] = param.value;
+                            } else {
+                                customProperties.push({ key: param.name, value: param.value });
+                            }
+                        });
+                    } else if (className === 'org.apache.synapse.message.processor.impl.failover.FailoverScheduledMessageForwardingProcessor') {
+                        response.messageProcessorType = 'Scheduled Failover Message Forwarding Processor';
+                        parameters.forEach((param: Parameter) => {
+                            if (ScheduledFailoverMessageForwardingProcessor.hasOwnProperty(param.name)) {
+                                response[ScheduledFailoverMessageForwardingProcessor[param.name]] = param.value;
+                            } else {
+                                customProperties.push({ key: param.name, value: param.value });
+                            }
+                        });
+                    } else {
+                        response.messageProcessorType = 'Custom Message Processor';
+                        response.providerClass = className;
+                        response.properties = parameters.map(pair => ({ key: pair.name, value: pair.value }));
+                    }
+
+                    if (customProperties.length > 0) {
+                        response.hasCustomProperties = true;
+                        response.properties = customProperties;
+                    }
+
+                }
+
+                resolve(response);
+            }
         });
     }
 

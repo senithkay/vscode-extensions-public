@@ -3,12 +3,13 @@ import { EVENT_TYPE, MACHINE_VIEW, MachineStateValue } from '@wso2-enterprise/mi
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Overview } from './views/Overview';
 import { ServiceDesignerView } from './views/ServiceDesigner';
-import { APIWizard } from './views/Forms/APIform';
+import { APIWizard, APIWizardProps } from './views/Forms/APIform';
 import { EndpointWizard } from './views/Forms/EndpointForm';
 import { SequenceWizard } from './views/Forms/SequenceForm';
 import { NavigationBar } from './components/NavigationBar';
 import { ProjectWizard } from './views/Forms/ProjectForm';
 import { Diagram } from '@wso2-enterprise/mi-diagram-2';
+import { MessageProcessorWizard } from "./views/Forms/MessageProcessorForm";
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { InboundEPWizard } from './views/Forms/InboundEPform';
@@ -78,10 +79,17 @@ const MainPanel = () => {
                     rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
                     break;
                 case MACHINE_VIEW.ServiceDesigner:
-                    setViewComponent(<ServiceDesignerView />);
+                    rpcClient
+                        .getMiDiagramRpcClient()
+                        .getSyntaxTree({ documentUri: machineView.documentUri })
+                        .then((st) => {
+                            if (st) {
+                                setViewComponent(<ServiceDesignerView syntaxTree={st.syntaxTree} documentUri={machineView.documentUri} />);
+                            }
+                        });
                     break;
                 case MACHINE_VIEW.APIForm:
-                    setViewComponent(<APIWizard path={machineView.documentUri} />);
+                    setViewComponent(<APIWizard apiData={(machineView.customProps as APIWizardProps)?.apiData} path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.EndPointForm:
                     setViewComponent(<EndpointWizard path={machineView.documentUri} />);
@@ -94,6 +102,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.RegistryResourceForm:
                     setViewComponent(<RegistryResourceForm path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.MessageProcessorForm:
+                    setViewComponent(<MessageProcessorWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.ProxyServiceForm:
                     setViewComponent(<ProxyServiceWizard path={machineView.documentUri} />);

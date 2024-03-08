@@ -180,6 +180,88 @@ export interface CreateSequenceResponse {
     filePath: string;
 }
 
+export interface CreateMessageProcessorRequest {
+    directory: string;
+    messageProcessorName: string;
+    messageProcessorType: string;
+    messageStoreType: string;
+    failMessageStoreType: string;
+    sourceMessageStoreType: string;
+    targetMessageStoreType: string;
+    processorState: string;
+    dropMessageOption: string;
+    quartzConfigPath: string;
+    cron: string;
+    forwardingInterval: number | null;
+    retryInterval: number | null;
+    maxRedeliveryAttempts: number | null;
+    maxConnectionAttempts: number | null;
+    connectionAttemptInterval: number | null;
+    taskCount: number | null;
+    statusCodes: string;
+    clientRepository: string;
+    axis2Config: string;
+    endpointType: string;
+    sequenceType: string;
+    replySequenceType: string;
+    faultSequenceType: string;
+    deactivateSequenceType: string;
+    endpoint: string;
+    sequence: string;
+    replySequence: string;
+    faultSequence: string;
+    deactivateSequence: string;
+    samplingInterval: number | null;
+    samplingConcurrency: number | null;
+    providerClass: string;
+    properties: any;
+}
+
+export interface CreateMessageProcessorResponse {
+    path: string;
+}
+
+export interface RetrieveMessageProcessorRequest {
+    path: string;
+}
+
+export interface RetrieveMessageProcessorResponse {
+    messageProcessorName: string;
+    messageProcessorType: string;
+    messageStoreType: string;
+    failMessageStoreType: string;
+    sourceMessageStoreType: string;
+    targetMessageStoreType: string;
+    processorState: string;
+    dropMessageOption: string;
+    quartzConfigPath: string;
+    cron: string;
+    forwardingInterval: number | null;
+    retryInterval: number | null;
+    maxRedeliveryAttempts: number | null;
+    maxConnectionAttempts: number | null;
+    connectionAttemptInterval: number | null;
+    taskCount: number | null;
+    statusCodes: string;
+    clientRepository: string;
+    axis2Config: string;
+    endpointType: string;
+    sequenceType: string;
+    replySequenceType: string;
+    faultSequenceType: string;
+    deactivateSequenceType: string;
+    endpoint: string;
+    sequence: string;
+    replySequence: string;
+    faultSequence: string;
+    deactivateSequence: string;
+    samplingInterval: number | null;
+    samplingConcurrency: number | null;
+    providerClass: string;
+    properties: any;
+    hasCustomProperties: boolean;
+}
+
 export interface CreateProxyServiceRequest {
     directory: string;
     proxyServiceName: string;

@@ -26,7 +26,8 @@ export function activateProjectExplorer(context: ExtensionContext) {
 			{ label: 'Endpoint', description: 'Add new endpoint' },
 			{ label: 'Sequence', description: 'Add new sequence' },
 			{ label: 'Inbound Endpoint', description: 'Add new inbound endpoint' },
-			{ label: 'Local Entry', description: 'Add new local entry' }
+			{ label: 'Local Entry', description: 'Add new local entry' },
+			{ label: 'Message Processor', description: 'Add new message processor' }
 		], {
 			placeHolder: 'Select the construct to add'
 		}).then(selection => {
@@ -38,6 +39,8 @@ export function activateProjectExplorer(context: ExtensionContext) {
 				commands.executeCommand(COMMANDS.ADD_SEQUENCE_COMMAND);
 			} else if (selection?.label === 'Inbound Endpoint') {
 				commands.executeCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND);
+			} else if (selection?.label === 'Message Processor') {
+				commands.executeCommand(COMMANDS.ADD_MESSAGE_PROCESSOR_COMMAND);
 			} else if (selection?.label === 'New Project') {
 				commands.executeCommand(COMMANDS.CREATE_PROJECT_COMMAND);
 			} else if (selection?.label === 'Local Entry') {
@@ -71,10 +74,15 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		console.log('Add Registry Resource');
 	});
 
-	commands.registerCommand(COMMANDS.ADD_PROXY_SERVICE_COMMAND, (entry: ProjectExplorerEntry) => {
+	commands.registerCommand(COMMANDS.ADD_MESSAGE_PROCESSOR_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MessageProcessorForm, documentUri: entry.info?.path });
+		console.log('Add Message Processor');
+	});
+  
+  commands.registerCommand(COMMANDS.ADD_PROXY_SERVICE_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProxyServiceForm, documentUri: entry.info?.path });
 		console.log('Add Proxy Service');
-	});
+  });
 
 	commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
 		// Update state machine to show the api wizard
@@ -134,12 +142,16 @@ export function activateProjectExplorer(context: ExtensionContext) {
 			}
 		}
 	})
-	commands.registerCommand(COMMANDS.SHOW_XML, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+	commands.registerCommand(COMMANDS.SHOW_MESSAGE_PROCESSOR, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MessageProcessorForm, documentUri: documentUri?.fsPath });
+	});
+  commands.registerCommand(COMMANDS.SHOW_XML, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		const uri = Uri.file(documentUri?.fsPath);
 		workspace.openTextDocument(uri).then((document) => {
 			window.showTextDocument(document);
 		});
-	})
+  })
 	commands.registerCommand(COMMANDS.OPEN_PROJECT_OVERVIEW, async (entry: ProjectExplorerEntry) => {
 		revealWebviewPanel(false);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
