@@ -9,11 +9,11 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    LibrariesListRequest,
+    LibrariesListResponse,
     LibraryBrowserAPI,
     LibraryDataRequest,
     LibraryDataResponse,
-    LibraryDocResponse,
-    LibraryKind,
     LibrarySearchResponse,
     getLibrariesData,
     getLibrariesList,
@@ -29,10 +29,10 @@ export class LibraryBrowserRpcClient implements LibraryBrowserAPI {
         this._messenger = messenger;
     }
 
-    getLibrariesList(params?: LibraryKind): Promise<LibraryDocResponse> {
+    getLibrariesList(params: LibrariesListRequest): Promise<LibrariesListResponse> {
         return this._messenger.sendRequest(getLibrariesList, HOST_EXTENSION, params);
     }
-    
+
     getLibrariesData(): Promise<LibrarySearchResponse> {
         return this._messenger.sendRequest(getLibrariesData, HOST_EXTENSION);
     }

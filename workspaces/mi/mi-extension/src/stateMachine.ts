@@ -24,7 +24,7 @@ const stateMachine = createMachine<MachineContext>({
     context: {
         langClient: null,
         errorCode: null,
-        view: MACHINE_VIEW.Overview
+        view: MACHINE_VIEW.Welcome
     },
     states: {
         initialize: {
@@ -33,7 +33,10 @@ const stateMachine = createMachine<MachineContext>({
                 src: checkIfMiProject,
                 onDone: {
                     target: 'projectDetected',
-                    cond: (context, event) => event.data
+                    cond: (context, event) => event.data,
+                    actions: assign({
+                        view: (context, event) => MACHINE_VIEW.Overview
+                    })
                 },
                 onError: {
                     target: 'newProject'
@@ -97,7 +100,8 @@ const stateMachine = createMachine<MachineContext>({
                                 documentUri: (context, event) => event.viewLocation.documentUri,
                                 projectUri: (context, event) => event.viewLocation.projectUri,
                                 position: (context, event) => event.viewLocation.position,
-                                projectOpened: (context, event) => true
+                                projectOpened: (context, event) => true,
+                                customProps: (context, event) => event.viewLocation.customProps
                             })
                         },
                         NAVIGATE: {
@@ -107,7 +111,8 @@ const stateMachine = createMachine<MachineContext>({
                                 identifier: (context, event) => event.viewLocation.identifier,
                                 documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
                                 position: (context, event) => event.viewLocation.position,
-                                projectOpened: (context, event) => true
+                                projectOpened: (context, event) => true,
+                                customProps: (context, event) => event.viewLocation.customProps
                             })
                         },
                         FILE_EDIT: {
@@ -128,38 +133,22 @@ const stateMachine = createMachine<MachineContext>({
             // define what should happen when the project is not detected
         },
         newProject: {
-            initial: "init",
+            initial: "viewLoading",
             states: {
-                init: {
+                viewLoading: {
                     invoke: {
                         src: 'openWebPanel',
                         onDone: {
-                            target: 'welcome'
+                            target: 'viewReady'
                         }
                     }
                 },
-                welcome: {
+                viewReady: {
                     on: {
-                        GET_STARTED: {
-                            target: "create",
-                        },
                         OPEN_VIEW: {
-                            target: "init",
-                            actions: assign({
-                                view: (context, event) => event.viewLocation.view,
-                            })
-                        }
-                    }
-                },
-                create: {
-                    on: {
-                        CANCEL_CREATION: {
-                            target: "welcome"
-                        },
-                        OPEN_VIEW: {
-                            target: "init",
-                            actions: assign({
-                                view: (context, event) => event.viewLocation.view,
+                            target: "viewLoading",
+                             actions: assign({
+                                view: (context, event) => event.viewLocation.view
                             })
                         }
                     }
@@ -185,7 +174,7 @@ const stateMachine = createMachine<MachineContext>({
             // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
             return new Promise((resolve, reject) => {
                 if (!VisualizerWebview.currentPanel) {
-                    VisualizerWebview.currentPanel = new VisualizerWebview();
+                    VisualizerWebview.currentPanel = new VisualizerWebview(context.view!);
                     RPCLayer._messenger.onNotification(webviewReady, () => {
                         resolve(true);
                     });
@@ -225,12 +214,11 @@ export const StateMachine = {
 };
 
 export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
-    if (viewLocation?.documentUri) viewLocation.documentUri = Uri.parse(viewLocation.documentUri).fsPath;
-
-    updateProjectExplorer(viewLocation);
-    if (history.get().length > 0 && history.get()[history.get().length - 1].location !== viewLocation) {
-        stateService.send({ type: type, viewLocation: viewLocation });
+    if (viewLocation?.documentUri) {
+        viewLocation.documentUri = Uri.parse(viewLocation.documentUri).fsPath;
     }
+    updateProjectExplorer(viewLocation);
+    stateService.send({ type: type, viewLocation: viewLocation });
 }
 
 export function navigate() {

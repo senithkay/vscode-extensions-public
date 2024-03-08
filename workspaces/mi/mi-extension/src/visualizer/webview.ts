@@ -15,6 +15,7 @@ import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
 import { debounce } from 'lodash';
 import { navigate } from '../stateMachine';
+import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
@@ -22,8 +23,8 @@ export class VisualizerWebview {
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 
-    constructor(beside: boolean = false) {
-        this._panel = VisualizerWebview.createWebview(beside);
+    constructor(view: MACHINE_VIEW, beside: boolean = false) {
+        this._panel = VisualizerWebview.createWebview(view, beside);
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.html = this.getWebviewContent(this._panel.webview);
         RPCLayer.create(this._panel);
@@ -41,10 +42,10 @@ export class VisualizerWebview {
         }, extension.context);
     }
 
-    private static createWebview(beside: boolean): vscode.WebviewPanel {
+    private static createWebview(view: MACHINE_VIEW, beside: boolean): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
             VisualizerWebview.viewType,
-            'Overview',
+            view || MACHINE_VIEW.Overview,
             beside ? ViewColumn.Beside : ViewColumn.Active,
             {
                 enableScripts: true,

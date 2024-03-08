@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Type } from "@wso2-enterprise/ballerina-core";
+import { TypeField } from "@wso2-enterprise/ballerina-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 export interface ArrayElement {
@@ -16,10 +16,10 @@ export interface ArrayElement {
 
 export class EditableRecordField {
 	constructor(
-		public type: Type,
+		public type: TypeField,
 		public value?: STNode,
 		public parentType?: EditableRecordField,
-		public originalType?: Type,
+		public originalType?: TypeField,
 		public childrenTypes?: EditableRecordField[],
 		public elements?: ArrayElement[]
 	){}

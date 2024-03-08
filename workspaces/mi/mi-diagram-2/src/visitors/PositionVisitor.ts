@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STNode, Visitor, Log, WithParam, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { STNode, Visitor, Log, WithParam, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, CacheOnCacheHit, Bean, PojoCommand, Ejb, Script, Spring } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
 
 export class PositionVisitor implements Visitor {
@@ -94,7 +94,7 @@ export class PositionVisitor implements Visitor {
 
         // set filter node positions after traversing children
         this.position.x = node.viewState.x + node.viewState.w / 2;
-        this.position.y = node.viewState.y + node.viewState.fh;
+        this.position.y = node.viewState.y + node.viewState.fh + NODE_GAP.Y;
         this.skipChildrenVisit = true;
     }
 
@@ -177,4 +177,11 @@ export class PositionVisitor implements Visitor {
     beginVisitWithParam = (node: WithParam): void => this.setBasicMediatorPosition(node);
     beginVisitCallTemplate = (node: CallTemplate): void => this.setBasicMediatorPosition(node);
 
+    //Extension Mediartos
+    beginVisitClass = (node: Class): void => this.setBasicMediatorPosition(node);
+    beginVisitBean = (node: Bean): void => this.setBasicMediatorPosition(node);
+    beginVisitPojoCommand = (node: PojoCommand): void => this.setBasicMediatorPosition(node);
+    beginVisitEjb = (node: Ejb): void => this.setBasicMediatorPosition(node);
+    beginVisitScript = (node: Script): void => this.setBasicMediatorPosition(node);
+    beginVisitSpring = (node: Spring): void => this.setBasicMediatorPosition(node);
 }

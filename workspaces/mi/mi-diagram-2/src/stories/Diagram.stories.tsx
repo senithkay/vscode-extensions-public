@@ -1328,3 +1328,267 @@ Sequence.args = {
         "tag": "sequence"
     }
 };
+
+export const NestedFilter = Template.bind({});
+NestedFilter.args = {
+    model: {
+        inSequence: {
+            mediatorList: [
+                {
+                    then: {
+                        mediatorList: [
+                            {
+                                then: {
+                                    mediatorList: [],
+                                    range: {
+                                        startTagRange: {
+                                            start: {
+                                                line: 9,
+                                                character: 16
+                                            },
+                                            end: {
+                                                line: 9,
+                                                character: 22
+                                            }
+                                        },
+                                        endTagRange: {
+                                            start: {
+                                                line: 10,
+                                                character: 16
+                                            },
+                                            end: {
+                                                line: 10,
+                                                character: 23
+                                            }
+                                        }
+                                    },
+                                    hasTextNode: true,
+                                    textNode: "\n                ",
+                                    selfClosed: false,
+                                    tag: "then"
+                                },
+                                else_: {
+                                    mediatorList: [],
+                                    range: {
+                                        startTagRange: {
+                                            start: {
+                                                line: 11,
+                                                character: 16
+                                            },
+                                            end: {
+                                                line: 11,
+                                                character: 22
+                                            }
+                                        },
+                                        endTagRange: {
+                                            start: {
+                                                line: 12,
+                                                character: 16
+                                            },
+                                            end: {
+                                                line: 12,
+                                                character: 23
+                                            }
+                                        }
+                                    },
+                                    hasTextNode: true,
+                                    textNode: "\n                ",
+                                    selfClosed: false,
+                                    tag: "else"
+                                },
+                                range: {
+                                    startTagRange: {
+                                        start: {
+                                            line: 8,
+                                            character: 12
+                                        },
+                                        end: {
+                                            line: 8,
+                                            character: 21
+                                        }
+                                    },
+                                    endTagRange: {
+                                        start: {
+                                            line: 13,
+                                            character: 12
+                                        },
+                                        end: {
+                                            line: 13,
+                                            character: 21
+                                        }
+                                    }
+                                },
+                                hasTextNode: false,
+                                selfClosed: false,
+                                tag: "filter"
+                            }
+                        ],
+                        range: {
+                            startTagRange: {
+                                start: {
+                                    line: 7,
+                                    character: 12
+                                },
+                                end: {
+                                    line: 7,
+                                    character: 18
+                                }
+                            },
+                            endTagRange: {
+                                start: {
+                                    line: 15,
+                                    character: 12
+                                },
+                                end: {
+                                    line: 15,
+                                    character: 19
+                                }
+                            }
+                        },
+                        hasTextNode: false,
+                        selfClosed: false,
+                        tag: "then"
+                    },
+                    else_: {
+                        mediatorList: [],
+                        range: {
+                            startTagRange: {
+                                start: {
+                                    line: 16,
+                                    character: 12
+                                },
+                                end: {
+                                    line: 16,
+                                    character: 18
+                                }
+                            },
+                            endTagRange: {
+                                start: {
+                                    line: 17,
+                                    character: 12
+                                },
+                                end: {
+                                    line: 17,
+                                    character: 19
+                                }
+                            }
+                        },
+                        hasTextNode: true,
+                        textNode: "\n            ",
+                        selfClosed: false,
+                        tag: "else"
+                    },
+                    range: {
+                        startTagRange: {
+                            start: {
+                                line: 6,
+                                character: 8
+                            },
+                            end: {
+                                line: 6,
+                                character: 17
+                            }
+                        },
+                        endTagRange: {
+                            start: {
+                                line: 18,
+                                character: 8
+                            },
+                            end: {
+                                line: 18,
+                                character: 17
+                            }
+                        }
+                    },
+                    hasTextNode: false,
+                    selfClosed: false,
+                    tag: "filter"
+                }
+            ],
+            range: {
+                startTagRange: {
+                    start: {
+                        line: 5,
+                        character: 8
+                    },
+                    end: {
+                        line: 5,
+                        character: 20
+                    }
+                },
+                endTagRange: {
+                    start: {
+                        line: 23,
+                        character: 8
+                    },
+                    end: {
+                        line: 23,
+                        character: 21
+                    }
+                }
+            },
+            hasTextNode: false,
+            selfClosed: false,
+            tag: "inSequence"
+        },
+        outSequence: {
+            mediatorList: [],
+            range: {
+                startTagRange: {
+                    start: {
+                        line: 24,
+                        character: 8
+                    },
+                    end: {
+                        line: 24,
+                        character: 21
+                    }
+                },
+                endTagRange: {
+                    start: {
+                        line: 26,
+                        character: 8
+                    },
+                    end: {
+                        line: 26,
+                        character: 22
+                    }
+                }
+            },
+            hasTextNode: true,
+            textNode: "\n        \n        ",
+            selfClosed: false,
+            tag: "outSequence"
+        },
+        methods: [
+            "POST",
+            "GET"
+        ],
+        uriTemplate: "/resource",
+        range: {
+            startTagRange: {
+                start: {
+                    line: 4,
+                    character: 4
+                },
+                end: {
+                    line: 4,
+                    character: 58
+                }
+            },
+            endTagRange: {
+                start: {
+                    line: 27,
+                    character: 4
+                },
+                end: {
+                    line: 27,
+                    character: 15
+                }
+            }
+        },
+        hasTextNode: false,
+        selfClosed: false,
+        tag: "resource"
+    }
+};

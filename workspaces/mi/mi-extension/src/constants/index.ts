@@ -3,6 +3,7 @@ export const MI_COPILOT_BACKEND_URL = "https://cf3a4176-54c9-4547-bcd6-c6fe400ad
 
 export const COMMANDS = {
     OPEN_PROJECT: "MI.openProject",
+    OPEN_WELCOME: "MI.openWelcome",
     SHOW_DIAGRAM: "MI.show.diagram",
     SHOW_SOURCE: "MI.show.source",
     ADD_MEDIATOR: "MI.addMediator",
@@ -18,4 +19,6 @@ export const COMMANDS = {
     FOCUS_PROJECT_EXPLORER: 'MI.project-explorer.focus',
     OPEN_SERVICE_DESIGNER: 'MI.project-explorer.open-service-designer',
     OPEN_SERVICE_DESIGNER_BESIDE: 'MI.project-explorer.open-service-designer-beside',
+    OPEN_PROJECT_OVERVIEW: 'MI.project-explorer.open-project-overview',
+    ADD_REGISTERY_RESOURCE_COMMAND: 'MI.project-explorer.add-registry-resource',
 };

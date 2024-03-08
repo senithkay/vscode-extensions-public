@@ -24,15 +24,15 @@ import {
 } from "react-icons/vsc";
 
 import {
-    CompletionResponse,
-    getFilteredDiagnostics,
+    Completion,
     getSelectedDiagnostics,
     LinePosition,
     ParameterInfo,
     STModification,
     STSymbolInfo,
     SymbolDocumentation
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
+import { getFilteredDiagnostics } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     Minutiae, ModuleVarDecl,
     NodePosition,
@@ -514,7 +514,7 @@ export function getSuggestionIconStyle(suggestionType: number, isReference: bool
     };
 }
 
-export function sortSuggestions(x: CompletionResponse, y: CompletionResponse) {
+export function sortSuggestions(x: Completion, y: Completion) {
     if (!!x.sortText && !!y.sortText) {
         return x.sortText.localeCompare(y.sortText);
     }

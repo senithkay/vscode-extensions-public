@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { EVENT_TYPE, MachineStateValue } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MACHINE_VIEW, MachineStateValue } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Overview } from './views/Overview';
 import { ServiceDesignerView } from './views/ServiceDesigner';
-import { APIWizard } from './views/Forms/APIform';
+import { APIWizard, APIWizardProps } from './views/Forms/APIform';
 import { EndpointWizard } from './views/Forms/EndpointForm';
 import { SequenceWizard } from './views/Forms/SequenceForm';
 import { NavigationBar } from './components/NavigationBar';
@@ -13,6 +13,7 @@ import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { InboundEPWizard } from './views/Forms/InboundEPform';
 import { LocalEntryWizard } from './views/Forms/LocalEntryForm';
+import { RegistryResourceForm } from './views/Forms/RegistryResourceForm';
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -52,10 +53,10 @@ const MainPanel = () => {
     const fetchContext = () => {
         rpcClient.getVisualizerState().then((machineView) => {
             switch (machineView?.view) {
-                case "Overview":
+                case MACHINE_VIEW.Overview:
                     setViewComponent(<Overview />);
                     break;
-                case "Diagram":
+                case MACHINE_VIEW.Diagram:
                     rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri }).then((st) => {
                         if (!st?.syntaxTree) {
                             return;
@@ -75,27 +76,37 @@ const MainPanel = () => {
                     });
                     rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
                     break;
-                case "ServiceDesigner":
-                    setViewComponent(<ServiceDesignerView />);
+                case MACHINE_VIEW.ServiceDesigner:
+                    rpcClient
+                        .getMiDiagramRpcClient()
+                        .getSyntaxTree({ documentUri: machineView.documentUri })
+                        .then((st) => {
+                            if (st) {
+                                setViewComponent(<ServiceDesignerView syntaxTree={st.syntaxTree} documentUri={machineView.documentUri} />);
+                            }
+                        });
                     break;
-                case "APIForm":
-                    setViewComponent(<APIWizard path={machineView.documentUri} />);
+                case MACHINE_VIEW.APIForm:
+                    setViewComponent(<APIWizard apiData={(machineView.customProps as APIWizardProps)?.apiData} path={machineView.documentUri} />);
                     break;
-                case "EndPointForm":
+                case MACHINE_VIEW.EndPointForm:
                     setViewComponent(<EndpointWizard path={machineView.documentUri} />);
                     break;
-                case "SequenceForm":
+                case MACHINE_VIEW.SequenceForm:
                     setViewComponent(<SequenceWizard path={machineView.documentUri} />);
                     break;
-                case "InboundEPForm":
+                case MACHINE_VIEW.InboundEPForm:
                     setViewComponent(<InboundEPWizard path={machineView.documentUri} />);
                     break;
-                case "ProjectCreationForm":
+                case MACHINE_VIEW.RegistryResourceForm:
+                    setViewComponent(<RegistryResourceForm path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.ProjectCreationForm:
                     setViewComponent(<ProjectWizard />);
                     break;
-                case "LocalEntryForm":
+                case MACHINE_VIEW.LocalEntryForm:
                     setViewComponent(<LocalEntryWizard />);
-                    break;    
+                    break;
                 default:
                     setViewComponent(null);
             }

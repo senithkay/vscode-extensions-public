@@ -11,7 +11,7 @@
 import React, { useEffect, useState } from "react";
 import { VisualizerLocation, CreateProjectRequest } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import {TextArea, Button} from "@wso2-enterprise/ui-toolkit";
+import { TextArea, Button } from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from 'react-markdown';
 import './AIProjectGenerationChat.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -131,28 +131,27 @@ export function AIProjectGenerationChat() {
         console.error('Error:', error);
       });
 
-  
   };
 
 
   const handleAddtoWorkspace = async () => {
-      var path="";
-      await rpcClient.getMiDiagramRpcClient().askProjectDirPath().then((response) => {
-        path = response.path;
-        const request: CreateProjectRequest = {
-          directory: path,
-          name: "temp",
-          open: false,
-        };
-  
-        rpcClient.getMiDiagramRpcClient().createProject(request).then((response) => {
-          console.log(response);
-        } );
+    var path = "";
+    await rpcClient.getMiDiagramRpcClient().askProjectDirPath().then((response) => {
+      path = response.path;
+      const request: CreateProjectRequest = {
+        directory: path,
+        name: "temp",
+        open: false,
+      };
 
-        rpcClient.getMiDiagramRpcClient().writeContentToFile({content: codeBlocks, directoryPath: path}).then((response) => {
-          console.log(response);
-        } );
+      rpcClient.getMiDiagramRpcClient().createProject(request).then((response) => {
+        console.log(response);
       });
+
+      rpcClient.getMiDiagramRpcClient().writeContentToFile({ content: codeBlocks, directoryPath: path }).then((response) => {
+        console.log(response);
+      });
+    });
   }
 
 
@@ -189,13 +188,13 @@ export function AIProjectGenerationChat() {
           <div key={index} style={{ marginBottom: "8px" }}>
             <strong>{message.role}:</strong>
             {splitContent(message.content).map((segment, i) =>
-                segment.isCode ? (
-                  <SyntaxHighlighter key={i} language="xml" style={materialOceanic}>
-                    {segment.text}
-                  </SyntaxHighlighter>
-                ) : (
-                  <MarkdownRenderer key={i} markdownContent={segment.text} />
-                )
+              segment.isCode ? (
+                <SyntaxHighlighter key={i} language="xml" style={materialOceanic}>
+                  {segment.text}
+                </SyntaxHighlighter>
+              ) : (
+                <MarkdownRenderer key={i} markdownContent={segment.text} />
+              )
             )}
           </div>
         ))}
@@ -204,32 +203,32 @@ export function AIProjectGenerationChat() {
         <TextArea
           onChange={(e) => setUserInput(e)}
           placeholder="Type your message here"
-          required
+          required={true}
           value={userInput}
           className="custom-textarea-style"
         />
         <div>
-            <Button
-              appearance="primary"
-              onClick={handleSend}
-              tooltip="Send"
-              className="custom-button-style"
-            >
-              <br />
-              <div style={{ color: 'var(--vscode-editor-foreground)' }}>Send</div>
-            </Button>
+          <Button
+            appearance="primary"
+            onClick={handleSend}
+            tooltip="Send"
+            className="custom-button-style"
+          >
+            <br />
+            <div style={{ color: 'var(--vscode-editor-foreground)' }}>Send</div>
+          </Button>
         </div>
 
         <div>
-            <Button
-              appearance="primary"
-              onClick={handleAddtoWorkspace}
-              tooltip="Send"
-              className="custom-button-style"
-            >
-              <br />
-              <div style={{ color: 'var(--vscode-editor-foreground)' }}>Create Project</div>
-            </Button>
+          <Button
+            appearance="primary"
+            onClick={handleAddtoWorkspace}
+            tooltip="Send"
+            className="custom-button-style"
+          >
+            <br />
+            <div style={{ color: 'var(--vscode-editor-foreground)' }}>Create Project</div>
+          </Button>
         </div>
 
 

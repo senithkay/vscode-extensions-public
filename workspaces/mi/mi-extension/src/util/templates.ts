@@ -20,12 +20,12 @@ export const projectFileContent = (projectName: string) => `<?xml version="1.0" 
 	</natures>
 </projectDescription>`;
 
-export const rootPomXmlContent = (projectName: string) => `<?xml version="1.0" encoding="UTF-8"?>
+export const rootPomXmlContent = (projectName: string, groupID: string, artifactID: string) => `<?xml version="1.0" encoding="UTF-8"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>wso2.sample${projectName}</groupId>
-  <artifactId>${projectName}</artifactId>
+  <groupId>${groupID}</groupId>
+  <artifactId>${artifactID}</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>${projectName}</name>

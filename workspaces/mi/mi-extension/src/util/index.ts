@@ -12,6 +12,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { ExtensionContext, Uri, Webview } from "vscode";
 import { getInboundEndpointdXml, GetInboundTemplatesArgs } from './template-engine/mustach-templates/inboundEndpoints';
+import { getRegistryResource } from './template-engine/mustach-templates/registryResources';
 
 const isDevMode = process.env.WEB_VIEW_WATCH_MODE === "true";
 
@@ -41,4 +42,8 @@ export function createFolderStructure(targetPath: string, structure: FileStructu
 
 export function getInboundEndpointXmlWrapper(props: GetInboundTemplatesArgs) {
 	return getInboundEndpointdXml(props);
+}
+
+export function getRegistryResourceContent(type: string, resourceName: string) {
+	return getRegistryResource(type, resourceName);
 }

@@ -8,7 +8,7 @@
  */
 
 import { PortModelAlignment } from "@projectstorm/react-diagrams";
-import { SharedNodeModel } from "../../shared-node/shared-node";
+import { SharedNodeModel } from "../../SharedNode/SharedNode";
 import { ConnectionPortModel } from "../ConnectionPort/ConnectionPortModel";
 import { Connection } from "../../../types";
 import { CONNECTION_NODE } from "../../../resources";

@@ -1,6 +1,6 @@
 .container {
     align-items: center;
-    background-image: url('../../../resources/assets/PatternBg.svg');
+    background-image: radial-gradient(circle at 0.5px 0.5px, var(--vscode-textBlockQuote-border) 1px, transparent 0);
     background-repeat: repeat;
     display: flex;
     flex-direction: column;
@@ -19,7 +19,7 @@
 .console-container {
     position: absolute;
     align-items: center;
-    background-image: url('../../../resources/assets/PatternBg.svg');
+    background-image: radial-gradient(circle at 0.5px 0.5px, var(--vscode-textBlockQuote-border) 1px, transparent 0);
     background-repeat: repeat;
     display: flex;
     flex-direction: column;

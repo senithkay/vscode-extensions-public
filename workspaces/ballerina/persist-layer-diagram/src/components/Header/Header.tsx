@@ -31,12 +31,16 @@ const HeaderContainer = styled.div`
     width: calc(100vw - 20px);
 `;
 
+export const Title = styled.div(() => ({
+    color: 'var(--vscode-sideBarSectionHeader-foreground)'
+}));
+
 export function HeaderWidget(props: HeaderProps) {
     const {collapsedMode, setIsCollapsedMode} = props;
 
     return (
         <HeaderContainer>
-            Entity Relationship Diagram
+            <Title>Entity Relationship Diagram</Title>
             <NodeCollapser collapsedMode={collapsedMode} setIsCollapsedMode={setIsCollapsedMode} />
         </HeaderContainer>
     );

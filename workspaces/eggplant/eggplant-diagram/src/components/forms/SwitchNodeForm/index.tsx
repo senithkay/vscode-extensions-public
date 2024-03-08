@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Icon, TextArea } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TextArea } from "@wso2-enterprise/ui-toolkit";
 import { Node } from "../../../types";
 import { SwitchCaseBlock, SwitchNodeProperties, getNodeMetadata } from "@wso2-enterprise/eggplant-core";
 import { Form } from "../styles";
@@ -66,12 +66,13 @@ export function SwitchNodeForm(props: OptionWidgetProps) {
         <Form.Tray>
             <Form.HeaderContainer>
                 <Form.Header>Configuration</Form.Header>
-                <Icon
-                    name="close"
-                    onClick={() => {
-                        setSelectedNode(null);
-                    }}
-                />
+                <Button
+                    sx={{marginTop: -3}}
+                    onClick={() => { setSelectedNode(null) }}
+                    appearance="icon"
+                >
+                    <Codicon sx={{marginRight: 2}} name="close"/>
+                </Button>
             </Form.HeaderContainer>
 
             <Form.InputField

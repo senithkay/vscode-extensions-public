@@ -7,7 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Call, CallTemplate, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Range, Respond, STNode, Send, Sequence, Store, TagRange, Throttle, Validate, Visitor, WithParam } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+
+import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange,Range, Throttle, Validate, Visitor, WithParam } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
 import { LINK_BOTTOM_OFFSET } from "../components/NodeLink/NodeLinkModel";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -35,7 +36,7 @@ export class SizingVisitor implements Visitor {
         }
 
         let subSequencesWidth = 0;
-        let subSequencesHeight = 0;
+        let subSequencesHeight = 10;
         for (let i = 0; i < Object.keys(subSequences).length; i++) {
             const subSequence = subSequences[Object.keys(subSequences)[i]];
             if (subSequence) {
@@ -46,7 +47,7 @@ export class SizingVisitor implements Visitor {
                     subSequenceMediatorList.forEach((childNode: STNode) => {
                         if (childNode.viewState) {
                             subSequenceWidth = Math.max(subSequenceWidth, childNode.viewState.fw ?? childNode.viewState.w);
-                            subSequenceHeight += childNode.viewState.h + NODE_GAP.Y;
+                            subSequenceHeight += (childNode.viewState.fh || childNode.viewState.h);
                         }
                     });
                     subSequencesWidth += subSequenceWidth + (i === Object.keys(subSequences).length - 1 ? 0 : NODE_GAP.BRANCH_X);
@@ -60,7 +61,7 @@ export class SizingVisitor implements Visitor {
         }
 
         node.viewState.fw = subSequencesWidth;
-        node.viewState.fh = subSequencesHeight + NODE_DIMENSIONS.CONDITION.HEIGHT + NODE_GAP.BRANCH_TOP + LINK_BOTTOM_OFFSET + NODE_GAP.Y;
+        node.viewState.fh = NODE_DIMENSIONS.CONDITION.HEIGHT + NODE_GAP.BRANCH_TOP + subSequencesHeight + NODE_GAP.BRANCH_BOTTOM;
 
         this.sequenceWidth = Math.max(this.sequenceWidth, node.viewState.fw);
 
@@ -85,17 +86,24 @@ export class SizingVisitor implements Visitor {
     }
 
     isInRange(nodeRange: TagRange, diagnosticRange: Range) {
-        if (!nodeRange?.startTagRange?.start || !nodeRange?.endTagRange?.end || !diagnosticRange?.start || !diagnosticRange?.end || !diagnosticRange?.start?.line || !diagnosticRange?.end?.line) {
+        if (!nodeRange?.startTagRange?.start || !nodeRange?.startTagRange?.end || !diagnosticRange?.start) {
             return false;
         }
         const isMatchStart = (diagnosticRange.start.line === nodeRange.startTagRange.start.line &&
             diagnosticRange.start.character >= nodeRange.startTagRange.start.character) ||
             diagnosticRange.start.line > nodeRange.startTagRange.start.line;
 
-        const isMatchEnd = (diagnosticRange.end.line === nodeRange.endTagRange.end.line &&
-            diagnosticRange.end.character <= nodeRange.endTagRange.end.character) ||
-            diagnosticRange.end.line < nodeRange.endTagRange.end.line;
-
+        let isMatchEnd;
+        if (nodeRange.endTagRange && nodeRange.endTagRange.start && nodeRange.endTagRange.end) {
+            isMatchEnd = (diagnosticRange.end.line === nodeRange.endTagRange.end.line &&
+                diagnosticRange.end.character <= nodeRange.endTagRange.end.character) ||
+                diagnosticRange.end.line < nodeRange.endTagRange.end.line;
+        }
+        else {
+            isMatchEnd = (diagnosticRange.end.line === nodeRange.startTagRange.end.line &&
+                diagnosticRange.end.character <= nodeRange.startTagRange.end.character) ||
+                diagnosticRange.end.line < nodeRange.startTagRange.end.line;
+        }
         return isMatchStart && isMatchEnd;
     }
 
@@ -176,6 +184,15 @@ export class SizingVisitor implements Visitor {
 
     endVisitWithParam = (node: WithParam): void => this.calculateBasicMediator(node);
     endVisitCallTemplate = (node: CallTemplate): void => this.calculateBasicMediator(node);
+
+    //Extesnion Mediators
+    beginVisitBean = (node: Bean): void => this.calculateBasicMediator(node);
+    beginVisitClass = (node: Class): void => this.calculateBasicMediator(node);
+    beginVisitPojoCommand = (node: PojoCommand): void => this.calculateBasicMediator(node);
+    beginVisitEjb = (node: Ejb): void => this.calculateBasicMediator(node);
+    beginVisitScript = (node: Script): void => this.calculateBasicMediator(node);
+    beginVisitSpring = (node: Spring): void => this.calculateBasicMediator(node);
+
     skipChildren(): boolean {
         return this.skipChildrenVisit;
     }

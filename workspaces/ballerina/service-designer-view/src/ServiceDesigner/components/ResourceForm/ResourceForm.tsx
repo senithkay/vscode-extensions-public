@@ -18,6 +18,7 @@ import styled from '@emotion/styled';
 import { HTTP_METHOD, generateNewResourceFunction, updateResourceFunction } from '../../utils/utils';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import { PARAM_TYPES, ParameterConfig, Resource, ResponseConfig } from '@wso2-enterprise/service-designer';
+import { CommonRPCAPI, STModification } from '@wso2-enterprise/ballerina-core';
 
 const AdvancedParamTitleWrapper = styled.div`
 	display: flex;
@@ -26,16 +27,19 @@ const AdvancedParamTitleWrapper = styled.div`
 
 export interface ResourceFormProps {
 	isOpen: boolean;
+	isBallerniaExt?: boolean;
 	resourceConfig?: Resource;
 	onSave?: (source: string, config: Resource, updatePosition?: NodePosition) => void;
 	getRecordST?: (recordName: string) => void;
 	addNameRecord?: (source: string) => void;
+	serviceEndPosition?: NodePosition;
+	commonRpcClient?: CommonRPCAPI;
 	onClose: () => void;
-	typeCompletions?: string[];
+	applyModifications?: (modifications: STModification[]) => Promise<void>;
 }
 
 export function ResourceForm(props: ResourceFormProps) {
-	const { isOpen, resourceConfig, onClose, onSave, addNameRecord, typeCompletions } = props;
+	const { isOpen, isBallerniaExt, resourceConfig, onClose, onSave, addNameRecord, serviceEndPosition, commonRpcClient, applyModifications } = props;
 
 	const [method, setMethod] = useState<HTTP_METHOD>(resourceConfig?.methods[0].toUpperCase() as HTTP_METHOD || HTTP_METHOD.GET);
 	const [path, setPath] = useState<string>(resourceConfig?.path || "path");
@@ -158,7 +162,7 @@ export function ResourceForm(props: ResourceFormProps) {
 					<Divider />
 
 					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Responses</Typography>
-					<ResourceResponse method={method} addNameRecord={addNameRecord} response={response} onChange={handleResponseChange} typeCompletions={typeCompletions}/>
+					<ResourceResponse method={method} addNameRecord={addNameRecord} response={response} onChange={handleResponseChange} serviceEndPosition={serviceEndPosition} commonRpcClient={commonRpcClient} isBallerniaExt={isBallerniaExt} applyModifications={applyModifications}/>
 
 					<ActionButtons
 						primaryButton={{ text: "Save", onClick: handleSave, tooltip: "Save" }}

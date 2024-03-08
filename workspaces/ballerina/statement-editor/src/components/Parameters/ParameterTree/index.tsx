@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import { BallerinaConnectorInfo, FormField } from "@wso2-enterprise/ballerina-core";
+import { BallerinaConnectorInfo, TypeField } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Typography } from "@wso2-enterprise/ui-toolkit";
 
@@ -24,13 +24,13 @@ import { MemoizedParameterBranch } from "./ParameterBranch";
 import { getDefaultParams, mapActionToFormField, mapEndpointToFormField } from "./utils";
 
 export interface TypeProps {
-    param: FormField;
+    param: TypeField;
     depth: number;
     onChange: () => void;
 }
 
 export interface ParameterTreeProps {
-    parameters: FormField[];
+    parameters: TypeField[];
     connectorInfo: BallerinaConnectorInfo;
 }
 

@@ -10,9 +10,9 @@
 import { ReactNode } from "react";
 import { IconType } from "react-icons";
 
-import { SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { SymbolInfoResponse } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
-import { CodeAction, Diagnostic } from "vscode-languageserver-protocol";
+import { CodeAction, Diagnostic } from "vscode-languageserver-types";
 
 import { StmtEditorUndoRedoManager } from "../utils/undo-redo";
 

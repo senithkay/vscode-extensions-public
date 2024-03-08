@@ -91,7 +91,13 @@ import {
     redo,
     showErrorMessage,
     undo,
-    writeContentToFile
+    writeContentToFile,
+    BrowseFileRequest,
+    BrowseFileResponse,
+    browseFile,
+    CreateRegistryResourceRequest,
+    CreateRegistryResourceResponse,
+    createRegistryResource
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -245,5 +251,13 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getDiagnostics(params: GetDiagnosticsReqeust): Promise<GetDiagnosticsResponse> {
         return this._messenger.sendRequest(getDiagnostics, HOST_EXTENSION, params);
+    }
+
+    browseFile(params: BrowseFileRequest): Promise<BrowseFileResponse> {
+        return this._messenger.sendRequest(browseFile, HOST_EXTENSION, params);
+    }
+
+    createRegistryResource(params: CreateRegistryResourceRequest): Promise<CreateRegistryResourceResponse> {
+        return this._messenger.sendRequest(createRegistryResource, HOST_EXTENSION, params);
     }
 }

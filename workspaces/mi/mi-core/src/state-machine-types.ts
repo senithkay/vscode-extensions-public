@@ -11,28 +11,28 @@
 import { NotificationType, RequestType } from "vscode-messenger-common";
 
 export enum MACHINE_VIEW {
-    Overview = "Overview",
-    Diagram = "Diagram",
-    ServiceDesigner = "ServiceDesigner",
-    APIForm = "APIForm",
-    EndPointForm = "EndPointForm",
-    SequenceForm = "SequenceForm",
-    InboundEPForm = "InboundEPForm",
-    ProjectCreationForm = "ProjectCreationForm",
-    LocalEntryForm = "LocalEntryForm"
+    Welcome = "Welcome to MI",
+    Overview = "MI Overview",
+    Diagram = "MI Diagram",
+    ServiceDesigner = "Service Designer",
+    APIForm = "API Form",
+    EndPointForm = "Endpoint Form",
+    SequenceForm = "Sequence Form",
+    InboundEPForm = "Inbound EP Form",
+    ProjectCreationForm = "Project Creation Form",
+    LocalEntryForm = "Local Entry Form",
+    RegistryResourceForm = "Registry Resource Creation Form",
 }
 
 export type MachineStateValue =
     | 'initialize' | 'projectDetected' | 'LSInit' | 'ready' | 'disabled'
     | { ready: 'viewReady' } | { ready: 'viewEditing' }
-    | { newProject: 'welcome' } | { newProject: 'create' };
+    | { newProject: 'viewReady' };
 
 export enum EVENT_TYPE {
     OPEN_VIEW = "OPEN_VIEW",
     FILE_EDIT = "FILE_EDIT",
     EDIT_DONE = "EDIT_DONE",
-    GET_STARTED = "GET_STARTED",
-    CANCEL_CREATION = "CANCEL_CREATION",
 }
 
 export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";
@@ -55,6 +55,7 @@ export interface VisualizerLocation {
     identifier?: string;
     position?: any;
     projectOpened?: boolean;
+    customProps?: any;
 }
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };

@@ -84,8 +84,8 @@ export const NODE_GAP = {
     X: 0,
     Y: 50,
     BRANCH_X: 100,
-    BRANCH_TOP: 100,
-    BRANCH_BOTTOM: 20,
+    BRANCH_TOP: 100 + 10,
+    BRANCH_BOTTOM: 80,
     SEQUENCE_Y: 100,
 };
 
@@ -126,7 +126,7 @@ export const MEDIATORS = {
     DATASERVICE: "DataService",
     DROP: "Drop",
     ENRICH: "Enrich",
-    ENTITLEMENT: "Entitlement",
+    ENTITLEMENT: "EntitlementService",
     FASTXSLT: "FastXSLT",
     FAULT: "Fault",
     FILTER: "Filter",
@@ -151,6 +151,12 @@ export const MEDIATORS = {
     VALIDATE: "Validate",
     XQUERY: "XQuery",
     XSLT: "XSLT",
+    BEAN: "Bean",
+    CLASS: "Class",
+    COMMAND: "Command",
+    EJB: "Ejb",
+    SCRIPT: "Script",
+    SPRING: "Spring",
 }
 
 export const ENDPOINTS = {
@@ -159,7 +165,7 @@ export const ENDPOINTS = {
     FAILOVER: "Failover",
     HTTP: "HTTP_ENDPOINT",
     LOADBALANCE: "Loadbalance",
-    NAMED: "Named",
+    NAMED: "NAMED_ENDPOINT",
     RECIPIENTLIST: "Recipientlist",
     TEMPLATE: "Template",
     WSDL: "wsdl",

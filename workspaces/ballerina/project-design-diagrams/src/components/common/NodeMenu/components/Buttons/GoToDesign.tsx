@@ -27,7 +27,7 @@ export function GoToDesign(props: { element: Service | RemoteFunction | Resource
             endLine: element.sourceLocation.endPosition.line,
             endColumn: element.sourceLocation.endPosition.offset,
         }
-        editLayerAPI.goToDesign(element.sourceLocation.filePath, position);
+        editLayerAPI.goToDesign({ filePath: element.sourceLocation.filePath, position });
     }
 
     return (

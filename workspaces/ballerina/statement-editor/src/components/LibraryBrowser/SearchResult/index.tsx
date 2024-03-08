@@ -9,13 +9,14 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { List } from "@material-ui/core";
 import {
     LibraryDataResponse,
     LibraryInfo,
     LibrarySearchResponse
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
+import { Grid } from '@wso2-enterprise/ui-toolkit';
 
+import { SUGGESTION_COLUMN_SIZE } from '../../../constants';
 import { useStmtEditorHelperPanelStyles } from "../../styles";
 import { Library } from "../Library";
 import { SearchCategory } from "../SearchCategory";
@@ -38,11 +39,7 @@ export function SearchResult(props: SearchResultProps) {
             {modules.length > 0 && !moduleSelected && (
                     <div>
                         <div className={stmtEditorHelperClasses.helperPaneSubHeader}>Modules</div>
-                        <List
-                            className={stmtEditorHelperClasses.libraryElementBlockContent}
-                            style={{paddingBottom: '25px'}}
-                            data-testid="library-element-block-content"
-                        >
+                        <Grid columns={SUGGESTION_COLUMN_SIZE} data-testid="library-element-block-content">
                             {modules.map((library: LibraryInfo, index: number) => (
                                 <Library
                                     libraryInfo={library}
@@ -51,7 +48,7 @@ export function SearchResult(props: SearchResultProps) {
                                     libraryDataFetchingHandler={libraryDataFetchingHandler}
                                 />
                             ))}
-                        </List>
+                        </Grid>
                     </div>
                 )
             }

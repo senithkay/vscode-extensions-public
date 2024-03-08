@@ -10,24 +10,30 @@
 
 import React, { useState } from 'react';
 
-import { ActionButtons, AutoComplete, TextField } from '@wso2-enterprise/ui-toolkit';
+import { ActionButtons, AutoComplete, TextField, TypeBrowser } from '@wso2-enterprise/ui-toolkit';
 import { EditorContainer, EditorContent } from '../../styles';
-import { responseCodes } from '@wso2-enterprise/ballerina-core';
+import { CommonRPCAPI, NodePosition, STModification, responseCodes } from '@wso2-enterprise/ballerina-core';
 import { getSourceFromResponseCode, getTitleFromResponseCode } from '../../utils/utils';
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { ResponseConfig } from '@wso2-enterprise/service-designer';
 
 export interface ParamProps {
     response: ResponseConfig;
+    isBallerniaExt?: boolean;
     isEdit: boolean;
     onChange: (param: ResponseConfig) => void;
     onSave?: (param: ResponseConfig, defineRecordName: string) => void;
     onCancel?: (id?: number) => void;
     typeCompletions?: string[];
+    serviceEndPosition?: NodePosition;
+    commonRpcClient?: CommonRPCAPI;
+    applyModifications?: (modifications: STModification[]) => Promise<void>;
 }
 
 export function ResponseEditor(props: ParamProps) {
-    const { response, onSave, onChange, onCancel, typeCompletions } = props;
+    const { response, isBallerniaExt, onSave, onChange, onCancel, typeCompletions, serviceEndPosition, commonRpcClient, applyModifications } = props;
+
+    console.log("response", typeCompletions);
 
     const [isNameRecord, setIsNameRecord] = useState(false);
     const [definedRecordName, setDefinedRecordName] = useState("");
@@ -74,21 +80,22 @@ export function ResponseEditor(props: ParamProps) {
             <EditorContent>
                 <AutoComplete
                     sx={{ zIndex: 1, position: "relative" }}
+                    borderBox={isBallerniaExt}
                     label="Code"
                     selectedItem={getTitleFromResponseCode(response.code)}
                     items={responseCodes.map(code => code.title)}
                     onChange={handleCodeChange}
                 />
-                {typeCompletions && (
-                    <AutoComplete
-                        sx={{ zIndex: 1, position: "relative" }}
-                        label="Type"
-                        selectedItem={response.type}
-                        items={typeCompletions}
-                        nullable
-                        onChange={handleTypeChange}
-                    />
-                )}
+                <TypeBrowser
+                    commonRpcClient={commonRpcClient}
+                    serviceEndPosition={serviceEndPosition}
+                    sx={{ zIndex: 1, position: "relative" }}
+                    borderBox={isBallerniaExt}
+                    label="Type"
+                    selectedItem={response.type}
+                    onChange={handleTypeChange}
+                    applyModifications={applyModifications}
+                />
             </EditorContent>
             <VSCodeCheckbox checked={isNameRecord} onChange={handleReqFieldChange} id="is-name-rec-checkbox">
                 Define a name record for the return type

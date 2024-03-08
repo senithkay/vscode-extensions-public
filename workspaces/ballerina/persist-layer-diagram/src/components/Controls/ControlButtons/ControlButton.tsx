@@ -8,9 +8,8 @@
  */
 
 import React, { ReactNode } from 'react';
-import Tooltip from '@mui/material/Tooltip';
-import IconButton from '@mui/material/IconButton';
 import { useStyles } from './style';
+import { Button, Tooltip } from '@wso2-enterprise/ui-toolkit';
 
 interface ControlButtonProps {
     children: ReactNode;
@@ -24,39 +23,16 @@ export function CanvasControlButton(props: ControlButtonProps) {
 
     return (
         <Tooltip
-            arrow
-            placement={'left-end'}
-            title={tooltipTitle}
-            componentsProps={{
-                tooltip: {
-                    sx: {
-                        fontFamily: 'GilmerRegular',
-                        fontSize: '12px',
-                        padding: '6px 10px'
-                    }
-                }
-            }}
-            PopperProps={{
-                modifiers: [
-                    {
-                        name: 'offset',
-                        options: {
-                            offset: [0, -10],
-                        },
-                    },
-                ],
-            }}
-        >
-            <IconButton
-                className={styles.controlButton}
-                size='small'
+            content={tooltipTitle}
+            position="bottom"
+            sx={{ padding: '4px' }} >
+            <Button
                 onClick={onClick}
-                sx={{
-                    cursor: 'pointer'
-                }}
+                appearance='icon'
+                className={styles.controlButton}
             >
                 {children}
-            </IconButton>
+            </Button>
         </Tooltip>
     );
 }
