@@ -18,7 +18,7 @@ test-resources
 # gradle
 .gradle
 !gradle-wrapper.jar
-build
+# build
 
 # Compiled class file
 *.class
@@ -57,7 +57,7 @@ node_modules/
 *.tsbuildinfo
 
 lib/
-build
+# build
 
 # Rush temporary files
 common/deploy/
