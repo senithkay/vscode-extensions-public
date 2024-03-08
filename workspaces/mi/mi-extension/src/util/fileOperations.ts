@@ -356,6 +356,10 @@ export async function deleteRegistryResource(filePath: string): Promise<{ status
  */
 export async function deleteRegistryResourceFile(filePath: string): Promise<{ status: boolean, info: string }> {
     return new Promise((resolve) => {
+        const platform = os.platform();
+        if (platform !== 'linux') {
+            filePath = filePath.replace(/\\/g, '/');
+        }
         if (fs.existsSync(filePath)) {
             var infoMsg = '';
             const fileUri = Uri.file(filePath);
