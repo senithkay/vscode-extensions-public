@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import styled from "@emotion/styled";
-import React, { useEffect, useState } from "react";
-import { Button, Codicon, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { useEffect, useState } from "react";
+import { Button, Codicon, LocationSelector, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { FieldGroup, SectionWrapper } from "./Commons";
+import { SectionWrapper } from "./Commons";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 
 const WizardContainer = styled.div`
@@ -103,22 +103,19 @@ export function ImportProjectWizard() {
                         <Typography variant="h3">Import Integration Project</Typography>
                     </div>
                 </Container>
-                <FieldGroup>
-                    <span>  Project Source Root Location  </span>
-                    {!!sourceDir && <LocationText>{sourceDir}</LocationText>}
-                    {!sourceDir && <span>Please choose the project root directory. </span>}
-                    <Button appearance="secondary" onClick={handleProjectSourceDirSelection} id="select-source-project-dir-btn">
-                        Select Location
-                    </Button>
-                </FieldGroup>
-                <FieldGroup>
-                    <span>  Project Location  </span>
-                    {!!projectDir && <LocationText>{projectDir}</LocationText>}
-                    {!projectDir && <span>Please choose a directory for project workspace. </span>}
-                    <Button appearance="secondary" onClick={handleProjectDirSelection} id="select-project-dir-btn">
-                        Select Location
-                    </Button>
-                </FieldGroup>
+                <LocationSelector 
+                    label="Select Project Source Location to Import"
+                    selectedFile={projectDir}
+                    required
+                    onSelect={handleProjectSourceDirSelection}
+                />
+                <LocationSelector 
+                    label="Select Project Directory"
+                    selectionText="Project Location"
+                    selectedFile={projectDir}
+                    required
+                    onSelect={handleProjectDirSelection}
+                />
                 <ActionContainer>
                     <Button
                         appearance="secondary"
