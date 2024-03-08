@@ -146,6 +146,13 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.add-proxy-service",
+        "title": "Add Proxy Service",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.add-local-entry",
         "title": "Add Local Entry",
         "icon": "$(add)",
@@ -261,6 +268,11 @@
         {
           "command": "MI.project-explorer.add-message-processor",
           "when": "view == MI.project-explorer && viewItem == messageProcessors",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-proxy-service",
+          "when": "view == MI.project-explorer && viewItem == proxyServices",
           "group": "inline"
         }
       ]

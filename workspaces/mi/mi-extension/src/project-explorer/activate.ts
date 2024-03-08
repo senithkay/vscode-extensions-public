@@ -11,7 +11,7 @@ import { ProjectExplorerEntry, ProjectExplorerEntryProvider } from './project-ex
 import { StateMachine, openView } from '../stateMachine';
 import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from '@wso2-enterprise/mi-core';
 import { COMMANDS } from '../constants';
-import { ExtensionContext, Uri, ViewColumn, commands, window } from 'vscode';
+import { ExtensionContext, Uri, ViewColumn, commands, window, workspace } from 'vscode';
 import { VisualizerWebview } from '../visualizer/webview';
 
 export function activateProjectExplorer(context: ExtensionContext) {
@@ -79,6 +79,11 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		console.log('Add Message Processor');
 	});
 
+	commands.registerCommand(COMMANDS.ADD_PROXY_SERVICE_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProxyServiceForm, documentUri: entry.info?.path });
+		console.log('Add Proxy Service');
+	});
+
 	commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
 		// Update state machine to show the api wizard
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
@@ -140,6 +145,12 @@ export function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.SHOW_MESSAGE_PROCESSOR, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MessageProcessorForm, documentUri: documentUri?.fsPath });
+	});
+	commands.registerCommand(COMMANDS.SHOW_XML, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		const uri = Uri.file(documentUri?.fsPath);
+		workspace.openTextDocument(uri).then((document) => {
+			window.showTextDocument(document);
+		});
 	})
 	commands.registerCommand(COMMANDS.OPEN_PROJECT_OVERVIEW, async (entry: ProjectExplorerEntry) => {
 		revealWebviewPanel(false);

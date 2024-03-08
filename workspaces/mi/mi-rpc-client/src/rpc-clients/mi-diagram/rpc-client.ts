@@ -34,6 +34,8 @@ import {
     CreateMessageProcessorResponse,
     RetrieveMessageProcessorRequest,
     RetrieveMessageProcessorResponse,
+    CreateProxyServiceRequest,
+    CreateProxyServiceResponse,
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
@@ -70,6 +72,7 @@ import {
     createProject,
     createSequence,
     createMessageProcessor,
+    createProxyService,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -193,6 +196,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getMessageProcessor(params: RetrieveMessageProcessorRequest): Promise<RetrieveMessageProcessorResponse> {
         return this._messenger.sendRequest(getMessageProcessor, HOST_EXTENSION, params);
+    }
+  
+    createProxyService(params: CreateProxyServiceRequest): Promise<CreateProxyServiceResponse> {
+        return this._messenger.sendRequest(createProxyService, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {

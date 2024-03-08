@@ -262,6 +262,29 @@ export interface RetrieveMessageProcessorResponse {
     hasCustomProperties: boolean;
 }
 
+export interface CreateProxyServiceRequest {
+    directory: string;
+    proxyServiceName: string;
+    proxyServiceType: string;
+    selectedTransports: string;
+    endpointType: string;
+    endpoint: string;
+    requestLogLevel: string;
+    responseLogLevel: string;
+    securityPolicy: string;
+    requestXslt: string;
+    responseXslt: string;
+    transformResponse: string;
+    wsdlUri: string;
+    wsdlService: string;
+    wsdlPort: number | null;
+    publishContract: string;
+}
+
+export interface CreateProxyServiceResponse {
+    path: string;
+}
+
 export interface ProjectRootResponse {
     path: string;
 }

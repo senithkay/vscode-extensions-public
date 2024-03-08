@@ -15,6 +15,7 @@ import styled from '@emotion/styled';
 import { InboundEPWizard } from './views/Forms/InboundEPform';
 import { LocalEntryWizard } from './views/Forms/LocalEntryForm';
 import { RegistryResourceForm } from './views/Forms/RegistryResourceForm';
+import { ProxyServiceWizard } from "./views/Forms/ProxyServiceForm";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -104,6 +105,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.MessageProcessorForm:
                     setViewComponent(<MessageProcessorWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.ProxyServiceForm:
+                    setViewComponent(<ProxyServiceWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.ProjectCreationForm:
                     setViewComponent(<ProjectWizard />);

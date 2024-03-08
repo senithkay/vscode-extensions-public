@@ -64,6 +64,8 @@ import {
     CreateMessageProcessorResponse,
     RetrieveMessageProcessorRequest,
     RetrieveMessageProcessorResponse,
+    CreateProxyServiceRequest,
+    CreateProxyServiceResponse,
     BrowseFileResponse,
     BrowseFileRequest,
     CreateRegistryResourceRequest,
@@ -77,7 +79,7 @@ import { Position, Range, Selection, Uri, WorkspaceEdit, commands, window, works
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { createFolderStructure, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper } from "../../util";
+import { createFolderStructure, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper } from "../../util";
 import { getMediatypeAndFileExtension, addNewEntryToArtifactXML } from "../../util/fileOperations";
 import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";
@@ -474,6 +476,26 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             fs.writeFileSync(filePath, xmlData);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ filePath: filePath });
+        });
+    }
+
+    async createProxyService(params: CreateProxyServiceRequest): Promise<CreateProxyServiceResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, proxyServiceName, proxyServiceType, selectedTransports, endpointType, endpoint,
+                requestLogLevel, responseLogLevel, securityPolicy, requestXslt, responseXslt, transformResponse,
+                wsdlUri, wsdlService, wsdlPort, publishContract } = params;
+
+            const getTemplateParams = {
+                proxyServiceName, proxyServiceType, selectedTransports, endpointType, endpoint,
+                requestLogLevel, responseLogLevel, securityPolicy, requestXslt, responseXslt, transformResponse,
+                wsdlUri, wsdlService, wsdlPort, publishContract
+            };
+
+            const xmlData = getProxyServiceXmlWrapper(getTemplateParams);
+
+            const filePath = path.join(directory, `${proxyServiceName}.xml`);
+            fs.writeFileSync(filePath, xmlData);
+            resolve({ path: filePath });
         });
     }
 
