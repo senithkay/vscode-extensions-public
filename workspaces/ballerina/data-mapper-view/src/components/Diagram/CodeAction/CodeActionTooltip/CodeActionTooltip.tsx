@@ -89,7 +89,7 @@ export function CodeActionTooltip(props: Partial<Props>) {
         <Tooltip
             content={tooltipTitleComponent}
             position="bottom"
-            sx={{ padding: 0 }}
+            sx={{ padding: 0, fontSize: "12px" }}
         >
             {children}
         </Tooltip>

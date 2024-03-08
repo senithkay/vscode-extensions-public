@@ -501,11 +501,6 @@ export class NodeInitVisitor implements Visitor {
             && (isPositionsEquals(parentNode.position, selectedSTNode.position) || isSelectClauseQueryExpr(fieldPath))
             && isPositionsEquals(node.position, position);
 
-        // const isSelectedExpr = parentNode
-        //     && (STKindChecker.isSpecificField(selectedSTNode) || STKindChecker.isLetVarDecl(selectedSTNode))
-        //     && (isPositionsEquals(parentNode.position, selectedSTNode.position) || isSelectClauseQueryExpr(fieldPath))
-        //     && (!isSelectClauseQueryExpr(fieldPath) || isPositionsEquals(node.position, position));
-
         if (isSelectedExpr) {
             if (parentIdentifier) {
                 const intermediateClausesHeight = 100 + node.queryPipeline.intermediateClauses.length * OFFSETS.INTERMEDIATE_CLAUSE_HEIGHT;
