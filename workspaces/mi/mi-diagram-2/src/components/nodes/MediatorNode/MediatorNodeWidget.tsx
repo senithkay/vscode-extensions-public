@@ -199,7 +199,7 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
 
     return (
         <div >
-            <Tooltip content={!isPopoverOpen ? tooltip : ""} position={'bottom'}>
+            <Tooltip content={!isPopoverOpen ? tooltip : ""} position={'bottom'} containerPosition={'absolute'}>
                 <S.Node
                     selected={node.isSelected()}
                     hasError={hasDiagnotics}

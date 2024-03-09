@@ -56,7 +56,7 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
     };
 
     return (
-        <Tooltip content={tooltip} position={'bottom'}>
+        <Tooltip content={tooltip} position={'bottom'} containerPosition={'absolute'}>
             <S.Node
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}

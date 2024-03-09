@@ -10,7 +10,7 @@ import React, { PropsWithChildren, ReactNode, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom';
 import styled from "@emotion/styled";
 
-export type PositionType = 
+export type PositionType =
     'bottom-end' |
     'bottom-start' |
     'bottom' |
@@ -19,7 +19,7 @@ export type PositionType =
     'top-end' |
     'top-start' |
     'top'
-;
+    ;
 
 export interface Position {
     top: number;
@@ -37,10 +37,15 @@ export interface TooltipProps {
     content?: string | ReactNode;
     position?: PositionType;
     sx?: any;
+    containerPosition?: string;
 }
 
-const TooltipContainer = styled.div`
-    position: relative;
+export interface TooltipConatinerProps {
+    position?: string;
+}
+
+const TooltipContainer = styled.div<TooltipConatinerProps>`
+    position: ${(props: TooltipConatinerProps) => props.position || 'relative'};
     display: inline-block;
     cursor: pointer;
     pointer-events: auto;
@@ -99,7 +104,7 @@ const OffsetCalculator = (position: PositionType, height: number, width: number)
 }
 
 export const Tooltip: React.FC<PropsWithChildren<TooltipProps>> = (props: PropsWithChildren<TooltipProps>) => {
-    const { id, className, content, position, children, sx } = props;
+    const { id, className, content, position, children, sx, containerPosition } = props;
 
     const tooltipEl = React.useRef<HTMLDivElement>(null);
 
@@ -139,6 +144,7 @@ export const Tooltip: React.FC<PropsWithChildren<TooltipProps>> = (props: PropsW
         <TooltipContainer
             id={id}
             className={className}
+            position={containerPosition}
             onMouseMove={updatePosition}
             onMouseLeave={onMouseLeave}
         >
