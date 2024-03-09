@@ -158,19 +158,6 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
         event.stopPropagation();
     };
 
-    const handleOnDelete = () => {
-        rpcClient.getMiDiagramRpcClient().applyEdit({
-            documentUri: node.documentUri,
-            range: { start: node.stNode.range.startTagRange.start, end: node.stNode.range.endTagRange.end },
-            text: "",
-        });
-    };
-
-    const handleDeleleClick = () => {
-        handleOnDelete();
-        setIsPopoverOpen(false); // Close the popover after action
-    }
-
     const handlePopoverClose = () => {
         setIsPopoverOpen(false);
     }
@@ -225,7 +212,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
                 <ClickAwayListener onClickAway={handlePopoverClose}>
                     <Menu>
                         <MenuItem key={'share-btn'} item={{ label: 'Open Sequence', id: "open-sequence", onClick: handleOpenSequence }} />
-                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: handleDeleleClick }} />
+                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
                     </Menu>
                 </ClickAwayListener>
             </Popover>

@@ -111,6 +111,14 @@ export class BaseNodeModel extends NodeModel {
         }
     }
 
+    async delete(rpcClient: RpcClient) {
+        rpcClient.getMiDiagramRpcClient().applyEdit({
+            documentUri: this.documentUri,
+            range: { start: this.stNode.range.startTagRange.start, end: this.stNode.range.endTagRange.end ?? this.stNode.range.startTagRange.end},
+            text: "",
+        });
+    };
+
     hasDiagnotics(): boolean {
         return this.stNode.diagnostics !== undefined && this.stNode.diagnostics.length > 0;
     }
