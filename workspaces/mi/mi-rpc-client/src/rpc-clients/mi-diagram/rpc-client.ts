@@ -104,13 +104,25 @@ import {
     redo,
     showErrorMessage,
     undo,
+    CreateMessageStoreRequest,
+    CreateMessageStoreResponse,
+    createMessageStore,
     writeContentToFile,
     BrowseFileRequest,
     BrowseFileResponse,
     browseFile,
     CreateRegistryResourceRequest,
     CreateRegistryResourceResponse,
-    createRegistryResource
+    createRegistryResource,
+    GetMessageStoreRequest,
+    GetMessageStoreResponse,
+    getMessageStore,
+    CreateTaskRequest,
+    CreateTaskResponse,
+    createTask,
+    GetTaskRequest,
+    GetTaskResponse,
+    getTask,
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -204,6 +216,22 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
   
     createProxyService(params: CreateProxyServiceRequest): Promise<CreateProxyServiceResponse> {
         return this._messenger.sendRequest(createProxyService, HOST_EXTENSION, params);
+    }
+
+    createTask(params: CreateTaskRequest): Promise<CreateTaskResponse> {
+        return this._messenger.sendRequest(createTask, HOST_EXTENSION, params);
+    }
+
+    getTask(params: GetTaskRequest): Promise<GetTaskResponse> {
+        return this._messenger.sendRequest(getTask, HOST_EXTENSION, params);
+    }
+    
+    createMessageStore(params: CreateMessageStoreRequest): Promise<CreateMessageStoreResponse>{
+        return this._messenger.sendRequest(createMessageStore, HOST_EXTENSION,params);
+    }
+
+    getMessageStore(params: GetMessageStoreRequest): Promise<GetMessageStoreResponse>{
+        return this._messenger.sendRequest(getMessageStore, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {

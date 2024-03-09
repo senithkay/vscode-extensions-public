@@ -9,6 +9,8 @@ import { SequenceWizard } from './views/Forms/SequenceForm';
 import { NavigationBar } from './components/NavigationBar';
 import { ProjectWizard } from './views/Forms/ProjectForm';
 import { ImportProjectWizard } from './views/Forms/ImportProjectForm';
+import { TaskWizard } from './views/Forms/TaskForm';
+import { MessageStoreWizard } from './views/Forms/MessageStoreForm/index';
 import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 import { MessageProcessorWizard } from "./views/Forms/MessageProcessorForm";
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
@@ -110,6 +112,9 @@ const MainPanel = () => {
                 case MACHINE_VIEW.ProxyServiceForm:
                     setViewComponent(<ProxyServiceWizard path={machineView.documentUri} />);
                     break;
+                case MACHINE_VIEW.TaskForm:
+                    setViewComponent(<TaskWizard path={machineView.documentUri} />);
+                    break;
                 case MACHINE_VIEW.ProjectCreationForm:
                     setViewComponent(<ProjectWizard />);
                     break;
@@ -118,6 +123,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.ImportProjectForm:
                     setViewComponent(<ImportProjectWizard />);
+                    break;
+                case MACHINE_VIEW.MessageStoreForm:
+                    setViewComponent(<MessageStoreWizard  path={machineView.documentUri}/>);
                     break;
                 default:
                     setViewComponent(null);

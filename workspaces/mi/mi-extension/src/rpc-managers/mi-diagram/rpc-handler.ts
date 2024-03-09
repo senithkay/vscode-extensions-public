@@ -73,12 +73,20 @@ import {
     openFile,
     redo,
     showErrorMessage,
-    undo,
     writeContentToFile,
+    undo,
+    createMessageStore,
+    CreateMessageStoreRequest,
     browseFile,
     BrowseFileRequest,
     CreateRegistryResourceRequest,
-    createRegistryResource
+    createRegistryResource,
+    createTask,
+    CreateTaskRequest,
+    getTask,
+    GetTaskRequest,
+    getMessageStore,
+    GetMessageStoreRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -104,6 +112,10 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createInboundEndpoint, (args: CreateInboundEndpointRequest) => rpcManger.createInboundEndpoint(args));
     messenger.onRequest(createMessageProcessor, (args: CreateMessageProcessorRequest) => rpcManger.createMessageProcessor(args));
     messenger.onRequest(getMessageProcessor, (args: RetrieveMessageProcessorRequest) => rpcManger.getMessageProcessor(args));
+    messenger.onRequest(createTask, (args: CreateTaskRequest) => rpcManger.createTask(args));
+    messenger.onRequest(getTask, (args: GetTaskRequest) => rpcManger.getTask(args));
+    messenger.onRequest(createMessageStore, (args: CreateMessageStoreRequest) => rpcManger.createMessageStore(args));
+    messenger.onRequest(getMessageStore, (args: GetMessageStoreRequest) => rpcManger.getMessageStore(args));
     messenger.onNotification(closeWebView, () => rpcManger.closeWebView());
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));
     messenger.onNotification(openFile, (args: OpenDiagramRequest) => rpcManger.openFile(args));

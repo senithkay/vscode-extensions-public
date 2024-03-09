@@ -11,6 +11,11 @@
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { Diagnostic, Position, TextDocumentIdentifier } from "vscode-languageserver-types";
 
+interface Record {
+    name: string;
+    value: string;
+}
+
 export interface ApplyEditRequest {
     text: string;
     documentUri: string;
@@ -60,18 +65,6 @@ export interface CreateInboundEndpointResponse {
     path: string;
 }
 
-export interface CreateInboundEndpointRequest {
-    directory: string;
-    name: string;
-    type: string;
-    sequence: string;
-    errorSequence: string;
-}
-
-export interface CreateInboundEndpointResponse {
-    path: string;
-}
-
 export interface CreateLocalEntryRequest {
     directory: string;
     name: string;
@@ -88,6 +81,92 @@ export interface LocalEntryDirectoryResponse {
 export interface FileDirResponse{
     path: string;
 }
+
+export interface CreateMessageStoreRequest {
+    directory: string;
+    name: string;
+    type: string;
+    initialContextFactory: string;
+    providerURL: string;
+    connectionFactory: string;
+    jndiQueueName: string;
+    userName: string;
+    password: string;
+    cacheConnection: string;
+    jmsAPIVersion: string;
+    rabbitMQServerHostName: string;
+    rabbitMQServerPort: string;
+    sslEnabled: string;
+    trustStoreLocation: string;
+    trustStoreType: string;
+    trustStorePassword: string;
+    keyStoreLocation: string;
+    keyStoreType: string;
+    keyStorePassword: string;
+    sslVersion: string;
+    rabbitMQQueueName: string;
+    rabbitMQExchangeName: string;
+    routineKey: string;
+    virtualHost: string;
+    dataBaseTable: string;
+    driver: string;
+    url: string;
+    user: string;
+    dataSourceName: string;
+    queueConnectionFactory: string;
+    pollingCount: string;
+    xPath: string;
+    enableProducerGuaranteedDelivery: string;
+    providerClass: string;
+    customParameters: Record[];
+}
+
+export interface CreateMessageStoreResponse {
+    path: string;
+}
+
+export interface GetMessageStoreResponse {
+    name: string;
+    type: string;
+    initialContextFactory: string;
+    providerURL: string;
+    connectionFactory: string;
+    jndiQueueName: string;
+    userName: string;
+    password: string;
+    cacheConnection: string;
+    jmsAPIVersion: string;
+    rabbitMQServerHostName: string;
+    rabbitMQServerPort: string;
+    sslEnabled: string;
+    trustStoreLocation: string;
+    trustStoreType: string;
+    trustStorePassword: string;
+    keyStoreLocation: string;
+    keyStoreType: string;
+    keyStorePassword: string;
+    sslVersion: string;
+    rabbitMQQueueName: string;
+    rabbitMQExchangeName: string;
+    routineKey: string;
+    virtualHost: string;
+    dataBaseTable: string;
+    driver: string;
+    url: string;
+    user: string;
+    dataSourceName: string;
+    queueConnectionFactory: string;
+    pollingCount: string;
+    xPath: string;
+    enableProducerGuaranteedDelivery: string;
+    providerClass: string;
+    customParameters: Record[];
+}
+
+export interface GetMessageStoreRequest {
+    path: string;
+}
+
 export interface CreateProjectRequest {
     directory: string;
     name: string;
@@ -289,6 +368,37 @@ export interface CreateProxyServiceRequest {
 
 export interface CreateProxyServiceResponse {
     path: string;
+}
+
+export interface CreateTaskRequest {
+    directory: string;
+    name: string;
+    group: string;
+    implementation: string;
+    pinnedServers: string;
+    triggerType: "simple" | "cron";
+    triggerCount: number;
+    triggerInterval: number;
+    triggerCron: string;
+}
+
+export interface CreateTaskResponse {
+    path: string;
+}
+
+export interface GetTaskRequest {
+    path: string;
+}
+
+export interface GetTaskResponse {
+    name: string;
+    group: string;
+    implementation: string;
+    pinnedServers: string;
+    triggerType: "simple" | "cron";
+    triggerCount: number;
+    triggerInterval: number;
+    triggerCron: string;
 }
 
 export interface ProjectRootResponse {

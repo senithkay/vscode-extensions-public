@@ -13,7 +13,7 @@ import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import path from 'path';
 
-const allowedConfigs = ["apis", "sequences", "endpoints", "api", "inboundEndpoints", "messageProcessors", "proxyServices"];
+const allowedConfigs = ["apis", "sequences", "endpoints", "api", "inboundEndpoints", "messageProcessors", "proxyServices", "tasks"];
 
 const IconWrapper = styled.div`
     display: flex;
@@ -63,6 +63,8 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.MessageProcessorForm, documentUri: path } });
         } else if (directory.toLowerCase() === "proxy_service") {
             rpcClient.getMiDiagramRpcClient().openFile({ path: path });
+        } else if (directory.toLowerCase() === "task") {
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.TaskForm, documentUri: path } });
         }
     };
 
@@ -83,6 +85,8 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
             await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-message-processor", entry] });
         } else if (key === 'proxyServices') {
             await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-proxy-service", entry] });
+        } else if (key === 'tasks') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({commands: ["MI.project-explorer.add-task"]});
         }
     };
 

@@ -13,6 +13,9 @@ import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from '@wso2-enterprise/m
 import { COMMANDS } from '../constants';
 import { ExtensionContext, Uri, ViewColumn, commands, window, workspace } from 'vscode';
 import { VisualizerWebview } from '../visualizer/webview';
+import path = require("path");
+import { deleteRegistryResource } from '../util/fileOperations';
+import { RpcClient } from '@wso2-enterprise/mi-rpc-client';
 
 export function activateProjectExplorer(context: ExtensionContext) {
 
@@ -27,7 +30,9 @@ export function activateProjectExplorer(context: ExtensionContext) {
 			{ label: 'Sequence', description: 'Add new sequence' },
 			{ label: 'Inbound Endpoint', description: 'Add new inbound endpoint' },
 			{ label: 'Local Entry', description: 'Add new local entry' },
-			{ label: 'Message Processor', description: 'Add new message processor' }
+			{ label: 'Message Store', description: 'Add new message store'},
+			{ label: 'Message Processor', description: 'Add new message processor' },
+			{ label: 'Task', description: 'Add new task' }
 		], {
 			placeHolder: 'Select the construct to add'
 		}).then(selection => {
@@ -41,10 +46,14 @@ export function activateProjectExplorer(context: ExtensionContext) {
 				commands.executeCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND);
 			} else if (selection?.label === 'Message Processor') {
 				commands.executeCommand(COMMANDS.ADD_MESSAGE_PROCESSOR_COMMAND);
+			} else if (selection?.label === 'Task') {
+				commands.executeCommand(COMMANDS.ADD_TASK_COMMAND);
 			} else if (selection?.label === 'New Project') {
 				commands.executeCommand(COMMANDS.CREATE_PROJECT_COMMAND);
 			} else if (selection?.label === 'Local Entry') {
 				commands.executeCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND);
+			} else if (selection?.label === 'Message Store') {
+				commands.executeCommand(COMMANDS.ADD_MESSAGE_STORE_COMMAND);
 			}
 		});
 
@@ -82,6 +91,41 @@ export function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.ADD_PROXY_SERVICE_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProxyServiceForm, documentUri: entry.info?.path });
 		console.log('Add Proxy Service');
+	});
+
+	commands.registerCommand(COMMANDS.ADD_TASK_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TaskForm, documentUri: entry.info?.path });
+	});
+
+	commands.registerCommand(COMMANDS.EDIT_REGISTERY_RESOURCE_COMMAND, async (entry: string) => {
+		workspace.openTextDocument(entry).then((doc) => {
+			window.showTextDocument(doc, { preview: false });
+		});
+	});
+
+	commands.registerCommand(COMMANDS.DELETE_REGISTERY_RESOURCE_COMMAND, async (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+		if (entry.info && entry.info?.path) {
+			const filePath = entry.info.path;
+			const fileName = path.basename(filePath);
+			window.showInformationMessage("Do you want to do delete : " + fileName, "Yes", "No")
+				.then(async answer => {
+					if (answer === "Yes") {
+						const res = await deleteRegistryResource(filePath);
+						if (res.status === true) {
+							window.showInformationMessage(res.info);
+							projectExplorerDataProvider.refresh();
+						} else {
+							window.showErrorMessage(res.info);
+						}
+					}
+				});
+		}
+	});
+
+	commands.registerCommand(COMMANDS.ADD_MESSAGE_STORE_COMMAND, (entry:ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MessageStoreForm, documentUri: entry.info?.path });
+		console.log('Add Message Store');
 	});
 
 	commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
@@ -135,6 +179,14 @@ export function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.SHOW_DIAGRAM, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Diagram, documentUri: documentUri?.fsPath, identifier: resourceIndex });
+	})
+	commands.registerCommand(COMMANDS.SHOW_MESSAGE_STORE, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MessageStoreForm, documentUri: documentUri?.fsPath });
+	})	
+	commands.registerCommand(COMMANDS.SHOW_VIEW, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TaskForm, documentUri: documentUri?.fsPath });
 	})
 	commands.registerCommand(COMMANDS.SHOW_SOURCE, (e: any) => {
 		const documentUri = StateMachine.context().documentUri;
