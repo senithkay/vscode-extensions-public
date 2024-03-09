@@ -1,6 +1,7 @@
 import React from "react";
-import { Story, Meta } from "@storybook/react/types-6-0";
+// import { Story, Meta } from "@storybook/react/types-6-0";
 import { Diagram, DiagramProps } from "../components/Diagram";
+import { Meta, StoryObj } from "@storybook/react";
 
 const resourceModel: any = {
     inSequence: {
@@ -463,19 +464,23 @@ const resourceModel: any = {
     tag: "resource"
 };
 
-export default {
-    title: "Example/Diagram",
+const meta: Meta<typeof Diagram> = {
+    title: 'Diagram',
     component: Diagram,
-} as Meta;
-
-const Template: Story<DiagramProps> = (args: React.JSX.IntrinsicAttributes & DiagramProps) => <Diagram {...args} />;
-
-export const Primary = Template.bind({});
-Primary.args = {
-    model: resourceModel,
+    argTypes: {
+        model: resourceModel,
+    },
 };
 
-export const Sequence = Template.bind({});
+export default meta;
+type Story = StoryObj<typeof Diagram>;
+
+export const Primary: Story = {};
+Primary.args = {
+    model: resourceModel
+};
+
+export const Sequence: Story = {};
 Sequence.args = {
     model: {
         "mediatorList": [
@@ -1329,7 +1334,7 @@ Sequence.args = {
     }
 };
 
-export const NestedFilter = Template.bind({});
+export const NestedFilter: Story = {};
 NestedFilter.args = {
     model: {
         inSequence: {
