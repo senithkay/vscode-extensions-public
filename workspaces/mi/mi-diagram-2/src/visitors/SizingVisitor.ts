@@ -191,7 +191,6 @@ export class SizingVisitor implements Visitor {
         onFail: node.onFail
     });
 
-    endVisitWithParam = (node: WithParam): void => this.calculateBasicMediator(node);
     endVisitCallTemplate = (node: CallTemplate): void => this.calculateBasicMediator(node);
 
     //Extesnion Mediators

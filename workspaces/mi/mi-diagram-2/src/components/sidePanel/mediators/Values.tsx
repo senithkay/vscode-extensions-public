@@ -69,7 +69,7 @@ export function getAllMediators(props: GetMediatorsProps) {
                 form: <CallForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CallForm>,
             },
             {
-                title: "Call Template",
+                title: "CallTemplate",
                 operationName: MEDIATORS.CALLTEMPLATE,
                 form: <CallTemplateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CallTemplateForm>,
             },
@@ -104,7 +104,7 @@ export function getAllMediators(props: GetMediatorsProps) {
                 form: <PropertyForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PropertyForm>,
             },
             {
-                title: "Property Group",
+                title: "PropertyGroup",
                 operationName: MEDIATORS.PROPERTYGROUP,
                 form: <PropertyGroupForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PropertyGroupForm>,
             },

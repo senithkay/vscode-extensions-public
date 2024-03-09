@@ -179,7 +179,6 @@ export class PositionVisitor implements Visitor {
     }
     endVisitValidate = (node: Validate): void => this.setSkipChildrenVisit(false);
 
-    beginVisitWithParam = (node: WithParam): void => this.setBasicMediatorPosition(node);
     beginVisitCallTemplate = (node: CallTemplate): void => this.setBasicMediatorPosition(node);
 
     //Extension Mediartos

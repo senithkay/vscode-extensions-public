@@ -309,7 +309,6 @@ export class NodeFactoryVisitor implements Visitor {
         this.skipChildrenVisit = false;
     }
 
-    beginVisitWithParam = (node: WithParam): void => this.createNodeAndLinks(node, "");
     beginVisitCallTemplate = (node: CallTemplate): void => this.createNodeAndLinks(node, MEDIATORS.CALLTEMPLATE);
 
     // Extension Mediators

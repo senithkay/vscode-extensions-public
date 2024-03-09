@@ -13,7 +13,7 @@ import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise
 import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getRangeFromTagRange } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
@@ -39,21 +39,49 @@ const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const CallTemplateForm = (props: AddMediatorProps) => {
-   const { rpcClient } = useVisualizerContext();
-   const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({} as { [key: string]: any });
-   const [errors, setErrors] = useState({} as any);
+    const { rpcClient } = useVisualizerContext();
+    const sidePanelContext = React.useContext(SidePanelContext);
+    const [formValues, setFormValues] = useState({} as { [key: string]: any });
+    const [availableSequenceTemplates, setAvailableSequenceTemplates] = useState([] as string[]);
+    const [availableEndpointTemplates, setAvailableEndpointTemplates] = useState([] as string[]);
+    const [errors, setErrors] = useState({} as any);
+    useEffect(() => {
+        fetchAvailableResources();
+        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
+            setFormValues({ ...formValues, ...sidePanelContext.formValues });
+        } else {
+            setFormValues({
+                "availableTemplates": "Select From Templates",
+                "parameterNameTable": [] as string[][],
+                "templateParameterType": "LITERAL",
+            });
+        }
+    }, [sidePanelContext.formValues]);
 
-   useEffect(() => {
-       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-           setFormValues({ ...formValues, ...sidePanelContext.formValues });
-       } else {
-           setFormValues({
-       "availableTemplates": "Select From Templates",
-       "parameterNameTable": [] as string[][],
-       "templateParameterType": "LITERAL",});
-       }
-   }, [sidePanelContext.formValues]);
+    useEffect(() => {
+        if (!formValues["availableTemplates"]) {
+            if (availableEndpointTemplates.includes(formValues["targetTemplate"]) || availableSequenceTemplates.includes(formValues["targetTemplate"])) {
+                formValues["availableTemplates"] = formValues["targetTemplate"];
+            }
+        }
+    }, [availableEndpointTemplates, availableSequenceTemplates]);
+
+    const fetchAvailableResources = async () => {
+        rpcClient.getMiDiagramRpcClient().getAvailableResources({ documentIdentifier: props.documentUri, resourceType: "sequenceTemplate" }).then(resp => {
+            const resourceArray: string[] = [];
+            resp.resources.map((res: { [key: string]: any }) => {
+                resourceArray.push(res.name);
+            })
+            setAvailableSequenceTemplates(resourceArray);
+        });
+        rpcClient.getMiDiagramRpcClient().getAvailableResources({ documentIdentifier: props.documentUri, resourceType: "endpointTemplate" }).then(resp => {
+            const resourceArray: string[] = [];
+            resp.resources.map((res: { [key: string]: any }) => {
+                resourceArray.push(res.name);
+            })
+            setAvailableEndpointTemplates(resourceArray);
+        });
+    }
 
    const onClick = async () => {
        const newErrors = {} as any;
@@ -68,7 +96,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
        } else {
            const xml = getXML(MEDIATORS.CALLTEMPLATE, formValues);
            rpcClient.getMiDiagramRpcClient().applyEdit({
-               documentUri: props.documentUri, range: props.nodePosition, text: xml
+               documentUri: props.documentUri, range: getRangeFromTagRange(props.nodePosition), text: xml
            });
            sidePanelContext.setSidePanelState({
                 ...sidePanelContext,
@@ -121,10 +149,14 @@ const CallTemplateForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Available Templates</label>
-                    <AutoComplete items={["Select From Templates"]} selectedItem={formValues["availableTemplates"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "availableTemplates": e });
-                        formValidators["availableTemplates"](e);
-                    }} />
+                   <AutoComplete items={[...availableSequenceTemplates, ...availableEndpointTemplates]} selectedItem={formValues["availableTemplates"]} onChange={(e: any) => {
+                       const updateValues: { [key: string]: any } = { "availableTemplates": e }
+                       if (e != "Select From Templates") {
+                           updateValues["targetTemplate"] = e;
+                       }
+                       setFormValues({ ...formValues, "availableTemplates": e, ...updateValues });
+                       formValidators["availableTemplates"](e);
+                   }} />
                     {errors["availableTemplates"] && <Error>{errors["availableTemplates"]}</Error>}
                 </Field>
 
@@ -192,10 +224,11 @@ const CallTemplateForm = (props: AddMediatorProps) => {
 
                 <div style={{ textAlign: "right", marginTop: "10px" }}>
                     <Button appearance="primary" onClick={() => {
-                        if (!(validateField("parameterName", formValues["parameterName"], true) || validateField("parameterValue", formValues["parameterValue"], true))) {
-                            setFormValues({
-                                ...formValues, "parameterName": undefined, "parameterValue": undefined,
-                                "parameterNameTable": [...formValues["parameterNameTable"], [formValues["parameterName"], formValues["templateParameterType"], formValues["parameterValue"]]]
+                           const isExpression = formValues["templateParameterType"] == "EXPRESSION" ? true : false;
+                           if (!(validateField("parameterName", formValues["parameterName"], true) || validateField("parameterValue", formValues["parameterValue"], !isExpression), validateField("parameterExpression", formValues["parameterExpression"], isExpression))) {
+                               setFormValues({
+                                   ...formValues, "parameterName": undefined, "parameterValue": undefined, "parameterExpression": undefined,
+                                   "parameterNameTable": [...formValues["parameterNameTable"], [formValues["parameterName"], formValues["templateParameterType"], formValues["parameterValue"] ?? formValues["parameterExpression"]]]
                             });
                         }
                     }}>
@@ -241,7 +274,13 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                         placeholder=""
                         value={formValues["targetTemplate"]}
                         onChange={(e: any) => {
-                            setFormValues({ ...formValues, "targetTemplate": e });
+                            const updateValues: { [key: string]: any } = { "targetTemplate": e }
+                            if (availableEndpointTemplates.includes(e) || availableSequenceTemplates.includes(e)) {
+                                updateValues["availableTemplates"] = e;
+                            } else {
+                                updateValues["availableTemplates"] = "Select From Templates";
+                            }
+                            setFormValues({ ...formValues, ...updateValues });
                             formValidators["targetTemplate"](e);
                         }}
                         required={false}
