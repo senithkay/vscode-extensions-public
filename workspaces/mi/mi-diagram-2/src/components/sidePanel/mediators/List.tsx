@@ -31,7 +31,7 @@ const IconContainer = styled.div`
 interface MediatorProps {
     nodePosition: any;
     documentUri: string;
-    setContent: React.Dispatch<React.SetStateAction<ReactNode>>;
+    setContent: any;
     searchValue?: string;
 }
 export function Mediators(props: MediatorProps) {
@@ -44,11 +44,7 @@ export function Mediators(props: MediatorProps) {
     });
 
     const setContent = (content: any) => {
-        sidePanelContext.setSidePanelState({
-            ...sidePanelContext,
-            title: `${sidePanelContext.isEditing ? "Edit" : "Add"} ${content.title}`,
-        });
-        props.setContent(content.form);
+        props.setContent(content.form, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${content.title}`);
     }
 
     const searchForm = (value: string, search?: boolean) => {

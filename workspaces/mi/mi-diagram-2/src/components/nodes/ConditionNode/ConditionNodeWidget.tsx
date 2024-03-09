@@ -15,6 +15,7 @@ import { Colors } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Tooltip } from "@wso2-enterprise/ui-toolkit";
+import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 
 namespace S {
     export const Node = styled.div<{}>`
@@ -43,6 +44,8 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
     const visualizerContext = useVisualizerContext();
     const hasDiagnotics = node.hasDiagnotics();
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
+    const { rpcClient } = useVisualizerContext();
+    const sidePanelContext = React.useContext(SidePanelContext);
 
     const handleOnClickMenu = () => {
         if (onClick) {
@@ -51,16 +54,12 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
         }
     };
 
-    const handleOnClick = () => {
-        if (node.isSelected()) node.onClicked(visualizerContext);
-    };
-
     return (
         <Tooltip content={tooltip} position={'bottom'} containerPosition={'absolute'}>
             <S.Node
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
-                onClick={handleOnClick}
+                onClick={(e) => node.onClicked(e, node, rpcClient, sidePanelContext, visualizerContext)}
             >
                 <PortWidget port={node.getPort("in")!} engine={engine} />
                 <svg width="65" height="65" viewBox="0 0 70 70">

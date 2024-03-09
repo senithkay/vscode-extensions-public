@@ -146,10 +146,6 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
         }
     };
 
-    const handleOnClick = () => {
-        if (node.isSelected()) node.onClicked(visualizerContext);
-    };
-
     const handlePlusNode = () => {
         const nodeRange: Range = {
             start: node.stNode.range.endTagRange.start,
@@ -204,7 +200,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                     hasError={hasDiagnotics}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
-                    onClick={handleOnClick}
+                    onClick={(e) => node.onClicked(e, node, rpcClient, sidePanelContext, visualizerContext)}
                 >
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <S.Header>

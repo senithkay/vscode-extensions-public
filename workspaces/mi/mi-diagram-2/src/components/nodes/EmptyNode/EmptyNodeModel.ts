@@ -15,6 +15,7 @@ export class EmptyNodeModel extends BaseNodeModel {
     constructor(stNode: STNode, documentUri:string) {
         super(
             NodeTypes.EMPTY_NODE,
+            NodeTypes.EMPTY_NODE,
             documentUri,
             stNode,
         );
