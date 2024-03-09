@@ -24,7 +24,7 @@ export function getPropertyGroupXml(data: { [key: string]: any }) {
             newPropertyName: property[0],
             propertyDataType: property[1],
             propertyAction: property[2],
-            propertyScope: property[3].toLowerCase(),
+            propertyScope: property[3]?.toLowerCase(),
             value: property[4] == "LITERAL" ? property[5] : undefined,
             expression: property[4] == "EXPRESSION" ? property[5] : undefined,
             valueStringPattern: property[6],
@@ -41,5 +41,8 @@ export function getPropertyGroupXml(data: { [key: string]: any }) {
 
 export function getPropertyGroupFormDataFromSTNode(data: { [key: string]: any }, node: PropertyGroup) {
 
+    data.properties = node.property.map(property => {
+        return [property.name, property.type, property.action, property.scope, property.value ? "LITERAL" : "EXPRESSION", property.value ?? property.expression, property.pattern, property.group, property.description];
+    })
     return data;
 }
