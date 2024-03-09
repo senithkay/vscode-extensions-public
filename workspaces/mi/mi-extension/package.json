@@ -188,7 +188,14 @@
         "category": "MI"
       },
       {
-        "command": "MI.project-explorer.view",
+        "command": "MI.project-explorer.add-message-store",
+        "title": "Add Message Store",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
+        "command": "project-explorer.view",
         "title": "View"
       },
       {
@@ -292,6 +299,11 @@
         {
           "command": "MI.project-explorer.add-task",
           "when": "view == MI.project-explorer && viewItem == tasks",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-message-store",
+          "when": "view == MI.project-explorer && viewItem == messageStores",
           "group": "inline"
         }
       ]

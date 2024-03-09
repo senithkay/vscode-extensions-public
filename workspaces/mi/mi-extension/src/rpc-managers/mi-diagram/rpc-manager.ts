@@ -68,6 +68,8 @@ import {
     RetrieveMessageProcessorResponse,
     CreateProxyServiceRequest,
     CreateProxyServiceResponse,
+    CreateMessageStoreRequest,
+    CreateMessageStoreResponse,
     BrowseFileResponse,
     BrowseFileRequest,
     CreateRegistryResourceRequest,
@@ -75,7 +77,9 @@ import {
     CreateTaskRequest,
     CreateTaskResponse,
     GetTaskRequest,
-    GetTaskResponse
+    GetTaskResponse,
+    GetMessageStoreRequest,
+    GetMessageStoreResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import * as fs from "fs";
@@ -85,13 +89,14 @@ import { Position, Range, Selection, Uri, WorkspaceEdit, commands, window, works
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { createFolderStructure, getTaskXmlWrapper, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper } from "../../util";
+import { createFolderStructure, getTaskXmlWrapper, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper , getMessageStoreXmlWrapper } from "../../util";
 import { getMediatypeAndFileExtension, addNewEntryToArtifactXML, detectMediaType } from "../../util/fileOperations";
 import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
 import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
+import { error } from "console";
 const { XMLParser } = require("fast-xml-parser");
 
 const connectorsPath = path.join(".metadata", ".Connectors");
@@ -360,6 +365,170 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             resolve({ path: filePath });
         });
     }
+    
+    async createMessageStore(params: CreateMessageStoreRequest): Promise<CreateMessageStoreResponse> {
+        return new Promise(async (resolve) => {
+
+            const getTemplateParams = params;
+
+            const xmlData = getMessageStoreXmlWrapper(getTemplateParams);
+
+            const filePath = path.join(params.directory, `${params.name}.xml`);
+            fs.writeFileSync(filePath, xmlData);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getMessageStore(params: GetMessageStoreRequest): Promise<GetMessageStoreResponse> {
+        const options = {
+            ignoreAttributes: false,
+            allowBooleanAttributes: true,
+            attributeNamePrefix: "@_",
+            attributesGroupName: "@_"
+        };
+        interface Parameter{
+            name: string,
+            value: string
+        }
+        const parser = new XMLParser(options);
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+            if (fs.existsSync(filePath)) {
+                const xmlData = fs.readFileSync(filePath, "utf8");
+                const jsonData = parser.parse(xmlData);
+                let parameters: Parameter[]=[];
+                let customParameters: Parameter[]=[];
+                const className= jsonData.messageStore["@_"]["@_class"];
+                const response: GetMessageStoreResponse = {
+                    name: jsonData.messageStore["@_"]["@_name"],
+                    type: '',
+                    initialContextFactory: '',
+                    connectionFactory: '',
+                    providerURL: '',
+                    jndiQueueName: '',
+                    userName: '',
+                    password: '',
+                    cacheConnection: '',
+                    jmsAPIVersion: '',
+                    enableProducerGuaranteedDelivery: '',
+                    rabbitMQServerHostName: '',
+                    rabbitMQServerPort: '',
+                    sslEnabled: '',
+                    rabbitMQQueueName: '',
+                    rabbitMQExchangeName: '',
+                    routineKey: '',
+                    virtualHost: '',
+                    trustStoreLocation: '',
+                    trustStorePassword: '',
+                    trustStoreType: '',
+                    keyStoreLocation: '',
+                    keyStorePassword: '',
+                    keyStoreType: '',
+                    dataBaseTable: '',
+                    driver: '',
+                    url: '',
+                    user: '',
+                    dataSourceName: '',
+                    queueConnectionFactory: '',
+                    pollingCount: '',
+                    xPath: '',
+                    providerClass: '',
+                    customParameters: [] as Parameter[],
+                    sslVersion: ""
+                };
+                if(jsonData && jsonData.messageStore && jsonData.messageStore.parameter){
+                    parameters = Array.isArray(jsonData.messageStore.parameter)
+                        ? jsonData.messageStore.parameter.map((param: any) => ({
+                            name: param["@_"]['@_name'],
+                            value: param['#text'] ?? param["@_"]["@_expression"]
+                        }))
+                        : [{
+                            name: jsonData.messageStore.parameter["@_"]['@_name'],
+                            value: jsonData.messageStore.parameter['#text']
+                        }];
+                    const MessageStoreModel = {
+                        'java.naming.factory.initial': 'initialContextFactory',
+                        'java.naming.provider.url': 'providerURL',
+                        'store.jms.connection.factory': 'connectionFactory',
+                        'connectionfactory.QueueConnectionFactory': 'queueConnectionFactory',
+                        'store.jms.destination': 'jndiQueueName',
+                        'store.jms.username': 'userName',
+                        'store.jms.password': 'password',
+                        'store.jms.cache.connection': 'cacheConnection',
+                        'store.jms.JMSSpecVersion': 'jmsAPIVersion',
+                        'store.producer.guaranteed.delivery.enable': 'enableProducerGuaranteedDelivery',
+                        'rabbitmq.connection.ssl.truststore.location': 'trustStoreLocation',
+                        'rabbitmq.connection.ssl.truststore.password': 'trustStorePassword',
+                        'rabbitmq.connection.ssl.truststore.type': 'trustStoreType',
+                        'rabbitmq.connection.ssl.keystore.location': 'keyStoreLocation',
+                        'rabbitmq.connection.ssl.keystore.password': 'keyStorePassword',
+                        'rabbitmq.connection.ssl.keystore.type': 'keyStoreType',
+                        'rabbitmq.connection.ssl.version': 'sslVersion',
+                        'rabbitmq.connection.ssl.enabled': 'sslEnabled',
+                        'store.jdbc.table': 'dataBaseTable',
+                        'store.jdbc.driver': 'driver',
+                        'store.jdbc.connection.url': 'url',
+                        'store.jdbc.username': 'user',
+                        'store.jdbc.ds': 'dataSourceName',
+                        'store.rabbitmq.username': 'userName',
+                        'store.rabbitmq.password': 'password',
+                        'store.rabbitmq.host.name': 'rabbitMQServerHostName',
+                        'store.rabbitmq.host.port': 'rabbitMQServerPort',
+                        'store.rabbitmq.exchange.name': 'rabbitMQExchangeName',
+                        'store.rabbitmq.queue.name': 'rabbitMQQueueName',
+                        'store.rabbitmq.route.key': 'routineKey',
+                        'store.rabbitmq.virtual.host': 'virtualHost',
+                        'store.resequence.timeout': 'pollingCount',
+                        'store.resequence.id.path': 'xPath',                    
+                    }
+                    switch (className) {
+                        case 'org.apache.synapse.message.store.impl.jms.JmsStore':
+                            response.type = 'JMS Message Store';
+                            break;
+                        case 'org.apache.synapse.message.store.impl.jdbc.JDBCMessageStore':
+                            response.type = 'JDBC Message Store';
+                            break;
+                        case 'org.apache.synapse.message.store.impl.rabbitmq.RabbitMQStore':
+                            response.type = 'RabbitMQ Message Store';
+                            break;
+                        case 'org.apache.synapse.message.store.impl.resequencer.ResequenceMessageStore':
+                            response.type = 'Resequence Message Store';
+                            break;
+                        case 'org.apache.synapse.message.store.impl.memory.InMemoryStore':
+                            response.type = 'In Memory Message Store';
+                            break;
+                        default:
+                            response.type = 'Custom Message Store';
+                            break;         
+                    }
+                    if(response.type !== 'Custom Message Store'){
+                        parameters.forEach((param : Parameter) => {
+                            if (MessageStoreModel.hasOwnProperty(param.name)) {
+                                response[MessageStoreModel[param.name]] = param.value;
+                            }
+                            const key = MessageStoreModel[param.name];
+                            if (key) {
+                                response[key] = param.value;
+                            }
+                        });
+                        if(response.queueConnectionFactory){
+                            response.type = 'WSO2 MB Message Store';
+                        }
+                    } else {
+                        parameters.forEach((param : Parameter) => {
+                            customParameters.push({ name: param.name, value: param.value });
+                        });
+                        response.providerClass = className;
+                        response.customParameters = customParameters;
+                    }
+                }
+                resolve(response);
+            }
+            else{
+                return error("File not found");
+            }
+        });
+    }    
 
     async getInboundEndpointDirectory(): Promise<InboundEndpointDirectoryResponse> {
         try {
