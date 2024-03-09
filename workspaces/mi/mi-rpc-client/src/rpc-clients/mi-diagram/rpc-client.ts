@@ -123,6 +123,9 @@ import {
     GetTaskRequest,
     GetTaskResponse,
     getTask,
+    GetAvailableResourcesRequest,
+    getAvailableResources,
+    GetAvailableResourcesResponse
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -320,5 +323,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     createRegistryResource(params: CreateRegistryResourceRequest): Promise<CreateRegistryResourceResponse> {
         return this._messenger.sendRequest(createRegistryResource, HOST_EXTENSION, params);
+    }
+
+    getAvailableResources(params: GetAvailableResourcesRequest): Promise<GetAvailableResourcesResponse> {
+        return this._messenger.sendRequest(getAvailableResources, HOST_EXTENSION, params);
     }
 }

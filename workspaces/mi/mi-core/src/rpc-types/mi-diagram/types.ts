@@ -498,3 +498,12 @@ export interface BrowseFileResponse {
 export interface BrowseFileRequest {
     dialogTitle: string;
 }
+
+export interface GetAvailableResourcesRequest {
+    documentIdentifier: string;
+    resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate";
+}
+
+export interface GetAvailableResourcesResponse {
+    resources: { [key: string]: any }[]
+}

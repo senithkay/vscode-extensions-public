@@ -86,7 +86,9 @@ import {
     getTask,
     GetTaskRequest,
     getMessageStore,
-    GetMessageStoreRequest
+    GetMessageStoreRequest,
+    getAvailableResources,
+    GetAvailableResourcesRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -140,4 +142,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getDiagnostics, (args: GetDiagnosticsReqeust) => rpcManger.getDiagnostics(args));
     messenger.onRequest(browseFile, (args: BrowseFileRequest) => rpcManger.browseFile(args));
     messenger.onRequest(createRegistryResource, (args: CreateRegistryResourceRequest) => rpcManger.createRegistryResource(args));
+    messenger.onRequest(getAvailableResources, (args: GetAvailableResourcesRequest) => rpcManger.getAvailableResources(args));
 }

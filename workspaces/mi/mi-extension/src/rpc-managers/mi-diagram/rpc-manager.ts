@@ -79,7 +79,9 @@ import {
     GetTaskRequest,
     GetTaskResponse,
     GetMessageStoreRequest,
-    GetMessageStoreResponse
+    GetMessageStoreResponse,
+    GetAvailableResourcesRequest,
+    GetAvailableResourcesResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import * as fs from "fs";
@@ -1380,6 +1382,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async getDiagnostics(params: GetDiagnosticsReqeust): Promise<GetDiagnosticsResponse> {
         return StateMachine.context().langClient!.getDiagnostics(params);
+    }
+
+    async getAvailableResources(params: GetAvailableResourcesRequest): Promise<GetAvailableResourcesResponse> {
+        return StateMachine.context().langClient!.getAvailableResources(params);
     }
 
     async browseFile(params: BrowseFileRequest): Promise<BrowseFileResponse> {
