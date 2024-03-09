@@ -175,6 +175,7 @@ export enum NodeTypes {
     START_NODE = "start-node",
     END_NODE = "end-node",
     MEDIATOR_NODE = "mediator-node",
+    REFERENCE_NODE = "reference-node",
     CONDITION_NODE = "condition-node",
     CONDITION_NODE_END = "condition-node-end",
     CALL_NODE = "call-node",

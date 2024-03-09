@@ -19,6 +19,7 @@ import { ENDPOINTS, MEDIATORS, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../r
 import { SourceNodeModel, TargetNodeModel, createNodesLink } from "../utils/diagram";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
 import { Diagnostic } from "vscode-languageserver-types";
+import { ReferenceNodeModel } from "../components/nodes/ReferenceNode/ReferenceNodeModel";
 
 interface BranchData {
     name: string;
@@ -40,9 +41,11 @@ export class NodeFactoryVisitor implements Visitor {
 
     private createNodeAndLinks(node: STNode, name: string, type: NodeTypes = NodeTypes.MEDIATOR_NODE, data?: any): void {
         // create node
-        let diagramNode: MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel;
+        let diagramNode: MediatorNodeModel | ReferenceNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel;
         if (type === NodeTypes.MEDIATOR_NODE) {
             diagramNode = new MediatorNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
+        } else if (type === NodeTypes.REFERENCE_NODE) {
+            diagramNode = new ReferenceNodeModel(node, name, data, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.CONDITION_NODE) {
             diagramNode = new ConditionNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.START_NODE) {
@@ -250,7 +253,7 @@ export class NodeFactoryVisitor implements Visitor {
 
         const isSequnce = node.mediatorList && node.mediatorList.length > 0;
         if (!isSequnce) {
-            this.createNodeAndLinks(node, MEDIATORS.SEQUENCE);
+            this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.REFERENCE_NODE, (node as any).key ?? node.tag);
         } else {
             this.createNodeAndLinks(node, "", NodeTypes.START_NODE);
         }
