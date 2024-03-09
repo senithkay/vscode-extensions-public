@@ -175,8 +175,8 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
         setIsPopoverOpen(false);
     }
 
-    const onClickTag = async (e: any) => {
-        e.stopPropagation();
+    const handleOpenSequence = async (e?: any) => {
+        if (e) e.stopPropagation();
         // go to the diagram view of the selected mediator
         if (definition && definition.uri) {
             rpcClient.getMiVisualizerRpcClient().openView({
@@ -203,7 +203,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <S.Header>
                         <S.IconContainer>{getSVGIcon(node.referenceName)}</S.IconContainer>
-                        <S.NodeText onClick={onClickTag} selectable={definition !== undefined}>{node.referenceName}</S.NodeText>
+                        <S.NodeText onClick={handleOpenSequence} selectable={definition !== undefined}>{node.referenceName}</S.NodeText>
                         {isHovered && (
                             <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>
                                 <MoreVertIcon />
@@ -224,6 +224,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
             >
                 <ClickAwayListener onClickAway={handlePopoverClose}>
                     <Menu>
+                        <MenuItem key={'share-btn'} item={{ label: 'Open Sequence', id: "open-sequence", onClick: handleOpenSequence }} />
                         <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: handleDeleleClick }} />
                     </Menu>
                 </ClickAwayListener>
