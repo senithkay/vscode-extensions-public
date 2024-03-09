@@ -122,7 +122,7 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
                     hovered={isHovered}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
-                    onClick={(e) => node.onClicked(e, node, rpcClient, sidePanelContext, visualizerContext)}
+                    onClick={(e) => node.onClicked(e, node, rpcClient, sidePanelContext)}
                 >
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <S.Header>

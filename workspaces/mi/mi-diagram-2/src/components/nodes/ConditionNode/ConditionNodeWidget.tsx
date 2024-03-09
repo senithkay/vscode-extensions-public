@@ -59,7 +59,7 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
             <S.Node
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
-                onClick={(e) => node.onClicked(e, node, rpcClient, sidePanelContext, visualizerContext)}
+                onClick={(e) => node.onClicked(e, node, rpcClient, sidePanelContext)}
             >
                 <PortWidget port={node.getPort("in")!} engine={engine} />
                 <svg width="65" height="65" viewBox="0 0 70 70">

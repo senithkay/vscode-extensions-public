@@ -12,9 +12,8 @@ import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { getNodeIdFromModel } from "../../utils/node";
 import { NodePortModel } from "../NodePort/NodePortModel";
 import { NodeTypes } from "../../resources/constants";
-import { RpcClient, VisualizerContext, useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { RpcClient, VisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Diagnostic } from "vscode-languageserver-types";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { getDataFromXML } from "../../utils/template-engine/mustach-templates/templateUtils";
 import SidePanelContext from "../sidePanel/SidePanelContexProvider";
 
@@ -82,29 +81,29 @@ export class BaseNodeModel extends NodeModel {
         return this.prevNodes;
     }
 
-    async onClicked(e: any, node: BaseNodeModel, rpcClient: RpcClient, sidePanelContext: SidePanelContext, visualizerContext: VisualizerContext) {
-
+    async onClicked(e: any, node: BaseNodeModel, rpcClient: RpcClient, sidePanelContext: SidePanelContext, operationName: string = this.mediatorName, stNode: STNode = this.stNode) {
+        const nodeRange = { start: this.stNode.range.startTagRange.start, end: this.stNode.range.endTagRange.end || this.stNode.range.startTagRange.end };
         if (e.ctrlKey || e.metaKey) {
             // open code and highlight the selected node
-            visualizerContext.rpcClient.getMiDiagramRpcClient().highlightCode({
-                range: { start: this.stNode.range.startTagRange.start, end: this.stNode.range.endTagRange.end || this.stNode.range.startTagRange.end },
+            rpcClient.getMiDiagramRpcClient().highlightCode({
+                range: nodeRange,
                 force: true,
             });
         } else if (node.isSelected()) {
             // highlight the selected node
-            visualizerContext.rpcClient.getMiDiagramRpcClient().highlightCode({
-                range: { start: this.stNode.range.startTagRange.start, end: this.stNode.range.endTagRange.end || this.stNode.range.startTagRange.end },
+            rpcClient.getMiDiagramRpcClient().highlightCode({
+                range: nodeRange,
             });
 
             const formData = getDataFromXML(
-                node.mediatorName,
-                node.getStNode()
+                operationName,
+                stNode
             );
 
             sidePanelContext.setSidePanelState({
                 isOpen: true,
-                operationName: node.mediatorName.toLowerCase(),
-                nodeRange: node.stNode.range,
+                operationName: operationName.toLowerCase(),
+                nodeRange: nodeRange,
                 isEditing: true,
                 formValues: formData,
             });
@@ -114,7 +113,7 @@ export class BaseNodeModel extends NodeModel {
     async delete(rpcClient: RpcClient) {
         rpcClient.getMiDiagramRpcClient().applyEdit({
             documentUri: this.documentUri,
-            range: { start: this.stNode.range.startTagRange.start, end: this.stNode.range.endTagRange.end ?? this.stNode.range.startTagRange.end},
+            range: { start: this.stNode.range.startTagRange.start, end: this.stNode.range.endTagRange.end ?? this.stNode.range.startTagRange.end },
             text: "",
         });
     };
