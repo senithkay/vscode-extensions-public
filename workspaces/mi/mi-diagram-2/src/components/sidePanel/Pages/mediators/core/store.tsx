@@ -41,10 +41,10 @@ const StoreForm = (props: AddMediatorProps) => {
    const { rpcClient } = useVisualizerContext();
    const sidePanelContext = React.useContext(SidePanelContext);
    const [formValues, setFormValues] = useState({} as { [key: string]: any });
+   const [messageStores, setMessageStores] = useState([] as string[]);
    const [errors, setErrors] = useState({} as any);
-    const messageStores: string[] = []
     useEffect(() => {
-        //TODO: get message stores
+        fetchAvailableResources();
         if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
             if (formValues["messageStores"]?.includes(sidePanelContext.formValues["messageStore"])) {
                 sidePanelContext.formValues["availableMessageStores"] = sidePanelContext.formValues["messageStore"];
@@ -56,6 +56,16 @@ const StoreForm = (props: AddMediatorProps) => {
        "availableMessageStores": "Select From Message Stores",});
        }
    }, [sidePanelContext.formValues]);
+
+    const fetchAvailableResources = async () => {
+        rpcClient.getMiDiagramRpcClient().getAvailableResources({ documentIdentifier: props.documentUri, resourceType: "messageStore" }).then(resp => {
+            const resourceArray: string[] = [];
+            resp.resources.map((res: { [key: string]: any }) => {
+                resourceArray.push(res.name);
+            })
+            setMessageStores(resourceArray);
+        });
+    }
 
    const onClick = async () => {
        const newErrors = {} as any;
@@ -141,8 +151,8 @@ const StoreForm = (props: AddMediatorProps) => {
                     {formValues["specifyAs"] && formValues["specifyAs"].toLowerCase() == "value" &&
                         <Field>
                             <label>Available Message Stores</label>
-                            <AutoComplete items={["Select From Message Stores"]} selectedItem={formValues["availableMessageStores"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "availableMessageStores": e });
+                            <AutoComplete items={[...messageStores]} selectedItem={formValues["availableMessageStores"]} onChange={(e: any) => {
+                                setFormValues({ ...formValues, "availableMessageStores": e, "messageStore":e });
                                 formValidators["availableMessageStores"](e);
                             }} />
                             {errors["availableMessageStores"] && <Error>{errors["availableMessageStores"]}</Error>}
