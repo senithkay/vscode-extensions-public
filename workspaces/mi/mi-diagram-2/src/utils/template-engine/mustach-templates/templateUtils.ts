@@ -32,7 +32,7 @@ import { getTemplateEndpointMustacheTemplate } from "./endpoints/template";
 import { getWSDLEndpointMustacheTemplate } from "./endpoints/wsdl";
 import { MEDIATORS, ENDPOINTS } from "../../../resources/constants";
 import { getFilterMustacheTemplate } from "./core/filter";
-import { getSequenceMustacheTemplate } from "./core/sequence";
+import { getSequenceMustacheTemplate, getSequenceDataFromSTNode, getSequenceXml } from "./core/sequence";
 import { getStoreMustacheTemplate } from "./core/store";
 import { getValidateMustacheTemplate } from "./core/validate";
 import { getBeanFormDataFromSTNode, getBeanMustacheTemplate, getBeanXml } from "./extension/bean";
@@ -137,6 +137,8 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getScriptXml(data).trim();
         case MEDIATORS.COMMAND:
             return getCommandXml(data);
+        case MEDIATORS.SEQUENCE:
+            return getSequenceXml(data);    
         default:
             return Mustache.render(getMustacheTemplate(name), data).trim();
     }
@@ -172,6 +174,8 @@ export function getDataFromXML(name: string, node: STNode) {
             return getBeanFormDataFromSTNode(formData, node as Bean);
         case MEDIATORS.SCRIPT:
             return getScriptFormDataFromSTNode(formData, node as Script);
+        case MEDIATORS.SEQUENCE:
+            return getSequenceDataFromSTNode(formData);    
         default:
             return formData;
     }
