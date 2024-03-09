@@ -246,9 +246,24 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitLoopback = (node: Loopback): void => this.createNodeAndLinks(node, MEDIATORS.LOOPBACK);
     beginVisitPayloadFactory = (node: PayloadFactory): void => this.createNodeAndLinks(node, MEDIATORS.PAYLOAD);
     beginVisitProperty = (node: Property): void => this.createNodeAndLinks(node, MEDIATORS.PROPERTY);
-    beginVisitPropertyGroup = (node: PropertyGroup): void => this.createNodeAndLinks(node, MEDIATORS.PROPERTYGROUP);
+
+    beginVisitPropertyGroup = (node: PropertyGroup): void => {
+        this.createNodeAndLinks(node, MEDIATORS.PROPERTYGROUP);
+        this.skipChildrenVisit = true;
+    }
+    endVisitPropertyGroup(node: PropertyGroup): void {
+        this.skipChildrenVisit = false;
+    }
+
     beginVisitRespond = (node: Respond): void => this.createNodeAndLinks(node, MEDIATORS.RESPOND);
-    beginVisitSend = (node: Send): void => this.createNodeAndLinks(node, MEDIATORS.SEND);
+
+    beginVisitSend = (node: Send): void => {
+        this.createNodeAndLinks(node, MEDIATORS.SEND, NodeTypes.CALL_NODE, node.endpoint);
+        this.skipChildrenVisit = true;
+    }
+    endVisitSend = (node: Send): void => {
+        this.skipChildrenVisit = false;
+    }
 
     beginVisitSequence = (node: Sequence): void => {
         const addPosition = {
