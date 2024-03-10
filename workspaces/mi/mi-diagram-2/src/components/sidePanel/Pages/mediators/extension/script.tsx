@@ -13,7 +13,7 @@ import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise
 import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps, filterFormValues, getRangeFromTagRange } from '../common';
+import { AddMediatorProps, filterFormValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
@@ -77,7 +77,7 @@ const ScriptForm = (props: AddMediatorProps) => {
             }
             const xml = getXML(MEDIATORS.SCRIPT, formValues);
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: getRangeFromTagRange(props.nodePosition), text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: xml
             });
             sidePanelContext.setSidePanelState({
                 ...sidePanelContext,
