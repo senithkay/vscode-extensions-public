@@ -11,9 +11,10 @@ import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodeTypes } from "../../../resources/constants";
 import { BaseNodeModel } from "../BaseNodeModel";
 
-export class ConditionNodeModel extends BaseNodeModel {
-
-    constructor(stNode: STNode, mediatorName:string, documentUri:string, parentNode?: STNode, prevNodes: STNode[] = []) {
-        super(NodeTypes.CONDITION_NODE, mediatorName, documentUri, stNode, parentNode, prevNodes);
+export class ReferenceNodeModel extends BaseNodeModel {
+    readonly referenceName: string;
+    constructor(stNode: STNode, mediatorName:string, referenceName: string, documentUri:string, parentNode?: STNode, prevNodes: STNode[] = []) {
+        super(NodeTypes.REFERENCE_NODE, mediatorName, documentUri, stNode, parentNode, prevNodes);
+        this.referenceName = referenceName;
     }
 }

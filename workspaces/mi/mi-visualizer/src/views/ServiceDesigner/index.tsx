@@ -32,7 +32,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
 
     const enrichResources = (resources: Resource[], deleteStartPosition: Position): Resource[] => {
         return resources.map((resource) => {
-            const goToSourceAction: Item = { id: "go-to-source", label: "Go to Source", onClick: () => highlightCode(resource) };
+            const goToSourceAction: Item = { id: "go-to-source", label: "Go to Source", onClick: () => highlightCode(resource, true) };
             const deleteAction: Item = { id: "delete", label: "Delete", onClick: () => handleResourceDelete(resource, resources, deleteStartPosition) };
             const moreActions: Item[] = [goToSourceAction, deleteAction];
             return {
@@ -98,13 +98,14 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
                 start: {
                     line: resource.position.startLine,
                     character: resource.position.startColumn,
-                
+
                 },
                 end: {
                     line: resource.position.endLine,
                     character: resource.position.endColumn,
                 },
             },
+            force: force
         });
     }
 
@@ -163,7 +164,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
         rpcClient.getMiDiagramRpcClient().applyEdit({
             text: xml,
             documentUri: documentUri,
-            range:  {
+            range: {
                 start: {
                     line: position?.startLine || resourceBodyRange.end.line,
                     character: position?.startColumn || resourceBodyRange.end.character,

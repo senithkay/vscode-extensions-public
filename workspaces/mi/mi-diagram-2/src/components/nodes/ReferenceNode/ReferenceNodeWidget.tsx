@@ -10,7 +10,7 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { MediatorNodeModel } from "./MediatorNodeModel";
+import { ReferenceNodeModel } from "./ReferenceNodeModel";
 import { Colors } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
@@ -18,6 +18,7 @@ import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { getSVGIcon } from "../../../resources/icons/mediatorIcons/icons";
+import { EVENT_TYPE, GetDefinitionResponse, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 
 namespace S {
     export type NodeStyleProp = {
@@ -79,20 +80,28 @@ namespace S {
         margin-bottom: -3px;
     `;
 
-    export const NodeText = styled.div`
+    interface TagProps {
+        selectable: boolean;
+    };
+
+    export const NodeText = styled.div<TagProps>`
         max-width: 100px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+
+        &:hover {
+            text-decoration: ${(props: TagProps) => props.selectable ? "underline" : "none"};
+            color: ${(props: TagProps) => props.selectable ? Colors.SECONDARY : Colors.ON_SURFACE};
     `;
 }
-interface CallNodeWidgetProps {
-    node: MediatorNodeModel;
+interface ReferenceNodeWidgetProps {
+    node: ReferenceNodeModel;
     engine: DiagramEngine;
     onClick?: (node: STNode) => void;
 }
 
-export function MediatorNodeWidget(props: CallNodeWidgetProps) {
+export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
     const { node, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
     const visualizerContext = useVisualizerContext();
@@ -102,6 +111,46 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
     const { rpcClient } = useVisualizerContext();
     const hasDiagnotics = node.hasDiagnotics();
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
+    const [definition, setDefinition] = useState<GetDefinitionResponse>(undefined);
+
+    const getDefinition = async () => {
+        const text = await rpcClient.getMiDiagramRpcClient().getTextAtRange({
+            documentUri: node.documentUri,
+            range: node.stNode.range.startTagRange,
+        });
+
+        const regex = /\s*key\s*=\s*(['"])(.*?)\1/;
+        const match = text.text.match(regex);
+        const keyPart = match[0].split("=")[0];
+        const valuePart = match[0].split("=")[1];
+        const keyLines = keyPart.split("\n");
+        const valueLines = valuePart.split("\n");
+        const offsetBeforeKey = (text.text.split(match[0])[0]).length;
+
+        let charPosition = 0
+
+        if (keyLines.length > 1) {
+            charPosition = keyLines[keyLines.length - 1].length + valueLines[valueLines.length - 1].length;
+        }
+        if (valueLines.length > 1) {
+            charPosition = valueLines[valueLines.length - 1].length;
+        }
+        const definitionPosition = {
+            line: node.stNode.range.startTagRange.start.line + keyLines.length - 1 + valueLines.length - 1,
+            character: keyLines.length > 1 || valueLines.length > 1 ?
+                charPosition :
+                node.stNode.range.startTagRange.start.character + offsetBeforeKey + match[0].length,
+        };
+
+        const definition = await rpcClient.getMiDiagramRpcClient().getDefinition({
+            document: {
+                uri: node.documentUri,
+            },
+            position: definitionPosition
+        });
+        if (definition) setDefinition(definition);
+    }
+    getDefinition();
 
     const handleOnClickMenu = (event: any) => {
         setIsPopoverOpen(!isPopoverOpen);
@@ -111,6 +160,20 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
 
     const handlePopoverClose = () => {
         setIsPopoverOpen(false);
+    }
+
+    const handleOpenSequence = async (e?: any) => {
+        if (e) e.stopPropagation();
+        // go to the diagram view of the selected mediator
+        if (definition && definition.uri) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.Diagram,
+                    documentUri: definition.uri
+                }
+            });
+        }
     }
 
     return (
@@ -126,8 +189,8 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
                 >
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <S.Header>
-                        <S.IconContainer>{getSVGIcon(node.stNode.tag)}</S.IconContainer>
-                        <S.NodeText>{node.stNode.tag}</S.NodeText>
+                        <S.IconContainer>{getSVGIcon(node.referenceName)}</S.IconContainer>
+                        <S.NodeText onClick={handleOpenSequence} selectable={definition !== undefined}>{node.referenceName}</S.NodeText>
                         {isHovered && (
                             <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>
                                 <MoreVertIcon />
@@ -148,6 +211,7 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
             >
                 <ClickAwayListener onClickAway={handlePopoverClose}>
                     <Menu>
+                        <MenuItem key={'share-btn'} item={{ label: 'Open Sequence', id: "open-sequence", onClick: handleOpenSequence }} />
                         <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
                     </Menu>
                 </ClickAwayListener>

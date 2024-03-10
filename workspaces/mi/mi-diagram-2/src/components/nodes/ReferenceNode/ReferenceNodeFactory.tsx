@@ -10,20 +10,23 @@
 import React from "react";
 import { AbstractReactFactory, GenerateModelEvent, GenerateWidgetEvent } from "@projectstorm/react-canvas-core";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { ConditionNodeModel } from "./ConditionNodeModel";
-import { ConditionNodeWidget } from "./ConditionNodeWidget";
+import { ReferenceNodeModel } from "./ReferenceNodeModel";
+import { ReferenceNodeWidget } from "./ReferenceNodeWidget";
 import { NodeTypes } from "../../../resources/constants";
 
-export class ConditionNodeFactory extends AbstractReactFactory<ConditionNodeModel, DiagramEngine> {
+export class ReferenceNodeFactory extends AbstractReactFactory<ReferenceNodeModel, DiagramEngine> {
     constructor() {
-        super(NodeTypes.CONDITION_NODE);
+        super(NodeTypes.REFERENCE_NODE);
     }
 
-    generateModel(event: GenerateModelEvent): ConditionNodeModel {
-        return new ConditionNodeModel(event.initialConfig.stNode, event.initialConfig.mediatorName, event.initialConfig.documentUri);
+    generateModel(event: GenerateModelEvent): ReferenceNodeModel {
+        return new ReferenceNodeModel(event.initialConfig.stNode, event.initialConfig.mediatorName, event.initialConfig.referenceName, event.initialConfig.documentUri);
     }
 
-    generateReactWidget(event: GenerateWidgetEvent<ConditionNodeModel>) {
-        return <ConditionNodeWidget engine={this.engine} node={event.model} />;
+    generateReactWidget(event: GenerateWidgetEvent<ReferenceNodeModel>) {
+        return <ReferenceNodeWidget
+            engine={this.engine}
+            node={event.model}
+        />;
     }
 }

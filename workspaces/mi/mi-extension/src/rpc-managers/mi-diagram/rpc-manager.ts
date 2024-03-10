@@ -85,7 +85,7 @@ import axios from 'axios';
 import * as fs from "fs";
 import * as os from 'os';
 import { Transform } from 'stream';
-import { Position, Range, Selection, Uri, WorkspaceEdit, commands, window, workspace } from "vscode";
+import { Position, Range, Selection, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
@@ -1306,7 +1306,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
     async highlightCode(params: HighlightCodeRequest) {
         const documentUri = StateMachine.context().documentUri;
-        const editor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
+        let editor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
+        if (!editor && params.force && documentUri) {
+            const document = await workspace.openTextDocument(Uri.parse(documentUri));
+            editor = await window.showTextDocument(document, ViewColumn.Beside);
+        }
+
         if (editor) {
             const range = new Range(params.range.start.line, params.range.start.character, params.range.end.line, params.range.end.character);
             editor.selection = new Selection(range.start, range.end);

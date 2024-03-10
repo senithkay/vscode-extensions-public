@@ -19,11 +19,17 @@ import { ENDPOINTS, MEDIATORS, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../r
 import { SourceNodeModel, TargetNodeModel, createNodesLink } from "../utils/diagram";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
 import { Diagnostic } from "vscode-languageserver-types";
+import { ReferenceNodeModel } from "../components/nodes/ReferenceNode/ReferenceNodeModel";
 
 interface BranchData {
     name: string;
     diagnostics: Diagnostic[];
 }
+enum DiagramType {
+    DIAGRAM,
+    SEQUENCE
+}
+
 export class NodeFactoryVisitor implements Visitor {
     nodes: (MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel)[] = [];
     links: NodeLinkModel[] = [];
@@ -33,6 +39,7 @@ export class NodeFactoryVisitor implements Visitor {
     private currentBranchData: BranchData;
     private currentAddPosition: Position;
     private documentUri: string;
+    private diagramType: DiagramType;
 
     constructor(documentUri: string) {
         this.documentUri = documentUri;
@@ -40,17 +47,19 @@ export class NodeFactoryVisitor implements Visitor {
 
     private createNodeAndLinks(node: STNode, name: string, type: NodeTypes = NodeTypes.MEDIATOR_NODE, data?: any): void {
         // create node
-        let diagramNode: MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel;
+        let diagramNode: MediatorNodeModel | ReferenceNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel;
         if (type === NodeTypes.MEDIATOR_NODE) {
             diagramNode = new MediatorNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
+        } else if (type === NodeTypes.REFERENCE_NODE) {
+            diagramNode = new ReferenceNodeModel(node, name, data[0], this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.CONDITION_NODE) {
-            diagramNode = new ConditionNodeModel(node, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
+            diagramNode = new ConditionNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.START_NODE) {
             diagramNode = new StartNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.END_NODE) {
             diagramNode = new EndNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.CALL_NODE) {
-            diagramNode = new CallNodeModel(node, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes, data);
+            diagramNode = new CallNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes, data);
         } else if (type === NodeTypes.EMPTY_NODE || type === NodeTypes.CONDITION_NODE_END) {
             diagramNode = new EmptyNodeModel(node, this.documentUri);
         }
@@ -248,18 +257,17 @@ export class NodeFactoryVisitor implements Visitor {
         }
         this.currentAddPosition = addPosition;
 
-        const isSequnce = node.mediatorList && node.mediatorList.length > 0;
+        const isSequnce = this.parents.length == 0;
         if (!isSequnce) {
-            this.createNodeAndLinks(node, MEDIATORS.SEQUENCE);
+            this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.REFERENCE_NODE, (node as any).key ?? node.tag);
         } else {
             this.createNodeAndLinks(node, "", NodeTypes.START_NODE);
+            this.diagramType = DiagramType.SEQUENCE;
         }
         this.parents.push(node);
     }
     endVisitSequence(node: Sequence): void {
-        const isSequnce = node.mediatorList && node.mediatorList.length > 0;
-
-        if (isSequnce) {
+        if (this.diagramType === DiagramType.SEQUENCE) {
             const lastNode = this.nodes[this.nodes.length - 1].getStNode();
             node.viewState.y = lastNode.viewState.y + Math.max(lastNode.viewState.h, lastNode.viewState.fh || 0) + NODE_GAP.Y;
             this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.endTagRange.end);

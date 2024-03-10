@@ -7,6 +7,26 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import Mustache from "mustache";
+
 export function getSequenceMustacheTemplate() {
     return `<sequence {{#staticReferenceKey}}key="{{staticReferenceKey}}"{{/staticReferenceKey}} {{#dynamicReferenceKey}}key="{{dynamicReferenceKey}}"{{/dynamicReferenceKey}} {{#description}}description="{{description}}"{{/description}}/>`;
+}
+
+export function getSequenceXml(data: { [key: string]: any }) {
+    if (data.referringSequenceType === "Static") {
+        delete data.dynamicReferenceKey;
+    } else if (data.referringSequenceType === "Dynamic") {
+        delete data.staticReferenceKey;
+    }
+    return Mustache.render(getSequenceMustacheTemplate(), data);
+}
+
+export function getSequenceDataFromSTNode(data: { [key: string]: any }) {
+    if (data.staticReferenceKey) {
+        data.referringSequenceType = "Static";
+    } else if (data.dynamicReferenceKey) {
+        data.referringSequenceType = "Dynamic";
+    }
+    return data;
 }

@@ -24,6 +24,7 @@ import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 import { EndNodeModel } from "../components/nodes/EndNode/EndNodeModel";
 import { OverlayLayerFactory } from "../components/OverlayLoader/OverlayLayerFactory";
+import { ReferenceNodeFactory } from "../components/nodes/ReferenceNode/ReferenceNodeFactory";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -35,6 +36,7 @@ export function generateEngine(): DiagramEngine {
     engine.getPortFactories().registerFactory(new NodePortFactory());
     engine.getLinkFactories().registerFactory(new NodeLinkFactory());
     engine.getNodeFactories().registerFactory(new MediatorNodeFactory());
+    engine.getNodeFactories().registerFactory(new ReferenceNodeFactory());
     engine.getNodeFactories().registerFactory(new StartNodeFactory());
     engine.getNodeFactories().registerFactory(new EndNodeFactory());
     engine.getNodeFactories().registerFactory(new ConditionNodeFactory());

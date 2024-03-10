@@ -12,8 +12,10 @@ import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { getNodeIdFromModel } from "../../utils/node";
 import { NodePortModel } from "../NodePort/NodePortModel";
 import { NodeTypes } from "../../resources/constants";
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { RpcClient, VisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Diagnostic } from "vscode-languageserver-types";
+import { getDataFromXML } from "../../utils/template-engine/mustach-templates/templateUtils";
+import SidePanelContext from "../sidePanel/SidePanelContexProvider";
 
 export class BaseNodeModel extends NodeModel {
     readonly stNode: STNode;
@@ -22,8 +24,9 @@ export class BaseNodeModel extends NodeModel {
     protected parentNode: STNode;
     protected prevNodes: STNode[];
     readonly documentUri: string;
+    readonly mediatorName: string;
 
-    constructor(type: NodeTypes, documentUri: string, stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
+    constructor(type: NodeTypes, mediatorName: string, documentUri: string, stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode),
             type: type,
@@ -35,6 +38,7 @@ export class BaseNodeModel extends NodeModel {
         this.addInPort("in");
         this.addOutPort("out");
         this.documentUri = documentUri;
+        this.mediatorName = mediatorName;
     }
 
     addPort<T extends NodePortModel>(port: T): T {
@@ -77,11 +81,42 @@ export class BaseNodeModel extends NodeModel {
         return this.prevNodes;
     }
 
-    onClicked(visualizerContext: ReturnType<typeof useVisualizerContext>): void {
-        visualizerContext.rpcClient.getMiDiagramRpcClient().highlightCode({
-            range: { start: this.stNode.range.startTagRange.start, end: this.stNode.range.endTagRange.end || this.stNode.range.startTagRange.end },
-        });
+    async onClicked(e: any, node: BaseNodeModel, rpcClient: RpcClient, sidePanelContext: SidePanelContext, operationName: string = this.mediatorName, stNode: STNode = this.stNode) {
+        const nodeRange = { start: this.stNode.range.startTagRange.start, end: this.stNode.range.endTagRange.end || this.stNode.range.startTagRange.end };
+        if (e.ctrlKey || e.metaKey) {
+            // open code and highlight the selected node
+            rpcClient.getMiDiagramRpcClient().highlightCode({
+                range: nodeRange,
+                force: true,
+            });
+        } else if (node.isSelected()) {
+            // highlight the selected node
+            rpcClient.getMiDiagramRpcClient().highlightCode({
+                range: nodeRange,
+            });
+
+            const formData = getDataFromXML(
+                operationName,
+                stNode
+            );
+
+            sidePanelContext.setSidePanelState({
+                isOpen: true,
+                operationName: operationName.toLowerCase(),
+                nodeRange: nodeRange,
+                isEditing: true,
+                formValues: formData,
+            });
+        }
     }
+
+    async delete(rpcClient: RpcClient) {
+        rpcClient.getMiDiagramRpcClient().applyEdit({
+            documentUri: this.documentUri,
+            range: { start: this.stNode.range.startTagRange.start, end: this.stNode.range.endTagRange.end ?? this.stNode.range.startTagRange.end },
+            text: "",
+        });
+    };
 
     hasDiagnotics(): boolean {
         return this.stNode.diagnostics !== undefined && this.stNode.diagnostics.length > 0;

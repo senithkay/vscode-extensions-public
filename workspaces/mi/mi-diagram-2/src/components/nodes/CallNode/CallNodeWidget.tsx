@@ -7,11 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { CallNodeModel } from "./CallNodeModel";
-import { Colors } from "../../../resources/constants";
+import { Colors, ENDPOINTS } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { Button, Menu, MenuItem, Popover, Tooltip, ClickAwayListener } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon, PlusIcon } from "../../../resources";
@@ -126,6 +126,8 @@ interface CallNodeWidgetProps {
 export function CallNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine, onClick } = props;
     const [isHovered, setIsHovered] = React.useState(false);
+    const [isHoveredEndpoint, setIsHoveredEndpoint] = React.useState(false);
+    const [isEndpointSelected, setIsEndpointSelected] = React.useState(false);
     const visualizerContext = useVisualizerContext();
     const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = React.useState(null);
@@ -136,6 +138,12 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
     const endpointHasDiagnotics = node.endpointHasDiagnostics();
     const endpointTooltip = endpointHasDiagnotics ? node.getEndpointDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
 
+    useEffect(() => {
+        if (!node.isSelected()) {
+            setIsEndpointSelected(false);
+        }
+    }, [node.isSelected()]);
+
     const handleOnClickMenu = (event: any) => {
         if (onClick) {
             onClick(node.stNode);
@@ -144,10 +152,6 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
             setPopoverAnchorEl(event.currentTarget);
             event.stopPropagation();
         }
-    };
-
-    const handleOnClick = () => {
-        if (node.isSelected()) node.onClicked(visualizerContext);
     };
 
     const handlePlusNode = () => {
@@ -165,13 +169,10 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
         });
     };
 
-    const handleOnDelete = () => {
-        rpcClient.getMiDiagramRpcClient().applyEdit({
-            documentUri: node.documentUri,
-            range: { start: node.stNode.range.startTagRange.start, end: node.stNode.range.endTagRange.end },
-            text: "",
-        });
-    };
+    const handleOnClickEndpoint = (e: any) => {
+        setIsEndpointSelected(true);
+        node.onClicked(e, node, rpcClient, sidePanelContext, ENDPOINTS.NAMED, node.endpoint);
+    }
 
     const handleOnDeleteEndpoint = () => {
         rpcClient.getMiDiagramRpcClient().applyEdit({
@@ -180,11 +181,6 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
             text: "",
         });
     };
-
-    const handleDeleleClick = () => {
-        handleOnDelete();
-        setIsPopoverOpen(false); // Close the popover after action
-    }
 
     const handleOnDeleteEndpointClick = () => {
         handleOnDeleteEndpoint();
@@ -197,14 +193,14 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
 
     return (
         <div>
-            <Tooltip content={tooltip} position={'bottom'}>
+            <Tooltip content={tooltip} position={'bottom'} containerPosition={'absolute'}>
                 <S.Node
-                    selected={node.isSelected()}
+                    selected={node.isSelected() && !isHoveredEndpoint && !isEndpointSelected}
                     hovered={isHovered}
                     hasError={hasDiagnotics}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
-                    onClick={handleOnClick}
+                    onClick={(e) => node.onClicked(e, node, rpcClient, sidePanelContext)}
                 >
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <S.Header>
@@ -222,7 +218,11 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                 </S.Node>
             </Tooltip>
 
-            <S.CircleContainer>
+            <S.CircleContainer
+                onMouseEnter={() => setIsHoveredEndpoint(true)}
+                onMouseLeave={() => setIsHoveredEndpoint(false)}
+                onClick={handleOnClickEndpoint}
+            >
                 <Tooltip content={endpointTooltip} position={'bottom'} >
                     <svg width="110" height="50" viewBox="0 0 103 40">
                         <circle
@@ -230,7 +230,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                             cy="20"
                             r="22"
                             fill={Colors.SURFACE_BRIGHT}
-                            stroke={endpointHasDiagnotics ? Colors.ERROR : Colors.OUTLINE_VARIANT}
+                            stroke={endpointHasDiagnotics ? Colors.ERROR : (isHoveredEndpoint || isEndpointSelected) ? Colors.SECONDARY : Colors.OUTLINE_VARIANT}
                             strokeWidth={2}
                         />
                         {node.endpoint && <g transform="translate(81,20)">
@@ -285,7 +285,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
             >
                 <ClickAwayListener onClickAway={handlePopoverClose}>
                     <Menu>
-                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: handleDeleleClick }} />
+                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
                         <MenuItem key={'delete-endpoint-btn'} item={{ label: 'Delete Endpoint', id: "delete-endpoint", onClick: handleOnDeleteEndpointClick }} />
                     </Menu>
                 </ClickAwayListener>

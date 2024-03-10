@@ -441,6 +441,7 @@ export interface WriteContentToFileResponse {
 
 export interface HighlightCodeRequest {
     range: Range;
+    force?: boolean;
 }
 
 export interface UndoRedoParams {
