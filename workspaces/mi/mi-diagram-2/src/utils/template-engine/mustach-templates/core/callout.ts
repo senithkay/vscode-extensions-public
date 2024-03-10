@@ -45,8 +45,10 @@ export function getCalloutXml(data: { [key: string]: any }) {
   const xpathPayload = data.payloadType === "XPATH";
   const propertyPayload = data.payloadType === "PROPERTY";
   const envelopePayload = data.payloadType === "ENVELOPE";
-  const xpathTarget = data.targetType === "XPATH";
-  const propertyTarget = data.targetType === "PROPERTY";
+  const xpathTarget = data.resultType === "XPATH";
+  const propertyTarget = data.resultType === "PROPERTY";
+  const targetMessageXPath = data.resultMessageXPath;
+  const targetProperty = data.resultContextProperty;
   const securityEnabled = data.securityType === "TRUE";
   const configurationEnabled = data.pathToAxis2Repository ?? data.pathToAxis2Xml !== null;
   const policies = data.policies === "TRUE";
@@ -59,6 +61,8 @@ export function getCalloutXml(data: { [key: string]: any }) {
     propertyTarget: propertyTarget,
     securityEnabled: securityEnabled,
     configurationEnabled: configurationEnabled,
+    targetMessageXPath: targetMessageXPath,
+    targetProperty: targetProperty,
     policies: policies,
   }
 
@@ -73,33 +77,49 @@ export function getCalloutFormDataFromSTNode(data: { [key: string]: any }, node:
     data.endpointType = "AddressEndpoint";
   }
   if (node.sourceOrTargetOrConfiguration) {
-    const sourceOrTargetOrConfiguration = (node.sourceOrTargetOrConfiguration as any);
+    const sourceOrTargetOrConfiguration = node?.sourceOrTargetOrConfiguration
 
-    if (sourceOrTargetOrConfiguration?.configuration?.value?.repository) {
-      data.pathToAxis2Repository = sourceOrTargetOrConfiguration.configuration?.value?.repository;
+    if (sourceOrTargetOrConfiguration?.configuration?.repository) {
+      data.pathToAxis2Repository = sourceOrTargetOrConfiguration.configuration.repository;
     }
-    if (sourceOrTargetOrConfiguration?.configuration?.value?.axis2Xml) {
-      data.pathToAxis2xml = sourceOrTargetOrConfiguration.configuration.value.axis2Xml;
-    }
-
-    if (sourceOrTargetOrConfiguration.source.value.key) {
-      data.payloadType = "PROPERTY";
-      data.payloadProperty = sourceOrTargetOrConfiguration.source.value.key;
+    if (sourceOrTargetOrConfiguration?.configuration?.axis2Xml) {
+      data.pathToAxis2xml = sourceOrTargetOrConfiguration.configuration.axis2Xml;
     }
 
+    if (sourceOrTargetOrConfiguration.source) {
+      if (sourceOrTargetOrConfiguration.source.key) {
+        data.payloadType = "PROPERTY";
+        data.payloadProperty = sourceOrTargetOrConfiguration.source.key;
+      } else if (sourceOrTargetOrConfiguration.source.xpath) {
+        data.payloadType = "XPATH";
+        data.payloadMessageXPath = sourceOrTargetOrConfiguration.source.xpath;
+      } else {
+        data.payloadType = "ENVELOPE";
+      }
+    }
+    if (sourceOrTargetOrConfiguration.target) {
+      if (sourceOrTargetOrConfiguration.target.key) {
+        data.resultType = "PROPERTY";
+        data.resultContextProperty = sourceOrTargetOrConfiguration.target.key;
+      } else if (sourceOrTargetOrConfiguration.target.xpath) {
+        data.resultType = "XPATH";
+        data.resultContextProperty = sourceOrTargetOrConfiguration.target.key;
+      }
+    }
+    data.securityType = "FALSE";
     if (sourceOrTargetOrConfiguration.enableSec) {
       data.securityType = "TRUE";
 
-      if (sourceOrTargetOrConfiguration.enableSec?.value?.policy) {
+      if (sourceOrTargetOrConfiguration.enableSec?.policy) {
         data.policies = "FALSE";
-        data.policyKey = sourceOrTargetOrConfiguration.enableSec.value.policy;
+        data.policyKey = sourceOrTargetOrConfiguration.enableSec.policy;
       } else {
         data.policies = "TRUE";
-        if (sourceOrTargetOrConfiguration.enableSec?.value?.inboundPolicy) {
-          data.inboundPolicyKey = sourceOrTargetOrConfiguration.enableSec.value.inboundPolicy;
+        if (sourceOrTargetOrConfiguration.enableSec?.inboundPolicy) {
+          data.inboundPolicyKey = sourceOrTargetOrConfiguration.enableSec.inboundPolicy;
         }
-        if (sourceOrTargetOrConfiguration.enableSec?.value?.outboundPolicy) {
-          data.outboundPolicyKey = sourceOrTargetOrConfiguration.enableSec.value.outboundPolicy;
+        if (sourceOrTargetOrConfiguration.enableSec?.outboundPolicy) {
+          data.outboundPolicyKey = sourceOrTargetOrConfiguration.enableSec.outboundPolicy;
         }
       }
     }

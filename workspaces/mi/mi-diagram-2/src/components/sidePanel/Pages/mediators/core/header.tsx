@@ -12,7 +12,7 @@ import React, { useEffect, useState } from 'react';
 import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, filterFormValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
@@ -66,6 +66,21 @@ const HeaderForm = (props: AddMediatorProps) => {
        if (Object.keys(newErrors).length > 0) {
            setErrors(newErrors);
        } else {
+           if (formValues["headerAction"] == "set") {
+               const keysToExclude = [];
+               if (formValues["valueType"] == "LITERAL") {
+                   keysToExclude.push(...["valueExpression", "valueInline"]);
+               } else if (formValues["valueType"] == "EXPRESSION") {
+                   keysToExclude.push(...["valueLiteral", "valueInline"]);
+               } else {
+                   keysToExclude.push(...["valueLiteral", "valueExpression"]);
+               }
+               setFormValues(filterFormValues(formValues, null, keysToExclude));
+           } else {
+               const keysToInclude = ["headerName", "headerAction", "scope", "description"]
+               setFormValues(filterFormValues(formValues, keysToInclude, null));
+           }
+
            const xml = getXML(MEDIATORS.HEADER, formValues);
            rpcClient.getMiDiagramRpcClient().applyEdit({
                documentUri: props.documentUri, range: props.nodePosition, text: xml

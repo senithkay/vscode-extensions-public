@@ -9,7 +9,7 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, RequiredFormInput, TextField, Codicon } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
@@ -25,6 +25,33 @@ const cardStyle = {
    width: "auto",
    cursor: "auto"
 };
+
+const ButtonComponent = styled.div`
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    position: relative;
+`
+const EditButton = styled.button`
+    height: 23px;
+    width: 23px;
+    display: block;
+    margin: 0 auto;
+    padding: 2px;
+`
+
+const DeleteButton = styled.button`
+    height: 23px;
+    width: 23px;
+    display: block;
+    margin: 0 auto;
+    // color: red;
+    padding: 2px;
+`
 
 const Error = styled.span`
    color: var(--vscode-errorForeground);
@@ -46,7 +73,7 @@ const LogForm = (props: AddMediatorProps) => {
 
    useEffect(() => {
        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-           setFormValues({ ...formValues, ...sidePanelContext.formValues });
+           setFormValues({ ...formValues, ...sidePanelContext.formValues, "propertyValueType": "LITERAL" });
        } else {
            setFormValues({
        "category": "INFO",
@@ -250,6 +277,8 @@ const LogForm = (props: AddMediatorProps) => {
                                     <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
                                         Value
                                     </VSCodeDataGridCell>
+                                   <VSCodeDataGridCell key={3} style={{ flex: 1 }}>
+                                   </VSCodeDataGridCell>
                                 </VSCodeDataGridRow>
                                 {formValues["properties"].map((property: string, index: string) => (
                                     <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
@@ -261,6 +290,18 @@ const LogForm = (props: AddMediatorProps) => {
                                         </VSCodeDataGridCell>
                                         <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
                                             {property[2]}
+                                        </VSCodeDataGridCell>
+                                        <VSCodeDataGridCell key={3} style={{ flex: 1 }}>
+                                            <ButtonComponent>
+                                                <DeleteButton onClick={() => {
+                                                    formValues["properties"].splice(index, 1);
+                                                    setFormValues({ ...formValues })
+                                                }}><Codicon name='trash' />
+                                                </DeleteButton>
+                                                {/* <EditButton onClick={() => { }}>
+                                                    <Codicon name='edit' />
+                                                </EditButton> */}
+                                            </ButtonComponent>
                                         </VSCodeDataGridCell>
                                     </VSCodeDataGridRow>
                                 ))}

@@ -8,9 +8,7 @@
  */
 
 export function getSendMustacheTemplate() {
-    return `<send {{#skipSerialization}}skipSerialization="{{skipSerialization}}"{{/skipSerialization}}
-    {{#buildMessageBeforeSending}}buildmessage="{{buildMessageBeforeSending}}"{{/buildMessageBeforeSending}}
-    {{#description}}description="{{description}}"{{/description}}>
-  {{#endpoint}}<endpoint key="{{key}}" {{#inline}}inline="{{inline}}"{{/inline}}/>{{/endpoint}}
+  return `<send {{#skipSerialization}}skipSerialization="{{skipSerialization}}" {{/skipSerialization}}{{#buildMessageBeforeSending}}buildmessage="{{buildMessageBeforeSending}}" {{/buildMessageBeforeSending}}{{#description}}description="{{description}}" {{/description}}>
+    <endpoint />
 </send>`;
 }

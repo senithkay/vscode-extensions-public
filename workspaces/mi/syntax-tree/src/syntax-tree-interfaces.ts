@@ -294,7 +294,7 @@ export interface ExtensibleDocumentedType extends DocumentedType, STNode {
 }
 
 export interface Send extends STNode {
-    endpoint: NamedEndpoint[];
+    endpoint: NamedEndpoint;
     receive: string;
     buildmessage: boolean;
     description: string;
@@ -424,7 +424,7 @@ export interface SourceOrTargetOrConfiguration extends STNode {
 }
 
 export interface Callout extends STNode {
-    sourceOrTargetOrConfiguration: SourceOrTargetOrConfiguration[];
+    sourceOrTargetOrConfiguration: SourceOrTargetOrConfiguration;
     serviceURL: string;
     action: string;
     initAxis2ClientOptions: boolean;
