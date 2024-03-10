@@ -9,7 +9,7 @@
 
 import Mustache from "mustache";
 import { getCallFormDataFromSTNode, getCallMustacheTemplate, getCallXml } from "./core/call";
-import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogMustacheTemplate, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutMustacheTemplate, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode, getHeaderMustacheTemplate } from "./core/header";
@@ -18,7 +18,7 @@ import { getPayloadMustacheTemplate, getPayloadFormDataFromSTNode, getPayloadXml
 import { getPropertyFormDataFromSTNode, getPropertyMustacheTemplate, getPropertyXml } from "./core/property";
 import { getDropMustacheTemplate } from "./core/drop";
 import { getLoopbackMustacheTemplate } from "./core/loopback";
-import { getPropertyGroupMustacheTemplate, getPropertyGroupXml } from "./core/propertyGroup";
+import { getPropertyGroupFormDataFromSTNode, getPropertyGroupMustacheTemplate, getPropertyGroupXml } from "./core/propertyGroup";
 import { getReponseMustacheTemplate } from "./core/respond";
 import { getSendMustacheTemplate } from "./core/send";
 import { getHTTPEndpointMustacheTemplate } from "./endpoints/http";
@@ -172,6 +172,8 @@ export function getDataFromXML(name: string, node: STNode) {
             return getPayloadFormDataFromSTNode(formData, node as PayloadFactory);
         case MEDIATORS.PROPERTY:
             return getPropertyFormDataFromSTNode(formData, node as Property);
+        case MEDIATORS.PROPERTYGROUP:
+            return getPropertyGroupFormDataFromSTNode(formData, node as PropertyGroup);
         case MEDIATORS.STORE:
             return getStoreFormDataFromSTNode(formData, node as Store);
         case MEDIATORS.VALIDATE:

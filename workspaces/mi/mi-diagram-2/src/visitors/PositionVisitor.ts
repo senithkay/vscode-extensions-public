@@ -153,7 +153,12 @@ export class PositionVisitor implements Visitor {
     beginVisitProperty = (node: Property): void => this.setBasicMediatorPosition(node);
     beginVisitPropertyGroup = (node: PropertyGroup): void => this.setBasicMediatorPosition(node);
     beginVisitRespond = (node: Respond): void => this.setBasicMediatorPosition(node);
-    beginVisitSend = (node: Send): void => this.setBasicMediatorPosition(node);
+
+    beginVisitSend = (node: Send): void => {
+        this.setBasicMediatorPosition(node);
+        this.setSkipChildrenVisit(true);
+    }
+    endVisitSend = (node: Send): void => this.setSkipChildrenVisit(false);
 
     beginVisitSequence = (node: Sequence): void => this.setBasicMediatorPosition(node);
 
@@ -174,7 +179,6 @@ export class PositionVisitor implements Visitor {
     }
     endVisitValidate = (node: Validate): void => this.setSkipChildrenVisit(false);
 
-    beginVisitWithParam = (node: WithParam): void => this.setBasicMediatorPosition(node);
     beginVisitCallTemplate = (node: CallTemplate): void => this.setBasicMediatorPosition(node);
 
     //Extension Mediartos
