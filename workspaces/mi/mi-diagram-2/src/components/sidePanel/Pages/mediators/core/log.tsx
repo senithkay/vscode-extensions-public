@@ -215,7 +215,7 @@ const LogForm = (props: AddMediatorProps) => {
                                     placeholder=""
                                     value={formValues["propertyValue"]}
                                     onChange={(e: any) => {
-                                        setFormValues({ ...formValues, "propertyValue": e, "propertyExpression": undefined });
+                                        setFormValues({ ...formValues, "propertyValue": e });
                                         formValidators["propertyValue"](e);
                                     }}
                                     required={false}
@@ -232,7 +232,7 @@ const LogForm = (props: AddMediatorProps) => {
                                     placeholder=""
                                     value={formValues["propertyExpression"]}
                                     onChange={(e: any) => {
-                                        setFormValues({ ...formValues, "propertyExpression": e, "propertyValue": undefined });
+                                        setFormValues({ ...formValues, "propertyExpression": e });
                                         formValidators["propertyExpression"](e);
                                     }}
                                     required={false}
@@ -255,7 +255,7 @@ const LogForm = (props: AddMediatorProps) => {
                                 if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyExpression", formValues["propertyExpression"], true))) {
                                     setFormValues({
                                         ...formValues, "propertyName": undefined, "propertyExpression": undefined,
-                                        "properties": [...formValues["properties"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyExpression"] ?? formValues["propertyValue"]]]
+                                        "properties": [...formValues["properties"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyExpression"]]]
                                     });
                                 }
                             }
@@ -298,9 +298,9 @@ const LogForm = (props: AddMediatorProps) => {
                                                     setFormValues({ ...formValues })
                                                 }}><Codicon name='trash' />
                                                 </DeleteButton>
-                                                <EditButton onClick={() => { }}>
+                                                {/* <EditButton onClick={() => { }}>
                                                     <Codicon name='edit' />
-                                                </EditButton>
+                                                </EditButton> */}
                                             </ButtonComponent>
                                         </VSCodeDataGridCell>
                                     </VSCodeDataGridRow>
