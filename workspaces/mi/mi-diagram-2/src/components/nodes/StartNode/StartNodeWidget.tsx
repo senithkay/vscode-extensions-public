@@ -7,11 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { StartNodeModel } from "./StartNodeModel";
-import { Colors, SequenceType } from "../../../resources/constants";
+import { Colors, SERVICE_DESIGNER, SequenceType } from "../../../resources/constants";
+import { EditAPIFormProps, Method } from "../../Forms/EditResourceForm";
+import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { getXML } from "../../../utils/template-engine/mustach-templates/templateUtils";
 
 namespace S {
     export const Node = styled.div<{}>`
@@ -34,14 +38,73 @@ interface CallNodeWidgetProps {
 export function StartNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine } = props;
     const nodeType = node.getStNode().tag;
-    const uriTemplate = node.getResource()?.uriTemplate;
+    const resource = node.getResource();
+    const documentUri = node.getDocumentUri();
+    const { rpcClient } = useVisualizerContext();
+    const sidePanelContext = React.useContext(SidePanelContext);
     const [hovered, setHovered] = React.useState(false);
+    const [resourceData, setResourceData] = React.useState<EditAPIFormProps>(null);
+
+    useEffect(() => {
+        if (resource) {
+            const resourceData: EditAPIFormProps = {
+                urlStyle: resource.uriTemplate ? "uri-template" : resource.urlMapping ? "url-mapping" : "none",
+                uriTemplate: resource.uriTemplate,
+                urlMapping: resource.urlMapping,
+                methods: resource.methods
+                    .map(method => method.toLowerCase())
+                    .reduce<{ [K in Method]: boolean }>((acc, method) => ({ ...acc, [method]: true }), {
+                        get: false,
+                        post: false,
+                        put: false,
+                        delete: false,
+                        patch: false,
+                        head: false,
+                        options: false,
+                    }), // Extract boolean values for each method
+                    protocol: {
+                        http: true,
+                        https: true,
+                    }, // Extract boolean values for each protocol
+            }
+            setResourceData(resourceData);
+        }
+    }, [resource])
+
+    const onResourceEdit = ({ methods, uriTemplate, urlMapping }: EditAPIFormProps) => {
+        const formValues = {
+            methods: Object
+                .keys(methods)
+                .filter((method) => methods[method as keyof typeof methods])
+                .map(method => method.toUpperCase())
+                .join(" "), // Extract selected methods and create string containing the methods for the XML
+            uri_template: uriTemplate,
+            url_mapping: urlMapping,
+        };
+
+        const xml = getXML(SERVICE_DESIGNER.EDIT_RESOURCE, formValues);
+        rpcClient.getMiDiagramRpcClient().applyEdit({
+            text: xml,
+            documentUri: documentUri,
+            range: resource.range.startTagRange
+        });
+        sidePanelContext.setSidePanelState({ ...sidePanelContext, isOpenResource: false });
+    }
+
+    const handleClick = () => {
+        sidePanelContext.setSidePanelState({
+            isOpenResource: true,
+            resourceData: resourceData,
+            onResourceEdit: onResourceEdit,
+        });
+    }
 
     const getSVGNode = (tag: SequenceType, uriTemplate?: string) => {
         switch (tag) {
             case SequenceType.IN_SEQUENCE:
                 return (
                     <S.StyledSvg
+                        onClick={handleClick}
                         onMouseEnter={() => setHovered(true)}
                         onMouseLeave={() => setHovered(false)}
                         width="100"
@@ -56,7 +119,7 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
                             fill={Colors.SURFACE_BRIGHT}
                             d="m20,2 h60 a18,18,0,0,1,0,36 h-60 a-18,-18,0,0,1,0,-36 z"
                         />
-                        <text x="50%" y="50%" alignmentBaseline="middle" textAnchor="middle" fill={Colors.PRIMARY}>
+                        <text x="50%" y="50%" alignmentBaseline="middle" textAnchor="middle" fill={hovered ? Colors.SECONDARY : Colors.PRIMARY}>
                             {uriTemplate || "Start"}
                         </text>
                     </S.StyledSvg>
@@ -77,7 +140,7 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
     return (
         <S.Node>
             <PortWidget port={node.getPort("in")!} engine={engine} />
-            {getSVGNode(nodeType as SequenceType, uriTemplate)}
+            {getSVGNode(nodeType as SequenceType, resource?.uriTemplate)}
             <PortWidget port={node.getPort("out")!} engine={engine} />
         </S.Node>
     );

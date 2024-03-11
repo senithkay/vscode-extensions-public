@@ -11,6 +11,7 @@ import React, { Dispatch, SetStateAction } from "react";
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 interface SidePanelContext {
+    // Mediator related
     isOpen: boolean;
     isEditing: boolean;
     nodeRange?: Range;
@@ -20,6 +21,10 @@ interface SidePanelContext {
     formValues?: { [key: string]: any };
     title?: string;
     setSidePanelState?: Dispatch<SetStateAction<any>>;
+    // Resource related
+    isOpenResource: boolean;
+    resourceData?: { [key: string]: any };
+    onResourceEdit?: (data: any) => void;
 }
 
 const SidePanelContext = React.createContext<SidePanelContext>({
@@ -32,6 +37,9 @@ const SidePanelContext = React.createContext<SidePanelContext>({
     formValues: {},
     title: undefined,
     setSidePanelState: () => {},
+    isOpenResource: false,
+    resourceData: {},
+    onResourceEdit: () => {},
 })
 
 export const SidePanelProvider = SidePanelContext.Provider

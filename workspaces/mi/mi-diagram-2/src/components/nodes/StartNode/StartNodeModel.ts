@@ -20,8 +20,9 @@ export class StartNodeModel extends NodeModel {
     protected parentNode: STNode;
     protected prevNodes: STNode[];
     protected resource: APIResource;
+    protected documentUri: string;
 
-    constructor(stNode: STNode, resource: APIResource, parentNode?: STNode, prevNodes: STNode[] = []) {
+    constructor(stNode: STNode, resource: APIResource, documentUri: string, parentNode?: STNode, prevNodes: STNode[] = []) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode, "start"),
             type: NodeTypes.START_NODE,
@@ -31,6 +32,7 @@ export class StartNodeModel extends NodeModel {
         this.addInPort("in");
         this.addOutPort("out");
         this.resource = resource;
+        this.documentUri = documentUri;
     }
 
     addPort<T extends NodePortModel>(port: T): T {
@@ -89,5 +91,9 @@ export class StartNodeModel extends NodeModel {
 
     getResource(): APIResource {
         return this.resource;
+    }
+
+    getDocumentUri(): string {
+        return this.documentUri;
     }
 }

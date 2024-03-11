@@ -26,6 +26,7 @@ import { Colors } from "../resources/constants";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
 import { Diagnostic } from "vscode-languageserver-types";
+import { EditAPIFormProps, EditResourceForm } from "./Forms/EditResourceForm";
 
 export interface DiagramProps {
     model: APIResource | Sequence;
@@ -85,12 +86,17 @@ export function Diagram(props: DiagramProps) {
     });
 
     const [sidePanelState, setSidePanelState] = useState({
+        // Mediator related
         isOpen: false,
         isEditing: false,
         nodeRange: undefined,
         mediator: "",
         formValues: {},
         title: "",
+        // Resource related
+        isOpenResource: false,
+        resourceData: {},
+        onResourceEdit: () => {}
     });
 
     useEffect(() => {
@@ -332,6 +338,15 @@ export function Diagram(props: DiagramProps) {
                     >
                         <SidePanelList nodePosition={sidePanelState.nodeRange} documentUri={props.documentUri} />
                     </SidePanel>}
+
+                    {sidePanelState?.isOpenResource && (
+                        <EditResourceForm
+                            isOpen={sidePanelState.isOpenResource}
+                            resourceData={sidePanelState.resourceData as EditAPIFormProps}
+                            onCancel={() => setSidePanelState({ ...sidePanelState, isOpenResource: false })}
+                            onEdit={sidePanelState.onResourceEdit}
+                        />
+                    )}
 
                 </SidePanelProvider>
             </S.Container >

@@ -205,3 +205,8 @@ export enum SequenceType {
     OUT_SEQUENCE = "outSequence",
     FAULT_SEQUENCE = "faultSequence",
 };
+
+// Actions for service designer
+export const SERVICE_DESIGNER = {
+    EDIT_RESOURCE: "edit-resource",
+}
