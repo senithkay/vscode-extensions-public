@@ -71,7 +71,8 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
         }
     }, [resource])
 
-    const onResourceEdit = ({ methods, uriTemplate, urlMapping }: EditAPIFormProps) => {
+    const onResourceEdit = (resourceData: EditAPIFormProps) => {
+        const { uriTemplate, urlMapping, methods } = resourceData;
         const formValues = {
             methods: Object
                 .keys(methods)
@@ -88,7 +89,7 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
             documentUri: documentUri,
             range: resource.range.startTagRange
         });
-        sidePanelContext.setSidePanelState({ ...sidePanelContext, isOpenResource: false });
+        sidePanelContext.setSidePanelState({ ...sidePanelContext, resourceData, isOpenResource: false });
     }
 
     const handleClick = () => {
@@ -140,7 +141,7 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
     return (
         <S.Node>
             <PortWidget port={node.getPort("in")!} engine={engine} />
-            {getSVGNode(nodeType as SequenceType, resource?.uriTemplate)}
+            {getSVGNode(nodeType as SequenceType, resource?.uriTemplate || resource?.urlMapping)}
             <PortWidget port={node.getPort("out")!} engine={engine} />
         </S.Node>
     );

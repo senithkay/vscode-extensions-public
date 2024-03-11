@@ -347,7 +347,6 @@ export function Diagram(props: DiagramProps) {
                             onEdit={sidePanelState.onResourceEdit}
                         />
                     )}
-
                 </SidePanelProvider>
             </S.Container >
         </>
