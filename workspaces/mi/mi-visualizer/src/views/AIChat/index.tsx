@@ -118,10 +118,8 @@ export function AIChat() {
       });
 
       localStorage.setItem(`chatArray-AIChat-${projectUuid}`, JSON.stringify(chatArray));
-      
   }
 
-  
   useEffect(() => {
     // Step 2: Scroll into view when messages state changes
     if (messagesEndRef.current) {
@@ -199,16 +197,16 @@ export function AIChat() {
                     ...questions,
                   ]);
             }else{
-                    assistant_response += json.content;
-                    setMessages(prevMessages => {
+                  assistant_response += json.content;
+                  setMessages(prevMessages => {
                       const newMessages = [...prevMessages];
                       newMessages[newMessages.length - 1].content += json.content;
                       return newMessages;
-                    });
+                  });
                   const regex = /```[\s\S]*?```/g;
                   let match;
                   while ((match = regex.exec(assistant_response)) !== null) {
-                    codeBlocks.push(match[0]);
+                      codeBlocks.push(match[0]);
                   }
             }
           } catch (error) {
@@ -218,9 +216,6 @@ export function AIChat() {
         result = lines[lines.length - 1];
         
     }
-  
-  
-    
       if (result) {
           try {
             const json = JSON.parse(result);

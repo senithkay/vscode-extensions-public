@@ -704,13 +704,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         const { content } = params;
         
         //get current workspace folder 
-        const workspaceFolders = workspace.workspaceFolders;
-        if (!workspaceFolders) {
-            throw new Error('No workspace is currently open');
-        }
-        const directoryPath = workspaceFolders[0].uri.fsPath;
+        const directoryPath = StateMachine.context().projectUri;
+        console.log('Directory path:', directoryPath);
 
         const length = content.length;
+        console.log('Content length:', length);
         for (let i = 0; i < length; i++) {
             //remove starting '''xml and ending '''
             content[i] = content[i].replace(/```xml/g, '');
@@ -741,7 +739,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     console.log("File type - ", fileType)
                 }
                 //write the content to a file, if file exists, overwrite else create new file
-                const fullPath = path.join(directoryPath, '/src/main/wso2mi/artifacts/', fileType, '/', `${name}.xml`);
+                const fullPath = path.join(directoryPath??'', '/src/main/wso2mi/artifacts/', fileType, '/', `${name}.xml`);
+                console.log('Full path:', fullPath);
                 try {
                     console.log('Writing content to file:', fullPath);
                     console.log('Content:', content[i]);
@@ -786,7 +785,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         for (const folder of resourceFolders) {
             const folderPath = path.join(rootPath, folder);
             const files = await fs.promises.readdir(folderPath);
-            
         
             for (const file of files) {
                 const filePath = path.join(folderPath, file);
@@ -798,8 +796,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
             }
         }
-
-
     
         return { context: fileContents };
     }

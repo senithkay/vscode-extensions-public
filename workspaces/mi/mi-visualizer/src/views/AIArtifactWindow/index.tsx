@@ -8,20 +8,11 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import React, { useEffect, useState } from "react";
-import { VisualizerLocation, CreateProjectRequest } from "@wso2-enterprise/mi-core";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import {TextArea, Button, Switch} from "@wso2-enterprise/ui-toolkit";
-import ReactMarkdown from 'react-markdown';
+import React, { useState } from "react";
+import {Switch} from "@wso2-enterprise/ui-toolkit";
 import './AIWindow.css';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { BeatLoader } from "react-spinners";
-import { MI_COPILOT_BACKEND_URL } from "../../constants";
 import { AIProjectGenerationChat } from "../AIProjectGenerationChat";
 import { AIChat } from "../AIChat";
-
-
-
 
 export function AIArtifactWindow() {
   const [isChat, setIsChat] = useState(false);
@@ -29,8 +20,6 @@ export function AIArtifactWindow() {
   const toggleFlow = () => {
     setIsChat(!isChat);
   };
-
-  
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "98%", width: "100%", margin: "auto" }}>
@@ -48,10 +37,6 @@ export function AIArtifactWindow() {
             fontSize: "var(--type-ramp-base-font-size)",
           }}
         />
-
-
-       
-      
         
         {!isChat && (
            <AIProjectGenerationChat/>
@@ -60,8 +45,6 @@ export function AIArtifactWindow() {
         {isChat && (
           <AIChat/>
         )}
-
-
 
     </div>
   );
