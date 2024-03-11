@@ -102,6 +102,7 @@ import * as xml2js from 'xml2js';
 import { UndoRedoManager } from "../../undoRedoManager";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
 import { error } from "console";
+import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
 const { XMLParser } = require("fast-xml-parser");
 
 
@@ -1125,12 +1126,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const { source, directory, open } = params;
 
+            const projectUuid = uuidv4();
+
             let { projectName, groupId, artifactId } = getProjectDetails(source);
 
             if (projectName && groupId && artifactId) {
                 const folderStructure: FileStructure = {
                     [projectName]: {
-                        'pom.xml': rootPomXmlContent(projectName, groupId, artifactId),
+                        'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid),
                         'src': {
                             'main': {
                                 'wso2mi': {

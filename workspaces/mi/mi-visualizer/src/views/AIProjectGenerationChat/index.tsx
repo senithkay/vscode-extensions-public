@@ -31,7 +31,6 @@ import {
   dracula,
   materialOceanic,
 } from 'react-syntax-highlighter/dist/cjs/styles/prism'
-import { FaMagic } from "react-icons/fa";
 
 
 interface MarkdownRendererProps {
