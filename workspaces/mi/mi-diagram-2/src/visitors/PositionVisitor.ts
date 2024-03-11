@@ -46,34 +46,7 @@ export class PositionVisitor implements Visitor {
         const centerX = node.viewState.x + (node.viewState.w / 2);
         const subSequenceKeys = Object.keys(subSequences);
 
-        // calculate sequence widths
-        const sequenceWidths: number[] = [];
-        const sequenceTypeOffsets: { l: number; r: number }[] = [];
-        for (const i in subSequences) {
-            const subSequence = subSequences[i];
-            if (subSequence) {
-                if (subSequence.mediatorList && subSequence.mediatorList.length > 0) {
-                    const subSequenceMediatorList = subSequence.mediatorList as any as STNode[];
-                    let subSequenceFullWidth = NODE_DIMENSIONS.DEFAULT.WIDTH;
-                    let subSequenceOffsetL = NODE_DIMENSIONS.DEFAULT.WIDTH / 2;
-                    let subSequenceOffsetR = NODE_DIMENSIONS.DEFAULT.WIDTH / 2;
-                    subSequenceMediatorList.forEach((childNode: STNode) => {
-                        if (childNode.viewState) {
-                            subSequenceOffsetL = Math.max(subSequenceOffsetL, childNode.viewState.l ?? childNode.viewState.w / 2);
-                            subSequenceOffsetR = Math.max(subSequenceOffsetR, childNode.viewState.r ?? childNode.viewState.w / 2);
-
-                            subSequenceFullWidth = Math.max(subSequenceFullWidth, childNode.viewState.fw ?? childNode.viewState.w);
-                        }
-                    });
-                    sequenceWidths.push(subSequenceFullWidth);
-                    sequenceTypeOffsets.push({ l: subSequenceOffsetL, r: subSequenceOffsetR });
-                } else {
-                    sequenceWidths.push(NODE_DIMENSIONS.EMPTY.WIDTH);
-                    sequenceTypeOffsets.push({ l: NODE_DIMENSIONS.EMPTY.WIDTH / 2, r: NODE_DIMENSIONS.EMPTY.WIDTH / 2 });
-                }
-            }
-        }
-        const sequenceOffsets = sequenceTypeOffsets.length > 0 ? sequenceTypeOffsets[0].l + sequenceTypeOffsets[sequenceTypeOffsets.length - 1].r : 0;
+        const sequenceOffsets = subSequenceKeys.length > 0 ? subSequences[subSequenceKeys[0]].viewState.l + subSequences[subSequenceKeys[subSequenceKeys.length - 1]].viewState.r : 0;
         const branchesWidth = node.viewState.fw - sequenceOffsets;
 
         this.position.x = centerX - (branchesWidth / 2);
@@ -82,13 +55,14 @@ export class PositionVisitor implements Visitor {
             const subSequence = subSequences[subSequenceKeys[i]];
 
             if (subSequence) {
-                this.position.x += i > 0 ? sequenceTypeOffsets[i].l : 0;
+                this.position.x += i > 0 ? subSequence.viewState.l : 0;
                 if (subSequence.mediatorList && subSequence.mediatorList.length > 0) {
                     traversNode(subSequence, this);
                 } else {
+                    subSequence.viewState.w = NODE_DIMENSIONS.EMPTY.WIDTH;
                     this.setBasicMediatorPosition(subSequence);
                 }
-                this.position.x += sequenceTypeOffsets[i].r + NODE_GAP.BRANCH_X;
+                this.position.x += subSequence.viewState.r + NODE_GAP.BRANCH_X;
             }
         }
 

@@ -75,7 +75,7 @@ export const Colors = {
 
     OUTLINE: VSCodeColors.OUTLINE || DefaultColors.OUTLINE,
     OUTLINE_VARIANT:
-       DefaultColors.OUTLINE_VARIANT,
+        DefaultColors.OUTLINE_VARIANT,
 
     ERROR: VSCodeColors.ERROR || DefaultColors.ERROR,
 };
@@ -83,7 +83,7 @@ export const Colors = {
 export const NODE_GAP = {
     X: 0,
     Y: 50,
-    BRANCH_X: 100,
+    BRANCH_X: 50,
     BRANCH_TOP: 100 + 10,
     BRANCH_BOTTOM: 80,
     SEQUENCE_Y: 100,
@@ -110,6 +110,10 @@ export const NODE_DIMENSIONS = {
     EMPTY: {
         WIDTH: 12,
         HEIGHT: 12,
+        BRANCH: {
+            WIDTH: 60,
+            HEIGHT: 12,
+        },
     },
 };
 
