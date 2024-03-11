@@ -8,7 +8,7 @@
  */
 
 
-import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange,Range, Throttle, Validate, Visitor, WithParam } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange,Range, Throttle, Validate, Visitor } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
 import { LINK_BOTTOM_OFFSET } from "../components/NodeLink/NodeLinkModel";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -159,7 +159,16 @@ export class SizingVisitor implements Visitor {
     endVisitProperty = (node: Property): void => this.calculateBasicMediator(node);
     endVisitPropertyGroup = (node: PropertyGroup): void => this.calculateBasicMediator(node);
     endVisitRespond = (node: Respond): void => this.calculateBasicMediator(node);
-    endVisitSend = (node: Send): void => this.calculateBasicMediator(node);
+
+    beginVisitSend = (node: Send): void => { this.skipChildrenVisit = true; }
+    endVisitSend = (node: Send): void => {
+        if (node.endpoint) {
+            this.addDiagnostics(node.endpoint);
+        }
+        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CALL.WIDTH, fw: NODE_DIMENSIONS.CALL.FULL_WIDTH, h: NODE_DIMENSIONS.DEFAULT.HEIGHT, l: NODE_DIMENSIONS.CALL.WIDTH / 2, r: NODE_DIMENSIONS.CALL.FULL_WIDTH - NODE_DIMENSIONS.CALL.WIDTH / 2 };
+        this.calculateBasicMediator(node);
+        this.skipChildrenVisit = false;
+    }
 
     endVisitSequence = (node: Sequence): void => {
         const isSequnce = node.mediatorList && node.mediatorList.length > 0;
@@ -182,7 +191,6 @@ export class SizingVisitor implements Visitor {
         onFail: node.onFail
     });
 
-    endVisitWithParam = (node: WithParam): void => this.calculateBasicMediator(node);
     endVisitCallTemplate = (node: CallTemplate): void => this.calculateBasicMediator(node);
 
     //Extesnion Mediators

@@ -11,8 +11,9 @@ import { ProjectStructureEntry, ProjectStructureResponse, ProjectDirectoryMap, E
 import { ComponentCard } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import path from 'path';
 
-const allowedConfigs = ["apis", "sequences", "endpoints", "api", "inboundEndpoints"];
+const allowedConfigs = ["apis", "sequences", "endpoints", "api", "inboundEndpoints", "messageProcessors", "proxyServices", "tasks"];
 
 const IconWrapper = styled.div`
     display: flex;
@@ -49,7 +50,7 @@ const Title = styled.div`
     line-height: normal;
 `;
 
-const ProjectStructureView = (props: { projectStructure: ProjectStructureResponse }) => {
+const ProjectStructureView = (props: { projectStructure: ProjectStructureResponse, workspaceDir: string }) => {
     const { projectStructure } = props;
     const { rpcClient } = useVisualizerContext();
 
@@ -58,20 +59,34 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: path } });
         } else if (directory.toLowerCase() === "sequence") {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Diagram, documentUri: path } });
+        } else if (directory.toLowerCase() === "message_processor") {
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.MessageProcessorForm, documentUri: path } });
+        } else if (directory.toLowerCase() === "proxy_service") {
+            rpcClient.getMiDiagramRpcClient().openFile({ path: path });
+        } else if (directory.toLowerCase() === "task") {
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.TaskForm, documentUri: path } });
         }
     };
 
     const handlePlusClick = async (key: string) => {
+        const dir = path.join(props.workspaceDir, 'src', 'main', 'wso2mi', 'artifacts', key);
+        const entry = { info: { path: dir } };
         if (key === 'apis') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-api"] });
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-api", entry] });
         } else if (key === 'endpoints') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-endpoint"] });
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-endpoint", entry] });
         } else if (key === 'sequences') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-sequence"] });
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-sequence", entry] });
         } else if (key === 'inboundEndpoints') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-inbound-endpoint"] });
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-inbound-endpoint", entry] });
         } else if (key === 'registry') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-registry-resource"] });
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-registry-resource", entry] });
+        } else if (key === 'messageProcessors') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-message-processor", entry] });
+        } else if (key === 'proxyServices') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-proxy-service", entry] });
+        } else if (key === 'tasks') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({commands: ["MI.project-explorer.add-task"]});
         }
     };
 

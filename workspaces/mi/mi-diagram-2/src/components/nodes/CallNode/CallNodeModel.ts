@@ -15,8 +15,8 @@ import { Diagnostic } from "vscode-languageserver-types";
 export class CallNodeModel extends BaseNodeModel {
     readonly endpoint: Endpoint;
 
-    constructor(stNode: STNode, documentUri: string, parentNode?: STNode, prevNodes: STNode[] = [], endpoint?: Endpoint) {
-        super(NodeTypes.CALL_NODE, documentUri, stNode, parentNode, prevNodes);
+    constructor(stNode: STNode, mediatorName:string, documentUri: string, parentNode?: STNode, prevNodes: STNode[] = [], endpoint?: Endpoint) {
+        super(NodeTypes.CALL_NODE, mediatorName, documentUri, stNode, parentNode, prevNodes);
         if (endpoint) {
             this.endpoint = endpoint;
         }

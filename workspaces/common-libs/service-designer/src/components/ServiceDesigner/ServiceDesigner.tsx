@@ -20,7 +20,7 @@ import ResourceAccordion from "../ResourceAccordion/ResourceAccordion";
 interface ServiceDesignerProps {
     // Model of the service.
     model?: Service;
-    // Callback to send the position of the resource to navigae to code
+    // Callback to send the position of the resource to navigate to code
     goToSource?: (resource: Resource) =>  void;
     // Callback to add a new resource
     onResourceAdd?: () =>  void;
@@ -30,6 +30,10 @@ interface ServiceDesignerProps {
     onResourceEdit?: (resource: Resource) =>  void;
     // Callback to send the service back to the parent component
     onServiceEdit?: (service: Service) =>  void;
+    // Callback to send the resource back for implementing
+    onResourceImplement?: (resource: Resource) => void;
+    // Callback to send the resource back upon clicking on it
+    onResourceClick?: (resource: Resource) => void;
 }
 
 const defaultService: Service = {
@@ -64,7 +68,15 @@ const emptyView = (
 );
 
 export function ServiceDesigner(props: ServiceDesignerProps) {
-    const { model = defaultService, goToSource, onResourceAdd, onResourceEdit, onResourceDelete, onServiceEdit } = props;
+    const {
+        model = defaultService,
+        goToSource, onResourceAdd,
+        onResourceEdit,
+        onResourceDelete,
+        onServiceEdit,
+        onResourceImplement,
+        onResourceClick
+    } = props;
     const [resources, setResources] = useState<JSX.Element[]>([]);
 
     const handleServiceEdit = () => {
@@ -81,9 +93,11 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                     <ResourceAccordion
                         key={i}
                         resource={resource}
-                        onEditResource={onResourceEdit}
-                        onDeleteResource={onResourceDelete}
-                        goToSource={goToSource} 
+                        onEditResource={onResourceEdit && onResourceEdit}
+                        onDeleteResource={onResourceDelete && onResourceDelete}
+                        goToSource={goToSource}
+                        onResourceImplement={onResourceImplement}
+                        onResourceClick={onResourceClick}
                     />
                 );
             });
@@ -96,7 +110,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         <div data-testid="service-design-view">
             <ServiceHeader>
                 <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Service {model.path} </Typography>
-                <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Listening {model.port}</Typography>
+                {model.port && <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Listening {model.port}</Typography>}
                 {onServiceEdit && (
                     <VSCodeButton appearance="icon" title="Edit Service" onClick={handleServiceEdit}>
                         <Codicon name="settings-gear" />

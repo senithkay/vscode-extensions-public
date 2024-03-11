@@ -232,18 +232,18 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 				'Registry',
 				isCollapsibleState(Object.keys(resources['registry']).length > 0),
 				{ name: 'Registry', path: regPath, type: 'registry' },
-
 				'type-hierarchy'
 			);
 			parentEntry.contextValue = 'registry';
 			parentEntry.id = 'registry';
 			const gov = resources['registry']['gov'];
 			const conf = resources['registry']['conf'];
-			const isCollapsible = gov && ((gov.files && gov.files.length > 0) || (gov.folders && gov.folders.length > 0));
+			const isCollapsibleGov = gov && ((gov.files && gov.files.length > 0) || (gov.folders && gov.folders.length > 0));
+			const isCollapsibleConf = conf && ((conf.files && conf.files.length > 0) || (conf.folders && conf.folders.length > 0));
 			if (gov) {
 				const govEntry = new ProjectExplorerEntry(
 					'gov',
-					isCollapsibleState(isCollapsible),
+					isCollapsibleState(isCollapsibleGov),
 					{ name: 'gov', path: path.join(regPath, 'gov'), type: 'gov' },
 					'root-folder'
 				);
@@ -253,10 +253,10 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 				parentEntry.children = parentEntry.children ?? [];
 				parentEntry.children.push(govEntry);
 			}
-			if (conf && conf.length > 0) {
+			if (conf) {
 				const confEntry = new ProjectExplorerEntry(
 					'conf',
-					isCollapsibleState(isCollapsible),
+					isCollapsibleState(isCollapsibleConf),
 					{ name: 'conf', path: path.join(regPath, 'conf'), type: 'conf' },
 					'root-folder-opened'
 				);
@@ -315,7 +315,44 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"command": COMMANDS.SHOW_DIAGRAM,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
-		} else {
+
+		} else if (entry.type === "MESSAGE_PROCESSOR") {
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			explorerEntry.contextValue = 'message-processor';
+			explorerEntry.command = {
+				"title": "Show Message Processor",
+				"command": COMMANDS.SHOW_MESSAGE_PROCESSOR,
+				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+			};
+
+		} else if (entry.type === "PROXY_SERVICE") {
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			explorerEntry.contextValue = 'proxy-service';
+			explorerEntry.command = {
+				"title": "Show Proxy Service",
+				"command": COMMANDS.SHOW_XML,
+				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+			};
+
+		} else if (entry.type === "TASK") {
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			explorerEntry.contextValue = 'task';
+			explorerEntry.command = {
+				"title": "Show View",
+				"command": COMMANDS.SHOW_VIEW,
+				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+			};
+		} 
+		else if (entry.type === "MESSAGE_STORE") {
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			explorerEntry.contextValue = 'messageStores';
+			explorerEntry.command = {
+				"title": "Show Message Store",
+				"command": COMMANDS.SHOW_MESSAGE_STORE,
+				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+			};
+		}		
+		else {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 		}
 
@@ -330,15 +367,30 @@ function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): Projec
 	if (data) {
 		if (data.files) {
 			for (const entry of data.files) {
-				const explorerEntry = new ProjectExplorerEntry(entry.name, isCollapsibleState(false), undefined, 'code');
+				const explorerEntry = new ProjectExplorerEntry(entry.name, isCollapsibleState(false), {
+					name: entry.name,
+					type: 'resource',
+					path: `${entry.path}`
+				}, 'code');
 				explorerEntry.contextValue = "registry-file";
 				explorerEntry.id = entry.path;
+				explorerEntry.command = {
+					"title": "Edit Registry Resource",
+					"command": COMMANDS.EDIT_REGISTERY_RESOURCE_COMMAND,
+					"arguments": [vscode.Uri.parse(entry.path)]
+				};
 				result.push(explorerEntry);
 			}
 		}
 		if (data.folders) {
 			for (const entry of data.folders) {
-				const explorerEntry = new ProjectExplorerEntry(entry.name, isCollapsibleState(true), undefined, 'folder');
+				const explorerEntry = new ProjectExplorerEntry(entry.name,
+					isCollapsibleState(entry.files.length > 0 || entry.folders.length > 0),
+					{
+						name: entry.name,
+						type: 'resource',
+						path: `${entry.path}`
+					}, 'folder');
 				explorerEntry.children = genRegistryProjectStructureEntry(entry);
 				explorerEntry.contextValue = "registry-folder";
 				result.push(explorerEntry);

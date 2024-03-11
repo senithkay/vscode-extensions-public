@@ -17,7 +17,11 @@ import {
     CreateEndpointRequest,
     CreateInboundEndpointRequest,
     CreateProjectRequest,
+    ImportProjectRequest,
     CreateSequenceRequest,
+    CreateMessageProcessorRequest,
+    RetrieveMessageProcessorRequest,
+    CreateProxyServiceRequest,
     GetDefinitionRequest,
     GetDiagnosticsReqeust,
     GetInboundEpDirRequest,
@@ -31,6 +35,7 @@ import {
     WriteContentToFileRequest,
     applyEdit,
     askProjectDirPath,
+    askProjectImportDirPath,
     askFileDirPath,
     closeWebView,
     closeWebViewNotification,
@@ -39,7 +44,10 @@ import {
     createInboundEndpoint,
     createLocalEntry,
     createProject,
+    importProject,
     createSequence,
+    createMessageProcessor,
+    createProxyService,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -52,6 +60,7 @@ import {
     getEndpointsAndSequences,
     getInboundEndpointDirectory,
     getLocalEntryDirectory,
+    getMessageProcessor,
     getProjectRoot,
     getProjectUuid,
     getSTRequest,
@@ -66,12 +75,22 @@ import {
     openFile,
     redo,
     showErrorMessage,
-    undo,
     writeContentToFile,
+    undo,
+    createMessageStore,
+    CreateMessageStoreRequest,
     browseFile,
     BrowseFileRequest,
     CreateRegistryResourceRequest,
-    createRegistryResource
+    createRegistryResource,
+    createTask,
+    CreateTaskRequest,
+    getTask,
+    GetTaskRequest,
+    getMessageStore,
+    GetMessageStoreRequest,
+    getAvailableResources,
+    GetAvailableResourcesRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -92,8 +111,15 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getEndpointsAndSequences, () => rpcManger.getEndpointsAndSequences());
     messenger.onRequest(getSequenceDirectory, () => rpcManger.getSequenceDirectory());
     messenger.onRequest(createSequence, (args: CreateSequenceRequest) => rpcManger.createSequence(args));
+    messenger.onRequest(createProxyService, (args: CreateProxyServiceRequest) => rpcManger.createProxyService(args));
     messenger.onRequest(getInboundEndpointDirectory, (args: GetInboundEpDirRequest) => rpcManger.getInboundEndpointDirectory());
     messenger.onRequest(createInboundEndpoint, (args: CreateInboundEndpointRequest) => rpcManger.createInboundEndpoint(args));
+    messenger.onRequest(createMessageProcessor, (args: CreateMessageProcessorRequest) => rpcManger.createMessageProcessor(args));
+    messenger.onRequest(getMessageProcessor, (args: RetrieveMessageProcessorRequest) => rpcManger.getMessageProcessor(args));
+    messenger.onRequest(createTask, (args: CreateTaskRequest) => rpcManger.createTask(args));
+    messenger.onRequest(getTask, (args: GetTaskRequest) => rpcManger.getTask(args));
+    messenger.onRequest(createMessageStore, (args: CreateMessageStoreRequest) => rpcManger.createMessageStore(args));
+    messenger.onRequest(getMessageStore, (args: GetMessageStoreRequest) => rpcManger.getMessageStore(args));
     messenger.onNotification(closeWebView, () => rpcManger.closeWebView());
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));
     messenger.onNotification(openFile, (args: OpenDiagramRequest) => rpcManger.openFile(args));
@@ -101,8 +127,10 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getWorkspaceRoot, () => rpcManger.getWorkspaceRoot());
     messenger.onRequest(getProjectRoot, (args: GetProjectRootRequest) => rpcManger.getProjectRoot(args));
     messenger.onRequest(askProjectDirPath, () => rpcManger.askProjectDirPath());
+    messenger.onRequest(askProjectImportDirPath, () => rpcManger.askProjectImportDirPath());
     messenger.onRequest(askFileDirPath, () => rpcManger.askFileDirPath());
     messenger.onRequest(createProject, (args: CreateProjectRequest) => rpcManger.createProject(args));
+    messenger.onRequest(importProject, (args: ImportProjectRequest) => rpcManger.importProject(args));
     messenger.onRequest(getAIResponse, (args: AIUserInput) => rpcManger.getAIResponse(args));
     messenger.onRequest(writeContentToFile, (args: WriteContentToFileRequest) => rpcManger.writeContentToFile(args));
     messenger.onNotification(highlightCode, (args: HighlightCodeRequest) => rpcManger.highlightCode(args));
@@ -118,4 +146,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getDiagnostics, (args: GetDiagnosticsReqeust) => rpcManger.getDiagnostics(args));
     messenger.onRequest(browseFile, (args: BrowseFileRequest) => rpcManger.browseFile(args));
     messenger.onRequest(createRegistryResource, (args: CreateRegistryResourceRequest) => rpcManger.createRegistryResource(args));
+    messenger.onRequest(getAvailableResources, (args: GetAvailableResourcesRequest) => rpcManger.getAvailableResources(args));
 }

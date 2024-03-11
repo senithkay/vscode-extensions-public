@@ -28,8 +28,16 @@ import {
     CreateLocalEntryResponse,
     CreateProjectRequest,
     CreateProjectResponse,
+    ImportProjectRequest,
+    ImportProjectResponse,
     CreateSequenceRequest,
     CreateSequenceResponse,
+    CreateMessageProcessorRequest,
+    CreateMessageProcessorResponse,
+    RetrieveMessageProcessorRequest,
+    RetrieveMessageProcessorResponse,
+    CreateProxyServiceRequest,
+    CreateProxyServiceResponse,
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
@@ -59,6 +67,7 @@ import {
     applyEdit,
     askFileDirPath,
     askProjectDirPath,
+    askProjectImportDirPath,
     closeWebView,
     closeWebViewNotification,
     createAPI,
@@ -66,7 +75,10 @@ import {
     createInboundEndpoint,
     createLocalEntry,
     createProject,
+    importProject,
     createSequence,
+    createMessageProcessor,
+    createProxyService,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -84,6 +96,7 @@ import {
     getSTRequest,
     getSTResponse,
     getSequenceDirectory,
+    getMessageProcessor,
     getSyntaxTree,
     getWorkspaceContext,
     getTextAtRange,
@@ -95,13 +108,28 @@ import {
     redo,
     showErrorMessage,
     undo,
+    CreateMessageStoreRequest,
+    CreateMessageStoreResponse,
+    createMessageStore,
     writeContentToFile,
     BrowseFileRequest,
     BrowseFileResponse,
     browseFile,
     CreateRegistryResourceRequest,
     CreateRegistryResourceResponse,
-    createRegistryResource
+    createRegistryResource,
+    GetMessageStoreRequest,
+    GetMessageStoreResponse,
+    getMessageStore,
+    CreateTaskRequest,
+    CreateTaskResponse,
+    createTask,
+    GetTaskRequest,
+    GetTaskResponse,
+    getTask,
+    GetAvailableResourcesRequest,
+    getAvailableResources,
+    GetAvailableResourcesResponse
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -185,6 +213,34 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(createInboundEndpoint, HOST_EXTENSION, params);
     }
 
+    createMessageProcessor(params: CreateMessageProcessorRequest): Promise<CreateMessageProcessorResponse> {
+        return this._messenger.sendRequest(createMessageProcessor, HOST_EXTENSION, params);
+    }
+
+    getMessageProcessor(params: RetrieveMessageProcessorRequest): Promise<RetrieveMessageProcessorResponse> {
+        return this._messenger.sendRequest(getMessageProcessor, HOST_EXTENSION, params);
+    }
+  
+    createProxyService(params: CreateProxyServiceRequest): Promise<CreateProxyServiceResponse> {
+        return this._messenger.sendRequest(createProxyService, HOST_EXTENSION, params);
+    }
+
+    createTask(params: CreateTaskRequest): Promise<CreateTaskResponse> {
+        return this._messenger.sendRequest(createTask, HOST_EXTENSION, params);
+    }
+
+    getTask(params: GetTaskRequest): Promise<GetTaskResponse> {
+        return this._messenger.sendRequest(getTask, HOST_EXTENSION, params);
+    }
+    
+    createMessageStore(params: CreateMessageStoreRequest): Promise<CreateMessageStoreResponse>{
+        return this._messenger.sendRequest(createMessageStore, HOST_EXTENSION,params);
+    }
+
+    getMessageStore(params: GetMessageStoreRequest): Promise<GetMessageStoreResponse>{
+        return this._messenger.sendRequest(getMessageStore, HOST_EXTENSION, params);
+    }
+
     closeWebView(): void {
         return this._messenger.sendNotification(closeWebView, HOST_EXTENSION);
     }
@@ -212,6 +268,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     askProjectDirPath(): Promise<ProjectDirResponse> {
         return this._messenger.sendRequest(askProjectDirPath, HOST_EXTENSION);
     }
+
+    askProjectImportDirPath(): Promise<ProjectDirResponse> {
+        return this._messenger.sendRequest(askProjectImportDirPath, HOST_EXTENSION);
+    }
     
     askFileDirPath(): Promise<FileDirResponse>{
         return this._messenger.sendRequest(askFileDirPath, HOST_EXTENSION);
@@ -219,6 +279,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {
         return this._messenger.sendRequest(createProject, HOST_EXTENSION, params);
+    }
+
+    importProject(params: ImportProjectRequest): Promise<ImportProjectResponse> {
+        return this._messenger.sendRequest(importProject, HOST_EXTENSION, params);
     }
 
     getAIResponse(params: AIUserInput): Promise<string> {
@@ -270,5 +334,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     createRegistryResource(params: CreateRegistryResourceRequest): Promise<CreateRegistryResourceResponse> {
         return this._messenger.sendRequest(createRegistryResource, HOST_EXTENSION, params);
+    }
+
+    getAvailableResources(params: GetAvailableResourcesRequest): Promise<GetAvailableResourcesResponse> {
+        return this._messenger.sendRequest(getAvailableResources, HOST_EXTENSION, params);
     }
 }

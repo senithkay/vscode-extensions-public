@@ -1,9 +1,9 @@
 import React from "react";
-import { Story, Meta } from "@storybook/react/types-6-0";
+import { Story, Meta } from "@storybook/react";
 import SidePanelList, { SidePanelListProps } from "../components/sidePanel";
 
 export default {
-    title: "Example/SidePanel",
+    title: "SidePanel/Main",
     component: SidePanelList,
 } as Meta;
 

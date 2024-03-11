@@ -66,9 +66,9 @@
                 <xs:element name="endpoint" type="NamedEndpoint" minOccurs="1" maxOccurs="1" />
             </xs:all>
             <xs:attribute name="blocking" type="xs:boolean" use="optional" default="true" />
+            <xs:attribute name="initAxis2ClientOptions" type="xs:boolean" use="optional" default="true" />
             <xs:attribute name="description" type="xs:string" use="optional" />
         </xs:complexType>
     </xs:element>
 
 </xs:schema>
-

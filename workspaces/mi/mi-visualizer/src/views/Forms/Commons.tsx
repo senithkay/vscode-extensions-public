@@ -12,8 +12,9 @@ import styled from "@emotion/styled";
 export const SectionWrapper: any = styled.div`
     // Flex Props
     display: flex;
+    height: 65vh;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     position: relative;
     gap: 30px;
     margin: auto 0;

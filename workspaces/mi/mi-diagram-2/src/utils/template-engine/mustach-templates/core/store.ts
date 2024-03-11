@@ -7,12 +7,31 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { Store } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import Mustache from "mustache";
+
 export function getStoreMustacheTemplate() {
-    return `<store messageStore="{{messageStore}}" 
-       {{#sequence}}sequence="{{sequence}}"{{/sequence}} 
-       {{#description}}description="{{description}}"{{/description}}>
-    {{#parameters}}
-    <parameter name="{{name}}" value="{{value}}" {{#description}}description="{{description}}"{{/description}}/>
-    {{/parameters}}
-</store>`;
+    return `<store {{#messageStore}}messageStore="{{messageStore}}" {{/messageStore}}{{#onStoreSequence}}sequence="{{onStoreSequence}}" {{/onStoreSequence}}{{#description}}description="{{description}}" {{/description}} />`;
 }
+
+export function getStoreXml(data: { [key: string]: any }) {
+    if (data.expression && !data.expression?.startsWith("{")) {
+        data.messageStore = "{" + data.expression + "}";
+    }
+
+    return Mustache.render(getStoreMustacheTemplate(), data).trim();
+
+}
+
+export function getStoreFormDataFromSTNode(data: { [key: string]: any }, node: Store) {
+    if (data.messageStore?.startsWith("{")) {
+        data.specifyAs = "Expression";
+        const regex = /{([^}]*)}/;
+        const match = data.messageStore.match(regex);
+        data.expression = match.length > 1 ? match[1] : data.messageStore;
+    } else {
+        data.specifyAs = "Value";
+    }
+    return data;
+}
+

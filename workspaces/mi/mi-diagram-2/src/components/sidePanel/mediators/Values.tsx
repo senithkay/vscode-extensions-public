@@ -35,7 +35,7 @@ import SmooksForm from "../Pages/mediators/transformation/smooks"
 import XQueryForm from "../Pages/mediators/transformation/xquery"
 import XSLTForm from "../Pages/mediators/transformation/xslt"
 import AddressEndpointForm from "../Pages/endpoint/anonymous/address"
-import DefaultEndpointForm from "../Pages/endpoint/anonymous/default"
+import DefaultEndpointForm from "../Pages/endpoint/anonymous/defaultEndpoint"
 import FailoverEndpointForm from "../Pages/endpoint/anonymous/failover"
 import HTTPEndpointForm from "../Pages/endpoint/anonymous/http"
 import LoadbalanceEndpointForm from "../Pages/endpoint/anonymous/loadbalance"
@@ -47,7 +47,7 @@ import AggregateForm from "../Pages/mediators/eip/aggregate"
 import ForEachMediatorForm from "../Pages/mediators/eip/foreach"
 import IterateForm from "../Pages/mediators/eip/iterate"
 import BeanForm from "../Pages/mediators/extension/bean"
-import ClassForm from "../Pages/mediators/extension/class"
+import ClassForm from "../Pages/mediators/extension/classExtension"
 import CommandForm from "../Pages/mediators/extension/command"
 import EJBForm from "../Pages/mediators/extension/ejb"
 import ScriptForm from "../Pages/mediators/extension/script"
@@ -69,7 +69,7 @@ export function getAllMediators(props: GetMediatorsProps) {
                 form: <CallForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CallForm>,
             },
             {
-                title: "Call Template",
+                title: "CallTemplate",
                 operationName: MEDIATORS.CALLTEMPLATE,
                 form: <CallTemplateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CallTemplateForm>,
             },
@@ -104,7 +104,7 @@ export function getAllMediators(props: GetMediatorsProps) {
                 form: <PropertyForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PropertyForm>,
             },
             {
-                title: "Property Group",
+                title: "PropertyGroup",
                 operationName: MEDIATORS.PROPERTYGROUP,
                 form: <PropertyGroupForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PropertyGroupForm>,
             },

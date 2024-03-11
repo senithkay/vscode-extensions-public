@@ -107,6 +107,13 @@
         "when": "false"
       },
       {
+        "command": "project-explorer.import-project",
+        "title": "Import Project",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.open-service-designer",
         "title": "Open Service Designer",
         "icon": "$(design-view)",
@@ -139,6 +146,20 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.add-message-processor",
+        "title": "Add Message Processor",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
+        "command": "MI.project-explorer.add-proxy-service",
+        "title": "Add Proxy Service",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.add-local-entry",
         "title": "Add Local Entry",
         "icon": "$(add)",
@@ -160,7 +181,21 @@
         "category": "MI"
       },
       {
-        "command": "MI.project-explorer.view",
+        "command": "MI.project-explorer.add-task",
+        "title": "Add Scheduled Task",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
+        "command": "MI.project-explorer.add-message-store",
+        "title": "Add Message Store",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
+        "command": "project-explorer.view",
         "title": "View"
       },
       {
@@ -249,6 +284,26 @@
         {
           "command": "MI.project-explorer.delete-reg-resource",
           "when": "view == MI.project-explorer && (viewItem == registry-folder || viewItem == registry-file)",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-message-processor",
+          "when": "view == MI.project-explorer && viewItem == messageProcessors",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-proxy-service",
+          "when": "view == MI.project-explorer && viewItem == proxyServices",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-task",
+          "when": "view == MI.project-explorer && viewItem == tasks",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-message-store",
+          "when": "view == MI.project-explorer && viewItem == messageStores",
           "group": "inline"
         }
       ]

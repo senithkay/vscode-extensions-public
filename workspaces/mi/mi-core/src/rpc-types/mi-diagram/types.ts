@@ -11,6 +11,11 @@
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { Diagnostic, Position, TextDocumentIdentifier } from "vscode-languageserver-types";
 
+interface Record {
+    name: string;
+    value: string;
+}
+
 export interface ApplyEditRequest {
     text: string;
     documentUri: string;
@@ -60,18 +65,6 @@ export interface CreateInboundEndpointResponse {
     path: string;
 }
 
-export interface CreateInboundEndpointRequest {
-    directory: string;
-    name: string;
-    type: string;
-    sequence: string;
-    errorSequence: string;
-}
-
-export interface CreateInboundEndpointResponse {
-    path: string;
-}
-
 export interface CreateLocalEntryRequest {
     directory: string;
     name: string;
@@ -88,12 +81,104 @@ export interface LocalEntryDirectoryResponse {
 export interface FileDirResponse{
     path: string;
 }
+
+export interface CreateMessageStoreRequest {
+    directory: string;
+    name: string;
+    type: string;
+    initialContextFactory: string;
+    providerURL: string;
+    connectionFactory: string;
+    jndiQueueName: string;
+    userName: string;
+    password: string;
+    cacheConnection: string;
+    jmsAPIVersion: string;
+    rabbitMQServerHostName: string;
+    rabbitMQServerPort: string;
+    sslEnabled: string;
+    trustStoreLocation: string;
+    trustStoreType: string;
+    trustStorePassword: string;
+    keyStoreLocation: string;
+    keyStoreType: string;
+    keyStorePassword: string;
+    sslVersion: string;
+    rabbitMQQueueName: string;
+    rabbitMQExchangeName: string;
+    routineKey: string;
+    virtualHost: string;
+    dataBaseTable: string;
+    driver: string;
+    url: string;
+    user: string;
+    dataSourceName: string;
+    queueConnectionFactory: string;
+    pollingCount: string;
+    xPath: string;
+    enableProducerGuaranteedDelivery: string;
+    providerClass: string;
+    customParameters: Record[];
+}
+
+export interface CreateMessageStoreResponse {
+    path: string;
+}
+
+export interface GetMessageStoreResponse {
+    name: string;
+    type: string;
+    initialContextFactory: string;
+    providerURL: string;
+    connectionFactory: string;
+    jndiQueueName: string;
+    userName: string;
+    password: string;
+    cacheConnection: string;
+    jmsAPIVersion: string;
+    rabbitMQServerHostName: string;
+    rabbitMQServerPort: string;
+    sslEnabled: string;
+    trustStoreLocation: string;
+    trustStoreType: string;
+    trustStorePassword: string;
+    keyStoreLocation: string;
+    keyStoreType: string;
+    keyStorePassword: string;
+    sslVersion: string;
+    rabbitMQQueueName: string;
+    rabbitMQExchangeName: string;
+    routineKey: string;
+    virtualHost: string;
+    dataBaseTable: string;
+    driver: string;
+    url: string;
+    user: string;
+    dataSourceName: string;
+    queueConnectionFactory: string;
+    pollingCount: string;
+    xPath: string;
+    enableProducerGuaranteedDelivery: string;
+    providerClass: string;
+    customParameters: Record[];
+}
+
+export interface GetMessageStoreRequest {
+    path: string;
+}
+
 export interface CreateProjectRequest {
     directory: string;
     name: string;
     open: boolean;
     groupID?: string;
     artifactID?: string;
+}
+
+export interface ImportProjectRequest {
+    source: string;
+    directory: string;
+    open: boolean;
 }
 
 export interface Connector {
@@ -111,7 +196,7 @@ export interface ESBConfigsResponse {
 }
 
 export interface CommandsRequest {
-    commands: string[];
+    commands: any[];
 }
 
 export interface CommandsResponse {
@@ -180,6 +265,142 @@ export interface CreateSequenceResponse {
     filePath: string;
 }
 
+export interface CreateMessageProcessorRequest {
+    directory: string;
+    messageProcessorName: string;
+    messageProcessorType: string;
+    messageStoreType: string;
+    failMessageStoreType: string;
+    sourceMessageStoreType: string;
+    targetMessageStoreType: string;
+    processorState: string;
+    dropMessageOption: string;
+    quartzConfigPath: string;
+    cron: string;
+    forwardingInterval: number | null;
+    retryInterval: number | null;
+    maxRedeliveryAttempts: number | null;
+    maxConnectionAttempts: number | null;
+    connectionAttemptInterval: number | null;
+    taskCount: number | null;
+    statusCodes: string;
+    clientRepository: string;
+    axis2Config: string;
+    endpointType: string;
+    sequenceType: string;
+    replySequenceType: string;
+    faultSequenceType: string;
+    deactivateSequenceType: string;
+    endpoint: string;
+    sequence: string;
+    replySequence: string;
+    faultSequence: string;
+    deactivateSequence: string;
+    samplingInterval: number | null;
+    samplingConcurrency: number | null;
+    providerClass: string;
+    properties: any;
+}
+
+export interface CreateMessageProcessorResponse {
+    path: string;
+}
+
+export interface RetrieveMessageProcessorRequest {
+    path: string;
+}
+
+export interface RetrieveMessageProcessorResponse {
+    messageProcessorName: string;
+    messageProcessorType: string;
+    messageStoreType: string;
+    failMessageStoreType: string;
+    sourceMessageStoreType: string;
+    targetMessageStoreType: string;
+    processorState: string;
+    dropMessageOption: string;
+    quartzConfigPath: string;
+    cron: string;
+    forwardingInterval: number | null;
+    retryInterval: number | null;
+    maxRedeliveryAttempts: number | null;
+    maxConnectionAttempts: number | null;
+    connectionAttemptInterval: number | null;
+    taskCount: number | null;
+    statusCodes: string;
+    clientRepository: string;
+    axis2Config: string;
+    endpointType: string;
+    sequenceType: string;
+    replySequenceType: string;
+    faultSequenceType: string;
+    deactivateSequenceType: string;
+    endpoint: string;
+    sequence: string;
+    replySequence: string;
+    faultSequence: string;
+    deactivateSequence: string;
+    samplingInterval: number | null;
+    samplingConcurrency: number | null;
+    providerClass: string;
+    properties: any;
+    hasCustomProperties: boolean;
+}
+
+export interface CreateProxyServiceRequest {
+    directory: string;
+    proxyServiceName: string;
+    proxyServiceType: string;
+    selectedTransports: string;
+    endpointType: string;
+    endpoint: string;
+    requestLogLevel: string;
+    responseLogLevel: string;
+    securityPolicy: string;
+    requestXslt: string;
+    responseXslt: string;
+    transformResponse: string;
+    wsdlUri: string;
+    wsdlService: string;
+    wsdlPort: number | null;
+    publishContract: string;
+}
+
+export interface CreateProxyServiceResponse {
+    path: string;
+}
+
+export interface CreateTaskRequest {
+    directory: string;
+    name: string;
+    group: string;
+    implementation: string;
+    pinnedServers: string;
+    triggerType: "simple" | "cron";
+    triggerCount: number;
+    triggerInterval: number;
+    triggerCron: string;
+}
+
+export interface CreateTaskResponse {
+    path: string;
+}
+
+export interface GetTaskRequest {
+    path: string;
+}
+
+export interface GetTaskResponse {
+    name: string;
+    group: string;
+    implementation: string;
+    pinnedServers: string;
+    triggerType: "simple" | "cron";
+    triggerCount: number;
+    triggerInterval: number;
+    triggerCron: string;
+}
+
 export interface ProjectRootResponse {
     path: string;
 }
@@ -189,6 +410,10 @@ export interface ProjectDirResponse {
 }
 
 export interface CreateProjectResponse {
+    filePath: string;
+}
+
+export interface ImportProjectResponse {
     filePath: string;
 }
 
@@ -215,6 +440,7 @@ export interface WriteContentToFileResponse {
 
 export interface HighlightCodeRequest {
     range: Range;
+    force?: boolean;
 }
 
 
@@ -279,4 +505,13 @@ export interface BrowseFileResponse {
 
 export interface BrowseFileRequest {
     dialogTitle: string;
+}
+
+export interface GetAvailableResourcesRequest {
+    documentIdentifier: string;
+    resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate";
+}
+
+export interface GetAvailableResourcesResponse {
+    resources: { [key: string]: any }[]
 }

@@ -79,7 +79,7 @@ export function Overview() {
                 </VSCodeDropdown>
             </DropDownContainer> */}
             <TitleWrapper>Project Overview</TitleWrapper>
-            {projectStructure && <ProjectStructureView projectStructure={projectStructure} />}
+            {projectStructure && <ProjectStructureView projectStructure={projectStructure} workspaceDir={selected} />}
 
         </OverviewContainer>
     );

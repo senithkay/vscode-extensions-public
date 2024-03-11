@@ -29,6 +29,8 @@ import {
     CreateLocalEntryResponse,
     CreateProjectRequest,
     CreateProjectResponse,
+    ImportProjectRequest,
+    ImportProjectResponse,
     CreateSequenceRequest,
     CreateSequenceResponse,
     ESBConfigsResponse,
@@ -62,27 +64,44 @@ import {
     getSTRequest,
     getSTResponse,
     MACHINE_VIEW,
+    CreateMessageProcessorRequest,
+    CreateMessageProcessorResponse,
+    RetrieveMessageProcessorRequest,
+    RetrieveMessageProcessorResponse,
+    CreateProxyServiceRequest,
+    CreateProxyServiceResponse,
+    CreateMessageStoreRequest,
+    CreateMessageStoreResponse,
     BrowseFileResponse,
     BrowseFileRequest,
     CreateRegistryResourceRequest,
-    CreateRegistryResourceResponse
+    CreateRegistryResourceResponse,
+    CreateTaskRequest,
+    CreateTaskResponse,
+    GetTaskRequest,
+    GetTaskResponse,
+    GetMessageStoreRequest,
+    GetMessageStoreResponse,
+    GetAvailableResourcesRequest,
+    GetAvailableResourcesResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import * as fs from "fs";
 import * as os from 'os';
 import { Transform } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
-import { Position, Range, Selection, Uri, WorkspaceEdit, commands, window, workspace } from "vscode";
-import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
+import { Position, Range, Selection, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
+import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
+import { createFolderStructure, getTaskXmlWrapper, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper , getMessageStoreXmlWrapper } from "../../util";
+import { getMediatypeAndFileExtension, addNewEntryToArtifactXML, detectMediaType } from "../../util/fileOperations";
 import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import * as xml2js from 'xml2js';
 import { UndoRedoManager } from "../../undoRedoManager";
-import { createFolderStructure, getInboundEndpointXmlWrapper, getRegistryResourceContent } from "../../util";
-import { getMediatypeAndFileExtension, addNewEntryToArtifactXML } from "../../util/fileOperations";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
+import { error } from "console";
 const { XMLParser } = require("fast-xml-parser");
 
 
@@ -210,8 +229,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 swaggerAttributes = ` publishSwagger="${swaggerDef}"`;
             }
 
-            const xmlData = 
-`<?xml version="1.0" encoding="UTF-8" ?>
+            const xmlData =
+                `<?xml version="1.0" encoding="UTF-8" ?>
     <api context="${context}" name="${name}" ${swaggerAttributes}${versionAttributes} xmlns="http://ws.apache.org/ns/synapse">
         <resource methods="GET" uri-template="/resource">
             <inSequence>
@@ -352,6 +371,170 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             resolve({ path: filePath });
         });
     }
+    
+    async createMessageStore(params: CreateMessageStoreRequest): Promise<CreateMessageStoreResponse> {
+        return new Promise(async (resolve) => {
+
+            const getTemplateParams = params;
+
+            const xmlData = getMessageStoreXmlWrapper(getTemplateParams);
+
+            const filePath = path.join(params.directory, `${params.name}.xml`);
+            fs.writeFileSync(filePath, xmlData);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getMessageStore(params: GetMessageStoreRequest): Promise<GetMessageStoreResponse> {
+        const options = {
+            ignoreAttributes: false,
+            allowBooleanAttributes: true,
+            attributeNamePrefix: "@_",
+            attributesGroupName: "@_"
+        };
+        interface Parameter{
+            name: string,
+            value: string
+        }
+        const parser = new XMLParser(options);
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+            if (fs.existsSync(filePath)) {
+                const xmlData = fs.readFileSync(filePath, "utf8");
+                const jsonData = parser.parse(xmlData);
+                let parameters: Parameter[]=[];
+                let customParameters: Parameter[]=[];
+                const className= jsonData.messageStore["@_"]["@_class"];
+                const response: GetMessageStoreResponse = {
+                    name: jsonData.messageStore["@_"]["@_name"],
+                    type: '',
+                    initialContextFactory: '',
+                    connectionFactory: '',
+                    providerURL: '',
+                    jndiQueueName: '',
+                    userName: '',
+                    password: '',
+                    cacheConnection: '',
+                    jmsAPIVersion: '',
+                    enableProducerGuaranteedDelivery: '',
+                    rabbitMQServerHostName: '',
+                    rabbitMQServerPort: '',
+                    sslEnabled: '',
+                    rabbitMQQueueName: '',
+                    rabbitMQExchangeName: '',
+                    routineKey: '',
+                    virtualHost: '',
+                    trustStoreLocation: '',
+                    trustStorePassword: '',
+                    trustStoreType: '',
+                    keyStoreLocation: '',
+                    keyStorePassword: '',
+                    keyStoreType: '',
+                    dataBaseTable: '',
+                    driver: '',
+                    url: '',
+                    user: '',
+                    dataSourceName: '',
+                    queueConnectionFactory: '',
+                    pollingCount: '',
+                    xPath: '',
+                    providerClass: '',
+                    customParameters: [] as Parameter[],
+                    sslVersion: ""
+                };
+                if(jsonData && jsonData.messageStore && jsonData.messageStore.parameter){
+                    parameters = Array.isArray(jsonData.messageStore.parameter)
+                        ? jsonData.messageStore.parameter.map((param: any) => ({
+                            name: param["@_"]['@_name'],
+                            value: param['#text'] ?? param["@_"]["@_expression"]
+                        }))
+                        : [{
+                            name: jsonData.messageStore.parameter["@_"]['@_name'],
+                            value: jsonData.messageStore.parameter['#text']
+                        }];
+                    const MessageStoreModel = {
+                        'java.naming.factory.initial': 'initialContextFactory',
+                        'java.naming.provider.url': 'providerURL',
+                        'store.jms.connection.factory': 'connectionFactory',
+                        'connectionfactory.QueueConnectionFactory': 'queueConnectionFactory',
+                        'store.jms.destination': 'jndiQueueName',
+                        'store.jms.username': 'userName',
+                        'store.jms.password': 'password',
+                        'store.jms.cache.connection': 'cacheConnection',
+                        'store.jms.JMSSpecVersion': 'jmsAPIVersion',
+                        'store.producer.guaranteed.delivery.enable': 'enableProducerGuaranteedDelivery',
+                        'rabbitmq.connection.ssl.truststore.location': 'trustStoreLocation',
+                        'rabbitmq.connection.ssl.truststore.password': 'trustStorePassword',
+                        'rabbitmq.connection.ssl.truststore.type': 'trustStoreType',
+                        'rabbitmq.connection.ssl.keystore.location': 'keyStoreLocation',
+                        'rabbitmq.connection.ssl.keystore.password': 'keyStorePassword',
+                        'rabbitmq.connection.ssl.keystore.type': 'keyStoreType',
+                        'rabbitmq.connection.ssl.version': 'sslVersion',
+                        'rabbitmq.connection.ssl.enabled': 'sslEnabled',
+                        'store.jdbc.table': 'dataBaseTable',
+                        'store.jdbc.driver': 'driver',
+                        'store.jdbc.connection.url': 'url',
+                        'store.jdbc.username': 'user',
+                        'store.jdbc.ds': 'dataSourceName',
+                        'store.rabbitmq.username': 'userName',
+                        'store.rabbitmq.password': 'password',
+                        'store.rabbitmq.host.name': 'rabbitMQServerHostName',
+                        'store.rabbitmq.host.port': 'rabbitMQServerPort',
+                        'store.rabbitmq.exchange.name': 'rabbitMQExchangeName',
+                        'store.rabbitmq.queue.name': 'rabbitMQQueueName',
+                        'store.rabbitmq.route.key': 'routineKey',
+                        'store.rabbitmq.virtual.host': 'virtualHost',
+                        'store.resequence.timeout': 'pollingCount',
+                        'store.resequence.id.path': 'xPath',                    
+                    }
+                    switch (className) {
+                        case 'org.apache.synapse.message.store.impl.jms.JmsStore':
+                            response.type = 'JMS Message Store';
+                            break;
+                        case 'org.apache.synapse.message.store.impl.jdbc.JDBCMessageStore':
+                            response.type = 'JDBC Message Store';
+                            break;
+                        case 'org.apache.synapse.message.store.impl.rabbitmq.RabbitMQStore':
+                            response.type = 'RabbitMQ Message Store';
+                            break;
+                        case 'org.apache.synapse.message.store.impl.resequencer.ResequenceMessageStore':
+                            response.type = 'Resequence Message Store';
+                            break;
+                        case 'org.apache.synapse.message.store.impl.memory.InMemoryStore':
+                            response.type = 'In Memory Message Store';
+                            break;
+                        default:
+                            response.type = 'Custom Message Store';
+                            break;         
+                    }
+                    if(response.type !== 'Custom Message Store'){
+                        parameters.forEach((param : Parameter) => {
+                            if (MessageStoreModel.hasOwnProperty(param.name)) {
+                                response[MessageStoreModel[param.name]] = param.value;
+                            }
+                            const key = MessageStoreModel[param.name];
+                            if (key) {
+                                response[key] = param.value;
+                            }
+                        });
+                        if(response.queueConnectionFactory){
+                            response.type = 'WSO2 MB Message Store';
+                        }
+                    } else {
+                        parameters.forEach((param : Parameter) => {
+                            customParameters.push({ name: param.name, value: param.value });
+                        });
+                        response.providerClass = className;
+                        response.customParameters = customParameters;
+                    }
+                }
+                resolve(response);
+            }
+            else{
+                return error("File not found");
+            }
+        });
+    }    
 
     async getInboundEndpointDirectory(): Promise<InboundEndpointDirectoryResponse> {
         try {
@@ -478,6 +661,97 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
+    async createProxyService(params: CreateProxyServiceRequest): Promise<CreateProxyServiceResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, proxyServiceName, proxyServiceType, selectedTransports, endpointType, endpoint,
+                requestLogLevel, responseLogLevel, securityPolicy, requestXslt, responseXslt, transformResponse,
+                wsdlUri, wsdlService, wsdlPort, publishContract } = params;
+
+            const getTemplateParams = {
+                proxyServiceName, proxyServiceType, selectedTransports, endpointType, endpoint,
+                requestLogLevel, responseLogLevel, securityPolicy, requestXslt, responseXslt, transformResponse,
+                wsdlUri, wsdlService, wsdlPort, publishContract
+            };
+
+            const xmlData = getProxyServiceXmlWrapper(getTemplateParams);
+
+            const filePath = path.join(directory, `${proxyServiceName}.xml`);
+            fs.writeFileSync(filePath, xmlData);
+            resolve({ path: filePath });
+        });
+    }
+
+    async createTask(params: CreateTaskRequest): Promise<CreateTaskResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, ...templateParams } = params;
+
+            const xmlData = getTaskXmlWrapper(templateParams);
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${templateParams.name}.xml`);
+            }
+
+            fs.writeFileSync(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getTask(params: GetTaskRequest): Promise<GetTaskResponse> {
+        const options = {
+            ignoreAttributes: false,
+            allowBooleanAttributes: true,
+            attributeNamePrefix: "@_",
+            attributesGroupName: "@_"
+        };
+        const parser = new XMLParser(options);
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (fs.existsSync(filePath)) {
+                const xmlData = fs.readFileSync(filePath, "utf8");
+                const jsonData = parser.parse(xmlData);
+
+                const response: GetTaskResponse = {
+                    name: jsonData.task["@_"]["@_name"],
+                    group: jsonData.task["@_"]["@_group"],
+                    implementation: jsonData.task["@_"]["@_class"],
+                    pinnedServers: jsonData.task["@_"]["@_pinnedServers"],
+                    triggerType: 'simple',
+                    triggerCount: 1,
+                    triggerInterval: 1,
+                    triggerCron: ''
+                };
+
+                if (jsonData.task.trigger["@_"]["@_count"] !== undefined) {
+                    response.triggerCount = Number(jsonData.task.trigger["@_"]["@_count"]);
+                    response.triggerInterval = Number(jsonData.task.trigger["@_"]["@_interval"]);
+                }
+                else if (jsonData.task.trigger["@_"]["@_cron"] !== undefined) {
+                    response.triggerType = 'cron';
+                    response.triggerCron = jsonData.task.trigger["@_"]["@_cron"];
+                }
+
+                resolve(response);
+            }
+
+            resolve({
+                name: '',
+                group: '',
+                implementation: '',
+                pinnedServers: '',
+                triggerType: 'simple',
+                triggerCount: 1,
+                triggerInterval: 1,
+                triggerCron: ''
+            });
+        });
+    }
+
     async applyEdit(params: ApplyEditRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
             const edit = new WorkspaceEdit();
@@ -513,6 +787,210 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
+    async createMessageProcessor(params: CreateMessageProcessorRequest): Promise<CreateMessageProcessorResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, messageProcessorName, messageProcessorType, messageStoreType, failMessageStoreType,
+                targetMessageStoreType, processorState, dropMessageOption, quartzConfigPath, cron, forwardingInterval,
+                retryInterval, maxRedeliveryAttempts, maxConnectionAttempts, connectionAttemptInterval, taskCount,
+                statusCodes, clientRepository, axis2Config, endpointType, sequenceType, replySequenceType,
+                faultSequenceType, deactivateSequenceType, endpoint, sequence, replySequence,
+                faultSequence, deactivateSequence,
+                samplingInterval, samplingConcurrency,
+                providerClass, properties } = params;
+
+            const getTemplateParams = {
+                messageProcessorName, messageProcessorType, messageStoreType, failMessageStoreType, targetMessageStoreType,
+                processorState, dropMessageOption, quartzConfigPath, cron, forwardingInterval, retryInterval,
+                maxRedeliveryAttempts, maxConnectionAttempts, connectionAttemptInterval, taskCount, statusCodes,
+                clientRepository, axis2Config, endpointType, sequenceType, replySequenceType, faultSequenceType,
+                deactivateSequenceType, endpoint, sequence,
+                replySequence, faultSequence,
+                deactivateSequence, samplingInterval, samplingConcurrency, providerClass, properties
+            };
+
+            const xmlData = getMessageProcessorXmlWrapper(getTemplateParams);
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${messageProcessorName}.xml`);
+            }
+
+            if (filePath.includes('/messageProcessors')) {
+                filePath = filePath.replace('/messageProcessors', '/message-processors');
+            }
+
+            fs.writeFileSync(filePath, xmlData);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getMessageProcessor(params: RetrieveMessageProcessorRequest): Promise<RetrieveMessageProcessorResponse> {
+        const options = {
+            ignoreAttributes: false,
+            allowBooleanAttributes: true,
+            attributeNamePrefix: "@_",
+            attributesGroupName: "@_"
+        };
+        const parser = new XMLParser(options);
+
+        interface Parameter {
+            name: string;
+            value: string;
+        }
+
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (fs.existsSync(filePath)) {
+                const xmlData = fs.readFileSync(filePath, "utf8");
+                const jsonData = parser.parse(xmlData);
+                let parameters: Parameter[];
+                const className = jsonData.messageProcessor["@_"]["@_class"];
+                let response: RetrieveMessageProcessorResponse = {
+                    messageProcessorName: jsonData.messageProcessor["@_"]["@_name"],
+                    messageProcessorType: '',
+                    messageStoreType: jsonData.messageProcessor["@_"]["@_messageStore"],
+                    failMessageStoreType: '',
+                    sourceMessageStoreType: 'TestMBStore',
+                    targetMessageStoreType: 'TestMBStore',
+                    processorState: 'true',
+                    dropMessageOption: 'Disabled',
+                    quartzConfigPath: '',
+                    cron: '',
+                    forwardingInterval: 1000,
+                    retryInterval: 1000,
+                    maxRedeliveryAttempts: 4,
+                    maxConnectionAttempts: -1,
+                    connectionAttemptInterval: 1000,
+                    taskCount: null,
+                    statusCodes: '',
+                    clientRepository: '',
+                    axis2Config: '',
+                    endpointType: '',
+                    sequenceType: '',
+                    replySequenceType: '',
+                    faultSequenceType: '',
+                    deactivateSequenceType: '',
+                    endpoint: '',
+                    sequence: '',
+                    replySequence: '',
+                    faultSequence: '',
+                    deactivateSequence: '',
+                    samplingInterval: 1000,
+                    samplingConcurrency: 1,
+                    providerClass: '',
+                    properties: [],
+                    hasCustomProperties: false
+                };
+
+                if (jsonData.messageProcessor["@_"]["@_targetEndpoint"] !== undefined) {
+                    response.endpoint = jsonData.messageProcessor["@_"]["@_targetEndpoint"];
+                }
+
+                if (jsonData && jsonData.messageProcessor && jsonData.messageProcessor.parameter) {
+                    parameters = Array.isArray(jsonData.messageProcessor.parameter)
+                        ? jsonData.messageProcessor.parameter.map((param: any) => ({
+                            name: param["@_"]['@_name'],
+                            value: param['#text']
+                        }))
+                        : [{
+                            name: jsonData.messageProcessor.parameter["@_"]['@_name'],
+                            value: jsonData.messageProcessor.parameter['#text']
+                        }];
+
+                    const ScheduledMessageForwardingProcessor = {
+                        'client.retry.interval': 'retryInterval',
+                        'member.count': 'taskCount',
+                        'message.processor.reply.sequence': 'replySequence',
+                        'axis2.config': 'axis2Config',
+                        'quartz.conf': 'quartzConfigPath',
+                        'non.retry.status.codes': 'statusCodes',
+                        'message.processor.deactivate.sequence': 'deactivateSequence',
+                        'is.active': 'processorState',
+                        'axis2.repo': 'clientRepository',
+                        cronExpression: 'cron',
+                        'max.delivery.attempts': 'maxRedeliveryAttempts',
+                        'message.processor.fault.sequence': 'faultSequence',
+                        'store.connection.retry.interval': 'connectionAttemptInterval',
+                        'max.store.connection.attempts': 'maxConnectionAttempts',
+                        'max.delivery.drop': 'dropMessageOption',
+                        interval: 'forwardingInterval',
+                        'message.processor.failMessagesStore': 'failMessageStoreType'
+                    },
+                        ScheduledFailoverMessageForwardingProcessor = {
+                            'client.retry.interval': 'retryInterval',
+                            cronExpression: 'cron',
+                            'max.delivery.attempts': 'maxRedeliveryAttempts',
+                            'member.count': 'taskCount',
+                            'message.processor.fault.sequence': 'faultSequence',
+                            'quartz.conf': 'quartzConfigPath',
+                            'max.delivery.drop': 'dropMessageOption',
+                            interval: 'forwardingInterval',
+                            'store.connection.retry.interval': 'connectionAttemptInterval',
+                            'max.store.connection.attempts': 'maxConnectionAttempts',
+                            'message.processor.deactivate.sequence': 'deactivateSequence',
+                            'is.active': 'processorState',
+                            'message.target.store.name': 'targetMessageStoreType'
+                        },
+                        MessageSamplingProcessor = {
+                            cronExpression: 'cron',
+                            sequence: 'sequence',
+                            'quartz.conf': 'quartzConfigPath',
+                            interval: 'samplingInterval',
+                            'is.active': 'processorState',
+                            concurrency: 'samplingConcurrency',
+                        };
+
+                    const customProperties: { key: string, value: any }[] = [];
+                    if (className === 'org.apache.synapse.message.processor.impl.forwarder.ScheduledMessageForwardingProcessor') {
+                        response.messageProcessorType = 'Scheduled Message Forwarding Processor';
+                        parameters.forEach((param: Parameter) => {
+                            if (ScheduledMessageForwardingProcessor.hasOwnProperty(param.name)) {
+                                response[ScheduledMessageForwardingProcessor[param.name]] = param.value;
+                            } else {
+                                customProperties.push({ key: param.name, value: param.value });
+                            }
+
+                        });
+                    } else if (className === 'org.apache.synapse.message.processor.impl.sampler.SamplingProcessor') {
+                        response.messageProcessorType = 'Message Sampling Processor';
+                        parameters.forEach((param: Parameter) => {
+                            if (MessageSamplingProcessor.hasOwnProperty(param.name)) {
+                                response[MessageSamplingProcessor[param.name]] = param.value;
+                            } else {
+                                customProperties.push({ key: param.name, value: param.value });
+                            }
+                        });
+                    } else if (className === 'org.apache.synapse.message.processor.impl.failover.FailoverScheduledMessageForwardingProcessor') {
+                        response.messageProcessorType = 'Scheduled Failover Message Forwarding Processor';
+                        parameters.forEach((param: Parameter) => {
+                            if (ScheduledFailoverMessageForwardingProcessor.hasOwnProperty(param.name)) {
+                                response[ScheduledFailoverMessageForwardingProcessor[param.name]] = param.value;
+                            } else {
+                                customProperties.push({ key: param.name, value: param.value });
+                            }
+                        });
+                    } else {
+                        response.messageProcessorType = 'Custom Message Processor';
+                        response.providerClass = className;
+                        response.properties = parameters.map(pair => ({ key: pair.name, value: pair.value }));
+                    }
+
+                    if (customProperties.length > 0) {
+                        response.hasCustomProperties = true;
+                        response.properties = customProperties;
+                    }
+
+                }
+
+                resolve(response);
+            }
+        });
+    }
+
     closeWebView(): void {
         if (VisualizerWebview.currentPanel) {
             VisualizerWebview.currentPanel.dispose();
@@ -531,6 +1009,19 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const selectedDir = await askProjectPath();
             if (!selectedDir || selectedDir.length === 0) {
                 window.showErrorMessage('A folder must be selected to create project');
+                resolve({ path: "" });
+            } else {
+                const parentDir = selectedDir[0].fsPath;
+                resolve({ path: parentDir });
+            }
+        });
+    }
+
+    async askProjectImportDirPath(): Promise<ProjectDirResponse> {
+        return new Promise(async (resolve) => {
+            const selectedDir = await askImportProjectPath();
+            if (!selectedDir || selectedDir.length === 0) {
+                window.showErrorMessage('The root directory of the project must be selected to import project');
                 resolve({ path: "" });
             } else {
                 const parentDir = selectedDir[0].fsPath;
@@ -580,7 +1071,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                 },
                                 'resources': {
                                     'metadata': '',
-                                    'registry': '',
+                                    'registry': {
+                                        'gov': '',
+                                        'conf': '',
+                                    },
                                 },
                             },
                             'test': ''
@@ -624,6 +1118,69 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             resolve({ filePath: path.join(directory, name) });
+        });
+    }
+
+    async importProject(params: ImportProjectRequest): Promise<ImportProjectResponse> {
+        return new Promise(async (resolve) => {
+            const { source, directory, open } = params;
+
+            let { projectName, groupId, artifactId } = getProjectDetails(source);
+
+            if (projectName && groupId && artifactId) {
+                const folderStructure: FileStructure = {
+                    [projectName]: {
+                        'pom.xml': rootPomXmlContent(projectName, groupId, artifactId),
+                        'src': {
+                            'main': {
+                                'wso2mi': {
+                                    'artifacts': {
+                                        'apis': '',
+                                        'endpoints': '',
+                                        'inbound-endpoints': '',
+                                        'local-entries': '',
+                                        'message-processors': '',
+                                        'message-stores': '',
+                                        'proxy-services': '',
+                                        'sequences': '',
+                                        'tasks': '',
+                                        'templates': '',
+                                        'data-services': '',
+                                        'data-sources': '',
+                                    },
+                                    'resources': {
+                                        'registry': {
+                                            'gov': '',
+                                            'conf': '',
+                                        },
+                                        'metadata': '',
+                                        'connectors': '',
+                                    },
+                                },
+                                'test': {
+                                    'wso2mi': '',
+                                }
+                            },
+                        },
+                    },
+                };
+
+                createFolderStructure(directory, folderStructure);
+                console.log("Created project structure for project: " + projectName)
+                migrateConfigs(source, path.join(directory, projectName));
+
+                window.showInformationMessage(`Successfully imported ${projectName} project`);
+
+                if (open) {
+                    commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, projectName)));
+                    resolve({ filePath: path.join(directory, projectName) });
+                }
+
+                resolve({ filePath: path.join(directory, projectName) });
+            } else {
+                window.showErrorMessage('Could not find the project details from the provided project: ', source);
+                resolve({ filePath: "" });
+            }
         });
     }
 
@@ -764,7 +1321,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
     async highlightCode(params: HighlightCodeRequest) {
         const documentUri = StateMachine.context().documentUri;
-        const editor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
+        let editor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
+        if (!editor && params.force && documentUri) {
+            const document = await workspace.openTextDocument(Uri.parse(documentUri));
+            editor = await window.showTextDocument(document, ViewColumn.Beside);
+        }
+
         if (editor) {
             const range = new Range(params.range.start.line, params.range.start.character, params.range.end.line, params.range.end.character);
             editor.selection = new Selection(range.start, range.end);
@@ -887,6 +1449,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return StateMachine.context().langClient!.getDiagnostics(params);
     }
 
+    async getAvailableResources(params: GetAvailableResourcesRequest): Promise<GetAvailableResourcesResponse> {
+        return StateMachine.context().langClient!.getAvailableResources(params);
+    }
+
     async browseFile(params: BrowseFileRequest): Promise<BrowseFileResponse> {
         return new Promise(async (resolve) => {
             const selectedFile = await window.showOpenDialog({
@@ -905,6 +1471,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async createRegistryResource(params: CreateRegistryResourceRequest): Promise<CreateRegistryResourceResponse> {
         return new Promise(async (resolve) => {
             var registryDir = path.join(params.projectDirectory, 'src', 'main', 'wso2mi', 'resources', 'registry', params.registryRoot);
+            var transformedPath = params.registryRoot === "gov" ? "/_system/governance" : "/_system/config";
             if (params.createOption === "import") {
                 if (fs.existsSync(params.filePath)) {
                     const fileName = path.basename(params.filePath);
@@ -914,6 +1481,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         fs.mkdirSync(registryPath, { recursive: true });
                     }
                     fs.copyFileSync(params.filePath, destPath);
+                    transformedPath = path.join(transformedPath, params.registryPath);
+                    const mediaType = await detectMediaType(params.filePath);
+                    addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, mediaType);
                     resolve({ path: destPath });
                 }
             } else {
@@ -928,7 +1498,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
                 fs.writeFileSync(destPath, fileContent ? fileContent : "");
                 //add the new entry to artifact.xml
-                var transformedPath = params.registryRoot === "gov" ? "/_system/governance" : "/_system/config";
                 transformedPath = path.join(transformedPath, params.registryPath);
                 addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, fileData.mediaType);
                 resolve({ path: destPath });
@@ -948,6 +1517,17 @@ export async function askProjectPath() {
         title: "Select a folder to create the Project"
     });
 }
+
+export async function askImportProjectPath() {
+    return await window.showOpenDialog({
+        canSelectFiles: false,
+        canSelectFolders: true,
+        canSelectMany: false,
+        defaultUri: Uri.file(os.homedir()),
+        title: "Select the root directory of the project to import"
+    });
+}
+
 export async function askFilePath() {
     return await window.showOpenDialog({
         canSelectFiles: true,
