@@ -8,6 +8,7 @@
  */
 
 import * as fs from "fs";
+const {XMLParser, XMLBuilder} = require("fast-xml-parser");
 
 export function generateXmlData(
     name: string,
@@ -15,24 +16,46 @@ export function generateXmlData(
     value: string,
     URL: string
 ): string {
+    const options = {
+        ignoreAttributes: false,
+        allowBooleanAttributes: true,
+        attributeNamePrefix: "",
+        attributesGroupName: "@_",
+        indentBy: '    ',
+        format: true,
+    };
+    const parser = new XMLParser(options);
+    const builder = new XMLBuilder(options);
     const localEntryType = type.toLowerCase();
     let localEntryAttributes = "";
     let otherAttributes = "";
-    let closingAttributes = `</${localEntryType}>`;
     if (localEntryType === "in-line text entry") {
         localEntryAttributes = `<![CDATA[${value}]]>`;
     } else if (localEntryType === "in-line xml entry") {
-        const match = value.match(/<xml[^>]*>([\s\S]*?)<\/xml>/i);
-        const filteredCode = match ? match[1] : "";
-        localEntryAttributes = `<xml>${filteredCode}</xml>`;
+        localEntryAttributes = value;
     } else if (localEntryType=== "source url entry") {
         otherAttributes = `src="${URL}"`;
     }
-
-    return `<?xml version="1.0" encoding="UTF-8"?>
+    
+    const localEntryTemplate= `<?xml version="1.0" encoding="UTF-8"?>
     <localEntry key="${name}" ${otherAttributes} xmlns="http://ws.apache.org/ns/synapse">
         ${localEntryAttributes}
-    </localEntry>`;
+    </localEntry>
+    `;
+
+    const jsonData = parser.parse(localEntryTemplate);
+    if (type === "In-Line XML Entry") {
+        if(jsonData.localEntry.xml["@_"]["xmlns"]) {
+            if (jsonData.xml["@_"]["xmlns"] === "http://ws.apache.org/ns/synapse") {
+                delete jsonData.localEntry.xml["@_"]["xmlns"];
+            }
+        }
+        else {
+             jsonData.localEntry.xml["@_"]["xmlns"] = "";
+        }
+    }
+
+    return builder.build(jsonData);
 }
 
 export function writeXmlDataToFile(filePath: string, xmlData: string): void {

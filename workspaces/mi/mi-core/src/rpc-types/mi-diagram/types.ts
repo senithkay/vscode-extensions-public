@@ -87,11 +87,21 @@ export interface CreateLocalEntryRequest {
     value: string;
     URL: string;
 }
+
 export interface CreateLocalEntryResponse {
     path: string;
 }
-export interface LocalEntryDirectoryResponse {
-    data: string;
+
+export interface GetLocalEntryRequest{
+    path: string;
+}
+
+export interface GetLocalEntryResponse{
+    name: string;
+    type: string;
+    inLineTextValue: string;
+    inLineXmlValue: string;
+    sourceURL: string;
 }
 export interface FileDirResponse {
     path: string;
@@ -134,6 +144,7 @@ export interface CreateMessageStoreRequest {
     enableProducerGuaranteedDelivery: string;
     providerClass: string;
     customParameters: Record[];
+    failOverMessageStore: string;
 }
 
 export interface CreateMessageStoreResponse {
@@ -176,10 +187,19 @@ export interface GetMessageStoreResponse {
     enableProducerGuaranteedDelivery: string;
     providerClass: string;
     customParameters: Record[];
+    failOverMessageStore: string;
 }
 
 export interface GetMessageStoreRequest {
     path: string;
+}
+
+export interface FileListRequest {
+    path: string;
+}
+
+export interface FileListResponse {
+    files: string[];
 }
 
 export interface CreateProjectRequest {

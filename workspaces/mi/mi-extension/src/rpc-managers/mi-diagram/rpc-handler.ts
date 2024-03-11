@@ -63,7 +63,6 @@ import {
     getEndpointDirectory,
     getEndpointsAndSequences,
     getInboundEndpoint,
-    getLocalEntryDirectory,
     getMessageProcessor,
     getTemplate,
     getProjectRoot,
@@ -98,6 +97,10 @@ import {
     GetAvailableResourcesRequest,
     CreateClassMediatorRequest,
     createClassMediator,
+    getLocalEntry,
+    GetLocalEntryRequest,
+    getXmlFileList,
+    FileListRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -126,6 +129,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getTask, (args: GetTaskRequest) => rpcManger.getTask(args));
     messenger.onRequest(createMessageStore, (args: CreateMessageStoreRequest) => rpcManger.createMessageStore(args));
     messenger.onRequest(getMessageStore, (args: GetMessageStoreRequest) => rpcManger.getMessageStore(args));
+    messenger.onRequest(getXmlFileList, (args: FileListRequest) => rpcManger.getXmlFileList(args));
     messenger.onRequest(createTemplate, (args: CreateTemplateRequest) => rpcManger.createTemplate(args));
     messenger.onRequest(getTemplate, (args: RetrieveTemplateRequest) => rpcManger.getTemplate(args));
     messenger.onRequest(getInboundEndpoint, (args: GetInboundEndpointRequest) => rpcManger.getInboundEndpoint(args));
@@ -145,8 +149,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(highlightCode, (args: HighlightCodeRequest) => rpcManger.highlightCode(args));
     messenger.onRequest(getWorkspaceContext, () => rpcManger.getWorkspaceContext());
     messenger.onRequest(getProjectUuid, () => rpcManger.getProjectUuid());
-    messenger.onRequest(getLocalEntryDirectory, () => rpcManger.getLocalEntryDirectory());
     messenger.onRequest(createLocalEntry, (args: CreateLocalEntryRequest) => rpcManger.createLocalEntry(args));
+    messenger.onRequest(getLocalEntry, (args: GetLocalEntryRequest) => rpcManger.getLocalEntry(args));
     messenger.onNotification(initUndoRedoManager, (args: UndoRedoParams) => rpcManger.initUndoRedoManager(args));
     messenger.onNotification(undo, (args: UndoRedoParams) => rpcManger.undo(args));
     messenger.onNotification(redo, (args: UndoRedoParams) => rpcManger.redo(args));
