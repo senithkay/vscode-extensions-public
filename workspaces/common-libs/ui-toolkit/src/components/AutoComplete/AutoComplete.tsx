@@ -20,8 +20,6 @@ import styled from '@emotion/styled';
 import { RequiredFormInput } from '../Commons/RequiredInput';
 
 const ComboboxButtonContainerActive = cx(css`
-    height: 28px;
-    position: absolute;
     padding-right: 5px;
     background-color: var(--vscode-input-background);
     border-right: 1px solid var(--vscode-focusBorder);
@@ -31,8 +29,6 @@ const ComboboxButtonContainerActive = cx(css`
 `);
 
 const ComboboxButtonContainer = cx(css`
-    height: 28px;
-    position: absolute;
     padding-right: 5px;
     background-color: var(--vscode-input-background);
     border-right: 1px solid var(--vscode-dropdown-border);
@@ -43,9 +39,9 @@ const ComboboxButtonContainer = cx(css`
 
 export const DropdownIcon = cx(css`
     color: var(--vscode-symbolIcon-colorForeground);
-    padding-top: 5px;
+    padding-top: 4px;
     height: 20px;
-    width: 10px;
+    width: 16px;
     padding-right: 8px;
 `);
 
@@ -72,6 +68,11 @@ const LabelContainer = styled.div`
     display: flex;
     flex-direction: row;
     margin-bottom: 4px;
+`;
+
+const ComboboxInputWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
 `;
 
 interface ContainerProps {
@@ -153,7 +154,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
                     {(required && label) && (<RequiredFormInput />)}
                 </LabelContainer>
                 <div>
-                    <div>
+                    <ComboboxInputWrapper>
                         <Combobox.Input
                             id={id}
                             ref={inputRef}
@@ -168,9 +169,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
                         />
                         <Combobox.Button
                             id={`autocomplete-dropdown-button-${items[0]}`}
-                            className={cx(isTextFieldFocused ? ComboboxButtonContainerActive : ComboboxButtonContainer, cx(css`
-                                padding-right: 10px;
-                            `))}
+                            className={isTextFieldFocused ? ComboboxButtonContainerActive : ComboboxButtonContainer}
                         >
                             {isUpButton ? (
                                 <i 
@@ -191,7 +190,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
                             )}
 
                         </Combobox.Button>
-                    </div>
+                    </ComboboxInputWrapper>
                     <Dropdown
                         query={query}
                         dropdownWidth={dropdownWidth}
