@@ -22,6 +22,8 @@ import {
     CreateMessageProcessorRequest,
     RetrieveMessageProcessorRequest,
     CreateProxyServiceRequest,
+    CreateTemplateRequest,
+    RetrieveTemplateRequest,
     GetDefinitionRequest,
     GetDiagnosticsReqeust,
     GetInboundEpDirRequest,
@@ -48,6 +50,7 @@ import {
     createSequence,
     createMessageProcessor,
     createProxyService,
+    createTemplate,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -61,6 +64,7 @@ import {
     getInboundEndpointDirectory,
     getLocalEntryDirectory,
     getMessageProcessor,
+    getTemplate,
     getProjectRoot,
     getSTRequest,
     getSequenceDirectory,
@@ -118,6 +122,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getTask, (args: GetTaskRequest) => rpcManger.getTask(args));
     messenger.onRequest(createMessageStore, (args: CreateMessageStoreRequest) => rpcManger.createMessageStore(args));
     messenger.onRequest(getMessageStore, (args: GetMessageStoreRequest) => rpcManger.getMessageStore(args));
+    messenger.onRequest(createTemplate, (args: CreateTemplateRequest) => rpcManger.createTemplate(args));
+    messenger.onRequest(getTemplate, (args: RetrieveTemplateRequest) => rpcManger.getTemplate(args));
     messenger.onNotification(closeWebView, () => rpcManger.closeWebView());
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));
     messenger.onNotification(openFile, (args: OpenDiagramRequest) => rpcManger.openFile(args));

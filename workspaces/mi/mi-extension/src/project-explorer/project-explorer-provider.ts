@@ -334,6 +334,15 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
 
+		} else if (entry.type === "TEMPLATE") {
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			explorerEntry.contextValue = 'template';
+			explorerEntry.command = {
+				"title": "Show Template",
+				"command": COMMANDS.SHOW_TEMPLATE,
+				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+			};
+
 		} else if (entry.type === "TASK") {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 			explorerEntry.contextValue = 'task';
