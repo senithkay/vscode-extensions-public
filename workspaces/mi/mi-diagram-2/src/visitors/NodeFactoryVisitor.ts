@@ -20,6 +20,7 @@ import { SourceNodeModel, TargetNodeModel, createNodesLink } from "../utils/diag
 import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
 import { Diagnostic } from "vscode-languageserver-types";
 import { ReferenceNodeModel } from "../components/nodes/ReferenceNode/ReferenceNodeModel";
+import { APIResource } from "@wso2-enterprise/mi-syntax-tree/src";
 
 interface BranchData {
     name: string;
@@ -40,9 +41,11 @@ export class NodeFactoryVisitor implements Visitor {
     private currentAddPosition: Position;
     private documentUri: string;
     private diagramType: DiagramType;
+    private resource: APIResource;
 
-    constructor(documentUri: string) {
+    constructor(documentUri: string, model: APIResource) {
         this.documentUri = documentUri;
+        this.resource = model;
     }
 
     private createNodeAndLinks(node: STNode, name: string, type: NodeTypes = NodeTypes.MEDIATOR_NODE, data?: any): void {
@@ -55,7 +58,7 @@ export class NodeFactoryVisitor implements Visitor {
         } else if (type === NodeTypes.CONDITION_NODE) {
             diagramNode = new ConditionNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.START_NODE) {
-            diagramNode = new StartNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
+            diagramNode = new StartNodeModel(node, this.resource, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.END_NODE) {
             diagramNode = new EndNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.CALL_NODE) {

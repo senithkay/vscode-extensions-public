@@ -9,7 +9,7 @@
 
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
-import { APIResource, Sequence, traversNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { APIResource, Sequence, traversNode, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
 import { generateEngine } from "../utils/diagram";
@@ -23,7 +23,6 @@ import SidePanelList from './sidePanel';
 import { OverlayLayerModel } from "./OverlayLoader/OverlayLayerModel";
 import styled from "@emotion/styled";
 import { Colors } from "../resources/constants";
-import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -209,7 +208,7 @@ export function Diagram(props: DiagramProps) {
         const height = positionVisitor.getSequenceHeight();
 
         // run node visitor
-        const nodeVisitor = new NodeFactoryVisitor(props.documentUri);
+        const nodeVisitor = new NodeFactoryVisitor(props.documentUri, model as APIResource);
         traversNode(model, nodeVisitor);
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();

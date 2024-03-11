@@ -34,9 +34,10 @@ interface CallNodeWidgetProps {
 export function StartNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine } = props;
     const nodeType = node.getStNode().tag;
+    const uriTemplate = node.getResource()?.uriTemplate;
     const [hovered, setHovered] = React.useState(false);
 
-    const getSVGNode = (tag: SequenceType) => {
+    const getSVGNode = (tag: SequenceType, uriTemplate?: string) => {
         switch (tag) {
             case SequenceType.IN_SEQUENCE:
                 return (
@@ -56,7 +57,7 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
                             d="m20,2 h60 a18,18,0,0,1,0,36 h-60 a-18,-18,0,0,1,0,-36 z"
                         />
                         <text x="50%" y="50%" alignmentBaseline="middle" textAnchor="middle" fill={Colors.PRIMARY}>
-                            IN
+                            {uriTemplate || "Start"}
                         </text>
                     </S.StyledSvg>
                 );
@@ -76,7 +77,7 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
     return (
         <S.Node>
             <PortWidget port={node.getPort("in")!} engine={engine} />
-            {getSVGNode(nodeType as SequenceType)}
+            {getSVGNode(nodeType as SequenceType, uriTemplate)}
             <PortWidget port={node.getPort("out")!} engine={engine} />
         </S.Node>
     );

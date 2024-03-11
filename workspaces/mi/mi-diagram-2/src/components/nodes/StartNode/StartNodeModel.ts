@@ -8,7 +8,7 @@
  */
 
 import { NodeModel, PortModelAlignment } from "@projectstorm/react-diagrams";
-import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { APIResource, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodePortModel } from "../../NodePort/NodePortModel";
 import { getNodeIdFromModel } from "../../../utils/node";
 import { NodeTypes } from "../../../resources/constants";
@@ -19,8 +19,9 @@ export class StartNodeModel extends NodeModel {
     protected portOut: NodePortModel;
     protected parentNode: STNode;
     protected prevNodes: STNode[];
+    protected resource: APIResource;
 
-    constructor(stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
+    constructor(stNode: STNode, resource: APIResource, parentNode?: STNode, prevNodes: STNode[] = []) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode, "start"),
             type: NodeTypes.START_NODE,
@@ -29,6 +30,7 @@ export class StartNodeModel extends NodeModel {
         this.stNode = stNode;
         this.addInPort("in");
         this.addOutPort("out");
+        this.resource = resource;
     }
 
     addPort<T extends NodePortModel>(port: T): T {
@@ -83,5 +85,9 @@ export class StartNodeModel extends NodeModel {
 
     getPrevNodes(): STNode[] {
         return this.prevNodes;
+    }
+
+    getResource(): APIResource {
+        return this.resource;
     }
 }
