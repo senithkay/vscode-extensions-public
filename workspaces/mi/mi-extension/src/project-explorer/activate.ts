@@ -32,7 +32,9 @@ export function activateProjectExplorer(context: ExtensionContext) {
 			{ label: 'Local Entry', description: 'Add new local entry' },
 			{ label: 'Message Store', description: 'Add new message store'},
 			{ label: 'Message Processor', description: 'Add new message processor' },
-			{ label: 'Task', description: 'Add new task' }
+			{ label: 'Task', description: 'Add new task' },
+			{ label: 'Proxy Service', description: 'Add new proxy service' },
+			{ label: 'Template', description: 'Add new template' },
 		], {
 			placeHolder: 'Select the construct to add'
 		}).then(selection => {
@@ -48,6 +50,10 @@ export function activateProjectExplorer(context: ExtensionContext) {
 				commands.executeCommand(COMMANDS.ADD_MESSAGE_PROCESSOR_COMMAND);
 			} else if (selection?.label === 'Task') {
 				commands.executeCommand(COMMANDS.ADD_TASK_COMMAND);
+			} else if (selection?.label === 'Proxy Service') {
+				commands.executeCommand(COMMANDS.ADD_PROXY_SERVICE_COMMAND);
+			} else if (selection?.label === 'Template') {
+				commands.executeCommand(COMMANDS.ADD_TEMPLATE_COMMAND);
 			} else if (selection?.label === 'New Project') {
 				commands.executeCommand(COMMANDS.CREATE_PROJECT_COMMAND);
 			} else if (selection?.label === 'Local Entry') {
@@ -126,6 +132,11 @@ export function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.ADD_MESSAGE_STORE_COMMAND, (entry:ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MessageStoreForm, documentUri: entry.info?.path });
 		console.log('Add Message Store');
+	});
+
+	commands.registerCommand(COMMANDS.ADD_TEMPLATE_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TemplateForm, documentUri: entry.info?.path });
+		console.log('Add Template');
 	});
 
 	commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
@@ -209,6 +220,10 @@ export function activateProjectExplorer(context: ExtensionContext) {
 			window.showTextDocument(document);
 		});
 	})
+	commands.registerCommand(COMMANDS.SHOW_TEMPLATE, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TemplateForm, documentUri: documentUri?.fsPath });
+	});
 	commands.registerCommand(COMMANDS.OPEN_PROJECT_OVERVIEW, async (entry: ProjectExplorerEntry) => {
 		revealWebviewPanel(false);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });

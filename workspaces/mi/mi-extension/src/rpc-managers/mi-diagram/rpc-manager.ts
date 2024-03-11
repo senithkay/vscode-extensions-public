@@ -70,6 +70,10 @@ import {
     CreateProxyServiceResponse,
     CreateMessageStoreRequest,
     CreateMessageStoreResponse,
+    CreateTemplateRequest,
+    CreateTemplateResponse,
+    RetrieveTemplateRequest,
+    RetrieveTemplateResponse,
     BrowseFileResponse,
     BrowseFileRequest,
     CreateRegistryResourceRequest,
@@ -91,7 +95,7 @@ import { Position, Range, Selection, Uri, ViewColumn, WorkspaceEdit, commands, w
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { createFolderStructure, getTaskXmlWrapper, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper , getMessageStoreXmlWrapper } from "../../util";
+import { createFolderStructure, getTaskXmlWrapper, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper, getMessageStoreXmlWrapper, getTemplateXmlWrapper } from "../../util";
 import { getMediatypeAndFileExtension, addNewEntryToArtifactXML, detectMediaType } from "../../util/fileOperations";
 import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
 import { rootPomXmlContent } from "../../util/templates";
@@ -745,6 +749,87 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 triggerInterval: 1,
                 triggerCron: ''
             });
+        });
+    }
+
+    async createTemplate(params: CreateTemplateRequest): Promise<CreateTemplateResponse> {
+        return new Promise(async (resolve) => {
+            const {
+                directory, templateName, templateType, address, uriTemplate, httpMethod,
+                wsdlUri, wsdlService, wsdlPort } = params;
+
+            const getTemplateParams = { templateName, templateType, address, uriTemplate, httpMethod, wsdlUri, wsdlService, wsdlPort };
+
+            const xmlData = getTemplateXmlWrapper(getTemplateParams);
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${templateName}.xml`);
+            }
+
+            fs.writeFileSync(filePath, xmlData);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getTemplate(params: RetrieveTemplateRequest): Promise<RetrieveTemplateResponse> {
+        const options = {
+            ignoreAttributes: false,
+            allowBooleanAttributes: true,
+            attributeNamePrefix: "@_",
+            attributesGroupName: "@_"
+        };
+        const parser = new XMLParser(options);
+
+        interface Parameter {
+            name: string;
+            value: string;
+        }
+
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (fs.existsSync(filePath)) {
+                const xmlData = fs.readFileSync(filePath, "utf8");
+                const jsonData = parser.parse(xmlData);
+                let response: RetrieveTemplateResponse = {
+                    templateName: jsonData.template["@_"]["@_name"],
+                    templateType: '',
+                    address: '',
+                    uriTemplate: '',
+                    httpMethod: '',
+                    wsdlUri: '',
+                    wsdlService: '',
+                    wsdlPort: null
+                };
+
+                if (jsonData.template.endpoint?.address) {
+                    response.templateType = 'Address Endpoint Template';
+                    response.address = jsonData.template.endpoint.address["@_"]["@_uri"];
+                } else if (jsonData.template.endpoint?.default) {
+                    response.templateType = 'Default Endpoint Template';
+                } else if (jsonData.template.endpoint?.http) {
+                    response.templateType = 'HTTP Endpoint Template';
+                    if (jsonData.template.endpoint.http["@_"]["@_method"] !== undefined) {
+                        response.httpMethod = jsonData.template.endpoint.http["@_"]["@_method"].toUpperCase();
+                    } else {
+                        response.httpMethod = 'leave_as_is';
+                    }
+                    response.uriTemplate = jsonData.template.endpoint.http["@_"]["@_uri-template"];
+                } else if (jsonData.template.endpoint?.wsdl) {
+                    response.templateType = 'WSDL Endpoint Template';
+                    response.wsdlUri = jsonData.template.endpoint.wsdl["@_"]["@_uri"];
+                    response.wsdlService = jsonData.template.endpoint.wsdl["@_"]["@_service"];
+                    response.wsdlPort = jsonData.template.endpoint.wsdl["@_"]["@_port"];
+                } else {
+                    response.templateType = 'Sequence Template';
+                }
+
+                resolve(response);
+            }
         });
     }
 

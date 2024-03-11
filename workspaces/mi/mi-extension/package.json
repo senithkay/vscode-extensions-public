@@ -160,6 +160,13 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.add-template",
+        "title": "Add Template",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.add-local-entry",
         "title": "Add Local Entry",
         "icon": "$(add)",
@@ -304,6 +311,11 @@
         {
           "command": "MI.project-explorer.add-message-store",
           "when": "view == MI.project-explorer && viewItem == messageStores",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-template",
+          "when": "view == MI.project-explorer && viewItem == templates",
           "group": "inline"
         }
       ]
