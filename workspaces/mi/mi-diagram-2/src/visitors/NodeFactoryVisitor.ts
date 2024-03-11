@@ -194,6 +194,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.parents.push(node);
     }
     endVisitInSequence(node: Sequence): void {
+        node.viewState.x += NODE_DIMENSIONS.START.EDITABLE.WIDTH / 2 - NODE_DIMENSIONS.START.DISABLED.WIDTH / 2;
         node.viewState.y = node.viewState.fh + NODE_GAP.Y;
         this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE);
         this.parents.pop();

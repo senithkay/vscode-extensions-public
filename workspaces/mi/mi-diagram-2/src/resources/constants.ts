@@ -95,8 +95,14 @@ export const NODE_DIMENSIONS = {
         HEIGHT: 40,
     },
     START: {
-        WIDTH: 24,
-        HEIGHT: 24,
+        EDITABLE: {
+            WIDTH: 100,
+            HEIGHT: 40,
+        },
+        DISABLED: {
+            WIDTH: 24,
+            HEIGHT: 24,
+        }
     },
     CONDITION: {
         WIDTH: 65,
@@ -193,3 +199,9 @@ export enum NodeTypes {
 
 export const NODE_LINK = "node-link";
 export const NODE_PORT = "node-port";
+
+export enum SequenceType {
+    IN_SEQUENCE = "inSequence",
+    OUT_SEQUENCE = "outSequence",
+    FAULT_SEQUENCE = "faultSequence",
+};
