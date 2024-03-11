@@ -25,7 +25,6 @@ export type Protocol = "http" | "https";
 export type Method = "get" | "post" | "put" | "delete" | "patch" | "head" | "options";
 
 export type AddAPIFormProps = {
-    position?: any;
     urlStyle: string;
     uriTemplate?: string;
     urlMapping?: string;
@@ -38,10 +37,9 @@ export type AddAPIFormProps = {
 };
 
 export type APIResourceWizardProps = {
-    resourceData?: AddAPIFormProps;
     isOpen: boolean;
-    handleCancel: () => void;
-    handleCreateAPI: (data: AddAPIFormProps) => void;
+    onCancel: () => void;
+    onCreate: (data: AddAPIFormProps) => void;
 };
 
 const ActionContainer = styled.div`
@@ -65,7 +63,7 @@ const SidePanelBodyWrapper = styled.div`
     padding: 20px;
 `;
 
-export function AddResourceForm({ resourceData, isOpen, handleCancel, handleCreateAPI }: APIResourceWizardProps) {
+export function AddResourceForm({ isOpen, onCancel: handleCancel, onCreate: handleCreateAPI }: APIResourceWizardProps) {
     const defaultProtocol = {
         http: true,
         https: true,
@@ -89,13 +87,6 @@ export function AddResourceForm({ resourceData, isOpen, handleCancel, handleCrea
     const [validUrlMapping, setValidUrlMapping] = useState<boolean>(true);
 
     useEffect(() => {
-        if (resourceData) {
-            setUrlStyle(resourceData.urlStyle);
-            setUriTemplate(resourceData.uriTemplate || "/");
-            setUrlMapping(resourceData.urlMapping || "/");
-            setProtocol(resourceData.protocol);
-            setMethods(resourceData.methods);
-        }
         return () => {
             setUrlStyle("none");
             setUriTemplate("/");
@@ -110,6 +101,7 @@ export function AddResourceForm({ resourceData, isOpen, handleCancel, handleCrea
         validUrlMapping &&
         Object.values(protocol).some((value) => value) &&
         Object.values(methods).some((value) => value);
+
     return (
         <SidePanel isOpen={isOpen} alignmanet="right" sx={{ transition: "all 0.3s ease-in-out" }}>
             <SidePanelTitleContainer>
@@ -231,10 +223,9 @@ export function AddResourceForm({ resourceData, isOpen, handleCancel, handleCrea
                             appearance="primary"
                             onClick={() =>
                                 handleCreateAPI({
-                                    position: resourceData?.position,
                                     urlStyle,
-                                    uriTemplate: urlStyle === "uri-template" ? uriTemplate : "",
-                                    urlMapping: urlStyle === "url-mapping" ? urlMapping : "",
+                                    uriTemplate: urlStyle === "uri-template" ? uriTemplate : undefined,
+                                    urlMapping: urlStyle === "url-mapping" ? urlMapping : undefined,
                                     methods,
                                     protocol,
                                 })
