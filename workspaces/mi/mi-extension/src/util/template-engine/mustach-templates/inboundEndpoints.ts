@@ -18,6 +18,8 @@ export interface GetInboundTemplatesArgs {
     type: string;
     sequence: string;
     errorSequence: string;
+    parameters?: Parameter;
+    additionalParameters?: Parameter;
 }
 
 const paramPool: { [key: string]: Parameter } = {
@@ -174,7 +176,7 @@ const paramPool: { [key: string]: Parameter } = {
 
 export function getInboundEndpointMustacheTemplate() {
     return `<?xml version="1.0" encoding="UTF-8"?>
-<inboundEndpoint name="{{name}}" {{#isCustomType}}class="org.wso2.carbon.inbound.kafka.KafkaMessageConsumer" {{/isCustomType}}{{#showSequence}}onError="{{errorSequence}}" sequence="{{sequence}}" {{/showSequence}}{{#protocol}}protocol="{{protocol}}" {{/protocol}}suspend="false" xmlns="http://ws.apache.org/ns/synapse">
+<inboundEndpoint name="{{name}}" {{#class}}class="{{class}}" {{/class}}{{#showSequence}}onError="{{errorSequence}}" sequence="{{sequence}}" {{/showSequence}}{{#protocol}}protocol="{{protocol}}" {{/protocol}}{{#statistics}}statistics="enable" {{/statistics}}{{#suspend}}suspend="{{suspend}}" {{/suspend}}{{#trace}}trace="enable" {{/trace}}xmlns="http://ws.apache.org/ns/synapse">
     <parameters>
     {{#params}}
         <parameter name="{{key}}">{{value}}</parameter>
@@ -183,22 +185,26 @@ export function getInboundEndpointMustacheTemplate() {
 </inboundEndpoint>`;
 }
 
-export function getInboundEndpointdXml(data: GetInboundTemplatesArgs) {
+export function getInboundEndpointdXml(isNew: boolean, data: GetInboundTemplatesArgs) {
+    const { parameters, additionalParameters, ...mainData } = data;
     const protocol =
         data.type === 'custom' ? false : data.type === 'wso2_mb' ? 'jms' : data.type;
 
     const showSequence = !['cxf_ws_rm', 'feed', 'http', 'https'].includes(data.type);
 
     const params: Parameter[] = [];
-    Object.entries(paramPool[data.type]).map(([key, value]) => {
+    Object.entries(isNew ? paramPool[data.type] : parameters ?? {}).map(([key, value]) => {
         params.push({ key, value });
     });
 
     const modifiedData = {
-        ...data,
+        ...mainData,
         isCustomType: data.type === 'custom',
         showSequence,
         protocol,
+        statistics: additionalParameters?.statistics ? 'enable' : undefined,
+        trace: additionalParameters?.trace ? 'enable' : undefined,
+        suspend: additionalParameters?.suspend ? 'true' : 'false',
         params
     };
 

@@ -49,13 +49,13 @@ import {
     GetDefinitionResponse,
     GetDiagnosticsReqeust,
     GetDiagnosticsResponse,
-    GetInboundEpDirRequest,
     GetProjectRootRequest,
+    GetInboundEndpointRequest,
+    GetInboundEndpointResponse,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
     FileDirResponse,
     HighlightCodeRequest,
-    InboundEndpointDirectoryResponse,
     LocalEntryDirectoryResponse,
     MiDiagramAPI,
     OpenDiagramRequest,
@@ -93,7 +93,7 @@ import {
     getEndpointDirectory,
     getEndpointsAndSequences,
     getLocalEntryDirectory,
-    getInboundEndpointDirectory,
+    getInboundEndpoint,
     getProjectRoot,
     getSTRequest,
     getSTResponse,
@@ -207,10 +207,6 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(createSequence, HOST_EXTENSION, params);
     }
 
-    getInboundEndpointDirectory(params: GetInboundEpDirRequest): Promise<InboundEndpointDirectoryResponse> {
-        return this._messenger.sendRequest(getInboundEndpointDirectory, HOST_EXTENSION, params);
-    }
-
     createInboundEndpoint(params: CreateInboundEndpointRequest): Promise<CreateInboundEndpointResponse> {
         return this._messenger.sendRequest(createInboundEndpoint, HOST_EXTENSION, params);
     }
@@ -249,6 +245,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getTemplate(params: RetrieveTemplateRequest): Promise<RetrieveTemplateResponse> {
         return this._messenger.sendRequest(getTemplate, HOST_EXTENSION, params);
+    }
+
+    getInboundEndpoint(params: GetInboundEndpointRequest): Promise<GetInboundEndpointResponse> {
+        return this._messenger.sendRequest(getInboundEndpoint, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {
