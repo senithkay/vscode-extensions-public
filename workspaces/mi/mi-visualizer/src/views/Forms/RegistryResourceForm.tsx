@@ -117,6 +117,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
         const regfilePath = await rpcClient.getMiDiagramRpcClient().createRegistryResource(request);
         rpcClient.getMiDiagramRpcClient().openFile(regfilePath);
         rpcClient.getMiDiagramRpcClient().closeWebView();
+
     }
 
     const isValid = createOption === "new" ? (artifactName && registryPath && resourceName) : (filePath && artifactName && registryPath);

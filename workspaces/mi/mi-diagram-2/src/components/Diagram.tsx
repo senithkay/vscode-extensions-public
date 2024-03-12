@@ -9,7 +9,7 @@
 
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
-import { APIResource, Sequence, traversNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { APIResource, Sequence, traversNode, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
 import { generateEngine } from "../utils/diagram";
@@ -23,10 +23,11 @@ import SidePanelList from './sidePanel';
 import { OverlayLayerModel } from "./OverlayLoader/OverlayLayerModel";
 import styled from "@emotion/styled";
 import { Colors } from "../resources/constants";
-import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
 import { Diagnostic } from "vscode-languageserver-types";
+import { EditAPIForm, EditResourceForm } from "./Forms/EditResourceForm";
+import { EditSequenceForm } from "./Forms/EditSequenceForm";
 
 export interface DiagramProps {
     model: APIResource | Sequence;
@@ -86,12 +87,18 @@ export function Diagram(props: DiagramProps) {
     });
 
     const [sidePanelState, setSidePanelState] = useState({
+        // Mediator related
         isOpen: false,
         isEditing: false,
         nodeRange: undefined,
         mediator: "",
         formValues: {},
         title: "",
+        // Service related
+        isOpenResource: false,
+        isOpenSequence: false,
+        serviceData: {},
+        onServiceEdit: () => {}
     });
 
     useEffect(() => {
@@ -209,7 +216,7 @@ export function Diagram(props: DiagramProps) {
         const height = positionVisitor.getSequenceHeight();
 
         // run node visitor
-        const nodeVisitor = new NodeFactoryVisitor(props.documentUri);
+        const nodeVisitor = new NodeFactoryVisitor(props.documentUri, model as any);
         traversNode(model, nodeVisitor);
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();
@@ -334,6 +341,24 @@ export function Diagram(props: DiagramProps) {
                         <SidePanelList nodePosition={sidePanelState.nodeRange} documentUri={props.documentUri} />
                     </SidePanel>}
 
+                    {/* Edit forms */}
+                    {sidePanelState?.isOpenResource && (
+                        <EditResourceForm
+                            isOpen={sidePanelState.isOpenResource}
+                            resourceData={sidePanelState.serviceData as EditAPIForm}
+                            onCancel={() => setSidePanelState({ ...sidePanelState, isOpenResource: false })}
+                            onEdit={sidePanelState.onServiceEdit}
+                        />
+                    )}
+
+                    {sidePanelState?.isOpenSequence && (
+                        <EditSequenceForm
+                            isOpen={sidePanelState.isOpenSequence}
+                            sequenceData={sidePanelState.serviceData as EditSequenceForm}
+                            onCancel={() => setSidePanelState({ ...sidePanelState, isOpenSequence: false })}
+                            onEdit={sidePanelState.onServiceEdit}
+                        />
+                    )}
                 </SidePanelProvider>
             </S.Container >
         </>

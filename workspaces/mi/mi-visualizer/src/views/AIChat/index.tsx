@@ -13,7 +13,7 @@ import { VisualizerLocation, CreateProjectRequest } from "@wso2-enterprise/mi-co
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import {TextArea, Button, Switch, Icon, ProgressRing} from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from 'react-markdown';
-import './AIProjectGenerationChat.css';
+import './AIChat.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { MI_COPILOT_BACKEND_URL } from "../../constants";
 
@@ -43,6 +43,7 @@ interface ChatEntry {
 
 var chatArray: ChatEntry[] = [];
 
+
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) => {
   return <ReactMarkdown>{markdownContent}</ReactMarkdown>;
 };
@@ -51,20 +52,20 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) 
 const codeBlocks: string[] = [];
 var projectUuid = "";
 
-export function AIProjectGenerationChat() {
+export function AIChat() {
   const { rpcClient } = useVisualizerContext();
   const [state, setState] = useState<VisualizerLocation | null>(null);
-  const [messages, setMessages] = useState<Array<{ role: string; content: string; type:string }>>([]);
+  const [messages, setMessages] = useState<Array<{ role: string; content: string; type: string }>>([]);
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false); 
   const [lastQuestionIndex, setLastQuestionIndex] = useState(-1);
   const messagesEndRef = React.createRef<HTMLDivElement>();
 
   useEffect(() => {
-    rpcClient?.getMiDiagramRpcClient().getProjectUuid().then((response) => {
+    rpcClient.getMiDiagramRpcClient().getProjectUuid().then((response) => {
       projectUuid = response.uuid;
-      const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
-      const storedChatArray = localStorage.getItem(localStorageFile);
+      const localStorageFile = `chatArray-AIChat-${projectUuid}`;
+    const storedChatArray = localStorage.getItem(localStorageFile);
     if (storedChatArray) {
       const chatArrayFromStorage = JSON.parse(storedChatArray);
   
@@ -96,11 +97,11 @@ export function AIProjectGenerationChat() {
       if (chatArray.length === 0) {
         setMessages((prevMessages) => [
           ...prevMessages,
-      { role: "", content: "Welcome to the AI Powered Generation and Editing Tool. You may use this tool to generate entirely new Artifacts or to do changes to existing artifacts simply using text based prompts. The context of your generation shall always be the window you have currenly opened.", type: "label" },
-      { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
-      { role: "" , content: "Generate a Sample Hello World API", type: "question"},
-      { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
-      { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
+          { role: "", content: "Welcome to MI Copilot Chat! I am here to assist you with WSO2 Micro Integrator. You can ask me to explain about WSO2 Integrations, get help on coding or development.", type: "label" },
+          { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
+          { role: "", content: "Explain me about this Artifact", type: "question" },
+          { role: "", content: "What are the possible use cases in using WSO2 Micro Integrator?", type: "question" },
+          { role: "", content: "How to use the File Connector?", type: "question" }
         ]);
       }
     }
@@ -115,10 +116,8 @@ export function AIProjectGenerationChat() {
         content,
       });
 
-      localStorage.setItem(`chatArray-AIGenerationChat-${projectUuid}`, JSON.stringify(chatArray));
-      
+      localStorage.setItem(`chatArray-AIChat-${projectUuid}`, JSON.stringify(chatArray));
   }
-
 
   useEffect(() => {
     // Step 2: Scroll into view when messages state changes
@@ -136,12 +135,11 @@ export function AIProjectGenerationChat() {
   }, [rpcClient]);
 
   async function handleSend (isQuestion: boolean = false) {
-    setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
-    setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'question'));
-    await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
-      console.log(response);
+    if (messages[0].type === "label" && messages[1].type === "label") {
+      setMessages(prevMessages => prevMessages.slice(2));
+    }
+    await rpcClient.getMiDiagramRpcClient().getWorkspaceContext().then((response) => {
     } );
-
     setIsLoading(true);
     let assistant_response = "";
     addChatEntry("user", userInput);
@@ -168,7 +166,7 @@ export function AIProjectGenerationChat() {
         },
         body: JSON.stringify({messages: chatArray}),
     })
-    const reader = response.body?.getReader();
+    const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let result = '';
 
@@ -198,16 +196,16 @@ export function AIProjectGenerationChat() {
                     ...questions,
                   ]);
             }else{
-                    assistant_response += json.content;
-                    setMessages(prevMessages => {
+                  assistant_response += json.content;
+                  setMessages(prevMessages => {
                       const newMessages = [...prevMessages];
                       newMessages[newMessages.length - 1].content += json.content;
                       return newMessages;
-                    });
+                  });
                   const regex = /```[\s\S]*?```/g;
                   let match;
                   while ((match = regex.exec(assistant_response)) !== null) {
-                    codeBlocks.push(match[0]);
+                      codeBlocks.push(match[0]);
                   }
             }
           } catch (error) {
@@ -217,9 +215,6 @@ export function AIProjectGenerationChat() {
         result = lines[lines.length - 1];
         
     }
-  
-  
-    
       if (result) {
           try {
             const json = JSON.parse(result);
@@ -228,34 +223,6 @@ export function AIProjectGenerationChat() {
           }
         }
   };
-
-
-  const handleAddtoWorkspace = async () => {
-
-       await rpcClient.getMiDiagramRpcClient().writeContentToFile({content: codeBlocks}).then((response) => {
-          console.log(response);
-        } );
-
-        //clear code blocks array and the chat array
-        codeBlocks.length = 0;
-        chatArray.length = 0;
-
-        setMessages((prevMessages) => [
-          { role: "", content: "Welcome to the AI Powered Generation and Editing Tool. You may use this tool to generate entirely new Artifacts or to do changes to existing artifacts simply using text based prompts. The context of your generation shall always be the window you have currenly opened.", type: "label" },
-          { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
-          { role: "" , content: "Generate a Sample Hello World API", type: "question"},
-          { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
-          { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
-        ]);
-
-        //clear the local storage
-        localStorage.removeItem(`chatArray-AIGenerationChat-${projectUuid}`);
-
-
-
-
-  }
-
 
   function splitContent(content: string) {
     const segments = [];
@@ -293,7 +260,6 @@ export function AIProjectGenerationChat() {
 
     if (questionText) {
       addChatEntry("user", questionText);
-  
       setMessages((prevMessages) => [
         ...prevMessages,
         { role: "User", content: questionText, type: "user_message" },
@@ -308,23 +274,22 @@ export function AIProjectGenerationChat() {
     chatArray.length = 0;
 
     setMessages((prevMessages) => [
-      { role: "", content: "Welcome to the AI Powered Generation and Editing Tool. You may use this tool to generate entirely new Artifacts or to do changes to existing artifacts simply using text based prompts. The context of your generation shall always be the window you have currenly opened.", type: "label" },
+      { role: "", content: "Welcome to MI Copilot Chat! I am here to assist you with WSO2 Micro Integrator. You can ask me to explain about WSO2 Integrations, get help on coding or development.", type: "label" },
       { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
-      { role: "" , content: "Generate a Sample Hello World API", type: "question"},
-      { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
-      { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
+      { role: "", content: "Explain me about this Artifact", type: "question" },
+      { role: "", content: "What are the possible use cases in using WSO2 Micro Integrator?", type: "question" },
+      { role: "", content: "How to use the File Connector?", type: "question" }
     ]);
 
     //clear the local storage
-    localStorage.removeItem(`chatArray-AIGenerationChat-${projectUuid}`);
+    localStorage.removeItem(`chatArray-AIChat-${projectUuid}`);
     
   }
 
   const questionMessages = messages.filter(message => message.type === "question");
   const otherMessages = messages.filter(message => message.type !== "question");
-
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "90%", width: "100%", margin: "auto" }}>
+      <div style={{ display: "flex", flexDirection: "column", height: "90%", width: "100%", margin: "auto" }}>
       <div style={{ flex: 1, overflowY: "auto", padding: "10px", borderBottom: "1px solid #ccc" }}>
       <div style={{ textAlign: "right" }}>
           <Icon
@@ -333,7 +298,7 @@ export function AIProjectGenerationChat() {
             onClick={() => handleClearChat()}
           />
         </div>
-       {otherMessages.map((message, index) => (
+      {otherMessages.map((message, index) => (
         <div key={index} style={{ marginBottom: "8px" }}>
         {message.type !== "question" && message.type !== "label" && <strong>{message.role}:</strong>}
                 {splitContent(message.content).map((segment, i) =>
@@ -367,7 +332,6 @@ export function AIProjectGenerationChat() {
                     <Icon name="wand-magic-sparkles-solid" sx="marginRight:5px"/>
                     {message.content.replace(/^\d+\.\s/, "")}
                 </div>
-
               </a>
             </div>
           ))}
@@ -383,7 +347,7 @@ export function AIProjectGenerationChat() {
         <TextArea
           onChange={(e) => setUserInput(e)}
           placeholder="Type your message here"
-          required={true}
+          required
           value={userInput}
           className="custom-textarea-style"
         />
@@ -399,19 +363,6 @@ export function AIProjectGenerationChat() {
               <div style={{ color: 'var(--vscode-editor-foreground)' }}>Send</div>
             </Button>
         </div>
-
-          <div>
-                  <Button
-                    appearance="primary"
-                    onClick={handleAddtoWorkspace}
-                    tooltip="Send"
-                    className="custom-button-style"
-                    disabled={isLoading}
-                  >
-                    <br />
-                    <div style={{ color: 'var(--vscode-editor-foreground)' }}>Add all to Workspace</div>
-                  </Button>
-          </div>
       </div>
     </div>
   );

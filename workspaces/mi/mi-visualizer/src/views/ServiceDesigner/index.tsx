@@ -14,7 +14,7 @@ import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-des
 import { Item } from "@wso2-enterprise/ui-toolkit";
 import { Position } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { AddAPIFormProps, AddResourceForm, Method } from "../Forms/AddResourceForm";
-import { TAB_SIZE, SERVICE_DESIGNER } from "../../constants";
+import { SERVICE_DESIGNER } from "../../constants";
 import { getXML } from "../../utils/template-engine/mustache-templates/templateUtils";
 import { APIData, APIWizardProps } from "../Forms/APIform";
 
@@ -27,7 +27,6 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
     const [serviceModel, setServiceModel] = React.useState<Service>(null);
     const [isResourceFormOpen, setResourceFormOpen] = React.useState<boolean>(false);
     const [serviceData, setServiceData] = React.useState<APIData>(null);
-    const [resourceData, setResourceData] = React.useState<AddAPIFormProps>(null);
     const [resourceBodyRange, setResourceBodyRange] = React.useState<any>(null);
 
     const enrichResources = (resources: Resource[], deleteStartPosition: Position): Resource[] => {
@@ -118,39 +117,12 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
         setResourceFormOpen(true);
     };
 
-    const handleEditResource = (resource: Resource) => {
-        setResourceData({
-            position: resource.position,
-            urlStyle: "none",
-            methods: resource.methods
-                .map(method => method.toLowerCase())
-                .reduce<{ [K in Method]: boolean }>((acc, method) => ({ ...acc, [method]: true }), {
-                    get: false,
-                    post: false,
-                    put: false,
-                    delete: false,
-                    patch: false,
-                    head: false,
-                    options: false,
-                }), // Extract boolean values for each method
-            protocol: {
-                http: true,
-                https: true,
-            }, // Extract boolean values for each protocol
-            uriTemplate: resource.path,
-            urlMapping: resource.path
-        });
-        setResourceFormOpen(true);
-    }
-
     const handleCancel = () => {
         setResourceFormOpen(false);
-        setResourceData(null);
     };
 
-    const handleCreateAPI = ({ position, methods, uriTemplate, urlMapping }: AddAPIFormProps) => {
-        const formValues = {
-            indentation: position ? undefined : " ".repeat(TAB_SIZE),
+    const handleCreateAPI = ({ methods, uriTemplate, urlMapping }: AddAPIFormProps) => {
+        const formValues = {        
             methods: Object
                 .keys(methods)
                 .filter((method) => methods[method as keyof typeof methods])
@@ -166,17 +138,16 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
             documentUri: documentUri,
             range: {
                 start: {
-                    line: position?.startLine || resourceBodyRange.end.line,
-                    character: position?.startColumn || resourceBodyRange.end.character,
+                    line: resourceBodyRange.end.line,
+                    character: resourceBodyRange.end.character,
                 },
                 end: {
-                    line: position?.endLine || resourceBodyRange.end.line,
-                    character: position?.endColumn || resourceBodyRange.end.character,
+                    line: resourceBodyRange.end.line,
+                    character: resourceBodyRange.end.character,
                 },
             },
         });
         setResourceFormOpen(false);
-        setResourceData(null);
     };
 
     const handleResourceDelete = (resource: Resource, resourceList: Resource[], deleteStartPosition: Position) => {
@@ -234,9 +205,8 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
             )}
             <AddResourceForm
                 isOpen={isResourceFormOpen}
-                resourceData={resourceData}
-                handleCancel={handleCancel}
-                handleCreateAPI={handleCreateAPI}
+                onCancel={handleCancel}
+                onCreate={handleCreateAPI}
             />
         </>
     );

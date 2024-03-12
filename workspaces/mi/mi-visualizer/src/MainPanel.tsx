@@ -16,10 +16,53 @@ import { MessageProcessorWizard } from "./views/Forms/MessageProcessorForm";
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { InboundEPWizard } from './views/Forms/InboundEPform';
+import { SidePanel } from '@wso2-enterprise/ui-toolkit';
+import { AIOverviewWindow} from './views/AIOverviewWindow';
+import { AIArtifactWindow } from './views/AIArtifactWindow';
+import { Allotment } from "allotment";
+import "allotment/dist/style.css";
+import { css, keyframes } from '@emotion/react';
+
+const fadeIn = keyframes`
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+`;
+
+
+const MainContainer = styled.div`
+    display: flex;
+    overflow: hidden;
+`;
+
+
+const FadeInContainer = styled.div`
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    box-shadow: -5px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: ${fadeIn} 0.2s;
+`;
+
+const MainContent = styled.div`
+    flex-grow: 1;
+`;
 import { LocalEntryWizard } from './views/Forms/LocalEntryForm';
 import { RegistryResourceForm } from './views/Forms/RegistryResourceForm';
 import { ProxyServiceWizard } from "./views/Forms/ProxyServiceForm";
 import { TemplateWizard } from "./views/Forms/TemplateForm";
+import { ClassMediatorForm } from './views/Forms/ClassMediatorForm';
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -39,6 +82,8 @@ const ProgressRing = styled(VSCodeProgressRing)`
 const MainPanel = () => {
     const { rpcClient } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
+    const [showAIWindow, setShowAIWindow] = useState<boolean>(false);
+    const [machineView, setMachineView] = useState<MACHINE_VIEW>();
 
     useEffect(() => {
         fetchContext();
@@ -55,6 +100,30 @@ const MainPanel = () => {
 
     }, []);
 
+    useEffect(() => {
+        rpcClient.getVisualizerState().then((machineView) => {
+            setMachineView(machineView.view);
+            if (viewComponent && machineView.view == MACHINE_VIEW.Overview) {
+                setShowAIWindow(true);
+            }
+        });
+    }, [viewComponent]); 
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'i' && (event.metaKey || event.ctrlKey)) {
+                setShowAIWindow(prevShow => !prevShow);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        // Cleanup function to remove the event listener when the component unmounts
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
+                
 
     const fetchContext = () => {
         rpcClient.getVisualizerState().then((machineView) => {
@@ -129,7 +198,10 @@ const MainPanel = () => {
                     setViewComponent(<ImportProjectWizard />);
                     break;
                 case MACHINE_VIEW.MessageStoreForm:
-                    setViewComponent(<MessageStoreWizard  path={machineView.documentUri}/>);
+                    setViewComponent(<MessageStoreWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.ClassMediatorForm:
+                    setViewComponent(<ClassMediatorForm path={machineView.documentUri} />);
                     break;
                 default:
                     setViewComponent(null);
@@ -138,19 +210,27 @@ const MainPanel = () => {
     }
 
     return (
-        <div style={{
-            overflow: "hidden",
-        }}>
-            {!viewComponent ? (
-                <LoaderWrapper>
-                    <ProgressRing />
-                </LoaderWrapper>
-            ) : <div>
-                <NavigationBar />
-                {viewComponent}
-            </div>}
-        </div>
+        <Allotment >
+            <div style={{
+                overflow: "hidden",
+            }}>
+                {!viewComponent ? (
+                    <LoaderWrapper>
+                        <ProgressRing />
+                    </LoaderWrapper>
+                ) : <div>
+                    <NavigationBar />
+                    {viewComponent}
+                </div>}
+            </div>
+            {showAIWindow && (
+            <FadeInContainer>
+                {machineView == MACHINE_VIEW.Overview ? <AIOverviewWindow /> : <AIArtifactWindow />}
+            </FadeInContainer>
+            )}
+        </Allotment>
+
     );
 };
 
-export default MainPanel;
+export default MainPanel;   

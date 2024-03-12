@@ -7,14 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Progress, window, ProgressLocation, MessageItem, workspace, Uri } from "vscode";
+import { Progress, window, ProgressLocation, commands, workspace, Uri } from "vscode";
 import * as fs from 'fs';
 import * as os from 'os';
 import axios from "axios";
 import * as path from 'path';
 import { XMLBuilder } from "fast-xml-parser";
 import { XMLParser } from "fast-xml-parser";
-import { promise } from "vscode-extension-tester";
+import { COMMANDS } from "../constants";
 
 interface ProgressMessage {
     message: string;
@@ -415,10 +415,49 @@ export async function deleteRegistryResourceFile(filePath: string): Promise<{ st
                 const updatedXmlString = builder.build(artifactXMLData);
                 fs.writeFileSync(artifactXMLPath, updatedXmlString);
                 fs.unlinkSync(filePath);
+                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ status: true, info: infoMsg });
             }
         } else {
             resolve({ status: false, info: "File not found" });
         }
     });
+}
+
+export async function detectClassMediators(javaPath: string): Promise<string[]> {
+    const classMediators: string[] = [];
+    if (fs.existsSync(javaPath)) {
+        findJavaFiles(javaPath).forEach((file) => {
+
+
+        });
+    }
+    return classMediators;
+}
+
+export function findJavaFiles(folderPath): Map<string, string> {
+    const results = new Map();
+    function traverse(currentPath) {
+        const files = fs.readdirSync(currentPath);
+        for (const file of files) {
+            const filePath = path.join(currentPath, file);
+            const stats = fs.statSync(filePath);
+
+            if (stats.isDirectory()) {
+                traverse(filePath);
+            } else if (stats.isFile() && path.extname(filePath) === '.java') {
+                const fileContents = fs.readFileSync(filePath, 'utf8');
+                const extendsPattern = /class\s+\w+\s+extends\s+AbstractMediator\b/g;
+                const matches = fileContents.match(extendsPattern);
+                if (matches) {
+                    const packagePath = path.dirname(filePath).replace(folderPath, '');
+                    const packageName = packagePath.split(path.sep).filter(part => part);
+                    results.set(filePath, packageName.join('.'));
+                }
+            }
+        }
+    }
+
+    traverse(folderPath);
+    return results;
 }

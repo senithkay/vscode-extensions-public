@@ -13,6 +13,7 @@ import { ProjectStructureResponse, ProjectStructureEntry, RegistryResourcesFolde
 import { COMMANDS } from '../constants';
 import { window } from 'vscode';
 import path = require('path');
+import { detectClassMediators, findJavaFiles } from '../util/fileOperations';
 
 export class ProjectExplorerEntry extends vscode.TreeItem {
 	children: ProjectExplorerEntry[] | undefined;
@@ -144,133 +145,177 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 		);
 
 		projectRoot.contextValue = 'project';
+		generateTreeDataOfArtifacts(project, data, projectRoot);
+		generateTreeDataOfRegistry(project, data, projectRoot);
+		generateTreeDataOfClassMediator(project, data, projectRoot);
+		return projectRoot;
+	}
+}
 
-		const artifacts = (directoryMap as any)?.src?.main?.wso2mi?.artifacts;
-		if (artifacts) {
-			for (const key in artifacts) {
+function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, projectRoot: ProjectExplorerEntry) {
+	const directoryMap = data.directoryMap;
+	const artifacts = (directoryMap as any)?.src?.main?.wso2mi?.artifacts;
+	if (artifacts) {
+		for (const key in artifacts) {
 
-				artifacts[key].path = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'artifacts', key);
-				let icon = 'folder';
-				let label = key;
+			artifacts[key].path = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'artifacts', key);
+			let icon = 'folder';
+			let label = key;
 
-				switch (key) {
-					case 'apis':
-						icon = 'globe';
-						label = 'APIs';
-						break;
-					case 'endpoints':
-						icon = 'plug';
-						label = 'Endpoints';
-						break;
-					case 'inboundEndpoints':
-						icon = 'fold-down';
-						label = 'Inbound Endpoints';
-						break;
-					case 'localEntries':
-						icon = 'settings';
-						label = 'Local Entries';
-						break;
-					case 'messageStores':
-						icon = 'database';
-						label = 'Message Stores';
-						break;
-					case 'messageProcessors':
-						icon = 'gear';
-						label = 'Message Processors';
-						break;
-					case 'proxyServices':
-						icon = 'arrow-swap';
-						label = 'Proxy Services';
-						break;
-					case 'sequences':
-						icon = 'list-ordered';
-						label = 'Sequences';
-						break;
-					case 'tasks':
-						icon = 'tasklist';
-						label = 'Tasks';
-						break;
-					case 'templates':
-						icon = 'file';
-						label = 'Templates';
-						break;
-					case 'resources':
-						icon = 'globe';
-						label = 'Resources';
-						break;
-					case 'dataServices':
-						icon = 'database';
-						label = 'Data Services';
-						break;
-					case 'dataSources':
-						icon = 'database';
-						label = 'Data Sources';
-						break;
-					default:
-				}
-
-				const parentEntry = new ProjectExplorerEntry(
-					label,
-					isCollapsibleState(artifacts[key].length > 0),
-					artifacts[key],
-					icon
-				);
-				const children = genProjectStructureEntry(artifacts[key]);
-
-				parentEntry.children = children;
-				parentEntry.contextValue = key;
-				parentEntry.id = `${project.name}/${key}`;
-
-				projectRoot.children = projectRoot.children ?? [];
-				projectRoot.children.push(parentEntry);
+			switch (key) {
+				case 'apis':
+					icon = 'globe';
+					label = 'APIs';
+					break;
+				case 'endpoints':
+					icon = 'plug';
+					label = 'Endpoints';
+					break;
+				case 'inboundEndpoints':
+					icon = 'fold-down';
+					label = 'Inbound Endpoints';
+					break;
+				case 'localEntries':
+					icon = 'settings';
+					label = 'Local Entries';
+					break;
+				case 'messageStores':
+					icon = 'database';
+					label = 'Message Stores';
+					break;
+				case 'messageProcessors':
+					icon = 'gear';
+					label = 'Message Processors';
+					break;
+				case 'proxyServices':
+					icon = 'arrow-swap';
+					label = 'Proxy Services';
+					break;
+				case 'sequences':
+					icon = 'list-ordered';
+					label = 'Sequences';
+					break;
+				case 'tasks':
+					icon = 'tasklist';
+					label = 'Tasks';
+					break;
+				case 'templates':
+					icon = 'file';
+					label = 'Templates';
+					break;
+				case 'resources':
+					icon = 'globe';
+					label = 'Resources';
+					break;
+				case 'dataServices':
+					icon = 'database';
+					label = 'Data Services';
+					break;
+				case 'dataSources':
+					icon = 'database';
+					label = 'Data Sources';
+					break;
+				default:
 			}
-		}
-		const resources = (directoryMap as any)?.src?.main?.wso2mi?.resources;
-		if (resources && resources['registry']) {
-			const regPath = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
+
 			const parentEntry = new ProjectExplorerEntry(
-				'Registry',
-				isCollapsibleState(Object.keys(resources['registry']).length > 0),
-				{ name: 'Registry', path: regPath, type: 'registry' },
-				'type-hierarchy'
+				label,
+				isCollapsibleState(artifacts[key].length > 0),
+				artifacts[key],
+				icon
 			);
-			parentEntry.contextValue = 'registry';
-			parentEntry.id = 'registry';
-			const gov = resources['registry']['gov'];
-			const conf = resources['registry']['conf'];
-			const isCollapsibleGov = gov && ((gov.files && gov.files.length > 0) || (gov.folders && gov.folders.length > 0));
-			const isCollapsibleConf = conf && ((conf.files && conf.files.length > 0) || (conf.folders && conf.folders.length > 0));
-			if (gov) {
-				const govEntry = new ProjectExplorerEntry(
-					'gov',
-					isCollapsibleState(isCollapsibleGov),
-					{ name: 'gov', path: path.join(regPath, 'gov'), type: 'gov' },
-					'root-folder'
-				);
-				govEntry.id = 'gov';
-				govEntry.contextValue = 'gov';
-				govEntry.children = genRegistryProjectStructureEntry(gov);
-				parentEntry.children = parentEntry.children ?? [];
-				parentEntry.children.push(govEntry);
-			}
-			if (conf) {
-				const confEntry = new ProjectExplorerEntry(
-					'conf',
-					isCollapsibleState(isCollapsibleConf),
-					{ name: 'conf', path: path.join(regPath, 'conf'), type: 'conf' },
-					'root-folder-opened'
-				);
-				confEntry.id = 'conf';
-				confEntry.contextValue = 'conf';
-				confEntry.children = genRegistryProjectStructureEntry(conf);
-				parentEntry.children = parentEntry.children ?? [];
-				parentEntry.children.push(confEntry);
-			}
+			const children = genProjectStructureEntry(artifacts[key]);
+
+			parentEntry.children = children;
+			parentEntry.contextValue = key;
+			parentEntry.id = `${project.name}/${key}`;
+
 			projectRoot.children = projectRoot.children ?? [];
 			projectRoot.children.push(parentEntry);
 		}
+	}
+}
 
-		return projectRoot;
+function generateTreeDataOfRegistry(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, projectRoot: ProjectExplorerEntry) {
+	const directoryMap = data.directoryMap;
+	const resources = (directoryMap as any)?.src?.main?.wso2mi?.resources;
+	if (resources && resources['registry']) {
+		const regPath = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
+		const parentEntry = new ProjectExplorerEntry(
+			'Registry',
+			isCollapsibleState(Object.keys(resources['registry']).length > 0),
+			{ name: 'Registry', path: regPath, type: 'registry' },
+			'type-hierarchy'
+		);
+		parentEntry.contextValue = 'registry';
+		parentEntry.id = 'registry';
+		const gov = resources['registry']['gov'];
+		const conf = resources['registry']['conf'];
+		const isCollapsibleGov = gov && ((gov.files && gov.files.length > 0) || (gov.folders && gov.folders.length > 0));
+		const isCollapsibleConf = conf && ((conf.files && conf.files.length > 0) || (conf.folders && conf.folders.length > 0));
+		if (gov) {
+			const govEntry = new ProjectExplorerEntry(
+				'gov',
+				isCollapsibleState(isCollapsibleGov),
+				{ name: 'gov', path: path.join(regPath, 'gov'), type: 'gov' },
+				'root-folder'
+			);
+			govEntry.id = 'gov';
+			govEntry.contextValue = 'gov';
+			govEntry.children = genRegistryProjectStructureEntry(gov);
+			parentEntry.children = parentEntry.children ?? [];
+			parentEntry.children.push(govEntry);
+		}
+		if (conf) {
+			const confEntry = new ProjectExplorerEntry(
+				'conf',
+				isCollapsibleState(isCollapsibleConf),
+				{ name: 'conf', path: path.join(regPath, 'conf'), type: 'conf' },
+				'root-folder-opened'
+			);
+			confEntry.id = 'conf';
+			confEntry.contextValue = 'conf';
+			confEntry.children = genRegistryProjectStructureEntry(conf);
+			parentEntry.children = parentEntry.children ?? [];
+			parentEntry.children.push(confEntry);
+		}
+		projectRoot.children = projectRoot.children ?? [];
+		projectRoot.children.push(parentEntry);
+	}
+}
+
+function generateTreeDataOfClassMediator(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, projectRoot: ProjectExplorerEntry) {
+	const directoryMap = data.directoryMap;
+	const main = (directoryMap as any)?.src?.main;
+	if (main && main['java']) {
+		const javaPath = path.join(project.uri.fsPath, 'src', 'main', 'java');
+		const mediators = findJavaFiles(javaPath);
+		const parentEntry = new ProjectExplorerEntry(
+			'Class Mediators',
+			isCollapsibleState(mediators.size > 0),
+			{ name: 'java', path: javaPath, type: 'java' },
+			'debug-continue'
+		);
+		parentEntry.contextValue = 'class-mediator';
+		parentEntry.id = 'class-mediator';
+		parentEntry.children = parentEntry.children ?? [];
+		for (var entry of mediators.entries()) {
+			const filePath = entry[0];
+			const packageName = entry[1];
+			const fileName = path.basename(filePath);
+			const resourceEntry = new ProjectExplorerEntry(fileName + " (" + packageName + ")", isCollapsibleState(false), {
+				name: fileName,
+				type: 'resource',
+				path: filePath
+			}, 'notebook-execute');
+			resourceEntry.command = {
+				"title": "Edit Class Mediator",
+				"command": COMMANDS.EDIT_CLASS_MEDIATOR_COMMAND,
+				"arguments": [vscode.Uri.parse(filePath)]
+			};
+			parentEntry.children.push(resourceEntry);
+		}
+		projectRoot.children?.push(parentEntry);
 	}
 }
 
@@ -347,11 +392,19 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 			explorerEntry.contextValue = 'task';
 			explorerEntry.command = {
-				"title": "Show View",
-				"command": COMMANDS.SHOW_VIEW,
+				"title": "Show Task",
+				"command": COMMANDS.SHOW_TASK,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
-		} 
+		} else if (entry.type === "INBOUND_ENDPOINT") {
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			explorerEntry.contextValue = 'inboundEndpoint';
+			explorerEntry.command = {
+				"title": "Show Inbound Endpoint",
+				"command": COMMANDS.SHOW_INBOUND_ENDPOINT,
+				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+			};
+		}
 		else if (entry.type === "MESSAGE_STORE") {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 			explorerEntry.contextValue = 'messageStores';
@@ -360,7 +413,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"command": COMMANDS.SHOW_MESSAGE_STORE,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
-		}		
+		}
 		else {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 		}

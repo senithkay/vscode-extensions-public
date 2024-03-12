@@ -38,17 +38,17 @@ import {
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     FileStructure,
+    GetProjectUuidResponse,
+    GetWorkspaceContextResponse,
     GetDefinitionRequest,
     GetDefinitionResponse,
     GetDiagnosticsReqeust,
     GetDiagnosticsResponse,
-    GetInboundEpDirRequest,
     GetProjectRootRequest,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
     FileDirResponse,
     HighlightCodeRequest,
-    InboundEndpointDirectoryResponse,
     LocalEntryDirectoryResponse,
     MiDiagramAPI,
     OpenDiagramRequest,
@@ -74,6 +74,8 @@ import {
     CreateTemplateResponse,
     RetrieveTemplateRequest,
     RetrieveTemplateResponse,
+    GetInboundEndpointRequest,
+    GetInboundEndpointResponse,
     BrowseFileResponse,
     BrowseFileRequest,
     CreateRegistryResourceRequest,
@@ -85,25 +87,31 @@ import {
     GetMessageStoreRequest,
     GetMessageStoreResponse,
     GetAvailableResourcesRequest,
-    GetAvailableResourcesResponse
+    GetAvailableResourcesResponse,
+    CreateClassMediatorRequest,
+    CreateClassMediatorResponse,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import * as fs from "fs";
 import * as os from 'os';
 import { Transform } from 'stream';
+import { v4 as uuidv4 } from 'uuid';
+import { StateMachine, openView } from "../../stateMachine";
 import { Position, Range, Selection, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
-import { StateMachine, openView } from "../../stateMachine";
-import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getTaskXmlWrapper, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper, getMessageStoreXmlWrapper, getTemplateXmlWrapper } from "../../util";
 import { getMediatypeAndFileExtension, addNewEntryToArtifactXML, detectMediaType } from "../../util/fileOperations";
-import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
 import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
+import * as xml2js from 'xml2js';
+import { UndoRedoManager } from "../../undoRedoManager";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
+import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { error } from "console";
+import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
 const { XMLParser } = require("fast-xml-parser");
+
 
 const connectorsPath = path.join(".metadata", ".Connectors");
 
@@ -371,7 +379,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             resolve({ path: filePath });
         });
     }
-    
+
     async createMessageStore(params: CreateMessageStoreRequest): Promise<CreateMessageStoreResponse> {
         return new Promise(async (resolve) => {
 
@@ -392,7 +400,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             attributeNamePrefix: "@_",
             attributesGroupName: "@_"
         };
-        interface Parameter{
+        interface Parameter {
             name: string,
             value: string
         }
@@ -402,9 +410,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (fs.existsSync(filePath)) {
                 const xmlData = fs.readFileSync(filePath, "utf8");
                 const jsonData = parser.parse(xmlData);
-                let parameters: Parameter[]=[];
-                let customParameters: Parameter[]=[];
-                const className= jsonData.messageStore["@_"]["@_class"];
+                let parameters: Parameter[] = [];
+                let customParameters: Parameter[] = [];
+                const className = jsonData.messageStore["@_"]["@_class"];
                 const response: GetMessageStoreResponse = {
                     name: jsonData.messageStore["@_"]["@_name"],
                     type: '',
@@ -442,7 +450,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     customParameters: [] as Parameter[],
                     sslVersion: ""
                 };
-                if(jsonData && jsonData.messageStore && jsonData.messageStore.parameter){
+                if (jsonData && jsonData.messageStore && jsonData.messageStore.parameter) {
                     parameters = Array.isArray(jsonData.messageStore.parameter)
                         ? jsonData.messageStore.parameter.map((param: any) => ({
                             name: param["@_"]['@_name'],
@@ -485,7 +493,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         'store.rabbitmq.route.key': 'routineKey',
                         'store.rabbitmq.virtual.host': 'virtualHost',
                         'store.resequence.timeout': 'pollingCount',
-                        'store.resequence.id.path': 'xPath',                    
+                        'store.resequence.id.path': 'xPath',
                     }
                     switch (className) {
                         case 'org.apache.synapse.message.store.impl.jms.JmsStore':
@@ -505,10 +513,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                             break;
                         default:
                             response.type = 'Custom Message Store';
-                            break;         
+                            break;
                     }
-                    if(response.type !== 'Custom Message Store'){
-                        parameters.forEach((param : Parameter) => {
+                    if (response.type !== 'Custom Message Store') {
+                        parameters.forEach((param: Parameter) => {
                             if (MessageStoreModel.hasOwnProperty(param.name)) {
                                 response[MessageStoreModel[param.name]] = param.value;
                             }
@@ -517,11 +525,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                 response[key] = param.value;
                             }
                         });
-                        if(response.queueConnectionFactory){
+                        if (response.queueConnectionFactory) {
                             response.type = 'WSO2 MB Message Store';
                         }
                     } else {
-                        parameters.forEach((param : Parameter) => {
+                        parameters.forEach((param: Parameter) => {
                             customParameters.push({ name: param.name, value: param.value });
                         });
                         response.providerClass = className;
@@ -530,47 +538,81 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
                 resolve(response);
             }
-            else{
+            else {
                 return error("File not found");
             }
         });
-    }    
-
-    async getInboundEndpointDirectory(): Promise<InboundEndpointDirectoryResponse> {
-        try {
-            const workspaceFolder = workspace.workspaceFolders;
-            if (workspaceFolder) {
-                const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
-                const endpointDir = path.join(workspaceFolderPath, 'src', 'main', 'wso2mi', 'artifacts', 'inbound-endpoints');
-
-                const response: InboundEndpointDirectoryResponse = { data: endpointDir };
-
-                return response;
-            }
-
-            return { data: "" };
-        } catch (error) {
-            throw new Error("Failed to fetch workspace folders: " + error);
-        }
     }
 
     async createInboundEndpoint(params: CreateInboundEndpointRequest): Promise<CreateInboundEndpointResponse> {
         return new Promise(async (resolve) => {
-            const { directory, name, type, sequence, errorSequence } = params;
+            const { directory, ...templateParams } = params;
 
-            const getTemplateParams = {
-                name,
-                type: type.toLowerCase(),
-                sequence,
-                errorSequence
-            };
+            let filePath: string = directory;
+            let isNew = true;
+            templateParams.type = templateParams.type.toLowerCase();
 
-            const xmlData = getInboundEndpointXmlWrapper(getTemplateParams);
+            if (filePath.includes('inboundEndpoints')) {
+                filePath = filePath.replace('inboundEndpoints', 'inbound-endpoints');
+            }
 
-            const filePath = path.join(directory, `${name}.xml`);
+            if (filePath.endsWith('.xml')) {
+                isNew = false;
+            } else {
+                filePath = path.join(filePath, `${templateParams.name}.xml`);
+            }
+
+            const xmlData = getInboundEndpointXmlWrapper(isNew, templateParams);
+
             fs.writeFileSync(filePath, xmlData);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
+        });
+    }
+
+    async getInboundEndpoint(params: GetInboundEndpointRequest): Promise<GetInboundEndpointResponse> {
+        const options = {
+            ignoreAttributes: false,
+            allowBooleanAttributes: true,
+            attributeNamePrefix: "@_",
+        };
+        const parser = new XMLParser(options);
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (filePath.includes('.xml') && fs.existsSync(filePath)) {
+                const xmlData = fs.readFileSync(filePath, "utf8");
+                const jsonData = parser.parse(xmlData);
+
+                const params: { [key: string]: string | number | boolean } = {};
+                jsonData.inboundEndpoint.parameters.parameter.map((param: any) => {
+                    params[param["@_name"]] = param["#text"];
+                });
+
+                const response: GetInboundEndpointResponse = {
+                    name: jsonData.inboundEndpoint["@_name"],
+                    type: jsonData.inboundEndpoint["@_protocol"],
+                    sequence: jsonData.inboundEndpoint["@_sequence"],
+                    errorSequence: jsonData.inboundEndpoint["@_errorSequence"],
+                    parameters: params,
+                    additionalParameters: {
+                        suspend: jsonData.inboundEndpoint["@_suspend"] === 'true',
+                        trace: jsonData.inboundEndpoint["@_trace"] ? true : false,
+                        statistics: jsonData.inboundEndpoint["@_statistics"] ? true : false,
+                    }
+                };
+
+                resolve(response);
+            }
+
+            resolve({
+                name: '',
+                type: '',
+                sequence: '',
+                errorSequence: '',
+                parameters: {},
+                additionalParameters: {}
+            });
         });
     }
 
@@ -712,7 +754,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const filePath = params.path;
 
-            if (fs.existsSync(filePath)) {
+            if (filePath.includes('.xml') && fs.existsSync(filePath)) {
                 const xmlData = fs.readFileSync(filePath, "utf8");
                 const jsonData = parser.parse(xmlData);
 
@@ -1064,7 +1106,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         response.hasCustomProperties = true;
                         response.properties = customProperties;
                     }
-
                 }
 
                 resolve(response);
@@ -1126,13 +1167,16 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {
         return new Promise(async (resolve) => {
+            const projectUuid = uuidv4();
+
             const { directory, name, open, groupID, artifactID } = params;
 
             const folderStructure: FileStructure = {
                 [name]: { // Project folder
-                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name),
+                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name, projectUuid),
                     'src': {
                         'main': {
+                            'java': '',
                             'wso2mi': {
                                 'artifacts': {
                                     'apis': '',
@@ -1204,12 +1248,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const { source, directory, open } = params;
 
+            const projectUuid = uuidv4();
+
             let { projectName, groupId, artifactId } = getProjectDetails(source);
 
             if (projectName && groupId && artifactId) {
                 const folderStructure: FileStructure = {
                     [projectName]: {
-                        'pom.xml': rootPomXmlContent(projectName, groupId, artifactId),
+                        'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid),
                         'src': {
                             'main': {
                                 'wso2mi': {
@@ -1337,9 +1383,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
         let status = true;
         //if file exists, overwrite if not, create new file and write content.  if successful, return true, else false
-        const { content, directoryPath } = params;
+        const { content } = params;
+        
+        //get current workspace folder 
+        const directoryPath = StateMachine.context().projectUri;
+        console.log('Directory path:', directoryPath);
 
         const length = content.length;
+        console.log('Content length:', length);
         for (let i = 0; i < length; i++) {
             //remove starting '''xml and ending '''
             content[i] = content[i].replace(/```xml/g, '');
@@ -1355,7 +1406,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     const tag = tagMatch[1];
                     switch (tag) {
                         case 'api':
-                            fileType = 'api';
+                            fileType = 'apis';
+                            fileType = 'apis';
                             break;
                         case 'endpoint':
                             fileType = 'endpoints';
@@ -1369,7 +1421,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     console.log("File type - ", fileType)
                 }
                 //write the content to a file, if file exists, overwrite else create new file
-                const fullPath = path.join(directoryPath, '/temp/tempConfigs/src/main/synapse-config/', fileType, '/', `${name}.xml`);
+                const fullPath = path.join(directoryPath??'', '/src/main/wso2mi/artifacts/', fileType, '/', `${name}.xml`);
+                console.log('Full path:', fullPath);
                 try {
                     console.log('Writing content to file:', fullPath);
                     console.log('Content:', content[i]);
@@ -1406,6 +1459,58 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         }
     }
 
+    async getWorkspaceContext(): Promise<GetWorkspaceContextResponse> {
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders) {
+            throw new Error('No workspace is currently open');
+        }
+    
+        var rootPath = workspaceFolders[0].uri.fsPath;
+        rootPath += '/src/main/wso2mi/artifacts';
+        const fileContents: string[] = [];
+        var resourceFolders = ['apis', 'endpoints', 'inbound-endpoints', 'local-entries', 'message-processors', 'message-stores', 'proxy-services', 'sequences', 'tasks', 'templates', 'data-services', 'data-sources'];
+        for (const folder of resourceFolders) {
+            const folderPath = path.join(rootPath, folder);
+            const files = await fs.promises.readdir(folderPath);
+        
+            for (const file of files) {
+                const filePath = path.join(folderPath, file);
+                const stats = await fs.promises.stat(filePath);
+        
+                if (stats.isFile()) {
+                    const content = await fs.promises.readFile(filePath, 'utf-8');
+                    fileContents.push(content);
+                }
+            }
+        }
+    
+        return { context: fileContents };
+    }
+
+    async getProjectUuid(): Promise<GetProjectUuidResponse> {
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders) {
+            throw new Error('No workspace is currently open');
+        }
+        var rootPath = workspaceFolders[0].uri.fsPath;
+        const pomPath = path.join(rootPath, 'pom.xml');
+    
+        return new Promise((resolve, reject) => {
+            fs.readFile(pomPath, 'utf8', (err, data) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    //get the part within <uuid> and <uuid> tags
+                    const uuid = data.match(/<uuid>(.*?)<\/uuid>/s);
+                    if (uuid) {
+                        resolve({ uuid: uuid[1] });
+                    } else {
+                        resolve({ uuid: '' });
+                    }
+                }
+            });
+        });
+    }
     async undo(params: UndoRedoParams): Promise<void> {
         const lastsource = undoRedo.undo();
         if (lastsource) {
@@ -1504,6 +1609,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     transformedPath = path.join(transformedPath, params.registryPath);
                     const mediaType = await detectMediaType(params.filePath);
                     addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, mediaType);
+                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                     resolve({ path: destPath });
                 }
             } else {
@@ -1520,11 +1626,24 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 //add the new entry to artifact.xml
                 transformedPath = path.join(transformedPath, params.registryPath);
                 addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, fileData.mediaType);
+                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ path: destPath });
             }
         });
     }
 
+    async createClassMediator(params: CreateClassMediatorRequest): Promise<CreateClassMediatorResponse> {
+        return new Promise(async (resolve) => {
+            const content = getClassMediatorContent({ name: params.className, package: params.packageName });
+            const packagePath = params.packageName.replace(/\./g, path.sep);
+            const fullPath = path.join(params.projectDirectory, packagePath);
+            fs.mkdirSync(fullPath, { recursive: true });
+            const filePath = path.join(fullPath, `${params.className}.java`);
+            fs.writeFileSync(filePath, content);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
 
 }
 

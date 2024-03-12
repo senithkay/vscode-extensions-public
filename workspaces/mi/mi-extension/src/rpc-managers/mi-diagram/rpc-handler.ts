@@ -28,6 +28,7 @@ import {
     GetDiagnosticsReqeust,
     GetInboundEpDirRequest,
     GetProjectRootRequest,
+    GetInboundEndpointRequest,
     GetTextAtRangeRequest,
     CreateLocalEntryRequest,
     HighlightCodeRequest,
@@ -61,14 +62,16 @@ import {
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
-    getInboundEndpointDirectory,
+    getInboundEndpoint,
     getLocalEntryDirectory,
     getMessageProcessor,
     getTemplate,
     getProjectRoot,
+    getProjectUuid,
     getSTRequest,
     getSequenceDirectory,
     getSyntaxTree,
+    getWorkspaceContext,
     getTextAtRange,
     getWorkspaceRoot,
     highlightCode,
@@ -92,7 +95,9 @@ import {
     getMessageStore,
     GetMessageStoreRequest,
     getAvailableResources,
-    GetAvailableResourcesRequest
+    GetAvailableResourcesRequest,
+    CreateClassMediatorRequest,
+    createClassMediator,
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -114,7 +119,6 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getSequenceDirectory, () => rpcManger.getSequenceDirectory());
     messenger.onRequest(createSequence, (args: CreateSequenceRequest) => rpcManger.createSequence(args));
     messenger.onRequest(createProxyService, (args: CreateProxyServiceRequest) => rpcManger.createProxyService(args));
-    messenger.onRequest(getInboundEndpointDirectory, (args: GetInboundEpDirRequest) => rpcManger.getInboundEndpointDirectory());
     messenger.onRequest(createInboundEndpoint, (args: CreateInboundEndpointRequest) => rpcManger.createInboundEndpoint(args));
     messenger.onRequest(createMessageProcessor, (args: CreateMessageProcessorRequest) => rpcManger.createMessageProcessor(args));
     messenger.onRequest(getMessageProcessor, (args: RetrieveMessageProcessorRequest) => rpcManger.getMessageProcessor(args));
@@ -124,6 +128,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getMessageStore, (args: GetMessageStoreRequest) => rpcManger.getMessageStore(args));
     messenger.onRequest(createTemplate, (args: CreateTemplateRequest) => rpcManger.createTemplate(args));
     messenger.onRequest(getTemplate, (args: RetrieveTemplateRequest) => rpcManger.getTemplate(args));
+    messenger.onRequest(getInboundEndpoint, (args: GetInboundEndpointRequest) => rpcManger.getInboundEndpoint(args));
     messenger.onNotification(closeWebView, () => rpcManger.closeWebView());
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));
     messenger.onNotification(openFile, (args: OpenDiagramRequest) => rpcManger.openFile(args));
@@ -138,6 +143,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAIResponse, (args: AIUserInput) => rpcManger.getAIResponse(args));
     messenger.onRequest(writeContentToFile, (args: WriteContentToFileRequest) => rpcManger.writeContentToFile(args));
     messenger.onNotification(highlightCode, (args: HighlightCodeRequest) => rpcManger.highlightCode(args));
+    messenger.onRequest(getWorkspaceContext, () => rpcManger.getWorkspaceContext());
+    messenger.onRequest(getProjectUuid, () => rpcManger.getProjectUuid());
     messenger.onRequest(getLocalEntryDirectory, () => rpcManger.getLocalEntryDirectory());
     messenger.onRequest(createLocalEntry, (args: CreateLocalEntryRequest) => rpcManger.createLocalEntry(args));
     messenger.onNotification(initUndoRedoManager, (args: UndoRedoParams) => rpcManger.initUndoRedoManager(args));
@@ -149,4 +156,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(browseFile, (args: BrowseFileRequest) => rpcManger.browseFile(args));
     messenger.onRequest(createRegistryResource, (args: CreateRegistryResourceRequest) => rpcManger.createRegistryResource(args));
     messenger.onRequest(getAvailableResources, (args: GetAvailableResourcesRequest) => rpcManger.getAvailableResources(args));
+    messenger.onRequest(createClassMediator, (args: CreateClassMediatorRequest) => rpcManger.createClassMediator(args));
 }

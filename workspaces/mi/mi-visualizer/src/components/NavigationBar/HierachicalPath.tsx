@@ -40,7 +40,7 @@ export function HierachicalPath(props: HierachicalPathProps) {
             return;
         }
 
-        const filePath = path.relative(machineView.projectUri, machineView.documentUri).split(path.join("src", "main", "wso2mi"))[1];
+        const filePath = path.relative(machineView.projectUri, machineView.documentUri).split(path.join("src", "main"))[1];
         const pathItems = filePath.substring(1).split(path.sep);
 
         const segments: Segment[] = [];
@@ -50,7 +50,8 @@ export function HierachicalPath(props: HierachicalPathProps) {
 
             if (machineView.identifier != undefined && syntaxTree?.syntaxTree?.api?.resource) {
                 const resource = syntaxTree.syntaxTree.api.resource[machineView.identifier];
-                pathItems.push(`${resource.uriTemplate} (${resource.methods.join(", ")})`);
+                const uriTemplate = resource.uriTemplate || "/";
+                pathItems.push(`${uriTemplate} (${resource.methods.join(", ")})`);
             } else if (syntaxTree?.syntaxTree?.sequence) {
                 const sequenceNode = syntaxTree.syntaxTree.sequence;
                 pathItems.push(sequenceNode.name);

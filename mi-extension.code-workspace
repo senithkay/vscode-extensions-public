@@ -4,9 +4,6 @@
 			"path": "workspaces/mi/mi-core"
 		},
 		{
-			"path": "workspaces/mi/mi-diagram"
-		},
-		{
 			"path": "workspaces/mi/mi-extension"
 		},
 		{
@@ -14,6 +11,9 @@
 		},
 		{
 			"path": "workspaces/mi/mi-diagram-2"
+		},
+		{
+			"path": "workspaces/mi/mi-visualizer"
 		}
 	]
 }

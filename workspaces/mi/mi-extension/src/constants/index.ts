@@ -5,7 +5,8 @@ export const COMMANDS = {
     OPEN_PROJECT: "MI.openProject",
     OPEN_WELCOME: "MI.openWelcome",
     SHOW_DIAGRAM: "MI.show.diagram",
-    SHOW_VIEW: "MI.show.view",
+    SHOW_TASK: "MI.show.task",
+    SHOW_INBOUND_ENDPOINT: "MI.show.inbound-endpoint",
     SHOW_SOURCE: "MI.show.source",
     SHOW_XML: "MI.show.xml",
     SHOW_MESSAGE_PROCESSOR: "MI.show.message-processor",
@@ -34,4 +35,6 @@ export const COMMANDS = {
     ADD_REGISTERY_RESOURCE_COMMAND: 'MI.project-explorer.add-registry-resource',
     DELETE_REGISTERY_RESOURCE_COMMAND: 'MI.project-explorer.delete-reg-resource',
     EDIT_REGISTERY_RESOURCE_COMMAND: 'MI.project-explorer.edit-reg-resource',
+    ADD_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.add-class-mediator',
+    EDIT_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.edit-class-mediator',
 };

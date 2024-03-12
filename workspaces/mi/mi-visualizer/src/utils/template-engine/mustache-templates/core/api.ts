@@ -11,11 +11,11 @@ export function getEditServiceTemplate() {
 }
 
 export function getAddApiResourceTemplate() {
-    return `{{{indentation}}}<resource methods="{{methods}}"{{#uri_template}} uri-template="{{{uri_template}}}"{{/uri_template}}{{#url_mapping}} url-mapping="{{{url_mapping}}}"{{/url_mapping}}>
-    {{{indentation}}}<inSequence>
-    {{{indentation}}}</inSequence>
-    {{{indentation}}}<faultSequence>
-    {{{indentation}}}</faultSequence>
-{{{indentation}}}</resource>`;
+    return `    <resource methods="{{methods}}"{{#uri_template}} uri-template="{{{uri_template}}}"{{/uri_template}}{{#url_mapping}} url-mapping="{{{url_mapping}}}"{{/url_mapping}}>
+        <inSequence>
+        </inSequence>
+        <faultSequence>
+        </faultSequence>
+    </resource>`;
 }
 
