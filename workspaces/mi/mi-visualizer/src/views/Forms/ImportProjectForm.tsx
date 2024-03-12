@@ -104,14 +104,13 @@ export function ImportProjectWizard() {
                     </div>
                 </Container>
                 <LocationSelector 
-                    label="Select Project Source Location to Import"
-                    selectedFile={projectDir}
+                    label="Choose Your Project's Root Directory"
+                    selectedFile={sourceDir}
                     required
                     onSelect={handleProjectSourceDirSelection}
                 />
                 <LocationSelector 
-                    label="Select Project Directory"
-                    selectionText="Project Location"
+                    label="Destination for Imported Project"
                     selectedFile={projectDir}
                     required
                     onSelect={handleProjectDirSelection}
@@ -128,7 +127,7 @@ export function ImportProjectWizard() {
                         onClick={handleImportProject}
                         disabled={!isValid}
                     >
-                        Create
+                        Import
                     </Button>
                 </ActionContainer>
             </SectionWrapper>

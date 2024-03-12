@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Visitor, STNode, WithParam, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Visitor, STNode, WithParam, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
@@ -246,9 +246,24 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitLoopback = (node: Loopback): void => this.createNodeAndLinks(node, MEDIATORS.LOOPBACK);
     beginVisitPayloadFactory = (node: PayloadFactory): void => this.createNodeAndLinks(node, MEDIATORS.PAYLOAD);
     beginVisitProperty = (node: Property): void => this.createNodeAndLinks(node, MEDIATORS.PROPERTY);
-    beginVisitPropertyGroup = (node: PropertyGroup): void => this.createNodeAndLinks(node, MEDIATORS.PROPERTYGROUP);
+
+    beginVisitPropertyGroup = (node: PropertyGroup): void => {
+        this.createNodeAndLinks(node, MEDIATORS.PROPERTYGROUP);
+        this.skipChildrenVisit = true;
+    }
+    endVisitPropertyGroup(node: PropertyGroup): void {
+        this.skipChildrenVisit = false;
+    }
+
     beginVisitRespond = (node: Respond): void => this.createNodeAndLinks(node, MEDIATORS.RESPOND);
-    beginVisitSend = (node: Send): void => this.createNodeAndLinks(node, MEDIATORS.SEND);
+
+    beginVisitSend = (node: Send): void => {
+        this.createNodeAndLinks(node, MEDIATORS.SEND, NodeTypes.CALL_NODE, node.endpoint);
+        this.skipChildrenVisit = true;
+    }
+    endVisitSend = (node: Send): void => {
+        this.skipChildrenVisit = false;
+    }
 
     beginVisitSequence = (node: Sequence): void => {
         const addPosition = {
@@ -294,8 +309,13 @@ export class NodeFactoryVisitor implements Visitor {
         this.skipChildrenVisit = false;
     }
 
-    beginVisitWithParam = (node: WithParam): void => this.createNodeAndLinks(node, "");
     beginVisitCallTemplate = (node: CallTemplate): void => this.createNodeAndLinks(node, MEDIATORS.CALLTEMPLATE);
+
+    //Advanced Mediators
+    beginVisitDataServiceCall = (node: DataServiceCall): void => this.createNodeAndLinks(node, MEDIATORS.DATASERVICECALL);
+    beginVisitEnqueue = (node: Enqueue): void => this.createNodeAndLinks(node, MEDIATORS.ENQUEUE);
+    beginVisitTransaction = (node: Transaction): void => this.createNodeAndLinks(node, MEDIATORS.TRANSACTION);
+    beginVisitEvent = (node: Event): void => this.createNodeAndLinks(node, MEDIATORS.EVENT);
 
     // Extension Mediators
     beginVisitBean(node: Bean): void {

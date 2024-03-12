@@ -167,6 +167,7 @@ const stateMachine = createMachine<MachineContext>({
             // replace this with actual promise that waits for LS to be ready
             return new Promise(async (resolve, reject) => {
                 const ls = (await MILanguageClient.getInstance(extension.context)).languageClient;
+                vscode.commands.executeCommand('setContext', 'MI.status', 'projectLoaded');
                 resolve(ls);
             });
         },
@@ -258,6 +259,10 @@ async function checkIfMiProject() {
         if (files.length > 0) {
             // TODO: Handle the correct logic to detect the MI project
             isMiProject = true;
+            vscode.commands.executeCommand('setContext', 'MI.status', 'projectDetected');
+        }
+        else {
+            vscode.commands.executeCommand('setContext', 'MI.status', 'unknownProject');
         }
     } catch (err) {
         console.error(err);

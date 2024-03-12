@@ -127,7 +127,7 @@ export const MEDIATORS = {
     CALLTEMPLATE: "CallTemplate",
     CLONE: "Clone",
     DATAMAPPER: "DataMapper",
-    DATASERVICE: "DataService",
+    DATASERVICECALL: "DataServiceCall",
     DROP: "Drop",
     ENRICH: "Enrich",
     ENTITLEMENT: "EntitlementService",
@@ -161,6 +161,11 @@ export const MEDIATORS = {
     EJB: "Ejb",
     SCRIPT: "Script",
     SPRING: "Spring",
+    DBLOOKUP: "Dblookup",
+    DBREPORT: "Dbreport",
+    ENQUEUE: "Enqueue",
+    EVENT: "Event",
+    TRANSACTION: "Transaction"
 }
 
 export const ENDPOINTS = {
