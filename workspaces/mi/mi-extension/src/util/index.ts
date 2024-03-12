@@ -17,6 +17,7 @@ import { getMessageProcessorXml, MessageProcessorTemplateArgs } from './template
 import { getProxyServiceXml, ProxyServiceTemplateArgs } from './template-engine/mustach-templates/ProxyService';
 import { GetTaskTemplatesArgs, getTaskXml } from './template-engine/mustach-templates/tasks';
 import { getMessageStoreXml, GetMessageStoreTemplatesArgs } from './template-engine/mustach-templates/messageStore';
+import { getTemplateXml, TemplateArgs } from './template-engine/mustach-templates/Template';
 
 const isDevMode = process.env.WEB_VIEW_WATCH_MODE === "true";
 
@@ -66,4 +67,8 @@ export function getTaskXmlWrapper(data: GetTaskTemplatesArgs) {
 
 export function getMessageStoreXmlWrapper(props: GetMessageStoreTemplatesArgs) {
 	return getMessageStoreXml(props);
+}
+
+export function getTemplateXmlWrapper(props: TemplateArgs) {
+	return getTemplateXml(props);
 }

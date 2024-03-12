@@ -52,6 +52,11 @@ import CommandForm from "../Pages/mediators/extension/command"
 import EJBForm from "../Pages/mediators/extension/ejb"
 import ScriptForm from "../Pages/mediators/extension/script"
 import SpringForm from "../Pages/mediators/extension/spring"
+import CloneForm from "../Pages/mediators/advanced/clone"
+import DataServiceForm from "../Pages/mediators/advanced/dataServiceCall"
+import EnqueueForm from "../Pages/mediators/advanced/enqueue"
+import EventForm from "../Pages/mediators/advanced/event"
+import TransactionForm from "../Pages/mediators/advanced/transaction"
 
 export interface GetMediatorsProps {
     nodePosition: any;
@@ -62,6 +67,33 @@ export interface GetMediatorsProps {
 export function getAllMediators(props: GetMediatorsProps) {
 
     const allMediators = {
+        "advanced": [
+            {
+                title: "Clone",
+                operationName: MEDIATORS.CLONE,
+                form: <CloneForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CloneForm>,
+            },
+            {
+                title: "Dataservice Call",
+                operationName: MEDIATORS.DATASERVICECALL,
+                form: <DataServiceForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DataServiceForm>,
+            },
+            {
+                title: "Enqueue",
+                operationName: MEDIATORS.ENQUEUE,
+                form: <EnqueueForm nodePosition={props.nodePosition} documentUri={props.documentUri}></EnqueueForm>,
+            },
+            {
+                title: "Event",
+                operationName: MEDIATORS.EVENT,
+                form: <EventForm nodePosition={props.nodePosition} documentUri={props.documentUri}></EventForm>,
+            },
+            {
+                title: "Transaction",
+                operationName: MEDIATORS.TRANSACTION,
+                form: <TransactionForm nodePosition={props.nodePosition} documentUri={props.documentUri}></TransactionForm>,
+            }
+        ],
         "core": [
             {
                 title: "Call",

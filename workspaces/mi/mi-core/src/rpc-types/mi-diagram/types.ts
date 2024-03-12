@@ -401,6 +401,37 @@ export interface GetTaskResponse {
     triggerCron: string;
 }
 
+export interface CreateTemplateRequest {
+    directory: string;
+    templateName: string;
+    templateType: string;
+    address: string;
+    uriTemplate: string;
+    httpMethod: string;
+    wsdlUri: string;
+    wsdlService: string;
+    wsdlPort: number | null;
+}
+
+export interface CreateTemplateResponse {
+    path: string;
+}
+
+export interface RetrieveTemplateRequest {
+    path: string;
+}
+
+export interface RetrieveTemplateResponse {
+    templateName: string;
+    templateType: string;
+    address: string;
+    uriTemplate: string;
+    httpMethod: string;
+    wsdlUri: string;
+    wsdlService: string;
+    wsdlPort: number | null;
+}
+
 export interface ProjectRootResponse {
     path: string;
 }

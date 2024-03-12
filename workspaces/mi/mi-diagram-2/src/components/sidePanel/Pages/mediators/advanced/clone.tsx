@@ -17,6 +17,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { AddMediatorProps } from '../common';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
+import { TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 const cardStyle = { 
    display: "block",
@@ -46,14 +47,15 @@ const CloneForm = (props: AddMediatorProps) => {
 
    useEffect(() => {
        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-           setFormValues({ ...formValues, ...sidePanelContext.formValues });
+           setFormValues({ ...formValues, ...sidePanelContext.formValues, isCloneKeysChange: false, targetChanges: [] });
        } else {
            setFormValues({
        "sequentialMediation": false,
        "continueParent": false,
        "targets": [] as string[][],
        "sequenceType": "Default",
-       "endpointType": "Default",});
+       "endpointType": "Default",
+       "newMediator": true,});
        }
    }, [sidePanelContext.formValues]);
 
@@ -68,10 +70,35 @@ const CloneForm = (props: AddMediatorProps) => {
        if (Object.keys(newErrors).length > 0) {
            setErrors(newErrors);
        } else {
-           const xml = getXML(MEDIATORS.CLONE, formValues);
-           rpcClient.getMiDiagramRpcClient().applyEdit({
-               documentUri: props.documentUri, range: props.nodePosition, text: xml
-           });
+           if (formValues["newMediator"] == false) {
+               //TODO: Fix this after target edit option suport available.
+               if (formValues["targetChanges"].length > 0) {
+                   let targetChanges = formValues["targetChanges"];
+                   const sortedPositions = targetChanges.sort((a: number, b: number) => a - b);
+                   for (let i = sortedPositions.length - 1; i >= 0; i--) {
+                       const data = { target: formValues["targets"][sortedPositions[i]], "editClone": false };
+                       const xml = getXML(MEDIATORS.CLONE, data);
+                       const range: TagRange = data.target[5];
+                       rpcClient.getMiDiagramRpcClient().applyEdit({
+                           documentUri: props.documentUri, range: range.startTagRange, text: xml
+                       });
+                   }
+               }
+               if (formValues["isCloneKeysChange"]) {
+                   const data = { ...formValues, "editClone": true };
+                   const xml = getXML(MEDIATORS.CLONE, data);
+                   const range: TagRange = formValues.cloneTagRange;
+                   rpcClient.getMiDiagramRpcClient().applyEdit({
+                       documentUri: props.documentUri, range: range.startTagRange, text: xml
+                   });
+               }
+           } else {
+               const xml = getXML(MEDIATORS.CLONE, formValues);
+               rpcClient.getMiDiagramRpcClient().applyEdit({
+                   documentUri: props.documentUri, range: props.nodePosition, text: xml
+               });
+           }
+
            sidePanelContext.setSidePanelState({
                 ...sidePanelContext,
                 isOpen: false,
@@ -130,7 +157,7 @@ const CloneForm = (props: AddMediatorProps) => {
                         placeholder=""
                         value={formValues["cloneId"]}
                         onChange={(e: any) => {
-                            setFormValues({ ...formValues, "cloneId": e });
+                            setFormValues({ ...formValues, "cloneId": e, "isCloneKeysChange": true });
                             formValidators["cloneId"](e);
                         }}
                         required={false}
@@ -140,7 +167,7 @@ const CloneForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <VSCodeCheckbox type="checkbox" checked={formValues["sequentialMediation"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "sequentialMediation": e.target.checked });
+                       setFormValues({ ...formValues, "sequentialMediation": e.target.checked, "isCloneKeysChange": true });
                         formValidators["sequentialMediation"](e);
                     }
                     }>Sequential Mediation </VSCodeCheckbox>
@@ -149,7 +176,7 @@ const CloneForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <VSCodeCheckbox type="checkbox" checked={formValues["continueParent"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "continueParent": e.target.checked });
+                       setFormValues({ ...formValues, "continueParent": e.target.checked, "isCloneKeysChange": true });
                         formValidators["continueParent"](e);
                     }
                     }>Continue Parent </VSCodeCheckbox>
@@ -247,7 +274,7 @@ const CloneForm = (props: AddMediatorProps) => {
                         if (!(validateField("sequenceType", formValues["sequenceType"], true) || validateField("endpointType", formValues["endpointType"], true))) {
                             setFormValues({
                                 ...formValues, "sequenceType": undefined, "endpointType": undefined,
-                                "targets": [...formValues["targets"], [formValues["sequenceType"], formValues["sequenceRegistryKey"], formValues["endpointType"]]]
+                                "targets": [...formValues["targets"], [formValues["sequenceType"], formValues["sequenceRegistryKey"], formValues["endpointType"], formValues["endpointRegistryKey"], formValues["soapAction"], formValues["toAddress"]]]
                             });
                         }
                     }}>
@@ -293,7 +320,7 @@ const CloneForm = (props: AddMediatorProps) => {
                         placeholder=""
                         value={formValues["description"]}
                         onChange={(e: any) => {
-                            setFormValues({ ...formValues, "description": e });
+                            setFormValues({ ...formValues, "description": e, "isCloneKeysChange": true });
                             formValidators["description"](e);
                         }}
                         required={false}

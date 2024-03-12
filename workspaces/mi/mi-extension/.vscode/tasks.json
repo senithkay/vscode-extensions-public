@@ -18,7 +18,6 @@
 				"isDefault": true
 			},
 			"dependsOrder": "parallel",
-			"dependsOn": "mi-diagram: watch"
 		},
 		{
 			"label": "mi-extension: watch-tests",
@@ -33,10 +32,10 @@
 			"group": "build"
 		},
 		{
-			"label": "mi-diagram: watch",
+			"label": "mi-visualizer",
 			"type": "npm",
 			"script": "start",
-			"path": "../mi-diagram",
+			"path": "../mi-visualizer",
 			"problemMatcher": "$ts-webpack-watch",
 			"isBackground": true,
 			"presentation": {

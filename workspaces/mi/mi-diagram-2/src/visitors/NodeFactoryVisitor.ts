@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Visitor, STNode, WithParam, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Visitor, STNode, WithParam, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
@@ -310,6 +310,12 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitCallTemplate = (node: CallTemplate): void => this.createNodeAndLinks(node, MEDIATORS.CALLTEMPLATE);
+
+    //Advanced Mediators
+    beginVisitDataServiceCall = (node: DataServiceCall): void => this.createNodeAndLinks(node, MEDIATORS.DATASERVICECALL);
+    beginVisitEnqueue = (node: Enqueue): void => this.createNodeAndLinks(node, MEDIATORS.ENQUEUE);
+    beginVisitTransaction = (node: Transaction): void => this.createNodeAndLinks(node, MEDIATORS.TRANSACTION);
+    beginVisitEvent = (node: Event): void => this.createNodeAndLinks(node, MEDIATORS.EVENT);
 
     // Extension Mediators
     beginVisitBean(node: Bean): void {

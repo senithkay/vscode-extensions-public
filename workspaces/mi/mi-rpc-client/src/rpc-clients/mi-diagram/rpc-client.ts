@@ -36,6 +36,10 @@ import {
     CreateMessageProcessorResponse,
     RetrieveMessageProcessorRequest,
     RetrieveMessageProcessorResponse,
+    CreateTemplateRequest,
+    CreateTemplateResponse,
+    RetrieveTemplateRequest,
+    RetrieveTemplateResponse,
     CreateProxyServiceRequest,
     CreateProxyServiceResponse,
     ESBConfigsResponse,
@@ -79,6 +83,7 @@ import {
     createSequence,
     createMessageProcessor,
     createProxyService,
+    createTemplate,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -97,6 +102,7 @@ import {
     getSTResponse,
     getSequenceDirectory,
     getMessageProcessor,
+    getTemplate,
     getSyntaxTree,
     getWorkspaceContext,
     getTextAtRange,
@@ -239,6 +245,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getMessageStore(params: GetMessageStoreRequest): Promise<GetMessageStoreResponse>{
         return this._messenger.sendRequest(getMessageStore, HOST_EXTENSION, params);
+    }
+
+    createTemplate(params: CreateTemplateRequest): Promise<CreateTemplateResponse> {
+        return this._messenger.sendRequest(createTemplate, HOST_EXTENSION, params);
+    }
+
+    getTemplate(params: RetrieveTemplateRequest): Promise<RetrieveTemplateResponse> {
+        return this._messenger.sendRequest(getTemplate, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {

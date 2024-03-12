@@ -61,6 +61,7 @@ const MainContent = styled.div`
 import { LocalEntryWizard } from './views/Forms/LocalEntryForm';
 import { RegistryResourceForm } from './views/Forms/RegistryResourceForm';
 import { ProxyServiceWizard } from "./views/Forms/ProxyServiceForm";
+import { TemplateWizard } from "./views/Forms/TemplateForm";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -182,6 +183,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.TaskForm:
                     setViewComponent(<TaskWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.TemplateForm:
+                    setViewComponent(<TemplateWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.ProjectCreationForm:
                     setViewComponent(<ProjectWizard />);

@@ -65,7 +65,13 @@
     "viewsWelcome": [
       {
         "view": "MI.project-explorer",
-        "contents": "Welcome to Micro Integrator. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:MI.openProject)\n[Create New Project](command:MI.openWelcome)\nTo learn more about how to use Micro Integrator in VS Code [read our docs](https://ei.docs.wso2.com)."
+        "contents": "Loading...",
+        "when": "MI.status != 'unknownProject' && MI.status != 'projectLoaded'"
+      },
+      {
+        "view": "MI.project-explorer",
+        "contents": "Welcome to Micro Integrator. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:MI.openProject)\n[Create New Project](command:MI.openWelcome)\nTo learn more about how to use Micro Integrator in VS Code, [read our docs](https://ei.docs.wso2.com).",
+        "when": "MI.status == 'unknownProject'"
       }
     ],
     "commands": [
@@ -155,6 +161,13 @@
       {
         "command": "MI.project-explorer.add-proxy-service",
         "title": "Add Proxy Service",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
+        "command": "MI.project-explorer.add-template",
+        "title": "Add Template",
         "icon": "$(add)",
         "group": "navigation",
         "category": "MI"
@@ -304,6 +317,11 @@
         {
           "command": "MI.project-explorer.add-message-store",
           "when": "view == MI.project-explorer && viewItem == messageStores",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-template",
+          "when": "view == MI.project-explorer && viewItem == templates",
           "group": "inline"
         }
       ]

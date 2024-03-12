@@ -58,12 +58,14 @@ namespace S {
 const SIDE_PANEL_WIDTH = 450;
 
 export function Diagram(props: DiagramProps) {
-    const { model , diagnostics } = props;
+    const { model, diagnostics } = props;
     const [diagramDataMap, setDiagramDataMap] = useState(new Map());
     const { rpcClient } = useVisualizerContext();
     const [isTabPaneVisible, setTabPaneVisible] = useState(true);
     const [isSequence, setSequence] = useState(false);
     const [isFaultFlow, setFlow] = useState(false);
+    const [canvasDimensions, setCanvasDimensions] = useState({ width: 0, height: 0 });
+
     const toggleFlow = () => {
         setFlow(!isFaultFlow);
     };
@@ -109,7 +111,7 @@ export function Diagram(props: DiagramProps) {
 
         const key = JSON.stringify((STNode as APIResource).inSequence) + JSON.stringify((STNode as APIResource).outSequence);
 
-        if (diagramDataMap.get(DiagramType.FLOW) !== key && !isFaultFlow) {
+        // if (diagramDataMap.get(DiagramType.FLOW) !== key && !isFaultFlow) {
             diagramDataMap.set(DiagramType.FLOW, key);
             flows.push({
                 engine: flowEngine,
@@ -117,12 +119,12 @@ export function Diagram(props: DiagramProps) {
                 model: modelCopy
             });
             setDiagramDataMap(diagramDataMap);
-        }
+        // }
 
         const faultSequence = (STNode as APIResource).faultSequence;
         if (faultSequence) {
             const key = JSON.stringify(faultSequence);
-            if (diagramDataMap.get(DiagramType.FAULT) !== key && isFaultFlow) {
+            // if (diagramDataMap.get(DiagramType.FAULT) !== key && isFaultFlow) {
                 diagramDataMap.set(DiagramType.FAULT, key);
                 flows.push({
                     engine: faultEngine,
@@ -130,7 +132,7 @@ export function Diagram(props: DiagramProps) {
                     model: faultSequence
                 });
                 setDiagramDataMap(diagramDataMap);
-            }
+            // }
         }
         updateDiagramData(flows);
 
@@ -172,6 +174,8 @@ export function Diagram(props: DiagramProps) {
 
     const updateDiagramData = (data: DiagramData[]) => {
         const updatedDiagramData: any = {};
+        let canvasWidth = 0;
+        let canvasHeight = 0;
         data.forEach((dataItem) => {
             const { nodes, links, width, height } = getDiagramData(dataItem.model);
             drawDiagram(nodes as any, links, dataItem.engine, (newModel: DiagramModel) => {
@@ -181,9 +185,12 @@ export function Diagram(props: DiagramProps) {
                     width,
                     height
                 };
+                canvasWidth = Math.max(canvasWidth, width);
+                canvasHeight = Math.max(canvasHeight, height);
                 initDiagram(newModel, dataItem.engine, width);
             });
         });
+        setCanvasDimensions({ width: canvasWidth, height: canvasHeight });
         setDiagramData({
             ...diagramData,
             ...updatedDiagramData
@@ -277,22 +284,27 @@ export function Diagram(props: DiagramProps) {
                     ...sidePanelState,
                     setSidePanelState,
                 }}>
-                    {isTabPaneVisible && <Switch
-                        leftLabel="Flow"
-                        rightLabel="Fault"
-                        checked={isFaultFlow}
-                        checkedColor="var(--vscode-button-background)"
-                        enableTransition={true}
-                        onChange={toggleFlow}
-                        sx={{
-                            "margin": "auto",
-                            fontFamily: "var(--font-family)",
-                            fontSize: "var(--type-ramp-base-font-size)",
-                        }}
-                    />}
+                    {isTabPaneVisible &&
+                        <div style={{
+                            width: canvasDimensions.width,
+                            minWidth: "100%",
+                        }}>
+                            <Switch
+                                leftLabel="Flow"
+                                rightLabel="Fault"
+                                checked={isFaultFlow}
+                                checkedColor="var(--vscode-button-background)"
+                                enableTransition={true}
+                                onChange={toggleFlow}
+                                sx={{
+                                    "margin": "auto",
+                                    fontFamily: "var(--font-family)",
+                                    fontSize: "var(--type-ramp-base-font-size)",
+                                }}
+                            /></div>}
                     {/* Flow */}
                     {diagramData.flow.engine && diagramData.flow.model && !isFaultFlow &&
-                        <DiagramCanvas height={diagramData.flow.height + 40}>
+                        <DiagramCanvas height={canvasDimensions.height + 40} width={canvasDimensions.width}>
                             <NavigationWrapperCanvasWidget
                                 diagramEngine={diagramData.flow.engine as any}
                                 overflow="hidden"
@@ -303,7 +315,7 @@ export function Diagram(props: DiagramProps) {
 
                     {/* Fault sequence */}
                     {diagramData.fault.engine && diagramData.fault.model && isFaultFlow &&
-                        <DiagramCanvas height={diagramData.fault.height + 40}>
+                        <DiagramCanvas height={canvasDimensions.height + 40} width={canvasDimensions.width}>
                             <NavigationWrapperCanvasWidget
                                 diagramEngine={diagramData.fault.engine as any}
                                 overflow="hidden"

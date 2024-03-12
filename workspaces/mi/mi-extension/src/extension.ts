@@ -17,7 +17,6 @@ import { activateVisualizer } from './visualizer/activate';
 import { activateActivityPanel } from './activity-panel/activate';
 
 export async function activate(context: vscode.ExtensionContext) {
-
 	extension.context = context;
 	activateHistory();
 	// activateActivityPanel(context);

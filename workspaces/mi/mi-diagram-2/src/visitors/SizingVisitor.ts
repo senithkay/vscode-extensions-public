@@ -8,9 +8,8 @@
  */
 
 
-import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange,Range, Throttle, Validate, Visitor } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange,Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
-import { LINK_BOTTOM_OFFSET } from "../components/NodeLink/NodeLinkModel";
 import { Diagnostic } from "vscode-languageserver-types";
 
 export class SizingVisitor implements Visitor {
@@ -37,30 +36,55 @@ export class SizingVisitor implements Visitor {
 
         let subSequencesWidth = 0;
         let subSequencesHeight = 10;
-        for (let i = 0; i < Object.keys(subSequences).length; i++) {
-            const subSequence = subSequences[Object.keys(subSequences)[i]];
+        const subSequenceKeys = Object.keys(subSequences);
+        for (let i = 0; i < subSequenceKeys.length; i++) {
+            const subSequence = subSequences[subSequenceKeys[i]];
             if (subSequence) {
+                let subSequenceWidth = NODE_DIMENSIONS.EMPTY.BRANCH.WIDTH;
+                let subSequenceHeight = NODE_DIMENSIONS.EMPTY.HEIGHT;
+                let subSequenceL = 0;
+                let subSequenceR = 0;
                 if (subSequence.mediatorList && subSequence.mediatorList.length > 0) {
                     const subSequenceMediatorList = subSequence.mediatorList as any as STNode[];
-                    let subSequenceWidth = NODE_DIMENSIONS.DEFAULT.WIDTH;
-                    let subSequenceHeight = 0;
                     subSequenceMediatorList.forEach((childNode: STNode) => {
                         if (childNode.viewState) {
                             subSequenceWidth = Math.max(subSequenceWidth, childNode.viewState.fw ?? childNode.viewState.w);
                             subSequenceHeight += (childNode.viewState.fh || childNode.viewState.h);
+
+                            if (childNode.viewState.l) {
+                                subSequenceL = Math.max(subSequenceL, childNode.viewState.l);
+                            }
+                            if (childNode.viewState.r) {
+                                subSequenceR = Math.max(subSequenceR, childNode.viewState.r);
+                            }
                         }
                     });
-                    subSequencesWidth += subSequenceWidth + (i === Object.keys(subSequences).length - 1 ? 0 : NODE_GAP.BRANCH_X);
-                    subSequencesHeight = Math.max(subSequencesHeight, subSequenceHeight);
+                    subSequenceL = Math.max(subSequenceL, subSequenceWidth / 2);
+                    subSequenceR = Math.max(subSequenceR, subSequenceWidth / 2);
                 } else {
-                    subSequence.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.EMPTY.WIDTH, h: NODE_DIMENSIONS.EMPTY.HEIGHT };
-                    subSequencesWidth += NODE_DIMENSIONS.EMPTY.WIDTH + (i === Object.keys(subSequences).length - 1 ? 0 : NODE_GAP.BRANCH_X);
+                    subSequenceL = NODE_DIMENSIONS.EMPTY.BRANCH.WIDTH / 2;
+                    subSequenceR = NODE_DIMENSIONS.EMPTY.BRANCH.WIDTH / 2;
+
                 }
+                subSequencesHeight = Math.max(subSequencesHeight, subSequenceHeight);
+                subSequencesWidth = Math.max(subSequencesWidth, subSequenceWidth);
+                subSequence.viewState = { x: 0, y: 0, w: subSequenceWidth, h: subSequenceHeight, l: subSequenceL, r: subSequenceR };
                 this.addDiagnostics(subSequence);
             }
         }
 
-        node.viewState.fw = subSequencesWidth;
+        let totalWidth = 0;
+        // make widths equal
+        for (let i = 0; i < Object.keys(subSequences).length; i++) {
+            const subSequence = subSequences[Object.keys(subSequences)[i]];
+            const nodeGap = i === Object.keys(subSequences).length - 1 ? 0 : NODE_GAP.BRANCH_X;
+            subSequence.viewState = { ...subSequence.viewState, w: subSequencesWidth, l: subSequencesWidth / 2, r: subSequencesWidth / 2 };
+            totalWidth += subSequencesWidth + nodeGap;
+        }
+
+        node.viewState.l = subSequenceKeys.length > 0 ? subSequences[Object.keys(subSequences)[0]].viewState.l : 0;
+        node.viewState.r = subSequenceKeys.length > 0 ? subSequences[Object.keys(subSequences)[subSequenceKeys.length - 1]].viewState.r : 0;
+        node.viewState.fw = totalWidth;
         node.viewState.fh = NODE_DIMENSIONS.CONDITION.HEIGHT + NODE_GAP.BRANCH_TOP + subSequencesHeight + NODE_GAP.BRANCH_BOTTOM;
 
         this.sequenceWidth = Math.max(this.sequenceWidth, node.viewState.fw);
@@ -192,6 +216,12 @@ export class SizingVisitor implements Visitor {
     });
 
     endVisitCallTemplate = (node: CallTemplate): void => this.calculateBasicMediator(node);
+
+    //Advanced Mediators
+    beginVisitDataServiceCall = (node: DataServiceCall): void => this.calculateBasicMediator(node);
+    beginVisitEnqueue = (node: Enqueue): void => this.calculateBasicMediator(node);
+    beginVisitTransaction = (node: Transaction): void => this.calculateBasicMediator(node);
+    beginVisitEvent = (node: Event): void => this.calculateBasicMediator(node);
 
     //Extesnion Mediators
     beginVisitBean = (node: Bean): void => this.calculateBasicMediator(node);
