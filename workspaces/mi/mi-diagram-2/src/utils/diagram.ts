@@ -25,6 +25,7 @@ import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNode
 import { EndNodeModel } from "../components/nodes/EndNode/EndNodeModel";
 import { OverlayLayerFactory } from "../components/OverlayLoader/OverlayLayerFactory";
 import { ReferenceNodeFactory } from "../components/nodes/ReferenceNode/ReferenceNodeFactory";
+import { GroupNodeFactory } from "../components/nodes/GroupNode/GroupNodeFactory";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -42,6 +43,7 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new ConditionNodeFactory());
     engine.getNodeFactories().registerFactory(new CallNodeFactory());
     engine.getNodeFactories().registerFactory(new EmptyNodeFactory());
+    engine.getNodeFactories().registerFactory(new GroupNodeFactory());
     engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
     return engine;
 }
