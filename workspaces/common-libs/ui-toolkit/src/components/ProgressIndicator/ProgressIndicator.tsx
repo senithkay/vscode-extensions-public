@@ -10,9 +10,10 @@ import styled from '@emotion/styled';
 import React from 'react';
 export interface ProgressBarProps {
     id?: string;
-}
+	sx?: any;
+}	
 
-const Container = styled.div`
+const Container = styled.div<ProgressBarProps>`
 	* {
 		box-sizing: border-box;
 	}
@@ -67,12 +68,12 @@ const Container = styled.div`
 			transform: translateX(4900%) scaleX(1);
 		}
 	}
-
+	${(props: ProgressBarProps) => props.sx};
 `;
 
-export const ProgressIndicator = ({ id }: { id?: string }) => {
+export const ProgressIndicator = ({ id, sx }: { id?: string, sx?: any }) => {
     return (
-        <Container className="infinite active" role="progressbar" id={id}>
+        <Container sx={sx} className="infinite active" role="progressbar" id={id}>
             <div className="progress-bar"/>
         </Container>
     );

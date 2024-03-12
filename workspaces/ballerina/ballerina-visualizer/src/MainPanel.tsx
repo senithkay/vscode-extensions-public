@@ -13,11 +13,8 @@ import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 /** @jsx jsx */
 import { Global, css } from '@emotion/react';
 import styled from "@emotion/styled";
-
 import { NavigationBar } from "./components/NavigationBar"
 import { LoadingRing } from "./components/Loader";
-
-
 import { ArchitectureDiagram } from './views/ArchitectureDiagram';
 import { DataMapper } from './views/DataMapper';
 import { ERDiagram } from './views/ERDiagram';

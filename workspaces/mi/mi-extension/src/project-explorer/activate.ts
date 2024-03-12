@@ -30,7 +30,7 @@ export function activateProjectExplorer(context: ExtensionContext) {
 			{ label: 'Sequence', description: 'Add new sequence' },
 			{ label: 'Inbound Endpoint', description: 'Add new inbound endpoint' },
 			{ label: 'Local Entry', description: 'Add new local entry' },
-			{ label: 'Message Store', description: 'Add new message store'},
+			{ label: 'Message Store', description: 'Add new message store' },
 			{ label: 'Message Processor', description: 'Add new message processor' },
 			{ label: 'Task', description: 'Add new task' },
 			{ label: 'Proxy Service', description: 'Add new proxy service' },
@@ -89,6 +89,11 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		console.log('Add Registry Resource');
 	});
 
+	commands.registerCommand(COMMANDS.ADD_CLASS_MEDIATOR_COMMAND, async (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ClassMediatorForm, documentUri: entry.info?.path });
+		console.log('Add Class Mediator');
+	});
+
 	commands.registerCommand(COMMANDS.ADD_MESSAGE_PROCESSOR_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MessageProcessorForm, documentUri: entry.info?.path });
 		console.log('Add Message Processor');
@@ -107,6 +112,13 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		workspace.openTextDocument(entry).then((doc) => {
 			window.showTextDocument(doc, { preview: false });
 		});
+	});
+
+	commands.registerCommand(COMMANDS.EDIT_CLASS_MEDIATOR_COMMAND, async (entry: string) => {
+		workspace.openTextDocument(entry).then((doc) => {
+			window.showTextDocument(doc, { preview: false });
+		});
+		commands.executeCommand('workbench.files.action.focusFilesExplorer');
 	});
 
 	commands.registerCommand(COMMANDS.DELETE_REGISTERY_RESOURCE_COMMAND, async (entry: ProjectExplorerEntry) => {
@@ -129,7 +141,7 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		}
 	});
 
-	commands.registerCommand(COMMANDS.ADD_MESSAGE_STORE_COMMAND, (entry:ProjectExplorerEntry) => {
+	commands.registerCommand(COMMANDS.ADD_MESSAGE_STORE_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MessageStoreForm, documentUri: entry.info?.path });
 		console.log('Add Message Store');
 	});
@@ -190,15 +202,20 @@ export function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.SHOW_DIAGRAM, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Diagram, documentUri: documentUri?.fsPath, identifier: resourceIndex });
-	})
+	});
 	commands.registerCommand(COMMANDS.SHOW_MESSAGE_STORE, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MessageStoreForm, documentUri: documentUri?.fsPath });
-	})	
-	commands.registerCommand(COMMANDS.SHOW_VIEW, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+
+	});
+	commands.registerCommand(COMMANDS.SHOW_TASK, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TaskForm, documentUri: documentUri?.fsPath });
-	})
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TaskForm, documentUri: documentUri?.fsPath, identifier: resourceIndex });
+	});
+	commands.registerCommand(COMMANDS.SHOW_INBOUND_ENDPOINT, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.InboundEPForm, documentUri: documentUri?.fsPath, identifier: resourceIndex });
+	});
 	commands.registerCommand(COMMANDS.SHOW_SOURCE, (e: any) => {
 		const documentUri = StateMachine.context().documentUri;
 		if (documentUri) {
@@ -209,7 +226,7 @@ export function activateProjectExplorer(context: ExtensionContext) {
 				commands.executeCommand('vscode.open', Uri.parse(documentUri), { viewColumn: ViewColumn.Beside });
 			}
 		}
-	})
+	});
 	commands.registerCommand(COMMANDS.SHOW_MESSAGE_PROCESSOR, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MessageProcessorForm, documentUri: documentUri?.fsPath });
@@ -219,7 +236,7 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		workspace.openTextDocument(uri).then((document) => {
 			window.showTextDocument(document);
 		});
-	})
+	});
 	commands.registerCommand(COMMANDS.SHOW_TEMPLATE, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TemplateForm, documentUri: documentUri?.fsPath });

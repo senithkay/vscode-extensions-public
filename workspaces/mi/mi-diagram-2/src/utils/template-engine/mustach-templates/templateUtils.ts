@@ -9,7 +9,7 @@
 
 import Mustache from "mustache";
 import { getCallFormDataFromSTNode, getCallMustacheTemplate, getCallXml } from "./core/call";
-import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogMustacheTemplate, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutMustacheTemplate, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode, getHeaderMustacheTemplate } from "./core/header";
@@ -30,7 +30,7 @@ import { getNamedEndpointXml } from "./endpoints/named";
 import { getRecipientListEndpointMustacheTemplate } from "./endpoints/recipientList";
 import { getTemplateEndpointMustacheTemplate } from "./endpoints/template";
 import { getWSDLEndpointMustacheTemplate } from "./endpoints/wsdl";
-import { MEDIATORS, ENDPOINTS } from "../../../resources/constants";
+import { MEDIATORS, ENDPOINTS, SERVICE } from "../../../resources/constants";
 import { getFilterMustacheTemplate } from "./core/filter";
 import { getSequenceMustacheTemplate, getSequenceDataFromSTNode, getSequenceXml } from "./core/sequence";
 import { getStoreFormDataFromSTNode, getStoreMustacheTemplate, getStoreXml } from "./core/store";
@@ -46,10 +46,14 @@ import { getDataSerivceCallXml, getDataServiceCallFormDataFromSTNode, getDataSer
 import { getEnqueueMustacheTemplate } from "./advanced/enqueue";
 import { getEventFormDataFromSTNode, getEventMustacheTemplate, getEventXml } from "./advanced/event";
 import { getTransactionFormDataFromSTNode, getTransactionMustacheTemplate, getTransactionXml } from "./advanced/transaction";
+import { getCacheFormDataFromSTNode, getCacheMustacheTemplate, getCacheXml } from "./advanced/cache";
+import { getEditApiResourceXml, getEditSequenceXml } from "./core/service-designer";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
         //Advanced Mediators
+        case MEDIATORS.CACHE:
+            return getCacheMustacheTemplate();
         case MEDIATORS.CLONE:
             return getCloneMustacheTemplate();
         case MEDIATORS.DATASERVICECALL:
@@ -132,6 +136,8 @@ export function getMustacheTemplate(name: string) {
 export function getXML(name: string, data: { [key: string]: any }) {
     switch (name) {
         //Advanced Mediators
+        case MEDIATORS.CACHE:
+            return getCacheXml(data);
         case MEDIATORS.CLONE:
             return getCloneXml(data);
         case MEDIATORS.DATASERVICECALL:
@@ -161,6 +167,7 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getPayloadXml(data);
         case ENDPOINTS.NAMED:
             return getNamedEndpointXml(data);
+
         //Extension Mediators    
         case MEDIATORS.BEAN:
             return getBeanXml(data);
@@ -173,7 +180,13 @@ export function getXML(name: string, data: { [key: string]: any }) {
         case MEDIATORS.COMMAND:
             return getCommandXml(data);
         case MEDIATORS.SEQUENCE:
-            return getSequenceXml(data);    
+            return getSequenceXml(data);
+            
+        // Service Forms
+        case SERVICE.EDIT_RESOURCE:
+            return getEditApiResourceXml(data);
+        case SERVICE.EDIT_SEQUENCE:
+            return getEditSequenceXml(data);
         default:
             return Mustache.render(getMustacheTemplate(name), data).trim();
     }
@@ -185,6 +198,8 @@ export function getDataFromXML(name: string, node: STNode) {
 
     switch (name) {
         //Advanced Mediator
+        case MEDIATORS.CACHE:
+            return getCacheFormDataFromSTNode(formData, node as Cache);
         case MEDIATORS.CLONE:
             return getCloneFormDataFromSTNode(formData, node as Clone);
         case MEDIATORS.TRANSACTION:

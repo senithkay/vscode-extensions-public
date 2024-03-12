@@ -85,7 +85,7 @@ export const NODE_GAP = {
     Y: 50,
     BRANCH_X: 50,
     BRANCH_TOP: 100 + 10,
-    BRANCH_BOTTOM: 80,
+    BRANCH_BOTTOM: 50,
     SEQUENCE_Y: 100,
 };
 
@@ -95,8 +95,14 @@ export const NODE_DIMENSIONS = {
         HEIGHT: 40,
     },
     START: {
-        WIDTH: 24,
-        HEIGHT: 24,
+        EDITABLE: {
+            WIDTH: 100,
+            HEIGHT: 40,
+        },
+        DISABLED: {
+            WIDTH: 24,
+            HEIGHT: 24,
+        }
     },
     CONDITION: {
         WIDTH: 65,
@@ -194,3 +200,15 @@ export enum NodeTypes {
 
 export const NODE_LINK = "node-link";
 export const NODE_PORT = "node-port";
+
+export enum SequenceType {
+    IN_SEQUENCE = "inSequence",
+    OUT_SEQUENCE = "outSequence",
+    FAULT_SEQUENCE = "faultSequence",
+};
+
+// Actions for service designer
+export const SERVICE = {
+    EDIT_RESOURCE: "edit-resource",
+    EDIT_SEQUENCE: "edit-sequence",
+}

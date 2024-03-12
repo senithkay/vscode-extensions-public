@@ -17,7 +17,7 @@ interface MachineContext extends VisualizerLocation {
 }
 
 const stateMachine = createMachine<MachineContext>({
-    /** @xstate-layout N4IgpgJg5mDOIC5QFsCWA6VA7VAXVAhgDaoBeYAxBAPZZiZYBu1A1vQMYAWY7LACgCdqAKx64A2gAYAuolAAHarDypackAA9EAJkkA2dJIDMegCwBWIwE4zNgBwB2ADQgAnogCM+ww8narVh5Wdkbm+gC+4S5oDCrEZJRgAkIC6PJEBLgAZtQCyOhcPPxCouwSMuqKyvhqSJo63sZmljam9s5uOnpG6EHWdoEOvqbadpHRGPIlYgAiYLhikBRSsnVVKrWgWgjm2i7uCA5G2uh2kh7apqZ2dl56dtrjIDFEsACSOLhUtPTYzGzoF7vT4IP7UdiZVRYFYrSpKDZYdTbIzWdDaDyhbQOM5HDx6PT7RB6KzmU7dY4YjzYyRHJ5Aj54ChJFJpDLZXL5ekgsEQmrQmSwtbwvlIxAoqxojG7am4-GEhCOUl+UzEo5GSSSEZ0jACMAECCudCMVBgADuABlqPrsFBvnQGP96DFdfrDcazZbrVgoKCmODIbQYRUhdUoaKFeYHKcHPisVZTCYQnZ5fdTOghmYUVSPBZzFZtegXQajSbTQAlPUGigAeT4AFEAHIAfQAam86wB1QUKYVhurbOx6DzoQKmfQ0jzma7ysKkoymI6+ePnbF2cwFotu0sV10UABib3NdabdZmbwAKt2QOsRf3PLoJZJbqY+kN-B55UM7CPI9cQmYrmxDdKy3M06wgFRvQoU8LybGZqwbOsrxvPstk8DwBnTIJJCsXwHDxc5zHlBdvxfS4znxa4USMBwCzoU1BBEMR0FNMAiHYahkEoABxOtzybABlc8AEEy3PU9kN7TZ6h2BcRxjKcSXVXw9CIzoEHVUkHEjBxAl-bFrFMOizUY0pcBYtiOK4mt62bNtO0k0NpO2Mxh3MXZJHMAZ41Up95V0KN412PNQiMHNdD0YyGOmMoChdBYKAAYWEhtErrc0m0Sss62E883gQxyEXDKdAoUtpLBpfQ1IObR3JHCxaqsULwoiKJngwejTOY9h4soWtG1bdsu2DHsnMROoarMXobizbR-E1SMXG2Ek0xMCx+nc4kPEiNqsGoCA4HUNA4TG8MAFoCXUi7eiGHDRhCjUPG2tqYmwOISHIE6irvBARnlEl0BaBdiTXfEaNol7Jhi3A5gWMpIC+280N+vRJHTEwmssawhzXeVbnQY532JPMY0HIwC1eBlcER1CZJzAwXzHdzzEnVHR0-J9DEsB4h26BcwuA10aecxApwMWqHHRbFGfRaqxSsNHAlq-RWhZhwjMhwsQJLD0rQg71hfG5G8zTCWpbsGXJxTIJ0AXeMVU1bTunzTXNx18sQMN8MvEjSVatUkrMcug49CGU5dgTbFghzNpBeLd1TXAyCoC9n6MTHdAhx9p6bBsWqUzOAmI78TzAhjgsINgAgACMiARkNvuNmkR26Kcn1uMxRg6A4BgZpobG6fQjDGTXOuh1PkZorSwvV2wVTCZN1IuNGrgjpSxzVZ6JnQMemNi1j2M4sAJ5kkYelxWe2nnvz1O0IdM5msK5oVixaVHkzobivUFhP7ZtLTbErlribUCP5KaGEQhP3mq-Ha4QgA */
+    /** @xstate-layout N4IgpgJg5mDOIC5QFsCWA6VA7VAXVAhgDaoBeYAxBAPZZiZYBu1A1vQMYAWY7LACgCdqAKx64A2gAYAuolAAHarDypackAA9EAJgDMAVnT6AjABZ9uyduMB2bad0AOUwBoQAT0QBaJ+mNWATgsAm10ANn99UwBfaLc0BhViMkowASEBdHkiAlwAM2oBZHQuHn4hUXYJGXVFZXw1JE0dbUNtR3b7MMt9fW1JRzdPBF1+9FNO0zD9SX0w7Rsg2PiMeQqxABEwXDFIKlp6bGY2dAS1kU3t3YgEI+p2XNUsKWkX2qUVRtAtBDDncdMi30AQ6gNmgw8iEiRkksMki0kxkcMwCyxACSIsAAkjhcPs6AxjvQMdjcbcmPdHrQXm8mnVPlh1D9jNZDJZzPpQgFAaZJK5ISMDOgQY5FqLupYAto0SScXgKGkMlkcvlCsVZWS7g8Gs8ZLSFB8dUyoQ5HOgbMZdDYrLZZrpTBDhgEAsKLWFAfNtCFJCCZRgBGACBB3OhGKgwAB3AAy1CD2Cg+MOFJOCQDQZDYcjMbjWCg5OY2qeNJqdMNT2NCBZ2m06D+QQsugCjcWYSGiEWxiMAQifMbjicvri6P9geDofDEYAyrgCLx44nCaxiSP0+PI9PZyx4-nKTri7JS-Vy01mRL0PCZlFTCC-tW2wgO12wvDpgt7aE-eg02PMxGAHIEGGUC5Hs+ogPSRonjogTjI4LLcl0N6tgKdhmnC1izLMFjIp+34ZhOABKo7uBQADyfAAKJ-gA+gAaliFEAOpgRBx7fFCYTWuMXp6DY0zIvocH3vMujCjMrR2CCBicbhxFrhGRHphQf4AIL0QA4ipAAqFEsWWXzNJWIRmpxUoWNeYTdMYyHDDYNiGDMVhwcizpcrJq6-opwYUAAYliUYUdRFEbFiWl6UeBnMsZtaLK09rdlZNmIJxNgwjaYRNiCzrSkOqZyb+FEQCouYUMFoXURspF-rpJYGhFjJQUZNgmbF5kJbo1nCQs56wtWuhWhMYSfnQEaCBcVTydmRUlTQBJ3CmGAjWNlS4JNsbTXmWpUrqry1eB+kNexCC8eg2gZRl5iWk4dmOslLLjOEfEdf21pRMNkbLWI8leSR5FUXRDHMXtrGRTojhmsY3b9sYMNBB0SUICYYToHBtimA4-XWdysRDlg1AQHA6hoO89UVl4jjIxazq2uY6NIgE95eCybTnV6ASwki-X6J+2BJCQ5AkwyFburW9hWo4zpWpeNj3o4ki1pZlng86EujNzuWrOsVRbDsVSQILkFHRYnbAn2-YhNWISy6lQR9iYopo5an6YnKuAG2xhksoi5rcsY9tPaYnUCjDpindeQS06Kgm6O5wbu6DCDcsjGXOoH-YmDMxj3hYlPp3BVq2M4sf4Vm63xvHh2GantbOr76d+4i972Z2vLWXYYqNsYxfyRuc65hXFZmHotbR83Jg+mYTecad8z2faSPOkNGtfvlE4AUBIEQAPjXWPYRjuhEfHg8i-K2VKrq+0iAxtzY3eecR29HUiYxguzfs2A4QTaE3yLniyzUdWfHLOYd8JyFWKlAR+hld6hzmFMWwfxwZRGEnYcY1lwZTGakEbGy8iqwAIAAIyIPrQ8QtGq2DGH7OK4t2iLHvDDTstDLBcxvHxLuy8lpazdqQw2hkfBmipgEGmV56b3gmC6d0Mw-i8mmAld6o0uFrRzJAnhHsfgunaLCDoEdeioyzgKPoLp2b9FaP0D+sIYgcI+oo++6YoE-FNKdJw14ZgGEDtybOgIxL2QlnoaYnIl6xCAA */
     id: 'mi',
     initial: 'initialize',
     predictableActionArguments: true,
@@ -31,15 +31,29 @@ const stateMachine = createMachine<MachineContext>({
             invoke: {
                 id: 'checkProject',
                 src: checkIfMiProject,
-                onDone: {
-                    target: 'projectDetected',
-                    cond: (context, event) => event.data,
-                    actions: assign({
-                        view: (context, event) => MACHINE_VIEW.Overview
-                    })
-                },
+                onDone: [
+                    {
+                        target: 'projectDetected',
+                        cond: (context, event) => event.data.isProject === true, // Assuming true means project detected
+                        actions: assign({
+                            view: (context, event) => MACHINE_VIEW.Overview,
+                            projectUri: (context, event) => event.data.projectUri
+                        })
+                    },
+                    {
+                        target: 'newProject',
+                        cond: (context, event) => event.data.isProject === false, // Assuming false means new project
+                        actions: assign({
+                            view: (context, event) => MACHINE_VIEW.Welcome
+                        })
+                    }
+                    // No need for an explicit action for the false case unless you want to assign something specific
+                ],
                 onError: {
-                    target: 'newProject'
+                    target: 'disabled',
+                    actions: assign({
+                        errorCode: (context, event) => event.data
+                    })
                 }
             }
         },
@@ -130,7 +144,9 @@ const stateMachine = createMachine<MachineContext>({
             }
         },
         disabled: {
-            // define what should happen when the project is not detected
+            invoke: {
+                src: 'disableExtension'
+            },
         },
         newProject: {
             initial: "viewLoading",
@@ -147,7 +163,7 @@ const stateMachine = createMachine<MachineContext>({
                     on: {
                         OPEN_VIEW: {
                             target: "viewLoading",
-                             actions: assign({
+                            actions: assign({
                                 view: (context, event) => event.viewLocation.view
                             })
                         }
@@ -198,6 +214,13 @@ const stateMachine = createMachine<MachineContext>({
                 resolve(true);
             });
         },
+        disableExtension: (context, event) => {
+            return async (resolve, reject) => {
+                vscode.commands.executeCommand('setContext', 'MI.status', 'disabled');
+                // TODO: Display the error message to the user
+                // User should be able to see the error message and retry
+            };
+        }
     }
 });
 
@@ -254,22 +277,42 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
 
 async function checkIfMiProject() {
     let isMiProject = false;
+    let projectUri = '';
     try {
-        const files = await vscode.workspace.findFiles('**/pom.xml', '**/node_modules/**', 1);
-        if (files.length > 0) {
-            // TODO: Handle the correct logic to detect the MI project
-            isMiProject = true;
-            vscode.commands.executeCommand('setContext', 'MI.status', 'projectDetected');
+        // Check for pom.xml files excluding node_modules directory
+        const pomFiles = await vscode.workspace.findFiles('**/pom.xml', '**/node_modules/**', 1);
+        if (pomFiles.length > 0) {
+            const pomContent = await vscode.workspace.openTextDocument(pomFiles[0]);
+            if (pomContent.getText().includes('<projectType>integration-project</projectType>')) {
+                isMiProject = true;
+                projectUri = pomFiles[0].fsPath;
+            }
         }
-        else {
-            vscode.commands.executeCommand('setContext', 'MI.status', 'unknownProject');
+
+        // If not found, check for .project files
+        if (!isMiProject) {
+            const projectFiles = await vscode.workspace.findFiles('**/.project', '**/node_modules/**', 1);
+            if (projectFiles.length > 0) {
+                const projectContent = await vscode.workspace.openTextDocument(projectFiles[0]);
+                if (projectContent.getText().includes('<nature>org.wso2.developerstudio.eclipse.mavenmultimodule.project.nature</nature>')) {
+                    isMiProject = true;
+                    projectUri = projectFiles[0].fsPath;
+                }
+            }
         }
     } catch (err) {
         console.error(err);
+        throw err; // Rethrow the error to ensure the error handling flow is not broken
     }
-    if (!isMiProject) {
-        window.showInformationMessage("MI project not found.");
-        throw new Error("MI project not found");
+
+    if (isMiProject) {
+        vscode.commands.executeCommand('setContext', 'MI.status', 'projectDetected');
+    } else {
+        vscode.commands.executeCommand('setContext', 'MI.status', 'unknownProject');
     }
-    return isMiProject;
+
+    return {
+        isProject: isMiProject,
+        projectUri // Return the path of the detected project
+    }
 }

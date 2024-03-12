@@ -14,12 +14,24 @@ import { MessageStoreWizard } from './views/Forms/MessageStoreForm/index';
 import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 import { MessageProcessorWizard } from "./views/Forms/MessageProcessorForm";
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
+import { GettingStarted } from "./views/GettingStarted";
 import styled from '@emotion/styled';
 import { InboundEPWizard } from './views/Forms/InboundEPform';
+import { css, keyframes } from '@emotion/react';
+
+const MainContainer = styled.div`
+    display: flex;
+    overflow: hidden;
+`;
+
+const MainContent = styled.div`
+    flex-grow: 1;
+`;
 import { LocalEntryWizard } from './views/Forms/LocalEntryForm';
 import { RegistryResourceForm } from './views/Forms/RegistryResourceForm';
 import { ProxyServiceWizard } from "./views/Forms/ProxyServiceForm";
 import { TemplateWizard } from "./views/Forms/TemplateForm";
+import { ClassMediatorForm } from './views/Forms/ClassMediatorForm';
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -39,11 +51,16 @@ const ProgressRing = styled(VSCodeProgressRing)`
 const MainPanel = () => {
     const { rpcClient } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
+    const [showAIWindow, setShowAIWindow] = useState<boolean>(false);
+    const [machineView, setMachineView] = useState<MACHINE_VIEW>();
 
     useEffect(() => {
         fetchContext();
 
         rpcClient?.onStateChanged((newState: MachineStateValue) => {
+            if (typeof newState === 'object' && 'newProject' in newState && newState.newProject === 'viewReady') {
+                fetchContext();
+            }
             if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewReady') {
                 fetchContext();
             }
@@ -55,10 +72,37 @@ const MainPanel = () => {
 
     }, []);
 
+    useEffect(() => {
+        rpcClient.getVisualizerState().then((machineView) => {
+            setMachineView(machineView.view);
+            if (viewComponent && machineView.view == MACHINE_VIEW.Overview) {
+                setShowAIWindow(true);
+            }
+        });
+    }, [viewComponent]);
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'i' && (event.metaKey || event.ctrlKey)) {
+                setShowAIWindow(prevShow => !prevShow);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        // Cleanup function to remove the event listener when the component unmounts
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
+
 
     const fetchContext = () => {
         rpcClient.getVisualizerState().then((machineView) => {
             switch (machineView?.view) {
+                case MACHINE_VIEW.Welcome:
+                    setViewComponent(<GettingStarted />);
+                    break;
                 case MACHINE_VIEW.Overview:
                     setViewComponent(<Overview />);
                     break;
@@ -129,7 +173,10 @@ const MainPanel = () => {
                     setViewComponent(<ImportProjectWizard />);
                     break;
                 case MACHINE_VIEW.MessageStoreForm:
-                    setViewComponent(<MessageStoreWizard  path={machineView.documentUri}/>);
+                    setViewComponent(<MessageStoreWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.ClassMediatorForm:
+                    setViewComponent(<ClassMediatorForm path={machineView.documentUri} />);
                     break;
                 default:
                     setViewComponent(null);
@@ -138,19 +185,19 @@ const MainPanel = () => {
     }
 
     return (
-        <div style={{
-            overflow: "hidden",
-        }}>
-            {!viewComponent ? (
-                <LoaderWrapper>
-                    <ProgressRing />
-                </LoaderWrapper>
-            ) : <div>
-                <NavigationBar />
-                {viewComponent}
-            </div>}
-        </div>
+            <div style={{
+                overflow: "hidden",
+            }}>
+                {!viewComponent ? (
+                    <LoaderWrapper>
+                        <ProgressRing />
+                    </LoaderWrapper>
+                ) : <div>
+                    <NavigationBar />
+                    {viewComponent}
+                </div>}
+            </div>
     );
 };
 
-export default MainPanel;
+export default MainPanel;   

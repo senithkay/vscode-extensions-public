@@ -66,12 +66,17 @@
       {
         "view": "MI.project-explorer",
         "contents": "Loading...",
-        "when": "MI.status != 'unknownProject' && MI.status != 'projectLoaded'"
+        "when": "MI.status != 'unknownProject' && MI.status != 'projectLoaded' && MI.status != 'disabled'"
       },
       {
         "view": "MI.project-explorer",
-        "contents": "Welcome to Micro Integrator. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:MI.openProject)\n[Create New Project](command:MI.openWelcome)\nTo learn more about how to use Micro Integrator in VS Code, [read our docs](https://ei.docs.wso2.com).",
+        "contents": "Welcome to Micro Integrator. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:MI.openProject)\n[Create New Project](command:MI.project-explorer.create-project)\nTo learn more about how to use Micro Integrator in VS Code, [read our docs](https://ei.docs.wso2.com).",
         "when": "MI.status == 'unknownProject'"
+      },
+      {
+        "view": "MI.project-explorer",
+        "contents": "Unknown error occurred. Micro Integrator is disabled.",
+        "when": "MI.status == 'disabled'"
       }
     ],
     "commands": [
@@ -194,6 +199,13 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.add-class-mediator",
+        "title": "Add Class Mediator",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.add-task",
         "title": "Add Scheduled Task",
         "icon": "$(add)",
@@ -300,6 +312,11 @@
           "group": "inline"
         },
         {
+          "command": "MI.project-explorer.add-class-mediator",
+          "when": "view == MI.project-explorer && viewItem == class-mediator",
+          "group": "inline"
+        },
+        {
           "command": "MI.project-explorer.add-message-processor",
           "when": "view == MI.project-explorer && viewItem == messageProcessors",
           "group": "inline"
@@ -397,6 +414,7 @@
     "xstate": "^4.38.3",
     "node-fetch": "~2.6.2",
     "mustache": "~4.2.0",
-    "@types/mustache": "~4.2.5"
+    "@types/mustache": "~4.2.5",
+    "uuid": "~9.0.1"
   }
 }

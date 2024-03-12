@@ -7,8 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-
-import { ApiDirectoryResponse, ApplyEditRequest, ApplyEditResponse, CommandsRequest, CommandsResponse, ConnectorRequest, ConnectorResponse, ConnectorsResponse, CreateAPIRequest, CreateAPIResponse, CreateEndpointRequest, CreateEndpointResponse, CreateSequenceRequest, CreateSequenceResponse, EndpointDirectoryResponse, EndpointsAndSequencesResponse, ProjectRootResponse, OpenDiagramRequest, SequenceDirectoryResponse, ShowErrorMessageRequest, getSTRequest, getSTResponse, CreateProjectRequest, ProjectDirResponse, CreateProjectResponse, ImportProjectRequest, ImportProjectResponse, ESBConfigsResponse, HighlightCodeRequest, AIUserInput, WriteContentToFileRequest, WriteContentToFileResponse, CreateLocalEntryRequest, CreateLocalEntryResponse, FileDirResponse, LocalEntryDirectoryResponse, InboundEndpointDirectoryResponse, CreateInboundEndpointRequest, CreateInboundEndpointResponse, UndoRedoParams, CreateTaskRequest, CreateTaskResponse, GetTaskRequest, GetTaskResponse, GetDefinitionRequest, GetDefinitionResponse, GetTextAtRangeRequest, GetTextAtRangeResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, GetInboundEpDirRequest, GetProjectRootRequest, BrowseFileResponse, CreateRegistryResourceRequest, CreateRegistryResourceResponse, BrowseFileRequest, CreateMessageProcessorRequest, CreateMessageProcessorResponse, RetrieveMessageProcessorRequest, RetrieveMessageProcessorResponse, CreateProxyServiceRequest, CreateProxyServiceResponse, CreateMessageStoreRequest, CreateMessageStoreResponse, GetMessageStoreRequest, GetMessageStoreResponse, CreateTemplateRequest, CreateTemplateResponse, RetrieveTemplateRequest, RetrieveTemplateResponse, GetAvailableResourcesRequest, GetAvailableResourcesResponse } from "./types";
+import { ApiDirectoryResponse, ApplyEditRequest, ApplyEditResponse, CommandsRequest, CommandsResponse, ConnectorRequest, ConnectorResponse, ConnectorsResponse, CreateAPIRequest, CreateAPIResponse, CreateEndpointRequest, CreateEndpointResponse, CreateSequenceRequest, CreateSequenceResponse, EndpointDirectoryResponse, EndpointsAndSequencesResponse, ProjectRootResponse, OpenDiagramRequest, SequenceDirectoryResponse, ShowErrorMessageRequest, getSTRequest, getSTResponse, CreateProjectRequest, ProjectDirResponse, CreateProjectResponse, ImportProjectRequest, ImportProjectResponse, ESBConfigsResponse, HighlightCodeRequest, AIUserInput, WriteContentToFileRequest, WriteContentToFileResponse, CreateLocalEntryRequest, CreateLocalEntryResponse, FileDirResponse, LocalEntryDirectoryResponse, CreateInboundEndpointRequest, CreateInboundEndpointResponse, UndoRedoParams, CreateTaskRequest, CreateTaskResponse, GetTaskRequest, GetTaskResponse, GetDefinitionRequest, GetDefinitionResponse, GetTextAtRangeRequest, GetTextAtRangeResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, GetProjectRootRequest, BrowseFileResponse, CreateRegistryResourceRequest, CreateRegistryResourceResponse, BrowseFileRequest, CreateMessageProcessorRequest, CreateMessageProcessorResponse, RetrieveMessageProcessorRequest, RetrieveMessageProcessorResponse, CreateProxyServiceRequest, CreateProxyServiceResponse, CreateMessageStoreRequest, CreateMessageStoreResponse, GetMessageStoreRequest, GetMessageStoreResponse, CreateTemplateRequest, CreateTemplateResponse, RetrieveTemplateRequest, RetrieveTemplateResponse, GetAvailableResourcesRequest, GetAvailableResourcesResponse, GetInboundEndpointRequest, GetInboundEndpointResponse, GetWorkspaceContextResponse, GetProjectUuidResponse, CreateClassMediatorRequest, CreateClassMediatorResponse } from "./types";
 
 export interface MiDiagramAPI {
     executeCommand: (params: CommandsRequest) => Promise<CommandsResponse>;
@@ -27,7 +26,6 @@ export interface MiDiagramAPI {
     getEndpointsAndSequences: () => Promise<EndpointsAndSequencesResponse>;
     getSequenceDirectory: () => Promise<SequenceDirectoryResponse>;
     createSequence: (params: CreateSequenceRequest) => Promise<CreateSequenceResponse>;
-    getInboundEndpointDirectory: (params: GetInboundEpDirRequest) => Promise<InboundEndpointDirectoryResponse>;
     createMessageStore: (params: CreateMessageStoreRequest) => Promise<CreateMessageStoreResponse>;
     getMessageStore: (params: GetMessageStoreRequest) => Promise<GetMessageStoreResponse>;
     createInboundEndpoint: (params: CreateInboundEndpointRequest) => Promise<CreateInboundEndpointResponse>;
@@ -38,6 +36,7 @@ export interface MiDiagramAPI {
     getTask: (params: GetTaskRequest) => Promise<GetTaskResponse>;
     createTemplate: (params: CreateTemplateRequest) => Promise<CreateTemplateResponse>;
     getTemplate: (params: RetrieveTemplateRequest) => Promise<RetrieveTemplateResponse>;
+    getInboundEndpoint: (params: GetInboundEndpointRequest) => Promise<GetInboundEndpointResponse>;
     closeWebView: () => void;
     openDiagram: (params: OpenDiagramRequest) => void;
     openFile: (params: OpenDiagramRequest) => void;
@@ -52,6 +51,8 @@ export interface MiDiagramAPI {
     getAIResponse: (params: AIUserInput) => Promise<string>;
     writeContentToFile: (params: WriteContentToFileRequest) => Promise<WriteContentToFileResponse>;
     highlightCode: (params: HighlightCodeRequest) => void;
+    getWorkspaceContext: () => Promise<GetWorkspaceContextResponse>;
+    getProjectUuid: () => Promise<GetProjectUuidResponse>;
     initUndoRedoManager: (params: UndoRedoParams) => void;
     undo: (params: UndoRedoParams) => void;
     redo: (params: UndoRedoParams) => void;
@@ -61,4 +62,5 @@ export interface MiDiagramAPI {
     browseFile: (params: BrowseFileRequest) => Promise<BrowseFileResponse>;
     createRegistryResource: (params: CreateRegistryResourceRequest) => Promise<CreateRegistryResourceResponse>;
     getAvailableResources: (params: GetAvailableResourcesRequest) => Promise<GetAvailableResourcesResponse>;
+    createClassMediator: (params: CreateClassMediatorRequest) => Promise<CreateClassMediatorResponse>;
 }

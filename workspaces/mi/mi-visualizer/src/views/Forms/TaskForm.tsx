@@ -71,7 +71,6 @@ export function TaskWizard(props: DetailedTaskWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
 
-    const [filePath, setFilePath] = useState(props.path);
     const [isNewTask, setIsNewTask] = useState(true);
     const [changesOccured, setChangesOccured] = useState(false);
 
@@ -83,16 +82,20 @@ export function TaskWizard(props: DetailedTaskWizardProps) {
     });
 
     useEffect(() => {
-        if (filePath) {
+        if (props.path) {
             (async () => {
-                const taskRes = await rpcClient.getMiDiagramRpcClient().getTask({ path: filePath });
+                const taskRes = await rpcClient.getMiDiagramRpcClient().getTask({ path: props.path });
+                console.log(taskRes);
                 if (taskRes.name) {
                     setIsNewTask(false);
                     setTask(taskRes);
                 }
+                else {
+                    clearForm();
+                }
             })();
         }
-    }, []);
+    }, [props.path]);
 
     useEffect(() => {
         const INVALID_CHARS_REGEX = /[@\\^+;:!%&,=*#[\]$?'"<>{}() /]/;
@@ -127,6 +130,10 @@ export function TaskWizard(props: DetailedTaskWizardProps) {
     }
 
     const handleTriggerTypeChange = (type: any) => {
+        if (!isNewTask && !changesOccured) {
+            setChangesOccured(true);
+        }
+
         setTask((prevTask: any) => ({ ...prevTask, triggerType: type }));
     };
 
@@ -142,18 +149,17 @@ export function TaskWizard(props: DetailedTaskWizardProps) {
         setTask(initialInboundEndpoint);
         setMessage({ isError: false, text: "" });
         setIsNewTask(true);
-        openOverview();
     }
 
     const handleCreateTask = async () => {
         const ceateTaskParams = {
             ...task,
-            directory: filePath ?? "",
+            directory: props.path ?? "",
         }
-        const newFilePath = await rpcClient.getMiDiagramRpcClient().createTask(ceateTaskParams);
-        setFilePath(newFilePath.path);
+        await rpcClient.getMiDiagramRpcClient().createTask(ceateTaskParams);
         handleMessage(isNewTask ? "Task created successfully" : "Task updated successfully");
         clearForm();
+        openOverview();
     };
 
     const isValid: boolean = !message.isError && task.name.length > 0 && task.group.length > 0 && task.implementation.length > 0

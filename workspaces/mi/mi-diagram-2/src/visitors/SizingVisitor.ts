@@ -8,7 +8,7 @@
  */
 
 
-import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange,Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange,Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
 
@@ -41,7 +41,7 @@ export class SizingVisitor implements Visitor {
             const subSequence = subSequences[subSequenceKeys[i]];
             if (subSequence) {
                 let subSequenceWidth = NODE_DIMENSIONS.EMPTY.BRANCH.WIDTH;
-                let subSequenceHeight = NODE_DIMENSIONS.EMPTY.HEIGHT;
+                let subSequenceHeight = 0;
                 let subSequenceL = 0;
                 let subSequenceR = 0;
                 if (subSequence.mediatorList && subSequence.mediatorList.length > 0) {
@@ -49,7 +49,7 @@ export class SizingVisitor implements Visitor {
                     subSequenceMediatorList.forEach((childNode: STNode) => {
                         if (childNode.viewState) {
                             subSequenceWidth = Math.max(subSequenceWidth, childNode.viewState.fw ?? childNode.viewState.w);
-                            subSequenceHeight += (childNode.viewState.fh || childNode.viewState.h);
+                            subSequenceHeight += (childNode.viewState.fh || childNode.viewState.h) + NODE_GAP.Y;
 
                             if (childNode.viewState.l) {
                                 subSequenceL = Math.max(subSequenceL, childNode.viewState.l);
@@ -159,15 +159,15 @@ export class SizingVisitor implements Visitor {
 
     endVisitHeader = (node: Header): void => this.calculateBasicMediator(node);
     endVisitInSequence = (node: Sequence): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.WIDTH, h: NODE_DIMENSIONS.START.HEIGHT };
+        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.EDITABLE.WIDTH, h: NODE_DIMENSIONS.START.EDITABLE.HEIGHT };
     }
 
     endVisitOutSequence = (node: Sequence): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.WIDTH, h: NODE_DIMENSIONS.START.HEIGHT };
+        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.DISABLED.WIDTH, h: NODE_DIMENSIONS.START.DISABLED.HEIGHT };
     }
 
     endVisitFaultSequence = (node: Sequence): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.WIDTH, h: NODE_DIMENSIONS.START.HEIGHT };
+        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.DISABLED.WIDTH, h: NODE_DIMENSIONS.START.DISABLED.HEIGHT };
     }
 
     beginVisitLog = (node: Log): void => {
@@ -198,7 +198,7 @@ export class SizingVisitor implements Visitor {
         const isSequnce = node.mediatorList && node.mediatorList.length > 0;
 
         if (isSequnce) {
-            node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.WIDTH, h: NODE_DIMENSIONS.START.HEIGHT };
+            node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.EDITABLE.WIDTH, h: NODE_DIMENSIONS.START.EDITABLE.HEIGHT };
         } else {
             this.calculateBasicMediator(node);
         }
@@ -218,6 +218,18 @@ export class SizingVisitor implements Visitor {
     endVisitCallTemplate = (node: CallTemplate): void => this.calculateBasicMediator(node);
 
     //Advanced Mediators
+    endVisitCache = (node: Cache): void => {
+        this.calculateAdvancedMediator(node, {
+            OnCacheHit: node.onCacheHit
+        });
+    }
+    endVisitClone = (node: Clone): void => {
+        let targets: { [key: string]: any } = {}
+        node.target.map((target) => {
+            targets[target.to] = target
+        });
+        this.calculateAdvancedMediator(node, targets);
+    }
     beginVisitDataServiceCall = (node: DataServiceCall): void => this.calculateBasicMediator(node);
     beginVisitEnqueue = (node: Enqueue): void => this.calculateBasicMediator(node);
     beginVisitTransaction = (node: Transaction): void => this.calculateBasicMediator(node);
