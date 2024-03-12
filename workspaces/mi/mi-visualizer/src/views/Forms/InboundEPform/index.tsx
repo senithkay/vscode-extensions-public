@@ -76,7 +76,6 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
 
-    const [filePath, setFilePath] = useState(props.path);
     const [isNewInboundEndpoint, setIsNewInboundEndpoint] = useState(true);
     const [changesOccured, setChangesOccured] = useState(false);
 
@@ -115,9 +114,9 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     });
 
     useEffect(() => {
-        if (filePath) {
+        if (props.path) {
             (async () => {
-                const { parameters, additionalParameters, ...data } = await rpcClient.getMiDiagramRpcClient().getInboundEndpoint({ path: filePath });
+                const { parameters, additionalParameters, ...data } = await rpcClient.getMiDiagramRpcClient().getInboundEndpoint({ path: props.path });
                 if (data.name) {
                     data.type = data.type.toUpperCase();
                     setInboundEndpoint((prev: any) => ({
@@ -131,9 +130,12 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                     setAdditionalParameters((prev: any) => ({ ...prev, ...additionalParameters }));
                     setSelectedInboundParameters(sampleData[data.type.toLowerCase()]);
                 }
+                else {
+                    clearForm();
+                }
             })();
         }
-    }, []);
+    }, [props.path]);
 
     useEffect(() => {
         (async () => {
@@ -154,6 +156,31 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
 
     const handleMessage = (text: string, isError: boolean = false) => {
         setMessage({ isError, text });
+    }
+
+    const clearForm = () => {
+        setInboundEndpoint({
+            name: "",
+            type: "HTTP",
+            sequence: "",
+            errorSequence: "",
+        });
+        setParamState({});
+        setAdditionalParameters({
+            suspend: false,
+            trace: false,
+            statistics: false,
+            description: "",
+        });
+        setSelectedInboundParameters(sampleData["http"]);
+        setCustomSequence("");
+        setCustomErrorSequence("");
+        setShowHiddenForm(false);
+        setIsCustom({
+            sequence: true,
+            errorSequence: true,
+        });
+        setIsNewInboundEndpoint(true);
     }
 
     const handleTypeChange = (type: string) => {
@@ -187,6 +214,10 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     }
 
     const handleParamChange = (field: string, value: any) => {
+        if (!isNewInboundEndpoint && !changesOccured) {
+            setChangesOccured(true);
+        }
+
         setParamState((prev: any) => {
             const params = prev[inboundEndpoint.type.toLowerCase()] ?? {};
             return {
@@ -214,7 +245,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
 
     const handleCreateInboundEP = async () => {
         const createInboundEPParams = {
-            directory: filePath,
+            directory: props.path,
             name: inboundEndpoint.name,
             type: inboundEndpoint.type.toLowerCase(),
             sequence: (showHiddenForm && isCustom.sequence) ? customSequence : inboundEndpoint.sequence,
@@ -224,10 +255,10 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
             },
             additionalParameters,
         }
-        const newFilePath = await rpcClient.getMiDiagramRpcClient().createInboundEndpoint(createInboundEPParams);
-        setFilePath(newFilePath.path);
+        await rpcClient.getMiDiagramRpcClient().createInboundEndpoint(createInboundEPParams);
         handleMessage(isNewInboundEndpoint ? "Task created successfully" : "Task updated successfully");
         setIsNewInboundEndpoint(false);
+        clearForm();
         openOverview();
     };
 
@@ -250,7 +281,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                 <Container>
                     <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
                     <div style={{ marginLeft: 30 }}>
-                        <Typography variant="h3">{isNewInboundEndpoint && "Update"} Inbound Endpoint Artifact</Typography>
+                        <Typography variant="h3">{!isNewInboundEndpoint && "Update"} Inbound Endpoint Artifact</Typography>
                     </div>
                 </Container>
                 <TextField
@@ -262,6 +293,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                     errorMsg={validateName(inboundEndpoint.name)}
                     autoFocus
                     required
+                    size={100}
                 />
                 <FieldGroup>
                     <span>Creation Type</span>
@@ -289,6 +321,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                                 onChange={(text: string) => setCustomSequence(text)}
                                 errorMsg={validateName(customSequence)}
                                 required
+                                size={100}
                             />
                         </>}
                         <span>On Error Sequence</span>
@@ -306,6 +339,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                                 onChange={(text: string) => setCustomErrorSequence(text)}
                                 errorMsg={validateName(customErrorSequence)}
                                 required
+                                size={100}
                             />
                         </>}
                     </HiddenFormWrapper>
@@ -316,6 +350,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                             display: "flex",
                             flexDirection: "column",
                             gap: "10px",
+                            marginBottom: "20px",
                         }}>
                             <CheckBox
                                 label="Suspend"
@@ -347,6 +382,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                             label="Description"
                             placeholder="Description"
                             onChange={(text: string) => handleAdditionalParamChange("description", text)}
+                            cols={150}
                         />
                     </div>
                 )}

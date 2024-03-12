@@ -90,7 +90,7 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
         } else if (key === 'proxyServices') {
             await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-proxy-service", entry] });
         } else if (key === 'tasks') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-task"] });
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-task", entry] });
         } else if (key === 'templates') {
             await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-template", entry] });
         }

@@ -16,7 +16,6 @@ const ParamForm = ({ paramState, parameters, handleOnChange }: any) => {
         <div style={{
             display: "flex",
             flexDirection: "column",
-            marginTop: "20px",
         }}>
             {basic && Object.keys(basic).map((key: string) => (
                 <ParamField 

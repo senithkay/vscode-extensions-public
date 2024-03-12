@@ -572,7 +572,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const filePath = params.path;
 
-            if (fs.existsSync(filePath)) {
+            if (filePath.includes('.xml') && fs.existsSync(filePath)) {
                 const xmlData = fs.readFileSync(filePath, "utf8");
                 const jsonData = parser.parse(xmlData);
 
@@ -746,7 +746,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const filePath = params.path;
 
-            if (fs.existsSync(filePath)) {
+            if (filePath.includes('.xml') && fs.existsSync(filePath)) {
                 const xmlData = fs.readFileSync(filePath, "utf8");
                 const jsonData = parser.parse(xmlData);
 
