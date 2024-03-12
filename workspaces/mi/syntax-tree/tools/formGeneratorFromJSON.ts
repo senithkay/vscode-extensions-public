@@ -87,6 +87,8 @@ const generateForm = (jsonData: any): string => {
     let formValidators = '\n';
     let fields = '';
     let defaultValues = '';
+    let paramFields = '';
+    let paramFieldNames: string[] = [];
     const keys: string[] = [];
 
     const generateFormItems = (elements: any[], indentation: number, parentName?: string) => {
@@ -231,59 +233,41 @@ const generateForm = (jsonData: any): string => {
                     fixIndentation(`
                     "${inputName}": [] as string[][],`, 8);
                 const elements = element.value.form.elements;
-                generateFormItems(elements, indentation + 4, "table");
 
                 const name = elements[0].value.elements[0].value.name;
                 const type = elements[0].value.elements[1].value.name;
                 const value = elements[0].value.elements[2] ? elements[0].value.elements[2].value.name : "";
 
-                // Add button
-                fields += fixIndentation(`
-                    <div style={{ textAlign: "right", marginTop: "10px" }}>
-                        <Button appearance="primary" onClick={() => {
-                            if (!(validateField("${name}", formValues["${name}"], true) || validateField("${value}", formValues["${value}"], true))) {
-                                setFormValues({
-                                    ...formValues, "${name}": undefined, "${value}": undefined,
-                                    "${inputName}": [...formValues["${inputName}"], [formValues["${name}"], formValues["${type}"], formValues["${value}"]]]
-                                });
-                            }
-                        }}>
-                            Add
-                        </Button>
-                    </div>`, indentation);
+                paramFields +=  fixIndentation(`
+                {
+                    type: "TextField",
+                    label: "${name}",
+                    defaultValue: "Name",
+                    isRequired: true
+                },
+                {
+                    type: "Dropdown",
+                    label: "${type}",
+                    defaultValue: "LITERAL",
+                    isRequired: true,
+                    values: ["LITERAL", "EXPRESSION"]
+                },
+                {
+                    type: "TextField",
+                    label: "${value}",
+                    defaultValue: "value",
+                    isRequired: true
+                },`, 8);
+
+                paramFieldNames = [name, type, value];
 
                 fields += fixIndentation(`
-                        {formValues["${inputName}"] && formValues["${inputName}"].length > 0 && (
-                            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                                <h3>${element.value.displayName} Table</h3>
-                                <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
-                                    <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
-                                        <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                            Name
-                                        </VSCodeDataGridCell>
-                                        <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                            Value Type
-                                        </VSCodeDataGridCell>
-                                        <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                            Value
-                                        </VSCodeDataGridCell>
-                                    </VSCodeDataGridRow>
-                                    {formValues["${inputName}"].map((property: string, index: string) => (
-                                        <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
-                                            <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                                {property[0]}
-                                            </VSCodeDataGridCell>
-                                            <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                                {property[1]}
-                                            </VSCodeDataGridCell>
-                                            <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                                {property[2]}
-                                            </VSCodeDataGridCell>
-                                        </VSCodeDataGridRow>
-                                    ))}
-                                </VSCodeDataGrid>
-                            </ComponentCard>
-                        )}`, indentation);
+                    {formValues["${inputName}"] && formValues["${inputName}"].length > 0 && (
+                        <ParamManager
+                            paramConfigs={params}
+                            readonly={false}
+                            onChange= {handleOnChange} />
+                    )}`, indentation);
 
                 fields += fixIndentation(`
                 </ComponentCard>`, indentation);
@@ -297,14 +281,14 @@ const generateForm = (jsonData: any): string => {
         fixIndentation(
             `${LICENSE_HEADER}
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, colors, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, ParamConfig, ParamManager, colors, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
-import { MEDIATORS } from '../../../../../constants';
+import { MEDIATORS } from '../../../../../resources/constants';
 
 const cardStyle = { 
     display: "block", 
@@ -332,9 +316,51 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
     const [formValues, setFormValues] = useState({} as { [key: string]: any });
     const [errors, setErrors] = useState({} as any);
 
+    const paramConfigs: ParamConfig = {
+        paramValues: [],
+        paramFields: [${paramFields}]
+    };
+ 
+    const [params, setParams] = useState(paramConfigs);
+ 
+    const handleOnChange = (params: any) => {
+        setParams(params);
+    };
+
     useEffect(() => {
         if (sidePanelContext.formValues) {
             setFormValues({ ...formValues, ...sidePanelContext.formValues });
+            if (sidePanelContext.formValues["properties"] && sidePanelContext.formValues["properties"].length > 0 ) {
+                const paramValues = sidePanelContext.formValues["properties"].map((property: string, index: string) => (
+                    {
+                        id: index,
+                        parameters: [
+                            {
+                                id: 0,
+                                label: "${paramFieldNames[0]}",
+                                type: "TextField",
+                                value: property[0],
+                                isRequired: true
+                            },
+                            {
+                                id: 1,
+                                label: "${paramFieldNames[1]}",
+                                type: "TextField",
+                                value: property[1],
+                                isRequired: true
+                            },
+                            {
+                                id: 2,
+                                label: "${paramFieldNames[2]}",
+                                type: "TextField",
+                                value: property[2],
+                                isRequired: true
+                            }
+                        ]
+                    })
+                )
+                setParams({ ...params, paramValues: paramValues });
+            } 
         } else {
             setFormValues({${defaultValues}});
         }
@@ -348,6 +374,7 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
                 newErrors[key] = (error);
             }
         });
+        formValues["properties"] = params.paramValues.map((param: any) => [param.parameters[0].value, param.parameters[1].value, param.parameters[2].value]);
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
         } else {

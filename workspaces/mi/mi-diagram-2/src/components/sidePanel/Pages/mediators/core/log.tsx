@@ -9,8 +9,7 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, RequiredFormInput, TextField, Codicon } from '@wso2-enterprise/ui-toolkit';
-import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
+import { AutoComplete, Button, ComponentCard, ParamConfig, ParamManager, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -25,33 +24,6 @@ const cardStyle = {
    width: "auto",
    cursor: "auto"
 };
-
-const ButtonComponent = styled.div`
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    position: relative;
-`
-const EditButton = styled.button`
-    height: 23px;
-    width: 23px;
-    display: block;
-    margin: 0 auto;
-    padding: 2px;
-`
-
-const DeleteButton = styled.button`
-    height: 23px;
-    width: 23px;
-    display: block;
-    margin: 0 auto;
-    // color: red;
-    padding: 2px;
-`
 
 const Error = styled.span`
    color: var(--vscode-errorForeground);
@@ -71,15 +43,73 @@ const LogForm = (props: AddMediatorProps) => {
    const [formValues, setFormValues] = useState({} as { [key: string]: any });
    const [errors, setErrors] = useState({} as any);
 
+   const paramConfigs: ParamConfig = {
+       paramValues: [],
+       paramFields: [
+       {
+           type: "TextField",
+           label: "propertyName",
+           defaultValue: "Name",
+           isRequired: true
+       },
+       {
+           type: "Dropdown",
+           label: "propertyValueType",
+           defaultValue: "LITERAL",
+           isRequired: true,
+           values: ["LITERAL", "EXPRESSION"]
+       },
+       {
+           type: "TextField",
+           label: "propertyValue",
+           defaultValue: "value",
+           isRequired: true
+       },]
+   };
+ 
+   const [params, setParams] = useState(paramConfigs);
+ 
+   const handleOnChange = (params: any) => {
+       setParams(params);
+   };
+
    useEffect(() => {
-       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-           setFormValues({ ...formValues, ...sidePanelContext.formValues, "propertyValueType": "LITERAL" });
+       if (sidePanelContext.formValues) {
+           setFormValues({ ...formValues, ...sidePanelContext.formValues });
+           const paramValues = sidePanelContext.formValues["properties"].map((property: string, index: string) => (
+               {
+                   id: index,
+                   parameters: [
+                       {
+                           id: 0,
+                           label: "Property Name",
+                           type: "TextField",
+                           value: property[0],
+                           isRequired: true
+                       },
+                       {
+                           id: 1,
+                           label: "Property Value Type",
+                           type: "TextField",
+                           value: property[1],
+                           isRequired: true
+                       },
+                       {
+                           id: 2,
+                           label: "Property Value",
+                           type: "TextField",
+                           value: property[2],
+                           isRequired: true
+                       }
+                   ]
+               })
+           )
+           setParams({ ...params, paramValues: paramValues });
        } else {
            setFormValues({
        "category": "INFO",
        "level": "SIMPLE",
-       "properties": [] as string[][],
-       "propertyValueType": "LITERAL",});
+       "properties": [] as string[][],});
        }
    }, [sidePanelContext.formValues]);
 
@@ -91,6 +121,7 @@ const LogForm = (props: AddMediatorProps) => {
                newErrors[key] = (error);
            }
        });
+       formValues["properties"] = params.paramValues.map((param: any) => [param.parameters[0].value, param.parameters[1].value, param.parameters[2].value]);
        if (Object.keys(newErrors).length > 0) {
            setErrors(newErrors);
        } else {
@@ -99,13 +130,13 @@ const LogForm = (props: AddMediatorProps) => {
                documentUri: props.documentUri, range: props.nodePosition, text: xml
            });
            sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                isOpen: false,
-                isEditing: false,
-                formValues: undefined,
-                nodeRange: undefined,
-                operationName: undefined
-              });
+               ...sidePanelContext,
+               isOpen: false,
+               isEditing: false,
+               formValues: undefined,
+               nodeRange: undefined,
+               operationName: undefined
+           });
        }
    };
 
@@ -113,10 +144,6 @@ const LogForm = (props: AddMediatorProps) => {
        "category": (e?: any) => validateField("category", e, true),
        "level": (e?: any) => validateField("level", e, true),
        "separator": (e?: any) => validateField("separator", e, false),
-       "propertyName": (e?: any) => validateField("propertyName", e, false),
-       "propertyValueType": (e?: any) => validateField("propertyValueType", e, false),
-       "propertyValue": (e?: any) => validateField("propertyValue", e, false),
-       "propertyExpression": (e?: any) => validateField("propertyExpression", e, false),
        "description": (e?: any) => validateField("description", e, false),
 
    };
@@ -183,131 +210,12 @@ const LogForm = (props: AddMediatorProps) => {
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <h3>Properties</h3>
 
-                        <Field>
-                            <TextField
-                                label="Property Name"
-                                size={50}
-                                placeholder=""
-                                value={formValues["propertyName"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "propertyName": e });
-                                    formValidators["propertyName"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["propertyName"] && <Error>{errors["propertyName"]}</Error>}
-                        </Field>
-
-                        <Field>
-                            <label>Property Value Type</label>
-                            <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["propertyValueType"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "propertyValueType": e });
-                                formValidators["propertyValueType"](e);
-                            }} />
-                            {errors["propertyValueType"] && <Error>{errors["propertyValueType"]}</Error>}
-                        </Field>
-
-                        {formValues["propertyValueType"] && formValues["propertyValueType"].toLowerCase() == "literal" &&
-                            <Field>
-                                <TextField
-                                    label="Property Value"
-                                    size={50}
-                                    placeholder=""
-                                    value={formValues["propertyValue"]}
-                                    onChange={(e: any) => {
-                                        setFormValues({ ...formValues, "propertyValue": e });
-                                        formValidators["propertyValue"](e);
-                                    }}
-                                    required={false}
-                                />
-                                {errors["propertyValue"] && <Error>{errors["propertyValue"]}</Error>}
-                            </Field>
-                        }
-
-                        {formValues["propertyValueType"] && formValues["propertyValueType"].toLowerCase() == "expression" &&
-                            <Field>
-                                <TextField
-                                    label="Property Expression"
-                                    size={50}
-                                    placeholder=""
-                                    value={formValues["propertyExpression"]}
-                                    onChange={(e: any) => {
-                                        setFormValues({ ...formValues, "propertyExpression": e });
-                                        formValidators["propertyExpression"](e);
-                                    }}
-                                    required={false}
-                                />
-                                {errors["propertyExpression"] && <Error>{errors["propertyExpression"]}</Error>}
-                            </Field>
-                        }
-
-
-                    <div style={{ textAlign: "right", marginTop: "10px" }}>
-                        <Button appearance="primary" onClick={() => {
-                            if (formValues["propertyValueType"].toLowerCase() == "literal") {
-                                if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
-                                    setFormValues({
-                                        ...formValues, "propertyName": undefined, "propertyValue": undefined,
-                                        "properties": [...formValues["properties"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyValue"]]]
-                                    });
-                                }
-                            } else if (formValues["propertyValueType"].toLowerCase() == "expression") {
-                                if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyExpression", formValues["propertyExpression"], true))) {
-                                    setFormValues({
-                                        ...formValues, "propertyName": undefined, "propertyExpression": undefined,
-                                        "properties": [...formValues["properties"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyExpression"]]]
-                                    });
-                                }
-                            }
-                        }}>
-                            Add
-                        </Button>
-                    </div>
-                    {formValues["properties"] && formValues["properties"].length > 0 && (
-                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                            <h3>Properties Table</h3>
-                            <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
-                                <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
-                                    <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                        Name
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                        Value Type
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                        Value
-                                    </VSCodeDataGridCell>
-                                   <VSCodeDataGridCell key={3} style={{ flex: 1 }}>
-                                   </VSCodeDataGridCell>
-                                </VSCodeDataGridRow>
-                                {formValues["properties"].map((property: string, index: string) => (
-                                    <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
-                                        <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                            {property[0]}
-                                        </VSCodeDataGridCell>
-                                        <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                            {property[1]}
-                                        </VSCodeDataGridCell>
-                                        <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                            {property[2]}
-                                        </VSCodeDataGridCell>
-                                        <VSCodeDataGridCell key={3} style={{ flex: 1 }}>
-                                            <ButtonComponent>
-                                                <DeleteButton onClick={() => {
-                                                    formValues["properties"].splice(index, 1);
-                                                    setFormValues({ ...formValues })
-                                                }}><Codicon name='trash' />
-                                                </DeleteButton>
-                                                {/* <EditButton onClick={() => { }}>
-                                                    <Codicon name='edit' />
-                                                </EditButton> */}
-                                            </ButtonComponent>
-                                        </VSCodeDataGridCell>
-                                    </VSCodeDataGridRow>
-                                ))}
-                            </VSCodeDataGrid>
-                        </ComponentCard>
-                    )}
+                {formValues["properties"] && formValues["properties"].length > 0 && (
+                    <ParamManager
+                        paramConfigs={params}
+                        readonly={false}
+                        onChange= {handleOnChange} />
+                )}
                 </ComponentCard>
                 <Field>
                     <TextField
