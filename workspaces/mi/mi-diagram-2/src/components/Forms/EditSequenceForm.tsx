@@ -110,3 +110,4 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onEdit }: Res
         </SidePanel>
     );
 }
+
