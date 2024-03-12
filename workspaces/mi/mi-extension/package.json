@@ -87,6 +87,11 @@
         "category": "MI"
       },
       {
+        "command": "MI.openAiPanel",
+        "title": "Open MI Ai",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.add",
         "title": "Add Construct",
         "icon": "$(add)",

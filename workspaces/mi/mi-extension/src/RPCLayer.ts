@@ -14,27 +14,26 @@ import { stateChanged, getVisualizerState, VisualizerLocation } from '@wso2-ente
 import { registerMiDiagramRpcHandlers } from './rpc-managers/mi-diagram/rpc-handler';
 import { VisualizerWebview } from './visualizer/webview';
 import { registerMiVisualizerRpcHandlers } from './rpc-managers/mi-visualizer/rpc-handler';
+import { AiPanelWebview } from './ai-panel/webview';
 
 export class RPCLayer {
     static _messenger: Messenger;
 
     constructor(webViewPanel: WebviewPanel | WebviewView) {
-        RPCLayer._messenger = new Messenger();
         if (isWebviewPanel(webViewPanel)) {
+            RPCLayer._messenger = new Messenger();
             RPCLayer._messenger.registerWebviewPanel(webViewPanel as WebviewPanel);
             StateMachine.service().onTransition((state) => {
                 RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, state.value);
             });
-
             RPCLayer._messenger.onRequest(getVisualizerState, () => getContext());
             registerMiDiagramRpcHandlers(RPCLayer._messenger);
             registerMiVisualizerRpcHandlers(RPCLayer._messenger);
         } else {
-            // NOTE: This section is used to handle the RPC registering for the activityPanel webviews.
-            // RPCLayer._messenger.registerWebviewView(webViewPanel as WebviewView);
-            // StateMachine.service().onTransition((state) => {
-            //     RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'activity.panel' }, state.value);
-            // });
+            RPCLayer._messenger.registerWebviewPanel(webViewPanel as WebviewPanel);
+            StateMachine.service().onTransition((state) => {
+                RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: AiPanelWebview.viewType }, state.value);
+            });
         }
     }
 

@@ -15,6 +15,7 @@ import { activateAiPrompt } from './ai-prompt/activate';
 import { activate as activateHistory } from './history';
 import { activateVisualizer } from './visualizer/activate';
 import { activateActivityPanel } from './activity-panel/activate';
+import { activateAiPanel } from './ai-panel/activate';
 
 export async function activate(context: vscode.ExtensionContext) {
 	extension.context = context;
@@ -23,5 +24,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	activateProjectExplorer(context);
 	// activateAiPrompt(context);
 	activateVisualizer(context);
+	activateAiPanel(context);
 	StateMachine.initialize();
 }

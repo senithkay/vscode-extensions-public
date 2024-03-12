@@ -163,7 +163,7 @@ const stateMachine = createMachine<MachineContext>({
                     on: {
                         OPEN_VIEW: {
                             target: "viewLoading",
-                             actions: assign({
+                            actions: assign({
                                 view: (context, event) => event.viewLocation.view
                             })
                         }

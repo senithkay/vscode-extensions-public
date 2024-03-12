@@ -15,6 +15,7 @@ import { GettingStarted } from "./views/GettingStarted";
 import { ProjectWizard } from "./views/Forms/ProjectForm";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
+import { AIOverviewWindow } from "./views/AIOverviewWindow";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -49,9 +50,8 @@ export function Visualizer({ mode }: { mode: string }) {
                 switch (mode) {
                     case "visualizer":
                         return <VisualizerComponent state={state} />
-                    // TODO: Below is to render another webview in the activity panel
-                    // case "activityPanel":
-                    //     return <ActivityPanelComponent state={state}/>
+                    case "ai":
+                        return <AIOverviewWindow />
                 }
             })()}
         </>
