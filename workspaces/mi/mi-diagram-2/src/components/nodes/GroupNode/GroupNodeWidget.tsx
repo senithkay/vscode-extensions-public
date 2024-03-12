@@ -10,7 +10,7 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { CloneNodeModel } from "./CloneNodeModel";
+import { GroupNodeModel } from "./GroupNodeModel";
 import { Colors } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
@@ -118,12 +118,12 @@ namespace S {
 }
 
 interface CallNodeWidgetProps {
-    node: CloneNodeModel;
+    node: GroupNodeModel;
     engine: DiagramEngine;
     onClick?: (node: STNode) => void;
 }
 
-export function CloneNodeWidget(props: CallNodeWidgetProps) {
+export function GroupNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);

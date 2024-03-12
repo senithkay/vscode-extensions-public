@@ -10,24 +10,24 @@
 import React from "react";
 import { AbstractReactFactory, GenerateModelEvent, GenerateWidgetEvent } from "@projectstorm/react-canvas-core";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { CloneNodeModel } from "./CloneNodeModel";
-import { CloneNodeWidget } from "./CloneNodeWidget";
+import { GroupNodeModel } from "./GroupNodeModel";
+import { GroupNodeWidget } from "./GroupNodeWidget";
 import { NodeTypes } from "../../../resources/constants";
 
-export class CloneNodeFactory extends AbstractReactFactory<CloneNodeModel, DiagramEngine> {
+export class GroupNodeFactory extends AbstractReactFactory<GroupNodeModel, DiagramEngine> {
     constructor() {
         super(NodeTypes.CLONE_NODE);
     }
 
-    generateModel(event: GenerateModelEvent): CloneNodeModel {
-        return new CloneNodeModel(
+    generateModel(event: GenerateModelEvent): GroupNodeModel {
+        return new GroupNodeModel(
             event.initialConfig.stNode,
             event.initialConfig.mediatorName,
             event.initialConfig.documentUri
         );
     }
 
-    generateReactWidget(event: GenerateWidgetEvent<CloneNodeModel>) {
-        return <CloneNodeWidget engine={this.engine} node={event.model} />;
+    generateReactWidget(event: GenerateWidgetEvent<GroupNodeModel>) {
+        return <GroupNodeWidget engine={this.engine} node={event.model} />;
     }
 }

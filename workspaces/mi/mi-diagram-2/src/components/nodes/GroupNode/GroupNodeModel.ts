@@ -11,7 +11,7 @@ import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodeTypes } from "../../../resources/constants";
 import { BaseNodeModel } from "../BaseNodeModel";
 
-export class CloneNodeModel extends BaseNodeModel {
+export class GroupNodeModel extends BaseNodeModel {
     constructor(
         stNode: STNode,
         mediatorName: string,
