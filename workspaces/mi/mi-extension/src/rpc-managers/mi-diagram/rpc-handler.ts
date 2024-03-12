@@ -67,9 +67,11 @@ import {
     getMessageProcessor,
     getTemplate,
     getProjectRoot,
+    getProjectUuid,
     getSTRequest,
     getSequenceDirectory,
     getSyntaxTree,
+    getWorkspaceContext,
     getTextAtRange,
     getWorkspaceRoot,
     highlightCode,
@@ -139,6 +141,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAIResponse, (args: AIUserInput) => rpcManger.getAIResponse(args));
     messenger.onRequest(writeContentToFile, (args: WriteContentToFileRequest) => rpcManger.writeContentToFile(args));
     messenger.onNotification(highlightCode, (args: HighlightCodeRequest) => rpcManger.highlightCode(args));
+    messenger.onRequest(getWorkspaceContext, () => rpcManger.getWorkspaceContext());
+    messenger.onRequest(getProjectUuid, () => rpcManger.getProjectUuid());
     messenger.onRequest(getLocalEntryDirectory, () => rpcManger.getLocalEntryDirectory());
     messenger.onRequest(createLocalEntry, (args: CreateLocalEntryRequest) => rpcManger.createLocalEntry(args));
     messenger.onNotification(initUndoRedoManager, (args: UndoRedoParams) => rpcManger.initUndoRedoManager(args));

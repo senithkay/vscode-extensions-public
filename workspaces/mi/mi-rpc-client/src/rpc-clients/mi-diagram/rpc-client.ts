@@ -45,6 +45,8 @@ import {
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
+    GetProjectUuidResponse,
+    GetWorkspaceContextResponse,
     GetDefinitionRequest,
     GetDefinitionResponse,
     GetDiagnosticsReqeust,
@@ -95,12 +97,14 @@ import {
     getLocalEntryDirectory,
     getInboundEndpoint,
     getProjectRoot,
+    getProjectUuid,
     getSTRequest,
     getSTResponse,
     getSequenceDirectory,
     getMessageProcessor,
     getTemplate,
     getSyntaxTree,
+    getWorkspaceContext,
     getTextAtRange,
     getWorkspaceRoot,
     highlightCode,
@@ -307,6 +311,13 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendNotification(highlightCode, HOST_EXTENSION, params);
     }
 
+    getWorkspaceContext(): Promise<GetWorkspaceContextResponse> {
+        return this._messenger.sendRequest(getWorkspaceContext, HOST_EXTENSION);
+    }
+
+    getProjectUuid(): Promise<GetProjectUuidResponse> {
+        return this._messenger.sendRequest(getProjectUuid, HOST_EXTENSION);
+    }
     initUndoRedoManager(params: UndoRedoParams): void {
         return this._messenger.sendNotification(initUndoRedoManager, HOST_EXTENSION, params);
     }

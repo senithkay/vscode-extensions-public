@@ -474,7 +474,6 @@ export interface AIUserInput {
 
 export interface WriteContentToFileRequest {
     content: string[];
-    directoryPath: string;
 }
 
 export interface WriteContentToFileResponse {
@@ -484,6 +483,15 @@ export interface WriteContentToFileResponse {
 export interface HighlightCodeRequest {
     range: Range;
     force?: boolean;
+}
+
+
+export interface GetWorkspaceContextResponse {
+    context: string[];
+}
+
+export interface GetProjectUuidResponse{
+    uuid: string;
 }
 
 export interface UndoRedoParams {
