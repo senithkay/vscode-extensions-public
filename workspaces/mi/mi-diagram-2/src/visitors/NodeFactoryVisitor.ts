@@ -294,6 +294,7 @@ export class NodeFactoryVisitor implements Visitor {
         if (isSequnce) {
             const lastNode = this.nodes[this.nodes.length - 1].getStNode();
             node.viewState.y = lastNode.viewState.y + Math.max(lastNode.viewState.h, lastNode.viewState.fh || 0) + NODE_GAP.Y;
+            node.viewState.x += NODE_DIMENSIONS.START.EDITABLE.WIDTH / 2 - NODE_DIMENSIONS.START.DISABLED.WIDTH / 2;
             this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.endTagRange.end);
             this.parents.pop();
             this.previousSTNodes = undefined;
