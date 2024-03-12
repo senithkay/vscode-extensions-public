@@ -98,9 +98,9 @@ namespace S {
     export const ChildNodeContainer = styled.div<ContainerStyleProp>`
         position: absolute;
         top: 20px;
-        left: ${(props: NodeStyleProp) => props.width / -2 + 50}px;
-        width: ${(props: NodeStyleProp) => props.width}px;
-        height: ${(props: NodeStyleProp) => props.height}px;
+        left: ${(props: ContainerStyleProp) => props.width / -2 + 50}px;
+        width: ${(props: ContainerStyleProp) => props.width}px;
+        height: ${(props: ContainerStyleProp) => props.height}px;
         padding: 0 8px;
         border: 2px dashed ${Colors.OUTLINE_VARIANT};
         border-radius: 10px;
