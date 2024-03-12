@@ -8,7 +8,7 @@
  */
 
 import { NodeModel } from "@projectstorm/react-diagrams";
-import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getNodeIdFromModel } from "../../utils/node";
 import { NodePortModel } from "../NodePort/NodePortModel";
 import { NodeTypes } from "../../resources/constants";

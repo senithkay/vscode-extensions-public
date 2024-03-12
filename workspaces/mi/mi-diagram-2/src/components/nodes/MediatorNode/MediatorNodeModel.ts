@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodeTypes } from "../../../resources/constants";
 import { BaseNodeModel } from "../BaseNodeModel";
 
