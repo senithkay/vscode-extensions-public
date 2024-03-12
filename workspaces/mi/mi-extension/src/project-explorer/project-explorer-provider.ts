@@ -347,8 +347,16 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 			explorerEntry.contextValue = 'task';
 			explorerEntry.command = {
-				"title": "Show View",
-				"command": COMMANDS.SHOW_VIEW,
+				"title": "Show Task",
+				"command": COMMANDS.SHOW_TASK,
+				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+			};
+		} else if (entry.type === "INBOUND_ENDPOINT") {
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			explorerEntry.contextValue = 'inboundEndpoint';
+			explorerEntry.command = {
+				"title": "Show Inbound Endpoint",
+				"command": COMMANDS.SHOW_INBOUND_ENDPOINT,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
 		} 

@@ -59,9 +59,24 @@ export interface CreateInboundEndpointRequest {
     type: string;
     sequence: string;
     errorSequence: string;
+    parameters?: { [key: string]: string | number | boolean };
+    additionalParameters?: { [key: string]: string | number | boolean };
 }
 
 export interface CreateInboundEndpointResponse {
+    path: string;
+}
+
+export interface GetInboundEndpointResponse {
+    name: string;
+    type: string;
+    sequence: string;
+    errorSequence: string;
+    parameters: { [key: string]: string | number | boolean };
+    additionalParameters: { [key: string]: string | number | boolean };
+}
+
+export interface GetInboundEndpointRequest {
     path: string;
 }
 
@@ -228,10 +243,6 @@ export interface ApiDirectoryResponse {
 }
 
 export interface EndpointDirectoryResponse {
-    data: string;
-}
-
-export interface InboundEndpointDirectoryResponse {
     data: string;
 }
 

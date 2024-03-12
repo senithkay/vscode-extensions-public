@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Visitor, STNode, WithParam, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Visitor, STNode, WithParam, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
@@ -312,6 +312,33 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitCallTemplate = (node: CallTemplate): void => this.createNodeAndLinks(node, MEDIATORS.CALLTEMPLATE);
 
     //Advanced Mediators
+    beginVisitCache(node: Cache): void {
+        this.createNodeAndLinks(node, MEDIATORS.CACHE, NodeTypes.CONDITION_NODE)
+        this.parents.push(node);
+
+        this.visitSubSequences(node, {
+            OnCacheHit: node.onCacheHit,
+        })
+        this.skipChildrenVisit = true;
+    }
+    endVisitCache(node: Cache): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+    beginVisitClone(node: Clone): void {
+        this.createNodeAndLinks(node, MEDIATORS.CLONE, NodeTypes.CONDITION_NODE)
+        this.parents.push(node);
+        let targets: { [key: string]: any } = {}
+        node.target.map((target) => {
+            targets[target.to] = target
+        })
+        this.visitSubSequences(node, targets);
+        this.skipChildrenVisit = true;
+    }
+    endVisitClone(node: Clone): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
     beginVisitDataServiceCall = (node: DataServiceCall): void => this.createNodeAndLinks(node, MEDIATORS.DATASERVICECALL);
     beginVisitEnqueue = (node: Enqueue): void => this.createNodeAndLinks(node, MEDIATORS.ENQUEUE);
     beginVisitTransaction = (node: Transaction): void => this.createNodeAndLinks(node, MEDIATORS.TRANSACTION);
