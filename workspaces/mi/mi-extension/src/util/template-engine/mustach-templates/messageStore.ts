@@ -52,7 +52,8 @@ export interface GetMessageStoreTemplatesArgs {
     xPath: string;
     enableProducerGuaranteedDelivery: string;
     providerClass: string;
-    customParameters: Record[];  
+    customParameters: Record[];
+    failOverMessageStore: string; 
 }
 const classPool:{[key:string]:string} = {
     "JMS Message Store": "org.apache.synapse.message.store.impl.jms.JmsStore",
@@ -67,7 +68,6 @@ const classPool:{[key:string]:string} = {
 const paramPool: { [key: string]: Parameter } = {
     "JMS Message Store": {
         "store.jms.destination":"jndiQueueName",
-        "store.failover.message.store.name":"failoverMessageStoreName",
         "store.jms.username":"userName",
         "store.jms.connection.factory":"connectionFactory",
         "store.producer.guaranteed.delivery.enable":"enableProducerGuaranteedDelivery",
@@ -75,7 +75,8 @@ const paramPool: { [key: string]: Parameter } = {
         "store.jms.cache.connection":"cacheConnection",
         "java.naming.factory.initial":"initialContextFactory",
         "java.naming.provider.url":"providerURL",
-        "store.jms.JMSSpecVersion":"jmsAPIVersion"
+        "store.jms.JMSSpecVersion":"jmsAPIVersion",
+        "store.failover.message.store.name":"failOverMessageStore"
     },
     "JDBC Message Store": {
         "store.jdbc.driver":"driver",
@@ -85,10 +86,11 @@ const paramPool: { [key: string]: Parameter } = {
         "store.jdbc.password":"password",
         "store.jdbc.table":"dataBaseTable",
         "store.jdbc.ds": "dataSourceName",
+        "store.failover.message.store.name":"failOverMessageStore"
     },
     "WSO2 MB Message Store": {
         "store.jms.destination":"jndiQueueName",
-        "store.failover.message.store.name":"failoverMessageStoreName",
+        "store.failover.message.store.name":"failOverMessageStore",
         "connectionfactory.QueueConnectionFactory":"queueConnectionFactory",
         "store.producer.guaranteed.delivery.enable":"enableProducerGuaranteedDelivery",
         "store.jms.cache.connection":"cacheConnection",
@@ -112,7 +114,8 @@ const paramPool: { [key: string]: Parameter } = {
         "store.rabbitmq.virtual.host":"virtualHost",
         "store.rabbitmq.password":"password",
         "rabbitmq.connection.ssl.truststore.location":"trustStoreLocation",
-        "rabbitmq.connection.ssl.truststore.password":"trustStorePassword"
+        "rabbitmq.connection.ssl.truststore.password":"trustStorePassword",
+        "store.failover.message.store.name":"failOverMessageStore"
     },
     "Resequence Message Store": {
         "store.resequence.timeout":"pollingCount",
@@ -123,12 +126,12 @@ const paramPool: { [key: string]: Parameter } = {
         "store.jdbc.password":"password",
         "store.jdbc.table":"dataBaseTable",
         "store.jdbc.ds": "dataSourceName",
-
+        "store.failover.message.store.name":"failOverMessageStore"
     }
 
 };
 
-export function getInboundEndpointMustacheTemplate() {
+export function getMessageStoreMustacheTemplate() {
     return `<?xml version="1.0" encoding="UTF-8"?>
     <messageStore name="{{name}}" class="{{className}}"  xmlns="http://ws.apache.org/ns/synapse">  
     {{#params}}
@@ -164,5 +167,5 @@ export function getMessageStoreXml(data: GetMessageStoreTemplatesArgs) {
         params
     };
 
-    return render(getInboundEndpointMustacheTemplate(), modifiedData);
+    return render(getMessageStoreMustacheTemplate(), modifiedData);
 }

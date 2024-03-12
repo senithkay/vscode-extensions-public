@@ -49,7 +49,6 @@ import {
     GetTextAtRangeResponse,
     FileDirResponse,
     HighlightCodeRequest,
-    LocalEntryDirectoryResponse,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectDirResponse,
@@ -90,6 +89,10 @@ import {
     GetAvailableResourcesResponse,
     CreateClassMediatorRequest,
     CreateClassMediatorResponse,
+    GetLocalEntryRequest,
+    GetLocalEntryResponse,
+    FileListRequest,
+    FileListResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import * as fs from "fs";
@@ -110,7 +113,7 @@ import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { error } from "console";
 import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
-const { XMLParser } = require("fast-xml-parser");
+const { XMLParser,XMLBuilder } = require("fast-xml-parser");
 
 
 const connectorsPath = path.join(".metadata", ".Connectors");
@@ -356,18 +359,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             resolve({ path: filePath });
         });
     }
-
-    async getLocalEntryDirectory(): Promise<LocalEntryDirectoryResponse> {
-        return new Promise(async (resolve) => {
-            const workspaceFolder = workspace.workspaceFolders;
-            if (workspaceFolder) {
-                const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
-                const synapseAPIPath = `${workspaceFolderPath}/${workspaceFolder[0].name}Configs/src/main/synapse-config/local-entries`;
-                resolve({ data: synapseAPIPath });
-            }
-            resolve({ data: "" });
-        });
-    }
+    
     async createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
         return new Promise(async (resolve) => {
             const { directory, name, type, value, URL } = params;
@@ -376,7 +368,60 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const filePath = path.join(directory, `${name}.xml`);
 
             writeXmlDataToFile(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
+        });
+    }
+
+    async getLocalEntry(params: GetLocalEntryRequest): Promise<GetLocalEntryResponse> {
+        const options = {
+            ignoreAttributes: false,
+            allowBooleanAttributes: true,
+            attributeNamePrefix: "",
+            attributesGroupName: "@_",
+            indentBy: '    ',
+            format: true,
+        };
+        const parser = new XMLParser(options);
+
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+            if (fs.existsSync(filePath)) {
+                const xmlData = fs.readFileSync(filePath, "utf8");
+                const jsonData = parser.parse(xmlData);
+                console.log(jsonData);
+                const response: GetLocalEntryResponse = {
+                    name: jsonData.localEntry["@_"]["key"],
+                    type: "",
+                    inLineTextValue: "",
+                    inLineXmlValue: "",
+                    sourceURL: ""
+                };
+                if (jsonData && jsonData.localEntry) {
+                    if (jsonData.localEntry["#text"]) {
+                        response.type = "In-Line Text Entry";
+                        response.inLineTextValue = jsonData.localEntry["#text"];
+                    } else if (jsonData.localEntry.xml) {
+                        response.type = "In-Line XML Entry";
+                        if (jsonData.localEntry.xml["@_"]["xmlns"]==='') {
+                            delete jsonData.localEntry.xml["@_"]["xmlns"];
+                        }
+                        const xmlObj ={
+                            xml:{
+                                ...jsonData.localEntry.xml
+                            }
+                        }  
+                        const builder = new XMLBuilder(options);
+                        let xml = builder.build(xmlObj);
+                        response.inLineXmlValue = xml;
+                    } else if (jsonData.localEntry["@_"]["src"]) {
+                        response.type = "Source URL Entry";
+                        response.sourceURL = jsonData.localEntry["@_"]["src"];
+                    }
+                }
+                resolve(response);
+            }
+            return error("File not found");
         });
     }
 
@@ -389,7 +434,16 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const filePath = path.join(params.directory, `${params.name}.xml`);
             fs.writeFileSync(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
+        });
+    }
+
+    async getXmlFileList(params: FileListRequest): Promise<FileListResponse> {
+        return new Promise(async (resolve) => {
+            const files = fs.readdirSync(params.path);
+            const xmlFiles = files.filter((file) => file.endsWith('.xml')).map(file => file.replace('.xml', ''));
+            resolve({ files: xmlFiles });
         });
     }
 
@@ -448,8 +502,29 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     xPath: '',
                     providerClass: '',
                     customParameters: [] as Parameter[],
-                    sslVersion: ""
+                    sslVersion: "",
+                    failOverMessageStore: "",
                 };
+                switch (className) {
+                    case 'org.apache.synapse.message.store.impl.jms.JmsStore':
+                        response.type = 'JMS Message Store';
+                        break;
+                    case 'org.apache.synapse.message.store.impl.jdbc.JDBCMessageStore':
+                        response.type = 'JDBC Message Store';
+                        break;
+                    case 'org.apache.synapse.message.store.impl.rabbitmq.RabbitMQStore':
+                        response.type = 'RabbitMQ Message Store';
+                        break;
+                    case 'org.apache.synapse.message.store.impl.resequencer.ResequenceMessageStore':
+                        response.type = 'Resequence Message Store';
+                        break;
+                    case 'org.apache.synapse.message.store.impl.memory.InMemoryStore':
+                        response.type = 'In Memory Message Store';
+                        break;
+                    default:
+                        response.type = 'Custom Message Store';
+                        break;         
+                }
                 if (jsonData && jsonData.messageStore && jsonData.messageStore.parameter) {
                     parameters = Array.isArray(jsonData.messageStore.parameter)
                         ? jsonData.messageStore.parameter.map((param: any) => ({
@@ -494,6 +569,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         'store.rabbitmq.virtual.host': 'virtualHost',
                         'store.resequence.timeout': 'pollingCount',
                         'store.resequence.id.path': 'xPath',
+                        'store.failover.message.store.name': 'failOverMessageStore'                 
                     }
                     switch (className) {
                         case 'org.apache.synapse.message.store.impl.jms.JmsStore':
@@ -515,14 +591,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                             response.type = 'Custom Message Store';
                             break;
                     }
-                    if (response.type !== 'Custom Message Store') {
+                    if  (response.type !== 'Custom Message Store')  {
                         parameters.forEach((param: Parameter) => {
                             if (MessageStoreModel.hasOwnProperty(param.name)) {
                                 response[MessageStoreModel[param.name]] = param.value;
-                            }
-                            const key = MessageStoreModel[param.name];
-                            if (key) {
-                                response[key] = param.value;
                             }
                         });
                         if (response.queueConnectionFactory) {
@@ -534,7 +606,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         });
                         response.providerClass = className;
                         response.customParameters = customParameters;
-                    }
+                    }             
                 }
                 resolve(response);
             }

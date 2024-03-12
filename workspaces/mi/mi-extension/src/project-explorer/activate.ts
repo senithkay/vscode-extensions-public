@@ -162,8 +162,8 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		console.log('Import a Project');
 	});
 
-	commands.registerCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND, () => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.LocalEntryForm });
+	commands.registerCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND, (entry:ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.LocalEntryForm, documentUri: entry.info?.path});
 		console.log('Add Local Entry');
 	});
 
@@ -207,6 +207,10 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MessageStoreForm, documentUri: documentUri?.fsPath });
 
+	})
+	commands.registerCommand(COMMANDS.SHOW_LOCAL_ENTRY, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.LocalEntryForm, documentUri: documentUri?.fsPath });
 	});
 	commands.registerCommand(COMMANDS.SHOW_TASK, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);

@@ -167,7 +167,7 @@ const MainPanel = () => {
                     setViewComponent(<ProjectWizard />);
                     break;
                 case MACHINE_VIEW.LocalEntryForm:
-                    setViewComponent(<LocalEntryWizard />);
+                    setViewComponent(<LocalEntryWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.ImportProjectForm:
                     setViewComponent(<ImportProjectWizard />);

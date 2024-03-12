@@ -58,7 +58,8 @@ import {
     GetTextAtRangeResponse,
     FileDirResponse,
     HighlightCodeRequest,
-    LocalEntryDirectoryResponse,
+    GetLocalEntryResponse,
+    GetLocalEntryRequest,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectDirResponse,
@@ -94,7 +95,7 @@ import {
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
-    getLocalEntryDirectory,
+    getLocalEntry,
     getInboundEndpoint,
     getProjectRoot,
     getProjectUuid,
@@ -139,6 +140,9 @@ import {
     CreateClassMediatorRequest,
     CreateClassMediatorResponse,
     createClassMediator,
+    FileListResponse,
+    FileListRequest,
+    getXmlFileList
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -194,12 +198,12 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(createEndpoint, HOST_EXTENSION, params);
     }
 
-    getLocalEntryDirectory(): Promise<LocalEntryDirectoryResponse> {
-        return this._messenger.sendRequest(getLocalEntryDirectory, HOST_EXTENSION);
-    }
-
     createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
         return this._messenger.sendRequest(createLocalEntry, HOST_EXTENSION, params);
+    }
+
+    getLocalEntry(params: GetLocalEntryRequest): Promise<GetLocalEntryResponse>{
+        return this._messenger.sendRequest(getLocalEntry, HOST_EXTENSION, params);
     }
 
     getEndpointsAndSequences(): Promise<EndpointsAndSequencesResponse> {
@@ -244,6 +248,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getMessageStore(params: GetMessageStoreRequest): Promise<GetMessageStoreResponse> {
         return this._messenger.sendRequest(getMessageStore, HOST_EXTENSION, params);
+    }
+
+    getXmlFileList(params: FileListRequest): Promise<FileListResponse>{
+        return this._messenger.sendRequest(getXmlFileList, HOST_EXTENSION, params);
     }
 
     createTemplate(params: CreateTemplateRequest): Promise<CreateTemplateResponse> {
