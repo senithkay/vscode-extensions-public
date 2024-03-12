@@ -11,6 +11,7 @@ import { Diagnostic } from "vscode-languageserver-types";
 export interface STNode {
     hasTextNode: boolean;
     selfClosed: boolean;
+    textNode: string;
     range: TagRange;
     tag: string;
     viewState?: ViewState;
@@ -689,6 +690,7 @@ export interface TDocumented extends STNode {
 }
 
 export interface CacheImplementation extends STNode {
+    type: string;
     maxSize: number;
 }
 
@@ -1114,7 +1116,7 @@ export interface MakefaultReason extends STNode {
 }
 
 export interface CacheOnCacheHit extends STNode {
-    mediatorList: CallTemplate | Smooks | Spring | Bam | Class | PublishEvent | Header | PojoCommand | Callout | Loopback | Xquery | Foreach | Iterate | Script | Builder | Store | Enrich | Ejb | FastXSLT | Clone | DbMediator | Log | ConditionalRouter | Bean | Throttle | Switch | Cache | Jsontransform | Filter | Rewrite | Property | OauthService | Validate | Xslt | EntitlementService | Respond | Event | Transaction | Enqueue | PayloadFactory | DataServiceCall | Send | Datamapper | Call | Rule | Drop | Aggregate | FilterSequence | PropertyGroup | Makefault;
+    mediatorList: STNode[];
     sequence: string;
 }
 
@@ -1271,12 +1273,13 @@ export interface DbMediatorConnectionPool extends STNode {
 }
 
 export interface CacheProtocol extends STNode {
-    methods: string;
-    headersToExcludeInHash: string;
-    responseCodes: string;
-    enableCacheControl: boolean;
-    includeAgeHeader: boolean;
-    hashGenerator: string;
+    methods: STNode;
+    headersToExcludeInHash: STNode;
+    headersToIncludeInHash: STNode
+    responseCodes: STNode
+    enableCacheControl: STNode
+    includeAgeHeader: STNode
+    hashGenerator: STNode
     type: string;
 }
 
@@ -1502,6 +1505,7 @@ export interface Call extends STNode {
     target: CallTarget;
     endpoint: NamedEndpoint;
     blocking: boolean;
+    initAxis2ClientOptions: boolean;
     description: string;
 }
 
@@ -1625,10 +1629,12 @@ export interface Cache extends STNode {
     onCacheHit: CacheOnCacheHit;
     protocol: CacheProtocol;
     implementation: CacheImplementation;
+    id: string;
     timeout: number;
     collector: boolean;
     maxMessageSize: number;
     scope: string;
+    hashGenerator: string;
     description: string;
 }
 

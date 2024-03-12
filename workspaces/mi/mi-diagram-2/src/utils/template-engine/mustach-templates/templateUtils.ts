@@ -9,7 +9,7 @@
 
 import Mustache from "mustache";
 import { getCallFormDataFromSTNode, getCallMustacheTemplate, getCallXml } from "./core/call";
-import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogMustacheTemplate, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutMustacheTemplate, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode, getHeaderMustacheTemplate } from "./core/header";
@@ -46,10 +46,13 @@ import { getDataSerivceCallXml, getDataServiceCallFormDataFromSTNode, getDataSer
 import { getEnqueueMustacheTemplate } from "./advanced/enqueue";
 import { getEventFormDataFromSTNode, getEventMustacheTemplate, getEventXml } from "./advanced/event";
 import { getTransactionFormDataFromSTNode, getTransactionMustacheTemplate, getTransactionXml } from "./advanced/transaction";
+import { getCacheFormDataFromSTNode, getCacheMustacheTemplate, getCacheXml } from "./advanced/cache";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
         //Advanced Mediators
+        case MEDIATORS.CACHE:
+            return getCacheMustacheTemplate();
         case MEDIATORS.CLONE:
             return getCloneMustacheTemplate();
         case MEDIATORS.DATASERVICECALL:
@@ -132,6 +135,8 @@ export function getMustacheTemplate(name: string) {
 export function getXML(name: string, data: { [key: string]: any }) {
     switch (name) {
         //Advanced Mediators
+        case MEDIATORS.CACHE:
+            return getCacheXml(data);
         case MEDIATORS.CLONE:
             return getCloneXml(data);
         case MEDIATORS.DATASERVICECALL:
@@ -185,6 +190,8 @@ export function getDataFromXML(name: string, node: STNode) {
 
     switch (name) {
         //Advanced Mediator
+        case MEDIATORS.CACHE:
+            return getCacheFormDataFromSTNode(formData, node as Cache);
         case MEDIATORS.CLONE:
             return getCloneFormDataFromSTNode(formData, node as Clone);
         case MEDIATORS.TRANSACTION:

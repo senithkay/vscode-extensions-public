@@ -57,6 +57,7 @@ import DataServiceForm from "../Pages/mediators/advanced/dataServiceCall"
 import EnqueueForm from "../Pages/mediators/advanced/enqueue"
 import EventForm from "../Pages/mediators/advanced/event"
 import TransactionForm from "../Pages/mediators/advanced/transaction"
+import CacheForm from "../Pages/mediators/advanced/cache"
 
 export interface GetMediatorsProps {
     nodePosition: any;
@@ -68,6 +69,11 @@ export function getAllMediators(props: GetMediatorsProps) {
 
     const allMediators = {
         "advanced": [
+            {
+                title: "Cache",
+                operationName: MEDIATORS.CACHE,
+                form: <CacheForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CacheForm>,
+            },
             {
                 title: "Clone",
                 operationName: MEDIATORS.CLONE,

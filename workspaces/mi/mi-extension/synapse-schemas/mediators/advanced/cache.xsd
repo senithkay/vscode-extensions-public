@@ -68,12 +68,22 @@
                     </xs:annotation>
                     <xs:complexType>
                         <xs:attribute name="maxSize" type="xs:int" use="optional" />
+                        <xs:attribute name="type" use="optional">
+                            <xs:simpleType>
+                                <xs:restriction base="xs:string">
+                                    <xs:enumeration value="memory" />
+                                    <xs:enumeration value="disk" />
+                                </xs:restriction>
+                            </xs:simpleType>
+                        </xs:attribute>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
+            <xs:attribute name="id" type="xs:string" use="optional" />
             <xs:attribute name="timeout" type="xs:int" use="optional" />
             <xs:attribute name="collector" type="xs:boolean" use="optional" />
             <xs:attribute name="maxMessageSize" type="xs:int" use="optional" />
+            <xs:attribute name="hashGenerator" type="xs:string" use="optional" />
             <xs:attribute name="scope" use="optional">
                 <xs:simpleType>
                     <xs:restriction base="xs:string">
@@ -86,4 +96,3 @@
         </xs:complexType>
     </xs:element>
 </xs:schema>
-

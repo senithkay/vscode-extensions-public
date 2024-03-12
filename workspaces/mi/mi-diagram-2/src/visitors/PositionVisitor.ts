@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STNode, Visitor, Log, WithParam, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, CacheOnCacheHit, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { STNode, Visitor, Log, WithParam, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, CacheOnCacheHit, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
 
 export class PositionVisitor implements Visitor {
@@ -182,6 +182,20 @@ export class PositionVisitor implements Visitor {
     beginVisitCallTemplate = (node: CallTemplate): void => this.setBasicMediatorPosition(node);
 
     //Advanced Medaitors
+    beginVisitCache = (node: Cache): void => {
+        this.setAdvancedMediatorPosition(node, {
+            OnCacheHit: node.onCacheHit
+        });
+    }
+    endVisitCache = (node: Cache): void => this.setSkipChildrenVisit(false);
+    beginVisitClone = (node: Clone): void => {
+        let targets: { [key: string]: any } = {}
+        node.target.map((target) => {
+            targets[target.to] = target
+        });
+        this.setAdvancedMediatorPosition(node, targets);
+    }
+    endVisitClone = (node: Clone): void => this.setSkipChildrenVisit(false);
     beginVisitDataServiceCall = (node: DataServiceCall): void => this.setBasicMediatorPosition(node);
     beginVisitEnqueue = (node: Enqueue): void => this.setBasicMediatorPosition(node);
     beginVisitTransaction = (node: Transaction): void => this.setBasicMediatorPosition(node);
