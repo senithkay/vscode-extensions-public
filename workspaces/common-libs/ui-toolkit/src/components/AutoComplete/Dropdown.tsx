@@ -26,7 +26,6 @@ export interface DropdownContainerProps {
 }
 
 const DropdownContainer: React.FC<DropdownContainerProps> = styled.div`
-    position: absolute;
     max-height: 100px;
     width: ${(props: DropdownContainerProps) => `${props.dropdownWidth}px`};
     overflow: auto;
