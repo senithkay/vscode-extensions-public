@@ -137,30 +137,12 @@ export function EditResourceForm({ resourceData, isOpen, onCancel, onEdit }: Seq
                     )}
                     <CheckBoxContainer>
                         <label>Methods</label>
-                        <CheckBoxGroup>
+                        <CheckBoxGroup columns={2}>
                             <CheckBox
                                 label="GET"
                                 value="get"
                                 checked={methods.get}
                                 onChange={(isChecked: boolean) => setMethods({ ...methods, get: isChecked })}
-                            />
-                            <CheckBox
-                                label="POST"
-                                value="post"
-                                checked={methods.post}
-                                onChange={(isChecked: boolean) => setMethods({ ...methods, post: isChecked })}
-                            />
-                            <CheckBox
-                                label="PUT"
-                                value="put"
-                                checked={methods.put}
-                                onChange={(isChecked: boolean) => setMethods({ ...methods, put: isChecked })}
-                            />
-                            <CheckBox
-                                label="DELETE"
-                                value="delete"
-                                checked={methods.delete}
-                                onChange={(isChecked: boolean) => setMethods({ ...methods, delete: isChecked })}
                             />
                             <CheckBox
                                 label="PATCH"
@@ -169,10 +151,22 @@ export function EditResourceForm({ resourceData, isOpen, onCancel, onEdit }: Seq
                                 onChange={(isChecked: boolean) => setMethods({ ...methods, patch: isChecked })}
                             />
                             <CheckBox
+                                label="POST"
+                                value="post"
+                                checked={methods.post}
+                                onChange={(isChecked: boolean) => setMethods({ ...methods, post: isChecked })}
+                            />
+                            <CheckBox
                                 label="HEAD"
                                 value="head"
                                 checked={methods.head}
                                 onChange={(isChecked: boolean) => setMethods({ ...methods, head: isChecked })}
+                            />
+                            <CheckBox
+                                label="PUT"
+                                value="put"
+                                checked={methods.put}
+                                onChange={(isChecked: boolean) => setMethods({ ...methods, put: isChecked })}
                             />
                             <CheckBox
                                 label="OPTIONS"
@@ -180,11 +174,17 @@ export function EditResourceForm({ resourceData, isOpen, onCancel, onEdit }: Seq
                                 checked={methods.options}
                                 onChange={(isChecked: boolean) => setMethods({ ...methods, options: isChecked })}
                             />
+                            <CheckBox
+                                label="DELETE"
+                                value="delete"
+                                checked={methods.delete}
+                                onChange={(isChecked: boolean) => setMethods({ ...methods, delete: isChecked })}
+                            />
                         </CheckBoxGroup>
                     </CheckBoxContainer>
                     <CheckBoxContainer>
                         <label>Protocol</label>
-                        <CheckBoxGroup>
+                        <CheckBoxGroup columns={2}>
                             <CheckBox
                                 label="HTTP"
                                 value="http"

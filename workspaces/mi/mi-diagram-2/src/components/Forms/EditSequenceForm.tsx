@@ -15,6 +15,7 @@ import {
     SidePanelBody,
     Codicon,
     CheckBox,
+    CheckBoxGroup,
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
@@ -83,8 +84,10 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onEdit }: Res
                         size={150}
                         errorMsg={name.length > 0 ? undefined : "Required field"}
                     />
-                    <CheckBox label="Trace" value="trace" checked={trace} onChange={setTrace} />
-                    <CheckBox label="Statistics" value="statistics" checked={statistics} onChange={setStatistics} />
+                    <CheckBoxGroup columns={2}>
+                        <CheckBox label="Statistics" value="statistics" checked={statistics} onChange={setStatistics} />
+                        <CheckBox label="Trace" value="trace" checked={trace} onChange={setTrace} />
+                    </CheckBoxGroup>
                     <TextField id="seq-on-error" label="On Error" value={onError} onChange={setOnError} size={150} />
                     <ActionContainer>
                         <Button appearance="secondary" onClick={onCancel}>
