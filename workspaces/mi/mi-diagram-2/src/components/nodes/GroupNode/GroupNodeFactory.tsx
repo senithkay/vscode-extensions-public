@@ -16,7 +16,7 @@ import { NodeTypes } from "../../../resources/constants";
 
 export class GroupNodeFactory extends AbstractReactFactory<GroupNodeModel, DiagramEngine> {
     constructor() {
-        super(NodeTypes.CLONE_NODE);
+        super(NodeTypes.GROUP_NODE);
     }
 
     generateModel(event: GenerateModelEvent): GroupNodeModel {

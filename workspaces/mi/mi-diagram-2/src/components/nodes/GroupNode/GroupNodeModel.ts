@@ -19,6 +19,6 @@ export class GroupNodeModel extends BaseNodeModel {
         parentNode?: STNode,
         prevNodes: STNode[] = []
     ) {
-        super(NodeTypes.CLONE_NODE, mediatorName, documentUri, stNode, parentNode, prevNodes);
+        super(NodeTypes.GROUP_NODE, mediatorName, documentUri, stNode, parentNode, prevNodes);
     }
 }
