@@ -75,12 +75,16 @@ export class NodeFactoryVisitor implements Visitor {
                 const isSequnceConnect = diagramNode instanceof StartNodeModel && previousNode instanceof EndNodeModel;
                 const isEmptyNodeConnect = diagramNode instanceof EmptyNodeModel && previousNode instanceof EmptyNodeModel;
 
+                const addPosition = this.currentAddPosition != undefined ? this.currentAddPosition :
+                    (type === NodeTypes.CONDITION_NODE_END && previousNode instanceof EmptyNodeModel) ? previousStNode.range.endTagRange.start :
+                        previousStNode.range.endTagRange?.end ? previousStNode.range.endTagRange.end : previousStNode.range.startTagRange.end;
+
                 const link = createNodesLink(
                     previousNode as SourceNodeModel,
                     diagramNode as TargetNodeModel,
                     {
                         label: this.currentBranchData?.name,
-                        stRange: this.currentAddPosition ?? (previousStNode.range.endTagRange?.end ? previousStNode.range.endTagRange.end : previousStNode.range.startTagRange.end),
+                        stRange: addPosition,
                         brokenLine: type === NodeTypes.EMPTY_NODE || isSequnceConnect || isEmptyNodeConnect,
                         previousNode: previousStNode.tag,
                         parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
@@ -138,7 +142,6 @@ export class NodeFactoryVisitor implements Visitor {
 
         // add empty node
         this.currentBranchData = undefined;
-        this.currentAddPosition = node.range.endTagRange.start;
         const eNode = structuredClone(node);
         eNode.viewState.id = JSON.stringify(eNode.range.endTagRange) + "_end";
         eNode.viewState.y = eNode.viewState.y + eNode.viewState.fh;
