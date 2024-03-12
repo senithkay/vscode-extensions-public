@@ -8,7 +8,7 @@
  */
 
 
-import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange,Range, Throttle, Validate, Visitor } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange,Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
 import { LINK_BOTTOM_OFFSET } from "../components/NodeLink/NodeLinkModel";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -192,6 +192,12 @@ export class SizingVisitor implements Visitor {
     });
 
     endVisitCallTemplate = (node: CallTemplate): void => this.calculateBasicMediator(node);
+
+    //Advanced Mediators
+    beginVisitDataServiceCall = (node: DataServiceCall): void => this.calculateBasicMediator(node);
+    beginVisitEnqueue = (node: Enqueue): void => this.calculateBasicMediator(node);
+    beginVisitTransaction = (node: Transaction): void => this.calculateBasicMediator(node);
+    beginVisitEvent = (node: Event): void => this.calculateBasicMediator(node);
 
     //Extesnion Mediators
     beginVisitBean = (node: Bean): void => this.calculateBasicMediator(node);

@@ -9,7 +9,7 @@
 
 import Mustache from "mustache";
 import { getCallFormDataFromSTNode, getCallMustacheTemplate, getCallXml } from "./core/call";
-import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogMustacheTemplate, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutMustacheTemplate, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode, getHeaderMustacheTemplate } from "./core/header";
@@ -41,9 +41,26 @@ import { getCommandFormDataFromSTNode, getCommandMustacheTemplate, getCommandXml
 import { getEjbFormDataFromSTNode, getEjbMustacheTemplate, getEjbXml } from "./extension/ejb";
 import { getScriptFormDataFromSTNode, getScriptMustacheTemplate, getScriptXml } from "./extension/script";
 import { getSpringMustacheTemplate } from "./extension/spring";
+import { getCloneFormDataFromSTNode, getCloneMustacheTemplate, getCloneXml } from "./advanced/clone";
+import { getDataSerivceCallXml, getDataServiceCallFormDataFromSTNode, getDataServiceCallMustacheTemplate } from "./advanced/dataServiceCall";
+import { getEnqueueMustacheTemplate } from "./advanced/enqueue";
+import { getEventFormDataFromSTNode, getEventMustacheTemplate, getEventXml } from "./advanced/event";
+import { getTransactionFormDataFromSTNode, getTransactionMustacheTemplate, getTransactionXml } from "./advanced/transaction";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
+        //Advanced Mediators
+        case MEDIATORS.CLONE:
+            return getCloneMustacheTemplate();
+        case MEDIATORS.DATASERVICECALL:
+            return getDataServiceCallMustacheTemplate();
+        case MEDIATORS.ENQUEUE:
+            return getEnqueueMustacheTemplate();
+        case MEDIATORS.EVENT:
+            return getEventMustacheTemplate();
+        case MEDIATORS.TRANSACTION:
+            return getTransactionMustacheTemplate();
+        //Core Mediators 
         case MEDIATORS.CALLTEMPLATE:
             return getCallTemplateMustacheTemplate();
         case MEDIATORS.CALL:
@@ -114,6 +131,15 @@ export function getMustacheTemplate(name: string) {
 
 export function getXML(name: string, data: { [key: string]: any }) {
     switch (name) {
+        //Advanced Mediators
+        case MEDIATORS.CLONE:
+            return getCloneXml(data);
+        case MEDIATORS.DATASERVICECALL:
+            return getDataSerivceCallXml(data);
+        case MEDIATORS.TRANSACTION:
+            return getTransactionXml(data);
+        case MEDIATORS.EVENT:
+            return getEventXml(data);
         //Core Mediators
         case MEDIATORS.CALL:
             return getCallXml(data);
@@ -158,6 +184,16 @@ export function getDataFromXML(name: string, node: STNode) {
     const formData = reverseMustache(template, node);
 
     switch (name) {
+        //Advanced Mediator
+        case MEDIATORS.CLONE:
+            return getCloneFormDataFromSTNode(formData, node as Clone);
+        case MEDIATORS.TRANSACTION:
+            return getTransactionFormDataFromSTNode(formData, node as Transaction);
+        case MEDIATORS.EVENT:
+            return getEventFormDataFromSTNode(formData, node as Event);
+        case MEDIATORS.DATASERVICECALL:
+            return getDataServiceCallFormDataFromSTNode(formData, node as DataServiceCall)
+        //Core
         case MEDIATORS.CALL:
             return getCallFormDataFromSTNode(formData, node as Call);
         case MEDIATORS.CALLOUT:
