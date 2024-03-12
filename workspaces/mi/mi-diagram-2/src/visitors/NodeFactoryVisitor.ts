@@ -340,8 +340,8 @@ export class NodeFactoryVisitor implements Visitor {
         this.createNodeAndLinks(node, MEDIATORS.CLONE, NodeTypes.CONDITION_NODE)
         this.parents.push(node);
         let targets: { [key: string]: any } = {}
-        node.target.map((target) => {
-            targets[target.to] = target
+        node.target.map((target, index) => {
+            targets[target.to || index] = target
         })
         this.visitSubSequences(node, targets);
         this.skipChildrenVisit = true;
