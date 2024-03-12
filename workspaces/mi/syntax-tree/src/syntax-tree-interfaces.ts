@@ -615,6 +615,7 @@ export interface Endpoint extends STNode {
     parameter: EndpointParameter[];
     description: string;
     key: string;
+    keyExpression: string;
     template: string;
     uri: string;
     type: string;

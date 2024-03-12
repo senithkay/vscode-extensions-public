@@ -14,6 +14,7 @@ import { MessageStoreWizard } from './views/Forms/MessageStoreForm/index';
 import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 import { MessageProcessorWizard } from "./views/Forms/MessageProcessorForm";
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
+import { GettingStarted } from "./views/GettingStarted";
 import styled from '@emotion/styled';
 import { InboundEPWizard } from './views/Forms/InboundEPform';
 import { css, keyframes } from '@emotion/react';
@@ -57,6 +58,9 @@ const MainPanel = () => {
         fetchContext();
 
         rpcClient?.onStateChanged((newState: MachineStateValue) => {
+            if (typeof newState === 'object' && 'newProject' in newState && newState.newProject === 'viewReady') {
+                fetchContext();
+            }
             if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewReady') {
                 fetchContext();
             }
@@ -75,7 +79,7 @@ const MainPanel = () => {
                 setShowAIWindow(true);
             }
         });
-    }, [viewComponent]); 
+    }, [viewComponent]);
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -91,11 +95,14 @@ const MainPanel = () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
     }, []);
-                
+
 
     const fetchContext = () => {
         rpcClient.getVisualizerState().then((machineView) => {
             switch (machineView?.view) {
+                case MACHINE_VIEW.Welcome:
+                    setViewComponent(<GettingStarted />);
+                    break;
                 case MACHINE_VIEW.Overview:
                     setViewComponent(<Overview />);
                     break;
@@ -160,7 +167,7 @@ const MainPanel = () => {
                     setViewComponent(<ProjectWizard />);
                     break;
                 case MACHINE_VIEW.LocalEntryForm:
-                    setViewComponent(<LocalEntryWizard />);
+                    setViewComponent(<LocalEntryWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.ImportProjectForm:
                     setViewComponent(<ImportProjectWizard />);

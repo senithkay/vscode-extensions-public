@@ -3,6 +3,7 @@ export const MI_COPILOT_BACKEND_URL = "https://cf3a4176-54c9-4547-bcd6-c6fe400ad
 
 export const COMMANDS = {
     OPEN_PROJECT: "MI.openProject",
+    OPEN_AI_PANEL: "MI.openAiPanel",
     OPEN_WELCOME: "MI.openWelcome",
     SHOW_DIAGRAM: "MI.show.diagram",
     SHOW_TASK: "MI.show.task",
@@ -10,7 +11,8 @@ export const COMMANDS = {
     SHOW_SOURCE: "MI.show.source",
     SHOW_XML: "MI.show.xml",
     SHOW_MESSAGE_PROCESSOR: "MI.show.message-processor",
-    SHOW_MESSAGE_STORE: "MI.show.message-",
+    SHOW_MESSAGE_STORE: "MI.show.message-store",
+    SHOW_LOCAL_ENTRY: "MI.show.local-entry",
     SHOW_TEMPLATE: "MI.show.template",
     ADD_MEDIATOR: "MI.addMediator",
     REFRESH_COMMAND: 'MI.project-explorer.refresh',
