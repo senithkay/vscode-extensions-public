@@ -20,6 +20,7 @@ import { SourceNodeModel, TargetNodeModel, createNodesLink } from "../utils/diag
 import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
 import { Diagnostic } from "vscode-languageserver-types";
 import { ReferenceNodeModel } from "../components/nodes/ReferenceNode/ReferenceNodeModel";
+import { APIResource, NamedSequence } from "@wso2-enterprise/mi-syntax-tree/src";
 
 interface BranchData {
     name: string;
@@ -40,9 +41,11 @@ export class NodeFactoryVisitor implements Visitor {
     private currentAddPosition: Position;
     private documentUri: string;
     private diagramType: DiagramType;
+    private resource: APIResource | NamedSequence;
 
-    constructor(documentUri: string) {
+    constructor(documentUri: string, model: APIResource | NamedSequence) {
         this.documentUri = documentUri;
+        this.resource = model;
     }
 
     private createNodeAndLinks(node: STNode, name: string, type: NodeTypes = NodeTypes.MEDIATOR_NODE, data?: any): void {
@@ -55,7 +58,7 @@ export class NodeFactoryVisitor implements Visitor {
         } else if (type === NodeTypes.CONDITION_NODE) {
             diagramNode = new ConditionNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.START_NODE) {
-            diagramNode = new StartNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
+            diagramNode = new StartNodeModel(node, this.resource, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.END_NODE) {
             diagramNode = new EndNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.CALL_NODE) {
@@ -194,6 +197,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.parents.push(node);
     }
     endVisitInSequence(node: Sequence): void {
+        node.viewState.x += NODE_DIMENSIONS.START.EDITABLE.WIDTH / 2 - NODE_DIMENSIONS.START.DISABLED.WIDTH / 2;
         node.viewState.y = node.viewState.fh + NODE_GAP.Y;
         this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE);
         this.parents.pop();

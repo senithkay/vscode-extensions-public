@@ -29,7 +29,6 @@ const config: StorybookConfig = {
     autodocs: false,
   },
   webpackFinal: async (config) => {
-    config!.output!.path = "/Users/chamupathi/Documents/projects/wso2/ballerina-plugin-vscode/workspaces/mi/mi-diagram-2/dist";
     config!.resolve!.alias = {
       ...config!.resolve!.alias,
       react: resolve(__dirname, '../node_modules/react'),

@@ -30,7 +30,7 @@ import { getNamedEndpointXml } from "./endpoints/named";
 import { getRecipientListEndpointMustacheTemplate } from "./endpoints/recipientList";
 import { getTemplateEndpointMustacheTemplate } from "./endpoints/template";
 import { getWSDLEndpointMustacheTemplate } from "./endpoints/wsdl";
-import { MEDIATORS, ENDPOINTS } from "../../../resources/constants";
+import { MEDIATORS, ENDPOINTS, SERVICE } from "../../../resources/constants";
 import { getFilterMustacheTemplate } from "./core/filter";
 import { getSequenceMustacheTemplate, getSequenceDataFromSTNode, getSequenceXml } from "./core/sequence";
 import { getStoreFormDataFromSTNode, getStoreMustacheTemplate, getStoreXml } from "./core/store";
@@ -47,6 +47,7 @@ import { getEnqueueMustacheTemplate } from "./advanced/enqueue";
 import { getEventFormDataFromSTNode, getEventMustacheTemplate, getEventXml } from "./advanced/event";
 import { getTransactionFormDataFromSTNode, getTransactionMustacheTemplate, getTransactionXml } from "./advanced/transaction";
 import { getCacheFormDataFromSTNode, getCacheMustacheTemplate, getCacheXml } from "./advanced/cache";
+import { getEditApiResourceXml, getEditSequenceXml } from "./core/service-designer";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -166,6 +167,7 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getPayloadXml(data);
         case ENDPOINTS.NAMED:
             return getNamedEndpointXml(data);
+
         //Extension Mediators    
         case MEDIATORS.BEAN:
             return getBeanXml(data);
@@ -178,7 +180,13 @@ export function getXML(name: string, data: { [key: string]: any }) {
         case MEDIATORS.COMMAND:
             return getCommandXml(data);
         case MEDIATORS.SEQUENCE:
-            return getSequenceXml(data);    
+            return getSequenceXml(data);
+            
+        // Service Forms
+        case SERVICE.EDIT_RESOURCE:
+            return getEditApiResourceXml(data);
+        case SERVICE.EDIT_SEQUENCE:
+            return getEditSequenceXml(data);
         default:
             return Mustache.render(getMustacheTemplate(name), data).trim();
     }

@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
     Button,
     TextField,
@@ -24,7 +24,7 @@ export type Protocol = "http" | "https";
 
 export type Method = "get" | "post" | "put" | "delete" | "patch" | "head" | "options";
 
-export type AddAPIFormProps = {
+export type EditAPIForm = {
     urlStyle: string;
     uriTemplate?: string;
     urlMapping?: string;
@@ -36,10 +36,11 @@ export type AddAPIFormProps = {
     };
 };
 
-export type APIResourceWizardProps = {
+export type SequenceProps = {
     isOpen: boolean;
+    resourceData: EditAPIForm;
     onCancel: () => void;
-    onCreate: (data: AddAPIFormProps) => void;
+    onEdit: (data: EditAPIForm) => void;
 };
 
 const ActionContainer = styled.div`
@@ -63,38 +64,14 @@ const SidePanelBodyWrapper = styled.div`
     padding: 20px;
 `;
 
-export function AddResourceForm({ isOpen, onCancel: handleCancel, onCreate: handleCreateAPI }: APIResourceWizardProps) {
-    const defaultProtocol = {
-        http: true,
-        https: true,
-    };
-    const defaultMethods = {
-        get: false,
-        post: false,
-        put: false,
-        delete: false,
-        patch: false,
-        head: false,
-        options: false,
-    };
-
-    const [urlStyle, setUrlStyle] = useState<string>("none");
-    const [uriTemplate, setUriTemplate] = useState<string>("/");
-    const [urlMapping, setUrlMapping] = useState<string>("/");
-    const [protocol, setProtocol] = useState<{ [K in Protocol]: boolean }>(defaultProtocol);
-    const [methods, setMethods] = useState<{ [K in Method]: boolean }>(defaultMethods);
+export function EditResourceForm({ resourceData, isOpen, onCancel, onEdit }: SequenceProps) {
+    const [urlStyle, setUrlStyle] = useState<string>(resourceData.urlStyle);
+    const [uriTemplate, setUriTemplate] = useState<string>(resourceData.uriTemplate || "/");
+    const [urlMapping, setUrlMapping] = useState<string>(resourceData.urlMapping || "/");
+    const [protocol, setProtocol] = useState<{ [K in Protocol]: boolean }>(resourceData.protocol);
+    const [methods, setMethods] = useState<{ [K in Method]: boolean }>(resourceData.methods);
     const [validUriTemplate, setValidUriTemplate] = useState<boolean>(true);
     const [validUrlMapping, setValidUrlMapping] = useState<boolean>(true);
-
-    useEffect(() => {
-        return () => {
-            setUrlStyle("none");
-            setUriTemplate("/");
-            setUrlMapping("/");
-            setProtocol(defaultProtocol);
-            setMethods(defaultMethods);
-        };
-    }, [isOpen]);
 
     const isValid =
         validUriTemplate &&
@@ -102,11 +79,18 @@ export function AddResourceForm({ isOpen, onCancel: handleCancel, onCreate: hand
         Object.values(protocol).some((value) => value) &&
         Object.values(methods).some((value) => value);
 
+    const isUpdated = resourceData.urlStyle !== urlStyle
+        || (resourceData?.uriTemplate ? resourceData.uriTemplate !== uriTemplate : false)
+        || (resourceData?.urlMapping ? resourceData.urlMapping !== urlMapping : false)
+        || resourceData.protocol !== protocol
+        || resourceData.methods !== methods;
+    ;
+
     return (
         <SidePanel isOpen={isOpen} alignmanet="right" sx={{ transition: "all 0.3s ease-in-out" }}>
             <SidePanelTitleContainer>
-                <div>Add API Resource</div>
-                <Button onClick={handleCancel} appearance="icon">
+                <div>Edit API Resource</div>
+                <Button onClick={onCancel} appearance="icon">
                     <Codicon name="close" />
                 </Button>
             </SidePanelTitleContainer>
@@ -216,13 +200,13 @@ export function AddResourceForm({ isOpen, onCancel: handleCancel, onCreate: hand
                         </CheckBoxGroup>
                     </CheckBoxContainer>
                     <ActionContainer>
-                        <Button appearance="secondary" onClick={handleCancel}>
+                        <Button appearance="secondary" onClick={onCancel}>
                             Cancel
                         </Button>
                         <Button
                             appearance="primary"
                             onClick={() =>
-                                handleCreateAPI({
+                                onEdit({
                                     urlStyle,
                                     uriTemplate: urlStyle === "uri-template" ? uriTemplate : undefined,
                                     urlMapping: urlStyle === "url-mapping" ? urlMapping : undefined,
@@ -230,9 +214,9 @@ export function AddResourceForm({ isOpen, onCancel: handleCancel, onCreate: hand
                                     protocol,
                                 })
                             }
-                            disabled={!isValid}
+                            disabled={!isValid || !isUpdated}
                         >
-                            Create
+                            Update
                         </Button>
                     </ActionContainer>
                 </SidePanelBodyWrapper>
