@@ -156,8 +156,12 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             exprFuncBody = selectedST.functionBody;
         }
         const fieldNamePosition = STKindChecker.isSpecificField(innerMostExpr)
-                                    && innerMostExpr.fieldName.position as NodePosition;
-        if (fieldNamePosition) {
+            && innerMostExpr.fieldName.position as NodePosition;
+        const isSelectClauseQuery = STKindChecker.isSelectClause(this.parentNode) || (fieldNamePosition
+            && STKindChecker.isQueryExpression(innerMostExpr.valueExpr)
+            && !isPositionsEquals(innerMostExpr.valueExpr.position, this.value.position));
+
+        if (fieldNamePosition && !isSelectClauseQuery) {
             this.getModel().getNodes().map((node) => {
                 if (node instanceof MappingConstructorNode
                     || node instanceof ListConstructorNode
@@ -176,7 +180,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     });
                 }
             });
-        } else if (isRepresentFnBody(this.parentNode, exprFuncBody)) {
+        } else if (isSelectClauseQuery || isRepresentFnBody(this.parentNode, exprFuncBody)) {
             this.getModel().getNodes().forEach((node) => {
                 if (node instanceof ListConstructorNode) {
                     const ports = Object.entries(node.getPorts());

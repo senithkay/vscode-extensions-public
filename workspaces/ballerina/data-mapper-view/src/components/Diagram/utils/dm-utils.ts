@@ -34,6 +34,7 @@ import {
 	OptionalFieldAccess,
 	QueryExpression,
 	RequiredParam,
+	SelectClause,
 	SimpleNameReference,
 	SpecificField,
 	STKindChecker,
@@ -79,17 +80,20 @@ import { ModuleVariablesFindingVisitor } from "../visitors/ModuleVariablesFindin
 import {
 	ENUM_TYPE_SOURCE_PORT_PREFIX,
 	EXPANDED_QUERY_SOURCE_PORT_PREFIX,
+	FUNCTION_BODY_QUERY,
 	JSON_MERGE_MODULE_NAME,
 	LET_EXPRESSION_SOURCE_PORT_PREFIX,
 	LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
 	MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
 	MODULE_VARIABLE_SOURCE_PORT_PREFIX,
 	PRIMITIVE_TYPE_TARGET_PORT_PREFIX,
+	SELECT_CALUSE_QUERY,
 	UNION_TYPE_TARGET_PORT_PREFIX,
 } from "./constants";
 import { FnDefInfo, FunctionDefinitionStore } from "./fn-definition-store";
 import { getModification } from "./modifications";
 import { TypeDescriptorStore } from "./type-descriptor-store";
+import { QueryExprFindingVisitorByPosition } from "../visitors/QueryExprFindingVisitorByPosition";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: { name: string, isOptional: boolean }[] = [];
@@ -592,11 +596,14 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 			valueExpr = valueExpr.expression;
 		}
 		if (valueExpr && STKindChecker.isSimpleNameReference(valueExpr)) {
-			const selectedST = dmNode.context.selection.selectedST.stNode;
-			const isQueryExpr = STKindChecker.isSpecificField(selectedST)
-				&& STKindChecker.isQueryExpression(selectedST.valueExpr);
+			const { selectedST } = dmNode.context.selection;
+			const { stNode: selectedSTNode, fieldPath, position } = selectedST;
+			const isSpecificFieldValueQueryExpr = STKindChecker.isSpecificField(selectedSTNode)
+				&& STKindChecker.isQueryExpression(selectedSTNode.valueExpr);
+			const isSelectClauseExprQueryExpr = isSelectClauseQueryExpr(fieldPath);
 			paramNode = dmNode.context.functionST.functionSignature.parameters.find((param) =>
-					!isQueryExpr
+					!isSpecificFieldValueQueryExpr
+					&& !isSelectClauseExprQueryExpr
 					&& STKindChecker.isRequiredParam(param)
 					&& param.paramName?.value === (valueExpr as SimpleNameReference).name.value
 				) as RequiredParam;
@@ -634,30 +641,35 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 			}
 
 			if (!paramNode) {
-				if (isQueryExpr) {
-					paramNode = (selectedST.valueExpr as QueryExpression).queryPipeline.fromClause;
-				} else if (STKindChecker.isSpecificField(selectedST)
-					&& STKindChecker.isBracedExpression(selectedST.valueExpr)
-					&& STKindChecker.isQueryExpression(selectedST.valueExpr.expression)) {
-					paramNode = selectedST.valueExpr.expression.queryPipeline.fromClause;
-				} else if (STKindChecker.isSpecificField(selectedST)
-					&& STKindChecker.isIndexedExpression(selectedST.valueExpr)
-					&& STKindChecker.isBracedExpression(selectedST.valueExpr.containerExpression)
-					&& STKindChecker.isQueryExpression(selectedST.valueExpr.containerExpression.expression)) {
-					paramNode = selectedST.valueExpr.containerExpression.expression.queryPipeline.fromClause;
-				} else if (STKindChecker.isFunctionDefinition(selectedST)
-					&& STKindChecker.isExpressionFunctionBody(selectedST.functionBody)
-					&& STKindChecker.isIndexedExpression(selectedST.functionBody.expression)
-					&& STKindChecker.isBracedExpression(selectedST.functionBody.expression.containerExpression)
-					&& STKindChecker.isQueryExpression(selectedST.functionBody.expression.containerExpression.expression)) {
-					paramNode = selectedST.functionBody.expression.containerExpression.expression.queryPipeline.fromClause;
-				} else if (STKindChecker.isLetVarDecl(selectedST) && STKindChecker.isQueryExpression(selectedST.expression)) {
-					paramNode = selectedST.expression.queryPipeline.fromClause;
-				} else if (STKindChecker.isFunctionDefinition(selectedST)
-					&& STKindChecker.isExpressionFunctionBody(selectedST.functionBody)) {
-					const bodyExpr = STKindChecker.isLetExpression(selectedST.functionBody.expression)
-						? getExprBodyFromLetExpression(selectedST.functionBody.expression)
-						: selectedST.functionBody.expression;
+				if (isSpecificFieldValueQueryExpr && !isSelectClauseExprQueryExpr) {
+					paramNode = (selectedSTNode.valueExpr as QueryExpression).queryPipeline.fromClause;
+				} else if (isSelectClauseExprQueryExpr) {
+					const queryExprFindingVisitor = new QueryExprFindingVisitorByPosition(position);
+					traversNode(selectedSTNode, queryExprFindingVisitor);
+					const queryExpr = queryExprFindingVisitor.getQueryExpression();
+					paramNode = queryExpr ? queryExpr.queryPipeline.fromClause : paramNode;
+				} else if (STKindChecker.isSpecificField(selectedSTNode)
+					&& STKindChecker.isBracedExpression(selectedSTNode.valueExpr)
+					&& STKindChecker.isQueryExpression(selectedSTNode.valueExpr.expression)) {
+					paramNode = selectedSTNode.valueExpr.expression.queryPipeline.fromClause;
+				} else if (STKindChecker.isSpecificField(selectedSTNode)
+					&& STKindChecker.isIndexedExpression(selectedSTNode.valueExpr)
+					&& STKindChecker.isBracedExpression(selectedSTNode.valueExpr.containerExpression)
+					&& STKindChecker.isQueryExpression(selectedSTNode.valueExpr.containerExpression.expression)) {
+					paramNode = selectedSTNode.valueExpr.containerExpression.expression.queryPipeline.fromClause;
+				} else if (STKindChecker.isFunctionDefinition(selectedSTNode)
+					&& STKindChecker.isExpressionFunctionBody(selectedSTNode.functionBody)
+					&& STKindChecker.isIndexedExpression(selectedSTNode.functionBody.expression)
+					&& STKindChecker.isBracedExpression(selectedSTNode.functionBody.expression.containerExpression)
+					&& STKindChecker.isQueryExpression(selectedSTNode.functionBody.expression.containerExpression.expression)) {
+					paramNode = selectedSTNode.functionBody.expression.containerExpression.expression.queryPipeline.fromClause;
+				} else if (STKindChecker.isLetVarDecl(selectedSTNode) && STKindChecker.isQueryExpression(selectedSTNode.expression)) {
+					paramNode = selectedSTNode.expression.queryPipeline.fromClause;
+				} else if (STKindChecker.isFunctionDefinition(selectedSTNode)
+					&& STKindChecker.isExpressionFunctionBody(selectedSTNode.functionBody)) {
+					const bodyExpr = STKindChecker.isLetExpression(selectedSTNode.functionBody.expression)
+						? getExprBodyFromLetExpression(selectedSTNode.functionBody.expression)
+						: selectedSTNode.functionBody.expression;
 					if (STKindChecker.isQueryExpression(bodyExpr)) {
 						paramNode = bodyExpr.queryPipeline.fromClause;
 					}
@@ -1047,6 +1059,23 @@ export function getTypeOfOutput(typeIdentifier: TypeDescriptor | IdentifierToken
 	});
 }
 
+export function getTypeOfSelectClause(selectClause: SelectClause): TypeField {
+	let typeIdentifierPosition = selectClause.expression.position;
+	return getTypeFromStore(typeIdentifierPosition);
+}
+
+export function getSubArrayType(arrayType: TypeField, index: number): TypeField {
+    if (index <= 0) {
+        return arrayType;
+    }
+
+	if (arrayType.memberType) {
+		return getSubArrayType(arrayType.memberType, index - 1);
+	}
+	return undefined;
+}
+    
+
 export function getTypeFromStore(position: NodePosition): TypeField {
 	const recordTypeDescriptors = TypeDescriptorStore.getInstance();
 	return recordTypeDescriptors.getTypeDescriptor(position);
@@ -1413,6 +1442,14 @@ export function genVariableName(originalName: string, variables: string[]): stri
 		modifiedName = originalName + index;
 	}
 	return modifiedName;
+}
+
+export function isFnBodyQueryExpr(fieldPath: string) {
+	return fieldPath === FUNCTION_BODY_QUERY;
+}
+
+export function isSelectClauseQueryExpr(fieldPath: string) {
+	return fieldPath === SELECT_CALUSE_QUERY;
 }
 
 function isMappedToPrimitiveTypePort(targetPort: RecordFieldPortModel): boolean {

@@ -14,11 +14,14 @@ import {
     SpecificField,
     STKindChecker,
     STNode,
+    traversNode,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
 import { DataMapperViewState } from "../../../utils/data-mapper-view-state";
 import { DMNode } from "../../DataMapper/DataMapper";
+import { SELECT_CALUSE_QUERY } from "../utils/constants";
+import { QueryExprFindingVisitorByIndex } from "./QueryExprFindingVisitorByIndex";
 
 export class SelectedSTFindingVisitor implements Visitor {
 
@@ -34,7 +37,10 @@ export class SelectedSTFindingVisitor implements Visitor {
         const isOutputAnydata = fnST && STKindChecker.isFunctionDefinition(fnST)
             && fnST.functionSignature?.returnTypeDesc
             && STKindChecker.isAnydataTypeDesc(fnST.functionSignature.returnTypeDesc.type);
-        this.pathSegmentIndex = isOutputAnydata ? 0 : 1; // If the output type is available, the field path starts with the record root name, hence segmentIndex = 1
+        const isOutputInlineRecord = fnST && STKindChecker.isFunctionDefinition(fnST)
+            && fnST.functionSignature?.returnTypeDesc
+            && STKindChecker.isRecordTypeDesc(fnST.functionSignature.returnTypeDesc.type);
+        this.pathSegmentIndex = isOutputAnydata || isOutputInlineRecord ? 0 : 1; // If the output type is available, the field path starts with the record root name, hence segmentIndex = 1
     }
 
     beginVisitSTNode(node: FunctionDefinition | SpecificField | LetVarDecl) {
@@ -90,7 +96,32 @@ export class SelectedSTFindingVisitor implements Visitor {
             && nodeIdentifierName === itemIdentifierName
             && this.areValExprKindsEqual(item.stNode, node))
         {
-            this.updatedPrevST = [...this.updatedPrevST, { ...this.prevST.shift(), stNode: node }];
+            if (this.prevST.some(prevST => prevST.fieldPath === SELECT_CALUSE_QUERY)) {
+                // Specific fields are repeated when value expression containes chained query expressions
+                // (Query expression as the expression value of a select clause)
+                [...this.prevST].forEach(_ => {
+                    const prevST = this.prevST.shift();
+                    let updatedDMNode: DMNode = { ...prevST, stNode: node };
+                    if (prevST.fieldPath === SELECT_CALUSE_QUERY) {
+                        const queryExprFindingVisitor = new QueryExprFindingVisitorByIndex(prevST.index);
+                        traversNode(prevST.stNode, queryExprFindingVisitor);
+                        const queryExpr = queryExprFindingVisitor.getQueryExpression();
+                        updatedDMNode = {...updatedDMNode, position: queryExpr.position}
+                    } else if (STKindChecker.isSpecificField(node) && STKindChecker.isQueryExpression(node.valueExpr)) {
+                        // Update the position of the query expressions declared as the value expression of specific fields
+                        updatedDMNode = {...updatedDMNode, position: node.valueExpr.position};
+                    }
+                    this.updatedPrevST = [...this.updatedPrevST, updatedDMNode];
+                });
+            } else {
+                const prevST = this.prevST.shift();
+                let updatedDMNode: DMNode = { ...prevST, stNode: node };
+                if (STKindChecker.isSpecificField(node) && STKindChecker.isQueryExpression(node.valueExpr)) {
+                    // Update the position of the query expressions declared as the value expression of specific fields
+                    updatedDMNode = {...updatedDMNode, position: node.valueExpr.position};
+                }
+                this.updatedPrevST = [...this.updatedPrevST, updatedDMNode];
+            }
             this.pathSegmentIndex = 1;
             const expr = STKindChecker.isSpecificField(node)
                 ? node.valueExpr
@@ -128,7 +159,15 @@ export class SelectedSTFindingVisitor implements Visitor {
                 if (STKindChecker.isFunctionDefinition(fnDef.stNode)
                     && node.functionName.value === fnDef.stNode.functionName?.value)
                 {
-                    this.updatedPrevST = [...this.updatedPrevST, { ...this.prevST.shift(), stNode: node }];
+                    const prevST = this.prevST.shift();
+                    let updatedDMNode: DMNode = { ...prevST, stNode: node };
+                    if (prevST.fieldPath === SELECT_CALUSE_QUERY) {
+                        const queryExprFindingVisitor = new QueryExprFindingVisitorByIndex(prevST.index);
+                        traversNode(prevST.stNode, queryExprFindingVisitor);
+                        const queryExpr = queryExprFindingVisitor.getQueryExpression();
+                        updatedDMNode = {...updatedDMNode, position: queryExpr.position}
+                    }
+                    this.updatedPrevST = [...this.updatedPrevST, updatedDMNode];
                 }
             });
         }
