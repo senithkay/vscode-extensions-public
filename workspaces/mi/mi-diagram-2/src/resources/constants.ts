@@ -187,6 +187,7 @@ export enum NodeTypes {
     REFERENCE_NODE = "reference-node",
     CONDITION_NODE = "condition-node",
     CONDITION_NODE_END = "condition-node-end",
+    CLONE_NODE = "clone-node",
     CALL_NODE = "call-node",
     EMPTY_NODE = "empty-node",
 }
