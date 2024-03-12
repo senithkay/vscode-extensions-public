@@ -8,7 +8,7 @@
  */
 
 
-import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange,Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange,Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
 
@@ -218,6 +218,18 @@ export class SizingVisitor implements Visitor {
     endVisitCallTemplate = (node: CallTemplate): void => this.calculateBasicMediator(node);
 
     //Advanced Mediators
+    endVisitCache = (node: Cache): void => {
+        this.calculateAdvancedMediator(node, {
+            OnCacheHit: node.onCacheHit
+        });
+    }
+    endVisitClone = (node: Clone): void => {
+        let targets: { [key: string]: any } = {}
+        node.target.map((target) => {
+            targets[target.to] = target
+        });
+        this.calculateAdvancedMediator(node, targets);
+    }
     beginVisitDataServiceCall = (node: DataServiceCall): void => this.calculateBasicMediator(node);
     beginVisitEnqueue = (node: Enqueue): void => this.calculateBasicMediator(node);
     beginVisitTransaction = (node: Transaction): void => this.calculateBasicMediator(node);
