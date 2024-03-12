@@ -35,7 +35,7 @@ export class SizingVisitor implements Visitor {
         }
 
         let subSequencesWidth = 0;
-        let subSequencesHeight = 10;
+        let subSequencesHeight = 50;
         const subSequenceKeys = Object.keys(subSequences);
         for (let i = 0; i < subSequenceKeys.length; i++) {
             const subSequence = subSequences[subSequenceKeys[i]];
