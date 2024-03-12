@@ -583,18 +583,13 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 				return node?.value && expr.name.value === node.value.paramName.value;
 			} else if (node instanceof FromClauseNode) {
 				const bindingPattern = node.value.typedBindingPattern.bindingPattern;
-				if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
-					return expr.name.value === bindingPattern.variableName.value;
-				}
+				return isAvailableWithinBindingPattern(bindingPattern, expr.name.value );
 			}
 		}) as LetClauseNode | LetExpressionNode | RequiredParamNode | FromClauseNode | ModuleVariableNode | EnumTypeNode);
 		paramNode = paramType?.value;
 	} else if (STKindChecker.isFieldAccess(expr) || STKindChecker.isOptionalFieldAccess(expr)) {
-		let valueExpr = expr.expression;
-		while (valueExpr && (STKindChecker.isFieldAccess(valueExpr)
-			|| STKindChecker.isOptionalFieldAccess(valueExpr))) {
-			valueExpr = valueExpr.expression;
-		}
+		const valueExpr = getInnerExpr(expr);
+		
 		if (valueExpr && STKindChecker.isSimpleNameReference(valueExpr)) {
 			const { selectedST } = dmNode.context.selection;
 			const { stNode: selectedSTNode, fieldPath, position } = selectedST;
@@ -730,10 +725,17 @@ export function getInputPortsForExpr(node: RequiredParamNode
 				}
 			}
 		}
+	} else if (node instanceof FromClauseNode
+		&& (STKindChecker.isMappingBindingPattern(node.sourceBindingPattern)
+			|| STKindChecker.isListBindingPattern(node.sourceBindingPattern))
+	) {
+		const fieldPath = getRelativePathOfField(node.value.typedBindingPattern.bindingPattern, expr.source.trim());
+		portIdBuffer = EXPANDED_QUERY_SOURCE_PORT_PREFIX + "." + node.nodeLabel + fieldPath;
+		return (node.getPort(portIdBuffer + ".OUT") as RecordFieldPortModel);
 	} else {
-		portIdBuffer = EXPANDED_QUERY_SOURCE_PORT_PREFIX + "."
-			+ (node as FromClauseNode).sourceBindingPattern.variableName.value
+		portIdBuffer = EXPANDED_QUERY_SOURCE_PORT_PREFIX + "." + (node as FromClauseNode).nodeLabel;
 	}
+
 	if (typeDesc && typeDesc.typeName === PrimitiveBalType.Record) {
 		if (STKindChecker.isFieldAccess(expr) || STKindChecker.isOptionalFieldAccess(expr)) {
 			const fieldNames = getFieldNames(expr);
@@ -1211,6 +1213,99 @@ export function extractImportAlias(moduleName: string, importStatement: string):
 	const regex = new RegExp(`${moduleName}\\s+as\\s+(\\w+)`);
 	const matches = importStatement.match(regex);
 	return matches ? matches[1] : null;
+}
+
+export function getFromClauseNodeLabel(bindingPattern: STNode, valueExpr: STNode): string {
+	const defaultLabel = "Input";
+	if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
+		return bindingPattern.variableName.value;
+	} else if (STKindChecker.isMappingBindingPattern(bindingPattern)) {
+		if (STKindChecker.isSimpleNameReference(valueExpr)) {
+			return `${valueExpr.name.value}Item`;
+		} else if (STKindChecker.isFieldAccess(valueExpr) || STKindChecker.isOptionalFieldAccess(valueExpr)) {
+			const expr = getInnerExpr(valueExpr);
+			return `${expr}.source`;
+		}
+	}
+	
+	return defaultLabel;
+}
+
+export function isAvailableWithinBindingPattern(bindingPattern: STNode, targetIdentifier: string): boolean {
+	if (STKindChecker.isErrorBindingPattern(bindingPattern) || STKindChecker.isWildcardBindingPattern(bindingPattern)) {
+		return false;
+	}
+
+	if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
+		return bindingPattern.variableName.value === targetIdentifier; 
+	} else if (STKindChecker.isMappingBindingPattern(bindingPattern)) {
+		return bindingPattern.fieldBindingPatterns.some((fieldBindingPattern) => {
+			// RestBindingPattern is not supported by the Data Mapper
+			if (STKindChecker.isFieldBindingPattern(fieldBindingPattern)) {
+				if (fieldBindingPattern?.bindingPattern) {
+					return isAvailableWithinBindingPattern(fieldBindingPattern.bindingPattern, targetIdentifier);
+				} else {
+					return fieldBindingPattern.variableName.source === targetIdentifier;
+				}
+			}
+		});
+	} else if (STKindChecker.isListBindingPattern(bindingPattern)) {
+		return bindingPattern.bindingPatterns.some((bindingPattern) => {
+			return isAvailableWithinBindingPattern(bindingPattern, targetIdentifier);
+		});
+	}
+
+	return false;
+}
+
+export function getRelativePathOfField(bindingPattern: STNode, targetIdentifier: string, path?: string): string {
+	if (STKindChecker.isErrorBindingPattern(bindingPattern) || STKindChecker.isWildcardBindingPattern(bindingPattern)) {
+		return undefined;
+	}
+
+	if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
+		if (bindingPattern.variableName.value === targetIdentifier) {
+			return path || `.${targetIdentifier}`;
+		}; 
+		path = undefined;
+	} else if (STKindChecker.isMappingBindingPattern(bindingPattern)) {
+		for (const fieldBindingPattern of bindingPattern.fieldBindingPatterns) {
+			if (STKindChecker.isFieldBindingPattern(fieldBindingPattern)) {
+				if (fieldBindingPattern?.bindingPattern) {
+					const pathElement = fieldBindingPattern.variableName.source;
+					const relativePath = getRelativePathOfField(
+						fieldBindingPattern.bindingPattern,
+						targetIdentifier, path ? `${path}.${pathElement}` : `.${pathElement}`
+					);
+					if (relativePath) {
+						return relativePath;
+					}
+				} else {
+					if (fieldBindingPattern.variableName.source === targetIdentifier) {
+						return path ? `${path}.${targetIdentifier}` : `.${targetIdentifier}`;
+					}
+				}
+			}
+		}
+	} else if (STKindChecker.isListBindingPattern(bindingPattern)) {
+		for (const bPattern of bindingPattern.bindingPatterns) {
+			const relativePath = getRelativePathOfField(bPattern, targetIdentifier, path);
+			if (relativePath) {
+				return relativePath;
+			}
+		}
+	}
+
+	return path;
+}
+
+function getInnerExpr(node: FieldAccess | OptionalFieldAccess): STNode {
+	let valueExpr = node.expression;
+	while (valueExpr && (STKindChecker.isFieldAccess(valueExpr)
+		|| STKindChecker.isOptionalFieldAccess(valueExpr))) {
+		valueExpr = valueExpr.expression;
+	}
+	return valueExpr;
 }
 
 function hasNoMatchFoundInArray(elements: ArrayElement[], searchValue: string): boolean {

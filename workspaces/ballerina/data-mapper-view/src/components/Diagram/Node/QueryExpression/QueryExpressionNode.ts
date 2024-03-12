@@ -59,7 +59,6 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     public inPort: IntermediatePortModel;
     public outPort: IntermediatePortModel;
 
-    public sourceBindingPattern: CaptureBindingPattern;
     public targetFieldFQN: string;
     public hidden: boolean;
 
@@ -95,8 +94,9 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         const fromClause = this.value.queryPipeline.fromClause;
         const sourceFieldAccess = fromClause.expression;
         const bindingPattern = this.value.queryPipeline.fromClause.typedBindingPattern.bindingPattern;
-        if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
-            this.sourceBindingPattern = bindingPattern;
+        if (STKindChecker.isCaptureBindingPattern(bindingPattern)
+            || STKindChecker.isMappingBindingPattern(bindingPattern)
+            || STKindChecker.isListBindingPattern(bindingPattern)) {
             const type = getTypeFromStore(fromClause.expression.position);
 
             if (type && type?.memberType && type.typeName === PrimitiveBalType.Array) {

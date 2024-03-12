@@ -11,6 +11,8 @@ import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 import {
     CaptureBindingPattern,
     FromClause,
+    ListBindingPattern,
+    MappingBindingPattern,
     NodePosition,
     RecordTypeDesc,
     STKindChecker
@@ -18,7 +20,12 @@ import {
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
-import { getOptionalArrayField, getSearchFilteredInput, getTypeFromStore } from "../../utils/dm-utils";
+import {
+    getFromClauseNodeLabel,
+    getOptionalArrayField,
+    getSearchFilteredInput,
+    getTypeFromStore
+} from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc";
@@ -27,7 +34,8 @@ export class FromClauseNode extends DataMapperNodeModel {
 
     public sourceTypeDesc: RecordTypeDesc;
     public typeDef: TypeField;
-    public sourceBindingPattern: CaptureBindingPattern;
+    public sourceBindingPattern: CaptureBindingPattern | MappingBindingPattern | ListBindingPattern;
+    public nodeLabel: string;
     public x: number;
     public y: number;
     public numberOfFields:  number;
@@ -42,18 +50,25 @@ export class FromClauseNode extends DataMapperNodeModel {
             QUERY_EXPR_SOURCE_NODE_TYPE
         );
         this.numberOfFields = 1;
-        const bindingPattern = this.value.typedBindingPattern.bindingPattern;
-        if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
-            this.sourceBindingPattern = bindingPattern;
-        }
+
         // tslint:disable-next-line: prefer-conditional-expression
-        if (STKindChecker.isBinaryExpression(this.value.expression)
-            && STKindChecker.isElvisToken(this.value.expression.operator)) {
-            const exprType = getTypeFromStore(this.value.expression.lhsExpr.position as NodePosition);
+        const valExpr = this.value.expression;
+        if (STKindChecker.isBinaryExpression(valExpr)
+            && STKindChecker.isElvisToken(valExpr.operator)) {
+            const exprType = getTypeFromStore(valExpr.lhsExpr.position as NodePosition);
             this.typeDef = exprType && getOptionalArrayField(exprType);
         } else {
-            this.typeDef = getTypeFromStore(this.value.expression.position as NodePosition);
+            this.typeDef = getTypeFromStore(valExpr.position as NodePosition);
         }
+        const bindingPattern = this.value.typedBindingPattern.bindingPattern;
+        if (STKindChecker.isCaptureBindingPattern(bindingPattern)
+            || STKindChecker.isMappingBindingPattern(bindingPattern)
+            || STKindChecker.isListBindingPattern(bindingPattern)
+        ) {
+            this.sourceBindingPattern = bindingPattern;
+        }
+        
+        this.nodeLabel = getFromClauseNodeLabel(bindingPattern, valExpr);
         this.originalTypeDef = this.typeDef;
     }
 
@@ -61,14 +76,14 @@ export class FromClauseNode extends DataMapperNodeModel {
         this.typeDef = this.getSearchFilteredType();
         this.hasNoMatchingFields = !this.typeDef;
         if (this.sourceBindingPattern) {
-            const name = this.sourceBindingPattern.variableName.value;
             if (this.typeDef){
-                const parentPort = this.addPortsForHeaderField(this.typeDef, name, "OUT", EXPANDED_QUERY_SOURCE_PORT_PREFIX, this.context.collapsedFields);
+                const parentPort = this.addPortsForHeaderField(this.typeDef, this.nodeLabel, "OUT",
+                    EXPANDED_QUERY_SOURCE_PORT_PREFIX, this.context.collapsedFields);
 
                 if (this.typeDef.typeName === PrimitiveBalType.Record) {
                     const fields = this.typeDef.fields;
                     fields.forEach((subField) => {
-                        this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", this.sourceBindingPattern.variableName.value,
+                        this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", this.nodeLabel,
                             EXPANDED_QUERY_SOURCE_PORT_PREFIX, parentPort,
                             this.context.collapsedFields, parentPort.collapsed);
                     });
@@ -86,10 +101,7 @@ export class FromClauseNode extends DataMapperNodeModel {
             && this.originalTypeDef?.memberType
             && this.originalTypeDef.typeName === PrimitiveBalType.Array
         ) {
-            return getSearchFilteredInput(
-                this.originalTypeDef.memberType,
-                this.sourceBindingPattern?.variableName?.value
-            );
+            return getSearchFilteredInput(this.originalTypeDef.memberType, this.nodeLabel);
         }
     }
 
