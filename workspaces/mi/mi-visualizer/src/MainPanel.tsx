@@ -16,43 +16,11 @@ import { MessageProcessorWizard } from "./views/Forms/MessageProcessorForm";
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { InboundEPWizard } from './views/Forms/InboundEPform';
-import { SidePanel } from '@wso2-enterprise/ui-toolkit';
-import { AIOverviewWindow} from './views/AIOverviewWindow';
-import { AIArtifactWindow } from './views/AIArtifactWindow';
-import { Allotment } from "allotment";
-import "allotment/dist/style.css";
 import { css, keyframes } from '@emotion/react';
-
-const fadeIn = keyframes`
-    from {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-`;
-
 
 const MainContainer = styled.div`
     display: flex;
     overflow: hidden;
-`;
-
-
-const FadeInContainer = styled.div`
-    position: absolute;
-    top: 0;
-    right: 0;
-    height: 100%;
-    width: 100%;
-    box-shadow: -5px 0 10px rgba(0, 0, 0, 0.1);
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    animation: ${fadeIn} 0.2s;
 `;
 
 const MainContent = styled.div`
@@ -210,7 +178,6 @@ const MainPanel = () => {
     }
 
     return (
-        <Allotment >
             <div style={{
                 overflow: "hidden",
             }}>
@@ -223,13 +190,6 @@ const MainPanel = () => {
                     {viewComponent}
                 </div>}
             </div>
-            {showAIWindow && (
-            <FadeInContainer>
-                {machineView == MACHINE_VIEW.Overview ? <AIOverviewWindow /> : <AIArtifactWindow />}
-            </FadeInContainer>
-            )}
-        </Allotment>
-
     );
 };
 
