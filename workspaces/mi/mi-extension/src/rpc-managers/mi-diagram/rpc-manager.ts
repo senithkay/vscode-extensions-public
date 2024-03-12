@@ -984,7 +984,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         response.hasCustomProperties = true;
                         response.properties = customProperties;
                     }
-
                 }
 
                 resolve(response);
