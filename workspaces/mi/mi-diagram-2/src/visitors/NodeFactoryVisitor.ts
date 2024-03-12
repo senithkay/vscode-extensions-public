@@ -20,7 +20,7 @@ import { SourceNodeModel, TargetNodeModel, createNodesLink } from "../utils/diag
 import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
 import { Diagnostic } from "vscode-languageserver-types";
 import { ReferenceNodeModel } from "../components/nodes/ReferenceNode/ReferenceNodeModel";
-import { APIResource } from "@wso2-enterprise/mi-syntax-tree/src";
+import { APIResource, NamedSequence } from "@wso2-enterprise/mi-syntax-tree/src";
 
 interface BranchData {
     name: string;
@@ -41,9 +41,9 @@ export class NodeFactoryVisitor implements Visitor {
     private currentAddPosition: Position;
     private documentUri: string;
     private diagramType: DiagramType;
-    private resource: APIResource;
+    private resource: APIResource | NamedSequence;
 
-    constructor(documentUri: string, model: APIResource) {
+    constructor(documentUri: string, model: APIResource | NamedSequence) {
         this.documentUri = documentUri;
         this.resource = model;
     }

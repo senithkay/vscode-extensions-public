@@ -26,7 +26,8 @@ import { Colors } from "../resources/constants";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
 import { Diagnostic } from "vscode-languageserver-types";
-import { EditAPIFormProps, EditResourceForm } from "./Forms/EditResourceForm";
+import { EditAPIForm, EditResourceForm } from "./Forms/EditResourceForm";
+import { EditSequenceForm } from "./Forms/EditSequenceForm";
 
 export interface DiagramProps {
     model: APIResource | Sequence;
@@ -93,10 +94,11 @@ export function Diagram(props: DiagramProps) {
         mediator: "",
         formValues: {},
         title: "",
-        // Resource related
+        // Service related
         isOpenResource: false,
-        resourceData: {},
-        onResourceEdit: () => {}
+        isOpenSequence: false,
+        serviceData: {},
+        onServiceEdit: () => {}
     });
 
     useEffect(() => {
@@ -214,7 +216,7 @@ export function Diagram(props: DiagramProps) {
         const height = positionVisitor.getSequenceHeight();
 
         // run node visitor
-        const nodeVisitor = new NodeFactoryVisitor(props.documentUri, model as APIResource);
+        const nodeVisitor = new NodeFactoryVisitor(props.documentUri, model as any);
         traversNode(model, nodeVisitor);
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();
@@ -339,12 +341,22 @@ export function Diagram(props: DiagramProps) {
                         <SidePanelList nodePosition={sidePanelState.nodeRange} documentUri={props.documentUri} />
                     </SidePanel>}
 
+                    {/* Edit forms */}
                     {sidePanelState?.isOpenResource && (
                         <EditResourceForm
                             isOpen={sidePanelState.isOpenResource}
-                            resourceData={sidePanelState.resourceData as EditAPIFormProps}
+                            resourceData={sidePanelState.serviceData as EditAPIForm}
                             onCancel={() => setSidePanelState({ ...sidePanelState, isOpenResource: false })}
-                            onEdit={sidePanelState.onResourceEdit}
+                            onEdit={sidePanelState.onServiceEdit}
+                        />
+                    )}
+
+                    {sidePanelState?.isOpenSequence && (
+                        <EditSequenceForm
+                            isOpen={sidePanelState.isOpenSequence}
+                            sequenceData={sidePanelState.serviceData as EditSequenceForm}
+                            onCancel={() => setSidePanelState({ ...sidePanelState, isOpenSequence: false })}
+                            onEdit={sidePanelState.onServiceEdit}
                         />
                     )}
                 </SidePanelProvider>

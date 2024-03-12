@@ -8,11 +8,19 @@
  */
 import Mustache from "mustache";
 
-export const getAddApiResourceTemplate = () => {
+export const getEditApiResourceTemplate = () => {
     return `<resource methods="{{methods}}"{{#uri_template}} uri-template="{{{uri_template}}}"{{/uri_template}}{{#url_mapping}} url-mapping="{{{url_mapping}}}"{{/url_mapping}}>`
 }
 
+export const getEditSequenceTemplate = () => {
+    return `<sequence name="{{name}}"{{#trace}} trace="{{{trace}}}"{{/trace}}{{#statistics}} statistics="{{{statistics}}}"{{/statistics}}{{#onError}} onError="{{{onError}}}"{{/onError}}>`
+}
+
 export const getEditApiResourceXml = (data: { [key: string]: any }) => {
-    return Mustache.render(getAddApiResourceTemplate(), data);
+    return Mustache.render(getEditApiResourceTemplate(), data);
+}
+
+export const getEditSequenceXml = (data: { [key: string]: any }) => {
+    return Mustache.render(getEditSequenceTemplate(), data);
 }
 

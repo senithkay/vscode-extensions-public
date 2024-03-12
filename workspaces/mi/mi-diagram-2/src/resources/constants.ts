@@ -207,6 +207,7 @@ export enum SequenceType {
 };
 
 // Actions for service designer
-export const SERVICE_DESIGNER = {
+export const SERVICE = {
     EDIT_RESOURCE: "edit-resource",
+    EDIT_SEQUENCE: "edit-sequence",
 }

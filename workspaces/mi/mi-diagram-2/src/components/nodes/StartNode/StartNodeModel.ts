@@ -8,7 +8,7 @@
  */
 
 import { NodeModel, PortModelAlignment } from "@projectstorm/react-diagrams";
-import { APIResource, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { APIResource, NamedSequence, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodePortModel } from "../../NodePort/NodePortModel";
 import { getNodeIdFromModel } from "../../../utils/node";
 import { NodeTypes } from "../../../resources/constants";
@@ -19,10 +19,10 @@ export class StartNodeModel extends NodeModel {
     protected portOut: NodePortModel;
     protected parentNode: STNode;
     protected prevNodes: STNode[];
-    protected resource: APIResource;
+    protected model: APIResource | NamedSequence;
     protected documentUri: string;
 
-    constructor(stNode: STNode, resource: APIResource, documentUri: string, parentNode?: STNode, prevNodes: STNode[] = []) {
+    constructor(stNode: STNode, model: APIResource | NamedSequence, documentUri: string, parentNode?: STNode, prevNodes: STNode[] = []) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode, "start"),
             type: NodeTypes.START_NODE,
@@ -31,7 +31,7 @@ export class StartNodeModel extends NodeModel {
         this.stNode = stNode;
         this.addInPort("in");
         this.addOutPort("out");
-        this.resource = resource;
+        this.model = model;
         this.documentUri = documentUri;
     }
 
@@ -89,8 +89,8 @@ export class StartNodeModel extends NodeModel {
         return this.prevNodes;
     }
 
-    getResource(): APIResource {
-        return this.resource;
+    getModel(): APIResource | NamedSequence {
+        return this.model;
     }
 
     getDocumentUri(): string {

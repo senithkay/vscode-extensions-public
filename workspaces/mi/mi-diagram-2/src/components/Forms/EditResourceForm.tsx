@@ -24,7 +24,7 @@ export type Protocol = "http" | "https";
 
 export type Method = "get" | "post" | "put" | "delete" | "patch" | "head" | "options";
 
-export type EditAPIFormProps = {
+export type EditAPIForm = {
     urlStyle: string;
     uriTemplate?: string;
     urlMapping?: string;
@@ -36,11 +36,11 @@ export type EditAPIFormProps = {
     };
 };
 
-export type APIResourceWizardProps = {
+export type SequenceProps = {
     isOpen: boolean;
-    resourceData: EditAPIFormProps;
+    resourceData: EditAPIForm;
     onCancel: () => void;
-    onEdit: (data: EditAPIFormProps) => void;
+    onEdit: (data: EditAPIForm) => void;
 };
 
 const ActionContainer = styled.div`
@@ -64,7 +64,7 @@ const SidePanelBodyWrapper = styled.div`
     padding: 20px;
 `;
 
-export function EditResourceForm({ resourceData, isOpen, onCancel, onEdit }: APIResourceWizardProps) {
+export function EditResourceForm({ resourceData, isOpen, onCancel, onEdit }: SequenceProps) {
     const [urlStyle, setUrlStyle] = useState<string>(resourceData.urlStyle);
     const [uriTemplate, setUriTemplate] = useState<string>(resourceData.uriTemplate || "/");
     const [urlMapping, setUrlMapping] = useState<string>(resourceData.urlMapping || "/");
