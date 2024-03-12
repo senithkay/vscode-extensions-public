@@ -163,8 +163,8 @@ export class PositionVisitor implements Visitor {
     endVisitCache = (node: Cache): void => this.setSkipChildrenVisit(false);
     beginVisitClone = (node: Clone): void => {
         let targets: { [key: string]: any } = {}
-        node.target.map((target) => {
-            targets[target.to] = target
+        node.target.map((target, index) => {
+            targets[target.to || index] = target
         });
         this.setAdvancedMediatorPosition(node, targets);
     }
