@@ -78,12 +78,16 @@ export class NodeFactoryVisitor implements Visitor {
                 const isSequnceConnect = diagramNode instanceof StartNodeModel && previousNode instanceof EndNodeModel;
                 const isEmptyNodeConnect = diagramNode instanceof EmptyNodeModel && previousNode instanceof EmptyNodeModel;
 
+                const addPosition = this.currentAddPosition != undefined ? this.currentAddPosition :
+                    (type === NodeTypes.CONDITION_NODE_END && previousNode instanceof EmptyNodeModel) ? previousStNode.range.endTagRange.start :
+                        previousStNode.range.endTagRange?.end ? previousStNode.range.endTagRange.end : previousStNode.range.startTagRange.end;
+
                 const link = createNodesLink(
                     previousNode as SourceNodeModel,
                     diagramNode as TargetNodeModel,
                     {
                         label: this.currentBranchData?.name,
-                        stRange: this.currentAddPosition ?? (previousStNode.range.endTagRange?.end ? previousStNode.range.endTagRange.end : previousStNode.range.startTagRange.end),
+                        stRange: addPosition,
                         brokenLine: type === NodeTypes.EMPTY_NODE || isSequnceConnect || isEmptyNodeConnect,
                         previousNode: previousStNode.tag,
                         parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
@@ -141,7 +145,6 @@ export class NodeFactoryVisitor implements Visitor {
 
         // add empty node
         this.currentBranchData = undefined;
-        this.currentAddPosition = node.range.endTagRange.start;
         const eNode = structuredClone(node);
         eNode.viewState.id = JSON.stringify(eNode.range.endTagRange) + "_end";
         eNode.viewState.y = eNode.viewState.y + eNode.viewState.fh;
@@ -278,7 +281,8 @@ export class NodeFactoryVisitor implements Visitor {
 
         const isSequnce = this.parents.length == 0;
         if (!isSequnce) {
-            this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.REFERENCE_NODE, (node as any).key ?? node.tag);
+            this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.REFERENCE_NODE, [(node as any).key ?? node.tag]);
+            this.skipChildrenVisit = true;
         } else {
             this.createNodeAndLinks(node, "", NodeTypes.START_NODE);
             this.diagramType = DiagramType.SEQUENCE;
@@ -286,13 +290,16 @@ export class NodeFactoryVisitor implements Visitor {
         this.parents.push(node);
     }
     endVisitSequence(node: Sequence): void {
-        if (this.diagramType === DiagramType.SEQUENCE) {
+        const isSequnce = node.mediatorList && node.mediatorList.length > 0;
+        if (isSequnce) {
             const lastNode = this.nodes[this.nodes.length - 1].getStNode();
             node.viewState.y = lastNode.viewState.y + Math.max(lastNode.viewState.h, lastNode.viewState.fh || 0) + NODE_GAP.Y;
+            node.viewState.x += NODE_DIMENSIONS.START.EDITABLE.WIDTH / 2 - NODE_DIMENSIONS.START.DISABLED.WIDTH / 2;
             this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.endTagRange.end);
             this.parents.pop();
             this.previousSTNodes = undefined;
         }
+        this.skipChildrenVisit = false;
     }
 
     beginVisitStore = (node: Store): void => this.createNodeAndLinks(node, MEDIATORS.STORE);
@@ -333,8 +340,8 @@ export class NodeFactoryVisitor implements Visitor {
         this.createNodeAndLinks(node, MEDIATORS.CLONE, NodeTypes.CONDITION_NODE)
         this.parents.push(node);
         let targets: { [key: string]: any } = {}
-        node.target.map((target) => {
-            targets[target.to] = target
+        node.target.map((target, index) => {
+            targets[target.to || index] = target
         })
         this.visitSubSequences(node, targets);
         this.skipChildrenVisit = true;
