@@ -61,7 +61,7 @@ export const generateSequenceData = (model: NamedSequence): any => {
         name: model.name,
         trace: model.trace !== "enable" ? false : true,
         statistics: model.statistics !== "enable" ? false : true,
-        onError: model.onError,
+        onError: model.onError || "",
     };
 
     return sequenceData;

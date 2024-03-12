@@ -24,9 +24,9 @@ export type Method = "get" | "post" | "put" | "delete" | "patch" | "head" | "opt
 
 export type EditSequenceForm = {
     name: string;
-    trace?: boolean;
-    statistics?: boolean;
-    onError?: string;
+    trace: boolean;
+    statistics: boolean;
+    onError: string;
 };
 
 export type ResourceProps = {
@@ -53,17 +53,17 @@ const SidePanelBodyWrapper = styled.div`
 
 export function EditSequenceForm({ sequenceData, isOpen, onCancel, onEdit }: ResourceProps) {
     const [name, setName] = useState<string>(sequenceData.name);
-    const [trace, setTrace] = useState<boolean>(sequenceData.trace || false);
-    const [statistics, setStatistics] = useState<boolean>(sequenceData.statistics || false);
+    const [trace, setTrace] = useState<boolean>(sequenceData.trace);
+    const [statistics, setStatistics] = useState<boolean>(sequenceData.statistics);
     const [onError, setOnError] = useState<string>(sequenceData.onError);
 
     const isValid = name.length > 0;
 
     const isUpdated =
         sequenceData.name !== name ||
-        (sequenceData?.trace !== undefined ? sequenceData.trace !== trace : false) ||
-        (sequenceData?.statistics !== undefined ? sequenceData.statistics !== statistics : false) ||
-        (sequenceData?.onError ? sequenceData.onError !== onError : false);
+        sequenceData.trace !== trace ||
+        sequenceData.statistics !== statistics ||
+        sequenceData.onError !== onError;
     return (
         <SidePanel isOpen={isOpen} alignmanet="right" sx={{ transition: "all 0.3s ease-in-out" }}>
             <SidePanelTitleContainer>
@@ -110,4 +110,3 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onEdit }: Res
         </SidePanel>
     );
 }
-
