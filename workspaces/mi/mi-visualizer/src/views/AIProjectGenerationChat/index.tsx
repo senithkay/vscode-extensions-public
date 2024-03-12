@@ -11,11 +11,10 @@
 import React, { useEffect, useState } from "react";
 import { VisualizerLocation, CreateProjectRequest } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import {TextArea, Button, Switch, Icon} from "@wso2-enterprise/ui-toolkit";
+import {TextArea, Button, Switch, Icon, ProgressRing} from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from 'react-markdown';
 import './AIProjectGenerationChat.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { BeatLoader } from "react-spinners";
 import { MI_COPILOT_BACKEND_URL } from "../../constants";
 
 import {
@@ -376,7 +375,7 @@ export function AIProjectGenerationChat() {
 
       {isLoading ? (
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "4%"}}>
-                  <BeatLoader color="#4A90E2" />
+                  <ProgressRing sx={{position: "relative"}}/>
             </div>
         ): null}
 
