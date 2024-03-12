@@ -13,6 +13,7 @@ import { MachineStateValue } from "@wso2-enterprise/mi-core";
 import MainPanel from "./MainPanel";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
+import { AIOverviewWindow } from "./views/AIOverviewWindow";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -47,6 +48,8 @@ export function Visualizer({ mode }: { mode: string }) {
                 switch (mode) {
                     case "visualizer":
                         return <VisualizerComponent state={state} />
+                    case "ai":
+                        return <AIOverviewWindow />
                 }
             })()}
         </>
