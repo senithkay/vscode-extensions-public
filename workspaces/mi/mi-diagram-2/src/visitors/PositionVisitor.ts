@@ -18,7 +18,6 @@ export class PositionVisitor implements Visitor {
     private skipChildrenVisit = false;
 
     constructor(sequenceWidth: number) {
-        console.log("PositionVisitor");
         this.position.x += sequenceWidth / 2;
     }
 

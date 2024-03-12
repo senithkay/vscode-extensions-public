@@ -44,7 +44,7 @@ const stateMachine = createMachine<MachineContext>({
                         target: 'newProject',
                         cond: (context, event) => event.data.isProject === false, // Assuming false means new project
                         actions: assign({
-                            view: (context, event) => MACHINE_VIEW.Overview
+                            view: (context, event) => MACHINE_VIEW.Welcome
                         })
                     }
                     // No need for an explicit action for the false case unless you want to assign something specific

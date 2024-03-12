@@ -70,7 +70,7 @@
       },
       {
         "view": "MI.project-explorer",
-        "contents": "Welcome to Micro Integrator. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:MI.openProject)\n[Create New Project](command:MI.openWelcome)\nTo learn more about how to use Micro Integrator in VS Code, [read our docs](https://ei.docs.wso2.com).",
+        "contents": "Welcome to Micro Integrator. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:MI.openProject)\n[Create New Project](command:MI.project-explorer.create-project)\nTo learn more about how to use Micro Integrator in VS Code, [read our docs](https://ei.docs.wso2.com).",
         "when": "MI.status == 'unknownProject'"
       },
       {
@@ -78,7 +78,6 @@
         "contents": "Unknown error occurred. Micro Integrator is disabled.",
         "when": "MI.status == 'disabled'"
       }
-
     ],
     "commands": [
       {

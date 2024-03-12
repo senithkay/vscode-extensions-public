@@ -11,8 +11,6 @@ import React, { useEffect } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { MachineStateValue } from "@wso2-enterprise/mi-core";
 import MainPanel from "./MainPanel";
-import { GettingStarted } from "./views/GettingStarted";
-import { ProjectWizard } from "./views/Forms/ProjectForm";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { AIOverviewWindow } from "./views/AIOverviewWindow";
@@ -60,11 +58,8 @@ export function Visualizer({ mode }: { mode: string }) {
 
 const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue }) => {
     switch (true) {
-        case typeof state === 'object' && 'ready' in state:
+        case typeof state === 'object':
             return <MainPanel />;
-        case typeof state === 'object' && 'newProject' in state && state.newProject === "viewReady":
-            return <GettingStarted />;
-
         default:
             return (
                 <LoaderWrapper>
@@ -73,17 +68,3 @@ const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue })
             );
     }
 });
-
-
-// TODO: Remove below code if we don't need to have a webview for the activity panel
-// const ActivityPanelComponent = ({ state }: { state: MachineStateValue }) => {
-//     switch (true) {
-//         case typeof state === 'object' && 'ready' in state:
-//             return <GettingStartedPanel state={state} />;
-//             // return <MainPanel state={state} />;
-//         case typeof state === 'object' && 'newProject' in state:
-//             return <GettingStartedPanel state={state} />;
-//         default:
-//             return <h1>LOADING</h1>;
-//     }
-// };
