@@ -200,6 +200,13 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.add-class-mediator",
+        "title": "Add Class Mediator",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.add-task",
         "title": "Add Scheduled Task",
         "icon": "$(add)",
@@ -303,6 +310,11 @@
         {
           "command": "MI.project-explorer.delete-reg-resource",
           "when": "view == MI.project-explorer && (viewItem == registry-folder || viewItem == registry-file)",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-class-mediator",
+          "when": "view == MI.project-explorer && viewItem == class-mediator",
           "group": "inline"
         },
         {

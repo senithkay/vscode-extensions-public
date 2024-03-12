@@ -135,7 +135,10 @@ import {
     getTask,
     GetAvailableResourcesRequest,
     getAvailableResources,
-    GetAvailableResourcesResponse
+    GetAvailableResourcesResponse,
+    CreateClassMediatorRequest,
+    CreateClassMediatorResponse,
+    createClassMediator,
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -190,12 +193,12 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     createEndpoint(params: CreateEndpointRequest): Promise<CreateEndpointResponse> {
         return this._messenger.sendRequest(createEndpoint, HOST_EXTENSION, params);
     }
-    
+
     getLocalEntryDirectory(): Promise<LocalEntryDirectoryResponse> {
         return this._messenger.sendRequest(getLocalEntryDirectory, HOST_EXTENSION);
     }
 
-    createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse>{
+    createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
         return this._messenger.sendRequest(createLocalEntry, HOST_EXTENSION, params);
     }
 
@@ -222,7 +225,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     getMessageProcessor(params: RetrieveMessageProcessorRequest): Promise<RetrieveMessageProcessorResponse> {
         return this._messenger.sendRequest(getMessageProcessor, HOST_EXTENSION, params);
     }
-  
+
     createProxyService(params: CreateProxyServiceRequest): Promise<CreateProxyServiceResponse> {
         return this._messenger.sendRequest(createProxyService, HOST_EXTENSION, params);
     }
@@ -234,12 +237,12 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     getTask(params: GetTaskRequest): Promise<GetTaskResponse> {
         return this._messenger.sendRequest(getTask, HOST_EXTENSION, params);
     }
-    
-    createMessageStore(params: CreateMessageStoreRequest): Promise<CreateMessageStoreResponse>{
-        return this._messenger.sendRequest(createMessageStore, HOST_EXTENSION,params);
+
+    createMessageStore(params: CreateMessageStoreRequest): Promise<CreateMessageStoreResponse> {
+        return this._messenger.sendRequest(createMessageStore, HOST_EXTENSION, params);
     }
 
-    getMessageStore(params: GetMessageStoreRequest): Promise<GetMessageStoreResponse>{
+    getMessageStore(params: GetMessageStoreRequest): Promise<GetMessageStoreResponse> {
         return this._messenger.sendRequest(getMessageStore, HOST_EXTENSION, params);
     }
 
@@ -286,8 +289,8 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     askProjectImportDirPath(): Promise<ProjectDirResponse> {
         return this._messenger.sendRequest(askProjectImportDirPath, HOST_EXTENSION);
     }
-    
-    askFileDirPath(): Promise<FileDirResponse>{
+
+    askFileDirPath(): Promise<FileDirResponse> {
         return this._messenger.sendRequest(askFileDirPath, HOST_EXTENSION);
     }
 
@@ -353,4 +356,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     getAvailableResources(params: GetAvailableResourcesRequest): Promise<GetAvailableResourcesResponse> {
         return this._messenger.sendRequest(getAvailableResources, HOST_EXTENSION, params);
     }
+
+    createClassMediator(params: CreateClassMediatorRequest): Promise<CreateClassMediatorResponse> {
+        return this._messenger.sendRequest(createClassMediator, HOST_EXTENSION, params);
+    }
+
 }

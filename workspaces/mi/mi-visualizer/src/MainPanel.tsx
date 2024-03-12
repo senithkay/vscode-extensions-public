@@ -62,6 +62,7 @@ import { LocalEntryWizard } from './views/Forms/LocalEntryForm';
 import { RegistryResourceForm } from './views/Forms/RegistryResourceForm';
 import { ProxyServiceWizard } from "./views/Forms/ProxyServiceForm";
 import { TemplateWizard } from "./views/Forms/TemplateForm";
+import { ClassMediatorForm } from './views/Forms/ClassMediatorForm';
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -197,7 +198,10 @@ const MainPanel = () => {
                     setViewComponent(<ImportProjectWizard />);
                     break;
                 case MACHINE_VIEW.MessageStoreForm:
-                    setViewComponent(<MessageStoreWizard  path={machineView.documentUri}/>);
+                    setViewComponent(<MessageStoreWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.ClassMediatorForm:
+                    setViewComponent(<ClassMediatorForm path={machineView.documentUri} />);
                     break;
                 default:
                     setViewComponent(null);

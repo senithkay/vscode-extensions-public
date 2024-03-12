@@ -93,7 +93,7 @@ export interface CreateLocalEntryResponse {
 export interface LocalEntryDirectoryResponse {
     data: string;
 }
-export interface FileDirResponse{
+export interface FileDirResponse {
     path: string;
 }
 
@@ -556,4 +556,14 @@ export interface GetAvailableResourcesRequest {
 
 export interface GetAvailableResourcesResponse {
     resources: { [key: string]: any }[]
+}
+
+export interface CreateClassMediatorRequest {
+    projectDirectory: string;
+    packageName: string;
+    className: string;
+}
+
+export interface CreateClassMediatorResponse {
+    path: string;
 }
