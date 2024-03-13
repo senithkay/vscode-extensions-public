@@ -383,8 +383,8 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 			explorerEntry.contextValue = 'proxy-service';
 			explorerEntry.command = {
-				"title": "Show Proxy Service",
-				"command": COMMANDS.SHOW_XML,
+				"title": "Show Diagram",
+				"command": COMMANDS.SHOW_DIAGRAM,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
 
