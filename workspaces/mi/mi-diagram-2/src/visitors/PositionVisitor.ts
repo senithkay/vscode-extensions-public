@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STNode, Visitor, Log, WithParam, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, CacheOnCacheHit, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { STNode, Visitor, Log, WithParam, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, CacheOnCacheHit, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Aggregate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
 
 export class PositionVisitor implements Visitor {
@@ -173,6 +173,15 @@ export class PositionVisitor implements Visitor {
     beginVisitEnqueue = (node: Enqueue): void => this.setBasicMediatorPosition(node);
     beginVisitTransaction = (node: Transaction): void => this.setBasicMediatorPosition(node);
     beginVisitEvent = (node: Event): void => this.setBasicMediatorPosition(node);
+
+    //EIP Mediators
+    beginVisitAggregate = (node: Aggregate): void => {
+        this.setAdvancedMediatorPosition(node, {
+            // OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete?.mediators
+            OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete
+        });
+    }
+    endVisitAggregate = (node: Aggregate): void => this.setSkipChildrenVisit(false);
 
     //Extension Mediartos
     beginVisitClass = (node: Class): void => this.setBasicMediatorPosition(node);
