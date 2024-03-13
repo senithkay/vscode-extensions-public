@@ -86,6 +86,8 @@ export function AddResourceForm({ isOpen, onCancel: handleCancel, onCreate: hand
     const [validUriTemplate, setValidUriTemplate] = useState<boolean>(true);
     const [validUrlMapping, setValidUrlMapping] = useState<boolean>(true);
 
+    const SIDE_PANEL_WIDTH = 450;
+
     useEffect(() => {
         return () => {
             setUrlStyle("none");
@@ -103,7 +105,13 @@ export function AddResourceForm({ isOpen, onCancel: handleCancel, onCreate: hand
         Object.values(methods).some((value) => value);
 
     return (
-        <SidePanel isOpen={isOpen} alignmanet="right" sx={{ transition: "all 0.3s ease-in-out" }}>
+        <SidePanel
+            isOpen={isOpen}
+            alignmanet="right"
+            width={SIDE_PANEL_WIDTH}
+            overlay={false}
+            sx={{ transition: "all 0.3s ease-in-out" }}
+        >
             <SidePanelTitleContainer>
                 <div>Add API Resource</div>
                 <Button onClick={handleCancel} appearance="icon">
@@ -240,4 +248,3 @@ export function AddResourceForm({ isOpen, onCancel: handleCancel, onCreate: hand
         </SidePanel>
     );
 }
-

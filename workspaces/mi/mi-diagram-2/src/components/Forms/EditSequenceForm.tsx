@@ -18,6 +18,7 @@ import {
     CheckBoxGroup,
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
+import { SIDE_PANEL_WIDTH } from "../Diagram";
 
 export type Protocol = "http" | "https";
 
@@ -66,7 +67,13 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onEdit }: Res
         sequenceData.statistics !== statistics ||
         sequenceData.onError !== onError;
     return (
-        <SidePanel isOpen={isOpen} alignmanet="right" sx={{ transition: "all 0.3s ease-in-out" }}>
+        <SidePanel
+            isOpen={isOpen}
+            alignmanet="right"
+            width={SIDE_PANEL_WIDTH}
+            overlay={false}
+            sx={{ transition: "all 0.3s ease-in-out" }}
+        >
             <SidePanelTitleContainer>
                 <div>Edit Sequence</div>
                 <Button onClick={onCancel} appearance="icon">
@@ -113,4 +120,3 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onEdit }: Res
         </SidePanel>
     );
 }
-
