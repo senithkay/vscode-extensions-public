@@ -13,7 +13,12 @@ import { getSupportedUnionTypes } from "../utils/union-type-utils";
 
 import { DataMapperLinkModel } from "./model/DataMapperLink";
 
-export function canConvertLinkToQueryExpr(link: DataMapperLinkModel): boolean {
+export enum ClauseType {
+    Select = "select",
+    Collect = "collect"
+}
+
+export function isSourcePortArray(link: DataMapperLinkModel): boolean {
     const sourcePort = link.getSourcePort() ;
 
     if (sourcePort instanceof RecordFieldPortModel) {
@@ -23,14 +28,29 @@ export function canConvertLinkToQueryExpr(link: DataMapperLinkModel): boolean {
     return false;
 }
 
-export function generateQueryExpression(srcExpr: string, targetType: TypeField, isOptionalSource: boolean, variableNames: string[]) {
+export function isTargetPortArray(link: DataMapperLinkModel): boolean {
+    const targetPort = link.getTargetPort() ;
+
+    if (targetPort instanceof RecordFieldPortModel) {
+        return targetPort.field.typeName === PrimitiveBalType.Array;
+    }
+
+    return false;
+}
+
+export function generateQueryExpression(
+    srcExpr: string,
+    targetType: TypeField,
+    isOptionalSource: boolean,
+    clauseType: ClauseType,
+    variableNames: string[]
+) {
 
     let itemName = `${srcExpr.split('.').pop().trim()}Item`;
     itemName = genVariableName(itemName, variableNames);
     let selectExpr = '';
 
     if (!targetType?.typeName && targetType?.typeInfo) {
-        // targetType = findTypeByNameFromStore(targetType.typeInfo.name) || targetType;
         targetType = findTypeByInfoFromStore(targetType.typeInfo) || targetType;
     }
     if (targetType.typeName === PrimitiveBalType.Record) {
@@ -50,5 +70,5 @@ export function generateQueryExpression(srcExpr: string, targetType: TypeField, 
         selectExpr = getDefaultValue(targetType?.typeName);
     }
 
-    return `from var ${itemName} in ${srcExpr.trim()}${isOptionalSource ? ' ?: []' : ''} select ${selectExpr}`
+    return `from var ${itemName} in ${srcExpr.trim()}${isOptionalSource ? ' ?: []' : ''} ${clauseType} ${selectExpr}`
 }

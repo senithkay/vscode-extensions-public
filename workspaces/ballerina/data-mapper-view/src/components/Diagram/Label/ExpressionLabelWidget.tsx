@@ -18,8 +18,10 @@ import { CodeActionWidget } from '../CodeAction/CodeAction';
 import { DiagnosticWidget } from '../Diagnostic/Diagnostic';
 import { DataMapperLinkModel } from "../Link";
 import {
-    canConvertLinkToQueryExpr,
-    generateQueryExpression
+    isSourcePortArray,
+    generateQueryExpression,
+    isTargetPortArray,
+    ClauseType
 } from '../Link/link-utils';
 import { RecordFieldPortModel } from '../Port';
 import {
@@ -108,10 +110,15 @@ export enum LinkState {
     LinkNotSelected
 }
 
+enum QueryExprMappingType {
+    ArrayToArray,
+    ArrayToSingleton
+}
+
 // now we can render all what we want in the label
 export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     const [linkStatus, setLinkStatus] = React.useState<LinkState>(LinkState.LinkNotSelected);
-    const [canUseQueryExpr, setCanUseQueryExpr] = React.useState(false);
+    const [queryExprMappingType, setQueryExprMappingType] = React.useState<QueryExprMappingType>(undefined);
     const [codeActions, setCodeActions] = React.useState([]);
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
     const classes = useStyles();
@@ -154,7 +161,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         });
     };
 
-    const applyQueryExpression = (linkModel: DataMapperLinkModel, targetRecord: TypeField) => {
+    const applyQueryExprWithSelect = (linkModel: DataMapperLinkModel, targetRecord: TypeField, clause: ClauseType) => {
         if (linkModel.value
             && (STKindChecker.isFieldAccess(linkModel.value) || STKindChecker.isSimpleNameReference(linkModel.value))) {
 
@@ -168,7 +175,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                 const localVariables = getLocalVariableNames(context.functionST);
 
                 const querySrc = generateQueryExpression(linkModel.value.source, targetRecord, isOptionalSource,
-                    [...localVariables]);
+                    clause, [...localVariables]);
                 const position = linkModel.value.position as NodePosition;
                 const modifications = [{
                     type: "INSERT",
@@ -191,7 +198,15 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                     setLinkStatus(event.isSelected ? LinkState.LinkSelected : LinkState.LinkNotSelected);
                 },
             });
-            setCanUseQueryExpr(canConvertLinkToQueryExpr(link));
+            const isSourceArray = isSourcePortArray(link);
+            const isTargetArray = isTargetPortArray(link);
+            let mappingType: QueryExprMappingType;
+            if (isSourceArray && isTargetArray) {
+                mappingType = QueryExprMappingType.ArrayToArray;
+            } else if (isSourceArray && !isTargetArray) {
+                mappingType = QueryExprMappingType.ArrayToSingleton;
+            }
+            setQueryExprMappingType(mappingType);
         } else {
             setLinkStatus(LinkState.TemporaryLink);
         }
@@ -235,21 +250,42 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         if (targetPort instanceof RecordFieldPortModel) {
             const targetPortField = targetPort.field;
             if (targetPortField.typeName === PrimitiveBalType.Array && targetPortField?.memberType) {
-                applyQueryExpression(link, targetPortField.memberType);
+                applyQueryExprWithSelect(link, targetPortField.memberType, ClauseType.Select);
             } else if (targetPortField.typeName === PrimitiveBalType.Union){
                 const [type] = getFilteredUnionOutputTypes(targetPortField);
                 if (type.typeName === PrimitiveBalType.Array && type.memberType) {
-                    applyQueryExpression(link, type.memberType);
+                    applyQueryExprWithSelect(link, type.memberType, ClauseType.Select);
                 }
             }
         }
     };
 
+    const onClickAggregateViaQuery = () => {
+        const targetPort = link.getTargetPort();
+
+        if (targetPort instanceof RecordFieldPortModel) {
+            const targetPortField = targetPort.field;
+            if (targetPortField.typeName === PrimitiveBalType.Union){
+                const [type] = getFilteredUnionOutputTypes(targetPortField);
+                if (type.typeName === PrimitiveBalType.Array && type.memberType) {
+                    applyQueryExprWithSelect(link, type.memberType, ClauseType.Collect);
+                }
+            } else {
+                applyQueryExprWithSelect(link, targetPortField, ClauseType.Collect);
+            }
+        }
+    };
+
     const additionalActions = [];
-    if (canUseQueryExpr) {
+    if (queryExprMappingType === QueryExprMappingType.ArrayToArray) {
         additionalActions.push({
             title: "Convert to Query",
             onClick: onClickConvertToQuery
+        });
+    } else if (queryExprMappingType === QueryExprMappingType.ArrayToSingleton) {
+        additionalActions.push({
+            title: "Aggregate using Query",
+            onClick: onClickAggregateViaQuery
         });
     }
 
