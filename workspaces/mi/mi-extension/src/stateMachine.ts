@@ -10,6 +10,7 @@ import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
 import { history } from './history/activator';
 import { COMMANDS } from './constants';
+import { StateMachineAI } from './ai-panel/aiMachine';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -184,6 +185,8 @@ const stateMachine = createMachine<MachineContext>({
             return new Promise(async (resolve, reject) => {
                 const ls = (await MILanguageClient.getInstance(extension.context)).languageClient;
                 vscode.commands.executeCommand('setContext', 'MI.status', 'projectLoaded');
+                // Activate the AI Panel State machine after LS is loaded.
+                StateMachineAI.initialize();
                 resolve(ls);
             });
         },

@@ -49,7 +49,7 @@ export function Visualizer({ mode }: { mode: string }) {
                     case "visualizer":
                         return <VisualizerComponent state={state} />
                     case "ai":
-                        return <AIOverviewWindow />
+                        return <AiVisualizerComponent state={state} />
                 }
             })()}
         </>
@@ -60,6 +60,19 @@ const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue })
     switch (true) {
         case typeof state === 'object':
             return <MainPanel />;
+        default:
+            return (
+                <LoaderWrapper>
+                    <ProgressRing />
+                </LoaderWrapper>
+            );
+    }
+});
+
+const AiVisualizerComponent = React.memo(({ state }: { state: MachineStateValue }) => {
+    switch (true) {
+        case typeof state === 'object' && 'ready' in state && state.ready === "viewReady":
+            return <AIOverviewWindow />;
         default:
             return (
                 <LoaderWrapper>

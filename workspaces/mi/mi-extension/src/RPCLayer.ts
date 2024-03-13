@@ -15,6 +15,7 @@ import { registerMiDiagramRpcHandlers } from './rpc-managers/mi-diagram/rpc-hand
 import { VisualizerWebview } from './visualizer/webview';
 import { registerMiVisualizerRpcHandlers } from './rpc-managers/mi-visualizer/rpc-handler';
 import { AiPanelWebview } from './ai-panel/webview';
+import { StateMachineAI } from './ai-panel/aiMachine';
 
 export class RPCLayer {
     static _messenger: Messenger;
@@ -31,7 +32,7 @@ export class RPCLayer {
             registerMiVisualizerRpcHandlers(RPCLayer._messenger);
         } else {
             RPCLayer._messenger.registerWebviewPanel(webViewPanel as WebviewPanel);
-            StateMachine.service().onTransition((state) => {
+            StateMachineAI.service().onTransition((state) => {
                 RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: AiPanelWebview.viewType }, state.value);
             });
         }
