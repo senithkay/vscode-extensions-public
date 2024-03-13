@@ -365,5 +365,5 @@ export function getAllMediators(props: GetMediatorsProps) {
             }
         }
     }
-    return { ...allMediators, ...endpoints };
+    return { ...allMediators };
 }
