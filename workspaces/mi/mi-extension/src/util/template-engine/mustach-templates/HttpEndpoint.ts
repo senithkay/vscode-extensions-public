@@ -43,7 +43,7 @@ export interface HttpEndpointArgs {
     retryCount: string;
     retryDelay: string;
     timeoutDuration: string;
-    timeoutAction: string;
+    timeoutAction: string | null;
 }
 
 export function getHttpEndpointMustacheTemplate() {
@@ -131,9 +131,9 @@ export function getHttpEndpointXml(data: HttpEndpointArgs) {
 
     assignNullToEmptyStrings(data);
 
-    if ((data.timeoutDuration != null || data.timeoutAction != null) && data.timeoutAction != 'Never') {
+    data.timeoutAction = (data.timeoutAction === 'Never' || data.timeoutAction === null) ? null : data.timeoutAction.toLowerCase();
+    if (data.timeoutDuration != null || data.timeoutAction != null) {
         timeout = true;
-        data.timeoutAction = data.timeoutAction?.toLowerCase();
     }
 
     if (data.authType === 'None') {

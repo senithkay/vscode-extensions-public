@@ -77,7 +77,8 @@ export function getAddressEndpointXml(data: AddressEndpointArgs) {
 
     assignNullToEmptyStrings(data);
 
-    if (data.timeoutDuration != null || (data.timeoutAction != null && data.timeoutAction != 'Never')) {
+    data.timeoutAction = (data.timeoutAction === 'Never' || data.timeoutAction === null) ? null : data.timeoutAction.toLowerCase();
+    if (data.timeoutDuration != null || data.timeoutAction != null) {
         timeout = true;
     }
 
