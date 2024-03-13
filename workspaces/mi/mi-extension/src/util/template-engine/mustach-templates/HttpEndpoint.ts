@@ -50,7 +50,7 @@ export function getHttpEndpointMustacheTemplate() {
     return `<?xml version="1.0" encoding="UTF-8"?>
 <endpoint name="{{endpointName}}" xmlns="http://ws.apache.org/ns/synapse">
     <http {{#httpMethod}}method="{{httpMethod}}"{{/httpMethod}} {{#statisticsEnabled}}statistics="{{statisticsEnabled}}"{{/statisticsEnabled}} {{#traceEnabled}}trace="{{traceEnabled}}"{{/traceEnabled}} uri-template="{{{uriTemplate}}}">
-        {{#addressingEnabled}}<enableAddressing separateListener="{{addressListener}}" version="{{addressingVersion}}"/>{{/addressingEnabled}}
+        {{#addressingEnabled}}<enableAddressing {{#addressListener}}separateListener="{{addressListener}}"{{/addressListener}} {{#addressingVersion}}version="{{addressingVersion}}{{/addressingVersion}}"/>{{/addressingEnabled}}
         {{#securityEnabled}}<enableSec/>{{/securityEnabled}}
         {{#timeout}}<timeout>
             {{#timeoutDuration}}<duration>{{timeoutDuration}}</duration>{{/timeoutDuration}}
@@ -123,17 +123,17 @@ export function getHttpEndpointMustacheTemplate() {
 export function getHttpEndpointXml(data: HttpEndpointArgs) {
 
     data.retryCount = data.retryCount === '' ? '0' : data.retryCount;
-    data.initialDuration = data.initialDuration === '' ? '-1' : data.retryCount;
-    data.progressionFactor = data.initialDuration === '' ? '1' : data.retryCount;
+    data.initialDuration = data.initialDuration === '' ? '-1' : data.initialDuration;
+    data.progressionFactor = data.progressionFactor === '' ? '1' : data.progressionFactor;
     data.httpMethod = (data.httpMethod === 'leave_as_is' || data.httpMethod === null) ? null : data.httpMethod.toLowerCase();
 
     let timeout, authentication, basicAuth, oauth, authorizationCode, clientCredentials, passwordCredentials;
 
     assignNullToEmptyStrings(data);
 
-    if (data.timeoutDuration != null || data.timeoutAction != null && data.timeoutAction != 'Never') {
+    if ((data.timeoutDuration != null || data.timeoutAction != null) && data.timeoutAction != 'Never') {
         timeout = true;
-        data.timeoutAction = data.timeoutAction.toLowerCase();
+        data.timeoutAction = data.timeoutAction?.toLowerCase();
     }
 
     if (data.authType === 'None') {
@@ -154,8 +154,6 @@ export function getHttpEndpointXml(data: HttpEndpointArgs) {
     }
 
     data.addressListener = data.addressListener === 'enable' ? 'true' : null;
-
-    data.requireOauthParameters = true;
 
     if (!data.requireProperties) {
         data.properties = null;
@@ -181,7 +179,7 @@ export function getHttpEndpointXml(data: HttpEndpointArgs) {
 
 function assignNullToEmptyStrings(obj: { [key: string]: any }): void {
     for (const key in obj) {
-        if (obj[key] === '') {
+        if (obj[key] === '' || obj[key] === 'disable') {
             obj[key] = null;
         }
     }

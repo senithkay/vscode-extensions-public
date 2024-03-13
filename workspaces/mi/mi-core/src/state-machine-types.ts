@@ -24,6 +24,7 @@ export enum MACHINE_VIEW {
     TaskForm = "Task Form",
     TemplateForm = "TemplateForm",
     HttpEndpointForm = "HttpEndpointForm",
+    AddressEndpointForm = "AddressEndpointForm",
     ProjectCreationForm = "Project Creation Form",
     ImportProjectForm = "Import Project Form",
     LocalEntryForm = "Local Entry Form",

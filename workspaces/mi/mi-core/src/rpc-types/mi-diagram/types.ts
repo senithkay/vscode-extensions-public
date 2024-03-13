@@ -494,6 +494,65 @@ export interface RetrieveHttpEndpointResponse {
     timeoutAction: string;
 }
 
+export interface UpdateAddressEndpointRequest {
+    directory: string;
+    endpointName: string;
+    format: string;
+    traceEnabled: string;
+    statisticsEnabled: string;
+    uri: string;
+    optimize: string;
+    description: string;
+    requireProperties: boolean;
+    properties: any;
+    addressingEnabled: string;
+    addressingVersion: string;
+    addressListener: string;
+    securityEnabled: string;
+    suspendErrorCodes: string;
+    initialDuration: string;
+    maximumDuration: string;
+    progressionFactor: string;
+    retryErrorCodes: string;
+    retryCount: string;
+    retryDelay: string;
+    timeoutDuration: string;
+    timeoutAction: string;
+}
+
+export interface UpdateAddressEndpointResponse {
+    path: string;
+}
+
+export interface RetrieveAddressEndpointRequest {
+    path: string;
+}
+
+export interface RetrieveAddressEndpointResponse {
+    endpointName: string;
+    format: string;
+    traceEnabled: string;
+    statisticsEnabled: string;
+    uri: string;
+    optimize: string;
+    description: string;
+    requireProperties: boolean;
+    properties: any;
+    addressingEnabled: string;
+    addressingVersion: string;
+    addressListener: string;
+    securityEnabled: string;
+    suspendErrorCodes: string;
+    initialDuration: string;
+    maximumDuration: string;
+    progressionFactor: string;
+    retryErrorCodes: string;
+    retryCount: string;
+    retryDelay: string;
+    timeoutDuration: string;
+    timeoutAction: string;
+}
+
 export interface CreateTaskRequest {
     directory: string;
     name: string;
