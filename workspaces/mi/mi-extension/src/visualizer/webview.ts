@@ -83,7 +83,7 @@ export class VisualizerWebview {
             body, html, #root {
                 height: 100%;
                 margin: 0;
-                padding: 5px;
+                padding: 0px;
                 overflow: hidden;
             }
           </style>
