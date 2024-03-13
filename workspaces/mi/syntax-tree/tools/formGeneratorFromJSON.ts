@@ -262,7 +262,7 @@ const generateForm = (jsonData: any): string => {
                 paramFieldNames = [name, type, value];
 
                 fields += fixIndentation(`
-                    {formValues["${inputName}"] && formValues["${inputName}"].length > 0 && (
+                    {formValues["${inputName}"] && (
                         <ParamManager
                             paramConfigs={params}
                             readonly={false}
@@ -328,7 +328,7 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
     };
 
     useEffect(() => {
-        if (sidePanelContext.formValues) {
+        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
             setFormValues({ ...formValues, ...sidePanelContext.formValues });
             if (sidePanelContext.formValues["properties"] && sidePanelContext.formValues["properties"].length > 0 ) {
                 const paramValues = sidePanelContext.formValues["properties"].map((property: string, index: string) => (

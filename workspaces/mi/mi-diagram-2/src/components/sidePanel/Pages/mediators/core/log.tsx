@@ -74,37 +74,39 @@ const LogForm = (props: AddMediatorProps) => {
    };
 
    useEffect(() => {
-       if (sidePanelContext.formValues) {
+       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
-           const paramValues = sidePanelContext.formValues["properties"].map((property: string, index: string) => (
-               {
-                   id: index,
-                   parameters: [
-                       {
-                           id: 0,
-                           label: "Property Name",
-                           type: "TextField",
-                           value: property[0],
-                           isRequired: true
-                       },
-                       {
-                           id: 1,
-                           label: "Property Value Type",
-                           type: "TextField",
-                           value: property[1],
-                           isRequired: true
-                       },
-                       {
-                           id: 2,
-                           label: "Property Value",
-                           type: "TextField",
-                           value: property[2],
-                           isRequired: true
-                       }
-                   ]
-               })
-           )
-           setParams({ ...params, paramValues: paramValues });
+           if (sidePanelContext.formValues["properties"] && sidePanelContext.formValues["properties"].length > 0 ) {
+               const paramValues = sidePanelContext.formValues["properties"].map((property: string, index: string) => (
+                   {
+                       id: index,
+                       parameters: [
+                           {
+                               id: 0,
+                               label: "propertyName",
+                               type: "TextField",
+                               value: property[0],
+                               isRequired: true
+                           },
+                           {
+                               id: 1,
+                               label: "propertyValueType",
+                               type: "TextField",
+                               value: property[1],
+                               isRequired: true
+                           },
+                           {
+                               id: 2,
+                               label: "propertyValue",
+                               type: "TextField",
+                               value: property[2],
+                               isRequired: true
+                           }
+                       ]
+                   })
+               )
+               setParams({ ...params, paramValues: paramValues });
+           }
        } else {
            setFormValues({
        "category": "INFO",
@@ -210,7 +212,7 @@ const LogForm = (props: AddMediatorProps) => {
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <h3>Properties</h3>
 
-                {formValues["properties"] && formValues["properties"].length > 0 && (
+                {formValues["properties"] && (
                     <ParamManager
                         paramConfigs={params}
                         readonly={false}
