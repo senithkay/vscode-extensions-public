@@ -14,6 +14,7 @@ export const COMMANDS = {
     SHOW_MESSAGE_STORE: "MI.show.message-store",
     SHOW_LOCAL_ENTRY: "MI.show.local-entry",
     SHOW_TEMPLATE: "MI.show.template",
+    SHOW_ENDPOINT: "MI.show.endpoint",
     ADD_MEDIATOR: "MI.addMediator",
     REFRESH_COMMAND: 'MI.project-explorer.refresh',
     ADD_COMMAND: 'MI.project-explorer.add',

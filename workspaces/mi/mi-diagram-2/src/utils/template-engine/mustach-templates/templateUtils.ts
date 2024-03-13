@@ -9,7 +9,7 @@
 
 import Mustache from "mustache";
 import { getCallFormDataFromSTNode, getCallMustacheTemplate, getCallXml } from "./core/call";
-import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache, Send } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogMustacheTemplate, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutMustacheTemplate, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode, getHeaderMustacheTemplate } from "./core/header";
@@ -20,7 +20,7 @@ import { getDropMustacheTemplate } from "./core/drop";
 import { getLoopbackMustacheTemplate } from "./core/loopback";
 import { getPropertyGroupFormDataFromSTNode, getPropertyGroupMustacheTemplate, getPropertyGroupXml } from "./core/propertyGroup";
 import { getReponseMustacheTemplate } from "./core/respond";
-import { getSendMustacheTemplate } from "./core/send";
+import { getSendFormDataFromSTNode, getSendMustacheTemplate, getSendXml } from "./core/send";
 import { getHTTPEndpointMustacheTemplate } from "./endpoints/http";
 import { getAddressEndpointMustacheTemplate } from "./endpoints/address";
 import { getDefaultEndpointMustacheTemplate } from "./endpoints/default";
@@ -97,6 +97,8 @@ export function getMustacheTemplate(name: string) {
             return getStoreMustacheTemplate();
         case MEDIATORS.VALIDATE:
             return getValidateMustacheTemplate();
+        case MEDIATORS.SEND:
+            return getSendMustacheTemplate();
         //Extension Mediators
         case MEDIATORS.BEAN:
             return getBeanMustacheTemplate()
@@ -163,6 +165,8 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getStoreXml(data);
         case MEDIATORS.VALIDATE:
             return getValidateXml(data);
+        case MEDIATORS.SEND:
+            return getSendXml(data);
         case MEDIATORS.PAYLOAD:
             return getPayloadXml(data);
         case ENDPOINTS.NAMED:
@@ -229,6 +233,8 @@ export function getDataFromXML(name: string, node: STNode) {
             return getStoreFormDataFromSTNode(formData, node as Store);
         case MEDIATORS.VALIDATE:
             return getValidateFormDataFromSTNode(formData, node as Validate);
+        case MEDIATORS.SEND:
+            return getSendFormDataFromSTNode(formData, node as Send);
         //Extension Mediators
         case MEDIATORS.CLASS:
             return getClassFormDataFromSTNode(formData, node as Class);

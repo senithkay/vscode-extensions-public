@@ -14,7 +14,7 @@ export function getCallMustacheTemplate() {
   return `
   {{#isNewMediator}}
   {{^sourceOrTargetOrEndpoint}}
-  <call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}}{{/enableBlockingCalls}}{{#description}}description="{{description}}" {{/description}} />
+  <call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}}{{/enableBlockingCalls}}{{#description}}description="{{description}}" {{/description}} ></call>
   {{/sourceOrTargetOrEndpoint}}
   {{#sourceOrTargetOrEndpoint}}
   <call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{/enableBlockingCalls}}{{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}}{{#description}}description="{{description}}" {{/description}}>
@@ -43,7 +43,7 @@ export function getCallMustacheTemplate() {
 {{^isNewMediator}}
 {{#editCall}}
 {{^sourceOrTargetOrEndpoint}}
-<call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}}{{/enableBlockingCalls}}{{#description}}description="{{description}}" {{/description}} />
+<call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}}{{/enableBlockingCalls}}{{#description}}description="{{description}}" {{/description}} ></call>
 {{/sourceOrTargetOrEndpoint}}
 {{#sourceOrTargetOrEndpoint}}
 <call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{/enableBlockingCalls}}{{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}}{{#description}}description="{{description}}" {{/description}}>
