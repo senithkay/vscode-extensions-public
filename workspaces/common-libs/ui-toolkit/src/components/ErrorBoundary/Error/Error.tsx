@@ -16,7 +16,7 @@ export interface ErrorProps {
     errorMsg?: string;
 }
 
-export default function Default(props: ErrorProps) {
+export function ErrorScreen (props: ErrorProps) {
     const classes = useStyles();
 
     return (

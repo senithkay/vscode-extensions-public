@@ -6,13 +6,29 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
+import React, { useState } from "react";
 import { ComponentStory } from "@storybook/react";
-import { ErrorBoundary as EB, ErrorBoundaryProps } from "./ErrorBoundary";
+import { ErrorBoundary as EB } from "./ErrorBoundary";
+import { ErrorBoundaryProps } from "react-error-boundary";
+
+function MyComponent() {
+    const [shouldThrowError, setShouldThrowError] = useState(false);
+
+    const handleClick = () => {
+        setShouldThrowError(true);
+    };
+
+    if (shouldThrowError) {
+        // This will be caught by the error boundary due to being part of the rendering phase
+        throw new Error('This is an error');
+    }
+
+    return <button onClick={handleClick}>My Component</button>;
+}
 
 const Template: ComponentStory<typeof EB> = (args: ErrorBoundaryProps) => <EB {...args} />;
 
 export const ErrorBoundary = Template.bind();
-ErrorBoundary.args = { hasError: true, errorMsg: "An error occurred. Please try again" };
+ErrorBoundary.args = { children: <MyComponent />, errorMsg: "An error occurred" };
 
 export default { component: ErrorBoundary, title: "Error Boundary" };
