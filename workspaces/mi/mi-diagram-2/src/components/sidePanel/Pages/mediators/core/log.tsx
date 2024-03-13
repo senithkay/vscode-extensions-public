@@ -48,20 +48,20 @@ const LogForm = (props: AddMediatorProps) => {
        paramFields: [
        {
            type: "TextField",
-           label: "propertyName",
+           label: "Property Name",
            defaultValue: "Name",
            isRequired: true
        },
        {
            type: "Dropdown",
-           label: "propertyValueType",
+           label: "Property Value Type",
            defaultValue: "LITERAL",
            isRequired: true,
            values: ["LITERAL", "EXPRESSION"]
        },
        {
            type: "TextField",
-           label: "propertyValue",
+           label: "Property Value",
            defaultValue: "value",
            isRequired: true
        },]
