@@ -41,7 +41,7 @@ import { getCommandFormDataFromSTNode, getCommandMustacheTemplate, getCommandXml
 import { getEjbFormDataFromSTNode, getEjbMustacheTemplate, getEjbXml } from "./extension/ejb";
 import { getScriptFormDataFromSTNode, getScriptMustacheTemplate, getScriptXml } from "./extension/script";
 import { getSpringMustacheTemplate } from "./extension/spring";
-import { getCloneFormDataFromSTNode, getCloneMustacheTemplate, getCloneXml } from "./advanced/clone";
+import { getCloneFormDataFromSTNode, getCloneMustacheTemplate, getCloneXml, getNewCloneTargetXml } from "./advanced/clone";
 import { getDataSerivceCallXml, getDataServiceCallFormDataFromSTNode, getDataServiceCallMustacheTemplate } from "./advanced/dataServiceCall";
 import { getEnqueueMustacheTemplate } from "./advanced/enqueue";
 import { getEventFormDataFromSTNode, getEventMustacheTemplate, getEventXml } from "./advanced/event";
@@ -193,6 +193,13 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getEditSequenceXml(data);
         default:
             return Mustache.render(getMustacheTemplate(name), data).trim();
+    }
+}
+
+export function getNewSubSequenceXml(name: string) {
+    switch(name) {
+        case MEDIATORS.CLONE:
+            return getNewCloneTargetXml();
     }
 }
 

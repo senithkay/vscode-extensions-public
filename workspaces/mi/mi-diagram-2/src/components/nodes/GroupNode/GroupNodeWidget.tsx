@@ -11,7 +11,7 @@ import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { GroupNodeModel } from "./GroupNodeModel";
-import { Colors } from "../../../resources/constants";
+import { Colors, NODE_DIMENSIONS, NODE_GAP } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
@@ -35,13 +35,13 @@ namespace S {
         padding: 0 8px;
         border: 2px solid
             ${(props: NodeStyleProp) =>
-                props.hasError
-                    ? Colors.ERROR
-                    : props.selected
+            props.hasError
+                ? Colors.ERROR
+                : props.selected
                     ? Colors.SECONDARY
                     : props.hovered
-                    ? Colors.SECONDARY
-                    : Colors.OUTLINE_VARIANT};
+                        ? Colors.SECONDARY
+                        : Colors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: ${Colors.SURFACE_BRIGHT};
         color: ${Colors.ON_SURFACE};
@@ -98,10 +98,10 @@ namespace S {
     export const ChildNodeContainer = styled.div<ContainerStyleProp>`
         position: absolute;
         top: 20px;
-        left: ${(props: ContainerStyleProp) => props.width / -2 + 50}px;
+        left: ${(props: ContainerStyleProp) => (NODE_DIMENSIONS.DEFAULT.WIDTH - props.width - NODE_GAP.GROUP_NODE_HORIZONTAL_PADDING) / 2}px;
         width: ${(props: ContainerStyleProp) => props.width}px;
         height: ${(props: ContainerStyleProp) => props.height}px;
-        padding: 0 8px;
+        padding: 0 20px;
         border: 2px dashed ${Colors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: transparent;
@@ -109,6 +109,7 @@ namespace S {
         display: flex;
         align-items: flex-end;
         justify-content: center;
+        pointer-events: none;
     `;
 
     export const EmptyEl = styled.div`
@@ -133,9 +134,9 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
     const hasDiagnotics = node.hasDiagnotics();
     const tooltip = hasDiagnotics
         ? node
-              .getDiagnostics()
-              .map((diagnostic) => diagnostic.message)
-              .join("\n")
+            .getDiagnostics()
+            .map((diagnostic) => diagnostic.message)
+            .join("\n")
         : undefined;
 
     const handleOnClickMenu = (event: any) => {

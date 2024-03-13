@@ -14,6 +14,8 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { PlusNodeModel } from "./PlusNodeModel";
 import { Colors } from "../../../resources/constants";
 import { keyframes } from "@emotion/react";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { getNewSubSequenceXml } from "../../../utils/template-engine/mustach-templates/templateUtils";
 
 namespace S {
     export const zoomIn = keyframes`
@@ -66,10 +68,16 @@ interface CallNodeWidgetProps {
 export function PlusNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
+    const visualizerContext = useVisualizerContext();
+    const stNode = node.getStNode();
 
     const handleOnClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        props.onClick?.();
+        visualizerContext.rpcClient.getMiDiagramRpcClient().applyEdit({
+            text: getNewSubSequenceXml(node.mediatorName),
+            documentUri: node.documentUri,
+            range: { start: stNode.range.endTagRange.start, end: stNode.range.endTagRange.start }
+        });
     };
 
     return (
