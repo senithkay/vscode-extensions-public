@@ -1679,5 +1679,7 @@ export enum SetRemove {
     remove,
 }
 
-export type EditableService = APIResource | NamedSequence | Proxy;
+export type DiagramService = APIResource | NamedSequence | Proxy;
+
+export type EditableService = APIResource | NamedSequence | ProxyTarget;
 

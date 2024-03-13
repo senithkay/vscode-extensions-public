@@ -15,6 +15,7 @@ import { Colors, SequenceType } from "../../../resources/constants";
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EditFormProps, NodeKindChecker, generateFormData, getOpenedForm, onFormEdit } from "../../../utils/form";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 
 namespace S {
     export const Node = styled.div<{}>`
@@ -58,11 +59,22 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
     );
 
     const handleClick = () => {
-        sidePanelContext.setSidePanelState({
-            ...getOpenedForm(model),
-            serviceData: serviceData,
-            onServiceEdit: onEdit,
-        });
+        if (NodeKindChecker.isProxy(model)) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.ProxyServiceForm,
+                    documentUri: documentUri,
+                }
+            });
+        } else {
+            sidePanelContext.setSidePanelState({
+                ...getOpenedForm(model),
+                serviceData: serviceData,
+                onServiceEdit: onEdit,
+            });
+        }
+        
     };
 
     const getEditableSvg = (nodeName?: string) => (

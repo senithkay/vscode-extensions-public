@@ -8,7 +8,7 @@
  */
 
 import { NodeModel, PortModelAlignment } from "@projectstorm/react-diagrams";
-import { APIResource, EditableService, NamedSequence, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { DiagramService, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodePortModel } from "../../NodePort/NodePortModel";
 import { getNodeIdFromModel } from "../../../utils/node";
 import { NodeTypes } from "../../../resources/constants";
@@ -19,10 +19,10 @@ export class StartNodeModel extends NodeModel {
     protected portOut: NodePortModel;
     protected parentNode: STNode;
     protected prevNodes: STNode[];
-    protected model: EditableService;
+    protected model: DiagramService;
     protected documentUri: string;
 
-    constructor(stNode: STNode, model: EditableService, documentUri: string, parentNode?: STNode, prevNodes: STNode[] = []) {
+    constructor(stNode: STNode, model: DiagramService, documentUri: string, parentNode?: STNode, prevNodes: STNode[] = []) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode, "start"),
             type: NodeTypes.START_NODE,
@@ -89,7 +89,7 @@ export class StartNodeModel extends NodeModel {
         return this.prevNodes;
     }
 
-    getModel(): EditableService {
+    getModel(): DiagramService {
         return this.model;
     }
 

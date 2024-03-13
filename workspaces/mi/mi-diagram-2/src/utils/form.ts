@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { APIResource, Range, NamedSequence, EditableService, Proxy } from "@wso2-enterprise/mi-syntax-tree/src";
+import { APIResource, Range, NamedSequence, DiagramService, Proxy } from "@wso2-enterprise/mi-syntax-tree/src";
 import { EditAPIForm, Method } from "../components/Forms/EditResourceForm";
 import { getXML } from "./template-engine/mustach-templates/templateUtils";
 import { SERVICE } from "../resources/constants";
@@ -18,15 +18,15 @@ import { EditSequenceForm } from "../components/Forms/EditSequenceForm";
 export type EditFormProps = EditAPIForm | EditSequenceForm;
 
 export namespace NodeKindChecker {
-    export const isNamedSequence = (node: EditableService): node is NamedSequence => {
+    export const isNamedSequence = (node: DiagramService): node is NamedSequence => {
         return (node as NamedSequence).tag === "sequence";
     }
 
-    export const isAPIResource = (node: EditableService): node is APIResource => {
+    export const isAPIResource = (node: DiagramService): node is APIResource => {
         return (node as APIResource).tag === "resource";
     }
 
-    export const isProxy = (node: EditableService): node is Proxy => {
+    export const isProxy = (node: DiagramService): node is Proxy => {
         return (node as Proxy).tag === "proxy";
     }
 }
@@ -71,7 +71,7 @@ const generateSequenceData = (model: NamedSequence): any => {
     return sequenceData;
 }
 
-export const generateFormData = (model: EditableService): EditFormProps => {
+export const generateFormData = (model: DiagramService): EditFormProps => {
     if (NodeKindChecker.isAPIResource(model)) {
         return generateResourceData(model);
     } else if (NodeKindChecker.isNamedSequence(model)) {
@@ -169,7 +169,7 @@ const getResourceDeleteRanges = (model: APIResource, formData: EditAPIForm): Ran
     return ranges;
 }
 
-export const onFormEdit = (model: EditableService, formData: EditFormProps, documentUri: string, sidePanelContext: SidePanelContext, rpcClient: RpcClient) => {
+export const onFormEdit = (model: DiagramService, formData: EditFormProps, documentUri: string, sidePanelContext: SidePanelContext, rpcClient: RpcClient) => {
     if (NodeKindChecker.isAPIResource(model)) {
         const ranges: Range[] = getResourceDeleteRanges(model, formData as EditAPIForm);
         onResourceEdit(formData as EditAPIForm, model.range.startTagRange, ranges, documentUri, sidePanelContext, rpcClient);
@@ -182,7 +182,7 @@ export const onFormEdit = (model: EditableService, formData: EditFormProps, docu
  * Function to handle form opening
  */
 
-export const getOpenedForm = (model: EditableService): { [key: string]: boolean } => {
+export const getOpenedForm = (model: DiagramService): { [key: string]: boolean } => {
     if (NodeKindChecker.isAPIResource(model)) {
         return { isOpenResource: true };
     } else if (NodeKindChecker.isNamedSequence(model)) {
