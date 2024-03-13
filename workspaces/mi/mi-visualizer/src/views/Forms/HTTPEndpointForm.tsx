@@ -381,7 +381,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                         <Typography variant="h3">HTTP Endpoint Artifact</Typography>
                     </div>
                 </Container>
-                <h4>Basic Properties</h4>
+                <Typography variant="h4">Basic Properties</Typography>
                 <TextField
                     placeholder="Name"
                     label="Endpoint Name"
@@ -431,7 +431,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                         Disable
                     </RadioLabel>
                 </RadioBtnContainer>
-                <h4>Miscellaneous Properties</h4>
+                <Typography variant="h4">Miscellaneous Properties</Typography>
                 <TextField
                     placeholder="URI Template"
                     label="URI Template"
@@ -499,7 +499,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                         </Table>
                     </>
                 )}
-                <h4>Auth Configuration</h4>
+                <Typography variant="h4">Auth Configuration</Typography>
                 <span>Auth Type</span>
                 <Dropdown items={authTypes} value={endpoint.authType} onChange={handleAuthTypeChange} id="auth-type"/>
                 {endpoint.authType === 'Basic Auth' && (
@@ -629,7 +629,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                         )}
                     </>
                 )}
-                <h4>Quality of Service Properties</h4>
+                <Typography variant="h4">Quality of Service Properties</Typography>
                 <span>Addressing</span>
                 <RadioBtnContainer>
                     <RadioLabel>
@@ -693,7 +693,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                         Disable
                     </RadioLabel>
                 </RadioBtnContainer>
-                <h4>Endpoint Error Handling</h4>
+                <Typography variant="h4">Endpoint Error Handling</Typography>
                 <TextField
                     placeholder="304,305"
                     label="Suspend Error Codes"

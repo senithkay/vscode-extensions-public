@@ -89,12 +89,10 @@ export function EndpointWizard(props: EndpointWizardProps) {
                 }
             }
             const items = await rpcClient.getMiDiagramRpcClient().getTemplates();
-            console.log(items);
             const templates = items.data.map((temp: string) => {
                 temp = temp.replace(".xml", "");
                 return { value: temp }
             });
-            console.log(templates);
             setTemplates(templates);
         })();
 
