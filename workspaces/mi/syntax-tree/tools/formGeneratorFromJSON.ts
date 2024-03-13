@@ -89,6 +89,7 @@ const generateForm = (jsonData: any): string => {
     let defaultValues = '';
     let paramFields = '';
     let paramFieldNames: string[] = [];
+    let tableName = "properties";
     const keys: string[] = [];
 
     const generateFormItems = (elements: any[], indentation: number, parentName?: string) => {
@@ -225,6 +226,7 @@ const generateForm = (jsonData: any): string => {
                 }\n` : "\n"}`, indentation);
             } else if (element.type === 'table') {
                 const inputName = element.value.name.trim();
+                tableName = inputName;
                 fields +=
                     fixIndentation(`
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -330,8 +332,8 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
     useEffect(() => {
         if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
             setFormValues({ ...formValues, ...sidePanelContext.formValues });
-            if (sidePanelContext.formValues["properties"] && sidePanelContext.formValues["properties"].length > 0 ) {
-                const paramValues = sidePanelContext.formValues["properties"].map((property: string, index: string) => (
+            if (sidePanelContext.formValues["${tableName}"] && sidePanelContext.formValues["${tableName}"].length > 0 ) {
+                const paramValues = sidePanelContext.formValues["${tableName}"].map((property: string, index: string) => (
                     {
                         id: index,
                         parameters: [
@@ -362,7 +364,9 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
                 setParams({ ...params, paramValues: paramValues });
             } 
         } else {
-            setFormValues({${defaultValues}});
+            setFormValues({
+                ${defaultValues}
+            });
         }
     }, [sidePanelContext.formValues]);
 
@@ -374,7 +378,7 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
                 newErrors[key] = (error);
             }
         });
-        formValues["properties"] = params.paramValues.map((param: any) => [param.parameters[0].value, param.parameters[1].value, param.parameters[2].value]);
+        formValues["${tableName}"] = params.paramValues.map((param: any) => [param.parameters[0].value, param.parameters[1].value, param.parameters[2].value]);
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
         } else {

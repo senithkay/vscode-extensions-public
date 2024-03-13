@@ -9,8 +9,7 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
-import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
+import { AutoComplete, Button, ComponentCard, ParamConfig, ParamManager, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -39,22 +38,82 @@ const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const CallTemplateForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
-    const sidePanelContext = React.useContext(SidePanelContext);
-    const [formValues, setFormValues] = useState({} as { [key: string]: any });
-    const [availableSequenceTemplates, setAvailableSequenceTemplates] = useState([] as string[]);
-    const [availableEndpointTemplates, setAvailableEndpointTemplates] = useState([] as string[]);
-    const [errors, setErrors] = useState({} as any);
-    useEffect(() => {
+   const { rpcClient } = useVisualizerContext();
+   const sidePanelContext = React.useContext(SidePanelContext);
+   const [formValues, setFormValues] = useState({} as { [key: string]: any });
+   const [availableSequenceTemplates, setAvailableSequenceTemplates] = useState([] as string[]);
+   const [availableEndpointTemplates, setAvailableEndpointTemplates] = useState([] as string[]);
+   const [errors, setErrors] = useState({} as any);
+
+   const paramConfigs: ParamConfig = {
+       paramValues: [],
+       paramFields: [
+       {
+           type: "TextField",
+           label: "Parameter Name",
+           defaultValue: "Name",
+           isRequired: true
+       },
+       {
+           type: "Dropdown",
+           label: "Template Parameter Type",
+           defaultValue: "LITERAL",
+           isRequired: true,
+           values: ["LITERAL", "EXPRESSION"]
+       },
+       {
+           type: "TextField",
+           label: "Parameter Value",
+           defaultValue: "value",
+           isRequired: true
+       },]
+   };
+ 
+   const [params, setParams] = useState(paramConfigs);
+ 
+   const handleOnChange = (params: any) => {
+       setParams(params);
+   };
+
+   useEffect(() => {
         fetchAvailableResources();
-        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-            setFormValues({ ...formValues, ...sidePanelContext.formValues });
-        } else {
+       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
+           setFormValues({ ...formValues, ...sidePanelContext.formValues });
+           if (sidePanelContext.formValues["parameterNameTable"] && sidePanelContext.formValues["parameterNameTable"].length > 0 ) {
+               const paramValues = sidePanelContext.formValues["parameterNameTable"].map((property: string, index: string) => (
+                   {
+                       id: index,
+                       parameters: [
+                           {
+                               id: 0,
+                               label: "parameterName",
+                               type: "TextField",
+                               value: property[0],
+                               isRequired: true
+                           },
+                           {
+                               id: 1,
+                               label: "templateParameterType",
+                               type: "TextField",
+                               value: property[1],
+                               isRequired: true
+                           },
+                           {
+                               id: 2,
+                               label: "parameterValue",
+                               type: "TextField",
+                               value: property[2],
+                               isRequired: true
+                           }
+                       ]
+                   })
+               )
+               setParams({ ...params, paramValues: paramValues });
+           }
+       } else {
             setFormValues({
                 "availableTemplates": "Select From Templates",
-                "parameterNameTable": [] as string[][],
-                "templateParameterType": "LITERAL",
-            });
+                "parameterNameTable": [] as string[][],});
         }
     }, [sidePanelContext.formValues]);
 
@@ -91,6 +150,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                newErrors[key] = (error);
            }
        });
+       formValues["parameterNameTable"] = params.paramValues.map((param: any) => [param.parameters[0].value, param.parameters[1].value, param.parameters[2].value]);
        if (Object.keys(newErrors).length > 0) {
            setErrors(newErrors);
        } else {
@@ -99,22 +159,18 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                documentUri: props.documentUri, range: props.nodePosition, text: xml
            });
            sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                isOpen: false,
-                isEditing: false,
-                formValues: undefined,
-                nodeRange: undefined,
-                operationName: undefined
-              });
+               ...sidePanelContext,
+               isOpen: false,
+               isEditing: false,
+               formValues: undefined,
+               nodeRange: undefined,
+               operationName: undefined
+           });
        }
    };
 
    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
        "availableTemplates": (e?: any) => validateField("availableTemplates", e, false),
-       "parameterName": (e?: any) => validateField("parameterName", e, false),
-       "templateParameterType": (e?: any) => validateField("templateParameterType", e, false),
-       "parameterValue": (e?: any) => validateField("parameterValue", e, false),
-       "parameterExpression": (e?: any) => validateField("parameterExpression", e, false),
        "targetTemplate": (e?: any) => validateField("targetTemplate", e, false),
        "onError": (e?: any) => validateField("onError", e, false),
        "description": (e?: any) => validateField("description", e, false),
@@ -163,108 +219,11 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <h3>Parameter Name Table</h3>
 
-                        <Field>
-                            <TextField
-                                label="Parameter Name"
-                                size={50}
-                                placeholder=""
-                                value={formValues["parameterName"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "parameterName": e });
-                                    formValidators["parameterName"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["parameterName"] && <Error>{errors["parameterName"]}</Error>}
-                        </Field>
-
-                        <Field>
-                            <label>Template Parameter Type</label>
-                            <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["templateParameterType"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "templateParameterType": e });
-                                formValidators["templateParameterType"](e);
-                            }} />
-                            {errors["templateParameterType"] && <Error>{errors["templateParameterType"]}</Error>}
-                        </Field>
-
-                        {formValues["templateParameterType"] && formValues["templateParameterType"].toLowerCase() == "literal" &&
-                            <Field>
-                                <TextField
-                                    label="Parameter Value"
-                                    size={50}
-                                    placeholder=""
-                                    value={formValues["parameterValue"]}
-                                    onChange={(e: any) => {
-                                        setFormValues({ ...formValues, "parameterValue": e });
-                                        formValidators["parameterValue"](e);
-                                    }}
-                                    required={false}
-                                />
-                                {errors["parameterValue"] && <Error>{errors["parameterValue"]}</Error>}
-                            </Field>
-                        }
-
-                        {formValues["templateParameterType"] && formValues["templateParameterType"].toLowerCase() == "expression" &&
-                            <Field>
-                                <TextField
-                                    label="Parameter Expression"
-                                    size={50}
-                                    placeholder=""
-                                    value={formValues["parameterExpression"]}
-                                    onChange={(e: any) => {
-                                        setFormValues({ ...formValues, "parameterExpression": e });
-                                        formValidators["parameterExpression"](e);
-                                    }}
-                                    required={false}
-                                />
-                                {errors["parameterExpression"] && <Error>{errors["parameterExpression"]}</Error>}
-                            </Field>
-                        }
-
-
-                <div style={{ textAlign: "right", marginTop: "10px" }}>
-                    <Button appearance="primary" onClick={() => {
-                           const isExpression = formValues["templateParameterType"] == "EXPRESSION" ? true : false;
-                           if (!(validateField("parameterName", formValues["parameterName"], true) || validateField("parameterValue", formValues["parameterValue"], !isExpression), validateField("parameterExpression", formValues["parameterExpression"], isExpression))) {
-                               setFormValues({
-                                   ...formValues, "parameterName": undefined, "parameterValue": undefined, "parameterExpression": undefined,
-                                   "parameterNameTable": [...formValues["parameterNameTable"], [formValues["parameterName"], formValues["templateParameterType"], formValues["parameterValue"] ?? formValues["parameterExpression"]]]
-                            });
-                        }
-                    }}>
-                        Add
-                    </Button>
-                </div>
-                {formValues["parameterNameTable"] && formValues["parameterNameTable"].length > 0 && (
-                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Parameter Name Table Table</h3>
-                        <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
-                            <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
-                                <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                    Name
-                                </VSCodeDataGridCell>
-                                <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                    Value Type
-                                </VSCodeDataGridCell>
-                                <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                    Value
-                                </VSCodeDataGridCell>
-                            </VSCodeDataGridRow>
-                            {formValues["parameterNameTable"].map((property: string, index: string) => (
-                                <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
-                                    <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                        {property[0]}
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                        {property[1]}
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                        {property[2]}
-                                    </VSCodeDataGridCell>
-                                </VSCodeDataGridRow>
-                            ))}
-                        </VSCodeDataGrid>
-                    </ComponentCard>
+                {formValues["parameterNameTable"] && (
+                    <ParamManager
+                        paramConfigs={params}
+                        readonly={false}
+                        onChange= {handleOnChange} />
                 )}
                 </ComponentCard>
                 <Field>
