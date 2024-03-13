@@ -12,6 +12,7 @@ import { readFileSync } from "fs";
 import { Position, Uri, workspace } from "vscode";
 import { CompletionParams, LanguageClient, TextEdit } from "vscode-languageclient/node";
 import { TextDocumentIdentifier } from "vscode-languageserver-protocol";
+import * as fs from 'fs';
 
 export interface GetSyntaxTreeParams {
     documentIdentifier: TextDocumentIdentifier;
@@ -75,16 +76,18 @@ export class ExtendedLanguageClient extends LanguageClient {
     }
 
     private async didOpen(fileUri: string): Promise<void> {
-        const content: string = readFileSync(fileUri, { encoding: 'utf-8' });
-        const didOpenParams = {
-            textDocument: {
-                uri: Uri.parse(fileUri).toString(),
-                languageId: 'xml',
-                version: 1,
-                text: content
-            }
-        };
-        await this.sendNotification("textDocument/didOpen", didOpenParams);
+        if (fs.existsSync(fileUri) && fs.lstatSync(fileUri).isFile()) {
+            const content: string = readFileSync(fileUri, { encoding: 'utf-8' });
+            const didOpenParams = {
+                textDocument: {
+                    uri: Uri.parse(fileUri).toString(),
+                    languageId: 'xml',
+                    version: 1,
+                    text: content
+                }
+            };
+            await this.sendNotification("textDocument/didOpen", didOpenParams);
+        }
     }
 
     async getProjectStructure(path: string): Promise<ProjectStructureResponse> {

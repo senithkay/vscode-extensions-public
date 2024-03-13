@@ -15,6 +15,7 @@ import * as path from 'path';
 import { XMLBuilder } from "fast-xml-parser";
 import { XMLParser } from "fast-xml-parser";
 import { COMMANDS } from "../constants";
+import * as unzipper from 'unzipper';
 
 interface ProgressMessage {
     message: string;
@@ -74,38 +75,62 @@ async function handleDownloadFile(rawFileLink: string, defaultDownloadsPath: str
 }
 
 export async function handleOpenFile(sampleName: string, repoUrl: string) {
-
-    const rawFileLink = repoUrl + sampleName + '/IS_SAMPLE.zip';
+    const rawFileLink = repoUrl + sampleName + '/' + sampleName + '.zip';
     const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path
     const pathFromDialog = await selectFileDownloadPath();
     const selectedPath = pathFromDialog === "" ? defaultDownloadsPath : pathFromDialog;
     const filePath = path.join(selectedPath, sampleName + '.zip');
     let isSuccess = false;
 
-    await window.withProgress({
-        location: ProgressLocation.Notification,
-        title: 'Downloading file',
-        cancellable: true
-    }, async (progress, cancellationToken) => {
+    if (fs.existsSync(filePath)) {
+        // already downloaded
+        isSuccess = true;
+    } else {
+        await window.withProgress({
+            location: ProgressLocation.Notification,
+            title: 'Downloading file',
+            cancellable: true
+        }, async (progress, cancellationToken) => {
 
-        let cancelled: boolean = false;
-        cancellationToken.onCancellationRequested(async () => {
-            cancelled = true;
+            let cancelled: boolean = false;
+            cancellationToken.onCancellationRequested(async () => {
+                cancelled = true;
+            });
+
+            try {
+                await handleDownloadFile(rawFileLink, filePath, progress, cancelled);
+                isSuccess = true;
+                return;
+            } catch (error) {
+                window.showErrorMessage(`Error while downloading the file: ${error}`);
+            }
         });
-
-        try {
-            await handleDownloadFile(rawFileLink, filePath, progress, cancelled);
-            isSuccess = true;
-            return;
-        } catch (error) {
-            window.showErrorMessage(`Error while downloading the file: ${error}`);
-        }
-    });
+    }
 
     if (isSuccess) {
         const successMsg = `The Integration sample file has been downloaded successfully to the following directory: ${filePath}.`;
-        const document = await workspace.openTextDocument(filePath);
-        window.showTextDocument(document, { preview: true });
+        const zipReadStream = fs.createReadStream(filePath);
+        if (fs.existsSync(path.join(selectedPath, sampleName))) {
+            // already extracted
+            let uri = Uri.file(path.join(selectedPath, sampleName));
+            commands.executeCommand("vscode.openFolder", uri, true);
+            return;
+        }
+        zipReadStream.pipe(unzipper.Parse()).on("entry", function (entry) {
+            var isDir = entry.type === "Directory";
+            var fullpath = path.join(selectedPath, entry.path);
+            var directory = isDir ? fullpath : path.dirname(fullpath);
+            if (!fs.existsSync(directory)) {
+                fs.mkdirSync(directory, { recursive: true });
+            }
+            if (!isDir) {
+                entry.pipe(fs.createWriteStream(fullpath));
+            }
+        }).on("close", () => {
+            console.log("Extraction complete!");
+            let uri = Uri.file(path.join(selectedPath, sampleName));
+            commands.executeCommand("vscode.openFolder", uri, true);
+        });
         window.showInformationMessage(
             successMsg,
         );

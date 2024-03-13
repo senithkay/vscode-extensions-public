@@ -15,8 +15,9 @@ import { Colors, SequenceType } from "../../../resources/constants";
 import { EditAPIForm } from "../../Forms/EditResourceForm";
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EditFormProps, NodeKindChecker, generateResourceData, generateSequenceData, onResourceEdit, onSequenceEdit } from "../../../utils/form";
+import { EditFormProps, NodeKindChecker, generateResourceData, generateSequenceData, getResourceDeleteRanges, onResourceEdit, onSequenceEdit } from "../../../utils/form";
 import { EditSequenceForm } from "../../Forms/EditSequenceForm";
+import { Range } from "@wso2-enterprise/mi-syntax-tree/src";
 
 namespace S {
     export const Node = styled.div<{}>`
@@ -60,7 +61,8 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
 
     const onEdit = React.useCallback((formData: EditFormProps) => {
         if (model && NodeKindChecker.isAPIResource(model)) {
-            onResourceEdit(formData as EditAPIForm, model.range.startTagRange, documentUri, sidePanelContext, rpcClient);
+            const ranges: Range[] = getResourceDeleteRanges(model, formData as EditAPIForm);
+            onResourceEdit(formData as EditAPIForm, model.range.startTagRange, ranges, documentUri, sidePanelContext, rpcClient);
         } else if (model && NodeKindChecker.isNamedSequence(model)) {
             onSequenceEdit(formData as EditSequenceForm, model.range.startTagRange, documentUri, sidePanelContext, rpcClient);
         }

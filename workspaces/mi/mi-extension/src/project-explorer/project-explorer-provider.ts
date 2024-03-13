@@ -352,6 +352,15 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			}
 			explorerEntry = apiEntry;
 
+		} else if (entry.type === "ENDPOINT") {
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			explorerEntry.contextValue = 'endpoint';
+			explorerEntry.command = {
+				"title": "Show Endpoint",
+				"command": COMMANDS.SHOW_ENDPOINT,
+				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+			};
+
 		} else if (entry.type === "SEQUENCE") {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 			explorerEntry.contextValue = 'sequence';
@@ -407,14 +416,23 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 		}
 		else if (entry.type === "MESSAGE_STORE") {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
-			explorerEntry.contextValue = 'messageStores';
+			explorerEntry.contextValue = 'messageStore';
 			explorerEntry.command = {
 				"title": "Show Message Store",
 				"command": COMMANDS.SHOW_MESSAGE_STORE,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
-		}
-		else {
+		
+		} else if (entry.type === "LOCAL_ENTRY") {
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			explorerEntry.contextValue = 'localEntry';
+			explorerEntry.command = {
+				"title": "Show Local Entry",
+				"command": COMMANDS.SHOW_LOCAL_ENTRY,
+				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+			};
+		
+		} else {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 		}
 

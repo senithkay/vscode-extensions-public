@@ -16,9 +16,10 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import CodeMirror from "@uiw/react-codemirror";
 import { xml } from "@codemirror/lang-xml";
 import { oneDark } from "@codemirror/theme-one-dark";
-import { linter, lintGutter, Diagnostic } from "@codemirror/lint";
-import {CreateLocalEntryRequest} from "@wso2-enterprise/mi-core";
-import { get, set } from "lodash";
+import { linter } from "@codemirror/lint";
+import {CreateLocalEntryRequest, EVENT_TYPE, MACHINE_VIEW} from "@wso2-enterprise/mi-core";
+import path from "path";
+import { set } from "lodash";
 
 const WizardContainer = styled.div`
     width: 95%;
@@ -63,50 +64,77 @@ export interface Region {
     value: string;
 }
 
-export function LocalEntryWizard() {
+export interface LocalEntryWizardProps {
+    path:string
+}
+
+export function LocalEntryWizard(props: LocalEntryWizardProps) {
     const { rpcClient } = useVisualizerContext();
-    const [localEntryName, setLocalEntryName] = useState("");
-    const [localEntryType, setLocalEntryType] = useState("In-Line Text Entry");
-    const [value, setValue] = useState("");
-    const [errors, setErrors] = useState([]);
-    const [URL, setURL] = useState("");
-    const [projectDir, setProjectDir] = useState("");
+    const [localEntry, setLocalEntry] = useState({
+        name: "",
+        type: "In-Line Text Entry",
+        inLineTextValue: "",
+        inLineXmlValue: `<xml version="1.0" encoding="UTF-8"></xml>` ,
+        sourceURL: ""
+    });
+    const [errors, setErrors] = useState([]); 
+    const [projectDir, setProjectDir] = useState(props.path);
+    const [existingFilePath, setExistingFilePath] = useState(props.path);
+    const isNewTask = !existingFilePath.endsWith(".xml");
     const [validationMessage, setValidationMessage] = useState(true);
-    const [code, setCode] = useState(`<xml version="1.0" encoding="UTF-8">
-    </xml> 
-    `);
+    const [message , setMessage] = useState({
+        isError: false,
+        text: ""
+    });
   
     useEffect(() => {
         (async () => {
-            const localEntryDirectory = await rpcClient
-                .getMiDiagramRpcClient()
-                .getLocalEntryDirectory();
-            setProjectDir(localEntryDirectory.data);
+            const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({path: props.path})).path;
+            const messageStoreDir = path.join(projectDir, "src", "main", "wso2mi", "artifacts", "local-entries");
+            setProjectDir(messageStoreDir);
+            if (!isNewTask) {
+                if (existingFilePath.includes('/localEntries')) {
+                    setExistingFilePath(existingFilePath.replace('/localEntries', '/local-entries'));
+                }
+                const existingLocalEntry = await rpcClient.getMiDiagramRpcClient().getLocalEntry({ path: existingFilePath });
+                setLocalEntry(existingLocalEntry);                  
+            }
         })();
     }, []);
+
+    useEffect(() => {
+        const INVALID_CHARS_REGEX = /[@\\^+;:!%&,=*#[\]$?'"<>{}() /]/;
+        if (!isValid){
+            handleMessage("All fields are required", true);
+        } else if (localEntry.name.match(INVALID_CHARS_REGEX)) {
+            handleMessage("Local Entry Name cannot contain special characters", true);
+        } else {
+            handleMessage("", false);
+        }
+    }, [localEntry]);
   
     useEffect(() => {
         setValidationMessage(true);
-        if (localEntryType === "In-Line XML Entry") {
-            handleXMLInputChange(code);
+        if (localEntry.type === "In-Line XML Entry") {
+            handleXMLInputChange(localEntry.inLineXmlValue);
         }
-    }, [localEntryType]);
+    }, [localEntry.type]);
   
     const localEntryTypes = [
         "In-Line Text Entry",
         "In-Line XML Entry",
         "Source URL Entry",
     ];
-  
-    const handleLocalEntryTypeChange = (type: string) => {
-        setLocalEntryType(type);
-    };
+    
+    const handleLocalEntryFieldChange = (field: string, value: string) => {
+        setLocalEntry((prev:any) => ({ ...prev , [field]: value }))
+    }
   
     const handleURLDirSelection = async () => {
-        const projectDirectory = await rpcClient
+        const fileDirectory = await rpcClient
             .getMiDiagramRpcClient()
             .askFileDirPath();
-        setURL(projectDirectory.path);
+        handleLocalEntryFieldChange("sourceURL", fileDirectory.path);
     };
   
     const isValidXML = (xmlString: string) => {
@@ -121,10 +149,10 @@ export function LocalEntryWizard() {
     };
   
     const handleXMLInputChange = (text: string) => {
-        setCode(text);
+        handleLocalEntryFieldChange("inlineXmlValue", text);
         setValidationMessage(true);
         setErrors(getLintErrors(XMLannotations(text)));
-        if (localEntryType === "In-Line XML Entry" && !isValidXML(text)) {
+        if (localEntry.type === "In-Line XML Entry" && !isValidXML(text)) {
             setValidationMessage(false);
         }
     };
@@ -149,7 +177,7 @@ export function LocalEntryWizard() {
     };
     
     const handleCreateLocalEntry = async () => {
-        if (localEntryType === "In-Line XML Entry") {
+        if (localEntry.type === "In-Line XML Entry") {
             if (validationMessage === false) {
               console.error("Invalid XML");
               prompt("Invalid XML");
@@ -158,17 +186,20 @@ export function LocalEntryWizard() {
         }
         const createLocalEntryParams: CreateLocalEntryRequest = {
             directory: projectDir,
-            name: localEntryName,
-            type: localEntryType,
-            value: localEntryType === "In-Line XML Entry" ? code : value,
-            URL: URL,
+            name: localEntry.name,
+            type: localEntry.type,
+            value: localEntry.type === "In-Line XML Entry" ? localEntry.inLineXmlValue : localEntry.inLineTextValue,
+            URL: localEntry.sourceURL,
         };
         const file = await rpcClient
             .getMiDiagramRpcClient()
             .createLocalEntry(createLocalEntryParams);
-        rpcClient.getMiDiagramRpcClient().openFile(file);  
-        rpcClient.getMiDiagramRpcClient().closeWebView();
+        openOverview();    
     };
+
+    const handleMessage = (text: string, isError: boolean = false) => {
+        setMessage({ isError, text });
+    }
   
     const handleCancel = () => {
         rpcClient.getMiDiagramRpcClient().closeWebView();
@@ -176,14 +207,18 @@ export function LocalEntryWizard() {
   
     const handleBackButtonClick = () => {
         rpcClient.getMiVisualizerRpcClient().goBack();
-    }  
+    }
+    
+    const openOverview = () => {
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+    };
   
     const isValid: boolean =
-        localEntryName.length > 0 &&
-        localEntryType.length > 0 &&
-        (!(localEntryType === "In-Line Text Entry") || value.length > 0) &&
-        (!(localEntryType === "Source URL Entry") || URL.length > 0) &&
-        (!(localEntryType === "In-Line XML Entry") || code.length > 0);
+        localEntry.name.length > 0 &&
+        localEntry.type.length > 0 &&
+        (!(localEntry.type === "In-Line Text Entry") || localEntry.inLineTextValue.length > 0) &&
+        (!(localEntry.type === "Source URL Entry") || localEntry.sourceURL.length > 0) &&
+        (!(localEntry.type === "In-Line XML Entry") || localEntry.inLineXmlValue.length > 0);
     
     return (
       <WizardContainer>
@@ -191,67 +226,57 @@ export function LocalEntryWizard() {
               <Container>
                   <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
                   <div style={{ marginLeft: 30 }}>
-                      <Typography variant="h3">Inbound Endpoint Artifact</Typography>
+                      <Typography variant="h3">{isNewTask?"Create Local Entry Artifact":`${localEntry.name}:Local Entry`}</Typography>
                   </div>
               </Container>        
               <TextField
-                  value={localEntryName}
+                  value={localEntry.name}
                   id="name-input"
                   label="Local Entry Name"
                   placeholder="Name"
                   validationMessage="LocalEntry name is required"
-                  onChange={(text: string) => setLocalEntryName(text)}
+                  onChange={(text: string) => handleLocalEntryFieldChange("name", text)}
                   autoFocus
                   required
               />
               <span>Local Entry Creation Type</span>
               <AutoComplete
                   items={localEntryTypes}
-                  selectedItem={localEntryType}
-                  onChange={handleLocalEntryTypeChange}
+                  selectedItem={localEntry.type}
+                  onChange={(value: string) => handleLocalEntryFieldChange("type", value)}
                   sx={{ width: "100%" }}
               ></AutoComplete>
-              <div style={{ display: "flex", alignItems: "center" }}>
-                  <span> Save Local Entry In: </span>
-                  <TextField
-                    placeholder="projectDir"
-                    onChange={(text: string) => setProjectDir(text)}
-                    value={projectDir}
-                    id="dir-input"
-                    size={100}
-                    readonly={true}
-                  />
-              </div>
               <h5>Advanced Configuration</h5>
-              {localEntryType === "In-Line Text Entry" && (
+              {localEntry.type === "In-Line Text Entry" && (
                   <TextField
                       placeholder="Value"
                       label="Value"
-                      onChange={(text: string) => setValue(text)}
-                      value={value}
+                      onChange={(text: string) => handleLocalEntryFieldChange("inLineTextValue", text)}
+                      value={localEntry.inLineTextValue}
                       id="value-input"
                       size={100}
                       required
                   />
               )}
-              {localEntryType === "In-Line XML Entry" && (
+              {localEntry.type === "In-Line XML Entry" && (
                   <CodeMirror
-                      value={code}
+                      value={localEntry.inLineXmlValue}
                       extensions={[xml(), linter(() => errors)]}
                       theme={oneDark}
                       onChange={(text: string) => handleXMLInputChange(text)}
                       height="200px"
+                      formatOnPaste
                       autoFocus
                   />
               )}
-              {localEntryType === "Source URL Entry" && (
+              {localEntry.type === "Source URL Entry" && (
                   <>
                       <div style={{ display: "flex", alignItems: "center" }}>
                           <TextField
                               placeholder="URL"
                               label="URL"
-                              onChange={(text: string) => setURL(text)}
-                              value={URL}
+                              onChange={(text: string) => handleLocalEntryFieldChange("sourceURL", text)}
+                              value={localEntry.sourceURL}
                               id="url-input"
                               size={100}
                               sx={{ flexGrow: 0.5 }}
@@ -267,15 +292,16 @@ export function LocalEntryWizard() {
               )}
           </SectionWrapper>
           <ActionContainer>
+              <span style={{ color: message.isError ? "red" : "green" }}>{message.text}</span>
               <Button appearance="secondary" onClick={handleCancel}>
                   Cancel
               </Button>
               <Button
                   appearance="primary"
                   onClick={handleCreateLocalEntry}
-                  disabled={!isValid}
+                  disabled={message.isError}
               >
-                  Create
+                  {isNewTask ? "Create" : "Update"}
               </Button>
           </ActionContainer>
       </WizardContainer>
