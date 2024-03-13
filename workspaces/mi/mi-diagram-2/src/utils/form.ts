@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { APIResource, Range, NamedSequence } from "@wso2-enterprise/mi-syntax-tree/src";
+import { APIResource, Range, NamedSequence, EditableService, Proxy } from "@wso2-enterprise/mi-syntax-tree/src";
 import { EditAPIForm, Method } from "../components/Forms/EditResourceForm";
 import { getXML } from "./template-engine/mustach-templates/templateUtils";
 import { SERVICE } from "../resources/constants";
@@ -18,12 +18,16 @@ import { EditSequenceForm } from "../components/Forms/EditSequenceForm";
 export type EditFormProps = EditAPIForm | EditSequenceForm;
 
 export namespace NodeKindChecker {
-    export const isNamedSequence = (node: APIResource | NamedSequence): node is NamedSequence => {
+    export const isNamedSequence = (node: EditableService): node is NamedSequence => {
         return (node as NamedSequence).tag === "sequence";
     }
 
-    export const isAPIResource = (node: APIResource | NamedSequence): node is APIResource => {
+    export const isAPIResource = (node: EditableService): node is APIResource => {
         return (node as APIResource).tag === "resource";
+    }
+
+    export const isProxy = (node: EditableService): node is Proxy => {
+        return (node as Proxy).tag === "proxy";
     }
 }
 
@@ -31,7 +35,7 @@ export namespace NodeKindChecker {
  * Functions to generate data for forms
  */
 
-export const generateResourceData = (model: APIResource): EditAPIForm => {
+const generateResourceData = (model: APIResource): EditAPIForm => {
     const resourceData: EditAPIForm = {
         urlStyle: model.uriTemplate ? "uri-template" : model.urlMapping ? "url-mapping" : "none",
         uriTemplate: model.uriTemplate,
@@ -56,7 +60,7 @@ export const generateResourceData = (model: APIResource): EditAPIForm => {
     return resourceData;
 }
 
-export const generateSequenceData = (model: NamedSequence): any => {
+const generateSequenceData = (model: NamedSequence): any => {
     const sequenceData: EditSequenceForm = {
         name: model.name,
         trace: model.trace !== "enable" ? false : true,
@@ -65,6 +69,14 @@ export const generateSequenceData = (model: NamedSequence): any => {
     };
 
     return sequenceData;
+}
+
+export const generateFormData = (model: EditableService): EditFormProps => {
+    if (NodeKindChecker.isAPIResource(model)) {
+        return generateResourceData(model);
+    } else if (NodeKindChecker.isNamedSequence(model)) {
+        return generateSequenceData(model);
+    }
 }
 
 /**
@@ -111,7 +123,7 @@ export const onResourceEdit = (
         sidePanelContext.setSidePanelState({ ...sidePanelContext, serviceData: data, isOpenResource: false });
 }
 
-export const onSequenceEdit = (
+const onSequenceEdit = (
     data: EditSequenceForm,
     range: Range,
     documentUri: string,
@@ -133,7 +145,7 @@ export const onSequenceEdit = (
     sidePanelContext.setSidePanelState({ ...sidePanelContext, serviceData: data, isOpenSequence: false });
 }
 
-export const getResourceDeleteRanges = (model: APIResource, formData: EditAPIForm): Range[] => {
+const getResourceDeleteRanges = (model: APIResource, formData: EditAPIForm): Range[] => {
     const ranges: Range[] = [];
     if (formData.inSequence) {
         ranges.push({
@@ -156,3 +168,25 @@ export const getResourceDeleteRanges = (model: APIResource, formData: EditAPIFor
 
     return ranges;
 }
+
+export const onFormEdit = (model: EditableService, formData: EditFormProps, documentUri: string, sidePanelContext: SidePanelContext, rpcClient: RpcClient) => {
+    if (NodeKindChecker.isAPIResource(model)) {
+        const ranges: Range[] = getResourceDeleteRanges(model, formData as EditAPIForm);
+        onResourceEdit(formData as EditAPIForm, model.range.startTagRange, ranges, documentUri, sidePanelContext, rpcClient);
+    } else if (NodeKindChecker.isNamedSequence(model)) {
+        onSequenceEdit(formData as EditSequenceForm, model.range.startTagRange, documentUri, sidePanelContext, rpcClient);
+    }
+}
+
+/**
+ * Function to handle form opening
+ */
+
+export const getOpenedForm = (model: EditableService): { [key: string]: boolean } => {
+    if (NodeKindChecker.isAPIResource(model)) {
+        return { isOpenResource: true };
+    } else if (NodeKindChecker.isNamedSequence(model)) {
+        return { isOpenSequence: true };
+    }
+};
+

@@ -25,6 +25,7 @@ import { ClassMediatorForm } from './views/Forms/ClassMediatorForm';
 import { HttpEndpointWizard } from "./views/Forms/HTTPEndpointForm";
 import { AddressEndpointWizard } from "./views/Forms/AddressEndpointForm";
 import { css, keyframes } from '@emotion/react';
+import { getSyntaxTreeType } from './utils/syntax-tree';
 
 const MainContainer = styled.div`
     display: flex;
@@ -120,8 +121,8 @@ const MainPanel = () => {
                             let model;
                             if (identifier != undefined && st.syntaxTree.api?.resource) {
                                 model = st.syntaxTree.api.resource[identifier];
-                            } else if (st.syntaxTree.sequence) {
-                                model = st.syntaxTree.sequence;
+                            } else if (getSyntaxTreeType(st.syntaxTree)) {
+                                model = getSyntaxTreeType(st.syntaxTree);                   
                             }
                             setViewComponent(<Diagram model={model} documentUri={machineView.documentUri} diagnostics={diagnostics.diagnostics} />);
                         });
