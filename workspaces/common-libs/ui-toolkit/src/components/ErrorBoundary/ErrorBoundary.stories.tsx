@@ -10,6 +10,7 @@ import React, { useState } from "react";
 import { ComponentStory } from "@storybook/react";
 import { ErrorBoundary as EB } from "./ErrorBoundary";
 import { ErrorBoundaryProps } from "react-error-boundary";
+import { Button } from "../Button/Button";
 
 function MyComponent() {
     const [shouldThrowError, setShouldThrowError] = useState(false);
@@ -23,7 +24,7 @@ function MyComponent() {
         throw new Error('This is an error');
     }
 
-    return <button onClick={handleClick}>My Component</button>;
+    return <Button onClick={handleClick}>My Component</Button>;
 }
 
 const Template: ComponentStory<typeof EB> = (args: ErrorBoundaryProps) => <EB {...args} />;
