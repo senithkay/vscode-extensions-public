@@ -6,41 +6,25 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import * as React from "react";
 
-import ErrorScreen from "./Error/Error";
+// In React, error boundaries do not catch errors inside event handlers.
+// React's error boundaries are designed to catch errors in the rendering phase,
+// in lifecycle methods, and in constructors of the whole tree below them. 
+import React, { ReactNode } from "react";
+import { ErrorScreen } from "./Error/Error";
 
 export interface ErrorBoundaryProps {
-    hasError: boolean;
     errorMsg?: string;
-    children?: React.ReactNode;
+    children?: ReactNode;
 }
 
-export class ErrorBoundaryC extends React.Component<ErrorBoundaryProps, { hasError: boolean, errorMsg?: string }> {
-    state = { hasError: false, errorMsg: "" }
+import { ErrorBoundary as EB } from "react-error-boundary";
 
-    static getDerivedStateFromProps(props: ErrorBoundaryProps) {
-        return {
-            hasError: props.hasError,
-            errorMsg: props.errorMsg
-        };
-    }
-
-    static getDerivedStateFromError() {
-      return { hasError: true };
-    }
-
-    componentDidCatch(error: any, errorInfo: any) {
-      // tslint:disable: no-console
-      console.error(error, errorInfo);
-    }
-
-    render() {
-      if (this.state.hasError) {
-        return <ErrorScreen errorMsg={this.state.errorMsg} />;
-      }
-      return this.props?.children;
-    }
+export function ErrorBoundary(props: ErrorBoundaryProps) {
+    const Fallback = () => <ErrorScreen errorMsg={props.errorMsg} />;
+    return (
+        <EB FallbackComponent={Fallback}>
+            {props.children}
+        </EB>
+    );
 }
-
-export const ErrorBoundary = ErrorBoundaryC;
