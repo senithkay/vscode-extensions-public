@@ -352,6 +352,15 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			}
 			explorerEntry = apiEntry;
 
+		} else if (entry.type === "ENDPOINT") {
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			explorerEntry.contextValue = 'endpoint';
+			explorerEntry.command = {
+				"title": "Show Endpoint",
+				"command": COMMANDS.SHOW_ENDPOINT,
+				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+			};
+
 		} else if (entry.type === "SEQUENCE") {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 			explorerEntry.contextValue = 'sequence';

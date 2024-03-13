@@ -24,6 +24,8 @@ import {
     CreateProxyServiceRequest,
     CreateTemplateRequest,
     RetrieveTemplateRequest,
+    UpdateHttpEndpointRequest,
+    RetrieveHttpEndpointRequest,
     GetDefinitionRequest,
     GetDiagnosticsReqeust,
     GetInboundEpDirRequest,
@@ -52,6 +54,7 @@ import {
     createMessageProcessor,
     createProxyService,
     createTemplate,
+    updateHttpEndpoint,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -62,9 +65,11 @@ import {
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
+    getTemplates,
     getInboundEndpoint,
     getMessageProcessor,
     getTemplate,
+    getHttpEndpoint,
     getProjectRoot,
     getProjectUuid,
     getSTRequest,
@@ -119,6 +124,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getEndpointDirectory, () => rpcManger.getEndpointDirectory());
     messenger.onRequest(createEndpoint, (args: CreateEndpointRequest) => rpcManger.createEndpoint(args));
     messenger.onRequest(getEndpointsAndSequences, () => rpcManger.getEndpointsAndSequences());
+    messenger.onRequest(getTemplates, () => rpcManger.getTemplates());
     messenger.onRequest(getSequenceDirectory, () => rpcManger.getSequenceDirectory());
     messenger.onRequest(createSequence, (args: CreateSequenceRequest) => rpcManger.createSequence(args));
     messenger.onRequest(createProxyService, (args: CreateProxyServiceRequest) => rpcManger.createProxyService(args));
@@ -133,6 +139,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createTemplate, (args: CreateTemplateRequest) => rpcManger.createTemplate(args));
     messenger.onRequest(getTemplate, (args: RetrieveTemplateRequest) => rpcManger.getTemplate(args));
     messenger.onRequest(getInboundEndpoint, (args: GetInboundEndpointRequest) => rpcManger.getInboundEndpoint(args));
+    messenger.onRequest(updateHttpEndpoint, (args: UpdateHttpEndpointRequest) => rpcManger.updateHttpEndpoint(args));
+    messenger.onRequest(getHttpEndpoint, (args: RetrieveHttpEndpointRequest) => rpcManger.getHttpEndpoint(args));
     messenger.onNotification(closeWebView, () => rpcManger.closeWebView());
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));
     messenger.onNotification(openFile, (args: OpenDiagramRequest) => rpcManger.openFile(args));

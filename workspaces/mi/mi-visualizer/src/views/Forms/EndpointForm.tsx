@@ -8,7 +8,7 @@
  */
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import { AutoComplete, Button, Codicon, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, Button, Codicon, Dropdown, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import { FieldGroup, SectionWrapper } from "./Commons";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { CreateEndpointRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
@@ -71,6 +71,34 @@ export function EndpointWizard(props: EndpointWizardProps) {
     const [address, setAddress] = useState("");
     const [URITemplate, setURITemplate] = useState("");
     const [method, setMethod] = useState("GET");
+    const [wsdlUri, setWsdlUri] = useState("");
+    const [wsdlService, setWsdlService] = useState("");
+    const [wsdlPort, setWsdlPort] = useState("");
+    const [targetTemplate, setTargetTemplate] = useState("");
+    const [uri, setUri] = useState("");
+    const isNewTask = !props.path.endsWith(".xml");
+    const [templates, setTemplates] = useState();
+
+    useEffect(() => {
+
+        (async () => {
+            if (!isNewTask) {
+                const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: props.path});
+                if (syntaxTree.syntaxTree.endpoint.type === 'HTTP_ENDPOINT') {
+                    rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.HttpEndpointForm, documentUri: props.path} });
+                }
+            }
+            const items = await rpcClient.getMiDiagramRpcClient().getTemplates();
+            console.log(items);
+            const templates = items.data.map((temp: string) => {
+                temp = temp.replace(".xml", "");
+                return { value: temp }
+            });
+            console.log(templates);
+            setTemplates(templates);
+        })();
+
+    }, []);
 
     const endpointTypes = [
         // Add remaining two types
@@ -79,7 +107,9 @@ export function EndpointWizard(props: EndpointWizardProps) {
         'Fail Over Endpoint',
         'HTTP Endpoint',
         'Load Balance Endpoint',
-        'Recipient List Endpoint'
+        'Recipient List Endpoint',
+        'Template Endpoint',
+        'WSDL Endpoint'
     ];
 
     const methodsTypes = [
@@ -102,6 +132,10 @@ export function EndpointWizard(props: EndpointWizardProps) {
         setEndpointType(type);
     };
 
+    const handleTemplateChange = (type: string) => {
+        setTargetTemplate(type);
+    };
+
     const handleEndpointConfigurationChange = (event: any) => {
         setEndpointConfiguration(event.target.value);
     };
@@ -120,7 +154,12 @@ export function EndpointWizard(props: EndpointWizardProps) {
             configuration: endpointConfiguration,
             address: address,
             uriTemplate: URITemplate,
-            method: method
+            method: method,
+            wsdlUri: wsdlUri,
+            wsdlService: wsdlService,
+            wsdlPort: wsdlPort,
+            targetTemplate: targetTemplate,
+            uri: uri
         }
         const file = await rpcClient.getMiDiagramRpcClient().createEndpoint(createEndpointParams);
 
@@ -200,6 +239,46 @@ export function EndpointWizard(props: EndpointWizardProps) {
                         errorMsg={validateAddress(address)}
                         size={46}
                     />)}
+
+                {endpointType === 'WSDL Endpoint' && (
+                    <>
+                        <TextField
+                            placeholder="WSDL URI"
+                            label="WSDL URI"
+                            onChange={(text: string) => setWsdlUri(text)}
+                            value={wsdlUri}
+                            id='wsdl-uri'
+                        />
+                        <TextField
+                            placeholder="WSDL Service"
+                            label="WSDL Service"
+                            onChange={(text: string) => setWsdlService(text)}
+                            value={wsdlService}
+                            id='wsdl-service'
+                        />
+                        <TextField
+                            placeholder="WSDL Port"
+                            label="WSDL Port"
+                            onChange={(text: string) => setWsdlPort(text)}
+                            value={wsdlPort}
+                            id='wsdl-port'
+                        />
+                    </>
+                )}
+
+                {endpointType === 'Template Endpoint' && (
+                    <>
+                        <TextField
+                            placeholder="URI"
+                            label="URI"
+                            onChange={(text: string) => setUri(text)}
+                            value={uri}
+                            id='template-uri'
+                        />
+                        <span>Target Template</span>
+                        <Dropdown items={templates} value={targetTemplate} onChange={handleTemplateChange} id="target-template"></Dropdown>
+                    </>
+                )}
 
                 <FieldGroup>
                     <h5>Endpoint Configuration</h5>
