@@ -1639,7 +1639,6 @@ export interface Cache extends STNode {
     description: string;
 }
 
-
 export enum LogLevel {
     simple,
     headers,
@@ -1679,3 +1678,6 @@ export enum SetRemove {
     set,
     remove,
 }
+
+export type EditableService = APIResource | NamedSequence | Proxy;
+
