@@ -74,11 +74,12 @@ export const generateSequenceData = (model: NamedSequence): any => {
 export const onResourceEdit = (
     data: EditAPIForm,
     range: Range,
+    deleteRanges: Range[],
     documentUri: string,
     sidePanelContext: SidePanelContext,
     rpcClient: RpcClient,
 ) => {
-    const { uriTemplate, urlMapping, methods } = data;
+    const { uriTemplate, urlMapping, methods, inSequence, outSequence, faultSequence } = data;
         const formValues = {
             methods: Object
                 .keys(methods)
@@ -87,13 +88,25 @@ export const onResourceEdit = (
                 .join(" "), // Extract selected methods and create string containing the methods for the XML
             uri_template: uriTemplate,
             url_mapping: urlMapping,
+            in_sequence: inSequence,
+            out_sequence: outSequence,
+            fault_sequence: faultSequence,
         };
 
         const xml = getXML(SERVICE.EDIT_RESOURCE, formValues);
+        const sortedRanges = deleteRanges.sort((a, b) => b.start.line - a.start.line || b.start.character - a.start.character);
         rpcClient.getMiDiagramRpcClient().applyEdit({
             text: xml,
             documentUri: documentUri,
             range: range
+        }).then(async () => {
+            for (const range of sortedRanges) {
+                await rpcClient.getMiDiagramRpcClient().applyEdit({
+                    text: "",
+                    documentUri: documentUri,
+                    range: range
+                });
+            }
         });
         sidePanelContext.setSidePanelState({ ...sidePanelContext, serviceData: data, isOpenResource: false });
 }
@@ -120,3 +133,26 @@ export const onSequenceEdit = (
     sidePanelContext.setSidePanelState({ ...sidePanelContext, serviceData: data, isOpenSequence: false });
 }
 
+export const getResourceDeleteRanges = (model: APIResource, formData: EditAPIForm): Range[] => {
+    const ranges: Range[] = [];
+    if (formData.inSequence) {
+        ranges.push({
+            start: model.inSequence.range.startTagRange.start,
+            end: model.inSequence.range.endTagRange.end,
+        });
+    }
+    if (formData.outSequence) {
+        ranges.push({
+            start: model.outSequence.range.startTagRange.start,
+            end: model.outSequence.range.endTagRange.end,
+        });
+    }
+    if (formData.faultSequence) {
+        ranges.push({
+            start: model.faultSequence.range.startTagRange.start,
+            end: model.faultSequence.range.endTagRange.end,
+        });
+    }
+
+    return ranges;
+}
