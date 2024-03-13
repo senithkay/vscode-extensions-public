@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
-import { EVENT_TYPE, MachineStateValue, VisualizerLocation, webviewReady } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MachineStateValue, AI_MACHINE_VIEW, webviewReady, AIVisualizerLocation } from '@wso2-enterprise/mi-core';
 import { AiPanelWebview } from './webview';
 import { RPCLayer } from '../RPCLayer';
 
-interface AiMachineContext {
+interface AiMachineContext extends AIVisualizerLocation {
     errorCode: string | null;
 }
 
@@ -15,6 +15,7 @@ const aiStateMachine = createMachine<AiMachineContext>({
     initial: 'initialize',
     predictableActionArguments: true,
     context: {
+        view: null,
         errorCode: null
     },
     states: {
@@ -23,7 +24,10 @@ const aiStateMachine = createMachine<AiMachineContext>({
                 src: checkAiStatus,
                 onDone: [
                     {
-                        target: 'ready'
+                        target: 'ready',
+                        actions: assign({
+                            view: (context, event) => AI_MACHINE_VIEW.AIOverview
+                        })
                     }
                 ],
                 onError: {
@@ -51,7 +55,10 @@ const aiStateMachine = createMachine<AiMachineContext>({
                 viewReady: {
                     on: {
                         OPEN_VIEW: {
-                            target: "viewLoading"
+                            target: "viewLoading",
+                            actions: assign({
+                                view: (context, event) => event.viewLocation.view
+                            })
                         },
                         FILE_EDIT: {
                             target: "viewEditing"
@@ -108,6 +115,10 @@ export const StateMachineAI = {
     state: () => { return aiStateService.getSnapshot().value as MachineStateValue; },
     sendEvent: (eventType: EVENT_TYPE) => { aiStateService.send({ type: eventType }); },
 };
+
+export function openAIView(type: EVENT_TYPE, viewLocation?: AIVisualizerLocation) {
+    aiStateService.send({ type: type, viewLocation: viewLocation });
+}
 
 async function checkAiStatus() {
     return new Promise((resolve, reject) => {
