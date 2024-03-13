@@ -41,7 +41,7 @@
                 This is the element type representing the proxy services in the Synapse Configuration
             </xs:documentation>
         </xs:annotation>
-        <xs:choice maxOccurs="unbounded">
+        <xs:choice maxOccurs="1">
             <xs:element name="description" minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation source="description">
@@ -106,4 +106,3 @@
     </xs:simpleType>
 
 </xs:schema>
-
