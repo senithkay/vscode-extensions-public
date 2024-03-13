@@ -55,11 +55,14 @@ const ProgressRing = styled(VSCodeProgressRing)`
     padding: 4px;
 `;
 
+const ViewContainer = styled.div({});
+
 const MainPanel = () => {
     const { rpcClient } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [showAIWindow, setShowAIWindow] = useState<boolean>(false);
     const [machineView, setMachineView] = useState<MACHINE_VIEW>();
+    const [showNavigator, setShowNavigator] = useState<boolean>(true);
 
     useEffect(() => {
         fetchContext();
@@ -106,9 +109,11 @@ const MainPanel = () => {
 
     const fetchContext = () => {
         rpcClient.getVisualizerState().then((machineView) => {
+            let shouldShowNavigator = true;
             switch (machineView?.view) {
                 case MACHINE_VIEW.Welcome:
                     setViewComponent(<GettingStarted />);
+                    shouldShowNavigator = false;
                     break;
                 case MACHINE_VIEW.Overview:
                     setViewComponent(<Overview />);
@@ -190,6 +195,7 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.ProjectCreationForm:
                     setViewComponent(<ProjectWizard />);
+                    shouldShowNavigator = false;
                     break;
                 case MACHINE_VIEW.LocalEntryForm:
                     setViewComponent(<LocalEntryWizard path={machineView.documentUri} />);
@@ -206,22 +212,22 @@ const MainPanel = () => {
                 default:
                     setViewComponent(null);
             }
+            // Update the showNavigator state based on the current view
+            setShowNavigator(shouldShowNavigator);
         });
     }
 
     return (
-            <div style={{
-                overflow: "hidden",
-            }}>
-                {!viewComponent ? (
-                    <LoaderWrapper>
-                        <ProgressRing />
-                    </LoaderWrapper>
-                ) : <div>
-                    <NavigationBar />
-                    {viewComponent}
-                </div>}
-            </div>
+        <ViewContainer>
+            {!viewComponent ? (
+                <LoaderWrapper>
+                    <ProgressRing />
+                </LoaderWrapper>
+            ) : <>
+                {showNavigator && <NavigationBar />}
+                {viewComponent}
+            </>}
+        </ViewContainer>
     );
 };
 

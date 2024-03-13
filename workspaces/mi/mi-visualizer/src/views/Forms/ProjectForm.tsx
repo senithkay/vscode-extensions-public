@@ -139,7 +139,7 @@ export function ProjectWizard() {
                 <Container>
                     <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
                     <div style={{ marginLeft: 30 }}>
-                        <Typography variant="h3">Integration Project</Typography>
+                        <Typography variant="h3">Create New Project</Typography>
                     </div>
                 </Container>
                 <TextField
@@ -153,7 +153,7 @@ export function ProjectWizard() {
                     autoFocus
                     required
                 />
-                <LocationSelector 
+                <LocationSelector
                     label="Select Project Directory"
                     selectionText="Project Location"
                     selectedFile={projectDir}

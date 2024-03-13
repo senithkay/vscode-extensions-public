@@ -92,7 +92,6 @@ export class VisualizerWebview {
         <body>
             <noscript>You need to enable JavaScript to run this app.</noscript>
             <div id="root">
-                Loading ....
             </div>
             <script>
             function render() {
