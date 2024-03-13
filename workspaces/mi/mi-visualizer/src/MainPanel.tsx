@@ -32,6 +32,7 @@ import { RegistryResourceForm } from './views/Forms/RegistryResourceForm';
 import { ProxyServiceWizard } from "./views/Forms/ProxyServiceForm";
 import { TemplateWizard } from "./views/Forms/TemplateForm";
 import { ClassMediatorForm } from './views/Forms/ClassMediatorForm';
+import { HttpEndpointWizard } from "./views/Forms/HTTPEndpointForm";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -163,11 +164,14 @@ const MainPanel = () => {
                 case MACHINE_VIEW.TemplateForm:
                     setViewComponent(<TemplateWizard path={machineView.documentUri} />);
                     break;
+                case MACHINE_VIEW.HttpEndpointForm:
+                    setViewComponent(<HttpEndpointWizard path={machineView.documentUri} />);
+                    break;
                 case MACHINE_VIEW.ProjectCreationForm:
                     setViewComponent(<ProjectWizard />);
                     break;
                 case MACHINE_VIEW.LocalEntryForm:
-                    setViewComponent(<LocalEntryWizard />);
+                    setViewComponent(<LocalEntryWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.ImportProjectForm:
                     setViewComponent(<ImportProjectWizard />);

@@ -48,7 +48,13 @@ export interface CreateEndpointRequest {
     address: string;
     uriTemplate: string;
     method: string;
+    wsdlUri: string;
+    wsdlService: string;
+    wsdlPort: string;
+    targetTemplate: string;
+    uri: string;
 }
+
 export interface CreateEndpointResponse {
     path: string;
 }
@@ -87,11 +93,21 @@ export interface CreateLocalEntryRequest {
     value: string;
     URL: string;
 }
+
 export interface CreateLocalEntryResponse {
     path: string;
 }
-export interface LocalEntryDirectoryResponse {
-    data: string;
+
+export interface GetLocalEntryRequest{
+    path: string;
+}
+
+export interface GetLocalEntryResponse{
+    name: string;
+    type: string;
+    inLineTextValue: string;
+    inLineXmlValue: string;
+    sourceURL: string;
 }
 export interface FileDirResponse {
     path: string;
@@ -134,6 +150,7 @@ export interface CreateMessageStoreRequest {
     enableProducerGuaranteedDelivery: string;
     providerClass: string;
     customParameters: Record[];
+    failOverMessageStore: string;
 }
 
 export interface CreateMessageStoreResponse {
@@ -176,10 +193,19 @@ export interface GetMessageStoreResponse {
     enableProducerGuaranteedDelivery: string;
     providerClass: string;
     customParameters: Record[];
+    failOverMessageStore: string;
 }
 
 export interface GetMessageStoreRequest {
     path: string;
+}
+
+export interface FileListRequest {
+    path: string;
+}
+
+export interface FileListResponse {
+    files: string[];
 }
 
 export interface CreateProjectRequest {
@@ -259,6 +285,10 @@ export interface CreateAPIResponse {
 }
 
 export interface EndpointsAndSequencesResponse {
+    data: any;
+}
+
+export interface TemplatesResponse {
     data: any;
 }
 
@@ -379,6 +409,89 @@ export interface CreateProxyServiceRequest {
 
 export interface CreateProxyServiceResponse {
     path: string;
+}
+
+export interface UpdateHttpEndpointRequest {
+    directory: string;
+    endpointName: string;
+    traceEnabled: string;
+    statisticsEnabled: string;
+    uriTemplate: string;
+    httpMethod: string;
+    description: string;
+    requireProperties: boolean;
+    properties: any;
+    authType: string;
+    basicAuthUsername: string;
+    basicAuthPassword: string;
+    authMode: string;
+    grantType: string;
+    clientId: string;
+    clientSecret: string;
+    refreshToken: string;
+    tokenUrl: string;
+    username: string;
+    password: string;
+    requireOauthParameters: boolean;
+    oauthProperties: any;
+    addressingEnabled: string;
+    addressingVersion: string;
+    addressListener: string;
+    securityEnabled: string;
+    suspendErrorCodes: string;
+    initialDuration: string;
+    maximumDuration: string;
+    progressionFactor: string;
+    retryErrorCodes: string;
+    retryCount: string;
+    retryDelay: string;
+    timeoutDuration: string;
+    timeoutAction: string;
+}
+
+export interface UpdateHttpEndpointResponse {
+    path: string;
+}
+
+export interface RetrieveHttpEndpointRequest {
+    path: string;
+}
+
+export interface RetrieveHttpEndpointResponse {
+    endpointName: string;
+    traceEnabled: string;
+    statisticsEnabled: string;
+    uriTemplate: string;
+    httpMethod: string;
+    description: string;
+    requireProperties: boolean;
+    properties: any;
+    authType: string;
+    basicAuthUsername: string;
+    basicAuthPassword: string;
+    authMode: string;
+    grantType: string;
+    clientId: string;
+    clientSecret: string;
+    refreshToken: string;
+    tokenUrl: string;
+    username: string;
+    password: string;
+    requireOauthParameters: boolean;
+    oauthProperties: any;
+    addressingEnabled: string;
+    addressingVersion: string;
+    addressListener: string;
+    securityEnabled: string;
+    suspendErrorCodes: string;
+    initialDuration: string;
+    maximumDuration: string;
+    progressionFactor: string;
+    retryErrorCodes: string;
+    retryCount: string;
+    retryDelay: string;
+    timeoutDuration: string;
+    timeoutAction: string;
 }
 
 export interface CreateTaskRequest {

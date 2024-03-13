@@ -7,12 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodeTypes } from "../../../resources/constants";
 import { BaseNodeModel } from "../BaseNodeModel";
 
-export class MediatorNodeModel extends BaseNodeModel {
-    constructor(stNode: STNode, mediatorName:string, documentUri:string, parentNode?: STNode, prevNodes: STNode[] = []) {
-        super(NodeTypes.MEDIATOR_NODE, mediatorName, documentUri, stNode, parentNode, prevNodes);
+export class GroupNodeModel extends BaseNodeModel {
+    constructor(
+        stNode: STNode,
+        mediatorName: string,
+        documentUri: string,
+        parentNode?: STNode,
+        prevNodes: STNode[] = []
+    ) {
+        super(NodeTypes.GROUP_NODE, mediatorName, documentUri, stNode, parentNode, prevNodes);
     }
 }

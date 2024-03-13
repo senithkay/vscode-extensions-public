@@ -13,7 +13,7 @@ import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import path from 'path';
 
-const allowedConfigs = ["apis", "sequences", "endpoints", "api", "inboundEndpoints", "messageProcessors", "proxyServices", "tasks", "templates"];
+const allowedConfigs = ["apis", "sequences", "endpoints", "api", "inboundEndpoints", "messageProcessors", "proxyServices", "tasks", "templates","messageStores","localEntries","registryResources"];
 
 const IconWrapper = styled.div`
     display: flex;
@@ -57,6 +57,8 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
     const handleClick = (directory: string, path?: string) => {
         if (directory.toLowerCase() === "api") {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: path } });
+        } else if (directory.toLowerCase() === "endpoint") {
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.EndPointForm, documentUri: path } });
         } else if (directory.toLowerCase() === "sequence") {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Diagram, documentUri: path } });
         } else if (directory.toLowerCase() === "message_processor") {
@@ -69,7 +71,11 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.TemplateForm, documentUri: path } });
         } else if (directory.toLowerCase() === "inbound_endpoint") {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.InboundEPForm, documentUri: path } });
-        }
+        } else if (directory.toLowerCase() === "message_store") {
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.MessageStoreForm, documentUri: path } });
+        } else if (directory.toLowerCase() === "local_entry") {
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.LocalEntryForm, documentUri: path } });
+        }  
     };
 
     const handlePlusClick = async (key: string) => {
@@ -93,6 +99,10 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
             await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-task", entry] });
         } else if (key === 'templates') {
             await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-template", entry] });
+        } else if (key === 'messageStores') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-message-store", entry] });
+        } else if (key === 'localEntries') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-local-entry", entry] });
         }
     };
 

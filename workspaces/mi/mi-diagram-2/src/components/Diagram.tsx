@@ -56,7 +56,7 @@ namespace S {
     `;
 }
 
-const SIDE_PANEL_WIDTH = 450;
+export const SIDE_PANEL_WIDTH = 450;
 
 export function Diagram(props: DiagramProps) {
     const { model, diagnostics } = props;
@@ -171,9 +171,9 @@ export function Diagram(props: DiagramProps) {
         }
 
         if (!isSequence) {
-            setTabPaneVisible(!sidePanelState.isOpen);
+            setTabPaneVisible(!sidePanelState.isOpen && !sidePanelState.isOpenResource && !sidePanelState.isOpenSequence);
         }
-    }, [sidePanelState.isOpen]);
+    }, [sidePanelState.isOpen, sidePanelState.isOpenResource, sidePanelState.isOpenSequence]);
 
     useEffect(() => {
         setTabPaneVisible(!isSequence);
@@ -252,7 +252,8 @@ export function Diagram(props: DiagramProps) {
             const canvasBounds = diagramEngine.getCanvas().getBoundingClientRect();
 
             const currentOffsetX = diagramEngine.getModel().getOffsetX();
-            const offsetAdj = sidePanelState.isOpen ? (SIDE_PANEL_WIDTH - 25) : 0;
+            const isFormOpen = sidePanelState.isOpenResource || sidePanelState.isOpenSequence;
+            const offsetAdj = sidePanelState.isOpen || isFormOpen ? (SIDE_PANEL_WIDTH - 25) : 0;
             const offsetX = + ((canvasBounds.width - diagramWidth - offsetAdj) / 2);
 
             const step = (offsetX - currentOffsetX) / 10;
@@ -346,6 +347,7 @@ export function Diagram(props: DiagramProps) {
                         <EditResourceForm
                             isOpen={sidePanelState.isOpenResource}
                             resourceData={sidePanelState.serviceData as EditAPIForm}
+                            documentUri={props.documentUri}
                             onCancel={() => setSidePanelState({ ...sidePanelState, isOpenResource: false })}
                             onEdit={sidePanelState.onServiceEdit}
                         />

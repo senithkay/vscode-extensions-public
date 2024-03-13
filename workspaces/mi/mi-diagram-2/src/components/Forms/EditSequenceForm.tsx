@@ -15,8 +15,10 @@ import {
     SidePanelBody,
     Codicon,
     CheckBox,
+    CheckBoxGroup,
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
+import { SIDE_PANEL_WIDTH } from "../Diagram";
 
 export type Protocol = "http" | "https";
 
@@ -65,7 +67,13 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onEdit }: Res
         sequenceData.statistics !== statistics ||
         sequenceData.onError !== onError;
     return (
-        <SidePanel isOpen={isOpen} alignmanet="right" sx={{ transition: "all 0.3s ease-in-out" }}>
+        <SidePanel
+            isOpen={isOpen}
+            alignmanet="right"
+            width={SIDE_PANEL_WIDTH}
+            overlay={false}
+            sx={{ transition: "all 0.3s ease-in-out" }}
+        >
             <SidePanelTitleContainer>
                 <div>Edit Sequence</div>
                 <Button onClick={onCancel} appearance="icon">
@@ -83,8 +91,10 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onEdit }: Res
                         size={150}
                         errorMsg={name.length > 0 ? undefined : "Required field"}
                     />
-                    <CheckBox label="Trace" value="trace" checked={trace} onChange={setTrace} />
-                    <CheckBox label="Statistics" value="statistics" checked={statistics} onChange={setStatistics} />
+                    <CheckBoxGroup columns={2}>
+                        <CheckBox label="Statistics" value="statistics" checked={statistics} onChange={setStatistics} />
+                        <CheckBox label="Trace" value="trace" checked={trace} onChange={setTrace} />
+                    </CheckBoxGroup>
                     <TextField id="seq-on-error" label="On Error" value={onError} onChange={setOnError} size={150} />
                     <ActionContainer>
                         <Button appearance="secondary" onClick={onCancel}>
@@ -110,4 +120,3 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onEdit }: Res
         </SidePanel>
     );
 }
-

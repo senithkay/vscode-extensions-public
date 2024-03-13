@@ -36,6 +36,10 @@ import {
     CreateMessageProcessorResponse,
     RetrieveMessageProcessorRequest,
     RetrieveMessageProcessorResponse,
+    UpdateHttpEndpointRequest,
+    UpdateHttpEndpointResponse,
+    RetrieveHttpEndpointRequest,
+    RetrieveHttpEndpointResponse,
     CreateTemplateRequest,
     CreateTemplateResponse,
     RetrieveTemplateRequest,
@@ -45,6 +49,7 @@ import {
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
+    TemplatesResponse,
     GetProjectUuidResponse,
     GetWorkspaceContextResponse,
     GetDefinitionRequest,
@@ -58,7 +63,8 @@ import {
     GetTextAtRangeResponse,
     FileDirResponse,
     HighlightCodeRequest,
-    LocalEntryDirectoryResponse,
+    GetLocalEntryResponse,
+    GetLocalEntryRequest,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectDirResponse,
@@ -84,6 +90,7 @@ import {
     createMessageProcessor,
     createProxyService,
     createTemplate,
+    updateHttpEndpoint,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -94,7 +101,8 @@ import {
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
-    getLocalEntryDirectory,
+    getTemplates,
+    getLocalEntry,
     getInboundEndpoint,
     getProjectRoot,
     getProjectUuid,
@@ -103,6 +111,7 @@ import {
     getSequenceDirectory,
     getMessageProcessor,
     getTemplate,
+    getHttpEndpoint,
     getSyntaxTree,
     getWorkspaceContext,
     getTextAtRange,
@@ -139,6 +148,9 @@ import {
     CreateClassMediatorRequest,
     CreateClassMediatorResponse,
     createClassMediator,
+    FileListResponse,
+    FileListRequest,
+    getXmlFileList
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -194,16 +206,20 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(createEndpoint, HOST_EXTENSION, params);
     }
 
-    getLocalEntryDirectory(): Promise<LocalEntryDirectoryResponse> {
-        return this._messenger.sendRequest(getLocalEntryDirectory, HOST_EXTENSION);
-    }
-
     createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
         return this._messenger.sendRequest(createLocalEntry, HOST_EXTENSION, params);
     }
 
+    getLocalEntry(params: GetLocalEntryRequest): Promise<GetLocalEntryResponse>{
+        return this._messenger.sendRequest(getLocalEntry, HOST_EXTENSION, params);
+    }
+
     getEndpointsAndSequences(): Promise<EndpointsAndSequencesResponse> {
         return this._messenger.sendRequest(getEndpointsAndSequences, HOST_EXTENSION);
+    }
+
+    getTemplates(): Promise<TemplatesResponse> {
+        return this._messenger.sendRequest(getTemplates, HOST_EXTENSION);
     }
 
     getSequenceDirectory(): Promise<SequenceDirectoryResponse> {
@@ -246,6 +262,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getMessageStore, HOST_EXTENSION, params);
     }
 
+    getXmlFileList(params: FileListRequest): Promise<FileListResponse>{
+        return this._messenger.sendRequest(getXmlFileList, HOST_EXTENSION, params);
+    }
+
     createTemplate(params: CreateTemplateRequest): Promise<CreateTemplateResponse> {
         return this._messenger.sendRequest(createTemplate, HOST_EXTENSION, params);
     }
@@ -256,6 +276,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getInboundEndpoint(params: GetInboundEndpointRequest): Promise<GetInboundEndpointResponse> {
         return this._messenger.sendRequest(getInboundEndpoint, HOST_EXTENSION, params);
+    }
+
+    updateHttpEndpoint(params: UpdateHttpEndpointRequest): Promise<UpdateHttpEndpointResponse> {
+        return this._messenger.sendRequest(updateHttpEndpoint, HOST_EXTENSION, params);
+    }
+
+    getHttpEndpoint(params: RetrieveHttpEndpointRequest): Promise<RetrieveHttpEndpointResponse> {
+        return this._messenger.sendRequest(getHttpEndpoint, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {

@@ -16,8 +16,6 @@ import {messageStoreTypes,preConfiguredProfiles,rdbmsTypes} from './types';
 import { rabbitMQInitialValues, jmsInitialValues, jdbcInitialValues, wso2MbInitialValues, resequenceInitialValues, poolInitialValues,carbonDatasourceInitialValues, sslInitialValues } from './typeValues';
 import { CreateMessageStoreRequest } from "@wso2-enterprise/mi-core";
 import path from "path";
-import { set } from "lodash";
-import { on } from "events";
 
 const WizardContainer = styled.div`
     width: 95%;
@@ -91,6 +89,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
         enableProducerGuaranteedDelivery: "",
         providerClass: "",
         customParameters: [] ,
+        failOverMessageStore: ""
     });
     const [projectDir, setProjectDir] = useState("");
     const [rows, setRows] = useState<CustomParameter[]>([]);
@@ -99,7 +98,32 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
     const [preConfiguredProfile, setPreConfiguredProfile] = useState("Other");
     const [connectionInformationType, setConnectionInformationType] = useState("Pool");
     const [rdbmsType, setRdbmsType] = useState("Other");
-  
+    const [message, setMessage] = useState({
+        isError: false,
+        text: ""
+    });
+    const [fallOverMessageStores, setFallOverMessageStores] = useState([]);
+    
+    useEffect(() => {
+        const INVALID_CHARS_REGEX = /[@\\^+;:!%&,=*#[\]$?'"<>{}() /]/;
+        const VALID_URI_REGEX = /^(https?:\/\/)?www\.[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i;
+        const VALID_ONLY_NUMBERS_REGEX = /^[0-9]*$/;
+        const VALID_JDBC_URL_REGEX = /^(jdbc:)?[a-zA-Z0-9]+:\/\//;
+        if(!isValid){
+            handleMessage("Please fill all the required fields", true);
+        } else if (INVALID_CHARS_REGEX.test(messageStore.name)) {
+            handleMessage("Message Store name cannot contain special characters", true);
+        } else if (!VALID_URI_REGEX.test(messageStore.providerURL) && messageStore.type === "JMS Message Store") {
+            handleMessage("Provide URL should be a valid url", true);
+        } else if (!VALID_ONLY_NUMBERS_REGEX.test(messageStore.pollingCount) && messageStore.type === "Resequence Message Store") {
+            handleMessage("Polling count should be a number", true);
+        } else if (!VALID_JDBC_URL_REGEX.test(messageStore.url) && (messageStore.type === "JDBC Message Store" || messageStore.type === "Resequence Message Store") && connectionInformationType === "Pool") {
+            handleMessage("URL should be a valid url", true);
+        } else {
+            handleMessage("", false);
+        }
+    }, [messageStore]);
+
     useEffect(() => {
         if(isNewTask){
             switch(rdbmsType){
@@ -172,6 +196,8 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
         (async () => {
             const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({path: props.path})).path;
             const messageStoreDir = path.join(projectDir, "src", "main", "wso2mi", "artifacts", "message-stores");
+            const xmlFileNames = await rpcClient.getMiDiagramRpcClient().getXmlFileList({ path: messageStoreDir });
+            setFallOverMessageStores(xmlFileNames.files);
             setProjectDir(messageStoreDir);
             if (!isNewTask) {
                 if (existingFilePath.includes('/messageStore')) {
@@ -260,7 +286,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
         }  
         else{
         }        
-        }, [messageStore.sslEnabled]);
+    }, [messageStore.sslEnabled]);
 
     const handleOnChangeMessageStore = (name:string,value:string) => {
         setMessageStore((prev: any) => {
@@ -281,6 +307,10 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
 
     const handleRdbmsTypeChange = (type: string) => {
         setRdbmsType(type);
+    }
+
+    const handleMessage = (text: string, isError: boolean = false) => {
+        setMessage({ isError, text });
     }
 
     const handleCreateMessageStore = async () => {
@@ -329,7 +359,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
             <Container>
                 <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
                 <div style={{ marginLeft: 30 }}>
-                    <Typography variant="h3">Message Store Artifact</Typography>
+                    <Typography variant="h3">{isNewTask?'Create Message Store Artifact':`${messageStore.name}:Message Store`}</Typography>
                 </div>
             </Container>
             <TextField
@@ -351,7 +381,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
             />
 
             {messageStore.type === "JMS Message Store" && (
-                <div>
+                <>
                     {isNewTask && (
                         <AutoComplete
                         label="Pre Configured Profiles"
@@ -425,11 +455,11 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                         onChange={(e: string) => handleOnChangeMessageStore("jmsAPIVersion", e)}
                         sx={{ width: "100%" }}
                     />
-                </div>
+                </>
             )}
     
             {messageStore.type === "Custom Message Store" && (
-                <div>
+                <>
                     <TextField
                     placeholder="ProviderClass"
                     label="Provide Class"
@@ -440,11 +470,11 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     /> 
                     <span>Parameters</span>
                     <SampleTable rows={rows} setRows={setRows} />
-                </div>
+                </>
             )}
     
             {messageStore.type === "RabbitMQ Message Store" && (
-                <div>
+                <>
                     <TextField
                         placeholder="RabbitMQ Server Host Name"
                         label="RabbitMQ Server Host Name"
@@ -468,7 +498,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                         onChange={(e: string) => handleOnChangeMessageStore("sslEnabled", e)}
                         sx={{ width: "100%" }}/>
                     {messageStore.sslEnabled === "true" && (
-                        <div>
+                        <>
                             <TextField
                                 placeholder="Key Store Location"
                                 label="Key Store Location"
@@ -525,7 +555,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                 id="ssl-version-input"
                                 size={100}
                                 required/>
-                        </div>
+                        </>
                     )}    
                     <TextField
                         placeholder="RabbitMQ Queue Name"
@@ -575,11 +605,11 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                         id="virtual-host-input"
                         size={100}
                         required/>
-                </div>
+                </>
             )}
 
             {messageStore.type === "JDBC Message Store" && (
-                <div>
+                <>
                     <TextField
                         placeholder="Data Base Table"
                         label="Data Base Table"
@@ -595,7 +625,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                         onChange={handleConnectionInformationTypeChange}
                         sx={{ width: "100%" }}/>
                     {connectionInformationType === "Pool" && (
-                        <div>
+                        <>
                             {isNewTask && (
                                 <AutoComplete
                                 label="RDBMS Type"
@@ -636,10 +666,10 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                 id="password-input"
                                 size={100}
                                 required/>
-                        </div>
+                        </>
                     )}
                     {connectionInformationType === "Carbon Datasource" && (
-                        <div>
+                        <>
                             <TextField
                                 placeholder="Data Source Name"
                                 label="Data Source Name"
@@ -648,13 +678,13 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                 id="data-source-name-input"
                                 size={100}
                                 required/>
-                        </div>
+                        </>
                     )}    
-                </div>
+                </>
             )}
 
             {messageStore.type === "WSO2 MB Message Store" && (
-                <div>
+                <>
                     <TextField
                         placeholder="Initial Context Factory"
                         label="Initial Context Factory"
@@ -691,11 +721,11 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                         selectedItem={messageStore.cacheConnection}
                         onChange={(e: string) => handleOnChangeMessageStore("cacheConnection", e)}
                         sx={{ width: "100%" }}/>
-                </div>
+                </>
             )}
 
             {messageStore.type === "Resequence Message Store" && (
-                <div>
+                <>
                     <TextField
                         placeholder="Data Base Table"
                         label="Data Base Table"
@@ -711,7 +741,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                         onChange={handleConnectionInformationTypeChange}
                         sx={{ width: "100%" }}/>
                     {connectionInformationType === "Pool" && (
-                        <div>
+                        <>
                             {isNewTask && (
                                 <AutoComplete
                                 label="RDBMS Type"
@@ -752,10 +782,10 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                 id="password-input"
                                 size={100}
                                 required/>
-                        </div> 
+                        </> 
                     )}
                     {connectionInformationType=== "Carbon Datasource" && (
-                        <div>
+                        <>
                             <TextField
                                 placeholder="Data Source Name"
                                 label="Data Source Name"
@@ -780,18 +810,27 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                 id="xPath-input"
                                 size={100}
                                 required/>
-                        </div>
+                        </>
                     )}  
-                </div>
+                </>
             )}
 
             {messageStore.type !== "Custom Message Store"&& messageStore.type!=="In Memory Message Store" && (
-                <AutoComplete
-                    label="Enable Producer Guaranteed Delivery"
-                    items={["true", "false"]}
-                    selectedItem={messageStore.enableProducerGuaranteedDelivery}
-                    onChange={(e: string) => handleOnChangeMessageStore("enableProducerGuaranteedDelivery", e)}
-                    sx={{ width: "100%" }}/>
+                <>
+                    <AutoComplete
+                        label="Enable Producer Guaranteed Delivery"
+                        items={["true", "false"]}
+                        selectedItem={messageStore.enableProducerGuaranteedDelivery}
+                        onChange={(e: string) => handleOnChangeMessageStore("enableProducerGuaranteedDelivery", e)}
+                        sx={{ width: "100%" }}/>
+                    <AutoComplete
+                        label="Fail Over Message Store"
+                        items={fallOverMessageStores}
+                        selectedItem={messageStore.failOverMessageStore}
+                        onChange={(e: string) => handleOnChangeMessageStore("failOverMessageStore", e)}
+                        sx={{ width: "100%" }}/>    
+                </>    
+                    
             )}
 
             <div style={{ display: "flex", alignItems: "center" }}>
@@ -807,6 +846,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
             </div>
         </SectionWrapper>
         <ActionContainer>
+            {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
             <Button 
                 appearance="secondary"
                 onClick={handleCancel}
@@ -816,7 +856,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
             <Button
                 appearance="primary"
                 onClick={handleCreateMessageStore}
-                disabled={!isValid}
+                disabled={message.isError}
             >
                 {isNewTask ? "Create" : "Update"}
             </Button>
