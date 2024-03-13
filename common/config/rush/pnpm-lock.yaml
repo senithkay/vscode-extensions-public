@@ -2398,8 +2398,11 @@ importers:
       mustache: ~4.2.0
       node-fetch: ~2.6.2
       rimraf: ~5.0.5
+      tree-kill: ^1.2.2
       ts-loader: ^9.4.4
       typescript: ^5.1.6
+      vscode-debugadapter: ^1.51.0
+      vscode-debugprotocol: ^1.51.0
       vscode-extension-tester: ~5.9.1
       vscode-languageclient: ^8.0.2
       vscode-languageserver-protocol: ^3.17.2
@@ -2427,6 +2430,9 @@ importers:
       lodash: 4.17.21
       mustache: 4.2.0
       node-fetch: 2.6.13
+      tree-kill: 1.2.2
+      vscode-debugadapter: 1.51.0
+      vscode-debugprotocol: 1.51.0
       vscode-extension-tester: 5.9.1_73fg3tqgzkq2e6aekvvil76q2i
       vscode-languageclient: 8.1.0
       vscode-languageserver-protocol: 3.17.5
@@ -19669,6 +19675,14 @@ packages:
       eslint-visitor-keys: 3.4.3
     dev: true
 
+  /@typescript-eslint/visitor-keys/7.0.2:
+    resolution: {integrity: sha512-8Y+YiBmqPighbm5xA2k4wKTxRzx9EkBu7Rlw+WHqMvRJ3RPz/BMBO9b2ru0LUNmXg120PHUXD5+SWFy2R8DqlQ==}
+    engines: {node: ^16.0.0 || >=18.0.0}
+    dependencies:
+      '@typescript-eslint/types': 7.0.2
+      eslint-visitor-keys: 3.4.3
+    dev: true
+
   /@uiw/codemirror-extensions-basic-setup/4.21.22_@codemirror+lint@6.5.0:
     resolution: {integrity: sha512-Lxq2EitQb/MwbNrMHBmVdSIR96WmaICnYBYeZbLUxmr4kQcbrA6HXqNSNZJ0V4ZihPfKnNs9+g87QK0HsadE6A==}
     peerDependencies:
@@ -19702,14 +19716,6 @@ packages:
     transitivePeerDependencies:
       - '@codemirror/lint'
     dev: false
-
-  /@typescript-eslint/visitor-keys/7.0.2:
-    resolution: {integrity: sha512-8Y+YiBmqPighbm5xA2k4wKTxRzx9EkBu7Rlw+WHqMvRJ3RPz/BMBO9b2ru0LUNmXg120PHUXD5+SWFy2R8DqlQ==}
-    engines: {node: ^16.0.0 || >=18.0.0}
-    dependencies:
-      '@typescript-eslint/types': 7.0.2
-      eslint-visitor-keys: 3.4.3
-    dev: true
 
   /@ungap/structured-clone/1.2.0:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}

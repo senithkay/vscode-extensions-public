@@ -13,7 +13,9 @@
   "activationEvents": [
     "onLanguage:SynapseXml",
     "workspaceContains:.project",
-    "workspaceContains:pom.xml"
+    "workspaceContains:pom.xml",
+    "onDebugResolve:mock",
+    "onDebugDynamicConfigurations:mock"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -30,6 +32,27 @@
         "language": "SynapseXml",
         "scopeName": "synapse.xml",
         "path": "./syntaxes/xml.tmLanguage.json"
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "mock",
+        "label": "Mock Debug",
+        "runtime": "node",
+
+        "configurationAttributes": {
+          "launch": {
+            "required": []
+          }
+        },
+        "initialConfigurations": [
+            {
+                "type": "mock",
+                "name": "Mock Debug",
+                "request": "launch",
+                "preLaunchTask": "build-project"
+            }     
+        ]
       }
     ],
     "configuration": [
@@ -300,6 +323,9 @@
     "xstate": "^4.38.3",
     "node-fetch": "~2.6.2",
     "mustache": "~4.2.0",
-    "@types/mustache": "~4.2.5"
+    "@types/mustache": "~4.2.5",
+    "vscode-debugadapter": "^1.51.0",
+    "vscode-debugprotocol": "^1.51.0",
+    "tree-kill": "^1.2.2"
   }
 }
