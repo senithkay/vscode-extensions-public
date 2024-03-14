@@ -413,7 +413,6 @@ export class NodeFactoryVisitor implements Visitor {
         this.parents.push(node);
 
         this.visitSubSequences(node, {
-            // OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete?.mediators
             OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete,
         }, NodeTypes.GROUP_NODE, false)
         this.skipChildrenVisit = true;

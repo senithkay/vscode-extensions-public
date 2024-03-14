@@ -8,7 +8,7 @@
  */
 
 
-import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange, Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange, Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, traversNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
 
@@ -256,6 +256,9 @@ export class SizingVisitor implements Visitor {
 
     //EIP Mediators
     endVisitAggregate = (node: Aggregate): void => {
+        if (node?.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.mediatorList) {
+            traversNode(node.correlateOnOrCompleteConditionOrOnComplete.onComplete, this);
+        }
         node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
         this.calculateAdvancedMediator(node, {
             // OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete?.mediators
