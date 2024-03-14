@@ -17,6 +17,7 @@ export enum MACHINE_VIEW {
     ServiceDesigner = "Service Designer",
     APIForm = "API Form",
     EndPointForm = "Endpoint Form",
+    LoadBalanceEndPointForm = "Load Balance Endpoint Form",
     SequenceForm = "Sequence Form",
     InboundEPForm = "Inbound EP Form",
     MessageProcessorForm = "MessageProcessorForm",
