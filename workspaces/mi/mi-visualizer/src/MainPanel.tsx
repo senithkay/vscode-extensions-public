@@ -17,6 +17,13 @@ import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import { GettingStarted } from "./views/GettingStarted";
 import styled from '@emotion/styled';
 import { InboundEPWizard } from './views/Forms/InboundEPform';
+import { LocalEntryWizard } from './views/Forms/LocalEntryForm';
+import { RegistryResourceForm } from './views/Forms/RegistryResourceForm';
+import { ProxyServiceWizard } from "./views/Forms/ProxyServiceForm";
+import { TemplateWizard } from "./views/Forms/TemplateForm";
+import { ClassMediatorForm } from './views/Forms/ClassMediatorForm';
+import { HttpEndpointWizard } from "./views/Forms/HTTPEndpointForm";
+import { AddressEndpointWizard } from "./views/Forms/AddressEndpointForm";
 import { css, keyframes } from '@emotion/react';
 
 const MainContainer = styled.div`
@@ -27,12 +34,6 @@ const MainContainer = styled.div`
 const MainContent = styled.div`
     flex-grow: 1;
 `;
-import { LocalEntryWizard } from './views/Forms/LocalEntryForm';
-import { RegistryResourceForm } from './views/Forms/RegistryResourceForm';
-import { ProxyServiceWizard } from "./views/Forms/ProxyServiceForm";
-import { TemplateWizard } from "./views/Forms/TemplateForm";
-import { ClassMediatorForm } from './views/Forms/ClassMediatorForm';
-import { HttpEndpointWizard } from "./views/Forms/HTTPEndpointForm";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -166,6 +167,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.HttpEndpointForm:
                     setViewComponent(<HttpEndpointWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.AddressEndpointForm:
+                    setViewComponent(<AddressEndpointWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.ProjectCreationForm:
                     setViewComponent(<ProjectWizard />);

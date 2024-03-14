@@ -40,6 +40,10 @@ import {
     UpdateHttpEndpointResponse,
     RetrieveHttpEndpointRequest,
     RetrieveHttpEndpointResponse,
+    UpdateAddressEndpointRequest,
+    UpdateAddressEndpointResponse,
+    RetrieveAddressEndpointRequest,
+    RetrieveAddressEndpointResponse,
     CreateTemplateRequest,
     CreateTemplateResponse,
     RetrieveTemplateRequest,
@@ -91,6 +95,7 @@ import {
     createProxyService,
     createTemplate,
     updateHttpEndpoint,
+    updateAddressEndpoint,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -112,6 +117,7 @@ import {
     getMessageProcessor,
     getTemplate,
     getHttpEndpoint,
+    getAddressEndpoint,
     getSyntaxTree,
     getWorkspaceContext,
     getTextAtRange,
@@ -284,6 +290,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getHttpEndpoint(params: RetrieveHttpEndpointRequest): Promise<RetrieveHttpEndpointResponse> {
         return this._messenger.sendRequest(getHttpEndpoint, HOST_EXTENSION, params);
+    }
+
+    updateAddressEndpoint(params: UpdateAddressEndpointRequest): Promise<UpdateAddressEndpointResponse> {
+        return this._messenger.sendRequest(updateAddressEndpoint, HOST_EXTENSION, params);
+    }
+
+    getAddressEndpoint(params: RetrieveAddressEndpointRequest): Promise<RetrieveAddressEndpointResponse> {
+        return this._messenger.sendRequest(getAddressEndpoint, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {

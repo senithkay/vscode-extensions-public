@@ -86,6 +86,8 @@ export function EndpointWizard(props: EndpointWizardProps) {
                 const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: props.path});
                 if (syntaxTree.syntaxTree.endpoint.type === 'HTTP_ENDPOINT') {
                     rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.HttpEndpointForm, documentUri: props.path} });
+                } else if (syntaxTree.syntaxTree.endpoint.type === 'ADDRESS_ENDPOINT') {
+                    rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.AddressEndpointForm, documentUri: props.path} });
                 }
             }
             const items = await rpcClient.getMiDiagramRpcClient().getTemplates();
