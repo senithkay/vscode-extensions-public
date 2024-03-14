@@ -104,7 +104,6 @@ interface ReferenceNodeWidgetProps {
 export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
     const { node, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
-    const visualizerContext = useVisualizerContext();
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -121,34 +120,36 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
 
         const regex = /\s*key\s*=\s*(['"])(.*?)\1/;
         const match = text.text.match(regex);
-        const keyPart = match[0].split("=")[0];
-        const valuePart = match[0].split("=")[1];
-        const keyLines = keyPart.split("\n");
-        const valueLines = valuePart.split("\n");
-        const offsetBeforeKey = (text.text.split(match[0])[0]).length;
+        if (match) {
+            const keyPart = match[0].split("=")[0];
+            const valuePart = match[0].split("=")[1];
+            const keyLines = keyPart.split("\n");
+            const valueLines = valuePart.split("\n");
+            const offsetBeforeKey = (text.text.split(match[0])[0]).length;
 
-        let charPosition = 0
+            let charPosition = 0
 
-        if (keyLines.length > 1) {
-            charPosition = keyLines[keyLines.length - 1].length + valueLines[valueLines.length - 1].length;
+            if (keyLines.length > 1) {
+                charPosition = keyLines[keyLines.length - 1].length + valueLines[valueLines.length - 1].length;
+            }
+            if (valueLines.length > 1) {
+                charPosition = valueLines[valueLines.length - 1].length;
+            }
+            const definitionPosition = {
+                line: node.stNode.range.startTagRange.start.line + keyLines.length - 1 + valueLines.length - 1,
+                character: keyLines.length > 1 || valueLines.length > 1 ?
+                    charPosition :
+                    node.stNode.range.startTagRange.start.character + offsetBeforeKey + match[0].length,
+            };
+
+            const definition = await rpcClient.getMiDiagramRpcClient().getDefinition({
+                document: {
+                    uri: node.documentUri,
+                },
+                position: definitionPosition
+            });
+            if (definition) setDefinition(definition);
         }
-        if (valueLines.length > 1) {
-            charPosition = valueLines[valueLines.length - 1].length;
-        }
-        const definitionPosition = {
-            line: node.stNode.range.startTagRange.start.line + keyLines.length - 1 + valueLines.length - 1,
-            character: keyLines.length > 1 || valueLines.length > 1 ?
-                charPosition :
-                node.stNode.range.startTagRange.start.character + offsetBeforeKey + match[0].length,
-        };
-
-        const definition = await rpcClient.getMiDiagramRpcClient().getDefinition({
-            document: {
-                uri: node.documentUri,
-            },
-            position: definitionPosition
-        });
-        if (definition) setDefinition(definition);
     }
     getDefinition();
 

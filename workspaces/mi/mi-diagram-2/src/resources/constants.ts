@@ -87,6 +87,10 @@ export const NODE_GAP = {
     BRANCH_TOP: 100 + 10,
     BRANCH_BOTTOM: 50,
     SEQUENCE_Y: 100,
+    GROUP_NODE_START_Y: 50,
+    GROUP_NODE_END_Y: 50,
+    GROUP_NODE_HORIZONTAL_GAP: 100,
+    GROUP_NODE_HORIZONTAL_PADDING: 44
 };
 
 export const NODE_DIMENSIONS = {
@@ -108,6 +112,14 @@ export const NODE_DIMENSIONS = {
         WIDTH: 65,
         HEIGHT: 65,
     },
+    REFERENCE: {
+        WIDTH: 120,
+        HEIGHT: 40,
+    },
+    GROUP: {
+        WIDTH: 120,
+        HEIGHT: 40,
+    },
     CALL: {
         WIDTH: 120,
         FULL_WIDTH: 120 + 110,
@@ -120,6 +132,10 @@ export const NODE_DIMENSIONS = {
             WIDTH: 60,
             HEIGHT: 12,
         },
+    },
+    END: {
+        WIDTH: 23,
+        HEIGHT: 21,
     },
 };
 

@@ -59,6 +59,39 @@ export interface CreateEndpointResponse {
     path: string;
 }
 
+export interface UpdateLoadBalanceEPRequest {
+    directory: string;
+    name: string;
+    algorithm: string;
+    failover: string;
+    buildMessage: string;
+    sessionManagement: string;
+    sessionTimeout: string;
+    description: string;
+    endpoints: { type: string; value: string; }[];
+    properties: { name: string; value: string; scope: string; }[];
+}
+
+export interface UpdateLoadBalanceEPResponse {
+    path: string;
+}
+
+export interface GetLoadBalanceEPRequest {
+    path: string;
+}
+
+export interface GetLoadBalanceEPResponse {
+    name: string;
+    algorithm: string;
+    failover: string;
+    buildMessage: string;
+    sessionManagement: string;
+    sessionTimeout: string;
+    description: string;
+    endpoints: { type: string; value: string; }[];
+    properties: { name: string; value: string; scope: string; }[];
+}
+
 export interface CreateInboundEndpointRequest {
     directory: string;
     name: string;
@@ -109,7 +142,7 @@ export interface GetLocalEntryResponse{
     inLineXmlValue: string;
     sourceURL: string;
 }
-export interface FileDirResponse {
+export interface FileDirResponse  {
     path: string;
 }
 
@@ -725,7 +758,7 @@ export interface GetWorkspaceContextResponse {
     context: string[];
 }
 
-export interface GetProjectUuidResponse{
+export interface GetProjectUuidResponse {
     uuid: string;
 }
 

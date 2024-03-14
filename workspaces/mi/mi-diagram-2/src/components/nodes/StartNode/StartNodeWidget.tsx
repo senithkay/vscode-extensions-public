@@ -10,7 +10,7 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { StartNodeModel } from "./StartNodeModel";
+import { StartNodeModel, StartNodeType } from "./StartNodeModel";
 import { Colors, SequenceType } from "../../../resources/constants";
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
@@ -37,8 +37,8 @@ interface CallNodeWidgetProps {
 
 export function StartNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine } = props;
-    const nodeType = node.getStNode().tag;
-    const model = node.getModel();
+    const model = node.getStNode() as any;
+    const nodeType = model.tag;
     const documentUri = node.getDocumentUri();
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -109,8 +109,8 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
 
     const getSVGNode = () => {
         if (NodeKindChecker.isAPIResource(model)) {
-            switch (nodeType as SequenceType) {
-                case SequenceType.IN_SEQUENCE:
+            switch (node.getNodeType()) {
+                case StartNodeType.IN_SEQUENCE:
                     return getEditableSvg(model.uriTemplate || model.urlMapping);
                 default:
                     return getDisabledSvg();

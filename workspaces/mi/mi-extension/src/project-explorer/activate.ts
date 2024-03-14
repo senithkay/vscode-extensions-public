@@ -21,7 +21,7 @@ export function activateProjectExplorer(context: ExtensionContext) {
 
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context);
 	const projectTree = window.createTreeView('MI.project-explorer', { treeDataProvider: projectExplorerDataProvider });
-	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { projectExplorerDataProvider.refresh(); });
+	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(); });
 	commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
 		window.showQuickPick([
 			{ label: 'New Project', description: 'Create new project' },
@@ -162,8 +162,8 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		console.log('Import a Project');
 	});
 
-	commands.registerCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND, (entry:ProjectExplorerEntry) => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.LocalEntryForm, documentUri: entry.info?.path});
+	commands.registerCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.LocalEntryForm, documentUri: entry.info?.path });
 		console.log('Add Local Entry');
 	});
 
@@ -268,11 +268,6 @@ export function activateProjectExplorer(context: ExtensionContext) {
 }
 
 function revealWebviewPanel(beside: boolean = true) {
-	if (!VisualizerWebview.currentPanel) {
-		VisualizerWebview.currentPanel = new VisualizerWebview(MACHINE_VIEW.Overview, true);
-		VisualizerWebview.currentPanel?.getWebview()?.reveal(beside ? ViewColumn.Beside : ViewColumn.One);
-	} else {
-		VisualizerWebview.currentPanel?.getWebview()?.reveal(beside ? ViewColumn.Beside : ViewColumn.Active);
-	}
+	VisualizerWebview.currentPanel?.getWebview()?.reveal(beside ? ViewColumn.Beside : ViewColumn.Active);
 }
 
