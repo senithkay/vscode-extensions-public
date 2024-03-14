@@ -112,7 +112,7 @@ export function Diagram(props: DiagramProps) {
         const flows: DiagramData[] = [];
         const STNode: EditableService = NodeKindChecker.isProxy(model) ? model.descriptionOrTargetOrPublishWSDL[0] : model;
 
-        const modelCopy = Object.assign({}, model);
+        const modelCopy = structuredClone(model);
         if (NodeKindChecker.isProxy(modelCopy)) {
             delete modelCopy.descriptionOrTargetOrPublishWSDL[0].faultSequence;
         } else {
