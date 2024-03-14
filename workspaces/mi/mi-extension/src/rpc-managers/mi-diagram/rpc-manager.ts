@@ -2220,22 +2220,26 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         var rootPath = workspaceFolders[0].uri.fsPath;
         rootPath += '/src/main/wso2mi/artifacts';
         const fileContents: string[] = [];
-        // var resourceFolders = ['apis', 'endpoints', 'inbound-endpoints', 'local-entries', 'message-processors', 'message-stores', 'proxy-services', 'sequences', 'tasks', 'templates', 'data-services', 'data-sources'];
-        // for (const folder of resourceFolders) {
-        //     const folderPath = path.join(rootPath, folder);
-        //     const files = await fs.promises.readdir(folderPath);
-
-        //     for (const file of files) {
-        //         const filePath = path.join(folderPath, file);
-        //         const stats = await fs.promises.stat(filePath);
-
-        //         if (stats.isFile()) {
-        //             const content = await fs.promises.readFile(filePath, 'utf-8');
-        //             fileContents.push(content);
-        //         }
-        //     }
-        // }
         fileContents.push(currentFileContent);
+        var resourceFolders = ['apis', 'endpoints', 'inbound-endpoints', 'local-entries', 'message-processors', 'message-stores', 'proxy-services', 'sequences', 'tasks', 'templates', 'data-services', 'data-sources'];
+        for (const folder of resourceFolders) {
+            const folderPath = path.join(rootPath, folder);
+            const files = await fs.promises.readdir(folderPath);
+
+            for (const file of files) {
+                const filePath = path.join(folderPath, file);
+                if(filePath === currentFile){
+                    continue;
+                }
+                const stats = await fs.promises.stat(filePath);
+
+                if (stats.isFile()) {
+                    const content = await fs.promises.readFile(filePath, 'utf-8');
+                    fileContents.push(content);
+                }
+            }
+        }
+        
 
         return { context: fileContents};
     }
