@@ -325,17 +325,16 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitSequence = (node: Sequence): void => {
-        const addPosition = {
-            line: node.range.startTagRange.start.line,
-            character: node.range.startTagRange.end.character
-        }
-        this.currentAddPosition = addPosition;
-
         const isSequnce = this.parents.length == 0;
         if (!isSequnce) {
             this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.REFERENCE_NODE, [(node as any).key ?? node.tag]);
             this.skipChildrenVisit = true;
         } else {
+            const addPosition = {
+                line: node.range.startTagRange.start.line,
+                character: node.range.startTagRange.end.character
+            }
+            this.currentAddPosition = addPosition;
             this.createNodeAndLinks(node, "", NodeTypes.START_NODE);
             this.diagramType = DiagramType.SEQUENCE;
         }
