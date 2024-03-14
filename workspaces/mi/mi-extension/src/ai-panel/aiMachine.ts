@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
-import { EVENT_TYPE, MachineStateValue, AI_MACHINE_VIEW, webviewReady, AIVisualizerLocation } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MachineStateValue, AI_MACHINE_VIEW, webviewReady, AIVisualizerLocation, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { AiPanelWebview } from './webview';
 import { RPCLayer } from '../RPCLayer';
+import { StateMachine } from '../stateMachine';
 
 interface AiMachineContext extends AIVisualizerLocation {
     errorCode: string | null;
@@ -50,14 +51,22 @@ const aiStateMachine = createMachine<AiMachineContext>({
                     }
                 },
                 viewNavigated: {
-                    always: "viewReady",
+                    invoke: {
+                        src: 'findView',
+                        onDone: {
+                            target: 'viewReady',
+                            actions: assign({
+                                view: (context, event) => event.data
+                            })
+                        }
+                    }
                 },
                 viewReady: {
                     on: {
                         OPEN_VIEW: {
                             target: "viewLoading",
                             actions: assign({
-                                view: (context, event) => event.viewLocation.view
+                                initialPrompt: (context, event) => event.viewLocation?.initialPrompt
                             })
                         },
                         FILE_EDIT: {
@@ -99,6 +108,18 @@ const aiStateMachine = createMachine<AiMachineContext>({
             return async (resolve, reject) => {
                 vscode.commands.executeCommand('setContext', 'MI.aiStatus', 'disabled');
             };
+        },
+        findView: (context, event) => {
+            return new Promise((resolve, reject) => {
+                switch (StateMachine.context().view) {
+                    case MACHINE_VIEW.Overview:
+                        resolve(AI_MACHINE_VIEW.AIOverview);
+                        break;
+                    default:
+                        resolve(AI_MACHINE_VIEW.AIArtifact);
+                        break;
+                }
+            });
         }
     }
 });

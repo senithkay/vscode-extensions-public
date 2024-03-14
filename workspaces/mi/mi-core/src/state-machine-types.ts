@@ -73,7 +73,8 @@ export interface VisualizerLocation {
 }
 
 export interface AIVisualizerLocation {
-    view: AI_MACHINE_VIEW | null;
+    view?: AI_MACHINE_VIEW | null;
+    initialPrompt?: string
 }
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };

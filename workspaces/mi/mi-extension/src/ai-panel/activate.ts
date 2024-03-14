@@ -14,8 +14,8 @@ import { AI_MACHINE_VIEW, EVENT_TYPE } from '@wso2-enterprise/mi-core';
 
 export function activateAiPanel(context: vscode.ExtensionContext) {
     context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.OPEN_AI_PANEL, () => {
-            openAIView(EVENT_TYPE.OPEN_VIEW, { view: AI_MACHINE_VIEW.AIOverview });
+        vscode.commands.registerCommand(COMMANDS.OPEN_AI_PANEL, (initialPrompt?: string) => {
+            openAIView(EVENT_TYPE.OPEN_VIEW, { initialPrompt });
         })
     );
 }

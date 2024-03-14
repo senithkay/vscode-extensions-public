@@ -55,7 +55,7 @@ async function getContext(): Promise<VisualizerLocation> {
 async function getAIContext(): Promise<AIVisualizerLocation> {
     const context = StateMachineAI.context();
     return new Promise((resolve) => {
-        resolve({ view: context.view });
+        resolve({ view: context.view, initialPrompt: context.initialPrompt });
     });
 }
 
