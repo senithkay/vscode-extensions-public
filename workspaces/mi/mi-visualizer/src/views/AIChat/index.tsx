@@ -15,7 +15,7 @@ import {TextArea, Button, Switch, Icon, ProgressRing} from "@wso2-enterprise/ui-
 import ReactMarkdown from 'react-markdown';
 import './AIChat.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { MI_COPILOT_BACKEND_URL } from "../../constants";
+import { MI_COPILOT_BACKEND_URL, MI_SUGGESTIVE_QUESTIONS_INITIAL_BACKEND_URL } from "../../constants";
 
 import {
   materialDark,
@@ -99,9 +99,9 @@ export function AIChat() {
           ...prevMessages,
           { role: "", content: "Welcome to MI Copilot Chat! I am here to assist you with WSO2 Micro Integrator. You can ask me to explain about WSO2 Integrations, get help on coding or development.", type: "label" },
           { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
-          { role: "", content: "Explain me about this Artifact", type: "question" },
-          { role: "", content: "What are the possible use cases in using WSO2 Micro Integrator?", type: "question" },
-          { role: "", content: "How to use the File Connector?", type: "question" }
+          // { role: "", content: "Explain me about this Artifact", type: "question" },
+          // { role: "", content: "What are the possible use cases in using WSO2 Micro Integrator?", type: "question" },
+          // { role: "", content: "How to use the File Connector?", type: "question" }
         ]);
       }
     }
@@ -133,6 +133,49 @@ export function AIChat() {
       });
     }
   }, [rpcClient]);
+
+  interface ApiResponse {
+    event: string;
+    error: string | null;
+    questions: string[];
+  }
+
+  useEffect(() => {
+    // Construct URL with query parameters
+    if(chatArray.length === 0){
+      console.log("Fetching initial questions");
+      generateSuggestions();
+    }
+  }, []);
+
+  async function generateSuggestions() {
+    const url = MI_SUGGESTIVE_QUESTIONS_INITIAL_BACKEND_URL + "?num_suggestions=2&q_type=copilot_chat";
+    fetch(url)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("Failed to fetch initial questions");
+          }
+        return response.json() as Promise<ApiResponse>;
+        })
+        .then(data => {
+          if (data.event === "suggestion_generation_success") {
+            // Extract questions from the response
+            const initialQuestions = data.questions.map(question => ({
+              role: "",
+              content: question,
+              type: "question"
+            }));
+            // Update the state with the fetched questions
+            setMessages(prevMessages => [...prevMessages, ...initialQuestions]);
+          } else {
+            throw new Error("Failed to generate suggestions: " + data.error);
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching initial questions:", error);
+          // Handle error
+        });
+   }
 
   async function handleSend (isQuestion: boolean = false) {
     if (messages[0].type === "label" && messages[1].type === "label") {
@@ -276,10 +319,9 @@ export function AIChat() {
     setMessages((prevMessages) => [
       { role: "", content: "Welcome to MI Copilot Chat! I am here to assist you with WSO2 Micro Integrator. You can ask me to explain about WSO2 Integrations, get help on coding or development.", type: "label" },
       { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
-      { role: "", content: "Explain me about this Artifact", type: "question" },
-      { role: "", content: "What are the possible use cases in using WSO2 Micro Integrator?", type: "question" },
-      { role: "", content: "How to use the File Connector?", type: "question" }
     ]);
+
+    generateSuggestions();
 
     //clear the local storage
     localStorage.removeItem(`chatArray-AIChat-${projectUuid}`);
