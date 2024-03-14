@@ -11,8 +11,6 @@ import { ComponentCard } from '../../ComponentCard/ComponentCard';
 import { Icon } from '../../Icon/Icon';
 import styled from '@emotion/styled';
 
-const FORM_WIDTH = 600;
-
 const IconWrapper = styled.div`
     display: flex;
     flex-direction: column;
