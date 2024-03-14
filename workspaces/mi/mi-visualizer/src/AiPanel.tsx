@@ -58,12 +58,13 @@ const AiPanel = () => {
     return (
             <div style={{
                 overflow: "hidden",
+                height:"100%"
             }}>
                 {!viewComponent ? (
                     <LoaderWrapper>
                         <ProgressRing />
                     </LoaderWrapper>
-                ) : <div>
+                ) : <div style={{height:"100%"}}>
                     {viewComponent}
                 </div>}
             </div>

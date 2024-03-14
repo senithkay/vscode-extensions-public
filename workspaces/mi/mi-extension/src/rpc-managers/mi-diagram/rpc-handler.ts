@@ -11,59 +11,73 @@
 import {
     AIUserInput,
     ApplyEditRequest,
+    BrowseFileRequest,
     CommandsRequest,
     ConnectorRequest,
     CreateAPIRequest,
+    CreateClassMediatorRequest,
     CreateEndpointRequest,
     CreateInboundEndpointRequest,
-    CreateProjectRequest,
-    ImportProjectRequest,
-    CreateSequenceRequest,
+    CreateLocalEntryRequest,
     CreateMessageProcessorRequest,
-    RetrieveMessageProcessorRequest,
+    CreateMessageStoreRequest,
+    CreateProjectRequest,
     CreateProxyServiceRequest,
+    CreateRegistryResourceRequest,
+    CreateSequenceRequest,
+    CreateTaskRequest,
     CreateTemplateRequest,
-    RetrieveTemplateRequest,
-    UpdateHttpEndpointRequest,
-    RetrieveHttpEndpointRequest,
-    UpdateAddressEndpointRequest,
-    RetrieveAddressEndpointRequest,
-    UpdateWsdlEndpointRequest,
-    RetrieveWsdlEndpointRequest,
+    FileListRequest,
+    GetAvailableResourcesRequest,
     GetDefinitionRequest,
     GetDiagnosticsReqeust,
-    GetInboundEpDirRequest,
-    GetProjectRootRequest,
     GetInboundEndpointRequest,
+    GetLoadBalanceEPRequest,
+    GetLocalEntryRequest,
+    GetMessageStoreRequest,
+    GetProjectRootRequest,
+    GetTaskRequest,
     GetTextAtRangeRequest,
-    CreateLocalEntryRequest,
     HighlightCodeRequest,
+    ImportProjectRequest,
     OpenDiagramRequest,
+    RetrieveAddressEndpointRequest,
+    RetrieveHttpEndpointRequest,
+    RetrieveMessageProcessorRequest,
+    RetrieveTemplateRequest,
+    RetrieveWsdlEndpointRequest,
     ShowErrorMessageRequest,
     UndoRedoParams,
+    UpdateAddressEndpointRequest,
+    UpdateHttpEndpointRequest,
+    UpdateLoadBalanceEPRequest,
+    UpdateWsdlEndpointRequest,
     WriteContentToFileRequest,
     applyEdit,
+    askFileDirPath,
     askProjectDirPath,
     askProjectImportDirPath,
-    askFileDirPath,
+    browseFile,
     closeWebView,
     closeWebViewNotification,
     createAPI,
+    createClassMediator,
     createEndpoint,
     createInboundEndpoint,
     createLocalEntry,
-    createProject,
-    importProject,
-    createSequence,
     createMessageProcessor,
+    createMessageStore,
+    createProject,
     createProxyService,
+    createRegistryResource,
+    createSequence,
+    createTask,
     createTemplate,
-    updateHttpEndpoint,
-    updateAddressEndpoint,
-    updateWsdlEndpoint,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
+    getAddressEndpoint,
+    getAvailableResources,
     getConnector,
     getConnectors,
     getDefinition,
@@ -71,53 +85,39 @@ import {
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
-    getTemplates,
-    getInboundEndpoint,
-    getMessageProcessor,
-    getTemplate,
     getHttpEndpoint,
-    getAddressEndpoint,
-    getWsdlEndpoint,
+    getInboundEndpoint,
+    getLoadBalanceEndpoint,
+    getLocalEntry,
+    getMessageProcessor,
+    getMessageStore,
     getProjectRoot,
     getProjectUuid,
     getSTRequest,
+    getSelectiveWorkspaceContext,
     getSequenceDirectory,
     getSyntaxTree,
-    getWorkspaceContext,
+    getTask,
+    getTemplate,
+    getTemplates,
     getTextAtRange,
+    getWorkspaceContext,
     getWorkspaceRoot,
+    getWsdlEndpoint,
+    getXmlFileList,
     highlightCode,
+    importProject,
     initUndoRedoManager,
     openDiagram,
     openFile,
     redo,
     showErrorMessage,
-    writeContentToFile,
     undo,
-    createMessageStore,
-    CreateMessageStoreRequest,
-    browseFile,
-    BrowseFileRequest,
-    CreateRegistryResourceRequest,
-    createRegistryResource,
-    createTask,
-    CreateTaskRequest,
-    getTask,
-    GetTaskRequest,
-    getMessageStore,
-    GetMessageStoreRequest,
-    getAvailableResources,
-    GetAvailableResourcesRequest,
+    updateAddressEndpoint,
+    updateHttpEndpoint,
     updateLoadBalanceEndpoint,
-    UpdateLoadBalanceEPRequest,
-    CreateClassMediatorRequest,
-    createClassMediator,
-    getLocalEntry,
-    GetLocalEntryRequest,
-    getXmlFileList,
-    FileListRequest,
-    getLoadBalanceEndpoint,
-    GetLoadBalanceEPRequest
+    updateWsdlEndpoint,
+    writeContentToFile,
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -137,19 +137,21 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createEndpoint, (args: CreateEndpointRequest) => rpcManger.createEndpoint(args));
     messenger.onRequest(updateLoadBalanceEndpoint, (args: UpdateLoadBalanceEPRequest) => rpcManger.updateLoadBalanceEndpoint(args));
     messenger.onRequest(getLoadBalanceEndpoint, (args: GetLoadBalanceEPRequest) => rpcManger.getLoadBalanceEndpoint(args));
+    messenger.onRequest(createLocalEntry, (args: CreateLocalEntryRequest) => rpcManger.createLocalEntry(args));
+    messenger.onRequest(getLocalEntry, (args: GetLocalEntryRequest) => rpcManger.getLocalEntry(args));
     messenger.onRequest(getEndpointsAndSequences, () => rpcManger.getEndpointsAndSequences());
     messenger.onRequest(getTemplates, () => rpcManger.getTemplates());
     messenger.onRequest(getSequenceDirectory, () => rpcManger.getSequenceDirectory());
     messenger.onRequest(createSequence, (args: CreateSequenceRequest) => rpcManger.createSequence(args));
-    messenger.onRequest(createProxyService, (args: CreateProxyServiceRequest) => rpcManger.createProxyService(args));
-    messenger.onRequest(createInboundEndpoint, (args: CreateInboundEndpointRequest) => rpcManger.createInboundEndpoint(args));
-    messenger.onRequest(createMessageProcessor, (args: CreateMessageProcessorRequest) => rpcManger.createMessageProcessor(args));
-    messenger.onRequest(getMessageProcessor, (args: RetrieveMessageProcessorRequest) => rpcManger.getMessageProcessor(args));
-    messenger.onRequest(createTask, (args: CreateTaskRequest) => rpcManger.createTask(args));
-    messenger.onRequest(getTask, (args: GetTaskRequest) => rpcManger.getTask(args));
     messenger.onRequest(createMessageStore, (args: CreateMessageStoreRequest) => rpcManger.createMessageStore(args));
     messenger.onRequest(getMessageStore, (args: GetMessageStoreRequest) => rpcManger.getMessageStore(args));
     messenger.onRequest(getXmlFileList, (args: FileListRequest) => rpcManger.getXmlFileList(args));
+    messenger.onRequest(createInboundEndpoint, (args: CreateInboundEndpointRequest) => rpcManger.createInboundEndpoint(args));
+    messenger.onRequest(createMessageProcessor, (args: CreateMessageProcessorRequest) => rpcManger.createMessageProcessor(args));
+    messenger.onRequest(getMessageProcessor, (args: RetrieveMessageProcessorRequest) => rpcManger.getMessageProcessor(args));
+    messenger.onRequest(createProxyService, (args: CreateProxyServiceRequest) => rpcManger.createProxyService(args));
+    messenger.onRequest(createTask, (args: CreateTaskRequest) => rpcManger.createTask(args));
+    messenger.onRequest(getTask, (args: GetTaskRequest) => rpcManger.getTask(args));
     messenger.onRequest(createTemplate, (args: CreateTemplateRequest) => rpcManger.createTemplate(args));
     messenger.onRequest(getTemplate, (args: RetrieveTemplateRequest) => rpcManger.getTemplate(args));
     messenger.onRequest(getInboundEndpoint, (args: GetInboundEndpointRequest) => rpcManger.getInboundEndpoint(args));
@@ -175,8 +177,6 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(highlightCode, (args: HighlightCodeRequest) => rpcManger.highlightCode(args));
     messenger.onRequest(getWorkspaceContext, () => rpcManger.getWorkspaceContext());
     messenger.onRequest(getProjectUuid, () => rpcManger.getProjectUuid());
-    messenger.onRequest(createLocalEntry, (args: CreateLocalEntryRequest) => rpcManger.createLocalEntry(args));
-    messenger.onRequest(getLocalEntry, (args: GetLocalEntryRequest) => rpcManger.getLocalEntry(args));
     messenger.onNotification(initUndoRedoManager, (args: UndoRedoParams) => rpcManger.initUndoRedoManager(args));
     messenger.onNotification(undo, (args: UndoRedoParams) => rpcManger.undo(args));
     messenger.onNotification(redo, (args: UndoRedoParams) => rpcManger.redo(args));
@@ -187,4 +187,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createRegistryResource, (args: CreateRegistryResourceRequest) => rpcManger.createRegistryResource(args));
     messenger.onRequest(getAvailableResources, (args: GetAvailableResourcesRequest) => rpcManger.getAvailableResources(args));
     messenger.onRequest(createClassMediator, (args: CreateClassMediatorRequest) => rpcManger.createClassMediator(args));
+    messenger.onRequest(getSelectiveWorkspaceContext, () => rpcManger.getSelectiveWorkspaceContext());
 }

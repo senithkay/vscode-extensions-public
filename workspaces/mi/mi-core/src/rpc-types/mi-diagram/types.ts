@@ -758,6 +758,10 @@ export interface GetWorkspaceContextResponse {
     context: string[];
 }
 
+export interface GetSelectiveWorkspaceContextResponse {
+    context: string[];
+}
+
 export interface GetProjectUuidResponse {
     uuid: string;
 }

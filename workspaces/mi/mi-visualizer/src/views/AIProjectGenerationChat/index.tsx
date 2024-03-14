@@ -15,8 +15,9 @@ import {TextArea, Button, Switch, Icon, ProgressRing} from "@wso2-enterprise/ui-
 import ReactMarkdown from 'react-markdown';
 import './AIProjectGenerationChat.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { MI_ARTIFACT_GENERATION_BACKEND_URL } from "../../constants";
+import { MI_ARTIFACT_EDIT_BACKEND_URL, MI_ARTIFACT_GENERATION_BACKEND_URL } from "../../constants";
 import { Collapse } from 'react-collapse';
+import { AI_MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 
 import {
   materialDark,
@@ -146,10 +147,6 @@ export function AIProjectGenerationChat() {
     var context: GetWorkspaceContextResponse[] = [];
     setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
     setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'question'));
-    await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
-      context = [response]; // Wrap the response in an array
-    } );
-    console.log(context[0].context);
 
     setIsLoading(true);
     let assistant_response = "";
@@ -169,8 +166,36 @@ export function AIProjectGenerationChat() {
             { role: "MI Copilot", content: "", type:"assistant_message"}, // Add a new message for the assistant
         ]);
     }
-
-    const response = await fetch(MI_ARTIFACT_GENERATION_BACKEND_URL, {
+    var backendUrl = ""
+    var view = ""
+    //Get machine view
+    const machineView = await rpcClient.getAIVisualizerState();
+      switch (machineView?.view) {
+          case AI_MACHINE_VIEW.AIOverview:
+              backendUrl = MI_ARTIFACT_GENERATION_BACKEND_URL;
+              view = "Overview";
+              break;
+          case AI_MACHINE_VIEW.AIArtifact:
+              backendUrl = MI_ARTIFACT_EDIT_BACKEND_URL;
+              view = "Artifact";
+              break;
+          default:
+            backendUrl = MI_ARTIFACT_GENERATION_BACKEND_URL;
+            view = "Overview";
+            console.log("default");
+              
+      }
+      if(view == "Overview"){
+            await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
+              context = [response]; // Wrap the response in an array
+            } );
+      }else if(view == "Artifact"){
+            await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
+              context = [response]; // Wrap the response in an array
+            } );
+      }
+      console.log(context[0].context);
+    const response = await fetch(backendUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
