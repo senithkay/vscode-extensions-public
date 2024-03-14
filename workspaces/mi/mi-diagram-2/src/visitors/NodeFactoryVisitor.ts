@@ -341,8 +341,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.parents.push(node);
     }
     endVisitSequence(node: Sequence): void {
-        const isSequnce = node.mediatorList && node.mediatorList.length > 0;
-        if (isSequnce) {
+        if (node === this.parents[0]) {
             const lastNode = this.nodes[this.nodes.length - 1].getStNode();
             node.viewState.y = lastNode.viewState.y + Math.max(lastNode.viewState.h, lastNode.viewState.fh || 0) + NODE_GAP.Y;
             node.viewState.x += NODE_DIMENSIONS.START.EDITABLE.WIDTH / 2 - NODE_DIMENSIONS.START.DISABLED.WIDTH / 2;
