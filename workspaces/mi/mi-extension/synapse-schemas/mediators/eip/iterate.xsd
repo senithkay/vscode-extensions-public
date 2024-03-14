@@ -36,7 +36,7 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element ref="target" minOccurs="1" maxOccurs="unbounded" />
+                <xs:element ref="target" minOccurs="1" maxOccurs="1" />
             </xs:sequence>
             <xs:attribute name="sequential" type="xs:boolean" use="optional" />
             <xs:attribute name="continueParent" type="xs:boolean" use="optional" />

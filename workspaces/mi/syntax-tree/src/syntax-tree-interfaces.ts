@@ -1049,7 +1049,7 @@ export interface InterfaceOperationType extends ExtensibleDocumentedType, STNode
 }
 
 export interface Iterate extends STNode {
-    target: Target[];
+    target: Target;
     sequential: boolean;
     continueParent: boolean;
     expression: string;
