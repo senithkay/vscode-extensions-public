@@ -280,7 +280,7 @@ export interface CorrelateOnOrCompleteConditionOrOnComplete extends STNode {
 }
 
 export interface Aggregate extends STNode {
-    correlateOnOrCompleteConditionOrOnComplete: CorrelateOnOrCompleteConditionOrOnComplete[];
+    correlateOnOrCompleteConditionOrOnComplete: CorrelateOnOrCompleteConditionOrOnComplete;
     description: string;
     id: string;
 }
@@ -1556,57 +1556,7 @@ export interface Parameter extends STNode {
 }
 
 export interface AggregateOnComplete extends STNode {
-    call: Call;
-    callTemplate: CallTemplate;
-    drop: Drop;
-    log: Log;
-    loopback: Loopback;
-    property: Property;
-    propertyGroup: PropertyGroup;
-    respond: Respond;
-    send: Send;
-    sequence: FilterSequence;
-    store: Store;
-    conditionalRouter: ConditionalRouter;
-    filter: Filter;
-    _switch: Switch;
-    validate: Validate;
-    bean: Bean;
-    clazz: Class;
-    pojoCommand: PojoCommand;
-    ejb: Ejb;
-    script: Script;
-    spring: Spring;
-    enrich: Enrich;
-    makefault: Makefault;
-    header: Header;
-    payloadFactory: PayloadFactory;
-    smooks: Smooks;
-    rewrite: Rewrite;
-    xquery: Xquery;
-    xslt: Xslt;
-    datamapper: Datamapper;
-    fastXSLT: FastXSLT;
-    jsontransform: Jsontransform;
-    cache: Cache;
-    dblookup: DbMediator;
-    dbreport: DbMediator;
-    enqueue: Enqueue;
-    event: Event;
-    dataServiceCall: DataServiceCall;
-    throttle: Throttle;
-    transaction: Transaction;
-    aggregate: Aggregate;
-    callout: Callout;
-    clone: Clone;
-    iterate: Iterate;
-    foreach: Foreach;
-    entitlementService: EntitlementService;
-    oauthService: OauthService;
-    builder: Builder;
-    rule: Rule;
-    bam: Bam;
-    publishEvent: PublishEvent;
+    mediators: STNode[];
     expression: string;
     sequenceAttribute: string;
     enclosingElementProperty: string;

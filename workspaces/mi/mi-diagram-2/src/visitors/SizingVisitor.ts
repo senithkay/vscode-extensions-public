@@ -8,7 +8,7 @@
  */
 
 
-import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange,Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange,Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
 
@@ -235,6 +235,13 @@ export class SizingVisitor implements Visitor {
     beginVisitTransaction = (node: Transaction): void => this.calculateBasicMediator(node);
     beginVisitEvent = (node: Event): void => this.calculateBasicMediator(node);
 
+    //EIP Mediators
+    endVisitAggregate = (node: Aggregate): void => {
+        this.calculateAdvancedMediator(node, {
+            // OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete?.mediators
+            OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete
+        });
+    }
     //Extesnion Mediators
     beginVisitBean = (node: Bean): void => this.calculateBasicMediator(node);
     beginVisitClass = (node: Class): void => this.calculateBasicMediator(node);
