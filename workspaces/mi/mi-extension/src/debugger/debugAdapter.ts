@@ -8,12 +8,6 @@ import * as vscode from 'vscode';
 import { extension } from '../MIExtensionContext';
 import { COMMANDS, SELECTED_SERVER_PATH } from '../constants';
 
-interface ILaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
-    /** An absolute path to the "program" to debug. */
-    program: string;
-}
-
-
 export class MiDebugAdapter extends LoggingDebugSession {
     private childProcess: ChildProcess | null = null;
 
@@ -44,8 +38,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
         await vscode.tasks.executeTask(secondTask);
     }
 
-    
-
     private async updateServerPathAndGet(): Promise<string | undefined> {
         const currentPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
         if (!currentPath) {
@@ -54,94 +46,46 @@ export class MiDebugAdapter extends LoggingDebugSession {
             return updatedPath as string;
         }
         return currentPath as string;
-        
+
     }
 
-    protected launchRequest(response: DebugProtocol.LaunchResponse, args: ILaunchRequestArguments, request?: DebugProtocol.Request): void {
-        // const newPath = this.updateServerPathAndGet().then((path) => {
-        //     const path2 = path;
-        //     this.sendResponse(response);
-        // });
-        
+    protected launchRequest(response: DebugProtocol.LaunchResponse, args: DebugProtocol.LaunchRequestArguments, request?: DebugProtocol.Request): void {
 
-
-
-       
-
-        this.executeTasks(args.program)
-            .then(() => {
-                // Continue with other launch logic here
+        this.updateServerPathAndGet().then((path) => {
+            if (!path) {
+                response.success = false;
                 this.sendResponse(response);
-            })
-            .catch(error => {
-                // Handle error
-                console.error(error);
-            });
-
-        
-
-
-
-        // const command = args.program  + '/bin/micro-integrator.sh';
-        // // const command = '/Users/sachinisa/Documents/MiTestSamples/wso2mi-4.2.0/bin/micro-integrator.sh';
-        // console.log('command:', command);
-        // this.childProcess = spawn(command,  {detached: true});
-
-        // // Pipe stdout and stderr to the debugging terminal
-        // if (this.childProcess) {
-        //     this.childProcess.stdout?.on('data', (data) => {
-        //         this.sendEvent(new OutputEvent(data.toString(), 'stdout'));
-        //     });
-
-        //     this.childProcess.stderr?.on('data', (data) => {
-        //         this.sendEvent(new OutputEvent(data.toString(), 'stderr'));
-        //     });
-
-        //     this.childProcess.on('close', (code) => {
-        //         if (code !== 0) {
-        //             this.sendEvent(new OutputEvent(`Process exited with code ${code}`, 'stderr'));
-        //         }
-        //         this.sendEvent(new TerminatedEvent());
-        //     });
-        // }
-
-        // this.sendResponse(response);
+            } else {
+                this.executeTasks(path)
+                    .then(() => {
+                        // Continue with other launch logic here
+                        this.sendResponse(response);
+                    })
+                    .catch(error => {
+                        // Handle error
+                        console.error(error);
+                    });
+            }
+        });
     }
 
     protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): void {
 
         const taskExecution = vscode.tasks.taskExecutions.find(execution => execution.task.name === 'Another Task');
-    if (taskExecution) {
-        
-        taskExecution.terminate();
-        response.success = true;
-    } else {
-        response.success = false;
-    }
-    this.sendResponse(response);
-    
-        // if (this.childProcess?.pid) {
-        //     const childPid = this.childProcess.pid;
-
-        //     const killProcess = treeKill(childPid, 'SIGINT', (err) => {
-        //         if (err) {
-        //             console.error('Error killing process and its descendants:', err);
-        //             response.success = false;
-        //         } else {
-        //             console.log('Process and its descendants terminated');
-        //             response.success = true;
-        //         }
-        //         this.sendResponse(response);
-        //     });
-
-
-        // } else {
-        //     response.success = false;
-        //     this.sendResponse(response);
-        // }
+        if (taskExecution) {
+            taskExecution.terminate();
+            const taskExecution2 = vscode.tasks.taskExecutions.find(execution => execution.task.name === 'My Task');
+            if (taskExecution2) {
+                taskExecution2.terminate();
+            }
+            response.success = true;
+        } else {
+            response.success = false;
+        }
+        this.sendResponse(response);
     }
 
-    protected async attachRequest(response: DebugProtocol.AttachResponse, args: ILaunchRequestArguments) {
+    protected async attachRequest(response: DebugProtocol.AttachResponse, args: DebugProtocol.LaunchRequestArguments) {
         return this.launchRequest(response, args);
     }
 

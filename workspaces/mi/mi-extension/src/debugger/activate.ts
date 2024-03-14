@@ -37,15 +37,6 @@ class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
 }
 
 export function activateDebugger(context: vscode.ExtensionContext) {
-	let storedPath: any;
-	context.subscriptions.push(vscode.commands.registerCommand('extension.micro-integrator.getProgramName', config => {
-		storedPath =  vscode.window.showInputBox({
-			placeHolder: "Please enter the name of a markdown file in the workspace folder",
-			value: "readme.md"
-		});
-		return storedPath;
-	}));
-
     // register a configuration provider for 'mock' debug type
     const provider = new MiConfigurationProvider();
 	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('mock', provider));

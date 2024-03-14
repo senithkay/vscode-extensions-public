@@ -111,17 +111,41 @@ export function generateTasksJsonIfNotExists(): Promise<boolean> {
 export async function activate(context: vscode.ExtensionContext) {
 
 	extension.context = context;
+    // await extension.context.globalState.update(SELECTED_SERVER_PATH,"");
 
     vscode.commands.registerCommand(COMMANDS.CHANGE_SERVER_PATH, async () => { 
         const currentServerPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
-        const quickPicks: vscode.QuickPickItem[] = [
-            { kind: vscode.QuickPickItemKind.Separator, label: currentServerPath as string },
-        ];
-        quickPicks.push({label: "/Users/sachinisa/Documents/MiTestSamples/wso2mi-4.2.0"});
+        const quickPicks: vscode.QuickPickItem[] = [];
+        if (!currentServerPath) {
+            quickPicks.push({label: "Add new server"});
+        } else {
+            quickPicks.push({ kind: vscode.QuickPickItemKind.Separator, label: "current server path" });
+            quickPicks.push({label: currentServerPath, },
+            {label: "Add new server"});
+        }
         const options: vscode.QuickPickOptions = { canPickMany: false, title: "Select Server path" };
         const selected = await vscode.window.showQuickPick(quickPicks, options);
         if (selected) {
-            await extension.context.globalState.update(SELECTED_SERVER_PATH, selected.label);
+            if (selected.label === 'Add new server') {
+                // Perform a folder search
+                const folders = await vscode.window.showOpenDialog({
+                    canSelectFiles: false,
+                    canSelectFolders: true,
+                    canSelectMany: false,
+                    openLabel: 'Select Folder'
+                });
+
+                if (!folders || folders.length === 0) {
+                    // User canceled the folder search
+                    return undefined;
+                }
+
+
+                await extension.context.globalState.update(SELECTED_SERVER_PATH,folders[0].fsPath);
+
+            } else {
+                await extension.context.globalState.update(SELECTED_SERVER_PATH, selected.label);
+            }
         }
      });
 	activateHistory();
