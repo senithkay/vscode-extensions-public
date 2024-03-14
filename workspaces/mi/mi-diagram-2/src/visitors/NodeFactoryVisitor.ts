@@ -11,7 +11,7 @@ import { Visitor, STNode, WithParam, Call, CallTemplate, Callout, Drop, Filter, 
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 import { GroupNodeModel } from "../components/nodes/GroupNode/GroupNodeModel";
-import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
+import { StartNodeModel, StartNodeType } from "../components/nodes/StartNode/StartNodeModel";
 import { NodeModel } from "@projectstorm/react-diagrams";
 import { ConditionNodeModel } from "../components/nodes/ConditionNode/ConditionNodeModel";
 import { EndNodeModel } from "../components/nodes/EndNode/EndNodeModel";
@@ -64,7 +64,7 @@ export class NodeFactoryVisitor implements Visitor {
         } else if (type === NodeTypes.CONDITION_NODE) {
             diagramNode = new ConditionNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.START_NODE) {
-            diagramNode = new StartNodeModel(node, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
+            diagramNode = new StartNodeModel(node, this.documentUri, data, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.END_NODE) {
             diagramNode = new EndNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.CALL_NODE) {
@@ -128,7 +128,7 @@ export class NodeFactoryVisitor implements Visitor {
                     this.previousSTNodes = [];
                     startNode.viewState.x += (startNode.viewState.w / 2) - (NODE_DIMENSIONS.START.DISABLED.WIDTH / 2);
                     startNode.tag = "start";
-                    this.createNodeAndLinks(startNode, "", NodeTypes.START_NODE);
+                    this.createNodeAndLinks(startNode, "", NodeTypes.START_NODE, StartNodeType.SUB_SEQUENCE);
                 } else {
                     this.currentBranchData = { name: sequenceKeys[i], diagnostics: sequence.diagnostics };
                     this.previousSTNodes = [node];
@@ -241,13 +241,13 @@ export class NodeFactoryVisitor implements Visitor {
         }
         this.currentAddPosition = addPosition;
         this.resource.viewState = node.viewState;
-        this.createNodeAndLinks(this.resource, "", NodeTypes.START_NODE);
+        this.createNodeAndLinks(this.resource, "", NodeTypes.START_NODE, StartNodeType.IN_SEQUENCE);
         this.parents.push(node);
     }
     endVisitInSequence(node: Sequence): void {
         node.viewState.x += NODE_DIMENSIONS.START.EDITABLE.WIDTH / 2 - NODE_DIMENSIONS.START.DISABLED.WIDTH / 2;
         node.viewState.y = node.viewState.fh + NODE_GAP.Y;
-        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE);
+        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, StartNodeType.IN_SEQUENCE);
         this.parents.pop();
         this.previousSTNodes = [node];
     }
@@ -259,14 +259,14 @@ export class NodeFactoryVisitor implements Visitor {
         }
         this.currentAddPosition = addPosition;
         this.resource.viewState = node.viewState;
-        this.createNodeAndLinks(this.resource, "", NodeTypes.START_NODE);
+        this.createNodeAndLinks(node, "", NodeTypes.START_NODE, StartNodeType.OUT_SEQUENCE);
         this.currentAddPosition = addPosition;
         this.parents.push(node);
     }
     endVisitOutSequence(node: Sequence): void {
         const lastNode = this.nodes[this.nodes.length - 1].getStNode();
         node.viewState.y = lastNode.viewState.y + Math.max(lastNode.viewState.h, lastNode.viewState.fh || 0) + NODE_GAP.Y;
-        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE);
+        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, StartNodeType.OUT_SEQUENCE);
         this.parents.pop();
         this.previousSTNodes = undefined;
     }
@@ -277,13 +277,13 @@ export class NodeFactoryVisitor implements Visitor {
             character: node.range.startTagRange.end.character
         }
         this.currentAddPosition = addPosition;
-        this.createNodeAndLinks(node, "", NodeTypes.START_NODE);
+        this.createNodeAndLinks(node, "", NodeTypes.START_NODE, StartNodeType.FAULT_SEQUENCE);
         this.parents.push(node);
     }
     endVisitFaultSequence(node: Sequence): void {
         const lastNode = this.nodes[this.nodes.length - 1].getStNode();
         node.viewState.y = lastNode.viewState.y + Math.max(lastNode.viewState.h, lastNode.viewState.fh || 0) + NODE_GAP.Y;
-        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE);
+        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, StartNodeType.FAULT_SEQUENCE);
         this.parents.pop();
         this.previousSTNodes = undefined;
     }

@@ -13,6 +13,12 @@ import { NodePortModel } from "../../NodePort/NodePortModel";
 import { getNodeIdFromModel } from "../../../utils/node";
 import { NodeTypes } from "../../../resources/constants";
 
+export enum StartNodeType {
+    IN_SEQUENCE,
+    OUT_SEQUENCE,
+    SUB_SEQUENCE,
+    FAULT_SEQUENCE   
+}
 export class StartNodeModel extends NodeModel {
     readonly stNode: STNode;
     protected portIn: NodePortModel;
@@ -20,14 +26,16 @@ export class StartNodeModel extends NodeModel {
     protected parentNode: STNode;
     protected prevNodes: STNode[];
     protected documentUri: string;
+    protected type: StartNodeType;
 
-    constructor(stNode: STNode, documentUri: string, parentNode?: STNode, prevNodes: STNode[] = []) {
+    constructor(stNode: STNode, documentUri: string, type: StartNodeType, parentNode?: STNode, prevNodes: STNode[] = []) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode, "start"),
             type: NodeTypes.START_NODE,
             locked: true,
         });
         this.stNode = stNode;
+        this.type = type
         this.addInPort("in");
         this.addOutPort("out");
         this.documentUri = documentUri;
@@ -89,5 +97,9 @@ export class StartNodeModel extends NodeModel {
 
     getDocumentUri(): string {
         return this.documentUri;
+    }
+
+    getNodeType() {
+        return this.type;
     }
 }

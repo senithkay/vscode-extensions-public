@@ -10,7 +10,7 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { StartNodeModel } from "./StartNodeModel";
+import { StartNodeModel, StartNodeType } from "./StartNodeModel";
 import { Colors, SequenceType } from "../../../resources/constants";
 import { EditAPIForm } from "../../Forms/EditResourceForm";
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
@@ -112,8 +112,8 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
 
     const getSVGNode = () => {
         if (NodeKindChecker.isAPIResource(model)) {
-            switch (nodeType as SequenceType) {
-                case SequenceType.IN_SEQUENCE:
+            switch (node.getNodeType()) {
+                case StartNodeType.IN_SEQUENCE:
                     return getEditableSvg(model.uriTemplate || model.urlMapping);
                 default:
                     return getDisabledSvg();

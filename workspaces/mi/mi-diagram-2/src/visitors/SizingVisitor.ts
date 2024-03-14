@@ -92,7 +92,8 @@ export class SizingVisitor implements Visitor {
         node.viewState.fw = Math.max(totalWidth, type === NodeTypes.CONDITION_NODE ? NODE_DIMENSIONS.CONDITION.WIDTH : NODE_DIMENSIONS.GROUP.WIDTH);
         const topGap = type === NodeTypes.CONDITION_NODE ? (NODE_DIMENSIONS.CONDITION.HEIGHT + NODE_GAP.BRANCH_TOP) : NODE_GAP.GROUP_NODE_START_Y;
         const bottomGap = type === NodeTypes.CONDITION_NODE ? NODE_GAP.BRANCH_BOTTOM : NODE_GAP.GROUP_NODE_END_Y;
-        node.viewState.fh = node.viewState.h + topGap + subSequencesHeight + bottomGap;
+        const sequenceFullHeight = NODE_DIMENSIONS.START.DISABLED.HEIGHT + subSequencesHeight;
+        node.viewState.fh = (node.viewState.h / 2) + topGap + sequenceFullHeight + bottomGap;
 
         let actualWidth = node.viewState.fw;
         if (type === NodeTypes.GROUP_NODE) {
