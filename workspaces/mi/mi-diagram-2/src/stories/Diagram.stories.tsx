@@ -1893,292 +1893,528 @@ NestedFilter.args = {
 export const Clone: Story = {};
 Clone.args = {
     model: {
-        "inSequence": {
-            "mediatorList": [
-                {
-                    "target": [
-                        {
-                            "range": {
-                                "startTagRange": {
-                                    "start": {
-                                        "line": 5,
-                                        "character": 16
-                                    },
-                                    "end": {
-                                        "line": 5,
-                                        "character": 24
-                                    }
-                                },
-                                "endTagRange": {
-                                    "start": {
-                                        "line": 18,
-                                        "character": 16
-                                    },
-                                    "end": {
-                                        "line": 18,
-                                        "character": 25
-                                    }
-                                }
-                            },
-                            "hasTextNode": false,
-                            "selfClosed": false,
-                            "tag": "target"
+        "mediatorList": [
+            {
+                "key": "gg",
+                "range": {
+                    "startTagRange": {
+                        "start": {
+                            "line": 2,
+                            "character": 4
                         },
-                        {
-                            "sequence": {
-                                "mediatorList": [
-                                    {
-                                        "property": [],
-                                        "range": {
-                                            "startTagRange": {
-                                                "start": {
-                                                    "line": 21,
-                                                    "character": 24
-                                                },
-                                                "end": {
-                                                    "line": 21,
-                                                    "character": 31
-                                                }
-                                            },
-                                            "endTagRange": {}
-                                        },
-                                        "hasTextNode": false,
-                                        "selfClosed": true,
-                                        "tag": "log"
-                                    },
-                                    {
-                                        "property": [],
-                                        "range": {
-                                            "startTagRange": {
-                                                "start": {
-                                                    "line": 22,
-                                                    "character": 24
-                                                },
-                                                "end": {
-                                                    "line": 22,
-                                                    "character": 31
-                                                }
-                                            },
-                                            "endTagRange": {}
-                                        },
-                                        "hasTextNode": false,
-                                        "selfClosed": true,
-                                        "tag": "log"
-                                    }
-                                ],
-                                "range": {
-                                    "startTagRange": {
-                                        "start": {
-                                            "line": 20,
-                                            "character": 20
-                                        },
-                                        "end": {
-                                            "line": 20,
-                                            "character": 30
-                                        }
-                                    },
-                                    "endTagRange": {
-                                        "start": {
-                                            "line": 23,
-                                            "character": 20
-                                        },
-                                        "end": {
-                                            "line": 23,
-                                            "character": 31
-                                        }
-                                    }
-                                },
-                                "hasTextNode": false,
-                                "selfClosed": false,
-                                "tag": "sequence"
-                            },
-                            "range": {
-                                "startTagRange": {
-                                    "start": {
-                                        "line": 19,
-                                        "character": 16
-                                    },
-                                    "end": {
-                                        "line": 19,
-                                        "character": 24
-                                    }
-                                },
-                                "endTagRange": {
-                                    "start": {
-                                        "line": 24,
-                                        "character": 16
-                                    },
-                                    "end": {
-                                        "line": 24,
-                                        "character": 25
-                                    }
-                                }
-                            },
-                            "hasTextNode": false,
-                            "selfClosed": false,
-                            "tag": "target"
+                        "end": {
+                            "line": 2,
+                            "character": 25
+                        }
+                    },
+                    "endTagRange": {}
+                },
+                "hasTextNode": false,
+                "selfClosed": true,
+                "tag": "sequence"
+            },
+            {
+                "key": "gg",
+                "range": {
+                    "startTagRange": {
+                        "start": {
+                            "line": 4,
+                            "character": 4
                         },
-                        {
-                            "sequenceAttribute": "sss",
+                        "end": {
+                            "line": 4,
+                            "character": 25
+                        }
+                    },
+                    "endTagRange": {}
+                },
+                "hasTextNode": false,
+                "selfClosed": true,
+                "tag": "sequence"
+            },
+            {
+                "target": [
+                    {
+                        "sequence": {
+                            "mediatorList": [],
                             "range": {
                                 "startTagRange": {
                                     "start": {
-                                        "line": 25,
-                                        "character": 16
+                                        "line": 7,
+                                        "character": 12
                                     },
                                     "end": {
-                                        "line": 25,
-                                        "character": 41
+                                        "line": 7,
+                                        "character": 24
                                     }
                                 },
                                 "endTagRange": {}
                             },
                             "hasTextNode": false,
                             "selfClosed": true,
-                            "tag": "target"
-                        }
-                    ],
-                    "continueParent": false,
-                    "sequential": false,
-                    "range": {
-                        "startTagRange": {
-                            "start": {
-                                "line": 4,
-                                "character": 12
+                            "tag": "sequence"
+                        },
+                        "endpoint": {
+                            "http": {
+                                "enableSecAndEnableRMAndEnableAddressing": {
+                                    "suspendOnFailure": {
+                                        "initialDuration": {
+                                            "range": {
+                                                "startTagRange": {
+                                                    "start": {
+                                                        "line": 11,
+                                                        "character": 24
+                                                    },
+                                                    "end": {
+                                                        "line": 11,
+                                                        "character": 41
+                                                    }
+                                                },
+                                                "endTagRange": {
+                                                    "start": {
+                                                        "line": 11,
+                                                        "character": 43
+                                                    },
+                                                    "end": {
+                                                        "line": 11,
+                                                        "character": 61
+                                                    }
+                                                }
+                                            },
+                                            "hasTextNode": true,
+                                            "textNode": "-1",
+                                            "selfClosed": false,
+                                            "tag": "initialDuration"
+                                        },
+                                        "progressionFactor": {
+                                            "range": {
+                                                "startTagRange": {
+                                                    "start": {
+                                                        "line": 12,
+                                                        "character": 24
+                                                    },
+                                                    "end": {
+                                                        "line": 12,
+                                                        "character": 43
+                                                    }
+                                                },
+                                                "endTagRange": {
+                                                    "start": {
+                                                        "line": 12,
+                                                        "character": 45
+                                                    },
+                                                    "end": {
+                                                        "line": 12,
+                                                        "character": 65
+                                                    }
+                                                }
+                                            },
+                                            "hasTextNode": true,
+                                            "textNode": "-1",
+                                            "selfClosed": false,
+                                            "tag": "progressionFactor"
+                                        },
+                                        "maximumDuration": {
+                                            "range": {
+                                                "startTagRange": {
+                                                    "start": {
+                                                        "line": 13,
+                                                        "character": 24
+                                                    },
+                                                    "end": {
+                                                        "line": 13,
+                                                        "character": 41
+                                                    }
+                                                },
+                                                "endTagRange": {
+                                                    "start": {
+                                                        "line": 13,
+                                                        "character": 42
+                                                    },
+                                                    "end": {
+                                                        "line": 13,
+                                                        "character": 60
+                                                    }
+                                                }
+                                            },
+                                            "hasTextNode": true,
+                                            "textNode": "0",
+                                            "selfClosed": false,
+                                            "tag": "maximumDuration"
+                                        },
+                                        "range": {
+                                            "startTagRange": {
+                                                "start": {
+                                                    "line": 10,
+                                                    "character": 20
+                                                },
+                                                "end": {
+                                                    "line": 10,
+                                                    "character": 38
+                                                }
+                                            },
+                                            "endTagRange": {
+                                                "start": {
+                                                    "line": 14,
+                                                    "character": 20
+                                                },
+                                                "end": {
+                                                    "line": 14,
+                                                    "character": 39
+                                                }
+                                            }
+                                        },
+                                        "hasTextNode": false,
+                                        "selfClosed": false,
+                                        "tag": "suspendOnFailure"
+                                    },
+                                    "markForSuspension": {
+                                        "retriesBeforeSuspension": {
+                                            "range": {
+                                                "startTagRange": {
+                                                    "start": {
+                                                        "line": 16,
+                                                        "character": 24
+                                                    },
+                                                    "end": {
+                                                        "line": 16,
+                                                        "character": 49
+                                                    }
+                                                },
+                                                "endTagRange": {
+                                                    "start": {
+                                                        "line": 16,
+                                                        "character": 50
+                                                    },
+                                                    "end": {
+                                                        "line": 16,
+                                                        "character": 76
+                                                    }
+                                                }
+                                            },
+                                            "hasTextNode": true,
+                                            "textNode": "0",
+                                            "selfClosed": false,
+                                            "tag": "retriesBeforeSuspension"
+                                        },
+                                        "range": {
+                                            "startTagRange": {
+                                                "start": {
+                                                    "line": 15,
+                                                    "character": 20
+                                                },
+                                                "end": {
+                                                    "line": 15,
+                                                    "character": 39
+                                                }
+                                            },
+                                            "endTagRange": {
+                                                "start": {
+                                                    "line": 17,
+                                                    "character": 20
+                                                },
+                                                "end": {
+                                                    "line": 17,
+                                                    "character": 40
+                                                }
+                                            }
+                                        },
+                                        "hasTextNode": false,
+                                        "selfClosed": false,
+                                        "tag": "markForSuspension"
+                                    },
+                                    "hasTextNode": false,
+                                    "selfClosed": false
+                                },
+                                "method": "get",
+                                "range": {
+                                    "startTagRange": {
+                                        "start": {
+                                            "line": 9,
+                                            "character": 16
+                                        },
+                                        "end": {
+                                            "line": 9,
+                                            "character": 35
+                                        }
+                                    },
+                                    "endTagRange": {
+                                        "start": {
+                                            "line": 18,
+                                            "character": 16
+                                        },
+                                        "end": {
+                                            "line": 18,
+                                            "character": 23
+                                        }
+                                    }
+                                },
+                                "hasTextNode": false,
+                                "selfClosed": false,
+                                "tag": "http"
                             },
-                            "end": {
-                                "line": 4,
-                                "character": 19
+                            "property": [],
+                            "parameter": [],
+                            "type": "HTTP_ENDPOINT",
+                            "range": {
+                                "startTagRange": {
+                                    "start": {
+                                        "line": 8,
+                                        "character": 12
+                                    },
+                                    "end": {
+                                        "line": 8,
+                                        "character": 22
+                                    }
+                                },
+                                "endTagRange": {
+                                    "start": {
+                                        "line": 19,
+                                        "character": 12
+                                    },
+                                    "end": {
+                                        "line": 19,
+                                        "character": 23
+                                    }
+                                }
+                            },
+                            "hasTextNode": false,
+                            "selfClosed": false,
+                            "tag": "endpoint"
+                        },
+                        "range": {
+                            "startTagRange": {
+                                "start": {
+                                    "line": 6,
+                                    "character": 8
+                                },
+                                "end": {
+                                    "line": 6,
+                                    "character": 16
+                                }
+                            },
+                            "endTagRange": {
+                                "start": {
+                                    "line": 20,
+                                    "character": 8
+                                },
+                                "end": {
+                                    "line": 20,
+                                    "character": 17
+                                }
                             }
                         },
-                        "endTagRange": {
-                            "start": {
-                                "line": 26,
-                                "character": 12
+                        "hasTextNode": false,
+                        "selfClosed": false,
+                        "tag": "target"
+                    },
+                    {
+                        "sequence": {
+                            "mediatorList": [
+                                {
+                                    "property": [],
+                                    "range": {
+                                        "startTagRange": {
+                                            "start": {
+                                                "line": 23,
+                                                "character": 16
+                                            },
+                                            "end": {
+                                                "line": 23,
+                                                "character": 23
+                                            }
+                                        },
+                                        "endTagRange": {}
+                                    },
+                                    "hasTextNode": false,
+                                    "selfClosed": true,
+                                    "tag": "log"
+                                },
+                                {
+                                    "property": [],
+                                    "range": {
+                                        "startTagRange": {
+                                            "start": {
+                                                "line": 24,
+                                                "character": 16
+                                            },
+                                            "end": {
+                                                "line": 24,
+                                                "character": 23
+                                            }
+                                        },
+                                        "endTagRange": {}
+                                    },
+                                    "hasTextNode": false,
+                                    "selfClosed": true,
+                                    "tag": "log"
+                                }
+                            ],
+                            "range": {
+                                "startTagRange": {
+                                    "start": {
+                                        "line": 22,
+                                        "character": 12
+                                    },
+                                    "end": {
+                                        "line": 22,
+                                        "character": 22
+                                    }
+                                },
+                                "endTagRange": {
+                                    "start": {
+                                        "line": 25,
+                                        "character": 12
+                                    },
+                                    "end": {
+                                        "line": 25,
+                                        "character": 23
+                                    }
+                                }
                             },
-                            "end": {
-                                "line": 26,
-                                "character": 20
+                            "hasTextNode": false,
+                            "selfClosed": false,
+                            "tag": "sequence"
+                        },
+                        "range": {
+                            "startTagRange": {
+                                "start": {
+                                    "line": 21,
+                                    "character": 8
+                                },
+                                "end": {
+                                    "line": 21,
+                                    "character": 16
+                                }
+                            },
+                            "endTagRange": {
+                                "start": {
+                                    "line": 26,
+                                    "character": 8
+                                },
+                                "end": {
+                                    "line": 26,
+                                    "character": 17
+                                }
                             }
+                        },
+                        "hasTextNode": false,
+                        "selfClosed": false,
+                        "tag": "target"
+                    },
+                    {
+                        "sequenceAttribute": "sss",
+                        "range": {
+                            "startTagRange": {
+                                "start": {
+                                    "line": 27,
+                                    "character": 8
+                                },
+                                "end": {
+                                    "line": 27,
+                                    "character": 33
+                                }
+                            },
+                            "endTagRange": {}
+                        },
+                        "hasTextNode": false,
+                        "selfClosed": true,
+                        "tag": "target"
+                    }
+                ],
+                "continueParent": false,
+                "sequential": false,
+                "range": {
+                    "startTagRange": {
+                        "start": {
+                            "line": 5,
+                            "character": 4
+                        },
+                        "end": {
+                            "line": 5,
+                            "character": 11
                         }
                     },
-                    "hasTextNode": false,
-                    "selfClosed": false,
-                    "tag": "clone"
-                }
-            ],
-            "range": {
-                "startTagRange": {
-                    "start": {
-                        "line": 3,
-                        "character": 8
-                    },
-                    "end": {
-                        "line": 3,
-                        "character": 20
+                    "endTagRange": {
+                        "start": {
+                            "line": 28,
+                            "character": 4
+                        },
+                        "end": {
+                            "line": 28,
+                            "character": 12
+                        }
                     }
                 },
-                "endTagRange": {
-                    "start": {
-                        "line": 27,
-                        "character": 8
-                    },
-                    "end": {
-                        "line": 27,
-                        "character": 21
-                    }
-                }
+                "hasTextNode": false,
+                "selfClosed": false,
+                "tag": "clone"
             },
-            "hasTextNode": false,
-            "selfClosed": false,
-            "tag": "inSequence"
-        },
-        "outSequence": {
-            "mediatorList": [],
-            "range": {
-                "startTagRange": {
-                    "start": {
-                        "line": 28,
-                        "character": 8
+            {
+                "key": "gg",
+                "range": {
+                    "startTagRange": {
+                        "start": {
+                            "line": 29,
+                            "character": 4
+                        },
+                        "end": {
+                            "line": 29,
+                            "character": 25
+                        }
                     },
-                    "end": {
-                        "line": 28,
-                        "character": 21
-                    }
+                    "endTagRange": {}
                 },
-                "endTagRange": {
-                    "start": {
-                        "line": 29,
-                        "character": 8
-                    },
-                    "end": {
-                        "line": 29,
-                        "character": 22
-                    }
-                }
+                "hasTextNode": false,
+                "selfClosed": true,
+                "tag": "sequence"
             },
-            "hasTextNode": true,
-            "textNode": "\n        ",
-            "selfClosed": false,
-            "tag": "outSequence"
-        },
-        "faultSequence": {
-            "mediatorList": [],
-            "range": {
-                "startTagRange": {
-                    "start": {
-                        "line": 30,
-                        "character": 8
+            {
+                "key": "gg",
+                "range": {
+                    "startTagRange": {
+                        "start": {
+                            "line": 30,
+                            "character": 4
+                        },
+                        "end": {
+                            "line": 30,
+                            "character": 25
+                        }
                     },
-                    "end": {
-                        "line": 30,
-                        "character": 23
-                    }
+                    "endTagRange": {}
                 },
-                "endTagRange": {
-                    "start": {
-                        "line": 31,
-                        "character": 8
-                    },
-                    "end": {
-                        "line": 31,
-                        "character": 24
-                    }
-                }
-            },
-            "hasTextNode": true,
-            "textNode": "\n        ",
-            "selfClosed": false,
-            "tag": "faultSequence"
-        },
-        "methods": [
-            "GET"
+                "hasTextNode": false,
+                "selfClosed": true,
+                "tag": "sequence"
+            }
         ],
-        "uriTemplate": "/resource",
+        "name": "giga",
+        "trace": "disable",
         "range": {
             "startTagRange": {
                 "start": {
-                    "line": 2,
-                    "character": 4
+                    "line": 1,
+                    "character": 0
                 },
                 "end": {
-                    "line": 2,
-                    "character": 53
+                    "line": 1,
+                    "character": 78
                 }
             },
             "endTagRange": {
                 "start": {
-                    "line": 32,
-                    "character": 4
+                    "line": 31,
+                    "character": 0
                 },
                 "end": {
-                    "line": 32,
-                    "character": 15
+                    "line": 31,
+                    "character": 11
                 }
             }
         },
         "hasTextNode": false,
         "selfClosed": false,
-        "tag": "resource"
+        "tag": "sequence"
     }
 }

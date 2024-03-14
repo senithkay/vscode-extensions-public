@@ -138,9 +138,15 @@ export class NodeFactoryVisitor implements Visitor {
                     (sequence.mediatorList as any).forEach((childNode: STNode) => {
                         traversNode(childNode, this);
                     });
+
                 } else if (sequence.sequenceAttribute) {
                     sequence.viewState.y += NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y;
                     this.createNodeAndLinks(sequence, "", NodeTypes.REFERENCE_NODE, [sequence.sequenceAttribute]);
+
+                } else if (sequence.tag === "endpoint") {
+                    sequence.viewState.y += NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y;
+                    this.createNodeAndLinks(sequence, "", NodeTypes.MEDIATOR_NODE);
+
                 } else if (type !== NodeTypes.GROUP_NODE) {
                     this.createNodeAndLinks(sequence, "", NodeTypes.EMPTY_NODE);
                 }

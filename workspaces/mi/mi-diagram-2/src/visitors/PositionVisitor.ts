@@ -62,7 +62,7 @@ export class PositionVisitor implements Visitor {
 
                 this.position.x += i > 0 ? subSequence.viewState.l : 0;
                 if (subSequence.mediatorList && subSequence.mediatorList.length > 0) {
-                    subSequence.tag = "";
+                    subSequence.tag = "subSequence";
 
                     if (type === NodeTypes.GROUP_NODE) {
                         subSequence.viewState.x = this.position.x - (subSequence.viewState.w / 2);
@@ -70,6 +70,8 @@ export class PositionVisitor implements Visitor {
                     }
                     traversNode(subSequence, this);
                 } else if (subSequence.sequenceAttribute) {
+                    this.setBasicMediatorPosition(subSequence);
+                } else if (subSequence.tag === "endpoint") {
                     this.setBasicMediatorPosition(subSequence);
                 } else {
                     subSequence.viewState.w = NODE_DIMENSIONS.EMPTY.WIDTH;
@@ -81,7 +83,7 @@ export class PositionVisitor implements Visitor {
 
         // set filter node positions after traversing children
         this.position.x = node.viewState.x + node.viewState.w / 2;
-        this.position.y = node.viewState.y + (node.viewState.h /2) + node.viewState.fh + NODE_GAP.Y;
+        this.position.y = node.viewState.y + (node.viewState.h / 2) + node.viewState.fh + NODE_GAP.Y;
         this.skipChildrenVisit = true;
     }
 
