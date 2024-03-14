@@ -21,6 +21,7 @@ import { getTemplateXml, TemplateArgs } from './template-engine/mustach-template
 import { getHttpEndpointXml, HttpEndpointArgs } from './template-engine/mustach-templates/HttpEndpoint';
 import { getAddressEndpointXml, AddressEndpointArgs } from './template-engine/mustach-templates/AddressEndpoint';
 import { getWsdlEndpointXml, WsdlEndpointArgs } from './template-engine/mustach-templates/WsdlEndpoint';
+import { getDefaultEndpointXml, DefaultEndpointArgs } from './template-engine/mustach-templates/DefaultEndpoint';
 import { GetLoadBalanceEPTemplatesArgs, getLoadBalanceEPXml } from './template-engine/mustach-templates/loadBalanceEndpoint';
 
 const isDevMode = process.env.WEB_VIEW_WATCH_MODE === "true";
@@ -91,4 +92,8 @@ export function getAddressEndpointXmlWrapper(props: AddressEndpointArgs) {
 
 export function getWsdlEndpointXmlWrapper(props: WsdlEndpointArgs) {
 	return getWsdlEndpointXml(props);
+}
+
+export function getDefaultEndpointXmlWrapper(props: DefaultEndpointArgs) {
+	return getDefaultEndpointXml(props);
 }
