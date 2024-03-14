@@ -17,6 +17,9 @@
 		},
 		{
 			"path": "workspaces/common-libs/ui-toolkit"
+		},
+		{
+			"path": "workspaces/common-libs/service-designer"
 		}
 	]
 }

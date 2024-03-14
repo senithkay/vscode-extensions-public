@@ -11,34 +11,55 @@ import React, { useEffect } from "react";
 import { MachineStateValue, ProjectStructureResponse, WorkspaceFolder } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import ProjectStructureView from "./ProjectStructureView";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, HorizontalIcons, Icon, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { VSCodeTextArea, VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
+import { View, ViewContent, ViewHeader } from "../../components/View";
 
-// TODO: Can remove below if we don't need the workspaces list
-// import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
-// import styled from "@emotion/styled";
-// const DropDownContainer = styled.div`
-//     margin-top: 20px;
-//     display: flex;
-//     flex-direction: column;
-//     width: 50%;
-//     display: none;
-// `;
 
-const TitleWrapper = styled.div`
-    padding: 5px 0 0;
-    margin-bottom: 10px;
-    border: none;
-    font-weight: 400;
-    font-size: 2.7em;
-    white-space: nowrap;
-`;
+const AddPanel = styled.div({
+    backgroundColor: 'var(--vscode-sideBar-background);',
+    padding: 20
+});
 
-const OverviewContainer = styled.div`
-    height:calc(100vh - 60px);
-    overflow: auto;
-    margin: 20px;
-`;
+const ProjectActions = styled.div({
+    display: 'flex',
+    alignItems: 'center',
+    gap: '5px'
+
+});
+
+const HorizontalCardContainer = styled.div({
+    marginTop: 10,
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gap: '20px',
+});
+
+const Card = styled.div({
+    backgroundColor: 'var(--vscode-dropdown-background)',
+    padding: '10px', // Add padding inside the card if needed
+    textAlign: 'center', // Center the text inside the card
+});
+
+const StyledTextArea = styled(VSCodeTextArea)({
+    width: '100%', // Set the width of the TextArea to 100%
+    fontSize: '1.17em', // Set the font size to match <h3> elements
+});
+
+const AIButton = styled.div({
+    padding: 20,
+    with: 200,
+    fontSize: '1.17em',
+    backgroundColor: 'var(--vscode-button-background)',
+    color: 'var(--vscode-button-foreground)',
+    borderRadius: 5,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5
+});
+
 
 export function Overview() {
     const { rpcClient } = useVisualizerContext();
@@ -64,23 +85,70 @@ export function Overview() {
     const changeWorkspace = (fsPath: string) => {
         setSelected(fsPath);
     }
-
+    console.log(projectStructure);
     return (
-        <OverviewContainer>
-            {/* TODO: Below code is to show the list of workspaces */}
-            {/* <DropDownContainer>
-                <label htmlFor="workspaces">MI Workspaces</label>
-                <VSCodeDropdown id="workspaces" onChange={(e: React.ChangeEvent<HTMLSelectElement>) => changeWorkspace(e.target.value)}>
-                    {workspaces.map((option) => (
-                        <VSCodeOption key={option.index} value={option.fsPath} selected={option.fsPath === selected}>
-                            {option.name}
-                        </VSCodeOption>
-                    ))}
-                </VSCodeDropdown>
-            </DropDownContainer> */}
-            <TitleWrapper>Project Overview</TitleWrapper>
-            {projectStructure && <ProjectStructureView projectStructure={projectStructure} workspaceDir={selected} />}
+        <View>
+            <ViewHeader title={"Project Name"} codicon="project">
+                <ProjectActions>
+                    <Button
+                        appearance="icon"
+                        onClick={() => { }}
+                        tooltip="Icon Button"
+                    >
 
-        </OverviewContainer>
+                        <Codicon
+                            name="play"
+                        />
+                        &nbsp;Run
+                    </Button>
+                    <Button
+                        appearance="icon"
+                        onClick={() => { }}
+                        tooltip="Icon Button"
+                    >
+                        <Codicon
+                            name="combine"
+                        />
+                        &nbsp;&nbsp;Build
+
+                    </Button>
+                    <Button tooltip="Deploy your integration on the Cloud with Choreo">
+                        <Icon
+                            name="choreo"
+                            sx={{ marginTop: '2px' }}
+                        />
+                        &nbsp;Deploy in Choreo
+                    </Button>
+                </ProjectActions>
+            </ViewHeader>
+            <ViewContent>
+                <AddPanel>
+                    <h3>What do you want to create ?</h3>
+                    <StyledTextArea label="" value=""></StyledTextArea>
+                    <AIButton>
+                        <Codicon name="wand" />
+                        &nbsp;Generate with AI
+                    </AIButton>
+                    <VSCodeDivider />
+                    <HorizontalCardContainer>
+                        <Card>
+                            <h3>Add API</h3>
+                            <p>Add an HTTP Service</p>
+                        </Card>
+                        <Card>
+                            <h3>Add Proxy</h3>
+                        </Card>
+                        <Card>
+                            <h3>Add Task</h3>
+                        </Card>
+                        <Card>
+                            <h3>Add Inbound Endpoint</h3>
+                        </Card>
+                    </HorizontalCardContainer>
+                </AddPanel>
+
+                {projectStructure && <ProjectStructureView projectStructure={projectStructure} workspaceDir={selected} />}
+            </ViewContent>
+        </View>
     );
 }

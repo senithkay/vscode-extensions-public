@@ -17,6 +17,11 @@ import { AddAPIFormProps, AddResourceForm, Method } from "../Forms/AddResourceFo
 import { SERVICE_DESIGNER } from "../../constants";
 import { getXML } from "../../utils/template-engine/mustache-templates/templateUtils";
 import { APIData, APIWizardProps } from "../Forms/APIform";
+import { View, ViewHeader, ViewContent } from "../../components/View";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { Codicon } from "@wso2-enterprise/ui-toolkit";
+
+
 
 interface ServiceDesignerProps {
     syntaxTree: any;
@@ -122,7 +127,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
     };
 
     const handleCreateAPI = ({ methods, uriTemplate, urlMapping }: AddAPIFormProps) => {
-        const formValues = {        
+        const formValues = {
             methods: Object
                 .keys(methods)
                 .filter((method) => methods[method as keyof typeof methods])
@@ -195,13 +200,21 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
     return (
         <>
             {serviceModel && (
-                <ServiceDesigner
-                    model={serviceModel}
-                    onResourceAdd={handleResourceAdd}
-                    onResourceImplement={openDiagram}
-                    onResourceClick={handleResourceClick}
-                    onServiceEdit={handleServiceEdit}
-                />
+                <View>
+                    <ViewHeader title="Service Designer" codicon="globe" onEdit={handleServiceEdit}>
+                        <VSCodeButton appearance="primary" title="Edit Service" onClick={handleResourceAdd}>
+                            <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
+                        </VSCodeButton>
+                    </ViewHeader>
+                    <ViewContent>
+                        <ServiceDesigner
+                            model={serviceModel}
+                            onResourceImplement={openDiagram}
+                            onResourceClick={handleResourceClick}
+                            onServiceEdit={handleServiceEdit}
+                        />
+                    </ViewContent>
+                </View>
             )}
             <AddResourceForm
                 isOpen={isResourceFormOpen}
