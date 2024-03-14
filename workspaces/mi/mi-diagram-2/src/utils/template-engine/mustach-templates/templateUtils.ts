@@ -9,7 +9,7 @@
 
 import Mustache from "mustache";
 import { getCallFormDataFromSTNode, getCallMustacheTemplate, getCallXml } from "./core/call";
-import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache, Send } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache, Send, Aggregate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogMustacheTemplate, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutMustacheTemplate, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode, getHeaderMustacheTemplate } from "./core/header";
@@ -48,6 +48,7 @@ import { getEventFormDataFromSTNode, getEventMustacheTemplate, getEventXml } fro
 import { getTransactionFormDataFromSTNode, getTransactionMustacheTemplate, getTransactionXml } from "./advanced/transaction";
 import { getCacheFormDataFromSTNode, getCacheMustacheTemplate, getCacheXml } from "./advanced/cache";
 import { getEditApiResourceXml, getEditSequenceXml } from "./core/service-designer";
+import { getAggregateFormDataFromSTNode, getAggregateMustacheTemplate, getAggregateXml } from "./eip/aggreagte";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -99,6 +100,9 @@ export function getMustacheTemplate(name: string) {
             return getValidateMustacheTemplate();
         case MEDIATORS.SEND:
             return getSendMustacheTemplate();
+        //EIP Mediators
+        case MEDIATORS.AGGREGATE:
+            return getAggregateMustacheTemplate();
         //Extension Mediators
         case MEDIATORS.BEAN:
             return getBeanMustacheTemplate()
@@ -171,7 +175,9 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getPayloadXml(data);
         case ENDPOINTS.NAMED:
             return getNamedEndpointXml(data);
-
+        //EIP Mediators
+        case MEDIATORS.AGGREGATE:
+            return getAggregateXml(data);
         //Extension Mediators    
         case MEDIATORS.BEAN:
             return getBeanXml(data);
@@ -242,6 +248,9 @@ export function getDataFromXML(name: string, node: STNode) {
             return getValidateFormDataFromSTNode(formData, node as Validate);
         case MEDIATORS.SEND:
             return getSendFormDataFromSTNode(formData, node as Send);
+        //EIP Mediators
+        case MEDIATORS.AGGREGATE:
+            return getAggregateFormDataFromSTNode(formData, node as Aggregate);
         //Extension Mediators
         case MEDIATORS.CLASS:
             return getClassFormDataFromSTNode(formData, node as Class);

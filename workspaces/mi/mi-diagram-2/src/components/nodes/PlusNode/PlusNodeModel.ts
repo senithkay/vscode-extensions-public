@@ -8,12 +8,14 @@
  */
 
 import { PortModelAlignment } from "@projectstorm/react-diagrams";
-import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { APIResource, NamedSequence, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodePortModel } from "../../NodePort/NodePortModel";
 import { NodeTypes } from "../../../resources/constants";
 import { BaseNodeModel } from "../BaseNodeModel";
 
 export class PlusNodeModel extends BaseNodeModel {
+    protected model: APIResource | NamedSequence;
+
     constructor(stNode: STNode, mediatorName: string, documentUri: string) {
         super(NodeTypes.PLUS_NODE, mediatorName, documentUri, stNode);
     }

@@ -24,12 +24,20 @@ export enum MACHINE_VIEW {
     TaskForm = "Task Form",
     TemplateForm = "TemplateForm",
     HttpEndpointForm = "HttpEndpointForm",
+    AddressEndpointForm = "AddressEndpointForm",
+    WsdlEndpointForm = "WsdlEndpointForm",
     ProjectCreationForm = "Project Creation Form",
     ImportProjectForm = "Import Project Form",
     LocalEntryForm = "Local Entry Form",
     RegistryResourceForm = "Registry Resource Creation Form",
     MessageStoreForm = "MessageStoreForm",
     ClassMediatorForm = "ClassMediator Creation Form",
+}
+
+export enum AI_MACHINE_VIEW {
+    AIOverview = "AI Overview",
+    AIArtifact = "AI Artifact",
+    AIChat = "AI Chat",
 }
 
 export type MachineStateValue =
@@ -66,7 +74,13 @@ export interface VisualizerLocation {
     customProps?: any;
 }
 
+export interface AIVisualizerLocation {
+    view?: AI_MACHINE_VIEW | null;
+    initialPrompt?: string
+}
+
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
 export const getVisualizerState: RequestType<void, VisualizerLocation> = { method: 'getVisualizerState' };
+export const getAIVisualizerState: RequestType<void, AIVisualizerLocation> = { method: 'getAIVisualizerState' };
 export const onFileContentUpdate: NotificationType<void> = { method: `onFileContentUpdate` };
 export const webviewReady: NotificationType<void> = { method: `webviewReady` };

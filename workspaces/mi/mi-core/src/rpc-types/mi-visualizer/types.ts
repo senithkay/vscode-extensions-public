@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { HistoryEntry } from "../../history";
-import { EVENT_TYPE, VisualizerLocation } from "../../state-machine-types";
+import { AIVisualizerLocation, EVENT_TYPE, VisualizerLocation } from "../../state-machine-types";
 
 export interface WorkspacesResponse {
     workspaces: WorkspaceFolder[];
@@ -99,7 +99,8 @@ export interface SampleDownloadRequest {
 
 export interface OpenViewRequest {
     type: EVENT_TYPE;
-    location: VisualizerLocation;
+    location: VisualizerLocation | AIVisualizerLocation;
+    isAiWebview?: boolean;
 }
 
 export interface HistoryEntryResponse {
