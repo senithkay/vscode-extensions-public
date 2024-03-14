@@ -334,7 +334,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                     <RadioLabel>
                         <input
                             type="radio"
-                            checked={endpoint.requireProperties === 'disable'}
+                            checked={endpoint.traceEnabled === 'disable'}
                             onChange={() => handleTraceEnabledChange('disable')}
                         />
                         Disable
