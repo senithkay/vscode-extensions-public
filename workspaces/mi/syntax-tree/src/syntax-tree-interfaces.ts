@@ -1556,7 +1556,7 @@ export interface Parameter extends STNode {
 }
 
 export interface AggregateOnComplete extends STNode {
-    mediators: STNode[];
+    mediatorList: STNode[];
     expression: string;
     sequenceAttribute: string;
     enclosingElementProperty: string;
