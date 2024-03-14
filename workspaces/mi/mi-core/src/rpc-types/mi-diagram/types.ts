@@ -59,6 +59,39 @@ export interface CreateEndpointResponse {
     path: string;
 }
 
+export interface UpdateLoadBalanceEPRequest {
+    directory: string;
+    name: string;
+    algorithm: string;
+    failover: string;
+    buildMessage: string;
+    sessionManagement: string;
+    sessionTimeout: string;
+    description: string;
+    endpoints: { type: string; value: string; }[];
+    properties: { name: string; value: string; scope: string; }[];
+}
+
+export interface UpdateLoadBalanceEPResponse {
+    path: string;
+}
+
+export interface GetLoadBalanceEPRequest {
+    path: string;
+}
+
+export interface GetLoadBalanceEPResponse {
+    name: string;
+    algorithm: string;
+    failover: string;
+    buildMessage: string;
+    sessionManagement: string;
+    sessionTimeout: string;
+    description: string;
+    endpoints: { type: string; value: string; }[];
+    properties: { name: string; value: string; scope: string; }[];
+}
+
 export interface CreateInboundEndpointRequest {
     directory: string;
     name: string;
@@ -109,7 +142,7 @@ export interface GetLocalEntryResponse{
     inLineXmlValue: string;
     sourceURL: string;
 }
-export interface FileDirResponse {
+export interface FileDirResponse  {
     path: string;
 }
 
@@ -553,6 +586,69 @@ export interface RetrieveAddressEndpointResponse {
     timeoutAction: string;
 }
 
+export interface UpdateWsdlEndpointRequest {
+    directory: string;
+    endpointName: string;
+    format: string;
+    traceEnabled: string;
+    statisticsEnabled: string;
+    optimize: string;
+    description: string;
+    wsdlUri: string;
+    wsdlService: string;
+    wsdlPort: string;
+    requireProperties: boolean;
+    properties: any;
+    addressingEnabled: string;
+    addressingVersion: string;
+    addressListener: string;
+    securityEnabled: string;
+    suspendErrorCodes: string;
+    initialDuration: string;
+    maximumDuration: string;
+    progressionFactor: string;
+    retryErrorCodes: string;
+    retryCount: string;
+    retryDelay: string;
+    timeoutDuration: string;
+    timeoutAction: string;
+}
+
+export interface UpdateWsdlEndpointResponse {
+    path: string;
+}
+
+export interface RetrieveWsdlEndpointRequest {
+    path: string;
+}
+
+export interface RetrieveWsdlEndpointResponse {
+    endpointName: string;
+    format: string;
+    traceEnabled: string;
+    statisticsEnabled: string;
+    optimize: string;
+    description: string;
+    wsdlUri: string;
+    wsdlService: string;
+    wsdlPort: string;
+    requireProperties: boolean;
+    properties: any;
+    addressingEnabled: string;
+    addressingVersion: string;
+    addressListener: string;
+    securityEnabled: string;
+    suspendErrorCodes: string;
+    initialDuration: string;
+    maximumDuration: string;
+    progressionFactor: string;
+    retryErrorCodes: string;
+    retryCount: string;
+    retryDelay: string;
+    timeoutDuration: string;
+    timeoutAction: string;
+}
+
 export interface CreateTaskRequest {
     directory: string;
     name: string;
@@ -662,7 +758,7 @@ export interface GetWorkspaceContextResponse {
     context: string[];
 }
 
-export interface GetProjectUuidResponse{
+export interface GetProjectUuidResponse {
     uuid: string;
 }
 

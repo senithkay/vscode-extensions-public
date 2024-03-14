@@ -111,3 +111,8 @@ export function getCloneFormDataFromSTNode(data: { [key: string]: any }, node: C
     }
     return data;
 }
+
+export function getNewCloneTargetXml() {
+    return `<target>
+</target>`
+}

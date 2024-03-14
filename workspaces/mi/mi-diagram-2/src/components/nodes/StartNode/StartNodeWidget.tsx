@@ -10,14 +10,12 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { StartNodeModel } from "./StartNodeModel";
+import { StartNodeModel, StartNodeType } from "./StartNodeModel";
 import { Colors, SequenceType } from "../../../resources/constants";
-import { EditAPIForm } from "../../Forms/EditResourceForm";
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EditFormProps, NodeKindChecker, generateResourceData, generateSequenceData, getResourceDeleteRanges, onResourceEdit, onSequenceEdit } from "../../../utils/form";
-import { EditSequenceForm } from "../../Forms/EditSequenceForm";
-import { Range } from "@wso2-enterprise/mi-syntax-tree/src";
+import { EditFormProps, NodeKindChecker, generateFormData, getOpenedForm, onFormEdit } from "../../../utils/form";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 
 namespace S {
     export const Node = styled.div<{}>`
@@ -39,8 +37,8 @@ interface CallNodeWidgetProps {
 
 export function StartNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine } = props;
-    const nodeType = node.getStNode().tag;
-    const model = node.getModel();
+    const model = node.getStNode() as any;
+    const nodeType = model.tag;
     const documentUri = node.getDocumentUri();
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -49,33 +47,35 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
     const serviceData = React.useMemo(() => {
         let data: EditFormProps;
         if (model) {
-            if (NodeKindChecker.isAPIResource(model)) {
-                data = generateResourceData(model);
-            } else if (NodeKindChecker.isNamedSequence(model)) {
-                data = generateSequenceData(model);
-            }
-        } 
+            data = generateFormData(model);
+        }
 
         return data;
     }, [model]);
 
-    const onEdit = React.useCallback((formData: EditFormProps) => {
-        if (model && NodeKindChecker.isAPIResource(model)) {
-            const ranges: Range[] = getResourceDeleteRanges(model, formData as EditAPIForm);
-            onResourceEdit(formData as EditAPIForm, model.range.startTagRange, ranges, documentUri, sidePanelContext, rpcClient);
-        } else if (model && NodeKindChecker.isNamedSequence(model)) {
-            onSequenceEdit(formData as EditSequenceForm, model.range.startTagRange, documentUri, sidePanelContext, rpcClient);
-        }
-    }, [model]);
+    const onEdit = React.useCallback(
+        (formData: EditFormProps) => onFormEdit(model, formData, documentUri, sidePanelContext, rpcClient),
+        [model]
+    );
 
     const handleClick = () => {
-        sidePanelContext.setSidePanelState({
-            isOpenResource: NodeKindChecker.isAPIResource(model),
-            isOpenSequence: NodeKindChecker.isNamedSequence(model),
-            serviceData: serviceData,
-            onServiceEdit: onEdit,
-        });
-    }
+        if (NodeKindChecker.isProxy(model)) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.ProxyServiceForm,
+                    documentUri: documentUri,
+                }
+            });
+        } else {
+            sidePanelContext.setSidePanelState({
+                ...getOpenedForm(model),
+                serviceData: serviceData,
+                onServiceEdit: onEdit,
+            });
+        }
+        
+    };
 
     const getEditableSvg = (nodeName?: string) => (
         <S.StyledSvg
@@ -90,15 +90,12 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
                 fill={hovered ? Colors.SECONDARY : Colors.PRIMARY}
                 d="m20,0 h60 a20,20,0,0,1,0,40 h-60 a-20,-20,0,0,1,0,-40 z"
             />
-            <path
-                fill={Colors.SURFACE_BRIGHT}
-                d="m20,2 h60 a18,18,0,0,1,0,36 h-60 a-18,-18,0,0,1,0,-36 z"
-            />
+            <path fill={Colors.SURFACE_BRIGHT} d="m20,2 h60 a18,18,0,0,1,0,36 h-60 a-18,-18,0,0,1,0,-36 z" />
             <text x="50%" y="50%" alignmentBaseline="middle" textAnchor="middle" fill={Colors.ON_SURFACE}>
                 {nodeName || "Start"}
             </text>
-        </S.StyledSvg>  
-    )
+        </S.StyledSvg>
+    );
 
     const getDisabledSvg = () => (
         <svg width="24" height="24" viewBox="0 0 32 32">
@@ -108,22 +105,29 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
                 d="M16 30a14 14 0 1 1 14-14a14.016 14.016 0 0 1-14 14m0-26a12 12 0 1 0 12 12A12.014 12.014 0 0 0 16 4"
             />
         </svg>
-    )
+    );
 
     const getSVGNode = () => {
         if (NodeKindChecker.isAPIResource(model)) {
-            switch (nodeType as SequenceType) {
-                case SequenceType.IN_SEQUENCE:
+            switch (node.getNodeType()) {
+                case StartNodeType.IN_SEQUENCE:
                     return getEditableSvg(model.uriTemplate || model.urlMapping);
                 default:
                     return getDisabledSvg();
             }
         } else if (NodeKindChecker.isNamedSequence(model)) {
             return getEditableSvg(model.name);
+        } else if (NodeKindChecker.isProxy(model)) {
+            switch (nodeType as SequenceType) {
+                case SequenceType.IN_SEQUENCE:
+                    return getEditableSvg(model.name);
+                default:
+                    return getDisabledSvg();
+            }
         } else {
             return getDisabledSvg();
         }
-    }
+    };
 
     return (
         <S.Node>

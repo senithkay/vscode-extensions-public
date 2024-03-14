@@ -13,7 +13,7 @@ import { ProjectStructureResponse, ProjectStructureEntry, RegistryResourcesFolde
 import { COMMANDS } from '../constants';
 import { window } from 'vscode';
 import path = require('path');
-import { detectClassMediators, findJavaFiles } from '../util/fileOperations';
+import { findJavaFiles } from '../util/fileOperations';
 
 export class ProjectExplorerEntry extends vscode.TreeItem {
 	children: ProjectExplorerEntry[] | undefined;
@@ -39,21 +39,18 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 	readonly onDidChangeTreeData: vscode.Event<ProjectExplorerEntry | undefined | null | void>
 		= this._onDidChangeTreeData.event;
 
-	refresh(): void {
-		window.withProgress({
+	refresh() {
+		return window.withProgress({
 			location: { viewId: 'MI.project-explorer' },
 			title: 'Loading project structure'
 		}, async () => {
-			await getProjectStructureData(this.context)
-				.then(data => {
-					this._data = data;
-				})
-				.catch(err => {
-					console.error(err);
-					this._data = [];
-				});
-
-			this._onDidChangeTreeData.fire();
+			try {
+				this._data = await getProjectStructureData(this.context);
+				this._onDidChangeTreeData.fire();
+			} catch (err) {
+				console.error(err);
+				this._data = [];
+			}
 		});
 	}
 
@@ -383,8 +380,8 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 			explorerEntry.contextValue = 'proxy-service';
 			explorerEntry.command = {
-				"title": "Show Proxy Service",
-				"command": COMMANDS.SHOW_XML,
+				"title": "Show Diagram",
+				"command": COMMANDS.SHOW_DIAGRAM,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
 
@@ -422,7 +419,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"command": COMMANDS.SHOW_MESSAGE_STORE,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
-		
+
 		} else if (entry.type === "LOCAL_ENTRY") {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 			explorerEntry.contextValue = 'localEntry';
@@ -431,7 +428,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"command": COMMANDS.SHOW_LOCAL_ENTRY,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
-		
+
 		} else {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 		}

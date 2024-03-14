@@ -9,7 +9,7 @@
 
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
-import { APIResource, Sequence, traversNode, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { APIResource, traversNode, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
 import { generateEngine } from "../utils/diagram";
@@ -28,9 +28,11 @@ import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager"
 import { Diagnostic } from "vscode-languageserver-types";
 import { EditAPIForm, EditResourceForm } from "./Forms/EditResourceForm";
 import { EditSequenceForm } from "./Forms/EditSequenceForm";
+import { DiagramService, EditableService, ProxyTarget } from "@wso2-enterprise/mi-syntax-tree/src";
+import { NodeKindChecker } from "../utils/form";
 
 export interface DiagramProps {
-    model: APIResource | Sequence;
+    model: DiagramService;
     documentUri: string;
     diagnostics?: Diagnostic[];
 }
@@ -45,6 +47,8 @@ interface DiagramData {
     modelType: DiagramType;
     model: STNode;
 }
+
+type ServiceWithSequences = APIResource | ProxyTarget;
 
 namespace S {
     export const Container = styled.div`
@@ -106,17 +110,21 @@ export function Diagram(props: DiagramProps) {
         const { engine: flowEngine } = flow;
         const { engine: faultEngine } = fault;
         const flows: DiagramData[] = [];
-        const STNode = model as APIResource | Sequence;
+        const STNode: EditableService = NodeKindChecker.isProxy(model) ? model.descriptionOrTargetOrPublishWSDL[0] : model;
 
-        const modelCopy = Object.assign({}, model);
-        delete (modelCopy as APIResource).faultSequence;
+        const modelCopy = structuredClone(model);
+        if (NodeKindChecker.isProxy(modelCopy)) {
+            delete modelCopy.descriptionOrTargetOrPublishWSDL[0].faultSequence;
+        } else {
+            delete (modelCopy as ServiceWithSequences).faultSequence;
+        }
 
-        if (STNode.tag !== "resource") {
+        if (!NodeKindChecker.isAPIResource(model) && !NodeKindChecker.isProxy(model)) {
             setTabPaneVisible(false);
             setSequence(true);
         }
 
-        const key = JSON.stringify((STNode as APIResource).inSequence) + JSON.stringify((STNode as APIResource).outSequence);
+        const key = JSON.stringify((STNode as ServiceWithSequences).inSequence) + JSON.stringify((STNode as ServiceWithSequences).outSequence);
 
         // if (diagramDataMap.get(DiagramType.FLOW) !== key && !isFaultFlow) {
             diagramDataMap.set(DiagramType.FLOW, key);
@@ -128,7 +136,13 @@ export function Diagram(props: DiagramProps) {
             setDiagramDataMap(diagramDataMap);
         // }
 
-        const faultSequence = (STNode as APIResource).faultSequence;
+        let faultSequence;
+        if (NodeKindChecker.isProxy(model)) {
+            faultSequence = model.descriptionOrTargetOrPublishWSDL[0].faultSequence;
+        } else {
+            faultSequence = (model as ServiceWithSequences).faultSequence;
+        }
+        
         if (faultSequence) {
             const key = JSON.stringify(faultSequence);
             // if (diagramDataMap.get(DiagramType.FAULT) !== key && isFaultFlow) {
@@ -312,7 +326,7 @@ export function Diagram(props: DiagramProps) {
                             /></div>}
                     {/* Flow */}
                     {diagramData.flow.engine && diagramData.flow.model && !isFaultFlow &&
-                        <DiagramCanvas height={canvasDimensions.height + 40} width={canvasDimensions.width}>
+                        <DiagramCanvas height={canvasDimensions.height + 100} width={canvasDimensions.width}>
                             <NavigationWrapperCanvasWidget
                                 diagramEngine={diagramData.flow.engine as any}
                                 overflow="hidden"

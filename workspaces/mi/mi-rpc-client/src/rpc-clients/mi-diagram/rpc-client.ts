@@ -44,6 +44,10 @@ import {
     UpdateAddressEndpointResponse,
     RetrieveAddressEndpointRequest,
     RetrieveAddressEndpointResponse,
+    UpdateWsdlEndpointRequest,
+    UpdateWsdlEndpointResponse,
+    RetrieveWsdlEndpointRequest,
+    RetrieveWsdlEndpointResponse,
     CreateTemplateRequest,
     CreateTemplateResponse,
     RetrieveTemplateRequest,
@@ -96,6 +100,7 @@ import {
     createTemplate,
     updateHttpEndpoint,
     updateAddressEndpoint,
+    updateWsdlEndpoint,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -118,6 +123,7 @@ import {
     getTemplate,
     getHttpEndpoint,
     getAddressEndpoint,
+    getWsdlEndpoint,
     getSyntaxTree,
     getWorkspaceContext,
     getTextAtRange,
@@ -156,7 +162,13 @@ import {
     createClassMediator,
     FileListResponse,
     FileListRequest,
-    getXmlFileList
+    getXmlFileList,
+    UpdateLoadBalanceEPRequest,
+    UpdateLoadBalanceEPResponse,
+    updateLoadBalanceEndpoint,
+    GetLoadBalanceEPRequest,
+    GetLoadBalanceEPResponse,
+    getLoadBalanceEndpoint
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -210,6 +222,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     createEndpoint(params: CreateEndpointRequest): Promise<CreateEndpointResponse> {
         return this._messenger.sendRequest(createEndpoint, HOST_EXTENSION, params);
+    }
+
+    updateLoadBalanceEndpoint(params: UpdateLoadBalanceEPRequest): Promise<UpdateLoadBalanceEPResponse> {
+        return this._messenger.sendRequest(updateLoadBalanceEndpoint, HOST_EXTENSION, params);
+    }
+    
+    getLoadBalanceEndpoint(params: GetLoadBalanceEPRequest): Promise<GetLoadBalanceEPResponse> {
+        return this._messenger.sendRequest(getLoadBalanceEndpoint, HOST_EXTENSION, params);
     }
 
     createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
@@ -298,6 +318,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getAddressEndpoint(params: RetrieveAddressEndpointRequest): Promise<RetrieveAddressEndpointResponse> {
         return this._messenger.sendRequest(getAddressEndpoint, HOST_EXTENSION, params);
+    }
+
+    updateWsdlEndpoint(params: UpdateWsdlEndpointRequest): Promise<UpdateWsdlEndpointResponse> {
+        return this._messenger.sendRequest(updateWsdlEndpoint, HOST_EXTENSION, params);
+    }
+
+    getWsdlEndpoint(params: RetrieveWsdlEndpointRequest): Promise<RetrieveWsdlEndpointResponse> {
+        return this._messenger.sendRequest(getWsdlEndpoint, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {

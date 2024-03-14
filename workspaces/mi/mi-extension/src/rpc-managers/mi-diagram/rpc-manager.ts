@@ -83,6 +83,10 @@ import {
     UpdateAddressEndpointResponse,
     RetrieveAddressEndpointRequest,
     RetrieveAddressEndpointResponse,
+    UpdateWsdlEndpointRequest,
+    UpdateWsdlEndpointResponse,
+    RetrieveWsdlEndpointRequest,
+    RetrieveWsdlEndpointResponse,
     BrowseFileResponse,
     BrowseFileRequest,
     CreateRegistryResourceRequest,
@@ -94,14 +98,18 @@ import {
     GetMessageStoreRequest,
     GetMessageStoreResponse,
     GetAvailableResourcesRequest,
-    GetAvailableResourcesResponse,
     CreateClassMediatorRequest,
     CreateClassMediatorResponse,
     GetLocalEntryRequest,
     GetLocalEntryResponse,
     TemplatesResponse,
     FileListRequest,
-    FileListResponse
+    FileListResponse,
+    GetAvailableResourcesResponse,
+    UpdateLoadBalanceEPResponse,
+    UpdateLoadBalanceEPRequest,
+    GetLoadBalanceEPRequest,
+    GetLoadBalanceEPResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import * as fs from "fs";
@@ -111,19 +119,17 @@ import { v4 as uuidv4 } from 'uuid';
 import { StateMachine, openView } from "../../stateMachine";
 import { Position, Range, Selection, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
-import { createFolderStructure, getTaskXmlWrapper, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper, getMessageStoreXmlWrapper, getTemplateXmlWrapper, getHttpEndpointXmlWrapper, getAddressEndpointXmlWrapper } from "../../util";
-import { getMediatypeAndFileExtension, addNewEntryToArtifactXML, detectMediaType } from "../../util/fileOperations";
+import { createFolderStructure, getTaskXmlWrapper, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper, getMessageStoreXmlWrapper, getTemplateXmlWrapper, getHttpEndpointXmlWrapper, getAddressEndpointXmlWrapper, getWsdlEndpointXmlWrapper, getLoadBalanceXmlWrapper } from "../../util";
+import { getMediatypeAndFileExtension, addNewEntryToArtifactXML, detectMediaType, changeRootPomPackaging } from "../../util/fileOperations";
 import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
-import * as xml2js from 'xml2js';
 import { UndoRedoManager } from "../../undoRedoManager";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { error } from "console";
 import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
-const { XMLParser,XMLBuilder } = require("fast-xml-parser");
-
+const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
 const connectorsPath = path.join(".metadata", ".Connectors");
 
@@ -385,6 +391,112 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
     
+    async updateLoadBalanceEndpoint(params: UpdateLoadBalanceEPRequest): Promise<UpdateLoadBalanceEPResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, ...templateParams } = params;
+
+            const xmlData = getLoadBalanceXmlWrapper(templateParams);
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${templateParams.name}.xml`);
+            }
+
+            fs.writeFileSync(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getLoadBalanceEndpoint(params: GetLoadBalanceEPRequest): Promise<GetLoadBalanceEPResponse> {
+        return new Promise(async (resolve) => {
+            const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
+            const options = {
+                ignoreAttributes : false,
+                attributeNamePrefix: "@_",
+                indentBy: '    ',
+                format: true,
+            };
+            
+            const builder = new XMLBuilder(options);
+            const filePath = params.path;
+
+            if (filePath.includes('.xml') && fs.existsSync(filePath)) {
+                const { name, loadbalance, session, property, description} = endpointSyntaxTree.syntaxTree.endpoint;
+
+                const endpoints = loadbalance.endpointOrMember.map((member: any) => {
+                    const { address, name } = member.endpoint;
+
+                    let value = '';
+                    if (member.endpoint?.key) {
+                        value = member.endpoint.key;
+                    }
+                    else {
+                        value = builder.build({
+                            "endpoint": {
+                                "@_name": name,
+                                "address": {
+                                    "@_uri": address.uri,
+                                    "suspendOnFailure": {
+                                        "initialDuration": {
+                                            "#text": address.suspendOnFailure.initialDuration.textNode
+                                        },
+                                        "progressionFactor": {
+                                            "#text": address.suspendOnFailure.progressionFactor.textNode
+                                        }
+                                    },
+                                    "markForSuspension": {
+                                        "retriesBeforeSuspension": {
+                                            "#text": address.markForSuspension.retriesBeforeSuspension.textNode
+                                        }
+                                    }
+                                }
+                            }
+                        }).trim();
+                    }
+
+                    return {
+                        type: member.endpoint.key ? 'static' : 'inline',
+                        value,
+                    };
+                });
+
+                const properties = property.map((prop: any) => ({
+                    name: prop.name,
+                    value: prop.value,
+                    scope: prop.scope ?? 'default'
+                }));
+
+                resolve({
+                    name,
+                    algorithm: loadbalance.algorithm,
+                    failover: String(loadbalance.failover) ?? 'false',
+                    buildMessage: String(loadbalance.buildMessage) ?? 'false',
+                    sessionManagement: session?.type ?? 'none',
+                    sessionTimeout: session?.sessionTimeout ?? '',
+                    description: description ?? '',
+                    endpoints: endpoints.length > 0 ? endpoints : [],
+                    properties: properties.length > 0 ? properties : []
+                });
+            }
+
+            resolve({
+                name: '',
+                algorithm: 'roundRobin',
+                failover: 'false',
+                buildMessage: 'true',
+                sessionManagement: 'none',
+                sessionTimeout: '',
+                description: '',
+                endpoints: [],
+                properties: []
+            });
+        });
+    }
+
     async createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
         return new Promise(async (resolve) => {
             const { directory, name, type, value, URL } = params;
@@ -428,14 +540,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         response.inLineTextValue = jsonData.localEntry["#text"];
                     } else if (jsonData.localEntry.xml) {
                         response.type = "In-Line XML Entry";
-                        if (jsonData.localEntry.xml["@_"]["xmlns"]==='') {
+                        if (jsonData.localEntry.xml["@_"]["xmlns"] === '') {
                             delete jsonData.localEntry.xml["@_"]["xmlns"];
                         }
-                        const xmlObj ={
-                            xml:{
+                        const xmlObj = {
+                            xml: {
                                 ...jsonData.localEntry.xml
                             }
-                        }  
+                        }
                         const builder = new XMLBuilder(options);
                         let xml = builder.build(xmlObj);
                         response.inLineXmlValue = xml;
@@ -548,7 +660,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         break;
                     default:
                         response.type = 'Custom Message Store';
-                        break;         
+                        break;
                 }
                 if (jsonData && jsonData.messageStore && jsonData.messageStore.parameter) {
                     parameters = Array.isArray(jsonData.messageStore.parameter)
@@ -594,27 +706,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         'store.rabbitmq.virtual.host': 'virtualHost',
                         'store.resequence.timeout': 'pollingCount',
                         'store.resequence.id.path': 'xPath',
-                        'store.failover.message.store.name': 'failOverMessageStore'                 
-                    }
-                    switch (className) {
-                        case 'org.apache.synapse.message.store.impl.jms.JmsStore':
-                            response.type = 'JMS Message Store';
-                            break;
-                        case 'org.apache.synapse.message.store.impl.jdbc.JDBCMessageStore':
-                            response.type = 'JDBC Message Store';
-                            break;
-                        case 'org.apache.synapse.message.store.impl.rabbitmq.RabbitMQStore':
-                            response.type = 'RabbitMQ Message Store';
-                            break;
-                        case 'org.apache.synapse.message.store.impl.resequencer.ResequenceMessageStore':
-                            response.type = 'Resequence Message Store';
-                            break;
-                        case 'org.apache.synapse.message.store.impl.memory.InMemoryStore':
-                            response.type = 'In Memory Message Store';
-                            break;
-                        default:
-                            response.type = 'Custom Message Store';
-                            break;
+                        'store.failover.message.store.name': 'failOverMessageStore'
                     }
                     if  (response.type !== 'Custom Message Store')  {
                         parameters.forEach((param: Parameter) => {
@@ -631,7 +723,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         });
                         response.providerClass = className;
                         response.customParameters = customParameters;
-                    }             
+                    }
                 }
                 resolve(response);
             }
@@ -1015,6 +1107,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             };
 
             const xmlData = getHttpEndpointXmlWrapper(getHttpEndpointParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
             let filePath: string;
 
@@ -1024,7 +1117,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = path.join(directory, `${endpointName}.xml`);
             }
 
-            fs.writeFileSync(filePath, xmlData);
+            fs.writeFileSync(filePath, sanitizedXmlData);
             resolve({ path: filePath });
         });
     }
@@ -1095,7 +1188,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                 let oauthParams: any[];
                                 oauthParams = authenticationParams.oauth.authorizationCode.requestParameters.parameter;
                                 oauthParams.forEach((element) => {
-                                    response.oauthProperties.push({key: element.name, value: element.textNode});
+                                    response.oauthProperties.push({ key: element.name, value: element.textNode });
                                 });
                             }
                         } else if (authenticationParams.oauth.clientCredentials != undefined) {
@@ -1108,7 +1201,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                 let oauthParams: any[];
                                 oauthParams = authenticationParams.oauth.clientCredentials.requestParameters.parameter;
                                 oauthParams.forEach((element) => {
-                                    response.oauthProperties.push({key: element.name, value: element.textNode});
+                                    response.oauthProperties.push({ key: element.name, value: element.textNode });
                                 });
                             }
                         } else {
@@ -1123,7 +1216,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                 let oauthParams: any[];
                                 oauthParams = authenticationParams.oauth.passwordCredentials.requestParameters.parameter;
                                 oauthParams.forEach((element) => {
-                                    response.oauthProperties.push({key: element.name, value: element.textNode});
+                                    response.oauthProperties.push({ key: element.name, value: element.textNode });
                                 });
                             }
                         }
@@ -1142,7 +1235,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     let params: any[];
                     params = endpointParams.property;
                     params.forEach((element) => {
-                        response.properties.push({name: element.name, value: element.value, scope: element.scope});
+                        response.properties.push({ name: element.name, value: element.value, scope: element.scope });
                     });
                 }
 
@@ -1171,6 +1264,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             };
 
             const xmlData = getAddressEndpointXmlWrapper(getAddressEndpointParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
             let filePath: string;
 
@@ -1180,7 +1274,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = path.join(directory, `${endpointName}.xml`);
             }
 
-            fs.writeFileSync(filePath, xmlData);
+            fs.writeFileSync(filePath, sanitizedXmlData);
             resolve({ path: filePath });
         });
     }
@@ -1212,6 +1306,99 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     addressingVersion: addressParams.enableAddressing != undefined ? addressParams.enableAddressing.version : '',
                     addressListener: (addressParams.enableAddressing != undefined && addressParams.enableAddressing.separateListener) ? 'enable' : 'disable',
                     securityEnabled: addressParams.enableSec != undefined ? 'enable' : 'disable',
+                    suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
+                    initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : '',
+                    maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : '',
+                    progressionFactor: failureParams.progressionFactor != undefined ? failureParams.progressionFactor.textNode : '',
+                    retryErrorCodes: suspensionParams.errorCodes != undefined ? suspensionParams.errorCodes.textNode : '',
+                    retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : '',
+                    retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : '',
+                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : '',
+                    timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : ''
+                };
+
+                if (response.format === 'SOAP11') {
+                    response.format = 'SOAP 1.1';
+                } else if (response.format === 'SOAP12') {
+                    response.format = 'SOAP 1.2';
+                }
+
+                if (endpointParams.property != undefined) {
+                    let params: any[];
+                    params = endpointParams.property;
+                    params.forEach((element) => {
+                        response.properties.push({ name: element.name, value: element.value, scope: element.scope });
+                    });
+                }
+
+                response.requireProperties = response.properties.length > 0;
+
+                resolve(response);
+            }
+        });
+    }
+
+    async updateWsdlEndpoint(params: UpdateWsdlEndpointRequest): Promise<UpdateWsdlEndpointResponse> {
+        return new Promise(async (resolve) => {
+            const {
+                directory, endpointName, format, traceEnabled, statisticsEnabled, optimize, description, wsdlUri,
+                wsdlService, wsdlPort, requireProperties, properties, addressingEnabled, addressingVersion,
+                addressListener, securityEnabled, suspendErrorCodes, initialDuration, maximumDuration, progressionFactor,
+                retryErrorCodes, retryCount, retryDelay, timeoutDuration, timeoutAction
+            } = params;
+
+            const getWsdlEndpointParams = {
+                endpointName, format, traceEnabled, statisticsEnabled, optimize, description, wsdlUri, wsdlService,
+                wsdlPort, requireProperties, properties, addressingEnabled, addressingVersion, addressListener,
+                securityEnabled, suspendErrorCodes, initialDuration, maximumDuration, progressionFactor, retryErrorCodes,
+                retryCount, retryDelay, timeoutDuration, timeoutAction
+            };
+
+            const xmlData = getWsdlEndpointXmlWrapper(getWsdlEndpointParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${endpointName}.xml`);
+            }
+
+            fs.writeFileSync(filePath, sanitizedXmlData);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getWsdlEndpoint(params: RetrieveWsdlEndpointRequest): Promise<RetrieveWsdlEndpointResponse> {
+
+        const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
+        const endpointParams = endpointSyntaxTree.syntaxTree.endpoint;
+        const wsdlParams = endpointParams.wsdl;
+        const suspensionParams = wsdlParams.markForSuspension;
+        const failureParams = wsdlParams.suspendOnFailure;
+        const timeoutParams = wsdlParams.timeout;
+
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (fs.existsSync(filePath)) {
+                let response: RetrieveWsdlEndpointResponse = {
+                    endpointName: endpointParams.name,
+                    format: wsdlParams.format != undefined ? wsdlParams.format.toUpperCase() : 'LEAVE_AS_IS',
+                    traceEnabled: wsdlParams.trace != undefined ? wsdlParams.trace : 'disable',
+                    statisticsEnabled: wsdlParams.statistics,
+                    optimize: wsdlParams.optimize != undefined ? wsdlParams.optimize.toUpperCase() : 'LEAVE_AS_IS',
+                    description: endpointParams.description,
+                    wsdlUri: wsdlParams.uri,
+                    wsdlService: wsdlParams.service,
+                    wsdlPort: wsdlParams.port,
+                    requireProperties: false,
+                    properties: [],
+                    addressingEnabled: wsdlParams.enableAddressing != undefined ? 'enable' : 'disable',
+                    addressingVersion: wsdlParams.enableAddressing != undefined ? wsdlParams.enableAddressing.version : '',
+                    addressListener: (wsdlParams.enableAddressing != undefined && wsdlParams.enableAddressing.separateListener) ? 'enable' : 'disable',
+                    securityEnabled: wsdlParams.enableSec != undefined ? 'enable' : 'disable',
                     suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
                     initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : '',
                     maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : '',
@@ -1753,7 +1940,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         let status = true;
         //if file exists, overwrite if not, create new file and write content.  if successful, return true, else false
         const { content } = params;
-        
+
         //get current workspace folder 
         const directoryPath = StateMachine.context().projectUri;
         console.log('Directory path:', directoryPath);
@@ -1790,7 +1977,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     console.log("File type - ", fileType)
                 }
                 //write the content to a file, if file exists, overwrite else create new file
-                const fullPath = path.join(directoryPath??'', '/src/main/wso2mi/artifacts/', fileType, '/', `${name}.xml`);
+                const fullPath = path.join(directoryPath ?? '', '/src/main/wso2mi/artifacts/', fileType, '/', `${name}.xml`);
                 console.log('Full path:', fullPath);
                 try {
                     console.log('Writing content to file:', fullPath);
@@ -1833,7 +2020,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         if (!workspaceFolders) {
             throw new Error('No workspace is currently open');
         }
-    
+
         var rootPath = workspaceFolders[0].uri.fsPath;
         rootPath += '/src/main/wso2mi/artifacts';
         const fileContents: string[] = [];
@@ -1841,18 +2028,18 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         for (const folder of resourceFolders) {
             const folderPath = path.join(rootPath, folder);
             const files = await fs.promises.readdir(folderPath);
-        
+
             for (const file of files) {
                 const filePath = path.join(folderPath, file);
                 const stats = await fs.promises.stat(filePath);
-        
+
                 if (stats.isFile()) {
                     const content = await fs.promises.readFile(filePath, 'utf-8');
                     fileContents.push(content);
                 }
             }
         }
-    
+
         return { context: fileContents };
     }
 
@@ -1863,7 +2050,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         }
         var rootPath = workspaceFolders[0].uri.fsPath;
         const pomPath = path.join(rootPath, 'pom.xml');
-    
+
         return new Promise((resolve, reject) => {
             fs.readFile(pomPath, 'utf8', (err, data) => {
                 if (err) {
@@ -2009,6 +2196,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             fs.mkdirSync(fullPath, { recursive: true });
             const filePath = path.join(fullPath, `${params.className}.java`);
             fs.writeFileSync(filePath, content);
+            const fileUri = Uri.file(params.projectDirectory);
+            const workspaceFolder = workspace.getWorkspaceFolder(fileUri)?.uri.fsPath ?? workspace.getWorkspaceFolder[0].uri.fsPath;
+            changeRootPomPackaging(workspaceFolder, "jar");
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });

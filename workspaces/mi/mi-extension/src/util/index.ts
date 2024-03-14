@@ -20,6 +20,8 @@ import { getMessageStoreXml, GetMessageStoreTemplatesArgs } from './template-eng
 import { getTemplateXml, TemplateArgs } from './template-engine/mustach-templates/Template';
 import { getHttpEndpointXml, HttpEndpointArgs } from './template-engine/mustach-templates/HttpEndpoint';
 import { getAddressEndpointXml, AddressEndpointArgs } from './template-engine/mustach-templates/AddressEndpoint';
+import { getWsdlEndpointXml, WsdlEndpointArgs } from './template-engine/mustach-templates/WsdlEndpoint';
+import { GetLoadBalanceEPTemplatesArgs, getLoadBalanceEPXml } from './template-engine/mustach-templates/loadBalanceEndpoint';
 
 const isDevMode = process.env.WEB_VIEW_WATCH_MODE === "true";
 
@@ -67,6 +69,10 @@ export function getTaskXmlWrapper(data: GetTaskTemplatesArgs) {
     return getTaskXml(data);
 }
 
+export function getLoadBalanceXmlWrapper(data: GetLoadBalanceEPTemplatesArgs) {
+    return getLoadBalanceEPXml(data);
+}
+
 export function getMessageStoreXmlWrapper(props: GetMessageStoreTemplatesArgs) {
 	return getMessageStoreXml(props);
 }
@@ -81,4 +87,8 @@ export function getHttpEndpointXmlWrapper(props: HttpEndpointArgs) {
 
 export function getAddressEndpointXmlWrapper(props: AddressEndpointArgs) {
 	return getAddressEndpointXml(props);
+}
+
+export function getWsdlEndpointXmlWrapper(props: WsdlEndpointArgs) {
+	return getWsdlEndpointXml(props);
 }

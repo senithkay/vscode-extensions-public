@@ -9,16 +9,13 @@
 
 import * as vscode from 'vscode';
 import { COMMANDS } from '../constants';
-import { AiPanelWebview } from './webview';
+import { openAIView } from './aiMachine';
+import { AI_MACHINE_VIEW, EVENT_TYPE } from '@wso2-enterprise/mi-core';
 
 export function activateAiPanel(context: vscode.ExtensionContext) {
     context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.OPEN_AI_PANEL, () => {
-            if (!AiPanelWebview.currentPanel) {
-                AiPanelWebview.currentPanel = new AiPanelWebview();
-            } else {
-                AiPanelWebview.currentPanel!.getWebview()?.reveal();
-            }
+        vscode.commands.registerCommand(COMMANDS.OPEN_AI_PANEL, (initialPrompt?: string) => {
+            openAIView(EVENT_TYPE.OPEN_VIEW, { initialPrompt });
         })
     );
 }

@@ -8,30 +8,38 @@
  */
 
 import { NodeModel, PortModelAlignment } from "@projectstorm/react-diagrams";
-import { APIResource, NamedSequence, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { DiagramService, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodePortModel } from "../../NodePort/NodePortModel";
 import { getNodeIdFromModel } from "../../../utils/node";
 import { NodeTypes } from "../../../resources/constants";
 
+export enum StartNodeType {
+    IN_SEQUENCE,
+    OUT_SEQUENCE,
+    SUB_SEQUENCE,
+    FAULT_SEQUENCE   
+}
 export class StartNodeModel extends NodeModel {
     readonly stNode: STNode;
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
     protected parentNode: STNode;
     protected prevNodes: STNode[];
-    protected model: APIResource | NamedSequence;
+    protected model: DiagramService;
     protected documentUri: string;
+    protected type: StartNodeType;
 
-    constructor(stNode: STNode, model: APIResource | NamedSequence, documentUri: string, parentNode?: STNode, prevNodes: STNode[] = []) {
+    constructor(stNode: STNode, model: DiagramService, type: StartNodeType, documentUri: string, parentNode?: STNode, prevNodes: STNode[] = []) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode, "start"),
             type: NodeTypes.START_NODE,
             locked: true,
         });
         this.stNode = stNode;
+        this.model = model;
+        this.type = type
         this.addInPort("in");
         this.addOutPort("out");
-        this.model = model;
         this.documentUri = documentUri;
     }
 
@@ -89,11 +97,15 @@ export class StartNodeModel extends NodeModel {
         return this.prevNodes;
     }
 
-    getModel(): APIResource | NamedSequence {
+    getModel(): DiagramService {
         return this.model;
     }
 
     getDocumentUri(): string {
         return this.documentUri;
+    }
+
+    getNodeType() {
+        return this.type;
     }
 }
