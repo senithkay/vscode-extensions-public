@@ -27,7 +27,8 @@ import { RecordFieldPortModel } from '../Port';
 import {
     getBalRecFieldName,
     getFilteredUnionOutputTypes,
-    getLocalVariableNames
+    getLocalVariableNames,
+    getArrayMappingType
 } from '../utils/dm-utils';
 import { handleCodeActions } from "../utils/ls-utils";
 
@@ -110,7 +111,7 @@ export enum LinkState {
     LinkNotSelected
 }
 
-enum QueryExprMappingType {
+export enum ArrayMappingType {
     ArrayToArray,
     ArrayToSingleton
 }
@@ -118,7 +119,7 @@ enum QueryExprMappingType {
 // now we can render all what we want in the label
 export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     const [linkStatus, setLinkStatus] = React.useState<LinkState>(LinkState.LinkNotSelected);
-    const [queryExprMappingType, setQueryExprMappingType] = React.useState<QueryExprMappingType>(undefined);
+    const [arrayMappingType, setArrayMappingType] = React.useState<ArrayMappingType>(undefined);
     const [codeActions, setCodeActions] = React.useState([]);
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
     const classes = useStyles();
@@ -198,15 +199,10 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                     setLinkStatus(event.isSelected ? LinkState.LinkSelected : LinkState.LinkNotSelected);
                 },
             });
-            const isSourceArray = isSourcePortArray(link);
-            const isTargetArray = isTargetPortArray(link);
-            let mappingType: QueryExprMappingType;
-            if (isSourceArray && isTargetArray) {
-                mappingType = QueryExprMappingType.ArrayToArray;
-            } else if (isSourceArray && !isTargetArray) {
-                mappingType = QueryExprMappingType.ArrayToSingleton;
-            }
-            setQueryExprMappingType(mappingType);
+            const isSourceArray = isSourcePortArray(link.getSourcePort());
+            const isTargetArray = isTargetPortArray(link.getTargetPort());
+            const mappingType = getArrayMappingType(isSourceArray, isTargetArray);
+            setArrayMappingType(mappingType);
         } else {
             setLinkStatus(LinkState.TemporaryLink);
         }
@@ -277,12 +273,12 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     };
 
     const additionalActions = [];
-    if (queryExprMappingType === QueryExprMappingType.ArrayToArray) {
+    if (arrayMappingType === ArrayMappingType.ArrayToArray) {
         additionalActions.push({
             title: "Convert to Query",
             onClick: onClickConvertToQuery
         });
-    } else if (queryExprMappingType === QueryExprMappingType.ArrayToSingleton) {
+    } else if (arrayMappingType === ArrayMappingType.ArrayToSingleton) {
         additionalActions.push({
             title: "Aggregate using Query",
             onClick: onClickAggregateViaQuery

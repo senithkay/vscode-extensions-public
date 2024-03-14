@@ -11,30 +11,24 @@ import {
 } from "../utils/dm-utils";
 import { getSupportedUnionTypes } from "../utils/union-type-utils";
 
-import { DataMapperLinkModel } from "./model/DataMapperLink";
+import { PortModel } from "@projectstorm/react-diagrams-core";
 
 export enum ClauseType {
     Select = "select",
     Collect = "collect"
 }
 
-export function isSourcePortArray(link: DataMapperLinkModel): boolean {
-    const sourcePort = link.getSourcePort() ;
-
-    if (sourcePort instanceof RecordFieldPortModel) {
-        return sourcePort.field.typeName === PrimitiveBalType.Array;
+export function isSourcePortArray(port: PortModel): boolean {
+    if (port instanceof RecordFieldPortModel) {
+        return port.field.typeName === PrimitiveBalType.Array;
     }
-
     return false;
 }
 
-export function isTargetPortArray(link: DataMapperLinkModel): boolean {
-    const targetPort = link.getTargetPort() ;
-
-    if (targetPort instanceof RecordFieldPortModel) {
-        return targetPort.field.typeName === PrimitiveBalType.Array;
+export function isTargetPortArray(port: PortModel): boolean {
+    if (port instanceof RecordFieldPortModel) {
+        return port.field.typeName === PrimitiveBalType.Array;
     }
-
     return false;
 }
 

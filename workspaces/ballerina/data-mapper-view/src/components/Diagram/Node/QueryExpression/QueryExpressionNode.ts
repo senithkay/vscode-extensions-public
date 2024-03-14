@@ -50,6 +50,12 @@ import { UnionTypeNode } from "../UnionType";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
+export enum QueryExprMappingType {
+    A2AWithSelect = "array-to-array-with-select",
+    A2SWithSelect = "array-to-single-with-select",
+    A2SWithCollect = "array-to-single-with-collect",
+};
+
 export class QueryExpressionNode extends DataMapperNodeModel {
 
     public sourceTypeDesc: TypeField;

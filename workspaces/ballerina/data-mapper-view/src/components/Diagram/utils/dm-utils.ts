@@ -49,7 +49,7 @@ import { DMNode } from "../../DataMapper/DataMapper";
 import { ErrorNodeKind } from "../../DataMapper/Error/DataMapperError";
 import { getLetExpression, getLetExpressions } from "../../DataMapper/LocalVarConfigPanel/local-var-mgt-utils";
 import { isArraysSupported } from "../../DataMapper/utils";
-import { ExpressionLabelModel } from "../Label";
+import { ExpressionLabelModel, ArrayMappingType } from "../Label";
 import { DataMapperLinkModel } from "../Link";
 import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../Mappings/FieldAccessToSpecificFied";
@@ -58,7 +58,8 @@ import {
 	MappingConstructorNode,
 	MAPPING_CONSTRUCTOR_NODE_TYPE, PRIMITIVE_TYPE_NODE_TYPE, QueryExpressionNode,
 	QUERY_EXPR_NODE_TYPE, RequiredParamNode,
-	REQ_PARAM_NODE_TYPE
+	REQ_PARAM_NODE_TYPE,
+	QueryExprMappingType
 } from "../Node";
 import { DataMapperNodeModel, TypeDescriptor } from "../Node/commons/DataMapperNode";
 import { EnumTypeNode, ENUM_TYPE_SOURCE_NODE_TYPE } from "../Node/EnumType";
@@ -94,6 +95,7 @@ import { FnDefInfo, FunctionDefinitionStore } from "./fn-definition-store";
 import { getModification } from "./modifications";
 import { TypeDescriptorStore } from "./type-descriptor-store";
 import { QueryExprFindingVisitorByPosition } from "../visitors/QueryExprFindingVisitorByPosition";
+import { NodeFindingVisitorByPosition } from "../visitors/NodeFindingVisitorByPosition";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: { name: string, isOptional: boolean }[] = [];
@@ -505,14 +507,19 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 
 }
 
-export function replaceSpecificFieldValue(link: DataMapperLinkModel) {
-	const modifications: STModification[] = [];
-	const sourcePort = link.getSourcePort();
-	const rhs = sourcePort && sourcePort instanceof RecordFieldPortModel ? sourcePort.fieldFQN : undefined;
+export function replaceSpecificFieldValue(link: DataMapperLinkModel, modifications: STModification[]) {
+	const targetPort = link.getTargetPort() as RecordFieldPortModel;
+	const targetNode = targetPort.getNode();
+	const { context } = targetNode as DataMapperNodeModel;
+	void context.applyModifications(modifications);
+}
 
-	if (link.getTargetPort() && rhs) {
+export function getModificationForSpecificFieldValue(
+	link: DataMapperLinkModel,
+	sourceField: string
+): STModification {
+	if (link.getTargetPort() && sourceField) {
 		const targetPort = link.getTargetPort() as RecordFieldPortModel;
-		const targetNode = targetPort.getNode();
 		const editableRecordField = targetPort.editableRecordField;
 		let targetPosition: NodePosition;
 		if (editableRecordField?.value) {
@@ -524,17 +531,34 @@ export function replaceSpecificFieldValue(link: DataMapperLinkModel) {
 			targetPosition = innerExpr.position as NodePosition;
 		}
 		if (targetPosition) {
-			modifications.push({
+			return {
 				type: "INSERT",
 				config: {
-					"STATEMENT": rhs,
+					"STATEMENT": sourceField,
 				},
 				...targetPosition
-			});
-
-			const { context } = targetNode as DataMapperNodeModel;
-			void context.applyModifications(modifications);
+			};
 		}
+	}
+}
+
+export function getModificationForFromClauseBindingPattern(
+	queryExprPosition: NodePosition,
+	bindingPatternSrc: string,
+	selectedSTNode: STNode
+): STModification {
+	const nodeFindingVisitor = new NodeFindingVisitorByPosition(queryExprPosition);
+	traversNode(selectedSTNode, nodeFindingVisitor);
+	const queryExpr = nodeFindingVisitor.getNode() as QueryExpression;
+
+	if (queryExpr) {
+		return {
+			type: "INSERT",
+			config: {
+				"STATEMENT": bindingPatternSrc,
+			},
+			...queryExpr.queryPipeline.fromClause.typedBindingPattern.bindingPattern.position
+		};
 	}
 }
 
@@ -1297,6 +1321,59 @@ export function getRelativePathOfField(bindingPattern: STNode, targetIdentifier:
 	}
 
 	return path;
+}
+
+export function getArrayMappingType(isSourceArray: boolean, isTargetArray: boolean): ArrayMappingType {
+	let mappingType: ArrayMappingType;
+	if (isSourceArray && isTargetArray) {
+		mappingType = ArrayMappingType.ArrayToArray;
+	} else if (isSourceArray && !isTargetArray) {
+		mappingType = ArrayMappingType.ArrayToSingleton;
+	}
+
+	return mappingType;
+}
+
+export function getQueryExprMappingType(
+	isSourceArray: boolean,
+	isTargetArray: boolean,
+	hasIndexedQueryExpr: boolean
+): QueryExprMappingType {
+
+	let mappingType: QueryExprMappingType;
+	if (isSourceArray && isTargetArray) {
+		mappingType = QueryExprMappingType.A2AWithSelect;
+	} else if (isSourceArray && !isTargetArray) {
+		if (hasIndexedQueryExpr) {
+			mappingType = QueryExprMappingType.A2SWithSelect;
+		} else {
+			mappingType = QueryExprMappingType.A2SWithCollect;
+		}
+	}
+
+	return mappingType;
+}
+
+export function hasIndexedQueryExpr(node: STNode) {
+	return STKindChecker.isSpecificField(node)
+		&& STKindChecker.isIndexedExpression(node.valueExpr)
+		&& STKindChecker.isBracedExpression(node.valueExpr.containerExpression)
+		&& STKindChecker.isQueryExpression(node.valueExpr.containerExpression.expression);
+}
+
+export function generateDestructuringPattern(expression: string): string {
+    const parts = expression.split('.');
+    const lastIndex = parts.length - 1;
+
+    const constructPattern = (index: number): string => {
+        if (index === lastIndex) {
+            return `{${parts[index]}}`;
+        } else {
+            return `{${[parts[index]]}: ${constructPattern(index + 1)} }`;
+        }
+    };
+
+    return constructPattern(0);
 }
 
 function getInnerExpr(node: FieldAccess | OptionalFieldAccess): STNode {
