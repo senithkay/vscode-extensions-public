@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import styled from "@emotion/styled";
-import { useEffect, useState } from "react";
-import { Button, Codicon, LocationSelector, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import React, { useEffect, useState } from "react";
+import { Button, Codicon, LinkButton, LocationSelector, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { SectionWrapper } from "./Commons";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
@@ -55,8 +55,9 @@ export function ProjectWizard() {
     const { rpcClient } = useVisualizerContext();
     const [projectName, setProjectName] = useState("");
     const [projectDir, setProjectDir] = useState("");
-    const [groupID, setGroupID] = useState("");
+    const [groupID, setGroupID] = useState("com.microintegrator.projects");
     const [artifactID, setArtifactID] = useState("");
+    const [viewMore, setViewMore] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -77,7 +78,7 @@ export function ProjectWizard() {
             directory: projectDir,
             open: true,
             groupID: groupID,
-            artifactID: artifactID
+            artifactID: artifactID || projectName
         }
         await rpcClient.getMiDiagramRpcClient().createProject(createProjectParams);
         console.log("Project created");
@@ -120,8 +121,17 @@ export function ProjectWizard() {
         return "";
     };
 
+    const validateArtifactID = (name: string) => {
+        // Check if the name contains spaces
+        if (/\s/.test(name)) {
+            return "ID cannot contain spaces";
+        }
+
+        return "";
+    };
+
     const isValid: boolean = !validateProjectName(projectName) && projectDir.length > 0 && !validateGroupID(groupID)
-        && !validateGroupID(artifactID);
+        && !validateArtifactID(artifactID);
 
     return (
         <WizardContainer>
@@ -143,28 +153,6 @@ export function ProjectWizard() {
                     autoFocus
                     required
                 />
-                <TextField
-                    value={groupID}
-                    id='groupid-input'
-                    label="Group ID"
-                    placeholder="Group ID"
-                    onChange={(text: string) => setGroupID(text)}
-                    errorMsg={validateGroupID(groupID)}
-                    size={46}
-                    autoFocus
-                    required
-                />
-                <TextField
-                    value={artifactID}
-                    id='artifactID-input'
-                    label="Atrifact ID"
-                    placeholder="Artifact ID"
-                    onChange={(text: string) => setArtifactID(text)}
-                    errorMsg={validateGroupID(artifactID)}
-                    size={46}
-                    autoFocus
-                    required
-                />
                 <LocationSelector 
                     label="Select Project Directory"
                     selectionText="Project Location"
@@ -172,6 +160,39 @@ export function ProjectWizard() {
                     required
                     onSelect={handleProjecDirSelection}
                 />
+                <LinkButton onClick={() => setViewMore(!viewMore)}>
+                    {viewMore ? "Hide" : "More Options"}
+                    <Codicon
+                        name={viewMore ? "chevron-up" : "add"}
+                        sx={{ borderRadius: "4px", height: "14px" }}
+                        iconSx={{ fontSize: "14px" }}
+                    />
+                </LinkButton>
+                {viewMore && (
+                    <React.Fragment>
+                        <TextField
+                            value={groupID}
+                            id='groupid-input'
+                            label="Group ID"
+                            placeholder="Group ID"
+                            onChange={(text: string) => setGroupID(text)}
+                            errorMsg={validateGroupID(groupID)}
+                            size={46}
+                            autoFocus
+                            required
+                        />
+                        <TextField
+                            value={artifactID}
+                            id='artifactID-input'
+                            label="Atrifact ID"
+                            placeholder="Artifact ID"
+                            onChange={(text: string) => setArtifactID(text)}
+                            errorMsg={validateArtifactID(artifactID)}
+                            size={46}
+                            autoFocus
+                        />
+                    </React.Fragment>
+                )}
                 <ActionContainer>
                     <Button
                         appearance="secondary"
