@@ -29,6 +29,7 @@ import { DefaultEndpointWizard } from "./views/Forms/DefaultEndpointForm";
 import { LoadBalanceWizard } from './views/Forms/LoadBalanceEPform';
 import { css, keyframes } from '@emotion/react';
 import { getSyntaxTreeType } from './utils/syntax-tree';
+import { FailoverWizard } from './views/Forms/FailoverEndpointForm';
 
 const MainContainer = styled.div`
     display: flex;
@@ -150,6 +151,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.LoadBalanceEndPointForm:
                     setViewComponent(<LoadBalanceWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.FailoverEndPointForm:
+                    setViewComponent(<FailoverWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.SequenceForm:
                     setViewComponent(<SequenceWizard path={machineView.documentUri} />);

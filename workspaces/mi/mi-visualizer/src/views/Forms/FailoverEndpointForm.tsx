@@ -10,13 +10,13 @@
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 import { Button, Codicon, Dropdown, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
-import { SectionWrapper } from "../Commons";
+import { SectionWrapper } from "./Commons";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
-import Endpoint from "../Commons/Endpoint";
-import PropertiesTable from "../Commons/PropertiesTable";
-import EndpointList from "../Commons/EndpointList";
-import InlineButtonGroup from "../Commons/InlineButtonGroup";
+import Endpoint from "./Commons/Endpoint";
+import PropertiesTable from "./Commons/PropertiesTable";
+import EndpointList from "./Commons/EndpointList";
+import InlineButtonGroup from "./Commons/InlineButtonGroup";
 
 const WizardContainer = styled.div`
     display: flex;
@@ -61,7 +61,7 @@ const Container = styled.div`
     justify-content: flex-start;
 `;
 
-export interface LoadBalanceWizardProps {
+export interface FailoverWizardProps {
     path: string;
 }
 
@@ -75,17 +75,13 @@ const initialInlineEndpoint: Endpoint = {
     value: '',
 };
 
-export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
+export function FailoverWizard(props: FailoverWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
 
     const [endpoint, setEndpoint] = useState<any>({
         name: '',
-        algorithm: 'roundRobin',
-        failover: 'false',
         buildMessage: 'true',
-        sessionManagement: 'none',
-        sessionTimeout: '',
         description: '',
     });
 
@@ -99,8 +95,9 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
 
     useEffect(() => {
         (async () => {
-            const { properties, endpoints, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getLoadBalanceEndpoint({ path: props.path });
+            const { properties, endpoints, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getFailoverEndpoint({ path: props.path });
 
+            console.log('endpoint', endpoint);
             setEndpoint(endpoint);
             setProperties(properties);
             setEndpoints(endpoints);
@@ -115,22 +112,9 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
         })();
     }, []);
 
-    const algorithms = [
-        { content: 'Round Robin', value: 'org.apache.synapse.endpoints.algorithms.RoundRobin' },
-        { content: 'Weighted RRLC Algorithm', value: 'org.apache.synapse.endpoints.algorithms.WeightedRRLCAlgorithm' },
-        { content: 'Weighted Round Robin', value: 'org.apache.synapse.endpoints.algorithms.WeightedRoundRobin' },
-    ];
-
-    const trueFalseDropdown = [
+    const buildMessageOptions = [
         { content: 'True', value: 'true' },
         { content: 'False', value: 'false' },
-    ];
-
-    const sessionManagementOptions = [
-        { content: 'None', value: 'none' },
-        { content: 'Transport', value: 'http' },
-        { content: 'SOAP', value: 'soap' },
-        { content: 'Client ID', value: 'simpleClientSession' },
     ];
 
     const handleOnChange = (field: string, value: any) => {
@@ -163,7 +147,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
             endpoints,
             properties,
         }
-        rpcClient.getMiDiagramRpcClient().updateLoadBalanceEndpoint(updateEndpointParams);
+        rpcClient.getMiDiagramRpcClient().updateFailoverEndpoint(updateEndpointParams);
         openOverview();
     };
 
@@ -196,7 +180,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                 <Container>
                     <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
                     <div style={{ marginLeft: 30 }}>
-                        <Typography variant="h3">Load Balance Endpoint Artifact</Typography>
+                        <Typography variant="h3">Failover Endpoint Artifact</Typography>
                     </div>
                 </Container>
                 <SubTitle>Basic Properties</SubTitle>
@@ -212,30 +196,12 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                     required
                 />
                 <FieldGroup>
-                    <span>Algorithm</span>
-                    <Dropdown
-                        id="algorithm"
-                        value={endpoint.algorithm}
-                        onChange={(text: string) => handleOnChange("algorithm", text)}
-                        items={algorithms}
-                    />
-                </FieldGroup>
-                <FieldGroup>
-                    <span>Fail Over</span>
-                    <Dropdown
-                        id="fail-over"
-                        value={endpoint.failover}
-                        onChange={(text: string) => handleOnChange("failover", text)}
-                        items={trueFalseDropdown}
-                    />
-                </FieldGroup>
-                <FieldGroup>
                     <span>Build Message</span>
                     <Dropdown
                         id="build-message"
                         value={endpoint.buildMessage}
                         onChange={(text: string) => handleOnChange("buildMessage", text)}
-                        items={trueFalseDropdown}
+                        items={buildMessageOptions}
                     />
                 </FieldGroup>
                 <FieldGroup>
@@ -262,23 +228,6 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                         handleSave={handleAddNewEndpoint}
                     />}
                 </FieldGroup>
-
-                <SubTitle>Session Properties</SubTitle>
-                <FieldGroup>
-                    <span>Session Management</span>
-                    <Dropdown
-                        id="session-management"
-                        value={endpoint.sessionManagement}
-                        onChange={(text: string) => handleOnChange("sessionManagement", text)}
-                        items={sessionManagementOptions}
-                    />
-                </FieldGroup>
-                {endpoint.sessionManagement !== 'none' && <TextField
-                    id='session-timeout'
-                    value={endpoint.sessionTimeout}
-                    label="Session Timeout"
-                    onChange={(text: string) => handleOnChange('sessionTimeout', text)}
-                />}
 
                 <SubTitle>Miscellaneous Properties</SubTitle>
                 <TextField

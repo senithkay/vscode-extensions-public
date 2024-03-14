@@ -94,6 +94,8 @@ export function EndpointWizard(props: EndpointWizardProps) {
                     rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.DefaultEndpointForm, documentUri: props.path} });
                 } else if (syntaxTree.syntaxTree.endpoint.type === 'LOAD_BALANCE_ENDPOINT') {
                     rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.LoadBalanceEndPointForm, documentUri: props.path} });
+                } else if (syntaxTree.syntaxTree.endpoint.type === 'FAIL_OVER_ENDPOINT') {
+                    rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.FailoverEndPointForm, documentUri: props.path} });
                 }
             }
             const items = await rpcClient.getMiDiagramRpcClient().getTemplates();
