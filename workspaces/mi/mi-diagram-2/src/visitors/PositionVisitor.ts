@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STNode, Visitor, Log, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Aggregate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { STNode, Visitor, Log, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Aggregate, Iterate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 
 export class PositionVisitor implements Visitor {
@@ -198,8 +198,13 @@ export class PositionVisitor implements Visitor {
         }, NodeTypes.GROUP_NODE);
     }
     endVisitAggregate = (node: Aggregate): void => this.setSkipChildrenVisit(false);
-
-    //Extension Mediartos
+    beginVisitIterate = (node: Iterate): void => {
+        this.setAdvancedMediatorPosition(node, {
+            Target: node.target.sequence
+        }, NodeTypes.GROUP_NODE);
+    }
+    endVisitIterate = (node: Iterate): void => this.setSkipChildrenVisit(false);
+    //Extension Mediators
     beginVisitClass = (node: Class): void => this.setBasicMediatorPosition(node);
     beginVisitBean = (node: Bean): void => this.setBasicMediatorPosition(node);
     beginVisitPojoCommand = (node: PojoCommand): void => this.setBasicMediatorPosition(node);
