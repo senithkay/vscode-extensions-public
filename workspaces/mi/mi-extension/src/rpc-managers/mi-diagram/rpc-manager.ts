@@ -112,17 +112,16 @@ import { StateMachine, openView } from "../../stateMachine";
 import { Position, Range, Selection, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { createFolderStructure, getTaskXmlWrapper, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper, getMessageStoreXmlWrapper, getTemplateXmlWrapper, getHttpEndpointXmlWrapper, getAddressEndpointXmlWrapper } from "../../util";
-import { getMediatypeAndFileExtension, addNewEntryToArtifactXML, detectMediaType } from "../../util/fileOperations";
+import { getMediatypeAndFileExtension, addNewEntryToArtifactXML, detectMediaType, changeRootPomPackaging } from "../../util/fileOperations";
 import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
-import * as xml2js from 'xml2js';
 import { UndoRedoManager } from "../../undoRedoManager";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { error } from "console";
 import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
-const { XMLParser,XMLBuilder } = require("fast-xml-parser");
+const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
 
 const connectorsPath = path.join(".metadata", ".Connectors");
@@ -384,7 +383,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             resolve({ path: filePath });
         });
     }
-    
+
     async createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
         return new Promise(async (resolve) => {
             const { directory, name, type, value, URL } = params;
@@ -428,14 +427,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         response.inLineTextValue = jsonData.localEntry["#text"];
                     } else if (jsonData.localEntry.xml) {
                         response.type = "In-Line XML Entry";
-                        if (jsonData.localEntry.xml["@_"]["xmlns"]==='') {
+                        if (jsonData.localEntry.xml["@_"]["xmlns"] === '') {
                             delete jsonData.localEntry.xml["@_"]["xmlns"];
                         }
-                        const xmlObj ={
-                            xml:{
+                        const xmlObj = {
+                            xml: {
                                 ...jsonData.localEntry.xml
                             }
-                        }  
+                        }
                         const builder = new XMLBuilder(options);
                         let xml = builder.build(xmlObj);
                         response.inLineXmlValue = xml;
@@ -548,7 +547,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         break;
                     default:
                         response.type = 'Custom Message Store';
-                        break;         
+                        break;
                 }
                 if (jsonData && jsonData.messageStore && jsonData.messageStore.parameter) {
                     parameters = Array.isArray(jsonData.messageStore.parameter)
@@ -594,7 +593,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         'store.rabbitmq.virtual.host': 'virtualHost',
                         'store.resequence.timeout': 'pollingCount',
                         'store.resequence.id.path': 'xPath',
-                        'store.failover.message.store.name': 'failOverMessageStore'                 
+                        'store.failover.message.store.name': 'failOverMessageStore'
                     }
                     switch (className) {
                         case 'org.apache.synapse.message.store.impl.jms.JmsStore':
@@ -616,7 +615,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                             response.type = 'Custom Message Store';
                             break;
                     }
-                    if  (response.type !== 'Custom Message Store')  {
+                    if (response.type !== 'Custom Message Store') {
                         parameters.forEach((param: Parameter) => {
                             if (MessageStoreModel.hasOwnProperty(param.name)) {
                                 response[MessageStoreModel[param.name]] = param.value;
@@ -631,7 +630,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         });
                         response.providerClass = className;
                         response.customParameters = customParameters;
-                    }             
+                    }
                 }
                 resolve(response);
             }
@@ -1095,7 +1094,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                 let oauthParams: any[];
                                 oauthParams = authenticationParams.oauth.authorizationCode.requestParameters.parameter;
                                 oauthParams.forEach((element) => {
-                                    response.oauthProperties.push({key: element.name, value: element.textNode});
+                                    response.oauthProperties.push({ key: element.name, value: element.textNode });
                                 });
                             }
                         } else if (authenticationParams.oauth.clientCredentials != undefined) {
@@ -1108,7 +1107,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                 let oauthParams: any[];
                                 oauthParams = authenticationParams.oauth.clientCredentials.requestParameters.parameter;
                                 oauthParams.forEach((element) => {
-                                    response.oauthProperties.push({key: element.name, value: element.textNode});
+                                    response.oauthProperties.push({ key: element.name, value: element.textNode });
                                 });
                             }
                         } else {
@@ -1123,7 +1122,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                 let oauthParams: any[];
                                 oauthParams = authenticationParams.oauth.passwordCredentials.requestParameters.parameter;
                                 oauthParams.forEach((element) => {
-                                    response.oauthProperties.push({key: element.name, value: element.textNode});
+                                    response.oauthProperties.push({ key: element.name, value: element.textNode });
                                 });
                             }
                         }
@@ -1142,7 +1141,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     let params: any[];
                     params = endpointParams.property;
                     params.forEach((element) => {
-                        response.properties.push({name: element.name, value: element.value, scope: element.scope});
+                        response.properties.push({ name: element.name, value: element.value, scope: element.scope });
                     });
                 }
 
@@ -1753,7 +1752,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         let status = true;
         //if file exists, overwrite if not, create new file and write content.  if successful, return true, else false
         const { content } = params;
-        
+
         //get current workspace folder 
         const directoryPath = StateMachine.context().projectUri;
         console.log('Directory path:', directoryPath);
@@ -1790,7 +1789,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     console.log("File type - ", fileType)
                 }
                 //write the content to a file, if file exists, overwrite else create new file
-                const fullPath = path.join(directoryPath??'', '/src/main/wso2mi/artifacts/', fileType, '/', `${name}.xml`);
+                const fullPath = path.join(directoryPath ?? '', '/src/main/wso2mi/artifacts/', fileType, '/', `${name}.xml`);
                 console.log('Full path:', fullPath);
                 try {
                     console.log('Writing content to file:', fullPath);
@@ -1833,7 +1832,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         if (!workspaceFolders) {
             throw new Error('No workspace is currently open');
         }
-    
+
         var rootPath = workspaceFolders[0].uri.fsPath;
         rootPath += '/src/main/wso2mi/artifacts';
         const fileContents: string[] = [];
@@ -1841,18 +1840,18 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         for (const folder of resourceFolders) {
             const folderPath = path.join(rootPath, folder);
             const files = await fs.promises.readdir(folderPath);
-        
+
             for (const file of files) {
                 const filePath = path.join(folderPath, file);
                 const stats = await fs.promises.stat(filePath);
-        
+
                 if (stats.isFile()) {
                     const content = await fs.promises.readFile(filePath, 'utf-8');
                     fileContents.push(content);
                 }
             }
         }
-    
+
         return { context: fileContents };
     }
 
@@ -1863,7 +1862,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         }
         var rootPath = workspaceFolders[0].uri.fsPath;
         const pomPath = path.join(rootPath, 'pom.xml');
-    
+
         return new Promise((resolve, reject) => {
             fs.readFile(pomPath, 'utf8', (err, data) => {
                 if (err) {
@@ -2009,6 +2008,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             fs.mkdirSync(fullPath, { recursive: true });
             const filePath = path.join(fullPath, `${params.className}.java`);
             fs.writeFileSync(filePath, content);
+            const fileUri = Uri.file(params.projectDirectory);
+            const workspaceFolder = workspace.getWorkspaceFolder(fileUri)?.uri.fsPath ?? workspace.getWorkspaceFolder[0].uri.fsPath;
+            changeRootPomPackaging(workspaceFolder, "jar");
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
