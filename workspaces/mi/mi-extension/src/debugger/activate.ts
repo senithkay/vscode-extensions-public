@@ -12,19 +12,6 @@ class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
 	 */
 	resolveDebugConfiguration(folder: WorkspaceFolder | undefined, config: DebugConfiguration, token?: CancellationToken): ProviderResult<DebugConfiguration> {
 
-		// return generateTasksJsonIfNotExists().then(async (isGenerated) => {
-		// 	// Your code that depends on isGenerated
-		// 	if (!config.type && !config.request && !config.name) {
-		// 		config.type = 'mock';
-		// 		config.name = 'Launch';
-		// 		config.request = 'launch';
-		// 		// config.program = '${file}';
-		// 		config.stopOnEntry = true;
-		// 	}
-
-		// 	return config;
-		// });
-
 		
 		
 		// if launch.json is missing or empty
@@ -50,6 +37,15 @@ class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
 }
 
 export function activateDebugger(context: vscode.ExtensionContext) {
+	let storedPath: any;
+	context.subscriptions.push(vscode.commands.registerCommand('extension.micro-integrator.getProgramName', config => {
+		storedPath =  vscode.window.showInputBox({
+			placeHolder: "Please enter the name of a markdown file in the workspace folder",
+			value: "readme.md"
+		});
+		return storedPath;
+	}));
+
     // register a configuration provider for 'mock' debug type
     const provider = new MiConfigurationProvider();
 	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('mock', provider));

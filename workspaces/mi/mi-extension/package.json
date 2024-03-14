@@ -15,7 +15,8 @@
     "workspaceContains:.project",
     "workspaceContains:pom.xml",
     "onDebugResolve:mock",
-    "onDebugDynamicConfigurations:mock"
+    "onDebugDynamicConfigurations:mock",
+    "onCommand:extension.micro-integrator.getProgramName"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -34,6 +35,11 @@
         "path": "./syntaxes/xml.tmLanguage.json"
       }
     ],
+    "taskDefinitions": [
+      {
+          "type": "myTaskType"
+      }
+  ],
     "debuggers": [
       {
         "type": "mock",
@@ -42,7 +48,15 @@
 
         "configurationAttributes": {
           "launch": {
-            "required": []
+            "required": ["program"],
+            "properties": {
+              "program": {
+                "type": "string",
+                "description": "Absolute path to a text file.",
+                "default": "${command:AskForProgramName}"
+              }
+            }
+
           }
         },
         "initialConfigurations": [
@@ -50,9 +64,12 @@
                 "type": "mock",
                 "name": "Mock Debug",
                 "request": "launch",
-                "preLaunchTask": "build-project"
+                "program": "${command:AskForProgramName}"
             }     
-        ]
+        ],
+        "variables": {
+          "AskForProgramName": "extension.micro-integrator.getProgramName"
+        }
       }
     ],
     "configuration": [
@@ -176,6 +193,11 @@
         "command": "MI.show.source",
         "title": "Show Source",
         "icon": "$(distro-source-view)",
+        "category": "MI"
+      },
+      {
+        "command": "MI.change.server",
+        "title": "Change micro-integrator server",
         "category": "MI"
       }
     ],

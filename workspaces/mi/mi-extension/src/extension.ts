@@ -18,6 +18,7 @@ import { activateActivityPanel } from './activity-panel/activate';
 import * as fs from 'fs';
 import * as path from 'path';
 import { activateDebugger } from './debugger/activate';
+import { COMMANDS, SELECTED_SERVER_PATH } from './constants';
 
 
 function generateTasksJsonContent(): string {
@@ -110,9 +111,22 @@ export function generateTasksJsonIfNotExists(): Promise<boolean> {
 export async function activate(context: vscode.ExtensionContext) {
 
 	extension.context = context;
+
+    vscode.commands.registerCommand(COMMANDS.CHANGE_SERVER_PATH, async () => { 
+        const currentServerPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
+        const quickPicks: vscode.QuickPickItem[] = [
+            { kind: vscode.QuickPickItemKind.Separator, label: currentServerPath as string },
+        ];
+        quickPicks.push({label: "/Users/sachinisa/Documents/MiTestSamples/wso2mi-4.2.0"});
+        const options: vscode.QuickPickOptions = { canPickMany: false, title: "Select Server path" };
+        const selected = await vscode.window.showQuickPick(quickPicks, options);
+        if (selected) {
+            await extension.context.globalState.update(SELECTED_SERVER_PATH, selected.label);
+        }
+     });
 	activateHistory();
 
-	generateTasksJsonIfNotExists();
+	// generateTasksJsonIfNotExists();
 	activateDebugger(context);
 
 	// activateActivityPanel(context);
