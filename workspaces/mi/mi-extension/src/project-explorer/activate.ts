@@ -21,7 +21,7 @@ export function activateProjectExplorer(context: ExtensionContext) {
 
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context);
 	const projectTree = window.createTreeView('MI.project-explorer', { treeDataProvider: projectExplorerDataProvider });
-	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { projectExplorerDataProvider.refresh(); });
+	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(); });
 	commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
 		window.showQuickPick([
 			{ label: 'New Project', description: 'Create new project' },
