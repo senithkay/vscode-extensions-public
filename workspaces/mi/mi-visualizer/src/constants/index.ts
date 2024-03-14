@@ -25,3 +25,4 @@ export const SYNTAX_TREE_KIND = {
     SEQUENCE: "sequence",
     PROXY: "proxy",
 } as const;
+
