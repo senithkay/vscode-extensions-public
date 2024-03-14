@@ -34,14 +34,16 @@ export const useStyles = () => ({
     treeLabelDisableHover: css({
         '&:hover': {
             backgroundColor: 'var(--vscode-input-background)',
-        }
+        },
+        opacity: 0.8
     }),
     treeLabelDisabled: css({
         backgroundColor: "var(--vscode-editorWidget-background)",
         '&:hover': {
             backgroundColor: 'var(--vscode-editorWidget-background)',
         },
-        cursor: 'not-allowed'
+        cursor: 'not-allowed',
+        opacity: 0.5
     }),
     treeLabelArray: css({
         flexDirection: "column"

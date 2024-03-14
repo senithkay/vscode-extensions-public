@@ -46,6 +46,7 @@ export class FromClauseNodeFactory extends AbstractReactFactory<FromClauseNode, 
                 getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
                 handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
                 valueLabel={event.model.nodeLabel}
+                hasLinkViaCollectClause={event.model.mappedWithCollectClause}
             />
         );
     }

@@ -14,8 +14,10 @@ import {
     ListBindingPattern,
     MappingBindingPattern,
     NodePosition,
+    QueryExpression,
     RecordTypeDesc,
-    STKindChecker
+    STKindChecker,
+    traversNode
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -27,6 +29,9 @@ import {
     getTypeFromStore
 } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
+import { QueryExprMappingType } from "../QueryExpression";
+import { NodeFindingVisitorByPosition } from "../../visitors/NodeFindingVisitorByPosition";
+import { AggregationFunctions } from "../../Label";
 
 export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc";
 
@@ -40,6 +45,7 @@ export class FromClauseNode extends DataMapperNodeModel {
     public y: number;
     public numberOfFields:  number;
     public hasNoMatchingFields: boolean;
+    public mappedWithCollectClause: boolean;
     originalTypeDef: TypeField;
 
     constructor(
@@ -70,6 +76,28 @@ export class FromClauseNode extends DataMapperNodeModel {
         
         this.nodeLabel = getFromClauseNodeLabel(bindingPattern, valExpr);
         this.originalTypeDef = this.typeDef;
+
+        // Check if the selected query expression is connected via a collect clause with aggregation function
+        // If so, disable all fields since it can't accept multiple inputs (due to collect clause only deal with sequencial variables)
+        const selectedST = context?.selection.selectedST;
+        if (selectedST) {
+            const queryExprFindingVisitor = new NodeFindingVisitorByPosition(selectedST.position);
+            traversNode(selectedST.stNode, queryExprFindingVisitor);
+            const queryExpr = queryExprFindingVisitor.getNode() as QueryExpression;
+
+            const connectedViaCollectClause = selectedST?.mappingType
+                && selectedST.mappingType === QueryExprMappingType.A2SWithCollect;
+            if (queryExpr && connectedViaCollectClause) {
+                const resultClause = queryExpr?.resultClause || queryExpr?.selectClause;
+                const fnName = resultClause.kind === "CollectClause" && resultClause.expression
+                    && STKindChecker.isFunctionCall(resultClause.expression)
+                    && STKindChecker.isSimpleNameReference(resultClause.expression.functionName)
+                    && resultClause.expression.functionName.name.value;
+                if (AggregationFunctions.includes(fnName)) {
+                    this.mappedWithCollectClause = true;
+                }
+            }
+        }
     }
 
     initPorts(): void {

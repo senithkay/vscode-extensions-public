@@ -49,7 +49,8 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		public hidden?: boolean,
 		public isWithinSelectClause?: boolean,
 		public descendantHasValue?: boolean,
-		public ancestorHasValue?: boolean) {
+		public ancestorHasValue?: boolean,
+		public isDisabledDueToCollectClause?: boolean) {
 		super({
 			type: FORM_FIELD_PORT,
 			name: `${portName}.${portType}`
@@ -117,7 +118,7 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 	}
 
 	isDisabled(): boolean {
-		return this.ancestorHasValue || this.descendantHasValue
+		return this.ancestorHasValue || this.descendantHasValue || this.isDisabledDueToCollectClause;
 	}
 
 	canLinkToPort(port: RecordFieldPortModel): boolean {

@@ -21,6 +21,7 @@ import { InputSearchHighlight } from '../Search';
 import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 
 import { RecordFieldTreeItemWidget } from "./RecordFieldTreeItemWidget";
+import classnames from "classnames";
 
 const useStyles = () => ({
     typeLabel: css({
@@ -68,7 +69,21 @@ const useStyles = () => ({
         float: 'right',
         marginRight: 5,
         color: "var(--vscode-pickerGroup-border)",
-    })
+    }),
+    treeLabelDisableHover: css({
+        '&:hover': {
+            backgroundColor: 'var(--vscode-input-background)',
+        },
+        opacity: 0.8
+    }),
+    treeLabelDisabled: css({
+        backgroundColor: "var(--vscode-editorWidget-background)",
+        '&:hover': {
+            backgroundColor: 'var(--vscode-editorWidget-background)',
+        },
+        cursor: 'not-allowed',
+        opacity: 0.5
+    }),
 });
 
 export interface RecordTypeTreeWidgetProps {
@@ -79,10 +94,11 @@ export interface RecordTypeTreeWidgetProps {
     handleCollapse: (portName: string, isExpanded?: boolean) => void;
     valueLabel?: string;
     nodeHeaderSuffix?: string;
+    hasLinkViaCollectClause?: boolean;
 }
 
 export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
-    const { engine, typeDesc, id, getPort, handleCollapse, valueLabel, nodeHeaderSuffix } = props;
+    const { engine, typeDesc, id, getPort, handleCollapse, valueLabel, nodeHeaderSuffix, hasLinkViaCollectClause } = props;
     const classes = useStyles();
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
@@ -90,13 +106,14 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
 
     const typeName = getTypeName(typeDesc);
 
-    const portIn = getPort(`${id}.IN`);
     const portOut = getPort(`${id}.OUT`);
+    const isPortDisabled = hasLinkViaCollectClause && Object.keys(portOut.getLinks()).length === 0;
+    portOut.isDisabledDueToCollectClause = isPortDisabled;
 
     const hasFields = !!typeDesc?.fields?.length;
 
     let expanded = true;
-    if ((portIn && portIn.collapsed) || (portOut && portOut.collapsed)) {
+    if (portOut && portOut.collapsed) {
         expanded = false;
     }
 
@@ -144,6 +161,10 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                 isSelected={portState !== PortState.Unselected}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
+                className={classnames(
+                    isPortDisabled && !isHovered ? classes.treeLabelDisabled : "",
+                    isPortDisabled && isHovered ? classes.treeLabelDisableHover : "",
+                )}
             >
                 <span className={classes.label}>
                     {hasFields && (
@@ -161,7 +182,12 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                 </span>
                 <span className={classes.treeLabelOutPort}>
                     {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
+                        <DataMapperPortWidget
+                            engine={engine}
+                            port={portOut}
+                            handlePortState={handlePortState}
+                            disable={isPortDisabled}
+                        />
                     }
                 </span>
             </TreeHeader>
@@ -180,6 +206,7 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                                     treeDepth={0}
                                     isOptional={typeDesc.optional}
                                     hasHoveredParent={isHovered}
+                                    hasLinkViaCollectClause={hasLinkViaCollectClause}
                                 />
                             );
                         })

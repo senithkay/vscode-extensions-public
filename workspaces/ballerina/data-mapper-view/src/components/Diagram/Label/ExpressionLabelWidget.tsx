@@ -118,7 +118,7 @@ export enum ArrayMappingType {
     ArrayToSingleton
 }
 
-const AggregationFunctions = ["avg", "count", "max", "min", "sum"];
+export const AggregationFunctions = ["avg", "count", "max", "min", "sum"];
 
 // now we can render all what we want in the label
 export function EditableLabelWidget(props: EditableLabelWidgetProps) {
