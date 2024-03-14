@@ -8,8 +8,8 @@
  */
 
 
-import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange,Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { NODE_DIMENSIONS, NODE_GAP } from "../resources/constants";
+import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange, Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
 
 export class SizingVisitor implements Visitor {
@@ -29,19 +29,19 @@ export class SizingVisitor implements Visitor {
         this.addDiagnostics(node);
     }
 
-    calculateAdvancedMediator = (node: STNode, subSequences: { [x: string]: any; }): void => {
+    calculateAdvancedMediator = (node: STNode, subSequences: { [x: string]: any; }, type: NodeTypes): void => {
         if (node.viewState == undefined) {
             node.viewState = { x: 0, y: 0, w: 0, h: 0, fw: 0, fh: 0 }
         }
 
         let subSequencesWidth = 0;
-        let subSequencesHeight = 10;
+        let subSequencesHeight = 50;
         const subSequenceKeys = Object.keys(subSequences);
         for (let i = 0; i < subSequenceKeys.length; i++) {
             const subSequence = subSequences[subSequenceKeys[i]];
             if (subSequence) {
                 let subSequenceWidth = NODE_DIMENSIONS.EMPTY.BRANCH.WIDTH;
-                let subSequenceHeight = 0;
+                let subSequenceHeight = NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y;
                 let subSequenceL = 0;
                 let subSequenceR = 0;
                 if (subSequence.mediatorList && subSequence.mediatorList.length > 0) {
@@ -61,11 +61,16 @@ export class SizingVisitor implements Visitor {
                     });
                     subSequenceL = Math.max(subSequenceL, subSequenceWidth / 2);
                     subSequenceR = Math.max(subSequenceR, subSequenceWidth / 2);
+                } else if (subSequence.sequenceAttribute) {
+                    subSequenceWidth = NODE_DIMENSIONS.REFERENCE.WIDTH;
+                    subSequenceHeight += NODE_DIMENSIONS.REFERENCE.HEIGHT;
+                    subSequenceL = NODE_DIMENSIONS.REFERENCE.WIDTH / 2;
+                    subSequenceR = NODE_DIMENSIONS.REFERENCE.WIDTH / 2;
                 } else {
                     subSequenceL = NODE_DIMENSIONS.EMPTY.BRANCH.WIDTH / 2;
                     subSequenceR = NODE_DIMENSIONS.EMPTY.BRANCH.WIDTH / 2;
-
                 }
+                subSequenceHeight += NODE_DIMENSIONS.END.HEIGHT;
                 subSequencesHeight = Math.max(subSequencesHeight, subSequenceHeight);
                 subSequencesWidth = Math.max(subSequencesWidth, subSequenceWidth);
                 subSequence.viewState = { x: 0, y: 0, w: subSequenceWidth, h: subSequenceHeight, l: subSequenceL, r: subSequenceR };
@@ -74,23 +79,27 @@ export class SizingVisitor implements Visitor {
         }
 
         let totalWidth = 0;
-        // make widths equal
+        // make widths and heights equal
         for (let i = 0; i < Object.keys(subSequences).length; i++) {
             const subSequence = subSequences[Object.keys(subSequences)[i]];
             const nodeGap = i === Object.keys(subSequences).length - 1 ? 0 : NODE_GAP.BRANCH_X;
-            subSequence.viewState = { ...subSequence.viewState, w: subSequencesWidth, l: subSequencesWidth / 2, r: subSequencesWidth / 2 };
+            subSequence.viewState = { ...subSequence.viewState, w: subSequencesWidth, h: subSequencesHeight, l: subSequencesWidth / 2, r: subSequencesWidth / 2 };
             totalWidth += subSequencesWidth + nodeGap;
         }
 
         node.viewState.l = subSequenceKeys.length > 0 ? subSequences[Object.keys(subSequences)[0]].viewState.l : 0;
         node.viewState.r = subSequenceKeys.length > 0 ? subSequences[Object.keys(subSequences)[subSequenceKeys.length - 1]].viewState.r : 0;
-        node.viewState.fw = totalWidth;
-        node.viewState.fh = NODE_DIMENSIONS.CONDITION.HEIGHT + NODE_GAP.BRANCH_TOP + subSequencesHeight + NODE_GAP.BRANCH_BOTTOM;
+        node.viewState.fw = Math.max(totalWidth, type === NodeTypes.CONDITION_NODE ? NODE_DIMENSIONS.CONDITION.WIDTH : NODE_DIMENSIONS.GROUP.WIDTH);
+        const topGap = type === NodeTypes.CONDITION_NODE ? (NODE_DIMENSIONS.CONDITION.HEIGHT + NODE_GAP.BRANCH_TOP) : NODE_GAP.GROUP_NODE_START_Y;
+        const bottomGap = type === NodeTypes.CONDITION_NODE ? NODE_GAP.BRANCH_BOTTOM : NODE_GAP.GROUP_NODE_END_Y;
+        const sequenceFullHeight = NODE_DIMENSIONS.START.DISABLED.HEIGHT + subSequencesHeight;
+        node.viewState.fh = (node.viewState.h / 2) + topGap + sequenceFullHeight + bottomGap;
 
-        this.sequenceWidth = Math.max(this.sequenceWidth, node.viewState.fw);
-
-        node.viewState.w = NODE_DIMENSIONS.CONDITION.WIDTH;
-        node.viewState.h = NODE_DIMENSIONS.CONDITION.HEIGHT;
+        let actualWidth = node.viewState.fw;
+        if (type === NodeTypes.GROUP_NODE) {
+            actualWidth += NODE_GAP.BRANCH_X + NODE_GAP.GROUP_NODE_HORIZONTAL_PADDING;
+        }
+        this.sequenceWidth = Math.max(this.sequenceWidth, actualWidth);
 
         this.addDiagnostics(node);
     }
@@ -151,10 +160,11 @@ export class SizingVisitor implements Visitor {
     endVisitEndpointHttp = (node: EndpointHttp): void => this.calculateBasicMediator(node);
 
     endVisitFilter = (node: Filter): void => {
+        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CONDITION.WIDTH, h: NODE_DIMENSIONS.CONDITION.HEIGHT };
         this.calculateAdvancedMediator(node, {
             then: node.then,
             else: node.else_
-        });
+        }, NodeTypes.CONDITION_NODE);
     }
 
     endVisitHeader = (node: Header): void => this.calculateBasicMediator(node);
@@ -200,35 +210,44 @@ export class SizingVisitor implements Visitor {
         if (isSequnce) {
             node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.EDITABLE.WIDTH, h: NODE_DIMENSIONS.START.EDITABLE.HEIGHT };
         } else {
-            this.calculateBasicMediator(node);
+            node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.REFERENCE.WIDTH, h: NODE_DIMENSIONS.REFERENCE.HEIGHT };
         }
     }
 
     endVisitStore = (node: Store): void => this.calculateBasicMediator(node);
 
-    endVisitThrottle = (node: Throttle): void => this.calculateAdvancedMediator(node, {
-        onAccept: node.onAccept,
-        onReject: node.onReject
-    });
+    endVisitThrottle = (node: Throttle): void => {
+        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
+        this.calculateAdvancedMediator(node, {
+            onAccept: node.onAccept,
+            onReject: node.onReject
+        }, NodeTypes.GROUP_NODE)
+    };
 
-    endVisitValidate = (node: Validate): void => this.calculateAdvancedMediator(node, {
-        onFail: node.onFail
-    });
+    endVisitValidate = (node: Validate): void => {
+        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
+        this.calculateAdvancedMediator(node, {
+            onFail: node.onFail
+        }, NodeTypes.GROUP_NODE);
+    }
 
     endVisitCallTemplate = (node: CallTemplate): void => this.calculateBasicMediator(node);
 
     //Advanced Mediators
     endVisitCache = (node: Cache): void => {
+        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
         this.calculateAdvancedMediator(node, {
             OnCacheHit: node.onCacheHit
-        });
+        }, NodeTypes.GROUP_NODE);
     }
     endVisitClone = (node: Clone): void => {
         let targets: { [key: string]: any } = {}
-        node.target.map((target) => {
-            targets[target.to] = target
+        node.target.map((target, index) => {
+            targets[target.to || index] = target.endpoint || target.sequence || target
         });
-        this.calculateAdvancedMediator(node, targets);
+
+        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
+        this.calculateAdvancedMediator(node, targets, NodeTypes.GROUP_NODE);
     }
     beginVisitDataServiceCall = (node: DataServiceCall): void => this.calculateBasicMediator(node);
     beginVisitEnqueue = (node: Enqueue): void => this.calculateBasicMediator(node);
@@ -237,10 +256,11 @@ export class SizingVisitor implements Visitor {
 
     //EIP Mediators
     endVisitAggregate = (node: Aggregate): void => {
+        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
         this.calculateAdvancedMediator(node, {
             // OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete?.mediators
             OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete
-        });
+        }, NodeTypes.GROUP_NODE);
     }
     //Extesnion Mediators
     beginVisitBean = (node: Bean): void => this.calculateBasicMediator(node);
