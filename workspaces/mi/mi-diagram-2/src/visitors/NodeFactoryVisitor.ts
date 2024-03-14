@@ -64,7 +64,7 @@ export class NodeFactoryVisitor implements Visitor {
         } else if (type === NodeTypes.CONDITION_NODE) {
             diagramNode = new ConditionNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.START_NODE) {
-            diagramNode = new StartNodeModel(node, this.resource, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
+            diagramNode = new StartNodeModel(node, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.END_NODE) {
             diagramNode = new EndNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.CALL_NODE) {
@@ -127,6 +127,7 @@ export class NodeFactoryVisitor implements Visitor {
                 if (type === NodeTypes.GROUP_NODE) {
                     this.previousSTNodes = [];
                     startNode.viewState.x += (startNode.viewState.w / 2) - (NODE_DIMENSIONS.START.DISABLED.WIDTH / 2);
+                    startNode.tag = "start";
                     this.createNodeAndLinks(startNode, "", NodeTypes.START_NODE);
                 } else {
                     this.currentBranchData = { name: sequenceKeys[i], diagnostics: sequence.diagnostics };
@@ -239,7 +240,8 @@ export class NodeFactoryVisitor implements Visitor {
             character: node.range.startTagRange.end.character
         }
         this.currentAddPosition = addPosition;
-        this.createNodeAndLinks(node, "", NodeTypes.START_NODE);
+        this.resource.viewState = node.viewState;
+        this.createNodeAndLinks(this.resource, "", NodeTypes.START_NODE);
         this.parents.push(node);
     }
     endVisitInSequence(node: Sequence): void {
@@ -256,7 +258,8 @@ export class NodeFactoryVisitor implements Visitor {
             character: node.range.startTagRange.end.character
         }
         this.currentAddPosition = addPosition;
-        this.createNodeAndLinks(node, "", NodeTypes.START_NODE);
+        this.resource.viewState = node.viewState;
+        this.createNodeAndLinks(this.resource, "", NodeTypes.START_NODE);
         this.currentAddPosition = addPosition;
         this.parents.push(node);
     }

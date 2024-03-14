@@ -39,8 +39,8 @@ interface CallNodeWidgetProps {
 
 export function StartNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine } = props;
-    const nodeType = node.getStNode().tag;
-    const model = node.getModel();
+    const model = node.getStNode() as any;
+    const nodeType = model.tag;
     const documentUri = node.getDocumentUri();
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -54,7 +54,7 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
             } else if (NodeKindChecker.isNamedSequence(model)) {
                 data = generateSequenceData(model);
             }
-        } 
+        }
 
         return data;
     }, [model]);
@@ -97,7 +97,7 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
             <text x="50%" y="50%" alignmentBaseline="middle" textAnchor="middle" fill={Colors.ON_SURFACE}>
                 {nodeName || "Start"}
             </text>
-        </S.StyledSvg>  
+        </S.StyledSvg>
     )
 
     const getDisabledSvg = () => (

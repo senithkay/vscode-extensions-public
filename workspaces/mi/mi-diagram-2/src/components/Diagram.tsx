@@ -312,7 +312,7 @@ export function Diagram(props: DiagramProps) {
                             /></div>}
                     {/* Flow */}
                     {diagramData.flow.engine && diagramData.flow.model && !isFaultFlow &&
-                        <DiagramCanvas height={canvasDimensions.height + 40} width={canvasDimensions.width}>
+                        <DiagramCanvas height={canvasDimensions.height + 100} width={canvasDimensions.width}>
                             <NavigationWrapperCanvasWidget
                                 diagramEngine={diagramData.flow.engine as any}
                                 overflow="hidden"
