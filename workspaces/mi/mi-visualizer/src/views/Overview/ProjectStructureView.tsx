@@ -64,7 +64,7 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
         } else if (directory.toLowerCase() === "message_processor") {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.MessageProcessorForm, documentUri: path } });
         } else if (directory.toLowerCase() === "proxy_service") {
-            rpcClient.getMiDiagramRpcClient().openFile({ path: path });
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Diagram, documentUri: path } });
         } else if (directory.toLowerCase() === "task") {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.TaskForm, documentUri: path } });
         } else if (directory.toLowerCase() === "template") {

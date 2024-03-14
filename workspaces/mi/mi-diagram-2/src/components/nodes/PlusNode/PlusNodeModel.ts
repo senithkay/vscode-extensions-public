@@ -8,7 +8,7 @@
  */
 
 import { NodeModel, PortModelAlignment } from "@projectstorm/react-diagrams";
-import { APIResource, NamedSequence, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { APIResource, DiagramService, NamedSequence, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodePortModel } from "../../NodePort/NodePortModel";
 import { getNodeIdFromModel } from "../../../utils/node";
 import { NodeTypes } from "../../../resources/constants";
@@ -22,7 +22,7 @@ export class PlusNodeModel extends NodeModel {
     protected model: APIResource | NamedSequence;
     protected documentUri: string;
 
-    constructor(stNode: STNode, model: APIResource | NamedSequence, documentUri: string) {
+    constructor(stNode: STNode, model: DiagramService, documentUri: string) {
         super({
             id: stNode.viewState?.id || getNodeIdFromModel(stNode, "start"),
             type: NodeTypes.PLUS_NODE,
@@ -31,7 +31,7 @@ export class PlusNodeModel extends NodeModel {
         this.stNode = stNode;
         this.addInPort("in");
         this.addOutPort("out");
-        this.model = model;
+        this.model = model as APIResource | NamedSequence;
         this.documentUri = documentUri;
     }
 
