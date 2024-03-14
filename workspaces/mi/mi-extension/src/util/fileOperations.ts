@@ -12,8 +12,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import axios from "axios";
 import * as path from 'path';
-import { XMLBuilder } from "fast-xml-parser";
-import { XMLParser } from "fast-xml-parser";
+import { XMLParser, XMLBuilder } from "fast-xml-parser";
 import { COMMANDS } from "../constants";
 import * as unzipper from 'unzipper';
 
@@ -149,7 +148,8 @@ export async function addNewEntryToArtifactXML(projectDir: string, artifactName:
         const options = {
             ignoreAttributes: false,
             attributeNamePrefix: "@",
-            parseTagValue: true
+            parseTagValue: true,
+            format: true
         };
         const parser = new XMLParser(options);
         const artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
@@ -406,7 +406,8 @@ export async function deleteRegistryResourceFile(filePath: string): Promise<{ st
                 const options = {
                     ignoreAttributes: false,
                     attributeNamePrefix: "@",
-                    parseTagValue: true
+                    parseTagValue: true,
+                    format: true
                 };
                 const parser = new XMLParser(options);
                 const artifactXMLPath = path.join(workspaceFolder, 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
@@ -449,17 +450,6 @@ export async function deleteRegistryResourceFile(filePath: string): Promise<{ st
     });
 }
 
-export async function detectClassMediators(javaPath: string): Promise<string[]> {
-    const classMediators: string[] = [];
-    if (fs.existsSync(javaPath)) {
-        findJavaFiles(javaPath).forEach((file) => {
-
-
-        });
-    }
-    return classMediators;
-}
-
 export function findJavaFiles(folderPath): Map<string, string> {
     const results = new Map();
     function traverse(currentPath) {
@@ -485,4 +475,25 @@ export function findJavaFiles(folderPath): Map<string, string> {
 
     traverse(folderPath);
     return results;
+}
+
+/**
+ * Change the packaging of the root pom.xml file to the given value.
+ * @param projectDir project directory.     
+ */
+export function changeRootPomPackaging(projectDir: string, packaging: string) {
+    const pomXMLPath = path.join(projectDir, 'pom.xml');
+    if (fs.existsSync(pomXMLPath)) {
+        const pomXML = fs.readFileSync(pomXMLPath, "utf8");
+        const options = {
+            ignoreAttributes: false,
+            format: true,
+        };
+        const parser = new XMLParser(options);
+        const pomXMLData = parser.parse(pomXML);
+        pomXMLData["project"]["packaging"] = packaging;
+        const builder = new XMLBuilder(options);
+        const updatedXmlString = builder.build(pomXMLData);
+        fs.writeFileSync(pomXMLPath, updatedXmlString);
+    }
 }

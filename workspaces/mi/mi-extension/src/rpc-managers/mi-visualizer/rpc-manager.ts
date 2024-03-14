@@ -9,6 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    AIVisualizerLocation,
     GettingStartedCategory,
     GettingStartedData,
     GettingStartedSample,
@@ -19,6 +20,7 @@ import {
     ProjectStructureRequest,
     ProjectStructureResponse,
     SampleDownloadRequest,
+    VisualizerLocation,
     WorkspaceFolder,
     WorkspacesResponse
 } from "@wso2-enterprise/mi-core";
@@ -27,6 +29,7 @@ import { workspace } from "vscode";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { handleOpenFile } from "../../util/fileOperations";
+import { openAIView } from "../../ai-panel/aiMachine";
 
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
     async getWorkspaces(): Promise<WorkspacesResponse> {
@@ -58,7 +61,11 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
 
     openView(params: OpenViewRequest): void {
-        openView(params.type, params.location);
+        if (params.isAiWebview) {
+            openAIView(params.type, params.location as AIVisualizerLocation);
+        } else {
+            openView(params.type, params.location as VisualizerLocation);
+        }
     }
 
     goBack(): void {

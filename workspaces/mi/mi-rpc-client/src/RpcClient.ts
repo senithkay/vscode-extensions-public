@@ -10,7 +10,7 @@
  */
 
 import { Messenger } from "vscode-messenger-webview";
-import { MachineStateValue, stateChanged, vscode, getVisualizerState, VisualizerLocation, webviewReady, onFileContentUpdate } from "@wso2-enterprise/mi-core";
+import { MachineStateValue, stateChanged, vscode, getVisualizerState, getAIVisualizerState, VisualizerLocation, AIVisualizerLocation, webviewReady, onFileContentUpdate } from "@wso2-enterprise/mi-core";
 import { MiDiagramRpcClient } from "./rpc-clients/mi-diagram/rpc-client";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { MiVisualizerRpcClient } from "./rpc-clients/mi-visualizer/rpc-client";
@@ -42,6 +42,10 @@ export class RpcClient {
 
     getVisualizerState(): Promise<VisualizerLocation> {
         return this.messenger.sendRequest(getVisualizerState, HOST_EXTENSION);
+    }
+
+    getAIVisualizerState(): Promise<AIVisualizerLocation> {
+        return this.messenger.sendRequest(getAIVisualizerState, HOST_EXTENSION);
     }
 
     onFileContentUpdate(callback: () => void): void {

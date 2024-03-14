@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 import {Button, TextField, Dropdown, Typography, Codicon} from "@wso2-enterprise/ui-toolkit";
 import { SectionWrapper } from "./Commons";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EVENT_TYPE, MACHINE_VIEW, UpdateHttpEndpointRequest } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, UpdateAddressEndpointRequest } from "@wso2-enterprise/mi-core";
 
 const WizardContainer = styled.div`
     width: 95%;
@@ -88,13 +88,8 @@ interface OptionProps {
     value: string;
 }
 
-export interface HttpEndpointWizardProps {
+export interface AddressEndpointWizardProps {
     path: string;
-}
-
-interface KeyValuePair {
-    key: string;
-    value: any;
 }
 
 interface Property {
@@ -103,31 +98,19 @@ interface Property {
     scope: string;
 }
 
-export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
+export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
     const [ endpoint, setEndpoint ] = useState<any>({
         endpointName: "",
+        format: "LEAVE_AS_IS",
         traceEnabled: "",
         statisticsEnabled: "",
-        uriTemplate: "",
-        httpMethod: "",
+        uri: "",
+        optimize: "LEAVE_AS_IS",
         description: "",
         requireProperties: false,
         properties: [],
-        authType: "",
-        basicAuthUsername: "",
-        basicAuthPassword: "",
-        authMode: "",
-        grantType: "",
-        clientId: "",
-        clientSecret: "",
-        refreshToken: "",
-        tokenUrl: "",
-        username: "",
-        password: "",
-        requireOauthParameters: false,
-        oauthProperties: [],
         addressingEnabled: "",
         addressingVersion: "",
         addressListener: "",
@@ -144,7 +127,6 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
 
     })
     const [directoryPath, setDirectoryPath] = useState("");
-    const [oauthProperties, setOauthProperties] = useState<KeyValuePair[]>([]);
     const [properties, setProperties] = useState<Property[]>([]);
     const [message, setMessage] = useState({
         isError: false,
@@ -158,12 +140,12 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
 
         (async () => {
             setDirectoryPath(props.path);
-            const existingEndpoint = await rpcClient.getMiDiagramRpcClient().getHttpEndpoint({ path: props.path });
+            const existingEndpoint = await rpcClient.getMiDiagramRpcClient().getAddressEndpoint({ path: props.path });
             setEndpoint(existingEndpoint);
             handleTimeoutActionChange(existingEndpoint.timeoutAction === '' ? 'Never' :
                 existingEndpoint.timeoutAction.charAt(0).toUpperCase() + existingEndpoint.timeoutAction.slice(1));
-            handleHttpMethodChange(existingEndpoint.httpMethod);
-            setOauthProperties(existingEndpoint.oauthProperties);
+            handleFormatChange(existingEndpoint.format);
+            handleOptimizeChange(existingEndpoint.optimize);
             setProperties(existingEndpoint.properties);
         })();
     }, []);
@@ -186,38 +168,25 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
         { value: "submission"},
     ];
 
-    const grantTypes: OptionProps[] = [
-        { value: "Authorization Code"},
-        { value: "Client Credentials"},
-        { value: "Password"}
-    ];
-
-    const authorizationModes: OptionProps[] = [
-        { value: "Header"},
-        { value: "Payload"},
-    ];
-
-    const authTypes: OptionProps[] = [
-        { value: "None"},
-        { value: "Basic Auth"},
-        { value: "OAuth"}
-    ];
-
     const timeoutOptions: OptionProps[] = [
         { value: "Never"},
         { value: "Discard"},
         { value: "Fault"}
     ];
 
-    const httpMethods: OptionProps[] = [
+    const formatOptions: OptionProps[] = [
+        { value: "LEAVE_AS_IS"},
+        { value: "SOAP 1.1"},
+        { value: "SOAP 1.2"},
+        { value: "POX"},
         { value: "GET"},
-        { value: "POST"},
-        { value: "PUT"},
-        { value: "DELETE"},
-        { value: "HEAD"},
-        { value: "OPTIONS"},
-        { value: "PATCH"},
-        { value: "leave_as_is"}
+        { value: "REST"}
+    ];
+
+    const optimizeOptions: OptionProps[] = [
+        { value: "LEAVE_AS_IS"},
+        { value: "MTOM"},
+        { value: "SWA"}
     ];
 
     const scopes: OptionProps[] = [
@@ -226,32 +195,6 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
         { value: "axis2"},
         { value: "axis2-client"},
     ];
-
-    const removeValue = (keyToRemove: string) => {
-        setOauthProperties(prevState =>
-            prevState.filter(pair => pair.key !== keyToRemove)
-        );
-    };
-
-    const addValue = () => {
-        setOauthProperties(prevState => [...prevState, { key: 'Parameter_Key', value: 'Parameter_Value' }]);
-    };
-
-    const editKey = (oldKey: string, newKey: string) => {
-        setOauthProperties(prevState =>
-            prevState.map(pair =>
-                pair.key === oldKey ? { ...pair, key: newKey } : pair
-            )
-        );
-    };
-
-    const editValue = (key: string, newValue: string) => {
-        setOauthProperties(prevState =>
-            prevState.map(pair =>
-                pair.key === key ? { ...pair, value: newValue } : pair
-            )
-        );
-    };
 
     const removePropertyValue = (keyToRemove: string) => {
         setProperties(prevState =>
@@ -295,20 +238,12 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
         setEndpoint((prev: any) => ({ ...prev, statisticsEnabled: value }));
     };
 
-    const handleHttpMethodChange = (value: string) => {
-        setEndpoint((prev: any) => ({ ...prev, httpMethod: value }));
+    const handleFormatChange = (value: string) => {
+        setEndpoint((prev: any) => ({ ...prev, format: value }));
     };
 
-    const handleAuthTypeChange = (type: string) => {
-        setEndpoint((prev: any) => ({ ...prev, authType: type }));
-    };
-
-    const handleAuthModeChange = (value: any) => {
-        setEndpoint((prev: any) => ({ ...prev, authMode: value }));
-    };
-
-    const handleAuthGrantTypeChange = (value: string) => {
-        setEndpoint((prev: any) => ({ ...prev, grantType: value }));
+    const handleOptimizeChange = (value: string) => {
+        setEndpoint((prev: any) => ({ ...prev, optimize: value }));
     };
 
     const handleAddressingEnabledChange = (value: string) => {
@@ -338,13 +273,6 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
         setEndpoint((prev: any) => ({ ...prev, requireProperties: value }));
     };
 
-    const handleOauthPropertiesChange = (value: boolean) => {
-        if (!value) {
-            setOauthProperties([]);
-        }
-        setEndpoint((prev: any) => ({ ...prev, requireOauthParameters: value }));
-    };
-
     const handleOnChange = (field: any, value: any) => {
         setEndpoint((prev: any) => ({ ...prev, [field]: value }));
     }
@@ -353,18 +281,17 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
         setMessage({ isError, text });
     }
 
-    const handleUpdateHttpEndpoint = async () => {
+    const handleUpdateAddressEndpoint = async () => {
 
         endpoint.properties = properties;
-        endpoint.oauthProperties = oauthProperties;
-        const updateHttpEndpointParams: UpdateHttpEndpointRequest = {
+        const updateAddressEndpointParams: UpdateAddressEndpointRequest = {
             directory: directoryPath,
             ...endpoint
         }
-        const file = await rpcClient.getMiDiagramRpcClient().updateHttpEndpoint(updateHttpEndpointParams);
+        const file = await rpcClient.getMiDiagramRpcClient().updateAddressEndpoint(updateAddressEndpointParams);
 
         setDirectoryPath(file.path);
-        handleMessage("HTTP Endpoint updated successfully");
+        handleMessage("Address Endpoint updated successfully");
     };
 
     const handleCancel = () => {
@@ -377,7 +304,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 <Container>
                     <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleCancel} />
                     <div style={{ marginLeft: 30 }}>
-                        <Typography variant="h3">HTTP Endpoint Artifact</Typography>
+                        <Typography variant="h3">Address Endpoint Artifact</Typography>
                     </div>
                 </Container>
                 <Typography variant="h4">Basic Properties</Typography>
@@ -392,6 +319,8 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                     validationMessage="Endpoint name is required"
                     size={100}
                 />
+                <span>Format</span>
+                <Dropdown items={formatOptions} value={endpoint.format} onChange={handleFormatChange} id="format"/>
                 <span>Trace Enabled</span>
                 <RadioBtnContainer>
                     <RadioLabel>
@@ -432,15 +361,15 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 </RadioBtnContainer>
                 <Typography variant="h4">Miscellaneous Properties</Typography>
                 <TextField
-                    placeholder="URI Template"
-                    label="URI Template"
-                    onChange={(value: string) => handleOnChange("uriTemplate", value)}
-                    value={endpoint.uriTemplate}
+                    placeholder="URI"
+                    label="URI"
+                    onChange={(value: string) => handleOnChange("uri", value)}
+                    value={endpoint.uri}
                     id="uri-template"
                     size={100}
                 />
-                <span>HTTP Method</span>
-                <Dropdown items={httpMethods} value={endpoint.httpMethod} onChange={handleHttpMethodChange} id="http-method"/>
+                <span>Optimize</span>
+                <Dropdown items={optimizeOptions} value={endpoint.optimize} onChange={handleOptimizeChange} id="optimize"/>
                 <TextField
                     placeholder="Description"
                     label="Description"
@@ -496,136 +425,6 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                             ))}
                             </tbody>
                         </Table>
-                    </>
-                )}
-                <Typography variant="h4">Auth Configuration</Typography>
-                <span>Auth Type</span>
-                <Dropdown items={authTypes} value={endpoint.authType} onChange={handleAuthTypeChange} id="auth-type"/>
-                {endpoint.authType === 'Basic Auth' && (
-                    <>
-                        <TextField
-                            placeholder="Username"
-                            label="Basic Auth Username"
-                            onChange={(value: string) => handleOnChange("basicAuthUsername", value)}
-                            value={endpoint.basicAuthUsername}
-                            id="basic-auth-username"
-                            size={100}
-                        />
-                        <TextField
-                            placeholder="Password"
-                            label="Basic Auth Password"
-                            onChange={(value: string) => handleOnChange("basicAuthPassword", value)}
-                            value={endpoint.basicAuthPassword}
-                            id="basic-auth-password"
-                            size={100}
-                        />
-                    </>
-                )}
-                {endpoint.authType === 'OAuth' && (
-                    <>
-                        <span>OAuth Authorization Mode</span>
-                        <Dropdown items={authorizationModes} value={endpoint.authMode} onChange={handleAuthModeChange} id="auth-mode"/>
-                        <span>OAuth Grant Type</span>
-                        <Dropdown items={grantTypes} value={endpoint.grantType} onChange={handleAuthGrantTypeChange} id="grant-type"/>
-                        <TextField
-                            placeholder="Client ID"
-                            label="Client ID"
-                            onChange={(value: string) => handleOnChange("clientId", value)}
-                            value={endpoint.clientId}
-                            id="client-id"
-                            size={100}
-                        />
-                        <TextField
-                            placeholder="Client Secret"
-                            label="Client Secret"
-                            onChange={(value: string) => handleOnChange("clientSecret", value)}
-                            value={endpoint.clientSecret}
-                            id="client-secret"
-                            size={100}
-                        />
-                        <TextField
-                            placeholder="Token Url"
-                            label="Token Url"
-                            onChange={(value: string) => handleOnChange("tokenUrl", value)}
-                            value={endpoint.tokenUrl}
-                            id="token-url"
-                            size={100}
-                        />
-                        {endpoint.grantType === 'Authorization Code' && (
-                            <TextField
-                                placeholder="Refresh Token"
-                                label="Refresh Token"
-                                onChange={(value: string) => handleOnChange("refreshToken", value)}
-                                value={endpoint.refreshToken}
-                                id="refresh-token"
-                                size={100}
-                            />
-                        )}
-                        {endpoint.grantType === 'Password' && (
-                            <>
-                                <TextField
-                                    placeholder="Username"
-                                    label="Username"
-                                    onChange={(value: string) => handleOnChange("username", value)}
-                                    value={endpoint.username}
-                                    id="username"
-                                    size={100}
-                                />
-                                <TextField
-                                    placeholder="Password"
-                                    label="Password"
-                                    onChange={(value: string) => handleOnChange("password", value)}
-                                    value={endpoint.password}
-                                    id="password"
-                                    size={100}
-                                />
-                            </>
-                        )}
-                        <span>Require Additional OAuth Properties</span>
-                        <RadioBtnContainer>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    checked={endpoint.requireOauthParameters === true}
-                                    onChange={() => handleOauthPropertiesChange(true)}
-                                />
-                                Yes
-                            </RadioLabel>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    checked={endpoint.requireOauthParameters === false}
-                                    onChange={() => handleOauthPropertiesChange(false)}
-                                />
-                                No
-                            </RadioLabel>
-                        </RadioBtnContainer>
-                        {endpoint.requireOauthParameters && (
-                            <>
-                                <span>OAuth Parameters</span>
-                                <Button onClick={addValue}>Add Parameter</Button>
-                                <Table>
-                                    <thead>
-                                    <tr>
-                                        <Th>Name</Th>
-                                        <Th>Value</Th>
-                                        <ThButton>Remove</ThButton>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {oauthProperties.map(pair => (
-                                        <tr>
-                                            <Td contentEditable={true} onBlur={(e) => editKey(pair.key, e.currentTarget.textContent || '')}>{pair.key}</Td>
-                                            <Td contentEditable={true} onBlur={(e) => editValue(pair.key, e.currentTarget.textContent || '')}>{pair.value}</Td>
-                                            <TdButton>
-                                                <Button onClick={() => removeValue(pair.key)}>Remove</Button>
-                                            </TdButton>
-                                        </tr>
-                                    ))}
-                                    </tbody>
-                                </Table>
-                            </>
-                        )}
                     </>
                 )}
                 <Typography variant="h4">Quality of Service Properties</Typography>
@@ -806,7 +605,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 </Button>
                 <Button
                     appearance="primary"
-                    onClick={handleUpdateHttpEndpoint}
+                    onClick={handleUpdateAddressEndpoint}
                     disabled={!isValid}
                 >
                     Save Changes

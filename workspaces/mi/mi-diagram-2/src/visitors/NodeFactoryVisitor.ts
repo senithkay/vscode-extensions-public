@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Visitor, STNode, WithParam, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Visitor, STNode, WithParam, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 import { GroupNodeModel } from "../components/nodes/GroupNode/GroupNodeModel";
@@ -21,7 +21,8 @@ import { SourceNodeModel, TargetNodeModel, createNodesLink } from "../utils/diag
 import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
 import { Diagnostic } from "vscode-languageserver-types";
 import { ReferenceNodeModel } from "../components/nodes/ReferenceNode/ReferenceNodeModel";
-import { APIResource, NamedSequence } from "@wso2-enterprise/mi-syntax-tree/src";
+import { DiagramService } from "@wso2-enterprise/mi-syntax-tree/src";
+import { PlusNodeModel } from "../components/nodes/PlusNode/PlusNodeModel";
 
 interface BranchData {
     name: string;
@@ -32,8 +33,10 @@ enum DiagramType {
     SEQUENCE
 }
 
+export type AnyNode = MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel | GroupNodeModel | PlusNodeModel;
+
 export class NodeFactoryVisitor implements Visitor {
-    nodes: (MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel | GroupNodeModel)[] = [];
+    nodes: AnyNode[] = [];
     links: NodeLinkModel[] = [];
     private parents: STNode[] = [];
     private skipChildrenVisit = false;
@@ -42,16 +45,16 @@ export class NodeFactoryVisitor implements Visitor {
     private currentAddPosition: Position;
     private documentUri: string;
     private diagramType: DiagramType;
-    private resource: APIResource | NamedSequence;
+    private resource: DiagramService;
 
-    constructor(documentUri: string, model: APIResource | NamedSequence) {
+    constructor(documentUri: string, model: DiagramService) {
         this.documentUri = documentUri;
         this.resource = model;
     }
 
     private createNodeAndLinks(node: STNode, name: string, type: NodeTypes = NodeTypes.MEDIATOR_NODE, data?: any): void {
         // create node
-        let diagramNode: MediatorNodeModel | ReferenceNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel | GroupNodeModel;
+        let diagramNode: AnyNode;
         if (type === NodeTypes.MEDIATOR_NODE) {
             diagramNode = new MediatorNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.REFERENCE_NODE) {
@@ -68,6 +71,8 @@ export class NodeFactoryVisitor implements Visitor {
             diagramNode = new CallNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes, data);
         } else if (type === NodeTypes.EMPTY_NODE || type === NodeTypes.CONDITION_NODE_END) {
             diagramNode = new EmptyNodeModel(node, this.documentUri);
+        } else if (type === NodeTypes.PLUS_NODE) {
+            diagramNode = new PlusNodeModel(node, this.resource, this.documentUri);
         }
         diagramNode.setPosition(node.viewState.x, node.viewState.y);
 
@@ -358,6 +363,21 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitTransaction = (node: Transaction): void => this.createNodeAndLinks(node, MEDIATORS.TRANSACTION);
     beginVisitEvent = (node: Event): void => this.createNodeAndLinks(node, MEDIATORS.EVENT);
 
+    //EIP Mediator
+    beginVisitAggregate(node: Aggregate): void {
+        this.createNodeAndLinks(node, MEDIATORS.AGGREGATE, NodeTypes.CONDITION_NODE)
+        this.parents.push(node);
+
+        this.visitSubSequences(node, {
+            // OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete?.mediators
+            OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete,
+        })
+        this.skipChildrenVisit = true;
+    }
+    endVisitAggregate(node: Aggregate): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
     // Extension Mediators
     beginVisitBean(node: Bean): void {
         this.createNodeAndLinks(node, MEDIATORS.BEAN);
