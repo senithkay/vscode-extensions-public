@@ -10,28 +10,25 @@
 import { WebviewView, WebviewPanel } from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { StateMachine } from './stateMachine';
-import { stateChanged, getVisualizerState, VisualizerLocation } from '@wso2-enterprise/mi-core';
+import { stateChanged, getVisualizerState, getAIVisualizerState, VisualizerLocation, AIVisualizerLocation } from '@wso2-enterprise/mi-core';
 import { registerMiDiagramRpcHandlers } from './rpc-managers/mi-diagram/rpc-handler';
 import { VisualizerWebview } from './visualizer/webview';
 import { registerMiVisualizerRpcHandlers } from './rpc-managers/mi-visualizer/rpc-handler';
 import { AiPanelWebview } from './ai-panel/webview';
+import { StateMachineAI } from './ai-panel/aiMachine';
 
 export class RPCLayer {
-    static _messenger: Messenger;
+    static _messenger: Messenger = new Messenger();
 
     constructor(webViewPanel: WebviewPanel | WebviewView) {
         if (isWebviewPanel(webViewPanel)) {
-            RPCLayer._messenger = new Messenger();
             RPCLayer._messenger.registerWebviewPanel(webViewPanel as WebviewPanel);
             StateMachine.service().onTransition((state) => {
                 RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, state.value);
             });
-            RPCLayer._messenger.onRequest(getVisualizerState, () => getContext());
-            registerMiDiagramRpcHandlers(RPCLayer._messenger);
-            registerMiVisualizerRpcHandlers(RPCLayer._messenger);
         } else {
             RPCLayer._messenger.registerWebviewPanel(webViewPanel as WebviewPanel);
-            StateMachine.service().onTransition((state) => {
+            StateMachineAI.service().onTransition((state) => {
                 RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: AiPanelWebview.viewType }, state.value);
             });
         }
@@ -41,12 +38,28 @@ export class RPCLayer {
         return new RPCLayer(webViewPanel);
     }
 
+    static init() {
+        // ----- Main Webview RPC Methods
+        RPCLayer._messenger.onRequest(getVisualizerState, () => getContext());
+        registerMiDiagramRpcHandlers(RPCLayer._messenger);
+        registerMiVisualizerRpcHandlers(RPCLayer._messenger);
+        // ----- AI Webview RPC Methods
+        RPCLayer._messenger.onRequest(getAIVisualizerState, () => getAIContext());
+    }
+
 }
 
 async function getContext(): Promise<VisualizerLocation> {
     const context = StateMachine.context();
     return new Promise((resolve) => {
         resolve({ documentUri: context.documentUri, view: context.view, identifier: context.identifier, projectUri: context.projectUri, projectOpened: context.projectOpened, customProps: context.customProps });
+    });
+}
+
+async function getAIContext(): Promise<AIVisualizerLocation> {
+    const context = StateMachineAI.context();
+    return new Promise((resolve) => {
+        resolve({ view: context.view, initialPrompt: context.initialPrompt });
     });
 }
 

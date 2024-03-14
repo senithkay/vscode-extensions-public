@@ -10,6 +10,8 @@ import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
 import { history } from './history/activator';
 import { COMMANDS } from './constants';
+import { StateMachineAI, openAIView } from './ai-panel/aiMachine';
+import { AiPanelWebview } from './ai-panel/webview';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -97,12 +99,17 @@ const stateMachine = createMachine<MachineContext>({
                     invoke: {
                         src: 'updateStack',
                         onDone: {
-                            target: "viewReady"
+                            target: "viewNavigated"
                         }
                     }
                 },
                 viewNavigated: {
-                    always: "viewReady",
+                    invoke: {
+                        src: 'updateAIView',
+                        onDone: {
+                            target: "viewReady"
+                        }
+                    }
                 },
                 viewReady: {
                     on: {
@@ -184,6 +191,8 @@ const stateMachine = createMachine<MachineContext>({
             return new Promise(async (resolve, reject) => {
                 const ls = (await MILanguageClient.getInstance(extension.context)).languageClient;
                 vscode.commands.executeCommand('setContext', 'MI.status', 'projectLoaded');
+                // Activate the AI Panel State machine after LS is loaded.
+                StateMachineAI.initialize();
                 resolve(ls);
             });
         },
@@ -211,6 +220,14 @@ const stateMachine = createMachine<MachineContext>({
                         identifier: context.identifier
                     }
                 });
+                resolve(true);
+            });
+        },
+        updateAIView: () => {
+            return new Promise(async (resolve, reject) => {
+                if (AiPanelWebview.currentPanel) {
+                    openAIView(EVENT_TYPE.OPEN_VIEW);
+                }
                 resolve(true);
             });
         },

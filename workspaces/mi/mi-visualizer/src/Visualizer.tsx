@@ -14,6 +14,7 @@ import MainPanel from "./MainPanel";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { AIOverviewWindow } from "./views/AIOverviewWindow";
+import AiPanel from "./AiPanel";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -49,7 +50,7 @@ export function Visualizer({ mode }: { mode: string }) {
                     case "visualizer":
                         return <VisualizerComponent state={state} />
                     case "ai":
-                        return <AIOverviewWindow />
+                        return <AiVisualizerComponent state={state} />
                 }
             })()}
         </>
@@ -60,6 +61,19 @@ const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue })
     switch (true) {
         case typeof state === 'object':
             return <MainPanel />;
+        default:
+            return (
+                <LoaderWrapper>
+                    <ProgressRing />
+                </LoaderWrapper>
+            );
+    }
+});
+
+const AiVisualizerComponent = React.memo(({ state }: { state: MachineStateValue }) => {
+    switch (true) {
+        case typeof state === 'object' && 'ready' in state && state.ready === "viewReady":
+            return <AiPanel />;
         default:
             return (
                 <LoaderWrapper>
