@@ -90,8 +90,9 @@ export function EndpointWizard(props: EndpointWizardProps) {
                     rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.AddressEndpointForm, documentUri: props.path} });
                 } else if (syntaxTree.syntaxTree.endpoint.type === 'WSDL_ENDPOINT') {
                     rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.WsdlEndpointForm, documentUri: props.path} });
-                }
-                else if (syntaxTree.syntaxTree.endpoint.type === 'LOAD_BALANCE_ENDPOINT') {
+                } else if (syntaxTree.syntaxTree.endpoint.type === 'DEFAULT_ENDPOINT') {
+                    rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.DefaultEndpointForm, documentUri: props.path} });
+                } else if (syntaxTree.syntaxTree.endpoint.type === 'LOAD_BALANCE_ENDPOINT') {
                     rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.LoadBalanceEndPointForm, documentUri: props.path} });
                 }
             }

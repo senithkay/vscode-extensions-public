@@ -30,6 +30,8 @@ import {
     RetrieveAddressEndpointRequest,
     UpdateWsdlEndpointRequest,
     RetrieveWsdlEndpointRequest,
+    UpdateDefaultEndpointRequest,
+    RetrieveDefaultEndpointRequest,
     GetDefinitionRequest,
     GetDiagnosticsReqeust,
     GetInboundEpDirRequest,
@@ -61,6 +63,7 @@ import {
     updateHttpEndpoint,
     updateAddressEndpoint,
     updateWsdlEndpoint,
+    updateDefaultEndpoint,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -78,6 +81,7 @@ import {
     getHttpEndpoint,
     getAddressEndpoint,
     getWsdlEndpoint,
+    getDefaultEndpoint,
     getProjectRoot,
     getProjectUuid,
     getSTRequest,
@@ -159,6 +163,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAddressEndpoint, (args: RetrieveAddressEndpointRequest) => rpcManger.getAddressEndpoint(args));
     messenger.onRequest(updateWsdlEndpoint, (args: UpdateWsdlEndpointRequest) => rpcManger.updateWsdlEndpoint(args));
     messenger.onRequest(getWsdlEndpoint, (args: RetrieveWsdlEndpointRequest) => rpcManger.getWsdlEndpoint(args));
+    messenger.onRequest(updateDefaultEndpoint, (args: UpdateDefaultEndpointRequest) => rpcManger.updateDefaultEndpoint(args));
+    messenger.onRequest(getDefaultEndpoint, (args: RetrieveDefaultEndpointRequest) => rpcManger.getDefaultEndpoint(args));
     messenger.onNotification(closeWebView, () => rpcManger.closeWebView());
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));
     messenger.onNotification(openFile, (args: OpenDiagramRequest) => rpcManger.openFile(args));
