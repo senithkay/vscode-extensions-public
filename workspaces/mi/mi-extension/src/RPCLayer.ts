@@ -18,21 +18,16 @@ import { AiPanelWebview } from './ai-panel/webview';
 import { StateMachineAI } from './ai-panel/aiMachine';
 
 export class RPCLayer {
-    static _messenger: Messenger;
+    static _messenger: Messenger = new Messenger();
 
     constructor(webViewPanel: WebviewPanel | WebviewView) {
         if (isWebviewPanel(webViewPanel)) {
-            RPCLayer._messenger = new Messenger();
             RPCLayer._messenger.registerWebviewPanel(webViewPanel as WebviewPanel);
             StateMachine.service().onTransition((state) => {
                 RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, state.value);
             });
-            RPCLayer._messenger.onRequest(getVisualizerState, () => getContext());
-            registerMiDiagramRpcHandlers(RPCLayer._messenger);
-            registerMiVisualizerRpcHandlers(RPCLayer._messenger);
         } else {
             RPCLayer._messenger.registerWebviewPanel(webViewPanel as WebviewPanel);
-            RPCLayer._messenger.onRequest(getAIVisualizerState, () => getAIContext());
             StateMachineAI.service().onTransition((state) => {
                 RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: AiPanelWebview.viewType }, state.value);
             });
@@ -41,6 +36,15 @@ export class RPCLayer {
 
     static create(webViewPanel: WebviewPanel | WebviewView) {
         return new RPCLayer(webViewPanel);
+    }
+
+    static init() {
+        // ----- Main Webview RPC Methods
+        RPCLayer._messenger.onRequest(getVisualizerState, () => getContext());
+        registerMiDiagramRpcHandlers(RPCLayer._messenger);
+        registerMiVisualizerRpcHandlers(RPCLayer._messenger);
+        // ----- AI Webview RPC Methods
+        RPCLayer._messenger.onRequest(getAIVisualizerState, () => getAIContext());
     }
 
 }

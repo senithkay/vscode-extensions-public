@@ -16,9 +16,11 @@ import { activate as activateHistory } from './history';
 import { activateVisualizer } from './visualizer/activate';
 import { activateActivityPanel } from './activity-panel/activate';
 import { activateAiPanel } from './ai-panel/activate';
+import { RPCLayer } from './RPCLayer';
 
 export async function activate(context: vscode.ExtensionContext) {
 	extension.context = context;
+	RPCLayer.init();
 	activateHistory();
 	// activateActivityPanel(context);
 	activateProjectExplorer(context);
