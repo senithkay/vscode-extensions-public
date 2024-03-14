@@ -75,6 +75,14 @@ import {
     RetrieveTemplateResponse,
     GetInboundEndpointRequest,
     GetInboundEndpointResponse,
+    UpdateHttpEndpointRequest,
+    UpdateHttpEndpointResponse,
+    RetrieveHttpEndpointRequest,
+    RetrieveHttpEndpointResponse,
+    UpdateAddressEndpointRequest,
+    UpdateAddressEndpointResponse,
+    RetrieveAddressEndpointRequest,
+    RetrieveAddressEndpointResponse,
     BrowseFileResponse,
     BrowseFileRequest,
     CreateRegistryResourceRequest,
@@ -91,6 +99,7 @@ import {
     CreateClassMediatorResponse,
     GetLocalEntryRequest,
     GetLocalEntryResponse,
+    TemplatesResponse,
     FileListRequest,
     FileListResponse
 } from "@wso2-enterprise/mi-core";
@@ -102,7 +111,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { StateMachine, openView } from "../../stateMachine";
 import { Position, Range, Selection, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
-import { createFolderStructure, getTaskXmlWrapper, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper, getMessageStoreXmlWrapper, getTemplateXmlWrapper } from "../../util";
+import { createFolderStructure, getTaskXmlWrapper, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper, getMessageStoreXmlWrapper, getTemplateXmlWrapper, getHttpEndpointXmlWrapper, getAddressEndpointXmlWrapper } from "../../util";
 import { getMediatypeAndFileExtension, addNewEntryToArtifactXML, detectMediaType } from "../../util/fileOperations";
 import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";
@@ -306,7 +315,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async createEndpoint(params: CreateEndpointRequest): Promise<CreateEndpointResponse> {
         return new Promise(async (resolve) => {
-            const { directory, name, address, configuration, method, type, uriTemplate } = params;
+            const { directory, name, address, configuration, method, type, uriTemplate, wsdlUri, wsdlService,
+                wsdlPort, targetTemplate, uri } = params;
             const endpointType = type.split(" ")[0].toLowerCase();
 
             let endpointAttributes = `${endpointType}`;
@@ -337,9 +347,22 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 closingAttributes = `       </default>
       </endpoint>
   </recipientlist>`;
+            } else if (endpointType === 'wsdl') {
+                endpointAttributes = `${endpointAttributes.toLowerCase()} port="${wsdlPort}" service="${wsdlService}" uri="${wsdlUri}"`;
             }
 
-            const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
+            let xmlData;
+
+            if (endpointType === 'template') {
+
+                xmlData = `<?xml version="1.0" encoding="UTF-8"?>
+<endpoint name="${name}" template="${targetTemplate}" uri="${uri}" xmlns="http://ws.apache.org/ns/synapse">
+    <description/>
+</endpoint>`;
+
+            } else {
+
+                xmlData = `<?xml version="1.0" encoding="UTF-8"?>
 <endpoint name="${name}" xmlns="http://ws.apache.org/ns/synapse">
   <${endpointAttributes}>
       ${otherAttributes}
@@ -352,6 +375,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
       </markForSuspension>
   ${closingAttributes}
 </endpoint>`;
+
+            }
 
             const filePath = path.join(directory, `${name}.xml`);
             fs.writeFileSync(filePath, xmlData);
@@ -717,6 +742,30 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
+    async getTemplates(): Promise<TemplatesResponse> {
+        return new Promise(async (resolve) => {
+            const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
+                workspace.workspaceFolders[0].uri.fsPath
+                : undefined;
+
+            if (!!rootPath) {
+                const langClient = StateMachine.context().langClient!;
+                const resp = await langClient.getProjectStructure(rootPath);
+                const artifacts = (resp.directoryMap as any).src.main.wso2mi.artifacts;
+
+                const templates: string[] = [];
+
+                for (const template of artifacts.templates) {
+                    templates.push(template.name);
+                }
+
+                resolve({ data: templates });
+            }
+
+            resolve({ data: [] });
+        });
+    }
+
     async getSequenceDirectory(): Promise<SequenceDirectoryResponse> {
         return new Promise(async (resolve) => {
             let result = '';
@@ -941,6 +990,254 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 } else {
                     response.templateType = 'Sequence Template';
                 }
+
+                resolve(response);
+            }
+        });
+    }
+
+    async updateHttpEndpoint(params: UpdateHttpEndpointRequest): Promise<UpdateHttpEndpointResponse> {
+        return new Promise(async (resolve) => {
+            const {
+                directory, endpointName, traceEnabled, statisticsEnabled, uriTemplate, httpMethod, description, requireProperties,
+                properties, authType, basicAuthUsername, basicAuthPassword, authMode, grantType, clientId, clientSecret,
+                refreshToken, tokenUrl, username, password, requireOauthParameters, oauthProperties, addressingEnabled,
+                addressingVersion, addressListener, securityEnabled, suspendErrorCodes, initialDuration, maximumDuration,
+                progressionFactor, retryErrorCodes, retryCount, retryDelay, timeoutDuration, timeoutAction
+            } = params;
+
+            const getHttpEndpointParams = {
+                endpointName, traceEnabled, statisticsEnabled, uriTemplate, httpMethod, description, requireProperties,
+                properties, authType, basicAuthUsername, basicAuthPassword, authMode, grantType, clientId, clientSecret,
+                refreshToken, tokenUrl, username, password, requireOauthParameters, oauthProperties, addressingEnabled,
+                addressingVersion, addressListener, securityEnabled, suspendErrorCodes, initialDuration, maximumDuration,
+                progressionFactor, retryErrorCodes, retryCount, retryDelay, timeoutDuration, timeoutAction
+            };
+
+            const xmlData = getHttpEndpointXmlWrapper(getHttpEndpointParams);
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${endpointName}.xml`);
+            }
+
+            fs.writeFileSync(filePath, xmlData);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getHttpEndpoint(params: RetrieveHttpEndpointRequest): Promise<RetrieveHttpEndpointResponse> {
+
+        const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
+        const endpointParams = endpointSyntaxTree.syntaxTree.endpoint;
+        const httpParams = endpointParams.http;
+        const endpointOverallParams = httpParams.enableSecAndEnableRMAndEnableAddressing;
+        const authenticationParams = endpointOverallParams.authentication;
+        const suspensionParams = endpointOverallParams.markForSuspension;
+        const failureParams = endpointOverallParams.suspendOnFailure;
+        const timeoutParams = endpointOverallParams.timeout;
+
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (fs.existsSync(filePath)) {
+                let response: RetrieveHttpEndpointResponse = {
+                    endpointName: endpointParams.name,
+                    traceEnabled: httpParams.trace != undefined ? httpParams.trace : 'disable',
+                    statisticsEnabled: httpParams.statistics,
+                    uriTemplate: httpParams.uriTemplate,
+                    httpMethod: httpParams.method != undefined ? httpParams.method.toUpperCase() : 'leave_as_is',
+                    description: endpointParams.description,
+                    requireProperties: false,
+                    properties: [],
+                    authType: "",
+                    basicAuthUsername: "",
+                    basicAuthPassword: "",
+                    authMode: "",
+                    grantType: "",
+                    clientId: "",
+                    clientSecret: "",
+                    refreshToken: "",
+                    tokenUrl: "",
+                    username: "",
+                    password: "",
+                    requireOauthParameters: false,
+                    oauthProperties: [],
+                    addressingEnabled: endpointOverallParams.enableAddressing != undefined ? 'enable' : 'disable',
+                    addressingVersion: endpointOverallParams.enableAddressing != undefined ? endpointOverallParams.enableAddressing.version : '',
+                    addressListener: (endpointOverallParams.enableAddressing != undefined && endpointOverallParams.enableAddressing.separateListener) ? 'enable' : 'disable',
+                    securityEnabled: endpointOverallParams.enableSec != undefined ? 'enable' : 'disable',
+                    suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
+                    initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : '',
+                    maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : '',
+                    progressionFactor: failureParams.progressionFactor != undefined ? failureParams.progressionFactor.textNode : '',
+                    retryErrorCodes: suspensionParams.errorCodes != undefined ? suspensionParams.errorCodes.textNode : '',
+                    retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : '',
+                    retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : '',
+                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : '',
+                    timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : ''
+                };
+
+                if (authenticationParams != undefined) {
+                    if (authenticationParams.oauth != undefined) {
+                        response.authType = 'OAuth';
+                        if (authenticationParams.oauth.authorizationCode != undefined) {
+                            response.grantType = 'Authorization Code';
+                            response.refreshToken = authenticationParams.oauth.authorizationCode.refreshToken.textNode;
+                            response.clientId = authenticationParams.oauth.authorizationCode.clientId.textNode;
+                            response.clientSecret = authenticationParams.oauth.authorizationCode.clientSecret.textNode;
+                            response.tokenUrl = authenticationParams.oauth.authorizationCode.tokenUrl.textNode;
+                            response.authMode = authenticationParams.oauth.authorizationCode.authMode.textNode;
+                            if (authenticationParams.oauth.authorizationCode.requestParameters != undefined) {
+                                let oauthParams: any[];
+                                oauthParams = authenticationParams.oauth.authorizationCode.requestParameters.parameter;
+                                oauthParams.forEach((element) => {
+                                    response.oauthProperties.push({key: element.name, value: element.textNode});
+                                });
+                            }
+                        } else if (authenticationParams.oauth.clientCredentials != undefined) {
+                            response.grantType = 'Client Credentials';
+                            response.clientId = authenticationParams.oauth.clientCredentials.clientId.textNode;
+                            response.clientSecret = authenticationParams.oauth.clientCredentials.clientSecret.textNode;
+                            response.tokenUrl = authenticationParams.oauth.clientCredentials.tokenUrl.textNode;
+                            response.authMode = authenticationParams.oauth.clientCredentials.authMode.textNode;
+                            if (authenticationParams.oauth.clientCredentials.requestParameters != undefined) {
+                                let oauthParams: any[];
+                                oauthParams = authenticationParams.oauth.clientCredentials.requestParameters.parameter;
+                                oauthParams.forEach((element) => {
+                                    response.oauthProperties.push({key: element.name, value: element.textNode});
+                                });
+                            }
+                        } else {
+                            response.grantType = 'Password';
+                            response.username = authenticationParams.oauth.passwordCredentials.username.textNode;
+                            response.password = authenticationParams.oauth.passwordCredentials.password.textNode;
+                            response.clientId = authenticationParams.oauth.passwordCredentials.clientId.textNode;
+                            response.clientSecret = authenticationParams.oauth.passwordCredentials.clientSecret.textNode;
+                            response.tokenUrl = authenticationParams.oauth.passwordCredentials.tokenUrl.textNode;
+                            response.authMode = authenticationParams.oauth.passwordCredentials.authMode.textNode;
+                            if (authenticationParams.oauth.passwordCredentials.requestParameters != undefined) {
+                                let oauthParams: any[];
+                                oauthParams = authenticationParams.oauth.passwordCredentials.requestParameters.parameter;
+                                oauthParams.forEach((element) => {
+                                    response.oauthProperties.push({key: element.name, value: element.textNode});
+                                });
+                            }
+                        }
+                    } else if (authenticationParams.basicAuth != undefined) {
+                        response.authType = 'Basic Auth';
+                        response.basicAuthUsername = authenticationParams.basicAuth.username.textNode;
+                        response.basicAuthPassword = authenticationParams.basicAuth.password.textNode;
+                    } else {
+                        response.authType = 'None';
+                    }
+                } else {
+                    response.authType = 'None';
+                }
+
+                if (endpointParams.property != undefined) {
+                    let params: any[];
+                    params = endpointParams.property;
+                    params.forEach((element) => {
+                        response.properties.push({name: element.name, value: element.value, scope: element.scope});
+                    });
+                }
+
+                response.requireProperties = response.properties.length > 0;
+                response.requireOauthParameters = response.oauthProperties.length > 0;
+
+                resolve(response);
+            }
+        });
+    }
+
+    async updateAddressEndpoint(params: UpdateAddressEndpointRequest): Promise<UpdateAddressEndpointResponse> {
+        return new Promise(async (resolve) => {
+            const {
+                directory, endpointName, format, traceEnabled, statisticsEnabled, uri, optimize, description,
+                requireProperties, properties, addressingEnabled, addressingVersion, addressListener, securityEnabled,
+                suspendErrorCodes, initialDuration, maximumDuration, progressionFactor, retryErrorCodes, retryCount,
+                retryDelay, timeoutDuration, timeoutAction
+            } = params;
+
+            const getAddressEndpointParams = {
+                endpointName, format, traceEnabled, statisticsEnabled, uri, optimize, description,
+                requireProperties, properties, addressingEnabled, addressingVersion, addressListener, securityEnabled,
+                suspendErrorCodes, initialDuration, maximumDuration, progressionFactor, retryErrorCodes, retryCount,
+                retryDelay, timeoutDuration, timeoutAction
+            };
+
+            const xmlData = getAddressEndpointXmlWrapper(getAddressEndpointParams);
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${endpointName}.xml`);
+            }
+
+            fs.writeFileSync(filePath, xmlData);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getAddressEndpoint(params: RetrieveAddressEndpointRequest): Promise<RetrieveAddressEndpointResponse> {
+
+        const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
+        const endpointParams = endpointSyntaxTree.syntaxTree.endpoint;
+        const addressParams = endpointParams.address;
+        const suspensionParams = addressParams.markForSuspension;
+        const failureParams = addressParams.suspendOnFailure;
+        const timeoutParams = addressParams.timeout;
+
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (fs.existsSync(filePath)) {
+                let response: RetrieveAddressEndpointResponse = {
+                    endpointName: endpointParams.name,
+                    format: addressParams.format != undefined ? addressParams.format.toUpperCase() : 'LEAVE_AS_IS',
+                    traceEnabled: addressParams.trace != undefined ? addressParams.trace : 'disable',
+                    statisticsEnabled: addressParams.statistics,
+                    uri: addressParams.uri,
+                    optimize: addressParams.optimize != undefined ? addressParams.optimize.toUpperCase() : 'LEAVE_AS_IS',
+                    description: endpointParams.description,
+                    requireProperties: false,
+                    properties: [],
+                    addressingEnabled: addressParams.enableAddressing != undefined ? 'enable' : 'disable',
+                    addressingVersion: addressParams.enableAddressing != undefined ? addressParams.enableAddressing.version : '',
+                    addressListener: (addressParams.enableAddressing != undefined && addressParams.enableAddressing.separateListener) ? 'enable' : 'disable',
+                    securityEnabled: addressParams.enableSec != undefined ? 'enable' : 'disable',
+                    suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
+                    initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : '',
+                    maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : '',
+                    progressionFactor: failureParams.progressionFactor != undefined ? failureParams.progressionFactor.textNode : '',
+                    retryErrorCodes: suspensionParams.errorCodes != undefined ? suspensionParams.errorCodes.textNode : '',
+                    retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : '',
+                    retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : '',
+                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : '',
+                    timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : ''
+                };
+
+                if (response.format === 'SOAP11') {
+                    response.format = 'SOAP 1.1';
+                } else if (response.format === 'SOAP12') {
+                    response.format = 'SOAP 1.2';
+                }
+
+                if (endpointParams.property != undefined) {
+                    let params: any[];
+                    params = endpointParams.property;
+                    params.forEach((element) => {
+                        response.properties.push({ name: element.name, value: element.value, scope: element.scope });
+                    });
+                }
+
+                response.requireProperties = response.properties.length > 0;
 
                 resolve(response);
             }

@@ -48,7 +48,13 @@ export interface CreateEndpointRequest {
     address: string;
     uriTemplate: string;
     method: string;
+    wsdlUri: string;
+    wsdlService: string;
+    wsdlPort: string;
+    targetTemplate: string;
+    uri: string;
 }
+
 export interface CreateEndpointResponse {
     path: string;
 }
@@ -282,6 +288,10 @@ export interface EndpointsAndSequencesResponse {
     data: any;
 }
 
+export interface TemplatesResponse {
+    data: any;
+}
+
 export interface SequenceDirectoryResponse {
     data: string;
 }
@@ -399,6 +409,148 @@ export interface CreateProxyServiceRequest {
 
 export interface CreateProxyServiceResponse {
     path: string;
+}
+
+export interface UpdateHttpEndpointRequest {
+    directory: string;
+    endpointName: string;
+    traceEnabled: string;
+    statisticsEnabled: string;
+    uriTemplate: string;
+    httpMethod: string;
+    description: string;
+    requireProperties: boolean;
+    properties: any;
+    authType: string;
+    basicAuthUsername: string;
+    basicAuthPassword: string;
+    authMode: string;
+    grantType: string;
+    clientId: string;
+    clientSecret: string;
+    refreshToken: string;
+    tokenUrl: string;
+    username: string;
+    password: string;
+    requireOauthParameters: boolean;
+    oauthProperties: any;
+    addressingEnabled: string;
+    addressingVersion: string;
+    addressListener: string;
+    securityEnabled: string;
+    suspendErrorCodes: string;
+    initialDuration: string;
+    maximumDuration: string;
+    progressionFactor: string;
+    retryErrorCodes: string;
+    retryCount: string;
+    retryDelay: string;
+    timeoutDuration: string;
+    timeoutAction: string;
+}
+
+export interface UpdateHttpEndpointResponse {
+    path: string;
+}
+
+export interface RetrieveHttpEndpointRequest {
+    path: string;
+}
+
+export interface RetrieveHttpEndpointResponse {
+    endpointName: string;
+    traceEnabled: string;
+    statisticsEnabled: string;
+    uriTemplate: string;
+    httpMethod: string;
+    description: string;
+    requireProperties: boolean;
+    properties: any;
+    authType: string;
+    basicAuthUsername: string;
+    basicAuthPassword: string;
+    authMode: string;
+    grantType: string;
+    clientId: string;
+    clientSecret: string;
+    refreshToken: string;
+    tokenUrl: string;
+    username: string;
+    password: string;
+    requireOauthParameters: boolean;
+    oauthProperties: any;
+    addressingEnabled: string;
+    addressingVersion: string;
+    addressListener: string;
+    securityEnabled: string;
+    suspendErrorCodes: string;
+    initialDuration: string;
+    maximumDuration: string;
+    progressionFactor: string;
+    retryErrorCodes: string;
+    retryCount: string;
+    retryDelay: string;
+    timeoutDuration: string;
+    timeoutAction: string;
+}
+
+export interface UpdateAddressEndpointRequest {
+    directory: string;
+    endpointName: string;
+    format: string;
+    traceEnabled: string;
+    statisticsEnabled: string;
+    uri: string;
+    optimize: string;
+    description: string;
+    requireProperties: boolean;
+    properties: any;
+    addressingEnabled: string;
+    addressingVersion: string;
+    addressListener: string;
+    securityEnabled: string;
+    suspendErrorCodes: string;
+    initialDuration: string;
+    maximumDuration: string;
+    progressionFactor: string;
+    retryErrorCodes: string;
+    retryCount: string;
+    retryDelay: string;
+    timeoutDuration: string;
+    timeoutAction: string;
+}
+
+export interface UpdateAddressEndpointResponse {
+    path: string;
+}
+
+export interface RetrieveAddressEndpointRequest {
+    path: string;
+}
+
+export interface RetrieveAddressEndpointResponse {
+    endpointName: string;
+    format: string;
+    traceEnabled: string;
+    statisticsEnabled: string;
+    uri: string;
+    optimize: string;
+    description: string;
+    requireProperties: boolean;
+    properties: any;
+    addressingEnabled: string;
+    addressingVersion: string;
+    addressListener: string;
+    securityEnabled: string;
+    suspendErrorCodes: string;
+    initialDuration: string;
+    maximumDuration: string;
+    progressionFactor: string;
+    retryErrorCodes: string;
+    retryCount: string;
+    retryDelay: string;
+    timeoutDuration: string;
+    timeoutAction: string;
 }
 
 export interface CreateTaskRequest {

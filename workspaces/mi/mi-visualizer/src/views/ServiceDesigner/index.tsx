@@ -62,7 +62,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
         st.resource.forEach((resource: any) => {
             const value: Resource = {
                 methods: resource.methods,
-                path: resource.uriTemplate,
+                path: resource.uriTemplate || resource.urlMapping,
                 position: {
                     startLine: resource.range.startTagRange.start.line,
                     startColumn: resource.range.startTagRange.start.character,

@@ -195,6 +195,7 @@ export enum NodeTypes {
     CONDITION_NODE_END = "condition-node-end",
     GROUP_NODE = "group-node",
     CALL_NODE = "call-node",
+    PLUS_NODE = "plus-node",
     EMPTY_NODE = "empty-node",
 }
 

@@ -31,14 +31,14 @@
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
-            <xs:all>
+            <xs:choice>
                 <xs:element name="source" minOccurs="0" maxOccurs="1">
 
                     <xs:complexType mixed="true">
                         <xs:sequence>
                             <xs:any minOccurs="0" processContents="skip" />
                         </xs:sequence>
-                        <xs:attribute name="contentType" type="xs:string" use="required" />
+                        <xs:attribute name="contentType" type="xs:string" use="optional" />
                         <xs:attribute name="type" use="required">
                             <xs:simpleType>
                                 <xs:restriction base="xs:string">
@@ -64,7 +64,7 @@
                     </xs:complexType>
                 </xs:element>
                 <xs:element name="endpoint" type="NamedEndpoint" minOccurs="1" maxOccurs="1" />
-            </xs:all>
+            </xs:choice>
             <xs:attribute name="blocking" type="xs:boolean" use="optional" default="true" />
             <xs:attribute name="initAxis2ClientOptions" type="xs:boolean" use="optional" default="true" />
             <xs:attribute name="description" type="xs:string" use="optional" />

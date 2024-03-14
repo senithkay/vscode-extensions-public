@@ -36,6 +36,14 @@ import {
     CreateMessageProcessorResponse,
     RetrieveMessageProcessorRequest,
     RetrieveMessageProcessorResponse,
+    UpdateHttpEndpointRequest,
+    UpdateHttpEndpointResponse,
+    RetrieveHttpEndpointRequest,
+    RetrieveHttpEndpointResponse,
+    UpdateAddressEndpointRequest,
+    UpdateAddressEndpointResponse,
+    RetrieveAddressEndpointRequest,
+    RetrieveAddressEndpointResponse,
     CreateTemplateRequest,
     CreateTemplateResponse,
     RetrieveTemplateRequest,
@@ -45,6 +53,7 @@ import {
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
+    TemplatesResponse,
     GetProjectUuidResponse,
     GetWorkspaceContextResponse,
     GetDefinitionRequest,
@@ -85,6 +94,8 @@ import {
     createMessageProcessor,
     createProxyService,
     createTemplate,
+    updateHttpEndpoint,
+    updateAddressEndpoint,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -95,6 +106,7 @@ import {
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
+    getTemplates,
     getLocalEntry,
     getInboundEndpoint,
     getProjectRoot,
@@ -104,6 +116,8 @@ import {
     getSequenceDirectory,
     getMessageProcessor,
     getTemplate,
+    getHttpEndpoint,
+    getAddressEndpoint,
     getSyntaxTree,
     getWorkspaceContext,
     getTextAtRange,
@@ -210,6 +224,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getEndpointsAndSequences, HOST_EXTENSION);
     }
 
+    getTemplates(): Promise<TemplatesResponse> {
+        return this._messenger.sendRequest(getTemplates, HOST_EXTENSION);
+    }
+
     getSequenceDirectory(): Promise<SequenceDirectoryResponse> {
         return this._messenger.sendRequest(getSequenceDirectory, HOST_EXTENSION);
     }
@@ -264,6 +282,22 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getInboundEndpoint(params: GetInboundEndpointRequest): Promise<GetInboundEndpointResponse> {
         return this._messenger.sendRequest(getInboundEndpoint, HOST_EXTENSION, params);
+    }
+
+    updateHttpEndpoint(params: UpdateHttpEndpointRequest): Promise<UpdateHttpEndpointResponse> {
+        return this._messenger.sendRequest(updateHttpEndpoint, HOST_EXTENSION, params);
+    }
+
+    getHttpEndpoint(params: RetrieveHttpEndpointRequest): Promise<RetrieveHttpEndpointResponse> {
+        return this._messenger.sendRequest(getHttpEndpoint, HOST_EXTENSION, params);
+    }
+
+    updateAddressEndpoint(params: UpdateAddressEndpointRequest): Promise<UpdateAddressEndpointResponse> {
+        return this._messenger.sendRequest(updateAddressEndpoint, HOST_EXTENSION, params);
+    }
+
+    getAddressEndpoint(params: RetrieveAddressEndpointRequest): Promise<RetrieveAddressEndpointResponse> {
+        return this._messenger.sendRequest(getAddressEndpoint, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {

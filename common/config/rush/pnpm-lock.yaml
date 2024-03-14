@@ -3136,6 +3136,7 @@ importers:
       rimraf: ~5.0.5
       ts-loader: ^9.4.4
       typescript: ^5.1.6
+      unzipper: ~0.10.14
       uuid: ~9.0.1
       vscode-extension-tester: ~5.9.1
       vscode-languageclient: ^8.0.2
@@ -3164,6 +3165,7 @@ importers:
       lodash: 4.17.21
       mustache: 4.2.0
       node-fetch: 2.6.13
+      unzipper: 0.10.14
       uuid: 9.0.1
       vscode-extension-tester: 5.9.1_kjnufobbgi2j4vleaei3cb7jyu
       vscode-languageclient: 8.1.0

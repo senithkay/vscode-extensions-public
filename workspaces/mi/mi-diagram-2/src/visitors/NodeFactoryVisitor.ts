@@ -22,6 +22,7 @@ import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
 import { Diagnostic } from "vscode-languageserver-types";
 import { ReferenceNodeModel } from "../components/nodes/ReferenceNode/ReferenceNodeModel";
 import { APIResource, NamedSequence } from "@wso2-enterprise/mi-syntax-tree/src";
+import { PlusNodeModel } from "../components/nodes/PlusNode/PlusNodeModel";
 
 interface BranchData {
     name: string;
@@ -32,8 +33,10 @@ enum DiagramType {
     SEQUENCE
 }
 
+export type AnyNode = MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel | GroupNodeModel | PlusNodeModel;
+
 export class NodeFactoryVisitor implements Visitor {
-    nodes: (MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel | GroupNodeModel)[] = [];
+    nodes: AnyNode[] = [];
     links: NodeLinkModel[] = [];
     private parents: STNode[] = [];
     private skipChildrenVisit = false;
@@ -51,7 +54,7 @@ export class NodeFactoryVisitor implements Visitor {
 
     private createNodeAndLinks(node: STNode, name: string, type: NodeTypes = NodeTypes.MEDIATOR_NODE, data?: any): void {
         // create node
-        let diagramNode: MediatorNodeModel | ReferenceNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel | GroupNodeModel;
+        let diagramNode: AnyNode;
         if (type === NodeTypes.MEDIATOR_NODE) {
             diagramNode = new MediatorNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.REFERENCE_NODE) {
@@ -68,6 +71,8 @@ export class NodeFactoryVisitor implements Visitor {
             diagramNode = new CallNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes, data);
         } else if (type === NodeTypes.EMPTY_NODE || type === NodeTypes.CONDITION_NODE_END) {
             diagramNode = new EmptyNodeModel(node, this.documentUri);
+        } else if (type === NodeTypes.PLUS_NODE) {
+            diagramNode = new PlusNodeModel(node, this.resource, this.documentUri);
         }
         diagramNode.setPosition(node.viewState.x, node.viewState.y);
 
