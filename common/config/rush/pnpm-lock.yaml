@@ -3444,6 +3444,7 @@ importers:
       '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ^2.4.1
       css-loader: ^5.2.7
+      fast-xml-parser: ~4.3.6
       mustache: ~4.2.0
       path: ~0.12.7
       process: ~0.11.10
@@ -3486,6 +3487,7 @@ importers:
       '@wso2-enterprise/mi-syntax-tree': link:../syntax-tree
       '@wso2-enterprise/service-designer': link:../../common-libs/service-designer
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
+      fast-xml-parser: 4.3.6
       mustache: 4.2.0
       path: 0.12.7
       process: 0.11.10
@@ -28996,6 +28998,13 @@ packages:
 
   /fast-xml-parser/4.3.5:
     resolution: {integrity: sha512-sWvP1Pl8H03B8oFJpFR3HE31HUfwtX7Rlf9BNsvdpujD4n7WMhfmu8h9wOV2u+c1k0ZilTADhPqypzx2J690ZQ==}
+    hasBin: true
+    dependencies:
+      strnum: 1.0.5
+    dev: false
+
+  /fast-xml-parser/4.3.6:
+    resolution: {integrity: sha512-M2SovcRxD4+vC493Uc2GZVcZaj66CCJhWurC4viynVSTvrpErCShNcDz1lAho6n9REQKvL/ll4A4/fw6Y9z8nw==}
     hasBin: true
     dependencies:
       strnum: 1.0.5

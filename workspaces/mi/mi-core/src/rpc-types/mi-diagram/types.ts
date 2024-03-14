@@ -277,7 +277,7 @@ export interface GetMessageStoreResponse {
     jmsAPIVersion: string;
     rabbitMQServerHostName: string;
     rabbitMQServerPort: string;
-    sslEnabled: string;
+    sslEnabled: boolean;
     trustStoreLocation: string;
     trustStoreType: string;
     trustStorePassword: string;
@@ -297,7 +297,7 @@ export interface GetMessageStoreResponse {
     queueConnectionFactory: string;
     pollingCount: string;
     xPath: string;
-    enableProducerGuaranteedDelivery: string;
+    enableProducerGuaranteedDelivery: boolean;
     providerClass: string;
     customParameters: Record[];
     failOverMessageStore: string;
@@ -305,14 +305,6 @@ export interface GetMessageStoreResponse {
 
 export interface GetMessageStoreRequest {
     path: string;
-}
-
-export interface FileListRequest {
-    path: string;
-}
-
-export interface FileListResponse {
-    files: string[];
 }
 
 export interface CreateProjectRequest {
@@ -995,7 +987,8 @@ export interface BrowseFileRequest {
 
 export interface GetAvailableResourcesRequest {
     documentIdentifier: string;
-    resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate";
+    resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate" |
+    "dataService"| "dataSource" | "localEntry" | "dataMapper" | "js" | "json" | "smooksConfig" | "wsdl" | "ws_policy" | "xsd" | "xsl" | "xslt" | "yaml";
 }
 
 export interface GetAvailableResourcesResponse {

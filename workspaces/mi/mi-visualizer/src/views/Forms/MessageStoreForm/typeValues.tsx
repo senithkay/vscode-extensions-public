@@ -10,7 +10,7 @@
 export const rabbitMQInitialValues=()=>({
     rabbitMQServerHostName: "localhost",
     rabbitMQServerPort: "5671",
-    sslEnabled: "false",
+    sslEnabled: false ,
     rabbitMQQueueName: "",
     rabbitMQExchangeName: "",
     routineKey: "",
@@ -36,7 +36,7 @@ export const jdbcInitialValues=()=>({
 
 export const wso2MbInitialValues=()=>({
     initialContextFactory: "org.wso2.andes.jndi.PropertiesFileInitialContextFactory",
-    queueConnectionFactory: "QueueConnectionFactory",
+    queueConnectionFactory: "amqp://admin:admin@clientID/carbon?brokerlist='tcp://localhost:5673'",
     jndiQueueName: "",
     jmsAPIVersion: "1.1",
     cacheConnection: "false",

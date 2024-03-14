@@ -189,7 +189,65 @@ const CARD_WRAPPER_DATA = {
                 description: 'Description',
             }
         ]
-    }
+    },
+    LOCAL_ENTRY: {
+        cards: [
+            {
+                title: 'In-Line Text Entry',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'In-Line XML Entry',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'Source URL Entry',
+                icon: 'code',
+                description: 'Description',
+            }
+        ]
+    },
+    MESSAGE_STORE: {
+        cards: [
+            {
+                title: 'JMS Message Store',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'RabbitMQ Message Store',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'WSO2 MB Message Store',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'In Memory Message Store',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'JDBC Message Store',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'Custom Message Store',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'Resequence Message Store',
+                icon: 'code',
+                description: 'Description',
+            }
+        ]
+    },
 };
 
 type CardWrapperProps = {

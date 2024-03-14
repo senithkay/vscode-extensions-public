@@ -47,6 +47,7 @@ const initialInboundEndpoint: InputsFields = {
 };
 
 const schema = yup.object({
+    
     name: yup.string().required("Task Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Task name"),
     group: yup.string().required("Task group is required"),
     implementation: yup.string().required("Task Implementation is required"),

@@ -56,8 +56,6 @@ import {
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     FileDirResponse,
-    FileListRequest,
-    FileListResponse,
     FileStructure,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
@@ -785,9 +783,17 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
         return new Promise(async (resolve) => {
             const { directory, name, type, value, URL } = params;
-
             const xmlData = generateXmlData(name, type, value, URL);
-            const filePath = path.join(directory, `${name}.xml`);
+            let filePath = directory;
+
+            if (filePath.includes('localEntries')) {
+                filePath = filePath.replace('localEntries', 'local-entries');
+            }
+            if(filePath.endsWith('.xml')) {
+               filePath = directory;
+            } else {
+                filePath = path.join(filePath, `${name}.xml`);
+            }
 
             writeXmlDataToFile(filePath, xmlData);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
@@ -853,19 +859,20 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const getTemplateParams = params;
 
             const xmlData = getMessageStoreXmlWrapper(getTemplateParams);
+            let filePath = params.directory;
+                  
+            if (filePath.includes('messageStores')) {
+                filePath = filePath.replace('messageStores', 'message-stores');
+            }
+            if(filePath.endsWith('.xml')) {
+                filePath = params.directory;
+            } else {
+                filePath = path.join(filePath, `${params.name}.xml`);
+            }
 
-            const filePath = path.join(params.directory, `${params.name}.xml`);
             fs.writeFileSync(filePath, xmlData);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
-        });
-    }
-
-    async getXmlFileList(params: FileListRequest): Promise<FileListResponse> {
-        return new Promise(async (resolve) => {
-            const files = fs.readdirSync(params.path);
-            const xmlFiles = files.filter((file) => file.endsWith('.xml')).map(file => file.replace('.xml', ''));
-            resolve({ files: xmlFiles });
         });
     }
 
@@ -900,10 +907,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     password: '',
                     cacheConnection: '',
                     jmsAPIVersion: '',
-                    enableProducerGuaranteedDelivery: '',
+                    enableProducerGuaranteedDelivery: false,
                     rabbitMQServerHostName: '',
                     rabbitMQServerPort: '',
-                    sslEnabled: '',
+                    sslEnabled: false,
                     rabbitMQQueueName: '',
                     rabbitMQExchangeName: '',
                     routineKey: '',
