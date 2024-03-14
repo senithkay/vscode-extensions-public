@@ -9,13 +9,14 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import React, { useEffect, useState } from "react";
-import { VisualizerLocation, CreateProjectRequest } from "@wso2-enterprise/mi-core";
+import { VisualizerLocation, CreateProjectRequest, GetWorkspaceContextResponse } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import {TextArea, Button, Switch, Icon, ProgressRing} from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from 'react-markdown';
 import './AIProjectGenerationChat.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { MI_COPILOT_BACKEND_URL } from "../../constants";
+import { MI_ARTIFACT_GENERATION_BACKEND_URL } from "../../constants";
+import { Collapse } from 'react-collapse';
 
 import {
   materialDark,
@@ -59,6 +60,8 @@ export function AIProjectGenerationChat() {
   const [isLoading, setIsLoading] = useState(false); 
   const [lastQuestionIndex, setLastQuestionIndex] = useState(-1);
   const messagesEndRef = React.createRef<HTMLDivElement>();
+  const [isOpen, setIsOpen] = useState(false);
+  const [isCodeLoading, setIsCodeLoading] = useState(false);
 
   useEffect(() => {
     rpcClient?.getMiDiagramRpcClient().getProjectUuid().then((response) => {
@@ -119,6 +122,10 @@ export function AIProjectGenerationChat() {
       
   }
 
+  useEffect(() => {
+  // This code will run after isCodeLoading updates
+  console.log(isCodeLoading);
+}, [isCodeLoading]); // The dependency array ensures this effect runs whenever isCodeLoading changes
 
   useEffect(() => {
     // Step 2: Scroll into view when messages state changes
@@ -136,11 +143,13 @@ export function AIProjectGenerationChat() {
   }, [rpcClient]);
 
   async function handleSend (isQuestion: boolean = false) {
+    var context: GetWorkspaceContextResponse[] = [];
     setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
     setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'question'));
     await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
-      console.log(response);
+      context = [response]; // Wrap the response in an array
     } );
+    console.log(context[0].context);
 
     setIsLoading(true);
     let assistant_response = "";
@@ -161,17 +170,18 @@ export function AIProjectGenerationChat() {
         ]);
     }
 
-    const response = await fetch(MI_COPILOT_BACKEND_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({messages: chatArray}),
+    const response = await fetch(MI_ARTIFACT_GENERATION_BACKEND_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({messages: chatArray, context : context[0].context}),
     })
     const reader = response.body?.getReader();
     const decoder = new TextDecoder();
     let result = '';
-
+    let codeBuffer = '';
+    let codeLoad = false;
     while (true) {
         const { done, value } = await reader.read();
         if (done){
@@ -199,11 +209,16 @@ export function AIProjectGenerationChat() {
                   ]);
             }else{
                     assistant_response += json.content;
+                    if(json.content.includes("``")){
+                        setIsCodeLoading(prevIsCodeLoading => !prevIsCodeLoading);
+                    }
+                       
                     setMessages(prevMessages => {
-                      const newMessages = [...prevMessages];
-                      newMessages[newMessages.length - 1].content += json.content;
-                      return newMessages;
+                        const newMessages = [...prevMessages];
+                        newMessages[newMessages.length - 1].content += json.content;
+                        return newMessages;
                     });
+
                   const regex = /```[\s\S]*?```/g;
                   let match;
                   while ((match = regex.exec(assistant_response)) !== null) {
@@ -338,17 +353,35 @@ export function AIProjectGenerationChat() {
         {message.type !== "question" && message.type !== "label" && <strong>{message.role}:</strong>}
                 {splitContent(message.content).map((segment, i) =>
           segment.isCode ? (
-            <SyntaxHighlighter key={i} language="xml" style={materialOceanic}>
-              {segment.text}
-            </SyntaxHighlighter>
+            
+              <div>
+              <div onClick={() => setIsOpen(!isOpen)}>
+                <a style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                  <Icon name={isOpen ? 'arrow-down-solid' : 'arrow-right-solid'} />
+                  <span style={{ fontStyle: 'italic' }}>{isOpen ? 'Hide Code' : 'Show Code'}</span>
+                </a>
+              </div>
+                <Collapse isOpened={isOpen}>
+                  <SyntaxHighlighter key={i} language="xml" style={materialOceanic}>
+                    {segment.text}
+                  </SyntaxHighlighter>
+                </Collapse>
+              </div>
+            
           ) : (
+            
             <MarkdownRenderer key={i} markdownContent={segment.text} />
+          
           )
         )}
 
         </div>
       ))}
-
+      {/* {isCodeLoading && (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          Generating Code &nbsp;&nbsp; <ProgressRing sx={{position: "relative"}}/>
+        </div>
+      )} */}
        <div ref={messagesEndRef} />
       </div>
 
