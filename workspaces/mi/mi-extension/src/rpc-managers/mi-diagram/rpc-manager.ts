@@ -83,6 +83,10 @@ import {
     UpdateAddressEndpointResponse,
     RetrieveAddressEndpointRequest,
     RetrieveAddressEndpointResponse,
+    UpdateWsdlEndpointRequest,
+    UpdateWsdlEndpointResponse,
+    RetrieveWsdlEndpointRequest,
+    RetrieveWsdlEndpointResponse,
     BrowseFileResponse,
     BrowseFileRequest,
     CreateRegistryResourceRequest,
@@ -111,7 +115,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { StateMachine, openView } from "../../stateMachine";
 import { Position, Range, Selection, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
-import { createFolderStructure, getTaskXmlWrapper, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper, getMessageStoreXmlWrapper, getTemplateXmlWrapper, getHttpEndpointXmlWrapper, getAddressEndpointXmlWrapper } from "../../util";
+import { createFolderStructure, getTaskXmlWrapper, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper, getMessageStoreXmlWrapper, getTemplateXmlWrapper, getHttpEndpointXmlWrapper, getAddressEndpointXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
 import { getMediatypeAndFileExtension, addNewEntryToArtifactXML, detectMediaType, changeRootPomPackaging } from "../../util/fileOperations";
 import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";
@@ -1014,6 +1018,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             };
 
             const xmlData = getHttpEndpointXmlWrapper(getHttpEndpointParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
             let filePath: string;
 
@@ -1023,7 +1028,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = path.join(directory, `${endpointName}.xml`);
             }
 
-            fs.writeFileSync(filePath, xmlData);
+            fs.writeFileSync(filePath, sanitizedXmlData);
             resolve({ path: filePath });
         });
     }
@@ -1170,6 +1175,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             };
 
             const xmlData = getAddressEndpointXmlWrapper(getAddressEndpointParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
             let filePath: string;
 
@@ -1179,7 +1185,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = path.join(directory, `${endpointName}.xml`);
             }
 
-            fs.writeFileSync(filePath, xmlData);
+            fs.writeFileSync(filePath, sanitizedXmlData);
             resolve({ path: filePath });
         });
     }
@@ -1211,6 +1217,99 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     addressingVersion: addressParams.enableAddressing != undefined ? addressParams.enableAddressing.version : '',
                     addressListener: (addressParams.enableAddressing != undefined && addressParams.enableAddressing.separateListener) ? 'enable' : 'disable',
                     securityEnabled: addressParams.enableSec != undefined ? 'enable' : 'disable',
+                    suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
+                    initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : '',
+                    maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : '',
+                    progressionFactor: failureParams.progressionFactor != undefined ? failureParams.progressionFactor.textNode : '',
+                    retryErrorCodes: suspensionParams.errorCodes != undefined ? suspensionParams.errorCodes.textNode : '',
+                    retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : '',
+                    retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : '',
+                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : '',
+                    timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : ''
+                };
+
+                if (response.format === 'SOAP11') {
+                    response.format = 'SOAP 1.1';
+                } else if (response.format === 'SOAP12') {
+                    response.format = 'SOAP 1.2';
+                }
+
+                if (endpointParams.property != undefined) {
+                    let params: any[];
+                    params = endpointParams.property;
+                    params.forEach((element) => {
+                        response.properties.push({ name: element.name, value: element.value, scope: element.scope });
+                    });
+                }
+
+                response.requireProperties = response.properties.length > 0;
+
+                resolve(response);
+            }
+        });
+    }
+
+    async updateWsdlEndpoint(params: UpdateWsdlEndpointRequest): Promise<UpdateWsdlEndpointResponse> {
+        return new Promise(async (resolve) => {
+            const {
+                directory, endpointName, format, traceEnabled, statisticsEnabled, optimize, description, wsdlUri,
+                wsdlService, wsdlPort, requireProperties, properties, addressingEnabled, addressingVersion,
+                addressListener, securityEnabled, suspendErrorCodes, initialDuration, maximumDuration, progressionFactor,
+                retryErrorCodes, retryCount, retryDelay, timeoutDuration, timeoutAction
+            } = params;
+
+            const getWsdlEndpointParams = {
+                endpointName, format, traceEnabled, statisticsEnabled, optimize, description, wsdlUri, wsdlService,
+                wsdlPort, requireProperties, properties, addressingEnabled, addressingVersion, addressListener,
+                securityEnabled, suspendErrorCodes, initialDuration, maximumDuration, progressionFactor, retryErrorCodes,
+                retryCount, retryDelay, timeoutDuration, timeoutAction
+            };
+
+            const xmlData = getWsdlEndpointXmlWrapper(getWsdlEndpointParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${endpointName}.xml`);
+            }
+
+            fs.writeFileSync(filePath, sanitizedXmlData);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getWsdlEndpoint(params: RetrieveWsdlEndpointRequest): Promise<RetrieveWsdlEndpointResponse> {
+
+        const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
+        const endpointParams = endpointSyntaxTree.syntaxTree.endpoint;
+        const wsdlParams = endpointParams.wsdl;
+        const suspensionParams = wsdlParams.markForSuspension;
+        const failureParams = wsdlParams.suspendOnFailure;
+        const timeoutParams = wsdlParams.timeout;
+
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (fs.existsSync(filePath)) {
+                let response: RetrieveWsdlEndpointResponse = {
+                    endpointName: endpointParams.name,
+                    format: wsdlParams.format != undefined ? wsdlParams.format.toUpperCase() : 'LEAVE_AS_IS',
+                    traceEnabled: wsdlParams.trace != undefined ? wsdlParams.trace : 'disable',
+                    statisticsEnabled: wsdlParams.statistics,
+                    optimize: wsdlParams.optimize != undefined ? wsdlParams.optimize.toUpperCase() : 'LEAVE_AS_IS',
+                    description: endpointParams.description,
+                    wsdlUri: wsdlParams.uri,
+                    wsdlService: wsdlParams.service,
+                    wsdlPort: wsdlParams.port,
+                    requireProperties: false,
+                    properties: [],
+                    addressingEnabled: wsdlParams.enableAddressing != undefined ? 'enable' : 'disable',
+                    addressingVersion: wsdlParams.enableAddressing != undefined ? wsdlParams.enableAddressing.version : '',
+                    addressListener: (wsdlParams.enableAddressing != undefined && wsdlParams.enableAddressing.separateListener) ? 'enable' : 'disable',
+                    securityEnabled: wsdlParams.enableSec != undefined ? 'enable' : 'disable',
                     suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
                     initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : '',
                     maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : '',
