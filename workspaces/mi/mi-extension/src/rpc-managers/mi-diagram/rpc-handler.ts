@@ -108,12 +108,16 @@ import {
     GetMessageStoreRequest,
     getAvailableResources,
     GetAvailableResourcesRequest,
+    updateLoadBalanceEndpoint,
+    UpdateLoadBalanceEPRequest,
     CreateClassMediatorRequest,
     createClassMediator,
     getLocalEntry,
     GetLocalEntryRequest,
     getXmlFileList,
-    FileListRequest
+    FileListRequest,
+    getLoadBalanceEndpoint,
+    GetLoadBalanceEPRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -131,6 +135,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createAPI, (args: CreateAPIRequest) => rpcManger.createAPI(args));
     messenger.onRequest(getEndpointDirectory, () => rpcManger.getEndpointDirectory());
     messenger.onRequest(createEndpoint, (args: CreateEndpointRequest) => rpcManger.createEndpoint(args));
+    messenger.onRequest(updateLoadBalanceEndpoint, (args: UpdateLoadBalanceEPRequest) => rpcManger.updateLoadBalanceEndpoint(args));
+    messenger.onRequest(getLoadBalanceEndpoint, (args: GetLoadBalanceEPRequest) => rpcManger.getLoadBalanceEndpoint(args));
     messenger.onRequest(getEndpointsAndSequences, () => rpcManger.getEndpointsAndSequences());
     messenger.onRequest(getTemplates, () => rpcManger.getTemplates());
     messenger.onRequest(getSequenceDirectory, () => rpcManger.getSequenceDirectory());

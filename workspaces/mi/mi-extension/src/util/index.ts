@@ -21,6 +21,7 @@ import { getTemplateXml, TemplateArgs } from './template-engine/mustach-template
 import { getHttpEndpointXml, HttpEndpointArgs } from './template-engine/mustach-templates/HttpEndpoint';
 import { getAddressEndpointXml, AddressEndpointArgs } from './template-engine/mustach-templates/AddressEndpoint';
 import { getWsdlEndpointXml, WsdlEndpointArgs } from './template-engine/mustach-templates/WsdlEndpoint';
+import { GetLoadBalanceEPTemplatesArgs, getLoadBalanceEPXml } from './template-engine/mustach-templates/loadBalanceEndpoint';
 
 const isDevMode = process.env.WEB_VIEW_WATCH_MODE === "true";
 
@@ -66,6 +67,10 @@ export function getProxyServiceXmlWrapper(props: ProxyServiceTemplateArgs) {
 
 export function getTaskXmlWrapper(data: GetTaskTemplatesArgs) {
     return getTaskXml(data);
+}
+
+export function getLoadBalanceXmlWrapper(data: GetLoadBalanceEPTemplatesArgs) {
+    return getLoadBalanceEPXml(data);
 }
 
 export function getMessageStoreXmlWrapper(props: GetMessageStoreTemplatesArgs) {

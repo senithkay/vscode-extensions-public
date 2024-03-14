@@ -98,14 +98,18 @@ import {
     GetMessageStoreRequest,
     GetMessageStoreResponse,
     GetAvailableResourcesRequest,
-    GetAvailableResourcesResponse,
     CreateClassMediatorRequest,
     CreateClassMediatorResponse,
     GetLocalEntryRequest,
     GetLocalEntryResponse,
     TemplatesResponse,
     FileListRequest,
-    FileListResponse
+    FileListResponse,
+    GetAvailableResourcesResponse,
+    UpdateLoadBalanceEPResponse,
+    UpdateLoadBalanceEPRequest,
+    GetLoadBalanceEPRequest,
+    GetLoadBalanceEPResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import * as fs from "fs";
@@ -115,7 +119,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { StateMachine, openView } from "../../stateMachine";
 import { Position, Range, Selection, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
-import { createFolderStructure, getTaskXmlWrapper, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper, getMessageStoreXmlWrapper, getTemplateXmlWrapper, getHttpEndpointXmlWrapper, getAddressEndpointXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
+import { createFolderStructure, getTaskXmlWrapper, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper, getMessageStoreXmlWrapper, getTemplateXmlWrapper, getHttpEndpointXmlWrapper, getAddressEndpointXmlWrapper, getWsdlEndpointXmlWrapper, getLoadBalanceXmlWrapper } from "../../util";
 import { getMediatypeAndFileExtension, addNewEntryToArtifactXML, detectMediaType, changeRootPomPackaging } from "../../util/fileOperations";
 import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";
@@ -126,7 +130,6 @@ import { getClassMediatorContent } from "../../util/template-engine/mustach-temp
 import { error } from "console";
 import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
-
 
 const connectorsPath = path.join(".metadata", ".Connectors");
 
@@ -387,6 +390,112 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             resolve({ path: filePath });
         });
     }
+    
+    async updateLoadBalanceEndpoint(params: UpdateLoadBalanceEPRequest): Promise<UpdateLoadBalanceEPResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, ...templateParams } = params;
+
+            const xmlData = getLoadBalanceXmlWrapper(templateParams);
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${templateParams.name}.xml`);
+            }
+
+            fs.writeFileSync(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getLoadBalanceEndpoint(params: GetLoadBalanceEPRequest): Promise<GetLoadBalanceEPResponse> {
+        return new Promise(async (resolve) => {
+            const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
+            const options = {
+                ignoreAttributes : false,
+                attributeNamePrefix: "@_",
+                indentBy: '    ',
+                format: true,
+            };
+            
+            const builder = new XMLBuilder(options);
+            const filePath = params.path;
+
+            if (filePath.includes('.xml') && fs.existsSync(filePath)) {
+                const { name, loadbalance, session, property, description} = endpointSyntaxTree.syntaxTree.endpoint;
+
+                const endpoints = loadbalance.endpointOrMember.map((member: any) => {
+                    const { address, name } = member.endpoint;
+
+                    let value = '';
+                    if (member.endpoint?.key) {
+                        value = member.endpoint.key;
+                    }
+                    else {
+                        value = builder.build({
+                            "endpoint": {
+                                "@_name": name,
+                                "address": {
+                                    "@_uri": address.uri,
+                                    "suspendOnFailure": {
+                                        "initialDuration": {
+                                            "#text": address.suspendOnFailure.initialDuration.textNode
+                                        },
+                                        "progressionFactor": {
+                                            "#text": address.suspendOnFailure.progressionFactor.textNode
+                                        }
+                                    },
+                                    "markForSuspension": {
+                                        "retriesBeforeSuspension": {
+                                            "#text": address.markForSuspension.retriesBeforeSuspension.textNode
+                                        }
+                                    }
+                                }
+                            }
+                        }).trim();
+                    }
+
+                    return {
+                        type: member.endpoint.key ? 'static' : 'inline',
+                        value,
+                    };
+                });
+
+                const properties = property.map((prop: any) => ({
+                    name: prop.name,
+                    value: prop.value,
+                    scope: prop.scope ?? 'default'
+                }));
+
+                resolve({
+                    name,
+                    algorithm: loadbalance.algorithm,
+                    failover: String(loadbalance.failover) ?? 'false',
+                    buildMessage: String(loadbalance.buildMessage) ?? 'false',
+                    sessionManagement: session?.type ?? 'none',
+                    sessionTimeout: session?.sessionTimeout ?? '',
+                    description: description ?? '',
+                    endpoints: endpoints.length > 0 ? endpoints : [],
+                    properties: properties.length > 0 ? properties : []
+                });
+            }
+
+            resolve({
+                name: '',
+                algorithm: 'roundRobin',
+                failover: 'false',
+                buildMessage: 'true',
+                sessionManagement: 'none',
+                sessionTimeout: '',
+                description: '',
+                endpoints: [],
+                properties: []
+            });
+        });
+    }
 
     async createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
         return new Promise(async (resolve) => {
@@ -599,27 +708,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         'store.resequence.id.path': 'xPath',
                         'store.failover.message.store.name': 'failOverMessageStore'
                     }
-                    switch (className) {
-                        case 'org.apache.synapse.message.store.impl.jms.JmsStore':
-                            response.type = 'JMS Message Store';
-                            break;
-                        case 'org.apache.synapse.message.store.impl.jdbc.JDBCMessageStore':
-                            response.type = 'JDBC Message Store';
-                            break;
-                        case 'org.apache.synapse.message.store.impl.rabbitmq.RabbitMQStore':
-                            response.type = 'RabbitMQ Message Store';
-                            break;
-                        case 'org.apache.synapse.message.store.impl.resequencer.ResequenceMessageStore':
-                            response.type = 'Resequence Message Store';
-                            break;
-                        case 'org.apache.synapse.message.store.impl.memory.InMemoryStore':
-                            response.type = 'In Memory Message Store';
-                            break;
-                        default:
-                            response.type = 'Custom Message Store';
-                            break;
-                    }
-                    if (response.type !== 'Custom Message Store') {
+                    if  (response.type !== 'Custom Message Store')  {
                         parameters.forEach((param: Parameter) => {
                             if (MessageStoreModel.hasOwnProperty(param.name)) {
                                 response[MessageStoreModel[param.name]] = param.value;
