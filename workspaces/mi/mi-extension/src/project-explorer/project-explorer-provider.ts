@@ -13,7 +13,7 @@ import { ProjectStructureResponse, ProjectStructureEntry, RegistryResourcesFolde
 import { COMMANDS } from '../constants';
 import { window } from 'vscode';
 import path = require('path');
-import { detectClassMediators, findJavaFiles } from '../util/fileOperations';
+import { findJavaFiles } from '../util/fileOperations';
 
 export class ProjectExplorerEntry extends vscode.TreeItem {
 	children: ProjectExplorerEntry[] | undefined;
@@ -422,7 +422,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"command": COMMANDS.SHOW_MESSAGE_STORE,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
-		
+
 		} else if (entry.type === "LOCAL_ENTRY") {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 			explorerEntry.contextValue = 'localEntry';
@@ -431,7 +431,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"command": COMMANDS.SHOW_LOCAL_ENTRY,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
-		
+
 		} else {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 		}
