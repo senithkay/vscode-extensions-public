@@ -18,7 +18,7 @@ class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
 		if (!config.type && !config.request && !config.name) {
 			const editor = vscode.window.activeTextEditor;
 			if (editor && editor.document.languageId === 'markdown') {
-				config.type = 'mock';
+				config.type = 'mi';
 				config.name = 'Launch';
 				config.request = 'launch';
 				// config.program = '${file}';
@@ -37,35 +37,25 @@ class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
 }
 
 export function activateDebugger(context: vscode.ExtensionContext) {
-    // register a configuration provider for 'mock' debug type
+    // register a configuration provider for 'mi' debug type
     const provider = new MiConfigurationProvider();
-	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('mock', provider));
+	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('mi', provider));
 
-	// register a dynamic configuration provider for 'mock' debug type
-	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('mock', {
+	// register a dynamic configuration provider for 'mi' debug type
+	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('mi', {
 		provideDebugConfigurations(folder: WorkspaceFolder | undefined): ProviderResult<DebugConfiguration[]> {
 			return [
 				{
-					name: "Dynamic Launch",
+					name: "MI: Run",
 					request: "launch",
-					type: "mock"
-				},
-				{
-					name: "Another Dynamic Launch",
-					request: "launch",
-					type: "mock"
-				},
-				{
-					name: "Mock Launch",
-					request: "launch",
-					type: "mock"
+					type: "mi"
 				}
 			];
 		}
 	}, vscode.DebugConfigurationProviderTriggerKind.Dynamic));
 
     const factory = new InlineDebugAdapterFactory();
-    context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory('mock', factory));
+    context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory('mi', factory));
 }
 
 class InlineDebugAdapterFactory implements vscode.DebugAdapterDescriptorFactory {

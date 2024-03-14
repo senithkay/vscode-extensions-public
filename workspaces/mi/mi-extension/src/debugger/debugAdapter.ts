@@ -17,10 +17,10 @@ export class MiDebugAdapter extends LoggingDebugSession {
         const commandToExecute = "mvn clean install && cp -f target/*.car " + commandPath;
 
         const firstTask = new vscode.Task(
-            { type: 'myTaskType' },
+            { type: 'mi-build' },
             vscode.TaskScope.Workspace,
-            'My Task',
-            'My Task Executable',
+            'build',
+            'mi',
             new vscode.ShellExecution(commandToExecute)
         );
 
@@ -28,10 +28,10 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
         const command2 = program + '/bin/micro-integrator.sh';
         const secondTask = new vscode.Task(
-            { type: 'anotherTaskType' },
+            { type: 'mi-run' },
             vscode.TaskScope.Workspace,
-            'Another Task',
-            'Another Task Executable',
+            'run',
+            'mi',
             new vscode.ShellExecution(command2)
         );
 
@@ -71,10 +71,10 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
     protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): void {
 
-        const taskExecution = vscode.tasks.taskExecutions.find(execution => execution.task.name === 'Another Task');
+        const taskExecution = vscode.tasks.taskExecutions.find(execution => execution.task.name === 'run');
         if (taskExecution) {
             taskExecution.terminate();
-            const taskExecution2 = vscode.tasks.taskExecutions.find(execution => execution.task.name === 'My Task');
+            const taskExecution2 = vscode.tasks.taskExecutions.find(execution => execution.task.name === 'build');
             if (taskExecution2) {
                 taskExecution2.terminate();
             }

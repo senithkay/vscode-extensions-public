@@ -111,22 +111,24 @@ export function generateTasksJsonIfNotExists(): Promise<boolean> {
 export async function activate(context: vscode.ExtensionContext) {
 
 	extension.context = context;
+    // For testing
     // await extension.context.globalState.update(SELECTED_SERVER_PATH,"");
 
     vscode.commands.registerCommand(COMMANDS.CHANGE_SERVER_PATH, async () => { 
+        const addServer: string = "Add MI Server";
         const currentServerPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
         const quickPicks: vscode.QuickPickItem[] = [];
         if (!currentServerPath) {
-            quickPicks.push({label: "Add new server"});
+            quickPicks.push({label: addServer});
         } else {
             quickPicks.push({ kind: vscode.QuickPickItemKind.Separator, label: "current server path" });
             quickPicks.push({label: currentServerPath, },
-            {label: "Add new server"});
+            {label: addServer});
         }
-        const options: vscode.QuickPickOptions = { canPickMany: false, title: "Select Server path" };
+        const options: vscode.QuickPickOptions = { canPickMany: false, title: "Select Server Path" };
         const selected = await vscode.window.showQuickPick(quickPicks, options);
         if (selected) {
-            if (selected.label === 'Add new server') {
+            if (selected.label === addServer) {
                 // Perform a folder search
                 const folders = await vscode.window.showOpenDialog({
                     canSelectFiles: false,

@@ -14,8 +14,8 @@
     "onLanguage:SynapseXml",
     "workspaceContains:.project",
     "workspaceContains:pom.xml",
-    "onDebugResolve:mock",
-    "onDebugDynamicConfigurations:mock"
+    "onDebugResolve:mi",
+    "onDebugDynamicConfigurations:mi"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -34,15 +34,10 @@
         "path": "./syntaxes/xml.tmLanguage.json"
       }
     ],
-    "taskDefinitions": [
-      {
-          "type": "myTaskType"
-      }
-  ],
     "debuggers": [
       {
-        "type": "mock",
-        "label": "Mock Debug",
+        "type": "mi",
+        "label": "MI: Run",
         "runtime": "node",
 
         "configurationAttributes": {
@@ -50,8 +45,8 @@
         },
         "initialConfigurations": [
             {
-                "type": "mock",
-                "name": "Mock Debug",
+                "type": "mi",
+                "name": "MI: Run",
                 "request": "launch"
             }     
         ]
@@ -182,7 +177,7 @@
       },
       {
         "command": "MI.change.server",
-        "title": "Change micro-integrator server",
+        "title": "Add MI server",
         "category": "MI"
       }
     ],
