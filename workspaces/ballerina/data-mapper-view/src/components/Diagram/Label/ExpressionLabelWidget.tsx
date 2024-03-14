@@ -11,7 +11,7 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
-import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { FunctionCall, NodePosition, STKindChecker,} from '@wso2-enterprise/syntax-tree';
 import classNames from "classnames";
 
 import { CodeActionWidget } from '../CodeAction/CodeAction';
@@ -34,6 +34,7 @@ import { handleCodeActions } from "../utils/ls-utils";
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { QueryExprMappingType } from '../Node';
 
 export interface EditableLabelWidgetProps {
     model: ExpressionLabelModel;
@@ -44,13 +45,14 @@ export const useStyles = () => ({
         width: '100%',
         backgroundColor: "var(--vscode-sideBar-background)",
         padding: "2px",
-        borderRadius: "6px",
+        borderRadius: "2px",
         display: "flex",
         color: "var(--vscode-checkbox-border)",
         alignItems: "center",
         "& > vscode-button > *": {
             margin: "0 2px"
-        }
+        },
+        border: "1px solid var(--vscode-welcomePage-tileBorder)",
     }),
     containerHidden: css({
         visibility: 'hidden',
@@ -116,6 +118,8 @@ export enum ArrayMappingType {
     ArrayToSingleton
 }
 
+const AggregationFunctions = ["avg", "count", "max", "min", "sum"];
+
 // now we can render all what we want in the label
 export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     const [linkStatus, setLinkStatus] = React.useState<LinkState>(LinkState.LinkNotSelected);
@@ -125,6 +129,8 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     const classes = useStyles();
     const { link, context, value, field, editorLabel, deleteLink } = props.model;
     const diagnostic = link && link.hasError() ? link.diagnostics[0] : null;
+    const connectedViaCollectClause = context?.selection.selectedST?.mappingType
+        && context.selection.selectedST.mappingType === QueryExprMappingType.A2SWithCollect;
 
     React.useEffect(() => {
         async function genModel() {
@@ -272,6 +278,22 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         }
     };
 
+    const onClickChangeAggrFn = (newFnName: string, currentFnName: string, mappedExpr: FunctionCall) => {
+        const currentExpr: string = mappedExpr.source;
+        const updatedExpr = currentExpr.replace(currentFnName, newFnName);
+
+        const position = mappedExpr.position as NodePosition;
+        const modifications = [{
+            type: "INSERT",
+            config: {
+                "STATEMENT": updatedExpr,
+            },
+            ...position
+        }];
+        void context.applyModifications(modifications);
+
+    };
+
     const additionalActions = [];
     if (arrayMappingType === ArrayMappingType.ArrayToArray) {
         additionalActions.push({
@@ -295,6 +317,32 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                 btnSx={{ margin: "0 2px" }}
             />
         );
+    }
+
+    if (connectedViaCollectClause) {
+        const mappedExpr = (link.getTargetPort() as RecordFieldPortModel)?.editableRecordField?.value;
+        const fnName = mappedExpr
+            && STKindChecker.isFunctionCall(mappedExpr)
+            && STKindChecker.isSimpleNameReference(mappedExpr.functionName)
+            && mappedExpr.functionName.name.value;
+        if (fnName) {
+            const aggrOptions = AggregationFunctions.filter((fn) => fn !== fnName);
+            const additionalActions = aggrOptions.map((fn) => {
+                return {
+                    title: fn,
+                    onClick: () => onClickChangeAggrFn(fn, fnName, mappedExpr)
+                };
+            });
+            elements.push(<div className={classes.separator}/>);
+            elements.push(
+                <CodeActionWidget
+                    context={context}
+                    additionalActions={additionalActions}
+                    isConfiguration={true}
+                    btnSx={{ margin: "0 2px" }}
+                />
+            );
+        }
     }
 
     if (diagnostic) {
@@ -360,7 +408,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                 data-testid={`expression-label-for-${props.model?.link?.getSourcePort()?.getName()}-to-${props.model?.link?.getTargetPort()?.getName()}`}
                 className={classNames(
                     classes.container,
-                    linkStatus === LinkState.LinkNotSelected && !deleteInProgress && classes.containerHidden
+                    linkStatus === LinkState.LinkNotSelected && !deleteInProgress && !connectedViaCollectClause && classes.containerHidden
                 )}
             >
                 {elements}
