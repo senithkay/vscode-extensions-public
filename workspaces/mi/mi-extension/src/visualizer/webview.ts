@@ -16,6 +16,7 @@ import { extension } from '../MIExtensionContext';
 import { debounce } from 'lodash';
 import { navigate } from '../stateMachine';
 import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { COMMANDS } from '../constants';
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
@@ -30,8 +31,9 @@ export class VisualizerWebview {
         RPCLayer.create(this._panel);
 
         // Handle the text change and diagram update with rpc notification
-        const refreshDiagram = debounce(() => {
+        const refreshDiagram = debounce(async () => {
             if (this.getWebview()) {
+                await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND); // Refresh the project explore view
                 navigate();
             }
         }, 500);
