@@ -25,6 +25,7 @@ import { ClassMediatorForm } from './views/Forms/ClassMediatorForm';
 import { HttpEndpointWizard } from "./views/Forms/HTTPEndpointForm";
 import { AddressEndpointWizard } from "./views/Forms/AddressEndpointForm";
 import { WsdlEndpointWizard } from "./views/Forms/WSDLEndpointForm";
+import { DefaultEndpointWizard } from "./views/Forms/DefaultEndpointForm";
 import { LoadBalanceWizard } from './views/Forms/LoadBalanceEPform';
 import { css, keyframes } from '@emotion/react';
 import { getSyntaxTreeType } from './utils/syntax-tree';
@@ -179,6 +180,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.WsdlEndpointForm:
                     setViewComponent(<WsdlEndpointWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.DefaultEndpointForm:
+                    setViewComponent(<DefaultEndpointWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.ProjectCreationForm:
                     setViewComponent(<ProjectWizard />);

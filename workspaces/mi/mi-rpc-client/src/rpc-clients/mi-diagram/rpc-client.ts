@@ -48,6 +48,10 @@ import {
     UpdateWsdlEndpointResponse,
     RetrieveWsdlEndpointRequest,
     RetrieveWsdlEndpointResponse,
+    UpdateDefaultEndpointRequest,
+    UpdateDefaultEndpointResponse,
+    RetrieveDefaultEndpointRequest,
+    RetrieveDefaultEndpointResponse,
     CreateTemplateRequest,
     CreateTemplateResponse,
     RetrieveTemplateRequest,
@@ -101,6 +105,7 @@ import {
     updateHttpEndpoint,
     updateAddressEndpoint,
     updateWsdlEndpoint,
+    updateDefaultEndpoint,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -124,6 +129,7 @@ import {
     getHttpEndpoint,
     getAddressEndpoint,
     getWsdlEndpoint,
+    getDefaultEndpoint,
     getSyntaxTree,
     getWorkspaceContext,
     getTextAtRange,
@@ -326,6 +332,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getWsdlEndpoint(params: RetrieveWsdlEndpointRequest): Promise<RetrieveWsdlEndpointResponse> {
         return this._messenger.sendRequest(getWsdlEndpoint, HOST_EXTENSION, params);
+    }
+
+    updateDefaultEndpoint(params: UpdateDefaultEndpointRequest): Promise<UpdateDefaultEndpointResponse> {
+        return this._messenger.sendRequest(updateDefaultEndpoint, HOST_EXTENSION, params);
+    }
+
+    getDefaultEndpoint(params: RetrieveDefaultEndpointRequest): Promise<RetrieveDefaultEndpointResponse> {
+        return this._messenger.sendRequest(getDefaultEndpoint, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {
