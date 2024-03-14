@@ -119,7 +119,7 @@ export function Diagram(props: DiagramProps) {
             delete (modelCopy as ServiceWithSequences).faultSequence;
         }
 
-        if (model.tag !== "resource" && model.tag !== "proxy") {
+        if (!NodeKindChecker.isAPIResource(model) && !NodeKindChecker.isProxy(model)) {
             setTabPaneVisible(false);
             setSequence(true);
         }
