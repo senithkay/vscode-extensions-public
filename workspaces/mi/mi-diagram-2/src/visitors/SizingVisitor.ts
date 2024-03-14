@@ -265,6 +265,7 @@ export class SizingVisitor implements Visitor {
         }, NodeTypes.GROUP_NODE);
     }
     endVisitIterate = (node: Iterate): void => {
+        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
         this.calculateAdvancedMediator(node, {
             Target: node.target.sequence
         }, NodeTypes.GROUP_NODE);
