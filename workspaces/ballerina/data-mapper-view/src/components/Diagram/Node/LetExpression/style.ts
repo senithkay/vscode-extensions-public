@@ -22,6 +22,7 @@ export const useStyles = () => ({
             fontSize: "13px",
             lineHeight: "24px",
             height: "40px",
+            border: "1px solid var(--vscode-welcomePage-tileBorder)",
         },
         "& > vscode-button > *": {
             margin: "0px 6px"
