@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { APIResource, Range, NamedSequence } from "@wso2-enterprise/mi-syntax-tree/src";
+import { APIResource, Range, NamedSequence } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
 import { EditAPIForm, Method } from "../views/Forms/EditForms/EditResourceForm";
 import { EditSequenceForm } from "../views/Forms/EditForms/EditSequenceForm";
