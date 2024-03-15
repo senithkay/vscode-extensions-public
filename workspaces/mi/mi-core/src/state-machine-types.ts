@@ -8,6 +8,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Diagnostic } from "vscode-languageserver-types";
 import { NotificationType, RequestType } from "vscode-messenger-common";
 
 export enum MACHINE_VIEW {
@@ -69,6 +71,8 @@ export interface CommandProps {
 // State Machine context values
 export interface VisualizerLocation {
     view: MACHINE_VIEW | null;
+    stNode?: STNode;
+    diagnostics?: Diagnostic[]
     documentUri?: string;
     projectUri?: string;
     identifier?: string;
