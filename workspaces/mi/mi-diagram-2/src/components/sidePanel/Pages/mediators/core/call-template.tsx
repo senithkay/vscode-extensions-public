@@ -179,7 +179,14 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                 newErrors[key] = (error);
             }
         });
-        formValues["parameterNameTable"] = params.paramValues.map((param: any) => [param.parameters[0].value, param.parameters[1].value, param.parameters[2].value]);
+        formValues["parameterNameTable"] = params.paramValues.map(param => param.parameters.slice(0, 4).map(p => p.value));
+        params.paramValues.forEach(param => {
+            param.parameters.slice(0, 4).forEach(p => {
+                let key = p.label.toLowerCase().replace(/\s/g, '');
+                formValues[key] = p.value;
+            });
+        });
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
         } else {

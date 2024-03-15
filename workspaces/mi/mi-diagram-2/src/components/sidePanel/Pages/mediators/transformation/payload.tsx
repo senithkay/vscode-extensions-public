@@ -161,6 +161,13 @@ const PayloadForm = (props: AddMediatorProps) => {
             }
         });
         formValues["args"] = params.paramValues.map(param => param.parameters.slice(0, 5).map(p => p.value));
+        params.paramValues.forEach(param => {
+            param.parameters.slice(0, 5).forEach(p => {
+                let key = p.label.toLowerCase().replace(/\s/g, '');
+                formValues[key] = p.value;
+            });
+        });
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
         } else {

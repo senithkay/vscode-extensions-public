@@ -174,6 +174,13 @@ const XQueryForm = (props: AddMediatorProps) => {
             }
         });
         formValues["variables"] = params.paramValues.map(param => param.parameters.slice(0, 6).map(p => p.value));
+        params.paramValues.forEach(param => {
+            param.parameters.slice(0, 6).forEach(p => {
+                let key = p.label.toLowerCase().replace(/\s/g, '');
+                formValues[key] = p.value;
+            });
+        });
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
         } else {

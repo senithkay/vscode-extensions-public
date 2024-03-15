@@ -255,7 +255,14 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                 newErrors[key] = (error);
             }
         });
-        formValues["properties"] = params.paramValues.map(param => param.parameters.slice(0, 9).map(p => p.value));
+        formValues["properties"] = params.paramValues.map(param => param.parameters.slice(0, 11).map(p => p.value));
+        params.paramValues.forEach(param => {
+            param.parameters.slice(0, 11).forEach(p => {
+                let key = p.label.toLowerCase().replace(/\s/g, '');
+                formValues[key] = p.value;
+            });
+        });
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
         } else {
