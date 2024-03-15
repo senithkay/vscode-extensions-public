@@ -3139,6 +3139,8 @@ importers:
       typescript: ^5.1.6
       unzipper: ~0.10.14
       uuid: ~9.0.1
+      vscode-debugadapter: ^1.51.0
+      vscode-debugprotocol: ^1.51.0
       vscode-extension-tester: ~5.9.1
       vscode-languageclient: ^8.0.2
       vscode-languageserver-protocol: ^3.17.2
@@ -3166,8 +3168,11 @@ importers:
       lodash: 4.17.21
       mustache: 4.2.0
       node-fetch: 2.6.13
+      tree-kill: 1.2.2
       unzipper: 0.10.14
       uuid: 9.0.1
+      vscode-debugadapter: 1.51.0
+      vscode-debugprotocol: 1.51.0
       vscode-extension-tester: 5.9.1_73fg3tqgzkq2e6aekvvil76q2i
       vscode-languageclient: 8.1.0
       vscode-languageserver-protocol: 3.17.5
