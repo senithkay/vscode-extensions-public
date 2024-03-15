@@ -92,6 +92,31 @@ export interface GetLoadBalanceEPResponse {
     properties: { name: string; value: string; scope: string; }[];
 }
 
+export interface UpdateFailoverEPRequest {
+    directory: string;
+    name: string;
+    buildMessage: string;
+    description: string;
+    endpoints: { type: string; value: string; }[];
+    properties: { name: string; value: string; scope: string; }[];
+}
+
+export interface UpdateFailoverEPResponse {
+    path: string;
+}
+
+export interface GetFailoverEPRequest {
+    path: string;
+}
+
+export interface GetFailoverEPResponse {
+    name: string;
+    buildMessage: string;
+    description: string;
+    endpoints: { type: string; value: string; }[];
+    properties: { name: string; value: string; scope: string; }[];
+}
+
 export interface CreateInboundEndpointRequest {
     directory: string;
     name: string;

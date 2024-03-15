@@ -174,7 +174,13 @@ import {
     updateLoadBalanceEndpoint,
     GetLoadBalanceEPRequest,
     GetLoadBalanceEPResponse,
-    getLoadBalanceEndpoint
+    getLoadBalanceEndpoint,
+    UpdateFailoverEPRequest,
+    UpdateFailoverEPResponse,
+    updateFailoverEndpoint,
+    GetFailoverEPRequest,
+    GetFailoverEPResponse,
+    getFailoverEndpoint
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -236,6 +242,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     
     getLoadBalanceEndpoint(params: GetLoadBalanceEPRequest): Promise<GetLoadBalanceEPResponse> {
         return this._messenger.sendRequest(getLoadBalanceEndpoint, HOST_EXTENSION, params);
+    }
+
+    updateFailoverEndpoint(params: UpdateFailoverEPRequest): Promise<UpdateFailoverEPResponse> {
+        return this._messenger.sendRequest(updateFailoverEndpoint, HOST_EXTENSION, params);
+    }
+    
+    getFailoverEndpoint(params: GetFailoverEPRequest): Promise<GetFailoverEPResponse> {
+        return this._messenger.sendRequest(getFailoverEndpoint, HOST_EXTENSION, params);
     }
 
     createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
