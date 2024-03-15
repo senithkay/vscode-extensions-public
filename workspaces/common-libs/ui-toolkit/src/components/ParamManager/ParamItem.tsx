@@ -24,7 +24,7 @@ interface ParamItemProps {
 const getParamComponent = (p: Param, isReadonly: boolean) => {
     return (
         <>
-            {(!p.isEnabled || !p.enableCondition) ? (
+            {(p.isEnabled || !p.enableCondition) ? (
                 <div data-test-id={`${p.label}-param`} className={isReadonly ? disabledHeaderLabel : headerLabelStyles}>
                     {p.value.toString()}
                 </div>
