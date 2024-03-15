@@ -30,6 +30,8 @@ import {
     RetrieveAddressEndpointRequest,
     UpdateWsdlEndpointRequest,
     RetrieveWsdlEndpointRequest,
+    UpdateDefaultEndpointRequest,
+    RetrieveDefaultEndpointRequest,
     GetDefinitionRequest,
     GetDiagnosticsReqeust,
     GetInboundEpDirRequest,
@@ -61,6 +63,7 @@ import {
     updateHttpEndpoint,
     updateAddressEndpoint,
     updateWsdlEndpoint,
+    updateDefaultEndpoint,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -78,6 +81,7 @@ import {
     getHttpEndpoint,
     getAddressEndpoint,
     getWsdlEndpoint,
+    getDefaultEndpoint,
     getProjectRoot,
     getProjectUuid,
     getSTRequest,
@@ -117,7 +121,11 @@ import {
     getXmlFileList,
     FileListRequest,
     getLoadBalanceEndpoint,
-    GetLoadBalanceEPRequest
+    GetLoadBalanceEPRequest,
+    updateFailoverEndpoint,
+    UpdateFailoverEPRequest,
+    getFailoverEndpoint,
+    GetFailoverEPRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -137,6 +145,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createEndpoint, (args: CreateEndpointRequest) => rpcManger.createEndpoint(args));
     messenger.onRequest(updateLoadBalanceEndpoint, (args: UpdateLoadBalanceEPRequest) => rpcManger.updateLoadBalanceEndpoint(args));
     messenger.onRequest(getLoadBalanceEndpoint, (args: GetLoadBalanceEPRequest) => rpcManger.getLoadBalanceEndpoint(args));
+    messenger.onRequest(updateFailoverEndpoint, (args: UpdateFailoverEPRequest) => rpcManger.updateFailoverEndpoint(args));
+    messenger.onRequest(getFailoverEndpoint, (args: GetFailoverEPRequest) => rpcManger.getFailoverEndpoint(args));
     messenger.onRequest(getEndpointsAndSequences, () => rpcManger.getEndpointsAndSequences());
     messenger.onRequest(getTemplates, () => rpcManger.getTemplates());
     messenger.onRequest(getSequenceDirectory, () => rpcManger.getSequenceDirectory());
@@ -159,6 +169,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAddressEndpoint, (args: RetrieveAddressEndpointRequest) => rpcManger.getAddressEndpoint(args));
     messenger.onRequest(updateWsdlEndpoint, (args: UpdateWsdlEndpointRequest) => rpcManger.updateWsdlEndpoint(args));
     messenger.onRequest(getWsdlEndpoint, (args: RetrieveWsdlEndpointRequest) => rpcManger.getWsdlEndpoint(args));
+    messenger.onRequest(updateDefaultEndpoint, (args: UpdateDefaultEndpointRequest) => rpcManger.updateDefaultEndpoint(args));
+    messenger.onRequest(getDefaultEndpoint, (args: RetrieveDefaultEndpointRequest) => rpcManger.getDefaultEndpoint(args));
     messenger.onNotification(closeWebView, () => rpcManger.closeWebView());
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));
     messenger.onNotification(openFile, (args: OpenDiagramRequest) => rpcManger.openFile(args));

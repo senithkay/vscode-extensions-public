@@ -8,7 +8,7 @@
  */
 import React, { useState } from "react";
 import { storiesOf } from "@storybook/react";
-import { ParamConfig, ParamManager } from "./ParamManager";
+import { ParamConfig, ParamField, ParamManager } from "./ParamManager";
 
 // Sample object for ParamManager
 const paramConfigs: ParamConfig = {
@@ -102,4 +102,112 @@ const ParamManagerDefault = () => {
         </>
     );
 };
+
 storiesOf("Param Manager").add("Manager", () => <ParamManagerDefault />);
+
+// Add a sample enableCondition (ConditionParams | string)[] object
+const paramFields: ParamField[] = [
+    {
+        id: 0,
+        type: "TextField",
+        label: "Text Field",
+        defaultValue: "default value",
+        isRequired: true
+    },
+    {
+        id: 1,
+        type: "Dropdown",
+        label: "Drop Down",
+        defaultValue: "1",
+        values: ["1", "2", "3"],
+    },
+    {
+        id: 2,
+        type: "Checkbox",
+        label: "Checkbox",
+        defaultValue: false,
+        enableCondition: [
+            "OR",
+            { "Drop Down": "2", "Text Field": "2" }
+        ]
+    },
+    {
+        id: 3,
+        type: "TextArea",
+        label: "Text Area",
+        defaultValue: "Test"
+    }
+];
+
+const config: ParamConfig = {
+    paramValues: [],
+    paramFields: paramFields
+};
+
+const EnableCondition = () => {
+    const [params, setParams] = useState(config);
+    const handleOnChange = (params: any) => {
+        setParams(params);
+    };
+
+    return (
+        <>
+            <ParamManager paramConfigs={params} readonly={false} onChange={handleOnChange} />
+        </>
+    );
+};
+
+storiesOf("Param Manager").add("Enable Condition", () => <EnableCondition />);
+
+// Add a sample enableCondition (ConditionParams | string)[] object
+const paramFieldsWithEmptyLogicalExpr: ParamField[] = [
+    {
+        id: 0,
+        type: "TextField",
+        label: "Text Field",
+        defaultValue: "default value",
+        isRequired: true
+    },
+    {
+        id: 1,
+        type: "Dropdown",
+        label: "Drop Down",
+        defaultValue: "1",
+        values: ["1", "2", "3"],
+    },
+    {
+        id: 2,
+        type: "Checkbox",
+        label: "Checkbox",
+        defaultValue: false,
+        enableCondition: [
+            { "Drop Down": "2" }
+        ]
+    },
+    {
+        id: 3,
+        type: "TextArea",
+        label: "Text Area",
+        defaultValue: "Test"
+    }
+];
+
+const emptyLogicalExpr: ParamConfig = {
+    paramValues: [],
+    paramFields: paramFieldsWithEmptyLogicalExpr
+};
+
+const EmptyLogicCondition = () => {
+    const [params, setParams] = useState(emptyLogicalExpr);
+    const handleOnChange = (params: any) => {
+        setParams(params);
+    };
+
+    return (
+        <>
+            <ParamManager paramConfigs={params} readonly={false} onChange={handleOnChange} />
+        </>
+    );
+};
+
+storiesOf("Param Manager").add("Empty Logical Condition", () => <EmptyLogicCondition />);

@@ -1049,7 +1049,7 @@ export interface InterfaceOperationType extends ExtensibleDocumentedType, STNode
 }
 
 export interface Iterate extends STNode {
-    target: Target[];
+    target: Target;
     sequential: boolean;
     continueParent: boolean;
     expression: string;
@@ -1556,7 +1556,7 @@ export interface Parameter extends STNode {
 }
 
 export interface AggregateOnComplete extends STNode {
-    mediators: STNode[];
+    mediatorList: STNode[];
     expression: string;
     sequenceAttribute: string;
     enclosingElementProperty: string;

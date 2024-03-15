@@ -8,7 +8,7 @@
  */
 
 
-import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange, Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange, Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, traversNode, Iterate, Switch } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
 
@@ -159,14 +159,6 @@ export class SizingVisitor implements Visitor {
     endVisitEndpoint = (node: Endpoint): void => this.calculateBasicMediator(node);
     endVisitEndpointHttp = (node: EndpointHttp): void => this.calculateBasicMediator(node);
 
-    endVisitFilter = (node: Filter): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CONDITION.WIDTH, h: NODE_DIMENSIONS.CONDITION.HEIGHT };
-        this.calculateAdvancedMediator(node, {
-            then: node.then,
-            else: node.else_
-        }, NodeTypes.CONDITION_NODE);
-    }
-
     endVisitHeader = (node: Header): void => this.calculateBasicMediator(node);
     endVisitInSequence = (node: Sequence): void => {
         node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.EDITABLE.WIDTH, h: NODE_DIMENSIONS.START.EDITABLE.HEIGHT };
@@ -256,11 +248,37 @@ export class SizingVisitor implements Visitor {
 
     //EIP Mediators
     endVisitAggregate = (node: Aggregate): void => {
+        if (node?.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.mediatorList) {
+            traversNode(node.correlateOnOrCompleteConditionOrOnComplete.onComplete, this);
+        }
         node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
         this.calculateAdvancedMediator(node, {
-            // OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete?.mediators
             OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete
         }, NodeTypes.GROUP_NODE);
+    }
+    endVisitIterate = (node: Iterate): void => {
+        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
+        this.calculateAdvancedMediator(node, {
+            Target: node.target.sequence
+        }, NodeTypes.GROUP_NODE);
+    }
+    //Filter Mediators
+    endVisitFilter = (node: Filter): void => {
+        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CONDITION.WIDTH, h: NODE_DIMENSIONS.CONDITION.HEIGHT };
+        this.calculateAdvancedMediator(node, {
+            then: node.then,
+            else: node.else_
+        }, NodeTypes.CONDITION_NODE);
+    }
+    endVisitSwitch = (node: Switch): void => {
+        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CONDITION.WIDTH, h: NODE_DIMENSIONS.CONDITION.HEIGHT };
+        let cases: { [key: string]: any } = {};
+        node._case.map((_case, index) => {
+            cases[_case.regex || index] = _case;
+        });
+        this.calculateAdvancedMediator(node, {
+            ...cases, default: node._default
+        }, NodeTypes.CONDITION_NODE);
     }
     //Extesnion Mediators
     beginVisitBean = (node: Bean): void => this.calculateBasicMediator(node);

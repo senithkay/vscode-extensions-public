@@ -48,6 +48,10 @@ import {
     UpdateWsdlEndpointResponse,
     RetrieveWsdlEndpointRequest,
     RetrieveWsdlEndpointResponse,
+    UpdateDefaultEndpointRequest,
+    UpdateDefaultEndpointResponse,
+    RetrieveDefaultEndpointRequest,
+    RetrieveDefaultEndpointResponse,
     CreateTemplateRequest,
     CreateTemplateResponse,
     RetrieveTemplateRequest,
@@ -101,6 +105,7 @@ import {
     updateHttpEndpoint,
     updateAddressEndpoint,
     updateWsdlEndpoint,
+    updateDefaultEndpoint,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -124,6 +129,7 @@ import {
     getHttpEndpoint,
     getAddressEndpoint,
     getWsdlEndpoint,
+    getDefaultEndpoint,
     getSyntaxTree,
     getWorkspaceContext,
     getTextAtRange,
@@ -168,7 +174,13 @@ import {
     updateLoadBalanceEndpoint,
     GetLoadBalanceEPRequest,
     GetLoadBalanceEPResponse,
-    getLoadBalanceEndpoint
+    getLoadBalanceEndpoint,
+    UpdateFailoverEPRequest,
+    UpdateFailoverEPResponse,
+    updateFailoverEndpoint,
+    GetFailoverEPRequest,
+    GetFailoverEPResponse,
+    getFailoverEndpoint
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -230,6 +242,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     
     getLoadBalanceEndpoint(params: GetLoadBalanceEPRequest): Promise<GetLoadBalanceEPResponse> {
         return this._messenger.sendRequest(getLoadBalanceEndpoint, HOST_EXTENSION, params);
+    }
+
+    updateFailoverEndpoint(params: UpdateFailoverEPRequest): Promise<UpdateFailoverEPResponse> {
+        return this._messenger.sendRequest(updateFailoverEndpoint, HOST_EXTENSION, params);
+    }
+    
+    getFailoverEndpoint(params: GetFailoverEPRequest): Promise<GetFailoverEPResponse> {
+        return this._messenger.sendRequest(getFailoverEndpoint, HOST_EXTENSION, params);
     }
 
     createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
@@ -326,6 +346,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getWsdlEndpoint(params: RetrieveWsdlEndpointRequest): Promise<RetrieveWsdlEndpointResponse> {
         return this._messenger.sendRequest(getWsdlEndpoint, HOST_EXTENSION, params);
+    }
+
+    updateDefaultEndpoint(params: UpdateDefaultEndpointRequest): Promise<UpdateDefaultEndpointResponse> {
+        return this._messenger.sendRequest(updateDefaultEndpoint, HOST_EXTENSION, params);
+    }
+
+    getDefaultEndpoint(params: RetrieveDefaultEndpointRequest): Promise<RetrieveDefaultEndpointResponse> {
+        return this._messenger.sendRequest(getDefaultEndpoint, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {
