@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Visitor, STNode, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, Iterate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Visitor, STNode, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, Iterate, Switch } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 import { GroupNodeModel } from "../components/nodes/GroupNode/GroupNodeModel";
@@ -223,21 +223,6 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitEndpoint = (node: Endpoint): void => this.createNodeAndLinks(node, "");
     beginVisitEndpointHttp = (node: EndpointHttp): void => this.createNodeAndLinks(node, ENDPOINTS.HTTP);
 
-    beginVisitFilter(node: Filter): void {
-        this.createNodeAndLinks(node, MEDIATORS.FILTER, NodeTypes.CONDITION_NODE)
-        this.parents.push(node);
-
-        this.visitSubSequences(node, {
-            Then: node.then,
-            Else: node.else_,
-        }, NodeTypes.CONDITION_NODE, false);
-        this.skipChildrenVisit = true;
-    }
-    endVisitFilter(node: Filter): void {
-        this.parents.pop();
-        this.skipChildrenVisit = false;
-    }
-
     beginVisitHeader = (node: Header): void => this.createNodeAndLinks(node, MEDIATORS.HEADER);
 
     beginVisitInSequence(node: Sequence): void {
@@ -429,6 +414,37 @@ export class NodeFactoryVisitor implements Visitor {
         this.skipChildrenVisit = true;
     }
     endVisitIterate(node: Iterate): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+    //Filter Mediators
+    beginVisitFilter(node: Filter): void {
+        this.createNodeAndLinks(node, MEDIATORS.FILTER, NodeTypes.CONDITION_NODE)
+        this.parents.push(node);
+
+        this.visitSubSequences(node, {
+            Then: node.then,
+            Else: node.else_,
+        }, NodeTypes.CONDITION_NODE, false);
+        this.skipChildrenVisit = true;
+    }
+    endVisitFilter(node: Filter): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+    beginVisitSwitch(node: Switch): void {
+        this.createNodeAndLinks(node, MEDIATORS.SWITCH, NodeTypes.CONDITION_NODE)
+        this.parents.push(node);
+        let cases: { [key: string]: any } = {};
+        node._case.map((_case, index) => {
+            cases[_case.regex || index] = _case;
+        });
+        this.visitSubSequences(node, {
+            ...cases, default: node._default
+        }, NodeTypes.CONDITION_NODE, false);
+        this.skipChildrenVisit = true;
+    }
+    endVisitSwitch(node: Switch): void {
         this.parents.pop();
         this.skipChildrenVisit = false;
     }
