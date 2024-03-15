@@ -8,13 +8,15 @@
  */
 
 import React, { useEffect } from "react";
-import { MachineStateValue, ProjectStructureResponse, WorkspaceFolder } from "@wso2-enterprise/mi-core";
+import { MachineStateValue, ProjectStructureResponse, WorkspaceFolder, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import ProjectStructureView from "./ProjectStructureView";
-import { Button, Icon, Codicon, TextArea } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, Codicon, TextArea, VerticleIcons } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { View, ViewContent, ViewHeader } from "../../components/View";
+import path from 'path';
+
 
 
 const AddPanel = styled.div({
@@ -38,11 +40,7 @@ const HorizontalCardContainer = styled.div({
     gap: '20px',
 });
 
-const Card = styled.div({
-    backgroundColor: 'var(--vscode-dropdown-background)',
-    padding: '10px', // Add padding inside the card if needed
-    textAlign: 'center', // Center the text inside the card
-});
+
 
 // Add this styled component for the close button
 const CloseButton = styled(Button)({
@@ -69,6 +67,35 @@ export function Overview() {
     const [activeWorkspaces, setActiveWorkspaces] = React.useState<WorkspaceFolder>(undefined);
     const [selected, setSelected] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
+
+    const handleClick = async (key: string) => {
+        const dir = path.join(activeWorkspaces.fsPath, 'src', 'main', 'wso2mi', 'artifacts', key);
+        const entry = { info: { path: dir } };
+        console.log(entry);
+        if (key === 'apis') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-api", entry] });
+        } else if (key === 'endpoints') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-endpoint", entry] });
+        } else if (key === 'sequences') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-sequence", entry] });
+        } else if (key === 'inboundEndpoints') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-inbound-endpoint", entry] });
+        } else if (key === 'registry') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-registry-resource", entry] });
+        } else if (key === 'messageProcessors') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-message-processor", entry] });
+        } else if (key === 'proxyServices') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-proxy-service", entry] });
+        } else if (key === 'tasks') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-task", entry] });
+        } else if (key === 'templates') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-template", entry] });
+        } else if (key === 'messageStores') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-message-store", entry] });
+        } else if (key === 'localEntries') {
+            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-local-entry", entry] });
+        }
+    };
 
     useEffect(() => {
         rpcClient.getMiVisualizerRpcClient().getWorkspaces().then((response) => {
@@ -146,18 +173,10 @@ export function Overview() {
                     </AIPanel>
                     <h3>Or, Select an Entry point to Start</h3>
                     <HorizontalCardContainer>
-                        <Card>
-                            <h3>API</h3>
-                        </Card>
-                        <Card>
-                            <h3>Proxy</h3>
-                        </Card>
-                        <Card>
-                            <h3>Task</h3>
-                        </Card>
-                        <Card>
-                            <h3>Inbound Endpoint</h3>
-                        </Card>
+                        <Card icon="globe" title="API" description="Create a new HTTP API" onClick={() => handleClick("apis")} />
+                        <Card icon="arrow-swap" title="Proxy" description="Create a new Proxy" onClick={() => handleClick("proxyServices")} />
+                        <Card icon="fold-down" title="Task" description="Create a new Task" onClick={() => handleClick("tasks")} />
+                        <Card icon="globe" title="Inbound Endpoint" description="Create a new Inbound Endpoint" onClick={() => handleClick("inboundEndpoints")} />
                     </HorizontalCardContainer>
                 </AddPanel>
 
@@ -166,3 +185,38 @@ export function Overview() {
         </View>
     );
 }
+
+interface CardProps {
+    icon: string;
+    title: string;
+    description?: string;
+    onClick?: () => void;
+}
+
+const CardWraper = styled.div({
+    border: '1px solid var(--vscode-dropdown-border)',
+    backgroundColor: 'var(--vscode-dropdown-background)',
+    padding: '10px',
+    cursor: 'pointer',
+    '&:hover': {
+        backgroundColor: 'var(--list-active-selection-background)',
+    },
+    display: 'flex',
+    flexDirection: 'column',
+});
+
+const Card: React.FC<CardProps> = ({ icon, title, onClick, description }) => {
+    return (
+        <CardWraper onClick={onClick}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                    <div style={{ width: '1.5em', height: '1.5em', marginRight: "10px" }}>
+                        <Codicon name={icon} iconSx={{ fontSize: '1.5em' }} />
+                    </div>
+                    <div style={{ fontSize: '1.2em' }}>{title}</div>
+                </div>
+                {description && <div style={{ marginLeft: '2.3em' }}>{description}</div>}
+            </div>
+        </CardWraper>
+    );
+};

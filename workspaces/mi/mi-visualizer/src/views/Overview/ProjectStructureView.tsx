@@ -24,7 +24,7 @@ const IconWrapper = styled.div`
 
 const HorizontalCardContainer = styled.div`
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     flex-wrap: wrap;
     justify-content: flex-start;
 `;
@@ -35,19 +35,6 @@ const TextContainer = styled.div`
     white-space: nowrap;
     text-overflow: ellipsis;
     text-align: center;
-`;
-
-const Title = styled.div`
-    text-align: left;
-    display: inline-block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-weight: 400;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    font-size: 1.5em;
-    line-height: normal;
 `;
 
 const Listing = styled.div({
@@ -85,6 +72,7 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
     const handlePlusClick = async (key: string) => {
         const dir = path.join(props.workspaceDir, 'src', 'main', 'wso2mi', 'artifacts', key);
         const entry = { info: { path: dir } };
+        console.log(entry);
         if (key === 'apis') {
             await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-api", entry] });
         } else if (key === 'endpoints') {
@@ -123,20 +111,15 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
     const renderObject = (entry: ProjectDirectoryMap | ProjectStructureResponse["directoryMap"]) => {
         return Object.entries(entry).map(([key, value]) => {
             if (allowedConfigs.includes(key)) {
-                if (Array.isArray(value)) {
+                if (Array.isArray(value) && value.length > 0) {
                     return (
                         <div key={key}>
-                            <Title>{key.toUpperCase()}</Title>
+                            <h3>{key.charAt(0).toUpperCase() + key.slice(1)}</h3>
                             <HorizontalCardContainer>
                                 {renderEntries(value)}
-                                <ComponentCard key={0} onClick={() => handlePlusClick(key)} sx={{ height: 40, marginTop: 15, margin: 10 }}>
-                                    <IconWrapper>+</IconWrapper>
-                                </ComponentCard>
                             </HorizontalCardContainer>
                         </div>
                     )
-                } else {
-                    return (<div>{renderObject(value)}</div>)
                 }
             }
         });
