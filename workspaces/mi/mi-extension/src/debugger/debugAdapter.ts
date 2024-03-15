@@ -13,6 +13,7 @@ import * as vscode from 'vscode';
 import { extension } from '../MIExtensionContext';
 import { COMMANDS, PORTS_TO_CHECK, SELECTED_SERVER_PATH } from '../constants';
 import * as childprocess from 'child_process';
+import * as fs from 'fs';
 
 export class MiDebugAdapter extends LoggingDebugSession {
 
@@ -76,23 +77,17 @@ export class MiDebugAdapter extends LoggingDebugSession {
                     const workspaceFolders = vscode.workspace.workspaceFolders;
                     if (workspaceFolders && workspaceFolders.length > 0) {
                         const targetDirectory = vscode.Uri.joinPath(workspaceFolders[0].uri, "target");
-
-                        try {
-                            const targetDirectoryStat = await vscode.workspace.fs.stat(targetDirectory);
-                            if (targetDirectoryStat && targetDirectoryStat.type === vscode.FileType.Directory) {
-                                const targetPath = targetDirectory.fsPath + "/*.car";
-                                const commandToExecute = "cp -f " + targetPath + " " + path;
-                                const copyTask = new vscode.Task(
-                                    { type: 'mi-copy' },
-                                    vscode.TaskScope.Workspace,
-                                    'copy',
-                                    'mi',
-                                    new vscode.ShellExecution(commandToExecute)
-                                );
-                                await this.executeCopyTask(copyTask);
-                            }
-                        } catch (error) {
-                            vscode.window.showErrorMessage(`Build and Copy task failed`);
+                        if (fs.existsSync(targetDirectory.fsPath)) {
+                            const targetPath = targetDirectory.fsPath + "/*.car";
+                            const commandToExecute = "cp -f " + targetPath + " " + path;
+                            const copyTask = new vscode.Task(
+                                { type: 'mi-copy' },
+                                vscode.TaskScope.Workspace,
+                                'copy',
+                                'mi',
+                                new vscode.ShellExecution(commandToExecute)
+                            );
+                            await this.executeCopyTask(copyTask);
                         }
                     }
                     resolve();
