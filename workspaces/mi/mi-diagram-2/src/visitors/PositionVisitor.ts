@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STNode, Visitor, Log, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Aggregate, Iterate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { STNode, Visitor, Log, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Aggregate, Iterate, Switch } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 
 export class PositionVisitor implements Visitor {
@@ -101,14 +101,6 @@ export class PositionVisitor implements Visitor {
     beginVisitDrop = (node: Drop): void => this.setBasicMediatorPosition(node);
     beginVisitEndpoint = (node: Endpoint): void => this.setBasicMediatorPosition(node);
     beginVisitEndpointHttp = (node: EndpointHttp): void => this.setBasicMediatorPosition(node);
-
-    beginVisitFilter = (node: Filter): void => {
-        this.setAdvancedMediatorPosition(node, {
-            then: node.then,
-            else: node.else_
-        }, NodeTypes.CONDITION_NODE);
-    }
-    endVisitFilter = (node: Filter): void => this.setSkipChildrenVisit(false);
 
     beginVisitHeader = (node: Header): void => this.setBasicMediatorPosition(node);
 
@@ -204,6 +196,24 @@ export class PositionVisitor implements Visitor {
         }, NodeTypes.GROUP_NODE);
     }
     endVisitIterate = (node: Iterate): void => this.setSkipChildrenVisit(false);
+    //Filter Mediators
+    beginVisitFilter = (node: Filter): void => {
+        this.setAdvancedMediatorPosition(node, {
+            then: node.then,
+            else: node.else_
+        }, NodeTypes.CONDITION_NODE);
+    }
+    endVisitFilter = (node: Filter): void => this.setSkipChildrenVisit(false);
+    beginVisitSwitch = (node: Switch): void => {
+        let cases: { [key: string]: any } = {};
+        node._case.map((_case, index) => {
+            cases[_case.regex || index] = _case;
+        });
+        this.setAdvancedMediatorPosition(node, {
+            ...cases, default: node._default
+        }, NodeTypes.CONDITION_NODE);
+    }
+    endVisitSwitch = (node: Switch): void => this.setSkipChildrenVisit(false);
     //Extension Mediators
     beginVisitClass = (node: Class): void => this.setBasicMediatorPosition(node);
     beginVisitBean = (node: Bean): void => this.setBasicMediatorPosition(node);
