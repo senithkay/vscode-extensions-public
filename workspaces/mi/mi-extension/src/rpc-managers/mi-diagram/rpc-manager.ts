@@ -29,6 +29,8 @@ import {
     CreateLocalEntryResponse,
     CreateProjectRequest,
     CreateProjectResponse,
+    ImportProjectRequest,
+    ImportProjectResponse,
     CreateSequenceRequest,
     CreateSequenceResponse,
     ESBConfigsResponse,
@@ -36,18 +38,17 @@ import {
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     FileStructure,
+    GetProjectUuidResponse,
+    GetWorkspaceContextResponse,
     GetDefinitionRequest,
     GetDefinitionResponse,
     GetDiagnosticsReqeust,
     GetDiagnosticsResponse,
-    GetInboundEpDirRequest,
     GetProjectRootRequest,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
     FileDirResponse,
     HighlightCodeRequest,
-    InboundEndpointDirectoryResponse,
-    LocalEntryDirectoryResponse,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectDirResponse,
@@ -59,22 +60,84 @@ import {
     WriteContentToFileResponse,
     getSTRequest,
     getSTResponse,
-    MACHINE_VIEW
+    MACHINE_VIEW,
+    CreateMessageProcessorRequest,
+    CreateMessageProcessorResponse,
+    RetrieveMessageProcessorRequest,
+    RetrieveMessageProcessorResponse,
+    CreateProxyServiceRequest,
+    CreateProxyServiceResponse,
+    CreateMessageStoreRequest,
+    CreateMessageStoreResponse,
+    CreateTemplateRequest,
+    CreateTemplateResponse,
+    RetrieveTemplateRequest,
+    RetrieveTemplateResponse,
+    GetInboundEndpointRequest,
+    GetInboundEndpointResponse,
+    UpdateHttpEndpointRequest,
+    UpdateHttpEndpointResponse,
+    RetrieveHttpEndpointRequest,
+    RetrieveHttpEndpointResponse,
+    UpdateAddressEndpointRequest,
+    UpdateAddressEndpointResponse,
+    RetrieveAddressEndpointRequest,
+    RetrieveAddressEndpointResponse,
+    UpdateWsdlEndpointRequest,
+    UpdateWsdlEndpointResponse,
+    RetrieveWsdlEndpointRequest,
+    RetrieveWsdlEndpointResponse,
+    UpdateDefaultEndpointRequest,
+    UpdateDefaultEndpointResponse,
+    RetrieveDefaultEndpointRequest,
+    RetrieveDefaultEndpointResponse,
+    BrowseFileResponse,
+    BrowseFileRequest,
+    CreateRegistryResourceRequest,
+    CreateRegistryResourceResponse,
+    CreateTaskRequest,
+    CreateTaskResponse,
+    GetTaskRequest,
+    GetTaskResponse,
+    GetMessageStoreRequest,
+    GetMessageStoreResponse,
+    GetAvailableResourcesRequest,
+    CreateClassMediatorRequest,
+    CreateClassMediatorResponse,
+    GetLocalEntryRequest,
+    GetLocalEntryResponse,
+    TemplatesResponse,
+    FileListRequest,
+    FileListResponse,
+    GetAvailableResourcesResponse,
+    UpdateLoadBalanceEPResponse,
+    UpdateLoadBalanceEPRequest,
+    GetLoadBalanceEPRequest,
+    GetLoadBalanceEPResponse,
+    GetFailoverEPRequest,
+    GetFailoverEPResponse,
+    UpdateFailoverEPRequest,
+    UpdateFailoverEPResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import * as fs from "fs";
 import * as os from 'os';
 import { Transform } from 'stream';
-import { Position, Range, Selection, Uri, WorkspaceEdit, commands, window, workspace } from "vscode";
-import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
+import { v4 as uuidv4 } from 'uuid';
 import { StateMachine, openView } from "../../stateMachine";
-import { UndoRedoManager } from "../../undoRedoManager";
-import { createFolderStructure, getInboundEndpointXmlWrapper } from "../../util";
+import { Position, Range, Selection, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
+import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
+import { createFolderStructure, getTaskXmlWrapper, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper, getMessageStoreXmlWrapper, getTemplateXmlWrapper, getHttpEndpointXmlWrapper, getAddressEndpointXmlWrapper, getWsdlEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getLoadBalanceXmlWrapper, getFailoverXmlWrapper } from "../../util";
+import { getMediatypeAndFileExtension, addNewEntryToArtifactXML, detectMediaType, changeRootPomPackaging } from "../../util/fileOperations";
 import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
+import { UndoRedoManager } from "../../undoRedoManager";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
-const { XMLParser } = require("fast-xml-parser");
+import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
+import { error } from "console";
+import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
+const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
 const connectorsPath = path.join(".metadata", ".Connectors");
 
@@ -193,24 +256,25 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             let versionAttributes = '';
             let swaggerAttributes = '';
             if (version && type !== 'none') {
-                versionAttributes = ` version = "${version}" version - type="${type}"`;
+                versionAttributes = ` version="${version}" version-type="${type}"`;
             }
 
             if (swaggerDef) {
-                swaggerAttributes = ` publishSwagger = "${swaggerDef}"`;
+                swaggerAttributes = ` publishSwagger="${swaggerDef}"`;
             }
 
-            const xmlData = `<? xml version = "1.0" encoding = "UTF-8" ?>
-                <api context="${context}" name = "${name}" ${swaggerAttributes}${versionAttributes} xmlns = "http://ws.apache.org/ns/synapse" >
-                    <resource methods="GET" uri - template="/resource" >
-                        <inSequence>
-                        </inSequence>
-                        < outSequence >
-                        </outSequence>
-                        < faultSequence >
-                        </faultSequence>
-                        < /resource>
-                        < /api>`;
+            const xmlData =
+                `<?xml version="1.0" encoding="UTF-8" ?>
+    <api context="${context}" name="${name}" ${swaggerAttributes}${versionAttributes} xmlns="http://ws.apache.org/ns/synapse">
+        <resource methods="GET" uri-template="/resource">
+            <inSequence>
+            </inSequence>
+            <outSequence>
+            </outSequence>
+            <faultSequence>
+            </faultSequence>
+        </resource>
+    </api>`;
 
             const filePath = path.join(directory, `${name}.xml`);
             fs.writeFileSync(filePath, xmlData);
@@ -265,7 +329,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async createEndpoint(params: CreateEndpointRequest): Promise<CreateEndpointResponse> {
         return new Promise(async (resolve) => {
-            const { directory, name, address, configuration, method, type, uriTemplate } = params;
+            const { directory, name, address, configuration, method, type, uriTemplate, wsdlUri, wsdlService,
+                wsdlPort, targetTemplate, uri } = params;
             const endpointType = type.split(" ")[0].toLowerCase();
 
             let endpointAttributes = `${endpointType}`;
@@ -296,9 +361,22 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 closingAttributes = `       </default>
       </endpoint>
   </recipientlist>`;
+            } else if (endpointType === 'wsdl') {
+                endpointAttributes = `${endpointAttributes.toLowerCase()} port="${wsdlPort}" service="${wsdlService}" uri="${wsdlUri}"`;
             }
 
-            const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
+            let xmlData;
+
+            if (endpointType === 'template') {
+
+                xmlData = `<?xml version="1.0" encoding="UTF-8"?>
+<endpoint name="${name}" template="${targetTemplate}" uri="${uri}" xmlns="http://ws.apache.org/ns/synapse">
+    <description/>
+</endpoint>`;
+
+            } else {
+
+                xmlData = `<?xml version="1.0" encoding="UTF-8"?>
 <endpoint name="${name}" xmlns="http://ws.apache.org/ns/synapse">
   <${endpointAttributes}>
       ${otherAttributes}
@@ -312,24 +390,219 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
   ${closingAttributes}
 </endpoint>`;
 
+            }
+
             const filePath = path.join(directory, `${name}.xml`);
             fs.writeFileSync(filePath, xmlData);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
     }
-
-    async getLocalEntryDirectory(): Promise<LocalEntryDirectoryResponse> {
+    
+    async updateLoadBalanceEndpoint(params: UpdateLoadBalanceEPRequest): Promise<UpdateLoadBalanceEPResponse> {
         return new Promise(async (resolve) => {
-            const workspaceFolder = workspace.workspaceFolders;
-            if (workspaceFolder) {
-                const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
-                const synapseAPIPath = `${workspaceFolderPath}/${workspaceFolder[0].name}Configs/src/main/synapse-config/local-entries`;
-                resolve({ data: synapseAPIPath });
+            const { directory, ...templateParams } = params;
+
+            const xmlData = getLoadBalanceXmlWrapper(templateParams);
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${templateParams.name}.xml`);
             }
-            resolve({ data: "" });
+
+            fs.writeFileSync(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
         });
     }
+
+    async getLoadBalanceEndpoint(params: GetLoadBalanceEPRequest): Promise<GetLoadBalanceEPResponse> {
+        return new Promise(async (resolve) => {
+            const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
+            const options = {
+                ignoreAttributes : false,
+                attributeNamePrefix: "@_",
+                indentBy: '    ',
+                format: true,
+            };
+            
+            const builder = new XMLBuilder(options);
+            const filePath = params.path;
+
+            if (filePath.includes('.xml') && fs.existsSync(filePath)) {
+                const { name, loadbalance, session, property, description} = endpointSyntaxTree.syntaxTree.endpoint;
+
+                const endpoints = loadbalance.endpointOrMember.map((member: any) => {
+                    const { address, name } = member.endpoint;
+
+                    let value = '';
+                    if (member.endpoint?.key) {
+                        value = member.endpoint.key;
+                    }
+                    else {
+                        value = builder.build({
+                            "endpoint": {
+                                "@_name": name,
+                                "address": {
+                                    "@_uri": address.uri,
+                                    "suspendOnFailure": {
+                                        "initialDuration": {
+                                            "#text": address.suspendOnFailure.initialDuration.textNode
+                                        },
+                                        "progressionFactor": {
+                                            "#text": address.suspendOnFailure.progressionFactor.textNode
+                                        }
+                                    },
+                                    "markForSuspension": {
+                                        "retriesBeforeSuspension": {
+                                            "#text": address.markForSuspension.retriesBeforeSuspension.textNode
+                                        }
+                                    }
+                                }
+                            }
+                        }).trim();
+                    }
+
+                    return {
+                        type: member.endpoint.key ? 'static' : 'inline',
+                        value,
+                    };
+                });
+
+                const properties = property.map((prop: any) => ({
+                    name: prop.name,
+                    value: prop.value,
+                    scope: prop.scope ?? 'default'
+                }));
+
+                resolve({
+                    name,
+                    algorithm: loadbalance.algorithm,
+                    failover: String(loadbalance.failover) ?? 'false',
+                    buildMessage: String(loadbalance.buildMessage) ?? 'false',
+                    sessionManagement: session?.type ?? 'none',
+                    sessionTimeout: session?.sessionTimeout ?? '',
+                    description: description ?? '',
+                    endpoints: endpoints.length > 0 ? endpoints : [],
+                    properties: properties.length > 0 ? properties : []
+                });
+            }
+
+            resolve({
+                name: '',
+                algorithm: 'roundRobin',
+                failover: 'false',
+                buildMessage: 'true',
+                sessionManagement: 'none',
+                sessionTimeout: '',
+                description: '',
+                endpoints: [],
+                properties: []
+            });
+        });
+    }
+    
+    async updateFailoverEndpoint(params: UpdateFailoverEPRequest): Promise<UpdateFailoverEPResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, ...templateParams } = params;
+
+            const xmlData = getFailoverXmlWrapper(templateParams);
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${templateParams.name}.xml`);
+            }
+
+            fs.writeFileSync(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getFailoverEndpoint(params: GetFailoverEPRequest): Promise<GetFailoverEPResponse> {
+        return new Promise(async (resolve) => {
+            const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
+            const options = {
+                ignoreAttributes : false,
+                attributeNamePrefix: "@_",
+                indentBy: '    ',
+                format: true,
+            };
+            
+            const builder = new XMLBuilder(options);
+            const filePath = params.path;
+
+            if (filePath.includes('.xml') && fs.existsSync(filePath)) {
+                const { name, failover, property, description} = endpointSyntaxTree.syntaxTree.endpoint;
+
+                const endpoints = failover.endpoint.map((member: any) => {
+                    const { address, name } = member;
+
+                    let value = '';
+                    if (member.key) {
+                        value = member.key;
+                    }
+                    else {
+                        value = builder.build({
+                            "endpoint": {
+                                "@_name": name,
+                                "address": {
+                                    "@_uri": address.uri,
+                                    "suspendOnFailure": {
+                                        "initialDuration": {
+                                            "#text": address.suspendOnFailure.initialDuration.textNode
+                                        },
+                                        "progressionFactor": {
+                                            "#text": address.suspendOnFailure.progressionFactor.textNode
+                                        }
+                                    },
+                                    "markForSuspension": {
+                                        "retriesBeforeSuspension": {
+                                            "#text": address.markForSuspension.retriesBeforeSuspension.textNode
+                                        }
+                                    }
+                                }
+                            }
+                        }).trim();
+                    }
+
+                    return {
+                        type: member.key ? 'static' : 'inline',
+                        value,
+                    };
+                });
+
+                const properties = property.map((prop: any) => ({
+                    name: prop.name,
+                    value: prop.value,
+                    scope: prop.scope ?? 'default'
+                }));
+
+                resolve({
+                    name,
+                    buildMessage: String(failover.buildMessage) ?? 'false',
+                    description: description ?? '',
+                    endpoints: endpoints.length > 0 ? endpoints : [],
+                    properties: properties.length > 0 ? properties : []
+                });
+            }
+
+            resolve({
+                name: '',
+                buildMessage: 'true',
+                description: '',
+                endpoints: [],
+                properties: []
+            });
+        });
+    }
+
     async createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
         return new Promise(async (resolve) => {
             const { directory, name, type, value, URL } = params;
@@ -338,45 +611,303 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const filePath = path.join(directory, `${name}.xml`);
 
             writeXmlDataToFile(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
     }
 
-    async getInboundEndpointDirectory(): Promise<InboundEndpointDirectoryResponse> {
-        try {
-            const workspaceFolder = workspace.workspaceFolders;
-            if (workspaceFolder) {
-                const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
-                const endpointDir = path.join(workspaceFolderPath, 'src', 'main', 'wso2mi', 'artifacts', 'inbound-endpoints');
+    async getLocalEntry(params: GetLocalEntryRequest): Promise<GetLocalEntryResponse> {
+        const options = {
+            ignoreAttributes: false,
+            allowBooleanAttributes: true,
+            attributeNamePrefix: "",
+            attributesGroupName: "@_",
+            indentBy: '    ',
+            format: true,
+        };
+        const parser = new XMLParser(options);
 
-                const response: InboundEndpointDirectoryResponse = { data: endpointDir };
-
-                return response;
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+            if (fs.existsSync(filePath)) {
+                const xmlData = fs.readFileSync(filePath, "utf8");
+                const jsonData = parser.parse(xmlData);
+                console.log(jsonData);
+                const response: GetLocalEntryResponse = {
+                    name: jsonData.localEntry["@_"]["key"],
+                    type: "",
+                    inLineTextValue: "",
+                    inLineXmlValue: "",
+                    sourceURL: ""
+                };
+                if (jsonData && jsonData.localEntry) {
+                    if (jsonData.localEntry["#text"]) {
+                        response.type = "In-Line Text Entry";
+                        response.inLineTextValue = jsonData.localEntry["#text"];
+                    } else if (jsonData.localEntry.xml) {
+                        response.type = "In-Line XML Entry";
+                        if (jsonData.localEntry.xml["@_"]["xmlns"] === '') {
+                            delete jsonData.localEntry.xml["@_"]["xmlns"];
+                        }
+                        const xmlObj = {
+                            xml: {
+                                ...jsonData.localEntry.xml
+                            }
+                        }
+                        const builder = new XMLBuilder(options);
+                        let xml = builder.build(xmlObj);
+                        response.inLineXmlValue = xml;
+                    } else if (jsonData.localEntry["@_"]["src"]) {
+                        response.type = "Source URL Entry";
+                        response.sourceURL = jsonData.localEntry["@_"]["src"];
+                    }
+                }
+                resolve(response);
             }
+            return error("File not found");
+        });
+    }
 
-            return { data: "" };
-        } catch (error) {
-            throw new Error("Failed to fetch workspace folders: " + error);
+    async createMessageStore(params: CreateMessageStoreRequest): Promise<CreateMessageStoreResponse> {
+        return new Promise(async (resolve) => {
+
+            const getTemplateParams = params;
+
+            const xmlData = getMessageStoreXmlWrapper(getTemplateParams);
+
+            const filePath = path.join(params.directory, `${params.name}.xml`);
+            fs.writeFileSync(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getXmlFileList(params: FileListRequest): Promise<FileListResponse> {
+        return new Promise(async (resolve) => {
+            const files = fs.readdirSync(params.path);
+            const xmlFiles = files.filter((file) => file.endsWith('.xml')).map(file => file.replace('.xml', ''));
+            resolve({ files: xmlFiles });
+        });
+    }
+
+    async getMessageStore(params: GetMessageStoreRequest): Promise<GetMessageStoreResponse> {
+        const options = {
+            ignoreAttributes: false,
+            allowBooleanAttributes: true,
+            attributeNamePrefix: "@_",
+            attributesGroupName: "@_"
+        };
+        interface Parameter {
+            name: string,
+            value: string
         }
+        const parser = new XMLParser(options);
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+            if (fs.existsSync(filePath)) {
+                const xmlData = fs.readFileSync(filePath, "utf8");
+                const jsonData = parser.parse(xmlData);
+                let parameters: Parameter[] = [];
+                let customParameters: Parameter[] = [];
+                const className = jsonData.messageStore["@_"]["@_class"];
+                const response: GetMessageStoreResponse = {
+                    name: jsonData.messageStore["@_"]["@_name"],
+                    type: '',
+                    initialContextFactory: '',
+                    connectionFactory: '',
+                    providerURL: '',
+                    jndiQueueName: '',
+                    userName: '',
+                    password: '',
+                    cacheConnection: '',
+                    jmsAPIVersion: '',
+                    enableProducerGuaranteedDelivery: '',
+                    rabbitMQServerHostName: '',
+                    rabbitMQServerPort: '',
+                    sslEnabled: '',
+                    rabbitMQQueueName: '',
+                    rabbitMQExchangeName: '',
+                    routineKey: '',
+                    virtualHost: '',
+                    trustStoreLocation: '',
+                    trustStorePassword: '',
+                    trustStoreType: '',
+                    keyStoreLocation: '',
+                    keyStorePassword: '',
+                    keyStoreType: '',
+                    dataBaseTable: '',
+                    driver: '',
+                    url: '',
+                    user: '',
+                    dataSourceName: '',
+                    queueConnectionFactory: '',
+                    pollingCount: '',
+                    xPath: '',
+                    providerClass: '',
+                    customParameters: [] as Parameter[],
+                    sslVersion: "",
+                    failOverMessageStore: "",
+                };
+                switch (className) {
+                    case 'org.apache.synapse.message.store.impl.jms.JmsStore':
+                        response.type = 'JMS Message Store';
+                        break;
+                    case 'org.apache.synapse.message.store.impl.jdbc.JDBCMessageStore':
+                        response.type = 'JDBC Message Store';
+                        break;
+                    case 'org.apache.synapse.message.store.impl.rabbitmq.RabbitMQStore':
+                        response.type = 'RabbitMQ Message Store';
+                        break;
+                    case 'org.apache.synapse.message.store.impl.resequencer.ResequenceMessageStore':
+                        response.type = 'Resequence Message Store';
+                        break;
+                    case 'org.apache.synapse.message.store.impl.memory.InMemoryStore':
+                        response.type = 'In Memory Message Store';
+                        break;
+                    default:
+                        response.type = 'Custom Message Store';
+                        break;
+                }
+                if (jsonData && jsonData.messageStore && jsonData.messageStore.parameter) {
+                    parameters = Array.isArray(jsonData.messageStore.parameter)
+                        ? jsonData.messageStore.parameter.map((param: any) => ({
+                            name: param["@_"]['@_name'],
+                            value: param['#text'] ?? param["@_"]["@_expression"]
+                        }))
+                        : [{
+                            name: jsonData.messageStore.parameter["@_"]['@_name'],
+                            value: jsonData.messageStore.parameter['#text']
+                        }];
+                    const MessageStoreModel = {
+                        'java.naming.factory.initial': 'initialContextFactory',
+                        'java.naming.provider.url': 'providerURL',
+                        'store.jms.connection.factory': 'connectionFactory',
+                        'connectionfactory.QueueConnectionFactory': 'queueConnectionFactory',
+                        'store.jms.destination': 'jndiQueueName',
+                        'store.jms.username': 'userName',
+                        'store.jms.password': 'password',
+                        'store.jms.cache.connection': 'cacheConnection',
+                        'store.jms.JMSSpecVersion': 'jmsAPIVersion',
+                        'store.producer.guaranteed.delivery.enable': 'enableProducerGuaranteedDelivery',
+                        'rabbitmq.connection.ssl.truststore.location': 'trustStoreLocation',
+                        'rabbitmq.connection.ssl.truststore.password': 'trustStorePassword',
+                        'rabbitmq.connection.ssl.truststore.type': 'trustStoreType',
+                        'rabbitmq.connection.ssl.keystore.location': 'keyStoreLocation',
+                        'rabbitmq.connection.ssl.keystore.password': 'keyStorePassword',
+                        'rabbitmq.connection.ssl.keystore.type': 'keyStoreType',
+                        'rabbitmq.connection.ssl.version': 'sslVersion',
+                        'rabbitmq.connection.ssl.enabled': 'sslEnabled',
+                        'store.jdbc.table': 'dataBaseTable',
+                        'store.jdbc.driver': 'driver',
+                        'store.jdbc.connection.url': 'url',
+                        'store.jdbc.username': 'user',
+                        'store.jdbc.ds': 'dataSourceName',
+                        'store.rabbitmq.username': 'userName',
+                        'store.rabbitmq.password': 'password',
+                        'store.rabbitmq.host.name': 'rabbitMQServerHostName',
+                        'store.rabbitmq.host.port': 'rabbitMQServerPort',
+                        'store.rabbitmq.exchange.name': 'rabbitMQExchangeName',
+                        'store.rabbitmq.queue.name': 'rabbitMQQueueName',
+                        'store.rabbitmq.route.key': 'routineKey',
+                        'store.rabbitmq.virtual.host': 'virtualHost',
+                        'store.resequence.timeout': 'pollingCount',
+                        'store.resequence.id.path': 'xPath',
+                        'store.failover.message.store.name': 'failOverMessageStore'
+                    }
+                    if  (response.type !== 'Custom Message Store')  {
+                        parameters.forEach((param: Parameter) => {
+                            if (MessageStoreModel.hasOwnProperty(param.name)) {
+                                response[MessageStoreModel[param.name]] = param.value;
+                            }
+                        });
+                        if (response.queueConnectionFactory) {
+                            response.type = 'WSO2 MB Message Store';
+                        }
+                    } else {
+                        parameters.forEach((param: Parameter) => {
+                            customParameters.push({ name: param.name, value: param.value });
+                        });
+                        response.providerClass = className;
+                        response.customParameters = customParameters;
+                    }
+                }
+                resolve(response);
+            }
+            else {
+                return error("File not found");
+            }
+        });
     }
 
     async createInboundEndpoint(params: CreateInboundEndpointRequest): Promise<CreateInboundEndpointResponse> {
         return new Promise(async (resolve) => {
-            const { directory, name, type, sequence, errorSequence } = params;
+            const { directory, ...templateParams } = params;
 
-            const getTemplateParams = {
-                name,
-                type: type.toLowerCase(),
-                sequence,
-                errorSequence
-            };
+            let filePath: string = directory;
+            let isNew = true;
+            templateParams.type = templateParams.type.toLowerCase();
 
-            const xmlData = getInboundEndpointXmlWrapper(getTemplateParams);
+            if (filePath.includes('inboundEndpoints')) {
+                filePath = filePath.replace('inboundEndpoints', 'inbound-endpoints');
+            }
 
-            const filePath = path.join(directory, `${name}.xml`);
+            if (filePath.endsWith('.xml')) {
+                isNew = false;
+            } else {
+                filePath = path.join(filePath, `${templateParams.name}.xml`);
+            }
+
+            const xmlData = getInboundEndpointXmlWrapper(isNew, templateParams);
+
             fs.writeFileSync(filePath, xmlData);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
+        });
+    }
+
+    async getInboundEndpoint(params: GetInboundEndpointRequest): Promise<GetInboundEndpointResponse> {
+        const options = {
+            ignoreAttributes: false,
+            allowBooleanAttributes: true,
+            attributeNamePrefix: "@_",
+        };
+        const parser = new XMLParser(options);
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (filePath.includes('.xml') && fs.existsSync(filePath)) {
+                const xmlData = fs.readFileSync(filePath, "utf8");
+                const jsonData = parser.parse(xmlData);
+
+                const params: { [key: string]: string | number | boolean } = {};
+                jsonData.inboundEndpoint.parameters.parameter.map((param: any) => {
+                    params[param["@_name"]] = param["#text"];
+                });
+
+                const response: GetInboundEndpointResponse = {
+                    name: jsonData.inboundEndpoint["@_name"],
+                    type: jsonData.inboundEndpoint["@_protocol"],
+                    sequence: jsonData.inboundEndpoint["@_sequence"],
+                    errorSequence: jsonData.inboundEndpoint["@_errorSequence"],
+                    parameters: params,
+                    additionalParameters: {
+                        suspend: jsonData.inboundEndpoint["@_suspend"] === 'true',
+                        trace: jsonData.inboundEndpoint["@_trace"] ? true : false,
+                        statistics: jsonData.inboundEndpoint["@_statistics"] ? true : false,
+                    }
+                };
+
+                resolve(response);
+            }
+
+            resolve({
+                name: '',
+                type: '',
+                sequence: '',
+                errorSequence: '',
+                parameters: {},
+                additionalParameters: {}
+            });
         });
     }
 
@@ -403,6 +934,30 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
 
                 resolve({ data: [endpoints, sequences] });
+            }
+
+            resolve({ data: [] });
+        });
+    }
+
+    async getTemplates(): Promise<TemplatesResponse> {
+        return new Promise(async (resolve) => {
+            const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
+                workspace.workspaceFolders[0].uri.fsPath
+                : undefined;
+
+            if (!!rootPath) {
+                const langClient = StateMachine.context().langClient!;
+                const resp = await langClient.getProjectStructure(rootPath);
+                const artifacts = (resp.directoryMap as any).src.main.wso2mi.artifacts;
+
+                const templates: string[] = [];
+
+                for (const template of artifacts.templates) {
+                    templates.push(template.name);
+                }
+
+                resolve({ data: templates });
             }
 
             resolve({ data: [] });
@@ -467,6 +1022,611 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
+    async createProxyService(params: CreateProxyServiceRequest): Promise<CreateProxyServiceResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, proxyServiceName, proxyServiceType, selectedTransports, endpointType, endpoint,
+                requestLogLevel, responseLogLevel, securityPolicy, requestXslt, responseXslt, transformResponse,
+                wsdlUri, wsdlService, wsdlPort, publishContract } = params;
+
+            const getTemplateParams = {
+                proxyServiceName, proxyServiceType, selectedTransports, endpointType, endpoint,
+                requestLogLevel, responseLogLevel, securityPolicy, requestXslt, responseXslt, transformResponse,
+                wsdlUri, wsdlService, wsdlPort, publishContract
+            };
+
+            const xmlData = getProxyServiceXmlWrapper(getTemplateParams);
+
+            const filePath = path.join(directory, `${proxyServiceName}.xml`);
+            fs.writeFileSync(filePath, xmlData);
+            resolve({ path: filePath });
+        });
+    }
+
+    async createTask(params: CreateTaskRequest): Promise<CreateTaskResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, ...templateParams } = params;
+
+            const xmlData = getTaskXmlWrapper(templateParams);
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${templateParams.name}.xml`);
+            }
+
+            fs.writeFileSync(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getTask(params: GetTaskRequest): Promise<GetTaskResponse> {
+        const options = {
+            ignoreAttributes: false,
+            allowBooleanAttributes: true,
+            attributeNamePrefix: "@_",
+            attributesGroupName: "@_"
+        };
+        const parser = new XMLParser(options);
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (filePath.includes('.xml') && fs.existsSync(filePath)) {
+                const xmlData = fs.readFileSync(filePath, "utf8");
+                const jsonData = parser.parse(xmlData);
+
+                const response: GetTaskResponse = {
+                    name: jsonData.task["@_"]["@_name"],
+                    group: jsonData.task["@_"]["@_group"],
+                    implementation: jsonData.task["@_"]["@_class"],
+                    pinnedServers: jsonData.task["@_"]["@_pinnedServers"],
+                    triggerType: 'simple',
+                    triggerCount: 1,
+                    triggerInterval: 1,
+                    triggerCron: ''
+                };
+
+                if (jsonData.task.trigger["@_"]["@_count"] !== undefined) {
+                    response.triggerCount = Number(jsonData.task.trigger["@_"]["@_count"]);
+                    response.triggerInterval = Number(jsonData.task.trigger["@_"]["@_interval"]);
+                }
+                else if (jsonData.task.trigger["@_"]["@_cron"] !== undefined) {
+                    response.triggerType = 'cron';
+                    response.triggerCron = jsonData.task.trigger["@_"]["@_cron"];
+                }
+
+                resolve(response);
+            }
+
+            resolve({
+                name: '',
+                group: '',
+                implementation: '',
+                pinnedServers: '',
+                triggerType: 'simple',
+                triggerCount: 1,
+                triggerInterval: 1,
+                triggerCron: ''
+            });
+        });
+    }
+
+    async createTemplate(params: CreateTemplateRequest): Promise<CreateTemplateResponse> {
+        return new Promise(async (resolve) => {
+            const {
+                directory, templateName, templateType, address, uriTemplate, httpMethod,
+                wsdlUri, wsdlService, wsdlPort } = params;
+
+            const getTemplateParams = { templateName, templateType, address, uriTemplate, httpMethod, wsdlUri, wsdlService, wsdlPort };
+
+            const xmlData = getTemplateXmlWrapper(getTemplateParams);
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${templateName}.xml`);
+            }
+
+            fs.writeFileSync(filePath, xmlData);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getTemplate(params: RetrieveTemplateRequest): Promise<RetrieveTemplateResponse> {
+        const options = {
+            ignoreAttributes: false,
+            allowBooleanAttributes: true,
+            attributeNamePrefix: "@_",
+            attributesGroupName: "@_"
+        };
+        const parser = new XMLParser(options);
+
+        interface Parameter {
+            name: string;
+            value: string;
+        }
+
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (fs.existsSync(filePath)) {
+                const xmlData = fs.readFileSync(filePath, "utf8");
+                const jsonData = parser.parse(xmlData);
+                let response: RetrieveTemplateResponse = {
+                    templateName: jsonData.template["@_"]["@_name"],
+                    templateType: '',
+                    address: '',
+                    uriTemplate: '',
+                    httpMethod: '',
+                    wsdlUri: '',
+                    wsdlService: '',
+                    wsdlPort: null
+                };
+
+                if (jsonData.template.endpoint?.address) {
+                    response.templateType = 'Address Endpoint Template';
+                    response.address = jsonData.template.endpoint.address["@_"]["@_uri"];
+                } else if (jsonData.template.endpoint?.default) {
+                    response.templateType = 'Default Endpoint Template';
+                } else if (jsonData.template.endpoint?.http) {
+                    response.templateType = 'HTTP Endpoint Template';
+                    if (jsonData.template.endpoint.http["@_"]["@_method"] !== undefined) {
+                        response.httpMethod = jsonData.template.endpoint.http["@_"]["@_method"].toUpperCase();
+                    } else {
+                        response.httpMethod = 'leave_as_is';
+                    }
+                    response.uriTemplate = jsonData.template.endpoint.http["@_"]["@_uri-template"];
+                } else if (jsonData.template.endpoint?.wsdl) {
+                    response.templateType = 'WSDL Endpoint Template';
+                    response.wsdlUri = jsonData.template.endpoint.wsdl["@_"]["@_uri"];
+                    response.wsdlService = jsonData.template.endpoint.wsdl["@_"]["@_service"];
+                    response.wsdlPort = jsonData.template.endpoint.wsdl["@_"]["@_port"];
+                } else {
+                    response.templateType = 'Sequence Template';
+                }
+
+                resolve(response);
+            }
+        });
+    }
+
+    async updateHttpEndpoint(params: UpdateHttpEndpointRequest): Promise<UpdateHttpEndpointResponse> {
+        return new Promise(async (resolve) => {
+            const {
+                directory, endpointName, traceEnabled, statisticsEnabled, uriTemplate, httpMethod, description, requireProperties,
+                properties, authType, basicAuthUsername, basicAuthPassword, authMode, grantType, clientId, clientSecret,
+                refreshToken, tokenUrl, username, password, requireOauthParameters, oauthProperties, addressingEnabled,
+                addressingVersion, addressListener, securityEnabled, suspendErrorCodes, initialDuration, maximumDuration,
+                progressionFactor, retryErrorCodes, retryCount, retryDelay, timeoutDuration, timeoutAction
+            } = params;
+
+            const getHttpEndpointParams = {
+                endpointName, traceEnabled, statisticsEnabled, uriTemplate, httpMethod, description, requireProperties,
+                properties, authType, basicAuthUsername, basicAuthPassword, authMode, grantType, clientId, clientSecret,
+                refreshToken, tokenUrl, username, password, requireOauthParameters, oauthProperties, addressingEnabled,
+                addressingVersion, addressListener, securityEnabled, suspendErrorCodes, initialDuration, maximumDuration,
+                progressionFactor, retryErrorCodes, retryCount, retryDelay, timeoutDuration, timeoutAction
+            };
+
+            const xmlData = getHttpEndpointXmlWrapper(getHttpEndpointParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${endpointName}.xml`);
+            }
+
+            fs.writeFileSync(filePath, sanitizedXmlData);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getHttpEndpoint(params: RetrieveHttpEndpointRequest): Promise<RetrieveHttpEndpointResponse> {
+
+        const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
+        const endpointParams = endpointSyntaxTree.syntaxTree.endpoint;
+        const httpParams = endpointParams.http;
+        const endpointOverallParams = httpParams.enableSecAndEnableRMAndEnableAddressing;
+        const authenticationParams = endpointOverallParams.authentication;
+        const suspensionParams = endpointOverallParams.markForSuspension;
+        const failureParams = endpointOverallParams.suspendOnFailure;
+        const timeoutParams = endpointOverallParams.timeout;
+
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (fs.existsSync(filePath)) {
+                let response: RetrieveHttpEndpointResponse = {
+                    endpointName: endpointParams.name,
+                    traceEnabled: httpParams.trace != undefined ? httpParams.trace : 'disable',
+                    statisticsEnabled: httpParams.statistics,
+                    uriTemplate: httpParams.uriTemplate,
+                    httpMethod: httpParams.method != undefined ? httpParams.method.toUpperCase() : 'leave_as_is',
+                    description: endpointParams.description,
+                    requireProperties: false,
+                    properties: [],
+                    authType: "",
+                    basicAuthUsername: "",
+                    basicAuthPassword: "",
+                    authMode: "",
+                    grantType: "",
+                    clientId: "",
+                    clientSecret: "",
+                    refreshToken: "",
+                    tokenUrl: "",
+                    username: "",
+                    password: "",
+                    requireOauthParameters: false,
+                    oauthProperties: [],
+                    addressingEnabled: endpointOverallParams.enableAddressing != undefined ? 'enable' : 'disable',
+                    addressingVersion: endpointOverallParams.enableAddressing != undefined ? endpointOverallParams.enableAddressing.version : '',
+                    addressListener: (endpointOverallParams.enableAddressing != undefined && endpointOverallParams.enableAddressing.separateListener) ? 'enable' : 'disable',
+                    securityEnabled: endpointOverallParams.enableSec != undefined ? 'enable' : 'disable',
+                    suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
+                    initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : '',
+                    maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : '',
+                    progressionFactor: failureParams.progressionFactor != undefined ? failureParams.progressionFactor.textNode : '',
+                    retryErrorCodes: suspensionParams.errorCodes != undefined ? suspensionParams.errorCodes.textNode : '',
+                    retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : '',
+                    retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : '',
+                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : '',
+                    timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : ''
+                };
+
+                if (authenticationParams != undefined) {
+                    if (authenticationParams.oauth != undefined) {
+                        response.authType = 'OAuth';
+                        if (authenticationParams.oauth.authorizationCode != undefined) {
+                            response.grantType = 'Authorization Code';
+                            response.refreshToken = authenticationParams.oauth.authorizationCode.refreshToken.textNode;
+                            response.clientId = authenticationParams.oauth.authorizationCode.clientId.textNode;
+                            response.clientSecret = authenticationParams.oauth.authorizationCode.clientSecret.textNode;
+                            response.tokenUrl = authenticationParams.oauth.authorizationCode.tokenUrl.textNode;
+                            response.authMode = authenticationParams.oauth.authorizationCode.authMode.textNode;
+                            if (authenticationParams.oauth.authorizationCode.requestParameters != undefined) {
+                                let oauthParams: any[];
+                                oauthParams = authenticationParams.oauth.authorizationCode.requestParameters.parameter;
+                                oauthParams.forEach((element) => {
+                                    response.oauthProperties.push({ key: element.name, value: element.textNode });
+                                });
+                            }
+                        } else if (authenticationParams.oauth.clientCredentials != undefined) {
+                            response.grantType = 'Client Credentials';
+                            response.clientId = authenticationParams.oauth.clientCredentials.clientId.textNode;
+                            response.clientSecret = authenticationParams.oauth.clientCredentials.clientSecret.textNode;
+                            response.tokenUrl = authenticationParams.oauth.clientCredentials.tokenUrl.textNode;
+                            response.authMode = authenticationParams.oauth.clientCredentials.authMode.textNode;
+                            if (authenticationParams.oauth.clientCredentials.requestParameters != undefined) {
+                                let oauthParams: any[];
+                                oauthParams = authenticationParams.oauth.clientCredentials.requestParameters.parameter;
+                                oauthParams.forEach((element) => {
+                                    response.oauthProperties.push({ key: element.name, value: element.textNode });
+                                });
+                            }
+                        } else {
+                            response.grantType = 'Password';
+                            response.username = authenticationParams.oauth.passwordCredentials.username.textNode;
+                            response.password = authenticationParams.oauth.passwordCredentials.password.textNode;
+                            response.clientId = authenticationParams.oauth.passwordCredentials.clientId.textNode;
+                            response.clientSecret = authenticationParams.oauth.passwordCredentials.clientSecret.textNode;
+                            response.tokenUrl = authenticationParams.oauth.passwordCredentials.tokenUrl.textNode;
+                            response.authMode = authenticationParams.oauth.passwordCredentials.authMode.textNode;
+                            if (authenticationParams.oauth.passwordCredentials.requestParameters != undefined) {
+                                let oauthParams: any[];
+                                oauthParams = authenticationParams.oauth.passwordCredentials.requestParameters.parameter;
+                                oauthParams.forEach((element) => {
+                                    response.oauthProperties.push({ key: element.name, value: element.textNode });
+                                });
+                            }
+                        }
+                    } else if (authenticationParams.basicAuth != undefined) {
+                        response.authType = 'Basic Auth';
+                        response.basicAuthUsername = authenticationParams.basicAuth.username.textNode;
+                        response.basicAuthPassword = authenticationParams.basicAuth.password.textNode;
+                    } else {
+                        response.authType = 'None';
+                    }
+                } else {
+                    response.authType = 'None';
+                }
+
+                if (endpointParams.property != undefined) {
+                    let params: any[];
+                    params = endpointParams.property;
+                    params.forEach((element) => {
+                        response.properties.push({ name: element.name, value: element.value, scope: element.scope });
+                    });
+                }
+
+                response.requireProperties = response.properties.length > 0;
+                response.requireOauthParameters = response.oauthProperties.length > 0;
+
+                resolve(response);
+            }
+        });
+    }
+
+    async updateAddressEndpoint(params: UpdateAddressEndpointRequest): Promise<UpdateAddressEndpointResponse> {
+        return new Promise(async (resolve) => {
+            const {
+                directory, endpointName, format, traceEnabled, statisticsEnabled, uri, optimize, description,
+                requireProperties, properties, addressingEnabled, addressingVersion, addressListener, securityEnabled,
+                suspendErrorCodes, initialDuration, maximumDuration, progressionFactor, retryErrorCodes, retryCount,
+                retryDelay, timeoutDuration, timeoutAction
+            } = params;
+
+            const getAddressEndpointParams = {
+                endpointName, format, traceEnabled, statisticsEnabled, uri, optimize, description,
+                requireProperties, properties, addressingEnabled, addressingVersion, addressListener, securityEnabled,
+                suspendErrorCodes, initialDuration, maximumDuration, progressionFactor, retryErrorCodes, retryCount,
+                retryDelay, timeoutDuration, timeoutAction
+            };
+
+            const xmlData = getAddressEndpointXmlWrapper(getAddressEndpointParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${endpointName}.xml`);
+            }
+
+            fs.writeFileSync(filePath, sanitizedXmlData);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getAddressEndpoint(params: RetrieveAddressEndpointRequest): Promise<RetrieveAddressEndpointResponse> {
+
+        const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
+        const endpointParams = endpointSyntaxTree.syntaxTree.endpoint;
+        const addressParams = endpointParams.address;
+        const suspensionParams = addressParams.markForSuspension;
+        const failureParams = addressParams.suspendOnFailure;
+        const timeoutParams = addressParams.timeout;
+
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (fs.existsSync(filePath)) {
+                let response: RetrieveAddressEndpointResponse = {
+                    endpointName: endpointParams.name,
+                    format: addressParams.format != undefined ? addressParams.format.toUpperCase() : 'LEAVE_AS_IS',
+                    traceEnabled: addressParams.trace != undefined ? addressParams.trace : 'disable',
+                    statisticsEnabled: addressParams.statistics,
+                    uri: addressParams.uri,
+                    optimize: addressParams.optimize != undefined ? addressParams.optimize.toUpperCase() : 'LEAVE_AS_IS',
+                    description: endpointParams.description,
+                    requireProperties: false,
+                    properties: [],
+                    addressingEnabled: addressParams.enableAddressing != undefined ? 'enable' : 'disable',
+                    addressingVersion: addressParams.enableAddressing != undefined ? addressParams.enableAddressing.version : '',
+                    addressListener: (addressParams.enableAddressing != undefined && addressParams.enableAddressing.separateListener) ? 'enable' : 'disable',
+                    securityEnabled: addressParams.enableSec != undefined ? 'enable' : 'disable',
+                    suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
+                    initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : '',
+                    maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : '',
+                    progressionFactor: failureParams.progressionFactor != undefined ? failureParams.progressionFactor.textNode : '',
+                    retryErrorCodes: suspensionParams.errorCodes != undefined ? suspensionParams.errorCodes.textNode : '',
+                    retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : '',
+                    retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : '',
+                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : '',
+                    timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : ''
+                };
+
+                if (response.format === 'SOAP11') {
+                    response.format = 'SOAP 1.1';
+                } else if (response.format === 'SOAP12') {
+                    response.format = 'SOAP 1.2';
+                }
+
+                if (endpointParams.property != undefined) {
+                    let params: any[];
+                    params = endpointParams.property;
+                    params.forEach((element) => {
+                        response.properties.push({ name: element.name, value: element.value, scope: element.scope });
+                    });
+                }
+
+                response.requireProperties = response.properties.length > 0;
+
+                resolve(response);
+            }
+        });
+    }
+
+    async updateWsdlEndpoint(params: UpdateWsdlEndpointRequest): Promise<UpdateWsdlEndpointResponse> {
+        return new Promise(async (resolve) => {
+            const {
+                directory, endpointName, format, traceEnabled, statisticsEnabled, optimize, description, wsdlUri,
+                wsdlService, wsdlPort, requireProperties, properties, addressingEnabled, addressingVersion,
+                addressListener, securityEnabled, suspendErrorCodes, initialDuration, maximumDuration, progressionFactor,
+                retryErrorCodes, retryCount, retryDelay, timeoutDuration, timeoutAction
+            } = params;
+
+            const getWsdlEndpointParams = {
+                endpointName, format, traceEnabled, statisticsEnabled, optimize, description, wsdlUri, wsdlService,
+                wsdlPort, requireProperties, properties, addressingEnabled, addressingVersion, addressListener,
+                securityEnabled, suspendErrorCodes, initialDuration, maximumDuration, progressionFactor, retryErrorCodes,
+                retryCount, retryDelay, timeoutDuration, timeoutAction
+            };
+
+            const xmlData = getWsdlEndpointXmlWrapper(getWsdlEndpointParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${endpointName}.xml`);
+            }
+
+            fs.writeFileSync(filePath, sanitizedXmlData);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getWsdlEndpoint(params: RetrieveWsdlEndpointRequest): Promise<RetrieveWsdlEndpointResponse> {
+
+        const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
+        const endpointParams = endpointSyntaxTree.syntaxTree.endpoint;
+        const wsdlParams = endpointParams.wsdl;
+        const suspensionParams = wsdlParams.markForSuspension;
+        const failureParams = wsdlParams.suspendOnFailure;
+        const timeoutParams = wsdlParams.timeout;
+
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (fs.existsSync(filePath)) {
+                let response: RetrieveWsdlEndpointResponse = {
+                    endpointName: endpointParams.name,
+                    format: wsdlParams.format != undefined ? wsdlParams.format.toUpperCase() : 'LEAVE_AS_IS',
+                    traceEnabled: wsdlParams.trace != undefined ? wsdlParams.trace : 'disable',
+                    statisticsEnabled: wsdlParams.statistics,
+                    optimize: wsdlParams.optimize != undefined ? wsdlParams.optimize.toUpperCase() : 'LEAVE_AS_IS',
+                    description: endpointParams.description,
+                    wsdlUri: wsdlParams.uri,
+                    wsdlService: wsdlParams.service,
+                    wsdlPort: wsdlParams.port,
+                    requireProperties: false,
+                    properties: [],
+                    addressingEnabled: wsdlParams.enableAddressing != undefined ? 'enable' : 'disable',
+                    addressingVersion: wsdlParams.enableAddressing != undefined ? wsdlParams.enableAddressing.version : '',
+                    addressListener: (wsdlParams.enableAddressing != undefined && wsdlParams.enableAddressing.separateListener) ? 'enable' : 'disable',
+                    securityEnabled: wsdlParams.enableSec != undefined ? 'enable' : 'disable',
+                    suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
+                    initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : '',
+                    maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : '',
+                    progressionFactor: failureParams.progressionFactor != undefined ? failureParams.progressionFactor.textNode : '',
+                    retryErrorCodes: suspensionParams.errorCodes != undefined ? suspensionParams.errorCodes.textNode : '',
+                    retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : '',
+                    retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : '',
+                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : '',
+                    timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : ''
+                };
+
+                if (response.format === 'SOAP11') {
+                    response.format = 'SOAP 1.1';
+                } else if (response.format === 'SOAP12') {
+                    response.format = 'SOAP 1.2';
+                }
+
+                if (endpointParams.property != undefined) {
+                    let params: any[];
+                    params = endpointParams.property;
+                    params.forEach((element) => {
+                        response.properties.push({ name: element.name, value: element.value, scope: element.scope });
+                    });
+                }
+
+                response.requireProperties = response.properties.length > 0;
+
+                resolve(response);
+            }
+        });
+    }
+
+    async updateDefaultEndpoint(params: UpdateDefaultEndpointRequest): Promise<UpdateDefaultEndpointResponse> {
+        return new Promise(async (resolve) => {
+            const {
+                directory, endpointName, format, traceEnabled, statisticsEnabled, optimize, description, requireProperties,
+                properties, addressingEnabled, addressingVersion, addressListener, securityEnabled, suspendErrorCodes,
+                initialDuration, maximumDuration, progressionFactor, retryErrorCodes, retryCount, retryDelay,
+                timeoutDuration, timeoutAction
+            } = params;
+
+            const getDefaultEndpointParams = {
+                endpointName, format, traceEnabled, statisticsEnabled, optimize, description, requireProperties,
+                properties, addressingEnabled, addressingVersion, addressListener, securityEnabled, suspendErrorCodes,
+                initialDuration, maximumDuration, progressionFactor, retryErrorCodes, retryCount, retryDelay,
+                timeoutDuration, timeoutAction
+            };
+
+            const xmlData = getDefaultEndpointXmlWrapper(getDefaultEndpointParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${endpointName}.xml`);
+            }
+
+            fs.writeFileSync(filePath, sanitizedXmlData);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getDefaultEndpoint(params: RetrieveDefaultEndpointRequest): Promise<RetrieveDefaultEndpointResponse> {
+
+        const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
+        const endpointParams = endpointSyntaxTree.syntaxTree.endpoint;
+        const defaultParams = endpointParams._default;
+        const suspensionParams = defaultParams.markForSuspension;
+        const failureParams = defaultParams.suspendOnFailure;
+        const timeoutParams = defaultParams.timeout;
+
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (fs.existsSync(filePath)) {
+                let response: RetrieveDefaultEndpointResponse = {
+                    endpointName: endpointParams.name,
+                    format: defaultParams.format != undefined ? defaultParams.format.toUpperCase() : 'LEAVE_AS_IS',
+                    traceEnabled: defaultParams.trace != undefined ? defaultParams.trace : 'disable',
+                    statisticsEnabled: defaultParams.statistics != undefined ? defaultParams.statistics : 'disable',
+                    optimize: defaultParams.optimize != undefined ? defaultParams.optimize.toUpperCase() : 'LEAVE_AS_IS',
+                    description: endpointParams.description,
+                    requireProperties: false,
+                    properties: [],
+                    addressingEnabled: defaultParams.enableAddressing != undefined ? 'enable' : 'disable',
+                    addressingVersion: defaultParams.enableAddressing != undefined ? defaultParams.enableAddressing.version : '',
+                    addressListener: (defaultParams.enableAddressing != undefined && defaultParams.enableAddressing.separateListener) ? 'enable' : 'disable',
+                    securityEnabled: defaultParams.enableSec != undefined ? 'enable' : 'disable',
+                    suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
+                    initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : '',
+                    maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : '',
+                    progressionFactor: failureParams.progressionFactor != undefined ? failureParams.progressionFactor.textNode : '',
+                    retryErrorCodes: suspensionParams.errorCodes != undefined ? suspensionParams.errorCodes.textNode : '',
+                    retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : '',
+                    retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : '',
+                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : '',
+                    timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : ''
+                };
+
+                if (response.format === 'SOAP11') {
+                    response.format = 'SOAP 1.1';
+                } else if (response.format === 'SOAP12') {
+                    response.format = 'SOAP 1.2';
+                }
+
+                if (endpointParams.property != undefined) {
+                    let params: any[];
+                    params = endpointParams.property;
+                    params.forEach((element) => {
+                        response.properties.push({ name: element.name, value: element.value, scope: element.scope });
+                    });
+                }
+
+                response.requireProperties = response.properties.length > 0;
+
+                resolve(response);
+            }
+        });
+    }
+
     async applyEdit(params: ApplyEditRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
             const edit = new WorkspaceEdit();
@@ -502,6 +1662,209 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
+    async createMessageProcessor(params: CreateMessageProcessorRequest): Promise<CreateMessageProcessorResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, messageProcessorName, messageProcessorType, messageStoreType, failMessageStoreType,
+                targetMessageStoreType, processorState, dropMessageOption, quartzConfigPath, cron, forwardingInterval,
+                retryInterval, maxRedeliveryAttempts, maxConnectionAttempts, connectionAttemptInterval, taskCount,
+                statusCodes, clientRepository, axis2Config, endpointType, sequenceType, replySequenceType,
+                faultSequenceType, deactivateSequenceType, endpoint, sequence, replySequence,
+                faultSequence, deactivateSequence,
+                samplingInterval, samplingConcurrency,
+                providerClass, properties } = params;
+
+            const getTemplateParams = {
+                messageProcessorName, messageProcessorType, messageStoreType, failMessageStoreType, targetMessageStoreType,
+                processorState, dropMessageOption, quartzConfigPath, cron, forwardingInterval, retryInterval,
+                maxRedeliveryAttempts, maxConnectionAttempts, connectionAttemptInterval, taskCount, statusCodes,
+                clientRepository, axis2Config, endpointType, sequenceType, replySequenceType, faultSequenceType,
+                deactivateSequenceType, endpoint, sequence,
+                replySequence, faultSequence,
+                deactivateSequence, samplingInterval, samplingConcurrency, providerClass, properties
+            };
+
+            const xmlData = getMessageProcessorXmlWrapper(getTemplateParams);
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${messageProcessorName}.xml`);
+            }
+
+            if (filePath.includes('/messageProcessors')) {
+                filePath = filePath.replace('/messageProcessors', '/message-processors');
+            }
+
+            fs.writeFileSync(filePath, xmlData);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getMessageProcessor(params: RetrieveMessageProcessorRequest): Promise<RetrieveMessageProcessorResponse> {
+        const options = {
+            ignoreAttributes: false,
+            allowBooleanAttributes: true,
+            attributeNamePrefix: "@_",
+            attributesGroupName: "@_"
+        };
+        const parser = new XMLParser(options);
+
+        interface Parameter {
+            name: string;
+            value: string;
+        }
+
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (fs.existsSync(filePath)) {
+                const xmlData = fs.readFileSync(filePath, "utf8");
+                const jsonData = parser.parse(xmlData);
+                let parameters: Parameter[];
+                const className = jsonData.messageProcessor["@_"]["@_class"];
+                let response: RetrieveMessageProcessorResponse = {
+                    messageProcessorName: jsonData.messageProcessor["@_"]["@_name"],
+                    messageProcessorType: '',
+                    messageStoreType: jsonData.messageProcessor["@_"]["@_messageStore"],
+                    failMessageStoreType: '',
+                    sourceMessageStoreType: 'TestMBStore',
+                    targetMessageStoreType: 'TestMBStore',
+                    processorState: 'true',
+                    dropMessageOption: 'Disabled',
+                    quartzConfigPath: '',
+                    cron: '',
+                    forwardingInterval: 1000,
+                    retryInterval: 1000,
+                    maxRedeliveryAttempts: 4,
+                    maxConnectionAttempts: -1,
+                    connectionAttemptInterval: 1000,
+                    taskCount: null,
+                    statusCodes: '',
+                    clientRepository: '',
+                    axis2Config: '',
+                    endpointType: '',
+                    sequenceType: '',
+                    replySequenceType: '',
+                    faultSequenceType: '',
+                    deactivateSequenceType: '',
+                    endpoint: '',
+                    sequence: '',
+                    replySequence: '',
+                    faultSequence: '',
+                    deactivateSequence: '',
+                    samplingInterval: 1000,
+                    samplingConcurrency: 1,
+                    providerClass: '',
+                    properties: [],
+                    hasCustomProperties: false
+                };
+
+                if (jsonData.messageProcessor["@_"]["@_targetEndpoint"] !== undefined) {
+                    response.endpoint = jsonData.messageProcessor["@_"]["@_targetEndpoint"];
+                }
+
+                if (jsonData && jsonData.messageProcessor && jsonData.messageProcessor.parameter) {
+                    parameters = Array.isArray(jsonData.messageProcessor.parameter)
+                        ? jsonData.messageProcessor.parameter.map((param: any) => ({
+                            name: param["@_"]['@_name'],
+                            value: param['#text']
+                        }))
+                        : [{
+                            name: jsonData.messageProcessor.parameter["@_"]['@_name'],
+                            value: jsonData.messageProcessor.parameter['#text']
+                        }];
+
+                    const ScheduledMessageForwardingProcessor = {
+                        'client.retry.interval': 'retryInterval',
+                        'member.count': 'taskCount',
+                        'message.processor.reply.sequence': 'replySequence',
+                        'axis2.config': 'axis2Config',
+                        'quartz.conf': 'quartzConfigPath',
+                        'non.retry.status.codes': 'statusCodes',
+                        'message.processor.deactivate.sequence': 'deactivateSequence',
+                        'is.active': 'processorState',
+                        'axis2.repo': 'clientRepository',
+                        cronExpression: 'cron',
+                        'max.delivery.attempts': 'maxRedeliveryAttempts',
+                        'message.processor.fault.sequence': 'faultSequence',
+                        'store.connection.retry.interval': 'connectionAttemptInterval',
+                        'max.store.connection.attempts': 'maxConnectionAttempts',
+                        'max.delivery.drop': 'dropMessageOption',
+                        interval: 'forwardingInterval',
+                        'message.processor.failMessagesStore': 'failMessageStoreType'
+                    },
+                        ScheduledFailoverMessageForwardingProcessor = {
+                            'client.retry.interval': 'retryInterval',
+                            cronExpression: 'cron',
+                            'max.delivery.attempts': 'maxRedeliveryAttempts',
+                            'member.count': 'taskCount',
+                            'message.processor.fault.sequence': 'faultSequence',
+                            'quartz.conf': 'quartzConfigPath',
+                            'max.delivery.drop': 'dropMessageOption',
+                            interval: 'forwardingInterval',
+                            'store.connection.retry.interval': 'connectionAttemptInterval',
+                            'max.store.connection.attempts': 'maxConnectionAttempts',
+                            'message.processor.deactivate.sequence': 'deactivateSequence',
+                            'is.active': 'processorState',
+                            'message.target.store.name': 'targetMessageStoreType'
+                        },
+                        MessageSamplingProcessor = {
+                            cronExpression: 'cron',
+                            sequence: 'sequence',
+                            'quartz.conf': 'quartzConfigPath',
+                            interval: 'samplingInterval',
+                            'is.active': 'processorState',
+                            concurrency: 'samplingConcurrency',
+                        };
+
+                    const customProperties: { key: string, value: any }[] = [];
+                    if (className === 'org.apache.synapse.message.processor.impl.forwarder.ScheduledMessageForwardingProcessor') {
+                        response.messageProcessorType = 'Scheduled Message Forwarding Processor';
+                        parameters.forEach((param: Parameter) => {
+                            if (ScheduledMessageForwardingProcessor.hasOwnProperty(param.name)) {
+                                response[ScheduledMessageForwardingProcessor[param.name]] = param.value;
+                            } else {
+                                customProperties.push({ key: param.name, value: param.value });
+                            }
+
+                        });
+                    } else if (className === 'org.apache.synapse.message.processor.impl.sampler.SamplingProcessor') {
+                        response.messageProcessorType = 'Message Sampling Processor';
+                        parameters.forEach((param: Parameter) => {
+                            if (MessageSamplingProcessor.hasOwnProperty(param.name)) {
+                                response[MessageSamplingProcessor[param.name]] = param.value;
+                            } else {
+                                customProperties.push({ key: param.name, value: param.value });
+                            }
+                        });
+                    } else if (className === 'org.apache.synapse.message.processor.impl.failover.FailoverScheduledMessageForwardingProcessor') {
+                        response.messageProcessorType = 'Scheduled Failover Message Forwarding Processor';
+                        parameters.forEach((param: Parameter) => {
+                            if (ScheduledFailoverMessageForwardingProcessor.hasOwnProperty(param.name)) {
+                                response[ScheduledFailoverMessageForwardingProcessor[param.name]] = param.value;
+                            } else {
+                                customProperties.push({ key: param.name, value: param.value });
+                            }
+                        });
+                    } else {
+                        response.messageProcessorType = 'Custom Message Processor';
+                        response.providerClass = className;
+                        response.properties = parameters.map(pair => ({ key: pair.name, value: pair.value }));
+                    }
+
+                    if (customProperties.length > 0) {
+                        response.hasCustomProperties = true;
+                        response.properties = customProperties;
+                    }
+                }
+
+                resolve(response);
+            }
+        });
+    }
+
     closeWebView(): void {
         if (VisualizerWebview.currentPanel) {
             VisualizerWebview.currentPanel.dispose();
@@ -528,6 +1891,19 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
+    async askProjectImportDirPath(): Promise<ProjectDirResponse> {
+        return new Promise(async (resolve) => {
+            const selectedDir = await askImportProjectPath();
+            if (!selectedDir || selectedDir.length === 0) {
+                window.showErrorMessage('The root directory of the project must be selected to import project');
+                resolve({ path: "" });
+            } else {
+                const parentDir = selectedDir[0].fsPath;
+                resolve({ path: parentDir });
+            }
+        });
+    }
+
     async askFileDirPath(): Promise<FileDirResponse> {
         return new Promise(async (resolve) => {
             const selectedFile = await askFilePath();
@@ -543,13 +1919,16 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {
         return new Promise(async (resolve) => {
+            const projectUuid = uuidv4();
+
             const { directory, name, open, groupID, artifactID } = params;
 
             const folderStructure: FileStructure = {
                 [name]: { // Project folder
-                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name),
+                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name, projectUuid),
                     'src': {
                         'main': {
+                            'java': '',
                             'wso2mi': {
                                 'artifacts': {
                                     'apis': '',
@@ -567,6 +1946,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                 },
                                 'resources': {
                                     'metadata': '',
+                                    'registry': {
+                                        'gov': '',
+                                        'conf': '',
+                                    },
                                 },
                             },
                             'test': ''
@@ -581,7 +1964,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const projectOpened = StateMachine.context().projectOpened;
 
             if (open) {
-
                 if (projectOpened) {
                     const answer = await window.showInformationMessage(
                         "Do you want to open the created project in the current window or new window?",
@@ -611,6 +1993,71 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             resolve({ filePath: path.join(directory, name) });
+        });
+    }
+
+    async importProject(params: ImportProjectRequest): Promise<ImportProjectResponse> {
+        return new Promise(async (resolve) => {
+            const { source, directory, open } = params;
+
+            const projectUuid = uuidv4();
+
+            let { projectName, groupId, artifactId } = getProjectDetails(source);
+
+            if (projectName && groupId && artifactId) {
+                const folderStructure: FileStructure = {
+                    [projectName]: {
+                        'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid),
+                        'src': {
+                            'main': {
+                                'wso2mi': {
+                                    'artifacts': {
+                                        'apis': '',
+                                        'endpoints': '',
+                                        'inbound-endpoints': '',
+                                        'local-entries': '',
+                                        'message-processors': '',
+                                        'message-stores': '',
+                                        'proxy-services': '',
+                                        'sequences': '',
+                                        'tasks': '',
+                                        'templates': '',
+                                        'data-services': '',
+                                        'data-sources': '',
+                                    },
+                                    'resources': {
+                                        'registry': {
+                                            'gov': '',
+                                            'conf': '',
+                                        },
+                                        'metadata': '',
+                                        'connectors': '',
+                                    },
+                                },
+                                'test': {
+                                    'wso2mi': '',
+                                }
+                            },
+                        },
+                    },
+                };
+
+                createFolderStructure(directory, folderStructure);
+                console.log("Created project structure for project: " + projectName)
+                migrateConfigs(source, path.join(directory, projectName));
+
+                window.showInformationMessage(`Successfully imported ${projectName} project`);
+
+                if (open) {
+                    commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, projectName)));
+                    resolve({ filePath: path.join(directory, projectName) });
+                }
+
+                resolve({ filePath: path.join(directory, projectName) });
+            } else {
+                window.showErrorMessage('Could not find the project details from the provided project: ', source);
+                resolve({ filePath: "" });
+            }
         });
     }
 
@@ -688,9 +2135,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
         let status = true;
         //if file exists, overwrite if not, create new file and write content.  if successful, return true, else false
-        const { content, directoryPath } = params;
+        const { content } = params;
+
+        //get current workspace folder 
+        const directoryPath = StateMachine.context().projectUri;
+        console.log('Directory path:', directoryPath);
 
         const length = content.length;
+        console.log('Content length:', length);
         for (let i = 0; i < length; i++) {
             //remove starting '''xml and ending '''
             content[i] = content[i].replace(/```xml/g, '');
@@ -706,7 +2158,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     const tag = tagMatch[1];
                     switch (tag) {
                         case 'api':
-                            fileType = 'api';
+                            fileType = 'apis';
+                            fileType = 'apis';
                             break;
                         case 'endpoint':
                             fileType = 'endpoints';
@@ -720,7 +2173,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     console.log("File type - ", fileType)
                 }
                 //write the content to a file, if file exists, overwrite else create new file
-                const fullPath = path.join(directoryPath, '/temp/tempConfigs/src/main/synapse-config/', fileType, '/', `${name}.xml`);
+                const fullPath = path.join(directoryPath ?? '', '/src/main/wso2mi/artifacts/', fileType, '/', `${name}.xml`);
+                console.log('Full path:', fullPath);
                 try {
                     console.log('Writing content to file:', fullPath);
                     console.log('Content:', content[i]);
@@ -744,7 +2198,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
     async highlightCode(params: HighlightCodeRequest) {
         const documentUri = StateMachine.context().documentUri;
-        const editor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
+        let editor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
+        if (!editor && params.force && documentUri) {
+            const document = await workspace.openTextDocument(Uri.parse(documentUri));
+            editor = await window.showTextDocument(document, ViewColumn.Beside);
+        }
+
         if (editor) {
             const range = new Range(params.range.start.line, params.range.start.character, params.range.end.line, params.range.end.character);
             editor.selection = new Selection(range.start, range.end);
@@ -752,6 +2211,58 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         }
     }
 
+    async getWorkspaceContext(): Promise<GetWorkspaceContextResponse> {
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders) {
+            throw new Error('No workspace is currently open');
+        }
+
+        var rootPath = workspaceFolders[0].uri.fsPath;
+        rootPath += '/src/main/wso2mi/artifacts';
+        const fileContents: string[] = [];
+        var resourceFolders = ['apis', 'endpoints', 'inbound-endpoints', 'local-entries', 'message-processors', 'message-stores', 'proxy-services', 'sequences', 'tasks', 'templates', 'data-services', 'data-sources'];
+        for (const folder of resourceFolders) {
+            const folderPath = path.join(rootPath, folder);
+            const files = await fs.promises.readdir(folderPath);
+
+            for (const file of files) {
+                const filePath = path.join(folderPath, file);
+                const stats = await fs.promises.stat(filePath);
+
+                if (stats.isFile()) {
+                    const content = await fs.promises.readFile(filePath, 'utf-8');
+                    fileContents.push(content);
+                }
+            }
+        }
+
+        return { context: fileContents };
+    }
+
+    async getProjectUuid(): Promise<GetProjectUuidResponse> {
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders) {
+            throw new Error('No workspace is currently open');
+        }
+        var rootPath = workspaceFolders[0].uri.fsPath;
+        const pomPath = path.join(rootPath, 'pom.xml');
+
+        return new Promise((resolve, reject) => {
+            fs.readFile(pomPath, 'utf8', (err, data) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    //get the part within <uuid> and <uuid> tags
+                    const uuid = data.match(/<uuid>(.*?)<\/uuid>/s);
+                    if (uuid) {
+                        resolve({ uuid: uuid[1] });
+                    } else {
+                        resolve({ uuid: '' });
+                    }
+                }
+            });
+        });
+    }
     async undo(params: UndoRedoParams): Promise<void> {
         const lastsource = undoRedo.undo();
         if (lastsource) {
@@ -814,6 +2325,81 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async getDiagnostics(params: GetDiagnosticsReqeust): Promise<GetDiagnosticsResponse> {
         return StateMachine.context().langClient!.getDiagnostics(params);
     }
+
+    async getAvailableResources(params: GetAvailableResourcesRequest): Promise<GetAvailableResourcesResponse> {
+        return StateMachine.context().langClient!.getAvailableResources(params);
+    }
+
+    async browseFile(params: BrowseFileRequest): Promise<BrowseFileResponse> {
+        return new Promise(async (resolve) => {
+            const selectedFile = await window.showOpenDialog({
+                canSelectFiles: true,
+                canSelectFolders: false,
+                canSelectMany: false,
+                defaultUri: Uri.file(os.homedir()),
+                title: params.dialogTitle
+            });
+            if (selectedFile) {
+                resolve({ filePath: selectedFile[0].fsPath });
+            }
+        });
+    }
+
+    async createRegistryResource(params: CreateRegistryResourceRequest): Promise<CreateRegistryResourceResponse> {
+        return new Promise(async (resolve) => {
+            var registryDir = path.join(params.projectDirectory, 'src', 'main', 'wso2mi', 'resources', 'registry', params.registryRoot);
+            var transformedPath = params.registryRoot === "gov" ? "/_system/governance" : "/_system/config";
+            if (params.createOption === "import") {
+                if (fs.existsSync(params.filePath)) {
+                    const fileName = path.basename(params.filePath);
+                    const registryPath = path.join(registryDir, params.registryPath);
+                    const destPath = path.join(registryPath, fileName);
+                    if (!fs.existsSync(registryPath)) {
+                        fs.mkdirSync(registryPath, { recursive: true });
+                    }
+                    fs.copyFileSync(params.filePath, destPath);
+                    transformedPath = path.join(transformedPath, params.registryPath);
+                    const mediaType = await detectMediaType(params.filePath);
+                    addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, mediaType);
+                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                    resolve({ path: destPath });
+                }
+            } else {
+                var fileName = params.resourceName;
+                const fileData = getMediatypeAndFileExtension(params.templateType);
+                fileName = fileName + "." + fileData.fileExtension;
+                const fileContent = getRegistryResourceContent(params.templateType, params.resourceName);
+                const registryPath = path.join(registryDir, params.registryPath);
+                const destPath = path.join(registryPath, fileName);
+                if (!fs.existsSync(registryPath)) {
+                    fs.mkdirSync(registryPath, { recursive: true });
+                }
+                fs.writeFileSync(destPath, fileContent ? fileContent : "");
+                //add the new entry to artifact.xml
+                transformedPath = path.join(transformedPath, params.registryPath);
+                addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, fileData.mediaType);
+                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                resolve({ path: destPath });
+            }
+        });
+    }
+
+    async createClassMediator(params: CreateClassMediatorRequest): Promise<CreateClassMediatorResponse> {
+        return new Promise(async (resolve) => {
+            const content = getClassMediatorContent({ name: params.className, package: params.packageName });
+            const packagePath = params.packageName.replace(/\./g, path.sep);
+            const fullPath = path.join(params.projectDirectory, packagePath);
+            fs.mkdirSync(fullPath, { recursive: true });
+            const filePath = path.join(fullPath, `${params.className}.java`);
+            fs.writeFileSync(filePath, content);
+            const fileUri = Uri.file(params.projectDirectory);
+            const workspaceFolder = workspace.getWorkspaceFolder(fileUri)?.uri.fsPath ?? workspace.getWorkspaceFolder[0].uri.fsPath;
+            changeRootPomPackaging(workspaceFolder, "jar");
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
+
 }
 
 export async function askProjectPath() {
@@ -825,6 +2411,17 @@ export async function askProjectPath() {
         title: "Select a folder to create the Project"
     });
 }
+
+export async function askImportProjectPath() {
+    return await window.showOpenDialog({
+        canSelectFiles: false,
+        canSelectFolders: true,
+        canSelectMany: false,
+        defaultUri: Uri.file(os.homedir()),
+        title: "Select the root directory of the project to import"
+    });
+}
+
 export async function askFilePath() {
     return await window.showOpenDialog({
         canSelectFiles: true,

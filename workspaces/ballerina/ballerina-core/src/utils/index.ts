@@ -8,3 +8,4 @@
  */
 
 export * from './modification-utils';
+export * from './keyboard-navigation-manager';

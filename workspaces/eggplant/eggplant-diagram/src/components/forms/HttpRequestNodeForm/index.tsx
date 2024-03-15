@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { Icon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
 import { Endpoint, HttpMethod, HttpRequestNodeProperties, Node } from "../../../types";
 import { toSnakeCase, toTitleCase } from "../../../utils";
 import { Form } from "../styles";
@@ -60,12 +60,13 @@ export function HttpRequestNodeForm(props: OptionWidgetProps) {
         <Form.Tray>
             <Form.HeaderContainer>
                 <Form.Header>{formTitle}</Form.Header>
-                <Icon
-                    name="close"
-                    onClick={() => {
-                        setSelectedNode(null);
-                    }}
-                />
+                <Button
+                    sx={{marginTop: -3}}
+                    onClick={() => { setSelectedNode(null) }}
+                    appearance="icon"
+                >
+                    <Codicon sx={{marginRight: 2}} name="close"/>
+                </Button>
             </Form.HeaderContainer>
             <Form.InputField
                 label="Component Name"

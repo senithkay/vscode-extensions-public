@@ -10,7 +10,10 @@
 import { Header } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export function getHeaderMustacheTemplate() {
-    return `<header name="{{headerName}}" action="{{headerAction}}" scope="{{scope}}" {{#expression}}expression="{{expression}}"{{/expression}} {{#value}}value="{{value}}"{{/value}} {{#description}}description="{{description}}"{{/description}}/>`;
+    return `<header {{#headerName}}name="{{headerName}}" {{/headerName}}{{#headerAction}}action="{{headerAction}}" {{/headerAction}}{{#scope}}scope="{{scope}}" {{/scope}}{{#valueExpression}}expression="{{valueExpression}}" {{/valueExpression}}{{#valueLiteral}}value="{{valueLiteral}}" {{/valueLiteral}}{{#description}}description="{{description}}" {{/description}}{{^valueInline}}/{{/valueInline}}>
+    {{#valueInline}}
+    {{{valueInline}}}
+</header>{{/valueInline}}`;
 }
 
 export function getHeaderFormDataFromSTNode(data: { [key: string]: any }, node: Header) {
@@ -20,8 +23,6 @@ export function getHeaderFormDataFromSTNode(data: { [key: string]: any }, node: 
     if (node.action) {
         data.headerAction = node.action;
     }
-    if (node.scope) {
-        data.scope = node.scope;
-    }
+    data.valueType = node.any ? "INLINE" : node.value !== undefined ? "LITERAL" : "EXPRESSION";
     return data;
 }

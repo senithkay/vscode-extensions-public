@@ -15,6 +15,7 @@ import styled from "@emotion/styled";
 import { Button, Codicon, ComponentCard, Grid } from "@wso2-enterprise/ui-toolkit";
 import { ProjectWizard } from "../Forms/ProjectForm";
 import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { ImportProjectWizard } from "../Forms/ImportProjectForm";
 
 const TextWrapper = styled.div`
     display: flex;
@@ -98,7 +99,7 @@ const SampleText = styled.div`
 `;
 
 const SampleTitle = {
-    margin:"4px 0px",
+    margin: "4px 0px",
     fontSize: 14,
     fontWeight: 500,
     textAlign: "left",
@@ -160,7 +161,7 @@ export function GettingStarted() {
                     </TitlePanel>
                     <Grid
                         columns={2}
-                        direction="column">
+                    >
                         <Pane>
                             <Tab>
                                 <SubTitle>Getting started</SubTitle>
@@ -175,6 +176,18 @@ export function GettingStarted() {
                                             <Codicon name="folder-library" iconSx={{ fontSize: 20 }} />
                                         </IconWrapper>
                                         <TextWrapper>Create New Project</TextWrapper>
+                                    </div>
+                                </Button>
+                            </Tab>
+                            <Tab>
+                                <SubTitle>Import</SubTitle>
+                                <span>Import an existing project.</span>
+                                <Button appearance="secondary" onClick={() => handleModeChange("ImportProject")}>
+                                    <div style={CreateBtnStyles}>
+                                        <IconWrapper>
+                                            <Codicon name="go-to-file" iconSx={{ fontSize: 20 }} />
+                                        </IconWrapper>
+                                        <TextWrapper>Import A Project</TextWrapper>
                                     </div>
                                 </Button>
                             </Tab>
@@ -231,6 +244,7 @@ export function GettingStarted() {
             )}
             {mode === "NewProject" && <ProjectWizard />}
             {mode === "Samples" && <SamplesView />}
+            {mode === "ImportProject" && <ImportProjectWizard />}
         </>
     );
 }

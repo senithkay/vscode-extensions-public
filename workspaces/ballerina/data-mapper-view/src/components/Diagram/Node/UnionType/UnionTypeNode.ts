@@ -11,7 +11,7 @@
  * associated services.
  */
 import { Point } from "@projectstorm/geometry";
-import { STModification, Type, PrimitiveBalType } from "@wso2-enterprise/ballerina-core";
+import { STModification, TypeField, PrimitiveBalType } from "@wso2-enterprise/ballerina-core";
 import {
     ExpressionFunctionBody,
     IdentifierToken,
@@ -61,10 +61,10 @@ export class UnionTypeNode extends DataMapperNodeModel {
     public recordField: EditableRecordField;
     public typeName: string;
     public rootName: string;
-    public resolvedType: Type;
+    public resolvedType: TypeField;
     public hasInvalidTypeCast: boolean;
     public mappings: FieldAccessToSpecificFied[];
-    public unionTypeDef: Type;
+    public unionTypeDef: TypeField;
     public unionTypes: string[];
     public innermostExpr: STNode;
     public typeCastExpr: STNode;
@@ -75,7 +75,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
         public context: IDataMapperContext,
         public value: ExpressionFunctionBody | SelectClause,
         public typeIdentifier: TypeDescriptor | IdentifierToken,
-        public typeDef: Type
+        public typeDef: TypeField
     ) {
         super(
             context,

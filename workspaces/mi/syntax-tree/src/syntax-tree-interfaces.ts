@@ -11,6 +11,7 @@ import { Diagnostic } from "vscode-languageserver-types";
 export interface STNode {
     hasTextNode: boolean;
     selfClosed: boolean;
+    textNode: string;
     range: TagRange;
     tag: string;
     viewState?: ViewState;
@@ -179,6 +180,7 @@ export interface And extends STNode {
 
 export interface Script extends STNode {
     content: any[];
+    include: string[];
     language: string;
     key: string;
     function: string;
@@ -264,6 +266,7 @@ export interface TTypes extends TExtensibleDocumented, STNode {
 export interface Bean extends STNode {
     action: string;
     var: string;
+    target:string;
     clazz: string;
     property: string;
     value: string;
@@ -277,7 +280,7 @@ export interface CorrelateOnOrCompleteConditionOrOnComplete extends STNode {
 }
 
 export interface Aggregate extends STNode {
-    correlateOnOrCompleteConditionOrOnComplete: CorrelateOnOrCompleteConditionOrOnComplete[];
+    correlateOnOrCompleteConditionOrOnComplete: CorrelateOnOrCompleteConditionOrOnComplete;
     description: string;
     id: string;
 }
@@ -292,7 +295,7 @@ export interface ExtensibleDocumentedType extends DocumentedType, STNode {
 }
 
 export interface Send extends STNode {
-    endpoint: NamedEndpoint[];
+    endpoint: NamedEndpoint;
     receive: string;
     buildmessage: boolean;
     description: string;
@@ -422,7 +425,7 @@ export interface SourceOrTargetOrConfiguration extends STNode {
 }
 
 export interface Callout extends STNode {
-    sourceOrTargetOrConfiguration: SourceOrTargetOrConfiguration[];
+    sourceOrTargetOrConfiguration: SourceOrTargetOrConfiguration;
     serviceURL: string;
     action: string;
     initAxis2ClientOptions: boolean;
@@ -612,6 +615,7 @@ export interface Endpoint extends STNode {
     parameter: EndpointParameter[];
     description: string;
     key: string;
+    keyExpression: string;
     template: string;
     uri: string;
     type: string;
@@ -687,6 +691,7 @@ export interface TDocumented extends STNode {
 }
 
 export interface CacheImplementation extends STNode {
+    type: string;
     maxSize: number;
 }
 
@@ -1044,7 +1049,7 @@ export interface InterfaceOperationType extends ExtensibleDocumentedType, STNode
 }
 
 export interface Iterate extends STNode {
-    target: Target[];
+    target: Target;
     sequential: boolean;
     continueParent: boolean;
     expression: string;
@@ -1112,7 +1117,7 @@ export interface MakefaultReason extends STNode {
 }
 
 export interface CacheOnCacheHit extends STNode {
-    mediatorList: CallTemplate | Smooks | Spring | Bam | Class | PublishEvent | Header | PojoCommand | Callout | Loopback | Xquery | Foreach | Iterate | Script | Builder | Store | Enrich | Ejb | FastXSLT | Clone | DbMediator | Log | ConditionalRouter | Bean | Throttle | Switch | Cache | Jsontransform | Filter | Rewrite | Property | OauthService | Validate | Xslt | EntitlementService | Respond | Event | Transaction | Enqueue | PayloadFactory | DataServiceCall | Send | Datamapper | Call | Rule | Drop | Aggregate | FilterSequence | PropertyGroup | Makefault;
+    mediatorList: STNode[];
     sequence: string;
 }
 
@@ -1269,12 +1274,13 @@ export interface DbMediatorConnectionPool extends STNode {
 }
 
 export interface CacheProtocol extends STNode {
-    methods: string;
-    headersToExcludeInHash: string;
-    responseCodes: string;
-    enableCacheControl: boolean;
-    includeAgeHeader: boolean;
-    hashGenerator: string;
+    methods: STNode;
+    headersToExcludeInHash: STNode;
+    headersToIncludeInHash: STNode
+    responseCodes: STNode
+    enableCacheControl: STNode
+    includeAgeHeader: STNode
+    hashGenerator: STNode
     type: string;
 }
 
@@ -1500,6 +1506,7 @@ export interface Call extends STNode {
     target: CallTarget;
     endpoint: NamedEndpoint;
     blocking: boolean;
+    initAxis2ClientOptions: boolean;
     description: string;
 }
 
@@ -1549,57 +1556,7 @@ export interface Parameter extends STNode {
 }
 
 export interface AggregateOnComplete extends STNode {
-    call: Call;
-    callTemplate: CallTemplate;
-    drop: Drop;
-    log: Log;
-    loopback: Loopback;
-    property: Property;
-    propertyGroup: PropertyGroup;
-    respond: Respond;
-    send: Send;
-    sequence: FilterSequence;
-    store: Store;
-    conditionalRouter: ConditionalRouter;
-    filter: Filter;
-    _switch: Switch;
-    validate: Validate;
-    bean: Bean;
-    clazz: Class;
-    pojoCommand: PojoCommand;
-    ejb: Ejb;
-    script: Script;
-    spring: Spring;
-    enrich: Enrich;
-    makefault: Makefault;
-    header: Header;
-    payloadFactory: PayloadFactory;
-    smooks: Smooks;
-    rewrite: Rewrite;
-    xquery: Xquery;
-    xslt: Xslt;
-    datamapper: Datamapper;
-    fastXSLT: FastXSLT;
-    jsontransform: Jsontransform;
-    cache: Cache;
-    dblookup: DbMediator;
-    dbreport: DbMediator;
-    enqueue: Enqueue;
-    event: Event;
-    dataServiceCall: DataServiceCall;
-    throttle: Throttle;
-    transaction: Transaction;
-    aggregate: Aggregate;
-    callout: Callout;
-    clone: Clone;
-    iterate: Iterate;
-    foreach: Foreach;
-    entitlementService: EntitlementService;
-    oauthService: OauthService;
-    builder: Builder;
-    rule: Rule;
-    bam: Bam;
-    publishEvent: PublishEvent;
+    mediatorList: STNode[];
     expression: string;
     sequenceAttribute: string;
     enclosingElementProperty: string;
@@ -1623,13 +1580,14 @@ export interface Cache extends STNode {
     onCacheHit: CacheOnCacheHit;
     protocol: CacheProtocol;
     implementation: CacheImplementation;
+    id: string;
     timeout: number;
     collector: boolean;
     maxMessageSize: number;
     scope: string;
+    hashGenerator: string;
     description: string;
 }
-
 
 export enum LogLevel {
     simple,
@@ -1670,3 +1628,8 @@ export enum SetRemove {
     set,
     remove,
 }
+
+export type DiagramService = APIResource | NamedSequence | Proxy;
+
+export type EditableService = APIResource | NamedSequence | ProxyTarget;
+

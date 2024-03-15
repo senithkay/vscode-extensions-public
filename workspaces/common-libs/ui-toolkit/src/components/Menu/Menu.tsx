@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import styled from "@emotion/styled";
-import React from "react";
+import React, { PropsWithChildren } from "react";
 
 export interface Item {
     id: number | string;
@@ -18,7 +18,6 @@ export interface Item {
 export interface MenuProps {
     menuItems?: Item[];
     id?: string;
-    children?: React.ReactNode;
     sx?: any;
 }
 
@@ -31,11 +30,14 @@ const Container = styled.div<ContainerProps>`
     flex-direction: column;
     background-color: var(--vscode-list-activeSelectionForeground);
     box-shadow: var(--vscode-widget-shadow) 0px 4px 10px;
-    padding: 8px 16px;
+    padding: 8px 0;
+    border: 1px solid var(--vscode-editor-lineHighlightBorder);
+    background-color: var(--vscode-editor-background);
+    color: var(--vscode-editor-foreground);
     ${(props: ContainerProps) => props.sx};
 `;
 
-export const Menu: React.FC<MenuProps> = (props: MenuProps) => {
+export const Menu: React.FC<PropsWithChildren<MenuProps>> = (props: PropsWithChildren<MenuProps>) => {
     const { children, sx, id } = props;
 
     return (
@@ -44,3 +46,4 @@ export const Menu: React.FC<MenuProps> = (props: MenuProps) => {
         </Container>
     );
 };
+

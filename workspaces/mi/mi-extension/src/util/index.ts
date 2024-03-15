@@ -12,6 +12,18 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { ExtensionContext, Uri, Webview } from "vscode";
 import { getInboundEndpointdXml, GetInboundTemplatesArgs } from './template-engine/mustach-templates/inboundEndpoints';
+import { getRegistryResource } from './template-engine/mustach-templates/registryResources';
+import { getMessageProcessorXml, MessageProcessorTemplateArgs } from './template-engine/mustach-templates/MessageProcessor';
+import { getProxyServiceXml, ProxyServiceTemplateArgs } from './template-engine/mustach-templates/ProxyService';
+import { GetTaskTemplatesArgs, getTaskXml } from './template-engine/mustach-templates/tasks';
+import { getMessageStoreXml, GetMessageStoreTemplatesArgs } from './template-engine/mustach-templates/messageStore';
+import { getTemplateXml, TemplateArgs } from './template-engine/mustach-templates/Template';
+import { getHttpEndpointXml, HttpEndpointArgs } from './template-engine/mustach-templates/HttpEndpoint';
+import { getAddressEndpointXml, AddressEndpointArgs } from './template-engine/mustach-templates/AddressEndpoint';
+import { getWsdlEndpointXml, WsdlEndpointArgs } from './template-engine/mustach-templates/WsdlEndpoint';
+import { getDefaultEndpointXml, DefaultEndpointArgs } from './template-engine/mustach-templates/DefaultEndpoint';
+import { GetLoadBalanceEPTemplatesArgs, getLoadBalanceEPXml } from './template-engine/mustach-templates/loadBalanceEndpoint';
+import { GetFailoverEPTemplatesArgs, getFailoverEPXml } from './template-engine/mustach-templates/failoverEndpoint';
 
 const isDevMode = process.env.WEB_VIEW_WATCH_MODE === "true";
 
@@ -39,6 +51,54 @@ export function createFolderStructure(targetPath: string, structure: FileStructu
 	}
 }
 
-export function getInboundEndpointXmlWrapper(props: GetInboundTemplatesArgs) {
-	return getInboundEndpointdXml(props);
+export function getInboundEndpointXmlWrapper(isNew: boolean, props: GetInboundTemplatesArgs) {
+	return getInboundEndpointdXml(isNew, props);
+}
+
+export function getRegistryResourceContent(type: string, resourceName: string) {
+	return getRegistryResource(type, resourceName);
+}
+
+export function getMessageProcessorXmlWrapper(props: MessageProcessorTemplateArgs) {
+	return getMessageProcessorXml(props);
+}
+
+export function getProxyServiceXmlWrapper(props: ProxyServiceTemplateArgs) {
+	return getProxyServiceXml(props);
+}
+
+export function getTaskXmlWrapper(data: GetTaskTemplatesArgs) {
+    return getTaskXml(data);
+}
+
+export function getLoadBalanceXmlWrapper(data: GetLoadBalanceEPTemplatesArgs) {
+    return getLoadBalanceEPXml(data);
+}
+
+export function getFailoverXmlWrapper(data: GetFailoverEPTemplatesArgs) {
+    return getFailoverEPXml(data);
+}
+
+export function getMessageStoreXmlWrapper(props: GetMessageStoreTemplatesArgs) {
+	return getMessageStoreXml(props);
+}
+
+export function getTemplateXmlWrapper(props: TemplateArgs) {
+	return getTemplateXml(props);
+}
+
+export function getHttpEndpointXmlWrapper(props: HttpEndpointArgs) {
+	return getHttpEndpointXml(props);
+}
+
+export function getAddressEndpointXmlWrapper(props: AddressEndpointArgs) {
+	return getAddressEndpointXml(props);
+}
+
+export function getWsdlEndpointXmlWrapper(props: WsdlEndpointArgs) {
+	return getWsdlEndpointXml(props);
+}
+
+export function getDefaultEndpointXmlWrapper(props: DefaultEndpointArgs) {
+	return getDefaultEndpointXml(props);
 }

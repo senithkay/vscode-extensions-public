@@ -7,11 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { GetDefinitionRequest, GetDefinitionResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, ProjectStructureResponse } from "@wso2-enterprise/mi-core";
+import { GetAvailableResourcesRequest, GetAvailableResourcesResponse, GetDefinitionRequest, GetDefinitionResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, ProjectStructureResponse } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { Position, Uri, workspace } from "vscode";
 import { CompletionParams, LanguageClient, TextEdit } from "vscode-languageclient/node";
 import { TextDocumentIdentifier } from "vscode-languageserver-protocol";
+import * as fs from 'fs';
 
 export interface GetSyntaxTreeParams {
     documentIdentifier: TextDocumentIdentifier;
@@ -54,11 +55,6 @@ export interface LogSnippetCompletionRequest {
     properties?: any;
 }
 
-export interface GetAvailableResourcesRequest {
-    documentIdentifier: TextDocumentIdentifier;
-    resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "template";
-}
-
 export interface LogSnippet {
     snippet: string;
 }
@@ -80,16 +76,18 @@ export class ExtendedLanguageClient extends LanguageClient {
     }
 
     private async didOpen(fileUri: string): Promise<void> {
-        const content: string = readFileSync(fileUri, { encoding: 'utf-8' });
-        const didOpenParams = {
-            textDocument: {
-                uri: Uri.parse(fileUri).toString(),
-                languageId: 'xml',
-                version: 1,
-                text: content
-            }
-        };
-        await this.sendNotification("textDocument/didOpen", didOpenParams);
+        if (fs.existsSync(fileUri) && fs.lstatSync(fileUri).isFile()) {
+            const content: string = readFileSync(fileUri, { encoding: 'utf-8' });
+            const didOpenParams = {
+                textDocument: {
+                    uri: Uri.parse(fileUri).toString(),
+                    languageId: 'xml',
+                    version: 1,
+                    text: content
+                }
+            };
+            await this.sendNotification("textDocument/didOpen", didOpenParams);
+        }
     }
 
     async getProjectStructure(path: string): Promise<ProjectStructureResponse> {
@@ -131,8 +129,8 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest("xml/getSnippetCompletion", req);
     }
 
-    async getAvailableResources(req: GetAvailableResourcesRequest): Promise<string[]> {
-        return this.sendRequest("synapse/availableResource", req);
+    async getAvailableResources(req: GetAvailableResourcesRequest): Promise<GetAvailableResourcesResponse> {
+        return this.sendRequest("synapse/availableResources", { documentIdentifier: { uri: Uri.parse(req.documentIdentifier).toString() }, "resourceType": req.resourceType });
     }
 
     async getDiagnostics(req: GetDiagnosticsReqeust): Promise<GetDiagnosticsResponse> {

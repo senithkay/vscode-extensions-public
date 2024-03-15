@@ -20,7 +20,7 @@ export class StartNodeFactory extends AbstractReactFactory<StartNodeModel, Diagr
     }
 
     generateModel(event: GenerateModelEvent): StartNodeModel {
-        return new StartNodeModel(event.initialConfig.stNode);
+        return new StartNodeModel(event.initialConfig.stNode, event.initialConfig.model, event.initialConfig.type, event.initialConfig.documentUri);
     }
 
     generateReactWidget(event: GenerateWidgetEvent<StartNodeModel>) {

@@ -20,8 +20,6 @@ import styled from '@emotion/styled';
 import { RequiredFormInput } from '../Commons/RequiredInput';
 
 const ComboboxButtonContainerActive = cx(css`
-    height: 28px;
-    position: absolute;
     padding-right: 5px;
     background-color: var(--vscode-input-background);
     border-right: 1px solid var(--vscode-focusBorder);
@@ -31,8 +29,6 @@ const ComboboxButtonContainerActive = cx(css`
 `);
 
 const ComboboxButtonContainer = cx(css`
-    height: 28px;
-    position: absolute;
     padding-right: 5px;
     background-color: var(--vscode-input-background);
     border-right: 1px solid var(--vscode-dropdown-border);
@@ -43,9 +39,9 @@ const ComboboxButtonContainer = cx(css`
 
 export const DropdownIcon = cx(css`
     color: var(--vscode-symbolIcon-colorForeground);
-    padding-top: 5px;
+    padding-top: 4px;
     height: 20px;
-    width: 10px;
+    width: 16px;
     padding-right: 8px;
 `);
 
@@ -74,6 +70,11 @@ const LabelContainer = styled.div`
     margin-bottom: 4px;
 `;
 
+const ComboboxInputWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+`;
+
 interface ContainerProps {
     sx?: React.CSSProperties;
 }
@@ -93,11 +94,12 @@ export interface AutoCompleteProps {
     widthOffset?: number;
     nullable?: boolean;
     sx?: React.CSSProperties;
+    borderBox?: boolean;
     onChange: (item: string, index?: number) => void;
 }
 
 export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompleteProps) => {
-    const { id, selectedItem, items, required, label, notItemsFoundMessage, widthOffset = 157, nullable, sx, onChange } = props;
+    const { id, selectedItem, items, required, label, notItemsFoundMessage, widthOffset = 157, nullable, sx, borderBox, onChange } = props;
     const [query, setQuery] = useState('');
     const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
     const [isUpButton, setIsUpButton] = useState(false);
@@ -152,13 +154,15 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
                     {(required && label) && (<RequiredFormInput />)}
                 </LabelContainer>
                 <div>
-                    <div>
+                    <ComboboxInputWrapper>
                         <Combobox.Input
                             id={id}
                             ref={inputRef}
                             displayValue={displayItemValue}
                             onChange={handleInputQueryChange}
-                            className={SearchableInput}
+                            className={cx(SearchableInput, borderBox && cx(css`
+                                height: 28px;
+                            `))}
                             onBlur={handleTextFieldOutFocused}
                             onFocus={handleTextFieldFocused}
                             onClick={handleTextFieldClick}
@@ -166,16 +170,27 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
                         <Combobox.Button
                             id={`autocomplete-dropdown-button-${items[0]}`}
                             className={isTextFieldFocused ? ComboboxButtonContainerActive : ComboboxButtonContainer}
-                            onClick={handleComboButtonClick}
                         >
                             {isUpButton ? (
-                                <i className={`codicon codicon-chevron-up ${DropdownIcon}`} onClick={handleComboButtonClick} />
+                                <i 
+                                    className={`codicon codicon-chevron-up ${DropdownIcon}`}
+                                    onClick={handleComboButtonClick}
+                                    onMouseDown={(e: React.MouseEvent) => {
+                                        e.preventDefault()
+                                    }}
+                                />
                             ) : (
-                                <i className={`codicon codicon-chevron-down ${DropdownIcon}`} onClick={handleComboButtonClick} />
+                                <i
+                                    className={`codicon codicon-chevron-down ${DropdownIcon}`}
+                                    onClick={handleComboButtonClick}
+                                    onMouseDown={(e: React.MouseEvent) => {
+                                        e.preventDefault()
+                                    }}
+                                />
                             )}
 
                         </Combobox.Button>
-                    </div>
+                    </ComboboxInputWrapper>
                     <Dropdown
                         query={query}
                         dropdownWidth={dropdownWidth}

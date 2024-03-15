@@ -115,6 +115,7 @@ export class BallerinaExtension {
     private clientOptions: LanguageClientOptions;
     public langClient?: ExtendedLangClient;
     public context?: ExtensionContext;
+    public isPersist?: boolean;
     private sdkVersion: StatusBarItem;
     private documentContext: DocumentContext;
     private codeServerContext: CodeServerContext;
@@ -127,6 +128,7 @@ export class BallerinaExtension {
         this.ballerinaHome = '';
         this.ballerinaCmd = '';
         this.ballerinaVersion = '';
+        this.isPersist = false;
         this.showStatusBarItem();
         // Load the extension
         this.extension = extensions.getExtension(EXTENSION_ID)!;
@@ -476,6 +478,10 @@ export class BallerinaExtension {
         window.showErrorMessage(INVALID_PROJECT);
     }
 
+    getPersistDiagramStatus(): boolean {
+        return this.isPersist;
+    }
+
     /**
      * Get ballerina home path.
      *
@@ -626,8 +632,11 @@ export class BallerinaExtension {
         if (textEditor?.document) {
             const fileUri: Uri = textEditor.document.uri;
             if (checkIsPersistModelFile(fileUri)) {
+                this.isPersist = true;
                 commands.executeCommand('setContext', 'isPersistModelActive', true);
                 return;
+            } else {
+                this.isPersist = false;
             }
         }
         commands.executeCommand('setContext', 'isPersistModelActive', false);

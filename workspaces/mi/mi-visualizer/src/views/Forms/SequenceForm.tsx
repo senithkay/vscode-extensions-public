@@ -107,7 +107,7 @@ export function SequenceWizard(props: SequenceWizardProps) {
         rpcClient.getMiVisualizerRpcClient().goBack();
     }
 
-    const isValid: boolean = sequenceName.length > 0;
+    const isValid: boolean = !validateSequence(sequenceName);
 
     return (
         <WizardContainer>

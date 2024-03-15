@@ -10,7 +10,7 @@ import {
     LibraryInfo,
     LibrarySearchResponse,
     ModuleProperty
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
 
 export function filterByKeyword(libraryData: LibrarySearchResponse , searchTxt: string): LibrarySearchResponse {
     const filteredModuleList = getFilteredModulesList(libraryData.modules, searchTxt);

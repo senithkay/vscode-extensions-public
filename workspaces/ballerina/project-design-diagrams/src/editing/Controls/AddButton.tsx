@@ -36,17 +36,17 @@ export function AddButton(props: ControlsProps) {
 
     const onComponentAdd = async () => {
         if (isChoreoProject && editLayerAPI) {
-            editLayerAPI.executeCommand('wso2.choreo.component.create').catch((error: Error) => {
-                editLayerAPI.showErrorMessage(error.message);
+            editLayerAPI.executeCommand({ command: 'wso2.choreo.component.create' }).catch((error: Error) => {
+                editLayerAPI.showErrorMessage({ message: error.message });
             })
         } else if (addComponent) {
             addComponent();
         } else {
             let multiRootWs: boolean = isMultiRootWs;
             if (isMultiRootWs === undefined) {
-                await editLayerAPI.checkIsMultiRootWs().then((response: boolean) => {
-                    multiRootWs = response;
-                    setIsMultiRootWs(response);
+                await editLayerAPI.checkIsMultiRootWs().then((response) => {
+                    multiRootWs = response.status;
+                    setIsMultiRootWs(response.status);
                 });
             }
             if (multiRootWs) {

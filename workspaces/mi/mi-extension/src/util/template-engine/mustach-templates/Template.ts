@@ -1,0 +1,92 @@
+/*
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import { render } from "mustache";
+import { randomBytes } from 'crypto';
+
+export interface TemplateArgs {
+    templateName: string;
+    templateType: string;
+    address: string;
+    uriTemplate: string;
+    httpMethod: string | null;
+    wsdlUri: string;
+    wsdlService: string;
+    wsdlPort: number | null;
+}
+
+export function getTemplateMustacheTemplate() {
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<template name="{{templateName}}" xmlns="http://ws.apache.org/ns/synapse">
+    {{#sequenceTemplate}}<sequence/>{{/sequenceTemplate}}
+    {{^sequenceTemplate}}
+    <endpoint name="{{endpointName}}">
+        {{#addressTemplate}}<address uri="{{{address}}}">{{/addressTemplate}}
+        {{#defaultTemplate}}<default>{{/defaultTemplate}}
+        {{#wsdlTemplate}}<wsdl port="{{wsdlPort}}" service="{{wsdlService}}" uri="{{{wsdlUri}}}">{{/wsdlTemplate}}
+        {{#httpTemplate}}<http {{#httpMethod}}method="{{httpMethod}}"{{/httpMethod}} uri-template="{{{uriTemplate}}}">{{/httpTemplate}}
+            <suspendOnFailure>
+                <progressionFactor>1</progressionFactor>
+            </suspendOnFailure>
+            <markForSuspension>
+                <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                {{#addressTemplate}}<retryDelay>0</retryDelay>{{/addressTemplate}}
+            </markForSuspension>
+        {{#addressTemplate}}</address>{{/addressTemplate}}
+        {{#defaultTemplate}}</default>{{/defaultTemplate}}
+        {{#wsdlTemplate}}</wsdl>{{/wsdlTemplate}}
+        {{#httpTemplate}}</http>{{/httpTemplate}}
+    </endpoint>
+    {{/sequenceTemplate}}
+</template>`;
+}
+
+
+export function getTemplateXml(data: TemplateArgs) {
+
+    let addressTemplate, defaultTemplate, httpTemplate, sequenceTemplate, wsdlTemplate;
+    if (data.templateType === 'Address Endpoint Template') {
+        addressTemplate = true;
+    } else if (data.templateType === 'Default Endpoint Template') {
+        defaultTemplate = true;
+    } else if (data.templateType === 'HTTP Endpoint Template') {
+        httpTemplate = true;
+        data.httpMethod = (data.httpMethod != null && data.httpMethod != 'leave_as_is') ? data.httpMethod.toLowerCase() : null;
+    } else if (data.templateType === 'Sequence Template') {
+        sequenceTemplate = true;
+    } else {
+        wsdlTemplate = true;
+    }
+
+    const endpointName = data.templateType != 'Sequence Template' ? "endpoint_urn_uuid_".concat(generateUUID()) : null;
+
+    const modifiedData = {
+        ...data,
+        addressTemplate,
+        defaultTemplate,
+        httpTemplate,
+        sequenceTemplate,
+        wsdlTemplate,
+        endpointName
+    };
+
+    return render(getTemplateMustacheTemplate(), modifiedData);
+}
+
+function generateUUID(): string {
+    const buf = randomBytes(16);
+    buf[6] = (buf[6] & 0x0f) | 0x40;
+    buf[8] = (buf[8] & 0x3f) | 0x80;
+
+    return buf.toString('hex', 0, 4) + '-' +
+        buf.toString('hex', 4, 6) + '-' +
+        buf.toString('hex', 6, 8) + '-' +
+        buf.toString('hex', 8, 10) + '-' +
+        buf.toString('hex', 10, 16);
+}

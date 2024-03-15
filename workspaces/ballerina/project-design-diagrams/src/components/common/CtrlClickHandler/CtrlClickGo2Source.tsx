@@ -22,7 +22,7 @@ export function CtrlClickGo2Source(props: PropsWithChildren<CtrlClickProps>) {
 
     const handleClick = () => {
         if (editingEnabled && location) {
-            editLayerAPI?.go2source(location);
+            editLayerAPI?.go2source({ location });
         }
     };
 

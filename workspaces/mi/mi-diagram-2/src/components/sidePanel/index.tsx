@@ -1,14 +1,5 @@
-/**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content.
- */
-
 import { Codicon, ProgressRing, Switch } from '@wso2-enterprise/ui-toolkit';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import styled from '@emotion/styled';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import SidePanelContext from './SidePanelContexProvider';
@@ -54,8 +45,13 @@ const SidePanelList = (props: SidePanelListProps) => {
     const [isLoading, setLoading] = useState<boolean>(false);
     const [isAddMediator, setAddMediator] = useState<boolean>(true);
     const [isGenerate, setGenerate] = useState<boolean>(false);
-    const sidePanelContext = React.useContext(SidePanelContext);
+    const sidePanelContext = useContext(SidePanelContext);
     const [pageStack, setPageStack] = useState<any[]>([]);
+    const [title, setTitle] = useState<string>("");
+
+    useEffect(() => {
+        setPageStack([]);
+    }, [sidePanelContext.operationName]);
 
     // show/hide back button based on pageStack length
     useEffect(() => {
@@ -63,7 +59,6 @@ const SidePanelList = (props: SidePanelListProps) => {
             sidePanelContext.setSidePanelState({
                 ...sidePanelContext,
                 showBackBtn: false,
-                title: "",
             })
         } else {
             sidePanelContext.setSidePanelState({
@@ -98,8 +93,9 @@ const SidePanelList = (props: SidePanelListProps) => {
         setAddMediator(isGenerate);
     };
 
-    const setContent = async (content: any) => {
+    const setContent = async (content: any, title: string) => {
         setPageStack([...pageStack, content]);
+        setTitle(title);
     };
 
     return (
@@ -128,16 +124,22 @@ const SidePanelList = (props: SidePanelListProps) => {
                             }}
                         />}
 
-                        {pageStack.length > 0 && sidePanelContext.title !== undefined && <h3 style={{ flex: "1", textAlign: "center" }}>{sidePanelContext.title}</h3>}
+                        {pageStack.length > 0 && title !== undefined && <h3 style={{ flex: "1", textAlign: "center" }}>{title}</h3>}
                         <Codicon name="close" sx={{ flex: "1", textAlign: "right" }} onClick={handleClose} />
                     </ButtonContainer>
 
                     {/* Content */}
-                    {pageStack.length === 0 && <>
-                        {isAddMediator && <MediatorPage nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={setContent} />}
-                        {isGenerate && <AIPage />}
-                    </>}
-                    {pageStack.length > 0 && pageStack[pageStack.length - 1]}
+                    <div style={{
+                        overflowY: "auto",
+                        height: "calc(100vh - 70px)",
+                        scrollbarWidth: "none"
+                    }}>
+                        {pageStack.length === 0 && <>
+                            {isAddMediator && <MediatorPage nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={setContent} />}
+                            {isGenerate && <AIPage />}
+                        </>}
+                        {pageStack.length > 0 && pageStack[pageStack.length - 1]}
+                    </div>
                 </>}
         </SidePanelContainer>
     );

@@ -13,7 +13,7 @@ import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, filterFormValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
@@ -49,11 +49,13 @@ const CalloutForm = (props: AddMediatorProps) => {
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
        } else {
            setFormValues({
-       "initAxis2ClientOptions": false,
-       "payloadType": "XPATH",
-       "resultType": "XPATH",
-       "securityType": "TRUE",
-       "policies": "TRUE",});
+               "initAxis2ClientOptions": false,
+               "payloadType": "XPATH",
+               "resultType": "XPATH",
+               "securityType": "TRUE",
+               "policies": "TRUE",
+               "endpointType": "URL"
+           });
        }
    }, [sidePanelContext.formValues]);
 
@@ -68,6 +70,14 @@ const CalloutForm = (props: AddMediatorProps) => {
        if (Object.keys(newErrors).length > 0) {
            setErrors(newErrors);
        } else {
+           const keysToExclude = []
+           keysToExclude.push(formValues["endpointType"] == "URL" ? "addressEndpoint" : "serviceURL");
+           formValues["payloadType"] == "XPATH" ? keysToExclude.push("payloadProperty") :
+               formValues["payloadType"] == "PROPERTY" ? keysToExclude.push("payloadMessageXPath") : keysToExclude.push(...["payloadProperty", "payloadMessageXPath"]);
+           formValues["resultType"] == "XPATH" ? keysToExclude.push("resultContextProperty") : keysToExclude.push("resultMessageXPath");
+           formValues["securityType"] == "FALSE" ? keysToExclude.push(...["policies", "policyKey", "outboundPolicyKey", "inboundPolicyKey"]) :
+               formValues["policies"] == "TRUE" ? keysToExclude.push("policyKey") : keysToExclude.push(...["outboundPolicyKey", "inboundPolicyKey"]);
+           setFormValues(filterFormValues(formValues, null, keysToExclude));
            const xml = getXML(MEDIATORS.CALLOUT, formValues);
            rpcClient.getMiDiagramRpcClient().applyEdit({
                documentUri: props.documentUri, range: props.nodePosition, text: xml

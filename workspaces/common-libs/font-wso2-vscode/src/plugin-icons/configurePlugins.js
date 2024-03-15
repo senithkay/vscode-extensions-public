@@ -11,21 +11,28 @@ const path = require("path");
 
 // Define the source folder for fonts and related files
 const fontDir = path.join(__dirname, '..', '..', 'dist');
+const codiconDir = path.join(__dirname, '..', '..', 'node_modules', '@vscode', 'codicons', 'dist');
 
 // Read the CSS and JSON files
-const cssPath = path.join(fontDir, 'wso2-vscode.css');
-const jsonPath = path.join(fontDir, 'wso2-vscode.json');
-const css = fs.readFileSync(cssPath, 'utf-8');
-const fontJson = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
+const wso2FontCssPath = path.join(fontDir, 'wso2-vscode.css');
+const wso2FontJsonPath = path.join(fontDir, 'wso2-vscode.json');
+const wso2FontCss = fs.readFileSync(wso2FontCssPath, 'utf-8');
+const wso2FontJson = JSON.parse(fs.readFileSync(wso2FontJsonPath, 'utf-8'));
+
+const codiconCssPath = path.join(codiconDir, 'codicon.css');
+const codiconCss = fs.readFileSync(codiconCssPath, 'utf-8');
 
 // Read the configuration from config.json
 const configPath = path.join(__dirname, 'config.json');
 const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
 
-// Define a function to extract content value from CSS
-function extractContentValue(iconName) {
+const wso2FontPath = "./resources/font-wso2-vscode/dist/wso2-vscode.woff";
+const codiconFontPath = "./resources/codicons/codicon.ttf";
+
+// Define a function to extract content value from Font CSS
+function extractWso2FontContentValue(iconName) {
   const classRegex = new RegExp(`\\.fw-${iconName}:before\\s*{\\s*content:\\s*"\\\\([a-fA-F0-9]+)";\\s*}`, 'g');
-  const match = classRegex.exec(css);
+  const match = classRegex.exec(wso2FontCss);
 
   if (match && match[1]) {
     return `\\${match[1]}`;
@@ -34,13 +41,24 @@ function extractContentValue(iconName) {
   }
 }
 
+// Define a function to extract content value from Codicon CSS
+function extractCodiconContentValue(iconName) {
+  const classRegex = new RegExp(`\\.codicon-${iconName}:before\\s*{\\s*content:\\s*"\\\\([a-zA-Z0-9]+)"\\s*}`, 'g');
+  const match = classRegex.exec(codiconCss);
+  if (match && match[1]) {
+    return `\\${match[1]}`;
+  } else {
+    return null;
+  }
+}
+            
 // Define a function to generate icons contribution
-function generateIconsContribution(selectedIconJson) {
-  const iconsContribution = {};
+function generateWso2FontContribution(selectedIconJson) {
+  let iconsContribution = {};
   for (const selectedIconName of selectedIconJson) {
-    for (const fontName in fontJson) {
+    for (const fontName in wso2FontJson) {
       if (selectedIconName === `${fontName}.svg`) {
-        const contentValue = extractContentValue(fontName);
+        const contentValue = extractWso2FontContentValue(fontName);
   
         if (contentValue) {
           const iconDescription = fontName;
@@ -49,7 +67,7 @@ function generateIconsContribution(selectedIconJson) {
           iconsContribution[`distro-${fontName}`] = {
             description: iconDescription,
             default: {
-              fontPath: "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
+              fontPath: wso2FontPath,
               fontCharacter: iconCharacter
             }
           };
@@ -59,6 +77,45 @@ function generateIconsContribution(selectedIconJson) {
     }
   }
   return iconsContribution;
+}
+
+function generateCodiconContribution(selectedIconJson) {
+  const iconsContribution = {};
+  for (const selectedIconName of selectedIconJson) {
+    const name = selectedIconName.replace(".svg", "");
+    const contentValue = extractCodiconContentValue(name);
+    if (contentValue) {
+      const iconDescription = name;
+      const iconCharacter = contentValue;
+
+      iconsContribution[`distro-${name}`] = {
+        description: iconDescription,
+        default: {
+          fontPath: codiconFontPath,
+          fontCharacter: iconCharacter
+        }
+      };
+    }
+  }
+  return iconsContribution;
+}
+
+function generateFontIconsContribution(extIcons) {
+  const wso2FontIcons = extIcons.wso2Font;
+  const codiconIcons = extIcons.codiconFont;
+  let wso2FontContributions;
+  let codiconContributions;
+  if (wso2FontIcons) {
+    wso2FontContributions = generateWso2FontContribution(wso2FontIcons);
+  }
+  if (codiconIcons) {
+    codiconContributions = generateCodiconContribution(codiconIcons);
+  }
+  const mergedContributions = {
+    ...wso2FontContributions,
+    ...codiconContributions,
+  };
+  return mergedContributions;
 }
 
 const copyDirectoryContent = (srcDir, destDir) => {
@@ -79,8 +136,8 @@ const copyDirectoryContent = (srcDir, destDir) => {
 const ballerinaIcons = config.ballerinaExtIcons || [];
 const choreoIcons = config.choreoExtIcons || [];
 
-const ballerinaIconsContribution = generateIconsContribution(ballerinaIcons);
-const choreoIconsContribution = generateIconsContribution(choreoIcons);
+const ballerinaIconsContribution = generateFontIconsContribution(ballerinaIcons);
+const choreoIconsContribution = generateFontIconsContribution(choreoIcons);
 
 // Merge the generated icons contribution into the existing package.json contributes
 const choreoExtPackageJsonPath = path.join(__dirname, '..', '..', '..', '..', 'choreo', 'choreo-extension', 'package.json');

@@ -28,23 +28,55 @@ import {
     CreateLocalEntryResponse,
     CreateProjectRequest,
     CreateProjectResponse,
+    ImportProjectRequest,
+    ImportProjectResponse,
     CreateSequenceRequest,
     CreateSequenceResponse,
+    CreateMessageProcessorRequest,
+    CreateMessageProcessorResponse,
+    RetrieveMessageProcessorRequest,
+    RetrieveMessageProcessorResponse,
+    UpdateHttpEndpointRequest,
+    UpdateHttpEndpointResponse,
+    RetrieveHttpEndpointRequest,
+    RetrieveHttpEndpointResponse,
+    UpdateAddressEndpointRequest,
+    UpdateAddressEndpointResponse,
+    RetrieveAddressEndpointRequest,
+    RetrieveAddressEndpointResponse,
+    UpdateWsdlEndpointRequest,
+    UpdateWsdlEndpointResponse,
+    RetrieveWsdlEndpointRequest,
+    RetrieveWsdlEndpointResponse,
+    UpdateDefaultEndpointRequest,
+    UpdateDefaultEndpointResponse,
+    RetrieveDefaultEndpointRequest,
+    RetrieveDefaultEndpointResponse,
+    CreateTemplateRequest,
+    CreateTemplateResponse,
+    RetrieveTemplateRequest,
+    RetrieveTemplateResponse,
+    CreateProxyServiceRequest,
+    CreateProxyServiceResponse,
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
+    TemplatesResponse,
+    GetProjectUuidResponse,
+    GetWorkspaceContextResponse,
     GetDefinitionRequest,
     GetDefinitionResponse,
     GetDiagnosticsReqeust,
     GetDiagnosticsResponse,
-    GetInboundEpDirRequest,
     GetProjectRootRequest,
+    GetInboundEndpointRequest,
+    GetInboundEndpointResponse,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
     FileDirResponse,
     HighlightCodeRequest,
-    InboundEndpointDirectoryResponse,
-    LocalEntryDirectoryResponse,
+    GetLocalEntryResponse,
+    GetLocalEntryRequest,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectDirResponse,
@@ -57,6 +89,7 @@ import {
     applyEdit,
     askFileDirPath,
     askProjectDirPath,
+    askProjectImportDirPath,
     closeWebView,
     closeWebViewNotification,
     createAPI,
@@ -64,7 +97,15 @@ import {
     createInboundEndpoint,
     createLocalEntry,
     createProject,
+    importProject,
     createSequence,
+    createMessageProcessor,
+    createProxyService,
+    createTemplate,
+    updateHttpEndpoint,
+    updateAddressEndpoint,
+    updateWsdlEndpoint,
+    updateDefaultEndpoint,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -75,13 +116,22 @@ import {
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
-    getLocalEntryDirectory,
-    getInboundEndpointDirectory,
+    getTemplates,
+    getLocalEntry,
+    getInboundEndpoint,
     getProjectRoot,
+    getProjectUuid,
     getSTRequest,
     getSTResponse,
     getSequenceDirectory,
+    getMessageProcessor,
+    getTemplate,
+    getHttpEndpoint,
+    getAddressEndpoint,
+    getWsdlEndpoint,
+    getDefaultEndpoint,
     getSyntaxTree,
+    getWorkspaceContext,
     getTextAtRange,
     getWorkspaceRoot,
     highlightCode,
@@ -91,7 +141,46 @@ import {
     redo,
     showErrorMessage,
     undo,
-    writeContentToFile
+    CreateMessageStoreRequest,
+    CreateMessageStoreResponse,
+    createMessageStore,
+    writeContentToFile,
+    BrowseFileRequest,
+    BrowseFileResponse,
+    browseFile,
+    CreateRegistryResourceRequest,
+    CreateRegistryResourceResponse,
+    createRegistryResource,
+    GetMessageStoreRequest,
+    GetMessageStoreResponse,
+    getMessageStore,
+    CreateTaskRequest,
+    CreateTaskResponse,
+    createTask,
+    GetTaskRequest,
+    GetTaskResponse,
+    getTask,
+    GetAvailableResourcesRequest,
+    getAvailableResources,
+    GetAvailableResourcesResponse,
+    CreateClassMediatorRequest,
+    CreateClassMediatorResponse,
+    createClassMediator,
+    FileListResponse,
+    FileListRequest,
+    getXmlFileList,
+    UpdateLoadBalanceEPRequest,
+    UpdateLoadBalanceEPResponse,
+    updateLoadBalanceEndpoint,
+    GetLoadBalanceEPRequest,
+    GetLoadBalanceEPResponse,
+    getLoadBalanceEndpoint,
+    UpdateFailoverEPRequest,
+    UpdateFailoverEPResponse,
+    updateFailoverEndpoint,
+    GetFailoverEPRequest,
+    GetFailoverEPResponse,
+    getFailoverEndpoint
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -146,17 +235,37 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     createEndpoint(params: CreateEndpointRequest): Promise<CreateEndpointResponse> {
         return this._messenger.sendRequest(createEndpoint, HOST_EXTENSION, params);
     }
+
+    updateLoadBalanceEndpoint(params: UpdateLoadBalanceEPRequest): Promise<UpdateLoadBalanceEPResponse> {
+        return this._messenger.sendRequest(updateLoadBalanceEndpoint, HOST_EXTENSION, params);
+    }
     
-    getLocalEntryDirectory(): Promise<LocalEntryDirectoryResponse> {
-        return this._messenger.sendRequest(getLocalEntryDirectory, HOST_EXTENSION);
+    getLoadBalanceEndpoint(params: GetLoadBalanceEPRequest): Promise<GetLoadBalanceEPResponse> {
+        return this._messenger.sendRequest(getLoadBalanceEndpoint, HOST_EXTENSION, params);
     }
 
-    createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse>{
+    updateFailoverEndpoint(params: UpdateFailoverEPRequest): Promise<UpdateFailoverEPResponse> {
+        return this._messenger.sendRequest(updateFailoverEndpoint, HOST_EXTENSION, params);
+    }
+    
+    getFailoverEndpoint(params: GetFailoverEPRequest): Promise<GetFailoverEPResponse> {
+        return this._messenger.sendRequest(getFailoverEndpoint, HOST_EXTENSION, params);
+    }
+
+    createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
         return this._messenger.sendRequest(createLocalEntry, HOST_EXTENSION, params);
+    }
+
+    getLocalEntry(params: GetLocalEntryRequest): Promise<GetLocalEntryResponse>{
+        return this._messenger.sendRequest(getLocalEntry, HOST_EXTENSION, params);
     }
 
     getEndpointsAndSequences(): Promise<EndpointsAndSequencesResponse> {
         return this._messenger.sendRequest(getEndpointsAndSequences, HOST_EXTENSION);
+    }
+
+    getTemplates(): Promise<TemplatesResponse> {
+        return this._messenger.sendRequest(getTemplates, HOST_EXTENSION);
     }
 
     getSequenceDirectory(): Promise<SequenceDirectoryResponse> {
@@ -167,12 +276,84 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(createSequence, HOST_EXTENSION, params);
     }
 
-    getInboundEndpointDirectory(params: GetInboundEpDirRequest): Promise<InboundEndpointDirectoryResponse> {
-        return this._messenger.sendRequest(getInboundEndpointDirectory, HOST_EXTENSION, params);
-    }
-
     createInboundEndpoint(params: CreateInboundEndpointRequest): Promise<CreateInboundEndpointResponse> {
         return this._messenger.sendRequest(createInboundEndpoint, HOST_EXTENSION, params);
+    }
+
+    createMessageProcessor(params: CreateMessageProcessorRequest): Promise<CreateMessageProcessorResponse> {
+        return this._messenger.sendRequest(createMessageProcessor, HOST_EXTENSION, params);
+    }
+
+    getMessageProcessor(params: RetrieveMessageProcessorRequest): Promise<RetrieveMessageProcessorResponse> {
+        return this._messenger.sendRequest(getMessageProcessor, HOST_EXTENSION, params);
+    }
+
+    createProxyService(params: CreateProxyServiceRequest): Promise<CreateProxyServiceResponse> {
+        return this._messenger.sendRequest(createProxyService, HOST_EXTENSION, params);
+    }
+
+    createTask(params: CreateTaskRequest): Promise<CreateTaskResponse> {
+        return this._messenger.sendRequest(createTask, HOST_EXTENSION, params);
+    }
+
+    getTask(params: GetTaskRequest): Promise<GetTaskResponse> {
+        return this._messenger.sendRequest(getTask, HOST_EXTENSION, params);
+    }
+
+    createMessageStore(params: CreateMessageStoreRequest): Promise<CreateMessageStoreResponse> {
+        return this._messenger.sendRequest(createMessageStore, HOST_EXTENSION, params);
+    }
+
+    getMessageStore(params: GetMessageStoreRequest): Promise<GetMessageStoreResponse> {
+        return this._messenger.sendRequest(getMessageStore, HOST_EXTENSION, params);
+    }
+
+    getXmlFileList(params: FileListRequest): Promise<FileListResponse>{
+        return this._messenger.sendRequest(getXmlFileList, HOST_EXTENSION, params);
+    }
+
+    createTemplate(params: CreateTemplateRequest): Promise<CreateTemplateResponse> {
+        return this._messenger.sendRequest(createTemplate, HOST_EXTENSION, params);
+    }
+
+    getTemplate(params: RetrieveTemplateRequest): Promise<RetrieveTemplateResponse> {
+        return this._messenger.sendRequest(getTemplate, HOST_EXTENSION, params);
+    }
+
+    getInboundEndpoint(params: GetInboundEndpointRequest): Promise<GetInboundEndpointResponse> {
+        return this._messenger.sendRequest(getInboundEndpoint, HOST_EXTENSION, params);
+    }
+
+    updateHttpEndpoint(params: UpdateHttpEndpointRequest): Promise<UpdateHttpEndpointResponse> {
+        return this._messenger.sendRequest(updateHttpEndpoint, HOST_EXTENSION, params);
+    }
+
+    getHttpEndpoint(params: RetrieveHttpEndpointRequest): Promise<RetrieveHttpEndpointResponse> {
+        return this._messenger.sendRequest(getHttpEndpoint, HOST_EXTENSION, params);
+    }
+
+    updateAddressEndpoint(params: UpdateAddressEndpointRequest): Promise<UpdateAddressEndpointResponse> {
+        return this._messenger.sendRequest(updateAddressEndpoint, HOST_EXTENSION, params);
+    }
+
+    getAddressEndpoint(params: RetrieveAddressEndpointRequest): Promise<RetrieveAddressEndpointResponse> {
+        return this._messenger.sendRequest(getAddressEndpoint, HOST_EXTENSION, params);
+    }
+
+    updateWsdlEndpoint(params: UpdateWsdlEndpointRequest): Promise<UpdateWsdlEndpointResponse> {
+        return this._messenger.sendRequest(updateWsdlEndpoint, HOST_EXTENSION, params);
+    }
+
+    getWsdlEndpoint(params: RetrieveWsdlEndpointRequest): Promise<RetrieveWsdlEndpointResponse> {
+        return this._messenger.sendRequest(getWsdlEndpoint, HOST_EXTENSION, params);
+    }
+
+    updateDefaultEndpoint(params: UpdateDefaultEndpointRequest): Promise<UpdateDefaultEndpointResponse> {
+        return this._messenger.sendRequest(updateDefaultEndpoint, HOST_EXTENSION, params);
+    }
+
+    getDefaultEndpoint(params: RetrieveDefaultEndpointRequest): Promise<RetrieveDefaultEndpointResponse> {
+        return this._messenger.sendRequest(getDefaultEndpoint, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {
@@ -202,13 +383,21 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     askProjectDirPath(): Promise<ProjectDirResponse> {
         return this._messenger.sendRequest(askProjectDirPath, HOST_EXTENSION);
     }
-    
-    askFileDirPath(): Promise<FileDirResponse>{
+
+    askProjectImportDirPath(): Promise<ProjectDirResponse> {
+        return this._messenger.sendRequest(askProjectImportDirPath, HOST_EXTENSION);
+    }
+
+    askFileDirPath(): Promise<FileDirResponse> {
         return this._messenger.sendRequest(askFileDirPath, HOST_EXTENSION);
     }
 
     createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {
         return this._messenger.sendRequest(createProject, HOST_EXTENSION, params);
+    }
+
+    importProject(params: ImportProjectRequest): Promise<ImportProjectResponse> {
+        return this._messenger.sendRequest(importProject, HOST_EXTENSION, params);
     }
 
     getAIResponse(params: AIUserInput): Promise<string> {
@@ -223,6 +412,13 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendNotification(highlightCode, HOST_EXTENSION, params);
     }
 
+    getWorkspaceContext(): Promise<GetWorkspaceContextResponse> {
+        return this._messenger.sendRequest(getWorkspaceContext, HOST_EXTENSION);
+    }
+
+    getProjectUuid(): Promise<GetProjectUuidResponse> {
+        return this._messenger.sendRequest(getProjectUuid, HOST_EXTENSION);
+    }
     initUndoRedoManager(params: UndoRedoParams): void {
         return this._messenger.sendNotification(initUndoRedoManager, HOST_EXTENSION, params);
     }
@@ -246,4 +442,21 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     getDiagnostics(params: GetDiagnosticsReqeust): Promise<GetDiagnosticsResponse> {
         return this._messenger.sendRequest(getDiagnostics, HOST_EXTENSION, params);
     }
+
+    browseFile(params: BrowseFileRequest): Promise<BrowseFileResponse> {
+        return this._messenger.sendRequest(browseFile, HOST_EXTENSION, params);
+    }
+
+    createRegistryResource(params: CreateRegistryResourceRequest): Promise<CreateRegistryResourceResponse> {
+        return this._messenger.sendRequest(createRegistryResource, HOST_EXTENSION, params);
+    }
+
+    getAvailableResources(params: GetAvailableResourcesRequest): Promise<GetAvailableResourcesResponse> {
+        return this._messenger.sendRequest(getAvailableResources, HOST_EXTENSION, params);
+    }
+
+    createClassMediator(params: CreateClassMediatorRequest): Promise<CreateClassMediatorResponse> {
+        return this._messenger.sendRequest(createClassMediator, HOST_EXTENSION, params);
+    }
+
 }

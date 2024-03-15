@@ -9,7 +9,7 @@
 
 import { PortModelAlignment } from "@projectstorm/react-diagrams";
 import { Point } from "@projectstorm/geometry";
-import { SharedLinkModel } from "../../shared-link/shared-link";
+import { SharedLinkModel } from "../../SharedLink/SharedLink";
 import { CellBounds } from "../CellNode/CellModel";
 import { getEmptyNodeName } from "../cell-util";
 

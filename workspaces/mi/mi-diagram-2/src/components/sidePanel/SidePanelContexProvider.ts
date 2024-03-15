@@ -11,6 +11,7 @@ import React, { Dispatch, SetStateAction } from "react";
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 interface SidePanelContext {
+    // Mediator related
     isOpen: boolean;
     isEditing: boolean;
     nodeRange?: Range;

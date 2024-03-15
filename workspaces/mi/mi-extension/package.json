@@ -85,13 +85,29 @@
     "viewsWelcome": [
       {
         "view": "MI.project-explorer",
-        "contents": "Welcome to Micro Integrator. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:MI.openProject)\n[Create New Project](command:MI.openWelcome)\nTo learn more about how to use Micro Integrator in VS Code [read our docs](https://ei.docs.wso2.com)."
+        "contents": "Loading...",
+        "when": "MI.status != 'unknownProject' && MI.status != 'projectLoaded' && MI.status != 'disabled'"
+      },
+      {
+        "view": "MI.project-explorer",
+        "contents": "Welcome to Micro Integrator. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:MI.openProject)\n[Create New Project](command:MI.project-explorer.create-project)\nTo learn more about how to use Micro Integrator in VS Code, [read our docs](https://ei.docs.wso2.com).",
+        "when": "MI.status == 'unknownProject'"
+      },
+      {
+        "view": "MI.project-explorer",
+        "contents": "Unknown error occurred. Micro Integrator is disabled.",
+        "when": "MI.status == 'disabled'"
       }
     ],
     "commands": [
       {
         "command": "MI.openProject",
         "title": "Open Project",
+        "category": "MI"
+      },
+      {
+        "command": "MI.openAiPanel",
+        "title": "Open MI Ai",
         "category": "MI"
       },
       {
@@ -127,6 +143,13 @@
         "when": "false"
       },
       {
+        "command": "project-explorer.import-project",
+        "title": "Import Project",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.open-service-designer",
         "title": "Open Service Designer",
         "icon": "$(design-view)",
@@ -159,6 +182,27 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.add-message-processor",
+        "title": "Add Message Processor",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
+        "command": "MI.project-explorer.add-proxy-service",
+        "title": "Add Proxy Service",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
+        "command": "MI.project-explorer.add-template",
+        "title": "Add Template",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.add-local-entry",
         "title": "Add Local Entry",
         "icon": "$(add)",
@@ -166,7 +210,42 @@
         "category": "MI"
       },
       {
-        "command": "MI.project-explorer.view",
+        "command": "MI.project-explorer.add-registry-resource",
+        "title": "Add Registry Resource",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
+        "command": "MI.project-explorer.delete-reg-resource",
+        "title": "Delete Registry Resource",
+        "icon": "$(notebook-delete-cell)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
+        "command": "MI.project-explorer.add-class-mediator",
+        "title": "Add Class Mediator",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
+        "command": "MI.project-explorer.add-task",
+        "title": "Add Scheduled Task",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
+        "command": "MI.project-explorer.add-message-store",
+        "title": "Add Message Store",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
+        "command": "project-explorer.view",
         "title": "View"
       },
       {
@@ -220,7 +299,7 @@
         {
           "command": "MI.project-explorer.open-project-overview",
           "when": "viewItem == project",
-          "group": "inline" 
+          "group": "inline"
         },
         {
           "command": "MI.project-explorer.add-api",
@@ -250,6 +329,46 @@
         {
           "command": "MI.project-explorer.add-local-entry",
           "when": "view == MI.project-explorer && viewItem == localEntries",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-registry-resource",
+          "when": "view == MI.project-explorer && viewItem == registry",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.delete-reg-resource",
+          "when": "view == MI.project-explorer && (viewItem == registry-folder || viewItem == registry-file)",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-class-mediator",
+          "when": "view == MI.project-explorer && viewItem == class-mediator",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-message-processor",
+          "when": "view == MI.project-explorer && viewItem == messageProcessors",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-proxy-service",
+          "when": "view == MI.project-explorer && viewItem == proxyServices",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-task",
+          "when": "view == MI.project-explorer && viewItem == tasks",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-message-store",
+          "when": "view == MI.project-explorer && viewItem == messageStores",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-template",
+          "when": "view == MI.project-explorer && viewItem == templates",
           "group": "inline"
         }
       ]
@@ -326,6 +445,8 @@
     "node-fetch": "~2.6.2",
     "mustache": "~4.2.0",
     "@types/mustache": "~4.2.5",
+    "uuid": "~9.0.1",
+    "unzipper": "~0.10.14",
     "vscode-debugadapter": "^1.51.0",
     "vscode-debugprotocol": "^1.51.0",
     "tree-kill": "^1.2.2"

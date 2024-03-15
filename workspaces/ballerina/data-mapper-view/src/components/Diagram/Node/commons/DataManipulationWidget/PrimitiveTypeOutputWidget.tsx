@@ -14,7 +14,7 @@ import { useState } from "react";
 import { css } from '@emotion/css';
 import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { STModification, Type } from "@wso2-enterprise/ballerina-core";
+import { STModification, TypeField } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
@@ -207,7 +207,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 		return targetPosition;
 	}
 
-	const handleWrapWithTypeCast = async (selectedType: Type, shouldReInitialize?: boolean) => {
+	const handleWrapWithTypeCast = async (selectedType: TypeField, shouldReInitialize?: boolean) => {
 		setIsModifyingTypeCast(true)
 		try {
 			const name = getTypeName(selectedType);

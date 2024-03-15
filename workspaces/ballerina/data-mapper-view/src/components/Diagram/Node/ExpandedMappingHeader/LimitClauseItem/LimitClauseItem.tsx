@@ -44,31 +44,33 @@ export function LimitClauseItem(props: {
             <div className={classes.clauseItem}>
                 <div className={classes.clauseKeyWrap}>{intermediateNode.limitKeyword.value}</div>
 
-                <div className={classes.clauseWrap}>
-                    <ClickableExpression
-                        node={intermediateNode.expression}
-                        onEditClick={() =>
-                            onEditClick(
-                                intermediateNode.expression?.source,
-                                intermediateNode.expression?.position,
-                                "Limit clause"
-                            )
-                        }
-                        index={itemIndex}
-                    />
+                <div className={classes.clauseItemBody}>
+                    <div className={classes.clauseWrap}>
+                        <ClickableExpression
+                            node={intermediateNode.expression}
+                            onEditClick={() =>
+                                onEditClick(
+                                    intermediateNode.expression?.source,
+                                    intermediateNode.expression?.position,
+                                    "Limit clause"
+                                )
+                            }
+                            index={itemIndex}
+                        />
+                    </div>
+                    {isLoading ? (
+                        <ProgressRing sx={{ height: '16px', width: '16px', marginRight: '10px' }} />
+                    ) : (
+                        <Button
+                            appearance="icon"
+                            onClick={onDelete}
+                            data-testid={`limit-clause-delete-${itemIndex}`}
+                            sx={{ marginRight: "10px"}}
+                        >
+                            <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
+                        </Button>
+                    )}
                 </div>
-
-                {isLoading ? (
-                    <ProgressRing sx={{ height: '16px', width: '16px' }} />
-                ) : (
-                    <Button
-                        appearance="icon"
-                        onClick={onDelete}
-                        data-testid={`limit-clause-delete-${itemIndex}`}
-                    >
-                        <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
-                    </Button>
-                )}
             </div>
 
             <ClauseAddButton context={context} queryExprNode={queryExprNode} addIndex={itemIndex} />

@@ -14,10 +14,9 @@ import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 import { CtrlClickHandler } from "../../../CtrlClickHandler";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { RecordIcon } from "../../../resources/assets/icons/RecordIcon";
-import { HeaderName } from "../../../resources/styles/styles";
+import { HeaderName, NodeHeader } from "../../../resources/styles/styles";
 import { getFormattedPosition } from "../../../utils/common-util";
 import { RecordNodeModel } from "../RecordNodeModel";
-import { RecordHead } from "../styles";
 
 import { RecordHeaderMenu } from "./RecordHeaderMenu";
 
@@ -42,7 +41,7 @@ export function RecordHeadWidget(props: RecordHeadProps) {
             filePath={node.recordObject?.position?.filePath}
             position={node.recordObject?.position && getFormattedPosition(node.recordObject.position)}
         >
-            <RecordHead data-testid={`record-head-${displayName}`}>
+            <NodeHeader data-testid={`record-head-${displayName}`}>
                 <RecordIcon />
                 <GraphqlBasePortWidget
                     port={node.getPort(`left-${node.getID()}`)}
@@ -58,7 +57,7 @@ export function RecordHeadWidget(props: RecordHeadProps) {
                     port={node.getPort(`top-${node.getID()}`)}
                     engine={engine}
                 />
-            </RecordHead>
+            </NodeHeader>
         </CtrlClickHandler>
     );
 }

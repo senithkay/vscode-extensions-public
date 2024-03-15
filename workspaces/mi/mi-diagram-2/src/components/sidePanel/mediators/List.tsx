@@ -31,7 +31,7 @@ const IconContainer = styled.div`
 interface MediatorProps {
     nodePosition: any;
     documentUri: string;
-    setContent: React.Dispatch<React.SetStateAction<ReactNode>>;
+    setContent: any;
     searchValue?: string;
 }
 export function Mediators(props: MediatorProps) {
@@ -44,17 +44,13 @@ export function Mediators(props: MediatorProps) {
     });
 
     const setContent = (content: any) => {
-        sidePanelContext.setSidePanelState({
-            ...sidePanelContext,
-            title: `${sidePanelContext.isEditing ? "Edit" : "Add"} ${content.title}`,
-        });
-        props.setContent(content.form);
+        props.setContent(content.form, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${content.title}`);
     }
 
     const searchForm = (value: string, search?: boolean) => {
         return Object.keys(allMediators).reduce((acc: any, key: string) => {
-            const filtered = (allMediators as any)[key].filter((mediator: { title: string; }) =>
-                search ? mediator.title.toLowerCase().includes(value?.toLowerCase()) : mediator.title.toLowerCase() === value?.toLowerCase());
+            const filtered = (allMediators as any)[key].filter((mediator: { title: string; operationName: string }) =>
+                search ? mediator.title.toLowerCase().includes(value?.toLowerCase()) : mediator.operationName.toLowerCase() === value?.toLowerCase());
             if (filtered.length > 0) {
                 acc[key] = filtered;
             }

@@ -7,10 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { TextField, Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Button, Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
 import React, { useState } from "react";
 import { Mediators } from "./List";
 import styled from "@emotion/styled";
+
+const Wrapper = styled.div`
+    height: calc(100vh - 190px);
+`;
 
 const ButtonContainer = styled.div`
     display: flex;
@@ -37,6 +41,17 @@ const SearchStyle = {
         borderRadius: '5px',
     },
 };
+
+const SearchPanel = styled.div`
+    height: fit-content;
+`;
+
+const MediatorList = styled.div`
+    height: 100%;
+    overflow-y: auto;
+    padding-right: 5px;
+`;
+
 const searchIcon = (<Codicon name="search" sx={{ cursor: "auto" }} />);
 
 export interface MediatorPageProps {
@@ -67,34 +82,41 @@ export function MediatorPage(props: MediatorPageProps) {
     }
 
     return (
-        <>
-            {/* Search bar */}
-            <TextField
-                sx={SearchStyle}
-                placeholder="Search"
-                value={searchValue}
-                onChange={handleSearch}
-                icon={{
-                    iconComponent: searchIcon,
-                    position: 'start',
-                }}
-            />
+        <Wrapper>
+            <SearchPanel>
+                {/* Search bar */}
+                <TextField
+                    sx={SearchStyle}
+                    placeholder="Search"
+                    value={searchValue}
+                    onChange={handleSearch}
+                    icon={{
+                        iconComponent: searchIcon,
+                        position: 'start',
+                    }}
+                    autoFocus={true}
+                />
+                {/*  Categories */}
+                <ButtonContainer style={{ justifyContent: "space-between", marginBottom: "10px" }}>
+                    <Button onClick={handleAllMediatorsClicked} appearance={isAllMediators ? 'primary' : 'icon'} sx={BtnStyle}>
+                        <Icon sx={{marginTop: 2, marginRight: 5}} name="ballerina"/>
+                        All Mediators
+                    </Button>
+                    <Button onClick={handleLibraryClicked} appearance={isLibrary ? 'primary' : 'icon'} sx={BtnStyle}>
+                        <Icon sx={{marginTop: 2, marginRight: 5}} name="doc"/>
+                        Library
+                    </Button>
+                    <Button onClick={handleConnectorsClicked} appearance={isConnectors ? 'primary' : 'icon'} sx={BtnStyle}>
+                        <Icon sx={{marginTop: 2, marginRight: 5}} name="caller"/>
+                        Connectors
+                    </Button>
+                </ButtonContainer>
+            </SearchPanel>
 
-            {/*  Categories */}
-            <ButtonContainer style={{ justifyContent: "space-between", marginBottom: "10px" }}>
-                <Button onClick={handleAllMediatorsClicked} appearance={isAllMediators ? 'primary' : 'secondary'} sx={BtnStyle}>All Mediators</Button>
-                <Button onClick={handleLibraryClicked} appearance={isLibrary ? 'primary' : 'secondary'} sx={BtnStyle}>Library</Button>
-                <Button onClick={handleConnectorsClicked} appearance={isConnectors ? 'primary' : 'secondary'} sx={BtnStyle}>Connectors</Button>
-            </ButtonContainer>
-
-            <div style={{
-                overflowY: "auto",
-                height: "calc(100vh - 180px)",
-                scrollbarWidth: "none"
-            }}>
+            <MediatorList>
                 {/* Mediator List */}
-                <Mediators nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={props.setContent} searchValue={searchValue}/>
-            </div>
-        </>
+                <Mediators nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={props.setContent} searchValue={searchValue} />
+            </MediatorList>
+        </Wrapper>
     )
 }

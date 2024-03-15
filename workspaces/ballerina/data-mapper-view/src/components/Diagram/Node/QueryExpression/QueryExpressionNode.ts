@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { PrimitiveBalType, STModification, Type } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType, STModification, TypeField } from "@wso2-enterprise/ballerina-core";
 import {
     CaptureBindingPattern,
     ExpressionFunctionBody,
@@ -52,7 +52,7 @@ export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
 export class QueryExpressionNode extends DataMapperNodeModel {
 
-    public sourceTypeDesc: Type;
+    public sourceTypeDesc: TypeField;
     public sourcePort: RecordFieldPortModel;
     public targetPort: RecordFieldPortModel;
 

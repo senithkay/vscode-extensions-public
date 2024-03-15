@@ -24,20 +24,20 @@ let filePath: string | undefined;
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
-    const designDiagramRenderer = commands.registerCommand(PALETTE_COMMANDS.SHOW_ENTITY_DIAGRAM, (selectedRecord = "") => {
-        if (isCompatible(ballerinaExtInstance.ballerinaVersion)) {
-            filePath = window.activeTextEditor?.document?.uri.fsPath;
-            if (filePath) {
-                showERDiagram(langClient, selectedRecord);
-            } else {
-                // Todo: Update error message
-                window.showErrorMessage("Error: Could not detect persist model.");
-            }
-        } else {
-            window.showErrorMessage(COMPATIBILITY_MESSAGE);
-        }
-    });
-    ballerinaExtInstance.context.subscriptions.push(designDiagramRenderer);
+    // const designDiagramRenderer = commands.registerCommand(PALETTE_COMMANDS.SHOW_ENTITY_DIAGRAM, (selectedRecord = "") => {
+    //     if (isCompatible(ballerinaExtInstance.ballerinaVersion)) {
+    //         filePath = window.activeTextEditor?.document?.uri.fsPath;
+    //         if (filePath) {
+    //             showERDiagram(langClient, selectedRecord);
+    //         } else {
+    //             // Todo: Update error message
+    //             window.showErrorMessage("Error: Could not detect persist model.");
+    //         }
+    //     } else {
+    //         window.showErrorMessage(COMPATIBILITY_MESSAGE);
+    //     }
+    // });
+    // ballerinaExtInstance.context.subscriptions.push(designDiagramRenderer);
 
     if (window.activeTextEditor) {
         ballerinaExtInstance.setPersistStatusContext(window.activeTextEditor);
@@ -48,68 +48,68 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     });
 }
 
-function showERDiagram(langClient: ExtendedLangClient, selectedRecord: string) {
-    if (!diagramWebview) {
-        setupWebviewPanel(langClient);
-    }
+// function showERDiagram(langClient: ExtendedLangClient, selectedRecord: string) {
+//     if (!diagramWebview) {
+//         setupWebviewPanel(langClient);
+//     }
 
-    if (diagramWebview) {
-        const html = render(diagramWebview.webview, selectedRecord);
-        if (html) {
-            diagramWebview.webview.html = html;
-            return;
-        }
-    }
-    window.showErrorMessage("Error: Failed to generate the ER diagram.");
-}
+//     if (diagramWebview) {
+//         const html = render(diagramWebview.webview, selectedRecord);
+//         if (html) {
+//             diagramWebview.webview.html = html;
+//             return;
+//         }
+//     }
+//     window.showErrorMessage("Error: Failed to generate the ER diagram.");
+// }
 
-function setupWebviewPanel(langClient: ExtendedLangClient) {
-    diagramWebview = window.createWebviewPanel(
-        "persistERDiagram",
-        "Entity Relationship Diagram",
-        { viewColumn: ViewColumn.Beside, preserveFocus: false },
-        getCommonWebViewOptions()
-    );
+// function setupWebviewPanel(langClient: ExtendedLangClient) {
+//     diagramWebview = window.createWebviewPanel(
+//         "persistERDiagram",
+//         "Entity Relationship Diagram",
+//         { viewColumn: ViewColumn.Beside, preserveFocus: false },
+//         getCommonWebViewOptions()
+//     );
 
-    const refreshDiagram = debounce(() => {
-        if (diagramWebview) {
-            diagramWebview.webview.postMessage({ command: "refresh" });
-        }
-    }, 500);
+//     const refreshDiagram = debounce(() => {
+//         if (diagramWebview) {
+//             diagramWebview.webview.postMessage({ command: "refresh" });
+//         }
+//     }, 500);
 
-    workspace.onDidChangeTextDocument((event) => {
-        if (event.document.uri.fsPath === filePath) {
-           refreshDiagram();
-        }
-    });
+//     workspace.onDidChangeTextDocument((event) => {
+//         if (event.document.uri.fsPath === filePath) {
+//            refreshDiagram();
+//         }
+//     });
 
-    const remoteMethods: WebViewMethod[] = [
-        {
-            methodName: "getPersistERModel",
-            handler: (): Promise<GetPersistERModelResponse> => {
-                return langClient.getPersistERModel({
-                    documentUri: filePath
-                });
-            }
-        },
-        {
-            methodName: "showProblemPanel",
-            handler: async () => {
-                return await commands.executeCommand('workbench.action.problems.focus');
-            }
-        }
-    ];
+//     const remoteMethods: WebViewMethod[] = [
+//         {
+//             methodName: "getPersistERModel",
+//             handler: (): Promise<GetPersistERModelResponse> => {
+//                 return langClient.getPersistERModel({
+//                     documentUri: filePath
+//                 });
+//             }
+//         },
+//         {
+//             methodName: "showProblemPanel",
+//             handler: async () => {
+//                 return await commands.executeCommand('workbench.action.problems.focus');
+//             }
+//         }
+//     ];
 
-    WebViewRPCHandler.create(diagramWebview, langClient, remoteMethods);
+//     WebViewRPCHandler.create(diagramWebview, langClient, remoteMethods);
 
-    diagramWebview.onDidDispose(() => {
-        diagramWebview = undefined;
-    });
-}
+//     diagramWebview.onDidDispose(() => {
+//         diagramWebview = undefined;
+//     });
+// }
 
-function isCompatible(ballerinaVersion: string) {
-    return parseFloat(ballerinaVersion) >= 2201.6;
-}
+// function isCompatible(ballerinaVersion: string) {
+//     return parseFloat(ballerinaVersion) >= 2201.6;
+// }
 
 export function checkIsPersistModelFile(fileUri: Uri): boolean {
     return basename(dirname(fileUri.fsPath)) === 'persist' && existsSync(join(dirname(dirname(fileUri.fsPath)), 'Ballerina.toml'));

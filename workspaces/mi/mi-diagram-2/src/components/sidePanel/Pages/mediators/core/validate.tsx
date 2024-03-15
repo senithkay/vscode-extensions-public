@@ -197,11 +197,12 @@ const ValidateForm = (props: AddMediatorProps) => {
 
                 <div style={{ textAlign: "right", marginTop: "10px" }}>
                     <Button appearance="primary" onClick={() => {
-                        if (!(validateField("validateSchemaKeyType", formValues["validateSchemaKeyType"], true) || validateField("validateDynamicSchemaKey", formValues["validateDynamicSchemaKey"], true))) {
-                            setFormValues({
-                                ...formValues, "validateSchemaKeyType": undefined, "validateDynamicSchemaKey": undefined,
-                                "schemas": [...formValues["schemas"], [formValues["validateSchemaKeyType"], formValues["validateStaticSchemaKey"], formValues["validateDynamicSchemaKey"]]]
-                            });
+                           const validateKey = formValues["validateSchemaKeyType"] == "Static" ? "validateStaticSchemaKey" : "validateDynamicSchemaKey"
+                           if (!(validateField("validateSchemaKeyType", formValues["validateSchemaKeyType"], true) || validateField(validateKey, formValues[validateKey], true))) {
+                               setFormValues({
+                                   ...formValues, "validateSchemaKeyType": "Static", "validateDynamicSchemaKey": undefined, "validateStaticSchemaKey": undefined,
+                                   "schemas": [...formValues["schemas"], [formValues["validateSchemaKeyType"], formValues["validateStaticSchemaKey"] ?? formValues["validateDynamicSchemaKey"]]]
+                               });
                         }
                     }}>
                         Add
@@ -213,13 +214,10 @@ const ValidateForm = (props: AddMediatorProps) => {
                         <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
                             <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
                                 <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                    Name
+                                    Key Type
                                 </VSCodeDataGridCell>
                                 <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                    Value Type
-                                </VSCodeDataGridCell>
-                                <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                    Value
+                                    Key
                                 </VSCodeDataGridCell>
                             </VSCodeDataGridRow>
                             {formValues["schemas"].map((property: string, index: string) => (
@@ -229,9 +227,6 @@ const ValidateForm = (props: AddMediatorProps) => {
                                     </VSCodeDataGridCell>
                                     <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
                                         {property[1]}
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                        {property[2]}
                                     </VSCodeDataGridCell>
                                 </VSCodeDataGridRow>
                             ))}
@@ -269,11 +264,11 @@ const ValidateForm = (props: AddMediatorProps) => {
 
                 <div style={{ textAlign: "right", marginTop: "10px" }}>
                     <Button appearance="primary" onClick={() => {
-                        if (!(validateField("featureName", formValues["featureName"], true) || validateField("", formValues[""], true))) {
-                            setFormValues({
-                                ...formValues, "featureName": undefined, "": undefined,
-                                "features": [...formValues["features"], [formValues["featureName"], formValues["featureEnabled"], formValues[""]]]
-                            });
+                           if (!validateField("featureName", formValues["featureName"], true)) {
+                               setFormValues({
+                                   ...formValues, "featureName": undefined, "featureEnabled": false,
+                                   "features": [...formValues["features"], [formValues["featureName"], formValues["featureEnabled"]?.toString()]]
+                               });
                         }
                     }}>
                         Add
@@ -285,13 +280,10 @@ const ValidateForm = (props: AddMediatorProps) => {
                         <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
                             <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
                                 <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                    Name
+                                    Feature Name
                                 </VSCodeDataGridCell>
                                 <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                    Value Type
-                                </VSCodeDataGridCell>
-                                <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                    Value
+                                    Feature Enabled
                                 </VSCodeDataGridCell>
                             </VSCodeDataGridRow>
                             {formValues["features"].map((property: string, index: string) => (
@@ -301,9 +293,6 @@ const ValidateForm = (props: AddMediatorProps) => {
                                     </VSCodeDataGridCell>
                                     <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
                                         {property[1]}
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                        {property[2]}
                                     </VSCodeDataGridCell>
                                 </VSCodeDataGridRow>
                             ))}
@@ -347,10 +336,10 @@ const ValidateForm = (props: AddMediatorProps) => {
 
                 <div style={{ textAlign: "right", marginTop: "10px" }}>
                     <Button appearance="primary" onClick={() => {
-                        if (!(validateField("location", formValues["location"], true) || validateField("", formValues[""], true))) {
-                            setFormValues({
-                                ...formValues, "location": undefined, "": undefined,
-                                "resources": [...formValues["resources"], [formValues["location"], formValues["locationKey"], formValues[""]]]
+                           if (!(validateField("location", formValues["location"], true) || validateField("locationKey", formValues["locationKey"], true))) {
+                               setFormValues({
+                                   ...formValues, "location": undefined, "locationKey": undefined,
+                                   "resources": [...formValues["resources"], [formValues["location"], formValues["locationKey"]]]
                             });
                         }
                     }}>
@@ -363,13 +352,10 @@ const ValidateForm = (props: AddMediatorProps) => {
                         <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
                             <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
                                 <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                    Name
+                                    Location
                                 </VSCodeDataGridCell>
                                 <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                    Value Type
-                                </VSCodeDataGridCell>
-                                <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                    Value
+                                    Location Key
                                 </VSCodeDataGridCell>
                             </VSCodeDataGridRow>
                             {formValues["resources"].map((property: string, index: string) => (
@@ -379,9 +365,6 @@ const ValidateForm = (props: AddMediatorProps) => {
                                     </VSCodeDataGridCell>
                                     <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
                                         {property[1]}
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                        {property[2]}
                                     </VSCodeDataGridCell>
                                 </VSCodeDataGridRow>
                             ))}

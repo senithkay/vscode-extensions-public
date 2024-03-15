@@ -143,8 +143,8 @@ export function SamplesView() {
             <br />
             <GridContainer>
                 <Grid
-                    columns={5}
-                    direction="column">
+                    columns={4}
+                >
                     {filteredSampleData ? filteredSampleData.sort((a, b) => a.priority - b.priority).map((sample, index) => (
                         <ComponentCard
                             disbaleHoverEffect={true}

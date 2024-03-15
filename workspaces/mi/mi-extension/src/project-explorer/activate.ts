@@ -11,14 +11,17 @@ import { ProjectExplorerEntry, ProjectExplorerEntryProvider } from './project-ex
 import { StateMachine, openView } from '../stateMachine';
 import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from '@wso2-enterprise/mi-core';
 import { COMMANDS } from '../constants';
-import { ExtensionContext, Uri, ViewColumn, commands, window } from 'vscode';
+import { ExtensionContext, Uri, ViewColumn, commands, window, workspace } from 'vscode';
 import { VisualizerWebview } from '../visualizer/webview';
+import path = require("path");
+import { deleteRegistryResource } from '../util/fileOperations';
+import { RpcClient } from '@wso2-enterprise/mi-rpc-client';
 
 export function activateProjectExplorer(context: ExtensionContext) {
 
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context);
 	const projectTree = window.createTreeView('MI.project-explorer', { treeDataProvider: projectExplorerDataProvider });
-	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { projectExplorerDataProvider.refresh(); });
+	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(); });
 	commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
 		window.showQuickPick([
 			{ label: 'New Project', description: 'Create new project' },
@@ -26,7 +29,12 @@ export function activateProjectExplorer(context: ExtensionContext) {
 			{ label: 'Endpoint', description: 'Add new endpoint' },
 			{ label: 'Sequence', description: 'Add new sequence' },
 			{ label: 'Inbound Endpoint', description: 'Add new inbound endpoint' },
-			{ label: 'Local Entry', description: 'Add new local entry'}
+			{ label: 'Local Entry', description: 'Add new local entry' },
+			{ label: 'Message Store', description: 'Add new message store' },
+			{ label: 'Message Processor', description: 'Add new message processor' },
+			{ label: 'Task', description: 'Add new task' },
+			{ label: 'Proxy Service', description: 'Add new proxy service' },
+			{ label: 'Template', description: 'Add new template' },
 		], {
 			placeHolder: 'Select the construct to add'
 		}).then(selection => {
@@ -38,41 +46,124 @@ export function activateProjectExplorer(context: ExtensionContext) {
 				commands.executeCommand(COMMANDS.ADD_SEQUENCE_COMMAND);
 			} else if (selection?.label === 'Inbound Endpoint') {
 				commands.executeCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND);
+			} else if (selection?.label === 'Message Processor') {
+				commands.executeCommand(COMMANDS.ADD_MESSAGE_PROCESSOR_COMMAND);
+			} else if (selection?.label === 'Task') {
+				commands.executeCommand(COMMANDS.ADD_TASK_COMMAND);
+			} else if (selection?.label === 'Proxy Service') {
+				commands.executeCommand(COMMANDS.ADD_PROXY_SERVICE_COMMAND);
+			} else if (selection?.label === 'Template') {
+				commands.executeCommand(COMMANDS.ADD_TEMPLATE_COMMAND);
 			} else if (selection?.label === 'New Project') {
 				commands.executeCommand(COMMANDS.CREATE_PROJECT_COMMAND);
 			} else if (selection?.label === 'Local Entry') {
 				commands.executeCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND);
+			} else if (selection?.label === 'Message Store') {
+				commands.executeCommand(COMMANDS.ADD_MESSAGE_STORE_COMMAND);
 			}
 		});
 
 	});
 	commands.registerCommand(COMMANDS.ADD_API_COMMAND, async (entry: ProjectExplorerEntry) => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm, documentUri:entry.info?.path });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm, documentUri: entry.info?.path });
 		console.log('Add API');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_ENDPOINT_COMMAND, (entry: ProjectExplorerEntry) => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.EndPointForm, documentUri:entry.info?.path });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.EndPointForm, documentUri: entry.info?.path });
 		console.log('Add Endpoint');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_SEQUENCE_COMMAND, (entry: ProjectExplorerEntry) => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceForm, documentUri:entry.info?.path });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceForm, documentUri: entry.info?.path });
 		console.log('Add Sequence');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND, (entry: ProjectExplorerEntry) => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.InboundEPForm, documentUri:entry.info?.path });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.InboundEPForm, documentUri: entry.info?.path });
 		console.log('Add Inbound API');
 	});
 
+	commands.registerCommand(COMMANDS.ADD_REGISTERY_RESOURCE_COMMAND, async (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: entry.info?.path });
+		console.log('Add Registry Resource');
+	});
+
+	commands.registerCommand(COMMANDS.ADD_CLASS_MEDIATOR_COMMAND, async (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ClassMediatorForm, documentUri: entry.info?.path });
+		console.log('Add Class Mediator');
+	});
+
+	commands.registerCommand(COMMANDS.ADD_MESSAGE_PROCESSOR_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MessageProcessorForm, documentUri: entry.info?.path });
+		console.log('Add Message Processor');
+	});
+
+	commands.registerCommand(COMMANDS.ADD_PROXY_SERVICE_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProxyServiceForm, documentUri: entry.info?.path });
+		console.log('Add Proxy Service');
+	});
+
+	commands.registerCommand(COMMANDS.ADD_TASK_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TaskForm, documentUri: entry.info?.path });
+	});
+
+	commands.registerCommand(COMMANDS.EDIT_REGISTERY_RESOURCE_COMMAND, async (entry: string) => {
+		workspace.openTextDocument(entry).then((doc) => {
+			window.showTextDocument(doc, { preview: false });
+		});
+	});
+
+	commands.registerCommand(COMMANDS.EDIT_CLASS_MEDIATOR_COMMAND, async (entry: string) => {
+		workspace.openTextDocument(entry).then((doc) => {
+			window.showTextDocument(doc, { preview: false });
+		});
+		commands.executeCommand('workbench.files.action.focusFilesExplorer');
+	});
+
+	commands.registerCommand(COMMANDS.DELETE_REGISTERY_RESOURCE_COMMAND, async (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+		if (entry.info && entry.info?.path) {
+			const filePath = entry.info.path;
+			const fileName = path.basename(filePath);
+			window.showInformationMessage("Do you want to do delete : " + fileName, "Yes", "No")
+				.then(async answer => {
+					if (answer === "Yes") {
+						const res = await deleteRegistryResource(filePath);
+						if (res.status === true) {
+							window.showInformationMessage(res.info);
+							projectExplorerDataProvider.refresh();
+						} else {
+							window.showErrorMessage(res.info);
+						}
+					}
+				});
+		}
+	});
+
+	commands.registerCommand(COMMANDS.ADD_MESSAGE_STORE_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MessageStoreForm, documentUri: entry.info?.path });
+		console.log('Add Message Store');
+	});
+
+	commands.registerCommand(COMMANDS.ADD_TEMPLATE_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TemplateForm, documentUri: entry.info?.path });
+		console.log('Add Template');
+	});
+
 	commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
+		// Update state machine to show the api wizard
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
 		console.log('Create New Project');
 	});
 
-	commands.registerCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND, () => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.LocalEntryForm });
+	commands.registerCommand(COMMANDS.IMPORT_PROJECT_COMMAND, () => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ImportProjectForm });
+		console.log('Import a Project');
+	});
+
+	commands.registerCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.LocalEntryForm, documentUri: entry.info?.path });
 		console.log('Add Local Entry');
 	});
 
@@ -111,7 +202,24 @@ export function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.SHOW_DIAGRAM, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Diagram, documentUri: documentUri?.fsPath, identifier: resourceIndex });
+	});
+	commands.registerCommand(COMMANDS.SHOW_MESSAGE_STORE, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MessageStoreForm, documentUri: documentUri?.fsPath });
+
 	})
+	commands.registerCommand(COMMANDS.SHOW_LOCAL_ENTRY, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.LocalEntryForm, documentUri: documentUri?.fsPath });
+	});
+	commands.registerCommand(COMMANDS.SHOW_TASK, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TaskForm, documentUri: documentUri?.fsPath, identifier: resourceIndex });
+	});
+	commands.registerCommand(COMMANDS.SHOW_INBOUND_ENDPOINT, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.InboundEPForm, documentUri: documentUri?.fsPath, identifier: resourceIndex });
+	});
 	commands.registerCommand(COMMANDS.SHOW_SOURCE, (e: any) => {
 		const documentUri = StateMachine.context().documentUri;
 		if (documentUri) {
@@ -122,7 +230,25 @@ export function activateProjectExplorer(context: ExtensionContext) {
 				commands.executeCommand('vscode.open', Uri.parse(documentUri), { viewColumn: ViewColumn.Beside });
 			}
 		}
-	})
+	});
+	commands.registerCommand(COMMANDS.SHOW_MESSAGE_PROCESSOR, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MessageProcessorForm, documentUri: documentUri?.fsPath });
+	});
+	commands.registerCommand(COMMANDS.SHOW_XML, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		const uri = Uri.file(documentUri?.fsPath);
+		workspace.openTextDocument(uri).then((document) => {
+			window.showTextDocument(document);
+		});
+	});
+	commands.registerCommand(COMMANDS.SHOW_TEMPLATE, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TemplateForm, documentUri: documentUri?.fsPath });
+	});
+	commands.registerCommand(COMMANDS.SHOW_ENDPOINT, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.EndPointForm, documentUri: documentUri?.fsPath });
+	});
 	commands.registerCommand(COMMANDS.OPEN_PROJECT_OVERVIEW, async (entry: ProjectExplorerEntry) => {
 		revealWebviewPanel(false);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
@@ -142,11 +268,6 @@ export function activateProjectExplorer(context: ExtensionContext) {
 }
 
 function revealWebviewPanel(beside: boolean = true) {
-	if (!VisualizerWebview.currentPanel) {
-		VisualizerWebview.currentPanel = new VisualizerWebview(MACHINE_VIEW.Overview, true);
-		VisualizerWebview.currentPanel?.getWebview()?.reveal(beside ? ViewColumn.Beside : ViewColumn.One);
-	} else {
-		VisualizerWebview.currentPanel?.getWebview()?.reveal(beside ? ViewColumn.Beside : ViewColumn.Active);
-	}
+	VisualizerWebview.currentPanel?.getWebview()?.reveal(beside ? ViewColumn.Beside : ViewColumn.Active);
 }
 

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ApiDirectoryResponse, ApplyEditRequest, ApplyEditResponse, CommandsRequest, CommandsResponse, ConnectorRequest, ConnectorResponse, ConnectorsResponse, CreateAPIRequest, CreateAPIResponse, CreateEndpointRequest, CreateEndpointResponse, CreateSequenceRequest, CreateSequenceResponse, EndpointDirectoryResponse, EndpointsAndSequencesResponse, ProjectRootResponse, OpenDiagramRequest, SequenceDirectoryResponse, ShowErrorMessageRequest, getSTRequest, getSTResponse, CreateProjectRequest, ProjectDirResponse, CreateProjectResponse, ESBConfigsResponse, HighlightCodeRequest, AIUserInput, WriteContentToFileRequest, WriteContentToFileResponse,CreateLocalEntryRequest,CreateLocalEntryResponse,FileDirResponse,LocalEntryDirectoryResponse , InboundEndpointDirectoryResponse, CreateInboundEndpointRequest, CreateInboundEndpointResponse, UndoRedoParams, GetDefinitionRequest, GetDefinitionResponse, GetTextAtRangeRequest, GetTextAtRangeResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, GetInboundEpDirRequest, GetProjectRootRequest } from "./types";
+import { ApiDirectoryResponse, ApplyEditRequest, ApplyEditResponse, CommandsRequest, CommandsResponse, ConnectorRequest, ConnectorResponse, ConnectorsResponse, CreateAPIRequest, CreateAPIResponse, CreateEndpointRequest, CreateEndpointResponse, CreateSequenceRequest, CreateSequenceResponse, EndpointDirectoryResponse, EndpointsAndSequencesResponse, ProjectRootResponse, OpenDiagramRequest, SequenceDirectoryResponse, ShowErrorMessageRequest, getSTRequest, getSTResponse, CreateProjectRequest, ProjectDirResponse, CreateProjectResponse, ImportProjectRequest, ImportProjectResponse, ESBConfigsResponse, HighlightCodeRequest, AIUserInput, WriteContentToFileRequest, WriteContentToFileResponse, CreateLocalEntryRequest, CreateLocalEntryResponse, FileDirResponse, CreateInboundEndpointRequest, CreateInboundEndpointResponse, UndoRedoParams, CreateTaskRequest, CreateTaskResponse, GetTaskRequest, GetTaskResponse, GetDefinitionRequest, GetDefinitionResponse, GetTextAtRangeRequest, GetTextAtRangeResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, GetProjectRootRequest, BrowseFileResponse, CreateRegistryResourceRequest, CreateRegistryResourceResponse, BrowseFileRequest, CreateMessageProcessorRequest, CreateMessageProcessorResponse, RetrieveMessageProcessorRequest, RetrieveMessageProcessorResponse, CreateProxyServiceRequest, CreateProxyServiceResponse, CreateMessageStoreRequest, CreateMessageStoreResponse, GetMessageStoreRequest, GetMessageStoreResponse, CreateTemplateRequest, CreateTemplateResponse, RetrieveTemplateRequest, RetrieveTemplateResponse, GetAvailableResourcesRequest, GetAvailableResourcesResponse, GetInboundEndpointRequest, GetInboundEndpointResponse, GetWorkspaceContextResponse, GetProjectUuidResponse, CreateClassMediatorRequest, CreateClassMediatorResponse, UpdateHttpEndpointRequest, UpdateHttpEndpointResponse, RetrieveHttpEndpointRequest, RetrieveHttpEndpointResponse, TemplatesResponse, UpdateAddressEndpointRequest, UpdateAddressEndpointResponse, RetrieveAddressEndpointRequest, RetrieveAddressEndpointResponse, UpdateWsdlEndpointRequest, UpdateWsdlEndpointResponse, RetrieveWsdlEndpointRequest, RetrieveWsdlEndpointResponse, UpdateDefaultEndpointRequest, UpdateDefaultEndpointResponse, RetrieveDefaultEndpointRequest, RetrieveDefaultEndpointResponse, GetLocalEntryRequest, GetLocalEntryResponse, FileListRequest, FileListResponse, UpdateLoadBalanceEPRequest, UpdateLoadBalanceEPResponse, GetLoadBalanceEPRequest, GetLoadBalanceEPResponse, UpdateFailoverEPRequest, UpdateFailoverEPResponse, GetFailoverEPRequest, GetFailoverEPResponse } from "./types";
 
 export interface MiDiagramAPI {
     executeCommand: (params: CommandsRequest) => Promise<CommandsResponse>;
@@ -20,14 +20,37 @@ export interface MiDiagramAPI {
     getAPIDirectory: () => Promise<ApiDirectoryResponse>;
     createAPI: (params: CreateAPIRequest) => Promise<CreateAPIResponse>;
     getEndpointDirectory: () => Promise<EndpointDirectoryResponse>;
-    getLocalEntryDirectory: () => Promise<LocalEntryDirectoryResponse>;
     createEndpoint: (params: CreateEndpointRequest) => Promise<CreateEndpointResponse>;
+    updateLoadBalanceEndpoint: (params: UpdateLoadBalanceEPRequest) => Promise<UpdateLoadBalanceEPResponse>;
+    getLoadBalanceEndpoint: (params: GetLoadBalanceEPRequest) => Promise<GetLoadBalanceEPResponse>;
+    updateFailoverEndpoint: (params: UpdateFailoverEPRequest) => Promise<UpdateFailoverEPResponse>;
+    getFailoverEndpoint: (params: GetFailoverEPRequest) => Promise<GetFailoverEPResponse>;
     createLocalEntry: (params: CreateLocalEntryRequest) => Promise<CreateLocalEntryResponse>;
+    getLocalEntry: (params: GetLocalEntryRequest) => Promise<GetLocalEntryResponse>;
     getEndpointsAndSequences: () => Promise<EndpointsAndSequencesResponse>;
+    getTemplates: () => Promise<TemplatesResponse>;
     getSequenceDirectory: () => Promise<SequenceDirectoryResponse>;
     createSequence: (params: CreateSequenceRequest) => Promise<CreateSequenceResponse>;
-    getInboundEndpointDirectory: (params: GetInboundEpDirRequest) => Promise<InboundEndpointDirectoryResponse>;
+    createMessageStore: (params: CreateMessageStoreRequest) => Promise<CreateMessageStoreResponse>;
+    getMessageStore: (params: GetMessageStoreRequest) => Promise<GetMessageStoreResponse>;
+    getXmlFileList: (params: FileListRequest) => Promise<FileListResponse>;
     createInboundEndpoint: (params: CreateInboundEndpointRequest) => Promise<CreateInboundEndpointResponse>;
+    createMessageProcessor: (params: CreateMessageProcessorRequest) => Promise<CreateMessageProcessorResponse>;
+    getMessageProcessor: (params: RetrieveMessageProcessorRequest) => Promise<RetrieveMessageProcessorResponse>;
+    createProxyService: (params: CreateProxyServiceRequest) => Promise<CreateProxyServiceResponse>;
+    createTask: (params: CreateTaskRequest) => Promise<CreateTaskResponse>;
+    getTask: (params: GetTaskRequest) => Promise<GetTaskResponse>;
+    createTemplate: (params: CreateTemplateRequest) => Promise<CreateTemplateResponse>;
+    getTemplate: (params: RetrieveTemplateRequest) => Promise<RetrieveTemplateResponse>;
+    getInboundEndpoint: (params: GetInboundEndpointRequest) => Promise<GetInboundEndpointResponse>;
+    updateHttpEndpoint: (params: UpdateHttpEndpointRequest) => Promise<UpdateHttpEndpointResponse>;
+    getHttpEndpoint: (params: RetrieveHttpEndpointRequest) => Promise<RetrieveHttpEndpointResponse>;
+    updateAddressEndpoint: (params: UpdateAddressEndpointRequest) => Promise<UpdateAddressEndpointResponse>;
+    getAddressEndpoint: (params: RetrieveAddressEndpointRequest) => Promise<RetrieveAddressEndpointResponse>;
+    updateWsdlEndpoint: (params: UpdateWsdlEndpointRequest) => Promise<UpdateWsdlEndpointResponse>;
+    getWsdlEndpoint: (params: RetrieveWsdlEndpointRequest) => Promise<RetrieveWsdlEndpointResponse>;
+    updateDefaultEndpoint: (params: UpdateDefaultEndpointRequest) => Promise<UpdateDefaultEndpointResponse>;
+    getDefaultEndpoint: (params: RetrieveDefaultEndpointRequest) => Promise<RetrieveDefaultEndpointResponse>;
     closeWebView: () => void;
     openDiagram: (params: OpenDiagramRequest) => void;
     openFile: (params: OpenDiagramRequest) => void;
@@ -35,15 +58,23 @@ export interface MiDiagramAPI {
     getWorkspaceRoot: () => Promise<ProjectRootResponse>;
     getProjectRoot: (params: GetProjectRootRequest) => Promise<ProjectRootResponse>;
     askProjectDirPath: () => Promise<ProjectDirResponse>;
+    askProjectImportDirPath: () => Promise<ProjectDirResponse>;
     askFileDirPath: () => Promise<FileDirResponse>;
     createProject: (params: CreateProjectRequest) => Promise<CreateProjectResponse>;
+    importProject: (params: ImportProjectRequest) => Promise<ImportProjectResponse>;
     getAIResponse: (params: AIUserInput) => Promise<string>;
     writeContentToFile: (params: WriteContentToFileRequest) => Promise<WriteContentToFileResponse>;
     highlightCode: (params: HighlightCodeRequest) => void;
+    getWorkspaceContext: () => Promise<GetWorkspaceContextResponse>;
+    getProjectUuid: () => Promise<GetProjectUuidResponse>;
     initUndoRedoManager: (params: UndoRedoParams) => void;
     undo: (params: UndoRedoParams) => void;
     redo: (params: UndoRedoParams) => void;
     getDefinition: (params: GetDefinitionRequest) => Promise<GetDefinitionResponse>;
     getTextAtRange: (params: GetTextAtRangeRequest) => Promise<GetTextAtRangeResponse>;
     getDiagnostics: (params: GetDiagnosticsReqeust) => Promise<GetDiagnosticsResponse>;
+    browseFile: (params: BrowseFileRequest) => Promise<BrowseFileResponse>;
+    createRegistryResource: (params: CreateRegistryResourceRequest) => Promise<CreateRegistryResourceResponse>;
+    getAvailableResources: (params: GetAvailableResourcesRequest) => Promise<GetAvailableResourcesResponse>;
+    createClassMediator: (params: CreateClassMediatorRequest) => Promise<CreateClassMediatorResponse>;
 }

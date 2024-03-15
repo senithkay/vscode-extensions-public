@@ -7,16 +7,21 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import Mustache from "mustache";
 import { Property } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export function getPropertyMustacheTemplate() {
-    return `<property 
-    name="{{newPropertyName}}" scope="{{propertyScope}}" type="{{propertyDataType}}"{{#expression}} expression="{{expression}}"{{/expression}} action="{{propertyAction}}"{{#description}} description="{{description}}"{{/description}}{{#value}} value="{{value}}"{{/value}}{{#valueStringPattern}} pattern="{{valueStringPattern}}"{{/valueStringPattern}}{{#valueStringCapturingGroup}} group="{{valueStringCapturingGroup}}"{{/valueStringCapturingGroup}}
-/>`;
+    return `<property {{#newPropertyName}}name="{{newPropertyName}}" {{/newPropertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{expression}}" {{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}{{#value}}value="{{value}}" {{/value}}{{#valueStringPattern}}pattern="{{valueStringPattern}}" {{/valueStringPattern}}{{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}" {{/valueStringCapturingGroup}}/>`;
+}
+
+export function getPropertyXml(data: { [key: string]: any }) {
+    data.propertyScope = data.propertyScope?.toLowerCase();
+    return Mustache.render(getPropertyMustacheTemplate(), data).trim();
 }
 
 export function getPropertyFormDataFromSTNode(data: { [key: string]: any }, node: Property) {
     if (node.name) {
+        data.propertyName = node.name;
         data.newPropertyName = node.name;
     }
     if (node.type) {

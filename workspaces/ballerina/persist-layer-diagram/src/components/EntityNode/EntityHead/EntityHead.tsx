@@ -9,12 +9,10 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
-import IconButton from '@mui/material/IconButton';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
 import { EntityModel } from '../EntityModel';
 import { EntityHead, EntityName } from '../styles';
+import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
@@ -76,17 +74,16 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
             />
 
             {isHovered &&
-                <IconButton
+                <Button
                     onClick={handleCollapsedStatus}
-                    size={'small'}
                     sx={{
-                        backgroundColor: 'white',
                         right: '8px',
                         position: 'absolute'
                     }}
+                    appearance='icon'
                 >
-                    {isCollapsed ? <KeyboardArrowDownIcon /> : <KeyboardArrowUpIcon />}
-                </IconButton>
+                    {isCollapsed ? <Codicon name="chevron-down" /> : <Codicon name="chevron-up" />}
+                </Button>
             }
         </EntityHead>
     )

@@ -75,7 +75,7 @@ export const Colors = {
 
     OUTLINE: VSCodeColors.OUTLINE || DefaultColors.OUTLINE,
     OUTLINE_VARIANT:
-       DefaultColors.OUTLINE_VARIANT,
+        DefaultColors.OUTLINE_VARIANT,
 
     ERROR: VSCodeColors.ERROR || DefaultColors.ERROR,
 };
@@ -83,10 +83,14 @@ export const Colors = {
 export const NODE_GAP = {
     X: 0,
     Y: 50,
-    BRANCH_X: 100,
+    BRANCH_X: 50,
     BRANCH_TOP: 100 + 10,
-    BRANCH_BOTTOM: 80,
+    BRANCH_BOTTOM: 50,
     SEQUENCE_Y: 100,
+    GROUP_NODE_START_Y: 50,
+    GROUP_NODE_END_Y: 50,
+    GROUP_NODE_HORIZONTAL_GAP: 100,
+    GROUP_NODE_HORIZONTAL_PADDING: 44
 };
 
 export const NODE_DIMENSIONS = {
@@ -95,12 +99,26 @@ export const NODE_DIMENSIONS = {
         HEIGHT: 40,
     },
     START: {
-        WIDTH: 24,
-        HEIGHT: 24,
+        EDITABLE: {
+            WIDTH: 100,
+            HEIGHT: 40,
+        },
+        DISABLED: {
+            WIDTH: 24,
+            HEIGHT: 24,
+        }
     },
     CONDITION: {
         WIDTH: 65,
         HEIGHT: 65,
+    },
+    REFERENCE: {
+        WIDTH: 120,
+        HEIGHT: 40,
+    },
+    GROUP: {
+        WIDTH: 120,
+        HEIGHT: 40,
     },
     CALL: {
         WIDTH: 120,
@@ -110,6 +128,14 @@ export const NODE_DIMENSIONS = {
     EMPTY: {
         WIDTH: 12,
         HEIGHT: 12,
+        BRANCH: {
+            WIDTH: 60,
+            HEIGHT: 12,
+        },
+    },
+    END: {
+        WIDTH: 23,
+        HEIGHT: 21,
     },
 };
 
@@ -123,10 +149,10 @@ export const MEDIATORS = {
     CALLTEMPLATE: "CallTemplate",
     CLONE: "Clone",
     DATAMAPPER: "DataMapper",
-    DATASERVICE: "DataService",
+    DATASERVICECALL: "DataServiceCall",
     DROP: "Drop",
     ENRICH: "Enrich",
-    ENTITLEMENT: "Entitlement",
+    ENTITLEMENT: "EntitlementService",
     FASTXSLT: "FastXSLT",
     FAULT: "Fault",
     FILTER: "Filter",
@@ -151,6 +177,17 @@ export const MEDIATORS = {
     VALIDATE: "Validate",
     XQUERY: "XQuery",
     XSLT: "XSLT",
+    BEAN: "Bean",
+    CLASS: "Class",
+    COMMAND: "Command",
+    EJB: "Ejb",
+    SCRIPT: "Script",
+    SPRING: "Spring",
+    DBLOOKUP: "Dblookup",
+    DBREPORT: "Dbreport",
+    ENQUEUE: "Enqueue",
+    EVENT: "Event",
+    TRANSACTION: "Transaction"
 }
 
 export const ENDPOINTS = {
@@ -169,11 +206,26 @@ export enum NodeTypes {
     START_NODE = "start-node",
     END_NODE = "end-node",
     MEDIATOR_NODE = "mediator-node",
+    REFERENCE_NODE = "reference-node",
     CONDITION_NODE = "condition-node",
     CONDITION_NODE_END = "condition-node-end",
+    GROUP_NODE = "group-node",
     CALL_NODE = "call-node",
+    PLUS_NODE = "plus-node",
     EMPTY_NODE = "empty-node",
 }
 
 export const NODE_LINK = "node-link";
 export const NODE_PORT = "node-port";
+
+export enum SequenceType {
+    IN_SEQUENCE = "inSequence",
+    OUT_SEQUENCE = "outSequence",
+    FAULT_SEQUENCE = "faultSequence",
+};
+
+// Actions for service designer
+export const SERVICE = {
+    EDIT_RESOURCE: "edit-resource",
+    EDIT_SEQUENCE: "edit-sequence",
+}

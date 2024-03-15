@@ -15,13 +15,14 @@ import { activateAiPrompt } from './ai-prompt/activate';
 import { activate as activateHistory } from './history';
 import { activateVisualizer } from './visualizer/activate';
 import { activateActivityPanel } from './activity-panel/activate';
+import { activateAiPanel } from './ai-panel/activate';
+import { RPCLayer } from './RPCLayer';
 
 import { activateDebugger } from './debugger/activate';
 
 export async function activate(context: vscode.ExtensionContext) {
-
 	extension.context = context;
-
+	RPCLayer.init();
 	activateHistory();
 
 	activateDebugger(context);
@@ -30,5 +31,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	activateProjectExplorer(context);
 	// activateAiPrompt(context);
 	activateVisualizer(context);
+	activateAiPanel(context);
 	StateMachine.initialize();
 }
