@@ -59,16 +59,25 @@ export function AIChat() {
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false); 
   const [lastQuestionIndex, setLastQuestionIndex] = useState(-1);
+  const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
   const messagesEndRef = React.createRef<HTMLDivElement>();
 
   useEffect(() => {
     rpcClient.getMiDiagramRpcClient().getProjectUuid().then((response) => {
       projectUuid = response.uuid;
-      const localStorageFile = `chatArray-AIChat-${projectUuid}`;
-    const storedChatArray = localStorage.getItem(localStorageFile);
+      const localStorageChatFile = `chatArray-AIChat-${projectUuid}`;
+      const localStorageQuestionFile = `Question-AIChat-${projectUuid}`;
+    const storedChatArray = localStorage.getItem(localStorageChatFile);
     if (storedChatArray) {
+      const storedQuestion = localStorage.getItem(localStorageQuestionFile);
+      if(storedQuestion){
+        setMessages(prevMessages => [
+          ...prevMessages,
+          { role: "", content: storedQuestion, type: "question" },
+        ]);
+      }
+      
       const chatArrayFromStorage = JSON.parse(storedChatArray);
-  
       chatArray = chatArrayFromStorage;
   
       // Add the messages from the chat array to the view
@@ -103,6 +112,10 @@ export function AIChat() {
           // { role: "", content: "What are the possible use cases in using WSO2 Micro Integrator?", type: "question" },
           // { role: "", content: "How to use the File Connector?", type: "question" }
         ]);
+        if(chatArray.length === 0){
+          console.log("Fetching initial questions");
+          generateSuggestions();
+        }
       }
     }
     } );
@@ -140,15 +153,13 @@ export function AIChat() {
     questions: string[];
   }
 
+
   useEffect(() => {
-    // Construct URL with query parameters
-    if(chatArray.length === 0){
-      console.log("Fetching initial questions");
-      generateSuggestions();
-    }
-  }, []);
+    console.log("Suggestions: " + isSuggestionLoading);
+  } , [isSuggestionLoading]);
 
   async function generateSuggestions() {
+    setIsSuggestionLoading(true); // Set loading state to true at the start
     const url = MI_SUGGESTIVE_QUESTIONS_INITIAL_BACKEND_URL + "?num_suggestions=2&q_type=copilot_chat";
     fetch(url)
         .then(response => {
@@ -170,10 +181,11 @@ export function AIChat() {
           } else {
             throw new Error("Failed to generate suggestions: " + data.error);
           }
+          setIsSuggestionLoading(false); // Set loading state to false after fetch is successful
         })
         .catch(error => {
           console.error("Error fetching initial questions:", error);
-          // Handle error
+          setIsSuggestionLoading(false); // Set loading state to false even if there's an error
         });
    }
 
@@ -325,13 +337,17 @@ export function AIChat() {
 
     //clear the local storage
     localStorage.removeItem(`chatArray-AIChat-${projectUuid}`);
+    localStorage.removeItem(`Question-AIChat-${projectUuid}`);
     
   }
 
   const questionMessages = messages.filter(message => message.type === "question");
+  if(questionMessages.length > 0){
+    localStorage.setItem(`Question-AIChat-${projectUuid}`, questionMessages[questionMessages.length-1].content);
+  }
   const otherMessages = messages.filter(message => message.type !== "question");
   return (
-      <div style={{ display: "flex", flexDirection: "column", height: "90%", width: "100%", margin: "auto" }}>
+      <div style={{ display: "flex", flexDirection: "column", height: "100%", width: "100%", margin: "auto" }}>
       <div style={{ flex: 1, overflowY: "auto", padding: "10px", borderBottom: "1px solid #ccc" }}>
       <div style={{ textAlign: "right" }}>
           <Icon
@@ -360,6 +376,11 @@ export function AIChat() {
       </div>
 
       <div style={{ paddingTop: "15px", marginLeft: "10px" }}>
+          {isSuggestionLoading && (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        Generating suggestions for you... &nbsp;&nbsp; <ProgressRing sx={{position: "relative"}}/>
+                      </div>
+          )}
           {questionMessages.map((message, index) => (
             <div key={index} style={{ marginBottom: "5px" }}>
               <a
@@ -369,7 +390,7 @@ export function AIChat() {
                   handleQuestionClick(message.content);
                 }}
                 style={{ textDecoration: 'none' }}
-              >
+              >   
                  <div style={{ display: 'flex', alignItems: 'center' }}>
                     <Icon name="wand-magic-sparkles-solid" sx="marginRight:5px"/>
                     {message.content.replace(/^\d+\.\s/, "")}

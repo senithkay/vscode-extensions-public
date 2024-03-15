@@ -15,7 +15,7 @@ import {TextArea, Button, Switch, Icon, ProgressRing} from "@wso2-enterprise/ui-
 import ReactMarkdown from 'react-markdown';
 import './AIProjectGenerationChat.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { MI_ARTIFACT_EDIT_BACKEND_URL, MI_ARTIFACT_GENERATION_BACKEND_URL } from "../../constants";
+import { MI_ARTIFACT_EDIT_BACKEND_URL, MI_ARTIFACT_GENERATION_BACKEND_URL, MI_SUGGESTIVE_QUESTIONS_BACKEND_URL } from "../../constants";
 import { Collapse } from 'react-collapse';
 import { AI_MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 
@@ -62,16 +62,24 @@ export function AIProjectGenerationChat() {
   const [lastQuestionIndex, setLastQuestionIndex] = useState(-1);
   const messagesEndRef = React.createRef<HTMLDivElement>();
   const [isOpen, setIsOpen] = useState(false);
+  const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
   const [isCodeLoading, setIsCodeLoading] = useState(false);
 
   useEffect(() => {
     rpcClient?.getMiDiagramRpcClient().getProjectUuid().then((response) => {
       projectUuid = response.uuid;
       const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
+      const localStorageQuestionFile = `Question-AIGenerationChat-${projectUuid}`;
       const storedChatArray = localStorage.getItem(localStorageFile);
     if (storedChatArray) {
+      const storedQuestion = localStorage.getItem(localStorageQuestionFile);
+      if(storedQuestion){
+        setMessages(prevMessages => [
+          ...prevMessages,
+          { role: "", content: storedQuestion, type: "question" },
+        ]);
+      }
       const chatArrayFromStorage = JSON.parse(storedChatArray);
-  
       chatArray = chatArrayFromStorage;
   
       // Add the messages from the chat array to the view
@@ -102,10 +110,14 @@ export function AIProjectGenerationChat() {
           ...prevMessages,
       { role: "", content: "Welcome to the AI Powered Generation and Editing Tool. You may use this tool to generate entirely new Artifacts or to do changes to existing artifacts simply using text based prompts. The context of your generation shall always be the window you have currenly opened.", type: "label" },
       { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
-      { role: "" , content: "Generate a Sample Hello World API", type: "question"},
-      { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
-      { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
+      // { role: "" , content: "Generate a Sample Hello World API", type: "question"},
+      // { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
+      // { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
         ]);
+        if(chatArray.length === 0){
+          console.log("Fetching initial questions");
+          generateSuggestions();
+        }
       }
     }
     } );
@@ -142,6 +154,72 @@ export function AIProjectGenerationChat() {
       });
     }
   }, [rpcClient]);
+
+  interface ApiResponse {
+    event: string;
+    error: string | null;
+    questions: string[];
+  }
+
+
+  useEffect(() => {
+    console.log("Suggestions: " + isSuggestionLoading);
+  } , [isSuggestionLoading]);
+
+  async function generateSuggestions() {
+    setIsSuggestionLoading(true); // Set loading state to true at the start
+    const url = MI_SUGGESTIVE_QUESTIONS_BACKEND_URL;
+    var view = ""
+    var context: GetWorkspaceContextResponse[] = [];
+    //Get machine view
+    const machineView = await rpcClient.getAIVisualizerState();
+      switch (machineView?.view) {
+          case AI_MACHINE_VIEW.AIOverview:
+              view = "Overview";
+              break;
+          case AI_MACHINE_VIEW.AIArtifact:
+              view = "Artifact";
+              break;
+          default:
+            view = "Overview";
+            console.log("default");  
+      }
+      if(view == "Overview"){
+            await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
+              context = [response]; // Wrap the response in an array
+            } );
+      }else if(view == "Artifact"){
+            await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
+              context = [response]; // Wrap the response in an array
+            } );
+      }
+      console.log(JSON.stringify({messages: chatArray, context : context[0].context}));
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({messages: chatArray, context : context[0].context, num_suggestions:1, type: "artifact_gen" }),
+    });
+    if (!response.ok) {
+        throw new Error("Failed to fetch initial questions");
+    }
+    const data = await response.json() as ApiResponse;
+    if (data.event === "suggestion_generation_success") {
+        // Extract questions from the response
+        const initialQuestions = data.questions.map(question => ({
+            role: "",
+            content: question,
+            type: "question"
+        }));
+        // Update the state with the fetched questions
+        setMessages(prevMessages => [...prevMessages, ...initialQuestions]);
+    } else {
+        throw new Error("Failed to generate suggestions: " + data.error);
+    }
+    setIsSuggestionLoading(false); // Set loading state to false after fetch is successful
+   }
+
 
   async function handleSend (isQuestion: boolean = false) {
     var context: GetWorkspaceContextResponse[] = [];
@@ -290,12 +368,8 @@ export function AIProjectGenerationChat() {
 
         //clear the local storage
         localStorage.removeItem(`chatArray-AIGenerationChat-${projectUuid}`);
-
-
-
-
+        localStorage.removeItem(`Question-AIGenerationChat-${projectUuid}`);
   }
-
 
   function splitContent(content: string) {
     const segments = [];
@@ -350,10 +424,12 @@ export function AIProjectGenerationChat() {
     setMessages((prevMessages) => [
       { role: "", content: "Welcome to the AI Powered Generation and Editing Tool. You may use this tool to generate entirely new Artifacts or to do changes to existing artifacts simply using text based prompts. The context of your generation shall always be the window you have currenly opened.", type: "label" },
       { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
-      { role: "" , content: "Generate a Sample Hello World API", type: "question"},
-      { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
-      { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
+      // { role: "" , content: "Generate a Sample Hello World API", type: "question"},
+      // { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
+      // { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
     ]);
+
+    generateSuggestions();
 
     //clear the local storage
     localStorage.removeItem(`chatArray-AIGenerationChat-${projectUuid}`);
@@ -361,10 +437,13 @@ export function AIProjectGenerationChat() {
   }
 
   const questionMessages = messages.filter(message => message.type === "question");
+  if(questionMessages.length > 0){
+    localStorage.setItem(`Question-AIGenerationChat-${projectUuid}`, questionMessages[questionMessages.length-1].content);
+  }
   const otherMessages = messages.filter(message => message.type !== "question");
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "90%", width: "100%", margin: "auto" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", width: "100%", margin: "auto" }}>
       <div style={{ flex: 1, overflowY: "auto", padding: "10px", borderBottom: "1px solid #ccc" }}>
       <div style={{ textAlign: "right" }}>
           <Icon
@@ -410,7 +489,12 @@ export function AIProjectGenerationChat() {
        <div ref={messagesEndRef} />
       </div>
 
-      <div style={{ paddingTop: "15px", marginLeft: "10px" }}>
+        <div style={{ paddingTop: "15px", marginLeft: "10px" }}>
+        {isSuggestionLoading && (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          Generating suggestions for you... &nbsp;&nbsp; <ProgressRing sx={{position: "relative"}}/>
+                        </div>
+          )}
           {questionMessages.map((message, index) => (
             <div key={index} style={{ marginBottom: "5px" }}>
               <a

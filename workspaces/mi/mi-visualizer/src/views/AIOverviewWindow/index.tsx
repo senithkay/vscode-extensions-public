@@ -35,6 +35,7 @@ export function AIOverviewWindow() {
             fontFamily: "var(--font-family)",
             fontSize: "var(--type-ramp-base-font-size)",
             width: "300px",
+            marginTop: "6%"
           }}
         />
 
