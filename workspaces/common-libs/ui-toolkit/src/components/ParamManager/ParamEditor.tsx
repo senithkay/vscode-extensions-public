@@ -27,7 +27,7 @@ export function ParamEditor(props: ParamProps) {
     const { parameters, onChange, onSave, onCancel } = props;
 
     const getParamComponent = (p: Param) => {
-        const handleTypeResoverChange = (newParam: Param) => {
+        const handleTypeResolverChange = (newParam: Param) => {
             // update the params array base on the id of the param with the new param
             const updatedParams = parameters.parameters.map(param => {
                 if (param.id === newParam.id) {
@@ -35,9 +35,64 @@ export function ParamEditor(props: ParamProps) {
                 }
                 return param;
             });
-            onChange({ ...parameters, parameters: updatedParams });
+
+            const paramEnabled = updatedParams.map(param => {
+                if (param.enableCondition === null || param.enableCondition) {
+                    const enableCondition = param.enableCondition;
+                    let paramEnabled = false;
+                    enableCondition["OR"]?.forEach(item => {
+                        updatedParams.forEach(par => {
+                            if (item[`${par.label}`]) {
+                                const satisfiedConditionValue = item[`${par.label}`];
+                                // if one of the condition is satisfied, then the param is enabled
+                                if (par.value === satisfiedConditionValue) {
+                                    paramEnabled = true;
+                                }
+                                
+                            }
+                        });
+                    });
+                    enableCondition["AND"]?.forEach(item => {
+                        paramEnabled = !paramEnabled ? false : paramEnabled; 
+                        for (const par of updatedParams) {
+                            if (item[`${par.label}`]) {
+                                const satisfiedConditionValue = item[`${par.label}`];
+                                // if all of the condition is not satisfied, then the param is enabled
+                                paramEnabled = (par.value === satisfiedConditionValue);
+                                if (!paramEnabled) {
+                                    break;
+                                }
+                            }
+                        }
+                    });
+                    enableCondition["NOT"]?.forEach(item => {
+                        for (const par of updatedParams) {
+                            if (item[`${par.label}`]) {
+                                const satisfiedConditionValue = item[`${par.label}`];
+                                // if the condition is not satisfied, then the param is enabled
+                                paramEnabled = !(par.value === satisfiedConditionValue);
+                                if (!paramEnabled) {
+                                    break;
+                                }
+                            }
+                        }
+                    });
+                    enableCondition["null"]?.forEach(item => {
+                        updatedParams.forEach(par => {
+                            if (item[`${par.label}`]) {
+                                const satisfiedConditionValue = item[`${par.label}`];
+                                // if the condition is not satisfied, then the param is enabled
+                                paramEnabled = (par.value === satisfiedConditionValue);
+                            }
+                        });
+                    });
+                    return {...param, isEnabled: paramEnabled};
+                }
+                return param;
+            });
+            onChange({ ...parameters, parameters: paramEnabled });
         }
-        return <TypeResolver param={p} onChange={handleTypeResoverChange} />;        
+        return <TypeResolver param={p} onChange={handleTypeResolverChange} />;
     }
 
     const handleOnCancel = () => {
@@ -51,7 +106,7 @@ export function ParamEditor(props: ParamProps) {
     return (
         <EditorContainer>
             <EditorContent>
-                {parameters.parameters.map(param => getParamComponent(param))}
+                {parameters?.parameters.map(param => getParamComponent(param))}
             </EditorContent>
             <ActionButtons
                 primaryButton={{ text: "Save", onClick: handleOnSave }}
