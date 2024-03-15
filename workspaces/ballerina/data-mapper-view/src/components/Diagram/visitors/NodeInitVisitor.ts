@@ -846,6 +846,29 @@ export class NodeInitVisitor implements Visitor {
         }
     }
 
+    // TODO: Update the syntax tree interfaces to include the result clause
+    beginVisitSTNode(node: STNode, parent?: STNode): void {
+        if (node?.kind && node.kind === "CollectClause") {
+            const innerExpr = getInnermostExpressionBody((node as SelectClause).expression);
+            if (this.isWithinQuery === 0
+                && !STKindChecker.isMappingConstructor(innerExpr)
+                && !STKindChecker.isListConstructor(innerExpr)) {
+                const inputNodes = getInputNodes(innerExpr);
+                if (inputNodes.length > 1) {
+                    const linkConnectorNode = new LinkConnectorNode(
+                        this.context,
+                        innerExpr,
+                        "",
+                        parent,
+                        inputNodes,
+                        [...this.mapIdentifiers, innerExpr]
+                    );
+                    this.intermediateNodes.push(linkConnectorNode);
+                }
+            }
+        }
+    }
+
     beginVisitExpressionFunctionBody(node: ExpressionFunctionBody, parent?: STNode): void {
         const expr = getInnermostExpressionBody(node.expression);
         if (!STKindChecker.isMappingConstructor(expr)
