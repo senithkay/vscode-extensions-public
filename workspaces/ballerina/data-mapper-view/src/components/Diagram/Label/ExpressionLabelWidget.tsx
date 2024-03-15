@@ -168,7 +168,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         });
     };
 
-    const applyQueryExprWithSelect = (linkModel: DataMapperLinkModel, targetRecord: TypeField, clause: ClauseType) => {
+    const applyQueryExpr = (linkModel: DataMapperLinkModel, targetRecord: TypeField, clause: ClauseType) => {
         if (linkModel.value
             && (STKindChecker.isFieldAccess(linkModel.value) || STKindChecker.isSimpleNameReference(linkModel.value))) {
 
@@ -252,11 +252,11 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         if (targetPort instanceof RecordFieldPortModel) {
             const targetPortField = targetPort.field;
             if (targetPortField.typeName === PrimitiveBalType.Array && targetPortField?.memberType) {
-                applyQueryExprWithSelect(link, targetPortField.memberType, ClauseType.Select);
+                applyQueryExpr(link, targetPortField.memberType, ClauseType.Select);
             } else if (targetPortField.typeName === PrimitiveBalType.Union){
                 const [type] = getFilteredUnionOutputTypes(targetPortField);
                 if (type.typeName === PrimitiveBalType.Array && type.memberType) {
-                    applyQueryExprWithSelect(link, type.memberType, ClauseType.Select);
+                    applyQueryExpr(link, type.memberType, ClauseType.Select);
                 }
             }
         }
@@ -270,10 +270,10 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
             if (targetPortField.typeName === PrimitiveBalType.Union){
                 const [type] = getFilteredUnionOutputTypes(targetPortField);
                 if (type.typeName === PrimitiveBalType.Array && type.memberType) {
-                    applyQueryExprWithSelect(link, type.memberType, ClauseType.Collect);
+                    applyQueryExpr(link, type.memberType, ClauseType.Collect);
                 }
             } else {
-                applyQueryExprWithSelect(link, targetPortField, ClauseType.Collect);
+                applyQueryExpr(link, targetPortField, ClauseType.Collect);
             }
         }
     };

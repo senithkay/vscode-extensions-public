@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
-import { TypeField } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { DataMapperLinkModel } from "../../Link";
@@ -25,12 +25,19 @@ import {
 import { IntermediatePortModel } from "../IntermediatePort";
 import { DataMapperNodeModel } from "../../Node/commons/DataMapperNode";
 import { QueryExprMappingType } from "../../Node";
+import { FromClauseNode } from "../../Node/FromClause";
 
 export interface RecordFieldNodeModelGenerics {
 	PORT: RecordFieldPortModel;
 }
 
 export const FORM_FIELD_PORT = "form-field-port";
+
+enum ValueType {
+	Default,
+	Empty,
+	NonEmpty
+}
 
 export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFieldNodeModelGenerics> {
 
@@ -66,27 +73,32 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 				// lm.addLabel(evt.port.getName() + " = " + lm.getTargetPort().getName());
 			},
 			targetPortChanged: (async () => {
+				const sourcePort = lm.getSourcePort();
 				const targetPort = lm.getTargetPort();
 				const targetPortHasLinks = Object.values(targetPort.links)
 					?.some(link => (link as DataMapperLinkModel)?.isActualLink);
-				
-				const { position, mappingType, stNode } = (targetPort.getNode() as DataMapperNodeModel)
-					.context.selection.selectedST;
-				const hasDefaultValue = this.isContainDefaultValue(lm);
 
-				if (hasDefaultValue) {
+				const targetNode = targetPort.getNode() as DataMapperNodeModel;
+				const { position, mappingType, stNode } = targetNode.context.selection.selectedST;
+				const valueType = this.getValueType(lm);
+
+				if (mappingType === QueryExprMappingType.A2SWithCollect && valueType !== ValueType.Empty) {
 					const modifications = [];
-					const sourcePort = lm.getSourcePort();
 					let sourceField = sourcePort && sourcePort instanceof RecordFieldPortModel && sourcePort.fieldFQN;
-					if (mappingType === QueryExprMappingType.A2SWithCollect) {
-						const fieldParts = sourceField.split('.');
-						// by default, use the sum operator to aggregate the values
-						sourceField = `sum(${fieldParts[fieldParts.length - 1]})`;
+					const fieldParts = sourceField.split('.');
+					if ((sourcePort.getParent() as FromClauseNode).typeDef.typeName === PrimitiveBalType.Record) {
 						const bindingPatternSrc = generateDestructuringPattern(fieldParts.slice(1).join('.'));
 						modifications.push(
-							getModificationForFromClauseBindingPattern(position, bindingPatternSrc, stNode)
+							getModificationForFromClauseBindingPattern(position, bindingPatternSrc, stNode),
 						);
 					}
+					// by default, use the sum operator to aggregate the values
+					sourceField = `sum(${fieldParts[fieldParts.length - 1]})`;
+					modifications.push(getModificationForSpecificFieldValue(lm, sourceField));
+					replaceSpecificFieldValue(lm, modifications);
+				} else if (valueType === ValueType.Default) {
+					const modifications = [];
+					let sourceField = sourcePort && sourcePort instanceof RecordFieldPortModel && sourcePort.fieldFQN;
 					modifications.push(getModificationForSpecificFieldValue(lm, sourceField));
 					replaceSpecificFieldValue(lm, modifications);
 				} else if (targetPortHasLinks) {
@@ -132,7 +144,7 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 				&& ((port instanceof IntermediatePortModel) || (!port.isDisabled()));
 	}
 
-	isContainDefaultValue(lm: DataMapperLinkModel): boolean {
+	getValueType(lm: DataMapperLinkModel): ValueType {
 		const editableRecordField = (lm.getTargetPort() as RecordFieldPortModel).editableRecordField;
 
 		if (editableRecordField?.value) {
@@ -142,9 +154,11 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 			}
 			const innerExpr = getInnermostExpressionBody(expr);
 			const value: string = innerExpr?.value || innerExpr?.source;
-			return isDefaultValue(editableRecordField.type, value);
+			if (value !== undefined) {
+				return isDefaultValue(editableRecordField.type, value) ? ValueType.Default : ValueType.NonEmpty;
+			}
 		}
 
-		return false;
+		return ValueType.Empty;
 	}
 }

@@ -188,8 +188,8 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             });
         } else if (isSelectClauseQuery || isRepresentFnBody(this.parentNode, exprFuncBody)) {
             this.getModel().getNodes().forEach((node) => {
+                const ports = Object.entries(node.getPorts());
                 if (node instanceof ListConstructorNode) {
-                    const ports = Object.entries(node.getPorts());
                     ports.map((entry) => {
                         const port = entry[1];
                         if (port instanceof RecordFieldPortModel
@@ -203,11 +203,20 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                         }
                     });
                 } else if (node instanceof UnionTypeNode) {
-                    const ports = Object.entries(node.getPorts());
                     ports.map((entry) => {
                         const port = entry[1];
                         if (port instanceof RecordFieldPortModel
                             && port.portName === `${UNION_TYPE_TARGET_PORT_PREFIX}`
+                            && port.portType === 'IN'
+                        ) {
+                            this.targetPort = port;
+                        }
+                    });
+                } else if (node instanceof PrimitiveTypeNode) {
+                    ports.map((entry) => {
+                        const port = entry[1];
+                        if (port instanceof RecordFieldPortModel
+                            && port.portName === `${PRIMITIVE_TYPE_TARGET_PORT_PREFIX}.${node.recordField.type.typeName}`
                             && port.portType === 'IN'
                         ) {
                             this.targetPort = port;

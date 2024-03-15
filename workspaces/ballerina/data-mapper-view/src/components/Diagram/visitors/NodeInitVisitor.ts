@@ -385,9 +385,12 @@ export class NodeInitVisitor implements Visitor {
                                 returnType
                             );
                         } else {
+                            const body = STKindChecker.isIndexedExpression(exprFuncBody.expression)
+                                ? exprFuncBody.expression.containerExpression
+                                : exprFuncBody;
                             this.outputNode = new PrimitiveTypeNode(
                                 this.context,
-                                (exprFuncBody.expression as any).containerExpression as any,
+                                body as any,
                                 typeDesc,
                                 returnType
                             );
