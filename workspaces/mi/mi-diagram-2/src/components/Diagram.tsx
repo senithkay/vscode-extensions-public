@@ -18,7 +18,7 @@ import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { MediatorNodeModel } from "./nodes/MediatorNode/MediatorNodeModel";
 import { NodeLinkModel } from "./NodeLink/NodeLinkModel";
 import { SidePanelProvider } from "./sidePanel/SidePanelContexProvider";
-import { SidePanel, NavigationWrapperCanvasWidget, Switch } from '@wso2-enterprise/ui-toolkit'
+import { SidePanel, NavigationWrapperCanvasWidget } from '@wso2-enterprise/ui-toolkit'
 import SidePanelList from './sidePanel';
 import { OverlayLayerModel } from "./OverlayLoader/OverlayLayerModel";
 import styled from "@emotion/styled";
@@ -26,8 +26,6 @@ import { Colors } from "../resources/constants";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
 import { Diagnostic } from "vscode-languageserver-types";
-import { EditAPIForm, EditResourceForm } from "./Forms/EditResourceForm";
-import { EditSequenceForm } from "./Forms/EditSequenceForm";
 import { DiagramService, EditableService, ProxyTarget } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NodeKindChecker } from "../utils/form";
 
@@ -35,6 +33,10 @@ export interface DiagramProps {
     model: DiagramService;
     documentUri: string;
     diagnostics?: Diagnostic[];
+
+    // Callbacks for the diagram view
+    isFaultFlow?: boolean;
+    isFormOpen?: boolean;
 }
 
 export enum DiagramType {
@@ -63,17 +65,10 @@ namespace S {
 export const SIDE_PANEL_WIDTH = 450;
 
 export function Diagram(props: DiagramProps) {
-    const { model, diagnostics } = props;
+    const { model, diagnostics, isFaultFlow, isFormOpen } = props;
     const [diagramDataMap, setDiagramDataMap] = useState(new Map());
     const { rpcClient } = useVisualizerContext();
-    const [isTabPaneVisible, setTabPaneVisible] = useState(true);
-    const [isSequence, setSequence] = useState(false);
-    const [isFaultFlow, setFlow] = useState(false);
-    const [canvasDimensions, setCanvasDimensions] = useState({ width: 0, height: 0 });
-
-    const toggleFlow = () => {
-        setFlow(!isFaultFlow);
-    };
+    const [canvasDimensions, setCanvasDimensions] = useState({ width: 0, height: 0 }); 
 
     const [diagramData, setDiagramData] = useState({
         flow: {
@@ -98,11 +93,7 @@ export function Diagram(props: DiagramProps) {
         mediator: "",
         formValues: {},
         title: "",
-        // Service related
-        isOpenResource: false,
-        isOpenSequence: false,
-        serviceData: {},
-        onServiceEdit: () => {}
+        isFormOpen: false,
     });
 
     useEffect(() => {
@@ -113,16 +104,7 @@ export function Diagram(props: DiagramProps) {
         const STNode: EditableService = NodeKindChecker.isProxy(model) ? model.descriptionOrTargetOrPublishWSDL[0] : model;
 
         const modelCopy = structuredClone(model);
-        if (NodeKindChecker.isProxy(modelCopy)) {
-            delete modelCopy.descriptionOrTargetOrPublishWSDL[0].faultSequence;
-        } else {
-            delete (modelCopy as ServiceWithSequences).faultSequence;
-        }
-
-        if (!NodeKindChecker.isAPIResource(model) && !NodeKindChecker.isProxy(model)) {
-            setTabPaneVisible(false);
-            setSequence(true);
-        }
+        delete (modelCopy as ServiceWithSequences).faultSequence;
 
         const key = JSON.stringify((STNode as ServiceWithSequences).inSequence) + JSON.stringify((STNode as ServiceWithSequences).outSequence);
 
@@ -183,15 +165,14 @@ export function Diagram(props: DiagramProps) {
         } else {
             centerDiagram(true, faultModel, faultEngine, faultWidth);
         }
-
-        if (!isSequence) {
-            setTabPaneVisible(!sidePanelState.isOpen && !sidePanelState.isOpenResource && !sidePanelState.isOpenSequence);
-        }
-    }, [sidePanelState.isOpen, sidePanelState.isOpenResource, sidePanelState.isOpenSequence]);
+        
+    }, [sidePanelState.isOpen, isFormOpen]);
 
     useEffect(() => {
-        setTabPaneVisible(!isSequence);
-    }, [isSequence]);
+        if (!isFormOpen) {
+            setSidePanelState({ ...sidePanelState, isFormOpen: false });
+        }
+    }, [isFormOpen]);
 
     const updateDiagramData = (data: DiagramData[]) => {
         const updatedDiagramData: any = {};
@@ -266,7 +247,6 @@ export function Diagram(props: DiagramProps) {
             const canvasBounds = diagramEngine.getCanvas().getBoundingClientRect();
 
             const currentOffsetX = diagramEngine.getModel().getOffsetX();
-            const isFormOpen = sidePanelState.isOpenResource || sidePanelState.isOpenSequence;
             const offsetAdj = sidePanelState.isOpen || isFormOpen ? (SIDE_PANEL_WIDTH - 25) : 0;
             const offsetX = + ((canvasBounds.width - diagramWidth - offsetAdj) / 2);
 
@@ -306,24 +286,6 @@ export function Diagram(props: DiagramProps) {
                     ...sidePanelState,
                     setSidePanelState,
                 }}>
-                    {isTabPaneVisible &&
-                        <div style={{
-                            width: canvasDimensions.width,
-                            minWidth: "100%",
-                        }}>
-                            <Switch
-                                leftLabel="Flow"
-                                rightLabel="Fault"
-                                checked={isFaultFlow}
-                                checkedColor="var(--vscode-button-background)"
-                                enableTransition={true}
-                                onChange={toggleFlow}
-                                sx={{
-                                    "margin": "auto",
-                                    fontFamily: "var(--font-family)",
-                                    fontSize: "var(--type-ramp-base-font-size)",
-                                }}
-                            /></div>}
                     {/* Flow */}
                     {diagramData.flow.engine && diagramData.flow.model && !isFaultFlow &&
                         <DiagramCanvas height={canvasDimensions.height + 100} width={canvasDimensions.width}>
@@ -355,26 +317,6 @@ export function Diagram(props: DiagramProps) {
                     >
                         <SidePanelList nodePosition={sidePanelState.nodeRange} documentUri={props.documentUri} />
                     </SidePanel>}
-
-                    {/* Edit forms */}
-                    {sidePanelState?.isOpenResource && (
-                        <EditResourceForm
-                            isOpen={sidePanelState.isOpenResource}
-                            resourceData={sidePanelState.serviceData as EditAPIForm}
-                            documentUri={props.documentUri}
-                            onCancel={() => setSidePanelState({ ...sidePanelState, isOpenResource: false })}
-                            onEdit={sidePanelState.onServiceEdit}
-                        />
-                    )}
-
-                    {sidePanelState?.isOpenSequence && (
-                        <EditSequenceForm
-                            isOpen={sidePanelState.isOpenSequence}
-                            sequenceData={sidePanelState.serviceData as EditSequenceForm}
-                            onCancel={() => setSidePanelState({ ...sidePanelState, isOpenSequence: false })}
-                            onEdit={sidePanelState.onServiceEdit}
-                        />
-                    )}
                 </SidePanelProvider>
             </S.Container >
         </>

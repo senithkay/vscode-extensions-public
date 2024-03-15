@@ -14,7 +14,7 @@ import { FieldGroup, SectionWrapper } from "./Commons";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getXML } from "../../utils/template-engine/mustache-templates/templateUtils";
-import { SERVICE_DESIGNER } from "../../constants";
+import { SERVICE } from "../../constants";
 
 const WizardContainer = styled.div`
     display: flex;
@@ -128,7 +128,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 version_type: versionType,
                 version: version
             }
-            const xml = getXML(SERVICE_DESIGNER.EDIT_SERVICE, formValues);
+            const xml = getXML(SERVICE.EDIT_SERVICE, formValues);
             rpcClient.getMiDiagramRpcClient().applyEdit({
                 text: xml,
                 documentUri: path,
