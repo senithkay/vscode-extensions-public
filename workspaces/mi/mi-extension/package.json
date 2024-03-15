@@ -39,16 +39,18 @@
         "type": "mi",
         "label": "MI: Run",
         "runtime": "node",
-
+        "languages": [
+          "SynapseXml"
+        ],
         "configurationAttributes": {
           "launch": {}
         },
         "initialConfigurations": [
-            {
-                "type": "mi",
-                "name": "MI: Run",
-                "request": "launch"
-            }     
+          {
+            "type": "mi",
+            "name": "MI: Run",
+            "request": "launch"
+          }
         ]
       }
     ],
