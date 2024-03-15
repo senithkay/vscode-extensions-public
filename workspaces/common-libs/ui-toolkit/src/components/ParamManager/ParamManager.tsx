@@ -21,6 +21,20 @@ export interface Parameters {
     parameters: Param[];
 }
 
+export interface ConditionParams {
+    [key: string]: string;
+}
+
+// enum ConditionType {
+//     OR = "OR",
+//     AND = "AND",
+//     NOT = "NOT"
+// }
+
+export interface EnableCondition {
+    [key: string]: ConditionParams[];
+}
+
 export interface ParamField {
     id?: number;
     type: "TextField" | "Dropdown" | "Checkbox" | "TextArea";
@@ -28,6 +42,7 @@ export interface ParamField {
     defaultValue: string | boolean;
     isRequired?: boolean;
     values?: string[]; // For Dropdown
+    enableCondition?: (ConditionParams | string)[];
 }
 
 export interface ParamConfig {
@@ -45,6 +60,35 @@ const AddButtonWrapper = styled.div`
 	margin: 8px 0;
 `;
 
+export function convertToObject(input: (ConditionParams | string)[]): EnableCondition {
+    if (!input) {
+        return null;
+    }
+    const result: EnableCondition = {};
+    let currentKey: string | null = null;
+    let currentValues: ConditionParams[] = [];
+
+    for (const item of input) {
+        if (typeof item === 'string') {
+            if (currentValues.length > 0) {
+                result[currentKey!] = currentValues;
+                currentValues = [];
+            }
+            currentKey = item;
+        } else {
+            if (!currentKey) {
+                currentKey = null;
+            }
+            currentValues.push(item);
+        }
+    }
+    if (currentValues.length > 0) {
+        result[currentKey!] = currentValues;
+    }
+    console.log(result);
+    return result;
+}
+
 const getNewParam = (fields: ParamField[], index: number): Parameters => {
     const paramInfo: Param[] = [];
     fields.forEach((field, index) => {
@@ -55,6 +99,7 @@ const getNewParam = (fields: ParamField[], index: number): Parameters => {
             value: field.defaultValue,
             values: field.values,
             isRequired: field.isRequired            
+            enableCondition: field.enableCondition ? convertToObject(field.enableCondition) : undefined
         });
     });
     return {
@@ -62,6 +107,10 @@ const getNewParam = (fields: ParamField[], index: number): Parameters => {
         parameters: paramInfo
     };
 };
+
+export function findFieldFromParam(field: ParamField[], value: Param): ParamField {
+    return field?.find(item => item.label === value?.label) || null;
+}
 
 export function ParamManager(props: ParamManagerProps) {
     const { paramConfigs , readonly, onChange } = props;
