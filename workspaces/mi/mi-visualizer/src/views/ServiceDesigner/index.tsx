@@ -13,13 +13,13 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
 import { Item } from "@wso2-enterprise/ui-toolkit";
 import { Position } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { AddAPIFormProps, AddResourceForm, Method } from "../Forms/AddResourceForm";
-import { SERVICE_DESIGNER } from "../../constants";
+import { AddAPIFormProps, AddResourceForm } from "../Forms/AddResourceForm";
 import { getXML } from "../../utils/template-engine/mustache-templates/templateUtils";
 import { APIData, APIWizardProps } from "../Forms/APIform";
 import { View, ViewHeader, ViewContent } from "../../components/View";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { SERVICE } from "../../constants";
 
 
 
@@ -137,7 +137,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
             url_mapping: urlMapping,
         };
 
-        const xml = getXML(SERVICE_DESIGNER.ADD_RESOURCE, formValues);
+        const xml = getXML(SERVICE.ADD_RESOURCE, formValues);
         rpcClient.getMiDiagramRpcClient().applyEdit({
             text: xml,
             documentUri: documentUri,

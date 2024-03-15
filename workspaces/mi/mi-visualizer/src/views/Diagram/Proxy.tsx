@@ -8,11 +8,10 @@
  */
 import React from "react";
 import { Diagnostic } from "vscode-languageserver-types";
-import { Proxy } from "@wso2-enterprise/mi-syntax-tree/src";
+import { Proxy } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { Diagram } from "@wso2-enterprise/mi-diagram-2";
 import { DiagramService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { Switch } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 
 export interface ProxyViewProps {
@@ -33,22 +32,20 @@ export const ProxyView = ({ model: ProxyModel, documentUri, diagnostics }: Proxy
     return (
         <View>
             <ViewHeader title="Proxy View" codicon="globe">
-                {isTabPaneVisible && (
-                    <Switch
-                        leftLabel="Flow"
-                        rightLabel="Fault"
-                        checked={isFaultFlow}
-                        checkedColor="var(--vscode-button-background)"
-                        enableTransition={true}
-                        onChange={toggleFlow}
-                        sx={{
-                            "margin": "auto",
-                            fontFamily: "var(--font-family)",
-                            fontSize: "var(--type-ramp-base-font-size)",
-                        }}
-                        disabled={false}
-                    />
-                )}
+                <Switch
+                    leftLabel="Flow"
+                    rightLabel="Fault"
+                    checked={isFaultFlow}
+                    checkedColor="var(--vscode-button-background)"
+                    enableTransition={true}
+                    onChange={toggleFlow}
+                    sx={{
+                        "margin": "auto",
+                        fontFamily: "var(--font-family)",
+                        fontSize: "var(--type-ramp-base-font-size)",
+                    }}
+                    disabled={false}
+                />
             </ViewHeader>
             <ViewContent>
                 <Diagram
@@ -56,7 +53,6 @@ export const ProxyView = ({ model: ProxyModel, documentUri, diagnostics }: Proxy
                     documentUri={documentUri}
                     diagnostics={diagnostics}
                     isFaultFlow={isFaultFlow}
-                    setTabPaneVisible={setTabPaneVisible}
                 />
             </ViewContent>
         </View>

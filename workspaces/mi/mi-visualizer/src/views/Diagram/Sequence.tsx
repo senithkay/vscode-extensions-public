@@ -8,10 +8,10 @@
  */
 import React from "react";
 import { Diagnostic } from "vscode-languageserver-types";
-import { NamedSequence } from "@wso2-enterprise/mi-syntax-tree/src";
+import { NamedSequence } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { Diagram } from "@wso2-enterprise/mi-diagram-2";
 import { DiagramService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { Switch } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 import { generateSequenceData, onSequenceEdit } from "../../utils/form";
@@ -27,29 +27,38 @@ export const SequenceView = ({ model: SequenceModel, documentUri, diagnostics }:
     const { rpcClient } = useVisualizerContext();
     const model = SequenceModel as NamedSequence;
     const data = generateSequenceData(model) as EditSequenceForm
-    const [isOpenForm, setOpenForm] = React.useState(false);;
+    const [isFormOpen, setFormOpen] = React.useState(false);
 
-    const editSequence = (data: EditSequenceForm) => {
+    const handleEditSequence = () => {
+        setFormOpen(true);
+    }
+
+    const onSave = (data: EditSequenceForm) => {
         onSequenceEdit(data, model.range.startTagRange, documentUri, rpcClient);
     }
     
     return (
         <View>
             <ViewHeader title="Sequence View" codicon="globe">
-                <></>
+                {!isFormOpen && (
+                    <Button appearance="icon" onClick={handleEditSequence}>
+                        <Codicon name="edit" sx={{ marginRight: 5 }} />
+                        Edit
+                    </Button>
+                )}
             </ViewHeader>
             <ViewContent>
                 <Diagram
                     model={model}
                     documentUri={documentUri}
                     diagnostics={diagnostics}
-                    onFormOpen={() => setOpenForm(true)}
+                    isFormOpen={isFormOpen}
                 />
                 <EditSequenceForm
-                    isOpen={isOpenForm}
+                    isOpen={isFormOpen}
                     sequenceData={data}
-                    onCancel={() => setOpenForm(false)}
-                    onEdit={editSequence}
+                    onCancel={() => setFormOpen(false)}
+                    onSave={onSave}
                 />
             </ViewContent>
         </View>

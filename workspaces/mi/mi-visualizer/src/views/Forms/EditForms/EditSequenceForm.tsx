@@ -35,7 +35,7 @@ export type ResourceProps = {
     isOpen: boolean;
     sequenceData: EditSequenceForm;
     onCancel: () => void;
-    onEdit: (data: EditSequenceForm) => void;
+    onSave: (data: EditSequenceForm) => void;
 };
 
 const ActionContainer = styled.div`
@@ -53,7 +53,7 @@ const SidePanelBodyWrapper = styled.div`
     padding: 20px;
 `;
 
-export function EditSequenceForm({ sequenceData, isOpen, onCancel, onEdit }: ResourceProps) {
+export function EditSequenceForm({ sequenceData, isOpen, onCancel, onSave }: ResourceProps) {
     const [name, setName] = useState<string>(sequenceData.name);
     const [trace, setTrace] = useState<boolean>(sequenceData.trace);
     const [statistics, setStatistics] = useState<boolean>(sequenceData.statistics);
@@ -103,7 +103,7 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onEdit }: Res
                         <Button
                             appearance="primary"
                             onClick={() =>
-                                onEdit({
+                                onSave({
                                     name,
                                     trace,
                                     statistics,
