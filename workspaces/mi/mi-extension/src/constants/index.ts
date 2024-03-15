@@ -24,3 +24,4 @@ export const COMMANDS = {
 };
 
 export const SELECTED_SERVER_PATH = "selected-server-path";
+export const PORTS_TO_CHECK = [8290, 8253];
