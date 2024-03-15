@@ -9,8 +9,7 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
-import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
+import { Button, ComponentCard, ParamConfig, ParamManager, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -44,18 +43,130 @@ const CommandForm = (props: AddMediatorProps) => {
     const [formValues, setFormValues] = useState({} as { [key: string]: any });
     const [errors, setErrors] = useState({} as any);
 
+    const paramConfigs: ParamConfig = {
+        paramValues: [],
+        paramFields: [
+            {
+                type: "TextField",
+                label: "propertyName",
+                defaultValue: "Name",
+                isRequired: true
+            },
+            {
+                type: "Dropdown",
+                label: "valueType",
+                defaultValue: "LITERAL",
+                isRequired: true,
+                values: ["LITERAL", "MESSAGE_ELEMENT", "CONTEXT_PROPERTY"]
+            },
+            {
+                type: "TextField",
+                label: "valueLiteral",
+                defaultValue: "value",
+                isRequired: false
+            },
+            {
+                type: "Dropdown",
+                label: "messageAction",
+                defaultValue: "ReadContext",
+                isRequired: false,
+                values: ["ReadContext", "UpdateContext", "ReadAndUpdateContext"]
+            },
+            {
+                type: "TextField",
+                label: "valueMessageElementXpath",
+                defaultValue: "value",
+                isRequired: false
+            },
+            {
+                type: "TextField",
+                label: "valueContextPropertyName",
+                defaultValue: "value",
+                isRequired: false
+            },
+            {
+                type: "Dropdown",
+                label: "contextAction",
+                defaultValue: "LITERAL",
+                isRequired: false,
+                values: ["ReadContext", "UpdateContext", "ReadAndUpdateContext"]
+            }]
+    };
+
+    const [params, setParams] = useState(paramConfigs);
+
+    const handleOnChange = (params: any) => {
+        setParams(params);
+    };
+
     useEffect(() => {
         if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-            setFormValues({
-                ...formValues, ...sidePanelContext.formValues, "valueType": "LITERAL", "messageAction": "ReadMessage",
-                "contextAction": "ReadContext"
-            });
+            setFormValues({ ...formValues, ...sidePanelContext.formValues });
+            if (sidePanelContext.formValues["properties"] && sidePanelContext.formValues["properties"].length > 0) {
+                const paramValues = sidePanelContext.formValues["properties"].map((property: string, index: string) => (
+                    {
+                        id: index,
+                        parameters: [
+                            {
+                                id: 0,
+                                label: "propertyName",
+                                type: "TextField",
+                                value: property[0],
+                                isRequired: true
+                            },
+                            {
+                                id: 1,
+                                label: "valueType",
+                                type: "Dropdown",
+                                value: property[1],
+                                isRequired: true,
+                                values: ["LITERAL", "MESSAGE_ELEMENT", "CONTEXT_PROPERTY"]
+                            },
+                            {
+                                id: 2,
+                                label: "valueLiteral",
+                                type: "TextField",
+                                value: property[2],
+                                isRequired: false
+                            },
+                            {
+                                id: 3,
+                                label: "messageAction",
+                                type: "Dropdown",
+                                value: property[3],
+                                isRequired: false,
+                                values: ["ReadContext", "UpdateContext", "ReadAndUpdateContext"]
+                            },
+                            {
+                                id: 4,
+                                label: "valueMessageElementXpath",
+                                type: "TextField",
+                                value: property[4],
+                                isRequired: false,
+                            },
+                            {
+                                id: 5,
+                                label: "valueContextPropertyName",
+                                type: "TextField",
+                                value: property[5],
+                                isRequired: false,
+                            },
+                            {
+                                id: 6,
+                                label: "contextAction",
+                                type: "Dropdown",
+                                value: property[6],
+                                isRequired: false,
+                                values: ["ReadContext", "UpdateContext", "ReadAndUpdateContext"]
+                            }
+                        ]
+                    })
+                )
+                setParams({ ...params, paramValues: paramValues });
+            }
         } else {
             setFormValues({
                 "properties": [] as string[][],
-                "valueType": "LITERAL",
-                "messageAction": "ReadMessage",
-                "contextAction": "ReadContext",
             });
         }
     }, [sidePanelContext.formValues]);
@@ -68,6 +179,7 @@ const CommandForm = (props: AddMediatorProps) => {
                 newErrors[key] = (error);
             }
         });
+        formValues["properties"] = params.paramValues.map(param => param.parameters.slice(0, 7).map(p => p.value));
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
         } else {
@@ -88,13 +200,6 @@ const CommandForm = (props: AddMediatorProps) => {
 
     const formValidators: { [key: string]: (e?: any) => string | undefined } = {
         "className": (e?: any) => validateField("className", e, false),
-        "propertyName": (e?: any) => validateField("propertyName", e, false),
-        "valueType": (e?: any) => validateField("valueType", e, false),
-        "valueLiteral": (e?: any) => validateField("valueLiteral", e, false),
-        "messageAction": (e?: any) => validateField("messageAction", e, false),
-        "valueMessageElementXpath": (e?: any) => validateField("valueMessageElementXpath", e, false),
-        "valueContextPropertyName": (e?: any) => validateField("valueContextPropertyName", e, false),
-        "contextAction": (e?: any) => validateField("contextAction", e, false),
         "description": (e?: any) => validateField("description", e, false),
 
     };
@@ -143,174 +248,11 @@ const CommandForm = (props: AddMediatorProps) => {
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <h3>Properties</h3>
 
-                    <Field>
-                        <TextField
-                            label="Property Name"
-                            size={50}
-                            placeholder=""
-                            value={formValues["propertyName"]}
-                            onChange={(e: any) => {
-                                setFormValues({ ...formValues, "propertyName": e });
-                                formValidators["propertyName"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["propertyName"] && <Error>{errors["propertyName"]}</Error>}
-                    </Field>
-
-                    <Field>
-                        <label>Value Type</label>
-                        <AutoComplete items={["LITERAL", "MESSAGE_ELEMENT", "CONTEXT_PROPERTY"]} selectedItem={formValues["valueType"]} onChange={(e: any) => {
-                            setFormValues({ ...formValues, "valueType": e });
-                            formValidators["valueType"](e);
-                        }} />
-                        {errors["valueType"] && <Error>{errors["valueType"]}</Error>}
-                    </Field>
-
-                    {formValues["valueType"] && formValues["valueType"].toLowerCase() == "literal" &&
-                        <Field>
-                            <TextField
-                                label="Value Literal"
-                                size={50}
-                                placeholder=""
-                                value={formValues["valueLiteral"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "valueLiteral": e });
-                                    formValidators["valueLiteral"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["valueLiteral"] && <Error>{errors["valueLiteral"]}</Error>}
-                        </Field>
-                    }
-
-                    {formValues["valueType"] && formValues["valueType"].toLowerCase() == "message_element" &&
-                        <Field>
-                            <label>Message Action</label>
-                            <AutoComplete items={["ReadMessage", "UpdateMessage", "ReadAndUpdateMessage"]} selectedItem={formValues["messageAction"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "messageAction": e });
-                                formValidators["messageAction"](e);
-                            }} />
-                            {errors["messageAction"] && <Error>{errors["messageAction"]}</Error>}
-                        </Field>
-                    }
-
-                    {formValues["valueType"] && formValues["valueType"].toLowerCase() == "message_element" &&
-                        <Field>
-                            <TextField
-                                label="Value Message Element Xpath"
-                                size={50}
-                                placeholder=""
-                                value={formValues["valueMessageElementXpath"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "valueMessageElementXpath": e });
-                                    formValidators["valueMessageElementXpath"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["valueMessageElementXpath"] && <Error>{errors["valueMessageElementXpath"]}</Error>}
-                        </Field>
-                    }
-
-                    {formValues["valueType"] && formValues["valueType"].toLowerCase() == "context_property" &&
-                        <Field>
-                            <TextField
-                                label="Value Context Property Name"
-                                size={50}
-                                placeholder=""
-                                value={formValues["valueContextPropertyName"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "valueContextPropertyName": e });
-                                    formValidators["valueContextPropertyName"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["valueContextPropertyName"] && <Error>{errors["valueContextPropertyName"]}</Error>}
-                        </Field>
-                    }
-
-                    {formValues["valueType"] && formValues["valueType"].toLowerCase() == "context_property" &&
-                        <Field>
-                            <label>Context Action</label>
-                            <AutoComplete items={["ReadContext", "UpdateContext", "ReadAndUpdateContext"]} selectedItem={formValues["contextAction"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "contextAction": e });
-                                formValidators["contextAction"](e);
-                            }} />
-                            {errors["contextAction"] && <Error>{errors["contextAction"]}</Error>}
-                        </Field>
-                    }
-
-
-                    <div style={{ textAlign: "right", marginTop: "10px" }}>
-                        <Button appearance="primary" onClick={() => {
-                            if (formValues["valueType"].toLowerCase() == "literal") {
-                                if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("valueLiteral", formValues["valueLiteral"], true))) {
-                                    setFormValues({
-                                        ...formValues, "propertyName": undefined, "valueLiteral": undefined,
-                                        "properties": [...formValues["properties"], [formValues["propertyName"], formValues["valueType"], formValues["valueLiteral"], "", ""]]
-                                    });
-                                }
-                            } else if (formValues["valueType"].toLowerCase() == "message_element") {
-                                if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("messageAction", formValues["messageAction"], true) || validateField("valueMessageElementXpath", formValues["valueMessageElementXpath"], true))) {
-                                    setFormValues({
-                                        ...formValues, "propertyName": undefined, "valueMessageElementXpath": undefined,
-                                        "properties": [...formValues["properties"], [formValues["propertyName"], formValues["valueType"], formValues["valueMessageElementXpath"], "", formValues["messageAction"]]]
-                                    });
-                                }
-                            } else if (formValues["valueType"].toLowerCase() == "context_property") {
-                                if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("contextAction", formValues["contextAction"], true) || validateField("valueContextPropertyName", formValues["valueContextPropertyName"], true))) {
-                                    setFormValues({
-                                        ...formValues, "propertyName": undefined, "valueContextPropertyName": undefined,
-                                        "properties": [...formValues["properties"], [formValues["propertyName"], formValues["valueType"], formValues["valueContextPropertyName"], formValues["contextAction"], ""]]
-                                    });
-                                }
-                            }
-                        }}>
-                            Add
-                        </Button>
-                    </div>
-                    {formValues["properties"] && formValues["properties"].length > 0 && (
-                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                            <h3>Properties Table</h3>
-                            <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
-                                <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
-                                    <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                        Name
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                        Value Type
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                        Value
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={3} style={{ flex: 1 }}>
-                                        Context Action
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={4} style={{ flex: 1 }}>
-                                        Message Action
-                                    </VSCodeDataGridCell>
-                                </VSCodeDataGridRow>
-                                {formValues["properties"].map((property: string, index: string) => (
-                                    <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
-                                        <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                            {property[0]}
-                                        </VSCodeDataGridCell>
-                                        <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                            {property[1]}
-                                        </VSCodeDataGridCell>
-                                        <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                            {property[2]}
-                                        </VSCodeDataGridCell>
-                                        <VSCodeDataGridCell key={3} style={{ flex: 1 }}>
-                                            {property[3]}
-                                        </VSCodeDataGridCell>
-                                        <VSCodeDataGridCell key={4} style={{ flex: 1 }}>
-                                            {property[4]}
-                                        </VSCodeDataGridCell>
-                                    </VSCodeDataGridRow>
-                                ))}
-                            </VSCodeDataGrid>
-                        </ComponentCard>
+                    {formValues["properties"] && (
+                        <ParamManager
+                            paramConfigs={params}
+                            readonly={false}
+                            onChange={handleOnChange} />
                     )}
                 </ComponentCard>
                 <Field>

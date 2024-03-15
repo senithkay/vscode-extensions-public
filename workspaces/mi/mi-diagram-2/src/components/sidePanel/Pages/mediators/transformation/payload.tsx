@@ -9,8 +9,7 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextArea, TextField } from '@wso2-enterprise/ui-toolkit';
-import { VSCodeCheckbox, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
+import { AutoComplete, Button, ComponentCard, ParamConfig, ParamManager, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -44,45 +43,133 @@ const PayloadForm = (props: AddMediatorProps) => {
    const [formValues, setFormValues] = useState({} as { [key: string]: any });
    const [errors, setErrors] = useState({} as any);
 
-   useEffect(() => {
-       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-           setFormValues({ ...formValues, ...sidePanelContext.formValues });
-       } else {
-           setFormValues({
-       "payload": "<inline/>",
-       "args": [] as string[][],
-       "argumentType": "Value",
-       "argumentValue": "default",
-       "evaluator": "xml",
-       "literal": false,});
-       }
-   }, [sidePanelContext.formValues]);
+    const paramConfigs: ParamConfig = {
+        paramValues: [],
+        paramFields: [
+            {
+                type: "Dropdown",
+                label: "argumentType",
+                defaultValue: "Value",
+                isRequired: true,
+                values: ["Value", "Expression"]
+            },
+            {
+                type: "TextField",
+                label: "argumentValue",
+                defaultValue: "default",
+                isRequired: false
+            },
+            {
+                type: "TextField",
+                label: "argumentExpression",
+                defaultValue: "",
+                isRequired: false
+            },
+            {
+                type: "Dropdown",
+                label: "evaluator",
+                defaultValue: "xml",
+                isRequired: false,
+                values: ["xml", "json"]
+            },
+            {
+                type: "Checkbox",
+                label: "literal",
+                defaultValue: false,
+                isRequired: false
+            },]
+    };
+ 
+   const [params, setParams] = useState(paramConfigs);
+ 
+    const handleOnChange = (params: any) => {
+        setParams(params);
+    };
 
-   const onClick = async () => {
-       const newErrors = {} as any;
-       Object.keys(formValidators).forEach((key) => {
-           const error = formValidators[key]();
-           if (error) {
-               newErrors[key] = (error);
-           }
-       });
-       if (Object.keys(newErrors).length > 0) {
-           setErrors(newErrors);
-       } else {
-           const xml = getXML(MEDIATORS.PAYLOAD, formValues);
-           rpcClient.getMiDiagramRpcClient().applyEdit({
-               documentUri: props.documentUri, range: props.nodePosition, text: xml
-           });
-           sidePanelContext.setSidePanelState({
+    useEffect(() => {
+        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
+            setFormValues({ ...formValues, ...sidePanelContext.formValues });
+            if (sidePanelContext.formValues["args"] && sidePanelContext.formValues["args"].length > 0 ) {
+                const paramValues = sidePanelContext.formValues["args"].map((property: string, index: string) => (
+                    {
+                        id: index,
+                        parameters: [
+                            {
+                                id: 0,
+                                label: "argumentType",
+                                type: "Dropdown",
+                                value: property[0],
+                                isRequired: true,
+                                values: ["Value", "Expression"]
+                            },
+                            {
+                                id: 1,
+                                label: "argumentValue",
+                                type: "TextField",
+                                value: property[1],
+                                isRequired: true
+                            },
+                            {
+                                id: 2,
+                                label: "argumentExpression",
+                                type: "TextField",
+                                value: property[2],
+                                isRequired: true
+                            },
+                            {
+                                id: 3,
+                                label: "evaluator",
+                                type: "Dropdown",
+                                value: property[3],
+                                isRequired: false,
+                                values: ["xml", "json"]
+                            },
+                            {
+                                id: 4,
+                                label: "literal",
+                                type: "Checkbox",
+                                value: false,
+                                isRequired: false
+                            }
+                        ]
+                    })
+                )
+                setParams({ ...params, paramValues: paramValues });
+            }
+        } else {
+            setFormValues({            
+                "payload": "<inline/>",
+                "args": [] as string[][],
+            });
+        }
+    }, [sidePanelContext.formValues]);
+
+    const onClick = async () => {
+        const newErrors = {} as any;
+        Object.keys(formValidators).forEach((key) => {
+            const error = formValidators[key]();
+            if (error) {
+                newErrors[key] = (error);
+            }
+        });
+        formValues["args"] = params.paramValues.map(param => param.parameters.slice(0, 5).map(p => p.value));
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+        } else {
+            const xml = getXML(MEDIATORS.PAYLOAD, formValues);
+            rpcClient.getMiDiagramRpcClient().applyEdit({
+                documentUri: props.documentUri, range: props.nodePosition, text: xml
+            });
+            sidePanelContext.setSidePanelState({
                 ...sidePanelContext,
                 isOpen: false,
                 isEditing: false,
                 formValues: undefined,
                 nodeRange: undefined,
                 operationName: undefined
-              });
-       }
-   };
+            });
+        }
+    };
 
    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
        "payloadFormat": (e?: any) => validateField("payloadFormat", e, false),
@@ -90,11 +177,6 @@ const PayloadForm = (props: AddMediatorProps) => {
        "templateType": (e?: any) => validateField("templateType", e, false),
        "payloadKey": (e?: any) => validateField("payloadKey", e, false),
        "payload": (e?: any) => validateField("payload", e, false),
-       "argumentType": (e?: any) => validateField("argumentType", e, false),
-       "argumentValue": (e?: any) => validateField("argumentValue", e, false),
-       "argumentExpression": (e?: any) => validateField("argumentExpression", e, false),
-       "evaluator": (e?: any) => validateField("evaluator", e, false),
-       "literal": (e?: any) => validateField("literal", e, false),
        "description": (e?: any) => validateField("description", e, false),
 
    };
@@ -145,7 +227,7 @@ const PayloadForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Template Type</label>
-                    <AutoComplete items={["Default", "Freemarker"]} selectedItem={formValues["templateType"]} onChange={(e: any) => {
+                    <AutoComplete items={["default", "freemarker"]} selectedItem={formValues["templateType"]} onChange={(e: any) => {
                         setFormValues({ ...formValues, "templateType": e });
                         formValidators["templateType"](e);
                     }} />
@@ -174,7 +256,7 @@ const PayloadForm = (props: AddMediatorProps) => {
 
                     {formValues["payloadFormat"] && formValues["payloadFormat"].toLowerCase() == "inline" &&
                         <Field>
-                            <TextArea
+                        <TextField
                             label="Payload"
                             placeholder=""
                             value={formValues["payload"]}
@@ -191,122 +273,11 @@ const PayloadForm = (props: AddMediatorProps) => {
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <h3>Args</h3>
 
-                            <Field>
-                                <label>Argument Type</label>
-                                <AutoComplete items={["Value", "Expression"]} selectedItem={formValues["argumentType"]} onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "argumentType": e });
-                                    formValidators["argumentType"](e);
-                                }} />
-                                {errors["argumentType"] && <Error>{errors["argumentType"]}</Error>}
-                            </Field>
-
-                            {formValues["argumentType"] && formValues["argumentType"].toLowerCase() == "value" &&
-                                <Field>
-                                    <TextField
-                                        label="Argument Value"
-                                        size={50}
-                                        placeholder=""
-                                        value={formValues["argumentValue"]}
-                                        onChange={(e: any) => {
-                                            setFormValues({ ...formValues, "argumentValue": e });
-                                            formValidators["argumentValue"](e);
-                                        }}
-                                        required={false}
-                                    />
-                                    {errors["argumentValue"] && <Error>{errors["argumentValue"]}</Error>}
-                                </Field>
-                            }
-
-                            {formValues["argumentType"] && formValues["argumentType"].toLowerCase() == "expression" &&
-                                <Field>
-                                    <TextField
-                                        label="Argument Expression"
-                                        size={50}
-                                        placeholder=""
-                                        value={formValues["argumentExpression"]}
-                                        onChange={(e: any) => {
-                                            setFormValues({ ...formValues, "argumentExpression": e });
-                                            formValidators["argumentExpression"](e);
-                                        }}
-                                        required={false}
-                                    />
-                                    {errors["argumentExpression"] && <Error>{errors["argumentExpression"]}</Error>}
-                                </Field>
-                            }
-
-                            {formValues["argumentType"] && formValues["argumentType"].toLowerCase() == "expression" &&
-                                <Field>
-                                    <label>Evaluator</label>
-                                    <AutoComplete items={["xml", "json"]} selectedItem={formValues["evaluator"]} onChange={(e: any) => {
-                                        setFormValues({ ...formValues, "evaluator": e });
-                                        formValidators["evaluator"](e);
-                                    }} />
-                                    {errors["evaluator"] && <Error>{errors["evaluator"]}</Error>}
-                                </Field>
-                            }
-
-                            <Field>
-                                <VSCodeCheckbox type="checkbox" checked={formValues["literal"]} onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "literal": e.target.checked });
-                                    formValidators["literal"](e);
-                                }
-                                }>Literal </VSCodeCheckbox>
-                                {errors["literal"] && <Error>{errors["literal"]}</Error>}
-                            </Field>
-
-
-                    <div style={{ textAlign: "right", marginTop: "10px" }}>
-                        {formValues["argumentType"] && formValues["argumentType"].toLowerCase() == "expression" && <Button appearance="primary" onClick={() => {
-                            if (!(validateField("argumentExpression", formValues["argumentExpression"], true))) {
-                                setFormValues({
-                                    ...formValues, "argumentType": undefined, "argumentExpression": undefined,
-                                    "args": [...formValues["args"], [null, formValues["argumentType"], formValues["argumentExpression"]]]
-                                });
-                            }
-                        }}>
-                            Add
-                        </Button>}
-                        {formValues["argumentType"] && formValues["argumentType"].toLowerCase() == "value" && <Button appearance="primary" onClick={() => {
-                            if (!(validateField("argumentValue", formValues["argumentValue"], true))) {
-                                setFormValues({
-                                    ...formValues, "argumentType": undefined, "argumentExpression": undefined,
-                                    "args": [...formValues["args"], [null, formValues["argumentType"], formValues["argumentValue"]]]
-                                });
-                            }
-                        }}>
-                            Add
-                        </Button>}
-                    </div>
-                    {formValues["args"] && formValues["args"].length > 0 && (
-                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                            <h3>Args Table</h3>
-                            <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
-                                <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
-                                    <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                        Name
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                        Value Type
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                        Value
-                                    </VSCodeDataGridCell>
-                                </VSCodeDataGridRow>
-                                {formValues["args"].map((property: string, index: string) => (
-                                    <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
-                                        <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                            {property[0]}
-                                        </VSCodeDataGridCell>
-                                        <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                            {property[1]}
-                                        </VSCodeDataGridCell>
-                                        <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                            {property[2]}
-                                        </VSCodeDataGridCell>
-                                    </VSCodeDataGridRow>
-                                ))}
-                            </VSCodeDataGrid>
-                        </ComponentCard>
+                    {formValues["args"] && (
+                        <ParamManager
+                            paramConfigs={params}
+                            readonly={false}
+                            onChange= {handleOnChange} />
                     )}
                     </ComponentCard>
                 </ComponentCard>

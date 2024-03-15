@@ -34,9 +34,9 @@ export function getPayloadMustacheTemplate() {
 
 export function getPayloadXml(data: { [key: string]: any }) {
     const args = data.args.map((property: string[]) => {
-        if (property[1] === "Value") {
+        if (property[0] === "Value") {
             return {
-                value: property[2]
+                value: property[1]
             }
         } else {
             return {

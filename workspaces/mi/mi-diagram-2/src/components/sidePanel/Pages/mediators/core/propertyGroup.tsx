@@ -9,11 +9,10 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, Codicon, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
-import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
+import { Button, ComponentCard, ParamConfig, ParamManager, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps, filterFormValues } from '../common';
+import { AddMediatorProps } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
@@ -25,33 +24,6 @@ const cardStyle = {
     width: "auto",
     cursor: "auto"
 };
-
-const ButtonComponent = styled.div`
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    position: relative;
-`
-const EditButton = styled.button`
-    height: 23px;
-    width: 23px;
-    display: block;
-    margin: 0 auto;
-    padding: 2px;
-`
-
-const DeleteButton = styled.button`
-    height: 23px;
-    width: 23px;
-    display: block;
-    margin: 0 auto;
-    // color: red;
-    padding: 2px;
-`
 
 const Error = styled.span`
    color: var(--vscode-errorForeground);
@@ -73,26 +45,161 @@ const propertyNames = ["New Property...", "Action", "COPY_CONTENT_LENGTH_FROM_IN
     "preserveProcessedHeaders", "PRESERVE_WS_ADDRESSING", "REQUEST_HOST_HEADER", "RESPONSE", "REST_URL_POSTFIX", "RelatesTo",
     "ReplyTo", "SERVER_IP", "SYSTEM_DATE", "SYSTEM_TIME", "TRANSPORT_HEADERS", "TRANSPORT_IN_NAME", "To", "transportNonBlocking"];
 
-
 const PropertyGroupForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [formValues, setFormValues] = useState({} as { [key: string]: any });
     const [errors, setErrors] = useState({} as any);
 
+    const paramConfigs: ParamConfig = {
+        paramValues: [],
+        paramFields: [
+        {
+            type: "Dropdown",
+            label: "Property Name",
+            defaultValue: "New Property...",
+            isRequired: true,
+            values: propertyNames
+        },
+        {
+            type: "TextField",
+            label: "New Property Name",
+            defaultValue: "newName",
+            isRequired: true
+        },
+        {
+            type: "Dropdown",
+            label: "Property Data Type",
+            defaultValue: "STRING",
+            isRequired: true,
+            values: ["STRING", "INTEGER", "BOOLEAN", "DOUBLE", "FLOAT", "LONG", "SHORT", "OM", "JSON"]
+        },
+        {
+            type: "Dropdown",
+            label: "Property Action",
+            defaultValue: "STRING",
+            isRequired: true,
+            values: ["set", "remove"]
+        },
+        {
+            type: "Dropdown",
+            label: "Property Scope",
+            defaultValue: "STRING",
+            isRequired: true,
+            values: ["DEFAULT", "TRANSPORT", "AXIS2", "AXIS2_CLIENT", "OPERATION", "REGISTRY", "SYSTEM", "ANALYTICS"]
+        },
+        {
+            type: "Dropdown",
+            label: "Property Value Type",
+            defaultValue: "LITERAL",
+            isRequired: false,
+            values: ["LITERAL", "EXPRESSION"]
+        },
+        {
+            type: "TextField",
+            label: "Value",
+            defaultValue: "value",
+            isRequired: false
+        },
+        {
+            type: "TextField",
+            label: "Value String Pattern",
+            defaultValue: "valueStringPatter",
+            isRequired: false
+        },
+        {
+            type: "TextField",
+            label: "Value String Capturing Group",
+            defaultValue: "0",
+            isRequired: false
+        },]
+    };
+ 
+    const [params, setParams] = useState(paramConfigs);
+    
+    const handleOnChange = (params: any) => {
+        setParams(params);
+    };
+
     useEffect(() => {
         if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
             setFormValues({ ...formValues, ...sidePanelContext.formValues });
+            if (sidePanelContext.formValues["properties"] && sidePanelContext.formValues["properties"].length > 0 ) {
+                const paramValues = sidePanelContext.formValues["properties"].map((property: string, index: string) => (
+                    {
+                        id: index,
+                        parameters: [
+                            {
+                                id: 0,
+                                label: "propertyName",
+                                type: "TextField",
+                                value: property[0],
+                                isRequired: true
+                            },
+                            {
+                                id: 1,
+                                label: "newPropertyName",
+                                type: "TextField",
+                                value: property[1],
+                                isRequired: true
+                            },
+                            {
+                                id: 2,
+                                label: "propertyDataType",
+                                type: "TextField",
+                                value: property[2],
+                                isRequired: true
+                            },
+                            {
+                                id: 3,
+                                label: "propertyAction",
+                                type: "Dropdown",
+                                value: property[3],
+                                isRequired: true
+                            },
+                            {
+                                id: 4,
+                                label: "propertyScope",
+                                type: "Dropdown",
+                                value: property[4],
+                                isRequired: true
+                            },
+                            {
+                                id: 5,
+                                label: "propertyValueType",
+                                type: "Dropdown",
+                                value: property[5],
+                                isRequired: false
+                            },
+                            {
+                                id: 6,
+                                label: "value",
+                                type: "TextField",
+                                value: property[6],
+                                isRequired: false
+                            },
+                            {
+                                id: 7,
+                                label: "valueStringPattern",
+                                type: "TextField",
+                                value: property[1],
+                                isRequired: false
+                            },
+                            {
+                                id: 8,
+                                label: "valueStringCapturingGroup",
+                                type: "TextField",
+                                value: property[2],
+                                isRequired: false
+                            }
+                        ]
+                    })
+                )
+                setParams({ ...params, paramValues: paramValues });
+            }
         } else {
             setFormValues({
-                "properties": [] as string[][],
-                "propertyName": "New Property...",
-                "propertyDataType": "STRING",
-                "propertyAction": "set",
-                "propertyScope": "DEFAULT",
-                "propertyValueType": "LITERAL",
-                "valueStringCapturingGroup": "0",
-            });
+                "properties": [] as string[][],});
         }
     }, [sidePanelContext.formValues]);
 
@@ -104,6 +211,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                 newErrors[key] = (error);
             }
         });
+        formValues["properties"] = params.paramValues.map(param => param.parameters.slice(0, 9).map(p => p.value));
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
         } else {
@@ -124,17 +232,6 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
 
     const formValidators: { [key: string]: (e?: any) => string | undefined } = {
         "description": (e?: any) => validateField("description", e, false),
-        "propertyName": (e?: any) => validateField("propertyName", e, false),
-        "newPropertyName": (e?: any) => validateField("newPropertyName", e, false),
-        "propertyDataType": (e?: any) => validateField("propertyDataType", e, false),
-        "propertyAction": (e?: any) => validateField("propertyAction", e, false),
-        "propertyScope": (e?: any) => validateField("propertyScope", e, false),
-        "propertyValueType": (e?: any) => validateField("propertyValueType", e, false),
-        "value": (e?: any) => validateField("value", e, false),
-        "expression": (e?: any) => validateField("expression", e, false),
-        "valueStringPattern": (e?: any) => validateField("valueStringPattern", e, false),
-        "valueStringCapturingGroup": (e?: any) => validateField("valueStringCapturingGroup", e, false),
-        "Properties.description": (e?: any) => validateField("Properties.description", e, false),
 
     };
 
@@ -179,215 +276,15 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                     {errors["description"] && <Error>{errors["description"]}</Error>}
                 </Field>
 
-
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <h3>Properties</h3>
 
-                    <Field>
-                        <label>Property Name</label>
-                        <AutoComplete items={propertyNames} selectedItem={formValues["propertyName"]} onChange={(e: any) => {
-                            setFormValues({ ...formValues, "propertyName": e, "newPropertyName": e == "New Property..." ? "" : e });
-                            formValidators["propertyName"](e);
-                        }} />
-                        {errors["propertyName"] && <Error>{errors["propertyName"]}</Error>}
-                    </Field>
-
-                    {formValues["propertyName"] == "New Property..." && <Field>
-                        <TextField
-                            label="New Property Name"
-                            size={50}
-                            placeholder="New Property Name"
-                            value={formValues["newPropertyName"]}
-                            onChange={(e: any) => {
-                                setFormValues({ ...formValues, "newPropertyName": e });
-                                formValidators["newPropertyName"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["newPropertyName"] && <Error>{errors["newPropertyName"]}</Error>}
-                    </Field>}
-
-                    {formValues["propertyAction"] == "set" && <Field>
-                        <label>Property Data Type</label>
-                        <AutoComplete items={["STRING", "INTEGER", "BOOLEAN", "DOUBLE", "FLOAT", "LONG", "SHORT", "OM", "JSON"]} selectedItem={formValues["propertyDataType"]} onChange={(e: any) => {
-                            setFormValues({ ...formValues, "propertyDataType": e });
-                            formValidators["propertyDataType"](e);
-                        }} />
-                        {errors["propertyDataType"] && <Error>{errors["propertyDataType"]}</Error>}
-                    </Field>}
-
-                    <Field>
-                        <label>Property Action</label>
-                        <AutoComplete items={["set", "remove"]} selectedItem={formValues["propertyAction"]} onChange={(e: any) => {
-                            const newValues: { [key: string]: any } = { "propertyAction": e }
-                            if (formValues["propertyAction"] == "remove" && e == "set") {
-                                newValues["propertyDataType"] = "STRING";
-                                newValues["propertyValueType"] = "LITERAL";
-                            }
-                            setFormValues({ ...formValues, ...newValues });
-                            formValidators["propertyAction"](e);
-                        }} />
-                        {errors["propertyAction"] && <Error>{errors["propertyAction"]}</Error>}
-                    </Field>
-
-                    <Field>
-                        <label>Property Scope</label>
-                        <AutoComplete items={["DEFAULT", "TRANSPORT", "AXIS2", "AXIS2_CLIENT", "OPERATION", "REGISTRY", "SYSTEM", "ANALYTICS"]} selectedItem={formValues["propertyScope"]} onChange={(e: any) => {
-                            setFormValues({ ...formValues, "propertyScope": e });
-                            formValidators["propertyScope"](e);
-                        }} />
-                        {errors["propertyScope"] && <Error>{errors["propertyScope"]}</Error>}
-                    </Field>
-
-                    {formValues["propertyAction"] == "set" && <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Value</h3>
-
-                        <Field>
-                            <label>Property Value Type</label>
-                            <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["propertyValueType"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "propertyValueType": e });
-                                formValidators["propertyValueType"](e);
-                            }} />
-                            {errors["propertyValueType"] && <Error>{errors["propertyValueType"]}</Error>}
-                        </Field>
-
-                        {formValues["propertyValueType"] == "LITERAL" && <Field>
-                            <TextField
-                                label="Value"
-                                size={50}
-                                placeholder="Value"
-                                value={formValues["value"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "value": e });
-                                    formValidators["value"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["value"] && <Error>{errors["value"]}</Error>}
-                        </Field>}
-
-                        {formValues["propertyValueType"] == "EXPRESSION" && <Field>
-                            <TextField
-                                label="Expression"
-                                size={50}
-                                placeholder="Expression"
-                                value={formValues["expression"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "expression": e });
-                                    formValidators["expression"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["expression"] && <Error>{errors["expression"]}</Error>}
-                        </Field>}
-
-                        <Field>
-                            <TextField
-                                label="Value String Pattern"
-                                size={50}
-                                placeholder="Value String Pattern"
-                                value={formValues["valueStringPattern"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "valueStringPattern": e });
-                                    formValidators["valueStringPattern"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["valueStringPattern"] && <Error>{errors["valueStringPattern"]}</Error>}
-                        </Field>
-
-                        <Field>
-                            <TextField
-                                label="Value String Capturing Group"
-                                size={50}
-                                placeholder="Value String Capturing Group"
-                                value={formValues["valueStringCapturingGroup"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "valueStringCapturingGroup": e });
-                                    formValidators["valueStringCapturingGroup"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["valueStringCapturingGroup"] && <Error>{errors["valueStringCapturingGroup"]}</Error>}
-                        </Field>
-
-                    </ComponentCard>}
-
-                    <Field>
-                        <TextField
-                            label="Description"
-                            size={50}
-                            placeholder="Description"
-                            value={formValues["description"]}
-                            onChange={(e: any) => {
-                                setFormValues({ ...formValues, "description": e });
-                                formValidators["description"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["description"] && <Error>{errors["description"]}</Error>}
-                    </Field>
-                    <div style={{ textAlign: "right", marginTop: "10px" }}>
-                        <Button appearance="primary" onClick={() => {
-                            if (!(validateField("propertyName", formValues["propertyName"], true))) {
-                                if (formValues["propertyAction"] == "remove") {
-                                    const keysToInclude = ["properties", "propertyName", "newPropertyName", "propertyAction", "propertyScope", "description"];
-                                    setFormValues(filterFormValues(formValues, keysToInclude, null));
-                                }
-                                setFormValues({
-                                    ...formValues, "propertyName": "New Property...", "newPropertyName": undefined, "propertyDataType": undefined, "propertyAction": "set", "propertyScope": "DEFAULT", "value": undefined, "expression": undefined, "propertyValueType": "LITERAL", "valueStringPattern": undefined, "valueStringCapturingGroup": undefined, "description": undefined,
-                                    "properties": [...formValues["properties"], [formValues["newPropertyName"], formValues["propertyDataType"], formValues["propertyAction"], formValues["propertyScope"], formValues["propertyValueType"], formValues["value"] ?? formValues["expression"], formValues["valueStringPattern"], formValues["valueStringCapturingGroup"], formValues["description"]]]
-                                });
-                            }
-                        }}>
-                            Add
-                        </Button>
-                    </div>
-                    {formValues["properties"] && formValues["properties"].length > 0 && (
-                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                            <h3>Properties Table</h3>
-                            <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
-                                <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
-                                    <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                        Name
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                        Value Type
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                        Value
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={3} style={{ flex: 1 }}>
-                                    </VSCodeDataGridCell>
-                                </VSCodeDataGridRow>
-                                {formValues["properties"].map((property: string, index: string) => (
-                                    <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
-                                        <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                            {property[0]}
-                                        </VSCodeDataGridCell>
-                                        <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                            {property[4]}
-                                        </VSCodeDataGridCell>
-                                        <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                            {property[5]}
-                                        </VSCodeDataGridCell>
-                                        <VSCodeDataGridCell key={3} style={{ flex: 1 }}>
-                                            <ButtonComponent>
-                                                <DeleteButton onClick={() => {
-                                                    formValues["properties"].splice(index, 1);
-                                                    setFormValues({ ...formValues })
-                                                }}><Codicon name='trash' />
-                                                </DeleteButton>
-                                                {/* <EditButton onClick={() => { }}>
-                                                    <Codicon name='edit' />
-                                                </EditButton> */}
-                                            </ButtonComponent>
-                                        </VSCodeDataGridCell>
-                                    </VSCodeDataGridRow>
-                                ))}
-                            </VSCodeDataGrid>
-                        </ComponentCard>
-                    )}
+                {formValues["properties"] && (
+                    <ParamManager
+                        paramConfigs={params}
+                        readonly={false}
+                        onChange= {handleOnChange} />
+                )}
                 </ComponentCard>
             </ComponentCard>
 
