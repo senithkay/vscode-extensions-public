@@ -9,10 +9,11 @@
 
 import { GetAvailableResourcesRequest, GetAvailableResourcesResponse, GetDefinitionRequest, GetDefinitionResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, ProjectStructureResponse } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
-import { Position, Uri, workspace } from "vscode";
+import { CancellationToken, FormattingOptions, Position, Range, Uri, workspace } from "vscode";
 import { CompletionParams, LanguageClient, TextEdit } from "vscode-languageclient/node";
 import { TextDocumentIdentifier } from "vscode-languageserver-protocol";
 import * as fs from 'fs';
+import * as vscode from 'vscode';
 
 export interface GetSyntaxTreeParams {
     documentIdentifier: TextDocumentIdentifier;
@@ -66,6 +67,13 @@ export interface DidOpenParams {
         text: string;
         version: number;
     };
+}
+
+export interface RangeFormatParams {
+    textDocument: TextDocumentIdentifier;
+    range: vscode.Range;
+    options: FormattingOptions;
+    workDoneToken: CancellationToken;
 }
 
 export class ExtendedLanguageClient extends LanguageClient {
@@ -135,5 +143,9 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async getDiagnostics(req: GetDiagnosticsReqeust): Promise<GetDiagnosticsResponse> {
         return this.sendRequest("synapse/diagnostic", { uri: Uri.parse(req.documentUri).toString() });
+    }
+
+    async rangeFormat(req: RangeFormatParams ): Promise<vscode.TextEdit[]> {
+        return this.sendRequest("textDocument/rangeFormatting", req)
     }
 }
