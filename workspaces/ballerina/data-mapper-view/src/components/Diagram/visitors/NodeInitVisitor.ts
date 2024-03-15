@@ -196,6 +196,19 @@ export class NodeInitVisitor implements Visitor {
                             );
                         }
 
+                        if (isComplexExpression(selectClause.expression)){
+                            const inputNodes = getInputNodes(selectClause);
+                            const linkConnectorNode = new LinkConnectorNode(
+                                this.context,
+                                selectClause,
+                                "",
+                                node,
+                                inputNodes,
+                                this.mapIdentifiers.slice(0)
+                            );
+                            this.intermediateNodes.push(linkConnectorNode);
+                        }
+
                         this.outputNode.setPosition(OFFSETS.TARGET_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
 
                         const expandedHeaderPorts: RightAnglePortModel[] = [];
