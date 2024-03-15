@@ -98,7 +98,7 @@ const getNewParam = (fields: ParamField[], index: number): Parameters => {
             type: field.type,
             value: field.defaultValue,
             values: field.values,
-            isRequired: field.isRequired            
+            isRequired: field.isRequired,            
             enableCondition: field.enableCondition ? convertToObject(field.enableCondition) : undefined
         });
     });
