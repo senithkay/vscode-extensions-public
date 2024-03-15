@@ -30,6 +30,7 @@ import { LoadBalanceWizard } from './views/Forms/LoadBalanceEPform';
 import { css, keyframes } from '@emotion/react';
 import { getSyntaxTreeType } from './utils/syntax-tree';
 import { FailoverWizard } from './views/Forms/FailoverEndpointForm';
+import { DiagramService } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 const MainContainer = styled.div`
     display: flex;
@@ -114,34 +115,11 @@ const MainPanel = () => {
                     setViewComponent(<Overview />);
                     break;
                 case MACHINE_VIEW.Diagram:
-                    rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri }).then((st) => {
-                        if (!st?.syntaxTree) {
-                            return;
-                        }
-
-                        rpcClient.getMiDiagramRpcClient().getDiagnostics({ documentUri: machineView.documentUri }).then((diagnostics) => {
-
-                            const identifier = machineView.identifier;
-                            let model;
-                            if (identifier != undefined && st.syntaxTree.api?.resource) {
-                                model = st.syntaxTree.api.resource[identifier];
-                            } else if (getSyntaxTreeType(st.syntaxTree)) {
-                                model = getSyntaxTreeType(st.syntaxTree);                   
-                            }
-                            setViewComponent(<Diagram model={model} documentUri={machineView.documentUri} diagnostics={diagnostics.diagnostics} />);
-                        });
-                    });
+                    setViewComponent(<Diagram model={machineView.stNode as DiagramService} documentUri={machineView.documentUri} diagnostics={machineView.diagnostics} />);
                     rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
                     break;
                 case MACHINE_VIEW.ServiceDesigner:
-                    rpcClient
-                        .getMiDiagramRpcClient()
-                        .getSyntaxTree({ documentUri: machineView.documentUri })
-                        .then((st) => {
-                            if (st) {
-                                setViewComponent(<ServiceDesignerView syntaxTree={st.syntaxTree} documentUri={machineView.documentUri} />);
-                            }
-                        });
+                    setViewComponent(<ServiceDesignerView syntaxTree={machineView.stNode} documentUri={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.APIForm:
                     setViewComponent(<APIWizard apiData={(machineView.customProps as APIWizardProps)?.apiData} path={machineView.documentUri} />);

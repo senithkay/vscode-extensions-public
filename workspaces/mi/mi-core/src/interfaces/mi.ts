@@ -7,16 +7,18 @@
 * You may not alter or remove any copyright or other notice from copies of this content.
 */
 
-import { API, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { API, NamedSequence, Proxy, Endpoint } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export enum SYNTAX_TREE_KIND {
     API = "api",
     SEQUENCE = "sequence",
     PROXY = "proxy",
+    ENDPOINT = "endpoint"
 }
 
 export type SyntaxTreeMi = {
     [SYNTAX_TREE_KIND.API]: API;
-    [SYNTAX_TREE_KIND.SEQUENCE]: STNode;
-    [SYNTAX_TREE_KIND.PROXY]: STNode;
+    [SYNTAX_TREE_KIND.SEQUENCE]: NamedSequence;
+    [SYNTAX_TREE_KIND.PROXY]: Proxy;
+    [SYNTAX_TREE_KIND.ENDPOINT]: Endpoint;
 }

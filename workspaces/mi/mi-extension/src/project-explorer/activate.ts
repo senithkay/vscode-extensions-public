@@ -16,6 +16,7 @@ import { VisualizerWebview } from '../visualizer/webview';
 import path = require("path");
 import { deleteRegistryResource } from '../util/fileOperations';
 import { RpcClient } from '@wso2-enterprise/mi-rpc-client';
+import { extension } from '../MIExtensionContext';
 
 export function activateProjectExplorer(context: ExtensionContext) {
 
@@ -259,15 +260,13 @@ export function activateProjectExplorer(context: ExtensionContext) {
 	});
 	commands.registerCommand(COMMANDS.OPEN_SERVICE_DESIGNER_BESIDE, async (file: Uri) => {
 		revealWebviewPanel(true);
-		setTimeout(() => {
-			openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: file.fsPath });
-		}, 100);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: file.fsPath });
 	});
 
 	commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
 }
 
 function revealWebviewPanel(beside: boolean = true) {
-	VisualizerWebview.currentPanel?.getWebview()?.reveal(beside ? ViewColumn.Beside : ViewColumn.Active);
+	extension.webviewReveal = beside;
 }
 

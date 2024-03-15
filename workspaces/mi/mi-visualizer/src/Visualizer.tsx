@@ -59,7 +59,7 @@ export function Visualizer({ mode }: { mode: string }) {
 
 const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue }) => {
     switch (true) {
-        case typeof state === 'object':
+        case typeof state === 'object' && 'ready' in state && state.ready === "viewReady":
             return <MainPanel />;
         default:
             return (

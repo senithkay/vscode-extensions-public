@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
-import { Uri, window } from 'vscode';
+import { Uri, ViewColumn, window } from 'vscode';
 import { MILanguageClient } from './lang-client/activator';
 import { extension } from './MIExtensionContext';
 import { EVENT_TYPE, MACHINE_VIEW, MachineStateValue, SyntaxTreeMi, VisualizerLocation, webviewReady } from '@wso2-enterprise/mi-core';
@@ -147,7 +147,9 @@ const stateMachine = createMachine<MachineContext>({
                                 projectUri: (context, event) => event.viewLocation.projectUri,
                                 position: (context, event) => event.viewLocation.position,
                                 projectOpened: (context, event) => true,
-                                customProps: (context, event) => event.viewLocation.customProps
+                                customProps: (context, event) => event.viewLocation.customProps,
+                                stNode: (context, event) => undefined,
+                                diagnostics: (context, event) => undefined,
                             })
                         },
                         NAVIGATE: {
@@ -155,7 +157,7 @@ const stateMachine = createMachine<MachineContext>({
                             actions: assign({
                                 view: (context, event) => event.viewLocation.view,
                                 identifier: (context, event) => event.viewLocation.identifier,
-                                documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
+                                documentUri: (context, event) => event.viewLocation.documentUri,
                                 position: (context, event) => event.viewLocation.position,
                                 projectOpened: (context, event) => true,
                                 customProps: (context, event) => event.viewLocation.customProps
@@ -225,12 +227,12 @@ const stateMachine = createMachine<MachineContext>({
             // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
             return new Promise((resolve, reject) => {
                 if (!VisualizerWebview.currentPanel) {
-                    VisualizerWebview.currentPanel = new VisualizerWebview(context.view!);
+                    VisualizerWebview.currentPanel = new VisualizerWebview(context.view!, extension.webviewReveal);
                     RPCLayer._messenger.onNotification(webviewReady, () => {
                         resolve(true);
                     });
                 } else {
-                    VisualizerWebview.currentPanel!.getWebview()?.reveal();
+                    VisualizerWebview.currentPanel!.getWebview()?.reveal(extension.webviewReveal ? ViewColumn.Beside : ViewColumn.Active);
                     resolve(true);
                 }
             });
@@ -264,6 +266,9 @@ const stateMachine = createMachine<MachineContext>({
                                 viewLocation.view = MACHINE_VIEW.Diagram;
                                 viewLocation.stNode = node.sequence;
                                 break;
+                            case !!node.endpoint:
+                                viewLocation.view = MACHINE_VIEW.EndPointForm;
+                                break;
                             default:
                                 // Handle default case
                                 break;
@@ -276,6 +281,7 @@ const stateMachine = createMachine<MachineContext>({
                         viewLocation.diagnostics = res.diagnostics;
                     }
                 }
+                updateProjectExplorer(viewLocation);
                 resolve(viewLocation);
             });
         },
@@ -327,7 +333,6 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
     if (viewLocation?.documentUri) {
         viewLocation.documentUri = Uri.parse(viewLocation.documentUri).fsPath;
     }
-    updateProjectExplorer(viewLocation);
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 
@@ -340,8 +345,6 @@ export function navigate() {
         const location = historyStack[historyStack.length - 1].location;
         stateService.send({ type: "NAVIGATE", viewLocation: location });
     }
-    const location = history.get()[history.get().length - 1].location;
-    updateProjectExplorer(location);
 }
 
 function updateProjectExplorer(location: VisualizerLocation | undefined) {
