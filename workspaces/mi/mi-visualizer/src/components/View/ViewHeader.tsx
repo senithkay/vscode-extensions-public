@@ -22,7 +22,6 @@ type ViewHeaderProps = {
 // Emotion styled components
 const Header = styled.div({
     backgroundColor: 'var(--vscode-editor-background)',
-    zIndex: 10000,
 });
 
 const HeaderContentWrapper = styled.div({

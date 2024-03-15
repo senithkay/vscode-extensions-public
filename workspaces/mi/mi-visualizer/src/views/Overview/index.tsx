@@ -11,13 +11,15 @@ import React, { useEffect } from "react";
 import { MachineStateValue, ProjectStructureResponse, WorkspaceFolder } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import ProjectStructureView from "./ProjectStructureView";
-import { Button, HorizontalIcons, Icon, Codicon } from "@wso2-enterprise/ui-toolkit";
-import { VSCodeTextArea, VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
+import { Button, Icon, Codicon, TextArea } from "@wso2-enterprise/ui-toolkit";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 
 
 const AddPanel = styled.div({
+    position: 'relative', // Add this line to position the close button absolutely
+
     backgroundColor: 'var(--vscode-sideBar-background);',
     padding: 20
 });
@@ -42,41 +44,45 @@ const Card = styled.div({
     textAlign: 'center', // Center the text inside the card
 });
 
-const StyledTextArea = styled(VSCodeTextArea)({
-    width: '100%', // Set the width of the TextArea to 100%
-    fontSize: '1.17em', // Set the font size to match <h3> elements
+// Add this styled component for the close button
+const CloseButton = styled(Button)({
+    position: 'absolute',
+    top: '10px',
+    right: '10px',
+    background: 'none', // Optional: Adjust styling as needed
+    border: 'none', // Optional: Adjust styling as needed
+    cursor: 'pointer', // Optional: Adjust styling as needed
 });
 
-const AIButton = styled.div({
-    padding: 20,
-    with: 200,
-    fontSize: '1.17em',
-    backgroundColor: 'var(--vscode-button-background)',
-    color: 'var(--vscode-button-foreground)',
-    borderRadius: 5,
+const AIPanel = styled.div({
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 5
+    gap: '5px',
 });
 
 
 export function Overview() {
     const { rpcClient } = useVisualizerContext();
     const [workspaces, setWorkspaces] = React.useState<WorkspaceFolder[]>([]);
+    const [activeWorkspaces, setActiveWorkspaces] = React.useState<WorkspaceFolder>(undefined);
     const [selected, setSelected] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
 
     useEffect(() => {
         rpcClient.getMiVisualizerRpcClient().getWorkspaces().then((response) => {
             setWorkspaces(response.workspaces);
+            setActiveWorkspaces(response.workspaces[0]);
             changeWorkspace(response.workspaces[0].fsPath);
+            console.log(response.workspaces[0]);
         });
     }, []);
 
     useEffect(() => {
         if (workspaces && selected) {
             rpcClient.getMiVisualizerRpcClient().getProjectStructure({ documentUri: selected }).then((response) => {
+                console.log(response);
                 setProjectStructure(response);
             });
         }
@@ -85,17 +91,21 @@ export function Overview() {
     const changeWorkspace = (fsPath: string) => {
         setSelected(fsPath);
     }
-    console.log(projectStructure);
+
+    // Add a function to handle the close action
+    const handleClose = () => {
+        console.log('Close button clicked'); // Implement the close logic here
+    }
+
     return (
         <View>
-            <ViewHeader title={"Project Name"} codicon="project">
+            <ViewHeader title={"Project: " + activeWorkspaces?.name} codicon="project">
                 <ProjectActions>
                     <Button
                         appearance="icon"
                         onClick={() => { }}
                         tooltip="Icon Button"
                     >
-
                         <Codicon
                             name="play"
                         />
@@ -123,26 +133,30 @@ export function Overview() {
             </ViewHeader>
             <ViewContent>
                 <AddPanel>
-                    <h3>What do you want to create ?</h3>
-                    <StyledTextArea label="" value=""></StyledTextArea>
-                    <AIButton>
-                        <Codicon name="wand" />
-                        &nbsp;Generate with AI
-                    </AIButton>
-                    <VSCodeDivider />
+                    <CloseButton onClick={handleClose} appearance="icon" tooltip="Close">
+                        <Codicon name="chrome-close" />
+                    </CloseButton>
+                    <h3 style={{ margin: 0 }}>Describe your Integration to get started</h3>
+                    <AIPanel>
+                        <TextArea value="" rows={4} cols={1000} placeholder="I want to create an API that will route my request based on a header value."></TextArea>
+                        <VSCodeButton>
+                            <Codicon name="wand" />
+                            Generate with AI
+                        </VSCodeButton>
+                    </AIPanel>
+                    <h3>Or, Select an Entry point to Start</h3>
                     <HorizontalCardContainer>
                         <Card>
-                            <h3>Add API</h3>
-                            <p>Add an HTTP Service</p>
+                            <h3>API</h3>
                         </Card>
                         <Card>
-                            <h3>Add Proxy</h3>
+                            <h3>Proxy</h3>
                         </Card>
                         <Card>
-                            <h3>Add Task</h3>
+                            <h3>Task</h3>
                         </Card>
                         <Card>
-                            <h3>Add Inbound Endpoint</h3>
+                            <h3>Inbound Endpoint</h3>
                         </Card>
                     </HorizontalCardContainer>
                 </AddPanel>

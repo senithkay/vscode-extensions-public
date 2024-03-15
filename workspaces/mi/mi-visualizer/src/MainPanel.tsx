@@ -131,7 +131,7 @@ const MainPanel = () => {
                             if (identifier != undefined && st.syntaxTree.api?.resource) {
                                 model = st.syntaxTree.api.resource[identifier];
                             } else if (getSyntaxTreeType(st.syntaxTree)) {
-                                model = getSyntaxTreeType(st.syntaxTree);                   
+                                model = getSyntaxTreeType(st.syntaxTree);
                             }
                             setViewComponent(<Diagram model={model} documentUri={machineView.documentUri} diagnostics={diagnostics.diagnostics} />);
                         });

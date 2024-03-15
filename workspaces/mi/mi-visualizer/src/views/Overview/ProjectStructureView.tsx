@@ -13,7 +13,7 @@ import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import path from 'path';
 
-const allowedConfigs = ["apis", "sequences", "endpoints", "api", "inboundEndpoints", "messageProcessors", "proxyServices", "tasks", "templates","messageStores","localEntries","registryResources"];
+const allowedConfigs = ["apis", "sequences", "endpoints", "api", "inboundEndpoints", "messageProcessors", "proxyServices", "tasks", "templates", "messageStores", "localEntries", "registryResources"];
 
 const IconWrapper = styled.div`
     display: flex;
@@ -50,6 +50,10 @@ const Title = styled.div`
     line-height: normal;
 `;
 
+const Listing = styled.div({
+    marginTop: "2em"
+})
+
 const ProjectStructureView = (props: { projectStructure: ProjectStructureResponse, workspaceDir: string }) => {
     const { projectStructure } = props;
     const { rpcClient } = useVisualizerContext();
@@ -75,7 +79,7 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.MessageStoreForm, documentUri: path } });
         } else if (directory.toLowerCase() === "local_entry") {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.LocalEntryForm, documentUri: path } });
-        }  
+        }
     };
 
     const handlePlusClick = async (key: string) => {
@@ -145,9 +149,9 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
     };
 
     return (
-        <div>
+        <Listing>
             {renderDirectoryMap()}
-        </div>
+        </Listing>
     );
 };
 
