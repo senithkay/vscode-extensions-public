@@ -174,16 +174,20 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
 
                 let isOptionalSource = false;
                 const sourcePort = linkModel.getSourcePort();
+                const targetPort = linkModel.getTargetPort();
 
+                let position = linkModel.value.position as NodePosition;
                 if (sourcePort instanceof RecordFieldPortModel && sourcePort.field.optional) {
                     isOptionalSource = true;
+                }
+                if (targetPort instanceof RecordFieldPortModel) {
+                    position = targetPort.editableRecordField?.value.position as NodePosition;
                 }
 
                 const localVariables = getLocalVariableNames(context.functionST);
 
                 const querySrc = generateQueryExpression(linkModel.value.source, targetRecord, isOptionalSource,
                     clause, [...localVariables]);
-                const position = linkModel.value.position as NodePosition;
                 const modifications = [{
                     type: "INSERT",
                     config: {
