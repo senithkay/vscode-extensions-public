@@ -25,6 +25,7 @@ export enum MACHINE_VIEW {
     LoadBalanceEndPointForm = "Load Balance Endpoint Form",
     FailoverEndPointForm = "Failover Endpoint Form",
     RecipientEndPointForm = "Recipient Endpoint Form",
+    TemplateEndPointForm = "Template Endpoint Form",
     SequenceForm = "Sequence Form",
     InboundEPForm = "Inbound EP Form",
     MessageProcessorForm = "Message Processor Form",

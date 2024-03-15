@@ -25,6 +25,7 @@ import { getDefaultEndpointXml, DefaultEndpointArgs } from './template-engine/mu
 import { GetLoadBalanceEPTemplatesArgs, getLoadBalanceEPXml } from './template-engine/mustach-templates/loadBalanceEndpoint';
 import { GetFailoverEPTemplatesArgs, getFailoverEPXml } from './template-engine/mustach-templates/failoverEndpoint';
 import { GetRecipientEPTemplatesArgs, getRecipientEPXml } from './template-engine/mustach-templates/recipientEndpoint';
+import { GetTemplateEPTemplatesArgs, getTemplateEPXml } from './template-engine/mustach-templates/templateEndpoint';
 
 const isDevMode = process.env.WEB_VIEW_WATCH_MODE === "true";
 
@@ -82,6 +83,10 @@ export function getFailoverXmlWrapper(data: GetFailoverEPTemplatesArgs) {
 
 export function getRecipientXmlWrapper(data: GetRecipientEPTemplatesArgs) {
     return getRecipientEPXml(data);
+}
+
+export function getTemplateEndpointXmlWrapper(data: GetTemplateEPTemplatesArgs) {
+    return getTemplateEPXml(data);
 }
 
 export function getMessageStoreXmlWrapper(props: GetMessageStoreTemplatesArgs) {

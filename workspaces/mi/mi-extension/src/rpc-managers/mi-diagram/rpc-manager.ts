@@ -125,7 +125,11 @@ import {
     UpdateRecipientEPRequest,
     UpdateRecipientEPResponse,
     GetRecipientEPRequest,
-    GetRecipientEPResponse
+    GetRecipientEPResponse,
+    UpdateTemplateEPRequest,
+    UpdateTemplateEPResponse,
+    GetTemplateEPRequest,
+    GetTemplateEPResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -137,7 +141,7 @@ import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, c
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
+import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, getTemplateEndpointXmlWrapper } from "../../util";
 import { addNewEntryToArtifactXML, changeRootPomPackaging, detectMediaType, getMediatypeAndFileExtension, createMetadataFilesForRegistryCollection, getAvailableRegistryResources } from "../../util/fileOperations";
 import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
@@ -704,6 +708,58 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 description: '',
                 endpoints: [],
                 properties: []
+            });
+        });
+    }
+    
+    async updateTemplateEndpoint(params: UpdateTemplateEPRequest): Promise<UpdateTemplateEPResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, ...templateParams } = params;
+
+            const xmlData = getTemplateEndpointXmlWrapper(templateParams);
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${templateParams.name}.xml`);
+            }
+
+            fs.writeFileSync(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getTemplateEndpoint(params: GetTemplateEPRequest): Promise<GetTemplateEPResponse> {
+        return new Promise(async (resolve) => {
+            const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });            
+            const filePath = params.path;
+
+            if (filePath.includes('.xml') && fs.existsSync(filePath)) {
+                const { name, uri, template, description, parameter } = endpointSyntaxTree.syntaxTree.endpoint;
+
+                const parameters = parameter.map((prop: any) => ({
+                    name: prop.name,
+                    value: prop.value,
+                }));
+
+                resolve({
+                    name,
+                    uri: uri ?? '',
+                    template,
+                    description: description ?? '',
+                    parameters: parameters.length > 0 ? parameters : []
+                });
+            }
+
+            resolve({
+                name: '',
+                uri: '',
+                template: '',
+                description: '',
+                parameters: []
             });
         });
     }
