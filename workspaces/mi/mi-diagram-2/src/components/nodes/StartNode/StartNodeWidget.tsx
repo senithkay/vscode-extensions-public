@@ -20,10 +20,6 @@ namespace S {
         justify-content: space-between;
         align-items: center;
     `;
-
-    export const StyledSvg = styled.svg`
-        cursor: pointer;
-    `;
 }
 
 interface CallNodeWidgetProps {
@@ -38,7 +34,7 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
     const [hovered, setHovered] = React.useState(false);
 
     const getNamedStartNode = () => (
-        <S.StyledSvg
+        <svg
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
             width="100"
@@ -53,7 +49,7 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
             <text x="50%" y="50%" alignmentBaseline="middle" textAnchor="middle" fill={Colors.ON_SURFACE}>
                 Start
             </text>
-        </S.StyledSvg>
+        </svg>
     );
 
     const getStartNode = () => (
