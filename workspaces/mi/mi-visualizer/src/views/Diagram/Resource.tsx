@@ -7,11 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from "react";
-import { View, ViewContent, ViewHeader } from "../../components/View";
+import { Diagnostic } from "vscode-languageserver-types";
+import { APIResource, Range } from "@wso2-enterprise/mi-syntax-tree/src";
 import { Diagram } from "@wso2-enterprise/mi-diagram-2";
 import { DiagramService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { Switch } from "@wso2-enterprise/ui-toolkit";
-import { Diagnostic } from "vscode-languageserver-types";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { View, ViewContent, ViewHeader } from "../../components/View";
+import { generateResourceData, getResourceDeleteRanges, onResourceEdit } from "../../utils/form";
+import { EditAPIForm, EditResourceForm } from "../Forms/EditForms/EditResourceForm";
 
 export interface ResourceViewProps {
     model: DiagramService;
@@ -19,17 +23,26 @@ export interface ResourceViewProps {
     diagnostics: Diagnostic[];
 }
 
-export const ResourceView = ({ model, documentUri, diagnostics }: ResourceViewProps) => {
+export const ResourceView = ({ model: resourceModel, documentUri, diagnostics }: ResourceViewProps) => {
+    const { rpcClient } = useVisualizerContext();
+    const model = resourceModel as APIResource;
+    const data = generateResourceData(model) as EditAPIForm
     const [isFaultFlow, setFlow] = React.useState<boolean>(false);
     const [isTabPaneVisible, setTabPaneVisible] = React.useState(true);
+    const [isOpenForm, setOpenForm] = React.useState(false);
 
     const toggleFlow = () => {
         setFlow(!isFaultFlow);
     };
+
+    const editResource = (data: EditAPIForm) => {
+        const ranges: Range[] = getResourceDeleteRanges(model, data);
+        onResourceEdit(data, model.range.startTagRange, ranges, documentUri, rpcClient);
+    }
     
     return (
         <View>
-            <ViewHeader title="MI Diagram" codicon="globe">
+            <ViewHeader title="Resource View" codicon="globe">
                 {isTabPaneVisible && (
                     <Switch
                         leftLabel="Flow"
@@ -54,6 +67,14 @@ export const ResourceView = ({ model, documentUri, diagnostics }: ResourceViewPr
                     diagnostics={diagnostics}
                     isFaultFlow={isFaultFlow}
                     setTabPaneVisible={setTabPaneVisible}
+                    onFormOpen={() => setOpenForm(true)}
+                />
+                <EditResourceForm
+                    isOpen={isOpenForm}
+                    resourceData={data}
+                    documentUri={documentUri}
+                    onCancel={() => setOpenForm(false)}
+                    onEdit={editResource}
                 />
             </ViewContent>
         </View>

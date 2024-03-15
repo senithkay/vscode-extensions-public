@@ -7,11 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from "react";
-import { View, ViewContent, ViewHeader } from "../../components/View";
+import { Diagnostic } from "vscode-languageserver-types";
+import { NamedSequence } from "@wso2-enterprise/mi-syntax-tree/src";
 import { Diagram } from "@wso2-enterprise/mi-diagram-2";
 import { DiagramService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { Switch } from "@wso2-enterprise/ui-toolkit";
-import { Diagnostic } from "vscode-languageserver-types";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { View, ViewContent, ViewHeader } from "../../components/View";
+import { generateSequenceData, onSequenceEdit } from "../../utils/form";
+import { EditSequenceForm } from "../Forms/EditForms/EditSequenceForm";
 
 export interface SequenceViewProps {
     model: DiagramService;
@@ -19,41 +23,33 @@ export interface SequenceViewProps {
     diagnostics: Diagnostic[];
 }
 
-export const SequenceView = ({ model, documentUri, diagnostics }: SequenceViewProps) => {
-    const [isFaultFlow, setFlow] = React.useState<boolean>(false);
-    const [isTabPaneVisible, setTabPaneVisible] = React.useState(true);
+export const SequenceView = ({ model: SequenceModel, documentUri, diagnostics }: SequenceViewProps) => {
+    const { rpcClient } = useVisualizerContext();
+    const model = SequenceModel as NamedSequence;
+    const data = generateSequenceData(model) as EditSequenceForm
+    const [isOpenForm, setOpenForm] = React.useState(false);;
 
-    const toggleFlow = () => {
-        setFlow(!isFaultFlow);
-    };
+    const editSequence = (data: EditSequenceForm) => {
+        onSequenceEdit(data, model.range.startTagRange, documentUri, rpcClient);
+    }
     
     return (
         <View>
-            <ViewHeader title="MI Diagram" codicon="globe">
-                {isTabPaneVisible && (
-                    <Switch
-                        leftLabel="Flow"
-                        rightLabel="Fault"
-                        checked={isFaultFlow}
-                        checkedColor="var(--vscode-button-background)"
-                        enableTransition={true}
-                        onChange={toggleFlow}
-                        sx={{
-                            "margin": "auto",
-                            fontFamily: "var(--font-family)",
-                            fontSize: "var(--type-ramp-base-font-size)",
-                        }}
-                        disabled={false}
-                    />
-                )}
+            <ViewHeader title="Sequence View" codicon="globe">
+                <></>
             </ViewHeader>
             <ViewContent>
                 <Diagram
                     model={model}
                     documentUri={documentUri}
                     diagnostics={diagnostics}
-                    isFaultFlow={isFaultFlow}
-                    setTabPaneVisible={setTabPaneVisible}
+                    onFormOpen={() => setOpenForm(true)}
+                />
+                <EditSequenceForm
+                    isOpen={isOpenForm}
+                    sequenceData={data}
+                    onCancel={() => setOpenForm(false)}
+                    onEdit={editSequence}
                 />
             </ViewContent>
         </View>

@@ -7,11 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from "react";
-import { View, ViewContent, ViewHeader } from "../../components/View";
+import { Diagnostic } from "vscode-languageserver-types";
+import { Proxy } from "@wso2-enterprise/mi-syntax-tree/src";
 import { Diagram } from "@wso2-enterprise/mi-diagram-2";
 import { DiagramService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { Switch } from "@wso2-enterprise/ui-toolkit";
-import { Diagnostic } from "vscode-languageserver-types";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { View, ViewContent, ViewHeader } from "../../components/View";
 
 export interface ProxyViewProps {
     model: DiagramService;
@@ -19,7 +21,8 @@ export interface ProxyViewProps {
     diagnostics: Diagnostic[];
 }
 
-export const ProxyView = ({ model, documentUri, diagnostics }: ProxyViewProps) => {
+export const ProxyView = ({ model: ProxyModel, documentUri, diagnostics }: ProxyViewProps) => {
+    const model = ProxyModel as Proxy;
     const [isFaultFlow, setFlow] = React.useState<boolean>(false);
     const [isTabPaneVisible, setTabPaneVisible] = React.useState(true);
 
@@ -29,7 +32,7 @@ export const ProxyView = ({ model, documentUri, diagnostics }: ProxyViewProps) =
     
     return (
         <View>
-            <ViewHeader title="MI Diagram" codicon="globe">
+            <ViewHeader title="Proxy View" codicon="globe">
                 {isTabPaneVisible && (
                     <Switch
                         leftLabel="Flow"
