@@ -52,11 +52,11 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
         } else if (directory.toLowerCase() === "endpoint") {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.EndPointForm, documentUri: path } });
         } else if (directory.toLowerCase() === "sequence") {
-            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Diagram, documentUri: path } });
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.SequenceView, documentUri: path } });
         } else if (directory.toLowerCase() === "message_processor") {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.MessageProcessorForm, documentUri: path } });
         } else if (directory.toLowerCase() === "proxy_service") {
-            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Diagram, documentUri: path } });
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ProxyView, documentUri: path } });
         } else if (directory.toLowerCase() === "task") {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.TaskForm, documentUri: path } });
         } else if (directory.toLowerCase() === "template") {

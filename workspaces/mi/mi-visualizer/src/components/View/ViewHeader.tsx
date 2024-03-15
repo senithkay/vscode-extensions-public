@@ -45,6 +45,10 @@ const Title = styled.h3({
 
 const Actions = styled.div({
     /* Style for actions */
+    display: 'flex',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: "8px"
 });
 
 const ViewHeader: React.FC<ViewHeaderProps> = ({ title, children, codicon, icon, onEdit }) => {
