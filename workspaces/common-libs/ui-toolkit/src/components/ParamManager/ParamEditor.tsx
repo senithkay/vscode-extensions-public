@@ -13,7 +13,7 @@ import React from 'react';
 import { ActionButtons } from '../ActionButtons/ActionButtons';
 import { EditorContainer, EditorContent } from './styles';
 import { Param, TypeResolver } from './TypeResolver';
-import { Parameters } from './ParamManager';
+import { Parameters, isFieldEnabled } from './ParamManager';
 
 export interface ParamProps {
     parameters: Parameters;
@@ -39,53 +39,7 @@ export function ParamEditor(props: ParamProps) {
             const paramEnabled = updatedParams.map(param => {
                 if (param.enableCondition === null || param.enableCondition) {
                     const enableCondition = param.enableCondition;
-                    let paramEnabled = false;
-                    enableCondition["OR"]?.forEach(item => {
-                        updatedParams.forEach(par => {
-                            if (item[`${par.label}`]) {
-                                const satisfiedConditionValue = item[`${par.label}`];
-                                // if one of the condition is satisfied, then the param is enabled
-                                if (par.value === satisfiedConditionValue) {
-                                    paramEnabled = true;
-                                }
-                                
-                            }
-                        });
-                    });
-                    enableCondition["AND"]?.forEach(item => {
-                        paramEnabled = !paramEnabled ? false : paramEnabled; 
-                        for (const par of updatedParams) {
-                            if (item[`${par.label}`]) {
-                                const satisfiedConditionValue = item[`${par.label}`];
-                                // if all of the condition is not satisfied, then the param is enabled
-                                paramEnabled = (par.value === satisfiedConditionValue);
-                                if (!paramEnabled) {
-                                    break;
-                                }
-                            }
-                        }
-                    });
-                    enableCondition["NOT"]?.forEach(item => {
-                        for (const par of updatedParams) {
-                            if (item[`${par.label}`]) {
-                                const satisfiedConditionValue = item[`${par.label}`];
-                                // if the condition is not satisfied, then the param is enabled
-                                paramEnabled = !(par.value === satisfiedConditionValue);
-                                if (!paramEnabled) {
-                                    break;
-                                }
-                            }
-                        }
-                    });
-                    enableCondition["null"]?.forEach(item => {
-                        updatedParams.forEach(par => {
-                            if (item[`${par.label}`]) {
-                                const satisfiedConditionValue = item[`${par.label}`];
-                                // if the condition is not satisfied, then the param is enabled
-                                paramEnabled = (par.value === satisfiedConditionValue);
-                            }
-                        });
-                    });
+                    const paramEnabled = isFieldEnabled(updatedParams, enableCondition);
                     return {...param, isEnabled: paramEnabled};
                 }
                 return param;
