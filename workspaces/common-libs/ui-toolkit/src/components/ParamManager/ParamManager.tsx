@@ -25,12 +25,6 @@ export interface ConditionParams {
     [key: string]: string;
 }
 
-// enum ConditionType {
-//     OR = "OR",
-//     AND = "AND",
-//     NOT = "NOT"
-// }
-
 export interface EnableCondition {
     [key: string]: ConditionParams[];
 }
