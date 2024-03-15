@@ -437,7 +437,6 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
     return (
         <WizardContainer>
             <SectionWrapper>
-                <h3></h3>
                 <Container>
                     <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
                     <div style={{ marginLeft: 30 }}>

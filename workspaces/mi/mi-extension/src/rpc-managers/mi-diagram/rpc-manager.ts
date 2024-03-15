@@ -111,6 +111,14 @@ import {
     WriteContentToFileResponse,
     getSTRequest,
     getSTResponse,
+    UpdateDefaultEndpointRequest,
+    UpdateDefaultEndpointResponse,
+    RetrieveDefaultEndpointRequest,
+    RetrieveDefaultEndpointResponse,
+    GetFailoverEPRequest,
+    GetFailoverEPResponse,
+    UpdateFailoverEPRequest,
+    UpdateFailoverEPResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -122,11 +130,11 @@ import { Position, Range, Selection, Uri, ViewColumn, WorkspaceEdit, commands, w
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { createFolderStructure, getAddressEndpointXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
-import { addNewEntryToArtifactXML, changeRootPomPackaging, detectMediaType, getMediatypeAndFileExtension } from "../../util/fileOperations";
 import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
+import { createFolderStructure, getTaskXmlWrapper, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper, getMessageStoreXmlWrapper, getTemplateXmlWrapper, getHttpEndpointXmlWrapper, getAddressEndpointXmlWrapper, getWsdlEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getLoadBalanceXmlWrapper, getFailoverXmlWrapper } from "../../util";
+import { getMediatypeAndFileExtension, addNewEntryToArtifactXML, detectMediaType, changeRootPomPackaging } from "../../util/fileOperations";
 import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
@@ -491,6 +499,104 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 buildMessage: 'true',
                 sessionManagement: 'none',
                 sessionTimeout: '',
+                description: '',
+                endpoints: [],
+                properties: []
+            });
+        });
+    }
+    
+    async updateFailoverEndpoint(params: UpdateFailoverEPRequest): Promise<UpdateFailoverEPResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, ...templateParams } = params;
+
+            const xmlData = getFailoverXmlWrapper(templateParams);
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${templateParams.name}.xml`);
+            }
+
+            fs.writeFileSync(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getFailoverEndpoint(params: GetFailoverEPRequest): Promise<GetFailoverEPResponse> {
+        return new Promise(async (resolve) => {
+            const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
+            const options = {
+                ignoreAttributes : false,
+                attributeNamePrefix: "@_",
+                indentBy: '    ',
+                format: true,
+            };
+            
+            const builder = new XMLBuilder(options);
+            const filePath = params.path;
+
+            if (filePath.includes('.xml') && fs.existsSync(filePath)) {
+                const { name, failover, property, description} = endpointSyntaxTree.syntaxTree.endpoint;
+
+                const endpoints = failover.endpoint.map((member: any) => {
+                    const { address, name } = member;
+
+                    let value = '';
+                    if (member.key) {
+                        value = member.key;
+                    }
+                    else {
+                        value = builder.build({
+                            "endpoint": {
+                                "@_name": name,
+                                "address": {
+                                    "@_uri": address.uri,
+                                    "suspendOnFailure": {
+                                        "initialDuration": {
+                                            "#text": address.suspendOnFailure.initialDuration.textNode
+                                        },
+                                        "progressionFactor": {
+                                            "#text": address.suspendOnFailure.progressionFactor.textNode
+                                        }
+                                    },
+                                    "markForSuspension": {
+                                        "retriesBeforeSuspension": {
+                                            "#text": address.markForSuspension.retriesBeforeSuspension.textNode
+                                        }
+                                    }
+                                }
+                            }
+                        }).trim();
+                    }
+
+                    return {
+                        type: member.key ? 'static' : 'inline',
+                        value,
+                    };
+                });
+
+                const properties = property.map((prop: any) => ({
+                    name: prop.name,
+                    value: prop.value,
+                    scope: prop.scope ?? 'default'
+                }));
+
+                resolve({
+                    name,
+                    buildMessage: String(failover.buildMessage) ?? 'false',
+                    description: description ?? '',
+                    endpoints: endpoints.length > 0 ? endpoints : [],
+                    properties: properties.length > 0 ? properties : []
+                });
+            }
+
+            resolve({
+                name: '',
+                buildMessage: 'true',
                 description: '',
                 endpoints: [],
                 properties: []
@@ -1400,6 +1506,96 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     addressingVersion: wsdlParams.enableAddressing != undefined ? wsdlParams.enableAddressing.version : '',
                     addressListener: (wsdlParams.enableAddressing != undefined && wsdlParams.enableAddressing.separateListener) ? 'enable' : 'disable',
                     securityEnabled: wsdlParams.enableSec != undefined ? 'enable' : 'disable',
+                    suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
+                    initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : '',
+                    maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : '',
+                    progressionFactor: failureParams.progressionFactor != undefined ? failureParams.progressionFactor.textNode : '',
+                    retryErrorCodes: suspensionParams.errorCodes != undefined ? suspensionParams.errorCodes.textNode : '',
+                    retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : '',
+                    retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : '',
+                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : '',
+                    timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : ''
+                };
+
+                if (response.format === 'SOAP11') {
+                    response.format = 'SOAP 1.1';
+                } else if (response.format === 'SOAP12') {
+                    response.format = 'SOAP 1.2';
+                }
+
+                if (endpointParams.property != undefined) {
+                    let params: any[];
+                    params = endpointParams.property;
+                    params.forEach((element) => {
+                        response.properties.push({ name: element.name, value: element.value, scope: element.scope });
+                    });
+                }
+
+                response.requireProperties = response.properties.length > 0;
+
+                resolve(response);
+            }
+        });
+    }
+
+    async updateDefaultEndpoint(params: UpdateDefaultEndpointRequest): Promise<UpdateDefaultEndpointResponse> {
+        return new Promise(async (resolve) => {
+            const {
+                directory, endpointName, format, traceEnabled, statisticsEnabled, optimize, description, requireProperties,
+                properties, addressingEnabled, addressingVersion, addressListener, securityEnabled, suspendErrorCodes,
+                initialDuration, maximumDuration, progressionFactor, retryErrorCodes, retryCount, retryDelay,
+                timeoutDuration, timeoutAction
+            } = params;
+
+            const getDefaultEndpointParams = {
+                endpointName, format, traceEnabled, statisticsEnabled, optimize, description, requireProperties,
+                properties, addressingEnabled, addressingVersion, addressListener, securityEnabled, suspendErrorCodes,
+                initialDuration, maximumDuration, progressionFactor, retryErrorCodes, retryCount, retryDelay,
+                timeoutDuration, timeoutAction
+            };
+
+            const xmlData = getDefaultEndpointXmlWrapper(getDefaultEndpointParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${endpointName}.xml`);
+            }
+
+            fs.writeFileSync(filePath, sanitizedXmlData);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getDefaultEndpoint(params: RetrieveDefaultEndpointRequest): Promise<RetrieveDefaultEndpointResponse> {
+
+        const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
+        const endpointParams = endpointSyntaxTree.syntaxTree.endpoint;
+        const defaultParams = endpointParams._default;
+        const suspensionParams = defaultParams.markForSuspension;
+        const failureParams = defaultParams.suspendOnFailure;
+        const timeoutParams = defaultParams.timeout;
+
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (fs.existsSync(filePath)) {
+                let response: RetrieveDefaultEndpointResponse = {
+                    endpointName: endpointParams.name,
+                    format: defaultParams.format != undefined ? defaultParams.format.toUpperCase() : 'LEAVE_AS_IS',
+                    traceEnabled: defaultParams.trace != undefined ? defaultParams.trace : 'disable',
+                    statisticsEnabled: defaultParams.statistics != undefined ? defaultParams.statistics : 'disable',
+                    optimize: defaultParams.optimize != undefined ? defaultParams.optimize.toUpperCase() : 'LEAVE_AS_IS',
+                    description: endpointParams.description,
+                    requireProperties: false,
+                    properties: [],
+                    addressingEnabled: defaultParams.enableAddressing != undefined ? 'enable' : 'disable',
+                    addressingVersion: defaultParams.enableAddressing != undefined ? defaultParams.enableAddressing.version : '',
+                    addressListener: (defaultParams.enableAddressing != undefined && defaultParams.enableAddressing.separateListener) ? 'enable' : 'disable',
+                    securityEnabled: defaultParams.enableSec != undefined ? 'enable' : 'disable',
                     suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
                     initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : '',
                     maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : '',

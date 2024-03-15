@@ -12,7 +12,7 @@ import styled from "@emotion/styled";
 export const SectionWrapper: any = styled.div`
     // Flex Props
     display: flex;
-    height: 80vh;
+    height: 65vh;
     flex-direction: column;
     justify-content: flex-start;
     position: relative;

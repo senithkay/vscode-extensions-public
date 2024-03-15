@@ -21,6 +21,14 @@ export interface Parameters {
     parameters: Param[];
 }
 
+export interface ConditionParams {
+    [key: string]: string;
+}
+
+export interface EnableCondition {
+    [key: string]: ConditionParams[];
+}
+
 export interface ParamField {
     id?: number;
     type: "TextField" | "Dropdown" | "Checkbox" | "TextArea";
@@ -28,6 +36,7 @@ export interface ParamField {
     defaultValue: string | boolean;
     isRequired?: boolean;
     values?: string[]; // For Dropdown
+    enableCondition?: (ConditionParams | string)[];
 }
 
 export interface ParamConfig {
@@ -45,6 +54,86 @@ const AddButtonWrapper = styled.div`
 	margin: 8px 0;
 `;
 
+export function convertToObject(input: (ConditionParams | string)[]): EnableCondition {
+    if (!input) {
+        return null;
+    }
+    const result: EnableCondition = {};
+    let currentKey: string | null = null;
+    let currentValues: ConditionParams[] = [];
+
+    for (const item of input) {
+        if (typeof item === 'string') {
+            if (currentValues.length > 0) {
+                result[currentKey!] = currentValues;
+                currentValues = [];
+            }
+            currentKey = item;
+        } else {
+            if (!currentKey) {
+                currentKey = null;
+            }
+            currentValues.push(item);
+        }
+    }
+    if (currentValues.length > 0) {
+        result[currentKey!] = currentValues;
+    }
+    console.log(result);
+    return result;
+}
+
+// This function is used to check the field is enabled or not on the eneble condition
+export function isFieldEnabled(params: Param[], enableCondition?: EnableCondition): boolean {
+    let paramEnabled = false;
+    enableCondition["OR"]?.forEach(item => {
+        params.forEach(par => {
+            if (item[`${par.label}`]) {
+                const satisfiedConditionValue = item[`${par.label}`];
+                // if one of the condition is satisfied, then the param is enabled
+                if (par.value === satisfiedConditionValue) {
+                    paramEnabled = true;
+                }
+            }
+        });
+    });
+    enableCondition["AND"]?.forEach(item => {
+        paramEnabled = !paramEnabled ? false : paramEnabled; 
+        for (const par of params) {
+            if (item[`${par.label}`]) {
+                const satisfiedConditionValue = item[`${par.label}`];
+                // if all of the condition is not satisfied, then the param is enabled
+                paramEnabled = (par.value === satisfiedConditionValue);
+                if (!paramEnabled) {
+                    break;
+                }
+            }
+        }
+    });
+    enableCondition["NOT"]?.forEach(item => {
+        for (const par of params) {
+            if (item[`${par.label}`]) {
+                const satisfiedConditionValue = item[`${par.label}`];
+                // if the condition is not satisfied, then the param is enabled
+                paramEnabled = !(par.value === satisfiedConditionValue);
+                if (!paramEnabled) {
+                    break;
+                }
+            }
+        }
+    });
+    enableCondition["null"]?.forEach(item => {
+        params.forEach(par => {
+            if (item[`${par.label}`]) {
+                const satisfiedConditionValue = item[`${par.label}`];
+                // if the condition is not satisfied, then the param is enabled
+                paramEnabled = (par.value === satisfiedConditionValue);
+            }
+        });
+    });
+    return paramEnabled;
+}
+
 const getNewParam = (fields: ParamField[], index: number): Parameters => {
     const paramInfo: Param[] = [];
     fields.forEach((field, index) => {
@@ -54,20 +143,32 @@ const getNewParam = (fields: ParamField[], index: number): Parameters => {
             type: field.type,
             value: field.defaultValue,
             values: field.values,
-            isRequired: field.isRequired            
+            isRequired: field.isRequired,            
+            enableCondition: field.enableCondition ? convertToObject(field.enableCondition) : undefined
         });
+    });
+    // Modify the fields to set field is enabled or not
+    const modifiedParamInfo = paramInfo.map(param => {
+        if (param.enableCondition) {
+            const paramEnabled = isFieldEnabled(paramInfo, param.enableCondition);
+            param.isEnabled = paramEnabled;
+        }
+        return param;
     });
     return {
         id: index,
-        parameters: paramInfo
+        parameters: modifiedParamInfo
     };
 };
+
+export function findFieldFromParam(field: ParamField[], value: Param): ParamField {
+    return field?.find(item => item.label === value?.label) || null;
+}
 
 export function ParamManager(props: ParamManagerProps) {
     const { paramConfigs , readonly, onChange } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
-
 
     const onEdit = (param: Parameters) => {
         setEditingSegmentId(param.id);

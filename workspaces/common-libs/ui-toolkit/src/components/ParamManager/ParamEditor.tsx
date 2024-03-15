@@ -13,7 +13,7 @@ import React from 'react';
 import { ActionButtons } from '../ActionButtons/ActionButtons';
 import { EditorContainer, EditorContent } from './styles';
 import { Param, TypeResolver } from './TypeResolver';
-import { Parameters } from './ParamManager';
+import { Parameters, isFieldEnabled } from './ParamManager';
 
 export interface ParamProps {
     parameters: Parameters;
@@ -27,7 +27,7 @@ export function ParamEditor(props: ParamProps) {
     const { parameters, onChange, onSave, onCancel } = props;
 
     const getParamComponent = (p: Param) => {
-        const handleTypeResoverChange = (newParam: Param) => {
+        const handleTypeResolverChange = (newParam: Param) => {
             // update the params array base on the id of the param with the new param
             const updatedParams = parameters.parameters.map(param => {
                 if (param.id === newParam.id) {
@@ -35,9 +35,18 @@ export function ParamEditor(props: ParamProps) {
                 }
                 return param;
             });
-            onChange({ ...parameters, parameters: updatedParams });
+
+            const paramEnabled = updatedParams.map(param => {
+                if (param.enableCondition === null || param.enableCondition) {
+                    const enableCondition = param.enableCondition;
+                    const paramEnabled = isFieldEnabled(updatedParams, enableCondition);
+                    return {...param, isEnabled: paramEnabled};
+                }
+                return param;
+            });
+            onChange({ ...parameters, parameters: paramEnabled });
         }
-        return <TypeResolver param={p} onChange={handleTypeResoverChange} />;        
+        return <TypeResolver param={p} onChange={handleTypeResolverChange} />;
     }
 
     const handleOnCancel = () => {
@@ -51,7 +60,7 @@ export function ParamEditor(props: ParamProps) {
     return (
         <EditorContainer>
             <EditorContent>
-                {parameters.parameters.map(param => getParamComponent(param))}
+                {parameters?.parameters.map(param => getParamComponent(param))}
             </EditorContent>
             <ActionButtons
                 primaryButton={{ text: "Save", onClick: handleOnSave }}

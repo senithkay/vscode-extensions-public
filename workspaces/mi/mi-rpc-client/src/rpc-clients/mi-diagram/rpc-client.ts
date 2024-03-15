@@ -36,6 +36,10 @@ import {
     CreateMessageStoreResponse,
     CreateProjectRequest,
     CreateProjectResponse,
+    UpdateDefaultEndpointRequest,
+    UpdateDefaultEndpointResponse,
+    RetrieveDefaultEndpointRequest,
+    RetrieveDefaultEndpointResponse,
     CreateProxyServiceRequest,
     CreateProxyServiceResponse,
     CreateRegistryResourceRequest,
@@ -60,8 +64,6 @@ import {
     GetDiagnosticsResponse,
     GetInboundEndpointRequest,
     GetInboundEndpointResponse,
-    GetLoadBalanceEPRequest,
-    GetLoadBalanceEPResponse,
     GetLocalEntryRequest,
     GetLocalEntryResponse,
     GetMessageStoreRequest,
@@ -125,10 +127,10 @@ import {
     createSequence,
     createTask,
     createTemplate,
+    updateDefaultEndpoint,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
-    getAddressEndpoint,
     getAvailableResources,
     getConnector,
     getConnectors,
@@ -137,11 +139,8 @@ import {
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
-    getHttpEndpoint,
     getInboundEndpoint,
-    getLoadBalanceEndpoint,
     getLocalEntry,
-    getMessageProcessor,
     getMessageStore,
     getProjectRoot,
     getProjectUuid,
@@ -149,6 +148,10 @@ import {
     getSTResponse,
     getSelectiveWorkspaceContext,
     getSequenceDirectory,
+    getMessageProcessor,
+    getHttpEndpoint,
+    getAddressEndpoint,
+    getDefaultEndpoint,
     getSyntaxTree,
     getTask,
     getTemplate,
@@ -170,7 +173,16 @@ import {
     updateHttpEndpoint,
     updateLoadBalanceEndpoint,
     updateWsdlEndpoint,
-    writeContentToFile
+    writeContentToFile,
+    GetLoadBalanceEPRequest,
+    GetLoadBalanceEPResponse,
+    getLoadBalanceEndpoint,
+    UpdateFailoverEPRequest,
+    UpdateFailoverEPResponse,
+    updateFailoverEndpoint,
+    GetFailoverEPRequest,
+    GetFailoverEPResponse,
+    getFailoverEndpoint
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -232,6 +244,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getLoadBalanceEndpoint(params: GetLoadBalanceEPRequest): Promise<GetLoadBalanceEPResponse> {
         return this._messenger.sendRequest(getLoadBalanceEndpoint, HOST_EXTENSION, params);
+    }
+
+    updateFailoverEndpoint(params: UpdateFailoverEPRequest): Promise<UpdateFailoverEPResponse> {
+        return this._messenger.sendRequest(updateFailoverEndpoint, HOST_EXTENSION, params);
+    }
+    
+    getFailoverEndpoint(params: GetFailoverEPRequest): Promise<GetFailoverEPResponse> {
+        return this._messenger.sendRequest(getFailoverEndpoint, HOST_EXTENSION, params);
     }
 
     createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
@@ -328,6 +348,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getWsdlEndpoint(params: RetrieveWsdlEndpointRequest): Promise<RetrieveWsdlEndpointResponse> {
         return this._messenger.sendRequest(getWsdlEndpoint, HOST_EXTENSION, params);
+    }
+
+    updateDefaultEndpoint(params: UpdateDefaultEndpointRequest): Promise<UpdateDefaultEndpointResponse> {
+        return this._messenger.sendRequest(updateDefaultEndpoint, HOST_EXTENSION, params);
+    }
+
+    getDefaultEndpoint(params: RetrieveDefaultEndpointRequest): Promise<RetrieveDefaultEndpointResponse> {
+        return this._messenger.sendRequest(getDefaultEndpoint, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {

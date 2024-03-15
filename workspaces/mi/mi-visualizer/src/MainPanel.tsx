@@ -25,9 +25,11 @@ import { ClassMediatorForm } from './views/Forms/ClassMediatorForm';
 import { HttpEndpointWizard } from "./views/Forms/HTTPEndpointForm";
 import { AddressEndpointWizard } from "./views/Forms/AddressEndpointForm";
 import { WsdlEndpointWizard } from "./views/Forms/WSDLEndpointForm";
+import { DefaultEndpointWizard } from "./views/Forms/DefaultEndpointForm";
 import { LoadBalanceWizard } from './views/Forms/LoadBalanceEPform';
 import { css, keyframes } from '@emotion/react';
 import { getSyntaxTreeType } from './utils/syntax-tree';
+import { FailoverWizard } from './views/Forms/FailoverEndpointForm';
 
 const MainContainer = styled.div`
     display: flex;
@@ -150,6 +152,9 @@ const MainPanel = () => {
                 case MACHINE_VIEW.LoadBalanceEndPointForm:
                     setViewComponent(<LoadBalanceWizard path={machineView.documentUri} />);
                     break;
+                case MACHINE_VIEW.FailoverEndPointForm:
+                    setViewComponent(<FailoverWizard path={machineView.documentUri} />);
+                    break;
                 case MACHINE_VIEW.SequenceForm:
                     setViewComponent(<SequenceWizard path={machineView.documentUri} />);
                     break;
@@ -179,6 +184,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.WsdlEndpointForm:
                     setViewComponent(<WsdlEndpointWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.DefaultEndpointForm:
+                    setViewComponent(<DefaultEndpointWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.ProjectCreationForm:
                     setViewComponent(<ProjectWizard />);

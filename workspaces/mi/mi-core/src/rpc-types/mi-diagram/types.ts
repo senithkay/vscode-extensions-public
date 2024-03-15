@@ -92,6 +92,31 @@ export interface GetLoadBalanceEPResponse {
     properties: { name: string; value: string; scope: string; }[];
 }
 
+export interface UpdateFailoverEPRequest {
+    directory: string;
+    name: string;
+    buildMessage: string;
+    description: string;
+    endpoints: { type: string; value: string; }[];
+    properties: { name: string; value: string; scope: string; }[];
+}
+
+export interface UpdateFailoverEPResponse {
+    path: string;
+}
+
+export interface GetFailoverEPRequest {
+    path: string;
+}
+
+export interface GetFailoverEPResponse {
+    name: string;
+    buildMessage: string;
+    description: string;
+    endpoints: { type: string; value: string; }[];
+    properties: { name: string; value: string; scope: string; }[];
+}
+
 export interface CreateInboundEndpointRequest {
     directory: string;
     name: string;
@@ -632,6 +657,63 @@ export interface RetrieveWsdlEndpointResponse {
     wsdlUri: string;
     wsdlService: string;
     wsdlPort: string;
+    requireProperties: boolean;
+    properties: any;
+    addressingEnabled: string;
+    addressingVersion: string;
+    addressListener: string;
+    securityEnabled: string;
+    suspendErrorCodes: string;
+    initialDuration: string;
+    maximumDuration: string;
+    progressionFactor: string;
+    retryErrorCodes: string;
+    retryCount: string;
+    retryDelay: string;
+    timeoutDuration: string;
+    timeoutAction: string;
+}
+
+export interface UpdateDefaultEndpointRequest {
+    directory: string;
+    endpointName: string;
+    format: string;
+    traceEnabled: string;
+    statisticsEnabled: string;
+    optimize: string;
+    description: string;
+    requireProperties: boolean;
+    properties: any;
+    addressingEnabled: string;
+    addressingVersion: string;
+    addressListener: string;
+    securityEnabled: string;
+    suspendErrorCodes: string;
+    initialDuration: string;
+    maximumDuration: string;
+    progressionFactor: string;
+    retryErrorCodes: string;
+    retryCount: string;
+    retryDelay: string;
+    timeoutDuration: string;
+    timeoutAction: string;
+}
+
+export interface UpdateDefaultEndpointResponse {
+    path: string;
+}
+
+export interface RetrieveDefaultEndpointRequest {
+    path: string;
+}
+
+export interface RetrieveDefaultEndpointResponse {
+    endpointName: string;
+    format: string;
+    traceEnabled: string;
+    statisticsEnabled: string;
+    optimize: string;
+    description: string;
     requireProperties: boolean;
     properties: any;
     addressingEnabled: string;
