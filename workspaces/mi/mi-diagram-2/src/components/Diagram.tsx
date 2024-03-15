@@ -35,6 +35,10 @@ export interface DiagramProps {
     model: DiagramService;
     documentUri: string;
     diagnostics?: Diagnostic[];
+
+    // Callbacks for the diagram view
+    isFaultFlow?: boolean;
+    setTabPaneVisible?: (value: boolean) => void;
 }
 
 export enum DiagramType {
@@ -63,17 +67,11 @@ namespace S {
 export const SIDE_PANEL_WIDTH = 450;
 
 export function Diagram(props: DiagramProps) {
-    const { model, diagnostics } = props;
+    const { model, diagnostics, isFaultFlow, setTabPaneVisible } = props;
     const [diagramDataMap, setDiagramDataMap] = useState(new Map());
     const { rpcClient } = useVisualizerContext();
-    const [isTabPaneVisible, setTabPaneVisible] = useState(true);
     const [isSequence, setSequence] = useState(false);
-    const [isFaultFlow, setFlow] = useState(false);
     const [canvasDimensions, setCanvasDimensions] = useState({ width: 0, height: 0 });
-
-    const toggleFlow = () => {
-        setFlow(!isFaultFlow);
-    };
 
     const [diagramData, setDiagramData] = useState({
         flow: {
@@ -306,24 +304,6 @@ export function Diagram(props: DiagramProps) {
                     ...sidePanelState,
                     setSidePanelState,
                 }}>
-                    {isTabPaneVisible &&
-                        <div style={{
-                            width: canvasDimensions.width,
-                            minWidth: "100%",
-                        }}>
-                            <Switch
-                                leftLabel="Flow"
-                                rightLabel="Fault"
-                                checked={isFaultFlow}
-                                checkedColor="var(--vscode-button-background)"
-                                enableTransition={true}
-                                onChange={toggleFlow}
-                                sx={{
-                                    "margin": "auto",
-                                    fontFamily: "var(--font-family)",
-                                    fontSize: "var(--type-ramp-base-font-size)",
-                                }}
-                            /></div>}
                     {/* Flow */}
                     {diagramData.flow.engine && diagramData.flow.model && !isFaultFlow &&
                         <DiagramCanvas height={canvasDimensions.height + 100} width={canvasDimensions.width}>

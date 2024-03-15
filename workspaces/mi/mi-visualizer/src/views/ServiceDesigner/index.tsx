@@ -115,7 +115,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
 
     const openDiagram = (resource: Resource) => {
         const resourceIndex = serviceModel.resources.findIndex((res) => res === resource);
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Diagram, documentUri: documentUri, identifier: resourceIndex.toString() } })
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ResourceView, documentUri: documentUri, identifier: resourceIndex.toString() } })
     }
 
     const handleResourceAdd = () => {
