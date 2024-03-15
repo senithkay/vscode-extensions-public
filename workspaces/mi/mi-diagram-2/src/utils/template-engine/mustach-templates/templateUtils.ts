@@ -50,6 +50,7 @@ import { getCacheFormDataFromSTNode, getCacheMustacheTemplate, getCacheXml } fro
 import { getEditApiResourceXml, getEditSequenceXml } from "./core/service-designer";
 import { getAggregateFormDataFromSTNode, getAggregateMustacheTemplate, getAggregateXml } from "./eip/aggreagte";
 import { getIterateFormDataFromSTNode, getIterateMustacheTemplate, getIterateXml } from "./eip/iterate";
+import { getSwitchFormDataFromSTNode, getSwitchMustacheTemplate, getSwitchXml } from "./filter/switch";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -107,6 +108,8 @@ export function getMustacheTemplate(name: string) {
         //Filter Mediators
         case MEDIATORS.FILTER:
             return getFilterMustacheTemplate();
+        case MEDIATORS.SWITCH:
+            return getSwitchMustacheTemplate();
         //Extension Mediators
         case MEDIATORS.BEAN:
             return getBeanMustacheTemplate()
@@ -187,6 +190,8 @@ export function getXML(name: string, data: { [key: string]: any }) {
         //Filter Mediators
         case MEDIATORS.FILTER:
             return getFilterXml(data);
+        case MEDIATORS.SWITCH:
+            return getSwitchXml(data);
         //Extension Mediators    
         case MEDIATORS.BEAN:
             return getBeanXml(data);
@@ -265,6 +270,8 @@ export function getDataFromXML(name: string, node: STNode) {
         //Filter Mediators
         case MEDIATORS.FILTER:
             return getFilterFormDataFromSTNode(formData, node as Filter);
+        case MEDIATORS.SWITCH:
+            return getSwitchFormDataFromSTNode(formData, node as Switch)
         //Extension Mediators
         case MEDIATORS.CLASS:
             return getClassFormDataFromSTNode(formData, node as Class);

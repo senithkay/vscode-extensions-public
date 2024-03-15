@@ -58,6 +58,7 @@ import EnqueueForm from "../Pages/mediators/advanced/enqueue"
 import EventForm from "../Pages/mediators/advanced/event"
 import TransactionForm from "../Pages/mediators/advanced/transaction"
 import CacheForm from "../Pages/mediators/advanced/cache"
+import SwitchForm from "../Pages/mediators/filter/switch"
 
 export interface GetMediatorsProps {
     nodePosition: any;
@@ -261,6 +262,11 @@ export function getAllMediators(props: GetMediatorsProps) {
                 title: "Filter",
                 operationName: MEDIATORS.FILTER,
                 form: <FilterForm nodePosition={props.nodePosition} documentUri={props.documentUri}></FilterForm>,
+            },
+            {
+                title: "Switch",
+                operationName: MEDIATORS.SWITCH,
+                form: <SwitchForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SwitchForm>,
             }
         ],
         "eip": [
