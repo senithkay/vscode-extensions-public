@@ -58,7 +58,7 @@ import EnqueueForm from "../Pages/mediators/advanced/enqueue"
 import EventForm from "../Pages/mediators/advanced/event"
 import TransactionForm from "../Pages/mediators/advanced/transaction"
 import CacheForm from "../Pages/mediators/advanced/cache"
-import SwitchForm from "../Pages/mediators/filter/switch"
+import SwitchForm from "../Pages/mediators/filter/switchMediator"
 
 export interface GetMediatorsProps {
     nodePosition: any;
