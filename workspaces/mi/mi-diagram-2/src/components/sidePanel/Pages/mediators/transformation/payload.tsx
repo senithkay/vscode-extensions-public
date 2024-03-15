@@ -47,41 +47,49 @@ const PayloadForm = (props: AddMediatorProps) => {
         paramValues: [],
         paramFields: [
             {
+                id: 0,
                 type: "Dropdown",
-                label: "argumentType",
+                label: "Argument Type",
                 defaultValue: "Value",
-                isRequired: true,
+                isRequired: false,
                 values: ["Value", "Expression"]
             },
             {
+                id: 1,
                 type: "TextField",
-                label: "argumentValue",
+                label: "Argument Value",
                 defaultValue: "default",
-                isRequired: false
+                isRequired: false,
+                enableCondition: [{ "Argument Type": "Value" }]
             },
             {
+                id: 2,
                 type: "TextField",
-                label: "argumentExpression",
+                label: "Argument Expression",
                 defaultValue: "",
-                isRequired: false
+                isRequired: false,
+                enableCondition: [{ "Argument Type": "Expression" }]
             },
             {
+                id: 3,
                 type: "Dropdown",
-                label: "evaluator",
+                label: "Evaluator",
                 defaultValue: "xml",
                 isRequired: false,
-                values: ["xml", "json"]
+                values: ["xml", "json"],
+                enableCondition: [{ "Argument Type": "Expression" }]
             },
             {
+                id: 4,
                 type: "Checkbox",
-                label: "literal",
+                label: "Literal",
                 defaultValue: false,
                 isRequired: false
-            },]
+            }]
     };
- 
-   const [params, setParams] = useState(paramConfigs);
- 
+
+    const [params, setParams] = useState(paramConfigs);
+
     const handleOnChange = (params: any) => {
         setParams(params);
     };
@@ -99,7 +107,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                                 label: "argumentType",
                                 type: "Dropdown",
                                 value: property[0],
-                                isRequired: true,
+                                isRequired: false,
                                 values: ["Value", "Expression"]
                             },
                             {
@@ -107,14 +115,14 @@ const PayloadForm = (props: AddMediatorProps) => {
                                 label: "argumentValue",
                                 type: "TextField",
                                 value: property[1],
-                                isRequired: true
+                                isRequired: false
                             },
                             {
                                 id: 2,
                                 label: "argumentExpression",
                                 type: "TextField",
                                 value: property[2],
-                                isRequired: true
+                                isRequired: false
                             },
                             {
                                 id: 3,
@@ -128,7 +136,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                                 id: 4,
                                 label: "literal",
                                 type: "Checkbox",
-                                value: false,
+                                value: property[4],
                                 isRequired: false
                             }
                         ]

@@ -47,40 +47,48 @@ const XQueryForm = (props: AddMediatorProps) => {
         paramValues: [],
         paramFields: [
             {
+                id: 0,
                 type: "TextField",
-                label: "variableName",
+                label: "Variable Name",
                 defaultValue: "",
                 isRequired: false
             },
             {
+                id: 1,
                 type: "Dropdown",
-                label: "variableType",
+                label: "Variable Type",
                 defaultValue: "STRING",
                 isRequired: false,
                 values: ["DOCUMENT", "DOCUMENT_ELEMENT", "ELEMENT", "INT", "INTEGER", "BOOLEAN", "BYTE", "DOUBLE", "SHORT", "LONG", "FLOAT", "STRING"]
             },
             {
+                id: 2,
                 type: "Dropdown",
-                label: "variableOption",
+                label: "Variable Option",
                 defaultValue: "LITERAL",
-                isRequired: true,
+                isRequired: false,
                 values: ["LITERAL", "EXPRESSION"]
             },
             {
+                id: 3,
                 type: "TextField",
-                label: "variableLiteral",
+                label: "Variable Literal",
                 defaultValue: "",
-                isRequired: false
+                isRequired: false,
+                enableCondition: [{ "Variable Option": "LITERAL" }]
             },
             {
+                id: 4,
                 type: "TextField",
-                label: "variableExpression",
+                label: "Variable Expression",
                 defaultValue: "",
-                isRequired: false
+                isRequired: false,
+                enableCondition: [{ "Variable Option": "EXPRESSION" }]
             },
             {
+                id: 5,
                 type: "TextField",
-                label: "variableKey",
+                label: "Variable Key",
                 defaultValue: "",
                 isRequired: false
             }]

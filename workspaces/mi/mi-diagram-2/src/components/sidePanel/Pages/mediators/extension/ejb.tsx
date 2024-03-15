@@ -19,11 +19,11 @@ import { getXML } from '../../../../../utils/template-engine/mustach-templates/t
 import { MEDIATORS } from '../../../../../resources/constants';
 
 const cardStyle = { 
-    display: "block",
-    margin: "15px 0",
-    padding: "0 15px 15px 15px",
-    width: "auto",
-    cursor: "auto"
+   display: "block",
+   margin: "15px 0",
+   padding: "0 15px 15px 15px",
+   width: "auto",
+   cursor: "auto"
 };
 
 const Error = styled.span`
@@ -47,35 +47,41 @@ const EJBForm = (props: AddMediatorProps) => {
     const paramConfigs: ParamConfig = {
         paramValues: [],
         paramFields: [
-        {
-            type: "TextField",
-            label: "Property Name",
-            defaultValue: "Name",
-            isRequired: true
-        },
-        {
-            type: "Dropdown",
-            label: "Property Value Type",
-            defaultValue: "LITERAL",
-            isRequired: true,
-            values: ["LITERAL", "EXPRESSION"]
-        },
-        {
-            type: "TextField",
-            label: "Property Value",
-            defaultValue: "value",
-            isRequired: false
-        },
-        {
-            type: "TextField",
-            label: "Property Expression",
-            defaultValue: "expression",
-            isRequired: false
-        },]
+            {
+                id: 0,
+                type: "TextField",
+                label: "Property Name",
+                defaultValue: "",
+                isRequired: false
+            },
+            {
+                id: 1,
+                type: "Dropdown",
+                label: "Property Value Type",
+                defaultValue: "LITERAL",
+                isRequired: false,
+                values: ["LITERAL", "EXPRESSION"]
+            },
+            {
+                id: 2,
+                type: "TextField",
+                label: "Property Value",
+                defaultValue: "",
+                isRequired: false,
+                enableCondition: [{ "Property Value Type": "LITERAL" }]
+            },
+            {
+                id: 3,
+                type: "TextField",
+                label: "Property Expression",
+                defaultValue: "",
+                isRequired: false,
+                enableCondition: [{ "Property Value Type": "EXPRESSION" }]
+            }]
     };
-    
+
     const [params, setParams] = useState(paramConfigs);
-    
+
     const handleOnChange = (params: any) => {
         setParams(params);
     };
@@ -86,8 +92,47 @@ const EJBForm = (props: AddMediatorProps) => {
                 sidePanelContext.formValues["methodArguments"] = [];
             }
             setFormValues({ ...formValues, ...sidePanelContext.formValues });
+            if (sidePanelContext.formValues["methodArguments"] && sidePanelContext.formValues["methodArguments"].length > 0) {
+                const paramValues = sidePanelContext.formValues["methodArguments"].map((property: string, index: string) => (
+                    {
+                        id: index,
+                        parameters: [
+                            {
+                                id: 0,
+                                label: "propertyName",
+                                type: "TextField",
+                                value: property[0],
+                                isRequired: false
+                            },
+                            {
+                                id: 1,
+                                label: "propertyValueType",
+                                type: "Dropdown",
+                                value: property[1],
+                                isRequired: false,
+                                values: ["LITERAL", "EXPRESSION"]
+                            },
+                            {
+                                id: 2,
+                                label: "propertyValue",
+                                type: "TextField",
+                                value: property[2],
+                                isRequired: false
+                            },
+                            {
+                                id: 3,
+                                label: "propertyExpression",
+                                type: "TextField",
+                                value: property[3],
+                                isRequired: false
+                            }
+                        ]
+                    })
+                )
+                setParams({ ...params, paramValues: paramValues });
+            }
         } else {
-            setFormValues({ 
+            setFormValues({
                 "remove": false,
                 "methodArguments": [] as string[][],
                 "sessionIdType": "LITERAL",

@@ -53,21 +53,23 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
 
     const paramConfigs: ParamConfig = {
         paramValues: [],
-        paramFields: [
-        {
+        paramFields: [{
+            id: 0,
             type: "Dropdown",
             label: "Property Name",
-            defaultValue: "New Property...",
+            defaultValue: "Action",
             isRequired: true,
             values: propertyNames
         },
         {
+            id: 1,
             type: "TextField",
             label: "New Property Name",
-            defaultValue: "newName",
-            isRequired: true
+            defaultValue: "",
+            isRequired: false
         },
         {
+            id: 2,
             type: "Dropdown",
             label: "Property Data Type",
             defaultValue: "STRING",
@@ -75,48 +77,70 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
             values: ["STRING", "INTEGER", "BOOLEAN", "DOUBLE", "FLOAT", "LONG", "SHORT", "OM", "JSON"]
         },
         {
+            id: 3,
             type: "Dropdown",
             label: "Property Action",
-            defaultValue: "STRING",
+            defaultValue: "set",
             isRequired: true,
             values: ["set", "remove"]
         },
         {
+            id: 4,
             type: "Dropdown",
             label: "Property Scope",
-            defaultValue: "STRING",
+            defaultValue: "DEFAULT",
             isRequired: true,
             values: ["DEFAULT", "TRANSPORT", "AXIS2", "AXIS2_CLIENT", "OPERATION", "REGISTRY", "SYSTEM", "ANALYTICS"]
         },
         {
+            id: 5,
             type: "Dropdown",
-            label: "Property Value Type",
+            label: "Value Type",
             defaultValue: "LITERAL",
             isRequired: false,
             values: ["LITERAL", "EXPRESSION"]
         },
         {
+            id: 6,
             type: "TextField",
             label: "Value",
-            defaultValue: "value",
-            isRequired: false
+            defaultValue: "",
+            isRequired: false,
+            enableCondition: [{ "Value Type": "LITERAL" }]
         },
         {
+            id: 7,
+            type: "TextField",
+            label: "Value Expression",
+            defaultValue: "",
+            isRequired: false,
+            enableCondition: [{ "Value Type": "EXPRESSION" }]
+        },
+        {
+            id: 8,
             type: "TextField",
             label: "Value String Pattern",
-            defaultValue: "valueStringPatter",
+            defaultValue: "",
             isRequired: false
         },
         {
+            id: 9,
             type: "TextField",
             label: "Value String Capturing Group",
             defaultValue: "0",
             isRequired: false
-        },]
+        },
+        {
+            id: 10,
+            type: "TextField",
+            label: "Description",
+            defaultValue: "",
+            isRequired: false
+        }]
     };
- 
+
     const [params, setParams] = useState(paramConfigs);
-    
+
     const handleOnChange = (params: any) => {
         setParams(params);
     };
@@ -124,7 +148,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
     useEffect(() => {
         if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
             setFormValues({ ...formValues, ...sidePanelContext.formValues });
-            if (sidePanelContext.formValues["properties"] && sidePanelContext.formValues["properties"].length > 0 ) {
+            if (sidePanelContext.formValues["properties"] && sidePanelContext.formValues["properties"].length > 0) {
                 const paramValues = sidePanelContext.formValues["properties"].map((property: string, index: string) => (
                     {
                         id: index,
@@ -132,44 +156,49 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                             {
                                 id: 0,
                                 label: "propertyName",
-                                type: "TextField",
+                                type: "Dropdown",
                                 value: property[0],
-                                isRequired: true
+                                isRequired: true,
+                                values: propertyNames
                             },
                             {
                                 id: 1,
                                 label: "newPropertyName",
                                 type: "TextField",
                                 value: property[1],
-                                isRequired: true
+                                isRequired: false
                             },
                             {
                                 id: 2,
                                 label: "propertyDataType",
-                                type: "TextField",
+                                type: "Dropdown",
                                 value: property[2],
-                                isRequired: true
+                                isRequired: true,
+                                values: ["STRING", "INTEGER", "BOOLEAN", "DOUBLE", "FLOAT", "LONG", "SHORT", "OM", "JSON"]
                             },
                             {
                                 id: 3,
                                 label: "propertyAction",
                                 type: "Dropdown",
                                 value: property[3],
-                                isRequired: true
+                                isRequired: true,
+                                values: ["set", "remove"]
                             },
                             {
                                 id: 4,
                                 label: "propertyScope",
                                 type: "Dropdown",
                                 value: property[4],
-                                isRequired: true
+                                isRequired: true,
+                                values: ["DEFAULT", "TRANSPORT", "AXIS2", "AXIS2_CLIENT", "OPERATION", "REGISTRY", "SYSTEM", "ANALYTICS"]
                             },
                             {
                                 id: 5,
-                                label: "propertyValueType",
+                                label: "valueType",
                                 type: "Dropdown",
                                 value: property[5],
-                                isRequired: false
+                                isRequired: false,
+                                values: ["LITERAL", "EXPRESSION"]
                             },
                             {
                                 id: 6,
@@ -180,16 +209,30 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                             },
                             {
                                 id: 7,
-                                label: "valueStringPattern",
+                                label: "valueExpression",
                                 type: "TextField",
-                                value: property[1],
+                                value: property[7],
                                 isRequired: false
                             },
                             {
                                 id: 8,
+                                label: "valueStringPattern",
+                                type: "TextField",
+                                value: property[8],
+                                isRequired: false
+                            },
+                            {
+                                id: 9,
                                 label: "valueStringCapturingGroup",
                                 type: "TextField",
-                                value: property[2],
+                                value: property[9],
+                                isRequired: false
+                            },
+                            {
+                                id: 10,
+                                label: "description",
+                                type: "TextField",
+                                value: property[10],
                                 isRequired: false
                             }
                         ]
@@ -199,7 +242,8 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
             }
         } else {
             setFormValues({
-                "properties": [] as string[][],});
+                "properties": [] as string[][],
+            });
         }
     }, [sidePanelContext.formValues]);
 
@@ -279,12 +323,12 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <h3>Properties</h3>
 
-                {formValues["properties"] && (
-                    <ParamManager
-                        paramConfigs={params}
-                        readonly={false}
-                        onChange= {handleOnChange} />
-                )}
+                    {formValues["properties"] && (
+                        <ParamManager
+                            paramConfigs={params}
+                            readonly={false}
+                            onChange={handleOnChange} />
+                    )}
                 </ComponentCard>
             </ComponentCard>
 

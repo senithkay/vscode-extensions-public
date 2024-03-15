@@ -49,23 +49,43 @@ const CallTemplateForm = (props: AddMediatorProps) => {
         paramValues: [],
         paramFields: [
             {
+                id: 0,
                 type: "TextField",
                 label: "Parameter Name",
-                defaultValue: "Name",
-                isRequired: true
+                defaultValue: "",
+                isRequired: false
             },
             {
+                id: 1,
                 type: "Dropdown",
                 label: "Template Parameter Type",
                 defaultValue: "LITERAL",
-                isRequired: true,
+                isRequired: false,
                 values: ["LITERAL", "EXPRESSION"]
             },
             {
+                id: 2,
                 type: "TextField",
                 label: "Parameter Value",
-                defaultValue: "value",
-                isRequired: true
+                defaultValue: "",
+                isRequired: false,
+                enableCondition: [
+                    {
+                        "Template Parameter Type": "LITERAL"
+                    }
+                ]
+            },
+            {
+                id: 3,
+                type: "TextField",
+                label: "Parameter Expression",
+                defaultValue: "",
+                isRequired: false,
+                enableCondition: [
+                    {
+                        "Template Parameter Type": "EXPRESSION"
+                    }
+                ]
             },]
     };
 
@@ -89,21 +109,29 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                                 label: "parameterName",
                                 type: "TextField",
                                 value: property[0],
-                                isRequired: true
+                                isRequired: false
                             },
                             {
                                 id: 1,
                                 label: "templateParameterType",
-                                type: "TextField",
+                                type: "Dropdown",
                                 value: property[1],
-                                isRequired: true
+                                isRequired: false,
+                                values: ["LITERAL", "EXPRESSION"]
                             },
                             {
                                 id: 2,
                                 label: "parameterValue",
                                 type: "TextField",
                                 value: property[2],
-                                isRequired: true
+                                isRequired: false
+                            },
+                            {
+                                id: 3,
+                                label: "parameterExpression",
+                                type: "TextField",
+                                value: property[3],
+                                isRequired: false
                             }
                         ]
                     })

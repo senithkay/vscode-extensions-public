@@ -47,48 +47,60 @@ const CommandForm = (props: AddMediatorProps) => {
         paramValues: [],
         paramFields: [
             {
+                id: 0,
                 type: "TextField",
-                label: "propertyName",
-                defaultValue: "Name",
-                isRequired: true
+                label: "Property Name",
+                defaultValue: "",
+                isRequired: false
             },
             {
+                id: 1,
                 type: "Dropdown",
-                label: "valueType",
+                label: "Value Type",
                 defaultValue: "LITERAL",
-                isRequired: true,
+                isRequired: false,
                 values: ["LITERAL", "MESSAGE_ELEMENT", "CONTEXT_PROPERTY"]
             },
             {
+                id: 2,
                 type: "TextField",
-                label: "valueLiteral",
-                defaultValue: "value",
-                isRequired: false
+                label: "Value Literal",
+                defaultValue: "",
+                isRequired: false,
+                enableCondition: [{ "Value Type": "LITERAL" }]
             },
             {
+                id: 3,
                 type: "Dropdown",
-                label: "messageAction",
+                label: "Message Action",
+                defaultValue: "ReadMessage",
+                isRequired: false,
+                enableCondition: [{ "Value Type": "MESSAGE_ELEMENT" }],
+                values: ["ReadMessage", "UpdateMessage", "ReadAndUpdateMessage"]
+            },
+            {
+                id: 4,
+                type: "TextField",
+                label: "Value Message Element Xpath",
+                defaultValue: "",
+                isRequired: false,
+                enableCondition: [{ "Value Type": "MESSAGE_ELEMENT" }]
+            },
+            {
+                id: 5,
+                type: "TextField",
+                label: "Value Context Property Name",
+                defaultValue: "",
+                isRequired: false,
+                enableCondition: [{ "Value Type": "CONTEXT_PROPERTY" }]
+            },
+            {
+                id: 6,
+                type: "Dropdown",
+                label: "Context Action",
                 defaultValue: "ReadContext",
                 isRequired: false,
-                values: ["ReadContext", "UpdateContext", "ReadAndUpdateContext"]
-            },
-            {
-                type: "TextField",
-                label: "valueMessageElementXpath",
-                defaultValue: "value",
-                isRequired: false
-            },
-            {
-                type: "TextField",
-                label: "valueContextPropertyName",
-                defaultValue: "value",
-                isRequired: false
-            },
-            {
-                type: "Dropdown",
-                label: "contextAction",
-                defaultValue: "LITERAL",
-                isRequired: false,
+                enableCondition: [{ "Value Type": "CONTEXT_PROPERTY" }],
                 values: ["ReadContext", "UpdateContext", "ReadAndUpdateContext"]
             }]
     };

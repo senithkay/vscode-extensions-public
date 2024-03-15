@@ -47,17 +47,18 @@ const JSONTransformForm = (props: AddMediatorProps) => {
         paramValues: [],
         paramFields: [
             {
+                id: 0,
                 type: "TextField",
-                label: "propertyName",
-                defaultValue: "Name",
-                isRequired: true
+                label: "Property Name",
+                defaultValue: "",
+                isRequired: false
             },
             {
-                type: "Dropdown",
-                label: "propertyValue",
-                defaultValue: "LITERAL",
-                isRequired: true,
-                values: ["LITERAL", "EXPRESSION"]
+                id: 1,
+                type: "TextField",
+                label: "Property Value",
+                defaultValue: "",
+                isRequired: false
             },]
     };
 
@@ -80,15 +81,14 @@ const JSONTransformForm = (props: AddMediatorProps) => {
                                 label: "propertyName",
                                 type: "TextField",
                                 value: property[0],
-                                isRequired: true
+                                isRequired: false
                             },
                             {
                                 id: 1,
                                 label: "propertyValue",
-                                type: "Dropdown",
+                                type: "TextField",
                                 value: property[1],
-                                isRequired: true,
-                                values: ["LITERAL", "EXPRESSION"]
+                                isRequired: false
                             }
                         ]
                     })

@@ -46,35 +46,41 @@ const ClassForm = (props: AddMediatorProps) => {
     const paramConfigs: ParamConfig = {
         paramValues: [],
         paramFields: [
-        {
-            type: "TextField",
-            label: "Property Name",
-            defaultValue: "Name",
-            isRequired: true
-        },
-        {
-            type: "Dropdown",
-            label: "Property Value Type",
-            defaultValue: "LITERAL",
-            isRequired: true,
-            values: ["LITERAL", "EXPRESSION"]
-        },
-        {
-            type: "TextField",
-            label: "Property Value",
-            defaultValue: "value",
-            isRequired: false
-        },
-        {
-            type: "TextField",
-            label: "Property Expression",
-            defaultValue: "value",
-            isRequired: false
-        },]
-   };
- 
-   const [params, setParams] = useState(paramConfigs);
- 
+            {
+                id: 0,
+                type: "TextField",
+                label: "Property Name",
+                defaultValue: "",
+                isRequired: false
+            },
+            {
+                id: 1,
+                type: "Dropdown",
+                label: "Property Value Type",
+                defaultValue: "LITERAL",
+                isRequired: false,
+                values: ["LITERAL", "EXPRESSION"]
+            },
+            {
+                id: 2,
+                type: "TextField",
+                label: "Property Value",
+                defaultValue: "",
+                isRequired: false,
+                enableCondition: [{ "Property Value Type": "LITERAL" }]
+            },
+            {
+                id: 3,
+                type: "TextField",
+                label: "Property Expression",
+                defaultValue: "",
+                isRequired: false,
+                enableCondition: [{ "Property Value Type": "EXPRESSION" }]
+            },]
+    };
+
+    const [params, setParams] = useState(paramConfigs);
+
     const handleOnChange = (params: any) => {
         setParams(params);
     };
@@ -92,14 +98,14 @@ const ClassForm = (props: AddMediatorProps) => {
                                 label: "propertyName",
                                 type: "TextField",
                                 value: property[0],
-                                isRequired: true
+                                isRequired: false
                             },
                             {
                                 id: 1,
                                 label: "propertyValueType",
                                 type: "Dropdown",
                                 value: property[1],
-                                isRequired: true,
+                                isRequired: false,
                                 values: ["LITERAL", "EXPRESSION"]
                             },
                             {
@@ -116,8 +122,8 @@ const ClassForm = (props: AddMediatorProps) => {
                                 value: property[3],
                                 isRequired: false
                             }
-                       ]
-                   })
+                        ]
+                    })
                )
                setParams({ ...params, paramValues: paramValues });
            }
