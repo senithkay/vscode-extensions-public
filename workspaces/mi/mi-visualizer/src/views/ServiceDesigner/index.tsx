@@ -209,9 +209,9 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
                     <ViewContent>
                         <ServiceDesigner
                             model={serviceModel}
+                            disableServiceHeader={true}
                             onResourceImplement={openDiagram}
                             onResourceClick={handleResourceClick}
-                            onServiceEdit={handleServiceEdit}
                         />
                     </ViewContent>
                 </View>

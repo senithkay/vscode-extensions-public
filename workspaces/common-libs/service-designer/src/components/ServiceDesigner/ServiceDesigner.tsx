@@ -34,6 +34,8 @@ interface ServiceDesignerProps {
     onResourceImplement?: (resource: Resource) => void;
     // Callback to send the resource back upon clicking on it
     onResourceClick?: (resource: Resource) => void;
+    // Disable service header
+    disableServiceHeader?: boolean;
 }
 
 const defaultService: Service = {
@@ -75,7 +77,8 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         onResourceDelete,
         onServiceEdit,
         onResourceImplement,
-        onResourceClick
+        onResourceClick,
+        disableServiceHeader = false
     } = props;
     const [resources, setResources] = useState<JSX.Element[]>([]);
 
@@ -108,15 +111,17 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
 
     return (
         <div data-testid="service-design-view">
-            <ServiceHeader>
-                <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Service {model.path} </Typography>
-                {model.port && <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Listening {model.port}</Typography>}
-                {onServiceEdit && (
-                    <VSCodeButton appearance="icon" title="Edit Service" onClick={handleServiceEdit}>
-                        <Codicon name="settings-gear" />
-                    </VSCodeButton>
-                )}
-            </ServiceHeader>
+            {!disableServiceHeader && (
+                <ServiceHeader>
+                    <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Service {model.path} </Typography>
+                    {model.port && <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Listening {model.port}</Typography>}
+                    {onServiceEdit && (
+                        <VSCodeButton appearance="icon" title="Edit Service" onClick={handleServiceEdit}>
+                            <Codicon name="settings-gear" />
+                        </VSCodeButton>
+                    )}
+                </ServiceHeader>
+            )}
             <ResourceListHeader>
                 <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Available resources </Typography>
                 {onResourceAdd && (
