@@ -16,13 +16,15 @@ import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperC
 import { CodeActionTooltip } from "./CodeActionTooltip/CodeActionTooltip";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 
+export interface CustomAction {
+    title: string;
+    onClick: () => void;
+}
+
 export interface CodeActionWidgetProps {
     codeActions?: CodeAction[];
     context: IDataMapperContext;
-    additionalActions?: {
-        title: string;
-        onClick: () => void;
-    }[];
+    additionalActions?: CustomAction[];
     isConfiguration?: boolean;
     btnSx?: React.CSSProperties;
 }

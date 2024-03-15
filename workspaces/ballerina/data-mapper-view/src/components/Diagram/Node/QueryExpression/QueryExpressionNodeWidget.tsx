@@ -17,7 +17,7 @@ import classnames from "classnames";
 import { ViewOption } from "../../../DataMapper/DataMapper";
 import { DataMapperPortWidget } from '../../Port';
 import { FUNCTION_BODY_QUERY, SELECT_CALUSE_QUERY } from "../../utils/constants";
-import { getQueryExprMappingType, hasIndexedQueryExpr, isRepresentFnBody } from "../../utils/dm-utils";
+import { getQueryExprMappingType, hasCollectClauseExpr, hasIndexedQueryExpr, isRepresentFnBody } from "../../utils/dm-utils";
 import { QueryParentFindingVisitor } from '../../visitors/QueryParentFindingVisitor';
 
 import {
@@ -149,10 +149,10 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
             traversNode(selectedST, queryExprFindingVisitor);
             selectClauseIndex = queryExprFindingVisitor.getSelectClauseIndex();
         }
-        const isSourceArray = isSourcePortArray(node.sourcePort);
-        const isTargetArray = isTargetPortArray(node.targetPort);
+
         const hasIndexedQuery = hasIndexedQueryExpr(node.parentNode);
-        const mappingType = getQueryExprMappingType(isSourceArray, isTargetArray, hasIndexedQuery);
+        const hasCollectClause = hasCollectClauseExpr(node.value);
+        const mappingType = getQueryExprMappingType(hasIndexedQuery, hasCollectClause);
         node.context.changeSelection(ViewOption.EXPAND,
             {
                 ...node.context.selection,

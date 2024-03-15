@@ -42,6 +42,7 @@ import {
 	traversNode,
 	TypeCastExpression
 } from "@wso2-enterprise/syntax-tree";
+import { PortModel } from "@projectstorm/react-diagrams-core";
 
 import { useDMSearchStore, useDMStore } from "../../../store/store";
 import { isPositionsEquals } from "../../../utils/st-utils";
@@ -49,7 +50,7 @@ import { DMNode } from "../../DataMapper/DataMapper";
 import { ErrorNodeKind } from "../../DataMapper/Error/DataMapperError";
 import { getLetExpression, getLetExpressions } from "../../DataMapper/LocalVarConfigPanel/local-var-mgt-utils";
 import { isArraysSupported } from "../../DataMapper/utils";
-import { ExpressionLabelModel, ArrayMappingType } from "../Label";
+import { ExpressionLabelModel, ArrayMappingType, AggregationFunctions } from "../Label";
 import { DataMapperLinkModel } from "../Link";
 import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../Mappings/FieldAccessToSpecificFied";
@@ -96,6 +97,9 @@ import { getModification } from "./modifications";
 import { TypeDescriptorStore } from "./type-descriptor-store";
 import { QueryExprFindingVisitorByPosition } from "../visitors/QueryExprFindingVisitorByPosition";
 import { NodeFindingVisitorByPosition } from "../visitors/NodeFindingVisitorByPosition";
+import { result } from "lodash";
+import { CustomAction } from "../CodeAction/CodeAction";
+import { FunctionCallFindingVisitor } from "../visitors/FunctionCallFindingVisitor";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: { name: string, isOptional: boolean }[] = [];
@@ -1334,24 +1338,13 @@ export function getArrayMappingType(isSourceArray: boolean, isTargetArray: boole
 	return mappingType;
 }
 
-export function getQueryExprMappingType(
-	isSourceArray: boolean,
-	isTargetArray: boolean,
-	hasIndexedQueryExpr: boolean
-): QueryExprMappingType {
-
-	let mappingType: QueryExprMappingType;
-	if (isSourceArray && isTargetArray) {
-		mappingType = QueryExprMappingType.A2AWithSelect;
-	} else if (isSourceArray && !isTargetArray) {
-		if (hasIndexedQueryExpr) {
-			mappingType = QueryExprMappingType.A2SWithSelect;
-		} else {
-			mappingType = QueryExprMappingType.A2SWithCollect;
-		}
+export function getQueryExprMappingType(hasIndexedQuery: boolean, hasCollectClause: boolean): QueryExprMappingType {
+	if (hasIndexedQuery) {
+		return QueryExprMappingType.A2SWithSelect;
+	} else if (hasCollectClause) {
+		return QueryExprMappingType.A2SWithCollect;
 	}
-
-	return mappingType;
+	return QueryExprMappingType.A2AWithSelect;
 }
 
 export function hasIndexedQueryExpr(node: STNode) {
@@ -1359,6 +1352,12 @@ export function hasIndexedQueryExpr(node: STNode) {
 		&& STKindChecker.isIndexedExpression(node.valueExpr)
 		&& STKindChecker.isBracedExpression(node.valueExpr.containerExpression)
 		&& STKindChecker.isQueryExpression(node.valueExpr.containerExpression.expression);
+}
+
+export function hasCollectClauseExpr(node: QueryExpression) {
+	const resultClause = node?.selectClause || node?.resultClause;
+	// TODO: Update the syntax tree interfaces to include the collect clause
+	return resultClause.kind === "CollectClause";
 }
 
 export function generateDestructuringPattern(expression: string): string {
@@ -1374,6 +1373,16 @@ export function generateDestructuringPattern(expression: string): string {
     };
 
     return constructPattern(0);
+}
+
+export function getMappedFnNames(targetPort: PortModel) {
+	const mappedExpr = (targetPort as RecordFieldPortModel)?.editableRecordField?.value;
+
+	const fnCallFindingVisitor = new FunctionCallFindingVisitor();
+	traversNode(mappedExpr, fnCallFindingVisitor);
+	const fnCall = fnCallFindingVisitor.getFunctionCalls();
+
+	return fnCall.map((call) => call.fnName);
 }
 
 function getInnerExpr(node: FieldAccess | OptionalFieldAccess): STNode {
@@ -1438,6 +1447,40 @@ async function createValueExprSource(
 	}
 
 	return `${rhs}: ${lhs}`;
+}
+
+export function updateCollectClauseAggrFn(
+	newFnName: string,
+	currentFnName: string,
+	mappedExpr: FunctionCall,
+	applyModifications: (modifications: STModification[]) => Promise<void>
+) {
+	const currentExpr: string = mappedExpr.source;
+	const updatedExpr = currentExpr.replace(currentFnName, newFnName);
+
+	const position = mappedExpr.position as NodePosition;
+	const modifications = [{
+		type: "INSERT",
+		config: {
+			"STATEMENT": updatedExpr,
+		},
+		...position
+	}];
+	void applyModifications(modifications);
+}
+
+export function getCollectClauseActions(
+	currentFnName: string,
+	mappedExpr: FunctionCall,
+	applyModifications: (modifications: STModification[]) => Promise<void>
+):CustomAction[] {
+	const aggrOptions = AggregationFunctions.filter((fn) => fn !== currentFnName);
+	return aggrOptions.map((fn) => {
+		return {
+			title: fn,
+			onClick: () => updateCollectClauseAggrFn(fn, currentFnName, mappedExpr, applyModifications)
+		};
+	});
 }
 
 function isTypeMatch(type: TypeField, typeInfo: NonPrimitiveBal): boolean {
