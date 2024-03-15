@@ -8,10 +8,11 @@
  */
 
 import { ProjectStructureEntry, ProjectStructureResponse, ProjectDirectoryMap, EsbDirectoryMap, EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
-import { ComponentCard } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, ComponentCard } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import path from 'path';
+import { VSCodeButton, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from "@vscode/webview-ui-toolkit/react";
 
 const allowedConfigs = ["apis", "sequences", "endpoints", "api", "inboundEndpoints", "messageProcessors", "proxyServices", "tasks", "templates", "messageStores", "localEntries", "registryResources"];
 
@@ -100,11 +101,11 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
 
     const renderEntries = (entries: ProjectStructureEntry[] | EsbDirectoryMap[]) => {
         return entries.map((entry, index) => (
-            <ComponentCard key={index} onClick={() => handleClick(entry.type, entry.path)} sx={{ height: 40, marginTop: 15, margin: 10 }}>
-                <IconWrapper>
-                    <TextContainer>{entry.name.replace(".xml", "")}</TextContainer>
-                </IconWrapper>
-            </ComponentCard>
+            <VSCodeDataGridRow>
+                <VSCodeDataGridCell grid-column={1}>
+                    {entry.name}
+                </VSCodeDataGridCell>
+            </VSCodeDataGridRow>
         ));
     };
 
@@ -115,9 +116,9 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
                     return (
                         <div key={key}>
                             <h3>{key.charAt(0).toUpperCase() + key.slice(1)}</h3>
-                            <HorizontalCardContainer>
+                            <VSCodeDataGrid align="left">
                                 {renderEntries(value)}
-                            </HorizontalCardContainer>
+                            </VSCodeDataGrid>
                         </div>
                     )
                 }

@@ -163,7 +163,7 @@ export function Overview() {
                     <CloseButton onClick={handleClose} appearance="icon" tooltip="Close">
                         <Codicon name="chrome-close" />
                     </CloseButton>
-                    <h3 style={{ margin: 0 }}>Describe your Integration to get started</h3>
+                    <h3 style={{ margin: '0 0 5px 0' }}>Describe your Integration to get started</h3>
                     <AIPanel>
                         <TextArea value="" rows={4} cols={1000} placeholder="I want to create an API that will route my request based on a header value."></TextArea>
                         <VSCodeButton>
