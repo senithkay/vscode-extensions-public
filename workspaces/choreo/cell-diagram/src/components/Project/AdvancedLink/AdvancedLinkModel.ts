@@ -63,7 +63,7 @@ export class AdvancedLinkModel extends LinkModel<DefaultLinkModelGenerics> {
     }
 
     getSVGPath(): string {
-        if (this.points.length == 2) {
+        if (this.points.length == 2 || true) {
             const curve = new BezierCurve();
             curve.setSource(this.getFirstPoint().getPosition());
             curve.setTarget(this.getLastPoint().getPosition());
@@ -176,6 +176,17 @@ export class AdvancedLinkModel extends LinkModel<DefaultLinkModelGenerics> {
 
         path += `L ${target.x} ${target.y}`;
         return path;
+    }
+
+    calculateControlOffsetWithPosition(rightTraget:boolean, bottomTarget:boolean): [number, number] {
+        if (rightTraget) {
+            return [this.options.curvyness, 0];
+        } else if (!rightTraget) {
+            return [-this.options.curvyness, 0];
+        } else if (!bottomTarget) {
+            return [0, -this.options.curvyness];
+        }
+        return [0, this.options.curvyness];
     }
 
     serialize() {
