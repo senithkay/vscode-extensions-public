@@ -67,9 +67,9 @@ export function AIChat() {
       projectUuid = response.uuid;
       const localStorageChatFile = `chatArray-AIChat-${projectUuid}`;
       const localStorageQuestionFile = `Question-AIChat-${projectUuid}`;
+      const storedQuestion = localStorage.getItem(localStorageQuestionFile);
     const storedChatArray = localStorage.getItem(localStorageChatFile);
     if (storedChatArray) {
-      const storedQuestion = localStorage.getItem(localStorageQuestionFile);
       if(storedQuestion){
         setMessages(prevMessages => [
           ...prevMessages,
@@ -112,10 +112,16 @@ export function AIChat() {
           // { role: "", content: "What are the possible use cases in using WSO2 Micro Integrator?", type: "question" },
           // { role: "", content: "How to use the File Connector?", type: "question" }
         ]);
-        if(chatArray.length === 0){
+        if(storedQuestion){
+          setMessages(prevMessages => [
+            ...prevMessages,
+            { role: "", content: storedQuestion, type: "question" },
+          ]);
+        }else{
           console.log("Fetching initial questions");
           generateSuggestions();
         }
+  
       }
     }
     } );

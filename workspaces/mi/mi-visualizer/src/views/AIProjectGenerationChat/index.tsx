@@ -71,8 +71,8 @@ export function AIProjectGenerationChat() {
       const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
       const localStorageQuestionFile = `Question-AIGenerationChat-${projectUuid}`;
       const storedChatArray = localStorage.getItem(localStorageFile);
-    if (storedChatArray) {
       const storedQuestion = localStorage.getItem(localStorageQuestionFile);
+    if (storedChatArray) {
       if(storedQuestion){
         setMessages(prevMessages => [
           ...prevMessages,
@@ -114,10 +114,15 @@ export function AIProjectGenerationChat() {
       // { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
       // { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
         ]);
-        if(chatArray.length === 0){
-          console.log("Fetching initial questions");
-          generateSuggestions();
-        }
+          if(storedQuestion){
+            setMessages(prevMessages => [
+              ...prevMessages,
+              { role: "", content: storedQuestion, type: "question" },
+            ]);
+          }else{
+            console.log("Fetching initial questions");
+            generateSuggestions();
+          }
       }
     }
     } );
@@ -355,20 +360,20 @@ export function AIProjectGenerationChat() {
         } );
 
         //clear code blocks array and the chat array
-        codeBlocks.length = 0;
-        chatArray.length = 0;
+        // codeBlocks.length = 0;
+        // chatArray.length = 0;
 
-        setMessages((prevMessages) => [
-          { role: "", content: "Welcome to the AI Powered Generation and Editing Tool. You may use this tool to generate entirely new Artifacts or to do changes to existing artifacts simply using text based prompts. The context of your generation shall always be the window you have currenly opened.", type: "label" },
-          { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
-          { role: "" , content: "Generate a Sample Hello World API", type: "question"},
-          { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
-          { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
-        ]);
+        // setMessages((prevMessages) => [
+        //   { role: "", content: "Welcome to the AI Powered Generation and Editing Tool. You may use this tool to generate entirely new Artifacts or to do changes to existing artifacts simply using text based prompts. The context of your generation shall always be the window you have currenly opened.", type: "label" },
+        //   { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
+        //   { role: "" , content: "Generate a Sample Hello World API", type: "question"},
+        //   { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
+        //   { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
+        // ]);
 
         //clear the local storage
-        localStorage.removeItem(`chatArray-AIGenerationChat-${projectUuid}`);
-        localStorage.removeItem(`Question-AIGenerationChat-${projectUuid}`);
+        // localStorage.removeItem(`chatArray-AIGenerationChat-${projectUuid}`);
+        // localStorage.removeItem(`Question-AIGenerationChat-${projectUuid}`);
   }
 
   function splitContent(content: string) {
