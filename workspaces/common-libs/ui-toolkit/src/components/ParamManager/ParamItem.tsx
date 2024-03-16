@@ -26,7 +26,7 @@ const getParamComponent = (p: Param, isReadonly: boolean) => {
         <>
             {(p.isEnabled || !p.enableCondition) ? (
                 <div data-test-id={`${p.label}-param`} className={isReadonly ? disabledHeaderLabel : headerLabelStyles}>
-                    {p.value.toString()}
+                    {p.value ? p.value.toString() : p.value}
                 </div>
             ) : 
                 null
