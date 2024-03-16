@@ -9,21 +9,21 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
-import { VSCodeCheckbox, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
+import { AutoComplete, Button, ComponentCard, ParamConfig, ParamManager, TextField } from '@wso2-enterprise/ui-toolkit';
+import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
-import { ENDPOINTS } from '../../../../../resources/constants';
+import { ENDPOINTS, MEDIATORS } from '../../../../../resources/constants';
 import { AddMediatorProps } from '../../mediators/common';
 
-const cardStyle = { 
-   display: "block",
-   margin: "15px 0",
-   padding: "0 15px 15px 15px",
-   width: "auto",
-   cursor: "auto"
+const cardStyle = {
+    display: "block",
+    margin: "15px 0",
+    padding: "0 15px 15px 15px",
+    width: "auto",
+    cursor: "auto"
 };
 
 const Error = styled.span`
@@ -39,127 +39,330 @@ const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const HTTPEndpointForm = (props: AddMediatorProps) => {
-   const { rpcClient } = useVisualizerContext();
-   const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({} as { [key: string]: any });
-   const [errors, setErrors] = useState({} as any);
+    const { rpcClient } = useVisualizerContext();
+    const sidePanelContext = React.useContext(SidePanelContext);
+    const [formValues, setFormValues] = useState({} as { [key: string]: any });
+    const [errors, setErrors] = useState({} as any);
 
-   useEffect(() => {
-       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-           setFormValues({ ...formValues, ...sidePanelContext.formValues });
-       } else {
-           setFormValues({
-       "statisticsEnabled": false,
-       "traceEnabled": false,
-       "httpMethod": "GET",
-       "proeprties": [] as string[][],
-       "scope": "default",
-       "valueType": "LITERAL",
-       "oauthType": "default",
-       "oauthGrantType": "default",
-       "oauthAuthenticationMode": "default",
-       "oauthParameters": [] as string[][],
-       "OAuthProperties.scope": "default",
-       "OAuthProperties.valueType": "LITERAL",
-       "reliableMessagingEnabled": false,
-       "securityEnabled": false,
-       "addressingEnabled": false,
-       "timeoutAction": "never",
-       "optimize": "LEAVE_AS_IS",});
-       }
-   }, [sidePanelContext.formValues]);
+    const propertyParamConfigs: ParamConfig = {
+        paramValues: [],
+        paramFields: [
+            {
+                id: 0,
+                type: "TextField",
+                label: "Property Name",
+                defaultValue: "",
+                isRequired: false
+            },
+            {
+                id: 1,
+                type: "Dropdown",
+                label: "Scope",
+                defaultValue: "default",
+                isRequired: false,
+                values: ["default", "transport", "axis2", "axis2-client"]
+            },
+            {
+                id: 2,
+                type: "Dropdown",
+                label: "Value Type",
+                defaultValue: "LITERAL",
+                isRequired: false,
+                values: ["LITERAL", "EXPRESSION"]
+            },
+            {
+                id: 3,
+                type: "TextField",
+                label: "Value",
+                defaultValue: "",
+                isRequired: false,
+                enableCondition: [{ "Value Type": "LITERAL" }]
+            },
+            {
+                id: 4,
+                type: "TextField",
+                label: "Value Expression",
+                defaultValue: "",
+                isRequired: false,
+                enableCondition: [{ "Value Type": "EXPRESSION" }]
+            }]
+    };
 
-   const onClick = async () => {
-       const newErrors = {} as any;
-       Object.keys(formValidators).forEach((key) => {
-           const error = formValidators[key]();
-           if (error) {
-               newErrors[key] = (error);
-           }
-       });
-       if (Object.keys(newErrors).length > 0) {
-           setErrors(newErrors);
-       } else {
-           const xml = getXML(ENDPOINTS.HTTP, formValues);
-           rpcClient.getMiDiagramRpcClient().applyEdit({
-               documentUri: props.documentUri, range: props.nodePosition, text: xml
-           });
-           sidePanelContext.setSidePanelState({
+    const oauthParamConfigs: ParamConfig = {
+        paramValues: [],
+        paramFields: [
+            {
+                id: 0,
+                type: "TextField",
+                label: "Name",
+                defaultValue: "",
+                isRequired: false
+            },
+            {
+                id: 1,
+                type: "Dropdown",
+                label: "Scope",
+                defaultValue: "default",
+                isRequired: false,
+                values: ["default", "transport", "axis2", "axis2-client"]
+            },
+            {
+                id: 2,
+                type: "Dropdown",
+                label: "Value Type",
+                defaultValue: "LITERAL",
+                isRequired: false,
+                values: ["LITERAL", "EXPRESSION"]
+            },
+            {
+                id: 3,
+                type: "TextField",
+                label: "Value",
+                defaultValue: "",
+                isRequired: false,
+                enableCondition: [
+                    { "Value Type": "LITERAL" }
+                ]
+            },
+            {
+                id: 4,
+                type: "TextField",
+                label: "Value Expression",
+                defaultValue: "",
+                isRequired: false,
+                enableCondition: [
+                    { "Value Type": "EXPRESSION" }
+                ]
+            }]
+    };
+
+    const [propertyParams, setPropertyParams] = useState(propertyParamConfigs);
+
+    const handleOnChangeProperties = (params: any) => {
+        setPropertyParams(params);
+    };
+
+    const [oauthParams, setOauthParams] = useState(oauthParamConfigs);
+
+    const handleOnChangeOauth = (params: any) => {
+        setOauthParams(params);
+    };
+
+    useEffect(() => {
+        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
+            setFormValues({ ...formValues, ...sidePanelContext.formValues });
+            if (sidePanelContext.formValues["proeprties"] && sidePanelContext.formValues["proeprties"].length > 0) {
+                const paramValues = sidePanelContext.formValues["proeprties"].map((property: string, index: string) => (
+                    {
+                        id: index,
+                        parameters: [
+                            {
+                                id: 0,
+                                label: "propertyName",
+                                type: "TextField",
+                                value: property[0],
+                                isRequired: false
+                            },
+                            {
+                                id: 1,
+                                label: "scope",
+                                type: "Dropdown",
+                                value: property[1],
+                                isRequired: false,
+                                values: ["default", "transport", "axis2", "axis2-client"]
+                            },
+                            {
+                                id: 2,
+                                label: "valueType",
+                                type: "Dropdown",
+                                value: property[2],
+                                isRequired: false,
+                                values: ["LITERAL", "EXPRESSION"]
+                            },
+                            {
+                                id: 3,
+                                label: "value",
+                                type: "TextField",
+                                value: property[3],
+                                isRequired: false
+                            },
+                            {
+                                id: 4,
+                                label: "valueExpression",
+                                type: "TextField",
+                                value: property[4],
+                                isRequired: false
+                            }
+                        ]
+                    })
+                )
+                setPropertyParams({ ...propertyParams, paramValues: paramValues });
+            }
+            if (sidePanelContext.formValues["oauthParameters"] && sidePanelContext.formValues["oauthParameters"].length > 0) {
+                const paramValues = sidePanelContext.formValues["oauthParameters"].map((property: string, index: string) => (
+                    {
+                        id: index,
+                        parameters: [
+                            {
+                                id: 0,
+                                label: "name",
+                                type: "TextField",
+                                value: property[0],
+                                isRequired: false
+                            },
+                            {
+                                id: 1,
+                                label: "scope",
+                                type: "Dropdown",
+                                value: property[1],
+                                isRequired: false,
+                                values: ["default", "transport", "axis2", "axis2-client"]
+                            },
+                            {
+                                id: 2,
+                                label: "valueType",
+                                type: "Dropdown",
+                                value: property[2],
+                                isRequired: false,
+                                values: ["LITERAL", "EXPRESSION"]
+                            },
+                            {
+                                id: 3,
+                                label: "value",
+                                type: "TextField",
+                                value: property[3],
+                                isRequired: false
+                            },
+                            {
+                                id: 4,
+                                label: "valueExpression",
+                                type: "TextField",
+                                value: property[4],
+                                isRequired: false
+                            }
+                        ]
+                    })
+                )
+                setOauthParams({ ...oauthParams, paramValues: paramValues });
+            }
+        } else {
+            setFormValues({
+
+                "statisticsEnabled": false,
+                "traceEnabled": false,
+                "httpMethod": "GET",
+                "proeprties": [] as string[][],
+                "oauthType": "default",
+                "oauthGrantType": "default",
+                "oauthAuthenticationMode": "default",
+                "oauthParameters": [] as string[][],
+                "reliableMessagingEnabled": false,
+                "securityEnabled": false,
+                "addressingEnabled": false,
+                "timeoutAction": "never",
+                "optimize": "LEAVE_AS_IS",
+            });
+        }
+    }, [sidePanelContext.formValues]);
+
+    const onClick = async () => {
+        const newErrors = {} as any;
+        Object.keys(formValidators).forEach((key) => {
+            const error = formValidators[key]();
+            if (error) {
+                newErrors[key] = (error);
+            }
+        });
+
+        formValues["proeprties"] = propertyParams.paramValues.map(param => param.parameters.slice(0, 5).map(p => p.value));
+        propertyParams.paramValues.forEach(param => {
+            param.parameters.slice(0, 5).forEach(p => {
+                let key = p.label.toLowerCase().replace(/\s/g, '');
+                formValues[key] = p.value;
+            });
+        });
+
+        formValues["oauthParameters"] = oauthParams.paramValues.map(param => param.parameters.slice(0, 5).map(p => p.value));
+        propertyParams.paramValues.forEach(param => {
+            param.parameters.slice(0, 5).forEach(p => {
+                let key = p.label.toLowerCase().replace(/\s/g, '');
+                formValues[key] = p.value;
+            });
+        });
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+        } else {
+            const xml = getXML(ENDPOINTS.HTTP, formValues);
+            rpcClient.getMiDiagramRpcClient().applyEdit({
+                documentUri: props.documentUri, range: props.nodePosition, text: xml
+            });
+            sidePanelContext.setSidePanelState({
                 ...sidePanelContext,
                 isOpen: false,
                 isEditing: false,
                 formValues: undefined,
                 nodeRange: undefined,
                 operationName: undefined
-              });
-       }
-   };
+            });
+        }
+    };
 
-   const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-       "statisticsEnabled": (e?: any) => validateField("statisticsEnabled", e, false),
-       "traceEnabled": (e?: any) => validateField("traceEnabled", e, false),
-       "uriTemplate": (e?: any) => validateField("uriTemplate", e, false),
-       "httpMethod": (e?: any) => validateField("httpMethod", e, false),
-       "name": (e?: any) => validateField("name", e, false),
-       "scope": (e?: any) => validateField("scope", e, false),
-       "valueType": (e?: any) => validateField("valueType", e, false),
-       "value": (e?: any) => validateField("value", e, false),
-       "valueExpression": (e?: any) => validateField("valueExpression", e, false),
-       "oauthType": (e?: any) => validateField("oauthType", e, false),
-       "basicAuthUsername": (e?: any) => validateField("basicAuthUsername", e, false),
-       "basicAuthPassword": (e?: any) => validateField("basicAuthPassword", e, false),
-       "oauthGrantType": (e?: any) => validateField("oauthGrantType", e, false),
-       "clientId": (e?: any) => validateField("clientId", e, false),
-       "clientSecret": (e?: any) => validateField("clientSecret", e, false),
-       "refreshToken": (e?: any) => validateField("refreshToken", e, false),
-       "oauthUsername": (e?: any) => validateField("oauthUsername", e, false),
-       "tokenUrl": (e?: any) => validateField("tokenUrl", e, false),
-       "oauthAuthenticationMode": (e?: any) => validateField("oauthAuthenticationMode", e, false),
-       "OAuthProperties.name": (e?: any) => validateField("OAuthProperties.name", e, false),
-       "OAuthProperties.scope": (e?: any) => validateField("OAuthProperties.scope", e, false),
-       "OAuthProperties.valueType": (e?: any) => validateField("OAuthProperties.valueType", e, false),
-       "OAuthProperties.value": (e?: any) => validateField("OAuthProperties.value", e, false),
-       "OAuthProperties.valueExpression": (e?: any) => validateField("OAuthProperties.valueExpression", e, false),
-       "suspendErrorCodes": (e?: any) => validateField("suspendErrorCodes", e, false),
-       "suspendInitialDuration": (e?: any) => validateField("suspendInitialDuration", e, false),
-       "suspendMaximumDuration": (e?: any) => validateField("suspendMaximumDuration", e, false),
-       "suspendProgressionFactor": (e?: any) => validateField("suspendProgressionFactor", e, false),
-       "retryErrorCodes": (e?: any) => validateField("retryErrorCodes", e, false),
-       "retryCount": (e?: any) => validateField("retryCount", e, false),
-       "retryDelay": (e?: any) => validateField("retryDelay", e, false),
-       "reliableMessagingEnabled": (e?: any) => validateField("reliableMessagingEnabled", e, false),
-       "securityEnabled": (e?: any) => validateField("securityEnabled", e, false),
-       "addressingEnabled": (e?: any) => validateField("addressingEnabled", e, false),
-       "timeoutDuration": (e?: any) => validateField("timeoutDuration", e, false),
-       "timeoutAction": (e?: any) => validateField("timeoutAction", e, false),
-       "optimize": (e?: any) => validateField("optimize", e, false),
-       "failoverNonRetryErrorCodes": (e?: any) => validateField("failoverNonRetryErrorCodes", e, false),
-       "description": (e?: any) => validateField("description", e, false),
+    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
+        "statisticsEnabled": (e?: any) => validateField("statisticsEnabled", e, false),
+        "traceEnabled": (e?: any) => validateField("traceEnabled", e, false),
+        "uriTemplate": (e?: any) => validateField("uriTemplate", e, false),
+        "httpMethod": (e?: any) => validateField("httpMethod", e, false),
+        "oauthType": (e?: any) => validateField("oauthType", e, false),
+        "basicAuthUsername": (e?: any) => validateField("basicAuthUsername", e, false),
+        "basicAuthPassword": (e?: any) => validateField("basicAuthPassword", e, false),
+        "oauthGrantType": (e?: any) => validateField("oauthGrantType", e, false),
+        "clientId": (e?: any) => validateField("clientId", e, false),
+        "clientSecret": (e?: any) => validateField("clientSecret", e, false),
+        "refreshToken": (e?: any) => validateField("refreshToken", e, false),
+        "oauthUsername": (e?: any) => validateField("oauthUsername", e, false),
+        "tokenUrl": (e?: any) => validateField("tokenUrl", e, false),
+        "oauthAuthenticationMode": (e?: any) => validateField("oauthAuthenticationMode", e, false),
+        "suspendErrorCodes": (e?: any) => validateField("suspendErrorCodes", e, false),
+        "suspendInitialDuration": (e?: any) => validateField("suspendInitialDuration", e, false),
+        "suspendMaximumDuration": (e?: any) => validateField("suspendMaximumDuration", e, false),
+        "suspendProgressionFactor": (e?: any) => validateField("suspendProgressionFactor", e, false),
+        "retryErrorCodes": (e?: any) => validateField("retryErrorCodes", e, false),
+        "retryCount": (e?: any) => validateField("retryCount", e, false),
+        "retryDelay": (e?: any) => validateField("retryDelay", e, false),
+        "reliableMessagingEnabled": (e?: any) => validateField("reliableMessagingEnabled", e, false),
+        "securityEnabled": (e?: any) => validateField("securityEnabled", e, false),
+        "addressingEnabled": (e?: any) => validateField("addressingEnabled", e, false),
+        "timeoutDuration": (e?: any) => validateField("timeoutDuration", e, false),
+        "timeoutAction": (e?: any) => validateField("timeoutAction", e, false),
+        "optimize": (e?: any) => validateField("optimize", e, false),
+        "failoverNonRetryErrorCodes": (e?: any) => validateField("failoverNonRetryErrorCodes", e, false),
+        "description": (e?: any) => validateField("description", e, false),
 
-   };
+    };
 
-   const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-       const value = e ?? formValues[id];
-       const newErrors = { ...errors };
-       let error;
-       if (isRequired && !value) {
-           error = "This field is required";
-       } else if (validation === "e-mail" && !value.match(emailRegex)) {
-           error = "Invalid e-mail address";
-       } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-           error = "Invalid name";
-       } else if (validation === "custom" && !value.match(regex)) {
-           error = "Invalid input";
-       } else {
-           delete newErrors[id];
-           setErrors(newErrors);
-       }
-       setErrors({ ...errors, [id]: error });
-       return error;
-   };
+    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
+        const value = e ?? formValues[id];
+        const newErrors = { ...errors };
+        let error;
+        if (isRequired && !value) {
+            error = "This field is required";
+        } else if (validation === "e-mail" && !value.match(emailRegex)) {
+            error = "Invalid e-mail address";
+        } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
+            error = "Invalid name";
+        } else if (validation === "custom" && !value.match(regex)) {
+            error = "Invalid input";
+        } else {
+            delete newErrors[id];
+            setErrors(newErrors);
+        }
+        setErrors({ ...errors, [id]: error });
+        return error;
+    };
 
-   return (
-       <div style={{ padding: "10px" }}>
+    return (
+        <div style={{ padding: "10px" }}>
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <h3>Basic</h3>
@@ -217,117 +420,12 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <h3>Properties</h3>
 
-                            <Field>
-                                <TextField
-                                    label="Name"
-                                    size={50}
-                                    placeholder=""
-                                    value={formValues["name"]}
-                                    onChange={(e: any) => {
-                                        setFormValues({ ...formValues, "name": e });
-                                        formValidators["name"](e);
-                                    }}
-                                    required={false}
-                                />
-                                {errors["name"] && <Error>{errors["name"]}</Error>}
-                            </Field>
-
-                            <Field>
-                                <label>Scope</label>
-                                <AutoComplete items={["default", "transport", "axis2", "axis2-client"]} selectedItem={formValues["scope"]} onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "scope": e });
-                                    formValidators["scope"](e);
-                                }} />
-                                {errors["scope"] && <Error>{errors["scope"]}</Error>}
-                            </Field>
-
-                            <Field>
-                                <label>Value Type</label>
-                                <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["valueType"]} onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "valueType": e });
-                                    formValidators["valueType"](e);
-                                }} />
-                                {errors["valueType"] && <Error>{errors["valueType"]}</Error>}
-                            </Field>
-
-                            {formValues["valueType"] && formValues["valueType"].toLowerCase() == "literal" &&
-                                <Field>
-                                    <TextField
-                                        label="Value"
-                                        size={50}
-                                        placeholder=""
-                                        value={formValues["value"]}
-                                        onChange={(e: any) => {
-                                            setFormValues({ ...formValues, "value": e });
-                                            formValidators["value"](e);
-                                        }}
-                                        required={false}
-                                    />
-                                    {errors["value"] && <Error>{errors["value"]}</Error>}
-                                </Field>
-                            }
-
-                            {formValues["valueType"] && formValues["valueType"].toLowerCase() == "expression" &&
-                                <Field>
-                                    <TextField
-                                        label="Value Expression"
-                                        size={50}
-                                        placeholder=""
-                                        value={formValues["valueExpression"]}
-                                        onChange={(e: any) => {
-                                            setFormValues({ ...formValues, "valueExpression": e });
-                                            formValidators["valueExpression"](e);
-                                        }}
-                                        required={false}
-                                    />
-                                    {errors["valueExpression"] && <Error>{errors["valueExpression"]}</Error>}
-                                </Field>
-                            }
-
-
-                    <div style={{ textAlign: "right", marginTop: "10px" }}>
-                        <Button appearance="primary" onClick={() => {
-                            if (!(validateField("name", formValues["name"], true) || validateField("valueType", formValues["valueType"], true))) {
-                                setFormValues({
-                                    ...formValues, "name": undefined, "valueType": undefined,
-                                    "proeprties": [...formValues["proeprties"], [formValues["name"], formValues["scope"], formValues["valueType"]]]
-                                });
-                            }
-                        }}>
-                            Add
-                        </Button>
-                    </div>
-                    {formValues["proeprties"] && formValues["proeprties"].length > 0 && (
-                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                            <h3>Properties Table</h3>
-                            <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
-                                <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
-                                    <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                        Name
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                        Value Type
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                        Value
-                                    </VSCodeDataGridCell>
-                                </VSCodeDataGridRow>
-                                {formValues["proeprties"].map((property: string, index: string) => (
-                                    <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
-                                        <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                            {property[0]}
-                                        </VSCodeDataGridCell>
-                                        <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                            {property[1]}
-                                        </VSCodeDataGridCell>
-                                        <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                            {property[2]}
-                                        </VSCodeDataGridCell>
-                                    </VSCodeDataGridRow>
-                                ))}
-                            </VSCodeDataGrid>
-                        </ComponentCard>
-                    )}
+                        {formValues["proeprties"] && (
+                            <ParamManager
+                                paramConfigs={propertyParams}
+                                readonly={false}
+                                onChange={handleOnChangeProperties} />
+                        )}
                     </ComponentCard>
                 </ComponentCard>
 
@@ -487,117 +585,12 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <h3>OAuth Parameters</h3>
 
-                            <Field>
-                                <TextField
-                                    label="Name"
-                                    size={50}
-                                    placeholder=""
-                                    value={formValues["OAuthProperties.name"]}
-                                    onChange={(e: any) => {
-                                        setFormValues({ ...formValues, "OAuthProperties.name": e });
-                                        formValidators["OAuthProperties.name"](e);
-                                    }}
-                                    required={false}
-                                />
-                                {errors["OAuthProperties.name"] && <Error>{errors["OAuthProperties.name"]}</Error>}
-                            </Field>
-
-                            <Field>
-                                <label>Scope</label>
-                                <AutoComplete items={["default", "transport", "axis2", "axis2-client"]} selectedItem={formValues["OAuthProperties.scope"]} onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "OAuthProperties.scope": e });
-                                    formValidators["OAuthProperties.scope"](e);
-                                }} />
-                                {errors["OAuthProperties.scope"] && <Error>{errors["OAuthProperties.scope"]}</Error>}
-                            </Field>
-
-                            <Field>
-                                <label>Value Type</label>
-                                <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["OAuthProperties.valueType"]} onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "OAuthProperties.valueType": e });
-                                    formValidators["OAuthProperties.valueType"](e);
-                                }} />
-                                {errors["OAuthProperties.valueType"] && <Error>{errors["OAuthProperties.valueType"]}</Error>}
-                            </Field>
-
-                            {formValues["valueType"] && formValues["valueType"].toLowerCase() == "literal" &&
-                                <Field>
-                                    <TextField
-                                        label="Value"
-                                        size={50}
-                                        placeholder=""
-                                        value={formValues["OAuthProperties.value"]}
-                                        onChange={(e: any) => {
-                                            setFormValues({ ...formValues, "OAuthProperties.value": e });
-                                            formValidators["OAuthProperties.value"](e);
-                                        }}
-                                        required={false}
-                                    />
-                                    {errors["OAuthProperties.value"] && <Error>{errors["OAuthProperties.value"]}</Error>}
-                                </Field>
-                            }
-
-                            {formValues["valueType"] && formValues["valueType"].toLowerCase() == "expression" &&
-                                <Field>
-                                    <TextField
-                                        label="Value Expression"
-                                        size={50}
-                                        placeholder=""
-                                        value={formValues["OAuthProperties.valueExpression"]}
-                                        onChange={(e: any) => {
-                                            setFormValues({ ...formValues, "OAuthProperties.valueExpression": e });
-                                            formValidators["OAuthProperties.valueExpression"](e);
-                                        }}
-                                        required={false}
-                                    />
-                                    {errors["OAuthProperties.valueExpression"] && <Error>{errors["OAuthProperties.valueExpression"]}</Error>}
-                                </Field>
-                            }
-
-
-                    <div style={{ textAlign: "right", marginTop: "10px" }}>
-                        <Button appearance="primary" onClick={() => {
-                            if (!(validateField("name", formValues["name"], true) || validateField("valueType", formValues["valueType"], true))) {
-                                setFormValues({
-                                    ...formValues, "name": undefined, "valueType": undefined,
-                                    "oauthParameters": [...formValues["oauthParameters"], [formValues["name"], formValues["scope"], formValues["valueType"]]]
-                                });
-                            }
-                        }}>
-                            Add
-                        </Button>
-                    </div>
-                    {formValues["oauthParameters"] && formValues["oauthParameters"].length > 0 && (
-                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                            <h3>OAuth Parameters Table</h3>
-                            <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
-                                <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
-                                    <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                        Name
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                        Value Type
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                        Value
-                                    </VSCodeDataGridCell>
-                                </VSCodeDataGridRow>
-                                {formValues["oauthParameters"].map((property: string, index: string) => (
-                                    <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
-                                        <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                            {property[0]}
-                                        </VSCodeDataGridCell>
-                                        <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                            {property[1]}
-                                        </VSCodeDataGridCell>
-                                        <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                            {property[2]}
-                                        </VSCodeDataGridCell>
-                                    </VSCodeDataGridRow>
-                                ))}
-                            </VSCodeDataGrid>
-                        </ComponentCard>
-                    )}
+                        {formValues["oauthParameters"] && (
+                            <ParamManager
+                                paramConfigs={oauthParams}
+                                readonly={false}
+                                onChange={handleOnChangeOauth} />
+                        )}
                     </ComponentCard>
                 </ComponentCard>
 

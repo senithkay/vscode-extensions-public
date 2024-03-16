@@ -21,15 +21,15 @@ export function getPropertyGroupMustacheTemplate() {
 export function getPropertyGroupXml(data: { [key: string]: any }) {
     const properties = data.properties.map((property: string[]) => {
         return {
-            newPropertyName: property[0],
-            propertyDataType: property[1],
-            propertyAction: property[2],
-            propertyScope: property[3]?.toLowerCase(),
-            value: property[4] == "LITERAL" ? property[5] : undefined,
-            expression: property[4] == "EXPRESSION" ? property[5] : undefined,
-            valueStringPattern: property[6],
-            valueStringCapturingGroup: property[7],
-            description: property[8]
+            newPropertyName: property[1],
+            propertyDataType: property[2],
+            propertyAction: property[3],
+            propertyScope: property[4]?.toLowerCase(),
+            value: property[5] == "LITERAL" ? property[6] : undefined,
+            expression: property[5] == "EXPRESSION" ? property[7] : undefined,
+            valueStringPattern: property[8],
+            valueStringCapturingGroup: property[9],
+            description: property[10]
         }
     });
     const modifiedData = {
