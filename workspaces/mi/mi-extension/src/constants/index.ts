@@ -43,4 +43,8 @@ export const COMMANDS = {
     EDIT_REGISTERY_RESOURCE_COMMAND: 'MI.project-explorer.edit-reg-resource',
     ADD_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.add-class-mediator',
     EDIT_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.edit-class-mediator',
+    CHANGE_SERVER_PATH:'MI.change.server'
 };
+
+export const SELECTED_SERVER_PATH = "selected-server-path";
+export const PORTS_TO_CHECK = [8290, 8253];
