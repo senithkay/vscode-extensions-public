@@ -57,7 +57,7 @@ export class PositionVisitor implements Visitor {
                     subSequence.viewState.y = node.viewState.y + node.viewState.h + NODE_GAP.GROUP_NODE_START_Y;
                     this.position.y = subSequence.viewState.y;
                 } else {
-                    this.position.y = node.viewState.y + node.viewState.h + NODE_GAP.BRANCH_TOP;
+                    this.position.y = node.viewState.y + node.viewState.h + NODE_GAP.BRANCH_TOP + NODE_GAP.Y;
                 }
 
                 this.position.x += i > 0 ? subSequence.viewState.l : 0;

@@ -153,7 +153,7 @@ export class NodeFactoryVisitor implements Visitor {
 
                 // add the end node for each sub flow in group node
                 if (type === NodeTypes.GROUP_NODE) {
-                    sequence.viewState.y = startNode.viewState.y + sequence.viewState.h;
+                    sequence.viewState.y = startNode.viewState.y + sequence.viewState.h - NODE_DIMENSIONS.END.HEIGHT;
                     sequence.viewState.x += (sequence.viewState.w / 2) - (NODE_DIMENSIONS.END.WIDTH / 2);
                     this.createNodeAndLinks(sequence, "", NodeTypes.END_NODE);
                 }
