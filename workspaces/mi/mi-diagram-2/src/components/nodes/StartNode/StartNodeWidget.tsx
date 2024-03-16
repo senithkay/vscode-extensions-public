@@ -74,7 +74,7 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
                 onServiceEdit: onEdit,
             });
         }
-        
+
     };
 
     const getEditableSvg = (nodeName?: string) => (
@@ -111,6 +111,7 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
         if (NodeKindChecker.isAPIResource(model)) {
             switch (node.getNodeType()) {
                 case StartNodeType.IN_SEQUENCE:
+                case StartNodeType.SUB_SEQUENCE:
                     return getEditableSvg(model.uriTemplate || model.urlMapping);
                 default:
                     return getDisabledSvg();

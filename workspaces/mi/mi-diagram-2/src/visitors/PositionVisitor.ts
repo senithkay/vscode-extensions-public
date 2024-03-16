@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STNode, Visitor, Log, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Aggregate, Iterate, Switch } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { STNode, Visitor, Log, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Aggregate, Iterate, Switch, Resource } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 
 export class PositionVisitor implements Visitor {
@@ -134,6 +134,13 @@ export class PositionVisitor implements Visitor {
     beginVisitProperty = (node: Property): void => this.setBasicMediatorPosition(node);
     beginVisitPropertyGroup = (node: PropertyGroup): void => this.setBasicMediatorPosition(node);
     beginVisitRespond = (node: Respond): void => this.setBasicMediatorPosition(node);
+
+    beginVisitResource = (node: Resource): void => {
+        const namedSequenceHeight = NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
+        if (node.inSequenceAttribute || node.outSequenceAttribute) {
+            this.setBasicMediatorPosition(node);
+        }
+    }
 
     beginVisitSend = (node: Send): void => {
         this.setBasicMediatorPosition(node);

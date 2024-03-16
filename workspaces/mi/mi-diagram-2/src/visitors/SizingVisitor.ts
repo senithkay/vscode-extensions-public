@@ -8,7 +8,7 @@
  */
 
 
-import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange, Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, traversNode, Iterate, Switch } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange, Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, traversNode, Iterate, Resource, Switch } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
 
@@ -185,6 +185,25 @@ export class SizingVisitor implements Visitor {
     endVisitProperty = (node: Property): void => this.calculateBasicMediator(node);
     endVisitPropertyGroup = (node: PropertyGroup): void => this.calculateBasicMediator(node);
     endVisitRespond = (node: Respond): void => this.calculateBasicMediator(node);
+
+    endVisitResource = (node: Resource): void => {
+        const namedSequenceHeight = NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
+        if (node.inSequenceAttribute) {
+            node.viewState = {
+                x: 0,
+                y: 0,
+                w: NODE_DIMENSIONS.START.EDITABLE.WIDTH,
+                h: 0,
+                fh: namedSequenceHeight
+            };
+        }
+        if (node.outSequenceAttribute) {
+            node.viewState = {
+                ...node.viewState,
+                fh: node.viewState.fh + namedSequenceHeight
+            };
+        }
+    }
 
     beginVisitSend = (node: Send): void => { this.skipChildrenVisit = true; }
     endVisitSend = (node: Send): void => {
