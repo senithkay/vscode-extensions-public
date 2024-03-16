@@ -133,23 +133,6 @@ const FilterForm = (props: AddMediatorProps) => {
                     {formValues["conditionType"] && formValues["conditionType"].toLowerCase() == "source and regular expression" &&
                         <Field>
                             <TextField
-                                label="Regular Expression"
-                                size={50}
-                                placeholder=""
-                                value={formValues["regularExpression"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "regularExpression": e });
-                                    formValidators["regularExpression"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["regularExpression"] && <Error>{errors["regularExpression"]}</Error>}
-                        </Field>
-                    }
-
-                    {formValues["conditionType"] && formValues["conditionType"].toLowerCase() == "source and regular expression" &&
-                        <Field>
-                            <TextField
                                 label="Source"
                                 size={50}
                                 placeholder=""
@@ -161,6 +144,23 @@ const FilterForm = (props: AddMediatorProps) => {
                                 required={false}
                             />
                             {errors["source"] && <Error>{errors["source"]}</Error>}
+                        </Field>
+                    }
+
+                    {formValues["conditionType"] && formValues["conditionType"].toLowerCase() == "source and regular expression" &&
+                        <Field>
+                            <TextField
+                                label="Regular Expression"
+                                size={50}
+                                placeholder=""
+                                value={formValues["regularExpression"]}
+                                onChange={(e: any) => {
+                                    setFormValues({ ...formValues, "regularExpression": e });
+                                    formValidators["regularExpression"](e);
+                                }}
+                                required={false}
+                            />
+                            {errors["regularExpression"] && <Error>{errors["regularExpression"]}</Error>}
                         </Field>
                     }
 

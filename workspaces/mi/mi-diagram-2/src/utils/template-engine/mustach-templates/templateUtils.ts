@@ -21,7 +21,7 @@ import { getLoopbackMustacheTemplate } from "./core/loopback";
 import { getPropertyGroupFormDataFromSTNode, getPropertyGroupMustacheTemplate, getPropertyGroupXml } from "./core/propertyGroup";
 import { getReponseMustacheTemplate } from "./core/respond";
 import { getSendFormDataFromSTNode, getSendMustacheTemplate, getSendXml } from "./core/send";
-import { getHTTPEndpointMustacheTemplate } from "./endpoints/http";
+import { getHTTPEndpointMustacheTemplate, getHTTPEndpointXml } from "./endpoints/http";
 import { getAddressEndpointMustacheTemplate } from "./endpoints/address";
 import { getDefaultEndpointMustacheTemplate } from "./endpoints/default";
 import { getFailoverEndpointMustacheTemplate } from "./endpoints/failover";
@@ -211,6 +211,10 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getEditApiResourceXml(data);
         case SERVICE.EDIT_SEQUENCE:
             return getEditSequenceXml(data);
+
+        // Endpoints
+        case ENDPOINTS.HTTP:
+            return getHTTPEndpointXml(data);    
         default:
             return Mustache.render(getMustacheTemplate(name), data).trim();
     }
