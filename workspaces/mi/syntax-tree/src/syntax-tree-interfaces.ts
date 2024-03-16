@@ -105,10 +105,10 @@ export interface CalloutEnableSec extends STNode {
 }
 
 export interface WSDLEndpointSuspendOnFailure extends STNode {
-    errorCodes: string;
-    initialDuration: string;
-    progressionFactor: string;
-    maximumDuration: string;
+    errorCodes: STNode;
+    initialDuration: STNode;
+    progressionFactor: STNode;
+    maximumDuration: STNode;
 }
 
 export interface Spring extends STNode {
@@ -256,8 +256,8 @@ export interface TypesType extends ExtensibleDocumentedType, STNode {
 }
 
 export interface EndpointHttpAuthenticationBasicAuth extends STNode {
-    username: string;
-    password: string;
+    username: STNode;
+    password: STNode;
 }
 
 export interface TTypes extends TExtensibleDocumented, STNode {
@@ -637,9 +637,9 @@ export interface API extends STNode {
 }
 
 export interface WSDLEndpointMarkForSuspension extends STNode {
-    errorCodes: string;
-    retriesBeforeSuspension: string;
-    retryDelay: string;
+    errorCodes: STNode;
+    retriesBeforeSuspension: STNode;
+    retryDelay: STNode;
 }
 
 export interface APIHandlersHandler extends STNode {
@@ -796,10 +796,12 @@ export interface EndpointParameter extends STNode {
 }
 
 export interface EndpointHttpAuthenticationOauthClientCredentials extends STNode {
-    clientId: string;
-    clientSecret: string;
-    refreshToken: string;
-    tokenUrl: string;
+    clientId: STNode;
+    clientSecret: STNode;
+    refreshToken: STNode;
+    tokenUrl: STNode;
+    requestParameters: EndpointHttpAuthenticationOauthRequestParameters;
+    authMode: STNode;
 }
 
 export interface TBinding extends TExtensibleDocumented, STNode {
@@ -1006,6 +1008,18 @@ export interface Sequence extends STNode {
 export interface EndpointHttpAuthenticationOauth extends STNode {
     authorizationCode: EndpointHttpAuthenticationOauthAuthorizationCode;
     clientCredentials: EndpointHttpAuthenticationOauthClientCredentials;
+    passwordCredentials: EndpointHttpAuthenticationOauthPasswordCredentials;
+}
+
+export interface EndpointHttpAuthenticationOauthPasswordCredentials{
+    username: STNode;
+    password: STNode;
+    clientId: STNode;
+    clientSecret: STNode;
+    refreshToken: STNode;
+    tokenUrl: STNode;
+    requestParameters: EndpointHttpAuthenticationOauthRequestParameters;
+    authMode: STNode;
 }
 
 export interface XsltFeature extends STNode {
@@ -1285,10 +1299,16 @@ export interface CacheProtocol extends STNode {
 }
 
 export interface EndpointHttpAuthenticationOauthAuthorizationCode extends STNode {
-    clientId: string;
-    clientSecret: string;
-    refreshToken: string;
-    tokenUrl: string;
+    clientId: STNode;
+    clientSecret: STNode;
+    refreshToken: STNode;
+    tokenUrl: STNode;
+    requestParameters: EndpointHttpAuthenticationOauthRequestParameters;
+    authMode: STNode;
+}
+
+export interface EndpointHttpAuthenticationOauthRequestParameters extends STNode {
+    parameter: Parameter[];
 }
 
 export interface Rewrite extends STNode {
@@ -1397,10 +1417,16 @@ export interface EnableSecAndEnableRMAndEnableAddressing extends STNode {
     suspendOnFailure?: WSDLEndpointSuspendOnFailure;
     markForSuspension?: WSDLEndpointMarkForSuspension;
     authentication?: EndpointHttpAuthentication;
+    retryConfig?: EndpointRetryConfig;
+}
+
+export interface EndpointRetryConfig extends STNode{
+    enabledErrorCodes:STNode;
+    disabledErrorCodes:STNode;
 }
 
 export interface EndpointHttp extends STNode {
-    enableSecAndEnableRMAndEnableAddressing: EnableSecAndEnableRMAndEnableAddressing[];
+    enableSecAndEnableRMAndEnableAddressing: EnableSecAndEnableRMAndEnableAddressing;
     uriTemplate: string;
     method: string;
     statistics: string;
