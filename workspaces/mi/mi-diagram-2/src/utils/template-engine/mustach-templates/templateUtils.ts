@@ -9,7 +9,7 @@
 
 import Mustache from "mustache";
 import { getCallFormDataFromSTNode, getCallMustacheTemplate, getCallXml } from "./core/call";
-import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache, Send, Aggregate, Iterate, Filter, NamedEndpoint } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache, Send, Aggregate, Iterate, Filter, NamedEndpoint, Foreach } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogMustacheTemplate, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutMustacheTemplate, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode, getHeaderMustacheTemplate } from "./core/header";
@@ -51,6 +51,7 @@ import { getEditApiResourceXml, getEditSequenceXml } from "./core/service-design
 import { getAggregateFormDataFromSTNode, getAggregateMustacheTemplate, getAggregateXml } from "./eip/aggreagte";
 import { getIterateFormDataFromSTNode, getIterateMustacheTemplate, getIterateXml } from "./eip/iterate";
 import { getSwitchFormDataFromSTNode, getSwitchMustacheTemplate, getSwitchXml } from "./filter/switch";
+import { getForEachFormDataFromSTNode, getForeachMustacheTemplate, getForeachXml } from "./eip/foreach";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -103,6 +104,8 @@ export function getMustacheTemplate(name: string) {
             return getAggregateMustacheTemplate();
         case MEDIATORS.ITERATE:
             return getIterateMustacheTemplate();
+        case MEDIATORS.FOREACH:
+            return getForeachMustacheTemplate();
         //Filter Mediators
         case MEDIATORS.FILTER:
             return getFilterMustacheTemplate();
@@ -188,6 +191,8 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getAggregateXml(data);
         case MEDIATORS.ITERATE:
             return getIterateXml(data);
+        case MEDIATORS.FOREACH:
+            return getForeachXml(data);
         //Filter Mediators
         case MEDIATORS.FILTER:
             return getFilterXml(data);
@@ -275,6 +280,8 @@ export function getDataFromXML(name: string, node: STNode) {
             return getAggregateFormDataFromSTNode(formData, node as Aggregate);
         case MEDIATORS.ITERATE:
             return getIterateFormDataFromSTNode(formData, node as Iterate);
+        case MEDIATORS.FOREACH:
+            return getForEachFormDataFromSTNode(formData, node as Foreach);
         //Filter Mediators
         case MEDIATORS.FILTER:
             return getFilterFormDataFromSTNode(formData, node as Filter);
