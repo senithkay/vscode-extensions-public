@@ -13,17 +13,17 @@ const ViewContentWrapper = styled.div({
     display: 'flex',
     flexDirection: 'column',
     flexGrow: 1,
-    padding: '20px',
     overflowY: 'auto',
 });
 
 type ViewContentProps = {
     children: ReactNode;
+    padding?: boolean;
 };
 
-const ViewContent: React.FC<ViewContentProps> = ({ children }) => {
+const ViewContent: React.FC<ViewContentProps> = ({ children, padding = false }) => {
     return (
-        <ViewContentWrapper>
+        <ViewContentWrapper style={{ padding: padding ? '20px' : '0px' }}>
             {children}
         </ViewContentWrapper>
     );

@@ -35,6 +35,7 @@ export const ResourceView = ({ model: resourceModel, documentUri, diagnostics }:
     };
 
     const handleEditResource = () => {
+        console.log(model);
         setFormOpen(true);
     }
 
@@ -42,10 +43,10 @@ export const ResourceView = ({ model: resourceModel, documentUri, diagnostics }:
         const ranges: Range[] = getResourceDeleteRanges(model, data);
         onResourceEdit(data, model.range.startTagRange, ranges, documentUri, rpcClient);
     }
-    
+
     return (
         <View>
-            <ViewHeader title="Resource View" codicon="globe">
+            <ViewHeader title="Resource View" codicon="globe" onEdit={handleEditResource}>
                 {!isFormOpen && (
                     <React.Fragment>
                         <Switch
@@ -62,10 +63,6 @@ export const ResourceView = ({ model: resourceModel, documentUri, diagnostics }:
                             }}
                             disabled={false}
                         />
-                        <Button appearance="icon" onClick={handleEditResource}>
-                            <Codicon name="edit" sx={{ marginRight: 5 }} />
-                            Edit
-                        </Button>
                     </React.Fragment>
                 )}
             </ViewHeader>

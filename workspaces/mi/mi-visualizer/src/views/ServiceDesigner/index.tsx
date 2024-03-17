@@ -206,7 +206,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
                             <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
                         </VSCodeButton>
                     </ViewHeader>
-                    <ViewContent>
+                    <ViewContent padding>
                         <ServiceDesigner
                             model={serviceModel}
                             disableServiceHeader={true}

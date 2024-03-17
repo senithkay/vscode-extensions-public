@@ -158,7 +158,7 @@ export function Overview() {
                     </Button>
                 </ProjectActions>
             </ViewHeader>
-            <ViewContent>
+            <ViewContent padding>
                 <AddPanel>
                     <CloseButton onClick={handleClose} appearance="icon" tooltip="Close">
                         <Codicon name="chrome-close" />
