@@ -23,7 +23,6 @@ export interface ProxyViewProps {
 export const ProxyView = ({ model: ProxyModel, documentUri, diagnostics }: ProxyViewProps) => {
     const model = ProxyModel as Proxy;
     const [isFaultFlow, setFlow] = React.useState<boolean>(false);
-    const [isTabPaneVisible, setTabPaneVisible] = React.useState(true);
 
     const toggleFlow = () => {
         setFlow(!isFaultFlow);
