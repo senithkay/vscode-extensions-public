@@ -11,7 +11,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { StartNodeModel, StartNodeType } from "./StartNodeModel";
-import { Colors, SequenceType } from "../../../resources/constants";
+import { Colors } from "../../../resources/constants";
 
 namespace S {
     export const Node = styled.div<{}>`
@@ -29,8 +29,7 @@ interface CallNodeWidgetProps {
 
 export function StartNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine } = props;
-    const model = node.getStNode() as any;
-    const nodeType = model.tag;
+    const nodeType = node.getNodeType();
     const [hovered, setHovered] = React.useState(false);
 
     const getNamedStartNode = () => (
@@ -63,24 +62,11 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
     );
 
     const getSVGNode = () => {
-        if (model.tag === "resource") {
-            switch (node.getNodeType()) {
-                case StartNodeType.IN_SEQUENCE:
-                    return getNamedStartNode();
-                default:
-                    return getStartNode();
-            }
-        } else if (model.tag === "sequence") {
-            return getNamedStartNode();
-        } else if (model.tag !== "proxy") {
-            switch (nodeType as SequenceType) {
-                case SequenceType.IN_SEQUENCE:
-                    return getNamedStartNode();
-                default:
-                    return getStartNode();
-            }
-        } else {
-            return getStartNode();
+        switch (nodeType) {
+            case StartNodeType.IN_SEQUENCE:
+                return getNamedStartNode();
+            default:
+                return getStartNode();
         }
     };
 

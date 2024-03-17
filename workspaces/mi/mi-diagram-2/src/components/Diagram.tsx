@@ -9,7 +9,12 @@
 
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
-import { APIResource, traversNode, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import {
+    traversNode,
+    STNode,
+    DiagramService,
+    Proxy
+} from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
 import { generateEngine } from "../utils/diagram";
@@ -26,8 +31,7 @@ import { Colors } from "../resources/constants";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
 import { Diagnostic } from "vscode-languageserver-types";
-import { DiagramService, EditableService, ProxyTarget } from "@wso2-enterprise/mi-syntax-tree/src";
-import { NodeKindChecker } from "../utils/form";
+import { APIResource } from "@wso2-enterprise/mi-syntax-tree/src";
 
 export interface DiagramProps {
     model: DiagramService;
@@ -50,7 +54,7 @@ interface DiagramData {
     model: STNode;
 }
 
-type ServiceWithSequences = APIResource | ProxyTarget;
+
 
 namespace S {
     export const Container = styled.div`
@@ -66,7 +70,6 @@ export const SIDE_PANEL_WIDTH = 450;
 
 export function Diagram(props: DiagramProps) {
     const { model, diagnostics, isFaultFlow, isFormOpen } = props;
-    const [diagramDataMap, setDiagramDataMap] = useState(new Map());
     const { rpcClient } = useVisualizerContext();
     const [canvasDimensions, setCanvasDimensions] = useState({ width: 0, height: 0 }); 
 
@@ -101,42 +104,32 @@ export function Diagram(props: DiagramProps) {
         const { engine: flowEngine } = flow;
         const { engine: faultEngine } = fault;
         const flows: DiagramData[] = [];
-        const STNode: EditableService = NodeKindChecker.isProxy(model) ? model.descriptionOrTargetOrPublishWSDL[0] : model;
 
         const modelCopy = structuredClone(model);
-        delete (modelCopy as ServiceWithSequences).faultSequence;
-
-        const key = JSON.stringify((STNode as ServiceWithSequences).inSequence) + JSON.stringify((STNode as ServiceWithSequences).outSequence);
-
-        // if (diagramDataMap.get(DiagramType.FLOW) !== key && !isFaultFlow) {
-            diagramDataMap.set(DiagramType.FLOW, key);
-            flows.push({
-                engine: flowEngine,
-                modelType: DiagramType.FLOW,
-                model: modelCopy
-            });
-            setDiagramDataMap(diagramDataMap);
-        // }
-
-        let faultSequence;
-        if (NodeKindChecker.isProxy(model)) {
-            faultSequence = model.descriptionOrTargetOrPublishWSDL[0].faultSequence;
-        } else {
-            faultSequence = (model as ServiceWithSequences).faultSequence;
-        }
-        
-        if (faultSequence) {
-            const key = JSON.stringify(faultSequence);
-            // if (diagramDataMap.get(DiagramType.FAULT) !== key && isFaultFlow) {
-                diagramDataMap.set(DiagramType.FAULT, key);
+        if (model.tag !== "sequence") {
+            let faultSequence;
+            if (modelCopy.tag === "proxy") {
+                faultSequence = (model as Proxy).descriptionOrTargetOrPublishWSDL[0].faultSequence;
+                delete (modelCopy as Proxy).descriptionOrTargetOrPublishWSDL[0].faultSequence;
+            } else {
+                faultSequence = (model as APIResource).faultSequence;
+                delete (modelCopy as APIResource).faultSequence;
+            }
+            
+            if (faultSequence) {
                 flows.push({
                     engine: faultEngine,
                     modelType: DiagramType.FAULT,
                     model: faultSequence
                 });
-                setDiagramDataMap(diagramDataMap);
-            // }
+            }
         }
+
+        flows.push({
+            engine: flowEngine,
+            modelType: DiagramType.FLOW,
+            model: modelCopy
+        });
         updateDiagramData(flows);
 
         const mouseTrapClient = KeyboardNavigationManager.getClient();
