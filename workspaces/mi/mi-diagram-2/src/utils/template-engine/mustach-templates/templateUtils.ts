@@ -9,7 +9,7 @@
 
 import Mustache from "mustache";
 import { getCallFormDataFromSTNode, getCallMustacheTemplate, getCallXml } from "./core/call";
-import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache, Send, Aggregate, Iterate, Filter } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache, Send, Aggregate, Iterate, Filter, NamedEndpoint } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogMustacheTemplate, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutMustacheTemplate, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode, getHeaderMustacheTemplate } from "./core/header";
@@ -21,7 +21,7 @@ import { getLoopbackMustacheTemplate } from "./core/loopback";
 import { getPropertyGroupFormDataFromSTNode, getPropertyGroupMustacheTemplate, getPropertyGroupXml } from "./core/propertyGroup";
 import { getReponseMustacheTemplate } from "./core/respond";
 import { getSendFormDataFromSTNode, getSendMustacheTemplate, getSendXml } from "./core/send";
-import { getHTTPEndpointMustacheTemplate } from "./endpoints/http";
+import { getHTTPEndpointFormDataFromSTNode, getHTTPEndpointMustacheTemplate, getHTTPEndpointXml } from "./endpoints/http";
 import { getAddressEndpointMustacheTemplate } from "./endpoints/address";
 import { getDefaultEndpointMustacheTemplate } from "./endpoints/default";
 import { getFailoverEndpointMustacheTemplate } from "./endpoints/failover";
@@ -206,6 +206,10 @@ export function getXML(name: string, data: { [key: string]: any }) {
         case MEDIATORS.SEQUENCE:
             return getSequenceXml(data);
 
+        // Endpoint Forms
+        case ENDPOINTS.HTTP:
+            return getHTTPEndpointXml(data);
+
         // Service Forms
         case SERVICE.EDIT_RESOURCE:
             return getEditApiResourceXml(data);
@@ -285,6 +289,10 @@ export function getDataFromXML(name: string, node: STNode) {
             return getScriptFormDataFromSTNode(formData, node as Script);
         case MEDIATORS.SEQUENCE:
             return getSequenceDataFromSTNode(formData);
+
+        // Endpoint Forms
+        case ENDPOINTS.HTTP:
+            return getHTTPEndpointFormDataFromSTNode(formData, node as NamedEndpoint);
         default:
             return formData;
     }

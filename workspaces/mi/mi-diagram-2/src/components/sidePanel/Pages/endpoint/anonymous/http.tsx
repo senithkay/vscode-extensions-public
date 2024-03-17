@@ -99,14 +99,6 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                 isRequired: false
             },
             {
-                id: 1,
-                type: "Dropdown",
-                label: "Scope",
-                defaultValue: "default",
-                isRequired: false,
-                values: ["default", "transport", "axis2", "axis2-client"]
-            },
-            {
                 id: 2,
                 type: "Dropdown",
                 label: "Value Type",
@@ -151,8 +143,8 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
     useEffect(() => {
         if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
             setFormValues({ ...formValues, ...sidePanelContext.formValues });
-            if (sidePanelContext.formValues["proeprties"] && sidePanelContext.formValues["proeprties"].length > 0) {
-                const paramValues = sidePanelContext.formValues["proeprties"].map((property: string, index: string) => (
+            if (sidePanelContext.formValues["properties"] && sidePanelContext.formValues["properties"].length > 0) {
+                const paramValues = sidePanelContext.formValues["properties"].map((property: string, index: string) => (
                     {
                         id: index,
                         parameters: [
@@ -211,18 +203,10 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                                 isRequired: false
                             },
                             {
-                                id: 1,
-                                label: "scope",
-                                type: "Dropdown",
-                                value: property[1],
-                                isRequired: false,
-                                values: ["default", "transport", "axis2", "axis2-client"]
-                            },
-                            {
                                 id: 2,
                                 label: "valueType",
                                 type: "Dropdown",
-                                value: property[2],
+                                value: property[1],
                                 isRequired: false,
                                 values: ["LITERAL", "EXPRESSION"]
                             },
@@ -230,14 +214,14 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                                 id: 3,
                                 label: "value",
                                 type: "TextField",
-                                value: property[3],
+                                value: property[2],
                                 isRequired: false
                             },
                             {
                                 id: 4,
                                 label: "valueExpression",
                                 type: "TextField",
-                                value: property[4],
+                                value: property[3],
                                 isRequired: false
                             }
                         ]
@@ -247,15 +231,18 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
             }
         } else {
             setFormValues({
-
                 "statisticsEnabled": false,
                 "traceEnabled": false,
                 "httpMethod": "GET",
-                "proeprties": [] as string[][],
-                "oauthType": "default",
-                "oauthGrantType": "default",
-                "oauthAuthenticationMode": "default",
+                "properties": [] as string[][],
+                "scope": "default",
+                "valueType": "LITERAL",
+                "authType": "None",
+                "oauthGrantType": "Password Credentials",
+                "oauthAuthenticationMode": "Header",
                 "oauthParameters": [] as string[][],
+                "OAuthProperties.scope": "default",
+                "OAuthProperties.valueType": "LITERAL",
                 "reliableMessagingEnabled": false,
                 "securityEnabled": false,
                 "addressingEnabled": false,
@@ -274,7 +261,7 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
             }
         });
 
-        formValues["proeprties"] = propertyParams.paramValues.map(param => param.parameters.slice(0, 5).map(p => p.value));
+        formValues["properties"] = propertyParams.paramValues.map(param => param.parameters.slice(0, 5).map(p => p.value));
         propertyParams.paramValues.forEach(param => {
             param.parameters.slice(0, 5).forEach(p => {
                 let key = p.label.toLowerCase().replace(/\s/g, '');
@@ -313,7 +300,12 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
         "traceEnabled": (e?: any) => validateField("traceEnabled", e, false),
         "uriTemplate": (e?: any) => validateField("uriTemplate", e, false),
         "httpMethod": (e?: any) => validateField("httpMethod", e, false),
-        "oauthType": (e?: any) => validateField("oauthType", e, false),
+        "name": (e?: any) => validateField("name", e, false),
+        "scope": (e?: any) => validateField("scope", e, false),
+        "valueType": (e?: any) => validateField("valueType", e, false),
+        "value": (e?: any) => validateField("value", e, false),
+        "valueExpression": (e?: any) => validateField("valueExpression", e, false),
+        "authType": (e?: any) => validateField("authType", e, false),
         "basicAuthUsername": (e?: any) => validateField("basicAuthUsername", e, false),
         "basicAuthPassword": (e?: any) => validateField("basicAuthPassword", e, false),
         "oauthGrantType": (e?: any) => validateField("oauthGrantType", e, false),
@@ -321,8 +313,14 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
         "clientSecret": (e?: any) => validateField("clientSecret", e, false),
         "refreshToken": (e?: any) => validateField("refreshToken", e, false),
         "oauthUsername": (e?: any) => validateField("oauthUsername", e, false),
+        "oauthPassword": (e?: any) => validateField("oauthPassword", e, false),
         "tokenUrl": (e?: any) => validateField("tokenUrl", e, false),
         "oauthAuthenticationMode": (e?: any) => validateField("oauthAuthenticationMode", e, false),
+        "OAuthProperties.name": (e?: any) => validateField("OAuthProperties.name", e, false),
+        "OAuthProperties.scope": (e?: any) => validateField("OAuthProperties.scope", e, false),
+        "OAuthProperties.valueType": (e?: any) => validateField("OAuthProperties.valueType", e, false),
+        "OAuthProperties.value": (e?: any) => validateField("OAuthProperties.value", e, false),
+        "OAuthProperties.valueExpression": (e?: any) => validateField("OAuthProperties.valueExpression", e, false),
         "suspendErrorCodes": (e?: any) => validateField("suspendErrorCodes", e, false),
         "suspendInitialDuration": (e?: any) => validateField("suspendInitialDuration", e, false),
         "suspendMaximumDuration": (e?: any) => validateField("suspendMaximumDuration", e, false),
@@ -420,7 +418,7 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <h3>Properties</h3>
 
-                        {formValues["proeprties"] && (
+                        {formValues["properties"] && (
                             <ParamManager
                                 paramConfigs={propertyParams}
                                 readonly={false}
@@ -433,15 +431,15 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                     <h3>Auth Configurations</h3>
 
                     <Field>
-                        <label>OAuth Type</label>
-                        <AutoComplete items={["None", "Basic Auth", "OAuth"]} selectedItem={formValues["oauthType"]} onChange={(e: any) => {
-                            setFormValues({ ...formValues, "oauthType": e });
-                            formValidators["oauthType"](e);
+                        <label>Auth Type</label>
+                        <AutoComplete items={["None", "Basic Auth", "OAuth"]} selectedItem={formValues["authType"]} onChange={(e: any) => {
+                            setFormValues({ ...formValues, "authType": e });
+                            formValidators["authType"](e);
                         }} />
-                        {errors["oauthType"] && <Error>{errors["oauthType"]}</Error>}
+                        {errors["authType"] && <Error>{errors["authType"]}</Error>}
                     </Field>
 
-                    {formValues["oauthType"] && formValues["oauthType"].toLowerCase() == "basic auth" &&
+                    {formValues["authType"] && formValues["authType"].toLowerCase() == "basic auth" &&
                         <Field>
                             <TextField
                                 label="Basic Auth Username"
@@ -458,7 +456,7 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                         </Field>
                     }
 
-                    {formValues["oauthType"] && formValues["oauthType"].toLowerCase() == "basic auth" &&
+                    {formValues["authType"] && formValues["authType"].toLowerCase() == "basic auth" &&
                         <Field>
                             <TextField
                                 label="Basic Auth Password"
@@ -475,10 +473,10 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                         </Field>
                     }
 
-                    {formValues["oauthType"] && formValues["oauthType"].toLowerCase() == " oauth" &&
+                    {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" &&
                         <Field>
                             <label>OAuth Grant Type</label>
-                            <AutoComplete items={["Authorization Code Grant", "Client Credentials Grant", "Password Credentials Grant"]} selectedItem={formValues["oauthGrantType"]} onChange={(e: any) => {
+                            <AutoComplete items={["Authorization Code", "Client Credentials", "Password Credentials"]} selectedItem={formValues["oauthGrantType"]} onChange={(e: any) => {
                                 setFormValues({ ...formValues, "oauthGrantType": e });
                                 formValidators["oauthGrantType"](e);
                             }} />
@@ -486,7 +484,7 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                         </Field>
                     }
 
-                    {formValues["oauthType"] && formValues["oauthType"].toLowerCase() == "oauth" &&
+                    {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" &&
                         <Field>
                             <TextField
                                 label="Client ID"
@@ -503,7 +501,7 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                         </Field>
                     }
 
-                    {formValues["oauthType"] && formValues["oauthType"].toLowerCase() == "oauth" &&
+                    {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" &&
                         <Field>
                             <TextField
                                 label="Client Secret"
@@ -520,7 +518,7 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                         </Field>
                     }
 
-                    {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" &&formValues["oauthGrantType"] && formValues["oauthGrantType"].toLowerCase() == "authorization code grant" &&
+                    {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" && formValues["oauthGrantType"] && formValues["oauthGrantType"].toLowerCase() == "authorization code" &&
                         <Field>
                             <TextField
                                 label="Refresh Token"
@@ -537,7 +535,7 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                         </Field>
                     }
 
-                    {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" &&formValues["oauthGrantType"] && formValues["oauthGrantType"].toLowerCase() == "password credentials grant" &&
+                    {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" && formValues["oauthGrantType"] && formValues["oauthGrantType"].toLowerCase() == "password credentials" &&
                         <Field>
                             <TextField
                                 label="OAuth Username"
@@ -553,7 +551,22 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                             {errors["oauthUsername"] && <Error>{errors["oauthUsername"]}</Error>}
                         </Field>
                     }
-
+                    {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" && formValues["oauthGrantType"] && formValues["oauthGrantType"].toLowerCase() == "password credentials" &&
+                        <Field>
+                            <TextField
+                                label="OAuth Password"
+                                size={50}
+                                placeholder=""
+                                value={formValues["oauthPassword"]}
+                                onChange={(e: any) => {
+                                    setFormValues({ ...formValues, "oauthPassword": e });
+                                    formValidators["oauthPassword"](e);
+                                }}
+                                required={false}
+                            />
+                            {errors["oauthPassword"] && <Error>{errors["oauthPassword"]}</Error>}
+                        </Field>
+                    }
                     {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" &&
                         <Field>
                             <TextField
@@ -582,8 +595,9 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                         </Field>
                     }
 
-                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>OAuth Parameters</h3>
+                    {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" &&
+                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                            <h3>OAuth Parameters</h3>
 
                         {formValues["oauthParameters"] && (
                             <ParamManager
@@ -591,7 +605,7 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                                 readonly={false}
                                 onChange={handleOnChangeOauth} />
                         )}
-                    </ComponentCard>
+                    </ComponentCard>}
                 </ComponentCard>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -710,38 +724,6 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                 </ComponentCard>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>QoS</h3>
-
-                    <Field>
-                        <VSCodeCheckbox type="checkbox" checked={formValues["reliableMessagingEnabled"]} onChange={(e: any) => {
-                            setFormValues({ ...formValues, "reliableMessagingEnabled": e.target.checked });
-                            formValidators["reliableMessagingEnabled"](e);
-                        }
-                        }>Reliable Messaging Enabled </VSCodeCheckbox>
-                        {errors["reliableMessagingEnabled"] && <Error>{errors["reliableMessagingEnabled"]}</Error>}
-                    </Field>
-
-                    <Field>
-                        <VSCodeCheckbox type="checkbox" checked={formValues["securityEnabled"]} onChange={(e: any) => {
-                            setFormValues({ ...formValues, "securityEnabled": e.target.checked });
-                            formValidators["securityEnabled"](e);
-                        }
-                        }>Security Enabled </VSCodeCheckbox>
-                        {errors["securityEnabled"] && <Error>{errors["securityEnabled"]}</Error>}
-                    </Field>
-
-                    <Field>
-                        <VSCodeCheckbox type="checkbox" checked={formValues["addressingEnabled"]} onChange={(e: any) => {
-                            setFormValues({ ...formValues, "addressingEnabled": e.target.checked });
-                            formValidators["addressingEnabled"](e);
-                        }
-                        }>Addressing Enabled </VSCodeCheckbox>
-                        {errors["addressingEnabled"] && <Error>{errors["addressingEnabled"]}</Error>}
-                    </Field>
-
-                </ComponentCard>
-
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <h3>Timeout</h3>
 
                     <Field>
@@ -770,34 +752,32 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
 
                 </ComponentCard>
 
-                <Field>
+                {/* <Field>
                     <label>Optimize</label>
                     <AutoComplete items={["LEAVE_AS_IS", "mtom", "swa"]} selectedItem={formValues["optimize"]} onChange={(e: any) => {
                         setFormValues({ ...formValues, "optimize": e });
                         formValidators["optimize"](e);
                     }} />
                     {errors["optimize"] && <Error>{errors["optimize"]}</Error>}
-                </Field>
+                </Field> */}
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <h3>Failover Error Codes</h3>
 
-                    {formValues["failoverRetryType"] && formValues["failoverRetryType"].toLowerCase() == "non_retry_error_codes" &&
-                        <Field>
-                            <TextField
-                                label="Failover Non Retry Error Codes"
-                                size={50}
-                                placeholder=""
-                                value={formValues["failoverNonRetryErrorCodes"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "failoverNonRetryErrorCodes": e });
-                                    formValidators["failoverNonRetryErrorCodes"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["failoverNonRetryErrorCodes"] && <Error>{errors["failoverNonRetryErrorCodes"]}</Error>}
-                        </Field>
-                    }
+                    <Field>
+                        <TextField
+                            label="Failover Non Retry Error Codes"
+                            size={50}
+                            placeholder=""
+                            value={formValues["failoverNonRetryErrorCodes"]}
+                            onChange={(e: any) => {
+                                setFormValues({ ...formValues, "failoverNonRetryErrorCodes": e });
+                                formValidators["failoverNonRetryErrorCodes"](e);
+                            }}
+                            required={false}
+                        />
+                        {errors["failoverNonRetryErrorCodes"] && <Error>{errors["failoverNonRetryErrorCodes"]}</Error>}
+                    </Field>
 
                 </ComponentCard>
 
