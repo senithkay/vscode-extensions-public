@@ -76,7 +76,6 @@ const SidePanelList = (props: SidePanelListProps) => {
 
     const handleClose = () => {
         sidePanelContext.setSidePanelState({
-            ...sidePanelContext,
             isOpen: false,
             isEditing: false,
             formValues: {},
@@ -138,7 +137,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                             {isAddMediator && <MediatorPage nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={setContent} />}
                             {isGenerate && <AIPage />}
                         </>}
-                        {pageStack.length > 0 && pageStack[pageStack.length - 1]}
+                        <div style={{ marginBottom: "30px" }}>{pageStack.length > 0 && pageStack[pageStack.length - 1]}</div>
                     </div>
                 </>}
         </SidePanelContainer>
