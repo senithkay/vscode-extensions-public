@@ -14,33 +14,34 @@ export function getPayloadMustacheTemplate() {
     return `<payloadFactory {{#description}}description="{{description}}"{{/description}} media-type="{{mediaType}}" template-type="{{templateType}}">
     {{#isInlined}}
     <format>
-    {{payload}}
+    {{{payload}}}
     </format>
     {{/isInlined}}
     {{^isInlined}}
     {{#payloadKey}}<format key="{{payloadKey}}"/>{{/payloadKey}}
-    {{#payload}}<format>
-        {{{payload}}}
-    </format>
-    {{/payload}}
     {{/isInlined}}
     <args>
         {{#args}}
-        <arg {{#value}}value="{{value}}"{{/value}} {{#expression}}expression="{{expression}}" evaluator="{{evaluator}}" {{/expression}} />
+        <arg {{#literal}}literal="{{literal}}"{{/literal}} {{#value}}value="{{value}}"{{/value}} {{#expression}}expression="{{expression}}" evaluator="{{evaluator}}" {{/expression}} />
         {{/args}}
     </args>
 </payloadFactory>`;
 }
 
 export function getPayloadXml(data: { [key: string]: any }) {
+
+    data.isInlined = data?.payloadFormat == "Inline" ? true : false;
     const args = data.args.map((property: string[]) => {
         if (property[0] === "Value") {
             return {
-                value: property[1]
+                value: property[1],
+                literal: property[4]
             }
         } else {
             return {
-                expression: property[2]
+                expression: property[2],
+                evaluator: property[3],
+                literal: property[4]
             }
         }
     });
@@ -67,11 +68,13 @@ export function getPayloadFormDataFromSTNode(data: { [key: string]: any }, node:
     }
     if (node.format?.content) {
         data.payload = node.format.content;
-        data.payloadFormat = "inline";
+        data.payloadFormat = "Inline";
+    } else {
+        data.payloadFormat = "Registry Reference";
     }
     if (node.args) {
         data.args = node.args.arg.map((arg) => {
-            return [null, arg.value ? "Value" : "Expression", arg.value ?? arg.expression];
+            return [ arg.value ? "Value" : "Expression", arg.value, arg.expression, arg.evaluator, arg.literal];
         });
     }
 

@@ -14,7 +14,7 @@ import { getLogFormDataFromSTNode, getLogMustacheTemplate, getLogXml } from "./c
 import { getCalloutFormDataFromSTNode, getCalloutMustacheTemplate, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode, getHeaderMustacheTemplate } from "./core/header";
 import { getCallTemplateFormDataFromSTNode, getCallTemplateMustacheTemplate, getCallTemplateXml } from "./core/call-template";
-import { getPayloadMustacheTemplate, getPayloadFormDataFromSTNode, getPayloadXml } from "./core/payloadFactory";
+import { getPayloadMustacheTemplate, getPayloadFormDataFromSTNode, getPayloadXml } from "./transformation/payloadFactory";
 import { getPropertyFormDataFromSTNode, getPropertyMustacheTemplate, getPropertyXml } from "./core/property";
 import { getDropMustacheTemplate } from "./core/drop";
 import { getLoopbackMustacheTemplate } from "./core/loopback";
@@ -82,8 +82,6 @@ export function getMustacheTemplate(name: string) {
             return getLogMustacheTemplate();
         case MEDIATORS.LOOPBACK:
             return getLoopbackMustacheTemplate();
-        case MEDIATORS.PAYLOAD:
-            return getPayloadMustacheTemplate();
         case MEDIATORS.PROPERTY:
             return getPropertyMustacheTemplate();
         case MEDIATORS.PROPERTYGROUP:
@@ -110,6 +108,9 @@ export function getMustacheTemplate(name: string) {
             return getFilterMustacheTemplate();
         case MEDIATORS.SWITCH:
             return getSwitchMustacheTemplate();
+        //Transformation Mediators
+        case MEDIATORS.PAYLOAD:
+            return getPayloadMustacheTemplate();
         //Extension Mediators
         case MEDIATORS.BEAN:
             return getBeanMustacheTemplate()
@@ -192,6 +193,9 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getFilterXml(data);
         case MEDIATORS.SWITCH:
             return getSwitchXml(data);
+        //Transformation Mediators
+        case MEDIATORS.PAYLOAD:
+            return getPayloadXml(data);
         //Extension Mediators    
         case MEDIATORS.BEAN:
             return getBeanXml(data);
@@ -275,7 +279,10 @@ export function getDataFromXML(name: string, node: STNode) {
         case MEDIATORS.FILTER:
             return getFilterFormDataFromSTNode(formData, node as Filter);
         case MEDIATORS.SWITCH:
-            return getSwitchFormDataFromSTNode(formData, node as Switch)
+            return getSwitchFormDataFromSTNode(formData, node as Switch);
+        //Transformation Mediators
+        case MEDIATORS.PAYLOAD:
+            return getPayloadFormDataFromSTNode(formData, node as PayloadFactory);
         //Extension Mediators
         case MEDIATORS.CLASS:
             return getClassFormDataFromSTNode(formData, node as Class);
