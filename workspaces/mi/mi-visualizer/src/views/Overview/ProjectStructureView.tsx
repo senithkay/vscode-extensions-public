@@ -14,129 +14,200 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import path from 'path';
 import { VSCodeButton, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from "@vscode/webview-ui-toolkit/react";
 
-const allowedConfigs = ["apis", "sequences", "endpoints", "api", "inboundEndpoints", "messageProcessors", "proxyServices", "tasks", "templates", "messageStores", "localEntries", "registryResources"];
 
-const IconWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-`;
+interface ArtifactType {
+    title: string;
+    command: string;
+    view: MACHINE_VIEW;
+    icon: string;
+    description: (entry: any) => string;
+    path: (entry: any) => string;
+}
 
-const HorizontalCardContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-`;
+const artifactTypeMap: Record<string, ArtifactType> = {
+    apis: {
+        title: "Apis",
+        command: "MI.project-explorer.add-api",
+        view: MACHINE_VIEW.ServiceDesigner,
+        icon: "globe",
+        description: (entry: any) => `API Context: ${entry.context}`,
+        path: (entry: any) => entry.path,
+    },
+    endpoints: {
+        title: "Endpoints",
+        command: "MI.project-explorer.add-endpoint",
+        view: MACHINE_VIEW.EndPointForm,
+        icon: "plug",
+        description: (entry: any) => `Endpoint SubType: ${entry.subType}`,
+        path: (entry: any) => entry.path,
+    },
+    sequences: {
+        title: "Sequences",
+        command: "MI.project-explorer.add-sequence",
+        view: MACHINE_VIEW.SequenceView,
+        icon: "list-tree",
+        description: (entry: any) => `Reusable sequence`,
+        path: (entry: any) => entry.path,
+    },
+    proxyServices: {
+        title: "Proxy Services",
+        command: "MI.project-explorer.add-proxy-service",
+        view: MACHINE_VIEW.ProxyView,
+        icon: "server",
+        description: (entry: any) => "Proxy Service",
+        path: (entry: any) => entry.path,
+    },
+    inboundEndpoints: {
+        title: "Inbound Endpoints",
+        command: "MI.project-explorer.add-inbound-endpoint",
+        view: MACHINE_VIEW.InboundEPForm,
+        icon: "sign-in",
+        description: (entry: any) => "Inbound Endpoint",
+        path: (entry: any) => entry.path,
+    },
+    messageStores: {
+        title: "Message Stores",
+        command: "MI.project-explorer.add-message-store",
+        view: MACHINE_VIEW.MessageStoreForm,
+        icon: "database",
+        description: (entry: any) => "Message Store",
+        path: (entry: any) => entry.path,
+    },
+    messageProcessors: {
+        title: "Message Processors",
+        command: "MI.project-explorer.add-message-processor",
+        view: MACHINE_VIEW.MessageProcessorForm,
+        icon: "cog",
+        description: (entry: any) => "Message Processor",
+        path: (entry: any) => entry.path,
+    },
+    tasks: {
+        title: "Tasks",
+        command: "MI.project-explorer.add-task",
+        view: MACHINE_VIEW.TaskForm,
+        icon: "checklist",
+        description: (entry: any) => "Task",
+        path: (entry: any) => entry.path,
+    },
+    localEntries: {
+        title: "Local Entries",
+        command: "MI.project-explorer.add-local-entry",
+        view: MACHINE_VIEW.LocalEntryForm,
+        icon: "note",
+        description: (entry: any) => "Local Entry",
+        path: (entry: any) => entry.path,
+    },
+    templates: {
+        title: "Templates",
+        command: "MI.project-explorer.add-template",
+        view: MACHINE_VIEW.TemplateForm,
+        icon: "file-code",
+        description: (entry: any) => "Template",
+        path: (entry: any) => entry.path,
+    },
+    // Add more artifact types as needed
+};
 
-const TextContainer = styled.div`
-    width: 100px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    text-align: center;
-`;
+
+
+
 
 const Listing = styled.div({
     marginTop: "2em"
 })
 
-const ProjectStructureView = (props: { projectStructure: ProjectStructureResponse, workspaceDir: string }) => {
+const ProjectStructureView = (props: { projectStructure: any, workspaceDir: string }) => {
     const { projectStructure } = props;
     const { rpcClient } = useVisualizerContext();
 
-    const handleClick = (directory: string, path?: string) => {
-        if (directory.toLowerCase() === "api") {
-            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: path } });
-        } else if (directory.toLowerCase() === "endpoint") {
-            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.EndPointForm, documentUri: path } });
-        } else if (directory.toLowerCase() === "sequence") {
-            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.SequenceView, documentUri: path } });
-        } else if (directory.toLowerCase() === "message_processor") {
-            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.MessageProcessorForm, documentUri: path } });
-        } else if (directory.toLowerCase() === "proxy_service") {
-            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ProxyView, documentUri: path } });
-        } else if (directory.toLowerCase() === "task") {
-            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.TaskForm, documentUri: path } });
-        } else if (directory.toLowerCase() === "template") {
-            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.TemplateForm, documentUri: path } });
-        } else if (directory.toLowerCase() === "inbound_endpoint") {
-            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.InboundEPForm, documentUri: path } });
-        } else if (directory.toLowerCase() === "message_store") {
-            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.MessageStoreForm, documentUri: path } });
-        } else if (directory.toLowerCase() === "local_entry") {
-            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.LocalEntryForm, documentUri: path } });
-        }
+    const handleClick = (documentUri: string, view: MACHINE_VIEW) => {
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view, documentUri } });
     };
 
-    const handlePlusClick = async (key: string) => {
+    const handlePlusClick = async (key: string, command: string) => {
         const dir = path.join(props.workspaceDir, 'src', 'main', 'wso2mi', 'artifacts', key);
         const entry = { info: { path: dir } };
-        console.log(entry);
-        if (key === 'apis') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-api", entry] });
-        } else if (key === 'endpoints') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-endpoint", entry] });
-        } else if (key === 'sequences') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-sequence", entry] });
-        } else if (key === 'inboundEndpoints') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-inbound-endpoint", entry] });
-        } else if (key === 'registry') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-registry-resource", entry] });
-        } else if (key === 'messageProcessors') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-message-processor", entry] });
-        } else if (key === 'proxyServices') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-proxy-service", entry] });
-        } else if (key === 'tasks') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-task", entry] });
-        } else if (key === 'templates') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-template", entry] });
-        } else if (key === 'messageStores') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-message-store", entry] });
-        } else if (key === 'localEntries') {
-            await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.add-local-entry", entry] });
+        await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: [command, entry] });
+    };
+
+    const ifHasEntries = () => {
+        const artifacts = projectStructure.directoryMap.src.main.wso2mi.artifacts;
+        if (artifacts) {
+            return Object.values(artifacts)
+                .filter(artifactArray => Array.isArray(artifactArray) && artifactArray.length > 0)
+                .length > 0;
         }
-    };
-
-    const renderEntries = (entries: ProjectStructureEntry[] | EsbDirectoryMap[]) => {
-        return entries.map((entry, index) => (
-            <VSCodeDataGridRow>
-                <VSCodeDataGridCell grid-column={1}>
-                    {entry.name}
-                </VSCodeDataGridCell>
-            </VSCodeDataGridRow>
-        ));
-    };
-
-    const renderObject = (entry: ProjectDirectoryMap | ProjectStructureResponse["directoryMap"]) => {
-        return Object.entries(entry).map(([key, value]) => {
-            if (allowedConfigs.includes(key)) {
-                if (Array.isArray(value) && value.length > 0) {
-                    return (
-                        <div key={key}>
-                            <h3>{key.charAt(0).toUpperCase() + key.slice(1)}</h3>
-                            <VSCodeDataGrid align="left">
-                                {renderEntries(value)}
-                            </VSCodeDataGrid>
-                        </div>
-                    )
-                }
-            }
-        });
+        return false;
     }
 
-    const renderDirectoryMap = () => {
-        const { directoryMap } = projectStructure;
-        const artifacts = (directoryMap as any)?.src?.main?.wso2mi?.artifacts;
-        if (artifacts) return renderObject(artifacts);
-    };
 
     return (
         <Listing>
-            {renderDirectoryMap()}
+            {/* If has entries render content*/}
+            {ifHasEntries() &&
+                <>
+                    {Object.entries(projectStructure.directoryMap.src.main.wso2mi.artifacts)
+                        .filter(([key, value]) => artifactTypeMap.hasOwnProperty(key) && Array.isArray(value) && value.length > 0)
+                        .map(([key, value]) => (
+                            <div style={{ marginBottom: '2em' }}>
+                                <h3>{artifactTypeMap[key].title}</h3>
+                                {Object.entries(value).map(([_, entry]) => (
+                                    <Entry
+                                        key={entry.name}
+                                        icon={artifactTypeMap[key].icon}
+                                        name={entry.name}
+                                        description={artifactTypeMap[key].description(entry)}
+                                        onClick={() => { handleClick(artifactTypeMap[key].path(entry), artifactTypeMap[key].view) }}
+                                    />
+                                ))}
+                            </div>
+                        ))
+                    }
+                </>
+            }
+            {/* else render message */}
+            {!ifHasEntries() && <div> No entries found </div>}
         </Listing>
     );
 };
+
+interface EntryProps {
+    icon: string; // Changed to string to use codicon names
+    name: string;
+    description: string;
+    onClick: () => void; // Added onClick callback prop
+}
+
+const EntryContainer = styled.div`
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    cursor: pointer;
+    padding: 10px;
+    background-color: var(--vscode-editorHoverWidget-background);
+    &:hover {
+        background-color: var(--vscode-list-hoverBackground);
+    }
+`;
+
+const Entry: React.FC<EntryProps> = ({ icon, name, description, onClick }) => {
+    return (
+        <EntryContainer onClick={onClick}>
+            <div style={{ width: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10px' }}>
+                <Codicon name={icon} />
+            </div>
+            <div style={{ flex: 2, fontWeight: 'bold' }}>
+                {name}
+            </div>
+            <div style={{ flex: 9 }}>
+                {description}
+            </div>
+            <div style={{ marginLeft: 'auto' }}>
+                <Codicon name="more" />
+            </div>
+        </EntryContainer>
+    );
+};
+
 
 export default ProjectStructureView;
