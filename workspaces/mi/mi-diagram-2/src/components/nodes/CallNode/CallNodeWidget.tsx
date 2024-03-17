@@ -171,7 +171,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
 
     const handleOnClickEndpoint = (e: any) => {
         setIsEndpointSelected(true);
-        node.onClicked(e, node, rpcClient, sidePanelContext, ENDPOINTS.NAMED, node.endpoint);
+        node.onClicked(e, node, rpcClient, sidePanelContext, node.endpoint.type, node.endpoint);
     }
 
     const handleOnDeleteEndpoint = () => {

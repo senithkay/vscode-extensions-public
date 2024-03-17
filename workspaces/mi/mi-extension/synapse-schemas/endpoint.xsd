@@ -148,6 +148,7 @@
                                 </xs:choice>
                             </xs:complexType>
                         </xs:element>
+
                     </xs:choice>
                     <xs:attribute name="uri-template" type="xs:string" use="optional" />
                     <xs:attribute name="method">
@@ -160,6 +161,13 @@
                                 <xs:enumeration value="put" />
                                 <xs:enumeration value="options" />
                                 <xs:enumeration value="head" />
+                                <xs:enumeration value="GET" />
+                                <xs:enumeration value="POST" />
+                                <xs:enumeration value="PATCH" />
+                                <xs:enumeration value="DELETE" />
+                                <xs:enumeration value="PUT" />
+                                <xs:enumeration value="OPTIONS" />
+                                <xs:enumeration value="HEAD" />
                             </xs:restriction>
                         </xs:simpleType>
                     </xs:attribute>
@@ -431,6 +439,14 @@
                         <xs:element name="errorCodes" minOccurs="0" maxOccurs="1" type="xs:string" />
                         <xs:element name="retriesBeforeSuspension" minOccurs="0" maxOccurs="1" type="xs:string" />
                         <xs:element name="retryDelay" minOccurs="0" maxOccurs="1" type="xs:string" />
+                    </xs:all>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="retryConfig" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="disabledErrorCodes" minOccurs="0" maxOccurs="1" type="xs:string" />
+                        <xs:element name= "enabledErrorCodes" minOccurs="0" maxOccurs="1" type="xs:string" />
                     </xs:all>
                 </xs:complexType>
             </xs:element>
