@@ -87,7 +87,7 @@ export class NodeFactoryVisitor implements Visitor {
 
                 const isSequnceConnect = diagramNode instanceof StartNodeModel && previousNode instanceof EndNodeModel;
                 const isEmptyNodeConnect = diagramNode instanceof EmptyNodeModel && previousNode instanceof EmptyNodeModel;
-                const showAddButton = !isSequnceConnect && !(previousNode instanceof EmptyNodeModel);
+                const showAddButton = !isSequnceConnect && !(previousNode instanceof EmptyNodeModel && !previousNode.visible);
 
                 const addPosition = this.currentAddPosition != undefined ? this.currentAddPosition :
                     (type === NodeTypes.CONDITION_NODE_END && previousNode instanceof EmptyNodeModel) ? previousStNode.range.endTagRange.start :
