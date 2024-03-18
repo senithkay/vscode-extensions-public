@@ -67,7 +67,7 @@ export function AIProjectGenerationChat() {
   const [isCodeLoading, setIsCodeLoading] = useState(false);
   const [initialPrompt, setInitialPrompt] = useState("");
 
-      useEffect(() => {
+    useEffect(() => {
         async function fetchBackendUrl() {
             try {
                 backendRootUri = (await rpcClient.getMiDiagramRpcClient().getBackendRootUrl()).url;
@@ -79,84 +79,89 @@ export function AIProjectGenerationChat() {
 
         fetchBackendUrl();
 
-        rpcClient.getAIVisualizerState().then((machineView) => { 
-          if(machineView.initialPrompt){
-            setInitialPrompt(machineView.initialPrompt);
-            rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.clearAIPrompt"] });
-          }
-        });
+
       }, []); 
 
-  useEffect(() => {
-    rpcClient?.getMiDiagramRpcClient().getProjectUuid().then((response) => {
-      projectUuid = response.uuid;
-      const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
-      const localStorageQuestionFile = `Question-AIGenerationChat-${projectUuid}`;
-      const storedChatArray = localStorage.getItem(localStorageFile);
-      const storedQuestion = localStorage.getItem(localStorageQuestionFile);
-      const storedCodeBlocks = localStorage.getItem(`codeBlocks-AIGenerationChat-${projectUuid}`);
-    if (storedChatArray) {
-      if(storedQuestion){
-        setMessages(prevMessages => [
-          ...prevMessages,
-          { role: "", content: storedQuestion, type: "question" },
-        ]);
-      }
-      if(storedCodeBlocks){
-        const codeBlocksFromStorage = JSON.parse(storedCodeBlocks);
-        codeBlocks.push(...codeBlocksFromStorage);
-      }
-      console.log("Code Blocks: " + codeBlocks);
-      const chatArrayFromStorage = JSON.parse(storedChatArray);
-      chatArray = chatArrayFromStorage;
-  
-      // Add the messages from the chat array to the view
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        ...chatArray.map((entry: ChatEntry) => {
-          let role, type;
-          if (entry.role === 'user') {
-            role = 'User';
-            type = 'user_message';
-          } else if (entry.role === 'assistant') {
-            role = 'MI Copilot';
-            type = 'assistant_message';
-          }
-          return {
-            role: role,
-            type: type,
-            content: entry.content,
-          };
-        }),
-      ]);
-  
-      // Set initial messages only if chatArray's length is 0
-
-    } else {
-      if (chatArray.length === 0) {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-      { role: "", content: "Welcome to the AI Powered Generation and Editing Tool. You may use this tool to generate entirely new Artifacts or to do changes to existing artifacts simply using text based prompts. The context of your generation shall always be the window you have currenly opened.", type: "label" },
-      { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
-      // { role: "" , content: "Generate a Sample Hello World API", type: "question"},
-      // { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
-      // { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
-        ]);
-          if(storedQuestion){
-            setMessages(prevMessages => [
-              ...prevMessages,
-              { role: "", content: storedQuestion, type: "question" },
-            ]);
-          }else{
-            console.log("Fetching initial questions");
-            generateSuggestions();
-          }
-      }
-    }
-    } );
-    
-  }, []);
-
+      useEffect(() => {
+        rpcClient?.getMiDiagramRpcClient().getProjectUuid().then((response) => {
+          projectUuid = response.uuid;
+          const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
+          const localStorageQuestionFile = `Question-AIGenerationChat-${projectUuid}`;
+          const storedChatArray = localStorage.getItem(localStorageFile);
+          const storedQuestion = localStorage.getItem(localStorageQuestionFile);
+          const storedCodeBlocks = localStorage.getItem(`codeBlocks-AIGenerationChat-${projectUuid}`);
+          rpcClient.getAIVisualizerState().then((machineView) => { 
+            if(machineView.initialPrompt){
+              setMessages(prevMessages => [
+                ...prevMessages,
+                { role: "User", content: machineView.initialPrompt, type: "initial_prompt" },
+              ]);
+              addChatEntry("user", machineView.initialPrompt);
+              handleSend(false);
+              setInitialPrompt(machineView.initialPrompt);
+              rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.clearAIPrompt"] });
+            } else {
+              if (storedChatArray) {
+                if(storedQuestion){
+                  setMessages(prevMessages => [
+                    ...prevMessages,
+                    { role: "", content: storedQuestion, type: "question" },
+                  ]);
+                }
+                if(storedCodeBlocks){
+                  const codeBlocksFromStorage = JSON.parse(storedCodeBlocks);
+                  codeBlocks.push(...codeBlocksFromStorage);
+                }
+                console.log("Code Blocks: " + codeBlocks);
+                const chatArrayFromStorage = JSON.parse(storedChatArray);
+                chatArray = chatArrayFromStorage;
+            
+                // Add the messages from the chat array to the view
+                setMessages((prevMessages) => [
+                  ...prevMessages,
+                  ...chatArray.map((entry: ChatEntry) => {
+                    let role, type;
+                    if (entry.role === 'user') {
+                      role = 'User';
+                      type = 'user_message';
+                    } else if (entry.role === 'assistant') {
+                      role = 'MI Copilot';
+                      type = 'assistant_message';
+                    }
+                    return {
+                      role: role,
+                      type: type,
+                      content: entry.content,
+                    };
+                  }),
+                ]);
+            
+                // Set initial messages only if chatArray's length is 0
+              } else {
+                if (chatArray.length === 0) {
+                  setMessages((prevMessages) => [
+                    ...prevMessages,
+                    { role: "", content: "Welcome to the AI Powered Generation and Editing Tool. You may use this tool to generate entirely new Artifacts or to do changes to existing artifacts simply using text based prompts. The context of your generation shall always be the window you have currenly opened.", type: "label" },
+                    { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
+                    // { role: "" , content: "Generate a Sample Hello World API", type: "question"},
+                    // { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
+                    // { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
+                  ]);
+                  if(storedQuestion){
+                    setMessages(prevMessages => [
+                      ...prevMessages,
+                      { role: "", content: storedQuestion, type: "question" },
+                    ]);
+                  } else {
+                    console.log("Fetching initial questions");
+                    generateSuggestions();
+                  }
+                }
+              }
+            }
+          });
+        });
+      }, []);
 
   function addChatEntry(role: string, content: string): void {
       chatArray.push({
@@ -255,6 +260,7 @@ export function AIProjectGenerationChat() {
 
 
   async function handleSend (isQuestion: boolean = false) {
+    console.log(chatArray);
     var context: GetWorkspaceContextResponse[] = [];
     setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
     setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'question'));
@@ -273,11 +279,19 @@ export function AIProjectGenerationChat() {
                 { role: "MI Copilot", content: "", type:"assistant_message"}, // Add a new message for the assistant
           ]);
     }else{
-        setMessages(prevMessages => [
+      if(userInput!=""){
+          setMessages(prevMessages => [
             ...prevMessages,
             { role: "User", content: userInput, type: "user_message"},
             { role: "MI Copilot", content: "", type:"assistant_message"}, // Add a new message for the assistant
-        ]);
+      ]);
+      }else{
+        setMessages(prevMessages => [
+          ...prevMessages,
+          { role: "MI Copilot", content: "", type:"assistant_message"}, // Add a new message for the assistant
+    ]);
+      }
+       
     }
     var backendUrl = ""
     var view = ""
