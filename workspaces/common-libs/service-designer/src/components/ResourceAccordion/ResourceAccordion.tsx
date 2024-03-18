@@ -298,7 +298,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                             )}
                             {additionalActions && (
                                 <ContextMenu
-                                    sx={{ transform: "translateX(-50%)" }}
+                                    menuSx={{ transform: "translateX(-50%)" }}
                                     iconSx={verticalIconStyles}
                                     menuItems={additionalActions}
                                 />

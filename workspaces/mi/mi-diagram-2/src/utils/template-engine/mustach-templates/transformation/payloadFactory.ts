@@ -13,9 +13,7 @@ import Mustache from "mustache";
 export function getPayloadMustacheTemplate() {
     return `<payloadFactory {{#description}}description="{{description}}"{{/description}} media-type="{{mediaType}}" template-type="{{templateType}}">
     {{#isInlined}}
-    <format>
-    {{{payload}}}
-    </format>
+    <format>{{{payload}}}</format>
     {{/isInlined}}
     {{^isInlined}}
     {{#payloadKey}}<format key="{{payloadKey}}"/>{{/payloadKey}}

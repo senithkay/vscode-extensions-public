@@ -34,8 +34,9 @@ export interface ContextMenuProps {
     menuId?: string;
     children?: React.ReactNode;
     icon?: ReactNode;
-    sx?: any;
-    iconSx?: any;
+    sx?: React.CSSProperties;
+    iconSx?: React.CSSProperties;
+    menuSx?: React.CSSProperties;
 }
 
 interface ContainerProps {
@@ -82,7 +83,7 @@ const Container = styled.div`
 `;
 
 export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps) => {
-    const { id, className, isLoading, isOpen, menuId, sx, iconSx, menuItems, icon } = props;
+    const { id, className, isLoading, isOpen, menuId, sx, iconSx, menuSx, menuItems, icon } = props;
     const [isMenuOpen, setIsMenuOpen] = useState(isOpen);
 
     const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
@@ -112,7 +113,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
                     )
                 )}
                 {isMenuOpen && (
-                    <ExpandedMenu>
+                    <ExpandedMenu sx={menuSx}>
                         <VSCodeDataGrid aria-label="Context Menu">
                             {menuItems?.map(item => (
                                 <VSCodeDataGridRow
