@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect } from "react";
-import { SampleDownloadRequest, VisualizerLocation } from "@wso2-enterprise/mi-core";
+import { SampleDownloadRequest, VisualizerLocation , MACHINE_VIEW} from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { SamplesView } from "../SamplesView";
 import styled from "@emotion/styled";
@@ -163,7 +163,7 @@ export function GettingStarted() {
                 <Wrapper>
                     <TitlePanel>
                         <Headline>Micro Integrator (MI) for VS Code</Headline>
-                        <span>The Micro Integrator provides developers with a flawless experience in developing, testing, and deploying integration solutions. </span>
+                        <span>A comprehensive integration solution that simplifies your digital transformation journey. Streamlines connectivity among applications, services, data, and cloud using a user-friendly low-code graphical designing experience. </span>
                     </TitlePanel>
                     <Grid>
                         <Pane>
@@ -246,7 +246,7 @@ export function GettingStarted() {
                     </Grid>
                 </Wrapper>
             )}
-            {mode === "NewProject" && <ProjectWizard />}
+            {mode === "NewProject" && <ProjectWizard cancelView={MACHINE_VIEW.Welcome} />}
             {mode === "Samples" && <SamplesView />}
             {mode === "ImportProject" && <ImportProjectWizard />}
         </>
