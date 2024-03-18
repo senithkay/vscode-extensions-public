@@ -13,6 +13,8 @@ import {
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
+    BrowseFileRequest,
+    BrowseFileResponse,
     CommandsRequest,
     CommandsResponse,
     Connector,
@@ -21,122 +23,123 @@ import {
     ConnectorsResponse,
     CreateAPIRequest,
     CreateAPIResponse,
+    CreateClassMediatorRequest,
+    CreateClassMediatorResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
     CreateInboundEndpointRequest,
     CreateInboundEndpointResponse,
     CreateLocalEntryRequest,
     CreateLocalEntryResponse,
+    CreateMessageProcessorRequest,
+    CreateMessageProcessorResponse,
+    CreateMessageStoreRequest,
+    CreateMessageStoreResponse,
     CreateProjectRequest,
     CreateProjectResponse,
-    ImportProjectRequest,
-    ImportProjectResponse,
+    CreateProxyServiceRequest,
+    CreateProxyServiceResponse,
+    CreateRegistryResourceRequest,
+    CreateRegistryResourceResponse,
     CreateSequenceRequest,
     CreateSequenceResponse,
+    CreateTaskRequest,
+    CreateTaskResponse,
+    CreateTemplateRequest,
+    CreateTemplateResponse,
     ESBConfigsResponse,
     EVENT_TYPE,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
+    FileDirResponse,
+    FileListRequest,
+    FileListResponse,
     FileStructure,
-    GetProjectUuidResponse,
-    GetWorkspaceContextResponse,
+    GetAvailableResourcesRequest,
+    GetAvailableResourcesResponse,
+    GetBackendRootUrlResponse,
     GetDefinitionRequest,
     GetDefinitionResponse,
     GetDiagnosticsReqeust,
     GetDiagnosticsResponse,
+    GetFailoverEPRequest,
+    GetFailoverEPResponse,
+    GetInboundEndpointRequest,
+    GetInboundEndpointResponse,
+    GetLoadBalanceEPRequest,
+    GetLoadBalanceEPResponse,
+    GetLocalEntryRequest,
+    GetLocalEntryResponse,
+    GetMessageStoreRequest,
+    GetMessageStoreResponse,
     GetProjectRootRequest,
+    GetProjectUuidResponse,
+    GetSelectiveWorkspaceContextResponse,
+    GetTaskRequest,
+    GetTaskResponse,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
-    FileDirResponse,
+    GetWorkspaceContextResponse,
     HighlightCodeRequest,
+    ImportProjectRequest,
+    ImportProjectResponse,
+    MACHINE_VIEW,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectDirResponse,
     ProjectRootResponse,
+    RetrieveAddressEndpointRequest,
+    RetrieveAddressEndpointResponse,
+    RetrieveDefaultEndpointRequest,
+    RetrieveDefaultEndpointResponse,
+    RetrieveHttpEndpointRequest,
+    RetrieveHttpEndpointResponse,
+    RetrieveMessageProcessorRequest,
+    RetrieveMessageProcessorResponse,
+    RetrieveTemplateRequest,
+    RetrieveTemplateResponse,
+    RetrieveWsdlEndpointRequest,
+    RetrieveWsdlEndpointResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
+    TemplatesResponse,
     UndoRedoParams,
+    UpdateAddressEndpointRequest,
+    UpdateAddressEndpointResponse,
+    UpdateDefaultEndpointRequest,
+    UpdateDefaultEndpointResponse,
+    UpdateFailoverEPRequest,
+    UpdateFailoverEPResponse,
+    UpdateHttpEndpointRequest,
+    UpdateHttpEndpointResponse,
+    UpdateLoadBalanceEPRequest,
+    UpdateLoadBalanceEPResponse,
+    UpdateWsdlEndpointRequest,
+    UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
     getSTRequest,
     getSTResponse,
-    MACHINE_VIEW,
-    CreateMessageProcessorRequest,
-    CreateMessageProcessorResponse,
-    RetrieveMessageProcessorRequest,
-    RetrieveMessageProcessorResponse,
-    CreateProxyServiceRequest,
-    CreateProxyServiceResponse,
-    CreateMessageStoreRequest,
-    CreateMessageStoreResponse,
-    CreateTemplateRequest,
-    CreateTemplateResponse,
-    RetrieveTemplateRequest,
-    RetrieveTemplateResponse,
-    GetInboundEndpointRequest,
-    GetInboundEndpointResponse,
-    UpdateHttpEndpointRequest,
-    UpdateHttpEndpointResponse,
-    RetrieveHttpEndpointRequest,
-    RetrieveHttpEndpointResponse,
-    UpdateAddressEndpointRequest,
-    UpdateAddressEndpointResponse,
-    RetrieveAddressEndpointRequest,
-    RetrieveAddressEndpointResponse,
-    UpdateWsdlEndpointRequest,
-    UpdateWsdlEndpointResponse,
-    RetrieveWsdlEndpointRequest,
-    RetrieveWsdlEndpointResponse,
-    UpdateDefaultEndpointRequest,
-    UpdateDefaultEndpointResponse,
-    RetrieveDefaultEndpointRequest,
-    RetrieveDefaultEndpointResponse,
-    BrowseFileResponse,
-    BrowseFileRequest,
-    CreateRegistryResourceRequest,
-    CreateRegistryResourceResponse,
-    CreateTaskRequest,
-    CreateTaskResponse,
-    GetTaskRequest,
-    GetTaskResponse,
-    GetMessageStoreRequest,
-    GetMessageStoreResponse,
-    GetAvailableResourcesRequest,
-    CreateClassMediatorRequest,
-    CreateClassMediatorResponse,
-    GetLocalEntryRequest,
-    GetLocalEntryResponse,
-    TemplatesResponse,
-    FileListRequest,
-    FileListResponse,
-    GetAvailableResourcesResponse,
-    UpdateLoadBalanceEPResponse,
-    UpdateLoadBalanceEPRequest,
-    GetLoadBalanceEPRequest,
-    GetLoadBalanceEPResponse,
-    GetFailoverEPRequest,
-    GetFailoverEPResponse,
-    UpdateFailoverEPRequest,
-    UpdateFailoverEPResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
+import { error } from "console";
 import * as fs from "fs";
 import * as os from 'os';
 import { Transform } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
-import { StateMachine, openView } from "../../stateMachine";
-import { Position, Range, Selection, TextDocument, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
+import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
-import { createFolderStructure, getTaskXmlWrapper, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper, getMessageStoreXmlWrapper, getTemplateXmlWrapper, getHttpEndpointXmlWrapper, getAddressEndpointXmlWrapper, getWsdlEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getLoadBalanceXmlWrapper, getFailoverXmlWrapper } from "../../util";
-import { getMediatypeAndFileExtension, addNewEntryToArtifactXML, detectMediaType, changeRootPomPackaging } from "../../util/fileOperations";
+import { StateMachine, openView } from "../../stateMachine";
+import { UndoRedoManager } from "../../undoRedoManager";
+import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
+import { addNewEntryToArtifactXML, changeRootPomPackaging, detectMediaType, getMediatypeAndFileExtension } from "../../util/fileOperations";
+import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
+import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
+import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
 import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
-import { UndoRedoManager } from "../../undoRedoManager";
-import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
-import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
-import { error } from "console";
-import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
+import * as vscode from 'vscode';
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
 const connectorsPath = path.join(".metadata", ".Connectors");
@@ -2424,6 +2427,51 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
+    async getSelectiveWorkspaceContext(): Promise<GetSelectiveWorkspaceContextResponse> {
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders) {
+            throw new Error('No workspace is currently open');
+        }
+
+        var currentFile = StateMachine.context().documentUri;
+        //get the current file's content
+        let currentFileContent = '';
+        if (currentFile) {
+            currentFileContent = fs.readFileSync(currentFile, 'utf8');
+        }
+        var rootPath = workspaceFolders[0].uri.fsPath;
+        rootPath += '/src/main/wso2mi/artifacts';
+        const fileContents: string[] = [];
+        fileContents.push(currentFileContent);
+        var resourceFolders = ['apis', 'endpoints', 'inbound-endpoints', 'local-entries', 'message-processors', 'message-stores', 'proxy-services', 'sequences', 'tasks', 'templates', 'data-services', 'data-sources'];
+        for (const folder of resourceFolders) {
+            const folderPath = path.join(rootPath, folder);
+            const files = await fs.promises.readdir(folderPath);
+
+            for (const file of files) {
+                const filePath = path.join(folderPath, file);
+                if(filePath === currentFile){
+                    continue;
+                }
+                const stats = await fs.promises.stat(filePath);
+
+                if (stats.isFile()) {
+                    const content = await fs.promises.readFile(filePath, 'utf-8');
+                    fileContents.push(content);
+                }
+            }
+        }
+        
+
+        return { context: fileContents};
+    }
+
+    async getBackendRootUrl(): Promise<GetBackendRootUrlResponse> {
+
+        const config = vscode.workspace.getConfiguration('integrationStudio');
+        const ROOT_URL = config.get('rootUrl') as string;
+        return { url: ROOT_URL };
+    }
 }
 
 export async function askProjectPath() {

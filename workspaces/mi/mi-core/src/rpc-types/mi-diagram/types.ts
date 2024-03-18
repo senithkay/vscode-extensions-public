@@ -840,6 +840,10 @@ export interface GetWorkspaceContextResponse {
     context: string[];
 }
 
+export interface GetSelectiveWorkspaceContextResponse {
+    context: string[];
+}
+
 export interface GetProjectUuidResponse {
     uuid: string;
 }
@@ -916,4 +920,8 @@ export interface CreateClassMediatorRequest {
 
 export interface CreateClassMediatorResponse {
     path: string;
+}
+
+export interface GetBackendRootUrlResponse{
+    url: string;
 }
