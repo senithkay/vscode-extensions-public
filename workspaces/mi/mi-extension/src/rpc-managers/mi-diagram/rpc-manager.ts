@@ -140,6 +140,7 @@ import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import * as vscode from 'vscode';
+import { replaceFullContentToFile } from "../../util/workspace";
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
 const connectorsPath = path.join(".metadata", ".Connectors");
@@ -401,7 +402,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             resolve({ path: filePath });
         });
     }
-    
+
     async updateLoadBalanceEndpoint(params: UpdateLoadBalanceEPRequest): Promise<UpdateLoadBalanceEPResponse> {
         return new Promise(async (resolve) => {
             const { directory, ...templateParams } = params;
@@ -426,17 +427,17 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
             const options = {
-                ignoreAttributes : false,
+                ignoreAttributes: false,
                 attributeNamePrefix: "@_",
                 indentBy: '    ',
                 format: true,
             };
-            
+
             const builder = new XMLBuilder(options);
             const filePath = params.path;
 
             if (filePath.includes('.xml') && fs.existsSync(filePath)) {
-                const { name, loadbalance, session, property, description} = endpointSyntaxTree.syntaxTree.endpoint;
+                const { name, loadbalance, session, property, description } = endpointSyntaxTree.syntaxTree.endpoint;
 
                 const endpoints = loadbalance.endpointOrMember.map((member: any) => {
                     const { address, name } = member.endpoint;
@@ -507,7 +508,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             });
         });
     }
-    
+
     async updateFailoverEndpoint(params: UpdateFailoverEPRequest): Promise<UpdateFailoverEPResponse> {
         return new Promise(async (resolve) => {
             const { directory, ...templateParams } = params;
@@ -532,17 +533,17 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
             const options = {
-                ignoreAttributes : false,
+                ignoreAttributes: false,
                 attributeNamePrefix: "@_",
                 indentBy: '    ',
                 format: true,
             };
-            
+
             const builder = new XMLBuilder(options);
             const filePath = params.path;
 
             if (filePath.includes('.xml') && fs.existsSync(filePath)) {
-                const { name, failover, property, description} = endpointSyntaxTree.syntaxTree.endpoint;
+                const { name, failover, property, description } = endpointSyntaxTree.syntaxTree.endpoint;
 
                 const endpoints = failover.endpoint.map((member: any) => {
                     const { address, name } = member;
@@ -817,7 +818,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         'store.resequence.id.path': 'xPath',
                         'store.failover.message.store.name': 'failOverMessageStore'
                     }
-                    if  (response.type !== 'Custom Message Store')  {
+                    if (response.type !== 'Custom Message Store') {
                         parameters.forEach((param: Parameter) => {
                             if (MessageStoreModel.hasOwnProperty(param.name)) {
                                 response[MessageStoreModel[param.name]] = param.value;
@@ -2205,7 +2206,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 try {
                     console.log('Writing content to file:', fullPath);
                     console.log('Content:', content[i]);
-                    fs.writeFileSync(fullPath, content[i]);
+
+                    await replaceFullContentToFile(fullPath, content[i]);
 
                 } catch (error) {
                     console.error('Error writing content to file:', error);
@@ -2450,7 +2452,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             for (const file of files) {
                 const filePath = path.join(folderPath, file);
-                if(filePath === currentFile){
+                if (filePath === currentFile) {
                     continue;
                 }
                 const stats = await fs.promises.stat(filePath);
@@ -2461,9 +2463,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
             }
         }
-        
 
-        return { context: fileContents};
+
+        return { context: fileContents };
     }
 
     async getBackendRootUrl(): Promise<GetBackendRootUrlResponse> {
