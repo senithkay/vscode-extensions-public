@@ -53,6 +53,7 @@ export type MachineStateValue =
 
 export enum EVENT_TYPE {
     OPEN_VIEW = "OPEN_VIEW",
+    CLEAR_PROMPT = "CLEAR_PROMPT",
     FILE_EDIT = "FILE_EDIT",
     EDIT_DONE = "EDIT_DONE",
 }

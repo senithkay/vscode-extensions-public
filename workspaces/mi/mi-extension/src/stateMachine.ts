@@ -304,7 +304,6 @@ async function checkIfMiProject() {
             const pomContent = await vscode.workspace.openTextDocument(pomFiles[0]);
             if (pomContent.getText().includes('<projectType>integration-project</projectType>')) {
                 isMiProject = true;
-                projectUri = pomFiles[0].fsPath;
             }
         }
 
@@ -315,7 +314,6 @@ async function checkIfMiProject() {
                 const projectContent = await vscode.workspace.openTextDocument(projectFiles[0]);
                 if (projectContent.getText().includes('<nature>org.wso2.developerstudio.eclipse.mavenmultimodule.project.nature</nature>')) {
                     isMiProject = true;
-                    projectUri = projectFiles[0].fsPath;
                 }
             }
         }
@@ -325,6 +323,7 @@ async function checkIfMiProject() {
     }
 
     if (isMiProject) {
+        projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
         vscode.commands.executeCommand('setContext', 'MI.status', 'projectDetected');
     } else {
         vscode.commands.executeCommand('setContext', 'MI.status', 'unknownProject');

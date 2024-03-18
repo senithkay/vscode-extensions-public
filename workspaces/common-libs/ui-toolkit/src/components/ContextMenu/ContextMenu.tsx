@@ -50,7 +50,8 @@ const VSCodeDataGridInlineCell = styled(VSCodeDataGridCell)`
     align-items: center;
     padding: 6px 10px;
     &:hover {
-        background-color: var(--vscode-focusBorder);
+        color: var(--button-primary-foreground);
+        background-color: var(--vscode-button-hoverBackground);
     };
 `;
 

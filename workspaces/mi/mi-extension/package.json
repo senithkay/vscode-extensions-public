@@ -271,6 +271,11 @@
         "command": "MI.change.server",
         "title": "Add MI server",
         "category": "MI"
+      },
+      {
+        "command": "MI.build-project",
+        "title": "Build",
+        "category": "MI"
       }
     ],
     "menus": {

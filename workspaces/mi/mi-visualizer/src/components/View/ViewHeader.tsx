@@ -8,12 +8,12 @@
  */
 import React from 'react';
 import styled from '@emotion/styled';
-import { Typography, TextArea, TextField, Button, ComponentCard, HorizontalIcons, Icon, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, Codicon } from "@wso2-enterprise/ui-toolkit";
 
 
 type ViewHeaderProps = {
-    title: string;
-    children: React.ReactNode;
+    title: string | React.ReactNode;
+    children?: React.ReactNode;
     codicon?: string;
     icon?: string;
     onEdit?: () => void;
@@ -41,24 +41,30 @@ const TitleContainer = styled.div({
 
 const Title = styled.h3({
     /* Style for title */
+    display: 'flex',
+    alignItems: 'center',
+    gap: '5px'
 });
 
 const Actions = styled.div({
     /* Style for actions */
     display: 'flex',
-    justifyContent: 'flex-end',
     alignItems: 'center',
-    gap: "8px"
+    gap: '5px'
 });
 
 const ViewHeader: React.FC<ViewHeaderProps> = ({ title, children, codicon, icon, onEdit }) => {
+    const TitleComponent = (
+        typeof title === 'string' ? <Title>{title}</Title> : title
+    )
+
     return (
         <Header>
             <HeaderContentWrapper>
                 <TitleContainer>
                     {codicon && <Codicon name={codicon} />}
                     {icon && <Icon name={icon} />}
-                    <Title>{title}</Title>
+                    {TitleComponent}
                     {onEdit && (
                         <Button
                             appearance="icon"
