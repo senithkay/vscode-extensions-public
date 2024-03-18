@@ -60,6 +60,7 @@ import TransactionForm from "../Pages/mediators/advanced/transaction"
 import CacheForm from "../Pages/mediators/advanced/cache"
 import SwitchForm from "../Pages/mediators/filter/switchMediator"
 import BamForm from "../Pages/mediators/other/bam"
+import ConditionalRouterForm from "../Pages/mediators/filter/cond_router"
 
 export interface GetMediatorsProps {
     nodePosition: any;
@@ -259,6 +260,11 @@ export function getAllMediators(props: GetMediatorsProps) {
             }
         ],
         "filter": [
+            {
+                title: "Conditional Router",
+                operationName: MEDIATORS.CONDITIONALROUTER,
+                form: <ConditionalRouterForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ConditionalRouterForm>,
+            },
             {
                 title: "Filter",
                 operationName: MEDIATORS.FILTER,
