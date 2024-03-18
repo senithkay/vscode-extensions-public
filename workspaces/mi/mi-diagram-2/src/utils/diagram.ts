@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import createEngine, { DiagramEngine } from "@projectstorm/react-diagrams";
+import createEngine, { DefaultDiagramState, DiagramEngine } from "@projectstorm/react-diagrams";
 import { MediatorNodeFactory } from "../components/nodes/MediatorNode/MediatorNodeFactory";
 import { NodeLinkFactory } from "../components/NodeLink/NodeLinkFactory";
 import { NodePortFactory } from "../components/NodePort/NodePortFactory";
@@ -34,6 +34,10 @@ export function generateEngine(): DiagramEngine {
         registerDefaultPanAndZoomCanvasAction: false,
         registerDefaultZoomCanvasAction: false,
     });
+    const state = engine.getStateMachine().getCurrentState();
+    if (state instanceof DefaultDiagramState) {
+        state.dragCanvas.config.allowDrag = false;
+    }
 
     engine.getPortFactories().registerFactory(new NodePortFactory());
     engine.getLinkFactories().registerFactory(new NodeLinkFactory());
@@ -60,7 +64,7 @@ export function createPortsLink(sourcePort: NodePortModel, targetPort: NodePortM
 }
 
 // create link between nodes
-export type AllNodeModel = StartNodeModel| EndNodeModel | MediatorNodeModel | ConditionNodeModel | CallNodeModel | EmptyNodeModel;
+export type AllNodeModel = StartNodeModel | EndNodeModel | MediatorNodeModel | ConditionNodeModel | CallNodeModel | EmptyNodeModel;
 export type SourceNodeModel = Exclude<AllNodeModel, EndNodeModel>;
 export type TargetNodeModel = Exclude<AllNodeModel, StartNodeModel>;
 export function createNodesLink(sourceNode: SourceNodeModel, targetNode: TargetNodeModel, options?: NodeLinkModelOptions) {
