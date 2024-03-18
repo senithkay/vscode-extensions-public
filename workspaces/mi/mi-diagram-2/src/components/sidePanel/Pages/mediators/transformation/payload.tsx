@@ -9,7 +9,7 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, ParamConfig, ParamManager, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, ParamConfig, ParamManager, TextArea, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -279,15 +279,16 @@ const PayloadForm = (props: AddMediatorProps) => {
 
                     {formValues["payloadFormat"] && formValues["payloadFormat"].toLowerCase() == "inline" &&
                         <Field>
-                        <TextField
-                            label="Payload"
-                            placeholder=""
-                            value={formValues["payload"]}
+                        <TextArea
                             onChange={(e: any) => {
                                 setFormValues({ ...formValues, "payload": e });
                                 formValidators["payload"](e);
                             }}
+                            placeholder="Type your payload here"
                             required={false}
+                            value={formValues["payload"] ?? ""}
+                            rows={5}
+                            cols={45}
                         />
                         {errors["payload"] && <Error>{errors["payload"]}</Error>}
                         </Field>
@@ -295,7 +296,6 @@ const PayloadForm = (props: AddMediatorProps) => {
 
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <h3>Args</h3>
-
                     {formValues["args"] && (
                         <ParamManager
                             paramConfigs={params}
