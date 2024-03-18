@@ -9,22 +9,22 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
-import { VSCodeCheckbox, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
+import { AutoComplete, Button, ComponentCard, ParamConfig, ParamManager, colors, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { AddMediatorProps } from '../common';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
-const cardStyle = { 
-   display: "block",
-   margin: "15px 0",
-   padding: "0 15px 15px 15px",
-   width: "auto",
-   cursor: "auto"
+const cardStyle = {
+    display: "block",
+    margin: "15px 0",
+    padding: "0 15px 15px 15px",
+    width: "auto",
+    cursor: "auto"
 };
 
 const Error = styled.span`
@@ -40,112 +40,213 @@ const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const CloneForm = (props: AddMediatorProps) => {
-   const { rpcClient } = useVisualizerContext();
-   const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({} as { [key: string]: any });
-   const [errors, setErrors] = useState({} as any);
+    const { rpcClient } = useVisualizerContext();
+    const sidePanelContext = React.useContext(SidePanelContext);
+    const [formValues, setFormValues] = useState({} as { [key: string]: any });
+    const [errors, setErrors] = useState({} as any);
 
-   useEffect(() => {
-       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-           setFormValues({ ...formValues, ...sidePanelContext.formValues, isCloneKeysChange: false, targetChanges: [] });
-       } else {
-           setFormValues({
-       "sequentialMediation": false,
-       "continueParent": false,
-       "targets": [] as string[][],
-       "sequenceType": "Default",
-       "endpointType": "Default",
-       "newMediator": true,});
-       }
-   }, [sidePanelContext.formValues]);
+    const paramConfigs: ParamConfig = {
+        paramValues: [],
+        paramFields: [
+            {
+                type: "Dropdown",
+                label: "Sequence Type",
+                defaultValue: "NONE",
+                isRequired: true,
+                values: ["NONE", "ANONYMOUS", "REGISTRY_REFERENCE"]
+            },
+            {
+                type: "TextField",
+                label: "Sequence Registry Key",
+                defaultValue: "sequenceRegKey",
+                isRequired: true
+            },
+            {
+                type: "Dropdown",
+                label: "Endpoint Type",
+                defaultValue: "value",
+                isRequired: true,
+                values: ["NONE", "ANONYMOUS", "REGISTRY_REFERENCE"]
+            },
+            {
+                type: "TextField",
+                label: "Endpoint Registry Key",
+                defaultValue: "endpointRegKey",
+                isRequired: true
+            },
+            {
+                type: "TextField",
+                label: "Soap Action",
+                defaultValue: "soapAction",
+                isRequired: true
+            },
+            {
+                type: "TextField",
+                label: "To Address",
+                defaultValue: "address",
+                isRequired: true
+            },]
+    };
 
-   const onClick = async () => {
-       const newErrors = {} as any;
-       Object.keys(formValidators).forEach((key) => {
-           const error = formValidators[key]();
-           if (error) {
-               newErrors[key] = (error);
-           }
-       });
-       if (Object.keys(newErrors).length > 0) {
-           setErrors(newErrors);
-       } else {
-           if (formValues["newMediator"] == false) {
-               //TODO: Fix this after target edit option suport available.
-               if (formValues["targetChanges"].length > 0) {
-                   let targetChanges = formValues["targetChanges"];
-                   const sortedPositions = targetChanges.sort((a: number, b: number) => a - b);
-                   for (let i = sortedPositions.length - 1; i >= 0; i--) {
-                       const data = { target: formValues["targets"][sortedPositions[i]], "editClone": false };
-                       const xml = getXML(MEDIATORS.CLONE, data);
-                       const range: TagRange = data.target[5];
-                       rpcClient.getMiDiagramRpcClient().applyEdit({
-                           documentUri: props.documentUri, range: range.startTagRange, text: xml
-                       });
-                   }
-               }
-               if (formValues["isCloneKeysChange"]) {
-                   const data = { ...formValues, "editClone": true };
-                   const xml = getXML(MEDIATORS.CLONE, data);
-                   const range: TagRange = formValues.cloneTagRange;
-                   rpcClient.getMiDiagramRpcClient().applyEdit({
-                       documentUri: props.documentUri, range: range.startTagRange, text: xml
-                   });
-               }
-           } else {
-               const xml = getXML(MEDIATORS.CLONE, formValues);
-               rpcClient.getMiDiagramRpcClient().applyEdit({
-                   documentUri: props.documentUri, range: props.nodePosition, text: xml
-               });
-           }
+    const [params, setParams] = useState(paramConfigs);
 
-           sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                isOpen: false,
-                isEditing: false,
-                formValues: undefined,
-                nodeRange: undefined,
-                operationName: undefined
-              });
-       }
-   };
+    const handleOnChange = (params: any) => {
+        setParams(params);
+    };
 
-   const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-       "cloneId": (e?: any) => validateField("cloneId", e, false),
-       "sequentialMediation": (e?: any) => validateField("sequentialMediation", e, false),
-       "continueParent": (e?: any) => validateField("continueParent", e, false),
-       "sequenceType": (e?: any) => validateField("sequenceType", e, false),
-       "sequenceRegistryKey": (e?: any) => validateField("sequenceRegistryKey", e, false),
-       "endpointType": (e?: any) => validateField("endpointType", e, false),
-       "endpointRegistryKey": (e?: any) => validateField("endpointRegistryKey", e, false),
-       "soapAction": (e?: any) => validateField("soapAction", e, false),
-       "toAddress": (e?: any) => validateField("toAddress", e, false),
-       "description": (e?: any) => validateField("description", e, false),
+    useEffect(() => {
+        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
+            setFormValues({ ...formValues, ...sidePanelContext.formValues, isCloneKeysChange: false, targetChanges: [] });
+            if (sidePanelContext.formValues["targets"] && sidePanelContext.formValues["targets"].length > 0) {
+                const paramValues = sidePanelContext.formValues["targets"].map((property: string, index: string) => (
+                    {
+                        id: index,
+                        parameters: [
+                            {
+                                id: 0,
+                                label: "sequenceType",
+                                type: "TextField",
+                                value: property[0],
+                                isRequired: true
+                            },
+                            {
+                                id: 1,
+                                label: "sequenceRegistryKey",
+                                type: "TextField",
+                                value: property[1],
+                                isRequired: true
+                            },
+                            {
+                                id: 2,
+                                label: "endpointType",
+                                type: "Dropdown",
+                                value: property[2],
+                                isRequired: true
+                            },
+                            {
+                                id: 3,
+                                label: "endpointRegistryKey",
+                                type: "TextField",
+                                value: property[3],
+                                isRequired: true
+                            },
+                            {
+                                id: 4,
+                                label: "soapAction",
+                                type: "TextField",
+                                value: property[4],
+                                isRequired: true
+                            },
+                            {
+                                id: 5,
+                                label: "toAddress",
+                                type: "TextField",
+                                value: property[5],
+                                isRequired: true
+                            }
+                        ]
+                    })
+                )
+                setParams({ ...params, paramValues: paramValues });
+            }
+        } else {
+            setFormValues({
+                "sequentialMediation": false,
+                "continueParent": false,
+                "targets": [] as string[][],
+                "sequenceType": "Default",
+                "endpointType": "Default",
+                "newMediator": true,});
+        }
+    }, [sidePanelContext.formValues]);
 
-   };
+    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
+        const value = e ?? formValues[id];
+        const newErrors = { ...errors };
+        let error;
+        if (isRequired && !value) {
+            error = "This field is required";
+        } else if (validation === "e-mail" && !value.match(emailRegex)) {
+            error = "Invalid e-mail address";
+        } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
+            error = "Invalid name";
+        } else if (validation === "custom" && !value.match(regex)) {
+            error = "Invalid input";
+        } else {
+            delete newErrors[id];
+            setErrors(newErrors);
+        }
+        setErrors({ ...errors, [id]: error });
+        return error;
+    };
 
-   const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-       const value = e ?? formValues[id];
-       const newErrors = { ...errors };
-       let error;
-       if (isRequired && !value) {
-           error = "This field is required";
-       } else if (validation === "e-mail" && !value.match(emailRegex)) {
-           error = "Invalid e-mail address";
-       } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-           error = "Invalid name";
-       } else if (validation === "custom" && !value.match(regex)) {
-           error = "Invalid input";
-       } else {
-           delete newErrors[id];
-           setErrors(newErrors);
-       }
-       setErrors({ ...errors, [id]: error });
-       return error;
-   };
+    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
+        "cloneId": (e?: any) => validateField("cloneId", e, false),
+        "sequentialMediation": (e?: any) => validateField("sequentialMediation", e, false),
+        "continueParent": (e?: any) => validateField("continueParent", e, false),
+        "description": (e?: any) => validateField("description", e, false),
 
-   return (
-       <div style={{ padding: "10px" }}>
+    };
+
+    const onClick = async () => {
+        const newErrors = {} as any;
+        Object.keys(formValidators).forEach((key) => {
+            const error = formValidators[key]();
+            if (error) {
+                newErrors[key] = (error);
+            }
+        });
+        formValues["targets"] = params.paramValues.map(param => param.parameters.slice(0, 6).map(p => p.value));
+        params.paramValues.forEach(param => {
+            param.parameters.slice(0, 6).forEach(p => {
+                let key = p.label.toLowerCase().replace(/\s/g, '');
+                formValues[key] = p.value;
+            });
+        });
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+        } else {
+            if (formValues["newMediator"] == false) {
+                //TODO: Fix this after target edit option suport available.
+                if (formValues["targetChanges"].length > 0) {
+                    let targetChanges = formValues["targetChanges"];
+                    const sortedPositions = targetChanges.sort((a: number, b: number) => a - b);
+                    for (let i = sortedPositions.length - 1; i >= 0; i--) {
+                        const data = { target: formValues["targets"][sortedPositions[i]], "editClone": false };
+                        const xml = getXML(MEDIATORS.CLONE, data);
+                        const range: TagRange = data.target[5];
+                        rpcClient.getMiDiagramRpcClient().applyEdit({
+                            documentUri: props.documentUri, range: range.startTagRange, text: xml
+                        });
+                    }
+                }
+                if (formValues["isCloneKeysChange"]) {
+                    const data = { ...formValues, "editClone": true };
+                    const xml = getXML(MEDIATORS.CLONE, data);
+                    const range: TagRange = formValues.cloneTagRange;
+                    rpcClient.getMiDiagramRpcClient().applyEdit({
+                        documentUri: props.documentUri, range: range.startTagRange, text: xml
+                    });
+                }
+            } else {
+                const xml = getXML(MEDIATORS.CLONE, formValues);
+                rpcClient.getMiDiagramRpcClient().applyEdit({
+                    documentUri: props.documentUri, range: props.nodePosition, text: xml
+                });
+                sidePanelContext.setSidePanelState({
+                    ...sidePanelContext,
+                    isOpen: false,
+                    isEditing: false,
+                    formValues: undefined,
+                    nodeRange: undefined,
+                    operationName: undefined
+                });
+            }
+        };
+    }
+    return (
+        <div style={{ padding: "10px" }}>
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <h3>Properties</h3>
@@ -167,7 +268,7 @@ const CloneForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <VSCodeCheckbox type="checkbox" checked={formValues["sequentialMediation"]} onChange={(e: any) => {
-                       setFormValues({ ...formValues, "sequentialMediation": e.target.checked, "isCloneKeysChange": true });
+                        setFormValues({ ...formValues, "sequentialMediation": e.target.checked, "isCloneKeysChange": true });
                         formValidators["sequentialMediation"](e);
                     }
                     }>Sequential Mediation </VSCodeCheckbox>
@@ -176,7 +277,7 @@ const CloneForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <VSCodeCheckbox type="checkbox" checked={formValues["continueParent"]} onChange={(e: any) => {
-                       setFormValues({ ...formValues, "continueParent": e.target.checked, "isCloneKeysChange": true });
+                        setFormValues({ ...formValues, "continueParent": e.target.checked, "isCloneKeysChange": true });
                         formValidators["continueParent"](e);
                     }
                     }>Continue Parent </VSCodeCheckbox>
@@ -186,132 +287,12 @@ const CloneForm = (props: AddMediatorProps) => {
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <h3>Targets</h3>
 
-                        <Field>
-                            <label>Sequence Type</label>
-                            <AutoComplete items={["NONE", "ANONYMOUS", "REGISTRY_REFERENCE"]} selectedItem={formValues["sequenceType"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "sequenceType": e });
-                                formValidators["sequenceType"](e);
-                            }} />
-                            {errors["sequenceType"] && <Error>{errors["sequenceType"]}</Error>}
-                        </Field>
-
-                        {formValues["sequenceType"] && formValues["sequenceType"].toLowerCase() == "registry_reference" &&
-                            <Field>
-                                <TextField
-                                    label="Sequence Registry Key"
-                                    size={50}
-                                    placeholder=""
-                                    value={formValues["sequenceRegistryKey"]}
-                                    onChange={(e: any) => {
-                                        setFormValues({ ...formValues, "sequenceRegistryKey": e });
-                                        formValidators["sequenceRegistryKey"](e);
-                                    }}
-                                    required={false}
-                                />
-                                {errors["sequenceRegistryKey"] && <Error>{errors["sequenceRegistryKey"]}</Error>}
-                            </Field>
-                        }
-
-                        <Field>
-                            <label>Endpoint Type</label>
-                            <AutoComplete items={["NONE", "ANONYMOUS", "REGISTRY_REFERENCE"]} selectedItem={formValues["endpointType"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "endpointType": e });
-                                formValidators["endpointType"](e);
-                            }} />
-                            {errors["endpointType"] && <Error>{errors["endpointType"]}</Error>}
-                        </Field>
-
-                        {formValues["endpointType"] && formValues["endpointType"].toLowerCase() == "registry_reference" &&
-                            <Field>
-                                <TextField
-                                    label="Endpoint Registry Key"
-                                    size={50}
-                                    placeholder=""
-                                    value={formValues["endpointRegistryKey"]}
-                                    onChange={(e: any) => {
-                                        setFormValues({ ...formValues, "endpointRegistryKey": e });
-                                        formValidators["endpointRegistryKey"](e);
-                                    }}
-                                    required={false}
-                                />
-                                {errors["endpointRegistryKey"] && <Error>{errors["endpointRegistryKey"]}</Error>}
-                            </Field>
-                        }
-
-                        <Field>
-                            <TextField
-                                label="SOAP Action"
-                                size={50}
-                                placeholder=""
-                                value={formValues["soapAction"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "soapAction": e });
-                                    formValidators["soapAction"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["soapAction"] && <Error>{errors["soapAction"]}</Error>}
-                        </Field>
-
-                        <Field>
-                            <TextField
-                                label="To Address"
-                                size={50}
-                                placeholder=""
-                                value={formValues["toAddress"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "toAddress": e });
-                                    formValidators["toAddress"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["toAddress"] && <Error>{errors["toAddress"]}</Error>}
-                        </Field>
-
-
-                <div style={{ textAlign: "right", marginTop: "10px" }}>
-                    <Button appearance="primary" onClick={() => {
-                        if (!(validateField("sequenceType", formValues["sequenceType"], true) || validateField("endpointType", formValues["endpointType"], true))) {
-                            setFormValues({
-                                ...formValues, "sequenceType": undefined, "endpointType": undefined,
-                                "targets": [...formValues["targets"], [formValues["sequenceType"], formValues["sequenceRegistryKey"], formValues["endpointType"], formValues["endpointRegistryKey"], formValues["soapAction"], formValues["toAddress"]]]
-                            });
-                        }
-                    }}>
-                        Add
-                    </Button>
-                </div>
-                {formValues["targets"] && formValues["targets"].length > 0 && (
-                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Targets Table</h3>
-                        <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
-                            <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
-                                <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                    Name
-                                </VSCodeDataGridCell>
-                                <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                    Value Type
-                                </VSCodeDataGridCell>
-                                <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                    Value
-                                </VSCodeDataGridCell>
-                            </VSCodeDataGridRow>
-                            {formValues["targets"].map((property: string, index: string) => (
-                                <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
-                                    <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                        {property[0]}
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                        {property[1]}
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                        {property[2]}
-                                    </VSCodeDataGridCell>
-                                </VSCodeDataGridRow>
-                            ))}
-                        </VSCodeDataGrid>
-                    </ComponentCard>
-                )}
+                    {formValues["targets"] && (
+                        <ParamManager
+                            paramConfigs={params}
+                            readonly={false}
+                            onChange={handleOnChange} />
+                    )}
                 </ComponentCard>
                 <Field>
                     <TextField

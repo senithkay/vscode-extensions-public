@@ -48,7 +48,7 @@ export function TypeResolver(props: TypeResolverProps) {
         return { value: val };
     });
 
-    if (param.enableCondition && param.isEnabled) {
+    if (param.enableCondition && !param.isEnabled) {
         return null;
     }
     switch (type) {

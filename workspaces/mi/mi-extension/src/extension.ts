@@ -18,10 +18,15 @@ import { activateActivityPanel } from './activity-panel/activate';
 import { activateAiPanel } from './ai-panel/activate';
 import { RPCLayer } from './RPCLayer';
 
+import { activateDebugger } from './debugger/activate';
+
 export async function activate(context: vscode.ExtensionContext) {
 	extension.context = context;
 	RPCLayer.init();
 	activateHistory();
+
+	activateDebugger(context);
+
 	// activateActivityPanel(context);
 	activateProjectExplorer(context);
 	// activateAiPrompt(context);
