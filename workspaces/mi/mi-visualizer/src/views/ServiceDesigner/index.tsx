@@ -12,7 +12,7 @@ import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
 import { Item } from "@wso2-enterprise/ui-toolkit";
-import { Position } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Position, Range, APIResource } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { AddAPIFormProps, AddResourceForm } from "../Forms/AddResourceForm";
 import { getXML } from "../../utils/template-engine/mustache-templates/templateUtils";
 import { APIData, APIWizardProps } from "../Forms/APIform";
@@ -20,8 +20,8 @@ import { View, ViewHeader, ViewContent } from "../../components/View";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import { SERVICE } from "../../constants";
-
-
+import { EditAPIForm, EditResourceForm } from "../Forms/EditForms/EditResourceForm";
+import { generateResourceData, getResourceDeleteRanges, onResourceEdit } from "../../utils/form";
 
 interface ServiceDesignerProps {
     syntaxTree: any;
@@ -33,18 +33,55 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
     const [isResourceFormOpen, setResourceFormOpen] = React.useState<boolean>(false);
     const [serviceData, setServiceData] = React.useState<APIData>(null);
     const [resourceBodyRange, setResourceBodyRange] = React.useState<any>(null);
+    const [isEditFormOpen, setEditFormOpen] = React.useState<boolean>(false);
+    const [formData, setFormData] = React.useState<EditAPIForm>(null);
+    const [selectedResource, setSelectedResource] = React.useState<APIResource>(null);
 
-    const enrichResources = (resources: Resource[], deleteStartPosition: Position): Resource[] => {
-        return resources.map((resource) => {
-            const goToSourceAction: Item = { id: "go-to-source", label: "Go to Source", onClick: () => highlightCode(resource, true) };
-            const deleteAction: Item = { id: "delete", label: "Delete", onClick: () => handleResourceDelete(resource, resources, deleteStartPosition) };
-            const moreActions: Item[] = [goToSourceAction, deleteAction];
-            return {
-                ...resource,
-                additionalActions: moreActions,
+    const getResources = (st: any): Resource[] => {
+        const resources = st.resource as APIResource[];
+        const parentTagEndPosition = st.range.startTagRange.end;
+        return resources.map((resource, index) => {
+            let prevResource: APIResource | undefined = undefined;
+            if (index > 0) {
+                prevResource = resources[index - 1];
             }
-        })
-    }
+            const value: Resource = {
+                methods: resource.methods,
+                path: resource.uriTemplate || resource.urlMapping,
+                position: {
+                    startLine: resource.range.startTagRange.start.line,
+                    startColumn: resource.range.startTagRange.start.character,
+                    endLine: resource.range.endTagRange.end.line,
+                    endColumn: resource.range.endTagRange.end.character,
+                },
+                expandable: false,
+            };
+            const goToSourceAction: Item = {
+                id: "go-to-source",
+                label: "Go to Source",
+                onClick: () => highlightCode(value, true),
+            };
+            const editAction: Item = {
+                id: "edit",
+                label: "Edit",
+                onClick: () => {
+                    setFormData(generateResourceData(resource));
+                    setSelectedResource(resource);
+                    setEditFormOpen(true);
+                },
+            };
+            const deleteAction: Item = {
+                id: "delete",
+                label: "Delete",
+                onClick: () => handleResourceDelete(resource, prevResource, parentTagEndPosition),
+            };
+            const moreActions: Item[] = [goToSourceAction, editAction, deleteAction];
+            return {
+                ...value,
+                additionalActions: moreActions,
+            };
+        });
+    };
 
     useEffect(() => {
         const st = syntaxTree.api;
@@ -56,36 +93,20 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
             version: st.version,
             range: {
                 start: st.range.startTagRange.start,
-                end: st.range.startTagRange.end
-            }
-        }
+                end: st.range.startTagRange.end,
+            },
+        };
         setServiceData(serviceData);
 
         // Create service model
-        const resources: Resource[] = [];
-        const items: Item[] = []; // More actions for resources
-        st.resource.forEach((resource: any) => {
-            const value: Resource = {
-                methods: resource.methods,
-                path: resource.uriTemplate || resource.urlMapping,
-                position: {
-                    startLine: resource.range.startTagRange.start.line,
-                    startColumn: resource.range.startTagRange.start.character,
-                    endLine: resource.range.endTagRange.end.line,
-                    endColumn: resource.range.endTagRange.end.character
-                },
-                expandable: false
-            }
-            resources.push(value);
-        })
-        const enrichedResources: Resource[] = enrichResources(resources, st.range.startTagRange.end);
+        const resources: Resource[] = getResources(st);
         setResourceBodyRange({
             start: st.range.startTagRange.end,
             end: st.range.endTagRange.start
         });
         const model: Service = {
             path: st.context,
-            resources: enrichedResources,
+            resources: resources,
             position: {
                 startLine: st.range.startTagRange.start.line,
                 startColumn: st.range.startTagRange.start.character,
@@ -109,9 +130,9 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
                     character: resource.position.endColumn,
                 },
             },
-            force: force
+            force: force,
         });
-    }
+    };
 
     const openDiagram = (resource: Resource) => {
         const resourceIndex = serviceModel.resources.findIndex((res) => res === resource);
@@ -155,20 +176,23 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
         setResourceFormOpen(false);
     };
 
-    const handleResourceDelete = (resource: Resource, resourceList: Resource[], deleteStartPosition: Position) => {
-        const position: Position = deleteStartPosition;
-        const resourceIndex = resourceList.findIndex((res) => res === resource);
+    const handleResourceDelete = (
+        currentResource: APIResource,
+        prevResource: APIResource | undefined,
+        parentTagEndPosition: Position
+    ) => {
+        const position: Position = parentTagEndPosition;
         let startPosition;
         // Selecting the start position as the end position of the previous XML tag
-        if (resourceIndex === 0) {
+        if (!prevResource) {
             startPosition = {
                 line: position.line,
                 character: position.character,
             };
         } else {
             startPosition = {
-                line: resourceList[resourceIndex - 1].position.endLine,
-                character: resourceList[resourceIndex - 1].position.endColumn,
+                line: prevResource.range.endTagRange.end.line,
+                character: prevResource.range.endTagRange.end.character,
             };
         }
         rpcClient.getMiDiagramRpcClient().applyEdit({
@@ -177,15 +201,15 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
             range: {
                 start: startPosition,
                 end: {
-                    line: resource.position.endLine,
-                    character: resource.position.endColumn,
+                    line: currentResource.range.endTagRange.end.line,
+                    character: currentResource.range.endTagRange.end.character,
                 },
             },
         });
-    }
+    };
 
     const handleResourceClick = (resource: Resource) => {
-        highlightCode(resource)
+        highlightCode(resource);
         openDiagram(resource);
     };
 
@@ -195,10 +219,16 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
             location: {
                 view: MACHINE_VIEW.APIForm,
                 documentUri: documentUri,
-                customProps: { apiData: serviceData } as APIWizardProps
-            }
+                customProps: { apiData: serviceData } as APIWizardProps,
+            },
         });
-    }
+    };
+
+    const handleResourceEdit = (data: EditAPIForm) => {
+        const ranges: Range[] = getResourceDeleteRanges(selectedResource, data);
+        onResourceEdit(data, selectedResource.range.startTagRange, ranges, documentUri, rpcClient);
+        setEditFormOpen(false);
+    };
 
     return (
         <>
@@ -218,11 +248,16 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
                     </ViewContent>
                 </View>
             )}
-            <AddResourceForm
-                isOpen={isResourceFormOpen}
-                onCancel={handleCancel}
-                onCreate={handleCreateAPI}
-            />
+            <AddResourceForm isOpen={isResourceFormOpen} onCancel={handleCancel} onCreate={handleCreateAPI} />
+            {formData && (
+                <EditResourceForm
+                    isOpen={isEditFormOpen}
+                    resourceData={formData}
+                    documentUri={documentUri}
+                    onCancel={() => setEditFormOpen(false)}
+                    onSave={handleResourceEdit}
+                />
+            )}
         </>
     );
 }
