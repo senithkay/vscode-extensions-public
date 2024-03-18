@@ -59,6 +59,7 @@ import EventForm from "../Pages/mediators/advanced/event"
 import TransactionForm from "../Pages/mediators/advanced/transaction"
 import CacheForm from "../Pages/mediators/advanced/cache"
 import SwitchForm from "../Pages/mediators/filter/switchMediator"
+import BamForm from "../Pages/mediators/other/bam"
 
 export interface GetMediatorsProps {
     nodePosition: any;
@@ -284,6 +285,13 @@ export function getAllMediators(props: GetMediatorsProps) {
                 title: "Iterate",
                 operationName: MEDIATORS.ITERATE,
                 form: <IterateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></IterateForm>,
+            }
+        ],
+        "other": [
+            {
+                title: "BAM",
+                operationName: MEDIATORS.BAM,
+                form: <BamForm nodePosition={props.nodePosition} documentUri={props.documentUri}></BamForm>,
             }
         ]
     };
