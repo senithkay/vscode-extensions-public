@@ -22,7 +22,7 @@ import {
 import styled from "@emotion/styled";
 import { VSCodeRadio, VSCodeRadioGroup } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { SIDE_PANEL_WIDTH } from "../Diagram";
+import { SIDE_PANEL_WIDTH } from "../../../constants";
 
 export type Protocol = "http" | "https";
 
@@ -50,7 +50,7 @@ export type SequenceProps = {
     resourceData: EditAPIForm;
     documentUri: string;
     onCancel: () => void;
-    onEdit: (data: EditAPIForm) => void;
+    onSave: (data: EditAPIForm) => void;
 };
 
 const ActionContainer = styled.div`
@@ -94,7 +94,7 @@ namespace Section {
     `;
 }
 
-export function EditResourceForm({ resourceData, isOpen, documentUri, onCancel, onEdit }: SequenceProps) {
+export function EditResourceForm({ resourceData, isOpen, documentUri, onCancel, onSave }: SequenceProps) {
     const { rpcClient } = useVisualizerContext();
 
     // Form options
@@ -375,7 +375,7 @@ export function EditResourceForm({ resourceData, isOpen, documentUri, onCancel, 
                         <Button
                             appearance="primary"
                             onClick={() =>
-                                onEdit({
+                                onSave({
                                     urlStyle,
                                     uriTemplate: urlStyle === "uri-template" ? uriTemplate : undefined,
                                     urlMapping: urlStyle === "url-mapping" ? urlMapping : undefined,
@@ -396,3 +396,4 @@ export function EditResourceForm({ resourceData, isOpen, documentUri, onCancel, 
         </SidePanel>
     );
 }
+

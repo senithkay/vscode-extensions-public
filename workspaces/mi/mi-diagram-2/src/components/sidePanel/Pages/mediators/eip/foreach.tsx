@@ -45,7 +45,7 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
 
    useEffect(() => {
        if (sidePanelContext.formValues) {
-           setFormValues({ ...formValues, ...sidePanelContext.formValues });
+           setFormValues({ ...formValues, ...sidePanelContext.formValues, "removeAnonymousSequence": false });
        } else {
            setFormValues({
        "sequenceType": "ANONYMOUS",});
@@ -63,9 +63,17 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
        if (Object.keys(newErrors).length > 0) {
            setErrors(newErrors);
        } else {
+           const data = formValues;
+           let editRange = data.range.startTagRange;
+           data.editForeach = true;
+           if (data.removeAnonymousSequence) {
+               editRange = props.nodePosition;
+               data.editForeach = false;
+           }
            const xml = getXML(MEDIATORS.FOREACH, formValues);
+
            rpcClient.getMiDiagramRpcClient().applyEdit({
-               documentUri: props.documentUri, range: props.nodePosition, text: xml
+               documentUri: props.documentUri, range: editRange, text: xml
            });
            sidePanelContext.setSidePanelState({
                ...sidePanelContext,
@@ -167,7 +175,11 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                 <Field>
                     <label>Sequence Type</label>
                     <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE", "NAMED_REFERENCE"]} selectedItem={formValues["sequenceType"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "sequenceType": e });
+                       let removeAnonymousSequence = false;
+                       if (formValues["prevSequenceType"] == "ANONYMOUS" && e != "ANONYMOUS") {
+                           removeAnonymousSequence = true;
+                       }
+                       setFormValues({ ...formValues, "sequenceType": e, "removeAnonymousSequence": removeAnonymousSequence });
                         formValidators["sequenceType"](e);
                     }} />
                     {errors["sequenceType"] && <Error>{errors["sequenceType"]}</Error>}

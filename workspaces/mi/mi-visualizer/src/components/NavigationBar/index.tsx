@@ -19,7 +19,6 @@ export function NavigationBar(props: NavigationBarProps) {
         width: 100%;
         display: flex;
         flex-direction: row;
-        padding-bottom: 10px;
         align-items: center;
     `;
 

@@ -187,7 +187,8 @@ export const MEDIATORS = {
     DBREPORT: "Dbreport",
     ENQUEUE: "Enqueue",
     EVENT: "Event",
-    TRANSACTION: "Transaction"
+    TRANSACTION: "Transaction",
+    CONDITIONALROUTER: "ConditionalRouter",
 }
 
 export const ENDPOINTS = {
