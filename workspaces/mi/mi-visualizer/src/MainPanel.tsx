@@ -66,20 +66,17 @@ const MainPanel = () => {
 
     useEffect(() => {
         fetchContext();
-
         rpcClient?.onStateChanged((newState: MachineStateValue) => {
-            if (typeof newState === 'object' && 'newProject' in newState && newState.newProject === 'viewReady') {
-                fetchContext();
-            }
-            if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewReady') {
-                fetchContext();
-            }
-            if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewEditing') {
-                rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.EDIT_DONE, location: null });
-                fetchContext();
+            if (typeof newState === 'object' && 'ready' in newState) {
+                if (newState.ready === 'viewReady') {
+                    fetchContext();
+                }
+                if (newState.ready === 'viewEditing') {
+                    rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.EDIT_DONE, location: null });
+                    fetchContext();
+                }
             }
         });
-
     }, []);
 
     useEffect(() => {
@@ -120,6 +117,17 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.Overview:
                     setViewComponent(<Overview />);
+                    break;
+                case MACHINE_VIEW.Diagram:
+                    setViewComponent(
+                        <SequenceView
+                            key={getUniqueKey(machineView.stNode, machineView.documentUri)}
+                            model={machineView.stNode as DiagramService}
+                            documentUri={machineView.documentUri}
+                            diagnostics={machineView.diagnostics}
+                        />
+                    );
+                    rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
                     break;
                 case MACHINE_VIEW.ResourceView:
                     setViewComponent(
