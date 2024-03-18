@@ -12,6 +12,7 @@ import { TextField } from "../TextField/TextField";
 import { Dropdown } from "../Dropdown/Dropdown";
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { TextArea } from "../TextArea/TextArea";
+import { EnableCondition } from "./ParamManager";
 
 export interface Param {
     id: number;
@@ -21,12 +22,14 @@ export interface Param {
     isRequired?: boolean;
     errorMessage?: string;
     disabled?: boolean;
+    isEnabled?: boolean;
+    enableCondition?: EnableCondition;
     values?: string[]; // For Dropdown
 }
 
 interface TypeResolverProps {
     param: Param;
-    onChange: (param: Param) => void;
+    onChange: (param: Param, ec?: EnableCondition) => void;
 }
 
 export function TypeResolver(props: TypeResolverProps) {
@@ -34,17 +37,20 @@ export function TypeResolver(props: TypeResolverProps) {
     const { id, label, type, value, isRequired, values, disabled, errorMessage  } = param;
 
     const handleOnChange = (newValue: string | boolean) => {
-        onChange({ ...param, value: newValue });
+        onChange({ ...param, value: newValue }, param.enableCondition);
     }
 
     const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        onChange({ ...param, value: e.target.checked });
+        onChange({ ...param, value: e.target.checked }, param.enableCondition);
     }
 
     const dropdownItems = values?.map(val => {
         return { value: val };
     });
 
+    if (param.enableCondition && param.isEnabled) {
+        return null;
+    }
     switch (type) {
         case "TextField":
             return (
