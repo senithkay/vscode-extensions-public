@@ -15,6 +15,7 @@ import { ParamItem } from './ParamItem';
 import { LinkButton } from '../LinkButton/LinkButton';
 import { Codicon } from '../Codicon/Codicon';
 import { Param } from './TypeResolver';
+import { IconTextWrapper, itemTitle } from './styles';
 
 export interface Parameters {
     id: number;
@@ -46,6 +47,7 @@ export interface ParamConfig {
 
 export interface ParamManagerProps {
     paramConfigs: ParamConfig;
+    enableParamTitle?: boolean;
     onChange?: (parameters: ParamConfig) => void,
     readonly?: boolean;
 }
@@ -161,12 +163,20 @@ const getNewParam = (fields: ParamField[], index: number): Parameters => {
     };
 };
 
+const getParamLabel = (p: ParamField) => {
+    return (
+        <div data-test-id={`${p.label}-label`} className={itemTitle}>
+            {p.label}
+        </div>
+    )
+}
+
 export function findFieldFromParam(field: ParamField[], value: Param): ParamField {
     return field?.find(item => item.label === value?.label) || null;
 }
 
 export function ParamManager(props: ParamManagerProps) {
-    const { paramConfigs , readonly, onChange } = props;
+    const { paramConfigs , readonly, enableParamTitle = true, onChange } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
 
@@ -246,6 +256,11 @@ export function ParamManager(props: ParamManagerProps) {
 
     return (
         <div>
+            {(paramComponents.length > 0) && enableParamTitle && (
+                <IconTextWrapper>
+                    {paramConfigs.paramFields.map(param => getParamLabel(param))}
+                </IconTextWrapper>
+            )}
             {paramComponents}
             {(editingSegmentId === -1) && (
                 <AddButtonWrapper>
