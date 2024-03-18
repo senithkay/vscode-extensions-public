@@ -7,11 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import _ from "lodash";
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
 import { Colors, NODE_LINK, NodeTypes } from "../../resources/constants";
 import { SourceNodeModel, TargetNodeModel } from "../../utils/diagram";
 import { Position, Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { Diagnostic } from "vscode-languageserver-types";
+import { EmptyNodeModel } from "../nodes/EmptyNode/EmptyNodeModel";
 
 export const LINK_BOTTOM_OFFSET = 50;
 
@@ -89,6 +91,22 @@ export class NodeLinkModel extends DefaultLinkModel {
         }
     }
 
+    updateLinkSelect(selected: boolean) {
+        super.setSelected(selected);
+        const targetNode = this.targetNode as EmptyNodeModel;
+        if (targetNode && targetNode?.getType() === NodeTypes.EMPTY_NODE && !targetNode.visible) {
+            _.forEach(this.targetNode.getOutPort().getLinks(), (link) => {
+                link.setSelected(selected);
+            });
+        }
+        const sourceNode = this.sourceNode as EmptyNodeModel;
+        if (sourceNode && sourceNode?.getType() === NodeTypes.EMPTY_NODE && !sourceNode.visible) {
+            _.forEach(this.sourceNode.getInPort().getLinks(), (link) => {
+                link.setSelected(selected);
+            });
+        }
+    }
+
     setSourceNode(node: SourceNodeModel) {
         this.sourceNode = node;
     }
@@ -122,17 +140,21 @@ export class NodeLinkModel extends DefaultLinkModel {
         let path = `M ${source.x} ${source.y} `;
         path += `L ${source.x} ${target.y - this.linkBottomOffset - curveOffset} `;
         if (isRight) {
-            path += `A ${curveOffset},${curveOffset} 0 0 0 ${source.x + curveOffset},${target.y - this.linkBottomOffset
-                } `;
+            path += `A ${curveOffset},${curveOffset} 0 0 0 ${source.x + curveOffset},${
+                target.y - this.linkBottomOffset
+            } `;
             path += `L ${target.x - curveOffset} ${target.y - this.linkBottomOffset} `;
-            path += `A ${curveOffset},${curveOffset} 0 0 1 ${target.x},${target.y - this.linkBottomOffset + curveOffset
-                } `;
+            path += `A ${curveOffset},${curveOffset} 0 0 1 ${target.x},${
+                target.y - this.linkBottomOffset + curveOffset
+            } `;
         } else {
-            path += `A ${curveOffset},${curveOffset} 0 0 1 ${source.x - curveOffset},${target.y - this.linkBottomOffset
-                } `;
+            path += `A ${curveOffset},${curveOffset} 0 0 1 ${source.x - curveOffset},${
+                target.y - this.linkBottomOffset
+            } `;
             path += `L ${target.x + curveOffset} ${target.y - this.linkBottomOffset} `;
-            path += `A ${curveOffset},${curveOffset} 0 0 0 ${target.x},${target.y - this.linkBottomOffset + curveOffset
-                } `;
+            path += `A ${curveOffset},${curveOffset} 0 0 0 ${target.x},${
+                target.y - this.linkBottomOffset + curveOffset
+            } `;
         }
         path += `L ${target.x} ${target.y}`;
         return path;

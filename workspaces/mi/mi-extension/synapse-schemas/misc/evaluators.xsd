@@ -55,6 +55,7 @@
             <xs:attribute name="type" use="required">
                 <xs:simpleType>
                     <xs:restriction base="xs:string">
+                        <xs:enumeration value="param"/>
                         <xs:enumeration value="url"/>
                     </xs:restriction>
                 </xs:simpleType>
