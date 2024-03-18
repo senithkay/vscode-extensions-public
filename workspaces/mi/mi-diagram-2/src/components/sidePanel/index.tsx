@@ -107,7 +107,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                     {/* Header */}
                     <ButtonContainer>
                         {(pageStack.length === 0 || sidePanelContext.isEditing) ? <div></div> :
-                            <Codicon name="arrow-left" sx={{ width: "20px" }} onClick={handleGoBack} />}
+                            <Codicon name="arrow-left" sx={{ width: "20px", position: "absolute", left: "0px", paddingLeft: "25px" }} onClick={handleGoBack} />}
 
                         {pageStack.length === 0 && <Switch
                             leftLabel="Add"
@@ -124,7 +124,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                         />}
 
                         {pageStack.length > 0 && title !== undefined && <h3 style={{ textAlign: "center", width: "355px" }}>{title}</h3>}
-                        <Codicon name="close" sx={{ textAlign: "right", width: "20px" }} onClick={handleClose} />
+                        <Codicon name="close" sx={{ textAlign: "right", width: "20px", position: "absolute", right: "0px", paddingRight: "16px" }} onClick={handleClose} />
                     </ButtonContainer>
 
                     {/* Content */}
