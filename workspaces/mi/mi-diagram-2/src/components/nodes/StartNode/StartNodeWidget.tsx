@@ -40,12 +40,9 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
             height="40"
             viewBox="0 0 100 40"
         >
-            <path
-                fill={hovered ? Colors.SECONDARY : Colors.PRIMARY}
-                d="m20,0 h60 a20,20,0,0,1,0,40 h-60 a-20,-20,0,0,1,0,-40 z"
-            />
-            <path fill={Colors.SURFACE_BRIGHT} d="m20,2 h60 a18,18,0,0,1,0,36 h-60 a-18,-18,0,0,1,0,-36 z" />
-            <text x="50%" y="50%" alignmentBaseline="middle" textAnchor="middle" fill={Colors.ON_SURFACE}>
+            <rect x="0" y="0" width="100" height="40" rx="20" fill={hovered ? Colors.SECONDARY : Colors.PRIMARY} />
+            <rect x="2" y="2" width="96" height="36" rx="18" fill={Colors.SURFACE_BRIGHT} />
+            <text x="50%" y="50%" fill={Colors.ON_SURFACE} textAnchor="middle" alignmentBaseline="central">
                 Start
             </text>
         </svg>
