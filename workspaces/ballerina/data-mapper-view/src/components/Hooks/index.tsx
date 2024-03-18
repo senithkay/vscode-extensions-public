@@ -146,12 +146,7 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[]) => {
             || node instanceof PrimitiveTypeNode
             || node instanceof UnionTypeNode
             || (node instanceof UnsupportedIONode && node.kind === UnsupportedExprNodeKind.Output)) {
-                if (Object.values(node.getPorts()).some(port => Object.keys(port.links).length)){
-                    node.setPosition(OFFSETS.TARGET_NODE.X, 0);
-                } else {
-                    // Bring mapping constructor node close to input node, if it doesn't have any links
-                    node.setPosition(OFFSETS.TARGET_NODE_WITHOUT_MAPPING.X, 0);
-                }
+                node.setPosition(window.innerWidth - 382, 0);
         }
         if (node instanceof RequiredParamNode
             || node instanceof LetClauseNode

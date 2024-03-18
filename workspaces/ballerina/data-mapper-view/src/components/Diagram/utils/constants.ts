@@ -15,12 +15,13 @@ export const JSON_MERGE_MODULE_NAME = "ballerina/lang.value";
 
 export const OFFSETS = {
     SOURCE_NODE: {
-        X: 50,
-        Y: 100,
+        X: 0,
+        Y: 0,
     },
     TARGET_NODE: {
-        X: 950,
-        Y: 100
+        // X: window.innerWidth-282,
+        X: window.innerWidth-382,
+        Y: 0
     },
     LET_EXPRESSION_NODE: {
         X: 50,

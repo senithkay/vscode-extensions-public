@@ -76,7 +76,7 @@ interface DataMapperDiagramProps {
 	onError?: (kind: ErrorNodeKind) => void;
 }
 
-const defaultModelOptions = { zoom: 90 }
+const defaultModelOptions = { zoom: 100 }
 
 function initDiagramEngine() {
 	// START TODO: clear this up
@@ -90,8 +90,8 @@ function initDiagramEngine() {
 	const diContext = container.resolve(DataMapperDIContext);
 
 	const engine = new DiagramEngine({
-		registerDefaultPanAndZoomCanvasAction: true,
-		registerDefaultZoomCanvasAction: false
+		registerDefaultPanAndZoomCanvasAction: false,
+		registerDefaultZoomCanvasAction: false,
 	});
 
 	// register model factories
