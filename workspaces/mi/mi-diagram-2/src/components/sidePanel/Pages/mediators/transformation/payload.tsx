@@ -145,9 +145,11 @@ const PayloadForm = (props: AddMediatorProps) => {
                 setParams({ ...params, paramValues: paramValues });
             }
         } else {
-            setFormValues({            
-                "payload": "<inline/>",
+            setFormValues({
                 "args": [] as string[][],
+                "payloadFormat": "Inline",
+                "mediaType": "json",
+                "templateType": "default",
             });
         }
     }, [sidePanelContext.formValues]);

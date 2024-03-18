@@ -218,11 +218,6 @@ export function getXML(name: string, data: { [key: string]: any }) {
         case ENDPOINTS.HTTP:
             return getHTTPEndpointXml(data);
 
-        // Service Forms
-        // case SERVICE.EDIT_RESOURCE:
-        //     return getEditApiResourceXml(data);
-        // case SERVICE.EDIT_SEQUENCE:
-        //     return getEditSequenceXml(data);
         default:
             return Mustache.render(getMustacheTemplate(name), data).trim();
     }

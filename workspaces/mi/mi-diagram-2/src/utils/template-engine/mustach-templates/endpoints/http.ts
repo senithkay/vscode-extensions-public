@@ -7,9 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Parameters } from "@storybook/react";
-import { EndpointHttpAuthenticationOauthAuthorizationCode, EndpointHttpAuthenticationOauthClientCredentials, EndpointHttpAuthenticationOauthPasswordCredentials, NamedEndpoint } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { property } from "lodash";
+import { NamedEndpoint } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
 
 export function getHTTPEndpointMustacheTemplate() {
@@ -21,17 +19,21 @@ export function getHTTPEndpointMustacheTemplate() {
                 {{#timeoutDuration}}<duration>{{timeoutDuration}}</duration>{{/timeoutDuration}}
                 {{#timeoutAction}}<responseAction>{{timeoutAction}}</responseAction>{{/timeoutAction}}
             </timeout>{{/timeout}}  
+            {{#suspendOnFailure}}
             <suspendOnFailure>
-                    {{#suspendErrorCodes}}<errorCodes>{{suspendErrorCodes}}</errorCodes>{{/suspendErrorCodes}}
-                    <initialDuration>{{suspendInitialDuration}}</initialDuration>
-                    <progressionFactor>{{suspendProgressionFactor}}</progressionFactor>
-                    <maximumDuration>{{suspendMaximumDuration}}</maximumDuration>
-                </suspendOnFailure>
-                <markForSuspension>
-                    {{#retryErrorCodes}}<errorCodes>{{retryErrorCodes}}</errorCodes>{{/retryErrorCodes}}
-                    {{#retryCount}}<retriesBeforeSuspension>{{retryCount}}</retriesBeforeSuspension>{{/retryCount}}
-                    {{#retryDelay}}<retryDelay>{{retryDelay}}</retryDelay>{{/retryDelay}}
-                </markForSuspension>
+                {{#suspendErrorCodes}}<errorCodes>{{suspendErrorCodes}}</errorCodes>{{/suspendErrorCodes}}
+                <initialDuration>{{suspendInitialDuration}}</initialDuration>
+                <progressionFactor>{{suspendProgressionFactor}}</progressionFactor>
+                <maximumDuration>{{suspendMaximumDuration}}</maximumDuration>
+            </suspendOnFailure>
+            {{/suspendOnFailure}}
+            {{#markForSuspension}}
+            <markForSuspension>
+                {{#retryErrorCodes}}<errorCodes>{{retryErrorCodes}}</errorCodes>{{/retryErrorCodes}}
+                {{#retryCount}}<retriesBeforeSuspension>{{retryCount}}</retriesBeforeSuspension>{{/retryCount}}
+                {{#retryDelay}}<retryDelay>{{retryDelay}}</retryDelay>{{/retryDelay}}
+            </markForSuspension>
+            {{/markForSuspension}}
                 {{#failoverNonRetryErrorCodes}}
                 <retryConfig>
                     <disabledErrorCodes>{{failoverNonRetryErrorCodes}}</disabledErrorCodes>
@@ -93,7 +95,8 @@ export function getHTTPEndpointMustacheTemplate() {
 
 export function getHTTPEndpointXml(data: { [key: string]: any }) {
 
-    data.timeoutAction = (data.timeoutAction == 'never' || data.timeoutAction == null) ? null : data.timeoutAction.toLowerCase();
+    data.httpMethod = data.httpMethod.toLowerCase(),
+        data.timeoutAction = (data.timeoutAction == 'never' || data.timeoutAction == null) ? null : data.timeoutAction.toLowerCase();
     if (data.timeoutDuration != null || data.timeoutAction != null) {
         data.timeout = true;
     }
@@ -160,7 +163,7 @@ export function getHTTPEndpointFormDataFromSTNode(data: { [key: string]: any }, 
     data.retryErrorCodes = markForSuspension?.errorCodes?.textNode;
     data.retryCount = markForSuspension?.retriesBeforeSuspension?.textNode;
     data.retryDelay = markForSuspension?.retryDelay?.textNode;
-    data.httpMethod = node.http.method;
+    data.httpMethod = node.http.method.toUpperCase();
     data.statisticsEnabled = node.http.statistics == "enable" ? true : false;
     data.traceEnabled = node.http.trace == "enable" ? true : false;
     data.authType = authentication?.basicAuth ? "Basic Auth" : (authentication?.oauth ? "OAuth" : "None");
@@ -208,3 +211,4 @@ export function getHTTPEndpointFormDataFromSTNode(data: { [key: string]: any }, 
     data.description = node.description;
     return data;
 }
+

@@ -15,8 +15,10 @@ export function getFilterMustacheTemplate() {
     return `
     {{#isNewMediator}}
     <filter {{#description}}description="{{description}}" {{/description}}{{#regularExpression}}regex="{{regularExpression}}" {{/regularExpression}}{{#source}}source="{{source}}" {{/source}}{{#xPath}}xpath="{{xPath}}" {{/xPath}}>
-        <then/>
-        <else/>
+        <then>
+        </then>
+        <else>
+        </else>
 </filter> 
     {{/isNewMediator}}
     {{^isNewMediator}}
