@@ -55,7 +55,7 @@ export function HierachicalPath(props: HierachicalPathProps) {
                         }
                         const api = syntaxTree.syntaxTree.api;
                         segments.push({
-                            label: `${api.context}${api.name}`,
+                            label: `${api.context}`,
                             onClick: () => {
                                 rpcClient.getMiVisualizerRpcClient().openView({
                                     type: EVENT_TYPE.OPEN_VIEW,
