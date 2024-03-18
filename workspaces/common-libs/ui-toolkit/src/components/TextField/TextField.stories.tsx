@@ -30,4 +30,7 @@ const searchIcon = (<Codicon name="search" sx= {{cursor: "auto"}}/>)
 export const TextFieldWithIcon = Template.bind();
 TextFieldWithIcon.args = { value: "Sample Text", icon: {iconComponent: searchIcon, position: "end"}, placeholder: "Search", onChange: null };
 
+export const TextFieldWithAutoFoucus = Template.bind();
+TextFieldWithAutoFoucus.args = { label: "TextField", autoFocus: true, placeholder: "placeholder", onChange: null };
+
 export default { component: TextField, title: "TextField" };
