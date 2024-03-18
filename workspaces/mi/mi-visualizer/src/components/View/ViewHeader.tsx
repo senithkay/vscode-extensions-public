@@ -54,13 +54,17 @@ const Actions = styled.div({
 });
 
 const ViewHeader: React.FC<ViewHeaderProps> = ({ title, children, codicon, icon, onEdit }) => {
+    const TitleComponent = (
+        typeof title === 'string' ? <Title>{title}</Title> : title
+    )
+
     return (
         <Header>
             <HeaderContentWrapper>
                 <TitleContainer>
                     {codicon && <Codicon name={codicon} />}
                     {icon && <Icon name={icon} />}
-                    <Title>{title}</Title>
+                    {TitleComponent}
                     {onEdit && (
                         <Button
                             appearance="icon"

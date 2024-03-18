@@ -58,7 +58,7 @@ export const ResourceView = ({ model: resourceModel, documentUri, diagnostics }:
 
     const ResourceTitle = (
         <React.Fragment>
-            <span>Resource:</span>
+            <h3>Resource:</h3>
             {model.methods.map((method, index) => <ColoredTag key={index} color={getColorByMethod(method)}>{method}</ColoredTag>)}
             <span>{model.uriTemplate || model.urlMapping}</span>
         </React.Fragment>
