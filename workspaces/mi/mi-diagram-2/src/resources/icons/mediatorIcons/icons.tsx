@@ -86,9 +86,9 @@ export function getSVGIcon(mediator: string, returnPath: boolean = false) {
         case MEDIATORS.RESPOND.toLowerCase():
             icon = require("./RespondMediator.svg");
             break;
-        // case MEDIATORS.REWRITE.toLowerCase():
-        //     icon = require("./RewriteMediator.svg");
-        //     break;
+        case MEDIATORS.REWRITE.toLowerCase():
+            icon = require("./URLRewriteMediator.svg");
+            break;
         case MEDIATORS.RULE.toLowerCase():
             icon = require("./RuleMediator.svg");
             break;
@@ -118,6 +118,39 @@ export function getSVGIcon(mediator: string, returnPath: boolean = false) {
             break;
         case MEDIATORS.XSLT.toLowerCase():
             icon = require("./XSLTMediator.svg");
+            break;
+        case MEDIATORS.CONDITIONALROUTER.toLowerCase():
+            icon = require("./ConditionalRouterMediator.svg");
+            break;
+        case MEDIATORS.ENQUEUE.toLowerCase():
+            icon = require("./EnqueueMediator.svg");
+            break;
+        case MEDIATORS.EVENT.toLowerCase():
+            icon = require("./EventMediator.svg");
+            break;
+        case MEDIATORS.TRANSACTION.toLowerCase():
+            icon = require("./TransactionMediator.svg");
+            break;
+        case MEDIATORS.BEAN.toLowerCase():
+            icon = require("./BeanMediator.svg");
+            break;
+        case MEDIATORS.CLASS.toLowerCase():
+            icon = require("./ClassMediator.svg");
+            break;
+        case MEDIATORS.COMMAND.toLowerCase():
+            icon = require("./CommandMediator.svg");
+            break;
+        case MEDIATORS.EJB.toLowerCase():
+            icon = require("./EJBMediator.svg");
+            break;
+        case MEDIATORS.SCRIPT.toLowerCase():
+            icon = require("./ScriptMediator.svg");
+            break;
+        case MEDIATORS.SPRING.toLowerCase():
+            icon = require("./SpringMediator.svg");
+            break;
+        case MEDIATORS.BAM.toLowerCase():
+            icon = require("./BAMMediator.svg");
             break;
 
         // Endpoints
