@@ -9,13 +9,18 @@
 
 import * as vscode from 'vscode';
 import { COMMANDS } from '../constants';
-import { openAIView } from './aiMachine';
+import { StateMachineAI, openAIView } from './aiMachine';
 import { AI_MACHINE_VIEW, EVENT_TYPE } from '@wso2-enterprise/mi-core';
 
 export function activateAiPanel(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand(COMMANDS.OPEN_AI_PANEL, (initialPrompt?: string) => {
             openAIView(EVENT_TYPE.OPEN_VIEW, { initialPrompt });
+        })
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand(COMMANDS.CLEAR_AI_PROMPT, () => {
+            StateMachineAI.sendEvent(EVENT_TYPE.CLEAR_PROMPT);
         })
     );
 }

@@ -18,7 +18,6 @@ import { View, ViewContent, ViewHeader } from "../../components/View";
 import path from 'path';
 
 
-
 const AddPanel = styled.div({
     position: 'relative', // Add this line to position the close button absolutely
 
@@ -66,6 +65,7 @@ export function Overview() {
     const [workspaces, setWorkspaces] = React.useState<WorkspaceFolder[]>([]);
     const [activeWorkspaces, setActiveWorkspaces] = React.useState<WorkspaceFolder>(undefined);
     const [selected, setSelected] = React.useState<string>("");
+    const [inputAiPrompt, setInputAiPrompt] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
 
     const handleClick = async (key: string) => {
@@ -124,6 +124,15 @@ export function Overview() {
         console.log('Close button clicked'); // Implement the close logic here
     }
 
+    const handleGenerateWithAI = () => {
+        rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.openAiPanel", inputAiPrompt] });
+    }
+
+    const handleAiPromptChange = (value:string) => {
+        setInputAiPrompt(value);
+    }
+
+
     return (
         <View>
             <ViewHeader title={"Project: " + activeWorkspaces?.name} codicon="project">
@@ -165,8 +174,8 @@ export function Overview() {
                     </CloseButton>
                     <h3 style={{ margin: '0 0 5px 0' }}>Describe your Integration to get started</h3>
                     <AIPanel>
-                        <TextArea value="" rows={4} cols={1000} placeholder="I want to create an API that will route my request based on a header value."></TextArea>
-                        <VSCodeButton>
+                        <TextArea onChange={handleAiPromptChange} value={inputAiPrompt} rows={4} cols={1000} placeholder="I want to create an API that will route my request based on a header value."></TextArea>
+                        <VSCodeButton onClick={handleGenerateWithAI}>
                             <Codicon name="wand" />
                             Generate with AI
                         </VSCodeButton>

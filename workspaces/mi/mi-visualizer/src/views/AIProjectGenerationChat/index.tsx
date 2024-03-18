@@ -65,6 +65,7 @@ export function AIProjectGenerationChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
   const [isCodeLoading, setIsCodeLoading] = useState(false);
+  const [initialPrompt, setInitialPrompt] = useState("");
 
       useEffect(() => {
         async function fetchBackendUrl() {
@@ -77,6 +78,13 @@ export function AIProjectGenerationChat() {
         }
 
         fetchBackendUrl();
+
+        rpcClient.getAIVisualizerState().then((machineView) => { 
+          if(machineView.initialPrompt){
+            setInitialPrompt(machineView.initialPrompt);
+            rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.clearAIPrompt"] });
+          }
+        });
       }, []); 
 
   useEffect(() => {
