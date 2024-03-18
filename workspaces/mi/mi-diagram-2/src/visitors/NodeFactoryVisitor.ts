@@ -87,6 +87,7 @@ export class NodeFactoryVisitor implements Visitor {
 
                 const isSequnceConnect = diagramNode instanceof StartNodeModel && previousNode instanceof EndNodeModel;
                 const isEmptyNodeConnect = diagramNode instanceof EmptyNodeModel && previousNode instanceof EmptyNodeModel;
+                const showAddButton = !isSequnceConnect && !(previousNode instanceof EmptyNodeModel);
 
                 const addPosition = this.currentAddPosition != undefined ? this.currentAddPosition :
                     (type === NodeTypes.CONDITION_NODE_END && previousNode instanceof EmptyNodeModel) ? previousStNode.range.endTagRange.start :
@@ -102,7 +103,7 @@ export class NodeFactoryVisitor implements Visitor {
                         previousNode: previousStNode.tag,
                         parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
                         showArrow: !isSequnceConnect,
-                        showAddButton: !isSequnceConnect,
+                        showAddButton: showAddButton,
                         diagnostics: this.currentBranchData?.diagnostics || [],
                     }
                 );
