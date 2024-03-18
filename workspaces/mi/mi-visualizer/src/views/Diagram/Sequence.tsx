@@ -35,6 +35,7 @@ export const SequenceView = ({ model: SequenceModel, documentUri, diagnostics }:
 
     const onSave = (data: EditSequenceForm) => {
         onSequenceEdit(data, model.range.startTagRange, documentUri, rpcClient);
+        setFormOpen(false);
     }
     
     return (

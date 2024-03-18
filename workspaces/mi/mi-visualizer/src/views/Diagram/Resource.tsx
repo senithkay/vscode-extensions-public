@@ -55,11 +55,12 @@ export const ResourceView = ({ model: resourceModel, documentUri, diagnostics }:
     const onSave = (data: EditAPIForm) => {
         const ranges: Range[] = getResourceDeleteRanges(model, data);
         onResourceEdit(data, model.range.startTagRange, ranges, documentUri, rpcClient);
+        setFormOpen(false);
     }
 
     const ResourceTitle = (
         <React.Fragment>
-            <h3>Resource:</h3>
+            <span>Resource:</span>
             {model.methods.map((method, index) => <ColoredTag key={index} color={getColorByMethod(method)}>{method}</ColoredTag>)}
             <span>{model.uriTemplate || model.urlMapping}</span>
         </React.Fragment>
