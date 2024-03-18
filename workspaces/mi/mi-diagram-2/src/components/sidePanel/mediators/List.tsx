@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Button, IconLabel } from '@wso2-enterprise/ui-toolkit';
-import React, { ReactNode } from 'react';
+import { ComponentCard, IconLabel } from '@wso2-enterprise/ui-toolkit';
+import React from 'react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
 import { getAllMediators } from './Values';
@@ -17,7 +17,7 @@ import { getSVGIcon } from '../../../resources/icons/mediatorIcons/icons';
 const ButtonGrid = styled.div`
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 5px 10px;
+    gap: 5px 5px;
 `;
 
 const IconContainer = styled.div`
@@ -82,31 +82,37 @@ export function Mediators(props: MediatorProps) {
                         <h4>{key.charAt(0).toUpperCase() + key.slice(1)}</h4>
                         <ButtonGrid>
                             {(values as any[]).map((action: { operationName: React.Key; title: string; }) => (
-                                // <ButtonContainer key={action.title}>
-                                <Button key={action.operationName} appearance='secondary' sx={{
-                                    width: "auto",
-                                    height: "40px",
-
-                                    '& > vscode-button': {
-                                        width: '100%',
-                                        '::part(content)': {
-                                            width: '-webkit-fill-available',
-                                        }
-                                    },
-                                }} onClick={() => setContent(action)}>
-                                    <div style={{
-                                        width: "-webkit-fill-available",
-                                        display: 'flex',
+                                <ComponentCard
+                                    key={action.operationName}
+                                    onClick={() => setContent(action)}
+                                    sx={{
+                                        '&:hover, &.active': {
+                                            '.icon svg g': {
+                                                fill: 'var(--vscode-editor-foreground)'
+                                            },
+                                            backgroundColor: 'var(--vscode-pickerGroup-border)',
+                                            border: '1px solid var(--vscode-focusBorder)'
+                                        },
                                         alignItems: 'center',
-                                    }}>
-                                        <IconContainer>
-                                            {getSVGIcon(action.operationName as string)}
-                                        </IconContainer>
-                                        <div >
-                                            <IconLabel>{action.title.charAt(0).toUpperCase() + action.title.slice(1)}</IconLabel>
-                                        </div>
+                                        border: '1px solid var(--vscode-editor-foreground)',
+                                        borderRadius: 2,
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        height: 20,
+                                        justifyContent: 'left',
+                                        marginBottom: 10,
+                                        padding: 10,
+                                        transition: '0.3s',
+                                        width: 170
+                                    }}
+                                >
+                                    <IconContainer>
+                                        {getSVGIcon(action.operationName as string)}
+                                    </IconContainer>
+                                    <div >
+                                        <IconLabel>{action.title.charAt(0).toUpperCase() + action.title.slice(1)}</IconLabel>
                                     </div>
-                                </Button>
+                                </ComponentCard>
                             ))}
                         </ButtonGrid>
                         <hr style={{
