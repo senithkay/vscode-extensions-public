@@ -342,7 +342,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				}, 'code');
 				resourceEntry.command = {
 					"title": "Show Diagram",
-					"command": COMMANDS.SHOW_DIAGRAM,
+					"command": COMMANDS.SHOW_RESOURCE_VIEW,
 					"arguments": [vscode.Uri.parse(entry.path), i, false]
 				};
 				apiEntry.children.push(resourceEntry);
@@ -363,7 +363,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.contextValue = 'sequence';
 			explorerEntry.command = {
 				"title": "Show Diagram",
-				"command": COMMANDS.SHOW_DIAGRAM,
+				"command": COMMANDS.SHOW_SEQUENCE_VIEW,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
 
@@ -381,7 +381,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.contextValue = 'proxy-service';
 			explorerEntry.command = {
 				"title": "Show Diagram",
-				"command": COMMANDS.SHOW_DIAGRAM,
+				"command": COMMANDS.SHOW_PROXY_VIEW,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
 

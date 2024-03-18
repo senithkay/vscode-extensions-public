@@ -47,7 +47,6 @@ import { getEnqueueMustacheTemplate } from "./advanced/enqueue";
 import { getEventFormDataFromSTNode, getEventMustacheTemplate, getEventXml } from "./advanced/event";
 import { getTransactionFormDataFromSTNode, getTransactionMustacheTemplate, getTransactionXml } from "./advanced/transaction";
 import { getCacheFormDataFromSTNode, getCacheMustacheTemplate, getCacheXml } from "./advanced/cache";
-import { getEditApiResourceXml, getEditSequenceXml } from "./core/service-designer";
 import { getAggregateFormDataFromSTNode, getAggregateMustacheTemplate, getAggregateXml } from "./eip/aggreagte";
 import { getIterateFormDataFromSTNode, getIterateMustacheTemplate, getIterateXml } from "./eip/iterate";
 import { getSwitchFormDataFromSTNode, getSwitchMustacheTemplate, getSwitchXml } from "./filter/switch";
@@ -220,17 +219,17 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getHTTPEndpointXml(data);
 
         // Service Forms
-        case SERVICE.EDIT_RESOURCE:
-            return getEditApiResourceXml(data);
-        case SERVICE.EDIT_SEQUENCE:
-            return getEditSequenceXml(data);
+        // case SERVICE.EDIT_RESOURCE:
+        //     return getEditApiResourceXml(data);
+        // case SERVICE.EDIT_SEQUENCE:
+        //     return getEditSequenceXml(data);
         default:
             return Mustache.render(getMustacheTemplate(name), data).trim();
     }
 }
 
 export function getNewSubSequenceXml(name: string) {
-    switch(name) {
+    switch (name) {
         case MEDIATORS.CLONE:
             return getNewCloneTargetXml();
     }

@@ -64,7 +64,7 @@ export class NodeFactoryVisitor implements Visitor {
         } else if (type === NodeTypes.CONDITION_NODE) {
             diagramNode = new ConditionNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.START_NODE) {
-            diagramNode = new StartNodeModel(node, this.resource, data, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
+            diagramNode = new StartNodeModel(node, data, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.END_NODE) {
             diagramNode = new EndNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.CALL_NODE) {
@@ -320,7 +320,7 @@ export class NodeFactoryVisitor implements Visitor {
                 character: node.range.startTagRange.end.character
             }
             this.currentAddPosition = addPosition;
-            this.createNodeAndLinks(node, "", NodeTypes.START_NODE);
+            this.createNodeAndLinks(node, "", NodeTypes.START_NODE, StartNodeType.IN_SEQUENCE);
             this.diagramType = DiagramType.SEQUENCE;
         }
         this.parents.push(node);
