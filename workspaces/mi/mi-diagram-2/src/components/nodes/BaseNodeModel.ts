@@ -82,7 +82,7 @@ export class BaseNodeModel extends NodeModel {
     }
 
     async onClicked(e: any, node: BaseNodeModel, rpcClient: RpcClient, sidePanelContext: SidePanelContext, operationName: string = this.mediatorName, stNode: STNode = this.stNode) {
-        const nodeRange = { start: this.stNode.range.startTagRange.start, end: this.stNode.range.endTagRange.end || this.stNode.range.startTagRange.end };
+        const nodeRange = { start: stNode.range.startTagRange.start, end: stNode.range.endTagRange.end || stNode.range.startTagRange.end };
         if (e.ctrlKey || e.metaKey) {
             // open code and highlight the selected node
             rpcClient.getMiDiagramRpcClient().highlightCode({
@@ -106,6 +106,7 @@ export class BaseNodeModel extends NodeModel {
                 nodeRange: nodeRange,
                 isEditing: true,
                 formValues: formData,
+                parentNode: node.mediatorName
             });
         }
     }

@@ -29,6 +29,7 @@ import { DidChangeConfigurationNotification, RequestType, TextDocumentPositionPa
 import { activateTagClosing, AutoCloseResult } from './tagClosing';
 import { ExtendedLanguageClient } from './ExtendedLanguageClient';
 import { GoToDefinitionProvider } from './DefinitionProvider';
+import { FormattingProvider } from './FormattingProvider';
 
 export interface ScopeInfo {
     scope: "default" | "global" | "workspace" | "folder";
@@ -125,6 +126,7 @@ export class MILanguageClient {
                     'xml.completion.autoCloseTags');
                 languages.setLanguageConfiguration('SynapseXml', getIndentationRules());
                 registerDefinitionProvider(this.context, this.languageClient);
+                registerFormattingProvider(this.context, this.languageClient);
             } else {
                 throw new Error("JAVA_HOME is not set");
             }
@@ -259,6 +261,11 @@ export class MILanguageClient {
         function registerDefinitionProvider(context: ExtensionContext, langClient: ExtendedLanguageClient) {
             const gotoDefinitionProvider = new GoToDefinitionProvider(langClient);
             context.subscriptions.push(languages.registerDefinitionProvider("SynapseXml", gotoDefinitionProvider));
+        }
+
+        function registerFormattingProvider(context: ExtensionContext, langClient: ExtendedLanguageClient) {
+            const formattingProvider = new FormattingProvider(langClient);
+            context.subscriptions.push(languages.registerDocumentRangeFormattingEditProvider("SynapseXml", formattingProvider));
         }
     }
 }

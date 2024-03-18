@@ -99,7 +99,7 @@ export function MediatorPage(props: MediatorPageProps) {
                 {/*  Categories */}
                 <ButtonContainer style={{ justifyContent: "space-between", marginBottom: "10px" }}>
                     <Button onClick={handleAllMediatorsClicked} appearance={isAllMediators ? 'primary' : 'icon'} sx={BtnStyle}>
-                        <Icon sx={{marginTop: 2, marginRight: 5}} name="ballerina"/>
+                        <Icon sx={{marginTop: 2, marginRight: 5}} name="module-icon"/>
                         All Mediators
                     </Button>
                     <Button onClick={handleLibraryClicked} appearance={isLibrary ? 'primary' : 'icon'} sx={BtnStyle}>

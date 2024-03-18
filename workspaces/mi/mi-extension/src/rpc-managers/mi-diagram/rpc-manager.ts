@@ -126,9 +126,9 @@ import * as fs from "fs";
 import * as os from 'os';
 import { Transform } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
-import { Position, Range, Selection, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
-import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
+import { Position, Range, Selection, TextDocument, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
+import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
@@ -1653,12 +1653,36 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (!textEmpty) {
                 text = `${textBefore.length > 0 ? "\n" + sIndentation : ""}${params.text.replace(/\n/g, "\n" + sIndentation)}${textAfter.length > 0 ? "\n" + eIndentation : ""}`;
             }
+
             edit.replace(Uri.parse(params.documentUri), range, text);
             await workspace.applyEdit(edit);
 
+            const formatRange = this.getFormatRange(range, text);
+            await this.format(Uri.parse(params.documentUri), formatRange);
             const content = document.getText();
             undoRedo.addModification(content);
 
+            resolve({ status: true });
+        });
+    }
+
+    getFormatRange(range: Range, text: string): Range {
+        const editSplit = text.split('\n');
+        const addedLine = editSplit.length;
+        const lastLineLength = editSplit[editSplit.length - 1].length;
+        const formatStart = range.start;
+        const formatend = new Position(range.start.line + addedLine - 1, lastLineLength);
+        const formatRange = new Range(formatStart, formatend);
+        return formatRange;
+    }
+
+    async format(uri: Uri, range: Range): Promise<ApplyEditResponse> {
+        return new Promise(async (resolve) => {
+            const edits: TextEdit[] = await commands.executeCommand("vscode.executeFormatRangeProvider", uri, range,
+                { tabSize: 4, insertSpaces: false, trimTrailingWhitespace: false });
+            const workspaceEdit = new WorkspaceEdit();
+            workspaceEdit.set(uri, edits);
+            await workspace.applyEdit(workspaceEdit);
             resolve({ status: true });
         });
     }
