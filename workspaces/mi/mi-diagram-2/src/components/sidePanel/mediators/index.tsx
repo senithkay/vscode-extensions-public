@@ -26,7 +26,6 @@ const ButtonContainer = styled.div`
 const BtnStyle = {
     '& > vscode-button': {
         width: '130px',
-        height: '40px',
         borderRadius: '5px',
     },
 };
