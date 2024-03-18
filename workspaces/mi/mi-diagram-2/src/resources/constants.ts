@@ -129,7 +129,7 @@ export const NODE_DIMENSIONS = {
         WIDTH: 12,
         HEIGHT: 12,
         BRANCH: {
-            WIDTH: 60,
+            WIDTH: 150,
             HEIGHT: 100,
         },
     },
