@@ -36,6 +36,14 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
+const Wrapper = styled.div`
+    display: "block",
+    margin: "15px 0",
+    padding: "0 15px 15px 15px",
+    width: "auto",
+    cursor: "auto"
+`;
+
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
@@ -226,9 +234,7 @@ const CallForm = (props: AddMediatorProps) => {
     return (
         <div style={{ padding: "10px" }}>
 
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Properties</h3>
-
+            <Wrapper>
                 <Field>
                     <VSCodeCheckbox type="checkbox" checked={formValues["enableBlockingCalls"]} onChange={(e: any) => {
                         setFormValues({ ...formValues, "enableBlockingCalls": e.target.checked, "isCallChanged": true });
@@ -413,7 +419,7 @@ const CallForm = (props: AddMediatorProps) => {
                     {errors["description"] && <Error>{errors["description"]}</Error>}
                 </Field>
 
-            </ComponentCard>
+            </Wrapper>
 
 
             <div style={{ textAlign: "right", marginTop: "10px" }}>

@@ -25,6 +25,14 @@ const cardStyle = {
    cursor: "auto"
 };
 
+const Wrapper = styled.div`
+    display: "block",
+    margin: "15px 0",
+    padding: "0 15px 15px 15px",
+    width: "auto",
+    cursor: "auto"
+`;
+
 const Error = styled.span`
    color: var(--vscode-errorForeground);
    font-size: 12px;
@@ -208,9 +216,7 @@ const LogForm = (props: AddMediatorProps) => {
     return (
         <div style={{ padding: "10px" }}>
 
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Properties</h3>
-
+            <Wrapper>
                 <Field>
                     <label>Log Category</label> <RequiredFormInput />
                     <AutoComplete items={["INFO", "TRACE", "DEBUG", "WARN", "ERROR", "FATAL"]} selectedItem={formValues["category"]} onChange={(e: any) => {
@@ -269,7 +275,7 @@ const LogForm = (props: AddMediatorProps) => {
                     {errors["description"] && <Error>{errors["description"]}</Error>}
                 </Field>
 
-            </ComponentCard>
+            </Wrapper>
 
 
             <div style={{ textAlign: "right", marginTop: "10px" }}>
