@@ -14,6 +14,7 @@ import { extension } from '../MIExtensionContext';
 import { COMMANDS, PORTS_TO_CHECK, SELECTED_SERVER_PATH } from '../constants';
 import * as childprocess from 'child_process';
 import * as fs from 'fs';
+import { getBuildTask, getCopyTask, getRunTask } from './tasks';
 
 export class MiDebugAdapter extends LoggingDebugSession {
 
@@ -66,7 +67,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
         });
     }
 
-    private async executeBuildTask(task: vscode.Task, path: string) {
+    private async executeBuildTask(task: vscode.Task, serverPath: string) {
         await vscode.tasks.executeTask(task);
 
         return new Promise<void>(resolve => {
@@ -78,15 +79,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                     if (workspaceFolders && workspaceFolders.length > 0) {
                         const targetDirectory = vscode.Uri.joinPath(workspaceFolders[0].uri, "target");
                         if (fs.existsSync(targetDirectory.fsPath)) {
-                            const targetPath = targetDirectory.fsPath + "/*.car";
-                            const commandToExecute = "cp -f " + targetPath + " " + path;
-                            const copyTask = new vscode.Task(
-                                { type: 'mi-copy' },
-                                vscode.TaskScope.Workspace,
-                                'copy',
-                                'mi',
-                                new vscode.ShellExecution(commandToExecute)
-                            );
+                            const copyTask = getCopyTask(serverPath, targetDirectory);
                             await this.executeCopyTask(copyTask);
                         }
                     }
@@ -99,34 +92,17 @@ export class MiDebugAdapter extends LoggingDebugSession {
         });
     }
 
-    private async executeTasks(program: string): Promise<void> {
+    private async executeTasks(serverPath: string): Promise<void> {
+        const buildTask = getBuildTask();
 
-        const commandPath = program + '/repository/deployment/server/carbonapps';
-        const commandToExecute = "mvn clean install";
-
-        const firstTask = new vscode.Task(
-            { type: 'mi-build' },
-            vscode.TaskScope.Workspace,
-            'build',
-            'mi',
-            new vscode.ShellExecution(commandToExecute)
-        );
-
-        await this.executeBuildTask(firstTask, commandPath);
+        await this.executeBuildTask(buildTask, serverPath);
 
         const portsInUse = await this.checkPorts();
 
         if (!portsInUse) {
-            const command2 = program + '/bin/micro-integrator.sh';
-            const secondTask = new vscode.Task(
-                { type: 'mi-run' },
-                vscode.TaskScope.Workspace,
-                'run',
-                'mi',
-                new vscode.ShellExecution(command2)
-            );
+            const runTask = getRunTask(serverPath);
 
-            await vscode.tasks.executeTask(secondTask);
+            await vscode.tasks.executeTask(runTask);
         } else {
             vscode.window.showInformationMessage('Server is already running');
         }
@@ -143,13 +119,13 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
     }
 
-    protected launchRequest(response: DebugProtocol.LaunchResponse, args: DebugProtocol.LaunchRequestArguments, request?: DebugProtocol.Request): void {
-        this.updateServerPathAndGet().then((path) => {
-            if (!path) {
+    protected launchRequest(response: DebugProtocol.LaunchResponse, args?: DebugProtocol.LaunchRequestArguments, request?: DebugProtocol.Request): void {
+        this.updateServerPathAndGet().then((serverPath) => {
+            if (!serverPath) {
                 response.success = false;
                 this.sendResponse(response);
             } else {
-                this.executeTasks(path)
+                this.executeTasks(serverPath)
                     .then(() => {
                         this.sendResponse(response);
                     })

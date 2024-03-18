@@ -42,6 +42,11 @@ export function activateDebugger(context: vscode.ExtensionContext) {
                 { label: addServer });
         }
         const options: vscode.QuickPickOptions = { canPickMany: false, title: "Select Server Path" };
+        if (currentServerPath) {
+            options.placeHolder = "Selected server: " + currentServerPath;
+        } else {
+            options.placeHolder = "Add MI server";
+        }
         const selected = await vscode.window.showQuickPick(quickPicks, options);
         if (selected) {
             if (selected.label === addServer) {

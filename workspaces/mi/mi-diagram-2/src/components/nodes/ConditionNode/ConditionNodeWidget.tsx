@@ -41,9 +41,8 @@ interface CallNodeWidgetProps {
 export function ConditionNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine, onClick } = props;
     const [isHovered, setIsHovered] = React.useState(false);
-    const visualizerContext = useVisualizerContext();
     const hasDiagnotics = node.hasDiagnotics();
-    const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
+    const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : (node.getStNode() as any).description;
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
 

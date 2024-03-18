@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 export function getEditServiceTemplate() {
-    return `<api name="{{{name}}}" context="{{{context}}}" version="{{{version}}}" version-type="{{version_type}}">`
+    return `<api name="{{{name}}}" context="{{{context}}}"{{#version}} version="{{{version}}}" version-type="{{version_type}}" {{/version}} xmlns="http://ws.apache.org/ns/synapse">`
 }
 
 export function getAddApiResourceTemplate() {

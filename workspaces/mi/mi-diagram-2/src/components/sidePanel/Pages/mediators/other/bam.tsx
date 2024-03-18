@@ -9,14 +9,13 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
+import { Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
-import { TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 const cardStyle = {
     display: "block",
@@ -38,7 +37,7 @@ const Field = styled.div`
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
-const FilterForm = (props: AddMediatorProps) => {
+const BamForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [formValues, setFormValues] = useState({} as { [key: string]: any });
@@ -47,11 +46,6 @@ const FilterForm = (props: AddMediatorProps) => {
     useEffect(() => {
         if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
             setFormValues({ ...formValues, ...sidePanelContext.formValues });
-        } else {
-            setFormValues({
-                "conditionType": "Source and Regular Expression",
-                "isNewMediator": true
-            });
         }
     }, [sidePanelContext.formValues]);
 
@@ -66,11 +60,9 @@ const FilterForm = (props: AddMediatorProps) => {
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
         } else {
-            const xml = getXML(MEDIATORS.FILTER, formValues);
-            const range: TagRange = formValues["range"];
-            const editRange = range ? range.startTagRange : props.nodePosition;
+            const xml = getXML(MEDIATORS.BAM, formValues);
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: editRange, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: xml
             });
             sidePanelContext.setSidePanelState({
                 ...sidePanelContext,
@@ -84,10 +76,9 @@ const FilterForm = (props: AddMediatorProps) => {
     };
 
     const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-        "conditionType": (e?: any) => validateField("conditionType", e, false),
-        "regularExpression": (e?: any) => validateField("regularExpression", e, false),
-        "source": (e?: any) => validateField("source", e, false),
-        "xPath": (e?: any) => validateField("xPath", e, false),
+        "serverProfileName": (e?: any) => validateField("serverProfileName", e, false),
+        "streamName": (e?: any) => validateField("streamName", e, false),
+        "streamVersion": (e?: any) => validateField("streamVersion", e, false),
         "description": (e?: any) => validateField("description", e, false),
 
     };
@@ -118,68 +109,53 @@ const FilterForm = (props: AddMediatorProps) => {
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <h3>Properties</h3>
 
+                <Field>
+                    <TextField
+                        label="Server Profile Name"
+                        size={50}
+                        placeholder=""
+                        value={formValues["serverProfileName"]}
+                        onChange={(e: any) => {
+                            setFormValues({ ...formValues, "serverProfileName": e });
+                            formValidators["serverProfileName"](e);
+                        }}
+                        required={false}
+                    />
+                    {errors["serverProfileName"] && <Error>{errors["serverProfileName"]}</Error>}
+                </Field>
+
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Condition</h3>
+                    <h3>Stream</h3>
 
                     <Field>
-                        <label>Condition Type</label>
-                        <AutoComplete items={["Source and Regular Expression", "XPath"]} selectedItem={formValues["conditionType"]} onChange={(e: any) => {
-                            setFormValues({ ...formValues, "conditionType": e });
-                            formValidators["conditionType"](e);
-                        }} />
-                        {errors["conditionType"] && <Error>{errors["conditionType"]}</Error>}
+                        <TextField
+                            label="Stream Name"
+                            size={50}
+                            placeholder=""
+                            value={formValues["streamName"]}
+                            onChange={(e: any) => {
+                                setFormValues({ ...formValues, "streamName": e });
+                                formValidators["streamName"](e);
+                            }}
+                            required={false}
+                        />
+                        {errors["streamName"] && <Error>{errors["streamName"]}</Error>}
                     </Field>
 
-                    {formValues["conditionType"] && formValues["conditionType"].toLowerCase() == "source and regular expression" &&
-                        <Field>
-                            <TextField
-                                label="Source"
-                                size={50}
-                                placeholder=""
-                                value={formValues["source"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "source": e });
-                                    formValidators["source"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["source"] && <Error>{errors["source"]}</Error>}
-                        </Field>
-                    }
-
-                    {formValues["conditionType"] && formValues["conditionType"].toLowerCase() == "source and regular expression" &&
-                        <Field>
-                            <TextField
-                                label="Regular Expression"
-                                size={50}
-                                placeholder=""
-                                value={formValues["regularExpression"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "regularExpression": e });
-                                    formValidators["regularExpression"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["regularExpression"] && <Error>{errors["regularExpression"]}</Error>}
-                        </Field>
-                    }
-
-                    {formValues["conditionType"] && formValues["conditionType"].toLowerCase() == "xpath" &&
-                        <Field>
-                            <TextField
-                                label="XPath"
-                                size={50}
-                                placeholder=""
-                                value={formValues["xPath"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "xPath": e });
-                                    formValidators["xPath"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["xPath"] && <Error>{errors["xPath"]}</Error>}
-                        </Field>
-                    }
+                    <Field>
+                        <TextField
+                            label="Stream Version"
+                            size={50}
+                            placeholder=""
+                            value={formValues["streamVersion"]}
+                            onChange={(e: any) => {
+                                setFormValues({ ...formValues, "streamVersion": e });
+                                formValidators["streamVersion"](e);
+                            }}
+                            required={false}
+                        />
+                        {errors["streamVersion"] && <Error>{errors["streamVersion"]}</Error>}
+                    </Field>
 
                 </ComponentCard>
 
@@ -214,4 +190,4 @@ const FilterForm = (props: AddMediatorProps) => {
     );
 };
 
-export default FilterForm; 
+export default BamForm; 

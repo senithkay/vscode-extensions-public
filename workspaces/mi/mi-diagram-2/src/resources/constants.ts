@@ -84,7 +84,7 @@ export const NODE_GAP = {
     X: 0,
     Y: 50,
     BRANCH_X: 50,
-    BRANCH_TOP: 100 + 10,
+    BRANCH_TOP: 60,
     BRANCH_BOTTOM: 50,
     SEQUENCE_Y: 100,
     GROUP_NODE_START_Y: 50,
@@ -130,7 +130,7 @@ export const NODE_DIMENSIONS = {
         HEIGHT: 12,
         BRANCH: {
             WIDTH: 60,
-            HEIGHT: 12,
+            HEIGHT: 100,
         },
     },
     END: {
@@ -189,6 +189,7 @@ export const MEDIATORS = {
     EVENT: "Event",
     TRANSACTION: "Transaction",
     CONDITIONALROUTER: "ConditionalRouter",
+    BAM: "Bam"
 }
 
 export const ENDPOINTS = {

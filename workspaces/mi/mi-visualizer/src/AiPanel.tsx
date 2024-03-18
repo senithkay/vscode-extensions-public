@@ -47,7 +47,7 @@ const AiPanel = () => {
                     setViewComponent(<AIOverviewWindow />);
                     break;
                 case AI_MACHINE_VIEW.AIArtifact:
-                    setViewComponent(<AIArtifactWindow/>);
+                    setViewComponent(<AIOverviewWindow />);
                     break;
                 default:
                     setViewComponent(null);
@@ -58,12 +58,13 @@ const AiPanel = () => {
     return (
             <div style={{
                 overflow: "hidden",
+                height:"100%"
             }}>
                 {!viewComponent ? (
                     <LoaderWrapper>
                         <ProgressRing />
                     </LoaderWrapper>
-                ) : <div>
+                ) : <div style={{height:"100%"}}>
                     {viewComponent}
                 </div>}
             </div>
