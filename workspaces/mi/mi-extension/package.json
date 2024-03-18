@@ -108,6 +108,11 @@
         "category": "MI"
       },
       {
+        "command": "MI.openWelcome",
+        "title": "Open MI Welcome",
+        "category": "MI"
+      },
+      {
         "command": "MI.openAiPanel",
         "title": "Open MI Ai",
         "category": "MI"
