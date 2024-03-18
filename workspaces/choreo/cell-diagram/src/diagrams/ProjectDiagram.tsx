@@ -42,7 +42,15 @@ export interface ProjectDiagramProps {
 }
 
 export function ProjectDiagram(props: ProjectDiagramProps) {
-    const { project, componentMenu, showControls = true, animation = true, defaultDiagramLayer = DiagramLayer.ARCHITECTURE, customTooltips, onComponentDoubleClick } = props;
+    const {
+        project,
+        componentMenu,
+        showControls = true,
+        animation = true,
+        defaultDiagramLayer = DiagramLayer.ARCHITECTURE,
+        customTooltips,
+        onComponentDoubleClick,
+    } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(generateEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
@@ -61,20 +69,22 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
         if (diagramEngine) {
             drawDiagram();
         }
+        return () => {
+            diagramEngine
+                .getModel()
+                ?.getNodes()
+                .forEach((node) => {
+                    if (isRenderInsideCell(node)) {
+                        node.clearListeners();
+                    }
+                });
+        };
     }, [props]);
 
     useEffect(() => {
         if (diagramEngine && animation && isDiagramLoaded) {
             animateProjectDiagram();
             diagramEngine.repaintCanvas();
-        }
-        
-        return () => {
-            diagramEngine.getModel()?.getNodes().forEach((node) => {
-                if (isRenderInsideCell(node)) {
-                    node.clearListeners();
-                }
-            });
         }
     }, [isDiagramLoaded, diagramEngine]);
 
@@ -241,7 +251,9 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
                                 focusedNode={diagramEngine?.getModel()?.getNode(focusedNodeId)}
                             />
                             {showControls && <DiagramControls engine={diagramEngine} animation={animation} />}
-                            {showDiagramLayers && <DiagramLayers animation={animation} tooltips={customTooltips?.diagramLayers} />}
+                            {showDiagramLayers && (
+                                <DiagramLayers animation={animation} tooltips={customTooltips?.diagramLayers} />
+                            )}
                             {showDiagramLayers && <DiagramLegend animation={animation} />}
                         </>
                     ) : userMessage ? (
