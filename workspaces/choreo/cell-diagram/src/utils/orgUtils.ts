@@ -66,8 +66,6 @@ function generateProjectLinks(
                 return;
             }
             const targetGateway = connection.target as ProjectGateway;
-            console.log("targetGateway", targetGateway);
-            console.log("projectNodes", projectNodes);
             const targetNode = projectNodes.get(getProjectNameById(targetGateway.projectId));
             if (!(sourceNode && targetNode)) {
                 console.error("Source or target node not found for connection: ", connection);

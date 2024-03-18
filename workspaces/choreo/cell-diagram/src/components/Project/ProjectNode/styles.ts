@@ -71,6 +71,7 @@ export const ProjectCellNode: React.FC<ProjectNodeStyleProps> = styled.div`
         stroke-width: ${(props: ProjectNodeStyleProps) => props.borderWidth};
         fill: ${(props: ProjectNodeStyleProps) =>
             props.isSelected ? Colors.SECONDARY_CONTAINER : Colors.SURFACE};
+        fill: transparent;
         pointer-events: none;
     }
 `;
@@ -81,7 +82,7 @@ export const ProjectName: React.FC<any> = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: center;
-    max-width: ${LABEL_MAX_WIDTH}px;
+    /* max-width: ${LABEL_MAX_WIDTH}px; */
     &:hover {
         color: ${(props: StyleProps) => (props.isClickable ? PRIMARY_HOVER : ``)};
         text-decoration: ${(props: StyleProps) => (props.isClickable ? `underline` : ``)};

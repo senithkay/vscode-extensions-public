@@ -5,8 +5,8 @@
     "files": [
         "lib"
     ],
-    "main": "lib/Diagram.js",
-    "types": "lib/Diagram.d.ts",
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts",
     "scripts": {
         "start": "webpack-dev-server --progress --mode=development",
         "build": "tsc --pretty && npm run copy:assets && webpack && pnpm run postbuild",
