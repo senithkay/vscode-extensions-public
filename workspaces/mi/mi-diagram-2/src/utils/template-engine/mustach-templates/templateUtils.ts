@@ -9,7 +9,7 @@
 
 import Mustache from "mustache";
 import { getCallFormDataFromSTNode, getCallMustacheTemplate, getCallXml } from "./core/call";
-import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache, Send, Aggregate, Iterate, Filter, NamedEndpoint, Foreach, Bam, OauthService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache, Send, Aggregate, Iterate, Filter, NamedEndpoint, Foreach, Bam, OauthService, Builder } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogMustacheTemplate, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutMustacheTemplate, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode, getHeaderMustacheTemplate } from "./core/header";
@@ -54,6 +54,7 @@ import { getForEachFormDataFromSTNode, getForeachMustacheTemplate, getForeachXml
 import { getBamFormDataFromSTNode, getBamMustacheTemplate } from "./other/bam";
 import { getConditionalRouterFormDataFromSTNode, getConditionalRouterMustacheTemplate, getConditionalRouterXml } from "./filter/cond_router";
 import { getOauthFormDataFromSTNode, getOauthMustacheTemplate, getOauthXml } from "./other/oauth";
+import { getBuilderFormDataFromSTNode, getBuilderMustacheTemplate, getBuilderXml } from "./other/builder";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -136,6 +137,8 @@ export function getMustacheTemplate(name: string) {
             return getBamMustacheTemplate();
         case MEDIATORS.OAUTH:
             return getOauthMustacheTemplate();
+        case MEDIATORS.BUILDER:
+            return getBuilderMustacheTemplate();
 
         // Endpoints
         case ENDPOINTS.ADDRESS:
@@ -228,6 +231,8 @@ export function getXML(name: string, data: { [key: string]: any }) {
         //Other Mediators
         case MEDIATORS.OAUTH:
             return getOauthXml(data);
+        case MEDIATORS.BUILDER:
+            return getBuilderXml(data);
 
         // Endpoint Forms
         case ENDPOINTS.HTTP:
@@ -319,6 +324,8 @@ export function getDataFromXML(name: string, node: STNode) {
             return getBamFormDataFromSTNode(formData, node as Bam);
         case MEDIATORS.OAUTH:
             return getOauthFormDataFromSTNode(formData,node as OauthService);
+        case MEDIATORS.BUILDER:
+            return getBuilderFormDataFromSTNode(formData, node as Builder);
 
         // Endpoint Forms
         case ENDPOINTS.HTTP:

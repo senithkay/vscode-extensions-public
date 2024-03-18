@@ -923,7 +923,7 @@ export interface Clone extends STNode {
 }
 
 export interface Builder extends STNode {
-    messageBuilder: BuilderMessageBuilder;
+    messageBuilders: BuilderMessageBuilder[];
     description: string;
 }
 

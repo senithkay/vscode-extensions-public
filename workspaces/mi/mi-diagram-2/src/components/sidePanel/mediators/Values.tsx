@@ -62,6 +62,7 @@ import SwitchForm from "../Pages/mediators/filter/switchMediator"
 import BamForm from "../Pages/mediators/other/bam"
 import ConditionalRouterForm from "../Pages/mediators/filter/cond_router"
 import OAuthForm from "../Pages/mediators/other/oauth"
+import BuilderForm from "../Pages/mediators/other/builder"
 
 export interface GetMediatorsProps {
     nodePosition: any;
@@ -304,7 +305,12 @@ export function getAllMediators(props: GetMediatorsProps) {
                 title: "Oauth",
                 operationName: MEDIATORS.OAUTH,
                 form: <OAuthForm nodePosition={props.nodePosition} documentUri={props.documentUri}></OAuthForm>,
-            }
+            },
+            {
+                title: "Builder",
+                operationName: MEDIATORS.BUILDER,
+                form: <BuilderForm nodePosition={props.nodePosition} documentUri={props.documentUri}></BuilderForm>,
+            },
         ]
     };
 
