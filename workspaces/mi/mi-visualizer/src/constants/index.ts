@@ -11,12 +11,6 @@ export const SAMPLE_ICONS_GITHUB_URL = "https://raw.githubusercontent.com/wso2/i
 export const MI_COPILOT_BACKEND_URL = "http://127.0.0.1:8000/code-gen-chat";
 // export const MI_COPILOT_BACKEND_URL = "https://cf3a4176-54c9-4547-bcd6-c6fe400ad0d8-dev.e1-us-east-azure.choreoapis.dev/awwr/mi-copilot-backend/mi-copilot-backend-5de/v1.0";
 
-// Service Designer Templates
-export const SERVICE_DESIGNER = {
-    EDIT_SERVICE: "service-designer-edit-resource",
-    ADD_RESOURCE: "service-designer-add-resource",
-} as const;
-
 // Default Editor Info
 export const TAB_SIZE = 4; // 4 spaces
 
@@ -24,5 +18,16 @@ export const TAB_SIZE = 4; // 4 spaces
 export const SYNTAX_TREE_KIND = {
     SEQUENCE: "sequence",
     PROXY: "proxy",
+} as const;
+
+// Diagram view
+export const SIDE_PANEL_WIDTH = 450;
+
+// Actions for service designer
+export const SERVICE = {
+    EDIT_SERVICE: "edit-service",
+    ADD_RESOURCE: "add-resource",
+    EDIT_RESOURCE: "edit-resource",
+    EDIT_SEQUENCE: "edit-sequence",
 } as const;
 
