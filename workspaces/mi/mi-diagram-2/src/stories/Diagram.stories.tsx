@@ -2418,3 +2418,68 @@ Clone.args = {
         "tag": "sequence"
     }
 }
+
+export const NamedSequence: Story = {};
+NamedSequence.args = {
+    model: {
+        "faultSequence": {
+            "mediatorList": [],
+            "range": {
+                "startTagRange": {
+                    "start": {
+                        "line": 4,
+                        "character": 8
+                    },
+                    "end": {
+                        "line": 4,
+                        "character": 23
+                    }
+                },
+                "endTagRange": {
+                    "start": {
+                        "line": 5,
+                        "character": 8
+                    },
+                    "end": {
+                        "line": 5,
+                        "character": 24
+                    }
+                }
+            },
+            "hasTextNode": true,
+            "textNode": "\n        ",
+            "selfClosed": false,
+            "tag": "faultSequence"
+        },
+        "methods": [
+            "GET"
+        ],
+        "inSequenceAttribute": "giga",
+        "uriTemplate": "/resource",
+        "range": {
+            "startTagRange": {
+                "start": {
+                    "line": 2,
+                    "character": 4
+                },
+                "end": {
+                    "line": 2,
+                    "character": 71
+                }
+            },
+            "endTagRange": {
+                "start": {
+                    "line": 6,
+                    "character": 4
+                },
+                "end": {
+                    "line": 6,
+                    "character": 15
+                }
+            }
+        },
+        "hasTextNode": false,
+        "selfClosed": false,
+        "tag": "resource"
+    }
+}

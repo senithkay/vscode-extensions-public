@@ -13,10 +13,15 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
 import { Item } from "@wso2-enterprise/ui-toolkit";
 import { Position } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { AddAPIFormProps, AddResourceForm, Method } from "../Forms/AddResourceForm";
-import { SERVICE_DESIGNER } from "../../constants";
+import { AddAPIFormProps, AddResourceForm } from "../Forms/AddResourceForm";
 import { getXML } from "../../utils/template-engine/mustache-templates/templateUtils";
 import { APIData, APIWizardProps } from "../Forms/APIform";
+import { View, ViewHeader, ViewContent } from "../../components/View";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { SERVICE } from "../../constants";
+
+
 
 interface ServiceDesignerProps {
     syntaxTree: any;
@@ -110,7 +115,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
 
     const openDiagram = (resource: Resource) => {
         const resourceIndex = serviceModel.resources.findIndex((res) => res === resource);
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Diagram, documentUri: documentUri, identifier: resourceIndex.toString() } })
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ResourceView, documentUri: documentUri, identifier: resourceIndex.toString() } })
     }
 
     const handleResourceAdd = () => {
@@ -122,7 +127,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
     };
 
     const handleCreateAPI = ({ methods, uriTemplate, urlMapping }: AddAPIFormProps) => {
-        const formValues = {        
+        const formValues = {
             methods: Object
                 .keys(methods)
                 .filter((method) => methods[method as keyof typeof methods])
@@ -132,7 +137,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
             url_mapping: urlMapping,
         };
 
-        const xml = getXML(SERVICE_DESIGNER.ADD_RESOURCE, formValues);
+        const xml = getXML(SERVICE.ADD_RESOURCE, formValues);
         rpcClient.getMiDiagramRpcClient().applyEdit({
             text: xml,
             documentUri: documentUri,
@@ -195,13 +200,21 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
     return (
         <>
             {serviceModel && (
-                <ServiceDesigner
-                    model={serviceModel}
-                    onResourceAdd={handleResourceAdd}
-                    onResourceImplement={openDiagram}
-                    onResourceClick={handleResourceClick}
-                    onServiceEdit={handleServiceEdit}
-                />
+                <View>
+                    <ViewHeader title="Service Designer" codicon="globe" onEdit={handleServiceEdit}>
+                        <VSCodeButton appearance="primary" title="Edit Service" onClick={handleResourceAdd}>
+                            <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
+                        </VSCodeButton>
+                    </ViewHeader>
+                    <ViewContent padding>
+                        <ServiceDesigner
+                            model={serviceModel}
+                            disableServiceHeader={true}
+                            onResourceImplement={openDiagram}
+                            onResourceClick={handleResourceClick}
+                        />
+                    </ViewContent>
+                </View>
             )}
             <AddResourceForm
                 isOpen={isResourceFormOpen}

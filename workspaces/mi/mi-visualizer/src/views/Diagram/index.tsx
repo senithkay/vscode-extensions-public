@@ -7,12 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-function getFilterMustacheTemplate() {
-    return `<filter{{#description}} description="{{description}}"{{/description}}{{#regularExpression}} {{#source}} source="{{source}}"{{/source}} regex="{{regularExpression}}"{{/regularExpression}}{{#xPath}} xpath="{{xPath}}"{{/xPath}}>
-    <then>
-    </then>
-    <else>
-    </else>
-</filter>          
-`;
-}
+export * from "./Resource";
+export * from "./Sequence";
+export * from "./Proxy";
+

@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect, useRef } from 'react';
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
 import { ErrorBanner } from "../Commons/ErrorBanner";
 import { RequiredFormInput } from "../Commons/RequiredInput";
@@ -61,6 +61,10 @@ export function TextField(props: TextFieldProps) {
     const { label, type = "text", size = 20, disabled, icon, readonly, value = "", id, autoFocus, required, onChange,
         onBlur, placeholder, validationMessage, errorMsg, sx, InputProps
     } = props;
+
+    const [_ , setIsFocused] = React.useState(false);
+    const textFieldRef = useRef<HTMLInputElement>(null);
+
     const { iconComponent, position = "start" } = icon || {};
     const handleChange = (e: any) => {
         onChange && onChange(e.target.value);
@@ -82,10 +86,18 @@ export function TextField(props: TextFieldProps) {
         )
     ) : undefined;
 
+    useEffect(() => {
+        if (autoFocus && textFieldRef.current && !value) {
+            setIsFocused(true);
+            textFieldRef.current?.focus()
+        }
+    }, []);
+
     return (
         <Container sx={sx}>
             {startAdornment && startAdornment}
             <VSCodeTextField
+                ref={textFieldRef}
                 style={{ width: "100%" }}
                 autoFocus={autoFocus}
                 type={type}

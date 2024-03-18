@@ -660,6 +660,9 @@ export interface EndpointType extends ExtensibleDocumentedType, STNode {
 }
 
 export interface Resource extends STNode {
+    inSequenceAttribute?: string;
+    outSequenceAttribute?: string;
+    faultSequenceAttribute?: string;
     location: string;
     key: string;
 }
@@ -1656,6 +1659,4 @@ export enum SetRemove {
 }
 
 export type DiagramService = APIResource | NamedSequence | Proxy;
-
-export type EditableService = APIResource | NamedSequence | ProxyTarget;
 

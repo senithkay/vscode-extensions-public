@@ -19,12 +19,6 @@ export const MI_SUGGESTIVE_QUESTIONS_INITIAL_BACKEND_URL = `${ROOT_URL}/suggesti
 export const MI_SUGGESTIVE_QUESTIONS_BACKEND_URL = `${ROOT_URL}/suggestions`;
 
 
-// Service Designer Templates
-export const SERVICE_DESIGNER = {
-    EDIT_SERVICE: "service-designer-edit-resource",
-    ADD_RESOURCE: "service-designer-add-resource",
-} as const;
-
 // Default Editor Info
 export const TAB_SIZE = 4; // 4 spaces
 
@@ -32,5 +26,16 @@ export const TAB_SIZE = 4; // 4 spaces
 export const SYNTAX_TREE_KIND = {
     SEQUENCE: "sequence",
     PROXY: "proxy",
+} as const;
+
+// Diagram view
+export const SIDE_PANEL_WIDTH = 450;
+
+// Actions for service designer
+export const SERVICE = {
+    EDIT_SERVICE: "edit-service",
+    ADD_RESOURCE: "add-resource",
+    EDIT_RESOURCE: "edit-resource",
+    EDIT_SEQUENCE: "edit-sequence",
 } as const;
 
