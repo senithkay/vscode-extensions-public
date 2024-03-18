@@ -36,10 +36,6 @@ import {
     CreateMessageStoreResponse,
     CreateProjectRequest,
     CreateProjectResponse,
-    UpdateDefaultEndpointRequest,
-    UpdateDefaultEndpointResponse,
-    RetrieveDefaultEndpointRequest,
-    RetrieveDefaultEndpointResponse,
     CreateProxyServiceRequest,
     CreateProxyServiceResponse,
     CreateRegistryResourceRequest,
@@ -58,12 +54,17 @@ import {
     FileListResponse,
     GetAvailableResourcesRequest,
     GetAvailableResourcesResponse,
+    GetBackendRootUrlResponse,
     GetDefinitionRequest,
     GetDefinitionResponse,
     GetDiagnosticsReqeust,
     GetDiagnosticsResponse,
+    GetFailoverEPRequest,
+    GetFailoverEPResponse,
     GetInboundEndpointRequest,
     GetInboundEndpointResponse,
+    GetLoadBalanceEPRequest,
+    GetLoadBalanceEPResponse,
     GetLocalEntryRequest,
     GetLocalEntryResponse,
     GetMessageStoreRequest,
@@ -85,6 +86,8 @@ import {
     ProjectRootResponse,
     RetrieveAddressEndpointRequest,
     RetrieveAddressEndpointResponse,
+    RetrieveDefaultEndpointRequest,
+    RetrieveDefaultEndpointResponse,
     RetrieveHttpEndpointRequest,
     RetrieveHttpEndpointResponse,
     RetrieveMessageProcessorRequest,
@@ -99,6 +102,10 @@ import {
     UndoRedoParams,
     UpdateAddressEndpointRequest,
     UpdateAddressEndpointResponse,
+    UpdateDefaultEndpointRequest,
+    UpdateDefaultEndpointResponse,
+    UpdateFailoverEPRequest,
+    UpdateFailoverEPResponse,
     UpdateHttpEndpointRequest,
     UpdateHttpEndpointResponse,
     UpdateLoadBalanceEPRequest,
@@ -127,20 +134,26 @@ import {
     createSequence,
     createTask,
     createTemplate,
-    updateDefaultEndpoint,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
+    getAddressEndpoint,
     getAvailableResources,
+    getBackendRootUrl,
     getConnector,
     getConnectors,
+    getDefaultEndpoint,
     getDefinition,
     getDiagnostics,
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
+    getFailoverEndpoint,
+    getHttpEndpoint,
     getInboundEndpoint,
+    getLoadBalanceEndpoint,
     getLocalEntry,
+    getMessageProcessor,
     getMessageStore,
     getProjectRoot,
     getProjectUuid,
@@ -148,10 +161,6 @@ import {
     getSTResponse,
     getSelectiveWorkspaceContext,
     getSequenceDirectory,
-    getMessageProcessor,
-    getHttpEndpoint,
-    getAddressEndpoint,
-    getDefaultEndpoint,
     getSyntaxTree,
     getTask,
     getTemplate,
@@ -170,19 +179,12 @@ import {
     showErrorMessage,
     undo,
     updateAddressEndpoint,
+    updateDefaultEndpoint,
+    updateFailoverEndpoint,
     updateHttpEndpoint,
     updateLoadBalanceEndpoint,
     updateWsdlEndpoint,
-    writeContentToFile,
-    GetLoadBalanceEPRequest,
-    GetLoadBalanceEPResponse,
-    getLoadBalanceEndpoint,
-    UpdateFailoverEPRequest,
-    UpdateFailoverEPResponse,
-    updateFailoverEndpoint,
-    GetFailoverEPRequest,
-    GetFailoverEPResponse,
-    getFailoverEndpoint
+    writeContentToFile
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -249,7 +251,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     updateFailoverEndpoint(params: UpdateFailoverEPRequest): Promise<UpdateFailoverEPResponse> {
         return this._messenger.sendRequest(updateFailoverEndpoint, HOST_EXTENSION, params);
     }
-    
+
     getFailoverEndpoint(params: GetFailoverEPRequest): Promise<GetFailoverEPResponse> {
         return this._messenger.sendRequest(getFailoverEndpoint, HOST_EXTENSION, params);
     }
@@ -464,5 +466,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getSelectiveWorkspaceContext(): Promise<GetSelectiveWorkspaceContextResponse> {
         return this._messenger.sendRequest(getSelectiveWorkspaceContext, HOST_EXTENSION);
+    }
+
+    getBackendRootUrl(): Promise<GetBackendRootUrlResponse> {
+        return this._messenger.sendRequest(getBackendRootUrl, HOST_EXTENSION);
     }
 }

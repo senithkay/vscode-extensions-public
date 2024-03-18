@@ -203,7 +203,9 @@ export function AIChat() {
     } );
     setIsLoading(true);
     let assistant_response = "";
-    addChatEntry("user", userInput);
+    if(!isQuestion){
+        addChatEntry("user", userInput);
+    }
     setUserInput("");
     setMessages(prevMessages => prevMessages.filter((message, index) => index <= lastQuestionIndex || message.type !== 'question'));
     if(isQuestion){
@@ -219,7 +221,7 @@ export function AIChat() {
             { role: "MI Copilot", content: "", type:"assistant_message"}, // Add a new message for the assistant
         ]);
     }
-
+    console.log(chatArray);
     const response = await fetch(MI_COPILOT_BACKEND_URL, {
         method: 'POST',
         headers: {
@@ -284,6 +286,7 @@ export function AIChat() {
           }
         }
   };
+
 
   function splitContent(content: string) {
     const segments = [];
@@ -353,7 +356,7 @@ export function AIChat() {
   }
   const otherMessages = messages.filter(message => message.type !== "question");
   return (
-      <div style={{ display: "flex", flexDirection: "column", height: "100%", width: "100%", margin: "auto" }}>
+      <div style={{ display: "flex", flexDirection: "column", height: "90%", width: "100%", margin: "auto" }}>
       <div style={{ flex: 1, overflowY: "auto", padding: "10px", borderBottom: "1px solid #ccc" }}>
       <div style={{ textAlign: "right" }}>
           <Icon

@@ -57,10 +57,13 @@ import {
     FileStructure,
     GetAvailableResourcesRequest,
     GetAvailableResourcesResponse,
+    GetBackendRootUrlResponse,
     GetDefinitionRequest,
     GetDefinitionResponse,
     GetDiagnosticsReqeust,
     GetDiagnosticsResponse,
+    GetFailoverEPRequest,
+    GetFailoverEPResponse,
     GetInboundEndpointRequest,
     GetInboundEndpointResponse,
     GetLoadBalanceEPRequest,
@@ -87,6 +90,8 @@ import {
     ProjectRootResponse,
     RetrieveAddressEndpointRequest,
     RetrieveAddressEndpointResponse,
+    RetrieveDefaultEndpointRequest,
+    RetrieveDefaultEndpointResponse,
     RetrieveHttpEndpointRequest,
     RetrieveHttpEndpointResponse,
     RetrieveMessageProcessorRequest,
@@ -101,6 +106,10 @@ import {
     UndoRedoParams,
     UpdateAddressEndpointRequest,
     UpdateAddressEndpointResponse,
+    UpdateDefaultEndpointRequest,
+    UpdateDefaultEndpointResponse,
+    UpdateFailoverEPRequest,
+    UpdateFailoverEPResponse,
     UpdateHttpEndpointRequest,
     UpdateHttpEndpointResponse,
     UpdateLoadBalanceEPRequest,
@@ -111,14 +120,6 @@ import {
     WriteContentToFileResponse,
     getSTRequest,
     getSTResponse,
-    UpdateDefaultEndpointRequest,
-    UpdateDefaultEndpointResponse,
-    RetrieveDefaultEndpointRequest,
-    RetrieveDefaultEndpointResponse,
-    GetFailoverEPRequest,
-    GetFailoverEPResponse,
-    UpdateFailoverEPRequest,
-    UpdateFailoverEPResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -126,18 +127,19 @@ import * as fs from "fs";
 import * as os from 'os';
 import { Transform } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
-import { StateMachine, openView } from "../../stateMachine";
-import { Position, Range, Selection, TextDocument, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
+import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
+import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
+import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
+import { addNewEntryToArtifactXML, changeRootPomPackaging, detectMediaType, getMediatypeAndFileExtension } from "../../util/fileOperations";
 import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
-import { createFolderStructure, getTaskXmlWrapper, getInboundEndpointXmlWrapper, getRegistryResourceContent, getMessageProcessorXmlWrapper, getProxyServiceXmlWrapper, getMessageStoreXmlWrapper, getTemplateXmlWrapper, getHttpEndpointXmlWrapper, getAddressEndpointXmlWrapper, getWsdlEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getLoadBalanceXmlWrapper, getFailoverXmlWrapper } from "../../util";
-import { getMediatypeAndFileExtension, addNewEntryToArtifactXML, detectMediaType, changeRootPomPackaging } from "../../util/fileOperations";
 import { rootPomXmlContent } from "../../util/templates";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
+import * as vscode from 'vscode';
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
 const connectorsPath = path.join(".metadata", ".Connectors");
@@ -2462,6 +2464,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         
 
         return { context: fileContents};
+    }
+
+    async getBackendRootUrl(): Promise<GetBackendRootUrlResponse> {
+
+        const config = vscode.workspace.getConfiguration('integrationStudio');
+        const ROOT_URL = config.get('rootUrl') as string;
+        return { url: ROOT_URL };
     }
 }
 

@@ -47,7 +47,7 @@ const AiPanel = () => {
                     setViewComponent(<AIOverviewWindow />);
                     break;
                 case AI_MACHINE_VIEW.AIArtifact:
-                    setViewComponent(<AIArtifactWindow/>);
+                    setViewComponent(<AIOverviewWindow />);
                     break;
                 default:
                     setViewComponent(null);

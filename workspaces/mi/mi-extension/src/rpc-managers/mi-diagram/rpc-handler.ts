@@ -29,10 +29,9 @@ import {
     CreateTemplateRequest,
     FileListRequest,
     GetAvailableResourcesRequest,
-    UpdateDefaultEndpointRequest,
-    RetrieveDefaultEndpointRequest,
     GetDefinitionRequest,
     GetDiagnosticsReqeust,
+    GetFailoverEPRequest,
     GetInboundEndpointRequest,
     GetLoadBalanceEPRequest,
     GetLocalEntryRequest,
@@ -44,6 +43,7 @@ import {
     ImportProjectRequest,
     OpenDiagramRequest,
     RetrieveAddressEndpointRequest,
+    RetrieveDefaultEndpointRequest,
     RetrieveHttpEndpointRequest,
     RetrieveMessageProcessorRequest,
     RetrieveTemplateRequest,
@@ -51,6 +51,8 @@ import {
     ShowErrorMessageRequest,
     UndoRedoParams,
     UpdateAddressEndpointRequest,
+    UpdateDefaultEndpointRequest,
+    UpdateFailoverEPRequest,
     UpdateHttpEndpointRequest,
     UpdateLoadBalanceEPRequest,
     UpdateWsdlEndpointRequest,
@@ -75,26 +77,27 @@ import {
     createSequence,
     createTask,
     createTemplate,
-    updateDefaultEndpoint,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
+    getAddressEndpoint,
     getAvailableResources,
+    getBackendRootUrl,
     getConnector,
     getConnectors,
+    getDefaultEndpoint,
     getDefinition,
     getDiagnostics,
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
+    getFailoverEndpoint,
     getHttpEndpoint,
     getInboundEndpoint,
     getLoadBalanceEndpoint,
     getLocalEntry,
     getMessageProcessor,
     getMessageStore,
-    getAddressEndpoint,
-    getDefaultEndpoint,
     getProjectRoot,
     getProjectUuid,
     getSTRequest,
@@ -118,14 +121,12 @@ import {
     showErrorMessage,
     undo,
     updateAddressEndpoint,
+    updateDefaultEndpoint,
+    updateFailoverEndpoint,
     updateHttpEndpoint,
     updateLoadBalanceEndpoint,
     updateWsdlEndpoint,
     writeContentToFile,
-    updateFailoverEndpoint,
-    UpdateFailoverEPRequest,
-    getFailoverEndpoint,
-    GetFailoverEPRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -145,10 +146,10 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createEndpoint, (args: CreateEndpointRequest) => rpcManger.createEndpoint(args));
     messenger.onRequest(updateLoadBalanceEndpoint, (args: UpdateLoadBalanceEPRequest) => rpcManger.updateLoadBalanceEndpoint(args));
     messenger.onRequest(getLoadBalanceEndpoint, (args: GetLoadBalanceEPRequest) => rpcManger.getLoadBalanceEndpoint(args));
-    messenger.onRequest(createLocalEntry, (args: CreateLocalEntryRequest) => rpcManger.createLocalEntry(args));
-    messenger.onRequest(getLocalEntry, (args: GetLocalEntryRequest) => rpcManger.getLocalEntry(args));
     messenger.onRequest(updateFailoverEndpoint, (args: UpdateFailoverEPRequest) => rpcManger.updateFailoverEndpoint(args));
     messenger.onRequest(getFailoverEndpoint, (args: GetFailoverEPRequest) => rpcManger.getFailoverEndpoint(args));
+    messenger.onRequest(createLocalEntry, (args: CreateLocalEntryRequest) => rpcManger.createLocalEntry(args));
+    messenger.onRequest(getLocalEntry, (args: GetLocalEntryRequest) => rpcManger.getLocalEntry(args));
     messenger.onRequest(getEndpointsAndSequences, () => rpcManger.getEndpointsAndSequences());
     messenger.onRequest(getTemplates, () => rpcManger.getTemplates());
     messenger.onRequest(getSequenceDirectory, () => rpcManger.getSequenceDirectory());
@@ -200,4 +201,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAvailableResources, (args: GetAvailableResourcesRequest) => rpcManger.getAvailableResources(args));
     messenger.onRequest(createClassMediator, (args: CreateClassMediatorRequest) => rpcManger.createClassMediator(args));
     messenger.onRequest(getSelectiveWorkspaceContext, () => rpcManger.getSelectiveWorkspaceContext());
+    messenger.onRequest(getBackendRootUrl, () => rpcManger.getBackendRootUrl());
 }

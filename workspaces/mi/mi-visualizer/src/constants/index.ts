@@ -7,13 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+//add the rpc client to the context
+
 export const SAMPLE_ICONS_GITHUB_URL = "https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/";
-// export const MI_COPILOT_BACKEND_URL = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/rkxg/copilotbackend/mi-copilot-backend-be2/v1.0/chat/copilot";
-export const MI_COPILOT_BACKEND_URL = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/rkxg/copilotbackend/mi-copilot-backend-be2/v1.0/chat/copilot";
-export const MI_ARTIFACT_GENERATION_BACKEND_URL = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/rkxg/copilotbackend/mi-copilot-backend-be2/v1.0/chat/artifact-generation";
-export const MI_ARTIFACT_EDIT_BACKEND_URL = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/rkxg/copilotbackend/mi-copilot-backend-be2/v1.0/chat/artifact-editing";
-export const MI_SUGGESTIVE_QUESTIONS_INITIAL_BACKEND_URL = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/rkxg/copilotbackend/mi-copilot-backend-be2/v1.0/suggestions/initial";
-export const MI_SUGGESTIVE_QUESTIONS_BACKEND_URL = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/rkxg/copilotbackend/mi-copilot-backend-be2/v1.0/suggestions";
+export const ROOT_URL = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/rkxg/copilotbackend/mi-copilot-backend-be2/v1.0";
+
+export const MI_COPILOT_BACKEND_URL = `${ROOT_URL}/chat/copilot`;
+export const MI_ARTIFACT_GENERATION_BACKEND_URL = `${ROOT_URL}/chat/artifact-generation`;
+export const MI_ARTIFACT_EDIT_BACKEND_URL = `${ROOT_URL}/chat/artifact-editing`;
+export const MI_SUGGESTIVE_QUESTIONS_INITIAL_BACKEND_URL = `${ROOT_URL}/suggestions/initial`;
+export const MI_SUGGESTIVE_QUESTIONS_BACKEND_URL = `${ROOT_URL}/suggestions`;
 
 
 // Service Designer Templates

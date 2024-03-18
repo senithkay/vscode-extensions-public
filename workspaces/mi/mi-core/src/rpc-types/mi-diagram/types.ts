@@ -921,3 +921,7 @@ export interface CreateClassMediatorRequest {
 export interface CreateClassMediatorResponse {
     path: string;
 }
+
+export interface GetBackendRootUrlResponse{
+    url: string;
+}

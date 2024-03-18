@@ -52,6 +52,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) 
 // A string array to store all code blocks
 const codeBlocks: string[] = [];
 var projectUuid = "";
+var backendRootUri = "";
 
 export function AIProjectGenerationChat() {
   const { rpcClient } = useVisualizerContext();
@@ -65,6 +66,19 @@ export function AIProjectGenerationChat() {
   const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
   const [isCodeLoading, setIsCodeLoading] = useState(false);
 
+      useEffect(() => {
+        async function fetchBackendUrl() {
+            try {
+                backendRootUri = (await rpcClient.getMiDiagramRpcClient().getBackendRootUrl()).url;
+                // Do something with backendRootUri
+            } catch (error) {
+                console.error('Failed to fetch backend URL:', error);
+            }
+        }
+
+        fetchBackendUrl();
+      }, []); 
+
   useEffect(() => {
     rpcClient?.getMiDiagramRpcClient().getProjectUuid().then((response) => {
       projectUuid = response.uuid;
@@ -72,6 +86,7 @@ export function AIProjectGenerationChat() {
       const localStorageQuestionFile = `Question-AIGenerationChat-${projectUuid}`;
       const storedChatArray = localStorage.getItem(localStorageFile);
       const storedQuestion = localStorage.getItem(localStorageQuestionFile);
+      const storedCodeBlocks = localStorage.getItem(`codeBlocks-AIGenerationChat-${projectUuid}`);
     if (storedChatArray) {
       if(storedQuestion){
         setMessages(prevMessages => [
@@ -79,6 +94,11 @@ export function AIProjectGenerationChat() {
           { role: "", content: storedQuestion, type: "question" },
         ]);
       }
+      if(storedCodeBlocks){
+        const codeBlocksFromStorage = JSON.parse(storedCodeBlocks);
+        codeBlocks.push(...codeBlocksFromStorage);
+      }
+      console.log("Code Blocks: " + codeBlocks);
       const chatArrayFromStorage = JSON.parse(storedChatArray);
       chatArray = chatArrayFromStorage;
   
@@ -233,7 +253,9 @@ export function AIProjectGenerationChat() {
 
     setIsLoading(true);
     let assistant_response = "";
-    addChatEntry("user", userInput);
+    if(!isQuestion){
+      addChatEntry("user", userInput);
+    }
     setUserInput("");
     setMessages(prevMessages => prevMessages.filter((message, index) => index <= lastQuestionIndex || message.type !== 'question'));
     if(isQuestion){
@@ -330,7 +352,9 @@ export function AIProjectGenerationChat() {
                   const regex = /```[\s\S]*?```/g;
                   let match;
                   while ((match = regex.exec(assistant_response)) !== null) {
-                    codeBlocks.push(match[0]);
+                    if (!codeBlocks.includes(match[0])) {
+                      codeBlocks.push(match[0]);
+                    }
                   }
             }
           } catch (error) {
@@ -350,6 +374,8 @@ export function AIProjectGenerationChat() {
             console.error('Error parsing JSON:', error);
           }
         }
+      localStorage.setItem(`codeBlocks-AIGenerationChat-${projectUuid}`, JSON.stringify(codeBlocks));
+
   };
 
 
@@ -375,6 +401,16 @@ export function AIProjectGenerationChat() {
         // localStorage.removeItem(`chatArray-AIGenerationChat-${projectUuid}`);
         // localStorage.removeItem(`Question-AIGenerationChat-${projectUuid}`);
   }
+
+  const handleAddSelectiveCodetoWorkspace = async (codeSegment: string) => {
+
+      var selectiveCodeBlocks: string[] = [];
+      selectiveCodeBlocks.push(codeSegment);
+      await rpcClient.getMiDiagramRpcClient().writeContentToFile({content: selectiveCodeBlocks}).then((response) => {
+         console.log(response);
+       } );
+
+ }
 
   function splitContent(content: string) {
     const segments = [];
@@ -438,6 +474,7 @@ export function AIProjectGenerationChat() {
 
     //clear the local storage
     localStorage.removeItem(`chatArray-AIGenerationChat-${projectUuid}`);
+    localStorage.removeItem(`Question-AIGenerationChat-${projectUuid}`);
     
   }
 
@@ -448,7 +485,7 @@ export function AIProjectGenerationChat() {
   const otherMessages = messages.filter(message => message.type !== "question");
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", width: "100%", margin: "auto" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "90%", width: "100%", margin: "auto" }}>
       <div style={{ flex: 1, overflowY: "auto", padding: "10px", borderBottom: "1px solid #ccc" }}>
       <div style={{ textAlign: "right" }}>
           <Icon
@@ -464,12 +501,20 @@ export function AIProjectGenerationChat() {
           segment.isCode ? (
             
               <div>
-              <div onClick={() => setIsOpen(!isOpen)}>
-                <a style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                  <Icon name={isOpen ? 'arrow-down-solid' : 'arrow-right-solid'} />
-                  <span style={{ fontStyle: 'italic' }}>{isOpen ? 'Hide Code' : 'Show Code'}</span>
-                </a>
-              </div>
+                <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between'}}>
+                  <div onClick={() => setIsOpen(!isOpen)}>
+                    <a style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                      <Icon name={isOpen ? 'arrow-down-solid' : 'arrow-right-solid'} />
+                      <span style={{ fontStyle: 'italic' }}>{isOpen ? 'Hide Code' : 'Show Code'}</span>
+                    </a>
+                  </div>
+                  <div onClick={() => handleAddSelectiveCodetoWorkspace(segment.text)}>
+                    <a style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                      <Icon name='plus-solid' />
+                      <span style={{ fontStyle: 'italic' }}>Add Code</span>
+                    </a>
+                  </div>
+                </div>
                 <Collapse isOpened={isOpen}>
                   <SyntaxHighlighter key={i} language="xml" style={materialOceanic}>
                     {segment.text}

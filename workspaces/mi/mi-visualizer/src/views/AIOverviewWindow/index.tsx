@@ -24,8 +24,8 @@ export function AIOverviewWindow() {
     <div style={{ display: "flex", flexDirection: "column", height: "98%", width: "100%", margin: "auto" }}>
 
       <Switch
-          leftLabel="Generate Artifacts"
-          rightLabel="MI Copilot Chat"
+          leftLabel="Copilot"
+          rightLabel="Chat"
           checked={isChat}
           checkedColor="var(--vscode-button-background)"
           enableTransition={true}
@@ -34,7 +34,7 @@ export function AIOverviewWindow() {
             "margin": "auto",
             fontFamily: "var(--font-family)",
             fontSize: "var(--type-ramp-base-font-size)",
-            width: "300px",
+            width: "200px",
             marginTop: "6%"
           }}
         />
