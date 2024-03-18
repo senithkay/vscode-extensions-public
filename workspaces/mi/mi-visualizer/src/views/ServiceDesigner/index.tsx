@@ -184,7 +184,10 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
         });
     }
 
-    const handleResourceClick = (resource: Resource) => highlightCode(resource);
+    const handleResourceClick = (resource: Resource) => {
+        highlightCode(resource)
+        openDiagram(resource);
+    };
 
     const handleServiceEdit = () => {
         rpcClient.getMiVisualizerRpcClient().openView({
@@ -210,7 +213,6 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
                         <ServiceDesigner
                             model={serviceModel}
                             disableServiceHeader={true}
-                            onResourceImplement={openDiagram}
                             onResourceClick={handleResourceClick}
                         />
                     </ViewContent>

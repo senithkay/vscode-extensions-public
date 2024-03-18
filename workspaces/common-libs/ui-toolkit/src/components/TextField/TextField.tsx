@@ -16,6 +16,7 @@ import { Typography } from "../Typography/Typography";
 interface IconProps {
     iconComponent: ReactNode;
     position?: "start" | "end";
+    onClick?: () => void;
 }
 
 interface InputProps {
@@ -65,7 +66,7 @@ export function TextField(props: TextFieldProps) {
     const [_ , setIsFocused] = React.useState(false);
     const textFieldRef = useRef<HTMLInputElement>(null);
 
-    const { iconComponent, position = "start" } = icon || {};
+    const { iconComponent, position = "start", onClick: iconClick } = icon || {};
     const handleChange = (e: any) => {
         onChange && onChange(e.target.value);
     };
@@ -111,7 +112,7 @@ export function TextField(props: TextFieldProps) {
                 value={value}
                 id={id}
             >
-                {iconComponent && <span slot={position}>{iconComponent}</span>}
+                {iconComponent && <span onClick={iconClick} slot={position}>{iconComponent}</span>}
                 <LabelContainer>
                     <div style={{color: "var(--vscode-editor-foreground	)"}}>
                         <label htmlFor={`${id}-label`}>{label}</label>

@@ -17,6 +17,7 @@ import { AddMediatorProps } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
+import { TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 const cardStyle = {
     display: "block",
@@ -69,7 +70,8 @@ const SendForm = (props: AddMediatorProps) => {
             setErrors(newErrors);
         } else {
             const xml = getXML(MEDIATORS.SEND, formValues);
-            const editRange = formValues["range"].startTagRange;
+            const range: TagRange = formValues["range"];
+            const editRange = range ? range.startTagRange : props.nodePosition;
             rpcClient.getMiDiagramRpcClient().applyEdit({
                 documentUri: props.documentUri, range: editRange, text: xml
             });

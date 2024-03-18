@@ -15,7 +15,7 @@ import { Position, Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { Diagnostic } from "vscode-languageserver-types";
 import { EmptyNodeModel } from "../nodes/EmptyNode/EmptyNodeModel";
 
-export const LINK_BOTTOM_OFFSET = 50;
+export const LINK_BOTTOM_OFFSET = 10;
 
 export interface NodeLinkModelOptions {
     label?: string;
@@ -57,11 +57,11 @@ export class NodeLinkModel extends DefaultLinkModel {
         if (options) {
             if (typeof options === "string" && options.length > 0) {
                 this.label = options;
-                this.linkBottomOffset = LINK_BOTTOM_OFFSET + 40;
+                this.linkBottomOffset = LINK_BOTTOM_OFFSET + 80;
             } else {
                 if ((options as NodeLinkModelOptions).label) {
                     this.label = (options as NodeLinkModelOptions).label;
-                    this.linkBottomOffset = LINK_BOTTOM_OFFSET + 40;
+                    this.linkBottomOffset = LINK_BOTTOM_OFFSET + 80;
                 }
                 if ((options as NodeLinkModelOptions).showAddButton === false) {
                     this.showAddButton = (options as NodeLinkModelOptions).showAddButton;
