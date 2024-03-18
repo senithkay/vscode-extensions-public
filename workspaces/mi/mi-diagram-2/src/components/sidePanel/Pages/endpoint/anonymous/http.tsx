@@ -9,7 +9,7 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, ParamConfig, ParamManager, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, Codicon, ComponentCard, Divider, ParamConfig, ParamManager, TextField } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
@@ -43,6 +43,26 @@ const Wrapper = styled.div`
     cursor: "auto"
 `;
 
+namespace Section {
+    export const Container = styled.div`
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    `;
+
+    export const Title = styled.h4`
+        display: flex;
+        align-items: center;
+        margin: 0;
+        padding: 2px;
+        width: 100%;
+    `;
+
+    export const IconContainer = styled.div`
+        margin-left: auto;
+    `;
+}
+
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
@@ -51,6 +71,7 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
     const sidePanelContext = React.useContext(SidePanelContext);
     const [formValues, setFormValues] = useState({} as { [key: string]: any });
     const [errors, setErrors] = useState({} as any);
+    const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
 
     const propertyParamConfigs: ParamConfig = {
         paramValues: [],
@@ -416,380 +437,398 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                 </Field>
 
             </Wrapper>
-
-            <Wrapper>
-                <h3>Advanced</h3>
-
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Endpoint Properties</h3>
-
-                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Properties</h3>
-
-                        {formValues["properties"] && (
-                            <ParamManager
-                                paramConfigs={propertyParams}
-                                readonly={false}
-                                onChange={handleOnChangeProperties} />
-                        )}
-                    </ComponentCard>
-                </ComponentCard>
-
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Auth Configurations</h3>
-
-                    <Field>
-                        <label>Auth Type</label>
-                        <AutoComplete items={["None", "Basic Auth", "OAuth"]} selectedItem={formValues["authType"]} onChange={(e: any) => {
-                            setFormValues({ ...formValues, "authType": e });
-                            formValidators["authType"](e);
-                        }} />
-                        {errors["authType"] && <Error>{errors["authType"]}</Error>}
-                    </Field>
-
-                    {formValues["authType"] && formValues["authType"].toLowerCase() == "basic auth" &&
-                        <Field>
-                            <TextField
-                                label="Basic Auth Username"
-                                size={50}
-                                placeholder=""
-                                value={formValues["basicAuthUsername"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "basicAuthUsername": e });
-                                    formValidators["basicAuthUsername"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["basicAuthUsername"] && <Error>{errors["basicAuthUsername"]}</Error>}
-                        </Field>
-                    }
-
-                    {formValues["authType"] && formValues["authType"].toLowerCase() == "basic auth" &&
-                        <Field>
-                            <TextField
-                                label="Basic Auth Password"
-                                size={50}
-                                placeholder=""
-                                value={formValues["basicAuthPassword"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "basicAuthPassword": e });
-                                    formValidators["basicAuthPassword"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["basicAuthPassword"] && <Error>{errors["basicAuthPassword"]}</Error>}
-                        </Field>
-                    }
-
-                    {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" &&
-                        <Field>
-                            <label>OAuth Grant Type</label>
-                            <AutoComplete items={["Authorization Code", "Client Credentials", "Password Credentials"]} selectedItem={formValues["oauthGrantType"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "oauthGrantType": e });
-                                formValidators["oauthGrantType"](e);
-                            }} />
-                            {errors["oauthGrantType"] && <Error>{errors["oauthGrantType"]}</Error>}
-                        </Field>
-                    }
-
-                    {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" &&
-                        <Field>
-                            <TextField
-                                label="Client ID"
-                                size={50}
-                                placeholder=""
-                                value={formValues["clientId"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "clientId": e });
-                                    formValidators["clientId"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["clientId"] && <Error>{errors["clientId"]}</Error>}
-                        </Field>
-                    }
-
-                    {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" &&
-                        <Field>
-                            <TextField
-                                label="Client Secret"
-                                size={50}
-                                placeholder=""
-                                value={formValues["clientSecret"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "clientSecret": e });
-                                    formValidators["clientSecret"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["clientSecret"] && <Error>{errors["clientSecret"]}</Error>}
-                        </Field>
-                    }
-
-                    {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" && formValues["oauthGrantType"] && formValues["oauthGrantType"].toLowerCase() == "authorization code" &&
-                        <Field>
-                            <TextField
-                                label="Refresh Token"
-                                size={50}
-                                placeholder=""
-                                value={formValues["refreshToken"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "refreshToken": e });
-                                    formValidators["refreshToken"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["refreshToken"] && <Error>{errors["refreshToken"]}</Error>}
-                        </Field>
-                    }
-
-                    {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" && formValues["oauthGrantType"] && formValues["oauthGrantType"].toLowerCase() == "password credentials" &&
-                        <Field>
-                            <TextField
-                                label="OAuth Username"
-                                size={50}
-                                placeholder=""
-                                value={formValues["oauthUsername"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "oauthUsername": e });
-                                    formValidators["oauthUsername"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["oauthUsername"] && <Error>{errors["oauthUsername"]}</Error>}
-                        </Field>
-                    }
-                    {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" && formValues["oauthGrantType"] && formValues["oauthGrantType"].toLowerCase() == "password credentials" &&
-                        <Field>
-                            <TextField
-                                label="OAuth Password"
-                                size={50}
-                                placeholder=""
-                                value={formValues["oauthPassword"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "oauthPassword": e });
-                                    formValidators["oauthPassword"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["oauthPassword"] && <Error>{errors["oauthPassword"]}</Error>}
-                        </Field>
-                    }
-                    {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" &&
-                        <Field>
-                            <TextField
-                                label="Token URL"
-                                size={50}
-                                placeholder=""
-                                value={formValues["tokenUrl"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "tokenUrl": e });
-                                    formValidators["tokenUrl"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["tokenUrl"] && <Error>{errors["tokenUrl"]}</Error>}
-                        </Field>
-                    }
-
-                    {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" &&
-                        <Field>
-                            <label>OAuth Authentication Mode</label>
-                            <AutoComplete items={["Header", "Payload"]} selectedItem={formValues["oauthAuthenticationMode"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "oauthAuthenticationMode": e });
-                                formValidators["oauthAuthenticationMode"](e);
-                            }} />
-                            {errors["oauthAuthenticationMode"] && <Error>{errors["oauthAuthenticationMode"]}</Error>}
-                        </Field>
-                    }
-
-                    {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" &&
+            <Divider />
+            <Section.Container>
+                <Section.Title>
+                    <h3>Advanced</h3>
+                    <Section.IconContainer>
+                        <Codicon
+                            name={showAdvancedOptions ? "chrome-minimize" : "add"}
+                            sx={{
+                                padding: "2px",
+                                borderRadius: "4px",
+                                height: "14px",
+                                backgroundColor: "var(--button-icon-hover-background)",
+                            }}
+                            iconSx={{ fontSize: showAdvancedOptions ? "14px" : "15px" }}
+                            onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+                        />
+                    </Section.IconContainer>
+                </Section.Title>
+                {showAdvancedOptions && (
+                    <Wrapper>
                         <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                            <h3>OAuth Parameters</h3>
+                            <h3>Endpoint Properties</h3>
 
-                        {formValues["oauthParameters"] && (
-                            <ParamManager
-                                paramConfigs={oauthParams}
-                                readonly={false}
-                                onChange={handleOnChangeOauth} />
-                        )}
-                    </ComponentCard>}
-                </ComponentCard>
+                            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                                <h3>Properties</h3>
 
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Endpoint Suspend State</h3>
+                                {formValues["properties"] && (
+                                    <ParamManager
+                                        paramConfigs={propertyParams}
+                                        readonly={false}
+                                        onChange={handleOnChangeProperties} />
+                                )}
+                            </ComponentCard>
+                        </ComponentCard>
 
-                    <Field>
-                        <TextField
-                            label="Suspend Error Codes"
-                            size={50}
-                            placeholder=""
-                            value={formValues["suspendErrorCodes"]}
-                            onChange={(e: any) => {
-                                setFormValues({ ...formValues, "suspendErrorCodes": e });
-                                formValidators["suspendErrorCodes"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["suspendErrorCodes"] && <Error>{errors["suspendErrorCodes"]}</Error>}
-                    </Field>
+                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                            <h3>Auth Configurations</h3>
 
-                    <Field>
-                        <TextField
-                            label="Suspend Initial Duration"
-                            size={50}
-                            placeholder=""
-                            value={formValues["suspendInitialDuration"]}
-                            onChange={(e: any) => {
-                                setFormValues({ ...formValues, "suspendInitialDuration": e });
-                                formValidators["suspendInitialDuration"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["suspendInitialDuration"] && <Error>{errors["suspendInitialDuration"]}</Error>}
-                    </Field>
+                            <Field>
+                                <label>Auth Type</label>
+                                <AutoComplete items={["None", "Basic Auth", "OAuth"]} selectedItem={formValues["authType"]} onChange={(e: any) => {
+                                    setFormValues({ ...formValues, "authType": e });
+                                    formValidators["authType"](e);
+                                }} />
+                                {errors["authType"] && <Error>{errors["authType"]}</Error>}
+                            </Field>
 
-                    <Field>
-                        <TextField
-                            label="Suspend Maximum Duration"
-                            size={50}
-                            placeholder=""
-                            value={formValues["suspendMaximumDuration"]}
-                            onChange={(e: any) => {
-                                setFormValues({ ...formValues, "suspendMaximumDuration": e });
-                                formValidators["suspendMaximumDuration"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["suspendMaximumDuration"] && <Error>{errors["suspendMaximumDuration"]}</Error>}
-                    </Field>
+                            {formValues["authType"] && formValues["authType"].toLowerCase() == "basic auth" &&
+                                <Field>
+                                    <TextField
+                                        label="Basic Auth Username"
+                                        size={50}
+                                        placeholder=""
+                                        value={formValues["basicAuthUsername"]}
+                                        onChange={(e: any) => {
+                                            setFormValues({ ...formValues, "basicAuthUsername": e });
+                                            formValidators["basicAuthUsername"](e);
+                                        }}
+                                        required={false}
+                                    />
+                                    {errors["basicAuthUsername"] && <Error>{errors["basicAuthUsername"]}</Error>}
+                                </Field>
+                            }
 
-                    <Field>
-                        <TextField
-                            label="Suspend Progression Factor"
-                            size={50}
-                            placeholder=""
-                            value={formValues["suspendProgressionFactor"]}
-                            onChange={(e: any) => {
-                                setFormValues({ ...formValues, "suspendProgressionFactor": e });
-                                formValidators["suspendProgressionFactor"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["suspendProgressionFactor"] && <Error>{errors["suspendProgressionFactor"]}</Error>}
-                    </Field>
+                            {formValues["authType"] && formValues["authType"].toLowerCase() == "basic auth" &&
+                                <Field>
+                                    <TextField
+                                        label="Basic Auth Password"
+                                        size={50}
+                                        placeholder=""
+                                        value={formValues["basicAuthPassword"]}
+                                        onChange={(e: any) => {
+                                            setFormValues({ ...formValues, "basicAuthPassword": e });
+                                            formValidators["basicAuthPassword"](e);
+                                        }}
+                                        required={false}
+                                    />
+                                    {errors["basicAuthPassword"] && <Error>{errors["basicAuthPassword"]}</Error>}
+                                </Field>
+                            }
 
-                </ComponentCard>
+                            {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" &&
+                                <Field>
+                                    <label>OAuth Grant Type</label>
+                                    <AutoComplete items={["Authorization Code", "Client Credentials", "Password Credentials"]} selectedItem={formValues["oauthGrantType"]} onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "oauthGrantType": e });
+                                        formValidators["oauthGrantType"](e);
+                                    }} />
+                                    {errors["oauthGrantType"] && <Error>{errors["oauthGrantType"]}</Error>}
+                                </Field>
+                            }
 
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Endpoint Timeout State</h3>
+                            {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" &&
+                                <Field>
+                                    <TextField
+                                        label="Client ID"
+                                        size={50}
+                                        placeholder=""
+                                        value={formValues["clientId"]}
+                                        onChange={(e: any) => {
+                                            setFormValues({ ...formValues, "clientId": e });
+                                            formValidators["clientId"](e);
+                                        }}
+                                        required={false}
+                                    />
+                                    {errors["clientId"] && <Error>{errors["clientId"]}</Error>}
+                                </Field>
+                            }
 
-                    <Field>
-                        <TextField
-                            label="Retry Error Codes"
-                            size={50}
-                            placeholder=""
-                            value={formValues["retryErrorCodes"]}
-                            onChange={(e: any) => {
-                                setFormValues({ ...formValues, "retryErrorCodes": e });
-                                formValidators["retryErrorCodes"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["retryErrorCodes"] && <Error>{errors["retryErrorCodes"]}</Error>}
-                    </Field>
+                            {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" &&
+                                <Field>
+                                    <TextField
+                                        label="Client Secret"
+                                        size={50}
+                                        placeholder=""
+                                        value={formValues["clientSecret"]}
+                                        onChange={(e: any) => {
+                                            setFormValues({ ...formValues, "clientSecret": e });
+                                            formValidators["clientSecret"](e);
+                                        }}
+                                        required={false}
+                                    />
+                                    {errors["clientSecret"] && <Error>{errors["clientSecret"]}</Error>}
+                                </Field>
+                            }
 
-                    <Field>
-                        <TextField
-                            label="Retry Count"
-                            size={50}
-                            placeholder=""
-                            value={formValues["retryCount"]}
-                            onChange={(e: any) => {
-                                setFormValues({ ...formValues, "retryCount": e });
-                                formValidators["retryCount"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["retryCount"] && <Error>{errors["retryCount"]}</Error>}
-                    </Field>
+                            {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" && formValues["oauthGrantType"] && formValues["oauthGrantType"].toLowerCase() == "authorization code" &&
+                                <Field>
+                                    <TextField
+                                        label="Refresh Token"
+                                        size={50}
+                                        placeholder=""
+                                        value={formValues["refreshToken"]}
+                                        onChange={(e: any) => {
+                                            setFormValues({ ...formValues, "refreshToken": e });
+                                            formValidators["refreshToken"](e);
+                                        }}
+                                        required={false}
+                                    />
+                                    {errors["refreshToken"] && <Error>{errors["refreshToken"]}</Error>}
+                                </Field>
+                            }
 
-                    <Field>
-                        <TextField
-                            label="Retry Delay"
-                            size={50}
-                            placeholder=""
-                            value={formValues["retryDelay"]}
-                            onChange={(e: any) => {
-                                setFormValues({ ...formValues, "retryDelay": e });
-                                formValidators["retryDelay"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["retryDelay"] && <Error>{errors["retryDelay"]}</Error>}
-                    </Field>
+                            {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" && formValues["oauthGrantType"] && formValues["oauthGrantType"].toLowerCase() == "password credentials" &&
+                                <Field>
+                                    <TextField
+                                        label="OAuth Username"
+                                        size={50}
+                                        placeholder=""
+                                        value={formValues["oauthUsername"]}
+                                        onChange={(e: any) => {
+                                            setFormValues({ ...formValues, "oauthUsername": e });
+                                            formValidators["oauthUsername"](e);
+                                        }}
+                                        required={false}
+                                    />
+                                    {errors["oauthUsername"] && <Error>{errors["oauthUsername"]}</Error>}
+                                </Field>
+                            }
+                            {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" && formValues["oauthGrantType"] && formValues["oauthGrantType"].toLowerCase() == "password credentials" &&
+                                <Field>
+                                    <TextField
+                                        label="OAuth Password"
+                                        size={50}
+                                        placeholder=""
+                                        value={formValues["oauthPassword"]}
+                                        onChange={(e: any) => {
+                                            setFormValues({ ...formValues, "oauthPassword": e });
+                                            formValidators["oauthPassword"](e);
+                                        }}
+                                        required={false}
+                                    />
+                                    {errors["oauthPassword"] && <Error>{errors["oauthPassword"]}</Error>}
+                                </Field>
+                            }
+                            {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" &&
+                                <Field>
+                                    <TextField
+                                        label="Token URL"
+                                        size={50}
+                                        placeholder=""
+                                        value={formValues["tokenUrl"]}
+                                        onChange={(e: any) => {
+                                            setFormValues({ ...formValues, "tokenUrl": e });
+                                            formValidators["tokenUrl"](e);
+                                        }}
+                                        required={false}
+                                    />
+                                    {errors["tokenUrl"] && <Error>{errors["tokenUrl"]}</Error>}
+                                </Field>
+                            }
 
-                </ComponentCard>
+                            {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" &&
+                                <Field>
+                                    <label>OAuth Authentication Mode</label>
+                                    <AutoComplete items={["Header", "Payload"]} selectedItem={formValues["oauthAuthenticationMode"]} onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "oauthAuthenticationMode": e });
+                                        formValidators["oauthAuthenticationMode"](e);
+                                    }} />
+                                    {errors["oauthAuthenticationMode"] && <Error>{errors["oauthAuthenticationMode"]}</Error>}
+                                </Field>
+                            }
 
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Timeout</h3>
+                            {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" &&
+                                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                                    <h3>OAuth Parameters</h3>
 
-                    <Field>
-                        <TextField
-                            label="Timeout Duration"
-                            size={50}
-                            placeholder=""
-                            value={formValues["timeoutDuration"]}
-                            onChange={(e: any) => {
-                                setFormValues({ ...formValues, "timeoutDuration": e });
-                                formValidators["timeoutDuration"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["timeoutDuration"] && <Error>{errors["timeoutDuration"]}</Error>}
-                    </Field>
+                                {formValues["oauthParameters"] && (
+                                    <ParamManager
+                                        paramConfigs={oauthParams}
+                                        readonly={false}
+                                        onChange={handleOnChangeOauth} />
+                                )}
+                            </ComponentCard>}
+                        </ComponentCard>
 
-                    <Field>
-                        <label>Timeout Action</label>
-                        <AutoComplete items={["never", "discard", "fault"]} selectedItem={formValues["timeoutAction"]} onChange={(e: any) => {
-                            setFormValues({ ...formValues, "timeoutAction": e });
-                            formValidators["timeoutAction"](e);
-                        }} />
-                        {errors["timeoutAction"] && <Error>{errors["timeoutAction"]}</Error>}
-                    </Field>
+                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                            <h3>Endpoint Suspend State</h3>
 
-                </ComponentCard>
+                            <Field>
+                                <TextField
+                                    label="Suspend Error Codes"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["suspendErrorCodes"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "suspendErrorCodes": e });
+                                        formValidators["suspendErrorCodes"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["suspendErrorCodes"] && <Error>{errors["suspendErrorCodes"]}</Error>}
+                            </Field>
 
-                {/* <Field>
-                    <label>Optimize</label>
-                    <AutoComplete items={["LEAVE_AS_IS", "mtom", "swa"]} selectedItem={formValues["optimize"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "optimize": e });
-                        formValidators["optimize"](e);
-                    }} />
-                    {errors["optimize"] && <Error>{errors["optimize"]}</Error>}
-                </Field> */}
+                            <Field>
+                                <TextField
+                                    label="Suspend Initial Duration"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["suspendInitialDuration"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "suspendInitialDuration": e });
+                                        formValidators["suspendInitialDuration"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["suspendInitialDuration"] && <Error>{errors["suspendInitialDuration"]}</Error>}
+                            </Field>
 
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Failover Error Codes</h3>
+                            <Field>
+                                <TextField
+                                    label="Suspend Maximum Duration"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["suspendMaximumDuration"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "suspendMaximumDuration": e });
+                                        formValidators["suspendMaximumDuration"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["suspendMaximumDuration"] && <Error>{errors["suspendMaximumDuration"]}</Error>}
+                            </Field>
 
-                    <Field>
-                        <TextField
-                            label="Failover Non Retry Error Codes"
-                            size={50}
-                            placeholder=""
-                            value={formValues["failoverNonRetryErrorCodes"]}
-                            onChange={(e: any) => {
-                                setFormValues({ ...formValues, "failoverNonRetryErrorCodes": e });
-                                formValidators["failoverNonRetryErrorCodes"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["failoverNonRetryErrorCodes"] && <Error>{errors["failoverNonRetryErrorCodes"]}</Error>}
-                    </Field>
+                            <Field>
+                                <TextField
+                                    label="Suspend Progression Factor"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["suspendProgressionFactor"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "suspendProgressionFactor": e });
+                                        formValidators["suspendProgressionFactor"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["suspendProgressionFactor"] && <Error>{errors["suspendProgressionFactor"]}</Error>}
+                            </Field>
 
-                </ComponentCard>
+                        </ComponentCard>
 
-            </Wrapper>
+                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                            <h3>Endpoint Timeout State</h3>
+
+                            <Field>
+                                <TextField
+                                    label="Retry Error Codes"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["retryErrorCodes"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "retryErrorCodes": e });
+                                        formValidators["retryErrorCodes"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["retryErrorCodes"] && <Error>{errors["retryErrorCodes"]}</Error>}
+                            </Field>
+
+                            <Field>
+                                <TextField
+                                    label="Retry Count"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["retryCount"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "retryCount": e });
+                                        formValidators["retryCount"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["retryCount"] && <Error>{errors["retryCount"]}</Error>}
+                            </Field>
+
+                            <Field>
+                                <TextField
+                                    label="Retry Delay"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["retryDelay"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "retryDelay": e });
+                                        formValidators["retryDelay"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["retryDelay"] && <Error>{errors["retryDelay"]}</Error>}
+                            </Field>
+
+                        </ComponentCard>
+
+                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                            <h3>Timeout</h3>
+
+                            <Field>
+                                <TextField
+                                    label="Timeout Duration"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["timeoutDuration"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "timeoutDuration": e });
+                                        formValidators["timeoutDuration"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["timeoutDuration"] && <Error>{errors["timeoutDuration"]}</Error>}
+                            </Field>
+
+                            <Field>
+                                <label>Timeout Action</label>
+                                <AutoComplete items={["never", "discard", "fault"]} selectedItem={formValues["timeoutAction"]} onChange={(e: any) => {
+                                    setFormValues({ ...formValues, "timeoutAction": e });
+                                    formValidators["timeoutAction"](e);
+                                }} />
+                                {errors["timeoutAction"] && <Error>{errors["timeoutAction"]}</Error>}
+                            </Field>
+
+                        </ComponentCard>
+
+                        {/* <Field>
+                            <label>Optimize</label>
+                            <AutoComplete items={["LEAVE_AS_IS", "mtom", "swa"]} selectedItem={formValues["optimize"]} onChange={(e: any) => {
+                                setFormValues({ ...formValues, "optimize": e });
+                                formValidators["optimize"](e);
+                            }} />
+                            {errors["optimize"] && <Error>{errors["optimize"]}</Error>}
+                        </Field> */}
+
+                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                            <h3>Failover Error Codes</h3>
+
+                            <Field>
+                                <TextField
+                                    label="Failover Non Retry Error Codes"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["failoverNonRetryErrorCodes"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "failoverNonRetryErrorCodes": e });
+                                        formValidators["failoverNonRetryErrorCodes"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["failoverNonRetryErrorCodes"] && <Error>{errors["failoverNonRetryErrorCodes"]}</Error>}
+                            </Field>
+
+                        </ComponentCard>
+
+                    </Wrapper>
+                )}
+            </Section.Container>
 
             <Wrapper>
                 <h3>Misc</h3>

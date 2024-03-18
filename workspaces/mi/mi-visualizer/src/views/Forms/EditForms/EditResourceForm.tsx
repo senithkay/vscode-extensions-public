@@ -71,7 +71,6 @@ const SidePanelBodyWrapper = styled.div`
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding: 20px;
 `;
 
 namespace Section {
@@ -160,14 +159,13 @@ export function EditResourceForm({ resourceData, isOpen, documentUri, onCancel, 
             sx={{ transition: "all 0.3s ease-in-out" }}
         >
             <SidePanelTitleContainer>
-                <div>Edit API Resource</div>
-                <Button onClick={onCancel} appearance="icon">
+                <Button sx={{ marginLeft: "auto" }} onClick={onCancel} appearance="icon">
                     <Codicon name="close" />
                 </Button>
             </SidePanelTitleContainer>
             <SidePanelBody style={{ overflowY: "scroll" }}>
                 <SidePanelBodyWrapper>
-                    <h3>API Resource</h3>
+                    <h3>Edit API Resource</h3>
                     <CheckBoxContainer>
                         <label>URL Style</label>
                         <VSCodeRadioGroup
@@ -175,9 +173,9 @@ export function EditResourceForm({ resourceData, isOpen, documentUri, onCancel, 
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUrlStyle(e.target.value)}
                             value={urlStyle}
                         >
-                            <VSCodeRadio value="none">NONE</VSCodeRadio>
                             <VSCodeRadio value="uri-template">URI_TEMPLATE</VSCodeRadio>
                             <VSCodeRadio value="url-mapping">URL_MAPPING</VSCodeRadio>
+                            <VSCodeRadio value="none">NONE</VSCodeRadio>
                         </VSCodeRadioGroup>
                     </CheckBoxContainer>
                     {urlStyle === "uri-template" && (

@@ -212,14 +212,16 @@ const stateMachine = createMachine<MachineContext>({
         },
         updateStack: (context, event) => {
             return new Promise(async (resolve, reject) => {
-                history.push({
-                    location: {
-                        view: context.view,
-                        documentUri: context.documentUri,
-                        position: context.position,
-                        identifier: context.identifier
-                    }
-                });
+                if (!context.view?.includes("Form")) {
+                    history.push({
+                        location: {
+                            view: context.view,
+                            documentUri: context.documentUri,
+                            position: context.position,
+                            identifier: context.identifier
+                        }
+                    });
+                }
                 resolve(true);
             });
         },
