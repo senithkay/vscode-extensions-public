@@ -69,8 +69,10 @@ export class NodeFactoryVisitor implements Visitor {
             diagramNode = new EndNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.CALL_NODE) {
             diagramNode = new CallNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes, data);
-        } else if (type === NodeTypes.EMPTY_NODE || type === NodeTypes.CONDITION_NODE_END) {
+        } else if (type === NodeTypes.EMPTY_NODE) {
             diagramNode = new EmptyNodeModel(node, this.documentUri);
+        } else if (type === NodeTypes.CONDITION_NODE_END) {
+            diagramNode = new EmptyNodeModel(node, this.documentUri, true);
         } else if (type === NodeTypes.PLUS_NODE) {
             diagramNode = new PlusNodeModel(node, name, this.documentUri);
         }
