@@ -75,14 +75,13 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onSave }: Res
             sx={{ transition: "all 0.3s ease-in-out" }}
         >
             <SidePanelTitleContainer>
-                <div>Edit Sequence</div>
-                <Button onClick={onCancel} appearance="icon">
+                <Button sx={{ marginLeft: "auto" }} onClick={onCancel} appearance="icon">
                     <Codicon name="close" />
                 </Button>
             </SidePanelTitleContainer>
             <SidePanelBody>
                 <SidePanelBodyWrapper>
-                    <h3>Sequence</h3>
+                    <h3>Edit Sequence</h3>
                     <TextField
                         id="seq-name"
                         label="Name"
