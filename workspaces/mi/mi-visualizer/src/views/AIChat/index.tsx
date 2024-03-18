@@ -15,7 +15,7 @@ import {TextArea, Button, Switch, Icon, ProgressRing} from "@wso2-enterprise/ui-
 import ReactMarkdown from 'react-markdown';
 import './AIChat.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { MI_COPILOT_BACKEND_URL } from "../../constants";
+import { MI_COPILOT_BACKEND_URL, MI_SUGGESTIVE_QUESTIONS_INITIAL_BACKEND_URL } from "../../constants";
 
 import {
   materialDark,
@@ -59,16 +59,25 @@ export function AIChat() {
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false); 
   const [lastQuestionIndex, setLastQuestionIndex] = useState(-1);
+  const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
   const messagesEndRef = React.createRef<HTMLDivElement>();
 
   useEffect(() => {
     rpcClient.getMiDiagramRpcClient().getProjectUuid().then((response) => {
       projectUuid = response.uuid;
-      const localStorageFile = `chatArray-AIChat-${projectUuid}`;
-    const storedChatArray = localStorage.getItem(localStorageFile);
+      const localStorageChatFile = `chatArray-AIChat-${projectUuid}`;
+      const localStorageQuestionFile = `Question-AIChat-${projectUuid}`;
+      const storedQuestion = localStorage.getItem(localStorageQuestionFile);
+    const storedChatArray = localStorage.getItem(localStorageChatFile);
     if (storedChatArray) {
+      if(storedQuestion){
+        setMessages(prevMessages => [
+          ...prevMessages,
+          { role: "", content: storedQuestion, type: "question" },
+        ]);
+      }
+      
       const chatArrayFromStorage = JSON.parse(storedChatArray);
-  
       chatArray = chatArrayFromStorage;
   
       // Add the messages from the chat array to the view
@@ -99,10 +108,20 @@ export function AIChat() {
           ...prevMessages,
           { role: "", content: "Welcome to MI Copilot Chat! I am here to assist you with WSO2 Micro Integrator. You can ask me to explain about WSO2 Integrations, get help on coding or development.", type: "label" },
           { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
-          { role: "", content: "Explain me about this Artifact", type: "question" },
-          { role: "", content: "What are the possible use cases in using WSO2 Micro Integrator?", type: "question" },
-          { role: "", content: "How to use the File Connector?", type: "question" }
+          // { role: "", content: "Explain me about this Artifact", type: "question" },
+          // { role: "", content: "What are the possible use cases in using WSO2 Micro Integrator?", type: "question" },
+          // { role: "", content: "How to use the File Connector?", type: "question" }
         ]);
+        if(storedQuestion){
+          setMessages(prevMessages => [
+            ...prevMessages,
+            { role: "", content: storedQuestion, type: "question" },
+          ]);
+        }else{
+          console.log("Fetching initial questions");
+          generateSuggestions();
+        }
+  
       }
     }
     } );
@@ -134,6 +153,48 @@ export function AIChat() {
     }
   }, [rpcClient]);
 
+  interface ApiResponse {
+    event: string;
+    error: string | null;
+    questions: string[];
+  }
+
+
+  useEffect(() => {
+    console.log("Suggestions: " + isSuggestionLoading);
+  } , [isSuggestionLoading]);
+
+  async function generateSuggestions() {
+    setIsSuggestionLoading(true); // Set loading state to true at the start
+    const url = MI_SUGGESTIVE_QUESTIONS_INITIAL_BACKEND_URL + "?num_suggestions=2&q_type=copilot_chat";
+    fetch(url)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("Failed to fetch initial questions");
+          }
+        return response.json() as Promise<ApiResponse>;
+        })
+        .then(data => {
+          if (data.event === "suggestion_generation_success") {
+            // Extract questions from the response
+            const initialQuestions = data.questions.map(question => ({
+              role: "",
+              content: question,
+              type: "question"
+            }));
+            // Update the state with the fetched questions
+            setMessages(prevMessages => [...prevMessages, ...initialQuestions]);
+          } else {
+            throw new Error("Failed to generate suggestions: " + data.error);
+          }
+          setIsSuggestionLoading(false); // Set loading state to false after fetch is successful
+        })
+        .catch(error => {
+          console.error("Error fetching initial questions:", error);
+          setIsSuggestionLoading(false); // Set loading state to false even if there's an error
+        });
+   }
+
   async function handleSend (isQuestion: boolean = false) {
     if (messages[0].type === "label" && messages[1].type === "label") {
       setMessages(prevMessages => prevMessages.slice(2));
@@ -142,7 +203,9 @@ export function AIChat() {
     } );
     setIsLoading(true);
     let assistant_response = "";
-    addChatEntry("user", userInput);
+    if(!isQuestion){
+        addChatEntry("user", userInput);
+    }
     setUserInput("");
     setMessages(prevMessages => prevMessages.filter((message, index) => index <= lastQuestionIndex || message.type !== 'question'));
     if(isQuestion){
@@ -158,7 +221,7 @@ export function AIChat() {
             { role: "MI Copilot", content: "", type:"assistant_message"}, // Add a new message for the assistant
         ]);
     }
-
+    console.log(chatArray);
     const response = await fetch(MI_COPILOT_BACKEND_URL, {
         method: 'POST',
         headers: {
@@ -224,6 +287,7 @@ export function AIChat() {
         }
   };
 
+
   function splitContent(content: string) {
     const segments = [];
     let match;
@@ -276,17 +340,20 @@ export function AIChat() {
     setMessages((prevMessages) => [
       { role: "", content: "Welcome to MI Copilot Chat! I am here to assist you with WSO2 Micro Integrator. You can ask me to explain about WSO2 Integrations, get help on coding or development.", type: "label" },
       { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
-      { role: "", content: "Explain me about this Artifact", type: "question" },
-      { role: "", content: "What are the possible use cases in using WSO2 Micro Integrator?", type: "question" },
-      { role: "", content: "How to use the File Connector?", type: "question" }
     ]);
+
+    generateSuggestions();
 
     //clear the local storage
     localStorage.removeItem(`chatArray-AIChat-${projectUuid}`);
+    localStorage.removeItem(`Question-AIChat-${projectUuid}`);
     
   }
 
   const questionMessages = messages.filter(message => message.type === "question");
+  if(questionMessages.length > 0){
+    localStorage.setItem(`Question-AIChat-${projectUuid}`, questionMessages[questionMessages.length-1].content);
+  }
   const otherMessages = messages.filter(message => message.type !== "question");
   return (
       <div style={{ display: "flex", flexDirection: "column", height: "90%", width: "100%", margin: "auto" }}>
@@ -318,6 +385,11 @@ export function AIChat() {
       </div>
 
       <div style={{ paddingTop: "15px", marginLeft: "10px" }}>
+          {isSuggestionLoading && (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        Generating suggestions for you... &nbsp;&nbsp; <ProgressRing sx={{position: "relative"}}/>
+                      </div>
+          )}
           {questionMessages.map((message, index) => (
             <div key={index} style={{ marginBottom: "5px" }}>
               <a
@@ -327,7 +399,7 @@ export function AIChat() {
                   handleQuestionClick(message.content);
                 }}
                 style={{ textDecoration: 'none' }}
-              >
+              >   
                  <div style={{ display: 'flex', alignItems: 'center' }}>
                     <Icon name="wand-magic-sparkles-solid" sx="marginRight:5px"/>
                     {message.content.replace(/^\d+\.\s/, "")}

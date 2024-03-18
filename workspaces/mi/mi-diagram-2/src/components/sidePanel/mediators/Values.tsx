@@ -58,7 +58,9 @@ import EnqueueForm from "../Pages/mediators/advanced/enqueue"
 import EventForm from "../Pages/mediators/advanced/event"
 import TransactionForm from "../Pages/mediators/advanced/transaction"
 import CacheForm from "../Pages/mediators/advanced/cache"
-import SwitchForm from "../Pages/mediators/filter/switch"
+import SwitchForm from "../Pages/mediators/filter/switchMediator"
+import BamForm from "../Pages/mediators/other/bam"
+import ConditionalRouterForm from "../Pages/mediators/filter/cond_router"
 
 export interface GetMediatorsProps {
     nodePosition: any;
@@ -259,6 +261,11 @@ export function getAllMediators(props: GetMediatorsProps) {
         ],
         "filter": [
             {
+                title: "Conditional Router",
+                operationName: MEDIATORS.CONDITIONALROUTER,
+                form: <ConditionalRouterForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ConditionalRouterForm>,
+            },
+            {
                 title: "Filter",
                 operationName: MEDIATORS.FILTER,
                 form: <FilterForm nodePosition={props.nodePosition} documentUri={props.documentUri}></FilterForm>,
@@ -284,6 +291,13 @@ export function getAllMediators(props: GetMediatorsProps) {
                 title: "Iterate",
                 operationName: MEDIATORS.ITERATE,
                 form: <IterateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></IterateForm>,
+            }
+        ],
+        "other": [
+            {
+                title: "BAM",
+                operationName: MEDIATORS.BAM,
+                form: <BamForm nodePosition={props.nodePosition} documentUri={props.documentUri}></BamForm>,
             }
         ]
     };
