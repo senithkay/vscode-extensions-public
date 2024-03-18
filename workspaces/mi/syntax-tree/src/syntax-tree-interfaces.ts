@@ -349,7 +349,7 @@ export interface EntitlementService extends STNode {
 }
 
 export interface ConditionalRouter extends STNode {
-    route: ConditionalRouterRoute[];
+    conditionalRoute: ConditionalRouterRoute[];
     continueAfter: boolean;
     description: string;
 }
@@ -818,9 +818,14 @@ export interface EjbArgsArg extends STNode {
 }
 
 export interface ConditionalRouterRoute extends STNode {
-    condition: any;
+    condition: ConditionalRouterRouteCondition;
     target: Target;
     breakRoute: boolean;
+    asynchronous: boolean
+}
+
+export interface ConditionalRouterRouteCondition {
+    equal: Equal;
 }
 
 export interface SwitchCase extends STNode {
