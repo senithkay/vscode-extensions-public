@@ -173,9 +173,9 @@ export function EditResourceForm({ resourceData, isOpen, documentUri, onCancel, 
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUrlStyle(e.target.value)}
                             value={urlStyle}
                         >
-                            <VSCodeRadio value="none">NONE</VSCodeRadio>
                             <VSCodeRadio value="uri-template">URI_TEMPLATE</VSCodeRadio>
                             <VSCodeRadio value="url-mapping">URL_MAPPING</VSCodeRadio>
+                            <VSCodeRadio value="none">NONE</VSCodeRadio>
                         </VSCodeRadioGroup>
                     </CheckBoxContainer>
                     {urlStyle === "uri-template" && (
