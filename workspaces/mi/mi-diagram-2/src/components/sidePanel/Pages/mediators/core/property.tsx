@@ -289,7 +289,7 @@ const PropertyForm = (props: AddMediatorProps) => {
             </ComponentCard>
 
 
-            <div style={{ textAlign: "right", marginTop: "10px" }}>
+            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
                 <Button
                     appearance="primary"
                     onClick={onClick}

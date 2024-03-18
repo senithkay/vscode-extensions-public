@@ -35,6 +35,14 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
+const Wrapper = styled.div`
+    display: "block",
+    margin: "15px 0",
+    padding: "0 15px 15px 15px",
+    width: "auto",
+    cursor: "auto"
+`;
+
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
@@ -362,7 +370,7 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
     return (
         <div style={{ padding: "10px" }}>
 
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+            <Wrapper>
                 <h3>Basic</h3>
 
                 <Field>
@@ -407,9 +415,9 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                     {errors["httpMethod"] && <Error>{errors["httpMethod"]}</Error>}
                 </Field>
 
-            </ComponentCard>
+            </Wrapper>
 
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+            <Wrapper>
                 <h3>Advanced</h3>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -781,9 +789,9 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
 
                 </ComponentCard>
 
-            </ComponentCard>
+            </Wrapper>
 
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+            <Wrapper>
                 <h3>Misc</h3>
 
                 <Field>
@@ -801,10 +809,10 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                     {errors["description"] && <Error>{errors["description"]}</Error>}
                 </Field>
 
-            </ComponentCard>
+            </Wrapper>
 
 
-            <div style={{ textAlign: "right", marginTop: "10px" }}>
+            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
                 <Button
                     appearance="primary"
                     onClick={onClick}

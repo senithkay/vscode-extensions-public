@@ -32,8 +32,9 @@ const BtnStyle = {
 };
 
 const SearchStyle = {
-    width: '100%',
+    width: 'auto',
     marginTop: '20px',
+    paddingRight: '15px',
 
     '& > vscode-text-field': {
         width: '100%',
