@@ -30,7 +30,7 @@ export const ProxyView = ({ model: ProxyModel, documentUri, diagnostics }: Proxy
     
     return (
         <View>
-            <ViewHeader title="Proxy View" codicon="globe">
+            <ViewHeader title={`Proxy: ${model.name}`} codicon="globe">
                 <Switch
                     leftLabel="Flow"
                     rightLabel="Fault"
