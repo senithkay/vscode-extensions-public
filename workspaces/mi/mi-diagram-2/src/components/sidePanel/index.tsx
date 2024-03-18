@@ -124,7 +124,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                             }}
                         />}
 
-                        {pageStack.length > 0 && title !== undefined && <h3 style={{ textAlign: "center", width: "350px" }}>{title}</h3>}
+                        {pageStack.length > 0 && title !== undefined && <h3 style={{ textAlign: "center", width: "355px" }}>{title}</h3>}
                         <Codicon name="close" sx={{ textAlign: "right", width: "20px" }} onClick={handleClose} />
                     </ButtonContainer>
 
