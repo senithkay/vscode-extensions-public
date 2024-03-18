@@ -265,6 +265,12 @@
         "command": "MI.build-project",
         "title": "Build",
         "category": "MI"
+      },
+      {
+        "command": "MI.build-and-run",
+        "title": "Build and Run",
+        "icon": "$(distro-start)",
+        "category": "MI"
       }
     ],
     "menus": {
@@ -291,6 +297,11 @@
         }
       ],
       "editor/title": [
+        {
+          "command": "MI.build-and-run",
+          "group": "navigation@1",
+          "title": "Build and Run Project"
+        },
         {
           "command": "MI.project-explorer.open-service-designer-beside",
           "when": "editorLangId == SynapseXml",
