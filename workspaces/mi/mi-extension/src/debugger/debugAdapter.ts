@@ -10,122 +10,16 @@
 import { LoggingDebugSession } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import * as vscode from 'vscode';
-import { extension } from '../MIExtensionContext';
-import { COMMANDS, PORTS_TO_CHECK, SELECTED_SERVER_PATH } from '../constants';
-import * as childprocess from 'child_process';
-import * as fs from 'fs';
-import { getBuildTask, getCopyTask, getRunTask } from './tasks';
+import { executeTasks, updateServerPathAndGet } from './debugHelper';
 
 export class MiDebugAdapter extends LoggingDebugSession {
-
-    private async isPortInUse(port: number): Promise<boolean> {
-        return new Promise<boolean>((resolve) => {
-            if (process.platform === 'win32') {
-                const command = `netstat -an | find "LISTENING" | find ":${port}"`;
-                childprocess.exec(command, (error, stdout, stderr) => {
-                    if (error) {
-                        resolve(false);
-                    } else {
-                        resolve(stdout.trim() !== '');
-                    }
-                });
-            } else {
-                const command = `lsof -i :${port}`;
-                childprocess.exec(command, (error, stdout, stderr) => {
-                    if (error) {
-                        resolve(false);
-                    } else {
-                        resolve(stdout.trim() !== '');
-                    }
-                });
-            }
-        });
-    }
-
-    private async checkPorts(): Promise<boolean> {
-        for (const port of PORTS_TO_CHECK) {
-            const inUse = await this.isPortInUse(port);
-            if (inUse) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private async executeCopyTask(task: vscode.Task) {
-        await vscode.tasks.executeTask(task);
-
-        return new Promise<void>(resolve => {
-            let disposable = vscode.tasks.onDidEndTaskProcess(async e => {
-                if (e.exitCode === 0) {
-                    disposable.dispose();
-                    resolve();
-                } else {
-                    vscode.window.showErrorMessage(`Task '${task.name}' failed.`);
-                }
-            });
-        });
-    }
-
-    private async executeBuildTask(task: vscode.Task, serverPath: string) {
-        await vscode.tasks.executeTask(task);
-
-        return new Promise<void>(resolve => {
-            let disposable = vscode.tasks.onDidEndTaskProcess(async e => {
-                if (e.exitCode === 0) {
-                    disposable.dispose();
-                    // Check if the target directory exists in the workspace
-                    const workspaceFolders = vscode.workspace.workspaceFolders;
-                    if (workspaceFolders && workspaceFolders.length > 0) {
-                        const targetDirectory = vscode.Uri.joinPath(workspaceFolders[0].uri, "target");
-                        if (fs.existsSync(targetDirectory.fsPath)) {
-                            const copyTask = getCopyTask(serverPath, targetDirectory);
-                            await this.executeCopyTask(copyTask);
-                        }
-                    }
-                    resolve();
-                } else {
-                    vscode.window.showErrorMessage(`Task '${task.name}' failed.`);
-                }
-
-            });
-        });
-    }
-
-    private async executeTasks(serverPath: string): Promise<void> {
-        const buildTask = getBuildTask();
-
-        await this.executeBuildTask(buildTask, serverPath);
-
-        const portsInUse = await this.checkPorts();
-
-        if (!portsInUse) {
-            const runTask = getRunTask(serverPath);
-
-            await vscode.tasks.executeTask(runTask);
-        } else {
-            vscode.window.showInformationMessage('Server is already running');
-        }
-    }
-
-    private async updateServerPathAndGet(): Promise<string | undefined> {
-        const currentPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
-        if (!currentPath) {
-            await vscode.commands.executeCommand(COMMANDS.CHANGE_SERVER_PATH);
-            const updatedPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
-            return updatedPath as string;
-        }
-        return currentPath as string;
-
-    }
-
     protected launchRequest(response: DebugProtocol.LaunchResponse, args?: DebugProtocol.LaunchRequestArguments, request?: DebugProtocol.Request): void {
-        this.updateServerPathAndGet().then((serverPath) => {
+        updateServerPathAndGet().then((serverPath) => {
             if (!serverPath) {
                 response.success = false;
                 this.sendResponse(response);
             } else {
-                this.executeTasks(serverPath)
+                executeTasks(serverPath)
                     .then(() => {
                         this.sendResponse(response);
                     })
