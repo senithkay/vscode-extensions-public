@@ -61,6 +61,7 @@ import CacheForm from "../Pages/mediators/advanced/cache"
 import SwitchForm from "../Pages/mediators/filter/switchMediator"
 import BamForm from "../Pages/mediators/other/bam"
 import ConditionalRouterForm from "../Pages/mediators/filter/cond_router"
+import OAuthForm from "../Pages/mediators/other/oauth"
 
 export interface GetMediatorsProps {
     nodePosition: any;
@@ -297,7 +298,12 @@ export function getAllMediators(props: GetMediatorsProps) {
             {
                 title: "BAM",
                 operationName: MEDIATORS.BAM,
-                form: <BamForm nodePosition={props.nodePosition} documentUri={props.documentUri}></BamForm>,
+                form: <BamForm nodePosition={props.nodePosition} documentUri={props.documentUri}></BamForm>
+            },
+            {
+                title: "Oauth",
+                operationName: MEDIATORS.OAUTH,
+                form: <OAuthForm nodePosition={props.nodePosition} documentUri={props.documentUri}></OAuthForm>,
             }
         ]
     };
