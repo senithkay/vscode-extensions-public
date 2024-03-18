@@ -20,6 +20,7 @@ interface SidePanelContext {
     previousNode?: string;
     formValues?: { [key: string]: any };
     title?: string;
+    isFormOpen?: boolean;
     setSidePanelState?: Dispatch<SetStateAction<any>>;
 }
 
@@ -32,6 +33,7 @@ const SidePanelContext = React.createContext<SidePanelContext>({
     previousNode: undefined,
     formValues: {},
     title: undefined,
+    isFormOpen: false,
     setSidePanelState: () => {},
 })
 
