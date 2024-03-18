@@ -52,6 +52,7 @@ import { getIterateFormDataFromSTNode, getIterateMustacheTemplate, getIterateXml
 import { getSwitchFormDataFromSTNode, getSwitchMustacheTemplate, getSwitchXml } from "./filter/switch";
 import { getForEachFormDataFromSTNode, getForeachMustacheTemplate, getForeachXml } from "./eip/foreach";
 import { getBamFormDataFromSTNode, getBamMustacheTemplate } from "./other/bam";
+import { getConditionalRouterFormDataFromSTNode, getConditionalRouterMustacheTemplate, getConditionalRouterXml } from "./filter/cond_router";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -114,6 +115,8 @@ export function getMustacheTemplate(name: string) {
         //Transformation Mediators
         case MEDIATORS.PAYLOAD:
             return getPayloadMustacheTemplate();
+        case MEDIATORS.CONDITIONALROUTER:
+            return getConditionalRouterMustacheTemplate();
         //Extension Mediators
         case MEDIATORS.BEAN:
             return getBeanMustacheTemplate()
@@ -203,6 +206,8 @@ export function getXML(name: string, data: { [key: string]: any }) {
         //Transformation Mediators
         case MEDIATORS.PAYLOAD:
             return getPayloadXml(data);
+        case MEDIATORS.CONDITIONALROUTER:
+            return getConditionalRouterXml(data);
         //Extension Mediators    
         case MEDIATORS.BEAN:
             return getBeanXml(data);
@@ -287,6 +292,8 @@ export function getDataFromXML(name: string, node: STNode) {
         //Transformation Mediators
         case MEDIATORS.PAYLOAD:
             return getPayloadFormDataFromSTNode(formData, node as PayloadFactory);
+        case MEDIATORS.CONDITIONALROUTER:
+            return getConditionalRouterFormDataFromSTNode(formData, node as ConditionalRouter)
         //Extension Mediators
         case MEDIATORS.CLASS:
             return getClassFormDataFromSTNode(formData, node as Class);
