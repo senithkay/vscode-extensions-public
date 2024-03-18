@@ -85,7 +85,7 @@ export const NODE_GAP = {
     Y: 50,
     BRANCH_X: 50,
     BRANCH_TOP: 60,
-    BRANCH_BOTTOM: 50,
+    BRANCH_BOTTOM: 0,
     SEQUENCE_Y: 100,
     GROUP_NODE_START_Y: 50,
     GROUP_NODE_END_Y: 50,
@@ -126,8 +126,8 @@ export const NODE_DIMENSIONS = {
         HEIGHT: 50,
     },
     EMPTY: {
-        WIDTH: 12,
-        HEIGHT: 12,
+        WIDTH: 0,
+        HEIGHT: 0,
         BRANCH: {
             WIDTH: 150,
             HEIGHT: 100,
