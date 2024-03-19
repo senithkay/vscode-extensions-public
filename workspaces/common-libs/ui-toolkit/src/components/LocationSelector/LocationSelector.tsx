@@ -24,7 +24,6 @@ export interface FileSelectorProps {
 
 const BrowseBtn = styled(VSCodeButton)`
     width: fit-content;
-    padding: 5px;
 `;
 
 interface ContainerProps {
@@ -57,7 +56,7 @@ export const LocationSelector: React.FC<FileSelectorProps> = (props: FileSelecto
             <LabelContainer>
                 {selectedFile ? <span>{selectedFile}</span> : <div style={{color: "var(--vscode-editor-foreground)"}}>{selectionText}</div>}
             </LabelContainer>
-            <BrowseBtn id="file-selector-btn" onClick={onSelect}>
+            <BrowseBtn appearance="secondary" id="file-selector-btn" onClick={onSelect}>
                 {btnText || "Select Location"}
             </BrowseBtn>
         </Container>

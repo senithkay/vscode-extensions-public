@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect } from "react";
-import { SampleDownloadRequest, VisualizerLocation } from "@wso2-enterprise/mi-core";
+import { SampleDownloadRequest, VisualizerLocation , MACHINE_VIEW} from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { SamplesView } from "../SamplesView";
 import styled from "@emotion/styled";
@@ -162,8 +162,8 @@ export function GettingStarted() {
             ) : (
                 <Wrapper>
                     <TitlePanel>
-                        <Headline>MI for VS Code</Headline>
-                        <span>The Micro Integrator provides developers with a flawless experience in developing, testing, and deploying integration solutions. </span>
+                        <Headline>Micro Integrator (MI) for VS Code</Headline>
+                        <span>A comprehensive integration solution that simplifies your digital transformation journey. Streamlines connectivity among applications, services, data, and cloud using a user-friendly low-code graphical designing experience. </span>
                     </TitlePanel>
                     <Grid>
                         <Pane>
@@ -183,7 +183,7 @@ export function GettingStarted() {
                                     </div>
                                 </Button>
                             </Tab>
-                            <Tab>
+                            {/* <Tab>  this has to be given in the activity for an old project
                                 <SubTitle>Import</SubTitle>
                                 <span>Import an existing project.</span>
                                 <Button appearance="secondary" onClick={() => handleModeChange("ImportProject")}>
@@ -194,7 +194,7 @@ export function GettingStarted() {
                                         <TextWrapper>Import A Project</TextWrapper>
                                     </div>
                                 </Button>
-                            </Tab>
+                            </Tab> */}
                             <Tab>
                                 <SubTitle>Troubleshooting</SubTitle>
                                 <span>Experiencing problems? Start with our <VSCodeLink onClick={openTroubleshootGuide}>Troubleshooting Guide</VSCodeLink>.</span>
@@ -238,15 +238,15 @@ export function GettingStarted() {
                                 <img src="https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/Task_Templates.png" className="card-image" />
                                 <SampleText>
                                     <span style={SampleTitle}>Database Polling</span>
-                                    <span style={{ fontSize: '12px' }} >A simple HTTP service.</span>
+                                    <span style={{ fontSize: '12px' }} >A Task that polls a Database.</span>
                                 </SampleText>
                             </ComponentCard>
-                            <span><VSCodeLink onClick={handleMoreSamples}>more...</VSCodeLink></span>
+                            <span><VSCodeLink onClick={handleMoreSamples}>More...</VSCodeLink></span>
                         </Pane>
                     </Grid>
                 </Wrapper>
             )}
-            {mode === "NewProject" && <ProjectWizard />}
+            {mode === "NewProject" && <ProjectWizard cancelView={MACHINE_VIEW.Welcome} />}
             {mode === "Samples" && <SamplesView />}
             {mode === "ImportProject" && <ImportProjectWizard />}
         </>

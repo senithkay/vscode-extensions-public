@@ -240,7 +240,7 @@ const MainPanel = () => {
                     setViewComponent(<DefaultEndpointWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.ProjectCreationForm:
-                    setViewComponent(<ProjectWizard />);
+                    setViewComponent(<ProjectWizard cancelView={MACHINE_VIEW.Overview} />);
                     shouldShowNavigator = false;
                     break;
                 case MACHINE_VIEW.LocalEntryForm:
