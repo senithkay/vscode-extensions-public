@@ -29,6 +29,7 @@ import { LoadBalanceWizard } from './views/Forms/LoadBalanceEPform';
 import { getSyntaxTreeType } from './utils/syntax-tree';
 import { FailoverWizard } from './views/Forms/FailoverEndpointForm';
 import { ProxyView, ResourceView, SequenceView } from './views/Diagram';
+import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 
 const MainContainer = styled.div`
     display: flex;
@@ -205,6 +206,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.FailoverEndPointForm:
                     setViewComponent(<FailoverWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.RecipientEndPointForm:
+                    setViewComponent(<RecipientWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.SequenceForm:
                     setViewComponent(<SequenceWizard path={machineView.documentUri} />);

@@ -117,6 +117,29 @@ export interface GetFailoverEPResponse {
     properties: { name: string; value: string; scope: string; }[];
 }
 
+export interface UpdateRecipientEPRequest {
+    directory: string;
+    name: string;
+    description: string;
+    endpoints: { type: string; value: string; }[];
+    properties: { name: string; value: string; scope: string; }[];
+}
+
+export interface UpdateRecipientEPResponse {
+    path: string;
+}
+
+export interface GetRecipientEPRequest {
+    path: string;
+}
+
+export interface GetRecipientEPResponse {
+    name: string;
+    description: string;
+    endpoints: { type: string; value: string; }[];
+    properties: { name: string; value: string; scope: string; }[];
+}
+
 export interface CreateInboundEndpointRequest {
     directory: string;
     name: string;

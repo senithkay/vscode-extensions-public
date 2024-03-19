@@ -122,6 +122,10 @@ import {
     getSTResponse,
     ListRegistryArtifactsResponse,
     ListRegistryArtifactsRequest,
+    UpdateRecipientEPRequest,
+    UpdateRecipientEPResponse,
+    GetRecipientEPRequest,
+    GetRecipientEPResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -143,6 +147,7 @@ import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import * as vscode from 'vscode';
 import { replaceFullContentToFile } from "../../util/workspace";
+import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/recipientEndpoint";
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
 const connectorsPath = path.join(".metadata", ".Connectors");
@@ -602,6 +607,100 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             resolve({
                 name: '',
                 buildMessage: 'true',
+                description: '',
+                endpoints: [],
+                properties: []
+            });
+        });
+    }
+
+    async updateRecipientEndpoint(params: UpdateRecipientEPRequest): Promise<UpdateRecipientEPResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, ...templateParams } = params;
+
+            const xmlData = getRecipientEPXml(templateParams);
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${templateParams.name}.xml`);
+            }
+
+            fs.writeFileSync(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getRecipientEndpoint(params: GetRecipientEPRequest): Promise<GetRecipientEPResponse> {
+        return new Promise(async (resolve) => {
+            const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
+            const options = {
+                ignoreAttributes : false,
+                attributeNamePrefix: "@_",
+                indentBy: '    ',
+                format: true,
+            };
+            
+            const builder = new XMLBuilder(options);
+            const filePath = params.path;
+
+            if (filePath.includes('.xml') && fs.existsSync(filePath)) {
+                const { name, recipientlist, property, description} = endpointSyntaxTree.syntaxTree.endpoint;
+
+                const endpoints = recipientlist.endpoint.map((member: any) => {
+                    const { _default, key } = member;
+
+                    let value = '';
+                    if (key) {
+                        value = key;
+                    }
+                    else {
+                        value = builder.build({
+                            "endpoint": {
+                                "default": {
+                                    "suspendOnFailure": {
+                                        "initialDuration": {
+                                            "#text": _default.suspendOnFailure.initialDuration.textNode
+                                        },
+                                        "progressionFactor": {
+                                            "#text": _default.suspendOnFailure.progressionFactor.textNode
+                                        }
+                                    },
+                                    "markForSuspension": {
+                                        "retriesBeforeSuspension": {
+                                            "#text": _default.markForSuspension.retriesBeforeSuspension.textNode
+                                        }
+                                    }
+                                }
+                            }
+                        }).trim();
+                    }
+
+                    return {
+                        type: member.key ? 'static' : 'inline',
+                        value,
+                    };
+                });
+
+                const properties = property.map((prop: any) => ({
+                    name: prop.name,
+                    value: prop.value,
+                    scope: prop.scope ?? 'default'
+                }));
+
+                resolve({
+                    name,
+                    description: description ?? '',
+                    endpoints: endpoints.length > 0 ? endpoints : [],
+                    properties: properties.length > 0 ? properties : []
+                });
+            }
+
+            resolve({
+                name: '',
                 description: '',
                 endpoints: [],
                 properties: []
