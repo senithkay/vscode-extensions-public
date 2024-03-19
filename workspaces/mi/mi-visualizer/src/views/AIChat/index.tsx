@@ -62,21 +62,21 @@ export function AIChat() {
   const [lastQuestionIndex, setLastQuestionIndex] = useState(-1);
   const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
   const messagesEndRef = React.createRef<HTMLDivElement>();
-
-  useEffect(() => {
-    async function fetchBackendUrl() {
-        try {
-            backendRootUri = (await rpcClient.getMiDiagramRpcClient().getBackendRootUrl()).url;
-            // Do something with backendRootUri
-        } catch (error) {
-            console.error('Failed to fetch backend URL:', error);
-        }
+  
+  async function fetchBackendUrl() {
+    try {
+        backendRootUri = (await rpcClient.getMiDiagramRpcClient().getBackendRootUrl()).url;
+        // Do something with backendRootUri
+    } catch (error) {
+        console.error('Failed to fetch backend URL:', error);
     }
+}
+  useEffect(() => {
 
     fetchBackendUrl();
 
-
   }, []); 
+  
   useEffect(() => {
     rpcClient.getMiDiagramRpcClient().getProjectUuid().then((response) => {
       projectUuid = response.uuid;

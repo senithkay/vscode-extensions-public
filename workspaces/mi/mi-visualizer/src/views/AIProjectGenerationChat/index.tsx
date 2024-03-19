@@ -68,18 +68,17 @@ export function AIProjectGenerationChat() {
   const [isCodeLoading, setIsCodeLoading] = useState(false);
   const [initialPrompt, setInitialPrompt] = useState("");
 
+     async function fetchBackendUrl() {
+          try {
+              backendRootUri = (await rpcClient.getMiDiagramRpcClient().getBackendRootUrl()).url;
+              // Do something with backendRootUri
+          } catch (error) {
+              console.error('Failed to fetch backend URL:', error);
+          }
+      }
     useEffect(() => {
-        async function fetchBackendUrl() {
-            try {
-                backendRootUri = (await rpcClient.getMiDiagramRpcClient().getBackendRootUrl()).url;
-                // Do something with backendRootUri
-            } catch (error) {
-                console.error('Failed to fetch backend URL:', error);
-            }
-        }
 
         fetchBackendUrl();
-
 
       }, []); 
 
@@ -210,29 +209,25 @@ export function AIProjectGenerationChat() {
         setIsLoading(true);
         setIsSuggestionLoading(true); // Set loading state to true at the start
         const url = backendRootUri + MI_SUGGESTIVE_QUESTIONS_BACKEND_URL;
-        var view = ""
         var context: GetWorkspaceContextResponse[] = [];
         //Get machine view
         const machineView = await rpcClient.getAIVisualizerState();
         switch (machineView?.view) {
             case AI_MACHINE_VIEW.AIOverview:
-                view = "Overview";
+                await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
+                    context = [response]; // Wrap the response in an array
+                 });
                 break;
             case AI_MACHINE_VIEW.AIArtifact:
-                view = "Artifact";
+                await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
+                  context = [response]; // Wrap the response in an array
+                });
                 break;
             default:
-                view = "Overview";
+              await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
+                  context = [response]; // Wrap the response in an array
+               });
                 console.log("default");  
-        }
-        if(view == "Overview"){
-            await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
-                context = [response]; // Wrap the response in an array
-            });
-        } else if(view == "Artifact"){
-            await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
-                context = [response]; // Wrap the response in an array
-            });
         }
         console.log(JSON.stringify({messages: chatArray, context : context[0].context}));
         const response = await fetch(url, {
