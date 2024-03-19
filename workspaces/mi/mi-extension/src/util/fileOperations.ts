@@ -15,6 +15,8 @@ import * as path from 'path';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 import { COMMANDS } from "../constants";
 import * as unzipper from 'unzipper';
+import { ListRegistryArtifactsResponse, RegistryArtifact } from "@wso2-enterprise/mi-core";
+import { rm } from 'node:fs/promises';
 
 interface ProgressMessage {
     message: string;
@@ -143,13 +145,14 @@ export async function handleOpenFile(sampleName: string, repoUrl: string) {
     * @param artifactPath  The path of the artifact.
     * @param mediaType     The media type of the artifact.
     */
-export async function addNewEntryToArtifactXML(projectDir: string, artifactName: string, file: string, artifactPath: string, mediaType: string) {
+export async function addNewEntryToArtifactXML(projectDir: string, artifactName: string, file: string,
+    artifactPath: string, mediaType: string, isCollection: boolean): Promise<boolean> {
     return new Promise(async (resolve) => {
         const options = {
             ignoreAttributes: false,
             attributeNamePrefix: "@",
             parseTagValue: true,
-            format: true
+            format: true,
         };
         const parser = new XMLParser(options);
         const artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
@@ -167,22 +170,113 @@ export async function addNewEntryToArtifactXML(projectDir: string, artifactName:
             artifactXMLData.artifacts.artifact = [];
             artifactXMLData.artifacts.artifact.push(temp);
         }
-        artifactXMLData.artifacts.artifact.push({
-            '@name': artifactName,
-            '@groupId': mvnInfo.groupId,
-            '@version': mvnInfo.version,
-            '@type': 'registry/resource',
-            '@serverRole': 'EnterpriseIntegrator',
-            item: {
-                file: file,
-                path: artifactPath,
-                mediaType: mediaType,
-                properties: null,
-            }
-        });
+        if (isCollection) {
+            artifactXMLData.artifacts.artifact.push({
+                '@name': artifactName,
+                '@groupId': mvnInfo.groupId,
+                '@version': mvnInfo.version,
+                '@type': 'registry/resource',
+                '@serverRole': 'EnterpriseIntegrator',
+                collection: {
+                    directory: file,
+                    path: artifactPath,
+                    properties: null,
+                }
+            });
+        } else {
+            artifactXMLData.artifacts.artifact.push({
+                '@name': artifactName,
+                '@groupId': mvnInfo.groupId,
+                '@version': mvnInfo.version,
+                '@type': 'registry/resource',
+                '@serverRole': 'EnterpriseIntegrator',
+                item: {
+                    file: file,
+                    path: artifactPath,
+                    mediaType: mediaType,
+                    properties: null,
+                }
+            });
+        }
         const builder = new XMLBuilder(options);
         const updatedXmlString = builder.build(artifactXMLData);
         fs.writeFileSync(artifactXMLPath, updatedXmlString);
+        resolve(true);
+    });
+}
+
+/**
+ * Remove the entry from the artifact.xml file if exists.
+ * @param projectDir    The project directory.
+ * @param artifactPath  The path of the artifact.
+ * @param isCollection  The type of the artifact.
+ * @returns             The status of the removal.
+ */
+export async function removeEntryFromArtifactXML(projectDir: string, artifactPath: string, fileName: string): Promise<boolean> {
+    return new Promise(async (resolve) => {
+        const options = {
+            ignoreAttributes: false,
+            attributeNamePrefix: "@",
+            parseTagValue: true,
+            format: true,
+        };
+        const parser = new XMLParser(options);
+        const artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
+        if (!fs.existsSync(artifactXMLPath)) {
+            resolve(false);
+        }
+        const artifactXML = fs.readFileSync(artifactXMLPath, "utf8");
+        const artifactXMLData = parser.parse(artifactXML);
+        var removed = false;
+        if (Array.isArray(artifactXMLData.artifacts.artifact)) {
+            const startCount = artifactXMLData.artifacts.artifact.length;
+            var artifacts = artifactXMLData.artifacts.artifact;
+            if (fileName) {
+                artifacts = artifacts.filter((artifact) => {
+                    return artifact.collection || (artifact.item && artifact.item.file !== fileName && artifact.item.path !== artifactPath);
+                });
+            } else {
+                artifacts = artifactXMLData.artifacts.artifact.filter((artifact) => {
+                    return (artifact.item && !(artifact.item.path === artifactPath || (artifact.item.path.startsWith(artifactPath)
+                        && artifact.item.path.replace(artifactPath, '').startsWith('/'))))
+                        || (artifact.collection && !(artifact.collection.path === artifactPath || (artifact.collection.path.startsWith(artifactPath)
+                            && artifact.collection.path.replace(artifactPath, '').startsWith('/'))));
+                });
+            }
+            const endCount = artifacts.length;
+            artifactXMLData.artifacts.artifact = artifacts;
+            if (endCount < startCount) {
+                removed = true;
+            }
+        } else {
+            if (fileName) {
+                // if file name present do the exact match
+                if (artifactXMLData.artifacts.artifact.item && artifactXMLData.artifacts.artifact.item.file === fileName
+                    && artifactXMLData.artifacts.artifact.item.path === artifactPath) {
+                    removed = true;
+                    artifactXMLData.artifacts.artifact = [];
+                }
+            } else {
+                if (artifactXMLData.artifacts.artifact.collection && (artifactXMLData.artifacts.artifact.collection.path === artifactPath
+                    || (artifactXMLData.artifacts.artifact.collection.path.startsWith(artifactPath)
+                        && artifactXMLData.artifacts.artifact.collection.path.replace(artifactPath, '').startsWith('/')))) {
+                    artifactXMLData.artifacts.artifact = [];
+                    removed = true;
+                }
+                if (artifactXMLData.artifacts.artifact.item && (artifactXMLData.artifacts.artifact.item.path === artifactPath
+                    || (artifactXMLData.artifacts.artifact.item.path.startsWith(artifactPath)
+                        && artifactXMLData.artifacts.artifact.item.path.replace(artifactPath, '').startsWith('/')))) {
+                    artifactXMLData.artifacts.artifact = [];
+                    removed = true;
+                }
+            }
+        }
+        if (removed) {
+            const builder = new XMLBuilder(options);
+            const updatedXmlString = builder.build(artifactXMLData);
+            fs.writeFileSync(artifactXMLPath, updatedXmlString);
+        }
+        resolve(removed);
     });
 }
 
@@ -356,96 +450,124 @@ export async function detectMediaType(filePath: string): Promise<string> {
  */
 export async function deleteRegistryResource(filePath: string): Promise<{ status: boolean, info: string }> {
     return new Promise(async (resolve) => {
-        if (fs.lstatSync(filePath).isDirectory()) {
-            const files = fs.readdirSync(filePath);
-            files.forEach((file) => {
-                const curPath = path.join(filePath, file);
-                if (fs.lstatSync(curPath).isDirectory()) {
-                    deleteRegistryResource(curPath);
-                } else {
-                    deleteRegistryResourceFile(curPath);
-                }
-            });
-            fs.rmdirSync(filePath), { recursive: true, force: true };
-            resolve({ status: true, info: "Artifacts deleted successfully" });
+        const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(filePath))?.uri.fsPath;
+        if (workspaceFolder) {
+            var tempPath = filePath.replace(workspaceFolder, '');
+            const platform = os.platform();
+            if (platform === 'win32') {
+                tempPath = tempPath.replace(/\\/g, '/');
+            }
+            tempPath = tempPath.replace('/src/main/wso2mi/resources/registry/', '');
+            var regPath = "";
+            if (tempPath.startsWith('gov')) {
+                regPath = '/_system/governance/';
+                regPath = regPath + tempPath.replace('gov/', '');
+            } else {
+                regPath = '/_system/config/';
+                regPath = regPath + tempPath.replace('conf/', '');
+            }
+            if (fs.lstatSync(filePath).isDirectory()) {
+                removeEntryFromArtifactXML(workspaceFolder, regPath, "");
+                await rm(filePath, { recursive: true, force: true });
+            } else {
+                const fileName = path.basename(filePath);
+                regPath = regPath.replace('/' + fileName, '');
+                removeEntryFromArtifactXML(workspaceFolder, regPath, fileName);
+                fs.unlinkSync(filePath);
+            }
+            resolve({ status: true, info: "Registry resource removed" });
         } else {
-            resolve(await deleteRegistryResourceFile(filePath));
+            resolve({ status: false, info: "Workspace not found" });
         }
     });
 }
 
 /**
- * Delete the registry resource file and delete the entry from  artifact.xml file.
- * @param filePath  The file path of the registry resource.
- * @returns         The status of the deletion.
+ * Create meta data files for the registry collection.
+ * @param collectionRoot root folder of the collection.
+ * @param regPath        registry path of the collection.
  */
-export async function deleteRegistryResourceFile(filePath: string): Promise<{ status: boolean, info: string }> {
-    return new Promise((resolve) => {
-        const platform = os.platform();
-        if (platform !== 'linux') {
-            filePath = filePath.replace(/\\/g, '/');
-        }
-        if (fs.existsSync(filePath)) {
-            var infoMsg = '';
-            const fileUri = Uri.file(filePath);
-            const fileName = path.basename(filePath);
-            const workspaceFolder = workspace.getWorkspaceFolder(fileUri)?.uri.fsPath;
-            if (workspaceFolder) {
-                var artifactRegPath = '';
-                var regPath = filePath.replace(workspaceFolder, '');
-                regPath = regPath.replace("/src/main/wso2mi/resources/registry", '');
-                if (regPath.startsWith('/gov')) {
-                    artifactRegPath = "/_system/governance/" + regPath.substring(5);
-                } else if (regPath.startsWith('/conf')) {
-                    artifactRegPath = "/_system/config/" + regPath.substring(6);
+export async function createMetadataFilesForRegistryCollection(collectionRoot: string, regPath: string) {
+    return new Promise(async (resolve) => {
+        const metaFolder = path.join(collectionRoot, '.meta');
+        const folderName = path.basename(collectionRoot);
+        var folderRegPath = regPath.slice(0, regPath.length - folderName.length - 1);
+        fs.mkdirSync(metaFolder);
+        const initialMetaFile = path.join(metaFolder, '~.xml');
+        var content = '<?xml version="1.0" encoding="UTF-8"?><resource name="' + folderName + '" isCollection="true" path="'
+            + folderRegPath + '" registryUrl="https://localhost:9443/registry" status="added"/>';
+        fs.writeFileSync(initialMetaFile, content);
+        const files = fs.readdirSync(collectionRoot);
+        files.forEach(async (file) => {
+            const curPath = path.join(collectionRoot, file);
+            if (fs.lstatSync(curPath).isDirectory()) {
+                if (file !== '.meta') {
+                    const newRegPath = regPath + '/' + file;
+                    await createMetadataFilesForRegistryCollection(curPath, newRegPath);
                 }
-                artifactRegPath = artifactRegPath.replace(fileName, '');
-                if (artifactRegPath.endsWith('/')) {
-                    artifactRegPath = artifactRegPath.substring(0, artifactRegPath.length - 1);
+            } else {
+                if (file !== '.DS_Store') {
+                    const mediaType = await detectMediaType(curPath);
+                    const newRegPath = regPath + '/' + file;
+                    const newMetaFile = path.join(metaFolder, '~' + file + '.xml');
+                    var content = '<?xml version="1.0" encoding="UTF-8"?><resource name="' + file + '" isCollection="false" path="'
+                        + newRegPath + '" registryUrl="https://localhost:9443/registry" status="added"><mediaType>'
+                        + mediaType + '</mediaType></resource>';
+                    fs.writeFileSync(newMetaFile, content);
                 }
-                const options = {
-                    ignoreAttributes: false,
-                    attributeNamePrefix: "@",
-                    parseTagValue: true,
-                    format: true
-                };
-                const parser = new XMLParser(options);
-                const artifactXMLPath = path.join(workspaceFolder, 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
-                const artifactXML = fs.readFileSync(artifactXMLPath, "utf8");
-                const artifactXMLData = parser.parse(artifactXML);
-                if (artifactXMLData.artifacts === '') {
-                    infoMsg = "No matching artifacts found in the artifact.xml file";
-                } else if (!Array.isArray(artifactXMLData.artifacts.artifact)) {
-                    const temp = artifactXMLData.artifacts.artifact;
-                    if ((temp.item.path === artifactRegPath || temp.item.path === artifactRegPath + "/")
-                        && temp.item.file === fileName) {
-                        artifactXMLData.artifacts.artifact = [];
-                        infoMsg = "Matching artifact removed from the artifact.xml file";
-                    } else {
-                        infoMsg = "No matching artifacts found in the artifact.xml file";
-                    }
-                } else if (Array.isArray(artifactXMLData.artifacts.artifact)) {
-                    const startLength = artifactXMLData.artifacts.artifact.length;
-                    artifactXMLData.artifacts.artifact = artifactXMLData.artifacts.artifact.filter((artifact) => {
-                        return (artifact.item.path !== artifactRegPath && artifact.item.path !== artifactRegPath + "/")
-                            || artifact.item.file !== fileName;
-                    });
-                    const endLength = artifactXMLData.artifacts.artifact.length;
-                    if (startLength === endLength) {
-                        infoMsg = "No matching artifacts found in the artifact.xml file";
-                    } else if (startLength === endLength + 1) {
-                        infoMsg = "Matching artifacts removed from the artifact.xml file";
-                    }
-                }
-                const builder = new XMLBuilder(options);
-                const updatedXmlString = builder.build(artifactXMLData);
-                fs.writeFileSync(artifactXMLPath, updatedXmlString);
-                fs.unlinkSync(filePath);
-                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-                resolve({ status: true, info: infoMsg });
             }
+        });
+        resolve(true);
+    });
+}
+
+/**
+ * Get a list of currently available registry resources.
+ * @param projectDir    The project directory.
+ * @returns             The list of available registry resources.
+ */
+export async function getAvailableRegistryResources(projectDir: string): Promise<ListRegistryArtifactsResponse> {
+    return new Promise(async (resolve) => {
+        const result: RegistryArtifact[] = [];
+        const artifactXMLPath = path.join(projectDir, 'artifact.xml');
+        if (fs.existsSync(artifactXMLPath)) {
+            const artifactXML = fs.readFileSync(artifactXMLPath, "utf8");
+            const options = {
+                ignoreAttributes: false,
+                attributeNamePrefix: "@",
+                parseTagValue: true,
+                format: true,
+            };
+            const parser = new XMLParser(options);
+            const artifactXMLData = parser.parse(artifactXML);
+            if (!artifactXMLData.artifacts) {
+                return resolve({ artifacts: [] });
+            }
+            if (!Array.isArray(artifactXMLData.artifacts.artifact)) {
+                artifactXMLData.artifacts.artifact = [artifactXMLData.artifacts.artifact];
+            }
+            for (const artifact of artifactXMLData.artifacts.artifact) {
+                if (artifact.collection) {
+                    const registryArtifact: RegistryArtifact = {
+                        name: artifact["@name"],
+                        path: artifact.collection.path,
+                        file: artifact.collection.directory,
+                        isCollection: true
+                    };
+                    result.push(registryArtifact);
+                } else if (artifact.item) {
+                    const registryArtifact: RegistryArtifact = {
+                        name: artifact["@name"],
+                        path: artifact.item.path,
+                        file: artifact.item.file,
+                        isCollection: false
+                    };
+                    result.push(registryArtifact);
+                }
+            }
+            resolve({ artifacts: result });
         } else {
-            resolve({ status: false, info: "File not found" });
+            resolve({ artifacts: [] });
         }
     });
 }
