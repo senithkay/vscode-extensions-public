@@ -206,64 +206,67 @@ export function AIProjectGenerationChat() {
   } , [isSuggestionLoading]);
 
   async function generateSuggestions() {
-    setIsLoading(true);
-    setIsSuggestionLoading(true); // Set loading state to true at the start
-    const url = backendRootUri + MI_SUGGESTIVE_QUESTIONS_BACKEND_URL;
-    var view = ""
-    var context: GetWorkspaceContextResponse[] = [];
-    //Get machine view
-    const machineView = await rpcClient.getAIVisualizerState();
-      switch (machineView?.view) {
-          case AI_MACHINE_VIEW.AIOverview:
-              view = "Overview";
-              break;
-          case AI_MACHINE_VIEW.AIArtifact:
-              view = "Artifact";
-              break;
-          default:
-            view = "Overview";
-            console.log("default");  
-      }
-      if(view == "Overview"){
+    try {
+        setIsLoading(true);
+        setIsSuggestionLoading(true); // Set loading state to true at the start
+        const url = backendRootUri + MI_SUGGESTIVE_QUESTIONS_BACKEND_URL;
+        var view = ""
+        var context: GetWorkspaceContextResponse[] = [];
+        //Get machine view
+        const machineView = await rpcClient.getAIVisualizerState();
+        switch (machineView?.view) {
+            case AI_MACHINE_VIEW.AIOverview:
+                view = "Overview";
+                break;
+            case AI_MACHINE_VIEW.AIArtifact:
+                view = "Artifact";
+                break;
+            default:
+                view = "Overview";
+                console.log("default");  
+        }
+        if(view == "Overview"){
             await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
-              context = [response]; // Wrap the response in an array
-            } );
-      }else if(view == "Artifact"){
+                context = [response]; // Wrap the response in an array
+            });
+        } else if(view == "Artifact"){
             await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
-              context = [response]; // Wrap the response in an array
-            } );
-      }
-      console.log(JSON.stringify({messages: chatArray, context : context[0].context}));
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({messages: chatArray, context : context[0].context, num_suggestions:1, type: "artifact_gen" }),
-    });
-    if (!response.ok) {
-      setIsLoading(false);
-      setIsSuggestionLoading(false); 
-        throw new Error("Failed to fetch initial questions");
+                context = [response]; // Wrap the response in an array
+            });
+        }
+        console.log(JSON.stringify({messages: chatArray, context : context[0].context}));
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({messages: chatArray, context : context[0].context, num_suggestions:1, type: "artifact_gen" }),
+        });
+        if (!response.ok) {
+            throw new Error("Failed to fetch initial questions");
+        }
+        const data = await response.json() as ApiResponse;
+        if (data.event === "suggestion_generation_success") {
+            // Extract questions from the response
+            const initialQuestions = data.questions.map(question => ({
+                role: "",
+                content: question,
+                type: "question"
+            }));
+            // Update the state with the fetched questions
+            setMessages(prevMessages => [...prevMessages, ...initialQuestions]);
+        } else {
+            throw new Error("Failed to generate suggestions: " + data.error);
+        }
+    } catch (error) {
+        console.error(error);
+        setIsLoading(false);
+        setIsSuggestionLoading(false);
+    } finally {
+        setIsLoading(false);
+        setIsSuggestionLoading(false); // Set loading state to false after fetch is successful or if an error occurs
     }
-    const data = await response.json() as ApiResponse;
-    if (data.event === "suggestion_generation_success") {
-        // Extract questions from the response
-        const initialQuestions = data.questions.map(question => ({
-            role: "",
-            content: question,
-            type: "question"
-        }));
-        // Update the state with the fetched questions
-        setMessages(prevMessages => [...prevMessages, ...initialQuestions]);
-    } else {
-      setIsLoading(false);
-      setIsSuggestionLoading(false); 
-        throw new Error("Failed to generate suggestions: " + data.error);
-    }
-    setIsLoading(false);
-    setIsSuggestionLoading(false); // Set loading state to false after fetch is successful
-   }
+}
 
 
   async function handleSend (isQuestion: boolean = false) {

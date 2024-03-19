@@ -180,35 +180,48 @@ export function AIChat() {
   } , [isSuggestionLoading]);
 
   async function generateSuggestions() {
-    setIsSuggestionLoading(true); // Set loading state to true at the start
-    const url = backendRootUri+MI_SUGGESTIVE_QUESTIONS_INITIAL_BACKEND_URL + "?num_suggestions=2&q_type=copilot_chat";
-    fetch(url)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error("Failed to fetch initial questions");
-          }
-        return response.json() as Promise<ApiResponse>;
-        })
-        .then(data => {
-          if (data.event === "suggestion_generation_success") {
-            // Extract questions from the response
-            const initialQuestions = data.questions.map(question => ({
-              role: "",
-              content: question,
-              type: "question"
-            }));
-            // Update the state with the fetched questions
-            setMessages(prevMessages => [...prevMessages, ...initialQuestions]);
-          } else {
-            throw new Error("Failed to generate suggestions: " + data.error);
-          }
-          setIsSuggestionLoading(false); // Set loading state to false after fetch is successful
-        })
-        .catch(error => {
-          console.error("Error fetching initial questions:", error);
-          setIsSuggestionLoading(false); // Set loading state to false even if there's an error
-        });
-   }
+    try {
+        setIsLoading(true);
+        setIsSuggestionLoading(true); // Set loading state to true at the start
+        const url = backendRootUri+MI_SUGGESTIVE_QUESTIONS_INITIAL_BACKEND_URL + "?num_suggestions=2&q_type=copilot_chat";
+        fetch(url)
+            .then(response => {
+              if (!response.ok) {
+                setIsLoading(false);
+                setIsSuggestionLoading(false);
+                throw new Error("Failed to fetch initial questions");
+              }
+            return response.json() as Promise<ApiResponse>;
+            })
+            .then(data => {
+              if (data.event === "suggestion_generation_success") {
+                // Extract questions from the response
+                const initialQuestions = data.questions.map(question => ({
+                  role: "",
+                  content: question,
+                  type: "question"
+                }));
+                // Update the state with the fetched questions
+                setMessages(prevMessages => [...prevMessages, ...initialQuestions]);
+              } else {
+                setIsLoading(false);
+                setIsSuggestionLoading(false);
+                throw new Error("Failed to generate suggestions: " + data.error);
+              }
+              setIsLoading(false);
+              setIsSuggestionLoading(false); // Set loading state to false after fetch is successful
+            })
+            .catch(error => {
+              console.error("Error fetching initial questions:", error);
+              setIsSuggestionLoading(false); // Set loading state to false even if there's an error
+              setIsLoading(false);
+            });
+    } catch (error) {
+        console.error("Unexpected error:", error);
+        setIsLoading(false);
+        setIsSuggestionLoading(false); // Set loading state to false even if there's an error
+    }
+}
 
   async function handleSend (isQuestion: boolean = false) {
     if (messages[0].type === "label" && messages[1].type === "label") {
