@@ -291,7 +291,7 @@ function generateTreeDataOfClassMediator(project: vscode.WorkspaceFolder, data: 
 			'Class Mediators',
 			isCollapsibleState(mediators.size > 0),
 			{ name: 'java', path: javaPath, type: 'java' },
-			'debug-continue'
+			'debug-continue-small'
 		);
 		parentEntry.contextValue = 'class-mediator';
 		parentEntry.id = 'class-mediator';
