@@ -59,8 +59,11 @@ const AIPanel = styled.div({
     gap: '5px',
 });
 
+interface OverviewProps {
+    stateUpdated: boolean;
+}
 
-export function Overview() {
+export function Overview(props: OverviewProps) {
     const { rpcClient } = useVisualizerContext();
     const [workspaces, setWorkspaces] = React.useState<WorkspaceFolder[]>([]);
     const [activeWorkspaces, setActiveWorkspaces] = React.useState<WorkspaceFolder>(undefined);
@@ -113,7 +116,7 @@ export function Overview() {
                 setProjectStructure(response);
             });
         }
-    }, [selected]);
+    }, [selected, props]);
 
     const changeWorkspace = (fsPath: string) => {
         setSelected(fsPath);
@@ -128,7 +131,7 @@ export function Overview() {
         rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.openAiPanel", inputAiPrompt] });
     }
 
-    const handleAiPromptChange = (value:string) => {
+    const handleAiPromptChange = (value: string) => {
         setInputAiPrompt(value);
     }
 
