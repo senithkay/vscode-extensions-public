@@ -199,29 +199,45 @@ interface CardProps {
     onClick?: () => void;
 }
 
+interface CardState {
+    isHovered: boolean;
+}
+
 const CardWraper = styled.div({
     border: '1px solid var(--vscode-dropdown-border)',
     backgroundColor: 'var(--vscode-dropdown-background)',
     padding: '10px',
     cursor: 'pointer',
     '&:hover': {
-        backgroundColor: 'var(--list-active-selection-background)',
+        backgroundColor: 'var(--vscode-button-background)',
     },
     display: 'flex',
     flexDirection: 'column',
 });
 
+const CardTitle = styled.div<CardState>((props: CardState) => ({
+    fontSize: '1.2em',
+    color: props.isHovered ? 'var(--vscode-button-foreground)' : 'inherit',
+}));
+
+const CardDescription = styled.div<CardState>((props: CardState) => ({
+    marginLeft: '2.3em',
+    color: props.isHovered ? 'var(--vscode-button-foreground)' : 'inherit',
+}));
+
 const Card: React.FC<CardProps> = ({ icon, title, onClick, description }) => {
+    const [hovered, setHovered] = React.useState(false);
+
     return (
-        <CardWraper onClick={onClick}>
+        <CardWraper onClick={onClick} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                 <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                     <div style={{ width: '1.5em', height: '1.5em', marginRight: "10px" }}>
-                        <Codicon name={icon} iconSx={{ fontSize: '1.5em' }} />
+                        <Codicon name={icon} iconSx={{ fontSize: '1.5em', color: hovered ? 'var(--vscode-button-foreground)' : 'inherit' }} />
                     </div>
-                    <div style={{ fontSize: '1.2em' }}>{title}</div>
+                    <CardTitle isHovered={hovered}>{title}</CardTitle>
                 </div>
-                {description && <div style={{ marginLeft: '2.3em' }}>{description}</div>}
+                {description && <CardDescription isHovered={hovered}>{description}</CardDescription>}
             </div>
         </CardWraper>
     );
