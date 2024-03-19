@@ -4,6 +4,7 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-types";
 
 import { IntermediatePortModel } from "../../Port";
+import { calculateControlPointOffset } from "../../utils/dm-utils";
 
 export const LINK_TYPE_ID = "datamapper-link";
 
@@ -31,17 +32,7 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 
 	getSVGPath(): string {
 		const screenWidth = window.innerWidth;
-		let controlPointOffset = 260;
-		if (screenWidth >= 1200 && screenWidth < 1500) {
-			controlPointOffset = 300;
-		} else if (screenWidth >= 1000 && screenWidth < 1200) {
-			controlPointOffset = 100;
-		} else if (screenWidth >= 900 && screenWidth < 1000) {
-			controlPointOffset = 60;
-		} else if (screenWidth < 900) {
-			controlPointOffset = 20;
-		}
-		// if (this.points.length === 2 && screenWidth > 1200) {
+		let controlPointOffset = calculateControlPointOffset(screenWidth);
 		if (this.points.length === 2) {
 			const curve = new BezierCurve();
 			const sourcePoint: Point = new Point(this.getFirstPoint().getPosition().x + 8,

@@ -13,6 +13,7 @@ export const SYMBOL_KIND_CONSTANT = "CONSTANT";
 
 export const JSON_MERGE_MODULE_NAME = "ballerina/lang.value";
 export const defaultModelOptions = { zoom: 90 };
+export const VISUALIZER_PADDING = 30;
 
 const defaultTargetNodeWidth = 351;
 

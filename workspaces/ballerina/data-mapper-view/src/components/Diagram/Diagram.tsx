@@ -48,6 +48,7 @@ import { useDiagramModel, useRepositionedNodes } from '../Hooks';
 import { Icon } from '@wso2-enterprise/ui-toolkit';
 import { debounce } from 'lodash';
 import { defaultModelOptions } from './utils/constants';
+import { calculateZoomLevel } from './utils/dm-utils';
 
 const classes = {
 	buttonWrap: css({
@@ -134,8 +135,10 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 	const [, forceUpdate] = useState({});
 
-	const repositionedNodes = useRepositionedNodes(nodes);
-	const { updatedModel, isFetching } = useDiagramModel(repositionedNodes, diagramModel, onError);
+	const zoomLevel = calculateZoomLevel(screenWidth);
+
+	const repositionedNodes = useRepositionedNodes(nodes, zoomLevel);
+	const { updatedModel, isFetching } = useDiagramModel(repositionedNodes, diagramModel, onError, zoomLevel);
 
 	engine.setModel(diagramModel);
 

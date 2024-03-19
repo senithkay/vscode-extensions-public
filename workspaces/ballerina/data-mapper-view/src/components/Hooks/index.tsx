@@ -21,7 +21,7 @@ import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
 import { ErrorNodeKind } from '../DataMapper/Error/DataMapperError';
 import { useDMSearchStore } from '../../store/store';
 import { ListConstructorNode, MappingConstructorNode, PrimitiveTypeNode, QueryExpressionNode, RequiredParamNode } from '../Diagram/Node';
-import { OFFSETS, defaultModelOptions } from '../Diagram/utils/constants';
+import { OFFSETS, VISUALIZER_PADDING, defaultModelOptions } from '../Diagram/utils/constants';
 import { FromClauseNode } from '../Diagram/Node/FromClause';
 import { UnionTypeNode } from '../Diagram/Node/UnionType';
 import { UnsupportedExprNodeKind, UnsupportedIONode } from '../Diagram/Node/UnsupportedIO';
@@ -69,14 +69,14 @@ export const useProjectComponents = (langServerRpcClient: LangServerRpcClient, f
 export const useDiagramModel = (
     nodes: DataMapperNodeModel[],
     diagramModel: DiagramModel,
-    onError:(kind: ErrorNodeKind) => void
+    onError:(kind: ErrorNodeKind) => void,
+    zoomLevel: number,
 ): {
     updatedModel: DiagramModel<DiagramModelGenerics>;
     isFetching: boolean;
     isError: boolean;
     refetch: any;
 } => {
-    const zoomLevel = diagramModel.getZoomLevel();
     const offSetX = diagramModel.getOffsetX();
     const offSetY = diagramModel.getOffsetY();
     const noOfNodes = nodes.length;
@@ -128,13 +128,13 @@ export const useDiagramModel = (
         isFetching,
         isError,
         refetch,
-    } = useQuery(['genModel', {fnSource, fieldPath, queryExprIndex: queryExprPosition, noOfNodes, inputSearch, outputSearch, collapsedFields}], () => genModel(), {});
+    } = useQuery(['genModel', {fnSource, fieldPath, queryExprIndex: queryExprPosition, noOfNodes, inputSearch, outputSearch, collapsedFields, newZoomLevel: zoomLevel}], () => genModel(), {});
 
     return { updatedModel, isFetching, isError, refetch };
 };
 
 
-export const useRepositionedNodes = (nodes: DataMapperNodeModel[]) => {
+export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: number) => {
     const nodesClone = [...nodes];
     let requiredParamFields = 0;
     let numberOfRequiredParamNodes = 0;
@@ -146,7 +146,7 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[]) => {
                 || node instanceof PrimitiveTypeNode
                 || node instanceof UnionTypeNode
                 || (node instanceof UnsupportedIONode && node.kind === UnsupportedExprNodeKind.Output)) {
-                    node.setPosition((window.innerWidth -30)*(100/defaultModelOptions.zoom) - node.width, 0);
+                    node.setPosition((window.innerWidth - VISUALIZER_PADDING)*(100/zoomLevel) - node.width, 0);
             }
             if (node instanceof RequiredParamNode
                 || node instanceof LetClauseNode
