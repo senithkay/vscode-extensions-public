@@ -189,7 +189,8 @@ export const MEDIATORS = {
     EVENT: "Event",
     TRANSACTION: "Transaction",
     CONDITIONALROUTER: "ConditionalRouter",
-    BAM: "Bam"
+    BAM: "Bam",
+    OAUTH: "OAuth",
 }
 
 export const ENDPOINTS = {
