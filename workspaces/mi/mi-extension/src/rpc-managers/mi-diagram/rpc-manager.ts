@@ -120,6 +120,8 @@ import {
     WriteContentToFileResponse,
     getSTRequest,
     getSTResponse,
+    ListRegistryArtifactsResponse,
+    ListRegistryArtifactsRequest,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -132,7 +134,7 @@ import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
-import { addNewEntryToArtifactXML, changeRootPomPackaging, detectMediaType, getMediatypeAndFileExtension } from "../../util/fileOperations";
+import { addNewEntryToArtifactXML, changeRootPomPackaging, detectMediaType, getMediatypeAndFileExtension, createMetadataFilesForRegistryCollection, getAvailableRegistryResources } from "../../util/fileOperations";
 import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
@@ -1900,10 +1902,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     openFile(params: OpenDiagramRequest): void {
-        const uri = Uri.file(params.path);
-        workspace.openTextDocument(uri).then((document) => {
-            window.showTextDocument(document);
-        });
+        if (!fs.lstatSync(params.path).isDirectory()) {
+            const uri = Uri.file(params.path);
+            workspace.openTextDocument(uri).then((document) => {
+                window.showTextDocument(document);
+            });
+        }
     }
 
     async askProjectDirPath(): Promise<ProjectDirResponse> {
@@ -2362,11 +2366,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async browseFile(params: BrowseFileRequest): Promise<BrowseFileResponse> {
         return new Promise(async (resolve) => {
             const selectedFile = await window.showOpenDialog({
-                canSelectFiles: true,
-                canSelectFolders: false,
-                canSelectMany: false,
+                canSelectFiles: params.canSelectFiles,
+                canSelectFolders: params.canSelectFolders,
+                canSelectMany: params.canSelectMany,
                 defaultUri: Uri.file(os.homedir()),
-                title: params.dialogTitle
+                title: params.title,
             });
             if (selectedFile) {
                 resolve({ filePath: selectedFile[0].fsPath });
@@ -2386,10 +2390,17 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     if (!fs.existsSync(registryPath)) {
                         fs.mkdirSync(registryPath, { recursive: true });
                     }
-                    fs.copyFileSync(params.filePath, destPath);
-                    transformedPath = path.join(transformedPath, params.registryPath);
-                    const mediaType = await detectMediaType(params.filePath);
-                    addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, mediaType);
+                    if (fs.statSync(params.filePath).isDirectory()) {
+                        fs.cpSync(params.filePath, destPath, { recursive: true });
+                        transformedPath = path.join(transformedPath, params.registryPath, fileName);
+                        createMetadataFilesForRegistryCollection(destPath, transformedPath);
+                        addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, "", true);
+                    } else {
+                        fs.copyFileSync(params.filePath, destPath);
+                        transformedPath = path.join(transformedPath, params.registryPath);
+                        const mediaType = await detectMediaType(params.filePath);
+                        addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, mediaType, false);
+                    }
                     commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                     resolve({ path: destPath });
                 }
@@ -2406,7 +2417,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 fs.writeFileSync(destPath, fileContent ? fileContent : "");
                 //add the new entry to artifact.xml
                 transformedPath = path.join(transformedPath, params.registryPath);
-                addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, fileData.mediaType);
+                addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, fileData.mediaType, false);
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ path: destPath });
             }
@@ -2473,6 +2484,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         const config = vscode.workspace.getConfiguration('integrationStudio');
         const ROOT_URL = config.get('rootUrl') as string;
         return { url: ROOT_URL };
+    }
+
+    async getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<ListRegistryArtifactsResponse> {
+        return new Promise(async (resolve) => {
+            resolve(getAvailableRegistryResources(params.path));
+        });
     }
 }
 

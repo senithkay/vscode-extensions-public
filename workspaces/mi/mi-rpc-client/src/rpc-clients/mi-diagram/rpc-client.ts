@@ -184,7 +184,10 @@ import {
     updateHttpEndpoint,
     updateLoadBalanceEndpoint,
     updateWsdlEndpoint,
-    writeContentToFile
+    writeContentToFile,
+    ListRegistryArtifactsResponse,
+    ListRegistryArtifactsRequest,
+    getAvailableRegistryResources
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -470,5 +473,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getBackendRootUrl(): Promise<GetBackendRootUrlResponse> {
         return this._messenger.sendRequest(getBackendRootUrl, HOST_EXTENSION);
+    }
+
+    getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<ListRegistryArtifactsResponse> {
+        return this._messenger.sendRequest(getAvailableRegistryResources, HOST_EXTENSION, params);
     }
 }
