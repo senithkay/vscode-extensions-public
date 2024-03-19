@@ -179,7 +179,7 @@ export function getInboundEndpointMustacheTemplate() {
 <inboundEndpoint name="{{name}}" {{#class}}class="{{class}}" {{/class}}{{#showSequence}}onError="{{errorSequence}}" sequence="{{sequence}}" {{/showSequence}}{{#protocol}}protocol="{{protocol}}" {{/protocol}}{{#statistics}}statistics="enable" {{/statistics}}{{#suspend}}suspend="{{suspend}}" {{/suspend}}{{#trace}}trace="enable" {{/trace}}xmlns="http://ws.apache.org/ns/synapse">
     <parameters>
     {{#params}}
-        <parameter name="{{key}}">{{value}}</parameter>
+        {{^custom}}<parameter name="{{key}}">{{{value}}}</parameter>{{/custom}}{{#custom}}{{{custom}}}{{/custom}}
     {{/params}}
     </parameters>
 </inboundEndpoint>`;
@@ -192,10 +192,44 @@ export function getInboundEndpointdXml(isNew: boolean, data: GetInboundTemplates
 
     const showSequence = !['cxf_ws_rm', 'feed', 'http', 'https'].includes(data.type);
 
-    const params: Parameter[] = [];
+    let params: Parameter[] = [];
     Object.entries(isNew ? paramPool[data.type] : parameters ?? {}).map(([key, value]) => {
         params.push({ key, value });
     });
+
+    if (!isNew) {
+        if (data.type === 'rabbitmq') {
+            const qosType = params.find((param) => param.key === 'rabbitmq.channel.consumer.qos.type');
+            const qos = params.find((param) => param.key === 'rabbitmq.channel.consumer.qos');
+            if (qosType?.value === 'registry') {
+                params.map((param) => {
+                    if (param.key === 'rabbitmq.channel.consumer.qos') {
+                        param.custom = `<parameter key="${qos?.value}" name="rabbitmq.channel.consumer.qos"/>`;
+                    }
+                });
+            }
+            params = params.filter((param) => param.key !== 'rabbitmq.channel.consumer.qos.type');
+    
+            ['rabbitmq.queue.autodeclare', 'rabbitmq.exchange.autodeclare'].map((key) => {
+                const parameter = params.find((param) => param.key === key);
+                if (parameter?.value === true) {
+                    params = params.filter((param) => param.key !== key);
+                }
+                else {
+                    params.push({ key, value: 'false' });
+                }
+            });
+        } else if (data.type === 'wso2_mb') {
+            const factoryType = params.find((param) => param.key === 'transport.jms.ConnectionFactoryType');
+            const url = params.find((param) => param.key === 'mb.connection.url')?.value ?? '';
+            if (factoryType?.value) {
+                const type = factoryType.value === 'queue' ? 'Queue' : 'Topic';
+                params.push({ key: `connectionfactory.${type}ConnectionFactory`, value: url });
+                params = params.filter((param) => param.key !== `connectionfactory.${type === 'Topic' ? 'Queue' : 'Topic'}ConnectionFactory`);
+            }
+            params = params.filter((param) => param.key !== 'mb.connection.url');
+        }
+    }
 
     const modifiedData = {
         ...mainData,
