@@ -407,7 +407,7 @@
         "description": "design-view",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f10e"
+          "fontCharacter": "\\f116"
         }
       }
     }
