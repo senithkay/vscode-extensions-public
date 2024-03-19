@@ -51,6 +51,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) 
 // A string array to store all code blocks
 const codeBlocks: string[] = [];
 var projectUuid = "";
+var backendRootUri = "";
 
 export function AIChat() {
   const { rpcClient } = useVisualizerContext();
@@ -62,6 +63,20 @@ export function AIChat() {
   const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
   const messagesEndRef = React.createRef<HTMLDivElement>();
 
+  useEffect(() => {
+    async function fetchBackendUrl() {
+        try {
+            backendRootUri = (await rpcClient.getMiDiagramRpcClient().getBackendRootUrl()).url;
+            // Do something with backendRootUri
+        } catch (error) {
+            console.error('Failed to fetch backend URL:', error);
+        }
+    }
+
+    fetchBackendUrl();
+
+
+  }, []); 
   useEffect(() => {
     rpcClient.getMiDiagramRpcClient().getProjectUuid().then((response) => {
       projectUuid = response.uuid;
@@ -166,7 +181,7 @@ export function AIChat() {
 
   async function generateSuggestions() {
     setIsSuggestionLoading(true); // Set loading state to true at the start
-    const url = MI_SUGGESTIVE_QUESTIONS_INITIAL_BACKEND_URL + "?num_suggestions=2&q_type=copilot_chat";
+    const url = backendRootUri+MI_SUGGESTIVE_QUESTIONS_INITIAL_BACKEND_URL + "?num_suggestions=2&q_type=copilot_chat";
     fetch(url)
         .then(response => {
           if (!response.ok) {
@@ -222,7 +237,7 @@ export function AIChat() {
         ]);
     }
     console.log(chatArray);
-    const response = await fetch(MI_COPILOT_BACKEND_URL, {
+    const response = await fetch(backendRootUri+MI_COPILOT_BACKEND_URL, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
