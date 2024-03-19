@@ -7,7 +7,7 @@ import { MediatorPage } from './mediators';
 import { AIPage } from './ai';
 
 const SidePanelContainer = styled.div`
-    padding: 15px;
+    padding: 15px 0 15px 15px;
 
     *{font-family: var(--font-family)}
 `;
@@ -76,7 +76,6 @@ const SidePanelList = (props: SidePanelListProps) => {
 
     const handleClose = () => {
         sidePanelContext.setSidePanelState({
-            ...sidePanelContext,
             isOpen: false,
             isEditing: false,
             formValues: {},
@@ -107,8 +106,8 @@ const SidePanelList = (props: SidePanelListProps) => {
                 <>
                     {/* Header */}
                     <ButtonContainer>
-                        {(pageStack.length === 0 || sidePanelContext.isEditing) ? <div style={{ flex: "1" }}></div> :
-                            <Codicon name="arrow-left" sx={{ flex: "1" }} onClick={handleGoBack} />}
+                        {(pageStack.length === 0 || sidePanelContext.isEditing) ? <div></div> :
+                            <Codicon name="arrow-left" sx={{ width: "20px", position: "absolute", left: "0px", paddingLeft: "25px" }} onClick={handleGoBack} />}
 
                         {pageStack.length === 0 && <Switch
                             leftLabel="Add"
@@ -124,8 +123,8 @@ const SidePanelList = (props: SidePanelListProps) => {
                             }}
                         />}
 
-                        {pageStack.length > 0 && title !== undefined && <h3 style={{ flex: "1", textAlign: "center" }}>{title}</h3>}
-                        <Codicon name="close" sx={{ flex: "1", textAlign: "right" }} onClick={handleClose} />
+                        {pageStack.length > 0 && title !== undefined && <h3 style={{ textAlign: "center", width: "355px" }}>{title}</h3>}
+                        <Codicon name="close" sx={{ textAlign: "right", width: "20px", position: "absolute", right: "0px", paddingRight: "16px" }} onClick={handleClose} />
                     </ButtonContainer>
 
                     {/* Content */}
@@ -138,7 +137,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                             {isAddMediator && <MediatorPage nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={setContent} />}
                             {isGenerate && <AIPage />}
                         </>}
-                        {pageStack.length > 0 && pageStack[pageStack.length - 1]}
+                        <div style={{ marginBottom: "30px" }}>{pageStack.length > 0 && pageStack[pageStack.length - 1]}</div>
                     </div>
                 </>}
         </SidePanelContainer>

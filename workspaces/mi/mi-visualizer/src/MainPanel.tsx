@@ -11,7 +11,6 @@ import { ProjectWizard } from './views/Forms/ProjectForm';
 import { ImportProjectWizard } from './views/Forms/ImportProjectForm';
 import { TaskWizard } from './views/Forms/TaskForm';
 import { MessageStoreWizard } from './views/Forms/MessageStoreForm/index';
-import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 import { MessageProcessorWizard } from "./views/Forms/MessageProcessorForm";
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import { GettingStarted } from "./views/GettingStarted";
@@ -27,9 +26,9 @@ import { AddressEndpointWizard } from "./views/Forms/AddressEndpointForm";
 import { WsdlEndpointWizard } from "./views/Forms/WSDLEndpointForm";
 import { DefaultEndpointWizard } from "./views/Forms/DefaultEndpointForm";
 import { LoadBalanceWizard } from './views/Forms/LoadBalanceEPform';
-import { css, keyframes } from '@emotion/react';
 import { getSyntaxTreeType } from './utils/syntax-tree';
 import { FailoverWizard } from './views/Forms/FailoverEndpointForm';
+import { ProxyView, ResourceView, SequenceView } from './views/Diagram';
 
 const MainContainer = styled.div`
     display: flex;
@@ -55,29 +54,32 @@ const ProgressRing = styled(VSCodeProgressRing)`
     padding: 4px;
 `;
 
+const ViewContainer = styled.div({});
+
 const MainPanel = () => {
     const { rpcClient } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [showAIWindow, setShowAIWindow] = useState<boolean>(false);
     const [machineView, setMachineView] = useState<MACHINE_VIEW>();
+    const [showNavigator, setShowNavigator] = useState<boolean>(true);
+    const [stateUpdated, setStateUpdated] = React.useState<boolean>(false);
+
+    rpcClient?.onStateChanged((newState: MachineStateValue) => {
+        if (typeof newState === 'object' && 'newProject' in newState && newState.newProject === 'viewReady') {
+            setStateUpdated(!stateUpdated);
+        }
+        if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewReady') {
+            setStateUpdated(!stateUpdated);
+        }
+        if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewEditing') {
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.EDIT_DONE, location: null });
+            setStateUpdated(!stateUpdated);
+        }
+    });
 
     useEffect(() => {
         fetchContext();
-
-        rpcClient?.onStateChanged((newState: MachineStateValue) => {
-            if (typeof newState === 'object' && 'newProject' in newState && newState.newProject === 'viewReady') {
-                fetchContext();
-            }
-            if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewReady') {
-                fetchContext();
-            }
-            if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewEditing') {
-                rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.EDIT_DONE, location: null });
-                fetchContext();
-            }
-        });
-
-    }, []);
+    }, [stateUpdated]);
 
     useEffect(() => {
         rpcClient.getVisualizerState().then((machineView) => {
@@ -103,32 +105,81 @@ const MainPanel = () => {
         };
     }, []);
 
+    const getUniqueKey = (model: any, documentUri: string) => {
+        return `${JSON.stringify(model?.range)}-${documentUri}`;
+    }
 
     const fetchContext = () => {
         rpcClient.getVisualizerState().then((machineView) => {
+            let shouldShowNavigator = true;
             switch (machineView?.view) {
                 case MACHINE_VIEW.Welcome:
                     setViewComponent(<GettingStarted />);
+                    shouldShowNavigator = false;
                     break;
                 case MACHINE_VIEW.Overview:
-                    setViewComponent(<Overview />);
+                    setViewComponent(<Overview stateUpdated />);
                     break;
-                case MACHINE_VIEW.Diagram:
+                case MACHINE_VIEW.ResourceView:
                     rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri }).then((st) => {
                         if (!st?.syntaxTree) {
                             return;
                         }
 
                         rpcClient.getMiDiagramRpcClient().getDiagnostics({ documentUri: machineView.documentUri }).then((diagnostics) => {
-
                             const identifier = machineView.identifier;
-                            let model;
-                            if (identifier != undefined && st.syntaxTree.api?.resource) {
-                                model = st.syntaxTree.api.resource[identifier];
-                            } else if (getSyntaxTreeType(st.syntaxTree)) {
-                                model = getSyntaxTreeType(st.syntaxTree);                   
-                            }
-                            setViewComponent(<Diagram model={model} documentUri={machineView.documentUri} diagnostics={diagnostics.diagnostics} />);
+                            const model = st.syntaxTree.api.resource[identifier];
+
+                            setViewComponent(
+                                <ResourceView
+                                    key={getUniqueKey(model, machineView.documentUri)}
+                                    model={model}
+                                    documentUri={machineView.documentUri}
+                                    diagnostics={diagnostics.diagnostics}
+                                />
+                            );
+                        });
+                    });
+                    rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
+                    break;
+                case MACHINE_VIEW.SequenceView:
+                    rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri }).then((st) => {
+                        if (!st?.syntaxTree) {
+                            return;
+                        }
+
+                        rpcClient.getMiDiagramRpcClient().getDiagnostics({ documentUri: machineView.documentUri }).then((diagnostics) => {
+                            const model = st.syntaxTree.sequence;
+
+                            setViewComponent(
+                                <SequenceView
+                                    key={getUniqueKey(model, machineView.documentUri)}
+                                    model={model}
+                                    documentUri={machineView.documentUri}
+                                    diagnostics={diagnostics.diagnostics}
+                                />
+                            );
+                        });
+                    });
+                    rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
+                    break;
+                case MACHINE_VIEW.ProxyView:
+                    rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri }).then((st) => {
+                        if (!st?.syntaxTree) {
+                            return;
+                        }
+
+                        rpcClient.getMiDiagramRpcClient().getDiagnostics({ documentUri: machineView.documentUri }).then((diagnostics) => {
+                            const model = st.syntaxTree.proxy;
+
+                            setViewComponent(
+                                <ProxyView
+                                    key={getUniqueKey(model, machineView.documentUri)}
+                                    model={model}
+                                    documentUri={machineView.documentUri}
+                                    diagnostics={diagnostics.diagnostics}
+                                />
+                            );
                         });
                     });
                     rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
@@ -189,7 +240,8 @@ const MainPanel = () => {
                     setViewComponent(<DefaultEndpointWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.ProjectCreationForm:
-                    setViewComponent(<ProjectWizard />);
+                    setViewComponent(<ProjectWizard cancelView={MACHINE_VIEW.Overview} />);
+                    shouldShowNavigator = false;
                     break;
                 case MACHINE_VIEW.LocalEntryForm:
                     setViewComponent(<LocalEntryWizard path={machineView.documentUri} />);
@@ -206,22 +258,22 @@ const MainPanel = () => {
                 default:
                     setViewComponent(null);
             }
+            // Update the showNavigator state based on the current view
+            setShowNavigator(shouldShowNavigator);
         });
     }
 
     return (
-            <div style={{
-                overflow: "hidden",
-            }}>
-                {!viewComponent ? (
-                    <LoaderWrapper>
-                        <ProgressRing />
-                    </LoaderWrapper>
-                ) : <div>
-                    <NavigationBar />
-                    {viewComponent}
-                </div>}
-            </div>
+        <ViewContainer>
+            {!viewComponent ? (
+                <LoaderWrapper>
+                    <ProgressRing />
+                </LoaderWrapper>
+            ) : <>
+                {showNavigator && <NavigationBar />}
+                {viewComponent}
+            </>}
+        </ViewContainer>
     );
 };
 

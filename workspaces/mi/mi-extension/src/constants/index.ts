@@ -4,8 +4,12 @@ export const MI_COPILOT_BACKEND_URL = "https://cf3a4176-54c9-4547-bcd6-c6fe400ad
 export const COMMANDS = {
     OPEN_PROJECT: "MI.openProject",
     OPEN_AI_PANEL: "MI.openAiPanel",
+    CLEAR_AI_PROMPT: "MI.clearAIPrompt",
     OPEN_WELCOME: "MI.openWelcome",
     SHOW_DIAGRAM: "MI.show.diagram",
+    SHOW_RESOURCE_VIEW: "MI.show.resource-view",
+    SHOW_SEQUENCE_VIEW: "MI.show.sequence-view",
+    SHOW_PROXY_VIEW: "MI.show.proxy-view",
     SHOW_TASK: "MI.show.task",
     SHOW_INBOUND_ENDPOINT: "MI.show.inbound-endpoint",
     SHOW_SOURCE: "MI.show.source",

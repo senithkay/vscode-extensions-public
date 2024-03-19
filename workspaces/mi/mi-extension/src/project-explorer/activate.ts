@@ -199,9 +199,17 @@ export function activateProjectExplorer(context: ExtensionContext) {
 	});
 
 	// action items
-	commands.registerCommand(COMMANDS.SHOW_DIAGRAM, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+	commands.registerCommand(COMMANDS.SHOW_RESOURCE_VIEW, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Diagram, documentUri: documentUri?.fsPath, identifier: resourceIndex });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ResourceView, documentUri: documentUri?.fsPath, identifier: resourceIndex });
+	});
+	commands.registerCommand(COMMANDS.SHOW_SEQUENCE_VIEW, (documentUri: Uri, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceView, documentUri: documentUri?.fsPath });
+	});
+	commands.registerCommand(COMMANDS.SHOW_PROXY_VIEW, (documentUri: Uri, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProxyView, documentUri: documentUri?.fsPath });
 	});
 	commands.registerCommand(COMMANDS.SHOW_MESSAGE_STORE, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);

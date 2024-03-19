@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Visitor, STNode, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, Iterate, Switch, Foreach } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Visitor, STNode, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, Iterate, Resource, Switch, Foreach, Bam, ConditionalRouter } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 import { GroupNodeModel } from "../components/nodes/GroupNode/GroupNodeModel";
@@ -64,13 +64,15 @@ export class NodeFactoryVisitor implements Visitor {
         } else if (type === NodeTypes.CONDITION_NODE) {
             diagramNode = new ConditionNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.START_NODE) {
-            diagramNode = new StartNodeModel(node, this.resource, data, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
+            diagramNode = new StartNodeModel(node, data, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.END_NODE) {
             diagramNode = new EndNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
         } else if (type === NodeTypes.CALL_NODE) {
             diagramNode = new CallNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes, data);
-        } else if (type === NodeTypes.EMPTY_NODE || type === NodeTypes.CONDITION_NODE_END) {
+        } else if (type === NodeTypes.EMPTY_NODE) {
             diagramNode = new EmptyNodeModel(node, this.documentUri);
+        } else if (type === NodeTypes.CONDITION_NODE_END) {
+            diagramNode = new EmptyNodeModel(node, this.documentUri, true);
         } else if (type === NodeTypes.PLUS_NODE) {
             diagramNode = new PlusNodeModel(node, name, this.documentUri);
         }
@@ -85,6 +87,7 @@ export class NodeFactoryVisitor implements Visitor {
 
                 const isSequnceConnect = diagramNode instanceof StartNodeModel && previousNode instanceof EndNodeModel;
                 const isEmptyNodeConnect = diagramNode instanceof EmptyNodeModel && previousNode instanceof EmptyNodeModel;
+                const showAddButton = !isSequnceConnect && !(previousNode instanceof EmptyNodeModel && !previousNode.visible);
 
                 const addPosition = this.currentAddPosition != undefined ? this.currentAddPosition :
                     (type === NodeTypes.CONDITION_NODE_END && previousNode instanceof EmptyNodeModel) ? previousStNode.range.endTagRange.start :
@@ -100,7 +103,7 @@ export class NodeFactoryVisitor implements Visitor {
                         previousNode: previousStNode.tag,
                         parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
                         showArrow: !isSequnceConnect,
-                        showAddButton: !isSequnceConnect,
+                        showAddButton: showAddButton,
                         diagnostics: this.currentBranchData?.diagnostics || [],
                     }
                 );
@@ -153,7 +156,7 @@ export class NodeFactoryVisitor implements Visitor {
 
                 // add the end node for each sub flow in group node
                 if (type === NodeTypes.GROUP_NODE) {
-                    sequence.viewState.y = startNode.viewState.y + sequence.viewState.h;
+                    sequence.viewState.y = startNode.viewState.y + sequence.viewState.h - NODE_DIMENSIONS.END.HEIGHT;
                     sequence.viewState.x += (sequence.viewState.w / 2) - (NODE_DIMENSIONS.END.WIDTH / 2);
                     this.createNodeAndLinks(sequence, "", NodeTypes.END_NODE);
                 }
@@ -301,6 +304,45 @@ export class NodeFactoryVisitor implements Visitor {
 
     beginVisitRespond = (node: Respond): void => this.createNodeAndLinks(node, MEDIATORS.RESPOND);
 
+    beginVisitResource = (node: Resource): void => {
+        if (node.inSequenceAttribute) {
+            node.viewState.y = 40;
+            const startNode = structuredClone(node);
+            startNode.viewState.id = "inSequenceStart";
+            this.createNodeAndLinks(startNode, "", NodeTypes.START_NODE, StartNodeType.IN_SEQUENCE);
+
+            const sequneceReferenceNode = structuredClone(node);
+            sequneceReferenceNode.viewState.id = "inSequenceNode";
+            sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
+            sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
+            this.createNodeAndLinks(sequneceReferenceNode, MEDIATORS.SEQUENCE, NodeTypes.REFERENCE_NODE, [node.inSequenceAttribute]);
+
+            const endNode = structuredClone(node);
+            endNode.viewState.id = "inSequenceEnd";
+            endNode.viewState.y = sequneceReferenceNode.viewState.y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
+            endNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.END.WIDTH) / 2;
+            this.createNodeAndLinks(endNode, MEDIATORS.SEQUENCE, NodeTypes.END_NODE);
+
+            node.viewState.y += endNode.viewState.y + NODE_DIMENSIONS.END.HEIGHT;
+        }
+        if (node.outSequenceAttribute) {
+            const startNode = structuredClone(node);
+            startNode.viewState.id = "outSequence";
+            startNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.START.DISABLED.WIDTH) / 2;
+            this.createNodeAndLinks(startNode, "", NodeTypes.START_NODE, StartNodeType.OUT_SEQUENCE);
+
+            const sequneceReferenceNode = structuredClone(node);
+            sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
+            sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
+            this.createNodeAndLinks(sequneceReferenceNode, MEDIATORS.SEQUENCE, NodeTypes.REFERENCE_NODE, [node.inSequenceAttribute]);
+
+            const endNode = structuredClone(node);
+            endNode.viewState.y = sequneceReferenceNode.viewState.y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
+            endNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.END.WIDTH) / 2;
+            this.createNodeAndLinks(endNode, MEDIATORS.SEQUENCE, NodeTypes.END_NODE);
+        }
+    }
+
     beginVisitSend = (node: Send): void => {
         this.createNodeAndLinks(node, MEDIATORS.SEND, NodeTypes.CALL_NODE, node.endpoint);
         this.skipChildrenVisit = true;
@@ -320,7 +362,7 @@ export class NodeFactoryVisitor implements Visitor {
                 character: node.range.startTagRange.end.character
             }
             this.currentAddPosition = addPosition;
-            this.createNodeAndLinks(node, "", NodeTypes.START_NODE);
+            this.createNodeAndLinks(node, "", NodeTypes.START_NODE, StartNodeType.IN_SEQUENCE);
             this.diagramType = DiagramType.SEQUENCE;
         }
         this.parents.push(node);
@@ -461,6 +503,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.parents.pop();
         this.skipChildrenVisit = false;
     }
+    beginVisitConditionalRouter = (node: ConditionalRouter): void => this.createNodeAndLinks(node, MEDIATORS.CONDITIONALROUTER);
     // Extension Mediators
     beginVisitBean(node: Bean): void {
         this.createNodeAndLinks(node, MEDIATORS.BEAN);
@@ -518,6 +561,17 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitSpring(node: Spring): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+
+    //Other Mediators
+    beginVisitBam(node: Bam): void {
+        this.createNodeAndLinks(node, MEDIATORS.BAM);
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitBam(node: Bam): void {
         this.parents.pop();
         this.skipChildrenVisit = false;
     }

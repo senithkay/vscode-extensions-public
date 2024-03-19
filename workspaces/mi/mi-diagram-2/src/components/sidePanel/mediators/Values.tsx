@@ -58,7 +58,9 @@ import EnqueueForm from "../Pages/mediators/advanced/enqueue"
 import EventForm from "../Pages/mediators/advanced/event"
 import TransactionForm from "../Pages/mediators/advanced/transaction"
 import CacheForm from "../Pages/mediators/advanced/cache"
-import SwitchForm from "../Pages/mediators/filter/switch"
+import SwitchForm from "../Pages/mediators/filter/switchMediator"
+import BamForm from "../Pages/mediators/other/bam"
+import ConditionalRouterForm from "../Pages/mediators/filter/cond_router"
 
 export interface GetMediatorsProps {
     nodePosition: any;
@@ -69,38 +71,6 @@ export interface GetMediatorsProps {
 export function getAllMediators(props: GetMediatorsProps) {
 
     const allMediators = {
-        "advanced": [
-            {
-                title: "Cache",
-                operationName: MEDIATORS.CACHE,
-                form: <CacheForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CacheForm>,
-            },
-            {
-                title: "Clone",
-                operationName: MEDIATORS.CLONE,
-                form: <CloneForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CloneForm>,
-            },
-            {
-                title: "Dataservice Call",
-                operationName: MEDIATORS.DATASERVICECALL,
-                form: <DataServiceForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DataServiceForm>,
-            },
-            {
-                title: "Enqueue",
-                operationName: MEDIATORS.ENQUEUE,
-                form: <EnqueueForm nodePosition={props.nodePosition} documentUri={props.documentUri}></EnqueueForm>,
-            },
-            {
-                title: "Event",
-                operationName: MEDIATORS.EVENT,
-                form: <EventForm nodePosition={props.nodePosition} documentUri={props.documentUri}></EventForm>,
-            },
-            {
-                title: "Transaction",
-                operationName: MEDIATORS.TRANSACTION,
-                form: <TransactionForm nodePosition={props.nodePosition} documentUri={props.documentUri}></TransactionForm>,
-            }
-        ],
         "core": [
             {
                 title: "Call",
@@ -173,36 +143,21 @@ export function getAllMediators(props: GetMediatorsProps) {
                 form: <ValidateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ValidateForm>,
             }
         ],
-        "extension": [
+        "filter": [
             {
-                title: "Bean",
-                operationName: MEDIATORS.BEAN,
-                form: <BeanForm nodePosition={props.nodePosition} documentUri={props.documentUri}></BeanForm>,
+                title: "Conditional Router",
+                operationName: MEDIATORS.CONDITIONALROUTER,
+                form: <ConditionalRouterForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ConditionalRouterForm>,
             },
             {
-                title: "Class",
-                operationName: MEDIATORS.CLASS,
-                form: <ClassForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ClassForm>,
+                title: "Filter",
+                operationName: MEDIATORS.FILTER,
+                form: <FilterForm nodePosition={props.nodePosition} documentUri={props.documentUri}></FilterForm>,
             },
             {
-                title: "Command",
-                operationName: MEDIATORS.COMMAND,
-                form: <CommandForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CommandForm>,
-            },
-            {
-                title: "EJB",
-                operationName: MEDIATORS.EJB,
-                form: <EJBForm nodePosition={props.nodePosition} documentUri={props.documentUri}></EJBForm>,
-            },
-            {
-                title: "Script",
-                operationName: MEDIATORS.SCRIPT,
-                form: <ScriptForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ScriptForm>,
-            },
-            {
-                title: "Spring",
-                operationName: MEDIATORS.SPRING,
-                form: <SpringForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SpringForm>,
+                title: "Switch",
+                operationName: MEDIATORS.SWITCH,
+                form: <SwitchForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SwitchForm>,
             }
         ],
         "transformation": [
@@ -257,18 +212,6 @@ export function getAllMediators(props: GetMediatorsProps) {
                 form: <XSLTForm nodePosition={props.nodePosition} documentUri={props.documentUri}></XSLTForm>,
             }
         ],
-        "filter": [
-            {
-                title: "Filter",
-                operationName: MEDIATORS.FILTER,
-                form: <FilterForm nodePosition={props.nodePosition} documentUri={props.documentUri}></FilterForm>,
-            },
-            {
-                title: "Switch",
-                operationName: MEDIATORS.SWITCH,
-                form: <SwitchForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SwitchForm>,
-            }
-        ],
         "eip": [
             {
                 title: "Aggregate",
@@ -284,6 +227,77 @@ export function getAllMediators(props: GetMediatorsProps) {
                 title: "Iterate",
                 operationName: MEDIATORS.ITERATE,
                 form: <IterateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></IterateForm>,
+            }
+        ],
+        "advanced": [
+            {
+                title: "Cache",
+                operationName: MEDIATORS.CACHE,
+                form: <CacheForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CacheForm>,
+            },
+            {
+                title: "Clone",
+                operationName: MEDIATORS.CLONE,
+                form: <CloneForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CloneForm>,
+            },
+            {
+                title: "Dataservice Call",
+                operationName: MEDIATORS.DATASERVICECALL,
+                form: <DataServiceForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DataServiceForm>,
+            },
+            {
+                title: "Enqueue",
+                operationName: MEDIATORS.ENQUEUE,
+                form: <EnqueueForm nodePosition={props.nodePosition} documentUri={props.documentUri}></EnqueueForm>,
+            },
+            {
+                title: "Event",
+                operationName: MEDIATORS.EVENT,
+                form: <EventForm nodePosition={props.nodePosition} documentUri={props.documentUri}></EventForm>,
+            },
+            {
+                title: "Transaction",
+                operationName: MEDIATORS.TRANSACTION,
+                form: <TransactionForm nodePosition={props.nodePosition} documentUri={props.documentUri}></TransactionForm>,
+            }
+        ],
+        "extension": [
+            {
+                title: "Bean",
+                operationName: MEDIATORS.BEAN,
+                form: <BeanForm nodePosition={props.nodePosition} documentUri={props.documentUri}></BeanForm>,
+            },
+            {
+                title: "Class",
+                operationName: MEDIATORS.CLASS,
+                form: <ClassForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ClassForm>,
+            },
+            {
+                title: "Command",
+                operationName: MEDIATORS.COMMAND,
+                form: <CommandForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CommandForm>,
+            },
+            {
+                title: "EJB",
+                operationName: MEDIATORS.EJB,
+                form: <EJBForm nodePosition={props.nodePosition} documentUri={props.documentUri}></EJBForm>,
+            },
+            {
+                title: "Script",
+                operationName: MEDIATORS.SCRIPT,
+                form: <ScriptForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ScriptForm>,
+            },
+            {
+                title: "Spring",
+                operationName: MEDIATORS.SPRING,
+                form: <SpringForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SpringForm>,
+            }
+        ],
+        "other": [
+            {
+                title: "BAM",
+                operationName: MEDIATORS.BAM,
+                form: <BamForm nodePosition={props.nodePosition} documentUri={props.documentUri}></BamForm>,
             }
         ]
     };

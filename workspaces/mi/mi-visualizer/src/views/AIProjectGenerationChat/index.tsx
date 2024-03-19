@@ -9,13 +9,15 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import React, { useEffect, useState } from "react";
-import { VisualizerLocation, CreateProjectRequest } from "@wso2-enterprise/mi-core";
+import { VisualizerLocation, CreateProjectRequest, GetWorkspaceContextResponse } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import {TextArea, Button, Switch, Icon, ProgressRing} from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from 'react-markdown';
 import './AIProjectGenerationChat.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { MI_COPILOT_BACKEND_URL } from "../../constants";
+import { MI_ARTIFACT_EDIT_BACKEND_URL, MI_ARTIFACT_GENERATION_BACKEND_URL, MI_SUGGESTIVE_QUESTIONS_BACKEND_URL } from "../../constants";
+import { Collapse } from 'react-collapse';
+import { AI_MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 
 import {
   materialDark,
@@ -50,6 +52,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) 
 // A string array to store all code blocks
 const codeBlocks: string[] = [];
 var projectUuid = "";
+var backendRootUri = "";
 
 export function AIProjectGenerationChat() {
   const { rpcClient } = useVisualizerContext();
@@ -59,55 +62,106 @@ export function AIProjectGenerationChat() {
   const [isLoading, setIsLoading] = useState(false); 
   const [lastQuestionIndex, setLastQuestionIndex] = useState(-1);
   const messagesEndRef = React.createRef<HTMLDivElement>();
+  const [isOpen, setIsOpen] = useState(false);
+  const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
+  const [isCodeLoading, setIsCodeLoading] = useState(false);
+  const [initialPrompt, setInitialPrompt] = useState("");
 
-  useEffect(() => {
-    rpcClient?.getMiDiagramRpcClient().getProjectUuid().then((response) => {
-      projectUuid = response.uuid;
-      const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
-      const storedChatArray = localStorage.getItem(localStorageFile);
-    if (storedChatArray) {
-      const chatArrayFromStorage = JSON.parse(storedChatArray);
-  
-      chatArray = chatArrayFromStorage;
-  
-      // Add the messages from the chat array to the view
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        ...chatArray.map((entry: ChatEntry) => {
-          let role, type;
-          if (entry.role === 'user') {
-            role = 'User';
-            type = 'user_message';
-          } else if (entry.role === 'assistant') {
-            role = 'MI Copilot';
-            type = 'assistant_message';
-          }
-          return {
-            role: role,
-            type: type,
-            content: entry.content,
-          };
-        }),
-      ]);
-  
-      // Set initial messages only if chatArray's length is 0
+    useEffect(() => {
+        async function fetchBackendUrl() {
+            try {
+                backendRootUri = (await rpcClient.getMiDiagramRpcClient().getBackendRootUrl()).url;
+                // Do something with backendRootUri
+            } catch (error) {
+                console.error('Failed to fetch backend URL:', error);
+            }
+        }
 
-    } else {
-      if (chatArray.length === 0) {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-      { role: "", content: "Welcome to the AI Powered Generation and Editing Tool. You may use this tool to generate entirely new Artifacts or to do changes to existing artifacts simply using text based prompts. The context of your generation shall always be the window you have currenly opened.", type: "label" },
-      { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
-      { role: "" , content: "Generate a Sample Hello World API", type: "question"},
-      { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
-      { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
-        ]);
-      }
-    }
-    } );
-    
-  }, []);
+        fetchBackendUrl();
 
+
+      }, []); 
+
+      useEffect(() => {
+        rpcClient?.getMiDiagramRpcClient().getProjectUuid().then((response) => {
+          projectUuid = response.uuid;
+          const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
+          const localStorageQuestionFile = `Question-AIGenerationChat-${projectUuid}`;
+          const storedChatArray = localStorage.getItem(localStorageFile);
+          const storedQuestion = localStorage.getItem(localStorageQuestionFile);
+          const storedCodeBlocks = localStorage.getItem(`codeBlocks-AIGenerationChat-${projectUuid}`);
+          rpcClient.getAIVisualizerState().then((machineView) => { 
+            if(machineView.initialPrompt){
+              setMessages(prevMessages => [
+                ...prevMessages,
+                { role: "User", content: machineView.initialPrompt, type: "initial_prompt" },
+              ]);
+              addChatEntry("user", machineView.initialPrompt);
+              handleSend(false);
+              setInitialPrompt(machineView.initialPrompt);
+              rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.clearAIPrompt"] });
+            } else {
+              if (storedChatArray) {
+                if(storedQuestion){
+                  setMessages(prevMessages => [
+                    ...prevMessages,
+                    { role: "", content: storedQuestion, type: "question" },
+                  ]);
+                }
+                if(storedCodeBlocks){
+                  const codeBlocksFromStorage = JSON.parse(storedCodeBlocks);
+                  codeBlocks.push(...codeBlocksFromStorage);
+                }
+                console.log("Code Blocks: " + codeBlocks);
+                const chatArrayFromStorage = JSON.parse(storedChatArray);
+                chatArray = chatArrayFromStorage;
+            
+                // Add the messages from the chat array to the view
+                setMessages((prevMessages) => [
+                  ...prevMessages,
+                  ...chatArray.map((entry: ChatEntry) => {
+                    let role, type;
+                    if (entry.role === 'user') {
+                      role = 'User';
+                      type = 'user_message';
+                    } else if (entry.role === 'assistant') {
+                      role = 'MI Copilot';
+                      type = 'assistant_message';
+                    }
+                    return {
+                      role: role,
+                      type: type,
+                      content: entry.content,
+                    };
+                  }),
+                ]);
+            
+                // Set initial messages only if chatArray's length is 0
+              } else {
+                if (chatArray.length === 0) {
+                  setMessages((prevMessages) => [
+                    ...prevMessages,
+                    { role: "", content: "Welcome to the AI Powered Generation and Editing Tool. You may use this tool to generate entirely new Artifacts or to do changes to existing artifacts simply using text based prompts. The context of your generation shall always be the window you have currenly opened.", type: "label" },
+                    { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
+                    // { role: "" , content: "Generate a Sample Hello World API", type: "question"},
+                    // { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
+                    // { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
+                  ]);
+                  if(storedQuestion){
+                    setMessages(prevMessages => [
+                      ...prevMessages,
+                      { role: "", content: storedQuestion, type: "question" },
+                    ]);
+                  } else {
+                    console.log("Fetching initial questions");
+                    generateSuggestions();
+                  }
+                }
+              }
+            }
+          });
+        });
+      }, []);
 
   function addChatEntry(role: string, content: string): void {
       chatArray.push({
@@ -119,6 +173,10 @@ export function AIProjectGenerationChat() {
       
   }
 
+  useEffect(() => {
+  // This code will run after isCodeLoading updates
+  console.log(isCodeLoading);
+}, [isCodeLoading]); // The dependency array ensures this effect runs whenever isCodeLoading changes
 
   useEffect(() => {
     // Step 2: Scroll into view when messages state changes
@@ -135,16 +193,83 @@ export function AIProjectGenerationChat() {
     }
   }, [rpcClient]);
 
+  interface ApiResponse {
+    event: string;
+    error: string | null;
+    questions: string[];
+  }
+
+
+  useEffect(() => {
+    console.log("Suggestions: " + isSuggestionLoading);
+  } , [isSuggestionLoading]);
+
+  async function generateSuggestions() {
+    setIsSuggestionLoading(true); // Set loading state to true at the start
+    const url = MI_SUGGESTIVE_QUESTIONS_BACKEND_URL;
+    var view = ""
+    var context: GetWorkspaceContextResponse[] = [];
+    //Get machine view
+    const machineView = await rpcClient.getAIVisualizerState();
+      switch (machineView?.view) {
+          case AI_MACHINE_VIEW.AIOverview:
+              view = "Overview";
+              break;
+          case AI_MACHINE_VIEW.AIArtifact:
+              view = "Artifact";
+              break;
+          default:
+            view = "Overview";
+            console.log("default");  
+      }
+      if(view == "Overview"){
+            await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
+              context = [response]; // Wrap the response in an array
+            } );
+      }else if(view == "Artifact"){
+            await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
+              context = [response]; // Wrap the response in an array
+            } );
+      }
+      console.log(JSON.stringify({messages: chatArray, context : context[0].context}));
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({messages: chatArray, context : context[0].context, num_suggestions:1, type: "artifact_gen" }),
+    });
+    if (!response.ok) {
+        throw new Error("Failed to fetch initial questions");
+    }
+    const data = await response.json() as ApiResponse;
+    if (data.event === "suggestion_generation_success") {
+        // Extract questions from the response
+        const initialQuestions = data.questions.map(question => ({
+            role: "",
+            content: question,
+            type: "question"
+        }));
+        // Update the state with the fetched questions
+        setMessages(prevMessages => [...prevMessages, ...initialQuestions]);
+    } else {
+        throw new Error("Failed to generate suggestions: " + data.error);
+    }
+    setIsSuggestionLoading(false); // Set loading state to false after fetch is successful
+   }
+
+
   async function handleSend (isQuestion: boolean = false) {
+    console.log(chatArray);
+    var context: GetWorkspaceContextResponse[] = [];
     setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
     setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'question'));
-    await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
-      console.log(response);
-    } );
 
     setIsLoading(true);
     let assistant_response = "";
-    addChatEntry("user", userInput);
+    if(!isQuestion){
+      addChatEntry("user", userInput);
+    }
     setUserInput("");
     setMessages(prevMessages => prevMessages.filter((message, index) => index <= lastQuestionIndex || message.type !== 'question'));
     if(isQuestion){
@@ -154,24 +279,61 @@ export function AIProjectGenerationChat() {
                 { role: "MI Copilot", content: "", type:"assistant_message"}, // Add a new message for the assistant
           ]);
     }else{
-        setMessages(prevMessages => [
+      if(userInput!=""){
+          setMessages(prevMessages => [
             ...prevMessages,
             { role: "User", content: userInput, type: "user_message"},
             { role: "MI Copilot", content: "", type:"assistant_message"}, // Add a new message for the assistant
-        ]);
+      ]);
+      }else{
+        setMessages(prevMessages => [
+          ...prevMessages,
+          { role: "MI Copilot", content: "", type:"assistant_message"}, // Add a new message for the assistant
+    ]);
+      }
+       
     }
-
-    const response = await fetch(MI_COPILOT_BACKEND_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({messages: chatArray}),
+    var backendUrl = ""
+    var view = ""
+    //Get machine view
+    const machineView = await rpcClient.getAIVisualizerState();
+      switch (machineView?.view) {
+          case AI_MACHINE_VIEW.AIOverview:
+              backendUrl = MI_ARTIFACT_GENERATION_BACKEND_URL;
+              view = "Overview";
+              break;
+          case AI_MACHINE_VIEW.AIArtifact:
+              backendUrl = MI_ARTIFACT_EDIT_BACKEND_URL;
+              view = "Artifact";
+              break;
+          default:
+            backendUrl = MI_ARTIFACT_GENERATION_BACKEND_URL;
+            view = "Overview";
+            console.log("default");
+              
+      }
+      if(view == "Overview"){
+            await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
+              context = [response]; // Wrap the response in an array
+            } );
+      }else if(view == "Artifact"){
+            await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
+              context = [response]; // Wrap the response in an array
+            } );
+      }
+      console.log(context[0].context);
+    const response = await fetch(backendUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({messages: chatArray, context : context[0].context}),
     })
     const reader = response.body?.getReader();
     const decoder = new TextDecoder();
     let result = '';
-
+    let codeBuffer = '';
+    let codeLoad = false;
     while (true) {
         const { done, value } = await reader.read();
         if (done){
@@ -199,15 +361,22 @@ export function AIProjectGenerationChat() {
                   ]);
             }else{
                     assistant_response += json.content;
+                    if(json.content.includes("``")){
+                        setIsCodeLoading(prevIsCodeLoading => !prevIsCodeLoading);
+                    }
+                       
                     setMessages(prevMessages => {
-                      const newMessages = [...prevMessages];
-                      newMessages[newMessages.length - 1].content += json.content;
-                      return newMessages;
+                        const newMessages = [...prevMessages];
+                        newMessages[newMessages.length - 1].content += json.content;
+                        return newMessages;
                     });
+
                   const regex = /```[\s\S]*?```/g;
                   let match;
                   while ((match = regex.exec(assistant_response)) !== null) {
-                    codeBlocks.push(match[0]);
+                    if (!codeBlocks.includes(match[0])) {
+                      codeBlocks.push(match[0]);
+                    }
                   }
             }
           } catch (error) {
@@ -227,6 +396,8 @@ export function AIProjectGenerationChat() {
             console.error('Error parsing JSON:', error);
           }
         }
+      localStorage.setItem(`codeBlocks-AIGenerationChat-${projectUuid}`, JSON.stringify(codeBlocks));
+
   };
 
 
@@ -237,25 +408,31 @@ export function AIProjectGenerationChat() {
         } );
 
         //clear code blocks array and the chat array
-        codeBlocks.length = 0;
-        chatArray.length = 0;
+        // codeBlocks.length = 0;
+        // chatArray.length = 0;
 
-        setMessages((prevMessages) => [
-          { role: "", content: "Welcome to the AI Powered Generation and Editing Tool. You may use this tool to generate entirely new Artifacts or to do changes to existing artifacts simply using text based prompts. The context of your generation shall always be the window you have currenly opened.", type: "label" },
-          { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
-          { role: "" , content: "Generate a Sample Hello World API", type: "question"},
-          { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
-          { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
-        ]);
+        // setMessages((prevMessages) => [
+        //   { role: "", content: "Welcome to the AI Powered Generation and Editing Tool. You may use this tool to generate entirely new Artifacts or to do changes to existing artifacts simply using text based prompts. The context of your generation shall always be the window you have currenly opened.", type: "label" },
+        //   { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
+        //   { role: "" , content: "Generate a Sample Hello World API", type: "question"},
+        //   { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
+        //   { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
+        // ]);
 
         //clear the local storage
-        localStorage.removeItem(`chatArray-AIGenerationChat-${projectUuid}`);
-
-
-
-
+        // localStorage.removeItem(`chatArray-AIGenerationChat-${projectUuid}`);
+        // localStorage.removeItem(`Question-AIGenerationChat-${projectUuid}`);
   }
 
+  const handleAddSelectiveCodetoWorkspace = async (codeSegment: string) => {
+
+      var selectiveCodeBlocks: string[] = [];
+      selectiveCodeBlocks.push(codeSegment);
+      await rpcClient.getMiDiagramRpcClient().writeContentToFile({content: selectiveCodeBlocks}).then((response) => {
+         console.log(response);
+       } );
+
+ }
 
   function splitContent(content: string) {
     const segments = [];
@@ -310,17 +487,23 @@ export function AIProjectGenerationChat() {
     setMessages((prevMessages) => [
       { role: "", content: "Welcome to the AI Powered Generation and Editing Tool. You may use this tool to generate entirely new Artifacts or to do changes to existing artifacts simply using text based prompts. The context of your generation shall always be the window you have currenly opened.", type: "label" },
       { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
-      { role: "" , content: "Generate a Sample Hello World API", type: "question"},
-      { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
-      { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
+      // { role: "" , content: "Generate a Sample Hello World API", type: "question"},
+      // { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
+      // { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
     ]);
+
+    generateSuggestions();
 
     //clear the local storage
     localStorage.removeItem(`chatArray-AIGenerationChat-${projectUuid}`);
+    localStorage.removeItem(`Question-AIGenerationChat-${projectUuid}`);
     
   }
 
   const questionMessages = messages.filter(message => message.type === "question");
+  if(questionMessages.length > 0){
+    localStorage.setItem(`Question-AIGenerationChat-${projectUuid}`, questionMessages[questionMessages.length-1].content);
+  }
   const otherMessages = messages.filter(message => message.type !== "question");
 
   return (
@@ -338,21 +521,52 @@ export function AIProjectGenerationChat() {
         {message.type !== "question" && message.type !== "label" && <strong>{message.role}:</strong>}
                 {splitContent(message.content).map((segment, i) =>
           segment.isCode ? (
-            <SyntaxHighlighter key={i} language="xml" style={materialOceanic}>
-              {segment.text}
-            </SyntaxHighlighter>
+            
+              <div>
+                <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between'}}>
+                  <div onClick={() => setIsOpen(!isOpen)}>
+                    <a style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                      <Icon name={isOpen ? 'arrow-down-solid' : 'arrow-right-solid'} />
+                      <span style={{ fontStyle: 'italic' }}>{isOpen ? 'Hide Code' : 'Show Code'}</span>
+                    </a>
+                  </div>
+                  <div onClick={() => handleAddSelectiveCodetoWorkspace(segment.text)}>
+                    <a style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                      <Icon name='plus-solid' />
+                      <span style={{ fontStyle: 'italic' }}>Add Code</span>
+                    </a>
+                  </div>
+                </div>
+                <Collapse isOpened={isOpen}>
+                  <SyntaxHighlighter key={i} language="xml" style={materialOceanic}>
+                    {segment.text}
+                  </SyntaxHighlighter>
+                </Collapse>
+              </div>
+            
           ) : (
+            
             <MarkdownRenderer key={i} markdownContent={segment.text} />
+          
           )
         )}
 
         </div>
       ))}
-
+      {/* {isCodeLoading && (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          Generating Code &nbsp;&nbsp; <ProgressRing sx={{position: "relative"}}/>
+        </div>
+      )} */}
        <div ref={messagesEndRef} />
       </div>
 
-      <div style={{ paddingTop: "15px", marginLeft: "10px" }}>
+        <div style={{ paddingTop: "15px", marginLeft: "10px" }}>
+        {isSuggestionLoading && (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          Generating suggestions for you... &nbsp;&nbsp; <ProgressRing sx={{position: "relative"}}/>
+                        </div>
+          )}
           {questionMessages.map((message, index) => (
             <div key={index} style={{ marginBottom: "5px" }}>
               <a

@@ -18,7 +18,7 @@ import {
     CheckBoxGroup,
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { SIDE_PANEL_WIDTH } from "../Diagram";
+import { SIDE_PANEL_WIDTH } from "../../../constants";
 
 export type Protocol = "http" | "https";
 
@@ -35,7 +35,7 @@ export type ResourceProps = {
     isOpen: boolean;
     sequenceData: EditSequenceForm;
     onCancel: () => void;
-    onEdit: (data: EditSequenceForm) => void;
+    onSave: (data: EditSequenceForm) => void;
 };
 
 const ActionContainer = styled.div`
@@ -50,10 +50,9 @@ const SidePanelBodyWrapper = styled.div`
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding: 20px;
 `;
 
-export function EditSequenceForm({ sequenceData, isOpen, onCancel, onEdit }: ResourceProps) {
+export function EditSequenceForm({ sequenceData, isOpen, onCancel, onSave }: ResourceProps) {
     const [name, setName] = useState<string>(sequenceData.name);
     const [trace, setTrace] = useState<boolean>(sequenceData.trace);
     const [statistics, setStatistics] = useState<boolean>(sequenceData.statistics);
@@ -75,14 +74,13 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onEdit }: Res
             sx={{ transition: "all 0.3s ease-in-out" }}
         >
             <SidePanelTitleContainer>
-                <div>Edit Sequence</div>
-                <Button onClick={onCancel} appearance="icon">
+                <Button sx={{ marginLeft: "auto" }} onClick={onCancel} appearance="icon">
                     <Codicon name="close" />
                 </Button>
             </SidePanelTitleContainer>
             <SidePanelBody>
                 <SidePanelBodyWrapper>
-                    <h3>Sequence</h3>
+                    <h3>Edit Sequence</h3>
                     <TextField
                         id="seq-name"
                         label="Name"
@@ -103,7 +101,7 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onEdit }: Res
                         <Button
                             appearance="primary"
                             onClick={() =>
-                                onEdit({
+                                onSave({
                                     name,
                                     trace,
                                     statistics,
@@ -120,3 +118,4 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onEdit }: Res
         </SidePanel>
     );
 }
+

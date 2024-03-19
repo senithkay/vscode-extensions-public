@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 export function getEditServiceTemplate() {
-    return `<api name="{{{name}}}" context="{{{context}}}" version="{{{version}}}" version-type="{{version_type}}">`
+    return `<api name="{{{name}}}" context="{{{context}}}"{{#version}} version="{{{version}}}" version-type="{{version_type}}" {{/version}} xmlns="http://ws.apache.org/ns/synapse">`
 }
 
 export function getAddApiResourceTemplate() {
@@ -17,5 +17,13 @@ export function getAddApiResourceTemplate() {
         <faultSequence>
         </faultSequence>
     </resource>`;
+}
+
+export const getEditApiResourceTemplate = () => {
+    return `<resource methods="{{methods}}"{{#uri_template}} uri-template="{{{uri_template}}}"{{/uri_template}}{{#url_mapping}} url-mapping="{{{url_mapping}}}"{{/url_mapping}}{{#in_sequence}} inSequence="{{{in_sequence}}}"{{/in_sequence}}{{#out_sequence}} outSequence="{{{out_sequence}}}"{{/out_sequence}}{{#fault_sequence}} faultSequence="{{{fault_sequence}}}"{{/fault_sequence}}>`
+}
+
+export const getEditSequenceTemplate = () => {
+    return `<sequence name="{{name}}"{{#trace}} trace="{{{trace}}}"{{/trace}}{{#statistics}} statistics="{{{statistics}}}"{{/statistics}}{{#onError}} onError="{{{onError}}}"{{/onError}}>`
 }
 

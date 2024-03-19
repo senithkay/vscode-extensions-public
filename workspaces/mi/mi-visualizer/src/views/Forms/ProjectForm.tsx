@@ -50,8 +50,7 @@ export interface Region {
     value: string;
 }
 
-export function ProjectWizard() {
-
+export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
     const { rpcClient } = useVisualizerContext();
     const [projectName, setProjectName] = useState("");
     const [projectDir, setProjectDir] = useState("");
@@ -85,9 +84,7 @@ export function ProjectWizard() {
     };
 
     const handleCancel = () => {
-        console.log("cancel");
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
-
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: cancelView } });
     };
 
     const handleBackButtonClick = () => {
@@ -139,7 +136,7 @@ export function ProjectWizard() {
                 <Container>
                     <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
                     <div style={{ marginLeft: 30 }}>
-                        <Typography variant="h3">Integration Project</Typography>
+                        <Typography variant="h3">Create New Project</Typography>
                     </div>
                 </Container>
                 <TextField
@@ -153,7 +150,7 @@ export function ProjectWizard() {
                     autoFocus
                     required
                 />
-                <LocationSelector 
+                <LocationSelector
                     label="Select Project Directory"
                     selectionText="Project Location"
                     selectedFile={projectDir}

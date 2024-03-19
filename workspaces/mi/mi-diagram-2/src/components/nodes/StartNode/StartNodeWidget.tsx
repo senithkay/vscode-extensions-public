@@ -11,11 +11,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { StartNodeModel, StartNodeType } from "./StartNodeModel";
-import { Colors, SequenceType } from "../../../resources/constants";
-import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EditFormProps, NodeKindChecker, generateFormData, getOpenedForm, onFormEdit } from "../../../utils/form";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { Colors } from "../../../resources/constants";
 
 namespace S {
     export const Node = styled.div<{}>`
@@ -23,10 +19,6 @@ namespace S {
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
-    `;
-
-    export const StyledSvg = styled.svg`
-        cursor: pointer;
     `;
 }
 
@@ -37,67 +29,26 @@ interface CallNodeWidgetProps {
 
 export function StartNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine } = props;
-    const model = node.getStNode() as any;
-    const nodeType = model.tag;
-    const documentUri = node.getDocumentUri();
-    const { rpcClient } = useVisualizerContext();
-    const sidePanelContext = React.useContext(SidePanelContext);
+    const nodeType = node.getNodeType();
     const [hovered, setHovered] = React.useState(false);
 
-    const serviceData = React.useMemo(() => {
-        let data: EditFormProps;
-        if (model) {
-            data = generateFormData(model);
-        }
-
-        return data;
-    }, [model]);
-
-    const onEdit = React.useCallback(
-        (formData: EditFormProps) => onFormEdit(model, formData, documentUri, sidePanelContext, rpcClient),
-        [model]
-    );
-
-    const handleClick = () => {
-        if (NodeKindChecker.isProxy(model)) {
-            rpcClient.getMiVisualizerRpcClient().openView({
-                type: EVENT_TYPE.OPEN_VIEW,
-                location: {
-                    view: MACHINE_VIEW.ProxyServiceForm,
-                    documentUri: documentUri,
-                }
-            });
-        } else {
-            sidePanelContext.setSidePanelState({
-                ...getOpenedForm(model),
-                serviceData: serviceData,
-                onServiceEdit: onEdit,
-            });
-        }
-        
-    };
-
-    const getEditableSvg = (nodeName?: string) => (
-        <S.StyledSvg
-            onClick={handleClick}
+    const getNamedStartNode = () => (
+        <svg
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
             width="100"
             height="40"
             viewBox="0 0 100 40"
         >
-            <path
-                fill={hovered ? Colors.SECONDARY : Colors.PRIMARY}
-                d="m20,0 h60 a20,20,0,0,1,0,40 h-60 a-20,-20,0,0,1,0,-40 z"
-            />
-            <path fill={Colors.SURFACE_BRIGHT} d="m20,2 h60 a18,18,0,0,1,0,36 h-60 a-18,-18,0,0,1,0,-36 z" />
-            <text x="50%" y="50%" alignmentBaseline="middle" textAnchor="middle" fill={Colors.ON_SURFACE}>
-                {nodeName || "Start"}
+            <rect x="0" y="0" width="100" height="40" rx="20" fill={hovered ? Colors.SECONDARY : Colors.PRIMARY} />
+            <rect x="2" y="2" width="96" height="36" rx="18" fill={Colors.SURFACE_BRIGHT} />
+            <text x="50%" y="50%" fill={Colors.ON_SURFACE} textAnchor="middle" alignmentBaseline="central">
+                Start
             </text>
-        </S.StyledSvg>
+        </svg>
     );
 
-    const getDisabledSvg = () => (
+    const getStartNode = () => (
         <svg width="24" height="24" viewBox="0 0 32 32">
             <circle cx="16" cy="16" r="10" fill={Colors.PRIMARY} />
             <path
@@ -108,24 +59,11 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
     );
 
     const getSVGNode = () => {
-        if (NodeKindChecker.isAPIResource(model)) {
-            switch (node.getNodeType()) {
-                case StartNodeType.IN_SEQUENCE:
-                    return getEditableSvg(model.uriTemplate || model.urlMapping);
-                default:
-                    return getDisabledSvg();
-            }
-        } else if (NodeKindChecker.isNamedSequence(model)) {
-            return getEditableSvg(model.name);
-        } else if (NodeKindChecker.isProxy(model)) {
-            switch (nodeType as SequenceType) {
-                case SequenceType.IN_SEQUENCE:
-                    return getEditableSvg(model.name);
-                default:
-                    return getDisabledSvg();
-            }
-        } else {
-            return getDisabledSvg();
+        switch (nodeType) {
+            case StartNodeType.IN_SEQUENCE:
+                return getNamedStartNode();
+            default:
+                return getStartNode();
         }
     };
 
