@@ -280,7 +280,7 @@
       {
         "command": "MI.build-and-run",
         "title": "Build and Run",
-        "icon": "$(distro-start)",
+        "icon": "$(debug-start)",
         "category": "MI"
       }
     ],
