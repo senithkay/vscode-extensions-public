@@ -47,6 +47,7 @@ import * as Ports from "./Port";
 import { useDiagramModel, useRepositionedNodes } from '../Hooks';
 import { Icon } from '@wso2-enterprise/ui-toolkit';
 import { debounce } from 'lodash';
+import { defaultModelOptions } from './utils/constants';
 
 const classes = {
 	buttonWrap: css({
@@ -75,8 +76,6 @@ interface DataMapperDiagramProps {
 	hideCanvas?: boolean;
 	onError?: (kind: ErrorNodeKind) => void;
 }
-
-const defaultModelOptions = { zoom: 100 }
 
 function initDiagramEngine() {
 	// START TODO: clear this up
@@ -132,7 +131,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	const [engine, setEngine] = useState<DiagramEngine>(initDiagramEngine());
 	const [diagramModel, setDiagramModel] = useState(new DiagramModel(defaultModelOptions));
-	const [hasResized, setHasResized] = useState(false);
+	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 	const [, forceUpdate] = useState({});
 
 	const repositionedNodes = useRepositionedNodes(nodes);
@@ -151,7 +150,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
         if (!isFetching) {
             setDiagramModel(updatedModel);
         }
-    }, [isFetching, updatedModel, hasResized]);
+    }, [isFetching, updatedModel]);
 
 	useEffect(() => {
 		if (!isFetching && engine.getModel()) {
@@ -166,7 +165,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 				}
 			});
 		}
-	}, [diagramModel, isFetching, hasResized]);
+	}, [diagramModel, isFetching, screenWidth]);
 
 	const resetZoomAndOffset = () => {
 		const currentModel = engine.getModel();
@@ -176,7 +175,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	};
 
 	const handleResize = debounce((e: any) => {
-		setHasResized(prev => !prev);
+		setScreenWidth(window.innerWidth);
 	}, 100);
 
 	return (
@@ -200,7 +199,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 						</div>
 						<div
 							className={classes.iconWrap}
-							onClick={() => void engine.zoomToFitNodes({ margin: 20 })}
+							onClick={() => void engine.zoomToFitNodes({ margin: 0 })}
 							data-testid={"fit-to-screen"}
 						>
 							

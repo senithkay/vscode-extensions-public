@@ -12,7 +12,6 @@ import { URI } from "vscode-uri";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 import { LangServerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import {
-    DiagramEngine,
 	DiagramModel,
     DiagramModelGenerics
 } from "@projectstorm/react-diagrams";
@@ -22,7 +21,7 @@ import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
 import { ErrorNodeKind } from '../DataMapper/Error/DataMapperError';
 import { useDMSearchStore } from '../../store/store';
 import { ListConstructorNode, MappingConstructorNode, PrimitiveTypeNode, QueryExpressionNode, RequiredParamNode } from '../Diagram/Node';
-import { OFFSETS } from '../Diagram/utils/constants';
+import { OFFSETS, defaultModelOptions } from '../Diagram/utils/constants';
 import { FromClauseNode } from '../Diagram/Node/FromClause';
 import { UnionTypeNode } from '../Diagram/Node/UnionType';
 import { UnsupportedExprNodeKind, UnsupportedIONode } from '../Diagram/Node/UnsupportedIO';
@@ -141,34 +140,36 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[]) => {
     let numberOfRequiredParamNodes = 0;
     let additionalSpace = 0;
     nodesClone.forEach((node) => {
-        if (node instanceof MappingConstructorNode
-            || node instanceof ListConstructorNode
-            || node instanceof PrimitiveTypeNode
-            || node instanceof UnionTypeNode
-            || (node instanceof UnsupportedIONode && node.kind === UnsupportedExprNodeKind.Output)) {
-                node.setPosition(window.innerWidth - 382, 0);
-        }
-        if (node instanceof RequiredParamNode
-            || node instanceof LetClauseNode
-            || node instanceof JoinClauseNode
-            || node instanceof LetExpressionNode
-            || node instanceof ModuleVariableNode
-            || node instanceof EnumTypeNode)
-        {
-            node.setPosition(OFFSETS.SOURCE_NODE.X, additionalSpace + (requiredParamFields * 40) + OFFSETS.SOURCE_NODE.Y * (numberOfRequiredParamNodes + 1));
-            const isLetExprNode = node instanceof LetExpressionNode;
-            const hasLetVarDecls = isLetExprNode && !!node.letVarDecls.length;
-            requiredParamFields = requiredParamFields
-                + (isLetExprNode && !hasLetVarDecls ? 0 : node.numberOfFields);
-            numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
-            additionalSpace += isLetExprNode && !hasLetVarDecls ? 10 : 0;
-        }
-        if (node instanceof FromClauseNode) {
-            requiredParamFields = requiredParamFields + node.numberOfFields;
-            numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
-        }
-        if (node instanceof ExpandedMappingHeaderNode) {
-            additionalSpace += node.height + OFFSETS.QUERY_MAPPING_HEADER_NODE.MARGIN_BOTTOM;
+        if (node.width !== 0) {
+            if (node instanceof MappingConstructorNode
+                || node instanceof ListConstructorNode
+                || node instanceof PrimitiveTypeNode
+                || node instanceof UnionTypeNode
+                || (node instanceof UnsupportedIONode && node.kind === UnsupportedExprNodeKind.Output)) {
+                    node.setPosition((window.innerWidth -30)*(100/defaultModelOptions.zoom) - node.width, 0);
+            }
+            if (node instanceof RequiredParamNode
+                || node instanceof LetClauseNode
+                || node instanceof JoinClauseNode
+                || node instanceof LetExpressionNode
+                || node instanceof ModuleVariableNode
+                || node instanceof EnumTypeNode)
+            {
+                node.setPosition(OFFSETS.SOURCE_NODE.X, additionalSpace + (requiredParamFields * 40) + OFFSETS.SOURCE_NODE.Y * (numberOfRequiredParamNodes + 1));
+                const isLetExprNode = node instanceof LetExpressionNode;
+                const hasLetVarDecls = isLetExprNode && !!node.letVarDecls.length;
+                requiredParamFields = requiredParamFields
+                    + (isLetExprNode && !hasLetVarDecls ? 0 : node.numberOfFields);
+                numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
+                additionalSpace += isLetExprNode && !hasLetVarDecls ? 10 : 0;
+            }
+            if (node instanceof FromClauseNode) {
+                requiredParamFields = requiredParamFields + node.numberOfFields;
+                numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
+            }
+            if (node instanceof ExpandedMappingHeaderNode) {
+                additionalSpace += node.height + OFFSETS.QUERY_MAPPING_HEADER_NODE.MARGIN_BOTTOM;
+            }
         }
     });
 

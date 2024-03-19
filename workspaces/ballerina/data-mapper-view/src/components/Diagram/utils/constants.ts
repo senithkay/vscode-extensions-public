@@ -12,6 +12,9 @@ export const SELECT_CALUSE_QUERY = "SelectClause.query";
 export const SYMBOL_KIND_CONSTANT = "CONSTANT";
 
 export const JSON_MERGE_MODULE_NAME = "ballerina/lang.value";
+export const defaultModelOptions = { zoom: 90 };
+
+const defaultTargetNodeWidth = 351;
 
 export const OFFSETS = {
     SOURCE_NODE: {
@@ -19,8 +22,7 @@ export const OFFSETS = {
         Y: 0,
     },
     TARGET_NODE: {
-        // X: window.innerWidth-282,
-        X: window.innerWidth-382,
+        X: (window.innerWidth -30)*(100/defaultModelOptions.zoom)-defaultTargetNodeWidth,
         Y: 0
     },
     LET_EXPRESSION_NODE: {
