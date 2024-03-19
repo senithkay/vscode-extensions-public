@@ -16,6 +16,7 @@ import { Button } from "@wso2-enterprise/ui-toolkit";
 import { SAMPLE_ICONS_GITHUB_URL } from "../constants";
 import styled from "@emotion/styled";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { View, ViewContent, ViewHeader } from "../components/View";
 
 const SearchWrapper = styled.div`
     display: flex;
@@ -50,6 +51,13 @@ const GridContainer = styled.div`
     max-height: 70vh;
     overflow-y: auto;
     overflow-x: hidden;
+`;
+
+const SampleGrid = styled.div`
+display: flex;
+flex-wrap: wrap;
+gap: 20px;
+justify-content: center;
 `;
 
 export function SamplesView() {
@@ -115,11 +123,19 @@ export function SamplesView() {
         rpcClient.getMiVisualizerRpcClient().downloadSelectedSampleFromGithub(request);
     }
 
+    function getSampleTitle() {
+        return <div>
+            <h2 style={{ marginBottom: "0px" }}>Samples</h2>
+            <p style={{ marginTop: "0px" }}>Choose a sample from the list below to get started.</p>
+        </div>;
+    }
+
+
+
     return (
-        <div>
-            <h2>Try out a sample</h2>
-            <p>Choose a sample from the list below to get started.</p>
-            <SearchWrapper>
+        <View>
+            <ViewHeader title={getSampleTitle()}>
+                <p>Category</p>
                 <Dropdown
                     id="drop-down"
                     items={categories ? categories.map(category => ({
@@ -127,7 +143,6 @@ export function SamplesView() {
                         text: category.title,
                         value: category.title
                     })) : null}
-                    label="Sample Category"
                     onChange={handleChange}
                     value={filterText}
                     sx={{ width: 230 }}
@@ -135,34 +150,32 @@ export function SamplesView() {
                 <SearchBox
                     value={searchText}
                     autoFocus
-                    label="Search"
                     type="text"
                     onChange={handleSearch}
                 />
-            </SearchWrapper>
-            <br />
-            <GridContainer>
-                <Grid
-                    columns={4}
-                >
-                    {filteredSampleData ? filteredSampleData.sort((a, b) => a.priority - b.priority).map((sample, index) => (
-                        <ComponentCard
-                            disbaleHoverEffect={true}
-                            sx={{ alignItems: "flex-start", width: "220px", marginBottom: "20px" }}>
-                            <SampleContainer key={sample.title}>
-                                <h2 className="card-title" style={{ margin: '0', fontSize: '16px' }}>{sample.title}</h2>
-                                <img src={images[sample.category]} className="card-image" style={{ width: '50%', height: 'auto' }} />
-                                <p className="card-content" style={{ marginTop: '16px', textAlign: 'justify' }}>{sample.description}</p>
-                                <Button appearance="primary" onClick={() => downloadSample(sample.zipFileName)}>Download</Button>
-                            </SampleContainer>
-                        </ComponentCard>
-                    )) : (
-                        <LoaderWrapper>
-                            <ProgressRing />
-                        </LoaderWrapper>
-                    )}
-                </Grid>
-            </GridContainer>
-        </div>
+            </ViewHeader>
+            <ViewContent padding>
+                {filteredSampleData ? (
+                    <SampleGrid>
+                        {filteredSampleData.sort((a, b) => a.priority - b.priority).map((sample, index) => (
+                            <ComponentCard
+                                disbaleHoverEffect={true}
+                                sx={{ alignItems: "flex-start", width: "220px", marginBottom: "20px" }}>
+                                <SampleContainer key={sample.title}>
+                                    <h2 className="card-title" style={{ margin: '0', fontSize: '16px' }}>{sample.title}</h2>
+                                    <img src={images[sample.category]} className="card-image" style={{ width: '50%', height: 'auto' }} />
+                                    <p className="card-content" style={{ marginTop: '16px', textAlign: 'justify' }}>{sample.description}</p>
+                                    <Button appearance="secondary" onClick={() => downloadSample(sample.zipFileName)}>Download</Button>
+                                </SampleContainer>
+                            </ComponentCard>
+                        ))}
+                    </SampleGrid>
+                ) : (
+                    <LoaderWrapper>
+                        <ProgressRing />
+                    </LoaderWrapper>
+                )}
+            </ViewContent>
+        </View>
     );
 }

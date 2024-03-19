@@ -146,25 +146,17 @@ export function Overview(props: OverviewProps) {
                         tooltip="Icon Button"
                     >
                         <Codicon
-                            name="play"
-                        />
-                        &nbsp;Run
-                    </Button>
-                    <Button
-                        appearance="icon"
-                        onClick={() => { }}
-                        tooltip="Icon Button"
-                    >
-                        <Codicon
                             name="combine"
                         />
                         &nbsp;&nbsp;Build
 
                     </Button>
-                    <Button tooltip="Deploy your integration on the Cloud with Choreo">
+                    <Button
+                        appearance="icon"
+                        tooltip="Deploy your integration on the Cloud with Choreo">
                         <Icon
                             name="choreo"
-                            sx={{ marginTop: '2px' }}
+                            sx={{ marginTop: '2px', color: '#5567d5' }}
                         />
                         &nbsp;Deploy in Choreo
                     </Button>
@@ -175,20 +167,22 @@ export function Overview(props: OverviewProps) {
                     <CloseButton onClick={handleClose} appearance="icon" tooltip="Close">
                         <Codicon name="chrome-close" />
                     </CloseButton>
-                    <h3 style={{ margin: '0 0 5px 0' }}>Describe your Integration to get started</h3>
+                    <h3 style={{ margin: '0 0 5px 0', display: 'flex', alignItems: 'center' }}>
+                        <Codicon name="wand" sx={{ marginRight: '5px' }} /> Describe your Integration to generate with AI
+                    </h3>
                     <AIPanel>
-                        <TextArea onChange={handleAiPromptChange} value={inputAiPrompt} rows={4} cols={1000} placeholder="I want to create an API that will route my request based on a header value."></TextArea>
+                        <TextArea onChange={handleAiPromptChange} value={inputAiPrompt} rows={4} cols={1000} placeholder="ie. I want to create an API that will route my request based on a header value."></TextArea>
                         <VSCodeButton onClick={handleGenerateWithAI}>
                             <Codicon name="wand" />
-                            Generate with AI
+                            &nbsp; Generate
                         </VSCodeButton>
                     </AIPanel>
                     <h3>Or, Select an Entry point to Start</h3>
                     <HorizontalCardContainer>
-                        <Card icon="globe" title="API" description="Create a new HTTP API" onClick={() => handleClick("apis")} />
-                        <Card icon="arrow-swap" title="Proxy" description="Create a new Proxy" onClick={() => handleClick("proxyServices")} />
-                        <Card icon="fold-down" title="Task" description="Create a new Task" onClick={() => handleClick("tasks")} />
-                        <Card icon="globe" title="Inbound Endpoint" description="Create a new Inbound Endpoint" onClick={() => handleClick("inboundEndpoints")} />
+                        <Card icon="globe" title="API" description="Create an HTTP API with a defined interface." onClick={() => handleClick("apis")} />
+                        <Card icon="arrow-swap" title="Proxy" description="Create a proxy service to process and route messages." onClick={() => handleClick("proxyServices")} />
+                        <Card icon="tasklist" title="Task" description="Create a task that can be run periodically." onClick={() => handleClick("tasks")} />
+                        <Card icon="fold-down" title="Inbound Endpoint" description="Mediate messages sent via events." onClick={() => handleClick("inboundEndpoints")} />
                     </HorizontalCardContainer>
                 </AddPanel>
 
