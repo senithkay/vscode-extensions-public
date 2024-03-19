@@ -30,6 +30,18 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 	}
 
 	getSVGPath(): string {
+		const screenWidth = window.innerWidth;
+		let controlPointOffset = 260;
+		if (screenWidth >= 1200 && screenWidth < 1500) {
+			controlPointOffset = 300;
+		} else if (screenWidth >= 1000 && screenWidth < 1200) {
+			controlPointOffset = 100;
+		} else if (screenWidth >= 900 && screenWidth < 1000) {
+			controlPointOffset = 60;
+		} else if (screenWidth < 900) {
+			controlPointOffset = 20;
+		}
+		// if (this.points.length === 2 && screenWidth > 1200) {
 		if (this.points.length === 2) {
 			const curve = new BezierCurve();
 			const sourcePoint: Point = new Point(this.getFirstPoint().getPosition().x + 8,
@@ -44,19 +56,11 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 				curve.setTargetControl(targetPoint);
 			} else {
 				const srcControl = sourcePoint.clone();
-				srcControl.translate(220, 0);
+				srcControl.translate(controlPointOffset, 0);
 				const targetControl = targetPoint.clone();
-				targetControl.translate(-220, 0);
+				targetControl.translate(-controlPointOffset, 0);
 				curve.setSourceControl(srcControl);
 				curve.setTargetControl(targetControl);
-
-				if (this.sourcePort) {
-					curve.getSourceControl().translate(...this.calculateControlOffset(this.getSourcePort()));
-				}
-
-				if (this.targetPort) {
-					curve.getTargetControl().translate(...this.calculateControlOffset(this.getTargetPort()));
-				}
 			}
 			return curve.getSVGCurve();
 		}
