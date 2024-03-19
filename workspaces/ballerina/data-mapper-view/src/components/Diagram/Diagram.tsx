@@ -44,9 +44,9 @@ import { QueryExpressionNode } from './Node/QueryExpression';
 import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
 import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
 import * as Ports from "./Port";
-import { OFFSETS } from './utils/constants';
 import { useDiagramModel, useRepositionedNodes } from '../Hooks';
 import { Icon } from '@wso2-enterprise/ui-toolkit';
+import { debounce } from 'lodash';
 
 const classes = {
 	buttonWrap: css({
@@ -129,19 +129,29 @@ function initDiagramEngine() {
 
 function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const { nodes, hideCanvas, onError } = props;
+
 	const [engine, setEngine] = useState<DiagramEngine>(initDiagramEngine());
 	const [diagramModel, setDiagramModel] = useState(new DiagramModel(defaultModelOptions));
-	const repositionedNodes = useRepositionedNodes(nodes);
-	const { updatedModel, isFetching } = useDiagramModel(repositionedNodes, diagramModel, onError);
+	const [hasResized, setHasResized] = useState(false);
 	const [, forceUpdate] = useState({});
 
+	const repositionedNodes = useRepositionedNodes(nodes);
+	const { updatedModel, isFetching } = useDiagramModel(repositionedNodes, diagramModel, onError);
+
 	engine.setModel(diagramModel);
+
+	useEffect(() => {
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
 
 	useEffect(() => {
         if (!isFetching) {
             setDiagramModel(updatedModel);
         }
-    }, [isFetching, updatedModel]);
+    }, [isFetching, updatedModel, hasResized]);
 
 	useEffect(() => {
 		if (!isFetching && engine.getModel()) {
@@ -150,20 +160,24 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 					node.initLinks();
 					const targetPortPosition = node.targetPort?.getPosition();
 					if (targetPortPosition) {
-						node.setPosition(OFFSETS.QUERY_EXPRESSION_NODE.X, targetPortPosition.y - 4.5);
+						node.setPosition(targetPortPosition.x-150, targetPortPosition.y - 4.5);
 						forceUpdate({} as any);
 					}
 				}
 			});
 		}
-	}, [diagramModel, isFetching]);
+	}, [diagramModel, isFetching, hasResized]);
 
 	const resetZoomAndOffset = () => {
 		const currentModel = engine.getModel();
 		currentModel.setZoomLevel(defaultModelOptions.zoom);
 		currentModel.setOffset(0, 0);
 		engine.setModel(currentModel);
-	}
+	};
+
+	const handleResize = debounce((e: any) => {
+		setHasResized(prev => !prev);
+	}, 100);
 
 	return (
 		<>
