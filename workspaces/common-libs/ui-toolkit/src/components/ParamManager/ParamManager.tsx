@@ -176,7 +176,7 @@ export function findFieldFromParam(field: ParamField[], value: Param): ParamFiel
 }
 
 export function ParamManager(props: ParamManagerProps) {
-    const { paramConfigs , readonly, enableParamTitle = true, onChange } = props;
+    const { paramConfigs , readonly, enableParamTitle = false, onChange } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
 
