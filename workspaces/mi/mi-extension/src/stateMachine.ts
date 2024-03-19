@@ -212,14 +212,16 @@ const stateMachine = createMachine<MachineContext>({
         },
         updateStack: (context, event) => {
             return new Promise(async (resolve, reject) => {
-                history.push({
-                    location: {
-                        view: context.view,
-                        documentUri: context.documentUri,
-                        position: context.position,
-                        identifier: context.identifier
-                    }
-                });
+                if (!context.view?.includes("Form")) {
+                    history.push({
+                        location: {
+                            view: context.view,
+                            documentUri: context.documentUri,
+                            position: context.position,
+                            identifier: context.identifier
+                        }
+                    });
+                }
                 resolve(true);
             });
         },
@@ -257,6 +259,10 @@ export const StateMachine = {
 export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
     if (viewLocation?.documentUri) {
         viewLocation.documentUri = Uri.parse(viewLocation.documentUri).fsPath;
+    }
+    // Set the projectUri If undefined.
+    if (!viewLocation?.projectUri) {
+        viewLocation!.projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
     }
     updateProjectExplorer(viewLocation);
     stateService.send({ type: type, viewLocation: viewLocation });

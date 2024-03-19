@@ -50,8 +50,7 @@ export interface Region {
     value: string;
 }
 
-export function ProjectWizard() {
-
+export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
     const { rpcClient } = useVisualizerContext();
     const [projectName, setProjectName] = useState("");
     const [projectDir, setProjectDir] = useState("");
@@ -85,9 +84,7 @@ export function ProjectWizard() {
     };
 
     const handleCancel = () => {
-        console.log("cancel");
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
-
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: cancelView } });
     };
 
     const handleBackButtonClick = () => {

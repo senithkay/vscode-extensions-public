@@ -76,6 +76,8 @@ export const IconTextWrapper = styled.div<ContainerProps>`
     &:hover, &.active {
         ${(props: ContainerProps) => `${props.readonly ? "" : "background: var(--vscode-welcomePage-tileHoverBackground)"}`};
     };
+    overflow-x: scroll;
+    overflow-y: hidden;
 `;
 
 export const headerLabelStyles = cx(css`
@@ -90,6 +92,18 @@ export const headerLabelStyles = cx(css`
     line-height: 14px;
     border: 1px solid var(--vscode-dropdown-border);
     border-left: none;
+`);
+
+export const itemTitle = cx(css`
+    height: 100%;
+    width: 100%;
+    display: flex;
+    margin-left: 10px;
+    align-items: center;
+    justify-content: flex-start;
+    width: calc(100% - 75px);
+    font-weight: bold;
+    line-height: 14px;
 `);
 
 export const OptionLabel = styled.div`

@@ -60,7 +60,6 @@ const SidePanelBodyWrapper = styled.div`
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding: 20px;
 `;
 
 export function AddResourceForm({ isOpen, onCancel: handleCancel, onCreate: handleCreateAPI }: APIResourceWizardProps) {
@@ -78,7 +77,7 @@ export function AddResourceForm({ isOpen, onCancel: handleCancel, onCreate: hand
         options: false,
     };
 
-    const [urlStyle, setUrlStyle] = useState<string>("none");
+    const [urlStyle, setUrlStyle] = useState<string>("uri-template");
     const [uriTemplate, setUriTemplate] = useState<string>("/");
     const [urlMapping, setUrlMapping] = useState<string>("/");
     const [protocol, setProtocol] = useState<{ [K in Protocol]: boolean }>(defaultProtocol);
@@ -90,7 +89,7 @@ export function AddResourceForm({ isOpen, onCancel: handleCancel, onCreate: hand
 
     useEffect(() => {
         return () => {
-            setUrlStyle("none");
+            setUrlStyle("uri-template");
             setUriTemplate("/");
             setUrlMapping("/");
             setProtocol(defaultProtocol);
@@ -113,14 +112,13 @@ export function AddResourceForm({ isOpen, onCancel: handleCancel, onCreate: hand
             sx={{ transition: "all 0.3s ease-in-out" }}
         >
             <SidePanelTitleContainer>
-                <div>Add API Resource</div>
-                <Button onClick={handleCancel} appearance="icon">
+                <Button sx={{ marginLeft: "auto" }} onClick={handleCancel} appearance="icon">
                     <Codicon name="close" />
                 </Button>
             </SidePanelTitleContainer>
             <SidePanelBody>
                 <SidePanelBodyWrapper>
-                    <h3>API Resource</h3>
+                    <h3>Add API Resource</h3>
                     <CheckBoxContainer>
                         <label>URL Style</label>
                         <VSCodeRadioGroup
@@ -128,9 +126,9 @@ export function AddResourceForm({ isOpen, onCancel: handleCancel, onCreate: hand
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUrlStyle(e.target.value)}
                             value={urlStyle}
                         >
-                            <VSCodeRadio value="none">NONE</VSCodeRadio>
                             <VSCodeRadio value="uri-template">URI_TEMPLATE</VSCodeRadio>
                             <VSCodeRadio value="url-mapping">URL_MAPPING</VSCodeRadio>
+                            <VSCodeRadio value="none">NONE</VSCodeRadio>
                         </VSCodeRadioGroup>
                     </CheckBoxContainer>
                     {urlStyle === "uri-template" && (
