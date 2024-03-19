@@ -26,7 +26,7 @@ interface ArtifactType {
 
 const artifactTypeMap: Record<string, ArtifactType> = {
     apis: {
-        title: "Apis",
+        title: "APIs",
         command: "MI.project-explorer.add-api",
         view: MACHINE_VIEW.ServiceDesigner,
         icon: "globe",
