@@ -62,24 +62,24 @@ const MainPanel = () => {
     const [showAIWindow, setShowAIWindow] = useState<boolean>(false);
     const [machineView, setMachineView] = useState<MACHINE_VIEW>();
     const [showNavigator, setShowNavigator] = useState<boolean>(true);
+    const [stateUpdated, setStateUpdated] = React.useState<boolean>(false);
+
+    rpcClient?.onStateChanged((newState: MachineStateValue) => {
+        if (typeof newState === 'object' && 'newProject' in newState && newState.newProject === 'viewReady') {
+            setStateUpdated(!stateUpdated);
+        }
+        if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewReady') {
+            setStateUpdated(!stateUpdated);
+        }
+        if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewEditing') {
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.EDIT_DONE, location: null });
+            setStateUpdated(!stateUpdated);
+        }
+    });
 
     useEffect(() => {
         fetchContext();
-
-        rpcClient?.onStateChanged((newState: MachineStateValue) => {
-            if (typeof newState === 'object' && 'newProject' in newState && newState.newProject === 'viewReady') {
-                fetchContext();
-            }
-            if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewReady') {
-                fetchContext();
-            }
-            if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewEditing') {
-                rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.EDIT_DONE, location: null });
-                fetchContext();
-            }
-        });
-
-    }, []);
+    }, [stateUpdated]);
 
     useEffect(() => {
         rpcClient.getVisualizerState().then((machineView) => {
@@ -118,7 +118,7 @@ const MainPanel = () => {
                     shouldShowNavigator = false;
                     break;
                 case MACHINE_VIEW.Overview:
-                    setViewComponent(<Overview />);
+                    setViewComponent(<Overview stateUpdated />);
                     break;
                 case MACHINE_VIEW.ResourceView:
                     rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri }).then((st) => {
