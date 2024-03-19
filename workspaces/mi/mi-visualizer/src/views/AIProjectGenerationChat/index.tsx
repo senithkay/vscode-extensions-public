@@ -610,7 +610,7 @@ export function AIProjectGenerationChat() {
               disabled={isLoading}
             >
               <br />
-              <div style={{ color: 'var(--vscode-editor-foreground)' }}>Send</div>
+              <div style={{ color: 'var(--vscode-button-foreground)' }}>Send</div>
             </Button>
         </div>
 
@@ -623,7 +623,7 @@ export function AIProjectGenerationChat() {
                     disabled={isLoading}
                   >
                     <br />
-                    <div style={{ color: 'var(--vscode-editor-foreground)' }}>Add all to Workspace</div>
+                    <div style={{ color: 'var(--vscode-button-foreground)' }}>Add all to Workspace</div>
                   </Button>
           </div>
       </div>
