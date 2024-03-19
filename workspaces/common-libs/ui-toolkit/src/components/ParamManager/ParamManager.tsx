@@ -236,6 +236,7 @@ export function ParamManager(props: ParamManagerProps) {
                 paramComponents.push(
                     <ParamEditor
                         parameters={param}
+                        paramFields={paramConfigs.paramFields}
                         isTypeReadOnly={false}
                         onSave={onSaveParam}
                         onChange={onChangeParam}
