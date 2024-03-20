@@ -22,13 +22,6 @@ jobs:
           ref: rewrite
           API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
 
-      - name: Notification - Eggplant
-        uses: ./.github/actions/dailyBuildNotification
-        with:
-          title: Eggplant
-          fileName: eggplant
-          api: ${{ secrets.EGGPLANT_EXT_CHAT_API }}
-
       - name: Notification - Ballerina
         uses: ./.github/actions/dailyBuildNotification
         with:
