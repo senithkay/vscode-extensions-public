@@ -10,7 +10,6 @@ import React from "react";
 import { Diagnostic } from "vscode-languageserver-types";
 import { NamedSequence } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { Diagram } from "@wso2-enterprise/mi-diagram-2";
-import { DiagramService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { View, ViewContent, ViewHeader } from "../../components/View";
@@ -18,7 +17,7 @@ import { generateSequenceData, onSequenceEdit } from "../../utils/form";
 import { EditSequenceForm } from "../Forms/EditForms/EditSequenceForm";
 
 export interface SequenceViewProps {
-    model: DiagramService;
+    model: NamedSequence;
     documentUri: string;
     diagnostics: Diagnostic[];
 }

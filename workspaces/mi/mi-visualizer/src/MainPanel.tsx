@@ -28,9 +28,10 @@ import { DefaultEndpointWizard } from "./views/Forms/DefaultEndpointForm";
 import { LoadBalanceWizard } from './views/Forms/LoadBalanceEPform';
 import { getSyntaxTreeType } from './utils/syntax-tree';
 import { FailoverWizard } from './views/Forms/FailoverEndpointForm';
-import { DiagramService } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { DiagramService, NamedSequence, Proxy } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { ProxyView, ResourceView, SequenceView } from './views/Diagram';
 import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
+import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 
 const MainContainer = styled.div`
     display: flex;
@@ -124,7 +125,7 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.Diagram:
                     setViewComponent(
-                        <SequenceView
+                        <Diagram
                             key={getUniqueKey(machineView.stNode, machineView.documentUri)}
                             model={machineView.stNode as DiagramService}
                             documentUri={machineView.documentUri}
@@ -148,7 +149,7 @@ const MainPanel = () => {
                     setViewComponent(
                         <SequenceView
                             key={getUniqueKey(machineView.stNode, machineView.documentUri)}
-                            model={machineView.stNode as DiagramService}
+                            model={machineView.stNode as NamedSequence}
                             documentUri={machineView.documentUri}
                             diagnostics={machineView.diagnostics}
                         />
@@ -159,7 +160,7 @@ const MainPanel = () => {
                     setViewComponent(
                         <ProxyView
                             key={getUniqueKey(machineView.stNode, machineView.documentUri)}
-                            model={machineView.stNode as DiagramService}
+                            model={machineView.stNode as Proxy}
                             documentUri={machineView.documentUri}
                             diagnostics={machineView.diagnostics}
                         />
