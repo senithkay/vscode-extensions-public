@@ -65,7 +65,7 @@ export class DagreEngine {
                 });
             } else {
                 // For other nodes, set the default position
-                g.setNode(node.getID(), { label: node.getID(), width: node.width, height: node.height, ports, node });
+                g.setNode(node.getID(), { label: node.getID(), width: node.width, height: node.height, ports });
             }
         });
 
@@ -146,7 +146,6 @@ export class DagreEngine {
     angleLayout(g, spacing: number) {
         const nodes = g.nodes();
         let lastX = 0;
-        let angleNodeCount = 0;
 
         nodes.forEach((v) => {
             const node = g.node(v);
@@ -164,7 +163,6 @@ export class DagreEngine {
                     lastX += node.width + spacing;
                     node.x = lastX;
                 }
-                angleNodeCount++;
             }
         });
     }
