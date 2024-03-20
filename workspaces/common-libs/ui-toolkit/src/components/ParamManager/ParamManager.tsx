@@ -21,6 +21,7 @@ export interface Parameters {
     parameters: Param[];
     key: string;
     value: string;
+    icon?: string | React.ReactElement; // Icon for the parameter. Icon name or React element should be passed
 }
 
 export interface ConditionParams {

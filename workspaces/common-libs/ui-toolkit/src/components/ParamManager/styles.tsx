@@ -62,6 +62,7 @@ export const IconWrapper = styled.div`
     margin-top: 16px;
     margin-bottom: 13px;
     margin-left: 10px;
+    margin-right: 10px;
 `;
 
 export const ContentWrapper = styled.div<ContainerProps>`
@@ -84,7 +85,22 @@ export const KeyTextWrapper = styled.div`
     align-items: center;
     flex-direction: row;
     width: 150px;
-    padding: 0 10px;
+    background-color: var(--vscode-inputValidation-infoBackground);
+    height: 100%;
+`;
+
+export const Key= styled.div`
+    cursor: pointer;
+    margin-left: 10px;
+`;
+
+
+export const IconTextWrapper = styled.div`
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: row;
+    width: 150px;
     background-color: var(--vscode-inputValidation-infoBackground);
     height: 100%;
 `;

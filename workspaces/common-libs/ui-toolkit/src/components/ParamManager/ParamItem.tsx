@@ -10,8 +10,21 @@
 import React from "react";
 
 import { Codicon } from "../Codicon/Codicon";
-import { ActionIconWrapper, ActionWrapper, DeleteIconWrapper, EditIconWrapper, HeaderLabel, ContentWrapper, KeyTextWrapper, ValueTextWrapper } from "./styles";
+import {
+    ActionIconWrapper,
+    ActionWrapper,
+    DeleteIconWrapper,
+    EditIconWrapper,
+    HeaderLabel,
+    ContentWrapper,
+    KeyTextWrapper,
+    ValueTextWrapper,
+    IconWrapper,
+    IconTextWrapper,
+    Key
+} from "./styles";
 import { Parameters } from "./ParamManager";
+import { Icon } from "../Icon/Icon";
 
 interface ParamItemProps {
     params: Parameters;
@@ -37,11 +50,21 @@ export function ParamItem(props: ParamItemProps) {
             onEditClick(params);
         }
     };
+    const icon = (typeof params.icon === "string") ? <Icon name={params.icon} /> : params.icon;
 
     return (
         <HeaderLabel data-testid={`${label}-item`}>
             <ContentWrapper readonly={readonly} onClick={handleEdit}>
-                <KeyTextWrapper> {params.key} </KeyTextWrapper>
+                {icon ? (
+                    <IconTextWrapper>
+                        <IconWrapper> {icon} </IconWrapper>
+                        {params.key}
+                    </IconTextWrapper>
+                ) : (
+                    <KeyTextWrapper>
+                        <Key> {params.key} </Key>
+                    </KeyTextWrapper>
+                )}
                 <ValueTextWrapper> {params.value} </ValueTextWrapper>
             </ContentWrapper>
             <ActionWrapper>
