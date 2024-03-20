@@ -42,6 +42,7 @@ import {
 	traversNode,
 	TypeCastExpression
 } from "@wso2-enterprise/syntax-tree";
+import { PortModel } from "@projectstorm/react-diagrams-core";
 
 import { useDMSearchStore, useDMStore } from "../../../store/store";
 import { isPositionsEquals } from "../../../utils/st-utils";
@@ -49,7 +50,7 @@ import { DMNode } from "../../DataMapper/DataMapper";
 import { ErrorNodeKind } from "../../DataMapper/Error/DataMapperError";
 import { getLetExpression, getLetExpressions } from "../../DataMapper/LocalVarConfigPanel/local-var-mgt-utils";
 import { isArraysSupported } from "../../DataMapper/utils";
-import { ExpressionLabelModel } from "../Label";
+import { ExpressionLabelModel, ArrayMappingType, AggregationFunctions } from "../Label";
 import { DataMapperLinkModel } from "../Link";
 import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../Mappings/FieldAccessToSpecificFied";
@@ -58,7 +59,8 @@ import {
 	MappingConstructorNode,
 	MAPPING_CONSTRUCTOR_NODE_TYPE, PRIMITIVE_TYPE_NODE_TYPE, QueryExpressionNode,
 	QUERY_EXPR_NODE_TYPE, RequiredParamNode,
-	REQ_PARAM_NODE_TYPE
+	REQ_PARAM_NODE_TYPE,
+	QueryExprMappingType
 } from "../Node";
 import { DataMapperNodeModel, TypeDescriptor } from "../Node/commons/DataMapperNode";
 import { EnumTypeNode, ENUM_TYPE_SOURCE_NODE_TYPE } from "../Node/EnumType";
@@ -94,6 +96,10 @@ import { FnDefInfo, FunctionDefinitionStore } from "./fn-definition-store";
 import { getModification } from "./modifications";
 import { TypeDescriptorStore } from "./type-descriptor-store";
 import { QueryExprFindingVisitorByPosition } from "../visitors/QueryExprFindingVisitorByPosition";
+import { NodeFindingVisitorByPosition } from "../visitors/NodeFindingVisitorByPosition";
+import { result } from "lodash";
+import { CustomAction } from "../CodeAction/CodeAction";
+import { FunctionCallFindingVisitor } from "../visitors/FunctionCallFindingVisitor";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: { name: string, isOptional: boolean }[] = [];
@@ -505,14 +511,19 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 
 }
 
-export function replaceSpecificFieldValue(link: DataMapperLinkModel) {
-	const modifications: STModification[] = [];
-	const sourcePort = link.getSourcePort();
-	const rhs = sourcePort && sourcePort instanceof RecordFieldPortModel ? sourcePort.fieldFQN : undefined;
+export function replaceSpecificFieldValue(link: DataMapperLinkModel, modifications: STModification[]) {
+	const targetPort = link.getTargetPort() as RecordFieldPortModel;
+	const targetNode = targetPort.getNode();
+	const { context } = targetNode as DataMapperNodeModel;
+	void context.applyModifications(modifications);
+}
 
-	if (link.getTargetPort() && rhs) {
+export function getModificationForSpecificFieldValue(
+	link: DataMapperLinkModel,
+	sourceField: string
+): STModification {
+	if (link.getTargetPort() && sourceField) {
 		const targetPort = link.getTargetPort() as RecordFieldPortModel;
-		const targetNode = targetPort.getNode();
 		const editableRecordField = targetPort.editableRecordField;
 		let targetPosition: NodePosition;
 		if (editableRecordField?.value) {
@@ -524,17 +535,34 @@ export function replaceSpecificFieldValue(link: DataMapperLinkModel) {
 			targetPosition = innerExpr.position as NodePosition;
 		}
 		if (targetPosition) {
-			modifications.push({
+			return {
 				type: "INSERT",
 				config: {
-					"STATEMENT": rhs,
+					"STATEMENT": sourceField,
 				},
 				...targetPosition
-			});
-
-			const { context } = targetNode as DataMapperNodeModel;
-			void context.applyModifications(modifications);
+			};
 		}
+	}
+}
+
+export function getModificationForFromClauseBindingPattern(
+	queryExprPosition: NodePosition,
+	bindingPatternSrc: string,
+	selectedSTNode: STNode
+): STModification {
+	const nodeFindingVisitor = new NodeFindingVisitorByPosition(queryExprPosition);
+	traversNode(selectedSTNode, nodeFindingVisitor);
+	const queryExpr = nodeFindingVisitor.getNode() as QueryExpression;
+
+	if (queryExpr) {
+		return {
+			type: "INSERT",
+			config: {
+				"STATEMENT": bindingPatternSrc,
+			},
+			...queryExpr.queryPipeline.fromClause.typedBindingPattern.bindingPattern.position
+		};
 	}
 }
 
@@ -583,18 +611,13 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 				return node?.value && expr.name.value === node.value.paramName.value;
 			} else if (node instanceof FromClauseNode) {
 				const bindingPattern = node.value.typedBindingPattern.bindingPattern;
-				if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
-					return expr.name.value === bindingPattern.variableName.value;
-				}
+				return isAvailableWithinBindingPattern(bindingPattern, expr.name.value );
 			}
 		}) as LetClauseNode | LetExpressionNode | RequiredParamNode | FromClauseNode | ModuleVariableNode | EnumTypeNode);
 		paramNode = paramType?.value;
 	} else if (STKindChecker.isFieldAccess(expr) || STKindChecker.isOptionalFieldAccess(expr)) {
-		let valueExpr = expr.expression;
-		while (valueExpr && (STKindChecker.isFieldAccess(valueExpr)
-			|| STKindChecker.isOptionalFieldAccess(valueExpr))) {
-			valueExpr = valueExpr.expression;
-		}
+		const valueExpr = getInnerExpr(expr);
+		
 		if (valueExpr && STKindChecker.isSimpleNameReference(valueExpr)) {
 			const { selectedST } = dmNode.context.selection;
 			const { stNode: selectedSTNode, fieldPath, position } = selectedST;
@@ -730,10 +753,17 @@ export function getInputPortsForExpr(node: RequiredParamNode
 				}
 			}
 		}
+	} else if (node instanceof FromClauseNode
+		&& (STKindChecker.isMappingBindingPattern(node.sourceBindingPattern)
+			|| STKindChecker.isListBindingPattern(node.sourceBindingPattern))
+	) {
+		const fieldPath = getRelativePathOfField(node.value.typedBindingPattern.bindingPattern, expr.source.trim());
+		portIdBuffer = EXPANDED_QUERY_SOURCE_PORT_PREFIX + "." + node.nodeLabel + fieldPath;
+		return (node.getPort(portIdBuffer + ".OUT") as RecordFieldPortModel);
 	} else {
-		portIdBuffer = EXPANDED_QUERY_SOURCE_PORT_PREFIX + "."
-			+ (node as FromClauseNode).sourceBindingPattern.variableName.value
+		portIdBuffer = EXPANDED_QUERY_SOURCE_PORT_PREFIX + "." + (node as FromClauseNode).nodeLabel;
 	}
+
 	if (typeDesc && typeDesc.typeName === PrimitiveBalType.Record) {
 		if (STKindChecker.isFieldAccess(expr) || STKindChecker.isOptionalFieldAccess(expr)) {
 			const fieldNames = getFieldNames(expr);
@@ -1213,6 +1243,157 @@ export function extractImportAlias(moduleName: string, importStatement: string):
 	return matches ? matches[1] : null;
 }
 
+export function getFromClauseNodeLabel(bindingPattern: STNode, valueExpr: STNode): string {
+	const defaultLabel = "Input";
+	if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
+		return bindingPattern.variableName.value;
+	} else if (STKindChecker.isMappingBindingPattern(bindingPattern)) {
+		if (STKindChecker.isSimpleNameReference(valueExpr)) {
+			return `${valueExpr.name.value}Item`;
+		} else if (STKindChecker.isFieldAccess(valueExpr) || STKindChecker.isOptionalFieldAccess(valueExpr)) {
+			const expr = getInnerExpr(valueExpr);
+			return `${expr}.source`;
+		}
+	}
+	
+	return defaultLabel;
+}
+
+export function isAvailableWithinBindingPattern(bindingPattern: STNode, targetIdentifier: string): boolean {
+	if (STKindChecker.isErrorBindingPattern(bindingPattern) || STKindChecker.isWildcardBindingPattern(bindingPattern)) {
+		return false;
+	}
+
+	if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
+		return bindingPattern.variableName.value === targetIdentifier; 
+	} else if (STKindChecker.isMappingBindingPattern(bindingPattern)) {
+		return bindingPattern.fieldBindingPatterns.some((fieldBindingPattern) => {
+			// RestBindingPattern is not supported by the Data Mapper
+			if (STKindChecker.isFieldBindingPattern(fieldBindingPattern)) {
+				if (fieldBindingPattern?.bindingPattern) {
+					return isAvailableWithinBindingPattern(fieldBindingPattern.bindingPattern, targetIdentifier);
+				} else {
+					return fieldBindingPattern.variableName.source === targetIdentifier;
+				}
+			}
+		});
+	} else if (STKindChecker.isListBindingPattern(bindingPattern)) {
+		return bindingPattern.bindingPatterns.some((bindingPattern) => {
+			return isAvailableWithinBindingPattern(bindingPattern, targetIdentifier);
+		});
+	}
+
+	return false;
+}
+
+export function getRelativePathOfField(bindingPattern: STNode, targetIdentifier: string, path?: string): string {
+	if (STKindChecker.isErrorBindingPattern(bindingPattern) || STKindChecker.isWildcardBindingPattern(bindingPattern)) {
+		return undefined;
+	}
+
+	if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
+		if (bindingPattern.variableName.value === targetIdentifier) {
+			return path || `.${targetIdentifier}`;
+		}; 
+		path = undefined;
+	} else if (STKindChecker.isMappingBindingPattern(bindingPattern)) {
+		for (const fieldBindingPattern of bindingPattern.fieldBindingPatterns) {
+			if (STKindChecker.isFieldBindingPattern(fieldBindingPattern)) {
+				if (fieldBindingPattern?.bindingPattern) {
+					const pathElement = fieldBindingPattern.variableName.source;
+					const relativePath = getRelativePathOfField(
+						fieldBindingPattern.bindingPattern,
+						targetIdentifier, path ? `${path}.${pathElement}` : `.${pathElement}`
+					);
+					if (relativePath) {
+						return relativePath;
+					}
+				} else {
+					if (fieldBindingPattern.variableName.source === targetIdentifier) {
+						return path ? `${path}.${targetIdentifier}` : `.${targetIdentifier}`;
+					}
+				}
+			}
+		}
+	} else if (STKindChecker.isListBindingPattern(bindingPattern)) {
+		for (const bPattern of bindingPattern.bindingPatterns) {
+			const relativePath = getRelativePathOfField(bPattern, targetIdentifier, path);
+			if (relativePath) {
+				return relativePath;
+			}
+		}
+	}
+
+	return path;
+}
+
+export function getArrayMappingType(isSourceArray: boolean, isTargetArray: boolean): ArrayMappingType {
+	let mappingType: ArrayMappingType;
+	if (isSourceArray && isTargetArray) {
+		mappingType = ArrayMappingType.ArrayToArray;
+	} else if (isSourceArray && !isTargetArray) {
+		mappingType = ArrayMappingType.ArrayToSingleton;
+	}
+
+	return mappingType;
+}
+
+export function getQueryExprMappingType(hasIndexedQuery: boolean, hasCollectClause: boolean): QueryExprMappingType {
+	if (hasIndexedQuery) {
+		return QueryExprMappingType.A2SWithSelect;
+	} else if (hasCollectClause) {
+		return QueryExprMappingType.A2SWithCollect;
+	}
+	return QueryExprMappingType.A2AWithSelect;
+}
+
+export function hasIndexedQueryExpr(node: STNode) {
+	return STKindChecker.isSpecificField(node)
+		&& STKindChecker.isIndexedExpression(node.valueExpr)
+		&& STKindChecker.isBracedExpression(node.valueExpr.containerExpression)
+		&& STKindChecker.isQueryExpression(node.valueExpr.containerExpression.expression);
+}
+
+export function hasCollectClauseExpr(node: QueryExpression) {
+	const resultClause = node?.selectClause || node?.resultClause;
+	// TODO: Update the syntax tree interfaces to include the collect clause
+	return resultClause.kind === "CollectClause";
+}
+
+export function generateDestructuringPattern(expression: string): string {
+    const parts = expression.split('.');
+    const lastIndex = parts.length - 1;
+
+    const constructPattern = (index: number): string => {
+        if (index === lastIndex) {
+            return `{${parts[index]}}`;
+        } else {
+            return `{${[parts[index]]}: ${constructPattern(index + 1)} }`;
+        }
+    };
+
+    return constructPattern(0);
+}
+
+export function getMappedFnNames(targetPort: PortModel) {
+	const mappedExpr = (targetPort as RecordFieldPortModel)?.editableRecordField?.value;
+
+	const fnCallFindingVisitor = new FunctionCallFindingVisitor();
+	traversNode(mappedExpr, fnCallFindingVisitor);
+	const fnCall = fnCallFindingVisitor.getFunctionCalls();
+
+	return fnCall.map((call) => call.fnName);
+}
+
+function getInnerExpr(node: FieldAccess | OptionalFieldAccess): STNode {
+	let valueExpr = node.expression;
+	while (valueExpr && (STKindChecker.isFieldAccess(valueExpr)
+		|| STKindChecker.isOptionalFieldAccess(valueExpr))) {
+		valueExpr = valueExpr.expression;
+	}
+	return valueExpr;
+}
+
 function hasNoMatchFoundInArray(elements: ArrayElement[], searchValue: string): boolean {
 	if (!elements) {
 		return false;
@@ -1266,6 +1447,40 @@ async function createValueExprSource(
 	}
 
 	return `${rhs}: ${lhs}`;
+}
+
+export function updateCollectClauseAggrFn(
+	newFnName: string,
+	currentFnName: string,
+	mappedExpr: FunctionCall,
+	applyModifications: (modifications: STModification[]) => Promise<void>
+) {
+	const currentExpr: string = mappedExpr.source;
+	const updatedExpr = currentExpr.replace(currentFnName, newFnName);
+
+	const position = mappedExpr.position as NodePosition;
+	const modifications = [{
+		type: "INSERT",
+		config: {
+			"STATEMENT": updatedExpr,
+		},
+		...position
+	}];
+	void applyModifications(modifications);
+}
+
+export function getCollectClauseActions(
+	currentFnName: string,
+	mappedExpr: FunctionCall,
+	applyModifications: (modifications: STModification[]) => Promise<void>
+):CustomAction[] {
+	const aggrOptions = AggregationFunctions.filter((fn) => fn !== currentFnName);
+	return aggrOptions.map((fn) => {
+		return {
+			title: fn,
+			onClick: () => updateCollectClauseAggrFn(fn, currentFnName, mappedExpr, applyModifications)
+		};
+	});
 }
 
 function isTypeMatch(type: TypeField, typeInfo: NonPrimitiveBal): boolean {

@@ -41,6 +41,20 @@ const useStyles = () => ({
     treeLabelParentHovered: css({
         backgroundColor: 'var(--vscode-list-hoverBackground)',
     }),
+    treeLabelDisableHover: css({
+        '&:hover': {
+            backgroundColor: 'var(--vscode-input-background)',
+        },
+        opacity: 0.8
+    }),
+    treeLabelDisabled: css({
+        backgroundColor: "var(--vscode-editorWidget-background)",
+        '&:hover': {
+            backgroundColor: 'var(--vscode-editorWidget-background)',
+        },
+        cursor: 'not-allowed',
+        opacity: 0.5
+    }),
     treeLabelOutPort: css({
         float: "right",
         width: 'fit-content',
@@ -106,18 +120,30 @@ export interface RecordFieldTreeItemWidgetProps {
     handleCollapse: (portName: string, isExpanded?: boolean) => void;
     isOptional?: boolean;
     hasHoveredParent?: boolean;
+    hasLinkViaCollectClause?: boolean;
 }
 
 export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps) {
-    const { parentId, field, getPort, engine, handleCollapse, treeDepth = 0, isOptional, hasHoveredParent } = props;
+    const {
+        parentId,
+        field,
+        getPort,
+        engine,
+        handleCollapse,
+        treeDepth = 0,
+        isOptional,
+        hasHoveredParent,
+        hasLinkViaCollectClause
+    } = props;
     const classes = useStyles();
 
     const fieldName = getBalRecFieldName(field.name);
     const fieldId = `${parentId}${isOptional ? `?.${fieldName}` : `.${fieldName}`}`;
-    const portIn = getPort(`${fieldId}.IN`);
     const portOut = getPort(`${fieldId}.OUT`);
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
+    const isPortDisabled = hasLinkViaCollectClause && Object.keys(portOut.getLinks()).length === 0;
+    portOut.isDisabledDueToCollectClause = isPortDisabled;
 
     let fields: TypeField[];
     let optional = false;
@@ -131,7 +157,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     }
 
     let expanded = true;
-    if ((portIn && portIn.collapsed) || (portOut && portOut.collapsed)) {
+    if (portOut && portOut.collapsed) {
         expanded = false;
     }
 
@@ -176,17 +202,14 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
             <div
                 id={"recordfield-" + fieldId}
                 className={classnames(classes.treeLabel,
+                    isPortDisabled && !hasHoveredParent && !isHovered ? classes.treeLabelDisabled : "",
+                    isPortDisabled && isHovered ? classes.treeLabelDisableHover : "",
                     (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
                     hasHoveredParent ? classes.treeLabelParentHovered : ""
                 )}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
             >
-                <span className={classes.treeLabelInPort}>
-                    {portIn &&
-                        <DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
-                    }
-                </span>
                 <span className={classes.label}>
                     {fields && <Button
                             appearance="icon"
@@ -200,7 +223,12 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                 </span>
                 <span className={classes.treeLabelOutPort}>
                     {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
+                        <DataMapperPortWidget
+                            engine={engine}
+                            port={portOut}
+                            handlePortState={handlePortState}
+                            disable={isPortDisabled}
+                        />
                     }
                 </span>
             </div>
@@ -217,6 +245,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                             treeDepth={treeDepth + 1}
                             isOptional={isOptional || optional}
                             hasHoveredParent={isHovered || hasHoveredParent}
+                            hasLinkViaCollectClause={hasLinkViaCollectClause}
                         />
                     );
                 })

@@ -17,7 +17,7 @@ import classnames from "classnames";
 import { ViewOption } from "../../../DataMapper/DataMapper";
 import { DataMapperPortWidget } from '../../Port';
 import { FUNCTION_BODY_QUERY, SELECT_CALUSE_QUERY } from "../../utils/constants";
-import { isRepresentFnBody } from "../../utils/dm-utils";
+import { getQueryExprMappingType, hasCollectClauseExpr, hasIndexedQueryExpr, isRepresentFnBody } from "../../utils/dm-utils";
 import { QueryParentFindingVisitor } from '../../visitors/QueryParentFindingVisitor';
 
 import {
@@ -26,6 +26,7 @@ import {
 import { Button, Codicon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import { isPositionsEquals } from '../../../../utils/st-utils';
 import { QueryExprFindingVisitorByPosition } from '../../visitors/QueryExprFindingVisitorByPosition';
+import { isSourcePortArray, isTargetPortArray } from '../../Link/link-utils';
 
 export const useStyles = () => ({
     root: css({
@@ -148,6 +149,10 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
             traversNode(selectedST, queryExprFindingVisitor);
             selectClauseIndex = queryExprFindingVisitor.getSelectClauseIndex();
         }
+
+        const hasIndexedQuery = hasIndexedQueryExpr(node.parentNode);
+        const hasCollectClause = hasCollectClauseExpr(node.value);
+        const mappingType = getQueryExprMappingType(hasIndexedQuery, hasCollectClause);
         node.context.changeSelection(ViewOption.EXPAND,
             {
                 ...node.context.selection,
@@ -155,7 +160,8 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
                     stNode: isExprBodyQuery || isSelectClauseQuery ? node.context.selection.selectedST.stNode : node.parentNode,
                     fieldPath: isExprBodyQuery ? FUNCTION_BODY_QUERY : isSelectClauseQuery ? SELECT_CALUSE_QUERY : node.targetFieldFQN,
                     position: node.value.position,
-                    index: selectClauseIndex
+                    index: selectClauseIndex,
+                    mappingType: mappingType,
                 }
             })
     }
@@ -180,7 +186,7 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
                         </Tooltip>
                         <Button
                             appearance="icon"
-                            tooltip="Edit"
+                            tooltip="Go to query"
                             onClick={onClickOnExpand}
                             data-testid={`expand-query-${node?.targetFieldFQN}`}
                         >

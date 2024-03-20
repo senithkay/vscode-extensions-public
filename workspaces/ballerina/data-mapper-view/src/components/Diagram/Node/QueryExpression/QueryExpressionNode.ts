@@ -50,6 +50,12 @@ import { UnionTypeNode } from "../UnionType";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
+export enum QueryExprMappingType {
+    A2AWithSelect = "array-to-array-with-select",
+    A2SWithSelect = "array-to-single-with-select",
+    A2SWithCollect = "array-to-single-with-collect",
+};
+
 export class QueryExpressionNode extends DataMapperNodeModel {
 
     public sourceTypeDesc: TypeField;
@@ -59,7 +65,6 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     public inPort: IntermediatePortModel;
     public outPort: IntermediatePortModel;
 
-    public sourceBindingPattern: CaptureBindingPattern;
     public targetFieldFQN: string;
     public hidden: boolean;
 
@@ -95,8 +100,9 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         const fromClause = this.value.queryPipeline.fromClause;
         const sourceFieldAccess = fromClause.expression;
         const bindingPattern = this.value.queryPipeline.fromClause.typedBindingPattern.bindingPattern;
-        if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
-            this.sourceBindingPattern = bindingPattern;
+        if (STKindChecker.isCaptureBindingPattern(bindingPattern)
+            || STKindChecker.isMappingBindingPattern(bindingPattern)
+            || STKindChecker.isListBindingPattern(bindingPattern)) {
             const type = getTypeFromStore(fromClause.expression.position);
 
             if (type && type?.memberType && type.typeName === PrimitiveBalType.Array) {
@@ -182,8 +188,8 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             });
         } else if (isSelectClauseQuery || isRepresentFnBody(this.parentNode, exprFuncBody)) {
             this.getModel().getNodes().forEach((node) => {
+                const ports = Object.entries(node.getPorts());
                 if (node instanceof ListConstructorNode) {
-                    const ports = Object.entries(node.getPorts());
                     ports.map((entry) => {
                         const port = entry[1];
                         if (port instanceof RecordFieldPortModel
@@ -197,11 +203,20 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                         }
                     });
                 } else if (node instanceof UnionTypeNode) {
-                    const ports = Object.entries(node.getPorts());
                     ports.map((entry) => {
                         const port = entry[1];
                         if (port instanceof RecordFieldPortModel
                             && port.portName === `${UNION_TYPE_TARGET_PORT_PREFIX}`
+                            && port.portType === 'IN'
+                        ) {
+                            this.targetPort = port;
+                        }
+                    });
+                } else if (node instanceof PrimitiveTypeNode) {
+                    ports.map((entry) => {
+                        const port = entry[1];
+                        if (port instanceof RecordFieldPortModel
+                            && port.portName === `${PRIMITIVE_TYPE_TARGET_PORT_PREFIX}.${node.recordField.type.typeName}`
                             && port.portType === 'IN'
                         ) {
                             this.targetPort = port;
