@@ -211,13 +211,15 @@ export interface ServiceType extends ExtensibleDocumentedType, STNode {
 }
 
 export interface PublishEventAttributesArbitrary extends STNode {
-    attribute: PublishEventAttributesArbitraryAttribute;
+    attributes: Attribute[];
 }
 
 export interface PublishEvent extends STNode {
     eventSink: any;
     streamName: any;
     streamVersion: any;
+    async: boolean;
+    timeout: string;
     attributes: PublishEventAttributes;
     description: string;
 }
@@ -497,7 +499,7 @@ export interface DefaultEndpoint extends STNode {
 }
 
 export interface PublishEventAttributesCorrelation extends STNode {
-    attribute: Attribute;
+    attributes: Attribute[];
 }
 
 export interface EndpointAddress extends DefaultEndpoint, STNode {
@@ -1327,7 +1329,7 @@ export interface Rewrite extends STNode {
 }
 
 export interface PublishEventAttributesMeta extends STNode {
-    attribute: Attribute;
+    attributes: Attribute[];
 }
 
 export interface RewriteRewriteruleAction extends STNode {
@@ -1532,7 +1534,7 @@ export interface Loopback extends STNode {
 }
 
 export interface PublishEventAttributesPayload extends STNode {
-    attribute: Attribute;
+    attributes: Attribute[];
 }
 
 export interface Call extends STNode {

@@ -63,6 +63,7 @@ import BamForm from "../Pages/mediators/other/bam"
 import ConditionalRouterForm from "../Pages/mediators/filter/cond_router"
 import OAuthForm from "../Pages/mediators/other/oauth"
 import BuilderForm from "../Pages/mediators/other/builder"
+import PublishEventForm from "../Pages/mediators/other/publishEvent"
 
 export interface GetMediatorsProps {
     nodePosition: any;
@@ -310,6 +311,11 @@ export function getAllMediators(props: GetMediatorsProps) {
                 title: "Builder",
                 operationName: MEDIATORS.BUILDER,
                 form: <BuilderForm nodePosition={props.nodePosition} documentUri={props.documentUri}></BuilderForm>,
+            },
+            {
+                title: "Publish Event",
+                operationName: MEDIATORS.PUBLISHEVENT,
+                form: <PublishEventForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PublishEventForm>,
             },
         ]
     };
