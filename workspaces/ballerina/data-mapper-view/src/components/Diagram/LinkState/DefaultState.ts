@@ -1,4 +1,4 @@
-import { MouseEvent, TouchEvent } from 'react';
+import { MouseEvent } from 'react';
 
 import {
 	Action,
@@ -33,7 +33,7 @@ export class DefaultState extends State<DiagramEngine> {
 	constructor() {
 		super({ name: 'starting-state' });
 		this.childStates = [new SelectingState()];
-		this.dragCanvas = new DragCanvasState();
+		this.dragCanvas = new DragCanvasState({allowDrag: false});
 		this.createLink = new CreateLinkState();
 		this.dragItems = new DragDiagramItemsState();
 
@@ -42,7 +42,29 @@ export class DefaultState extends State<DiagramEngine> {
 			new Action({
 				type: InputType.MOUSE_DOWN,
 				fire: (event: ActionEvent<MouseEvent>) => {
-					this.transitionWithEvent(this.dragItems, event);
+					const element = this.engine.getActionEventBus().getModelForEvent(event);
+
+					// the canvas was clicked on, transition to the dragging canvas state
+					if (!element) {
+						const targetElement = event.event.target as Element;
+						const dmCanvasContainer = targetElement.closest(`#${DMCanvasContainerID}`);
+						const linkOverlayContainer = targetElement.closest(`#${LinkOverayContainerID}`);
+						const diagnosticsTooltip = targetElement.closest(`#${DiagnosticTooltipID}`);
+						if (linkOverlayContainer || diagnosticsTooltip) {
+							// Clicked on a link overlay item or a diagnostic tooltip,
+							// hence, do not propagate as a canvas drag
+						} else if (dmCanvasContainer) {
+							this.transitionWithEvent(this.dragCanvas, event);
+						}
+					}
+					// initiate dragging a new link
+					else if (element instanceof PortModel || element instanceof DataMapperNodeModel) {
+						return;
+					}
+					// move the items (and potentially link points)
+					else {
+						this.transitionWithEvent(this.dragItems, event);
+					}
 				}
 			})
 		);
@@ -77,6 +99,20 @@ export class DefaultState extends State<DiagramEngine> {
 						)
 					) {
 						this.transitionWithEvent(this.createLink, actionEvent);
+					}
+				}
+			})
+		);
+
+		this.registerAction(
+			new Action({
+				type: InputType.KEY_UP,
+				fire: (actionEvent) => {
+					// On esc press unselect any selected link
+					if ((actionEvent.event as any).keyCode === 27) {
+						this.engine.getModel().getLinks().forEach((link) => {
+							link.setSelected(false);
+						});
 					}
 				}
 			})
