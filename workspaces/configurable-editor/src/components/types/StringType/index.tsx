@@ -107,7 +107,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
             setSelectedValue(undefined);
             setSelectedValueRef(undefined);
         }
-    }, [selectedValueRef, connectionConfigs, props.isSensitive, selectedValue]);
+    }, []);
 
     useEffect(() => {
         if (isSensitive) {

@@ -38,7 +38,7 @@ export const RecordType = (props: RecordTypeProps) => {
 
     useEffect(() => {
         setRecordValue(getObjectElement(props, fullRecordName, connectionConfigs));
-    }, [props, props.properties]);
+    }, [props.unionId]);
 
     useEffect(() => {
         setExpanded(props.isRequired);

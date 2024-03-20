@@ -70,7 +70,7 @@ export function TextFieldInput(props: TextFieldInputProps) {
 
   useEffect(() => {
     setTextFieldValue(id, inputValue, inputValueRef, inputSensitiveField);
-  }, [id, inputValueRef, inputValue, inputSensitiveField]);
+  }, [inputValue, inputSensitiveField]);
 
   useEffect(() => {
     setInputValueRef(valueRef);
