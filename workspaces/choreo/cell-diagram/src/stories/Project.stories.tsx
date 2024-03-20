@@ -358,7 +358,7 @@ const observabilityModel: Project = {
     modelVersion: "0.4.0",
 };
 
-const testModel: Project = {
+const testModel1: Project = {
     id: "wknh",
     name: "FinFlux",
     components: [
@@ -562,6 +562,394 @@ const testModel: Project = {
     modelVersion: "0.4.0",
 };
 
+const testModel2: Project = {
+    id: "A",
+    name: "A",
+    components: [
+        {
+            id: "Users 2",
+            version: "0.2.0",
+            type: "api-proxy",
+            services: {
+                "ABC:A:Users:basepath": {
+                    id: "ABC:A:Users:basepath",
+                    label: "basepath",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: false,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+            disabled: {
+                status: true,
+                reason: "Disabled for testing",
+            },
+        },
+        {
+            id: "Courses",
+            version: "0.2.0",
+            type: "service",
+            services: {
+                "ABC:A:Courses:basepath": {
+                    id: "ABC:A:Courses:basepath",
+                    label: "basepath",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+        },
+        {
+            id: "Task",
+            version: "0.2.0",
+            type: "manual-task",
+            services: {
+                "ABC:A:Task:basepath": {
+                    id: "ABC:A:Task:basepath",
+                    label: "basepath",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+        },
+        {
+            id: "WebApp",
+            version: "0.2.0",
+            type: "web-app",
+            services: {
+                "ABC:A:WebApp:basepath": {
+                    id: "ABC:A:WebApp:basepath",
+                    label: "basepath",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+        },
+    ],
+    modelVersion: "0.4.0",
+};
+
+const testModel22: Project = {
+    id: "A",
+    name: "A",
+    components: [
+        {
+            id: "Courses",
+            version: "0.2.0",
+            type: "service",
+            services: {
+                "ABC:A:Courses:basepath": {
+                    id: "ABC:A:Courses:basepath",
+                    label: "basepath",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+        },
+        {
+            id: "Task",
+            version: "0.2.0",
+            type: "manual-task",
+            services: {
+                "ABC:A:Task:basepath": {
+                    id: "ABC:A:Task:basepath",
+                    label: "basepath",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+        },
+        {
+            id: "WebApp",
+            version: "0.2.0",
+            type: "web-app",
+            services: {
+                "ABC:A:WebApp:basepath": {
+                    id: "ABC:A:WebApp:basepath",
+                    label: "basepath",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+        },
+    ],
+    modelVersion: "0.4.0",
+};
+
+const testModel3: Project = {
+    id: "A",
+    name: "A",
+    components: [
+        {
+            id: "Users",
+            version: "0.2.0",
+            type: "api-proxy",
+            services: {
+                "ABC:A:Users:basepath": {
+                    id: "ABC:A:Users:basepath",
+                    label: "basepath",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+        },
+        {
+            id: "Courses",
+            version: "0.2.0",
+            type: "service",
+            services: {
+                "ABC:A:Courses:basepath": {
+                    id: "ABC:A:Courses:basepath",
+                    label: "basepath",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+        },
+        {
+            id: "Task",
+            version: "0.2.0",
+            type: "manual-task",
+            services: {
+                "ABC:A:Task:basepath": {
+                    id: "ABC:A:Task:basepath",
+                    label: "basepath",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+        },
+        {
+            id: "WebApp",
+            version: "0.2.0",
+            type: "web-app",
+            services: {
+                "ABC:A:WebApp:basepath": {
+                    id: "ABC:A:WebApp:basepath",
+                    label: "basepath",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: true,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+        },
+        {
+            id: "Task2",
+            version: "0.2.0",
+            type: "manual-task",
+            services: {
+                "ABC:A:Task:basepath": {
+                    id: "ABC:A:Task:basepath",
+                    label: "basepath",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: false,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+        },
+        {
+            id: "WebApp2",
+            version: "0.2.0",
+            type: "web-app",
+            services: {
+                "ABC:A:WebApp:basepath": {
+                    id: "ABC:A:WebApp:basepath",
+                    label: "basepath",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+        },
+        {
+            id: "Task3",
+            version: "0.2.0",
+            type: "manual-task",
+            services: {
+                "ABC:A:Task:basepath": {
+                    id: "ABC:A:Task:basepath",
+                    label: "basepath",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+        },
+        {
+            id: "WebApp3",
+            version: "0.2.0",
+            type: "web-app",
+            services: {
+                "ABC:A:WebApp:basepath": {
+                    id: "ABC:A:WebApp:basepath",
+                    label: "basepath",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+        },
+    ],
+    modelVersion: "0.4.0",
+};
+
 storiesOf("Project", module).add("Empty cell", () => (
     <Container>
         <CellDiagram project={noComponentModel} />
@@ -598,9 +986,27 @@ storiesOf("Project", module).add("Project configurations", () => (
     </Container>
 ));
 
-storiesOf("Project", module).add("Test", () => (
+storiesOf("Project", module).add("Test - out component", () => (
     <Container>
-        <CellDiagram project={testModel} />
+        <CellDiagram project={testModel1} />
+    </Container>
+));
+
+storiesOf("Project", module).add("Test - straight components", () => (
+    <Container>
+        <CellDiagram project={testModel22} />
+    </Container>
+));
+
+storiesOf("Project", module).add("Test - disable", () => (
+    <Container>
+        <CellDiagram project={testModel2} />
+    </Container>
+));
+
+storiesOf("Project", module).add("Test - straight more components", () => (
+    <Container>
+        <CellDiagram project={testModel3} />
     </Container>
 ));
 
