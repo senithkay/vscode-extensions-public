@@ -33,6 +33,25 @@ export class DagreEngine {
 
         // set nodes
         _.forEach(model.getNodes(), (node) => {
+            const ports = {
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
+            };
+            // Count the number of links on each side of the node
+            _.forEach(node.getPorts(), (port) => {
+                if (port.getOptions().alignment === "top") {
+                    ports.top = _.size(port.getLinks());
+                } else if (port.getOptions().alignment === "bottom") {
+                    ports.bottom = _.size(port.getLinks());
+                } else if (port.getOptions().alignment === "left") {
+                    ports.left = _.size(port.getLinks());
+                } else if (port.getOptions().alignment === "right") {
+                    ports.right = _.size(port.getLinks());
+                }
+            });
+
             // Check if the node is of type EMPTY_NODE
             if (node.getType() === EMPTY_NODE) {
                 // If it's an EMPTY_NODE, set its position as fixed
@@ -46,7 +65,7 @@ export class DagreEngine {
                 });
             } else {
                 // For other nodes, set the default position
-                g.setNode(node.getID(), { label: node.getID(), width: node.width, height: node.height });
+                g.setNode(node.getID(), { label: node.getID(), width: node.width, height: node.height, ports, node });
             }
         });
 
@@ -76,6 +95,7 @@ export class DagreEngine {
             this.gridLayout(g, 40);
         } else {
             dagre.layout(g);
+            this.angleLayout(g, 100);
         }
 
         g.nodes().forEach((v) => {
@@ -118,6 +138,33 @@ export class DagreEngine {
             if (x >= gridSize) {
                 x = 0;
                 y++;
+            }
+        });
+    }
+
+    // nodes are all layout in vertical line. this method will add horizontal spacing between nodes to align nodes in angle line
+    angleLayout(g, spacing: number) {
+        const nodes = g.nodes();
+        let lastX = 0;
+        let angleNodeCount = 0;
+
+        nodes.forEach((v) => {
+            const node = g.node(v);
+            // node only has top connection will be arranged
+            if (
+                node.ports &&
+                node.ports.top > 0 &&
+                node.ports.bottom === 0 &&
+                node.ports.left >= 0 &&
+                node.ports.right === 0
+            ) {
+                if (lastX === 0) {
+                    lastX = node.x;
+                } else {
+                    lastX += node.width + spacing;
+                    node.x = lastX;
+                }
+                angleNodeCount++;
             }
         });
     }
