@@ -145,7 +145,7 @@ const paramFields: ParamField[] = [
         defaultValue: false,
         enableCondition: [
             "OR",
-            { "1": "2", "0": "2" }
+            { 1: "2", 0: "2" }
         ]
     },
     {
@@ -205,7 +205,7 @@ const paramFieldsWithEmptyLogicalExpr: ParamField[] = [
         label: "Checkbox",
         defaultValue: false,
         enableCondition: [
-            { "1": "2" }
+            { 1 : "2" }
         ]
     },
     {

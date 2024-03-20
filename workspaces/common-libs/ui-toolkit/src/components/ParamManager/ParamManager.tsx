@@ -24,7 +24,7 @@ export interface Parameters {
 }
 
 export interface ConditionParams {
-    [key: string]: string;
+    [key: number]: string;
 }
 
 export interface EnableCondition {
@@ -89,7 +89,7 @@ export function isFieldEnabled(params: Param[], enableCondition?: EnableConditio
     let paramEnabled = false;
     enableCondition["OR"]?.forEach(item => {
         params.forEach(par => {
-            if (item[`${par.id}`]) {
+            if (item[par.id]) {
                 const satisfiedConditionValue = item[`${par.id}`];
                 // if one of the condition is satisfied, then the param is enabled
                 if (par.value === satisfiedConditionValue) {
@@ -101,7 +101,7 @@ export function isFieldEnabled(params: Param[], enableCondition?: EnableConditio
     enableCondition["AND"]?.forEach(item => {
         paramEnabled = !paramEnabled ? false : paramEnabled; 
         for (const par of params) {
-            if (item[`${par.id}`]) {
+            if (item[par.id]) {
                 const satisfiedConditionValue = item[`${par.id}`];
                 // if all of the condition is not satisfied, then the param is enabled
                 paramEnabled = (par.value === satisfiedConditionValue);
@@ -113,7 +113,7 @@ export function isFieldEnabled(params: Param[], enableCondition?: EnableConditio
     });
     enableCondition["NOT"]?.forEach(item => {
         for (const par of params) {
-            if (item[`${par.id}`]) {
+            if (item[par.id]) {
                 const satisfiedConditionValue = item[`${par.id}`];
                 // if the condition is not satisfied, then the param is enabled
                 paramEnabled = !(par.value === satisfiedConditionValue);
@@ -125,7 +125,7 @@ export function isFieldEnabled(params: Param[], enableCondition?: EnableConditio
     });
     enableCondition["null"]?.forEach(item => {
         params.forEach(par => {
-            if (item[`${par.id}`]) {
+            if (item[par.id]) {
                 const satisfiedConditionValue = item[`${par.id}`];
                 // if the condition is not satisfied, then the param is enabled
                 paramEnabled = (par.value === satisfiedConditionValue);
