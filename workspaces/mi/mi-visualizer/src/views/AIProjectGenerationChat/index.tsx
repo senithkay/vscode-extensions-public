@@ -32,6 +32,7 @@ import {
   dracula,
   materialOceanic,
 } from 'react-syntax-highlighter/dist/cjs/styles/prism'
+import { set } from "lodash";
 
 
 interface MarkdownRendererProps {
@@ -67,18 +68,17 @@ export function AIProjectGenerationChat() {
   const [isCodeLoading, setIsCodeLoading] = useState(false);
   const [initialPrompt, setInitialPrompt] = useState("");
 
+     async function fetchBackendUrl() {
+          try {
+              backendRootUri = (await rpcClient.getMiDiagramRpcClient().getBackendRootUrl()).url;
+              // Do something with backendRootUri
+          } catch (error) {
+              console.error('Failed to fetch backend URL:', error);
+          }
+      }
     useEffect(() => {
-        async function fetchBackendUrl() {
-            try {
-                backendRootUri = (await rpcClient.getMiDiagramRpcClient().getBackendRootUrl()).url;
-                // Do something with backendRootUri
-            } catch (error) {
-                console.error('Failed to fetch backend URL:', error);
-            }
-        }
 
         fetchBackendUrl();
-
 
       }, []); 
 
@@ -205,58 +205,63 @@ export function AIProjectGenerationChat() {
   } , [isSuggestionLoading]);
 
   async function generateSuggestions() {
-    setIsSuggestionLoading(true); // Set loading state to true at the start
-    const url = MI_SUGGESTIVE_QUESTIONS_BACKEND_URL;
-    var view = ""
-    var context: GetWorkspaceContextResponse[] = [];
-    //Get machine view
-    const machineView = await rpcClient.getAIVisualizerState();
-      switch (machineView?.view) {
-          case AI_MACHINE_VIEW.AIOverview:
-              view = "Overview";
-              break;
-          case AI_MACHINE_VIEW.AIArtifact:
-              view = "Artifact";
-              break;
-          default:
-            view = "Overview";
-            console.log("default");  
-      }
-      if(view == "Overview"){
-            await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
-              context = [response]; // Wrap the response in an array
-            } );
-      }else if(view == "Artifact"){
-            await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
-              context = [response]; // Wrap the response in an array
-            } );
-      }
-      console.log(JSON.stringify({messages: chatArray, context : context[0].context}));
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({messages: chatArray, context : context[0].context, num_suggestions:1, type: "artifact_gen" }),
-    });
-    if (!response.ok) {
-        throw new Error("Failed to fetch initial questions");
+    try {
+        setIsLoading(true);
+        setIsSuggestionLoading(true); // Set loading state to true at the start
+        const url = backendRootUri + MI_SUGGESTIVE_QUESTIONS_BACKEND_URL;
+        var context: GetWorkspaceContextResponse[] = [];
+        //Get machine view
+        const machineView = await rpcClient.getAIVisualizerState();
+        switch (machineView?.view) {
+            case AI_MACHINE_VIEW.AIOverview:
+                await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
+                    context = [response]; // Wrap the response in an array
+                 });
+                break;
+            case AI_MACHINE_VIEW.AIArtifact:
+                await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
+                  context = [response]; // Wrap the response in an array
+                });
+                break;
+            default:
+              await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
+                  context = [response]; // Wrap the response in an array
+               });
+                console.log("default");  
+        }
+        console.log(JSON.stringify({messages: chatArray, context : context[0].context}));
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({messages: chatArray, context : context[0].context, num_suggestions:1, type: "artifact_gen" }),
+        });
+        if (!response.ok) {
+            throw new Error("Failed to fetch initial questions");
+        }
+        const data = await response.json() as ApiResponse;
+        if (data.event === "suggestion_generation_success") {
+            // Extract questions from the response
+            const initialQuestions = data.questions.map(question => ({
+                role: "",
+                content: question,
+                type: "question"
+            }));
+            // Update the state with the fetched questions
+            setMessages(prevMessages => [...prevMessages, ...initialQuestions]);
+        } else {
+            throw new Error("Failed to generate suggestions: " + data.error);
+        }
+    } catch (error) {
+        console.error(error);
+        setIsLoading(false);
+        setIsSuggestionLoading(false);
+    } finally {
+        setIsLoading(false);
+        setIsSuggestionLoading(false); // Set loading state to false after fetch is successful or if an error occurs
     }
-    const data = await response.json() as ApiResponse;
-    if (data.event === "suggestion_generation_success") {
-        // Extract questions from the response
-        const initialQuestions = data.questions.map(question => ({
-            role: "",
-            content: question,
-            type: "question"
-        }));
-        // Update the state with the fetched questions
-        setMessages(prevMessages => [...prevMessages, ...initialQuestions]);
-    } else {
-        throw new Error("Failed to generate suggestions: " + data.error);
-    }
-    setIsSuggestionLoading(false); // Set loading state to false after fetch is successful
-   }
+}
 
 
   async function handleSend (isQuestion: boolean = false) {
@@ -322,13 +327,17 @@ export function AIProjectGenerationChat() {
             } );
       }
       console.log(context[0].context);
-    const response = await fetch(backendUrl, {
+    const response = await fetch(backendRootUri+backendUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({messages: chatArray, context : context[0].context}),
     })
+    if (!response.ok) {
+      setIsLoading(false);
+      throw new Error('Failed to fetch response');
+    }
     const reader = response.body?.getReader();
     const decoder = new TextDecoder();
     let result = '';
@@ -380,6 +389,7 @@ export function AIProjectGenerationChat() {
                   }
             }
           } catch (error) {
+            setIsLoading(false);
             console.error('Error parsing JSON:', error);
           }
         }
@@ -406,6 +416,8 @@ export function AIProjectGenerationChat() {
        await rpcClient.getMiDiagramRpcClient().writeContentToFile({content: codeBlocks}).then((response) => {
           console.log(response);
         } );
+
+        rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.refresh"] });
 
         //clear code blocks array and the chat array
         // codeBlocks.length = 0;
@@ -562,10 +574,19 @@ export function AIProjectGenerationChat() {
       </div>
 
         <div style={{ paddingTop: "15px", marginLeft: "10px" }}>
-        {isSuggestionLoading && (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          Generating suggestions for you... &nbsp;&nbsp; <ProgressRing sx={{position: "relative"}}/>
-                        </div>
+        {isLoading && (
+                <div>
+                  {/* Other content when isLoading is true */}
+                  {isSuggestionLoading ? (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      Generating suggestions for you... &nbsp;&nbsp; <ProgressRing sx={{position: "relative"}}/>
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "4%"}}>
+                      <ProgressRing sx={{position: "relative"}}/>
+                    </div>
+                  )}
+                </div>
           )}
           {questionMessages.map((message, index) => (
             <div key={index} style={{ marginBottom: "5px" }}>
@@ -587,11 +608,11 @@ export function AIProjectGenerationChat() {
           ))}
       </div>
 
-      {isLoading ? (
+      {/* {isLoading ? (
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "4%"}}>
                   <ProgressRing sx={{position: "relative"}}/>
             </div>
-        ): null}
+        ): null} */}
 
       <div style={{ display: "flex", flexDirection: "column", padding: "10px" }}>
         <TextArea

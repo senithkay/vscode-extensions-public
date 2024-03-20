@@ -51,6 +51,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) 
 // A string array to store all code blocks
 const codeBlocks: string[] = [];
 var projectUuid = "";
+var backendRootUri = "";
 
 export function AIChat() {
   const { rpcClient } = useVisualizerContext();
@@ -61,7 +62,21 @@ export function AIChat() {
   const [lastQuestionIndex, setLastQuestionIndex] = useState(-1);
   const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
   const messagesEndRef = React.createRef<HTMLDivElement>();
+  
+  async function fetchBackendUrl() {
+    try {
+        backendRootUri = (await rpcClient.getMiDiagramRpcClient().getBackendRootUrl()).url;
+        // Do something with backendRootUri
+    } catch (error) {
+        console.error('Failed to fetch backend URL:', error);
+    }
+}
+  useEffect(() => {
 
+    fetchBackendUrl();
+
+  }, []); 
+  
   useEffect(() => {
     rpcClient.getMiDiagramRpcClient().getProjectUuid().then((response) => {
       projectUuid = response.uuid;
@@ -165,35 +180,48 @@ export function AIChat() {
   } , [isSuggestionLoading]);
 
   async function generateSuggestions() {
-    setIsSuggestionLoading(true); // Set loading state to true at the start
-    const url = MI_SUGGESTIVE_QUESTIONS_INITIAL_BACKEND_URL + "?num_suggestions=2&q_type=copilot_chat";
-    fetch(url)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error("Failed to fetch initial questions");
-          }
-        return response.json() as Promise<ApiResponse>;
-        })
-        .then(data => {
-          if (data.event === "suggestion_generation_success") {
-            // Extract questions from the response
-            const initialQuestions = data.questions.map(question => ({
-              role: "",
-              content: question,
-              type: "question"
-            }));
-            // Update the state with the fetched questions
-            setMessages(prevMessages => [...prevMessages, ...initialQuestions]);
-          } else {
-            throw new Error("Failed to generate suggestions: " + data.error);
-          }
-          setIsSuggestionLoading(false); // Set loading state to false after fetch is successful
-        })
-        .catch(error => {
-          console.error("Error fetching initial questions:", error);
-          setIsSuggestionLoading(false); // Set loading state to false even if there's an error
-        });
-   }
+    try {
+        setIsLoading(true);
+        setIsSuggestionLoading(true); // Set loading state to true at the start
+        const url = backendRootUri+MI_SUGGESTIVE_QUESTIONS_INITIAL_BACKEND_URL + "?num_suggestions=2&q_type=copilot_chat";
+        fetch(url)
+            .then(response => {
+              if (!response.ok) {
+                setIsLoading(false);
+                setIsSuggestionLoading(false);
+                throw new Error("Failed to fetch initial questions");
+              }
+            return response.json() as Promise<ApiResponse>;
+            })
+            .then(data => {
+              if (data.event === "suggestion_generation_success") {
+                // Extract questions from the response
+                const initialQuestions = data.questions.map(question => ({
+                  role: "",
+                  content: question,
+                  type: "question"
+                }));
+                // Update the state with the fetched questions
+                setMessages(prevMessages => [...prevMessages, ...initialQuestions]);
+              } else {
+                setIsLoading(false);
+                setIsSuggestionLoading(false);
+                throw new Error("Failed to generate suggestions: " + data.error);
+              }
+              setIsLoading(false);
+              setIsSuggestionLoading(false); // Set loading state to false after fetch is successful
+            })
+            .catch(error => {
+              console.error("Error fetching initial questions:", error);
+              setIsSuggestionLoading(false); // Set loading state to false even if there's an error
+              setIsLoading(false);
+            });
+    } catch (error) {
+        console.error("Unexpected error:", error);
+        setIsLoading(false);
+        setIsSuggestionLoading(false); // Set loading state to false even if there's an error
+    }
+}
 
   async function handleSend (isQuestion: boolean = false) {
     if (messages[0].type === "label" && messages[1].type === "label") {
@@ -222,7 +250,7 @@ export function AIChat() {
         ]);
     }
     console.log(chatArray);
-    const response = await fetch(MI_COPILOT_BACKEND_URL, {
+    const response = await fetch(backendRootUri+MI_COPILOT_BACKEND_URL, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
