@@ -42,39 +42,7 @@ export class DefaultState extends State<DiagramEngine> {
 			new Action({
 				type: InputType.MOUSE_DOWN,
 				fire: (event: ActionEvent<MouseEvent>) => {
-					const element = this.engine.getActionEventBus().getModelForEvent(event);
-
-					// the canvas was clicked on, transition to the dragging canvas state
-					if (!element) {
-						const targetElement = event.event.target as Element;
-						const dmCanvasContainer = targetElement.closest(`#${DMCanvasContainerID}`);
-						const linkOverlayContainer = targetElement.closest(`#${LinkOverayContainerID}`);
-						const diagnosticsTooltip = targetElement.closest(`#${DiagnosticTooltipID}`);
-						if (linkOverlayContainer || diagnosticsTooltip) {
-							// Clicked on a link overlay item or a diagnostic tooltip,
-							// hence, do not propagate as a canvas drag
-						} else if (dmCanvasContainer) {
-							this.transitionWithEvent(this.dragCanvas, event);
-						}
-					}
-					// initiate dragging a new link
-					else if (element instanceof PortModel || element instanceof DataMapperNodeModel) {
-						return;
-					}
-					// move the items (and potentially link points)
-					else {
-						this.transitionWithEvent(this.dragItems, event);
-					}
-				}
-			})
-		);
-
-		// touch drags the canvas
-		this.registerAction(
-			new Action({
-				type: InputType.TOUCH_START,
-				fire: (event: ActionEvent<TouchEvent>) => {
-					this.transitionWithEvent(new DragCanvasState(), event);
+					this.transitionWithEvent(this.dragItems, event);
 				}
 			})
 		);

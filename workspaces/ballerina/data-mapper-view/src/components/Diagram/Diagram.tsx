@@ -49,6 +49,7 @@ import { Icon } from '@wso2-enterprise/ui-toolkit';
 import { debounce } from 'lodash';
 import { defaultModelOptions } from './utils/constants';
 import { calculateZoomLevel } from './utils/dm-utils';
+import { IONodesScrollCanvasAction } from './Actions/IONodesScrollCanvasAction';
 
 const classes = {
 	buttonWrap: css({
@@ -108,6 +109,8 @@ function initDiagramEngine() {
 	// register the default interaction behaviours
 	engine.getStateMachine().pushState(new DefaultDiagramState());
 	engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
+
+	engine.getActionEventBus().registerAction(new IONodesScrollCanvasAction());
 
 	diContext.nodeFactories.forEach((nf) =>
 		engine.getNodeFactories().registerFactory(nf));
