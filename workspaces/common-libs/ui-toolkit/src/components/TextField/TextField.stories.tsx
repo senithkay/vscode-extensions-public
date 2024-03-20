@@ -32,5 +32,9 @@ TextFieldWithIcon.args = { value: "Sample Text", icon: {iconComponent: searchIco
 
 export const TextFieldWithAutoFoucus = Template.bind();
 TextFieldWithAutoFoucus.args = { label: "TextField", autoFocus: true, placeholder: "placeholder", onChange: null };
+const clickableIcon = (<Codicon name="edit" sx= {{cursor: "pointer"}}/>)
+
+export const TextFieldWithClickableIcon = Template.bind();
+TextFieldWithClickableIcon.args = { value: "Sample Text", icon: {iconComponent: clickableIcon, position: "end", onClick: () => {console.log("Icon clicked")}}, placeholder: "Search", onChange: null };
 
 export default { component: TextField, title: "TextField" };

@@ -184,7 +184,16 @@ import {
     updateHttpEndpoint,
     updateLoadBalanceEndpoint,
     updateWsdlEndpoint,
-    writeContentToFile
+    writeContentToFile,
+    ListRegistryArtifactsResponse,
+    ListRegistryArtifactsRequest,
+    getAvailableRegistryResources,
+    UpdateRecipientEPRequest,
+    UpdateRecipientEPResponse,
+    updateRecipientEndpoint,
+    GetRecipientEPRequest,
+    GetRecipientEPResponse,
+    getRecipientEndpoint
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -254,6 +263,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getFailoverEndpoint(params: GetFailoverEPRequest): Promise<GetFailoverEPResponse> {
         return this._messenger.sendRequest(getFailoverEndpoint, HOST_EXTENSION, params);
+    }
+
+    updateRecipientEndpoint(params: UpdateRecipientEPRequest): Promise<UpdateRecipientEPResponse> {
+        return this._messenger.sendRequest(updateRecipientEndpoint, HOST_EXTENSION, params);
+    }
+    
+    getRecipientEndpoint(params: GetRecipientEPRequest): Promise<GetRecipientEPResponse> {
+        return this._messenger.sendRequest(getRecipientEndpoint, HOST_EXTENSION, params);
     }
 
     createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
@@ -470,5 +487,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getBackendRootUrl(): Promise<GetBackendRootUrlResponse> {
         return this._messenger.sendRequest(getBackendRootUrl, HOST_EXTENSION);
+    }
+
+    getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<ListRegistryArtifactsResponse> {
+        return this._messenger.sendRequest(getAvailableRegistryResources, HOST_EXTENSION, params);
     }
 }

@@ -15,6 +15,7 @@ import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { AIOverviewWindow } from "./views/AIOverviewWindow";
 import AiPanel from "./AiPanel";
+import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -44,7 +45,7 @@ export function Visualizer({ mode }: { mode: string }) {
     }, []);
 
     return (
-        <>
+        <ErrorBoundary errorMsg="An error occurred in the MI Diagram">
             {(() => {
                 switch (mode) {
                     case "visualizer":
@@ -53,7 +54,7 @@ export function Visualizer({ mode }: { mode: string }) {
                         return <AiVisualizerComponent state={state} />
                 }
             })()}
-        </>
+        </ErrorBoundary>
     );
 };
 
@@ -72,7 +73,7 @@ const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue })
 
 const AiVisualizerComponent = React.memo(({ state }: { state: MachineStateValue }) => {
     switch (true) {
-        case typeof state === 'object' && 'ready' in state && state.ready === "viewReady":
+        case typeof state === 'object' && 'ready' in state:
             return <AiPanel />;
         default:
             return (

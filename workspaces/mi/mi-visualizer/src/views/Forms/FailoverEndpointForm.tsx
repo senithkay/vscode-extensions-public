@@ -97,7 +97,6 @@ export function FailoverWizard(props: FailoverWizardProps) {
         (async () => {
             const { properties, endpoints, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getFailoverEndpoint({ path: props.path });
 
-            console.log('endpoint', endpoint);
             setEndpoint(endpoint);
             setProperties(properties);
             setEndpoints(endpoints);

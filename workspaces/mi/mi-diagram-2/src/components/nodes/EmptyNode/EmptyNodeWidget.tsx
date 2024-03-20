@@ -26,6 +26,7 @@ namespace S {
         width: ${(props: NodeProps) => (props.visible ? 8 : 8)}px;
         height: ${(props: NodeProps) => (props.visible ? 8 : 0)}px;
         border: 2px solid ${(props: NodeProps) => (props.visible ? Colors.PRIMARY : "transparent")};
+        background-color: ${Colors.SURFACE_BRIGHT};
         border-radius: 50%;
     `;
 

@@ -32,6 +32,7 @@ import {
   dracula,
   materialOceanic,
 } from 'react-syntax-highlighter/dist/cjs/styles/prism'
+import { set } from "lodash";
 
 
 interface MarkdownRendererProps {
@@ -65,90 +66,102 @@ export function AIProjectGenerationChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
   const [isCodeLoading, setIsCodeLoading] = useState(false);
+  const [initialPrompt, setInitialPrompt] = useState("");
 
-      useEffect(() => {
-        async function fetchBackendUrl() {
-            try {
-                backendRootUri = (await rpcClient.getMiDiagramRpcClient().getBackendRootUrl()).url;
-                // Do something with backendRootUri
-            } catch (error) {
-                console.error('Failed to fetch backend URL:', error);
-            }
-        }
+     async function fetchBackendUrl() {
+          try {
+              backendRootUri = (await rpcClient.getMiDiagramRpcClient().getBackendRootUrl()).url;
+              // Do something with backendRootUri
+          } catch (error) {
+              console.error('Failed to fetch backend URL:', error);
+          }
+      }
+    useEffect(() => {
 
         fetchBackendUrl();
+
       }, []); 
 
-  useEffect(() => {
-    rpcClient?.getMiDiagramRpcClient().getProjectUuid().then((response) => {
-      projectUuid = response.uuid;
-      const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
-      const localStorageQuestionFile = `Question-AIGenerationChat-${projectUuid}`;
-      const storedChatArray = localStorage.getItem(localStorageFile);
-      const storedQuestion = localStorage.getItem(localStorageQuestionFile);
-      const storedCodeBlocks = localStorage.getItem(`codeBlocks-AIGenerationChat-${projectUuid}`);
-    if (storedChatArray) {
-      if(storedQuestion){
-        setMessages(prevMessages => [
-          ...prevMessages,
-          { role: "", content: storedQuestion, type: "question" },
-        ]);
-      }
-      if(storedCodeBlocks){
-        const codeBlocksFromStorage = JSON.parse(storedCodeBlocks);
-        codeBlocks.push(...codeBlocksFromStorage);
-      }
-      console.log("Code Blocks: " + codeBlocks);
-      const chatArrayFromStorage = JSON.parse(storedChatArray);
-      chatArray = chatArrayFromStorage;
-  
-      // Add the messages from the chat array to the view
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        ...chatArray.map((entry: ChatEntry) => {
-          let role, type;
-          if (entry.role === 'user') {
-            role = 'User';
-            type = 'user_message';
-          } else if (entry.role === 'assistant') {
-            role = 'MI Copilot';
-            type = 'assistant_message';
-          }
-          return {
-            role: role,
-            type: type,
-            content: entry.content,
-          };
-        }),
-      ]);
-  
-      // Set initial messages only if chatArray's length is 0
-
-    } else {
-      if (chatArray.length === 0) {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-      { role: "", content: "Welcome to the AI Powered Generation and Editing Tool. You may use this tool to generate entirely new Artifacts or to do changes to existing artifacts simply using text based prompts. The context of your generation shall always be the window you have currenly opened.", type: "label" },
-      { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
-      // { role: "" , content: "Generate a Sample Hello World API", type: "question"},
-      // { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
-      // { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
-        ]);
-          if(storedQuestion){
-            setMessages(prevMessages => [
-              ...prevMessages,
-              { role: "", content: storedQuestion, type: "question" },
-            ]);
-          }else{
-            console.log("Fetching initial questions");
-            generateSuggestions();
-          }
-      }
-    }
-    } );
-    
-  }, []);
-
+      useEffect(() => {
+        rpcClient?.getMiDiagramRpcClient().getProjectUuid().then((response) => {
+          projectUuid = response.uuid;
+          const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
+          const localStorageQuestionFile = `Question-AIGenerationChat-${projectUuid}`;
+          const storedChatArray = localStorage.getItem(localStorageFile);
+          const storedQuestion = localStorage.getItem(localStorageQuestionFile);
+          const storedCodeBlocks = localStorage.getItem(`codeBlocks-AIGenerationChat-${projectUuid}`);
+          rpcClient.getAIVisualizerState().then((machineView) => { 
+            if(machineView.initialPrompt){
+              setMessages(prevMessages => [
+                ...prevMessages,
+                { role: "User", content: machineView.initialPrompt, type: "initial_prompt" },
+              ]);
+              addChatEntry("user", machineView.initialPrompt);
+              handleSend(false);
+              setInitialPrompt(machineView.initialPrompt);
+              rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.clearAIPrompt"] });
+            } else {
+              if (storedChatArray) {
+                if(storedQuestion){
+                  setMessages(prevMessages => [
+                    ...prevMessages,
+                    { role: "", content: storedQuestion, type: "question" },
+                  ]);
+                }
+                if(storedCodeBlocks){
+                  const codeBlocksFromStorage = JSON.parse(storedCodeBlocks);
+                  codeBlocks.push(...codeBlocksFromStorage);
+                }
+                console.log("Code Blocks: " + codeBlocks);
+                const chatArrayFromStorage = JSON.parse(storedChatArray);
+                chatArray = chatArrayFromStorage;
+            
+                // Add the messages from the chat array to the view
+                setMessages((prevMessages) => [
+                  ...prevMessages,
+                  ...chatArray.map((entry: ChatEntry) => {
+                    let role, type;
+                    if (entry.role === 'user') {
+                      role = 'User';
+                      type = 'user_message';
+                    } else if (entry.role === 'assistant') {
+                      role = 'MI Copilot';
+                      type = 'assistant_message';
+                    }
+                    return {
+                      role: role,
+                      type: type,
+                      content: entry.content,
+                    };
+                  }),
+                ]);
+            
+                // Set initial messages only if chatArray's length is 0
+              } else {
+                if (chatArray.length === 0) {
+                  setMessages((prevMessages) => [
+                    ...prevMessages,
+                    { role: "", content: "Welcome to the AI Powered Generation and Editing Tool. You may use this tool to generate entirely new Artifacts or to do changes to existing artifacts simply using text based prompts. The context of your generation shall always be the window you have currenly opened.", type: "label" },
+                    { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
+                    // { role: "" , content: "Generate a Sample Hello World API", type: "question"},
+                    // { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
+                    // { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
+                  ]);
+                  if(storedQuestion){
+                    setMessages(prevMessages => [
+                      ...prevMessages,
+                      { role: "", content: storedQuestion, type: "question" },
+                    ]);
+                  } else {
+                    console.log("Fetching initial questions");
+                    generateSuggestions();
+                  }
+                }
+              }
+            }
+          });
+        });
+      }, []);
 
   function addChatEntry(role: string, content: string): void {
       chatArray.push({
@@ -192,61 +205,67 @@ export function AIProjectGenerationChat() {
   } , [isSuggestionLoading]);
 
   async function generateSuggestions() {
-    setIsSuggestionLoading(true); // Set loading state to true at the start
-    const url = MI_SUGGESTIVE_QUESTIONS_BACKEND_URL;
-    var view = ""
-    var context: GetWorkspaceContextResponse[] = [];
-    //Get machine view
-    const machineView = await rpcClient.getAIVisualizerState();
-      switch (machineView?.view) {
-          case AI_MACHINE_VIEW.AIOverview:
-              view = "Overview";
-              break;
-          case AI_MACHINE_VIEW.AIArtifact:
-              view = "Artifact";
-              break;
-          default:
-            view = "Overview";
-            console.log("default");  
-      }
-      if(view == "Overview"){
-            await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
-              context = [response]; // Wrap the response in an array
-            } );
-      }else if(view == "Artifact"){
-            await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
-              context = [response]; // Wrap the response in an array
-            } );
-      }
-      console.log(JSON.stringify({messages: chatArray, context : context[0].context}));
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({messages: chatArray, context : context[0].context, num_suggestions:1, type: "artifact_gen" }),
-    });
-    if (!response.ok) {
-        throw new Error("Failed to fetch initial questions");
+    try {
+        setIsLoading(true);
+        setIsSuggestionLoading(true); // Set loading state to true at the start
+        const url = backendRootUri + MI_SUGGESTIVE_QUESTIONS_BACKEND_URL;
+        var context: GetWorkspaceContextResponse[] = [];
+        //Get machine view
+        const machineView = await rpcClient.getAIVisualizerState();
+        switch (machineView?.view) {
+            case AI_MACHINE_VIEW.AIOverview:
+                await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
+                    context = [response]; // Wrap the response in an array
+                 });
+                break;
+            case AI_MACHINE_VIEW.AIArtifact:
+                await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
+                  context = [response]; // Wrap the response in an array
+                });
+                break;
+            default:
+              await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
+                  context = [response]; // Wrap the response in an array
+               });
+                console.log("default");  
+        }
+        console.log(JSON.stringify({messages: chatArray, context : context[0].context}));
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({messages: chatArray, context : context[0].context, num_suggestions:1, type: "artifact_gen" }),
+        });
+        if (!response.ok) {
+            throw new Error("Failed to fetch initial questions");
+        }
+        const data = await response.json() as ApiResponse;
+        if (data.event === "suggestion_generation_success") {
+            // Extract questions from the response
+            const initialQuestions = data.questions.map(question => ({
+                role: "",
+                content: question,
+                type: "question"
+            }));
+            // Update the state with the fetched questions
+            setMessages(prevMessages => [...prevMessages, ...initialQuestions]);
+        } else {
+            throw new Error("Failed to generate suggestions: " + data.error);
+        }
+    } catch (error) {
+        console.error(error);
+        setIsLoading(false);
+        setIsSuggestionLoading(false);
+    } finally {
+        setIsLoading(false);
+        setIsSuggestionLoading(false); // Set loading state to false after fetch is successful or if an error occurs
     }
-    const data = await response.json() as ApiResponse;
-    if (data.event === "suggestion_generation_success") {
-        // Extract questions from the response
-        const initialQuestions = data.questions.map(question => ({
-            role: "",
-            content: question,
-            type: "question"
-        }));
-        // Update the state with the fetched questions
-        setMessages(prevMessages => [...prevMessages, ...initialQuestions]);
-    } else {
-        throw new Error("Failed to generate suggestions: " + data.error);
-    }
-    setIsSuggestionLoading(false); // Set loading state to false after fetch is successful
-   }
+}
 
 
   async function handleSend (isQuestion: boolean = false) {
+    console.log(chatArray);
     var context: GetWorkspaceContextResponse[] = [];
     setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
     setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'question'));
@@ -265,11 +284,19 @@ export function AIProjectGenerationChat() {
                 { role: "MI Copilot", content: "", type:"assistant_message"}, // Add a new message for the assistant
           ]);
     }else{
-        setMessages(prevMessages => [
+      if(userInput!=""){
+          setMessages(prevMessages => [
             ...prevMessages,
             { role: "User", content: userInput, type: "user_message"},
             { role: "MI Copilot", content: "", type:"assistant_message"}, // Add a new message for the assistant
-        ]);
+      ]);
+      }else{
+        setMessages(prevMessages => [
+          ...prevMessages,
+          { role: "MI Copilot", content: "", type:"assistant_message"}, // Add a new message for the assistant
+    ]);
+      }
+       
     }
     var backendUrl = ""
     var view = ""
@@ -300,13 +327,17 @@ export function AIProjectGenerationChat() {
             } );
       }
       console.log(context[0].context);
-    const response = await fetch(backendUrl, {
+    const response = await fetch(backendRootUri+backendUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({messages: chatArray, context : context[0].context}),
     })
+    if (!response.ok) {
+      setIsLoading(false);
+      throw new Error('Failed to fetch response');
+    }
     const reader = response.body?.getReader();
     const decoder = new TextDecoder();
     let result = '';
@@ -358,6 +389,7 @@ export function AIProjectGenerationChat() {
                   }
             }
           } catch (error) {
+            setIsLoading(false);
             console.error('Error parsing JSON:', error);
           }
         }
@@ -384,6 +416,8 @@ export function AIProjectGenerationChat() {
        await rpcClient.getMiDiagramRpcClient().writeContentToFile({content: codeBlocks}).then((response) => {
           console.log(response);
         } );
+
+        rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.refresh"] });
 
         //clear code blocks array and the chat array
         // codeBlocks.length = 0;
@@ -540,10 +574,19 @@ export function AIProjectGenerationChat() {
       </div>
 
         <div style={{ paddingTop: "15px", marginLeft: "10px" }}>
-        {isSuggestionLoading && (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          Generating suggestions for you... &nbsp;&nbsp; <ProgressRing sx={{position: "relative"}}/>
-                        </div>
+        {isLoading && (
+                <div>
+                  {/* Other content when isLoading is true */}
+                  {isSuggestionLoading ? (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      Generating suggestions for you... &nbsp;&nbsp; <ProgressRing sx={{position: "relative"}}/>
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "4%"}}>
+                      <ProgressRing sx={{position: "relative"}}/>
+                    </div>
+                  )}
+                </div>
           )}
           {questionMessages.map((message, index) => (
             <div key={index} style={{ marginBottom: "5px" }}>
@@ -565,11 +608,11 @@ export function AIProjectGenerationChat() {
           ))}
       </div>
 
-      {isLoading ? (
+      {/* {isLoading ? (
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "4%"}}>
                   <ProgressRing sx={{position: "relative"}}/>
             </div>
-        ): null}
+        ): null} */}
 
       <div style={{ display: "flex", flexDirection: "column", padding: "10px" }}>
         <TextArea
@@ -588,7 +631,7 @@ export function AIProjectGenerationChat() {
               disabled={isLoading}
             >
               <br />
-              <div style={{ color: 'var(--vscode-editor-foreground)' }}>Send</div>
+              <div style={{ color: 'var(--vscode-button-foreground)' }}>Send</div>
             </Button>
         </div>
 
@@ -601,7 +644,7 @@ export function AIProjectGenerationChat() {
                     disabled={isLoading}
                   >
                     <br />
-                    <div style={{ color: 'var(--vscode-editor-foreground)' }}>Add all to Workspace</div>
+                    <div style={{ color: 'var(--vscode-button-foreground)' }}>Add all to Workspace</div>
                   </Button>
           </div>
       </div>

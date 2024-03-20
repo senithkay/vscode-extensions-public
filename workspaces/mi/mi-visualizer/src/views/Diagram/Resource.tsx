@@ -8,14 +8,27 @@
  */
 import React from "react";
 import { Diagnostic } from "vscode-languageserver-types";
-import { APIResource, Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { APIResource, Range, DiagramService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { Diagram } from "@wso2-enterprise/mi-diagram-2";
-import { DiagramService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { Button, Codicon, Switch } from "@wso2-enterprise/ui-toolkit";
+import { Switch } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
+import { getColorByMethod } from "@wso2-enterprise/service-designer";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 import { generateResourceData, getResourceDeleteRanges, onResourceEdit } from "../../utils/form";
 import { EditAPIForm, EditResourceForm } from "../Forms/EditForms/EditResourceForm";
+import styled from "@emotion/styled";
+
+interface ColoredTagProps {
+    color: string;
+};
+
+const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
+    ::part(control) {
+        color: var(--button-primary-foreground);
+        background-color: ${({ color }: ColoredTagProps) => color};
+    }
+`;
 
 export interface ResourceViewProps {
     model: DiagramService;
@@ -42,29 +55,34 @@ export const ResourceView = ({ model: resourceModel, documentUri, diagnostics }:
     const onSave = (data: EditAPIForm) => {
         const ranges: Range[] = getResourceDeleteRanges(model, data);
         onResourceEdit(data, model.range.startTagRange, ranges, documentUri, rpcClient);
+        setFormOpen(false);
     }
+
+    const ResourceTitle = (
+        <React.Fragment>
+            <span>Resource:</span>
+            {model.methods.map((method, index) => <ColoredTag key={index} color={getColorByMethod(method)}>{method}</ColoredTag>)}
+            <span>{model.uriTemplate || model.urlMapping}</span>
+        </React.Fragment>
+    )
 
     return (
         <View>
-            <ViewHeader title="Resource View" codicon="globe" onEdit={handleEditResource}>
-                {!isFormOpen && (
-                    <React.Fragment>
-                        <Switch
-                            leftLabel="Flow"
-                            rightLabel="Fault"
-                            checked={isFaultFlow}
-                            checkedColor="var(--vscode-button-background)"
-                            enableTransition={true}
-                            onChange={toggleFlow}
-                            sx={{
-                                "margin": "auto",
-                                fontFamily: "var(--font-family)",
-                                fontSize: "var(--type-ramp-base-font-size)",
-                            }}
-                            disabled={false}
-                        />
-                    </React.Fragment>
-                )}
+            <ViewHeader title={ResourceTitle} codicon="globe" onEdit={handleEditResource}>
+                <Switch
+                    leftLabel="Flow"
+                    rightLabel="Fault"
+                    checked={isFaultFlow}
+                    checkedColor="var(--vscode-button-background)"
+                    enableTransition={true}
+                    onChange={toggleFlow}
+                    sx={{
+                        "margin": "auto",
+                        fontFamily: "var(--font-family)",
+                        fontSize: "var(--type-ramp-base-font-size)",
+                    }}
+                    disabled={false}
+                />
             </ViewHeader>
             <ViewContent>
                 <Diagram

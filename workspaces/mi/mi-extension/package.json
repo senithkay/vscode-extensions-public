@@ -114,6 +114,11 @@
         "category": "MI"
       },
       {
+        "command": "MI.openWelcome",
+        "title": "Open MI Welcome",
+        "category": "MI"
+      },
+      {
         "command": "MI.openAiPanel",
         "title": "Open MI Ai",
         "category": "MI"
@@ -266,6 +271,17 @@
         "command": "MI.change.server",
         "title": "Add MI server",
         "category": "MI"
+      },
+      {
+        "command": "MI.build-project",
+        "title": "Build",
+        "category": "MI"
+      },
+      {
+        "command": "MI.build-and-run",
+        "title": "Build and Run",
+        "icon": "$(debug-start)",
+        "category": "MI"
       }
     ],
     "menus": {
@@ -292,6 +308,11 @@
         }
       ],
       "editor/title": [
+        {
+          "command": "MI.build-and-run",
+          "group": "navigation@1",
+          "title": "Build and Run Project"
+        },
         {
           "command": "MI.project-explorer.open-service-designer-beside",
           "when": "editorLangId == SynapseXml",
@@ -386,7 +407,7 @@
         "description": "design-view",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f10e"
+          "fontCharacter": "\\f116"
         }
       }
     }

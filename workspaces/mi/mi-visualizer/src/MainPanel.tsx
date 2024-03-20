@@ -29,6 +29,7 @@ import { LoadBalanceWizard } from './views/Forms/LoadBalanceEPform';
 import { getSyntaxTreeType } from './utils/syntax-tree';
 import { FailoverWizard } from './views/Forms/FailoverEndpointForm';
 import { ProxyView, ResourceView, SequenceView } from './views/Diagram';
+import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 
 const MainContainer = styled.div`
     display: flex;
@@ -62,24 +63,24 @@ const MainPanel = () => {
     const [showAIWindow, setShowAIWindow] = useState<boolean>(false);
     const [machineView, setMachineView] = useState<MACHINE_VIEW>();
     const [showNavigator, setShowNavigator] = useState<boolean>(true);
+    const [stateUpdated, setStateUpdated] = React.useState<boolean>(false);
+
+    rpcClient?.onStateChanged((newState: MachineStateValue) => {
+        if (typeof newState === 'object' && 'newProject' in newState && newState.newProject === 'viewReady') {
+            setStateUpdated(!stateUpdated);
+        }
+        if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewReady') {
+            setStateUpdated(!stateUpdated);
+        }
+        if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewEditing') {
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.EDIT_DONE, location: null });
+            setStateUpdated(!stateUpdated);
+        }
+    });
 
     useEffect(() => {
         fetchContext();
-
-        rpcClient?.onStateChanged((newState: MachineStateValue) => {
-            if (typeof newState === 'object' && 'newProject' in newState && newState.newProject === 'viewReady') {
-                fetchContext();
-            }
-            if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewReady') {
-                fetchContext();
-            }
-            if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewEditing') {
-                rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.EDIT_DONE, location: null });
-                fetchContext();
-            }
-        });
-
-    }, []);
+    }, [stateUpdated]);
 
     useEffect(() => {
         rpcClient.getVisualizerState().then((machineView) => {
@@ -118,7 +119,7 @@ const MainPanel = () => {
                     shouldShowNavigator = false;
                     break;
                 case MACHINE_VIEW.Overview:
-                    setViewComponent(<Overview />);
+                    setViewComponent(<Overview stateUpdated />);
                     break;
                 case MACHINE_VIEW.ResourceView:
                     rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri }).then((st) => {
@@ -206,6 +207,9 @@ const MainPanel = () => {
                 case MACHINE_VIEW.FailoverEndPointForm:
                     setViewComponent(<FailoverWizard path={machineView.documentUri} />);
                     break;
+                case MACHINE_VIEW.RecipientEndPointForm:
+                    setViewComponent(<RecipientWizard path={machineView.documentUri} />);
+                    break;
                 case MACHINE_VIEW.SequenceForm:
                     setViewComponent(<SequenceWizard path={machineView.documentUri} />);
                     break;
@@ -240,7 +244,7 @@ const MainPanel = () => {
                     setViewComponent(<DefaultEndpointWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.ProjectCreationForm:
-                    setViewComponent(<ProjectWizard />);
+                    setViewComponent(<ProjectWizard cancelView={MACHINE_VIEW.Overview} />);
                     shouldShowNavigator = false;
                     break;
                 case MACHINE_VIEW.LocalEntryForm:

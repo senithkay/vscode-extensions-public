@@ -118,7 +118,7 @@ const colors = {
     "PATCH": '#986ee2',
 }
 
-function getColorByMethod(method: string) {
+export function getColorByMethod(method: string) {
     switch (method.toUpperCase()) {
         case "GET":
             return colors.GET;
@@ -298,7 +298,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                             )}
                             {additionalActions && (
                                 <ContextMenu
-                                    sx={{ transform: "translateX(-50%)" }}
+                                    menuSx={{ transform: "translateX(-50%)" }}
                                     iconSx={verticalIconStyles}
                                     menuItems={additionalActions}
                                 />

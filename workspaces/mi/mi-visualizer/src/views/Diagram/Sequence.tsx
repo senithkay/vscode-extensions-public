@@ -35,18 +35,12 @@ export const SequenceView = ({ model: SequenceModel, documentUri, diagnostics }:
 
     const onSave = (data: EditSequenceForm) => {
         onSequenceEdit(data, model.range.startTagRange, documentUri, rpcClient);
+        setFormOpen(false);
     }
     
     return (
         <View>
-            <ViewHeader title="Sequence View" codicon="globe">
-                {!isFormOpen && (
-                    <Button appearance="icon" onClick={handleEditSequence}>
-                        <Codicon name="edit" sx={{ marginRight: 5 }} />
-                        Edit
-                    </Button>
-                )}
-            </ViewHeader>
+            <ViewHeader title={`Sequence: ${model.name}`} codicon="globe" onEdit={handleEditSequence} />
             <ViewContent>
                 <Diagram
                     model={model}

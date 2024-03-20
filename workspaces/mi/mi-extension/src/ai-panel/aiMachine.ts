@@ -49,7 +49,7 @@ const aiStateMachine = createMachine<AiMachineContext>({
             }
         },
         ready: {
-            initial: 'viewLoading',
+            initial: 'viewReady',
             states: {
                 viewLoading: {
                     invoke: {
@@ -76,6 +76,12 @@ const aiStateMachine = createMachine<AiMachineContext>({
                             target: "viewLoading",
                             actions: assign({
                                 initialPrompt: (context, event) => event.viewLocation?.initialPrompt
+                            })
+                        },
+                        CLEAR_PROMPT: {
+                            target: "viewReady",
+                            actions: assign({
+                                initialPrompt: (context, event) => undefined
                             })
                         },
                         FILE_EDIT: {
