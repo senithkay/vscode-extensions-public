@@ -272,7 +272,7 @@ const stateMachine = createMachine<MachineContext>({
                         }
                     }
                 }
-                if (viewLocation.view === MACHINE_VIEW.Diagram) {
+                if (viewLocation.view === MACHINE_VIEW.ResourceView) {
                     const res = await langClient!.getDiagnostics({ documentUri: context.documentUri! });
                     if (res.diagnostics && res.diagnostics.length > 0) {
                         viewLocation.diagnostics = res.diagnostics;
