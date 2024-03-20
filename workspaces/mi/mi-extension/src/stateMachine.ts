@@ -266,9 +266,6 @@ const stateMachine = createMachine<MachineContext>({
                                 viewLocation.view = MACHINE_VIEW.SequenceView;
                                 viewLocation.stNode = node.sequence;
                                 break;
-                            case !!node.endpoint:
-                                viewLocation.view = MACHINE_VIEW.EndPointForm;
-                                break;
                             default:
                                 // Handle default case
                                 break;
