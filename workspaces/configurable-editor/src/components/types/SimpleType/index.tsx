@@ -47,7 +47,7 @@ const SimpleType = (props: SimpleTypeProps): ReactElement => {
 
     useEffect(() => {
         props.setSimpleConfig(props.id, element);
-    }, []);
+    }, [props, props.id, element]);
 
     const setSimpleElememt = (id: string, value: any, valueRef: any, isSecret?: boolean) => {
         element.value = value;

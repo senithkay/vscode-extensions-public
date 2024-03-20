@@ -91,6 +91,9 @@ const StringType = (props: StringTypeProps): ReactElement => {
     const handleClickOpenConnection = () => {
         setOpenConnection(!openConnection);
     };
+    useEffect(() => {
+        setSelectedValue(props.isSensitive ? undefined : props.value);
+    }, [props.isSensitive, props.value]);
 
     useEffect(() => {
         if (selectedValueRef !== "" && selectedValueRef !== undefined) {
@@ -104,14 +107,14 @@ const StringType = (props: StringTypeProps): ReactElement => {
             setSelectedValue(undefined);
             setSelectedValueRef(undefined);
         }
-    }, []);
+    }, [selectedValueRef, connectionConfigs, props.isSensitive, selectedValue]);
 
     useEffect(() => {
         if (isSensitive) {
             setSelectedValue(undefined);
             setSelectedValueRef(undefined);
         }
-    }, [selectedValue]);
+    }, [selectedValue, isSensitive]);
 
     // tslint:disable: jsx-no-lambda jsx-no-multiline-js
     const onSelected =
