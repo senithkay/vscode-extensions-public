@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { ReactElement, useContext, useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
-import { Box, Card, CardContent, Collapse, IconButton, Tooltip } from "@material-ui/core";
+import { Box, Card, Collapse, IconButton, Tooltip } from "@material-ui/core";
 
 import { DocIcon } from "../../../assets";
 import ConfigElement, { ConfigElementProps } from "../../ConfigElement";
@@ -31,10 +31,10 @@ export const RecordType = (props: RecordTypeProps) => {
     const classes = useStyles();
     const connectionConfigs = props.connectionConfig;
     const { fullRecordName, shortenedRecordName } = getRecordName(props.schema[SchemaConstants.NAME]);
-    const [recordValue, setRecordValue] =
-        useState<ConfigElementProps>(getObjectElement(props, fullRecordName, connectionConfigs));
+    const [recordValue, setRecordValue] = useState<ConfigElementProps>(() =>
+      getObjectElement(props, fullRecordName, connectionConfigs)
+    );
     const [expanded, setExpanded] = useState(true);
-    const returnElement: ReactElement[] = [];
 
     useEffect(() => {
         setRecordValue(getObjectElement(props, fullRecordName, connectionConfigs));
@@ -55,23 +55,22 @@ export const RecordType = (props: RecordTypeProps) => {
         props.setConfigRecord(props.id, newRecordValue);
     };
 
-    Object.keys(recordValue.properties).forEach((key, index) => {
-        const property = recordValue.properties[key];
-        const configElementProps: ConfigElementProps = {
+    const returnElement = useMemo(
+    () =>
+      Object.keys(JSON.parse(JSON.stringify(recordValue.properties))).map(
+        (key, index) => {
+          const property = recordValue.properties[key];
+          const configElementProps: ConfigElementProps = {
             ...property,
             connectionConfig: props.connectionConfig,
             isRequired: props.isRequired ? property.isRequired : false,
             setConfigElement: handleValueChange,
-        };
-
-        returnElement.push(
-            (
-                <div key={props.id + "-" + index}>
-                    <ConfigElement {...configElementProps} />
-                </div>
-            ),
-        );
-    });
+          };
+          return configElementProps;
+        }
+      ),
+    [recordValue]
+  );
 
     const fieldLabelProps: FieldLabelProps = {
         description: props.description,
@@ -110,20 +109,23 @@ export const RecordType = (props: RecordTypeProps) => {
                     </Box>
                     <Collapse in={expanded} timeout="auto" unmountOnExit={false}>
                         <Box p={2} borderTop="1px solid #E0E2E9">
-                            {returnElement}
+                          {returnElement.map((element, index) => (
+                            <div key={element.id + "-" + index}>
+                              <ConfigElement {...element} />
+                            </div>
+                          ))}
                         </Box>
                     </Collapse>
                 </Box>
             </Card>
         </Box>
     );
-};
-
+  };
 export default RecordType;
 
 function updateRecordValue(recordObject: ConfigElementProps, id: string, value: any): ConfigElementProps {
     if (recordObject.properties !== undefined) {
-        const key = recordObject.properties.findIndex(((item) => item.id === id));
+        const key = recordObject.properties.findIndex((item) => item.id === id);
         if (key > -1) {
             recordObject.properties[key] = value;
         } else {
