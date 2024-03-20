@@ -28,7 +28,7 @@ import { DefaultEndpointWizard } from "./views/Forms/DefaultEndpointForm";
 import { LoadBalanceWizard } from './views/Forms/LoadBalanceEPform';
 import { getSyntaxTreeType } from './utils/syntax-tree';
 import { FailoverWizard } from './views/Forms/FailoverEndpointForm';
-import { DiagramService, NamedSequence, Proxy } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { APIResource, NamedSequence, Proxy } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { ProxyView, ResourceView, SequenceView } from './views/Diagram';
 import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 import { Diagram } from '@wso2-enterprise/mi-diagram-2';
@@ -123,22 +123,11 @@ const MainPanel = () => {
                 case MACHINE_VIEW.Overview:
                     setViewComponent(<Overview stateUpdated />);
                     break;
-                case MACHINE_VIEW.Diagram:
-                    setViewComponent(
-                        <Diagram
-                            key={getUniqueKey(machineView.stNode, machineView.documentUri)}
-                            model={machineView.stNode as DiagramService}
-                            documentUri={machineView.documentUri}
-                            diagnostics={machineView.diagnostics}
-                        />
-                    );
-                    rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
-                    break;
                 case MACHINE_VIEW.ResourceView:
                     setViewComponent(
                         <ResourceView
                             key={getUniqueKey(machineView.stNode, machineView.documentUri)}
-                            model={machineView.stNode as DiagramService}
+                            model={machineView.stNode as APIResource}
                             documentUri={machineView.documentUri}
                             diagnostics={machineView.diagnostics}
                         />
