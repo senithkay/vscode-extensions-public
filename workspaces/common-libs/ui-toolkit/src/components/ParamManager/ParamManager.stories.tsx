@@ -62,7 +62,8 @@ const paramConfigs: ParamConfig = {
                 }
             ],
             key: "Key 1",
-            value: "Int var1 0 true This is a description"
+            value: "Int var1 0 true This is a description",
+            icon: "query"
         }
     ],
     paramFields: [
