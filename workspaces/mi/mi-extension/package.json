@@ -26,6 +26,7 @@
           ".xml"
         ]
       }
+      
     ],
     "grammars": [
       {
@@ -63,6 +64,11 @@
             "type": "string",
             "default": "",
             "description": "OpenAI API Key"
+          },
+          "integrationStudio.rootUrl": {
+            "type": "string",
+            "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/rkxg/copilotbackend/mi-copilot-backend-be2/v1.0",
+            "description": "Root URL for Backend Services"
           }
         }
       }
@@ -105,6 +111,11 @@
       {
         "command": "MI.openProject",
         "title": "Open Project",
+        "category": "MI"
+      },
+      {
+        "command": "MI.openWelcome",
+        "title": "Open MI Welcome",
         "category": "MI"
       },
       {
@@ -260,6 +271,17 @@
         "command": "MI.change.server",
         "title": "Add MI server",
         "category": "MI"
+      },
+      {
+        "command": "MI.build-project",
+        "title": "Build",
+        "category": "MI"
+      },
+      {
+        "command": "MI.build-and-run",
+        "title": "Build and Run",
+        "icon": "$(debug-start)",
+        "category": "MI"
       }
     ],
     "menus": {
@@ -286,6 +308,11 @@
         }
       ],
       "editor/title": [
+        {
+          "command": "MI.build-and-run",
+          "group": "navigation@1",
+          "title": "Build and Run Project"
+        },
         {
           "command": "MI.project-explorer.open-service-designer-beside",
           "when": "editorLangId == SynapseXml",
@@ -380,7 +407,7 @@
         "description": "design-view",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f10e"
+          "fontCharacter": "\\f116"
         }
       }
     }

@@ -24,21 +24,22 @@ export enum MACHINE_VIEW {
     EndPointForm = "Endpoint Form",
     LoadBalanceEndPointForm = "Load Balance Endpoint Form",
     FailoverEndPointForm = "Failover Endpoint Form",
+    RecipientEndPointForm = "Recipient Endpoint Form",
     SequenceForm = "Sequence Form",
     InboundEPForm = "Inbound EP Form",
-    MessageProcessorForm = "MessageProcessorForm",
-    ProxyServiceForm = "ProxyServiceForm",
+    MessageProcessorForm = "Message Processor Form",
+    ProxyServiceForm = "Proxy Service Form",
     TaskForm = "Task Form",
-    TemplateForm = "TemplateForm",
-    HttpEndpointForm = "HttpEndpointForm",
-    AddressEndpointForm = "AddressEndpointForm",
-    WsdlEndpointForm = "WsdlEndpointForm",
-    DefaultEndpointForm = "DefaultEndpointForm",
+    TemplateForm = "Template Form",
+    HttpEndpointForm = "Http Endpoint Form",
+    AddressEndpointForm = "Address Endpoint Form",
+    WsdlEndpointForm = "Wsdl Endpoint Form",
+    DefaultEndpointForm = "Default Endpoint Form",
     ProjectCreationForm = "Project Creation Form",
     ImportProjectForm = "Import Project Form",
     LocalEntryForm = "Local Entry Form",
     RegistryResourceForm = "Registry Resource Creation Form",
-    MessageStoreForm = "MessageStoreForm",
+    MessageStoreForm = "Message Store Form",
     ClassMediatorForm = "ClassMediator Creation Form",
 }
 
@@ -55,6 +56,7 @@ export type MachineStateValue =
 
 export enum EVENT_TYPE {
     OPEN_VIEW = "OPEN_VIEW",
+    CLEAR_PROMPT = "CLEAR_PROMPT",
     FILE_EDIT = "FILE_EDIT",
     EDIT_DONE = "EDIT_DONE",
 }

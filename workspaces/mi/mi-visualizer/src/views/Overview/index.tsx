@@ -18,7 +18,6 @@ import { View, ViewContent, ViewHeader } from "../../components/View";
 import path from 'path';
 
 
-
 const AddPanel = styled.div({
     position: 'relative', // Add this line to position the close button absolutely
 
@@ -60,12 +59,16 @@ const AIPanel = styled.div({
     gap: '5px',
 });
 
+interface OverviewProps {
+    stateUpdated: boolean;
+}
 
-export function Overview() {
+export function Overview(props: OverviewProps) {
     const { rpcClient } = useVisualizerContext();
     const [workspaces, setWorkspaces] = React.useState<WorkspaceFolder[]>([]);
     const [activeWorkspaces, setActiveWorkspaces] = React.useState<WorkspaceFolder>(undefined);
     const [selected, setSelected] = React.useState<string>("");
+    const [inputAiPrompt, setInputAiPrompt] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
 
     const handleClick = async (key: string) => {
@@ -113,7 +116,7 @@ export function Overview() {
                 setProjectStructure(response);
             });
         }
-    }, [selected]);
+    }, [selected, props]);
 
     const changeWorkspace = (fsPath: string) => {
         setSelected(fsPath);
@@ -123,6 +126,15 @@ export function Overview() {
     const handleClose = () => {
         console.log('Close button clicked'); // Implement the close logic here
     }
+
+    const handleGenerateWithAI = () => {
+        rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.openAiPanel", inputAiPrompt] });
+    }
+
+    const handleAiPromptChange = (value: string) => {
+        setInputAiPrompt(value);
+    }
+
 
     return (
         <View>
@@ -134,25 +146,17 @@ export function Overview() {
                         tooltip="Icon Button"
                     >
                         <Codicon
-                            name="play"
-                        />
-                        &nbsp;Run
-                    </Button>
-                    <Button
-                        appearance="icon"
-                        onClick={() => { }}
-                        tooltip="Icon Button"
-                    >
-                        <Codicon
                             name="combine"
                         />
                         &nbsp;&nbsp;Build
 
                     </Button>
-                    <Button tooltip="Deploy your integration on the Cloud with Choreo">
+                    <Button
+                        appearance="icon"
+                        tooltip="Deploy your integration on the Cloud with Choreo">
                         <Icon
                             name="choreo"
-                            sx={{ marginTop: '2px' }}
+                            sx={{ marginTop: '2px', color: '#5567d5' }}
                         />
                         &nbsp;Deploy in Choreo
                     </Button>
@@ -163,20 +167,22 @@ export function Overview() {
                     <CloseButton onClick={handleClose} appearance="icon" tooltip="Close">
                         <Codicon name="chrome-close" />
                     </CloseButton>
-                    <h3 style={{ margin: '0 0 5px 0' }}>Describe your Integration to get started</h3>
+                    <h3 style={{ margin: '0 0 5px 0', display: 'flex', alignItems: 'center' }}>
+                        <Codicon name="wand" sx={{ marginRight: '5px' }} /> Describe your Integration to generate with AI
+                    </h3>
                     <AIPanel>
-                        <TextArea value="" rows={4} cols={1000} placeholder="I want to create an API that will route my request based on a header value."></TextArea>
-                        <VSCodeButton>
+                        <TextArea onChange={handleAiPromptChange} value={inputAiPrompt} rows={4} cols={1000} placeholder="ie. I want to create an API that will route my request based on a header value."></TextArea>
+                        <VSCodeButton onClick={handleGenerateWithAI}>
                             <Codicon name="wand" />
-                            Generate with AI
+                            &nbsp; Generate
                         </VSCodeButton>
                     </AIPanel>
                     <h3>Or, Select an Entry point to Start</h3>
                     <HorizontalCardContainer>
-                        <Card icon="globe" title="API" description="Create a new HTTP API" onClick={() => handleClick("apis")} />
-                        <Card icon="arrow-swap" title="Proxy" description="Create a new Proxy" onClick={() => handleClick("proxyServices")} />
-                        <Card icon="fold-down" title="Task" description="Create a new Task" onClick={() => handleClick("tasks")} />
-                        <Card icon="globe" title="Inbound Endpoint" description="Create a new Inbound Endpoint" onClick={() => handleClick("inboundEndpoints")} />
+                        <Card icon="globe" title="API" description="Create an HTTP API with a defined interface." onClick={() => handleClick("apis")} />
+                        <Card icon="arrow-swap" title="Proxy" description="Create a proxy service to process and route messages." onClick={() => handleClick("proxyServices")} />
+                        <Card icon="tasklist" title="Task" description="Create a task that can be run periodically." onClick={() => handleClick("tasks")} />
+                        <Card icon="fold-down" title="Inbound Endpoint" description="Mediate messages sent via events." onClick={() => handleClick("inboundEndpoints")} />
                     </HorizontalCardContainer>
                 </AddPanel>
 
@@ -193,29 +199,45 @@ interface CardProps {
     onClick?: () => void;
 }
 
+interface CardState {
+    isHovered: boolean;
+}
+
 const CardWraper = styled.div({
     border: '1px solid var(--vscode-dropdown-border)',
     backgroundColor: 'var(--vscode-dropdown-background)',
     padding: '10px',
     cursor: 'pointer',
     '&:hover': {
-        backgroundColor: 'var(--list-active-selection-background)',
+        backgroundColor: 'var(--vscode-button-background)',
     },
     display: 'flex',
     flexDirection: 'column',
 });
 
+const CardTitle = styled.div<CardState>((props: CardState) => ({
+    fontSize: '1.2em',
+    color: props.isHovered ? 'var(--vscode-button-foreground)' : 'inherit',
+}));
+
+const CardDescription = styled.div<CardState>((props: CardState) => ({
+    marginLeft: '2.3em',
+    color: props.isHovered ? 'var(--vscode-button-foreground)' : 'inherit',
+}));
+
 const Card: React.FC<CardProps> = ({ icon, title, onClick, description }) => {
+    const [hovered, setHovered] = React.useState(false);
+
     return (
-        <CardWraper onClick={onClick}>
+        <CardWraper onClick={onClick} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                 <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                     <div style={{ width: '1.5em', height: '1.5em', marginRight: "10px" }}>
-                        <Codicon name={icon} iconSx={{ fontSize: '1.5em' }} />
+                        <Codicon name={icon} iconSx={{ fontSize: '1.5em', color: hovered ? 'var(--vscode-button-foreground)' : 'inherit' }} />
                     </div>
-                    <div style={{ fontSize: '1.2em' }}>{title}</div>
+                    <CardTitle isHovered={hovered}>{title}</CardTitle>
                 </div>
-                {description && <div style={{ marginLeft: '2.3em' }}>{description}</div>}
+                {description && <CardDescription isHovered={hovered}>{description}</CardDescription>}
             </div>
         </CardWraper>
     );

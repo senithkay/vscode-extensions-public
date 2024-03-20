@@ -12,12 +12,14 @@ import { BaseNodeModel } from "../BaseNodeModel";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export class EmptyNodeModel extends BaseNodeModel {
-    constructor(stNode: STNode, documentUri:string) {
+    readonly visible: boolean;
+    constructor(stNode: STNode, documentUri:string, visible: boolean = false) {
         super(
             NodeTypes.EMPTY_NODE,
             NodeTypes.EMPTY_NODE,
             documentUri,
             stNode,
         );
+        this.visible = visible;
     }
 }

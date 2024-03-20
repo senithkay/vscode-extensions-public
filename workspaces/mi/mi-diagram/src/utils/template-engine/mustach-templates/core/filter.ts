@@ -8,7 +8,7 @@
  */
 
 function getFilterMustacheTemplate() {
-    return `<filter{{#description}} description="{{description}}"{{/description}}{{#regularExpression}} regex="{{regularExpression}}"{{/regularExpression}}{{#source}} source="{{source}}"{{/source}}{{#xPath}} xpath="{{xPath}}"{{/xPath}} >
+    return `<filter{{#description}} description="{{description}}"{{/description}}{{#regularExpression}} {{#source}} source="{{source}}"{{/source}} regex="{{regularExpression}}"{{/regularExpression}}{{#xPath}} xpath="{{xPath}}"{{/xPath}}>
     <then>
     </then>
     <else>

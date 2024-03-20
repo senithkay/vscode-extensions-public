@@ -287,14 +287,16 @@ const stateMachine = createMachine<MachineContext>({
         },
         updateStack: (context, event) => {
             return new Promise(async (resolve, reject) => {
-                history.push({
-                    location: {
-                        view: context.view,
-                        documentUri: context.documentUri,
-                        position: context.position,
-                        identifier: context.identifier
-                    }
-                });
+                if (!context.view?.includes("Form")) {
+                    history.push({
+                        location: {
+                            view: context.view,
+                            documentUri: context.documentUri,
+                            position: context.position,
+                            identifier: context.identifier
+                        }
+                    });
+                }
                 resolve(true);
             });
         },
@@ -333,6 +335,11 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
     if (viewLocation?.documentUri) {
         viewLocation.documentUri = Uri.parse(viewLocation.documentUri).fsPath;
     }
+    // Set the projectUri If undefined.
+    if (!viewLocation?.projectUri) {
+        viewLocation!.projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
+    }
+    updateProjectExplorer(viewLocation);
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 
@@ -374,7 +381,6 @@ async function checkIfMiProject() {
             const pomContent = await vscode.workspace.openTextDocument(pomFiles[0]);
             if (pomContent.getText().includes('<projectType>integration-project</projectType>')) {
                 isMiProject = true;
-                projectUri = pomFiles[0].fsPath;
             }
         }
 
@@ -385,7 +391,6 @@ async function checkIfMiProject() {
                 const projectContent = await vscode.workspace.openTextDocument(projectFiles[0]);
                 if (projectContent.getText().includes('<nature>org.wso2.developerstudio.eclipse.mavenmultimodule.project.nature</nature>')) {
                     isMiProject = true;
-                    projectUri = projectFiles[0].fsPath;
                 }
             }
         }
@@ -395,6 +400,7 @@ async function checkIfMiProject() {
     }
 
     if (isMiProject) {
+        projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
         vscode.commands.executeCommand('setContext', 'MI.status', 'projectDetected');
     } else {
         vscode.commands.executeCommand('setContext', 'MI.status', 'unknownProject');

@@ -13,15 +13,20 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { EmptyNodeModel } from "./EmptyNodeModel";
 import { Colors } from "../../../resources/constants";
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 namespace S {
-    export const Node = styled.div<{}>`
+    export type NodeProps = {
+        visible: boolean;
+    };
+    export const Node = styled.div<NodeProps>`
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
-        width: 8px;
-        height: 8px;
-        border: 2px solid ${Colors.PRIMARY};
+        width: ${(props: NodeProps) => (props.visible ? 8 : 8)}px;
+        height: ${(props: NodeProps) => (props.visible ? 8 : 0)}px;
+        border: 2px solid ${(props: NodeProps) => (props.visible ? Colors.PRIMARY : "transparent")};
+        background-color: ${Colors.SURFACE_BRIGHT};
         border-radius: 50%;
     `;
 
@@ -43,7 +48,7 @@ export function EmptyNodeWidget(props: EmptyNodeWidgetProps) {
     const { node, engine } = props;
 
     return (
-        <S.Node>
+        <S.Node visible={node.visible}>
             <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
             <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
         </S.Node>

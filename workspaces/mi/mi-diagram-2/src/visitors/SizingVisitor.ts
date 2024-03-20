@@ -8,7 +8,7 @@
  */
 
 
-import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange, Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, traversNode, Iterate, Switch, Foreach } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange, Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, traversNode, Iterate, Resource, Switch, Foreach, Bam, ConditionalRouter, OauthService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
 
@@ -35,13 +35,13 @@ export class SizingVisitor implements Visitor {
         }
 
         let subSequencesWidth = 0;
-        let subSequencesHeight = 50;
+        let subSequencesHeight = NODE_DIMENSIONS.EMPTY.BRANCH.HEIGHT;
         const subSequenceKeys = Object.keys(subSequences);
         for (let i = 0; i < subSequenceKeys.length; i++) {
             const subSequence = subSequences[subSequenceKeys[i]];
             if (subSequence) {
                 let subSequenceWidth = NODE_DIMENSIONS.EMPTY.BRANCH.WIDTH;
-                let subSequenceHeight = NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y;
+                let subSequenceHeight = type === NodeTypes.GROUP_NODE ? NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y : 0;
                 let subSequenceL = 0;
                 let subSequenceR = 0;
                 if (subSequence.mediatorList && subSequence.mediatorList.length > 0) {
@@ -70,7 +70,7 @@ export class SizingVisitor implements Visitor {
                     subSequenceL = NODE_DIMENSIONS.EMPTY.BRANCH.WIDTH / 2;
                     subSequenceR = NODE_DIMENSIONS.EMPTY.BRANCH.WIDTH / 2;
                 }
-                subSequenceHeight += NODE_DIMENSIONS.END.HEIGHT;
+                subSequenceHeight += type === NodeTypes.GROUP_NODE ? NODE_DIMENSIONS.END.HEIGHT : NODE_GAP.Y;
                 subSequencesHeight = Math.max(subSequencesHeight, subSequenceHeight);
                 subSequencesWidth = Math.max(subSequencesWidth, subSequenceWidth);
                 subSequence.viewState = { x: 0, y: 0, w: subSequenceWidth, h: subSequenceHeight, l: subSequenceL, r: subSequenceR };
@@ -90,10 +90,10 @@ export class SizingVisitor implements Visitor {
         node.viewState.l = subSequenceKeys.length > 0 ? subSequences[Object.keys(subSequences)[0]].viewState.l : 0;
         node.viewState.r = subSequenceKeys.length > 0 ? subSequences[Object.keys(subSequences)[subSequenceKeys.length - 1]].viewState.r : 0;
         node.viewState.fw = Math.max(totalWidth, type === NodeTypes.CONDITION_NODE ? NODE_DIMENSIONS.CONDITION.WIDTH : NODE_DIMENSIONS.GROUP.WIDTH);
-        const topGap = type === NodeTypes.CONDITION_NODE ? (NODE_DIMENSIONS.CONDITION.HEIGHT + NODE_GAP.BRANCH_TOP) : NODE_GAP.GROUP_NODE_START_Y;
+        const topGap = type === NodeTypes.CONDITION_NODE ? (NODE_DIMENSIONS.CONDITION.HEIGHT + NODE_GAP.BRANCH_TOP) : (node.viewState.h / 2) + NODE_GAP.GROUP_NODE_START_Y;
         const bottomGap = type === NodeTypes.CONDITION_NODE ? NODE_GAP.BRANCH_BOTTOM : NODE_GAP.GROUP_NODE_END_Y;
-        const sequenceFullHeight = NODE_DIMENSIONS.START.DISABLED.HEIGHT + subSequencesHeight;
-        node.viewState.fh = (node.viewState.h / 2) + topGap + sequenceFullHeight + bottomGap;
+        const sequenceFullHeight = subSequencesHeight;
+        node.viewState.fh = topGap + sequenceFullHeight + bottomGap;
 
         let actualWidth = node.viewState.fw;
         if (type === NodeTypes.GROUP_NODE) {
@@ -185,6 +185,25 @@ export class SizingVisitor implements Visitor {
     endVisitProperty = (node: Property): void => this.calculateBasicMediator(node);
     endVisitPropertyGroup = (node: PropertyGroup): void => this.calculateBasicMediator(node);
     endVisitRespond = (node: Respond): void => this.calculateBasicMediator(node);
+
+    endVisitResource = (node: Resource): void => {
+        const namedSequenceHeight = NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
+        if (node.inSequenceAttribute) {
+            node.viewState = {
+                x: 0,
+                y: 0,
+                w: NODE_DIMENSIONS.START.EDITABLE.WIDTH,
+                h: 0,
+                fh: namedSequenceHeight
+            };
+        }
+        if (node.outSequenceAttribute) {
+            node.viewState = {
+                ...node.viewState,
+                fh: node.viewState.fh + namedSequenceHeight
+            };
+        }
+    }
 
     beginVisitSend = (node: Send): void => { this.skipChildrenVisit = true; }
     endVisitSend = (node: Send): void => {
@@ -286,6 +305,7 @@ export class SizingVisitor implements Visitor {
             ...cases, default: node._default
         }, NodeTypes.CONDITION_NODE);
     }
+    beginVisitConditionalRouter = (node: ConditionalRouter): void => this.calculateBasicMediator(node);
     //Extesnion Mediators
     beginVisitBean = (node: Bean): void => this.calculateBasicMediator(node);
     beginVisitClass = (node: Class): void => this.calculateBasicMediator(node);
@@ -293,6 +313,10 @@ export class SizingVisitor implements Visitor {
     beginVisitEjb = (node: Ejb): void => this.calculateBasicMediator(node);
     beginVisitScript = (node: Script): void => this.calculateBasicMediator(node);
     beginVisitSpring = (node: Spring): void => this.calculateBasicMediator(node);
+
+    //Other Mediators
+    beginVisitBam = (node: Bam): void => this.calculateBasicMediator(node);
+    beginVisitOauthService = (node: OauthService): void => this.calculateBasicMediator(node);
 
     skipChildren(): boolean {
         return this.skipChildrenVisit;

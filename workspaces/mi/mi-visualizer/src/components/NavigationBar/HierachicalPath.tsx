@@ -47,16 +47,6 @@ export function HierachicalPath(props: HierachicalPathProps) {
         const updateSegments = async () => {
             const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri });
 
-
-            if (machineView.identifier != undefined && syntaxTree?.syntaxTree?.api?.resource) {
-                const resource = syntaxTree.syntaxTree.api.resource[machineView.identifier];
-                const uriTemplate = resource.uriTemplate || "/";
-                pathItems.push(`${uriTemplate} (${resource.methods.join(", ")})`);
-            } else if (syntaxTree?.syntaxTree?.sequence) {
-                const sequenceNode = syntaxTree.syntaxTree.sequence;
-                pathItems.push(sequenceNode.name);
-            }
-
             for (const pathItem of pathItems) {
                 if (pathItem.endsWith(".xml")) {
                     try {

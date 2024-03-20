@@ -9,7 +9,7 @@
 
 /** @jsxImportSource @emotion/react */
 import { css, keyframes } from "@emotion/react";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { NodeLinkModel } from "./NodeLinkModel";
 import { Colors } from "../../resources/constants";
@@ -37,9 +37,26 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
     const [isHovered, setIsHovered] = useState(false);
     const labelPosition = link.getLabelPosition();
     const addButtonPosition = link.getAddButtonPosition();
-    const sidePanelContext = useContext(SidePanelContext)
+    const sidePanelContext = useContext(SidePanelContext);
     const hasDiagnotics = link.hasDiagnotics();
-    const tooltip = hasDiagnotics ? link.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
+    const tooltip = hasDiagnotics
+        ? link
+              .getDiagnostics()
+              .map((diagnostic) => diagnostic.message)
+              .join("\n")
+        : undefined;
+
+    useEffect(() => {
+        const onChange = (event: any) => {
+            setIsHovered(event.isSelected);
+        };
+        const listener = link.registerListener({
+            selectionChanged: onChange,
+        });
+        return () => {
+            listener.deregister();
+        };
+    }, []);
 
     const handleAddNode = () => {
         if (link.onAddClick) {
@@ -65,8 +82,16 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
         }
     };
 
+    const handleMouseEnter = () => {
+        link.updateLinkSelect(true);
+    };
+
+    const handleMouseLeave = () => {
+        link.updateLinkSelect(false);
+    };
+
     return (
-        <g pointerEvents={"all"} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+        <g pointerEvents={"all"} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             <path
                 id={link.getID() + "-bg"}
                 d={link.getSVGPath()}
@@ -78,7 +103,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 id={link.getID()}
                 d={link.getSVGPath()}
                 fill={"none"}
-                stroke={link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY}
+                stroke={isHovered || link.isSelected() ? Colors.SECONDARY : Colors.PRIMARY}
                 strokeWidth={2}
                 strokeDasharray={link.brokenLine ? "5,5" : "0"}
                 markerEnd={link.showArrowToNode() && `url(#${link.getID()}-arrow-head)`}
@@ -92,15 +117,20 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                             alignItems: "center",
                         }}
                     >
-                        <Tooltip content={tooltip} position={'bottom'}>
+                        <Tooltip content={tooltip} position={"bottom"}>
                             <div
                                 style={{
                                     display: "flex",
                                     justifyContent: "center",
                                     alignItems: "center",
                                     borderRadius: "20px",
-                                    border: `2px solid ${link.hasDiagnotics() ? Colors.ERROR : link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY
-                                        }`,
+                                    border: `2px solid ${
+                                        link.hasDiagnotics()
+                                            ? Colors.ERROR
+                                            : link.showAddButton && isHovered
+                                            ? Colors.SECONDARY
+                                            : Colors.PRIMARY
+                                    }`,
                                     backgroundColor: `${Colors.SURFACE_BRIGHT}`,
                                     padding: "2px 10px",
                                     boxSizing: "border-box",
@@ -111,7 +141,11 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                             >
                                 <span
                                     style={{
-                                        color: link.hasDiagnotics() ? Colors.ERROR : link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY,
+                                        color: link.hasDiagnotics()
+                                            ? Colors.ERROR
+                                            : link.showAddButton && isHovered
+                                            ? Colors.SECONDARY
+                                            : Colors.PRIMARY,
                                         fontSize: "14px",
                                     }}
                                 >
@@ -121,40 +155,37 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                         </Tooltip>
                     </div>
                 </foreignObject>
-            )
-            }
-            {
-                link.showAddButton && isHovered && (
-                    <foreignObject
-                        x={addButtonPosition.x - 10}
-                        y={addButtonPosition.y - 10}
-                        width="20"
-                        height="20"
-                        onClick={handleAddNode}
-                    >
-                        <div
-                            css={css`
+            )}
+            {link.showAddButton && isHovered && (
+                <foreignObject
+                    x={addButtonPosition.x - 10}
+                    y={addButtonPosition.y - 10}
+                    width="20"
+                    height="20"
+                    onClick={handleAddNode}
+                >
+                    <div
+                        css={css`
                             display: flex;
                             justify-content: center;
                             align-items: center;
                             cursor: pointer;
                             animation: ${fadeInZoomIn} 0.2s ease-out forwards;
                         `}
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                <path
-                                    fill={Colors.SURFACE_BRIGHT}
-                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
-                                />
-                                <path
-                                    fill={Colors.ON_SURFACE}
-                                    d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
-                                />
-                            </svg>
-                        </div>
-                    </foreignObject>
-                )
-            }
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path
+                                fill={Colors.SURFACE_BRIGHT}
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                            />
+                            <path
+                                fill={Colors.ON_SURFACE}
+                                d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                            />
+                        </svg>
+                    </div>
+                </foreignObject>
+            )}
             <defs>
                 <marker
                     markerWidth="4"
@@ -171,6 +202,6 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                     ></polygon>
                 </marker>
             </defs>
-        </g >
+        </g>
     );
 };
