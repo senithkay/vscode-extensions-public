@@ -36,8 +36,9 @@ export function getBuilderXml(data: { [key: string]: any }) {
 
 export function getBuilderFormDataFromSTNode(data: { [key: string]: any }, node: Builder) {
 
-    data.messageBuilders = node.messageBuilders.map((builder) => {
+    data.messageBuilders = node.messageBuilders?.map((builder) => {
         return [builder.contentType, builder.clazz, builder.formatterClass]
     });
+    data.messageBuilders = data.messageBuilders ? data.messageBuilders : [];
     return data;
 }
