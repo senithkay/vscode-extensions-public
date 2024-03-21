@@ -76,7 +76,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                 label: "Attribute Value",
                 defaultValue: "",
                 isRequired: false,
-                enableCondition: [{ "Attribute Value Type": "LITERAL" }]
+                enableCondition: [{ 1: "LITERAL" }]
             },
             {
                 id: 4,
@@ -84,7 +84,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                 label: "Attribute Value Expression",
                 defaultValue: "",
                 isRequired: false,
-                enableCondition: [{ "Attribute Value Type": "EXPRESSION" }]
+                enableCondition: [{ 1: "EXPRESSION" }]
             },
             {
                 id: 5,
