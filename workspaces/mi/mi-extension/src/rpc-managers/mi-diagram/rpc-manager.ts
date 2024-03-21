@@ -129,7 +129,8 @@ import {
     UpdateTemplateEPRequest,
     UpdateTemplateEPResponse,
     GetTemplateEPRequest,
-    GetTemplateEPResponse
+    GetTemplateEPResponse,
+    RangeFormatRequest
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -1827,8 +1828,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             edit.replace(Uri.parse(params.documentUri), range, text);
             await workspace.applyEdit(edit);
 
-            const formatRange = this.getFormatRange(range, text);
-            await this.format(Uri.parse(params.documentUri), formatRange);
+            if (!params.disableFormatting) {
+                const formatRange = this.getFormatRange(range, text);
+                await this.rangeFormat({uri:params.documentUri, range:formatRange});
+            }
             const content = document.getText();
             undoRedo.addModification(content);
 
@@ -1846,9 +1849,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return formatRange;
     }
 
-    async format(uri: Uri, range: Range): Promise<ApplyEditResponse> {
+    async rangeFormat(req: RangeFormatRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
-            const edits: TextEdit[] = await commands.executeCommand("vscode.executeFormatRangeProvider", uri, range,
+            const uri = Uri.parse(req.uri);
+            const edits: TextEdit[] = await commands.executeCommand("vscode.executeFormatRangeProvider", uri, req.range,
                 { tabSize: 4, insertSpaces: false, trimTrailingWhitespace: false });
             const workspaceEdit = new WorkspaceEdit();
             workspaceEdit.set(uri, edits);
