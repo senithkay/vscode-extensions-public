@@ -8,11 +8,29 @@
  */
 
 import { useEffect, useState } from "react";
+import styled from "@emotion/styled";
 import { Dropdown, TextField, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { xml } from "@codemirror/lang-xml";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { linter } from "@codemirror/lint";
 import CodeMirror from "@uiw/react-codemirror";
+
+const Container = styled.div({
+    display: 'grid',
+    alignItems: 'start',
+    justifyContent: 'center',
+    gap: 20,
+}, (props: any) => ({
+    gridTemplateColumns: '1fr 4fr ' + '0.2fr '.repeat(props["btn-count"]),
+    marginTop: props["not-new"] ? 0 : 10,
+    paddingBottom: props["not-new"] ? props["is-last"] ? 0 : 10 : 0,
+    borderBottom: props["not-new"] ? props["is-last"] ? 0 : "1px solid #e0e0e0" : 0,
+}));
+
+const CodeMirrorContainer = styled.div({
+    overflowX: 'scroll',
+    marginTop: 2,
+});
 
 const Endpoint = ({ endpoint, handleEndpointChange, handleSave, onDeleteClick, index, last }: any) => {
     const [codemirrorErrors, setCodemirrorErrors] = useState<any[]>([]);
@@ -39,16 +57,11 @@ const Endpoint = ({ endpoint, handleEndpointChange, handleSave, onDeleteClick, i
     }
 
     return (
-        <div style={{
-            display: 'grid',
-            gridTemplateColumns: `1fr 4fr ${handleEndpointChange ? '0.2fr' : ''} ${onDeleteClick ? '0.2fr' : ''}`,
-            alignItems: 'start',
-            justifyContent: 'center',
-            gap: 20,
-            marginTop: last !== undefined ? 0 : 10,
-            paddingBottom: last !== undefined ? index === last ? 0 : 10 : 0,
-            borderBottom: last !== undefined ? (index === last) ? 0 : "1px solid #e0e0e0" : 0,
-        }}>
+        <Container
+            btn-count={Number((!!handleEndpointChange)) + Number((!!onDeleteClick))}
+            not-new={last !== undefined}
+            is-last={index === last}
+        >
             <Dropdown
                 id="endpoint-type"
                 value={tempEndpoint.type}
@@ -63,10 +76,7 @@ const Endpoint = ({ endpoint, handleEndpointChange, handleSave, onDeleteClick, i
                     sx={{ marginTop: '-2px' }}
                 />
             ) : (
-                <div style={{
-                    overflowX: 'scroll',
-                    marginTop: '2px',
-                }}>
+                <CodeMirrorContainer>
                     <CodeMirror
                         value={tempEndpoint.value}
                         extensions={[xml(), linter(() => codemirrorErrors)]}
@@ -74,16 +84,16 @@ const Endpoint = ({ endpoint, handleEndpointChange, handleSave, onDeleteClick, i
                         onChange={(text: string) => handleChanges("value", text)}
                         maxHeight="200px"
                     />
-                </div>
+                </CodeMirrorContainer>
             )}
             {handleEndpointChange && <Codicon
                 iconSx={{ marginTop: 5, fontSize: 18 }}
-                sx={{ opacity: (changesOccured || (index === undefined)) ? 1 : 0.2, cursor: (changesOccured || (index === undefined)) ? 'pointer' : 'not-allowed' }}
                 name='plus'
                 onClick={() => handleSave !== undefined ? handleSave() : handleEndpointChange(index, tempEndpoint)}
+                sx={{ opacity: (changesOccured || (index === undefined)) ? 1 : 0.2, cursor: (changesOccured || (index === undefined)) ? 'pointer' : 'not-allowed' }}
             />}
             {onDeleteClick && <Codicon iconSx={{ marginTop: 5, fontSize: 18 }} name='trash' onClick={() => onDeleteClick(index)} />}
-        </div>
+        </Container>
     )
 }
 

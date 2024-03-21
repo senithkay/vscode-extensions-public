@@ -10,12 +10,21 @@
 import styled from "@emotion/styled";
 import { TextField, Codicon } from "@wso2-enterprise/ui-toolkit";
 
-const Row = styled.div`
-    display: grid;
-    grid-template-columns: 1fr 2fr 0.2fr;
-    align-items: center;
-    justify-content: center;
-    gap: 20;
+const Row = styled.div({
+    display: 'grid',
+    gridTemplateColumns: '1fr 2fr 0.2fr',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 20,
+}, (props: any) => ({
+    paddingTop: 3,
+    paddingBottom: props["is-last"] ? 0 : 5,
+    borderBottom: props["is-last"] ? 0 : "1px solid #e0e0e0",
+}));
+
+const HeadingRow = styled(Row)`
+    padding: 10px 0;
+    border-bottom: 1px solid #e0e0e0;
 `;
 
 const Table = styled.div`
@@ -26,6 +35,14 @@ const Table = styled.div`
     border: 1px solid #e0e0e0;
     border-radius: 5px;
     margin-top: 20px;
+`;
+
+const CenteredSpan = styled.span`
+    text-align: center;
+`;
+
+const CustomLabel = styled.p`
+    margin: 10px 0;
 `;
 
 const ParamsTable = ({ params, setParams }: any) => {
@@ -43,39 +60,31 @@ const ParamsTable = ({ params, setParams }: any) => {
 
     return (
         <Table>
-            <Row style={{
-                padding: '10px 0',
-                borderBottom: "1px solid #e0e0e0",
-            }}>
-                <span style={{ textAlign: 'center' }}>Name</span>
-                <span style={{ textAlign: 'center' }}>Value</span>
-                <span style={{ textAlign: 'center' }}>Remove</span>
-            </Row>
+            <HeadingRow>
+                <CenteredSpan>Name</CenteredSpan>
+                <CenteredSpan>Value</CenteredSpan>
+                <CenteredSpan>Remove</CenteredSpan>
+            </HeadingRow>
             {params.length > 0 ? params.map((param: any, index: number) => (
-                <Row style={{
-                    paddingBottom: (index === params.length - 1) ? 0 : 10,
-                    borderBottom: (index === params.length - 1) ? 0 : "1px solid #e0e0e0",
-                }}>
+                <Row
+                    is-last={index === params.length - 1}
+                >
                     <TextField
                         id='param-name'
                         value={param.name}
                         placeholder="Param name"
                         onChange={(text: string) => handleParamChange(index, "name", text)}
-                        sx={{ marginTop: '-2px' }}
                     />
                     <TextField
                         id='param-value'
                         value={param.value}
                         placeholder="Param value"
                         onChange={(text: string) => handleParamChange(index, "value", text)}
-                        sx={{ marginTop: '-2px' }}
                     />
                     <Codicon iconSx={{ fontSize: 18, mx: 'auto' }} name='trash' onClick={() => handleParamDelete(index)} />
                 </Row>
             )) : (
-                <p style={{
-                    margin: "10px 0",
-                }}>No Params to display</p>
+                <CustomLabel>No Params to display</CustomLabel>
             )}
         </Table>
     )
