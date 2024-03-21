@@ -65,9 +65,9 @@ import {
 import { DataMapperNodeModel, TypeDescriptor } from "../Node/commons/DataMapperNode";
 import { EnumTypeNode, ENUM_TYPE_SOURCE_NODE_TYPE } from "../Node/EnumType";
 import { ExpandedMappingHeaderNode, EXPANDED_MAPPING_HEADER_NODE_TYPE } from "../Node/ExpandedMappingHeader";
-import { FromClauseNode } from "../Node/FromClause";
+import { FromClauseNode, QUERY_EXPR_SOURCE_NODE_TYPE } from "../Node/FromClause";
 import { JoinClauseNode, QUERY_EXPR_JOIN_NODE_TYPE } from "../Node/JoinClause";
-import { LetClauseNode, QUERY_EXPR_SOURCE_NODE_TYPE } from "../Node/LetClause";
+import { LetClauseNode, QUERY_EXPR_LET_NODE_TYPE } from "../Node/LetClause";
 import { LetExpressionNode, LET_EXPR_SOURCE_NODE_TYPE } from "../Node/LetExpression";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
@@ -1620,6 +1620,7 @@ export function getErrorKind(node: DataMapperNodeModel): ErrorNodeKind {
 		case EXPANDED_MAPPING_HEADER_NODE_TYPE:
 		case QUERY_EXPR_NODE_TYPE:
 		case QUERY_EXPR_SOURCE_NODE_TYPE:
+		case QUERY_EXPR_LET_NODE_TYPE:
 		case QUERY_EXPR_JOIN_NODE_TYPE:
 			return ErrorNodeKind.Other;
 		default:

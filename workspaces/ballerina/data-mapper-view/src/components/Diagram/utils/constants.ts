@@ -14,8 +14,8 @@ export const SYMBOL_KIND_CONSTANT = "CONSTANT";
 export const JSON_MERGE_MODULE_NAME = "ballerina/lang.value";
 export const defaultModelOptions = { zoom: 90 };
 export const VISUALIZER_PADDING = 30;
-
-const defaultTargetNodeWidth = 351;
+export const IO_NODE_DEFAULT_WIDTH = 350;
+export const GAP_BETWEEN_INPUT_NODES = 100;
 
 export const OFFSETS = {
     SOURCE_NODE: {
@@ -23,7 +23,7 @@ export const OFFSETS = {
         Y: 0,
     },
     TARGET_NODE: {
-        X: (window.innerWidth -30)*(100/defaultModelOptions.zoom)-defaultTargetNodeWidth,
+        X: (window.innerWidth -VISUALIZER_PADDING)*(100/defaultModelOptions.zoom)-IO_NODE_DEFAULT_WIDTH,
         Y: 0
     },
     LET_EXPRESSION_NODE: {

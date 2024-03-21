@@ -23,7 +23,7 @@ import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
 import { getFromClauseNodeLabel, getSearchFilteredInput, getTypeFromStore } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
-export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc-let";
+export const QUERY_EXPR_LET_NODE_TYPE = "datamapper-node-record-type-desc-let";
 
 export class LetClauseNode extends DataMapperNodeModel {
 
@@ -42,7 +42,7 @@ export class LetClauseNode extends DataMapperNodeModel {
         public value: LetClause) {
         super(
             context,
-            QUERY_EXPR_SOURCE_NODE_TYPE
+            QUERY_EXPR_LET_NODE_TYPE
         );
         this.numberOfFields = 1;
         this.letVarDecl = value.letVarDeclarations[0] as LetVarDecl;
