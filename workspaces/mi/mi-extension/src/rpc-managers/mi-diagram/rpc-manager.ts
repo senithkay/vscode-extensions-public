@@ -1206,9 +1206,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             };
 
             const xmlData = getProxyServiceXmlWrapper(getTemplateParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
             const filePath = path.join(directory, `${proxyServiceName}.xml`);
-            fs.writeFileSync(filePath, xmlData);
+            fs.writeFileSync(filePath, sanitizedXmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
     }
@@ -1293,6 +1295,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const getTemplateParams = { templateName, templateType, address, uriTemplate, httpMethod, wsdlUri, wsdlService, wsdlPort };
 
             const xmlData = getTemplateXmlWrapper(getTemplateParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
             let filePath: string;
 
@@ -1302,7 +1305,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = path.join(directory, `${templateName}.xml`);
             }
 
-            fs.writeFileSync(filePath, xmlData);
+            fs.writeFileSync(filePath, sanitizedXmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
     }
@@ -1372,7 +1376,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 properties, authType, basicAuthUsername, basicAuthPassword, authMode, grantType, clientId, clientSecret,
                 refreshToken, tokenUrl, username, password, requireOauthParameters, oauthProperties, addressingEnabled,
                 addressingVersion, addressListener, securityEnabled, suspendErrorCodes, initialDuration, maximumDuration,
-                progressionFactor, retryErrorCodes, retryCount, retryDelay, timeoutDuration, timeoutAction
+                progressionFactor, retryErrorCodes, retryCount, retryDelay, timeoutDuration, timeoutAction, templateName,
+                requireTemplateParameters, templateParameters
             } = params;
 
             const getHttpEndpointParams = {
@@ -1380,7 +1385,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 properties, authType, basicAuthUsername, basicAuthPassword, authMode, grantType, clientId, clientSecret,
                 refreshToken, tokenUrl, username, password, requireOauthParameters, oauthProperties, addressingEnabled,
                 addressingVersion, addressListener, securityEnabled, suspendErrorCodes, initialDuration, maximumDuration,
-                progressionFactor, retryErrorCodes, retryCount, retryDelay, timeoutDuration, timeoutAction
+                progressionFactor, retryErrorCodes, retryCount, retryDelay, timeoutDuration, timeoutAction, templateName,
+                requireTemplateParameters, templateParameters
             };
 
             const xmlData = getHttpEndpointXmlWrapper(getHttpEndpointParams);
@@ -1395,6 +1401,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             fs.writeFileSync(filePath, sanitizedXmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
     }
@@ -1402,7 +1409,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async getHttpEndpoint(params: RetrieveHttpEndpointRequest): Promise<RetrieveHttpEndpointResponse> {
 
         const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
-        const endpointParams = endpointSyntaxTree.syntaxTree.endpoint;
+        const templateParams = endpointSyntaxTree.syntaxTree.template != undefined ? endpointSyntaxTree.syntaxTree.template : null;
+        const endpointParams = endpointSyntaxTree.syntaxTree.template?.endpoint ?? endpointSyntaxTree.syntaxTree.endpoint;
         const httpParams = endpointParams.http;
         const endpointOverallParams = httpParams.enableSecAndEnableRMAndEnableAddressing;
         const authenticationParams = endpointOverallParams.authentication;
@@ -1448,7 +1456,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : '',
                     retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : '',
                     timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : '',
-                    timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : ''
+                    timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : '',
+                    templateName: templateParams != null ? templateParams.name : '',
+                    requireTemplateParameters: false,
+                    templateParameters: []
                 };
 
                 if (authenticationParams != undefined) {
@@ -1516,8 +1527,17 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     });
                 }
 
+                if (templateParams != null && templateParams.parameter != undefined && templateParams.parameter.length > 0) {
+                    let params: any[];
+                    params = templateParams.parameter;
+                    params.forEach((element) => {
+                        response.templateParameters.push(element.name);
+                    });
+                }
+
                 response.requireProperties = response.properties.length > 0;
                 response.requireOauthParameters = response.oauthProperties.length > 0;
+                response.requireTemplateParameters = response.templateParameters.length > 0;
 
                 resolve(response);
             }
@@ -1530,14 +1550,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 directory, endpointName, format, traceEnabled, statisticsEnabled, uri, optimize, description,
                 requireProperties, properties, addressingEnabled, addressingVersion, addressListener, securityEnabled,
                 suspendErrorCodes, initialDuration, maximumDuration, progressionFactor, retryErrorCodes, retryCount,
-                retryDelay, timeoutDuration, timeoutAction
+                retryDelay, timeoutDuration, timeoutAction, templateName, requireTemplateParameters, templateParameters
             } = params;
 
             const getAddressEndpointParams = {
                 endpointName, format, traceEnabled, statisticsEnabled, uri, optimize, description,
                 requireProperties, properties, addressingEnabled, addressingVersion, addressListener, securityEnabled,
                 suspendErrorCodes, initialDuration, maximumDuration, progressionFactor, retryErrorCodes, retryCount,
-                retryDelay, timeoutDuration, timeoutAction
+                retryDelay, timeoutDuration, timeoutAction, templateName, requireTemplateParameters, templateParameters
             };
 
             const xmlData = getAddressEndpointXmlWrapper(getAddressEndpointParams);
@@ -1552,6 +1572,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             fs.writeFileSync(filePath, sanitizedXmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
     }
@@ -1559,7 +1580,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async getAddressEndpoint(params: RetrieveAddressEndpointRequest): Promise<RetrieveAddressEndpointResponse> {
 
         const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
-        const endpointParams = endpointSyntaxTree.syntaxTree.endpoint;
+        const templateParams = endpointSyntaxTree.syntaxTree.template != undefined ? endpointSyntaxTree.syntaxTree.template : null;
+        const endpointParams = endpointSyntaxTree.syntaxTree.template?.endpoint ?? endpointSyntaxTree.syntaxTree.endpoint;
         const addressParams = endpointParams.address;
         const suspensionParams = addressParams.markForSuspension;
         const failureParams = addressParams.suspendOnFailure;
@@ -1591,7 +1613,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : '',
                     retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : '',
                     timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : '',
-                    timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : ''
+                    timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : '',
+                    templateName: templateParams != null ? templateParams.name : '',
+                    requireTemplateParameters: false,
+                    templateParameters: []
                 };
 
                 if (response.format === 'SOAP11') {
@@ -1608,7 +1633,16 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     });
                 }
 
+                if (templateParams != null && templateParams.parameter != undefined && templateParams.parameter.length > 0) {
+                    let params: any[];
+                    params = templateParams.parameter;
+                    params.forEach((element) => {
+                        response.templateParameters.push(element.name);
+                    });
+                }
+
                 response.requireProperties = response.properties.length > 0;
+                response.requireTemplateParameters = response.templateParameters.length > 0;
 
                 resolve(response);
             }
@@ -1621,14 +1655,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 directory, endpointName, format, traceEnabled, statisticsEnabled, optimize, description, wsdlUri,
                 wsdlService, wsdlPort, requireProperties, properties, addressingEnabled, addressingVersion,
                 addressListener, securityEnabled, suspendErrorCodes, initialDuration, maximumDuration, progressionFactor,
-                retryErrorCodes, retryCount, retryDelay, timeoutDuration, timeoutAction
+                retryErrorCodes, retryCount, retryDelay, timeoutDuration, timeoutAction, templateName,
+                requireTemplateParameters, templateParameters
             } = params;
 
             const getWsdlEndpointParams = {
                 endpointName, format, traceEnabled, statisticsEnabled, optimize, description, wsdlUri, wsdlService,
                 wsdlPort, requireProperties, properties, addressingEnabled, addressingVersion, addressListener,
                 securityEnabled, suspendErrorCodes, initialDuration, maximumDuration, progressionFactor, retryErrorCodes,
-                retryCount, retryDelay, timeoutDuration, timeoutAction
+                retryCount, retryDelay, timeoutDuration, timeoutAction, templateName, requireTemplateParameters, templateParameters
             };
 
             const xmlData = getWsdlEndpointXmlWrapper(getWsdlEndpointParams);
@@ -1643,6 +1678,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             fs.writeFileSync(filePath, sanitizedXmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
     }
@@ -1650,7 +1686,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async getWsdlEndpoint(params: RetrieveWsdlEndpointRequest): Promise<RetrieveWsdlEndpointResponse> {
 
         const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
-        const endpointParams = endpointSyntaxTree.syntaxTree.endpoint;
+        const templateParams = endpointSyntaxTree.syntaxTree.template != undefined ? endpointSyntaxTree.syntaxTree.template : null;
+        const endpointParams = endpointSyntaxTree.syntaxTree.template?.endpoint ?? endpointSyntaxTree.syntaxTree.endpoint;
         const wsdlParams = endpointParams.wsdl;
         const suspensionParams = wsdlParams.markForSuspension;
         const failureParams = wsdlParams.suspendOnFailure;
@@ -1684,7 +1721,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : '',
                     retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : '',
                     timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : '',
-                    timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : ''
+                    timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : '',
+                    templateName: templateParams != null ? templateParams.name : '',
+                    requireTemplateParameters: false,
+                    templateParameters: []
                 };
 
                 if (response.format === 'SOAP11') {
@@ -1701,7 +1741,16 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     });
                 }
 
+                if (templateParams != null && templateParams.parameter != undefined && templateParams.parameter.length > 0) {
+                    let params: any[];
+                    params = templateParams.parameter;
+                    params.forEach((element) => {
+                        response.templateParameters.push(element.name);
+                    });
+                }
+
                 response.requireProperties = response.properties.length > 0;
+                response.requireTemplateParameters = response.templateParameters.length > 0;
 
                 resolve(response);
             }
@@ -1714,14 +1763,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 directory, endpointName, format, traceEnabled, statisticsEnabled, optimize, description, requireProperties,
                 properties, addressingEnabled, addressingVersion, addressListener, securityEnabled, suspendErrorCodes,
                 initialDuration, maximumDuration, progressionFactor, retryErrorCodes, retryCount, retryDelay,
-                timeoutDuration, timeoutAction
+                timeoutDuration, timeoutAction, templateName, requireTemplateParameters, templateParameters
             } = params;
 
             const getDefaultEndpointParams = {
                 endpointName, format, traceEnabled, statisticsEnabled, optimize, description, requireProperties,
                 properties, addressingEnabled, addressingVersion, addressListener, securityEnabled, suspendErrorCodes,
                 initialDuration, maximumDuration, progressionFactor, retryErrorCodes, retryCount, retryDelay,
-                timeoutDuration, timeoutAction
+                timeoutDuration, timeoutAction, templateName, requireTemplateParameters, templateParameters
             };
 
             const xmlData = getDefaultEndpointXmlWrapper(getDefaultEndpointParams);
@@ -1736,6 +1785,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             fs.writeFileSync(filePath, sanitizedXmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
     }
@@ -1743,7 +1793,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async getDefaultEndpoint(params: RetrieveDefaultEndpointRequest): Promise<RetrieveDefaultEndpointResponse> {
 
         const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
-        const endpointParams = endpointSyntaxTree.syntaxTree.endpoint;
+        const templateParams = endpointSyntaxTree.syntaxTree.template != undefined ? endpointSyntaxTree.syntaxTree.template : null;
+        const endpointParams = endpointSyntaxTree.syntaxTree.template?.endpoint ?? endpointSyntaxTree.syntaxTree.endpoint;
         const defaultParams = endpointParams._default;
         const suspensionParams = defaultParams.markForSuspension;
         const failureParams = defaultParams.suspendOnFailure;
@@ -1774,7 +1825,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : '',
                     retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : '',
                     timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : '',
-                    timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : ''
+                    timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : '',
+                    templateName: templateParams != null ? templateParams.name : '',
+                    requireTemplateParameters: false,
+                    templateParameters: []
                 };
 
                 if (response.format === 'SOAP11') {
@@ -1791,7 +1845,16 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     });
                 }
 
+                if (templateParams != null && templateParams.parameter != undefined && templateParams.parameter.length > 0) {
+                    let params: any[];
+                    params = templateParams.parameter;
+                    params.forEach((element) => {
+                        response.templateParameters.push(element.name);
+                    });
+                }
+
                 response.requireProperties = response.properties.length > 0;
+                response.requireTemplateParameters = response.templateParameters.length > 0;
 
                 resolve(response);
             }
@@ -1879,6 +1942,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             };
 
             const xmlData = getMessageProcessorXmlWrapper(getTemplateParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
             let filePath: string;
 
@@ -1892,7 +1956,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = filePath.replace('/messageProcessors', '/message-processors');
             }
 
-            fs.writeFileSync(filePath, xmlData);
+            fs.writeFileSync(filePath, sanitizedXmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
     }

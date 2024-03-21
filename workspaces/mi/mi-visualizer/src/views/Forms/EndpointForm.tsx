@@ -76,32 +76,11 @@ export function EndpointWizard(props: EndpointWizardProps) {
     const [wsdlPort, setWsdlPort] = useState("");
     const [targetTemplate, setTargetTemplate] = useState("");
     const [uri, setUri] = useState("");
-    const isNewTask = !props.path.endsWith(".xml");
     const [templates, setTemplates] = useState();
 
     useEffect(() => {
 
         (async () => {
-            if (!isNewTask) {
-                const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: props.path});
-                if (syntaxTree.syntaxTree.endpoint.type === 'HTTP_ENDPOINT') {
-                    rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.HttpEndpointForm, documentUri: props.path} });
-                } else if (syntaxTree.syntaxTree.endpoint.type === 'ADDRESS_ENDPOINT') {
-                    rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.AddressEndpointForm, documentUri: props.path} });
-                } else if (syntaxTree.syntaxTree.endpoint.type === 'WSDL_ENDPOINT') {
-                    rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.WsdlEndpointForm, documentUri: props.path} });
-                } else if (syntaxTree.syntaxTree.endpoint.type === 'DEFAULT_ENDPOINT') {
-                    rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.DefaultEndpointForm, documentUri: props.path} });
-                } else if (syntaxTree.syntaxTree.endpoint.type === 'LOAD_BALANCE_ENDPOINT') {
-                    rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.LoadBalanceEndPointForm, documentUri: props.path} });
-                } else if (syntaxTree.syntaxTree.endpoint.type === 'FAIL_OVER_ENDPOINT') {
-                    rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.FailoverEndPointForm, documentUri: props.path} });
-                } else if (syntaxTree.syntaxTree.endpoint.type === 'RECIPIENT_LIST_ENDPOINT') {
-                    rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.RecipientEndPointForm, documentUri: props.path} });
-                } else if (syntaxTree.syntaxTree.endpoint.type === 'TEMPLATE_ENDPOINT') {
-                    rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.TemplateEndPointForm, documentUri: props.path} });
-                }
-            }
             const items = await rpcClient.getMiDiagramRpcClient().getTemplates();
             const templates = items.data.map((temp: string) => {
                 temp = temp.replace(".xml", "");
@@ -113,7 +92,6 @@ export function EndpointWizard(props: EndpointWizardProps) {
     }, []);
 
     const endpointTypes = [
-        // Add remaining two types
         'Address Endpoint',
         'Default Endpoint',
         'Fail Over Endpoint',

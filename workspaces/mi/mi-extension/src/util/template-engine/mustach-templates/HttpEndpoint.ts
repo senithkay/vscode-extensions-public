@@ -8,6 +8,7 @@
  */
 
 import { render } from "mustache";
+import {randomBytes} from "crypto";
 
 export interface HttpEndpointArgs {
     endpointName: string;
@@ -44,11 +45,18 @@ export interface HttpEndpointArgs {
     retryDelay: string;
     timeoutDuration: string;
     timeoutAction: string | null;
+    templateName: string;
+    requireTemplateParameters: boolean;
+    templateParameters: any;
 }
 
 export function getHttpEndpointMustacheTemplate() {
     return `<?xml version="1.0" encoding="UTF-8"?>
-<endpoint name="{{endpointName}}" xmlns="http://ws.apache.org/ns/synapse">
+{{#template}}<template name="{{templateName}}" xmlns="http://ws.apache.org/ns/synapse">{{/template}}
+{{#parameters}}
+<{{key}}:parameter name="{{value}}" xmlns:{{key}}="http://ws.apache.org/ns/synapse"/>
+{{/parameters}}
+<endpoint name="{{endpointName}}" {{^template}}xmlns="http://ws.apache.org/ns/synapse"{{/template}}>
     <http {{#httpMethod}}method="{{httpMethod}}"{{/httpMethod}} {{#statisticsEnabled}}statistics="{{statisticsEnabled}}"{{/statisticsEnabled}} {{#traceEnabled}}trace="{{traceEnabled}}"{{/traceEnabled}} uri-template="{{{uriTemplate}}}">
         {{#addressingEnabled}}<enableAddressing {{#addressListener}}separateListener="{{addressListener}}"{{/addressListener}} {{#addressingVersion}}version="{{addressingVersion}}{{/addressingVersion}}"/>{{/addressingEnabled}}
         {{#securityEnabled}}<enableSec/>{{/securityEnabled}}
@@ -116,7 +124,8 @@ export function getHttpEndpointMustacheTemplate() {
     <property name="{{name}}" scope="{{scope}}" value="{{value}}"/>
     {{/properties}}  
     {{#description}}<description>{{description}}</description>{{/description}}
-</endpoint>`;
+</endpoint>
+{{#template}}</template>{{/template}}`;
 }
 
 
@@ -127,7 +136,7 @@ export function getHttpEndpointXml(data: HttpEndpointArgs) {
     data.progressionFactor = data.progressionFactor === '' ? '1' : data.progressionFactor;
     data.httpMethod = (data.httpMethod === 'leave_as_is' || data.httpMethod === null) ? null : data.httpMethod.toLowerCase();
 
-    let timeout, authentication, basicAuth, oauth, authorizationCode, clientCredentials, passwordCredentials;
+    let timeout, authentication, basicAuth, oauth, authorizationCode, clientCredentials, passwordCredentials, endpoint, template;
 
     assignNullToEmptyStrings(data);
 
@@ -155,12 +164,28 @@ export function getHttpEndpointXml(data: HttpEndpointArgs) {
 
     data.addressListener = data.addressListener === 'enable' ? 'true' : null;
 
-    if (!data.requireProperties) {
+    if (!data.requireProperties || data.properties.length == 0) {
         data.properties = null;
     }
 
-    if (!data.requireOauthParameters) {
+    if (!data.requireOauthParameters || data.oauthProperties.length == 0) {
         data.oauthProperties = null;
+    }
+
+    data.templateName != null && data.templateName != '' ? template = true : endpoint = true;
+
+    data.endpointName = (data.endpointName != null && data.endpointName != '') ?
+        "endpoint_urn_uuid_".concat(generateUUID()) : data.endpointName;
+
+    let parameters: any = [];
+    if (!data.requireTemplateParameters || data.templateParameters.length == 0) {
+        data.templateParameters = null;
+    } else {
+        let incrementalValue = 1;
+        data.templateParameters.forEach(element => {
+            parameters.push({ key: 'axis2ns'.concat(String(incrementalValue).padStart(2, '0')), value: element });
+            incrementalValue++;
+        });
     }
 
     const modifiedData = {
@@ -171,7 +196,10 @@ export function getHttpEndpointXml(data: HttpEndpointArgs) {
         oauth,
         authorizationCode,
         clientCredentials,
-        passwordCredentials
+        passwordCredentials,
+        endpoint,
+        template,
+        parameters
     };
 
     return render(getHttpEndpointMustacheTemplate(), modifiedData);
@@ -183,4 +211,16 @@ function assignNullToEmptyStrings(obj: { [key: string]: any }): void {
             obj[key] = null;
         }
     }
+}
+
+function generateUUID(): string {
+    const buf = randomBytes(16);
+    buf[6] = (buf[6] & 0x0f) | 0x40;
+    buf[8] = (buf[8] & 0x3f) | 0x80;
+
+    return buf.toString('hex', 0, 4) + '-' +
+        buf.toString('hex', 4, 6) + '-' +
+        buf.toString('hex', 6, 8) + '-' +
+        buf.toString('hex', 8, 10) + '-' +
+        buf.toString('hex', 10, 16);
 }
