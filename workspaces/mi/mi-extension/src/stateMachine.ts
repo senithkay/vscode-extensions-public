@@ -402,11 +402,12 @@ async function checkIfMiProject() {
 
         // If not found, check for .project files
         if (!isProject) {
-            const projectFiles = await vscode.workspace.findFiles('**/.project', '**/node_modules/**', 1);
-            if (projectFiles.length > 0) {
-                const projectContent = await vscode.workspace.openTextDocument(projectFiles[0]);
+            const projectFiles = await vscode.workspace.findFiles('**/.project', '**/node_modules/**');
+            for (const file of projectFiles) {
+                const projectContent = await vscode.workspace.openTextDocument(file);
                 if (projectContent.getText().includes('<nature>org.wso2.developerstudio.eclipse.mavenmultimodule.project.nature</nature>')) {
                     isOldProject = true;
+                    break;
                 }
             }
         }
