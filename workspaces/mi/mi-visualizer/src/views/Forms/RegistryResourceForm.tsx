@@ -9,7 +9,7 @@
 
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import { AutoComplete, Button, TextField, Dropdown, Typography, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, Button, TextField } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { FieldGroup, SectionWrapper } from "./Commons";
 import { VSCodeRadio, VSCodeRadioGroup } from "@vscode/webview-ui-toolkit/react";
@@ -33,37 +33,6 @@ const ActionContainer = styled.div`
     padding-bottom: 20px;
 `;
 
-const CardContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 20px;
-`;
-
-const SubContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-content: space-between;
-    gap: 20px;
-`;
-
-const TitleWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
-`;
-
-const HiddenFormWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 10px 40px;
-`;
-
 export interface RegistryWizardProps {
     path: string;
 }
@@ -74,7 +43,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
     const templates = ['Address endpoint', 'Default Endpoint', 'Failover Endpoint', 'HTTP Endpoint', 'Load Balance Endpoint',
         'Recipient List Endpoint', 'Template Endpoint', 'WSDL Endpoint', 'Default Endpoint Template', 'HTTP Endpoint Template',
         'WSDL Endpoint Template', 'Address endpoint template', 'Data Mapper', 'Javascript File', 'JSON File', 'Local Entry',
-        'Sequence', 'Sequence Template', 'SQL Script File', 'WSDL File', 'WS-Policy', 'XSD File', 'XSL File', 'XSLT File', 'YAML File'];
+        'Sequence', 'Sequence Template', 'WSDL File', 'WS-Policy', 'XSD File', 'XSL File', 'XSLT File', 'YAML File'];
 
     const [createOption, setCreateOption] = useState("new");
     const [resourceName, setResourceName] = useState("");
@@ -82,7 +51,81 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
     const [filePath, setFilePath] = useState("");
     const [seletedTemplate, setSelectedTemplate] = useState("Address Endpoint");
     const [registry, setRegistry] = useState("gov");
-    const [registryPath, setRegistryPath] = useState("");
+    const [registryPath, setRegistryPath] = useState("/");
+    const [artifactNames, setArtifactNames] = useState([]);
+    const [registryPaths, setRegistryPaths] = useState([]);
+
+    useEffect(() => {
+        if (artifactNames.length === 0 || registryPaths.length === 0) {
+            const request = {
+                path: props.path
+            }
+            rpcClient.getMiDiagramRpcClient().getAvailableRegistryResources(request).then(response => {
+                const artifacts = response.artifacts;
+                var tempArtifactNames: string[] = [];
+                var tempRegistryPaths: string[] = [];
+                for (let i = 0; i < artifacts.length; i++) {
+                    artifacts[i].isCollection ? tempRegistryPaths.push(artifacts[i].path) : tempRegistryPaths.push(
+                        artifacts[i].path.endsWith("/") ? artifacts[i].path + artifacts[i].file
+                            : artifacts[i].path + "/" + artifacts[i].file);
+                    tempArtifactNames.push(artifacts[i].name);
+                }
+                setArtifactNames(tempArtifactNames);
+                setRegistryPaths(tempRegistryPaths);
+            });
+        }
+    }, []);
+
+    const validateArtifactName = (name: string) => {
+        if (artifactNames.includes(name)) {
+            return "Artifact name already exists";
+        }
+        return "";
+    }
+
+    const getFileExtension = () => {
+        switch (seletedTemplate) {
+            case "Data Mapper":
+                return ".dmc";
+            case "Javascript File":
+                return ".js";
+            case "JSON File":
+                return ".json";
+            case "YAML File":
+                return ".yaml";
+            case "WSDL File":
+                return ".wsdl";
+            case "XSD File":
+                return ".xsd";
+            case "XSL File":
+                return ".xsl";
+            case "XSLT File":
+                return ".xslt";
+            default:
+                return ".xml";
+        }
+    }
+
+    const validateRegistryPath = (path: string) => {
+        var regPath = '/_system/';
+        if (registry === 'gov') {
+            regPath = regPath + 'governance';
+        } else {
+            regPath = regPath + 'config';
+        }
+        path.startsWith('/') ? regPath = regPath + path : regPath = regPath + '/' + path;
+        if (createOption === "new") {
+            regPath.endsWith('/') ? regPath = regPath + resourceName + getFileExtension() : regPath = regPath + '/' + resourceName + getFileExtension();
+        } else {
+            const filename = filePath.split('/').pop();
+            regPath.endsWith('/') ? regPath = regPath + filename : regPath = regPath + '/' + filename;
+        }
+        if (registryPaths.includes(regPath) || registryPaths.includes(regPath + "/")) {
+            return "Registry path already exists";
+        }
+        return "";
+    }
+
     const onOptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setCreateOption(e.target.value);
     }
@@ -95,7 +138,24 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
 
     const openFile = async () => {
         const request = {
-            dialogTitle: "Select a file to be imported as registry resource"
+            canSelectFiles: true,
+            canSelectFolders: false,
+            canSelectMany: false,
+            defaultUri: "",
+            title: "Select a file to be imported as registry resource"
+        }
+        await rpcClient.getMiDiagramRpcClient().browseFile(request).then(response => {
+            setFilePath(response.filePath);
+        }).catch(e => { console.log(e); });
+    }
+
+    const openFolder = async () => {
+        const request = {
+            canSelectFiles: false,
+            canSelectFolders: true,
+            canSelectMany: false,
+            defaultUri: "",
+            title: "Select a folder to be imported to registry as a collection"
         }
         await rpcClient.getMiDiagramRpcClient().browseFile(request).then(response => {
             setFilePath(response.filePath);
@@ -120,7 +180,9 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
 
     }
 
-    const isValid = createOption === "new" ? (artifactName && registryPath && resourceName) : (filePath && artifactName && registryPath);
+    const isValid = (createOption === "new" ? (artifactName && registryPath && resourceName)
+        : (filePath && artifactName && registryPath))
+        && !validateArtifactName(artifactName) && !validateRegistryPath(registryPath);
     return (
 
         <WizardContainer>
@@ -164,6 +226,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                             required
                         />
                         <Button onClick={openFile}>Browse file</Button>
+                        <Button onClick={openFolder}>Browse folder</Button>
                     </FieldGroup>
                 </>}
                 <TextField
@@ -172,6 +235,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                     label="Artifact Name"
                     placeholder="Artifact Name"
                     onChange={(text: string) => setArtifactName(text)}
+                    errorMsg={validateArtifactName(artifactName)}
                     size={40}
                     autoFocus
                     required
@@ -187,6 +251,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                     label="Registry Path"
                     placeholder="endpoints"
                     onChange={(text: string) => setRegistryPath(text)}
+                    errorMsg={validateRegistryPath(registryPath)}
                     size={40}
                     autoFocus
                     required

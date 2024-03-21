@@ -117,6 +117,29 @@ export interface GetFailoverEPResponse {
     properties: { name: string; value: string; scope: string; }[];
 }
 
+export interface UpdateRecipientEPRequest {
+    directory: string;
+    name: string;
+    description: string;
+    endpoints: { type: string; value: string; }[];
+    properties: { name: string; value: string; scope: string; }[];
+}
+
+export interface UpdateRecipientEPResponse {
+    path: string;
+}
+
+export interface GetRecipientEPRequest {
+    path: string;
+}
+
+export interface GetRecipientEPResponse {
+    name: string;
+    description: string;
+    endpoints: { type: string; value: string; }[];
+    properties: { name: string; value: string; scope: string; }[];
+}
+
 export interface CreateInboundEndpointRequest {
     directory: string;
     name: string;
@@ -156,18 +179,18 @@ export interface CreateLocalEntryResponse {
     path: string;
 }
 
-export interface GetLocalEntryRequest{
+export interface GetLocalEntryRequest {
     path: string;
 }
 
-export interface GetLocalEntryResponse{
+export interface GetLocalEntryResponse {
     name: string;
     type: string;
     inLineTextValue: string;
     inLineXmlValue: string;
     sourceURL: string;
 }
-export interface FileDirResponse  {
+export interface FileDirResponse {
     path: string;
 }
 
@@ -900,7 +923,11 @@ export interface BrowseFileResponse {
 }
 
 export interface BrowseFileRequest {
-    dialogTitle: string;
+    canSelectFiles: boolean;
+    canSelectFolders: boolean;
+    canSelectMany: boolean;
+    defaultUri: string;
+    title: string;
 }
 
 export interface GetAvailableResourcesRequest {
@@ -921,7 +948,18 @@ export interface CreateClassMediatorRequest {
 export interface CreateClassMediatorResponse {
     path: string;
 }
-
-export interface GetBackendRootUrlResponse{
+export interface GetBackendRootUrlResponse {
     url: string;
+}
+export interface ListRegistryArtifactsRequest {
+    path: string;
+}
+export interface ListRegistryArtifactsResponse {
+    artifacts: RegistryArtifact[];
+}
+export interface RegistryArtifact {
+    name: string;
+    file: string;
+    path: string;
+    isCollection: boolean;
 }

@@ -9,7 +9,7 @@
 
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
-import { Button, Codicon, Dropdown, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import { SectionWrapper } from "./Commons";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
@@ -61,7 +61,7 @@ const Container = styled.div`
     justify-content: flex-start;
 `;
 
-export interface FailoverWizardProps {
+export interface RecipientWizardProps {
     path: string;
 }
 
@@ -75,13 +75,12 @@ const initialInlineEndpoint: Endpoint = {
     value: '',
 };
 
-export function FailoverWizard(props: FailoverWizardProps) {
+export function RecipientWizard(props: RecipientWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
 
     const [endpoint, setEndpoint] = useState<any>({
         name: '',
-        buildMessage: 'true',
         description: '',
     });
 
@@ -95,7 +94,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
 
     useEffect(() => {
         (async () => {
-            const { properties, endpoints, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getFailoverEndpoint({ path: props.path });
+            const { properties, endpoints, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getRecipientEndpoint({ path: props.path });
 
             setEndpoint(endpoint);
             setProperties(properties);
@@ -110,11 +109,6 @@ export function FailoverWizard(props: FailoverWizardProps) {
             }
         })();
     }, []);
-
-    const buildMessageOptions = [
-        { content: 'True', value: 'true' },
-        { content: 'False', value: 'false' },
-    ];
 
     const handleOnChange = (field: string, value: any) => {
         setEndpoint((prev: any) => ({ ...prev, [field]: value }));
@@ -146,7 +140,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
             endpoints,
             properties,
         }
-        rpcClient.getMiDiagramRpcClient().updateFailoverEndpoint(updateEndpointParams);
+        rpcClient.getMiDiagramRpcClient().updateRecipientEndpoint(updateEndpointParams);
         openOverview();
     };
 
@@ -179,7 +173,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
                 <Container>
                     <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
                     <div style={{ marginLeft: 30 }}>
-                        <Typography variant="h3">Failover Endpoint Artifact</Typography>
+                        <Typography variant="h3">Recipient Endpoint Artifact</Typography>
                     </div>
                 </Container>
                 <SubTitle>Basic Properties</SubTitle>
@@ -194,15 +188,6 @@ export function FailoverWizard(props: FailoverWizardProps) {
                     autoFocus
                     required
                 />
-                <FieldGroup>
-                    <span>Build Message</span>
-                    <Dropdown
-                        id="build-message"
-                        value={endpoint.buildMessage}
-                        onChange={(text: string) => handleOnChange("buildMessage", text)}
-                        items={buildMessageOptions}
-                    />
-                </FieldGroup>
                 <FieldGroup>
                     <InlineButtonGroup
                         label="Endpoints"

@@ -120,6 +120,12 @@ import {
     WriteContentToFileResponse,
     getSTRequest,
     getSTResponse,
+    ListRegistryArtifactsResponse,
+    ListRegistryArtifactsRequest,
+    UpdateRecipientEPRequest,
+    UpdateRecipientEPResponse,
+    GetRecipientEPRequest,
+    GetRecipientEPResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -132,7 +138,7 @@ import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
-import { addNewEntryToArtifactXML, changeRootPomPackaging, detectMediaType, getMediatypeAndFileExtension } from "../../util/fileOperations";
+import { addNewEntryToArtifactXML, changeRootPomPackaging, detectMediaType, getMediatypeAndFileExtension, createMetadataFilesForRegistryCollection, getAvailableRegistryResources } from "../../util/fileOperations";
 import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
@@ -141,6 +147,7 @@ import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import * as vscode from 'vscode';
 import { replaceFullContentToFile } from "../../util/workspace";
+import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/recipientEndpoint";
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
 const connectorsPath = path.join(".metadata", ".Connectors");
@@ -600,6 +607,100 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             resolve({
                 name: '',
                 buildMessage: 'true',
+                description: '',
+                endpoints: [],
+                properties: []
+            });
+        });
+    }
+
+    async updateRecipientEndpoint(params: UpdateRecipientEPRequest): Promise<UpdateRecipientEPResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, ...templateParams } = params;
+
+            const xmlData = getRecipientEPXml(templateParams);
+
+            let filePath: string;
+
+            if (directory.endsWith('.xml')) {
+                filePath = directory;
+            } else {
+                filePath = path.join(directory, `${templateParams.name}.xml`);
+            }
+
+            fs.writeFileSync(filePath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getRecipientEndpoint(params: GetRecipientEPRequest): Promise<GetRecipientEPResponse> {
+        return new Promise(async (resolve) => {
+            const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
+            const options = {
+                ignoreAttributes : false,
+                attributeNamePrefix: "@_",
+                indentBy: '    ',
+                format: true,
+            };
+            
+            const builder = new XMLBuilder(options);
+            const filePath = params.path;
+
+            if (filePath.includes('.xml') && fs.existsSync(filePath)) {
+                const { name, recipientlist, property, description} = endpointSyntaxTree.syntaxTree.endpoint;
+
+                const endpoints = recipientlist.endpoint.map((member: any) => {
+                    const { _default, key } = member;
+
+                    let value = '';
+                    if (key) {
+                        value = key;
+                    }
+                    else {
+                        value = builder.build({
+                            "endpoint": {
+                                "default": {
+                                    "suspendOnFailure": {
+                                        "initialDuration": {
+                                            "#text": _default.suspendOnFailure.initialDuration.textNode
+                                        },
+                                        "progressionFactor": {
+                                            "#text": _default.suspendOnFailure.progressionFactor.textNode
+                                        }
+                                    },
+                                    "markForSuspension": {
+                                        "retriesBeforeSuspension": {
+                                            "#text": _default.markForSuspension.retriesBeforeSuspension.textNode
+                                        }
+                                    }
+                                }
+                            }
+                        }).trim();
+                    }
+
+                    return {
+                        type: member.key ? 'static' : 'inline',
+                        value,
+                    };
+                });
+
+                const properties = property.map((prop: any) => ({
+                    name: prop.name,
+                    value: prop.value,
+                    scope: prop.scope ?? 'default'
+                }));
+
+                resolve({
+                    name,
+                    description: description ?? '',
+                    endpoints: endpoints.length > 0 ? endpoints : [],
+                    properties: properties.length > 0 ? properties : []
+                });
+            }
+
+            resolve({
+                name: '',
                 description: '',
                 endpoints: [],
                 properties: []
@@ -1900,10 +2001,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     openFile(params: OpenDiagramRequest): void {
-        const uri = Uri.file(params.path);
-        workspace.openTextDocument(uri).then((document) => {
-            window.showTextDocument(document);
-        });
+        if (!fs.lstatSync(params.path).isDirectory()) {
+            const uri = Uri.file(params.path);
+            workspace.openTextDocument(uri).then((document) => {
+                window.showTextDocument(document);
+            });
+        }
     }
 
     async askProjectDirPath(): Promise<ProjectDirResponse> {
@@ -2362,11 +2465,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async browseFile(params: BrowseFileRequest): Promise<BrowseFileResponse> {
         return new Promise(async (resolve) => {
             const selectedFile = await window.showOpenDialog({
-                canSelectFiles: true,
-                canSelectFolders: false,
-                canSelectMany: false,
+                canSelectFiles: params.canSelectFiles,
+                canSelectFolders: params.canSelectFolders,
+                canSelectMany: params.canSelectMany,
                 defaultUri: Uri.file(os.homedir()),
-                title: params.dialogTitle
+                title: params.title,
             });
             if (selectedFile) {
                 resolve({ filePath: selectedFile[0].fsPath });
@@ -2386,10 +2489,17 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     if (!fs.existsSync(registryPath)) {
                         fs.mkdirSync(registryPath, { recursive: true });
                     }
-                    fs.copyFileSync(params.filePath, destPath);
-                    transformedPath = path.join(transformedPath, params.registryPath);
-                    const mediaType = await detectMediaType(params.filePath);
-                    addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, mediaType);
+                    if (fs.statSync(params.filePath).isDirectory()) {
+                        fs.cpSync(params.filePath, destPath, { recursive: true });
+                        transformedPath = path.join(transformedPath, params.registryPath, fileName);
+                        createMetadataFilesForRegistryCollection(destPath, transformedPath);
+                        addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, "", true);
+                    } else {
+                        fs.copyFileSync(params.filePath, destPath);
+                        transformedPath = path.join(transformedPath, params.registryPath);
+                        const mediaType = await detectMediaType(params.filePath);
+                        addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, mediaType, false);
+                    }
                     commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                     resolve({ path: destPath });
                 }
@@ -2406,7 +2516,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 fs.writeFileSync(destPath, fileContent ? fileContent : "");
                 //add the new entry to artifact.xml
                 transformedPath = path.join(transformedPath, params.registryPath);
-                addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, fileData.mediaType);
+                addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, fileData.mediaType, false);
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ path: destPath });
             }
@@ -2473,6 +2583,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         const config = vscode.workspace.getConfiguration('integrationStudio');
         const ROOT_URL = config.get('rootUrl') as string;
         return { url: ROOT_URL };
+    }
+
+    async getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<ListRegistryArtifactsResponse> {
+        return new Promise(async (resolve) => {
+            resolve(getAvailableRegistryResources(params.path));
+        });
     }
 }
 

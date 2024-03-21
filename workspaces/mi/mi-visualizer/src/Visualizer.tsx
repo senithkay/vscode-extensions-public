@@ -73,7 +73,7 @@ const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue })
 
 const AiVisualizerComponent = React.memo(({ state }: { state: MachineStateValue }) => {
     switch (true) {
-        case typeof state === 'object' && 'ready' in state && state.ready === "viewReady":
+        case typeof state === 'object' && 'ready' in state:
             return <AiPanel />;
         default:
             return (
