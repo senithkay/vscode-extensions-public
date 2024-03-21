@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STNode, Visitor, Log, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Aggregate, Iterate, Switch, Foreach, Resource, Bam, ConditionalRouter, OauthService, Builder, PublishEvent } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { STNode, Visitor, Log, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Aggregate, Iterate, Switch, Foreach, Resource, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 
 export class PositionVisitor implements Visitor {
@@ -241,4 +241,13 @@ export class PositionVisitor implements Visitor {
     beginVisitOauthService = (node: OauthService): void => this.setBasicMediatorPosition(node);
     beginVisitBuilder = (node: Builder): void => this.setBasicMediatorPosition(node);
     beginVisitPublishEvent = (node: PublishEvent): void => this.setBasicMediatorPosition(node);
+    beginVisitEntitlementService = (node: EntitlementService): void => {
+        this.setAdvancedMediatorPosition(node, {
+            OnAccept: node.onAccept,
+            OnReject: node.onReject,
+            Obligations: node.obligations,
+            Advice: node.advice
+        }, NodeTypes.GROUP_NODE);
+    }
+    endVisitEntitlementService = (node: EntitlementService): void => this.setSkipChildrenVisit(false);
 }

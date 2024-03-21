@@ -64,6 +64,7 @@ import ConditionalRouterForm from "../Pages/mediators/filter/cond_router"
 import OAuthForm from "../Pages/mediators/other/oauth"
 import BuilderForm from "../Pages/mediators/other/builder"
 import PublishEventForm from "../Pages/mediators/other/publishEvent"
+import EntitlementForm from "../Pages/mediators/other/entitlement"
 
 export interface GetMediatorsProps {
     nodePosition: any;
@@ -316,6 +317,11 @@ export function getAllMediators(props: GetMediatorsProps) {
                 title: "Publish Event",
                 operationName: MEDIATORS.PUBLISHEVENT,
                 form: <PublishEventForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PublishEventForm>,
+            },
+            {
+                title: "Entitlement Service",
+                operationName: MEDIATORS.ENTITLEMENT,
+                form: <EntitlementForm nodePosition={props.nodePosition} documentUri={props.documentUri}></EntitlementForm>,
             },
         ]
     };
