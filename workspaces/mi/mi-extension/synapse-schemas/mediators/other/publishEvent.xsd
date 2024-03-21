@@ -37,38 +37,31 @@
                 <xs:element name="attributes" minOccurs="1" maxOccurs="1">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="meta" minOccurs="1" maxOccurs="1">
+                            <xs:element name="meta" minOccurs="1" maxOccurs="unbounded">
                                 <xs:complexType>
                                     <xs:sequence>
-                                        <xs:element ref="attribute" minOccurs="1" maxOccurs="1" />
+                                        <xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded" />
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
                             <xs:element name="correlation" minOccurs="1" maxOccurs="1">
                                 <xs:complexType>
                                     <xs:sequence>
-                                        <xs:element ref="attribute" minOccurs="1" maxOccurs="1" />
+                                        <xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded" />
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
                             <xs:element name="payload" minOccurs="1" maxOccurs="1">
                                 <xs:complexType>
                                     <xs:sequence>
-                                        <xs:element ref="attribute" minOccurs="1" maxOccurs="1" />
+                                        <xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded" />
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
                             <xs:element name="arbitrary" minOccurs="1" maxOccurs="1">
                                 <xs:complexType>
                                     <xs:sequence>
-                                        <xs:element name="attribute">
-                                            <xs:complexType>
-                                                <xs:attribute name="name" type="xs:string" use="required" />
-                                                <xs:attribute name="type" type="xs:string" use="required" />
-                                                <xs:attribute name="defaultValue" type="xs:string" use="required" />
-                                                <xs:attribute name="value" type="xs:string" use="required" />
-                                            </xs:complexType>
-                                        </xs:element>
+                                        <xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded" />
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
@@ -85,10 +78,10 @@
     <xs:element name="attribute">
         <xs:complexType>
             <xs:attribute name="name" type="xs:string" use="required" />
-            <xs:attribute name="dataType" type="xs:string" use="required" />
-            <xs:attribute name="default" type="xs:string" use="required" />
             <xs:attribute name="type" type="xs:string" use="required" />
-            <xs:attribute name="defaultValue" type="xs:string" use="required" />
+            <xs:attribute name="default" type="xs:string" use="optional" />
+            <xs:attribute name="type" type="xs:string" use="required" />
+            <xs:attribute name="defaultValue" type="xs:string" use="optional" />
             <xs:attributeGroup ref="valueOrExpression" />
         </xs:complexType>
     </xs:element>

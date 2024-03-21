@@ -191,6 +191,8 @@ export const MEDIATORS = {
     CONDITIONALROUTER: "ConditionalRouter",
     BAM: "Bam",
     OAUTH: "OAuth",
+    BUILDER: "Builder",
+    PUBLISHEVENT: "Publish Event",
 }
 
 export const ENDPOINTS = {
