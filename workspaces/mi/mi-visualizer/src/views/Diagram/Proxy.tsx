@@ -10,12 +10,11 @@ import React from "react";
 import { Diagnostic } from "vscode-languageserver-types";
 import { Proxy } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { Diagram } from "@wso2-enterprise/mi-diagram-2";
-import { DiagramService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { Switch } from "@wso2-enterprise/ui-toolkit";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 
 export interface ProxyViewProps {
-    model: DiagramService;
+    model: Proxy;
     documentUri: string;
     diagnostics: Diagnostic[];
 }

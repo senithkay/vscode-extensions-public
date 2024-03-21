@@ -84,7 +84,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
     };
 
     useEffect(() => {
-        const st = syntaxTree.api;
+        const st = syntaxTree;
 
         // Set metadata for the service
         const serviceData: APIData = {
