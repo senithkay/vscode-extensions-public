@@ -1694,6 +1694,16 @@ export function calculateZoomLevel(screenWidth: number) {
     return Math.max(minZoom, Math.min(maxZoom, zoomLevel));
 }
 
+export function getLetClauseVarNames(letClause: LetClause): string[] {
+	const varNames: string[] = [];
+	for (const decl of letClause.letVarDeclarations) {
+		if (STKindChecker.isLetVarDecl(decl)) {
+			varNames.push(decl.typedBindingPattern.bindingPattern.source.trim());
+		}
+	}
+	return varNames;
+}
+
 function isMappedToPrimitiveTypePort(targetPort: RecordFieldPortModel): boolean {
 	return !isArrayOrRecord(targetPort.field)
 		&& targetPort?.editableRecordField?.value

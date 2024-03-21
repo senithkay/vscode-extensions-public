@@ -21,10 +21,11 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { getLetExpressions } from "../../../DataMapper/LocalVarConfigPanel/local-var-mgt-utils";
 import { isGoToQueryWithinLetExprSupported } from "../../../DataMapper/utils";
 import { LET_EXPRESSION_SOURCE_PORT_PREFIX } from "../../utils/constants";
-import { getFilteredSubFields, getSearchFilteredInput, getTypeFromStore, getTypeOfOutput } from "../../utils/dm-utils";
+import { getSearchFilteredInput, getTypeFromStore, getTypeOfOutput } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const LET_EXPR_SOURCE_NODE_TYPE = "datamapper-node-type-desc-let-expression";
+const NODE_ID = "let-expr-node";
 
 export interface DMLetVarDecl {
     varName: string;
@@ -44,6 +45,7 @@ export class LetExpressionNode extends DataMapperNodeModel {
         public value: ExpressionFunctionBody,
         public isWithinQuery?: boolean) {
         super(
+            NODE_ID,
             context,
             LET_EXPR_SOURCE_NODE_TYPE
         );

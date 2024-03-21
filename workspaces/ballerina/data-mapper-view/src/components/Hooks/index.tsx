@@ -99,6 +99,12 @@ export const useDiagramModel = (
             inputSearchNotFoundNode.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.SOURCE_NODE.Y);
             newModel.addNode(inputSearchNotFoundNode);
         }
+        for (const node of nodes) {
+            const existingNode = diagramModel.getNodes().find(n => (n as DataMapperNodeModel).id === node.id);
+            if (existingNode && existingNode.getY() !== 0) {
+                node.setPosition(existingNode.getX(), existingNode.getY());
+            }
+        }
         newModel.addAll(...nodes);
         for (const node of nodes) {
             try {
@@ -133,8 +139,7 @@ export const useDiagramModel = (
     return { updatedModel, isFetching, isError, refetch };
 };
 
-
-export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: number) => {
+export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: number, diagramModel: DiagramModel) => {
     const nodesClone = [...nodes];
     let requiredParamFields = 0;
     let numberOfRequiredParamNodes = 0;
@@ -143,13 +148,16 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
     let nextInputNodeY = 0;
 
     nodesClone.forEach((node) => {
-        if (node.width !== 0) {
+        if (node.width !== 0 && node.height !== 0) {
+            const exisitingNode = diagramModel.getNodes().find(n => (n as DataMapperNodeModel).id === node.id);
             if (node instanceof MappingConstructorNode
                 || node instanceof ListConstructorNode
                 || node instanceof PrimitiveTypeNode
                 || node instanceof UnionTypeNode
                 || (node instanceof UnsupportedIONode && node.kind === UnsupportedExprNodeKind.Output)) {
-                    node.setPosition((window.innerWidth - VISUALIZER_PADDING)*(100/zoomLevel) - node.width, 0);
+                    const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - node.width;
+                    const y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : 0;
+                    node.setPosition(x, y);
             }
             if (node instanceof RequiredParamNode
                 || node instanceof LetClauseNode
@@ -158,7 +166,9 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
                 || node instanceof ModuleVariableNode
                 || node instanceof EnumTypeNode)
             {
-                node.setPosition(OFFSETS.SOURCE_NODE.X, nextInputNodeY);
+                const x = OFFSETS.SOURCE_NODE.X;
+                const y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : nextInputNodeY;
+                node.setPosition(x, y);
                 nextInputNodeY += node.height + GAP_BETWEEN_INPUT_NODES;
             }
             if (node instanceof FromClauseNode) {

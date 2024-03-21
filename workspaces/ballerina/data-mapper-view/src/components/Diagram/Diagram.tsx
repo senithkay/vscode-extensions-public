@@ -140,7 +140,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	const zoomLevel = calculateZoomLevel(screenWidth);
 
-	const repositionedNodes = useRepositionedNodes(nodes, zoomLevel);
+	const repositionedNodes = useRepositionedNodes(nodes, zoomLevel, diagramModel);
 	const { updatedModel, isFetching } = useDiagramModel(repositionedNodes, diagramModel, onError, zoomLevel);
 
 	engine.setModel(diagramModel);

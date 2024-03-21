@@ -20,10 +20,16 @@ import {
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
-import { getFromClauseNodeLabel, getSearchFilteredInput, getTypeFromStore } from "../../utils/dm-utils";
+import {
+    getLetClauseVarNames,
+    getFromClauseNodeLabel,
+    getSearchFilteredInput,
+    getTypeFromStore
+} from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const QUERY_EXPR_LET_NODE_TYPE = "datamapper-node-record-type-desc-let";
+const NODE_ID = "query-expr-let-node";
 
 export class LetClauseNode extends DataMapperNodeModel {
 
@@ -39,8 +45,10 @@ export class LetClauseNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public value: LetClause) {
+        public value: LetClause
+    ) {
         super(
+            `${NODE_ID}-${getLetClauseVarNames(value).join('.')}`,
             context,
             QUERY_EXPR_LET_NODE_TYPE
         );
