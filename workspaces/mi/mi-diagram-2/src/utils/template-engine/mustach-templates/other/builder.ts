@@ -13,9 +13,9 @@ import Mustache from 'mustache';
 export function getBuilderMustacheTemplate() {
 
     return `
-    <builder {{#description}}description="{{description}}"{{/description}} >
+    <builder{{#description}} description="{{description}}" {{/description}}>
         {{#messageBuilders}}
-        <messageBuilder class="{{builderClass}}" contentType="{{contentType}}" formatterClass="{{formatterClass}}" />
+        <messageBuilder class="{{builderClass}}" contentType="{{contentType}}" formatterClass="{{formatterClass}}"/>
         {{/messageBuilders}}
     </builder>
     `;
