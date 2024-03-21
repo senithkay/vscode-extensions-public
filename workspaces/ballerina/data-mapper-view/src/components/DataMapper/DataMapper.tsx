@@ -44,6 +44,7 @@ import { WarningBanner } from "./Warning/DataMapperWarning";
 
 import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { QueryExprMappingType } from "../Diagram/Node/QueryExpression";
 
 const classes = {
     root: css({
@@ -116,8 +117,16 @@ export interface ExpressionInfo {
 }
 
 export interface DMNode {
+    // the parent node of the selected node
     stNode: STNode;
+    // fqn for identifying the query expression view
     fieldPath: string;
+    // position of the query expression (use to identify query expressions comes under select clauses)
+    position?: NodePosition;
+    // index of the select clause of chanined query expression
+    index?: number;
+    // nature of the query expression
+    mappingType?: QueryExprMappingType;
 }
 
 enum DMState {

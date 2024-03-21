@@ -42,6 +42,7 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
 
     const { zoomLevel } = useContext(DiagramContext);
 
+    const isDisabled = node.component.disabled?.status;
     const getComponentTypeIcon = (type: ComponentType) => {
         switch (type) {
             case ComponentType.API_PROXY:
@@ -72,8 +73,12 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
     };
 
     return (
-        <ComponentHead isSelected={isSelected || isFocused} borderWidth={node.getDynamicLineWidth(zoomLevel, COMPONENT_LINE_MIN_WIDTH)}>
-            <IconWrapper>{getComponentTypeIcon(node.component.type)}</IconWrapper>
+        <ComponentHead
+            isSelected={isSelected || isFocused}
+            borderWidth={node.getDynamicLineWidth(zoomLevel, COMPONENT_LINE_MIN_WIDTH)}
+            disabled={isDisabled}
+        >
+            <IconWrapper disabled={isDisabled}>{getComponentTypeIcon(node.component.type)}</IconWrapper>
             <ComponentPortWidget port={node.getPort(`left-${node.getID()}`)} engine={engine} />
             <ComponentPortWidget port={node.getPort(`right-${node.getID()}`)} engine={engine} />
             {node.component.buildPack && node.component.buildPack.toLowerCase() !== "other" && (

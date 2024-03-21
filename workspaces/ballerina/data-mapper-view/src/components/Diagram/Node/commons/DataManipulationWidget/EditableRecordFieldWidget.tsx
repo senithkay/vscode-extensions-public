@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { AnydataType, PrimitiveBalType, STModification, TypeField } from "@wso2-enterprise/ballerina-core";
@@ -93,7 +93,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const portIn = getPort(fieldId + ".IN");
     const specificField = field.hasValue() && STKindChecker.isSpecificField(field.value) && field.value;
     const mappingConstruct = STKindChecker.isMappingConstructor(parentMappingConstruct) && parentMappingConstruct;
-    const hasValue = specificField && specificField.valueExpr && !!specificField.valueExpr.source;
+    const hasValue = specificField && specificField.valueExpr && !!specificField.valueExpr.source && !Object.keys(portIn.links)?.length;
     const isArray = field.type.typeName === PrimitiveBalType.Array;
     const isRecord = field.type.typeName === PrimitiveBalType.Record;
     const typeName = getTypeName(field.type);
@@ -103,6 +103,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const isUnresolvedUnionTypedElement = isUnionTypedElement && field.type.typeName === PrimitiveBalType.Union;
     let indentation = treeDepth * 16;
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
+    const [isDisabled, setIsDisabled] = useState(portIn?.descendantHasValue);
 
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
@@ -231,21 +232,22 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const hasValueWithoutLink = value && !connectedViaLink;
     const hasDefaultValue = value && getDefaultValue(field.type.typeName) === value.trim();
-    let isDisabled = portIn?.descendantHasValue;
 
-    if (!isDisabled) {
-        if (portIn?.parentModel && (Object.entries(portIn?.parentModel.links).length > 0 || portIn?.parentModel.ancestorHasValue)) {
-            portIn.ancestorHasValue = true;
-            isDisabled = true;
+    useEffect(() => {
+        if (!isDisabled) {
+            if (portIn?.parentModel && (Object.entries(portIn?.parentModel.links).length > 0 || portIn?.parentModel.ancestorHasValue)) {
+                portIn.ancestorHasValue = true;
+                setIsDisabled(true);
+            }
+            if (hasValue
+                && !connectedViaLink
+                && !hasDefaultValue
+                && ((isArray && !STKindChecker.isQueryExpression(specificField.valueExpr)) || isRecord || hasValueWithoutLink)) {
+                portIn?.setDescendantHasValue();
+                setIsDisabled(true);
+            }
         }
-        if (hasValue
-            && !connectedViaLink
-            && !hasDefaultValue
-            && ((isArray && !STKindChecker.isQueryExpression(specificField.valueExpr)) || isRecord || hasValueWithoutLink)) {
-            portIn?.setDescendantHasValue();
-            isDisabled = true;
-        }
-    }
+    }, [field]);
 
     if (portIn && portIn.collapsed) {
         expanded = false;

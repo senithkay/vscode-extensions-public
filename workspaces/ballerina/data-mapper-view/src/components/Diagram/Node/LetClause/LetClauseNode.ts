@@ -20,7 +20,7 @@ import {
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
-import { getSearchFilteredInput, getTypeFromStore } from "../../utils/dm-utils";
+import { getFromClauseNodeLabel, getSearchFilteredInput, getTypeFromStore } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc-let";
@@ -30,6 +30,7 @@ export class LetClauseNode extends DataMapperNodeModel {
     public sourceTypeDesc: RecordTypeDesc;
     public typeDef: TypeField;
     public sourceBindingPattern: CaptureBindingPattern;
+    public nodeLabel: string;
     public x: number;
     public numberOfFields:  number;
     public hasNoMatchingFields: boolean;
@@ -52,6 +53,7 @@ export class LetClauseNode extends DataMapperNodeModel {
             this.originalTypeDef = getTypeFromStore(expr.position as NodePosition);
             this.typeDef = this.originalTypeDef;
         }
+        this.nodeLabel = getFromClauseNodeLabel(bindingPattern, expr);
     }
 
     initPorts(): void {

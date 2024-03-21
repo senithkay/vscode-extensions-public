@@ -86,6 +86,7 @@ export function TextField(props: TextFieldProps) {
         <Container sx={sx}>
             {startAdornment && startAdornment}
             <VSCodeTextField
+                style={{ width: "100%" }}
                 autoFocus={autoFocus}
                 type={type}
                 size={size}

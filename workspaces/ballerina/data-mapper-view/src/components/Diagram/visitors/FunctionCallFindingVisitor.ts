@@ -9,24 +9,39 @@
 import { LinePosition } from "@wso2-enterprise/ballerina-core";
 import {
     FunctionCall,
+    STKindChecker,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
+export interface FunctionCallInfo {
+    fnPosition: LinePosition;
+    fnName: string;
+}
+
 export class FunctionCallFindingVisitor implements Visitor {
-    private readonly fnCallPositions: LinePosition[];
+    private readonly fnCalls: FunctionCallInfo[];
 
     constructor() {
-        this.fnCallPositions = []
+        this.fnCalls = [];
     }
 
     public beginVisitFunctionCall(node: FunctionCall) {
-        this.fnCallPositions.push({
-            line: node.position.startLine,
-            offset: node.position.startColumn
+        this.fnCalls.push({
+            fnPosition: {
+                line: node.position.startLine,
+                offset: node.position.startColumn
+            },
+            fnName: STKindChecker.isSimpleNameReference(node.functionName)
+                ? node.functionName.name.value
+                : node.functionName.identifier.value
         });
     }
 
     public getFunctionCallPositions(){
-        return this.fnCallPositions;
+        return this.fnCalls.map(fnCall => fnCall.fnPosition);
+    }
+
+    public getFunctionCalls(){
+        return this.fnCalls;
     }
 }

@@ -14,6 +14,7 @@ import styled from "@emotion/styled";
 interface CardContainerProps {
     sx?: any;
     isSelected?: boolean;
+    disbaleHoverEffect?: boolean;
 }
 
 const CardContainer = styled.div<CardContainerProps>`
@@ -35,9 +36,12 @@ const CardContainer = styled.div<CardContainerProps>`
     border-color:  ${(props: CardContainerProps) => props.isSelected ? "var(--vscode-focusBorder)" : "var(--vscode-dropdown-border)"};
     color: var(--vscode-editor-foreground);
     cursor: pointer;
-    &:hover, &.active {
-        background: var(--vscode-welcomePage-tileHoverBackground);
-    };
+    ${(props: CardContainerProps) => props.disbaleHoverEffect ? "" :
+        "\
+    &:hover, &.active {\
+        background: var(--vscode-welcomePage-tileHoverBackground);\
+    };\
+    "};
 	&.not-allowed {
     	cursor: not-allowed;
   	};
@@ -45,10 +49,11 @@ const CardContainer = styled.div<CardContainerProps>`
 `;
 
 export interface ComponentCardProps {
-	id?: string; // Identifier for the component
+    id?: string; // Identifier for the component
     tooltip?: string;
     isSelected?: boolean;
     disabled?: boolean;
+    disbaleHoverEffect?: boolean;
     sx?: any;
     onClick?: (value: string) => void;
 }
@@ -67,4 +72,3 @@ export const ComponentCard: React.FC<PropsWithChildren<ComponentCardProps>> =
             </CardContainer>
         );
     };
-    

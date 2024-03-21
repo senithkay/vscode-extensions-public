@@ -16,14 +16,17 @@ import classnames from "classnames";
 
 import { ViewOption } from "../../../DataMapper/DataMapper";
 import { DataMapperPortWidget } from '../../Port';
-import { FUNCTION_BODY_QUERY } from "../../utils/constants";
-import { isRepresentFnBody } from "../../utils/dm-utils";
+import { FUNCTION_BODY_QUERY, SELECT_CALUSE_QUERY } from "../../utils/constants";
+import { getQueryExprMappingType, hasCollectClauseExpr, hasIndexedQueryExpr, isRepresentFnBody } from "../../utils/dm-utils";
 import { QueryParentFindingVisitor } from '../../visitors/QueryParentFindingVisitor';
 
 import {
     QueryExpressionNode,
 } from './QueryExpressionNode';
 import { Button, Codicon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { isPositionsEquals } from '../../../../utils/st-utils';
+import { QueryExprFindingVisitorByPosition } from '../../visitors/QueryExprFindingVisitorByPosition';
+import { isSourcePortArray, isTargetPortArray } from '../../Link/link-utils';
 
 export const useStyles = () => ({
     root: css({
@@ -120,6 +123,7 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
 
     const onClickOnExpand = () => {
         let isExprBodyQuery: boolean;
+        let isSelectClauseQuery: boolean;
 
         if (STKindChecker.isBracedExpression(node.parentNode)) {
             // Handle scenarios where user tries to expand into
@@ -132,13 +136,32 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
             }
         } else if (exprFnBody && isRepresentFnBody(node.parentNode, exprFnBody)) {
             isExprBodyQuery = true;
+        } else if (STKindChecker.isSelectClause(node.parentNode)
+            || (STKindChecker.isSpecificField(node.parentNode)
+                && STKindChecker.isQueryExpression(node.parentNode.valueExpr)
+                && !isPositionsEquals(node.value.position, node.parentNode.valueExpr.position))
+        ) {
+            isSelectClauseQuery = true;
         }
+        let selectClauseIndex: number;
+        if (isSelectClauseQuery) {
+            const queryExprFindingVisitor = new QueryExprFindingVisitorByPosition(node.value.position);
+            traversNode(selectedST, queryExprFindingVisitor);
+            selectClauseIndex = queryExprFindingVisitor.getSelectClauseIndex();
+        }
+
+        const hasIndexedQuery = hasIndexedQueryExpr(node.parentNode);
+        const hasCollectClause = hasCollectClauseExpr(node.value);
+        const mappingType = getQueryExprMappingType(hasIndexedQuery, hasCollectClause);
         node.context.changeSelection(ViewOption.EXPAND,
             {
                 ...node.context.selection,
                 selectedST: {
-                    stNode: isExprBodyQuery ? node.context.selection.selectedST.stNode : node.parentNode,
-                    fieldPath: isExprBodyQuery ? FUNCTION_BODY_QUERY : node.targetFieldFQN
+                    stNode: isExprBodyQuery || isSelectClauseQuery ? node.context.selection.selectedST.stNode : node.parentNode,
+                    fieldPath: isExprBodyQuery ? FUNCTION_BODY_QUERY : isSelectClauseQuery ? SELECT_CALUSE_QUERY : node.targetFieldFQN,
+                    position: node.value.position,
+                    index: selectClauseIndex,
+                    mappingType: mappingType,
                 }
             })
     }
@@ -163,7 +186,7 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
                         </Tooltip>
                         <Button
                             appearance="icon"
-                            tooltip="Edit"
+                            tooltip="Go to query"
                             onClick={onClickOnExpand}
                             data-testid={`expand-query-${node?.targetFieldFQN}`}
                         >

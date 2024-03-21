@@ -1,12 +1,12 @@
 {
     "name": "@wso2-enterprise/cell-diagram",
-    "version": "3.0.0",
+    "version": "3.2.0",
     "description": "Generate the cell diagram for Choreo projects.",
     "files": [
         "lib"
     ],
-    "main": "lib/Diagram.js",
-    "types": "lib/Diagram.d.ts",
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts",
     "scripts": {
         "start": "webpack-dev-server --progress --mode=development",
         "build": "tsc --pretty && npm run copy:assets && webpack && pnpm run postbuild",

@@ -111,6 +111,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                     const targetPortPrefix = getTargetPortPrefix(node);
                     if (STKindChecker.isFunctionDefinition(this.parentNode)
                         || STKindChecker.isQueryExpression(this.parentNode)
+                        || STKindChecker.isSpecificField(this.parentNode)
                         || STKindChecker.isBracedExpression(this.parentNode))
                     {
                         if (!(node instanceof MappingConstructorNode)) {

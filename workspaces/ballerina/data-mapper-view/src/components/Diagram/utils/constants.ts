@@ -8,6 +8,7 @@ export const MODULE_VARIABLE_SOURCE_PORT_PREFIX = "moduleVariable";
 export const EXPANDED_QUERY_SOURCE_PORT_PREFIX = "expandedQueryExpr.source";
 export const EXPANDED_QUERY_INPUT_NODE_PREFIX = "expandedQueryExpr.input";
 export const FUNCTION_BODY_QUERY = "FunctionBody.query";
+export const SELECT_CALUSE_QUERY = "SelectClause.query";
 export const SYMBOL_KIND_CONSTANT = "CONSTANT";
 
 export const JSON_MERGE_MODULE_NAME = "ballerina/lang.value";

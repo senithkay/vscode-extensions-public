@@ -36,9 +36,12 @@ export * from './components/Breadcrumb/Breadcrumb';
 export * from './components/Grid/Grid';
 export * from './components/Grid/GridItem';
 export * from './components/SeachBox/SearchBox';
+export * from './components/ParamManager/ParamManager';
+export * from './components/Swich/Swich';
 export * from './components/ClickAwayListener/ClickAwayListener';
 export * from './components/TypeBrowser/TypeBrowser';
 export * from './components/Confirm/Confirm';
+export * from './components/CheckBoxGroup/CheckBoxGroup';
 
 export * from './components/SampleForm/Header/Header';
 export * from './components/SampleForm/HorizontalIcons/HorizontalIcons';
@@ -48,5 +51,6 @@ export * from './components/SampleForm/VerticleIcons/VerticleIcons';
 export * from './components/SampleForm/WebAppCreation/WebAppCreation';
 
 export * from './components/Commons/ErrorBanner';
+export * from './components/Commons/RequiredInput';
 
 export * from './styles';

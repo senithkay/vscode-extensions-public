@@ -2301,12 +2301,13 @@ importers:
 
   ../../workspaces/common-libs/playwright-vscode-tester:
     specifiers:
+      '@playwright/test': ~1.37.1
       '@types/fs-extra': ~11.0.1
       '@types/node': ~20.4.7
       '@types/unzipper': ~0.10.6
       '@typescript-eslint/eslint-plugin': ~5.48.2
       '@typescript-eslint/parser': ~5.48.2
-      '@vscode/vsce': ~2.20.1
+      '@vscode/vsce': ~2.21.0
       compare-versions: ~6.0.0
       fs-extra: ~11.1.1
       got: v11.8.3
@@ -2316,7 +2317,8 @@ importers:
       typescript: ^4.9.4
       unzipper: ~0.10.14
     dependencies:
-      '@vscode/vsce': 2.20.1
+      '@playwright/test': 1.37.1
+      '@vscode/vsce': 2.21.1
       compare-versions: 6.0.0
       fs-extra: 11.1.1
       got: 11.8.3
@@ -2408,7 +2410,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^6.2.1
       '@typescript-eslint/parser': ^6.2.1
       '@vscode/codicons': 0.0.33
-      '@vscode/webview-ui-toolkit': ^1.2.0
+      '@vscode/webview-ui-toolkit': ~1.2.2
       '@wso2-enterprise/ballerina-core': workspace:*
       '@wso2-enterprise/font-wso2-vscode': workspace:*
       classnames: ^2.2.6
@@ -2429,11 +2431,13 @@ importers:
       '@projectstorm/react-canvas-core': 6.7.4_lodash@4.17.21
       '@projectstorm/react-diagrams': 6.7.4_vzghb54f3yg5bplvuttewhkwfq
       '@projectstorm/react-diagrams-core': 6.7.4_lodash@4.17.21
+      '@types/lodash': 4.14.202
       '@vscode/codicons': 0.0.33
-      '@vscode/webview-ui-toolkit': 1.4.0
+      '@vscode/webview-ui-toolkit': 1.2.2
       '@wso2-enterprise/ballerina-core': link:../../ballerina/ballerina-core
       '@wso2-enterprise/font-wso2-vscode': link:../font-wso2-vscode
       classnames: 2.5.1
+      lodash: 4.17.21
     devDependencies:
       '@storybook/addon-actions': 6.5.16
       '@storybook/addon-essentials': 6.5.16_muc74pzdcttibi5pd6oym7ky34
@@ -2442,7 +2446,6 @@ importers:
       '@storybook/manager-webpack5': 6.5.16_7sjm5uif3lrlodkmlzqsvrpzla
       '@storybook/react': 6.5.16_6uyefrbdvoxe64pqf6xtl5xz2y
       '@storybook/theming': 6.5.16
-      '@types/lodash': 4.14.202
       '@types/react': 17.0.75
       '@types/react-dom': 17.0.14
       '@typescript-eslint/eslint-plugin': 6.21.0_kvtlqbor22aedb2662ylb2jf44
@@ -2453,7 +2456,6 @@ importers:
       gh-pages: 6.1.1
       glob: 7.2.3
       http-server: 14.1.1
-      lodash: 4.17.21
       typescript: 4.9.5
 
   ../../workspaces/eggplant/eggplant-core:
@@ -7772,6 +7774,15 @@ packages:
       tslib: 1.14.1
     dev: false
 
+  /@microsoft/fast-react-wrapper/0.1.48:
+    resolution: {integrity: sha512-9NvEjru9Kn5ZKjomAMX6v+eF0DR+eDkxKDwDfi+Wb73kTbrNzcnmlwd4diN15ygH97kldgj2+lpvI4CKLQQWLg==}
+    peerDependencies:
+      react: '>=16.9.0'
+    dependencies:
+      '@microsoft/fast-element': 1.12.0
+      '@microsoft/fast-foundation': 2.49.5
+    dev: false
+
   /@microsoft/fast-react-wrapper/0.3.23:
     resolution: {integrity: sha512-iuL+J2AFKJ1mwUBxSp+bqzt4X93kQwj1jpVgHgw2VRzCOTl7wzta6X+lvRIVg4eoyLfmeVSMkB+q3PD87T/MyQ==}
     peerDependencies:
@@ -8182,7 +8193,6 @@ packages:
       playwright-core: 1.37.1
     optionalDependencies:
       fsevents: 2.3.2
-    dev: true
 
   /@pmmmwh/react-refresh-webpack-plugin/0.5.11_bqo55rngdrakdb65vm4enlxnaa:
     resolution: {integrity: sha512-7j/6vdTym0+qZ6u4XbSAxrWBGYSdCfTzySkj7WAFgDLmSyWlOrWvpyzxlFh5jtw9dn0oL/jtW+06XfFiisN3JQ==}
@@ -18760,8 +18770,8 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /@vscode/vsce/2.20.1:
-    resolution: {integrity: sha512-ilbvoqvR/1/zseRPBAzYR6aKqSJ+jvda4/BqIwOqTxajpvLtEpK3kMLs77+dJdrlygS+VrP7Yhad8j0ukyD96g==}
+  /@vscode/vsce/2.21.1:
+    resolution: {integrity: sha512-f45/aT+HTubfCU2oC7IaWnH9NjOWp668ML002QiFObFRVUCoLtcwepp9mmql/ArFUy+HCHp54Xrq4koTcOD6TA==}
     engines: {node: '>= 14'}
     hasBin: true
     dependencies:
@@ -18817,6 +18827,16 @@ packages:
       yazl: 2.5.1
     optionalDependencies:
       keytar: 7.9.0
+
+  /@vscode/webview-ui-toolkit/1.2.2:
+    resolution: {integrity: sha512-xIQoF4FC3Xh6d7KNKIoIezSiFWYFuf6gQMdDyKueKBFGeKwaHWEn+dY2g3makvvEsNMEDji/woEwvg9QSbuUsw==}
+    peerDependencies:
+      react: '>=16.9.0'
+    dependencies:
+      '@microsoft/fast-element': 1.12.0
+      '@microsoft/fast-foundation': 2.49.5
+      '@microsoft/fast-react-wrapper': 0.1.48
+    dev: false
 
   /@vscode/webview-ui-toolkit/1.4.0:
     resolution: {integrity: sha512-modXVHQkZLsxgmd5yoP3ptRC/G8NBDD+ob+ngPiWNQdlrH6H1xR/qgOBD85bfU3BhOB5sZzFWBwwhp9/SfoHww==}
@@ -26456,7 +26476,6 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
     requiresBuild: true
-    dev: true
     optional: true
 
   /fsevents/2.3.3:
