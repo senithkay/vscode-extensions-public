@@ -32,6 +32,7 @@ import { APIResource, NamedSequence, Proxy } from '@wso2-enterprise/mi-syntax-tr
 import { ProxyView, ResourceView, SequenceView } from './views/Diagram';
 import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 import { Diagram } from '@wso2-enterprise/mi-diagram-2';
+import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
 
 const MainContainer = styled.div`
     display: flex;
@@ -173,6 +174,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.RecipientEndPointForm:
                     setViewComponent(<RecipientWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.TemplateEndPointForm:
+                    setViewComponent(<TemplateEndpointWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.SequenceForm:
                     setViewComponent(<SequenceWizard path={machineView.documentUri} />);

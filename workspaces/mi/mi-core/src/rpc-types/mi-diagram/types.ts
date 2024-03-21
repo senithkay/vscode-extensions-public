@@ -140,6 +140,31 @@ export interface GetRecipientEPResponse {
     properties: { name: string; value: string; scope: string; }[];
 }
 
+export interface UpdateTemplateEPRequest {
+    directory: string;
+    name: string;
+    uri: string;
+    template: string;
+    description: string;
+    parameters: { name: string; value: string; }[];
+}
+
+export interface UpdateTemplateEPResponse {
+    path: string;
+}
+
+export interface GetTemplateEPRequest {
+    path: string;
+}
+
+export interface GetTemplateEPResponse {
+    name: string;
+    uri: string;
+    template: string;
+    description: string;
+    parameters: { name: string; value: string; }[];
+}
+
 export interface CreateInboundEndpointRequest {
     directory: string;
     name: string;
