@@ -545,7 +545,7 @@ export function AIProjectGenerationChat() {
                   <div onClick={() => handleAddSelectiveCodetoWorkspace(segment.text)}>
                     <a style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                       <Icon name='plus-solid' />
-                      <span style={{ fontStyle: 'italic' }}>Add Code</span>
+                      <span style={{ fontStyle: 'italic' }}>Add to Project</span>
                     </a>
                   </div>
                 </div>

@@ -460,7 +460,7 @@ export function AIChat() {
               disabled={isLoading}
             >
               <br />
-              <div style={{ color: 'var(--vscode-editor-foreground)' }}>Send</div>
+              <div style={{ color: 'var(--vscode-button-foreground)' }}>Send</div>
             </Button>
         </div>
       </div>

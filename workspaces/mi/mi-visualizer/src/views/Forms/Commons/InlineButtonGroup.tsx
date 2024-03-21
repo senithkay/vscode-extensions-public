@@ -7,22 +7,27 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import styled from "@emotion/styled";
 import { Button } from "@wso2-enterprise/ui-toolkit";
+
+const Container = styled.div({
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+});
+
+const ButtonContainer = styled.div({
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: 10
+});
 
 const InlineButtonGroup = ({ label, isHide, onShowHideToggle, addNewFunction }: any) => {
     return (
-        <div style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-        }}>
+        <Container>
             <b>{label}</b>
-            <div style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                gap: 10
-            }}>
+            <ButtonContainer>
                 <Button
                     appearance="secondary"
                     onClick={onShowHideToggle}
@@ -35,8 +40,8 @@ const InlineButtonGroup = ({ label, isHide, onShowHideToggle, addNewFunction }: 
                 >
                     {`Add new ${label.slice(0, label.length - 1)}`}
                 </Button>
-            </div>
-        </div>
+            </ButtonContainer>
+        </Container>
     )
 }
 

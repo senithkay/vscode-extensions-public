@@ -193,7 +193,13 @@ import {
     updateRecipientEndpoint,
     GetRecipientEPRequest,
     GetRecipientEPResponse,
-    getRecipientEndpoint
+    getRecipientEndpoint,
+    UpdateTemplateEPRequest,
+    UpdateTemplateEPResponse,
+    updateTemplateEndpoint,
+    GetTemplateEPRequest,
+    GetTemplateEPResponse,
+    getTemplateEndpoint
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -271,6 +277,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     
     getRecipientEndpoint(params: GetRecipientEPRequest): Promise<GetRecipientEPResponse> {
         return this._messenger.sendRequest(getRecipientEndpoint, HOST_EXTENSION, params);
+    }
+
+    updateTemplateEndpoint(params: UpdateTemplateEPRequest): Promise<UpdateTemplateEPResponse> {
+        return this._messenger.sendRequest(updateTemplateEndpoint, HOST_EXTENSION, params);
+    }
+    
+    getTemplateEndpoint(params: GetTemplateEPRequest): Promise<GetTemplateEPResponse> {
+        return this._messenger.sendRequest(getTemplateEndpoint, HOST_EXTENSION, params);
     }
 
     createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {

@@ -211,7 +211,7 @@ export class NodeLinkModel extends DefaultLinkModel {
         if (this.label) {
             return { x: target.x, y: target.y - this.linkBottomOffset / 2 + 15 };
         }
-        return { x: (source.x + target.x) / 2, y: target.y - this.linkBottomOffset - 2 };
+        return { x: source.x, y: source.y + 20 };
     }
 
     // show node arrow. default true. but target node is a EmptyNodeModel, then false

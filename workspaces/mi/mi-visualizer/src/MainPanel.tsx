@@ -28,8 +28,11 @@ import { DefaultEndpointWizard } from "./views/Forms/DefaultEndpointForm";
 import { LoadBalanceWizard } from './views/Forms/LoadBalanceEPform';
 import { getSyntaxTreeType } from './utils/syntax-tree';
 import { FailoverWizard } from './views/Forms/FailoverEndpointForm';
+import { APIResource, NamedSequence, Proxy } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { ProxyView, ResourceView, SequenceView } from './views/Diagram';
 import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
+import { Diagram } from '@wso2-enterprise/mi-diagram-2';
+import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
 
 const MainContainer = styled.div`
     display: flex;
@@ -122,78 +125,40 @@ const MainPanel = () => {
                     setViewComponent(<Overview stateUpdated />);
                     break;
                 case MACHINE_VIEW.ResourceView:
-                    rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri }).then((st) => {
-                        if (!st?.syntaxTree) {
-                            return;
-                        }
-
-                        rpcClient.getMiDiagramRpcClient().getDiagnostics({ documentUri: machineView.documentUri }).then((diagnostics) => {
-                            const identifier = machineView.identifier;
-                            const model = st.syntaxTree.api.resource[identifier];
-
-                            setViewComponent(
-                                <ResourceView
-                                    key={getUniqueKey(model, machineView.documentUri)}
-                                    model={model}
-                                    documentUri={machineView.documentUri}
-                                    diagnostics={diagnostics.diagnostics}
-                                />
-                            );
-                        });
-                    });
+                    setViewComponent(
+                        <ResourceView
+                            key={getUniqueKey(machineView.stNode, machineView.documentUri)}
+                            model={machineView.stNode as APIResource}
+                            documentUri={machineView.documentUri}
+                            diagnostics={machineView.diagnostics}
+                        />
+                    );
                     rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
                     break;
                 case MACHINE_VIEW.SequenceView:
-                    rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri }).then((st) => {
-                        if (!st?.syntaxTree) {
-                            return;
-                        }
-
-                        rpcClient.getMiDiagramRpcClient().getDiagnostics({ documentUri: machineView.documentUri }).then((diagnostics) => {
-                            const model = st.syntaxTree.sequence;
-
-                            setViewComponent(
-                                <SequenceView
-                                    key={getUniqueKey(model, machineView.documentUri)}
-                                    model={model}
-                                    documentUri={machineView.documentUri}
-                                    diagnostics={diagnostics.diagnostics}
-                                />
-                            );
-                        });
-                    });
+                    setViewComponent(
+                        <SequenceView
+                            key={getUniqueKey(machineView.stNode, machineView.documentUri)}
+                            model={machineView.stNode as NamedSequence}
+                            documentUri={machineView.documentUri}
+                            diagnostics={machineView.diagnostics}
+                        />
+                    );
                     rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
                     break;
                 case MACHINE_VIEW.ProxyView:
-                    rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri }).then((st) => {
-                        if (!st?.syntaxTree) {
-                            return;
-                        }
-
-                        rpcClient.getMiDiagramRpcClient().getDiagnostics({ documentUri: machineView.documentUri }).then((diagnostics) => {
-                            const model = st.syntaxTree.proxy;
-
-                            setViewComponent(
-                                <ProxyView
-                                    key={getUniqueKey(model, machineView.documentUri)}
-                                    model={model}
-                                    documentUri={machineView.documentUri}
-                                    diagnostics={diagnostics.diagnostics}
-                                />
-                            );
-                        });
-                    });
+                    setViewComponent(
+                        <ProxyView
+                            key={getUniqueKey(machineView.stNode, machineView.documentUri)}
+                            model={machineView.stNode as Proxy}
+                            documentUri={machineView.documentUri}
+                            diagnostics={machineView.diagnostics}
+                        />
+                    );
                     rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
                     break;
                 case MACHINE_VIEW.ServiceDesigner:
-                    rpcClient
-                        .getMiDiagramRpcClient()
-                        .getSyntaxTree({ documentUri: machineView.documentUri })
-                        .then((st) => {
-                            if (st) {
-                                setViewComponent(<ServiceDesignerView syntaxTree={st.syntaxTree} documentUri={machineView.documentUri} />);
-                            }
-                        });
+                    setViewComponent(<ServiceDesignerView syntaxTree={machineView.stNode} documentUri={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.APIForm:
                     setViewComponent(<APIWizard apiData={(machineView.customProps as APIWizardProps)?.apiData} path={machineView.documentUri} />);
@@ -209,6 +174,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.RecipientEndPointForm:
                     setViewComponent(<RecipientWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.TemplateEndPointForm:
+                    setViewComponent(<TemplateEndpointWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.SequenceForm:
                     setViewComponent(<SequenceWizard path={machineView.documentUri} />);

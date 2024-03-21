@@ -132,7 +132,11 @@ import {
     updateRecipientEndpoint,
     UpdateRecipientEPRequest,
     getRecipientEndpoint,
-    GetRecipientEPRequest
+    GetRecipientEPRequest,
+    updateTemplateEndpoint,
+    UpdateTemplateEPRequest,
+    getTemplateEndpoint,
+    GetTemplateEPRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -158,6 +162,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getLocalEntry, (args: GetLocalEntryRequest) => rpcManger.getLocalEntry(args));
     messenger.onRequest(updateRecipientEndpoint, (args: UpdateRecipientEPRequest) => rpcManger.updateRecipientEndpoint(args));
     messenger.onRequest(getRecipientEndpoint, (args: GetRecipientEPRequest) => rpcManger.getRecipientEndpoint(args));
+    messenger.onRequest(updateTemplateEndpoint, (args: UpdateTemplateEPRequest) => rpcManger.updateTemplateEndpoint(args));
+    messenger.onRequest(getTemplateEndpoint, (args: GetTemplateEPRequest) => rpcManger.getTemplateEndpoint(args));
     messenger.onRequest(getEndpointsAndSequences, () => rpcManger.getEndpointsAndSequences());
     messenger.onRequest(getTemplates, () => rpcManger.getTemplates());
     messenger.onRequest(getSequenceDirectory, () => rpcManger.getSequenceDirectory());

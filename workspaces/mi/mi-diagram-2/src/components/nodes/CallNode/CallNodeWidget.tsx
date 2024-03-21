@@ -106,7 +106,7 @@ namespace S {
 
     export const EndpointTextWrapper = styled.div`
         position: absolute;
-        left: 150px;
+        left: 156px;
         top: 45px;
         width: 100px;
         text-align: center;
@@ -266,7 +266,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
             </S.CircleContainer>
 
             {node.endpoint ? (
-                <S.EndpointTextWrapper>{node.endpoint.type}</S.EndpointTextWrapper>
+                <S.EndpointTextWrapper>{node.endpoint.description || node.endpoint.type}</S.EndpointTextWrapper>
             ) : (
                 <S.EndpointContainer>
                     <S.StyledButton appearance="icon" onClick={handlePlusNode}>

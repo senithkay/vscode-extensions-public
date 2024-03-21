@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
-import { Uri, window } from 'vscode';
+import { Uri, ViewColumn, window } from 'vscode';
 import { MILanguageClient } from './lang-client/activator';
 import { extension } from './MIExtensionContext';
-import { EVENT_TYPE, MACHINE_VIEW, MachineStateValue, VisualizerLocation, webviewReady } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MACHINE_VIEW, MachineStateValue, SyntaxTreeMi, VisualizerLocation, webviewReady } from '@wso2-enterprise/mi-core';
 import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
@@ -91,7 +91,20 @@ const stateMachine = createMachine<MachineContext>({
                     invoke: {
                         src: 'openWebPanel',
                         onDone: {
-                            target: 'viewStacking'
+                            target: 'viewFinding'
+                        }
+                    }
+                },
+                viewFinding: {
+                    invoke: {
+                        src: 'findView',
+                        onDone: {
+                            target: 'viewStacking',
+                            actions: assign({
+                                view: (context, event) => event.data.view,
+                                stNode: (context, event) => event.data.stNode,
+                                diagnostics: (context, event) => event.data.diagnostics
+                            })
                         }
                     }
                 },
@@ -100,6 +113,18 @@ const stateMachine = createMachine<MachineContext>({
                         src: 'updateStack',
                         onDone: {
                             target: "viewNavigated"
+                        }
+                    }
+                },
+                viewUpdated: {
+                    invoke: {
+                        src: 'findView',
+                        onDone: {
+                            target: "viewNavigated",
+                            actions: assign({
+                                stNode: (context, event) => event.data.stNode,
+                                diagnostics: (context, event) => event.data.diagnostics
+                            })
                         }
                     }
                 },
@@ -122,15 +147,17 @@ const stateMachine = createMachine<MachineContext>({
                                 projectUri: (context, event) => event.viewLocation.projectUri,
                                 position: (context, event) => event.viewLocation.position,
                                 projectOpened: (context, event) => true,
-                                customProps: (context, event) => event.viewLocation.customProps
+                                customProps: (context, event) => event.viewLocation.customProps,
+                                stNode: (context, event) => undefined,
+                                diagnostics: (context, event) => undefined,
                             })
                         },
                         NAVIGATE: {
-                            target: "viewNavigated",
+                            target: "viewUpdated",
                             actions: assign({
                                 view: (context, event) => event.viewLocation.view,
                                 identifier: (context, event) => event.viewLocation.identifier,
-                                documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
+                                documentUri: (context, event) => event.viewLocation.documentUri,
                                 position: (context, event) => event.viewLocation.position,
                                 projectOpened: (context, event) => true,
                                 customProps: (context, event) => event.viewLocation.customProps
@@ -200,14 +227,59 @@ const stateMachine = createMachine<MachineContext>({
             // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
             return new Promise((resolve, reject) => {
                 if (!VisualizerWebview.currentPanel) {
-                    VisualizerWebview.currentPanel = new VisualizerWebview(context.view!);
+                    VisualizerWebview.currentPanel = new VisualizerWebview(context.view!, extension.webviewReveal);
                     RPCLayer._messenger.onNotification(webviewReady, () => {
                         resolve(true);
                     });
                 } else {
-                    VisualizerWebview.currentPanel!.getWebview()?.reveal();
+                    VisualizerWebview.currentPanel!.getWebview()?.reveal(extension.webviewReveal ? ViewColumn.Beside : ViewColumn.Active);
                     resolve(true);
                 }
+            });
+        },
+        findView: (context, event): Promise<VisualizerLocation> => {
+            return new Promise(async (resolve, reject) => {
+                const langClient = StateMachine.context().langClient!;
+                const viewLocation = context;
+                if (context.documentUri) {
+                    const response = await langClient.getSyntaxTree({
+                        documentIdentifier: {
+                            uri: context.documentUri!
+                        },
+                    });
+                    if (response?.syntaxTree) {
+                        const node: SyntaxTreeMi = response.syntaxTree;
+                        switch (true) {
+                            case !!node.api:
+                                viewLocation.view = MACHINE_VIEW.ServiceDesigner;
+                                viewLocation.stNode = node.api;
+                                if (context.identifier?.toString()) {
+                                    viewLocation.view = MACHINE_VIEW.ResourceView;
+                                    viewLocation.stNode = node.api.resource[context.identifier];
+                                }
+                                break;
+                            case !!node.proxy:
+                                viewLocation.view = MACHINE_VIEW.ProxyView;
+                                viewLocation.stNode = node.proxy;
+                                break;
+                            case !!node.sequence:
+                                viewLocation.view = MACHINE_VIEW.SequenceView;
+                                viewLocation.stNode = node.sequence;
+                                break;
+                            default:
+                                // Handle default case
+                                break;
+                        }
+                    }
+                }
+                if (viewLocation.view === MACHINE_VIEW.ResourceView) {
+                    const res = await langClient!.getDiagnostics({ documentUri: context.documentUri! });
+                    if (res.diagnostics && res.diagnostics.length > 0) {
+                        viewLocation.diagnostics = res.diagnostics;
+                    }
+                }
+                updateProjectExplorer(viewLocation);
+                resolve(viewLocation);
             });
         },
         updateStack: (context, event) => {
@@ -277,8 +349,6 @@ export function navigate() {
         const location = historyStack[historyStack.length - 1].location;
         stateService.send({ type: "NAVIGATE", viewLocation: location });
     }
-    const location = history.get()[history.get().length - 1].location;
-    updateProjectExplorer(location);
 }
 
 function updateProjectExplorer(location: VisualizerLocation | undefined) {

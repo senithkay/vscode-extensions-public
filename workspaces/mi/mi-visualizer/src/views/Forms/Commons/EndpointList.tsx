@@ -7,10 +7,35 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import styled from "@emotion/styled";
 import Endpoint from "./Endpoint";
 
+const Container = styled.div({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10,
+    padding: "15px 30px",
+    border: "1px solid #e0e0e0",
+    borderRadius: "5px",
+    marginTop: 20,
+});
+
+const HeadingRow = styled.div({
+    display: 'grid',
+    gridTemplateColumns: '1fr 4fr',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 20,
+    padding: '10px 0',
+    borderBottom: "1px solid #e0e0e0",
+});
+
+const CustomLabel = styled.p`
+    margin: 10px 0;
+`;
+
 const EndpointList = ({ endpoints, setEndpoints }: any) => {
-    
+
     const handleEndpointsChange = (index: number, endpoint: any) => {
         const newEndpoints = [...endpoints];
         newEndpoints[index] = { ...endpoint };
@@ -24,27 +49,11 @@ const EndpointList = ({ endpoints, setEndpoints }: any) => {
     }
 
     return (
-        <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 10,
-            padding: "15px 30px",
-            border: "1px solid #e0e0e0",
-            borderRadius: "5px",
-            marginTop: 20,
-        }}>
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 4fr',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 20,
-                padding: '10px 0',
-                borderBottom: "1px solid #e0e0e0",
-            }}>
+        <Container>
+            <HeadingRow>
                 <span>Type</span>
                 <span>Value</span>
-            </div>
+            </HeadingRow>
             {endpoints.length > 0 ? endpoints.map((endpoint: any, index: number) => (
                 <Endpoint
                     key={index}
@@ -55,11 +64,9 @@ const EndpointList = ({ endpoints, setEndpoints }: any) => {
                     last={endpoints.length - 1}
                 />
             )) : (
-                <p style={{
-                    margin: "10px 0",
-                }}>No Endpoints to display</p>
+                <CustomLabel>No Endpoints to display</CustomLabel>
             )}
-        </div>
+        </Container>
     )
 }
 

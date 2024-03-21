@@ -48,9 +48,9 @@ export function EmptyNodeWidget(props: EmptyNodeWidgetProps) {
     const { node, engine } = props;
 
     return (
-        <S.Node visible={node.visible}>
+        <>
             <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
             <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
-        </S.Node>
+        </>
     );
 }
