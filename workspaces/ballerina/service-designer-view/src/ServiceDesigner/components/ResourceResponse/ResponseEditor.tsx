@@ -10,12 +10,13 @@
 
 import React, { useState } from 'react';
 
-import { ActionButtons, AutoComplete, TextField, TypeBrowser } from '@wso2-enterprise/ui-toolkit';
+import { ActionButtons, AutoComplete, TextField } from '@wso2-enterprise/ui-toolkit';
 import { EditorContainer, EditorContent } from '../../styles';
 import { CommonRPCAPI, NodePosition, STModification, responseCodes } from '@wso2-enterprise/ballerina-core';
 import { getSourceFromResponseCode, getTitleFromResponseCode } from '../../utils/utils';
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { ResponseConfig } from '@wso2-enterprise/service-designer';
+import { TypeBrowser } from '../TypeBrowser/TypeBrowser';
 
 export interface ParamProps {
     response: ResponseConfig;

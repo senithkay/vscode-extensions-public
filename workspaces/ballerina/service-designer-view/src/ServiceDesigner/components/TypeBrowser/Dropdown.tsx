@@ -24,7 +24,7 @@ export interface DropdownContainerProps {
     widthOffset?: number;
 }
 
-const DropdownContainer: React.FC<any> = styled.div`
+const DropdownContainer = styled.div<DropdownContainerProps>`
     position: absolute;
     max-height: 100px;
     width: ${(props: DropdownContainerProps) => `calc(var(--input-min-width) + ${props.widthOffset}px)`};
@@ -41,7 +41,7 @@ const DropdownContainer: React.FC<any> = styled.div`
     }
 `;
 
-const ComboboxOption: React.FC<any> = styled.div`
+const ComboboxOption = styled.div`
     position: relative;
     cursor: default;
     user-select: none;
