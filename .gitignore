@@ -56,7 +56,7 @@ node_modules/
 *.tsbuildinfo
 
 lib/
-workspaces/build
+build
 
 # Rush temporary files
 common/deploy/
