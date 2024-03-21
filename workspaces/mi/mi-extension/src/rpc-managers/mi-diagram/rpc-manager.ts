@@ -1040,14 +1040,24 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 const xmlData = fs.readFileSync(filePath, "utf8");
                 const jsonData = parser.parse(xmlData);
 
+                let isWso2Mb = false;
                 const params: { [key: string]: string | number | boolean } = {};
                 jsonData.inboundEndpoint.parameters.parameter.map((param: any) => {
-                    params[param["@_name"]] = param["#text"];
+                    if (param["@_name"] === 'rabbitmq.channel.consumer.qos') {
+                        params["rabbitmq.channel.consumer.qos.type"] = param["@_key"] ? 'registry' : 'inline';
+                    }
+                    if (param["@_name"] === 'connectionfactory.TopicConnectionFactory' || param["@_name"] === 'connectionfactory.QueueConnectionFactory') {
+                        params["mb.connection.url"] = param["#text"];
+                        isWso2Mb = true;
+                    }
+                    params[param["@_name"]] = param["#text"] ?? param["@_key"];
                 });
+
+
 
                 const response: GetInboundEndpointResponse = {
                     name: jsonData.inboundEndpoint["@_name"],
-                    type: jsonData.inboundEndpoint["@_protocol"],
+                    type: isWso2Mb ? 'wso2_mb' : jsonData.inboundEndpoint["@_protocol"] ?? 'custom',
                     sequence: jsonData.inboundEndpoint["@_sequence"],
                     errorSequence: jsonData.inboundEndpoint["@_errorSequence"],
                     parameters: params,

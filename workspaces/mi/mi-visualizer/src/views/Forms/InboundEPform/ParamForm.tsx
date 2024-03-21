@@ -7,40 +7,46 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import ParamField from './ParamField'
+import styled from '@emotion/styled';
+import ParamField from './ParamField';
+
+const Container = styled.div({
+    display: "flex",
+    flexDirection: "column",
+});
+
+const Title = styled.h2({
+    marginBottom: "30px",
+});
 
 const ParamForm = ({ paramState, parameters, handleOnChange }: any) => {
     const { advance, ...basic } = parameters;
 
     return (
-        <div style={{
-            display: "flex",
-            flexDirection: "column",
-        }}>
+        <Container>
             {basic && Object.keys(basic).map((key: string) => (
-                <ParamField 
-                    key={key} 
-                    stateValue={paramState[key] ?? ''} 
-                    id={key} field={basic[key]} 
-                    handleOnChange={handleOnChange} 
+                <ParamField
+                    key={key}
+                    stateValue={paramState[key] ?? ''}
+                    id={key}
+                    field={basic[key]}
+                    handleOnChange={handleOnChange}
                 />
             ))}
 
             {advance && <>
-                <h2 style={{
-                    marginBottom: "30px",
-                }}>Advance Parameters</h2>
+                <Title>Advance Parameters</Title>
                 {Object.keys(advance).map((key: string) => (
-                    <ParamField 
-                        key={key} 
-                        stateValue={paramState[key] ?? ''} 
-                        id={key} 
-                        field={advance[key]} 
-                        handleOnChange={handleOnChange} 
+                    <ParamField
+                        key={key}
+                        stateValue={paramState[key] ?? ''}
+                        id={key}
+                        field={advance[key]}
+                        handleOnChange={handleOnChange}
                     />
                 ))}
             </>}
-        </div>
+        </Container>
     );
 }
 
