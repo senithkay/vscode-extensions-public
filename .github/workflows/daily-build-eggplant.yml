@@ -1,4 +1,4 @@
-name: Daily Build - Eggplant
+name: Daily Build - Eggplant & Ballerina
 on:
   schedule:
     - cron:  '30 13 * * *'
@@ -22,9 +22,9 @@ jobs:
           ref: rewrite
           API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
 
-      - name: Notification - Eggplant
+      - name: Notification - Ballerina
         uses: ./.github/actions/dailyBuildNotification
         with:
-          title: Eggplant
-          fileName: eggplant
-          api: ${{ secrets.EGGPLANT_EXT_CHAT_API }}
+          title: Ballerina
+          fileName: ballerina
+          api: ${{ secrets.TOOLING_TEAM_CHAT_API }}

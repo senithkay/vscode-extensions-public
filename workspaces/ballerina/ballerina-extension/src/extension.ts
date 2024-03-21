@@ -101,7 +101,7 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         // Enable Ballerina Project related features
         activateProjectFeatures();
         activateEditorSupport(ballerinaExtInstance);
-        // // Enable performance forecaster
+        // Enable performance forecaster
         // activatePerformanceForecaster(ballerinaExtInstance);
         // Enable try it views
         activateTryIt(ballerinaExtInstance);
