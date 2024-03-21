@@ -106,7 +106,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
             label: "Value",
             defaultValue: "",
             isRequired: false,
-            enableCondition: [{ "Value Type": "LITERAL" }]
+            enableCondition: [{ 5: "LITERAL" }]
         },
         {
             id: 7,
@@ -114,7 +114,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
             label: "Value Expression",
             defaultValue: "",
             isRequired: false,
-            enableCondition: [{ "Value Type": "EXPRESSION" }]
+            enableCondition: [{ 5: "EXPRESSION" }]
         },
         {
             id: 8,

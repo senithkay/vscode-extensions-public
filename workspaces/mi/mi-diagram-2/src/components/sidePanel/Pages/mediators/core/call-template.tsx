@@ -71,7 +71,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                 isRequired: false,
                 enableCondition: [
                     {
-                        "Template Parameter Type": "LITERAL"
+                        1: "LITERAL"
                     }
                 ]
             },
@@ -83,7 +83,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                 isRequired: false,
                 enableCondition: [
                     {
-                        "Template Parameter Type": "EXPRESSION"
+                        1: "EXPRESSION"
                     }
                 ]
             },]

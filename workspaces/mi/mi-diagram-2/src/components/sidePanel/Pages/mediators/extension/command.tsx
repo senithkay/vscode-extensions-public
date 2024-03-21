@@ -67,7 +67,7 @@ const CommandForm = (props: AddMediatorProps) => {
                 label: "Value Literal",
                 defaultValue: "",
                 isRequired: false,
-                enableCondition: [{ "Value Type": "LITERAL" }]
+                enableCondition: [{ 1: "LITERAL" }]
             },
             {
                 id: 3,
@@ -75,7 +75,7 @@ const CommandForm = (props: AddMediatorProps) => {
                 label: "Message Action",
                 defaultValue: "ReadMessage",
                 isRequired: false,
-                enableCondition: [{ "Value Type": "MESSAGE_ELEMENT" }],
+                enableCondition: [{ 1: "MESSAGE_ELEMENT" }],
                 values: ["ReadMessage", "UpdateMessage", "ReadAndUpdateMessage"]
             },
             {
@@ -84,7 +84,7 @@ const CommandForm = (props: AddMediatorProps) => {
                 label: "Value Message Element Xpath",
                 defaultValue: "",
                 isRequired: false,
-                enableCondition: [{ "Value Type": "MESSAGE_ELEMENT" }]
+                enableCondition: [{ 1: "MESSAGE_ELEMENT" }]
             },
             {
                 id: 5,
@@ -92,7 +92,7 @@ const CommandForm = (props: AddMediatorProps) => {
                 label: "Value Context Property Name",
                 defaultValue: "",
                 isRequired: false,
-                enableCondition: [{ "Value Type": "CONTEXT_PROPERTY" }]
+                enableCondition: [{ 1: "CONTEXT_PROPERTY" }]
             },
             {
                 id: 6,
@@ -100,7 +100,7 @@ const CommandForm = (props: AddMediatorProps) => {
                 label: "Context Action",
                 defaultValue: "ReadContext",
                 isRequired: false,
-                enableCondition: [{ "Value Type": "CONTEXT_PROPERTY" }],
+                enableCondition: [{ 1: "CONTEXT_PROPERTY" }],
                 values: ["ReadContext", "UpdateContext", "ReadAndUpdateContext"]
             }]
     };
