@@ -45,12 +45,13 @@ export class IONodesScrollCanvasAction extends Action {
 
                 if (!element) {
                     // Scroll on empty space
+                    const zoomOffset = 100 / defaultModelOptions.zoom;
                     const outputNodeDefaultLeftX =
-                        (window.innerWidth - VISUALIZER_PADDING) * (100 / defaultModelOptions.zoom)
-                        - IO_NODE_DEFAULT_WIDTH;
-                    if (clientX >= 0 && clientX <= INPUT_NODE_DEFAULT_RIGHT_X) {
+                        (window.innerWidth - VISUALIZER_PADDING) * zoomOffset - IO_NODE_DEFAULT_WIDTH;
+                    const scrolledX = clientX * zoomOffset;
+                    if (scrolledX >= 0 && scrolledX <= INPUT_NODE_DEFAULT_RIGHT_X) {
                         isInputScrollable = true;
-                    } else if (clientX >= outputNodeDefaultLeftX && clientX <= window.innerWidth - VISUALIZER_PADDING) {
+                    } else if (scrolledX >= outputNodeDefaultLeftX && scrolledX <= window.innerWidth - VISUALIZER_PADDING) {
                         isOutputScrollable = true;
                     } else {
                         return;
