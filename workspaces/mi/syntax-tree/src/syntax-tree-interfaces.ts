@@ -1457,7 +1457,7 @@ export interface ValidateResource extends STNode {
 }
 
 export interface SourceEnrich extends STNode {
-    content: any[];
+    content: any;
     clone: boolean;
     xpath: string;
     key: string;
