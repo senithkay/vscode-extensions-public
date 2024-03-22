@@ -59,6 +59,7 @@ import { getPublishEventFormDataFromSTNode, getPublishEventMustacheTemplate, get
 import { getEntitlementFormDataFromSTNode, getEntitlementMustacheTemplate, getEntitlementXml } from "./other/entitlement";
 import { getRuleFormDataFromSTNode, getRuleMustacheTemplate, getRuleXml } from "./other/rule";
 import { getNtlmFormDataFromSTNode, getNtlmMustacheTemplate, getNtlmXml } from "./other/ntlm";
+import { getDatamapperMustacheTemplate } from "./transformation/datamapper";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -123,6 +124,8 @@ export function getMustacheTemplate(name: string) {
             return getPayloadMustacheTemplate();
         case MEDIATORS.CONDITIONALROUTER:
             return getConditionalRouterMustacheTemplate();
+        case MEDIATORS.DATAMAPPER:
+            return getDatamapperMustacheTemplate();
         //Extension Mediators
         case MEDIATORS.BEAN:
             return getBeanMustacheTemplate()
