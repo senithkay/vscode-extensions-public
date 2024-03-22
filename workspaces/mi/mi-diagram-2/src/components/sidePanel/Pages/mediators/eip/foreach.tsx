@@ -64,7 +64,7 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
            setErrors(newErrors);
        } else {
            const data = formValues;
-           let editRange = data.range.startTagRange;
+           let editRange = data.range ? data.range.startTagRange : props.nodePosition;
            data.editForeach = true;
            if (data.removeAnonymousSequence) {
                editRange = props.nodePosition;
