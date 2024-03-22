@@ -28,7 +28,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	activateDebugger(context);
 
 	// activateActivityPanel(context);
-	activateProjectExplorer(context);
 	// activateAiPrompt(context);
 	activateVisualizer(context);
 	activateAiPanel(context);

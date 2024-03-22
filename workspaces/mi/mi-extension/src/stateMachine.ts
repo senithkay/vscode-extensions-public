@@ -12,6 +12,7 @@ import { history } from './history/activator';
 import { COMMANDS } from './constants';
 import { StateMachineAI, openAIView } from './ai-panel/aiMachine';
 import { AiPanelWebview } from './ai-panel/webview';
+import { activateProjectExplorer } from './project-explorer/activate';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -68,6 +69,7 @@ const stateMachine = createMachine<MachineContext>({
             }
         },
         projectDetected: {
+            entry: 'activateProjectExplorer',
             invoke: {
                 src: 'openWebPanel',
                 onDone: {
@@ -227,6 +229,9 @@ const stateMachine = createMachine<MachineContext>({
 
     },
     actions: {
+        activateProjectExplorer: (context, event) => {
+            activateProjectExplorer(extension.context);
+        }
     },
     services: {
         waitForLS: (context, event) => {
@@ -234,6 +239,7 @@ const stateMachine = createMachine<MachineContext>({
             return new Promise(async (resolve, reject) => {
                 const ls = (await MILanguageClient.getInstance(extension.context)).languageClient;
                 vscode.commands.executeCommand('setContext', 'MI.status', 'projectLoaded');
+                vscode.commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
                 // Activate the AI Panel State machine after LS is loaded.
                 StateMachineAI.initialize();
                 resolve(ls);
@@ -421,7 +427,8 @@ async function checkIfMiProject() {
         vscode.commands.executeCommand('setContext', 'MI.status', 'projectDetected');
     } else if (isOldProject) {
         projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
-        vscode.commands.executeCommand('setContext', 'MI.status', 'oldProjectDetected');
+        vscode.commands.executeCommand('setContext', 'MI.status', 'projectDetected');
+        vscode.commands.executeCommand('setContext', 'MI.projectType', 'oldProjectDetected');
     } else {
         vscode.commands.executeCommand('setContext', 'MI.status', 'unknownProject');
     }

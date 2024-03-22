@@ -102,6 +102,11 @@
       },
       {
         "view": "MI.project-explorer",
+        "contents": "Detected an old project structure. You can migrate your project using the mirgation tool.\n[Migrate Project](command:MI.openProject)\nTo learn more about how to use Micro Integrator in VS Code, [read our docs](https://ei.docs.wso2.com).",
+        "when": "MI.status == 'projectLoaded' && MI.projectType == 'oldProjectDetected'"
+      },
+      {
+        "view": "MI.project-explorer",
         "contents": "Unknown error occurred. Micro Integrator is disabled.",
         "when": "MI.status == 'disabled'"
       }

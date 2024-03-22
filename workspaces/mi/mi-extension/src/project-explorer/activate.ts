@@ -302,8 +302,6 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		revealWebviewPanel(true);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: file.fsPath });
 	});
-
-	commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
 }
 
 function revealWebviewPanel(beside: boolean = true) {
