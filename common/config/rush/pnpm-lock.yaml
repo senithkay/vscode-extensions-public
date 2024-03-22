@@ -2131,6 +2131,8 @@ importers:
       ts-loader: ^9.4.1
       typescript: ^4.9.4
       vscode-extension-tester: ^5.9.1
+      vscode-jsonrpc: ^6.0.0
+      vscode-languageserver-protocol: ^3.16.0
       vscode-messenger: ^0.4.4
       vscode-messenger-common: ^0.4.3
       webpack: ^5.56.0

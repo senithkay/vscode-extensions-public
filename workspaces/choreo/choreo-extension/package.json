@@ -189,6 +189,12 @@
           "default": "prod",
           "description": "The Choreo Enviornment to use",
           "scope": "window"
+        },
+        "cli.path": {
+          "type": "string",
+          "default": "choreo",
+          "description": "The path to the Choreo CLI",
+          "scope": "window"
         }
       }
     },
@@ -341,6 +347,8 @@
     "vscode-messenger": "^0.4.4",
     "vscode-messenger-common": "^0.4.3",
     "which": "^3.0.0",
+    "vscode-jsonrpc": "^6.0.0",
+    "vscode-languageserver-protocol": "^3.16.0",
     "@wso2-enterprise/cell-diagram": "workspace:*"
   },
   "repository": {

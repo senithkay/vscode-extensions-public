@@ -12,7 +12,7 @@
  */
 
 import * as vscode from "vscode";
-import { window, extensions, ProgressLocation, workspace, ConfigurationChangeEvent, commands, Uri } from "vscode";
+import { window, extensions, workspace, ConfigurationChangeEvent, commands, Uri } from "vscode";
 import * as path from "path";
 import * as fs from "fs";
 
@@ -27,25 +27,20 @@ import { activateURIHandlers } from "./uri-handlers";
 import { activateWizards } from "./wizards/activate";
 
 import { getLogger, initLogger } from "./logger/logger";
-import { choreoSignInCmdId, COMPONENT_YAML_SCHEMA, COMPONENT_YAML_SCHEMA_DIR } from "./constants";
+import { COMPONENT_YAML_SCHEMA, COMPONENT_YAML_SCHEMA_DIR } from "./constants";
 import { activateTelemetry } from "./telemetry/telemetry";
-import { sendProjectTelemetryEvent, sendTelemetryEvent } from "./telemetry/utils";
 import {
     ComponentYamlContent,
     ComponentYamlSchema,
-    OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_CANCEL_EVENT,
-    OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT,
-    OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_START_EVENT,
-    OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_SUCCESS_EVENT,
     Project,
 } from "@wso2-enterprise/choreo-core";
 import { activateActivityBarWebViews } from "./views/webviews/ActivityBar/activate";
 import { activateCmds } from "./cmds";
-import { TokenStorage } from "./auth/TokenStorage";
 import { activateClients } from "./auth/auth";
 import { enrichComponentSchema, regexFilePathChecker } from "./utils";
 import { activateCellDiagram } from './cell-diagram/activate';
 import { Cache } from "./cache";
+import { initRPCServer } from "./choreo-rpc/activate";
 
 export function activateBallerinaExtension() {
     const ext = extensions.getExtension("wso2.ballerina");
@@ -69,7 +64,8 @@ export async function activate(context: vscode.ExtensionContext) {
     activateActivityBarWebViews(context);
     activateURIHandlers();
     activateStatusBarItem();
-	activateCellDiagram(context);
+    activateCellDiagram(context);
+    initRPCServer();
     setupGithubAuthStatusCheck();
     registerPreInitHandlers();
     ext.isPluginStartup = false;
@@ -98,19 +94,19 @@ async function openChoreoActivity() {
         await ext.api.resetOpenChoreoActivity();
     }
 
-	const isChoreoProject = ext.api.isChoreoProject();
-	if (isChoreoProject) {
-		// check if the project is being opened for the first time
-		const openedProjects: string[] = ext.context.globalState.get("openedProjects") || [];
-		const choreoProjectId = ext.api.getChoreoProjectId();
-		if (choreoProjectId && !openedProjects.includes(choreoProjectId)) {
-			// activate the Choreo Project view in the sidebar
-			vscode.commands.executeCommand("choreo.activity.project.focus");
-			// add the project id to the opened projects list
-			openedProjects.push(choreoProjectId);
-			await ext.context.globalState.update("openedProjects", openedProjects);
-		}
-	}
+    const isChoreoProject = ext.api.isChoreoProject();
+    if (isChoreoProject) {
+        // check if the project is being opened for the first time
+        const openedProjects: string[] = ext.context.globalState.get("openedProjects") || [];
+        const choreoProjectId = ext.api.getChoreoProjectId();
+        if (choreoProjectId && !openedProjects.includes(choreoProjectId)) {
+            // activate the Choreo Project view in the sidebar
+            vscode.commands.executeCommand("choreo.activity.project.focus");
+            // add the project id to the opened projects list
+            openedProjects.push(choreoProjectId);
+            await ext.context.globalState.update("openedProjects", openedProjects);
+        }
+    }
 }
 
 export function getGitExtensionAPI() {
@@ -147,8 +143,7 @@ function showMsgAndRestart(msg: string): void {
 }
 
 async function getComponentYamlMetadata():
-    Promise<{ project: Project; component: string, isLocalComponent: boolean } | undefined> 
-{
+    Promise<{ project: Project; component: string, isLocalComponent: boolean } | undefined> {
     const openedComponent = await ext.api.getOpenedComponentName();
     const project = await ext.api.getChoreoProject();
     if (!openedComponent || !project) {
@@ -175,13 +170,13 @@ async function registerYamlLangugeServer(): Promise<void> {
 
         // cache
         const componentYamlCache = new Cache<ComponentYamlContent[], [number, string, string]>({
-            getDataFunc: (orgId: number, projectHandler: string, componentName: string) => 
-            ext.clients.projectClient.getComponentConfig(orgId, projectHandler, componentName)
+            getDataFunc: (orgId: number, projectHandler: string, componentName: string) =>
+                ext.clients.projectClient.getComponentConfig(orgId, projectHandler, componentName)
         });
 
         // Read the schema file content
         const schemaFilePath = path.join(ext.context.extensionPath, COMPONENT_YAML_SCHEMA_DIR);
-        
+
         const schemaContent = fs.readFileSync(schemaFilePath, "utf8");
         const schemaContentJSON = JSON.parse(schemaContent) as ComponentYamlSchema;
 
@@ -220,10 +215,10 @@ async function registerYamlLangugeServer(): Promise<void> {
                             componentConfigs
                         );
                         resolve(JSON.stringify(enrichedSchema));
-                    } catch(err) {
+                    } catch (err) {
                         reject(window.showErrorMessage("Could not register schema"));
                     }
-                } 
+                }
             });
         }
 
@@ -235,4 +230,4 @@ async function registerYamlLangugeServer(): Promise<void> {
     }
 }
 
-export function deactivate() {}
+export function deactivate() { }
