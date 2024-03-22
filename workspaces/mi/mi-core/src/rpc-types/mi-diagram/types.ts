@@ -553,6 +553,9 @@ export interface UpdateHttpEndpointRequest {
     retryDelay: string;
     timeoutDuration: string;
     timeoutAction: string;
+    templateName: string;
+    requireTemplateParameters: boolean;
+    templateParameters: any;
 }
 
 export interface UpdateHttpEndpointResponse {
@@ -598,6 +601,9 @@ export interface RetrieveHttpEndpointResponse {
     retryDelay: string;
     timeoutDuration: string;
     timeoutAction: string;
+    templateName: string;
+    requireTemplateParameters: boolean;
+    templateParameters: any;
 }
 
 export interface UpdateAddressEndpointRequest {
@@ -624,6 +630,9 @@ export interface UpdateAddressEndpointRequest {
     retryDelay: string;
     timeoutDuration: string;
     timeoutAction: string;
+    templateName: string;
+    requireTemplateParameters: boolean;
+    templateParameters: any;
 }
 
 export interface UpdateAddressEndpointResponse {
@@ -657,6 +666,9 @@ export interface RetrieveAddressEndpointResponse {
     retryDelay: string;
     timeoutDuration: string;
     timeoutAction: string;
+    templateName: string;
+    requireTemplateParameters: boolean;
+    templateParameters: any;
 }
 
 export interface UpdateWsdlEndpointRequest {
@@ -685,6 +697,9 @@ export interface UpdateWsdlEndpointRequest {
     retryDelay: string;
     timeoutDuration: string;
     timeoutAction: string;
+    templateName: string;
+    requireTemplateParameters: boolean;
+    templateParameters: any;
 }
 
 export interface UpdateWsdlEndpointResponse {
@@ -720,6 +735,9 @@ export interface RetrieveWsdlEndpointResponse {
     retryDelay: string;
     timeoutDuration: string;
     timeoutAction: string;
+    templateName: string;
+    requireTemplateParameters: boolean;
+    templateParameters: any;
 }
 
 export interface UpdateDefaultEndpointRequest {
@@ -745,6 +763,9 @@ export interface UpdateDefaultEndpointRequest {
     retryDelay: string;
     timeoutDuration: string;
     timeoutAction: string;
+    templateName: string;
+    requireTemplateParameters: boolean;
+    templateParameters: any;
 }
 
 export interface UpdateDefaultEndpointResponse {
@@ -777,6 +798,9 @@ export interface RetrieveDefaultEndpointResponse {
     retryDelay: string;
     timeoutDuration: string;
     timeoutAction: string;
+    templateName: string;
+    requireTemplateParameters: boolean;
+    templateParameters: any;
 }
 
 export interface CreateTaskRequest {

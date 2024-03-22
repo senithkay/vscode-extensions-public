@@ -54,6 +54,7 @@ export interface ProjectStructureEntry {
     sequences?: ProjectStructureEntry[],
     endpoints?: ProjectStructureEntry[],
     type: string,
+    subType?: string,
     name: string,
     path: string
 
