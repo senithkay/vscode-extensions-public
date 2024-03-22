@@ -199,7 +199,9 @@ import {
     updateTemplateEndpoint,
     GetTemplateEPRequest,
     GetTemplateEPResponse,
-    getTemplateEndpoint
+    getTemplateEndpoint,
+    RangeFormatRequest,
+    rangeFormat
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -505,5 +507,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<ListRegistryArtifactsResponse> {
         return this._messenger.sendRequest(getAvailableRegistryResources, HOST_EXTENSION, params);
+    }
+
+    rangeFormat(params: RangeFormatRequest): Promise<ApplyEditResponse> {
+        return this._messenger.sendRequest(rangeFormat, HOST_EXTENSION, params);
     }
 }

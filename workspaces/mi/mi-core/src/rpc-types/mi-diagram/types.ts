@@ -20,6 +20,7 @@ export interface ApplyEditRequest {
     text: string;
     documentUri: string;
     range: Range;
+    disableFormatting?: boolean;
 }
 
 export interface ApplyEditResponse {
@@ -1011,4 +1012,9 @@ export interface RegistryArtifact {
     file: string;
     path: string;
     isCollection: boolean;
+}
+
+export interface RangeFormatRequest {
+    uri: string;
+    range: Range
 }
