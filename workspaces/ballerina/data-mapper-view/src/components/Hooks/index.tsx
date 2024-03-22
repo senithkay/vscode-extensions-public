@@ -16,12 +16,12 @@ import {
     DiagramModelGenerics
 } from "@projectstorm/react-diagrams";
 import { DataMapperNodeModel } from '../Diagram/Node/commons/DataMapperNode';
-import { getErrorKind } from '../Diagram/utils/dm-utils';
+import { getErrorKind, getIONodeHeight } from '../Diagram/utils/dm-utils';
 import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
 import { ErrorNodeKind } from '../DataMapper/Error/DataMapperError';
 import { useDMSearchStore } from '../../store/store';
 import { ListConstructorNode, MappingConstructorNode, PrimitiveTypeNode, QueryExpressionNode, RequiredParamNode } from '../Diagram/Node';
-import { GAP_BETWEEN_INPUT_NODES, IO_NODE_DEFAULT_WIDTH, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';
+import { GAP_BETWEEN_FIELDS, GAP_BETWEEN_INPUT_NODES, GAP_BETWEEN_NODE_HEADER_AND_BODY, IO_NODE_DEFAULT_WIDTH, IO_NODE_FIELD_HEIGHT, IO_NODE_HEADER_HEIGHT, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';
 import { FromClauseNode } from '../Diagram/Node/FromClause';
 import { UnionTypeNode } from '../Diagram/Node/UnionType';
 import { UnsupportedExprNodeKind, UnsupportedIONode } from '../Diagram/Node/UnsupportedIO';
@@ -145,41 +145,43 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
     let numberOfRequiredParamNodes = 0;
     let additionalSpace = 0;
 
-    let nextInputNodeY = 0;
+    let prevBottomY = 0;
 
-    nodesClone.forEach((node) => {
-        // if (node.height !== 0) {
-            const nodeHeight = node.height === 0 ? 800 : node.height;
-            const exisitingNode = diagramModel.getNodes().find(n => (n as DataMapperNodeModel).id === node.id);
-            if (node instanceof MappingConstructorNode
-                || node instanceof ListConstructorNode
-                || node instanceof PrimitiveTypeNode
-                || node instanceof UnionTypeNode
-                || (node instanceof UnsupportedIONode && node.kind === UnsupportedExprNodeKind.Output)) {
-                    const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - IO_NODE_DEFAULT_WIDTH;
-                    const y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : 0;
-                    node.setPosition(x, y);
-            }
-            if (node instanceof RequiredParamNode
-                || node instanceof LetClauseNode
-                || node instanceof JoinClauseNode
-                || node instanceof LetExpressionNode
-                || node instanceof ModuleVariableNode
-                || node instanceof EnumTypeNode)
-            {
-                const x = OFFSETS.SOURCE_NODE.X;
-                const y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : nextInputNodeY;
+    nodesClone.forEach(node => {
+        const nodeHeight = node.height === 0 ? 800 : node.height;
+        const exisitingNode = diagramModel.getNodes().find(n => (n as DataMapperNodeModel).id === node.id);
+        if (node instanceof MappingConstructorNode
+            || node instanceof ListConstructorNode
+            || node instanceof PrimitiveTypeNode
+            || node instanceof UnionTypeNode
+            || (node instanceof UnsupportedIONode && node.kind === UnsupportedExprNodeKind.Output)) {
+                const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - IO_NODE_DEFAULT_WIDTH;
+                const y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : 0;
                 node.setPosition(x, y);
-                nextInputNodeY += nodeHeight + GAP_BETWEEN_INPUT_NODES;
-            }
-            if (node instanceof FromClauseNode) {
-                requiredParamFields = requiredParamFields + node.numberOfFields;
-                numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
-            }
-            if (node instanceof ExpandedMappingHeaderNode) {
-                additionalSpace += nodeHeight + OFFSETS.QUERY_MAPPING_HEADER_NODE.MARGIN_BOTTOM;
-            }
-        // }
+        }
+        if (node instanceof RequiredParamNode
+            || node instanceof LetClauseNode
+            || node instanceof JoinClauseNode
+            || node instanceof LetExpressionNode
+            || node instanceof ModuleVariableNode
+            || node instanceof EnumTypeNode)
+        {
+            const x = OFFSETS.SOURCE_NODE.X;
+            const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
+            let y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;
+
+            node.setPosition(x, y);
+
+            const nodeHeight = getIONodeHeight(node.numberOfFields);
+            prevBottomY = computedY + nodeHeight;
+        }
+        if (node instanceof FromClauseNode) {
+            requiredParamFields = requiredParamFields + node.numberOfFields;
+            numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
+        }
+        if (node instanceof ExpandedMappingHeaderNode) {
+            additionalSpace += nodeHeight + OFFSETS.QUERY_MAPPING_HEADER_NODE.MARGIN_BOTTOM;
+        }
     });
 
     return nodesClone;

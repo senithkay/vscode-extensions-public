@@ -96,7 +96,7 @@ export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
                     onClick={onClick}
                     data-testid={"add-local-variable-btn"}
                 >
-                    <Codicon name="add" iconSx={{ color: "var(--vscode-inputOption-activeForeground)"}} />
+                    <Codicon name="add" iconSx={{ color: "var(--button-primary-foreground)"}} />
                     <div>Add Local Variable</div>
                 </Button>
             )}

@@ -7,13 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import styled from "@emotion/styled";
-import { IO_NODE_DEFAULT_WIDTH } from "../../../utils/constants";
+import {
+    GAP_BETWEEN_FIELDS,
+    GAP_BETWEEN_NODE_HEADER_AND_BODY,
+    IO_NODE_DEFAULT_WIDTH,
+    IO_NODE_HEADER_HEIGHT
+} from "../../../utils/constants";
 
 export const TreeContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
+    gap: ${GAP_BETWEEN_NODE_HEADER_AND_BODY}px;
     background: var(--vscode-sideBar-background);
     border: 1px solid var(--vscode-welcomePage-tileBorder);
     font-style: normal;
@@ -26,7 +31,7 @@ export const TreeContainer = styled.div`
 export const TreeHeader = styled.div((
     { isSelected, isDisabled }: { isSelected?: boolean, isDisabled?: boolean }
 ) => ({
-    height: '40px',
+    height: `${IO_NODE_HEADER_HEIGHT}px`,
     padding: '8px',
     background: 'none',
     borderRadius: '3px',
@@ -44,7 +49,7 @@ export const TreeBody = styled.div`
     flex-direction: column;
     align-items: flex-start;
     padding: 1px;
-    gap: 1px;
+    gap: ${GAP_BETWEEN_FIELDS}px;
     background: none;
     border-radius: 3px;
     flex: none;

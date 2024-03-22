@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { css } from "@emotion/css";
+import { IO_NODE_DEFAULT_WIDTH, IO_NODE_FIELD_HEIGHT } from "./Diagram/utils/constants";
 
 const typeLabel = {
     marginLeft: "3px",
@@ -179,11 +180,17 @@ export const useIONodesStyles = () => ({
     }),
     addLocalVariableButton: css({
         "& > vscode-button": {
+            ...addElementButton,
+            width: `${IO_NODE_DEFAULT_WIDTH}px`,
             height: "40px",
             border: "1px solid var(--vscode-welcomePage-tileBorder)",
-            backgroundColor: "var(--vscode-sideBar-background)",
+            color: "var(--button-primary-foreground)",
+            backgroundColor: "var(--button-primary-background)",
+            borderRadius: "0px",
             textTransform: "none",
-            ...addElementButton
+            "&:hover": {
+                backgroundColor: "var(--vscode-button-hoverBackground)"
+            },
         },
         "& > vscode-button > *": {
             margin: "0px 6px"
@@ -199,8 +206,8 @@ export const useIONodesStyles = () => ({
         padding: "5px",
         minWidth: "100px",
         display: "flex",
-        minHeight: "24px",
         width: "100%",
+        height: `${IO_NODE_FIELD_HEIGHT}px`,
         '&:hover': {
             backgroundColor: 'var(--vscode-list-hoverBackground)',
         },
