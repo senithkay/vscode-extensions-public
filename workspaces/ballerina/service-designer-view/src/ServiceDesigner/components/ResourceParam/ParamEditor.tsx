@@ -31,7 +31,7 @@ export interface ParamProps {
 }
 
 export function ParamEditor(props: ParamProps) {
-    const { param, option, optionList, hideType = false, hideDefaultValue = false,
+    const { param, option, isEdit, optionList, hideType = false, hideDefaultValue = false,
         onChange, onSave, onCancel } = props;
 
     const handleOnSelect = (value: string) => {
@@ -111,7 +111,7 @@ export function ParamEditor(props: ParamProps) {
                 </VSCodeCheckbox>
             )}
             <ActionButtons
-                primaryButton={{ text: "Save", onClick: handleOnSave }}
+                primaryButton={{ text: isEdit ? "Save" : "Add", onClick: handleOnSave }}
                 secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}
                 sx={{ justifyContent: "flex-end" }}
             />

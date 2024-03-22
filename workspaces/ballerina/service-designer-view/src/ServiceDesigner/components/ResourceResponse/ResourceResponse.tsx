@@ -49,7 +49,8 @@ export function ResourceResponse(props: ResourceParamProps) {
         setEditingSegmentId(updatedParameters.length);
         const newResp: ResponseConfig = {
             id: updatedParameters.length,
-            code: getDefaultResponse(method)
+            code: getDefaultResponse(method),
+            isNew: true
         };
         updatedParameters.push(newResp);
         onChange(updatedParameters);
@@ -150,7 +151,7 @@ export function ResourceResponse(props: ResourceParamProps) {
                         serviceEndPosition={serviceEndPosition}
                         commonRpcClient={commonRpcClient}
                         isBallerniaExt={isBallerniaExt}
-                        isEdit={true}
+                        isEdit={!param.isNew}
                         onChange={onChangeParam}
                         onSave={onSaveParam}
                         onCancel={onParamEditCancel}

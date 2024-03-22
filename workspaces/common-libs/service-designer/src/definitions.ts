@@ -15,6 +15,7 @@ export interface ResponseConfig {
     code?: number;
     type?: string;
     source?: string;
+    isNew?: boolean;
 }
 
 export enum PARAM_TYPES {
@@ -32,6 +33,7 @@ export interface ParameterConfig {
     option?: PARAM_TYPES;
     defaultValue?: string;
     isRequired?: boolean;
+    isNew?: boolean;
 }
 
 export interface ServiceData {

@@ -32,7 +32,7 @@ export interface ParamProps {
 }
 
 export function ResponseEditor(props: ParamProps) {
-    const { response, isBallerniaExt, onSave, onChange, onCancel, typeCompletions, serviceEndPosition, commonRpcClient, applyModifications } = props;
+    const { response, isBallerniaExt, isEdit, onSave, onChange, onCancel, typeCompletions, serviceEndPosition, commonRpcClient, applyModifications } = props;
 
     console.log("response", typeCompletions);
 
@@ -44,7 +44,7 @@ export function ResponseEditor(props: ParamProps) {
         if (!isNameRecord) {
             const recordName = `${getSourceFromResponseCode(response.code).replace("http:", "")}${response.type ? `${response.type}` : ""}`;
             setDefinedRecordName(recordName);
-        } else {    
+        } else {
             setDefinedRecordName("");
         }
     };
@@ -110,7 +110,7 @@ export function ResponseEditor(props: ParamProps) {
                 />
             )}
             <ActionButtons
-                primaryButton={{ text: "Save", onClick: handleOnSave }}
+                primaryButton={{ text: isEdit ? "Save" : "Add", onClick: handleOnSave }}
                 secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}
                 sx={{ justifyContent: "flex-end" }}
             />
