@@ -221,7 +221,7 @@ const CardTitle = styled.div<CardState>((props: CardState) => ({
 }));
 
 const CardDescription = styled.div<CardState>((props: CardState) => ({
-    marginLeft: '2.3em',
+    marginLeft: '24px',
     color: props.isHovered ? 'var(--vscode-button-foreground)' : 'inherit',
 }));
 
@@ -232,9 +232,11 @@ const Card: React.FC<CardProps> = ({ icon, title, onClick, description }) => {
         <CardWraper onClick={onClick} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                 <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                    <div style={{ width: '1.5em', height: '1.5em', marginRight: "10px" }}>
-                        <Codicon name={icon} iconSx={{ fontSize: '1.5em', color: hovered ? 'var(--vscode-button-foreground)' : 'inherit' }} />
-                    </div>
+                    <Codicon
+                        name={icon}
+                        iconSx={{ fontSize: '1.5em', color: hovered ? 'var(--vscode-button-foreground)' : 'inherit' }}
+                        sx={{ marginRight: '10px' }}
+                    />
                     <CardTitle isHovered={hovered}>{title}</CardTitle>
                 </div>
                 {description && <CardDescription isHovered={hovered}>{description}</CardDescription>}

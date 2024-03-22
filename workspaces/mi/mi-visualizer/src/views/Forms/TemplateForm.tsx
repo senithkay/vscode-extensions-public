@@ -161,9 +161,8 @@ export function TemplateWizard(props: TemplateWizardProps) {
             ...template
         }
         const file = await rpcClient.getMiDiagramRpcClient().createTemplate(createTemplateParams);
-        setExistingFilePath(file.path);
 
-        handleMessage(isNewTask ? "Template created successfully" : "Template updated successfully");
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
     const handleCancel = () => {

@@ -8,7 +8,7 @@
  */
 import React from "react";
 import { Diagnostic } from "vscode-languageserver-types";
-import { APIResource, Range, DiagramService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { APIResource, Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { Diagram } from "@wso2-enterprise/mi-diagram-2";
 import { Switch } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
@@ -31,7 +31,7 @@ const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
 `;
 
 export interface ResourceViewProps {
-    model: DiagramService;
+    model: APIResource;
     documentUri: string;
     diagnostics: Diagnostic[];
 }

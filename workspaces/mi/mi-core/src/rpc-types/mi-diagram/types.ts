@@ -20,6 +20,7 @@ export interface ApplyEditRequest {
     text: string;
     documentUri: string;
     range: Range;
+    disableFormatting?: boolean;
 }
 
 export interface ApplyEditResponse {
@@ -138,6 +139,31 @@ export interface GetRecipientEPResponse {
     description: string;
     endpoints: { type: string; value: string; }[];
     properties: { name: string; value: string; scope: string; }[];
+}
+
+export interface UpdateTemplateEPRequest {
+    directory: string;
+    name: string;
+    uri: string;
+    template: string;
+    description: string;
+    parameters: { name: string; value: string; }[];
+}
+
+export interface UpdateTemplateEPResponse {
+    path: string;
+}
+
+export interface GetTemplateEPRequest {
+    path: string;
+}
+
+export interface GetTemplateEPResponse {
+    name: string;
+    uri: string;
+    template: string;
+    description: string;
+    parameters: { name: string; value: string; }[];
 }
 
 export interface CreateInboundEndpointRequest {
@@ -528,6 +554,9 @@ export interface UpdateHttpEndpointRequest {
     retryDelay: string;
     timeoutDuration: string;
     timeoutAction: string;
+    templateName: string;
+    requireTemplateParameters: boolean;
+    templateParameters: any;
 }
 
 export interface UpdateHttpEndpointResponse {
@@ -573,6 +602,9 @@ export interface RetrieveHttpEndpointResponse {
     retryDelay: string;
     timeoutDuration: string;
     timeoutAction: string;
+    templateName: string;
+    requireTemplateParameters: boolean;
+    templateParameters: any;
 }
 
 export interface UpdateAddressEndpointRequest {
@@ -599,6 +631,9 @@ export interface UpdateAddressEndpointRequest {
     retryDelay: string;
     timeoutDuration: string;
     timeoutAction: string;
+    templateName: string;
+    requireTemplateParameters: boolean;
+    templateParameters: any;
 }
 
 export interface UpdateAddressEndpointResponse {
@@ -632,6 +667,9 @@ export interface RetrieveAddressEndpointResponse {
     retryDelay: string;
     timeoutDuration: string;
     timeoutAction: string;
+    templateName: string;
+    requireTemplateParameters: boolean;
+    templateParameters: any;
 }
 
 export interface UpdateWsdlEndpointRequest {
@@ -660,6 +698,9 @@ export interface UpdateWsdlEndpointRequest {
     retryDelay: string;
     timeoutDuration: string;
     timeoutAction: string;
+    templateName: string;
+    requireTemplateParameters: boolean;
+    templateParameters: any;
 }
 
 export interface UpdateWsdlEndpointResponse {
@@ -695,6 +736,9 @@ export interface RetrieveWsdlEndpointResponse {
     retryDelay: string;
     timeoutDuration: string;
     timeoutAction: string;
+    templateName: string;
+    requireTemplateParameters: boolean;
+    templateParameters: any;
 }
 
 export interface UpdateDefaultEndpointRequest {
@@ -720,6 +764,9 @@ export interface UpdateDefaultEndpointRequest {
     retryDelay: string;
     timeoutDuration: string;
     timeoutAction: string;
+    templateName: string;
+    requireTemplateParameters: boolean;
+    templateParameters: any;
 }
 
 export interface UpdateDefaultEndpointResponse {
@@ -752,6 +799,9 @@ export interface RetrieveDefaultEndpointResponse {
     retryDelay: string;
     timeoutDuration: string;
     timeoutAction: string;
+    templateName: string;
+    requireTemplateParameters: boolean;
+    templateParameters: any;
 }
 
 export interface CreateTaskRequest {
@@ -962,4 +1012,9 @@ export interface RegistryArtifact {
     file: string;
     path: string;
     isCollection: boolean;
+}
+
+export interface RangeFormatRequest {
+    uri: string;
+    range: Range
 }

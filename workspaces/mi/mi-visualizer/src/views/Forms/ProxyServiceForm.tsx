@@ -145,14 +145,6 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
 
     }, [proxyService.proxyServiceName, proxyService.proxyServiceType, proxyService.endpointType, proxyService.endpoint, proxyService.wsdlUri, isValid]);
 
-    const proxyServiceTypes: OptionProps[] = [
-        { value: "Custom Proxy"},
-        { value: "Logging Proxy"},
-        { value: "Pass Through Proxy"},
-        { value: "Secure Proxy"},
-        { value: "WSDL Based Proxy"}
-    ];
-
     const transportTypes = [
         'http',
         'https',
@@ -252,7 +244,6 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
         const file = await rpcClient.getMiDiagramRpcClient().createProxyService(createProxyServiceParams);
 
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
-        rpcClient.getMiDiagramRpcClient().openFile(file);
     };
 
     const handleCancel = () => {
@@ -283,8 +274,6 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
                     validationMessage="Proxy service name is required"
                     size={100}
                 />
-                <span>Proxy Service Type</span>
-                <Dropdown items={proxyServiceTypes} value={proxyService.proxyServiceType} onChange={handleProxyServiceTypeChange} id="proxy-service-type"/>
                 <span>Select the transports:</span>
                 <CheckBoxContainer>
                     {transportTypes.map(transportType => (

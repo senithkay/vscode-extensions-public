@@ -68,7 +68,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                 label: "Argument Value",
                 defaultValue: "default",
                 isRequired: false,
-                enableCondition: [{ "Argument Type": "Value" }]
+                enableCondition: [{ 0: "Value" }]
             },
             {
                 id: 2,
@@ -76,7 +76,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                 label: "Argument Expression",
                 defaultValue: "",
                 isRequired: false,
-                enableCondition: [{ "Argument Type": "Expression" }]
+                enableCondition: [{ 0: "Expression" }]
             },
             {
                 id: 3,
@@ -85,7 +85,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                 defaultValue: "xml",
                 isRequired: false,
                 values: ["xml", "json"],
-                enableCondition: [{ "Argument Type": "Expression" }]
+                enableCondition: [{ 0: "Expression" }]
             },
             {
                 id: 4,

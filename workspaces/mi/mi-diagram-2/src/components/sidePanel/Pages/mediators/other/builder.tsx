@@ -9,7 +9,8 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, ParamConfig, ParamManager, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { Button, ComponentCard, ParamConfig, ParamManager, TextField } from '@wso2-enterprise/ui-toolkit';
+import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -17,21 +18,13 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 
-const cardStyle = { 
-   display: "block",
-   margin: "15px 0",
-   padding: "0 15px 15px 15px",
-   width: "auto",
-   cursor: "auto"
-};
-
-const Wrapper = styled.div`
+const cardStyle = {
     display: "block",
     margin: "15px 0",
     padding: "0 15px 15px 15px",
     width: "auto",
     cursor: "auto"
-`;
+};
 
 const Error = styled.span`
    color: var(--vscode-errorForeground);
@@ -45,58 +38,39 @@ const Field = styled.div`
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
-const LogForm = (props: AddMediatorProps) => {
-   const { rpcClient } = useVisualizerContext();
-   const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({} as { [key: string]: any });
-   const [errors, setErrors] = useState({} as any);
+const BuilderForm = (props: AddMediatorProps) => {
+    const { rpcClient } = useVisualizerContext();
+    const sidePanelContext = React.useContext(SidePanelContext);
+    const [formValues, setFormValues] = useState({} as { [key: string]: any });
+    const [errors, setErrors] = useState({} as any);
 
     const paramConfigs: ParamConfig = {
         paramValues: [],
         paramFields: [
-        {
-            id: 0,
-            type: "TextField",
-            label: "Property Name",
-            defaultValue: "",
-            isRequired: false
-        },
-        {
-            id: 1,
-            type: "Dropdown",
-            label: "Property Value Type",
-            defaultValue: "LITERAL",
-            isRequired: false,
-            values: ["LITERAL", "EXPRESSION"]
-        },
-        {
-            id: 2,
-            type: "TextField",
-            label: "Property Value",
-            defaultValue: "",
-            isRequired: false,
-            enableCondition: [
-                {
-                    1: "LITERAL"
-                }
-            ]
-        },
-        {
-            id: 3,
-            type: "TextField",
-            label: "Property Expression",
-            defaultValue: "",
-            isRequired: false,
-            enableCondition: [
-                {
-                    1: "EXPRESSION"
-                }
-            ]
-        },]
+            {
+                id: 0,
+                type: "TextField",
+                label: "Content Type",
+                defaultValue: "",
+                isRequired: false,
+            },
+            {
+                id: 1,
+                type: "TextField",
+                label: "Builder Class",
+                defaultValue: "",
+                isRequired: false,
+            },
+            {
+                id: 2,
+                type: "TextField",
+                label: "Formatter Class",
+                defaultValue: "",
+                isRequired: false,
+            },]
     };
-    
+
     const [params, setParams] = useState(paramConfigs);
-    
     const handleOnChange = (params: any) => {
         setParams(params);
     };
@@ -104,38 +78,30 @@ const LogForm = (props: AddMediatorProps) => {
     useEffect(() => {
         if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
             setFormValues({ ...formValues, ...sidePanelContext.formValues });
-            if (sidePanelContext.formValues["properties"] && sidePanelContext.formValues["properties"].length > 0 ) {
-                const paramValues = sidePanelContext.formValues["properties"].map((property: string, index: string) => (
+            if (sidePanelContext.formValues["messageBuilders"] && sidePanelContext.formValues["messageBuilders"].length > 0) {
+                const paramValues = sidePanelContext.formValues["messageBuilders"].map((property: string, index: string) => (
                     {
                         id: index,
                         parameters: [
                             {
                                 id: 0,
-                                label: "propertyName",
+                                label: "contentType",
                                 type: "TextField",
                                 value: property[0],
                                 isRequired: false
                             },
                             {
                                 id: 1,
-                                label: "propertyValueType",
-                                type: "Dropdown",
+                                label: "builderClass",
+                                type: "TextField",
                                 value: property[1],
-                                isRequired: false,
-                                values: ["LITERAL", "EXPRESSION"]
+                                isRequired: true
                             },
                             {
                                 id: 2,
-                                label: "propertyValue",
+                                label: "formatterClass",
                                 type: "TextField",
                                 value: property[2],
-                                isRequired: false
-                            },
-                            {
-                                id: 3,
-                                label: "propertyExpression",
-                                type: "TextField",
-                                value: property[3],
                                 isRequired: false
                             }
                         ]
@@ -145,9 +111,8 @@ const LogForm = (props: AddMediatorProps) => {
             }
         } else {
             setFormValues({
-        "category": "INFO",
-        "level": "SIMPLE",
-        "properties": [] as string[][],});
+                "messageBuilders": [] as string[][],
+            });
         }
     }, [sidePanelContext.formValues]);
 
@@ -159,18 +124,17 @@ const LogForm = (props: AddMediatorProps) => {
                 newErrors[key] = (error);
             }
         });
-        formValues["properties"] = params.paramValues.map(param => param.parameters.slice(0, 4).map(p => p.value));
+        formValues["messageBuilders"] = params.paramValues.map(param => param.parameters.slice(0, 4).map(p => p.value));
         params.paramValues.forEach(param => {
             param.parameters.slice(0, 4).forEach(p => {
                 let key = p.label.toLowerCase().replace(/\s/g, '');
                 formValues[key] = p.value;
             });
         });
-
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
         } else {
-            const xml = getXML(MEDIATORS.LOG, formValues);
+            const xml = getXML(MEDIATORS.BUILDER, formValues);
             rpcClient.getMiDiagramRpcClient().applyEdit({
                 documentUri: props.documentUri, range: props.nodePosition, text: xml
             });
@@ -186,9 +150,9 @@ const LogForm = (props: AddMediatorProps) => {
     };
 
     const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-        "category": (e?: any) => validateField("category", e, true),
-        "level": (e?: any) => validateField("level", e, true),
-        "separator": (e?: any) => validateField("separator", e, false),
+        "contentType": (e?: any) => validateField("contentType", e, false),
+        "builderClass": (e?: any) => validateField("builderClass", e, false),
+        "formatterClass": (e?: any) => validateField("formatterClass", e, false),
         "description": (e?: any) => validateField("description", e, false),
 
     };
@@ -216,55 +180,20 @@ const LogForm = (props: AddMediatorProps) => {
     return (
         <div style={{ padding: "10px" }}>
 
-            <Wrapper>
-                <Field>
-                    <label>Log Category</label> <RequiredFormInput />
-                    <AutoComplete items={["INFO", "TRACE", "DEBUG", "WARN", "ERROR", "FATAL"]} selectedItem={formValues["category"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "category": e });
-                        formValidators["category"](e);
-                    }} />
-                    {errors["category"] && <Error>{errors["category"]}</Error>}
-                </Field>
+            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                <h3>Properties</h3>
 
-                <Field>
-                    <label>Log Level</label> <RequiredFormInput />
-                    <AutoComplete items={["SIMPLE", "HEADERS", "FULL", "CUSTOM"]} selectedItem={formValues["level"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "level": e });
-                        formValidators["level"](e);
-                    }} />
-                    {errors["level"] && <Error>{errors["level"]}</Error>}
-                </Field>
-
-                <Field>
-                    <TextField
-                        label="Log Separator"
-                        size={50}
-                        placeholder=""
-                        value={formValues["separator"]}
-                        onChange={(e: any) => {
-                            setFormValues({ ...formValues, "separator": e });
-                            formValidators["separator"](e);
-                        }}
-                        required={false}
-                    />
-                    {errors["separator"] && <Error>{errors["separator"]}</Error>}
-                </Field>
-
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Properties</h3>
-
-                {formValues["properties"] && (
+                {formValues["messageBuilders"] && (
                     <ParamManager
                         paramConfigs={params}
                         readonly={false}
-                        onChange= {handleOnChange} />
+                        onChange={handleOnChange} />
                 )}
-                </ComponentCard>
                 <Field>
                     <TextField
                         label="Description"
                         size={50}
-                        placeholder="Description"
+                        placeholder=""
                         value={formValues["description"]}
                         onChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
@@ -275,10 +204,10 @@ const LogForm = (props: AddMediatorProps) => {
                     {errors["description"] && <Error>{errors["description"]}</Error>}
                 </Field>
 
-            </Wrapper>
+            </ComponentCard>
 
 
-            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
+            <div style={{ textAlign: "right", marginTop: "10px" }}>
                 <Button
                     appearance="primary"
                     onClick={onClick}
@@ -291,4 +220,4 @@ const LogForm = (props: AddMediatorProps) => {
     );
 };
 
-export default LogForm; 
+export default BuilderForm; 

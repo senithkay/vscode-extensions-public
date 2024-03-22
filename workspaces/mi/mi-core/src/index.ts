@@ -11,6 +11,8 @@
 export * from "./state-machine-types";
 export * from "./vscode";
 
+export * from "./interfaces/mi";
+
 // ------ History class and interface -------->
 export * from "./history";
 

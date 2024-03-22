@@ -8,6 +8,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { DiagramService, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Diagnostic } from "vscode-languageserver-types";
 import { NotificationType, RequestType } from "vscode-messenger-common";
 
 export enum MACHINE_VIEW {
@@ -23,6 +25,7 @@ export enum MACHINE_VIEW {
     LoadBalanceEndPointForm = "Load Balance Endpoint Form",
     FailoverEndPointForm = "Failover Endpoint Form",
     RecipientEndPointForm = "Recipient Endpoint Form",
+    TemplateEndPointForm = "Template Endpoint Form",
     SequenceForm = "Sequence Form",
     InboundEPForm = "Inbound EP Form",
     MessageProcessorForm = "Message Processor Form",
@@ -74,6 +77,8 @@ export interface CommandProps {
 // State Machine context values
 export interface VisualizerLocation {
     view: MACHINE_VIEW | null;
+    stNode?: STNode | DiagramService;
+    diagnostics?: Diagnostic[]
     documentUri?: string;
     projectUri?: string;
     identifier?: string;

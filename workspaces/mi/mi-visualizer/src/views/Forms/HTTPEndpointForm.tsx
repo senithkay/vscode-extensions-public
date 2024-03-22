@@ -79,6 +79,11 @@ const TdButton = styled.td`
     Width: 10%;
 `;
 
+const DivContent = styled.div`
+    display: flex;
+    justify-content: center;
+`;
+
 export interface Region {
     label: string;
     value: string;
@@ -140,24 +145,33 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
         retryCount: "",
         retryDelay: "",
         timeoutDuration: "",
-        timeoutAction: ""
+        timeoutAction: "",
+        templateName: "",
+        requireTemplateParameters: false,
+        templateParameters: []
 
     })
+    const [isTemplate, setIsTemplate] = useState(false);
     const [directoryPath, setDirectoryPath] = useState("");
     const [oauthProperties, setOauthProperties] = useState<KeyValuePair[]>([]);
     const [properties, setProperties] = useState<Property[]>([]);
+    const [parameters, setParameters] = useState<string[]>([]);
     const [message, setMessage] = useState({
         isError: false,
         text: ""
     });
     const validNumericInput = /^\d*$/;
 
-    const isValid: boolean = endpoint.endpointName.length > 0;
+    const isValid: boolean = endpoint.endpointName.length > 0 && endpoint.templateName.length > 0;
 
     useEffect(() => {
 
         (async () => {
             setDirectoryPath(props.path);
+            const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: props.path });
+            if (syntaxTree.syntaxTree.template != undefined) {
+                setIsTemplate(true);
+            }
             const existingEndpoint = await rpcClient.getMiDiagramRpcClient().getHttpEndpoint({ path: props.path });
             setEndpoint(existingEndpoint);
             handleTimeoutActionChange(existingEndpoint.timeoutAction === '' ? 'Never' :
@@ -165,8 +179,9 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
             handleHttpMethodChange(existingEndpoint.httpMethod);
             setOauthProperties(existingEndpoint.oauthProperties);
             setProperties(existingEndpoint.properties);
+            setParameters(existingEndpoint.templateParameters);
         })();
-    }, []);
+    }, [props.path]);
 
     useEffect(() => {
         const INVALID_CHARS_REGEX = /[@\\^+;:!%&,=*#[\]$?'"<>{}() /]/;
@@ -232,6 +247,23 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
             prevState.filter(pair => pair.key !== keyToRemove)
         );
     };
+
+    const removeParameter = (keyToRemove: string) => {
+        setParameters(prevState =>
+            prevState.filter(item => item !== keyToRemove)
+        );
+    };
+
+    const editParameter = (oldKey: string, newKey: string) => {
+        const indexToEdit = parameters.indexOf(oldKey);
+        let existingParameters = [...parameters];
+        existingParameters[indexToEdit] = newKey;
+        setParameters(existingParameters);
+    };
+
+    const addParameter = () => {
+        setParameters([...parameters, 'parameter']);
+    }
 
     const addValue = () => {
         setOauthProperties(prevState => [...prevState, { key: 'Parameter_Key', value: 'Parameter_Value' }]);
@@ -345,6 +377,13 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
         setEndpoint((prev: any) => ({ ...prev, requireOauthParameters: value }));
     };
 
+    const handleParametersChange = (value: boolean) => {
+        if (!value) {
+            setParameters([]);
+        }
+        setEndpoint((prev: any) => ({ ...prev, requireTemplateParameters: value }));
+    };
+
     const handleOnChange = (field: any, value: any) => {
         setEndpoint((prev: any) => ({ ...prev, [field]: value }));
     }
@@ -357,14 +396,14 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
 
         endpoint.properties = properties;
         endpoint.oauthProperties = oauthProperties;
+        endpoint.templateParameters = parameters;
         const updateHttpEndpointParams: UpdateHttpEndpointRequest = {
             directory: directoryPath,
             ...endpoint
         }
         const file = await rpcClient.getMiDiagramRpcClient().updateHttpEndpoint(updateHttpEndpointParams);
 
-        setDirectoryPath(file.path);
-        handleMessage("HTTP Endpoint updated successfully");
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
     const handleCancel = () => {
@@ -377,12 +416,75 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 <Container>
                     <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleCancel} />
                     <div style={{ marginLeft: 30 }}>
-                        <Typography variant="h3">HTTP Endpoint Artifact</Typography>
+                        <Typography variant="h3">
+                            {isTemplate ? "HTTP Endpoint Template Artifact" : "HTTP Endpoint Artifact"}
+                        </Typography>
                     </div>
                 </Container>
+                {isTemplate && (
+                    <>
+                        <Typography variant="h4">Template Properties</Typography>
+                        <TextField
+                            placeholder="Template Name"
+                            label="Template Name"
+                            onChange={(value: string) => handleOnChange("templateName", value)}
+                            value={endpoint.templateName}
+                            id="template-name-input"
+                            autoFocus
+                            required
+                            validationMessage="Template name is required"
+                            size={100}
+                        />
+                        <span>Require Template Parameters</span>
+                        <RadioBtnContainer>
+                            <RadioLabel>
+                                <input
+                                    type="radio"
+                                    checked={endpoint.requireTemplateParameters === true}
+                                    onChange={() => handleParametersChange(true)}
+                                />
+                                Yes
+                            </RadioLabel>
+                            <RadioLabel>
+                                <input
+                                    type="radio"
+                                    checked={endpoint.requireTemplateParameters === false}
+                                    onChange={() => handleParametersChange(false)}
+                                />
+                                No
+                            </RadioLabel>
+                        </RadioBtnContainer>
+                        {endpoint.requireTemplateParameters && (
+                            <>
+                                <span>Parameters</span>
+                                <Button onClick={addParameter}>Add Parameter</Button>
+                                <Table>
+                                    <thead>
+                                    <tr>
+                                        <Th>Name</Th>
+                                        <ThButton>Remove</ThButton>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {parameters.map(item => (
+                                        <tr>
+                                            <Td contentEditable={true} onBlur={(e) => editParameter(item, e.currentTarget.textContent || '')}>{item}</Td>
+                                            <TdButton>
+                                                <DivContent>
+                                                    <Button onClick={() => removeParameter(item)}>Remove</Button>
+                                                </DivContent>
+                                            </TdButton>
+                                        </tr>
+                                    ))}
+                                    </tbody>
+                                </Table>
+                            </>
+                        )}
+                    </>
+                )}
                 <Typography variant="h4">Basic Properties</Typography>
                 <TextField
-                    placeholder="Name"
+                    placeholder="Endpoint Name"
                     label="Endpoint Name"
                     onChange={(value: string) => handleOnChange("endpointName", value)}
                     value={endpoint.endpointName}

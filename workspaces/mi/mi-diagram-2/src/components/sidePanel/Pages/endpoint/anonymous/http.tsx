@@ -105,7 +105,7 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                 label: "Value",
                 defaultValue: "",
                 isRequired: false,
-                enableCondition: [{ "Value Type": "LITERAL" }]
+                enableCondition: [{ 2: "LITERAL" }]
             },
             {
                 id: 4,
@@ -113,7 +113,7 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                 label: "Value Expression",
                 defaultValue: "",
                 isRequired: false,
-                enableCondition: [{ "Value Type": "EXPRESSION" }]
+                enableCondition: [{ 2: "EXPRESSION" }]
             }]
     };
 
@@ -142,7 +142,7 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                 defaultValue: "",
                 isRequired: false,
                 enableCondition: [
-                    { "Value Type": "LITERAL" }
+                    { 2: "LITERAL" }
                 ]
             },
             {
@@ -152,7 +152,7 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                 defaultValue: "",
                 isRequired: false,
                 enableCondition: [
-                    { "Value Type": "EXPRESSION" }
+                    { 2: "EXPRESSION" }
                 ]
             }]
     };

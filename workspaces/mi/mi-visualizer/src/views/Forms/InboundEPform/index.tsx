@@ -14,10 +14,11 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { FieldGroup, SectionWrapper } from "../Commons";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import ParamForm from "./ParamForm";
-import { sampleData } from "./ParamTemplate";
+import { inboundEndpointParams } from "./ParamTemplate";
 
 const WizardContainer = styled.div`
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     width: 95vw;
@@ -31,13 +32,17 @@ const ActionContainer = styled.div`
     justify-content: flex-end;
     gap: 10px;
     padding-bottom: 20px;
+    width: 100%;
+    margin-top: 20px;
 `;
 
 const HiddenFormWrapper = styled.div`
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding: 10px 40px;
+    padding: 20px 40px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
 `;
 
 const Container = styled.div`
@@ -47,6 +52,13 @@ const Container = styled.div`
     align-items: center;
     justify-content: flex-start;
 `;
+
+const CheckboxGroup = styled.div({
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+    marginBottom: "20px",
+});
 
 export interface Region {
     label: string;
@@ -95,7 +107,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
         description: "",
     });
 
-    const [selectedInboundParamaters, setSelectedInboundParameters] = useState<any>(sampleData[inboundEndpoint.type.toLowerCase()]);
+    const [selectedInboundParamaters, setSelectedInboundParameters] = useState<any>(inboundEndpointParams[inboundEndpoint.type.toLowerCase()]);
 
     const [sequences, setSequences] = useState([]);
     const [isCustom, setIsCustom] = useState({
@@ -128,7 +140,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                         [data.type.toLowerCase()]: { ...parameters },
                     })
                     setAdditionalParameters((prev: any) => ({ ...prev, ...additionalParameters }));
-                    setSelectedInboundParameters(sampleData[data.type.toLowerCase()]);
+                    setSelectedInboundParameters(inboundEndpointParams[data.type.toLowerCase()]);
                 }
                 else {
                     clearForm();
@@ -172,7 +184,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
             statistics: false,
             description: "",
         });
-        setSelectedInboundParameters(sampleData["http"]);
+        setSelectedInboundParameters(inboundEndpointParams["http"]);
         setCustomSequence("");
         setCustomErrorSequence("");
         setShowHiddenForm(false);
@@ -192,7 +204,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
             setShowHiddenForm(true);
         }
 
-        setSelectedInboundParameters(sampleData[type.toLowerCase()]);
+        setSelectedInboundParameters(inboundEndpointParams[type.toLowerCase()]);
 
         handleOnChange("type", type);
     }
@@ -346,12 +358,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                 )}
                 {!isNewInboundEndpoint && (
                     <div>
-                        <div style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "10px",
-                            marginBottom: "20px",
-                        }}>
+                        <CheckboxGroup>
                             <CheckBox
                                 label="Suspend"
                                 value="suspend"
@@ -370,7 +377,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                                 checked={additionalParameters.statistics}
                                 onChange={(checked: boolean) => handleAdditionalParamChange("statistics", checked)}
                             />
-                        </div>
+                        </CheckboxGroup>
                         {selectedInboundParamaters && <ParamForm
                             paramState={paramState[inboundEndpoint.type.toLocaleLowerCase()] ?? {}}
                             parameters={selectedInboundParamaters}
@@ -386,22 +393,22 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                         />
                     </div>
                 )}
-                <ActionContainer>
-                    <Button
-                        appearance="secondary"
-                        onClick={openOverview}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        appearance="primary"
-                        onClick={handleCreateInboundEP}
-                        disabled={!isValid}
-                    >
-                        {isNewInboundEndpoint ? "Create" : "Save Changes"}
-                    </Button>
-                </ActionContainer>
             </SectionWrapper>
+            <ActionContainer>
+                <Button
+                    appearance="secondary"
+                    onClick={openOverview}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    appearance="primary"
+                    onClick={handleCreateInboundEP}
+                    disabled={!isValid}
+                >
+                    {isNewInboundEndpoint ? "Create" : "Save Changes"}
+                </Button>
+            </ActionContainer>
         </WizardContainer>
     );
 }

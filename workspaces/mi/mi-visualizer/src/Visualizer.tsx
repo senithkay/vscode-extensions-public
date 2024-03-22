@@ -15,6 +15,7 @@ import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { AIOverviewWindow } from "./views/AIOverviewWindow";
 import AiPanel from "./AiPanel";
+import { GettingStarted } from "./views/GettingStarted";
 import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
 
 const LoaderWrapper = styled.div`
@@ -60,8 +61,10 @@ export function Visualizer({ mode }: { mode: string }) {
 
 const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue }) => {
     switch (true) {
-        case typeof state === 'object':
+        case typeof state === 'object' && 'ready' in state && state.ready === "viewReady":
             return <MainPanel />;
+        case typeof state === 'object' && 'newProject' in state && state.newProject === "viewReady":
+            return <GettingStarted />;
         default:
             return (
                 <LoaderWrapper>

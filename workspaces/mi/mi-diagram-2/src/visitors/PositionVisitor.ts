@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STNode, Visitor, Log, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Aggregate, Iterate, Switch, Foreach, Resource, Bam, ConditionalRouter, OauthService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { STNode, Visitor, Log, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Aggregate, Iterate, Switch, Foreach, Resource, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 
 export class PositionVisitor implements Visitor {
@@ -83,7 +83,7 @@ export class PositionVisitor implements Visitor {
 
         // set filter node positions after traversing children
         this.position.x = node.viewState.x + node.viewState.w / 2;
-        this.position.y = node.viewState.y + (node.viewState.h / 2) + node.viewState.fh + NODE_GAP.Y;
+        this.position.y = node.viewState.y + node.viewState.fh + NODE_GAP.Y;
         this.skipChildrenVisit = true;
     }
 
@@ -239,4 +239,15 @@ export class PositionVisitor implements Visitor {
     //Other Mediators
     beginVisitBam = (node: Bam): void => this.setBasicMediatorPosition(node);
     beginVisitOauthService = (node: OauthService): void => this.setBasicMediatorPosition(node);
+    beginVisitBuilder = (node: Builder): void => this.setBasicMediatorPosition(node);
+    beginVisitPublishEvent = (node: PublishEvent): void => this.setBasicMediatorPosition(node);
+    beginVisitEntitlementService = (node: EntitlementService): void => {
+        this.setAdvancedMediatorPosition(node, {
+            OnAccept: node.onAccept,
+            OnReject: node.onReject,
+            Obligations: node.obligations,
+            Advice: node.advice
+        }, NodeTypes.GROUP_NODE);
+    }
+    endVisitEntitlementService = (node: EntitlementService): void => this.setSkipChildrenVisit(false);
 }

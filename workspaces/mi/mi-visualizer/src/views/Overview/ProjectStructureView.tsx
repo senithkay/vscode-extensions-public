@@ -26,7 +26,7 @@ interface ArtifactType {
 
 const artifactTypeMap: Record<string, ArtifactType> = {
     apis: {
-        title: "Apis",
+        title: "APIs",
         command: "MI.project-explorer.add-api",
         view: MACHINE_VIEW.ServiceDesigner,
         icon: "globe",
@@ -77,7 +77,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Message Processors",
         command: "MI.project-explorer.add-message-processor",
         view: MACHINE_VIEW.MessageProcessorForm,
-        icon: "cog",
+        icon: "gear",
         description: (entry: any) => "Message Processor",
         path: (entry: any) => entry.path,
     },
@@ -102,7 +102,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-template",
         view: MACHINE_VIEW.TemplateForm,
         icon: "file-code",
-        description: (entry: any) => "Template",
+        description: (entry: any) => `Template SubType: ${entry.subType}`,
         path: (entry: any) => entry.path,
     },
     // Add more artifact types as needed
@@ -120,7 +120,10 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
     const { projectStructure } = props;
     const { rpcClient } = useVisualizerContext();
 
-    const handleClick = (documentUri: string, view: MACHINE_VIEW) => {
+    const handleClick = async (documentUri: string, view: MACHINE_VIEW) => {
+        if (view === MACHINE_VIEW.EndPointForm || view === MACHINE_VIEW.TemplateForm) {
+            view = await getView(documentUri);
+        }
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view, documentUri } });
     };
 
@@ -140,6 +143,31 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
         return false;
     }
 
+    const getView = async (documentUri: string) => {
+        const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: documentUri});
+        let view = MACHINE_VIEW.TemplateForm;
+        if (!(syntaxTree.syntaxTree.template != undefined && syntaxTree.syntaxTree.template.sequence != undefined)) {
+            const endpointType = syntaxTree.syntaxTree.template?.endpoint.type ?? syntaxTree.syntaxTree.endpoint.type;
+            if (endpointType === 'HTTP_ENDPOINT') {
+                view = MACHINE_VIEW.HttpEndpointForm;
+            } else if (endpointType === 'ADDRESS_ENDPOINT') {
+                view = MACHINE_VIEW.AddressEndpointForm;
+            } else if (endpointType === 'WSDL_ENDPOINT') {
+                view = MACHINE_VIEW.WsdlEndpointForm;
+            } else if (endpointType === 'DEFAULT_ENDPOINT') {
+                view = MACHINE_VIEW.DefaultEndpointForm;
+            } else if (endpointType === 'LOAD_BALANCE_ENDPOINT') {
+                view = MACHINE_VIEW.LoadBalanceEndPointForm;
+            } else if (endpointType === 'FAIL_OVER_ENDPOINT') {
+                view = MACHINE_VIEW.FailoverEndPointForm;
+            } else if (endpointType === 'RECIPIENT_LIST_ENDPOINT') {
+                view = MACHINE_VIEW.RecipientEndPointForm;
+            } else if (endpointType === 'TEMPLATE_ENDPOINT') {
+                view = MACHINE_VIEW.TemplateEndPointForm;
+            }
+        }
+        return view;
+    }
 
     return (
         <Listing>

@@ -8,6 +8,7 @@
  */
 
 import { render } from "mustache";
+import {randomBytes} from "crypto";
 
 export interface DefaultEndpointArgs {
     endpointName: string;
@@ -31,11 +32,18 @@ export interface DefaultEndpointArgs {
     retryDelay: string;
     timeoutDuration: string;
     timeoutAction: string | null;
+    templateName: string;
+    requireTemplateParameters: boolean;
+    templateParameters: any;
 }
 
 export function getDefaultEndpointMustacheTemplate() {
     return `<?xml version="1.0" encoding="UTF-8"?>
-<endpoint name="{{endpointName}}" xmlns="http://ws.apache.org/ns/synapse">
+{{#template}}<template name="{{templateName}}" xmlns="http://ws.apache.org/ns/synapse">{{/template}}
+{{#parameters}}
+<{{key}}:parameter name="{{value}}" xmlns:{{key}}="http://ws.apache.org/ns/synapse"/>
+{{/parameters}}
+<endpoint name="{{endpointName}}" {{^template}}xmlns="http://ws.apache.org/ns/synapse"{{/template}}>
     <default {{#format}}format="{{format}}"{{/format}} {{#optimize}}optimize="{{optimize}}"{{/optimize}} {{#statisticsEnabled}}statistics="{{statisticsEnabled}}"{{/statisticsEnabled}} {{#traceEnabled}}trace="{{traceEnabled}}"{{/traceEnabled}}>
         {{#addressingEnabled}}<enableAddressing {{#addressListener}}separateListener="{{addressListener}}"{{/addressListener}} {{#addressingVersion}}version="{{addressingVersion}}{{/addressingVersion}}"/>{{/addressingEnabled}}
         {{#securityEnabled}}<enableSec/>{{/securityEnabled}}
@@ -59,7 +67,8 @@ export function getDefaultEndpointMustacheTemplate() {
     <property name="{{name}}" scope="{{scope}}" value="{{value}}"/>
     {{/properties}}  
     {{#description}}<description>{{description}}</description>{{/description}}
-</endpoint>`;
+</endpoint>
+{{#template}}</template>{{/template}}`;
 }
 
 
@@ -72,7 +81,7 @@ export function getDefaultEndpointXml(data: DefaultEndpointArgs) {
     data.format = (data.format === 'LEAVE_AS_IS' || data.format === null) ? null : data.format === 'SOAP 1.1' ? 'soap11' :
         data.format === 'SOAP 1.2' ? 'soap12' : data.format.toLowerCase();
 
-    let timeout;
+    let timeout, endpoint, template;
 
     assignNullToEmptyStrings(data);
 
@@ -83,13 +92,32 @@ export function getDefaultEndpointXml(data: DefaultEndpointArgs) {
 
     data.addressListener = data.addressListener === 'enable' ? 'true' : null;
 
-    if (!data.requireProperties) {
+    if (!data.requireProperties || data.properties.length == 0) {
         data.properties = null;
+    }
+
+    data.templateName != null && data.templateName != '' ? template = true : endpoint = true;
+
+    data.endpointName = (data.endpointName != null && data.endpointName != '') ?
+        "endpoint_urn_uuid_".concat(generateUUID()) : data.endpointName;
+
+    let parameters: any = [];
+    if (!data.requireTemplateParameters || data.templateParameters.length == 0) {
+        data.templateParameters = null;
+    } else {
+        let incrementalValue = 1;
+        data.templateParameters.forEach(element => {
+            parameters.push({ key: 'axis2ns'.concat(String(incrementalValue).padStart(2, '0')), value: element });
+            incrementalValue++;
+        });
     }
 
     const modifiedData = {
         ...data,
-        timeout
+        timeout,
+        endpoint,
+        template,
+        parameters
     };
 
     return render(getDefaultEndpointMustacheTemplate(), modifiedData);
@@ -101,4 +129,16 @@ function assignNullToEmptyStrings(obj: { [key: string]: any }): void {
             obj[key] = null;
         }
     }
+}
+
+function generateUUID(): string {
+    const buf = randomBytes(16);
+    buf[6] = (buf[6] & 0x0f) | 0x40;
+    buf[8] = (buf[8] & 0x3f) | 0x80;
+
+    return buf.toString('hex', 0, 4) + '-' +
+        buf.toString('hex', 4, 6) + '-' +
+        buf.toString('hex', 6, 8) + '-' +
+        buf.toString('hex', 8, 10) + '-' +
+        buf.toString('hex', 10, 16);
 }

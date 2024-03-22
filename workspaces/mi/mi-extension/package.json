@@ -155,7 +155,7 @@
         "when": "false"
       },
       {
-        "command": "project-explorer.import-project",
+        "command": "MI.project-explorer.import-project",
         "title": "Import Project",
         "icon": "$(add)",
         "group": "navigation",

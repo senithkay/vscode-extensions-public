@@ -16,6 +16,7 @@ import { SectionWrapper } from "./Commons";
 
 const WizardContainer = styled.div`
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     width: 95vw;
@@ -29,7 +30,9 @@ const ActionContainer = styled.div`
     justify-content: space-between;
     align-items: center;
     gap: 10px;
-    padding-bottom: 20px;
+    padding: 20px 120px;
+    width: calc(100% - 250px);
+    margin: 0 auto;
 `;
 
 const HiddenFormWrapper = styled.div`
@@ -46,6 +49,23 @@ const Container = styled.div`
     align-items: center;
     justify-content: flex-start;
 `;
+
+const TriggerContainer = styled.div({
+    padding: "20px 20px",
+    border: "1px solid #e0e0e0",
+    borderRadius: "5px"
+});
+
+const FlexDiv = styled.div({
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: "20px"
+});
+
+const Message = styled.span((props: any) => ({
+    color: props["is-error"] ? "#f48771" : "",
+}));
 
 export interface Region {
     label: string;
@@ -215,22 +235,17 @@ export function TaskWizard(props: DetailedTaskWizardProps) {
                     onChange={(text: string) => handleOnChange("pinnedServers", text)}
                     size={100}
                 />
-                <h4>Trigger Information of the Task</h4>
-                <div style={{
-                    padding: "20px 20px",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: "5px"
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px', width: "50%" }}>
-                        <span style={{ whiteSpace: 'nowrap' }}>Trigger Type</span>
+                <Typography variant="h4" sx={{ my: 0 }}>Trigger Information of the Task</Typography>
+                <TriggerContainer>
+                    <FlexDiv>
+                        <Typography sx={{ whiteSpace: 'nowrap' }}>Trigger Type</Typography>
                         <Dropdown
                             id="trigger-type"
                             value={task.triggerType}
                             onChange={handleTriggerTypeChange}
                             items={[{ content: "Simple", value: "simple" }, { content: "Cron", value: "cron" }]}
-                            sx={{ width: "100%" }}
                         />
-                    </div>
+                    </FlexDiv>
                     {task.triggerType === 'simple' ? (
                         <HiddenFormWrapper>
                             <TextField
@@ -271,26 +286,26 @@ export function TaskWizard(props: DetailedTaskWizardProps) {
                             />
                         </HiddenFormWrapper>
                     )}
-                </div>
-                <ActionContainer>
-                    {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
-                    <div style={{ display: 'flex', gap: '20px' }}>
-                        <Button
-                            appearance="secondary"
-                            onClick={openOverview}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            appearance="primary"
-                            onClick={handleCreateTask}
-                            disabled={!isValid || (!changesOccured && !isNewTask)}
-                        >
-                            {isNewTask ? "Create" : "Save Changes"}
-                        </Button>
-                    </div>
-                </ActionContainer>
+                </TriggerContainer>
             </SectionWrapper>
+            <ActionContainer>
+                {message && <Message is-error={message.isError}>{message.text}</Message>}
+                <FlexDiv>
+                    <Button
+                        appearance="secondary"
+                        onClick={openOverview}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        appearance="primary"
+                        onClick={handleCreateTask}
+                        disabled={!isValid || (!changesOccured && !isNewTask)}
+                    >
+                        {isNewTask ? "Create" : "Save Changes"}
+                    </Button>
+                </FlexDiv>
+            </ActionContainer>
         </WizardContainer>
     );
 }

@@ -357,6 +357,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"command": COMMANDS.SHOW_ENDPOINT,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
+			explorerEntry.command.command = getViewCommand(entry.subType);
 
 		} else if (entry.type === "SEQUENCE") {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
@@ -393,6 +394,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"command": COMMANDS.SHOW_TEMPLATE,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
+			explorerEntry.command.command = getViewCommand(entry.subType);
 
 		} else if (entry.type === "TASK") {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
@@ -475,4 +477,26 @@ function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): Projec
 		}
 	}
 	return result;
+}
+
+function getViewCommand(endpointType?: string) {
+	let viewCommand = COMMANDS.SHOW_TEMPLATE;
+	if (endpointType === 'HTTP_ENDPOINT') {
+		viewCommand = COMMANDS.SHOW_HTTP_ENDPOINT;
+	} else if (endpointType === 'ADDRESS_ENDPOINT') {
+		viewCommand = COMMANDS.SHOW_ADDRESS_ENDPOINT;
+	} else if (endpointType === 'WSDL_ENDPOINT') {
+		viewCommand = COMMANDS.SHOW_WSDL_ENDPOINT;
+	} else if (endpointType === 'DEFAULT_ENDPOINT') {
+		viewCommand = COMMANDS.SHOW_DEFAULT_ENDPOINT;
+	} else if (endpointType === 'LOAD_BALANCE_ENDPOINT') {
+		viewCommand = COMMANDS.SHOW_LOAD_BALANCE_ENDPOINT;
+	} else if (endpointType === 'FAIL_OVER_ENDPOINT') {
+		viewCommand = COMMANDS.SHOW_FAILOVER_ENDPOINT;
+	} else if (endpointType === 'RECIPIENT_LIST_ENDPOINT') {
+		viewCommand = COMMANDS.SHOW_RECIPIENT_ENDPOINT;
+	} else if (endpointType === 'TEMPLATE_ENDPOINT') {
+		viewCommand = COMMANDS.SHOW_TEMPLATE_ENDPOINT;
+	}
+	return viewCommand;
 }

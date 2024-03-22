@@ -30,7 +30,7 @@ export const EditorContent = styled.div<CSSObject>`
     padding: 10px 0;
 `;
 
-export const ContentSection = styled.div`
+export const ActionWrapper = styled.div`
     display: flex;
     flex-direction: row;
 `;
@@ -62,9 +62,10 @@ export const IconWrapper = styled.div`
     margin-top: 16px;
     margin-bottom: 13px;
     margin-left: 10px;
+    margin-right: 10px;
 `;
 
-export const IconTextWrapper = styled.div<ContainerProps>`
+export const ContentWrapper = styled.div<ContainerProps>`
     display: flex;
     justify-content: flex-start;
     align-items: center;
@@ -80,6 +81,41 @@ export const IconTextWrapper = styled.div<ContainerProps>`
     overflow-y: hidden;
 `;
 
+export const KeyTextWrapper = styled.div`
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: row;
+    width: 150px;
+    background-color: var(--vscode-inputValidation-infoBackground);
+    height: 100%;
+`;
+
+export const Key= styled.div`
+    cursor: pointer;
+    margin-left: 10px;
+`;
+
+
+export const IconTextWrapper = styled.div`
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: row;
+    width: 150px;
+    background-color: var(--vscode-inputValidation-infoBackground);
+    height: 100%;
+`;
+
+export const ValueTextWrapper = styled.div`
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: row;
+    padding: 0 10px;
+    height: 100%;
+`;
+
 export const headerLabelStyles = cx(css`
     height: 100%;
     width: 100%;
@@ -92,18 +128,6 @@ export const headerLabelStyles = cx(css`
     line-height: 14px;
     border: 1px solid var(--vscode-dropdown-border);
     border-left: none;
-`);
-
-export const itemTitle = cx(css`
-    height: 100%;
-    width: 100%;
-    display: flex;
-    margin-left: 10px;
-    align-items: center;
-    justify-content: flex-start;
-    width: calc(100% - 75px);
-    font-weight: bold;
-    line-height: 14px;
 `);
 
 export const OptionLabel = styled.div`

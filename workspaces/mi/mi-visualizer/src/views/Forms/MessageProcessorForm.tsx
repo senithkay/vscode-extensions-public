@@ -102,50 +102,51 @@ interface MessageProcessorWizardProps {
     path: string;
 };
 
+const newMessageProcessor = {
+    messageProcessorName: "",
+    messageProcessorType: "Scheduled Message Forwarding Processor",
+    messageStoreType: "TestMBStore",
+    failMessageStoreType: "",
+    sourceMessageStoreType: "TestMBStore",
+    targetMessageStoreType: "TestMBStore",
+    processorState: "Activate",
+    dropMessageOption: "Disabled",
+    quartzConfigPath: "",
+    cron: "",
+    forwardingInterval: 1000,
+    retryInterval: 1000,
+    maxRedeliveryAttempts: 4,
+    maxConnectionAttempts: -1,
+    connectionAttemptInterval: 1000,
+    taskCount: 1,
+    statusCodes: "",
+    clientRepository: "",
+    axis2Config: "",
+    endpointType: null as string,
+    sequenceType: null as string,
+    replySequenceType: null as string,
+    faultSequenceType: null as string,
+    deactivateSequenceType: null as string,
+    endpoint: "",
+    sequence: "",
+    replySequence: "",
+    faultSequence: "",
+    deactivateSequence: "",
+    samplingInterval: 1000,
+    samplingConcurrency: 1,
+    providerClass: "",
+    properties: [] as any,
+    hasCustomProperties: false
+};
+
 export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
-    const [ messageProcessor, setMessageProcessor ] = useState<any>({
-        messageProcessorName: "",
-        messageProcessorType: "Scheduled Message Forwarding Processor",
-        messageStoreType: "TestMBStore",
-        failMessageStoreType: "",
-        sourceMessageStoreType: "TestMBStore",
-        targetMessageStoreType: "TestMBStore",
-        processorState: "Activate",
-        dropMessageOption: "Disabled",
-        quartzConfigPath: "",
-        cron: "",
-        forwardingInterval: 1000,
-        retryInterval: 1000,
-        maxRedeliveryAttempts: 4,
-        maxConnectionAttempts: -1,
-        connectionAttemptInterval: 1000,
-        taskCount: 1,
-        statusCodes: "",
-        clientRepository: "",
-        axis2Config: "",
-        endpointType: null,
-        sequenceType: null,
-        replySequenceType: null,
-        faultSequenceType: null,
-        deactivateSequenceType: null,
-        endpoint: "",
-        sequence: "",
-        replySequence: "",
-        faultSequence: "",
-        deactivateSequence: "",
-        samplingInterval: 1000,
-        samplingConcurrency: 1,
-        providerClass: "",
-        properties: [],
-        hasCustomProperties: false,
-    })
+    const [ messageProcessor, setMessageProcessor ] = useState<any>(newMessageProcessor);
     const [properties, setProperties] = useState<KeyValuePair[]>([]);
     const [sequences, setSequences] = useState();
     const [endpoints, setEndpoints] = useState();
-    const [existingFilePath, setExistingFilePath] = useState(props.path);
-    const isNewTask = !existingFilePath.endsWith(".xml");
+    const [isNewMessageProcessor, setIsNewMessageProcessor] = useState(!props.path.endsWith(".xml"));
     const [changesOccurred, setChangesOccurred] = useState(false);
     const [message, setMessage] = useState({
         isError: false,
@@ -173,11 +174,12 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
             setSequences(sequenceList);
             setEndpoints(endpointList);
 
-            if (!isNewTask) {
-                if (existingFilePath.includes('/messageProcessors')) {
-                    setExistingFilePath(existingFilePath.replace('/messageProcessors', '/message-processors'));
+            if (props.path.endsWith(".xml")) {
+                setIsNewMessageProcessor(false);
+                if (props.path.includes('/messageProcessors')) {
+                    props.path = props.path.replace('/messageProcessors', '/message-processors');
                 }
-                const existingMessageProcessor = await rpcClient.getMiDiagramRpcClient().getMessageProcessor({ path: existingFilePath });
+                const existingMessageProcessor = await rpcClient.getMiDiagramRpcClient().getMessageProcessor({ path: props.path });
                 setMessageProcessor(existingMessageProcessor);
                 messageProcessor.endpoint = existingMessageProcessor.endpoint;
                 messageProcessor.sequence = existingMessageProcessor.sequence;
@@ -191,9 +193,13 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                 }
                 setProperties(existingMessageProcessor.properties);
                 updateTypes(endpointList, sequenceList);
+            } else {
+                setMessageProcessor(newMessageProcessor);
+                setIsNewMessageProcessor(true);
+                setMessage({ isError: false, text: "" });
             }
         })();
-    }, []);
+    }, [props.path]);
 
     useEffect(() => {
         const INVALID_CHARS_REGEX = /[@\\^+;:!%&,=*#[\]$?'"<>{}() /]/;
@@ -312,7 +318,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
     }
 
     const updateChangeStatus = () => {
-        if(!isNewTask && !changesOccurred) {
+        if(!isNewMessageProcessor && !changesOccurred) {
             setChangesOccurred(true);
         }
     }
@@ -418,12 +424,12 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
 
         messageProcessor.properties = properties;
         const createMessageProcessorParams: CreateMessageProcessorRequest = {
-            directory: existingFilePath,
+            directory: props.path,
             ...messageProcessor
         }
         const filePath = await rpcClient.getMiDiagramRpcClient().createMessageProcessor(createMessageProcessorParams);
-        setExistingFilePath(filePath.path);
-        handleMessage(isNewTask ? "Message Processor created successfully" : "Message Processor updated successfully");
+
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
     const handleCancel = () => {
@@ -928,9 +934,9 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                 <Button
                     appearance="primary"
                     onClick={handleCreateMessageProcessor}
-                    disabled={!isValid || (!changesOccurred && !isNewTask)}
+                    disabled={!isValid || (!changesOccurred && !isNewMessageProcessor)}
                 >
-                    {isNewTask ? "Create" : "Save Changes"}
+                    {isNewMessageProcessor ? "Create" : "Save Changes"}
                 </Button>
             </ActionContainer>
         </WizardContainer>
