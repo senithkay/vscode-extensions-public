@@ -38,9 +38,9 @@ import { TypeDescriptor } from "../commons/DataMapperNode";
 import { OutputSearchHighlight } from "../commons/Search";
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 
-import { useStyles } from "./style";
 import { UnionTypeSelector } from "./UnionTypeSelector";
 import { Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { useIONodesStyles, useUnionTypeNodeStyles } from "../../../styles";
 
 export interface UnionTypeTreeWidgetProps {
     id: string;
@@ -73,7 +73,8 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
         getPort
     } = props;
     const { typeNames, resolvedTypeName } = unionTypeInfo;
-    const classes = useStyles();
+    const ioNodesStyles = useIONodesStyles();
+    const unionTypeNodeStyles = useUnionTypeNodeStyles();
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
     const [isModifyingTypeCast, setIsModifyingTypeCast] = useState(false);
@@ -96,7 +97,7 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
         const typeText: JSX.Element[] = [];
         typeNames.forEach((type) => {
             if (type.trim() === resolvedTypeName) {
-                typeText.push(<span className={classes.boldedTypeLabel}>{type}</span>);
+                typeText.push(<span className={ioNodesStyles.boldedTypeLabel}>{type}</span>);
             } else {
                 typeText.push(<>{type}</>);
             }
@@ -110,12 +111,12 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
     const label = (
         <span style={{ marginRight: "auto" }}>
 			{valueLabel && (
-                <span className={classes.valueLabel}>
+                <span className={ioNodesStyles.valueLabel}>
 					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
                     {typeName && ":"}
 				</span>
             )}
-            <span className={classes.typeLabel}>
+            <span className={ioNodesStyles.outputTypeLabel}>
                 {getUnionType()}
             </span>
 		</span>
@@ -231,12 +232,12 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
             >
-					<span className={classes.treeLabelInPort}>
+					<span className={ioNodesStyles.inPort}>
 						{portIn &&
                             <DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
                         }
 					</span>
-                <span className={classes.label}>
+                <span className={ioNodesStyles.label}>
                     {label}
                 </span>
                 {unionTypeInfo && resolvedTypeName && (
@@ -252,11 +253,11 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
             {!resolvedTypeName && (
                 <TreeBody>
                     <div
-                        className={classes.selectTypeWrap}
+                        className={unionTypeNodeStyles.selectTypeWrap}
                         data-testid={"union-type-selector-list"}
                     >
-                        <div className={classes.warningText}>
-                            <div className={classes.warningContainer}>
+                        <div className={unionTypeNodeStyles.warningText}>
+                            <div className={unionTypeNodeStyles.warningContainer}>
                                 <Icon name="error-icon" sx={{ marginRight: "6px" }} iconSx={{ color: "var(--vscode-errorForeground)" }} />
                                 <span>{`Types are ambiguous.`}</span>
                             </div>

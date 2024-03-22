@@ -9,7 +9,6 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
-import { css } from "@emotion/css";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ExpressionFunctionBody, STKindChecker, traversNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
@@ -26,84 +25,7 @@ import {
 import { Button, Codicon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import { isPositionsEquals } from '../../../../utils/st-utils';
 import { QueryExprFindingVisitorByPosition } from '../../visitors/QueryExprFindingVisitorByPosition';
-import { isSourcePortArray, isTargetPortArray } from '../../Link/link-utils';
-
-export const useStyles = () => ({
-    root: css({
-        width: '100%',
-        backgroundColor: "var(--vscode-sideBar-background)",
-        padding: "2px",
-        borderRadius: "2px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "5px",
-        color: "var(--vscode-checkbox-border)",
-        alignItems: "center",
-        border: "1px solid var(--vscode-welcomePage-tileBorder)",
-    }),
-    element: css({
-        backgroundColor: "var(--vscode-input-background)",
-        padding: "5px",
-        cursor: "pointer",
-        transitionDuration: "0.2s",
-        userSelect: "none",
-        pointerEvents: "auto",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        "&:hover": {
-            filter: "brightness(0.95)",
-        },
-    }),
-    iconWrapper: css({
-        height: "22px",
-        width: "22px",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-    }),
-    fromClause: css({
-        padding: "5px",
-        fontWeight: 600,
-        marginRight: '10px'
-    }),
-    mappingPane: css({
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between"
-    }),
-    header: css({
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        "& > *": {
-            margin: "0 2px"
-        }
-    }),
-    icons: css({
-        padding: '5px'
-    }),
-    openQueryIcon: css({
-        color: "var(--vscode-pickerGroup-border)",
-        padding: "5px",
-        height: "32px",
-        width: "32px"
-    }),
-    editIcon: css({
-        color: "var(--vscode-pickerGroup-border)",
-    }),
-    deleteIcon: css({
-        color: "var(--vscode-errorForeground)"
-    }),
-    loadingContainer: css({
-        padding: "10px"
-    }),
-    circularProgress: css({
-        color: "var(--vscode-input-background)",
-        display: "block"
-    })
-});
+import { useIntermediateNodeStyles } from '../../../styles';
 
 export interface QueryExprAsSFVNodeWidgetProps {
     node: QueryExpressionNode;
@@ -117,7 +39,7 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
     if (STKindChecker.isFunctionDefinition(selectedST) && STKindChecker.isExpressionFunctionBody(selectedST.functionBody)) {
         exprFnBody = selectedST.functionBody;
     }
-    const classes = useStyles();
+    const classes = useIntermediateNodeStyles();
 
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 

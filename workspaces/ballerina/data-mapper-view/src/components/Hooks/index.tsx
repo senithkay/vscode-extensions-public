@@ -21,7 +21,7 @@ import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
 import { ErrorNodeKind } from '../DataMapper/Error/DataMapperError';
 import { useDMSearchStore } from '../../store/store';
 import { ListConstructorNode, MappingConstructorNode, PrimitiveTypeNode, QueryExpressionNode, RequiredParamNode } from '../Diagram/Node';
-import { GAP_BETWEEN_INPUT_NODES, OFFSETS, VISUALIZER_PADDING, defaultModelOptions } from '../Diagram/utils/constants';
+import { GAP_BETWEEN_INPUT_NODES, IO_NODE_DEFAULT_WIDTH, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';
 import { FromClauseNode } from '../Diagram/Node/FromClause';
 import { UnionTypeNode } from '../Diagram/Node/UnionType';
 import { UnsupportedExprNodeKind, UnsupportedIONode } from '../Diagram/Node/UnsupportedIO';
@@ -148,14 +148,15 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
     let nextInputNodeY = 0;
 
     nodesClone.forEach((node) => {
-        if (node.width !== 0 && node.height !== 0) {
+        // if (node.height !== 0) {
+            const nodeHeight = node.height === 0 ? 800 : node.height;
             const exisitingNode = diagramModel.getNodes().find(n => (n as DataMapperNodeModel).id === node.id);
             if (node instanceof MappingConstructorNode
                 || node instanceof ListConstructorNode
                 || node instanceof PrimitiveTypeNode
                 || node instanceof UnionTypeNode
                 || (node instanceof UnsupportedIONode && node.kind === UnsupportedExprNodeKind.Output)) {
-                    const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - node.width;
+                    const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - IO_NODE_DEFAULT_WIDTH;
                     const y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : 0;
                     node.setPosition(x, y);
             }
@@ -169,16 +170,16 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
                 const x = OFFSETS.SOURCE_NODE.X;
                 const y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : nextInputNodeY;
                 node.setPosition(x, y);
-                nextInputNodeY += node.height + GAP_BETWEEN_INPUT_NODES;
+                nextInputNodeY += nodeHeight + GAP_BETWEEN_INPUT_NODES;
             }
             if (node instanceof FromClauseNode) {
                 requiredParamFields = requiredParamFields + node.numberOfFields;
                 numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
             }
             if (node instanceof ExpandedMappingHeaderNode) {
-                additionalSpace += node.height + OFFSETS.QUERY_MAPPING_HEADER_NODE.MARGIN_BOTTOM;
+                additionalSpace += nodeHeight + OFFSETS.QUERY_MAPPING_HEADER_NODE.MARGIN_BOTTOM;
             }
-        }
+        // }
     });
 
     return nodesClone;

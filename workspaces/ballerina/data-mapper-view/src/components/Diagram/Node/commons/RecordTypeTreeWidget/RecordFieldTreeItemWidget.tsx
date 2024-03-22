@@ -9,7 +9,6 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useState } from "react";
 
-import { css } from "@emotion/css";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 import classnames from "classnames";
@@ -18,98 +17,7 @@ import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../
 import { getBalRecFieldName, getOptionalRecordField, getTypeName } from "../../../utils/dm-utils";
 import { InputSearchHighlight } from "../Search";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
-
-const useStyles = () => ({
-    treeLabel: css({
-        padding: "5px",
-        minWidth: "100px",
-        display: "flex",
-        minHeight: "24px",
-        color: "inherit",
-        '&:hover': {
-            backgroundColor: 'var(--vscode-list-hoverBackground)'
-        }
-    }),
-    treeLabelPortSelected: css({
-        color: "var(--vscode-list-activeSelectionForeground)",
-        backgroundColor: 'var(--vscode-list-activeSelectionBackground)',
-        outline: "1px solid var(--vscode-list-focusAndSelectionOutline, var(--vscode-contrastActiveBorder, var(--vscode-list-focusOutline)))",
-        "&:hover": {
-            backgroundColor: 'var(--vscode-list-activeSelectionBackground)'
-        }
-    }),
-    treeLabelParentHovered: css({
-        backgroundColor: 'var(--vscode-list-hoverBackground)',
-    }),
-    treeLabelDisableHover: css({
-        '&:hover': {
-            backgroundColor: 'var(--vscode-input-background)',
-        },
-        opacity: 0.8
-    }),
-    treeLabelDisabled: css({
-        backgroundColor: "var(--vscode-editorWidget-background)",
-        '&:hover': {
-            backgroundColor: 'var(--vscode-editorWidget-background)',
-        },
-        cursor: 'not-allowed',
-        opacity: 0.5
-    }),
-    treeLabelOutPort: css({
-        float: "right",
-        width: 'fit-content',
-        marginLeft: "auto",
-        display: "flex",
-        alignItems: "center"
-    }),
-    treeLabelInPort: css({
-        float: "left",
-        marginRight: "5px",
-        width: 'fit-content',
-        display: "flex",
-        alignItems: "center"
-    }),
-    typeLabel: css({
-        marginLeft: "3px",
-        padding: "5px",
-        minWidth: "100px",
-        marginRight: "24px",
-        fontWeight: 400,
-        color: "inherit"
-    }),
-    valueLabel: css({
-        padding: "5px",
-        color: "inherit"
-    }),
-    group: css({
-        marginLeft: "0px",
-        paddingLeft: "0px",
-        paddingBottom: "5px"
-    }),
-    content: css({
-        borderTopRightRadius: "16px",
-        borderBottomRightRadius: "16px",
-        paddingRight: "16px",
-    }),
-    label: css({
-        width: "300px",
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-        display: "flex",
-        alignItems: "center",
-        textOverflow: "ellipsis",
-        color: "inherit",
-        "&:hover": {
-            overflow: "visible"
-        }
-    }),
-    expandIcon: css({
-        color: "var(--vscode-inputOption-activeForeground)",
-        height: "25px",
-        width: "25px",
-        marginLeft: "auto"
-    })
-});
+import { useIONodesStyles } from "../../../../styles";
 
 export interface RecordFieldTreeItemWidgetProps {
     parentId: string;
@@ -135,7 +43,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
         hasHoveredParent,
         hasLinkViaCollectClause
     } = props;
-    const classes = useStyles();
+    const classes = useIONodesStyles();
 
     const fieldName = getBalRecFieldName(field.name);
     const fieldId = `${parentId}${isOptional ? `?.${fieldName}` : `.${fieldName}`}`;
@@ -173,7 +81,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                 {typeName && ":"}
             </span>
             {typeName && (
-                <span className={classes.typeLabel}>
+                <span className={classes.inputTypeLabel}>
                     {typeName}
                 </span>
             )}
@@ -221,7 +129,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                         </Button>}
                     {label}
                 </span>
-                <span className={classes.treeLabelOutPort}>
+                <span className={classes.outPort}>
                     {portOut &&
                         <DataMapperPortWidget
                             engine={engine}

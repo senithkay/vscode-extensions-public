@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import styled from "@emotion/styled";
+import { IO_NODE_DEFAULT_WIDTH } from "../../../utils/constants";
 
 export const TreeContainer = styled.div`
     display: flex;
@@ -19,10 +20,7 @@ export const TreeContainer = styled.div`
     font-weight: 600;
     font-size: 13px;
     line-height: 24px;
-`;
-
-export const TreeContainerWithTopMargin = styled(TreeContainer)`
-    margin-top: 40px;
+    width: ${IO_NODE_DEFAULT_WIDTH}px;
 `;
 
 export const TreeHeader = styled.div((
