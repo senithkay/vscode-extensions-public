@@ -65,6 +65,7 @@ import OAuthForm from "../Pages/mediators/other/oauth"
 import BuilderForm from "../Pages/mediators/other/builder"
 import PublishEventForm from "../Pages/mediators/other/publishEvent"
 import EntitlementForm from "../Pages/mediators/other/entitlement"
+import RuleForm from "../Pages/mediators/other/rule"
 
 export interface GetMediatorsProps {
     nodePosition: any;
@@ -322,6 +323,11 @@ export function getAllMediators(props: GetMediatorsProps) {
                 title: "Entitlement Service",
                 operationName: MEDIATORS.ENTITLEMENT,
                 form: <EntitlementForm nodePosition={props.nodePosition} documentUri={props.documentUri}></EntitlementForm>,
+            },
+            {
+                title: "Rule",
+                operationName: MEDIATORS.RULE,
+                form: <RuleForm nodePosition={props.nodePosition} documentUri={props.documentUri}></RuleForm>,
             },
         ]
     };
