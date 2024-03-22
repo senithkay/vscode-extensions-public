@@ -19,6 +19,7 @@ import { activateAiPanel } from './ai-panel/activate';
 import { RPCLayer } from './RPCLayer';
 
 import { activateDebugger } from './debugger/activate';
+import { activateMigrationSupport } from './migration';
 
 export async function activate(context: vscode.ExtensionContext) {
 	extension.context = context;
@@ -26,7 +27,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	activateHistory();
 
 	activateDebugger(context);
-
+	activateMigrationSupport(context);
 	// activateActivityPanel(context);
 	// activateAiPrompt(context);
 	activateVisualizer(context);

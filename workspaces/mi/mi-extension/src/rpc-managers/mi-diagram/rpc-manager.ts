@@ -144,7 +144,7 @@ import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, getTemplateEndpointXmlWrapper } from "../../util";
 import { addNewEntryToArtifactXML, changeRootPomPackaging, detectMediaType, getMediatypeAndFileExtension, createMetadataFilesForRegistryCollection, getAvailableRegistryResources } from "../../util/fileOperations";
-import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
+import { importProject } from "../../util/migrationUtils";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
 import { rootPomXmlContent } from "../../util/templates";
@@ -2264,66 +2264,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async importProject(params: ImportProjectRequest): Promise<ImportProjectResponse> {
         return new Promise(async (resolve) => {
-            const { source, directory, open } = params;
-
-            const projectUuid = uuidv4();
-
-            let { projectName, groupId, artifactId } = getProjectDetails(source);
-
-            if (projectName && groupId && artifactId) {
-                const folderStructure: FileStructure = {
-                    [projectName]: {
-                        'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid),
-                        'src': {
-                            'main': {
-                                'wso2mi': {
-                                    'artifacts': {
-                                        'apis': '',
-                                        'endpoints': '',
-                                        'inbound-endpoints': '',
-                                        'local-entries': '',
-                                        'message-processors': '',
-                                        'message-stores': '',
-                                        'proxy-services': '',
-                                        'sequences': '',
-                                        'tasks': '',
-                                        'templates': '',
-                                        'data-services': '',
-                                        'data-sources': '',
-                                    },
-                                    'resources': {
-                                        'registry': {
-                                            'gov': '',
-                                            'conf': '',
-                                        },
-                                        'metadata': '',
-                                        'connectors': '',
-                                    },
-                                },
-                                'test': {
-                                    'wso2mi': '',
-                                }
-                            },
-                        },
-                    },
-                };
-
-                createFolderStructure(directory, folderStructure);
-                console.log("Created project structure for project: " + projectName)
-                migrateConfigs(source, path.join(directory, projectName));
-
-                window.showInformationMessage(`Successfully imported ${projectName} project`);
-
-                if (open) {
-                    commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, projectName)));
-                    resolve({ filePath: path.join(directory, projectName) });
-                }
-
-                resolve({ filePath: path.join(directory, projectName) });
-            } else {
-                window.showErrorMessage('Could not find the project details from the provided project: ', source);
-                resolve({ filePath: "" });
-            }
+            resolve(importProject(params));
         });
     }
 

@@ -7,9 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { FileStructure, ImportProjectRequest, ImportProjectResponse } from '@wso2-enterprise/mi-core';
 import * as fs from 'fs';
 import * as path from 'path';
 import { parseString } from 'xml2js';
+import { v4 as uuidv4 } from 'uuid';
+import { rootPomXmlContent } from './templates';
+import { createFolderStructure } from '.';
+import { commands, Uri, window } from 'vscode';
 
 enum Nature {
     MULTIMODULE,
@@ -18,6 +23,69 @@ enum Nature {
     DATASOURCE,
     CONNECTOR,
     REGISTRY,
+}
+
+export function importProject(params: ImportProjectRequest): ImportProjectResponse {
+    const { source, directory, open } = params;
+
+    const projectUuid = uuidv4();
+
+    let { projectName, groupId, artifactId } = getProjectDetails(source);
+
+    if (projectName && groupId && artifactId) {
+        const folderStructure: FileStructure = {
+            [projectName]: {
+                'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid),
+                'src': {
+                    'main': {
+                        'wso2mi': {
+                            'artifacts': {
+                                'apis': '',
+                                'endpoints': '',
+                                'inbound-endpoints': '',
+                                'local-entries': '',
+                                'message-processors': '',
+                                'message-stores': '',
+                                'proxy-services': '',
+                                'sequences': '',
+                                'tasks': '',
+                                'templates': '',
+                                'data-services': '',
+                                'data-sources': '',
+                            },
+                            'resources': {
+                                'registry': {
+                                    'gov': '',
+                                    'conf': '',
+                                },
+                                'metadata': '',
+                                'connectors': '',
+                            },
+                        },
+                        'test': {
+                            'wso2mi': '',
+                        }
+                    },
+                },
+            },
+        };
+
+        createFolderStructure(directory, folderStructure);
+        console.log("Created project structure for project: " + projectName)
+        migrateConfigs(source, path.join(directory, projectName));
+
+        window.showInformationMessage(`Successfully imported ${projectName} project`);
+
+        if (open) {
+            commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, projectName)));
+            return { filePath: path.join(directory, projectName) };
+        }
+
+        return { filePath: path.join(directory, projectName) };
+    } else {
+        window.showErrorMessage('Could not find the project details from the provided project: ', source);
+        return { filePath: "" };
+    }
 }
 
 export function getProjectDetails(filePath: string) {
