@@ -26,7 +26,6 @@
           ".xml"
         ]
       }
-      
     ],
     "grammars": [
       {
@@ -165,13 +164,13 @@
       {
         "command": "MI.project-explorer.open-service-designer",
         "title": "Open Service Designer",
-        "icon": "$(design-view)",
+        "icon": "$(distro-design-view)",
         "when": "false"
       },
       {
         "command": "MI.project-explorer.open-service-designer-beside",
         "title": "Open Service Designer",
-        "icon": "$(design-view)"
+        "icon": "$(distro-design-view)"
       },
       {
         "command": "MI.project-explorer.add-endpoint",
@@ -403,7 +402,7 @@
       ]
     },
     "icons": {
-      "design-view": {
+      "distro-design-view": {
         "description": "design-view",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",

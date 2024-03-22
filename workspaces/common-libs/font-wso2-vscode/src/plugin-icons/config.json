@@ -21,5 +21,12 @@
         ],
         "codiconFont": [
         ]
+    },
+    "mIExtIcons": {
+        "wso2Font" : [
+            "design-view.svg"
+        ],
+        "codiconFont": [
+        ]
     }
 }

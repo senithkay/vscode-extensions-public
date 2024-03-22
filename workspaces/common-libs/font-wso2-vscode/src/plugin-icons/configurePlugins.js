@@ -135,22 +135,29 @@ const copyDirectoryContent = (srcDir, destDir) => {
 // Generate icons contribution for Ballerina and Choreo extensions
 const ballerinaIcons = config.ballerinaExtIcons || [];
 const choreoIcons = config.choreoExtIcons || [];
+const mIIcons = config.mIExtIcons || [];
 
 const ballerinaIconsContribution = generateFontIconsContribution(ballerinaIcons);
 const choreoIconsContribution = generateFontIconsContribution(choreoIcons);
+const mIIconsContribution = generateFontIconsContribution(mIIcons);
 
 // Merge the generated icons contribution into the existing package.json contributes
 const choreoExtPackageJsonPath = path.join(__dirname, '..', '..', '..', '..', 'choreo', 'choreo-extension', 'package.json');
 const ballerinaExtPackageJsonPath = path.join(__dirname, '..', '..', '..', '..', 'ballerina', 'ballerina-extension', 'package.json');
+const mIExtPackageJsonPath = path.join(__dirname, '..', '..', '..', '..', 'mi', 'mi-extension', 'package.json');
 
 const choreoExtPackageJson = require(choreoExtPackageJsonPath);
 const ballerinaExtPackageJson = require(ballerinaExtPackageJsonPath);
+const mIExtPackageJson = require(mIExtPackageJsonPath);
 
 choreoExtPackageJson.contributes.icons = { ...choreoExtPackageJson.contributes.icons, ...choreoIconsContribution };
 ballerinaExtPackageJson.contributes.icons = { ...ballerinaExtPackageJson.contributes.icons, ...ballerinaIconsContribution };
+mIExtPackageJson.contributes.icons = { ...mIExtPackageJson.contributes.icons, ...mIIconsContribution };
 
 // Write the modified package.json files back to the file system
 fs.writeFileSync(choreoExtPackageJsonPath, JSON.stringify(choreoExtPackageJson, null, 2), 'utf-8');
 fs.appendFileSync(choreoExtPackageJsonPath, '\n');
 fs.writeFileSync(ballerinaExtPackageJsonPath, JSON.stringify(ballerinaExtPackageJson, null, 4), 'utf-8');
 fs.appendFileSync(ballerinaExtPackageJsonPath, '\n');
+fs.writeFileSync(mIExtPackageJsonPath, JSON.stringify(mIExtPackageJson, null, 2), 'utf-8');
+fs.appendFileSync(mIExtPackageJsonPath, '\n');
