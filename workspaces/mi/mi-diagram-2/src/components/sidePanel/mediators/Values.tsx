@@ -66,6 +66,7 @@ import BuilderForm from "../Pages/mediators/other/builder"
 import PublishEventForm from "../Pages/mediators/other/publishEvent"
 import EntitlementForm from "../Pages/mediators/other/entitlement"
 import RuleForm from "../Pages/mediators/other/rule"
+import NTLMForm from "../Pages/mediators/other/ntlm"
 
 export interface GetMediatorsProps {
     nodePosition: any;
@@ -328,6 +329,11 @@ export function getAllMediators(props: GetMediatorsProps) {
                 title: "Rule",
                 operationName: MEDIATORS.RULE,
                 form: <RuleForm nodePosition={props.nodePosition} documentUri={props.documentUri}></RuleForm>,
+            },
+            {
+                title: "NTLM",
+                operationName: MEDIATORS.NTLM,
+                form: <NTLMForm nodePosition={props.nodePosition} documentUri={props.documentUri}></NTLMForm>,
             },
         ]
     };

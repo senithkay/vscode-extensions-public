@@ -1712,5 +1712,14 @@ export enum SetRemove {
     remove,
 }
 
+export interface Ntlm extends STNode {
+    domain: string;
+    host: string;
+    username: string;
+    password: string;
+    ntlmVersion: string;
+    description: string;
+}
+
 export type DiagramService = APIResource | NamedSequence | Proxy;
 

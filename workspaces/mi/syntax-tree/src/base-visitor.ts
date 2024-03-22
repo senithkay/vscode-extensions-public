@@ -708,6 +708,9 @@ export interface Visitor {
     beginVisitRule?(node: Synapse.Rule): void;
     endVisitRule?(node: Synapse.Rule): void;
 
+    beginVisitNtlm?(node: Synapse.Ntlm): void;
+    endVisitNtlm?(node: Synapse.Ntlm): void;
+
     beginVisitEjbArgs?(node: Synapse.EjbArgs): void;
     endVisitEjbArgs?(node: Synapse.EjbArgs): void;
 
