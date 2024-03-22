@@ -57,7 +57,7 @@ export function ComponentListView(props: ComponentListViewProps) {
                 historyPush({ file: extractFilePath(projectComponents?.packages[0]?.filePath) })
             } else {
                 const selectedFile = fileList.find((file) => file.fileName === evt.target.value);
-                historyPush({ file: extractFilePath(selectedFile.uri.path) })
+                historyPush({ file: extractFilePath(selectedFile.uri.fsPath) })
             }
         };
 

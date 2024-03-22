@@ -42,7 +42,7 @@ export function NavigationBar(props: NavigationBarProps) {
     const { history, historySelect, historyPush, historyClearAndPopulateWith } = useHistoryContext();
     const currentHistoryEntry = history.length > 0 ? history[history.length - 1] : undefined;
     const currentProject = projectList && projectList.length > 0
-        && projectList.find(project => currentHistoryEntry?.file.includes(extractFilePath(project.uri.path))) || undefined;
+        && projectList.find(project => currentHistoryEntry?.file.includes(extractFilePath(project.uri.fsPath))) || undefined;
 
     const [isProjectSelectorOpen, setIsProjectSelectorOpen] = React.useState(false);
     const popoverRef = React.useRef<HTMLDivElement>(null);
@@ -53,8 +53,8 @@ export function NavigationBar(props: NavigationBarProps) {
         && history[history.length - 1].fromDataMapper
 
     const handleProjectChange = (selectedProject: WorkspaceFolder) => {
-        if (currentProject && isPathEqual(selectedProject.uri.path, currentProject.uri.path)) return;
-        historyPush({ file: extractFilePath(selectedProject.uri.path) });
+        if (currentProject && isPathEqual(selectedProject.uri.fsPath, currentProject.uri.fsPath)) return;
+        historyPush({ file: extractFilePath(selectedProject.uri.fsPath) });
     }
 
     const renderProjectSelectorComponent = () => {
