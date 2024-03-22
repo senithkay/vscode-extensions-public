@@ -13,18 +13,24 @@ import React from 'react';
 import { ActionButtons } from '../ActionButtons/ActionButtons';
 import { EditorContainer, EditorContent } from './styles';
 import { Param, TypeResolver } from './TypeResolver';
-import { Parameters, isFieldEnabled } from './ParamManager';
+import { ParamField, Parameters, isFieldEnabled } from './ParamManager';
 
 export interface ParamProps {
     parameters: Parameters;
+    paramFields: ParamField[];
     isTypeReadOnly?: boolean;
     onChange: (param: Parameters) => void;
     onSave?: (param: Parameters) => void;
     onCancel?: (param?: Parameters) => void;
 }
 
+const getParamFieldLabelFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.label;
+}
+
 export function ParamEditor(props: ParamProps) {
-    const { parameters, onChange, onSave, onCancel } = props;
+    const { parameters, paramFields, onChange, onSave, onCancel } = props;
 
     const getParamComponent = (p: Param) => {
         const handleTypeResolverChange = (newParam: Param) => {
@@ -60,7 +66,7 @@ export function ParamEditor(props: ParamProps) {
     return (
         <EditorContainer>
             <EditorContent>
-                {parameters?.parameters.map(param => getParamComponent(param))}
+                {parameters?.parameters.map(param => getParamComponent({ ...param, label: getParamFieldLabelFromParamId(paramFields, param.id) }))}
             </EditorContent>
             <ActionButtons
                 primaryButton={{ text: "Save", onClick: handleOnSave }}

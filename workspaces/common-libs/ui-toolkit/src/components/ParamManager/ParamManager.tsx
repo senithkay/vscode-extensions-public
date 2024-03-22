@@ -15,15 +15,17 @@ import { ParamItem } from './ParamItem';
 import { LinkButton } from '../LinkButton/LinkButton';
 import { Codicon } from '../Codicon/Codicon';
 import { Param } from './TypeResolver';
-import { IconTextWrapper, itemTitle } from './styles';
 
 export interface Parameters {
     id: number;
     parameters: Param[];
+    key: string;
+    value: string;
+    icon?: string | React.ReactElement; // Icon for the parameter. Icon name or React element should be passed
 }
 
 export interface ConditionParams {
-    [key: string]: string;
+    [key: number]: string;
 }
 
 export interface EnableCondition {
@@ -47,7 +49,6 @@ export interface ParamConfig {
 
 export interface ParamManagerProps {
     paramConfigs: ParamConfig;
-    enableParamTitle?: boolean;
     onChange?: (parameters: ParamConfig) => void,
     readonly?: boolean;
 }
@@ -81,7 +82,6 @@ export function convertToObject(input: (ConditionParams | string)[]): EnableCond
     if (currentValues.length > 0) {
         result[currentKey!] = currentValues;
     }
-    console.log(result);
     return result;
 }
 
@@ -90,8 +90,8 @@ export function isFieldEnabled(params: Param[], enableCondition?: EnableConditio
     let paramEnabled = false;
     enableCondition["OR"]?.forEach(item => {
         params.forEach(par => {
-            if (item[`${par.label}`]) {
-                const satisfiedConditionValue = item[`${par.label}`];
+            if (item[par.id]) {
+                const satisfiedConditionValue = item[par.id];
                 // if one of the condition is satisfied, then the param is enabled
                 if (par.value === satisfiedConditionValue) {
                     paramEnabled = true;
@@ -102,8 +102,8 @@ export function isFieldEnabled(params: Param[], enableCondition?: EnableConditio
     enableCondition["AND"]?.forEach(item => {
         paramEnabled = !paramEnabled ? false : paramEnabled; 
         for (const par of params) {
-            if (item[`${par.label}`]) {
-                const satisfiedConditionValue = item[`${par.label}`];
+            if (item[par.id]) {
+                const satisfiedConditionValue = item[par.id];
                 // if all of the condition is not satisfied, then the param is enabled
                 paramEnabled = (par.value === satisfiedConditionValue);
                 if (!paramEnabled) {
@@ -114,8 +114,8 @@ export function isFieldEnabled(params: Param[], enableCondition?: EnableConditio
     });
     enableCondition["NOT"]?.forEach(item => {
         for (const par of params) {
-            if (item[`${par.label}`]) {
-                const satisfiedConditionValue = item[`${par.label}`];
+            if (item[par.id]) {
+                const satisfiedConditionValue = item[par.id];
                 // if the condition is not satisfied, then the param is enabled
                 paramEnabled = !(par.value === satisfiedConditionValue);
                 if (!paramEnabled) {
@@ -126,8 +126,8 @@ export function isFieldEnabled(params: Param[], enableCondition?: EnableConditio
     });
     enableCondition["null"]?.forEach(item => {
         params.forEach(par => {
-            if (item[`${par.label}`]) {
-                const satisfiedConditionValue = item[`${par.label}`];
+            if (item[par.id]) {
+                const satisfiedConditionValue = item[par.id];
                 // if the condition is not satisfied, then the param is enabled
                 paramEnabled = (par.value === satisfiedConditionValue);
             }
@@ -159,24 +159,18 @@ const getNewParam = (fields: ParamField[], index: number): Parameters => {
     });
     return {
         id: index,
-        parameters: modifiedParamInfo
+        parameters: modifiedParamInfo,
+        key: "",
+        value: ""
     };
 };
-
-const getParamLabel = (p: ParamField) => {
-    return (
-        <div data-test-id={`${p.label}-label`} className={itemTitle}>
-            {p.label}
-        </div>
-    )
-}
 
 export function findFieldFromParam(field: ParamField[], value: Param): ParamField {
     return field?.find(item => item.label === value?.label) || null;
 }
 
 export function ParamManager(props: ParamManagerProps) {
-    const { paramConfigs , readonly, enableParamTitle = false, onChange } = props;
+    const { paramConfigs , readonly, onChange } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
 
@@ -236,6 +230,7 @@ export function ParamManager(props: ParamManagerProps) {
                 paramComponents.push(
                     <ParamEditor
                         parameters={param}
+                        paramFields={paramConfigs.paramFields}
                         isTypeReadOnly={false}
                         onSave={onSaveParam}
                         onChange={onChangeParam}
@@ -256,11 +251,6 @@ export function ParamManager(props: ParamManagerProps) {
 
     return (
         <div>
-            {(paramComponents.length > 0) && enableParamTitle && (
-                <IconTextWrapper>
-                    {paramConfigs.paramFields.map(param => getParamLabel(param))}
-                </IconTextWrapper>
-            )}
             {paramComponents}
             {(editingSegmentId === -1) && (
                 <AddButtonWrapper>

@@ -77,7 +77,7 @@ const LogForm = (props: AddMediatorProps) => {
             isRequired: false,
             enableCondition: [
                 {
-                    "Property Value Type": "LITERAL"
+                    1: "LITERAL"
                 }
             ]
         },
@@ -89,7 +89,7 @@ const LogForm = (props: AddMediatorProps) => {
             isRequired: false,
             enableCondition: [
                 {
-                    "Property Value Type": "EXPRESSION"
+                    1: "EXPRESSION"
                 }
             ]
         },]

@@ -75,7 +75,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                 label: "Variable Literal",
                 defaultValue: "",
                 isRequired: false,
-                enableCondition: [{ "Variable Option": "LITERAL" }]
+                enableCondition: [{ 2: "LITERAL" }]
             },
             {
                 id: 4,
@@ -83,7 +83,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                 label: "Variable Expression",
                 defaultValue: "",
                 isRequired: false,
-                enableCondition: [{ "Variable Option": "EXPRESSION" }]
+                enableCondition: [{ 2: "EXPRESSION" }]
             },
             {
                 id: 5,

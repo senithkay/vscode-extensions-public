@@ -67,7 +67,7 @@ const ClassForm = (props: AddMediatorProps) => {
                 label: "Property Value",
                 defaultValue: "",
                 isRequired: false,
-                enableCondition: [{ "Property Value Type": "LITERAL" }]
+                enableCondition: [{ 1: "LITERAL" }]
             },
             {
                 id: 3,
@@ -75,7 +75,7 @@ const ClassForm = (props: AddMediatorProps) => {
                 label: "Property Expression",
                 defaultValue: "",
                 isRequired: false,
-                enableCondition: [{ "Property Value Type": "EXPRESSION" }]
+                enableCondition: [{ 1: "EXPRESSION" }]
             },]
     };
 
