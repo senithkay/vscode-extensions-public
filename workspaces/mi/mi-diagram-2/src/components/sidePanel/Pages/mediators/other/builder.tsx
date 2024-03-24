@@ -38,6 +38,11 @@ const Field = styled.div`
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
+const generateDisplayValue = (paramValues: any) => {
+    const result: string = paramValues.parameters[1].value + " " + paramValues.parameters[2].value;
+    return result.trim();
+};
+
 const BuilderForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -72,7 +77,15 @@ const BuilderForm = (props: AddMediatorProps) => {
 
     const [params, setParams] = useState(paramConfigs);
     const handleOnChange = (params: any) => {
-        setParams(params);
+        const modifiedParams = { ...params, paramValues: params.paramValues.map((param: any) => {
+            return {
+                ...param,
+                key: param.parameters[0].value,
+                value: generateDisplayValue(param),
+                icon: "query"
+            }
+        })};
+        setParams(modifiedParams);
     };
 
     useEffect(() => {
@@ -104,7 +117,10 @@ const BuilderForm = (props: AddMediatorProps) => {
                                 value: property[2],
                                 isRequired: false
                             }
-                        ]
+                        ],
+                        key: property[0],
+                        value: property[1] + " " + property[2],
+                        icon: "query"
                     })
                 )
                 setParams({ ...params, paramValues: paramValues });

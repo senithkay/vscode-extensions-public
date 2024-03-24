@@ -66,6 +66,11 @@ namespace Section {
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
+const generateDisplayValue = (paramValues: any) => {
+    const result: string = paramValues.parameters[2].value === "LITERAL" ? paramValues.parameters[3].value : paramValues.parameters[4].value;
+    return result.trim();
+};
+
 const HTTPEndpointForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -160,13 +165,29 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
     const [propertyParams, setPropertyParams] = useState(propertyParamConfigs);
 
     const handleOnChangeProperties = (params: any) => {
-        setPropertyParams(params);
+        const modifiedParams = { ...params, paramValues: params.paramValues.map((param: any) => {
+            return {
+                ...param,
+                key: param.parameters[0].value,
+                value: generateDisplayValue(param),
+                icon: "query"
+            }
+        })};
+        setPropertyParams(modifiedParams);
     };
 
     const [oauthParams, setOauthParams] = useState(oauthParamConfigs);
 
     const handleOnChangeOauth = (params: any) => {
-        setOauthParams(params);
+        const modifiedParams = { ...params, paramValues: params.paramValues.map((param: any) => {
+            return {
+                ...param,
+                key: param.parameters[0].value,
+                value: param.parameters[1].value,
+                icon: "query"
+            }
+        })};
+        setOauthParams(modifiedParams);
     };
 
     useEffect(() => {
@@ -214,7 +235,10 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                                 value: property[4],
                                 isRequired: false
                             }
-                        ]
+                        ],
+                        key: property[0],
+                        value: property[2] === "LITERAL" ? property[3] : property[4],
+                        icon: "query"
                     })
                 )
                 setPropertyParams({ ...propertyParams, paramValues: paramValues });
@@ -253,7 +277,10 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                                 value: property[3],
                                 isRequired: false
                             }
-                        ]
+                        ],
+                        key: property[0],
+                        value: property[1],
+                        icon: "query"
                     })
                 )
                 setOauthParams({ ...oauthParams, paramValues: paramValues });

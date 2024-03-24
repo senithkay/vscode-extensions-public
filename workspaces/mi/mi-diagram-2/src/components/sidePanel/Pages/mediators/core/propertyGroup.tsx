@@ -45,6 +45,11 @@ const propertyNames = ["New Property...", "Action", "COPY_CONTENT_LENGTH_FROM_IN
     "preserveProcessedHeaders", "PRESERVE_WS_ADDRESSING", "REQUEST_HOST_HEADER", "RESPONSE", "REST_URL_POSTFIX", "RelatesTo",
     "ReplyTo", "SERVER_IP", "SYSTEM_DATE", "SYSTEM_TIME", "TRANSPORT_HEADERS", "TRANSPORT_IN_NAME", "To", "transportNonBlocking"];
 
+const generateDisplayValue = (paramValues: any) => {
+    const result: string = paramValues.parameters[2].value + " " + paramValues.parameters[3].value + " " + paramValues.parameters[4].value;
+    return result.trim();
+};
+
 const PropertyGroupForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -142,7 +147,15 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
     const [params, setParams] = useState(paramConfigs);
 
     const handleOnChange = (params: any) => {
-        setParams(params);
+        const modifiedParams = { ...params, paramValues: params.paramValues.map((param: any) => {
+            return {
+                ...param,
+                key: param.parameters[0].value,
+                value: generateDisplayValue(param),
+                icon: "query"
+            }
+        })};
+        setParams(modifiedParams);
     };
 
     useEffect(() => {
@@ -235,7 +248,10 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                                 value: property[10],
                                 isRequired: false
                             }
-                        ]
+                        ],
+                        key: property[0],
+                        value: property[2] + " " + property[3] + " " + property[4],
+                        icon: "query"
                     })
                 )
                 setParams({ ...params, paramValues: paramValues });
