@@ -63,7 +63,7 @@ export function TextField(props: TextFieldProps) {
         onBlur, placeholder, validationMessage, errorMsg, sx, InputProps
     } = props;
 
-    const [_ , setIsFocused] = React.useState(false);
+    const [, setIsFocused] = React.useState(false);
     const textFieldRef = useRef<HTMLInputElement>(null);
 
     const { iconComponent, position = "start", onClick: iconClick } = icon || {};
@@ -92,7 +92,7 @@ export function TextField(props: TextFieldProps) {
             setIsFocused(true);
             textFieldRef.current?.focus()
         }
-    }, []);
+    }, [autoFocus, value]);
 
     return (
         <Container sx={sx}>
