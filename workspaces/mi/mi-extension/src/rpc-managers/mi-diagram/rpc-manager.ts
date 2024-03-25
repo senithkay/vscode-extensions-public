@@ -85,6 +85,8 @@ import {
     ImportProjectResponse,
     MACHINE_VIEW,
     MiDiagramAPI,
+    MigrateProjectRequest,
+    MigrateProjectResponse,
     OpenDiagramRequest,
     ProjectDirResponse,
     ProjectRootResponse,
@@ -2664,6 +2666,30 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<ListRegistryArtifactsResponse> {
         return new Promise(async (resolve) => {
             resolve(getAvailableRegistryResources(params.path));
+        });
+    }
+
+    async migrateProject({ source }: MigrateProjectRequest): Promise<MigrateProjectResponse> {
+        return new Promise(async (resolve) => {
+            if (source) {
+                const sourcePathComponents = source.split(path.sep);
+                const projectName = sourcePathComponents.pop();
+                const migratedProjectName = `${projectName}-migrated`;
+                let target = [...sourcePathComponents, migratedProjectName].join(path.sep);
+                // check if the file exists
+                let i = 0;
+                while (true) {
+                    if (fs.existsSync(target)) {
+                        // update file name if exists
+                        i++;
+                        target = [...sourcePathComponents, `${migratedProjectName}-${i}`].join(path.sep);
+                    } else {
+                        importProject({ source, directory: target, open: true });
+                        break;
+                    }
+                }
+                resolve({ filePath: target });
+            }
         });
     }
 }
