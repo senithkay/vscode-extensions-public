@@ -38,6 +38,11 @@ const Field = styled.div`
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
+const generateDisplayValue = (paramValues: any) => {
+    const result: string = paramValues.parameters[2].value + " " + paramValues.parameters[3].value + " " + paramValues.parameters[4].value;
+    return result.trim();
+};
+
 const RuleForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -170,7 +175,17 @@ const RuleForm = (props: AddMediatorProps) => {
     const [outputResultParams, setOutputResultParams] = useState(outputResultConfigs);
 
     const handleOnChange = (params: any, setFunc: Function) => {
-        setFunc(params);
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: param.parameters[0].value,
+                    value: generateDisplayValue(param),
+                    icon: "query"
+                }
+            })
+        };
+        setFunc(modifiedParams);
     };
 
     useEffect(() => {
@@ -230,7 +245,10 @@ const RuleForm = (props: AddMediatorProps) => {
                                 value: property[6],
                                 isRequired: true
                             },
-                        ]
+                        ],
+                        key: property[2],
+                        value: property[3] + " " + property[4] ?? property[5],
+                        icon: "query"
                     })
                 )
                 setInputFactParams({ ...inputFactParams, paramValues: paramValues });
@@ -289,7 +307,10 @@ const RuleForm = (props: AddMediatorProps) => {
                                 value: property[6],
                                 isRequired: true
                             },
-                        ]
+                        ],
+                        key: property[0],
+                        value: property[2] + " " + property[3] + " " + property[4],
+                        icon: "query"
                     })
                 )
                 setOutputResultParams({ ...outputResultParams, paramValues: paramValues });
