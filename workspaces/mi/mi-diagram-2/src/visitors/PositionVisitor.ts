@@ -132,7 +132,15 @@ export class PositionVisitor implements Visitor {
     beginVisitLoopback = (node: Loopback): void => this.setBasicMediatorPosition(node);
     beginVisitPayloadFactory = (node: PayloadFactory): void => this.setBasicMediatorPosition(node);
     beginVisitProperty = (node: Property): void => this.setBasicMediatorPosition(node);
-    beginVisitPropertyGroup = (node: PropertyGroup): void => this.setBasicMediatorPosition(node);
+
+    beginVisitPropertyGroup = (node: PropertyGroup): void => {
+        this.setBasicMediatorPosition(node);
+        this.skipChildrenVisit = true;
+    }
+    endVisitPropertyGroup = (node: PropertyGroup): void => {
+        this.skipChildrenVisit = false;
+    }
+
     beginVisitRespond = (node: Respond): void => this.setBasicMediatorPosition(node);
 
     beginVisitResource = (node: Resource): void => {

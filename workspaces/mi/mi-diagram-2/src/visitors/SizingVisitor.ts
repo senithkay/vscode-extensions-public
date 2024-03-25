@@ -183,7 +183,15 @@ export class SizingVisitor implements Visitor {
     endVisitLoopback = (node: Loopback): void => this.calculateBasicMediator(node);
     endVisitPayloadFactory = (node: PayloadFactory): void => this.calculateBasicMediator(node);
     endVisitProperty = (node: Property): void => this.calculateBasicMediator(node);
-    endVisitPropertyGroup = (node: PropertyGroup): void => this.calculateBasicMediator(node);
+
+    beginVisitPropertyGroup = (node: PropertyGroup): void => {
+        this.skipChildrenVisit = true;
+    }
+    endVisitPropertyGroup = (node: PropertyGroup): void => {
+        this.calculateBasicMediator(node);
+        this.skipChildrenVisit = false;
+    }
+
     endVisitRespond = (node: Respond): void => this.calculateBasicMediator(node);
 
     endVisitResource = (node: Resource): void => {
