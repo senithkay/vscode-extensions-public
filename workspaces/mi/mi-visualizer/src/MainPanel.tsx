@@ -33,6 +33,7 @@ import { ProxyView, ResourceView, SequenceView } from './views/Diagram';
 import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
+import { OldProjectOverview } from './views/OldProjectOverview';
 
 const MainContainer = styled.div`
     display: flex;
@@ -123,6 +124,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.Overview:
                     setViewComponent(<Overview stateUpdated />);
+                    break;
+                case MACHINE_VIEW.OldProjectOverview:
+                    setViewComponent(<OldProjectOverview />);
                     break;
                 case MACHINE_VIEW.ResourceView:
                     setViewComponent(

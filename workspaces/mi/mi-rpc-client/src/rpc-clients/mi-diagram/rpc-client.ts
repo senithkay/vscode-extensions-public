@@ -81,6 +81,8 @@ import {
     ImportProjectRequest,
     ImportProjectResponse,
     MiDiagramAPI,
+    MigrateProjectRequest,
+    MigrateProjectResponse,
     OpenDiagramRequest,
     ProjectDirResponse,
     ProjectRootResponse,
@@ -173,6 +175,7 @@ import {
     highlightCode,
     importProject,
     initUndoRedoManager,
+    migrateProject,
     openDiagram,
     openFile,
     redo,
@@ -435,6 +438,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     importProject(params: ImportProjectRequest): Promise<ImportProjectResponse> {
         return this._messenger.sendRequest(importProject, HOST_EXTENSION, params);
+    }
+
+    migrateProject(params: MigrateProjectRequest): Promise<MigrateProjectResponse> {
+        return this._messenger.sendRequest(migrateProject, HOST_EXTENSION, params);
     }
 
     getAIResponse(params: AIUserInput): Promise<string> {

@@ -41,6 +41,7 @@ import {
     GetTextAtRangeRequest,
     HighlightCodeRequest,
     ImportProjectRequest,
+    MigrateProjectRequest,
     OpenDiagramRequest,
     RetrieveAddressEndpointRequest,
     RetrieveDefaultEndpointRequest,
@@ -115,6 +116,7 @@ import {
     highlightCode,
     importProject,
     initUndoRedoManager,
+    migrateProject,
     openDiagram,
     openFile,
     redo,
@@ -201,6 +203,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(askFileDirPath, () => rpcManger.askFileDirPath());
     messenger.onRequest(createProject, (args: CreateProjectRequest) => rpcManger.createProject(args));
     messenger.onRequest(importProject, (args: ImportProjectRequest) => rpcManger.importProject(args));
+    messenger.onRequest(migrateProject, (args: MigrateProjectRequest) => rpcManger.migrateProject(args));
     messenger.onRequest(getAIResponse, (args: AIUserInput) => rpcManger.getAIResponse(args));
     messenger.onRequest(writeContentToFile, (args: WriteContentToFileRequest) => rpcManger.writeContentToFile(args));
     messenger.onNotification(highlightCode, (args: HighlightCodeRequest) => rpcManger.highlightCode(args));

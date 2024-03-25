@@ -3,6 +3,7 @@ export const MI_COPILOT_BACKEND_URL = "https://cf3a4176-54c9-4547-bcd6-c6fe400ad
 
 export const COMMANDS = {
     OPEN_PROJECT: "MI.openProject",
+    MIGRATE_PROJECT: "MI.migrateProject",
     OPEN_AI_PANEL: "MI.openAiPanel",
     CLEAR_AI_PROMPT: "MI.clearAIPrompt",
     OPEN_WELCOME: "MI.openWelcome",

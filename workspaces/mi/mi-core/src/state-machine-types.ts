@@ -15,6 +15,7 @@ import { NotificationType, RequestType } from "vscode-messenger-common";
 export enum MACHINE_VIEW {
     Welcome = "Welcome to MI",
     Overview = "MI Overview",
+    OldProjectOverview = "Old Project Overview",
     Diagram = "MI Diagram",
     ResourceView = "Resource View",
     SequenceView = "Sequence View",
@@ -51,7 +52,7 @@ export enum AI_MACHINE_VIEW {
 }
 
 export type MachineStateValue =
-    | 'initialize' | 'projectDetected' | 'LSInit' | 'ready' | 'disabled'
+    | 'initialize' | 'projectDetected' | 'oldProjectDetected' | 'LSInit' | 'ready' | 'disabled'
     | { ready: 'viewReady' } | { ready: 'viewEditing' }
     | { newProject: 'viewReady' };
 

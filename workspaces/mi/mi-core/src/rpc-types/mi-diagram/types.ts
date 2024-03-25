@@ -329,6 +329,10 @@ export interface ImportProjectRequest {
     open: boolean;
 }
 
+export interface MigrateProjectRequest {
+    source: string;
+}
+
 export interface Connector {
     path: string;
     name: string;
@@ -879,6 +883,10 @@ export interface CreateProjectResponse {
 }
 
 export interface ImportProjectResponse {
+    filePath: string;
+}
+
+export interface MigrateProjectResponse {
     filePath: string;
 }
 
