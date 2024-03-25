@@ -66,6 +66,7 @@ import { getFaultFormDataFromSTNode, getFaultMustacheTemplate, getFaultXml } fro
 import { getJsonTransformFormDataFromSTNode, getJsonTransformMustacheTemplate, getJsonTransformXml } from "./transformation/jsonTransform";
 import { getSmooksFormDataFromSTNode, getSmooksMustacheTemplate, getSmooksXml } from "./transformation/smooks";
 import { getXqueryFormDataFromSTNode, getXqueryMustacheTemplate, getXqueryXml } from "./transformation/xquery";
+import { getXsltFormDataFromSTNode, getXsltMustacheTemplate, getXsltXml } from "./transformation/xslt";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -144,6 +145,8 @@ export function getMustacheTemplate(name: string) {
             return getSmooksMustacheTemplate();
         case MEDIATORS.XQUERY:
             return getXqueryMustacheTemplate();
+        case MEDIATORS.XSLT:
+            return getXsltMustacheTemplate();
         //Extension Mediators
         case MEDIATORS.BEAN:
             return getBeanMustacheTemplate()
@@ -260,6 +263,8 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getSmooksXml(data);
         case MEDIATORS.XQUERY:
             return getXqueryXml(data);
+        case MEDIATORS.XSLT:
+            return getXsltXml(data);
         //Extension Mediators    
         case MEDIATORS.BEAN:
             return getBeanXml(data);
@@ -371,6 +376,8 @@ export function getDataFromXML(name: string, node: STNode) {
             return getSmooksFormDataFromSTNode(formData, node as Smooks);
         case MEDIATORS.XQUERY:
             return getXqueryFormDataFromSTNode(formData, node as Xquery);
+        case MEDIATORS.XSLT:
+            return getXsltFormDataFromSTNode(formData, node as Xslt);
         //Extension Mediators
         case MEDIATORS.CLASS:
             return getClassFormDataFromSTNode(formData, node as Class);
