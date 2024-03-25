@@ -9,30 +9,15 @@
 
 import * as vscode from 'vscode';
 import { COMMANDS } from '../constants';
-import * as fs from 'fs';
-import * as path from 'path';
 import { importProject } from '../util/migrationUtils';
 
 export function activateMigrationSupport(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(COMMANDS.MIGRATE_PROJECT, async () => {
         const source = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
-        if (source) {
-            const sourcePathComponents = source.split(path.sep);
-            const projectName = sourcePathComponents.pop();
-            const migratedProjectName = `${projectName}-migrated`;
-            let target = [...sourcePathComponents, migratedProjectName].join(path.sep);
-            // check if the file exists
-            let i = 0;
-            while (true) {
-                if (fs.existsSync(target)) {
-                    // update file name if exists
-                    i++;
-                    target = [...sourcePathComponents, `${migratedProjectName}-${i}`].join(path.sep);
-                } else {
-                    importProject({ source, directory: target, open: true });
-                    break;
-                }
-            }
+        const targetUri = await vscode.window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Select Destination' });
+        const target = targetUri?.[0]?.fsPath;
+        if (source && target) {
+            importProject({ source, directory: target, open: true });
         }
     });
 }
