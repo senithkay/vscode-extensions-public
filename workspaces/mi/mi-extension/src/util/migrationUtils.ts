@@ -174,7 +174,7 @@ function copyConfigsToNewProjectStructure(nature: Nature, source: string, target
         case Nature.ESB:
             processArtifactsFolder(source, target);
             processMetaDataFolder(source, target);
-            processTestsFolder(source, target)
+            // processTestsFolder(source, target)
             break;
         case Nature.DATASOURCE:
             processDataSourcesFolder(source, target);
