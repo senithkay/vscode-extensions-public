@@ -1021,8 +1021,38 @@ export interface RegistryArtifact {
     path: string;
     isCollection: boolean;
 }
-
 export interface RangeFormatRequest {
     uri: string;
     range: Range
+}
+
+export interface CreateDataSourceResponse {
+    path: string;
+}
+
+export interface GetDataSourceRequest {
+    path: string;
+}
+
+export interface DataSourceTemplate {
+    name: string;
+    projectDirectory: string;
+    description?: string;
+    jndiConfig?: JNDIDatasource;
+    driverClassName?: string;
+    url?: string;
+    type: string;
+    username?: string;
+    password?: string;
+    dataSourceConfigParameters?: { [key: string]: string | number | boolean };
+    dataSourceProperties?: { [key: string]: string | number | boolean };
+    externalDSClassName?: string;
+    customDSType?: string;
+    customDSConfiguration?: string;
+}
+
+export interface JNDIDatasource {
+    useDataSourceFactory: boolean;
+    properties?: { [key: string]: string | number | boolean };
+    JNDIConfigName: string;
 }

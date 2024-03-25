@@ -55,11 +55,12 @@ const AccordionContent = styled.div`
 export interface AccordionProps {
     children?: React.ReactNode;
     header: string;
+    isExpanded?: boolean;
 }
 
-const Accordion = (params: AccordionProps) => {
+export const Accordion = (params: AccordionProps) => {
     const expandable = true;
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(params.isExpanded || false);
 
     const toggleAccordion = () => {
         setIsOpen(!isOpen);
@@ -98,4 +99,3 @@ const Accordion = (params: AccordionProps) => {
     );
 };
 
-export default Accordion;

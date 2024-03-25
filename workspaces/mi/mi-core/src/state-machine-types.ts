@@ -50,6 +50,7 @@ export enum MACHINE_VIEW {
     RegistryResourceForm = "Registry Resource Creation Form",
     MessageStoreForm = "Message Store Form",
     ClassMediatorForm = "ClassMediator Creation Form",
+    DataSourceForm = "Data Source Creation Form",
 }
 
 export enum AI_MACHINE_VIEW {
