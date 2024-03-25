@@ -4,22 +4,22 @@ import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 
 export class StdioConnection {
     private _connection: ProtocolConnection;
-    private _lsProcess: ChildProcessWithoutNullStreams;
+    private _serverProcess: ChildProcessWithoutNullStreams;
     constructor(private executable_path: string | undefined) {
         console.log("Starting RPC server, path:", this.executable_path);
-        this._lsProcess = spawn(`./${this.executable_path}` || "choreo", ['start-rpc-server']);
+        this._serverProcess = spawn(`${this.executable_path}` || "choreo", ['start-rpc-server']);
         this._connection = createProtocolConnection(
-            new StreamMessageReader(this._lsProcess.stdout),
-            new StreamMessageWriter(this._lsProcess.stdin),
+            new StreamMessageReader(this._serverProcess.stdout),
+            new StreamMessageWriter(this._serverProcess.stdin),
             new RPCServerLogger());
     }
 
     stop(): Promise<void> {
         return new Promise<void>((resolve) => {
-            this._lsProcess.on("exit", () => {
+            this._serverProcess.on("exit", () => {
                 resolve();
             });
-            this._lsProcess.kill();
+            this._serverProcess.kill();
         });
     }
 
@@ -28,7 +28,7 @@ export class StdioConnection {
     }
 
     getChildProcess(): ChildProcessWithoutNullStreams {
-        return this._lsProcess;
+        return this._serverProcess;
     }
 }
 
