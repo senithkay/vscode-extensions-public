@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STNode, Visitor, Log, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Aggregate, Iterate, Switch, Foreach, Resource, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Datamapper, Enrich, FastXSLT, Makefault, Jsontransform } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { STNode, Visitor, Log, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Aggregate, Iterate, Switch, Foreach, Resource, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Datamapper, Enrich, FastXSLT, Makefault, Jsontransform, Smooks } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 
 export class PositionVisitor implements Visitor {
@@ -258,4 +258,5 @@ export class PositionVisitor implements Visitor {
     beginVisitFastXSLT = (node: FastXSLT): void => this.setBasicMediatorPosition(node);
     beginVisitMakefault = (node: Makefault): void => this.setBasicMediatorPosition(node);
     beginVisitJsontransform = (node: Jsontransform): void => this.setBasicMediatorPosition(node);
+    beginVisitSmooks = (node: Smooks): void => this.setBasicMediatorPosition(node);
 }

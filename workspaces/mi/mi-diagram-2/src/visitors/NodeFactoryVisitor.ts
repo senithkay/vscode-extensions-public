@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Visitor, STNode, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, Iterate, Resource, Switch, Foreach, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Datamapper, Enrich, FastXSLT, Makefault, Jsontransform } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Visitor, STNode, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, Iterate, Resource, Switch, Foreach, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Datamapper, Enrich, FastXSLT, Makefault, Jsontransform, Smooks } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 import { GroupNodeModel } from "../components/nodes/GroupNode/GroupNodeModel";
@@ -690,6 +690,16 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitJsontransform(node: Jsontransform): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+
+    beginVisitSmooks(node: Smooks): void {
+        this.createNodeAndLinks(node, MEDIATORS.SMOOKS);
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitSmooks(node: Smooks): void {
         this.parents.pop();
         this.skipChildrenVisit = false;
     }

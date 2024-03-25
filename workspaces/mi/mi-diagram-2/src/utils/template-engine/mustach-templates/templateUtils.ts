@@ -9,7 +9,7 @@
 
 import Mustache from "mustache";
 import { getCallFormDataFromSTNode, getCallMustacheTemplate, getCallXml } from "./core/call";
-import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache, Send, Aggregate, Iterate, Filter, NamedEndpoint, Foreach, Bam, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Enrich, FastXSLT, Makefault } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache, Send, Aggregate, Iterate, Filter, NamedEndpoint, Foreach, Bam, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Enrich, FastXSLT, Makefault, Smooks } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogMustacheTemplate, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutMustacheTemplate, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode, getHeaderMustacheTemplate } from "./core/header";
@@ -64,6 +64,7 @@ import { getEnrichFormDataFromSTNode, getEnrichMustacheTemplate, getEnrichXml } 
 import { getFastXSLTFormDataFromSTNode, getFastXSLTMustacheTemplate, getFastXSLTXml } from "./transformation/fastXSLT";
 import { getFaultFormDataFromSTNode, getFaultMustacheTemplate, getFaultXml } from "./transformation/fault";
 import { getJsonTransformFormDataFromSTNode, getJsonTransformMustacheTemplate, getJsonTransformXml } from "./transformation/jsonTransform";
+import { getSmooksFormDataFromSTNode, getSmooksMustacheTemplate, getSmooksXml } from "./transformation/smooks";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -138,6 +139,8 @@ export function getMustacheTemplate(name: string) {
             return getFaultMustacheTemplate();
         case MEDIATORS.JSONTRANSFORM:
             return getJsonTransformMustacheTemplate();
+        case MEDIATORS.SMOOKS:
+            return getSmooksMustacheTemplate();
         //Extension Mediators
         case MEDIATORS.BEAN:
             return getBeanMustacheTemplate()
@@ -250,6 +253,8 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getFaultXml(data);
         case MEDIATORS.JSONTRANSFORM:
             return getJsonTransformXml(data);
+        case MEDIATORS.SMOOKS:
+            return getSmooksXml(data);
         //Extension Mediators    
         case MEDIATORS.BEAN:
             return getBeanXml(data);
@@ -357,6 +362,8 @@ export function getDataFromXML(name: string, node: STNode) {
             return getFaultFormDataFromSTNode(formData, node as Makefault);
         case MEDIATORS.JSONTRANSFORM:
             return getJsonTransformFormDataFromSTNode(formData, node as Jsontransform);
+        case MEDIATORS.SMOOKS:
+            return getSmooksFormDataFromSTNode(formData, node as Smooks);
         //Extension Mediators
         case MEDIATORS.CLASS:
             return getClassFormDataFromSTNode(formData, node as Class);
