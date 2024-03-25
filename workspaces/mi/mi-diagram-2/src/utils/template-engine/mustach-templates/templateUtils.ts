@@ -63,6 +63,7 @@ import { getDatamapperMustacheTemplate } from "./transformation/datamapper";
 import { getEnrichFormDataFromSTNode, getEnrichMustacheTemplate, getEnrichXml } from "./transformation/enrich";
 import { getFastXSLTFormDataFromSTNode, getFastXSLTMustacheTemplate, getFastXSLTXml } from "./transformation/fastXSLT";
 import { getFaultFormDataFromSTNode, getFaultMustacheTemplate, getFaultXml } from "./transformation/fault";
+import { getJsonTransformFormDataFromSTNode, getJsonTransformMustacheTemplate, getJsonTransformXml } from "./transformation/jsonTransform";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -135,6 +136,8 @@ export function getMustacheTemplate(name: string) {
             return getFastXSLTMustacheTemplate();
         case MEDIATORS.FAULT:
             return getFaultMustacheTemplate();
+        case MEDIATORS.JSONTRANSFORM:
+            return getJsonTransformMustacheTemplate();
         //Extension Mediators
         case MEDIATORS.BEAN:
             return getBeanMustacheTemplate()
@@ -245,6 +248,8 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getFastXSLTXml(data);
         case MEDIATORS.FAULT:
             return getFaultXml(data);
+        case MEDIATORS.JSONTRANSFORM:
+            return getJsonTransformXml(data);
         //Extension Mediators    
         case MEDIATORS.BEAN:
             return getBeanXml(data);
@@ -350,6 +355,8 @@ export function getDataFromXML(name: string, node: STNode) {
             return getFastXSLTFormDataFromSTNode(formData, node as FastXSLT);
         case MEDIATORS.FAULT:
             return getFaultFormDataFromSTNode(formData, node as Makefault);
+        case MEDIATORS.JSONTRANSFORM:
+            return getJsonTransformFormDataFromSTNode(formData, node as Jsontransform);
         //Extension Mediators
         case MEDIATORS.CLASS:
             return getClassFormDataFromSTNode(formData, node as Class);
