@@ -232,7 +232,7 @@ export class PositionVisitor implements Visitor {
         });
         this.setAdvancedMediatorPosition(node, {
             ...cases, default: node._default
-        }, NodeTypes.CONDITION_NODE);
+        }, NodeTypes.GROUP_NODE);
     }
     endVisitSwitch = (node: Switch): void => this.setSkipChildrenVisit(false);
     beginVisitConditionalRouter = (node: ConditionalRouter): void => this.setBasicMediatorPosition(node);

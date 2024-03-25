@@ -304,14 +304,14 @@ export class SizingVisitor implements Visitor {
         }, NodeTypes.CONDITION_NODE);
     }
     endVisitSwitch = (node: Switch): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CONDITION.WIDTH, h: NODE_DIMENSIONS.CONDITION.HEIGHT };
+        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
         let cases: { [key: string]: any } = {};
         node._case.map((_case, index) => {
             cases[_case.regex || index] = _case;
         });
         this.calculateAdvancedMediator(node, {
             ...cases, default: node._default
-        }, NodeTypes.CONDITION_NODE);
+        }, NodeTypes.GROUP_NODE);
     }
     beginVisitConditionalRouter = (node: ConditionalRouter): void => this.calculateBasicMediator(node);
     //Extesnion Mediators

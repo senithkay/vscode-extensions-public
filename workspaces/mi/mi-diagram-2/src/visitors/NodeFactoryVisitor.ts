@@ -488,7 +488,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.skipChildrenVisit = false;
     }
     beginVisitSwitch(node: Switch): void {
-        this.createNodeAndLinks(node, MEDIATORS.SWITCH, NodeTypes.CONDITION_NODE)
+        this.createNodeAndLinks(node, MEDIATORS.SWITCH, NodeTypes.GROUP_NODE)
         this.parents.push(node);
         let cases: { [key: string]: any } = {};
         node._case.map((_case, index) => {
@@ -496,7 +496,7 @@ export class NodeFactoryVisitor implements Visitor {
         });
         this.visitSubSequences(node, {
             ...cases, default: node._default
-        }, NodeTypes.CONDITION_NODE, false);
+        }, NodeTypes.GROUP_NODE, true);
         this.skipChildrenVisit = true;
     }
     endVisitSwitch(node: Switch): void {
