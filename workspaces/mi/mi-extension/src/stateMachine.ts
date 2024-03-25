@@ -241,6 +241,9 @@ const stateMachine = createMachine<MachineContext>({
             return new Promise(async (resolve, reject) => {
                 const langClient = StateMachine.context().langClient!;
                 const viewLocation = context;
+                if (context.view?.includes("Form")) {
+                    return resolve(viewLocation);
+                }
                 if (context.documentUri) {
                     const response = await langClient.getSyntaxTree({
                         documentIdentifier: {
