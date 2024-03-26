@@ -9,7 +9,7 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, TextArea, TextField } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
@@ -18,12 +18,12 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 
-const cardStyle = { 
-   display: "block",
-   margin: "15px 0",
-   padding: "0 15px 15px 15px",
-   width: "auto",
-   cursor: "auto"
+const cardStyle = {
+    display: "block",
+    margin: "15px 0",
+    padding: "0 15px 15px 15px",
+    width: "auto",
+    cursor: "auto"
 };
 
 const Error = styled.span`
@@ -39,87 +39,89 @@ const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const EnrichForm = (props: AddMediatorProps) => {
-   const { rpcClient } = useVisualizerContext();
-   const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({} as { [key: string]: any });
-   const [errors, setErrors] = useState({} as any);
+    const { rpcClient } = useVisualizerContext();
+    const sidePanelContext = React.useContext(SidePanelContext);
+    const [formValues, setFormValues] = useState({} as { [key: string]: any });
+    const [errors, setErrors] = useState({} as any);
 
-   useEffect(() => {
-       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-           setFormValues({ ...formValues, ...sidePanelContext.formValues });
-       } else {
-           setFormValues({
-       "cloneSource": false,
-       "sourceType": "custom",
-       "inlineType": "Inline XML/JSON",
-       "targetAction": "replace",
-       "targetType": "custom",});
-       }
-   }, [sidePanelContext.formValues]);
+    useEffect(() => {
+        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
+            setFormValues({ ...formValues, ...sidePanelContext.formValues });
+        } else {
+            setFormValues({
+                "cloneSource": false,
+                "sourceType": "custom",
+                "inlineType": "Inline XML/JSON",
+                "targetAction": "replace",
+                "targetType": "custom",
+            });
+        }
+    }, [sidePanelContext.formValues]);
 
-   const onClick = async () => {
-       const newErrors = {} as any;
-       Object.keys(formValidators).forEach((key) => {
-           const error = formValidators[key]();
-           if (error) {
-               newErrors[key] = (error);
-           }
-       });
-       if (Object.keys(newErrors).length > 0) {
-           setErrors(newErrors);
-       } else {
-           const xml = getXML(MEDIATORS.ENRICH, formValues);
-           rpcClient.getMiDiagramRpcClient().applyEdit({
-               documentUri: props.documentUri, range: props.nodePosition, text: xml
-           });
-           sidePanelContext.setSidePanelState({
+    const onClick = async () => {
+        const newErrors = {} as any;
+        Object.keys(formValidators).forEach((key) => {
+            const error = formValidators[key]();
+            if (error) {
+                newErrors[key] = (error);
+            }
+        });
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+        } else {
+            const xml = getXML(MEDIATORS.ENRICH, formValues);
+            rpcClient.getMiDiagramRpcClient().applyEdit({
+                documentUri: props.documentUri, range: props.nodePosition, text: xml
+            });
+            sidePanelContext.setSidePanelState({
                 ...sidePanelContext,
                 isOpen: false,
                 isEditing: false,
                 formValues: undefined,
                 nodeRange: undefined,
                 operationName: undefined
-              });
-       }
-   };
+            });
+        }
+    };
 
-   const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-       "cloneSource": (e?: any) => validateField("cloneSource", e, false),
-       "sourceType": (e?: any) => validateField("sourceType", e, false),
-       "sourceXPath": (e?: any) => validateField("sourceXPath", e, false),
-       "sourceProperty": (e?: any) => validateField("sourceProperty", e, false),
-       "inlineType": (e?: any) => validateField("inlineType", e, false),
-       "sourceXML": (e?: any) => validateField("sourceXML", e, false),
-       "targetAction": (e?: any) => validateField("targetAction", e, false),
-       "targetType": (e?: any) => validateField("targetType", e, false),
-       "targetXPathJsonPath": (e?: any) => validateField("targetXPathJsonPath", e, false),
-       "targetProperty": (e?: any) => validateField("targetProperty", e, false),
-       "description": (e?: any) => validateField("description", e, false),
+    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
+        "cloneSource": (e?: any) => validateField("cloneSource", e, false),
+        "sourceType": (e?: any) => validateField("sourceType", e, false),
+        "sourceXPath": (e?: any) => validateField("sourceXPath", e, false),
+        "sourceProperty": (e?: any) => validateField("sourceProperty", e, false),
+        "inlineType": (e?: any) => validateField("inlineType", e, false),
+        "sourceXML": (e?: any) => validateField("sourceXML", e, false),
+        "inlineRegistryKey": (e?: any) => validateField("inlineRegistryKey", e, false),
+        "targetAction": (e?: any) => validateField("targetAction", e, false),
+        "targetType": (e?: any) => validateField("targetType", e, false),
+        "targetXPathJsonPath": (e?: any) => validateField("targetXPathJsonPath", e, false),
+        "targetProperty": (e?: any) => validateField("targetProperty", e, false),
+        "description": (e?: any) => validateField("description", e, false),
 
-   };
+    };
 
-   const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-       const value = e ?? formValues[id];
-       const newErrors = { ...errors };
-       let error;
-       if (isRequired && !value) {
-           error = "This field is required";
-       } else if (validation === "e-mail" && !value.match(emailRegex)) {
-           error = "Invalid e-mail address";
-       } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-           error = "Invalid name";
-       } else if (validation === "custom" && !value.match(regex)) {
-           error = "Invalid input";
-       } else {
-           delete newErrors[id];
-           setErrors(newErrors);
-       }
-       setErrors({ ...errors, [id]: error });
-       return error;
-   };
+    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
+        const value = e ?? formValues[id];
+        const newErrors = { ...errors };
+        let error;
+        if (isRequired && !value) {
+            error = "This field is required";
+        } else if (validation === "e-mail" && !value.match(emailRegex)) {
+            error = "Invalid e-mail address";
+        } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
+            error = "Invalid name";
+        } else if (validation === "custom" && !value.match(regex)) {
+            error = "Invalid input";
+        } else {
+            delete newErrors[id];
+            setErrors(newErrors);
+        }
+        setErrors({ ...errors, [id]: error });
+        return error;
+    };
 
-   return (
-       <div style={{ padding: "10px" }}>
+    return (
+        <div style={{ padding: "10px" }}>
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <h3>Source</h3>
@@ -187,11 +189,39 @@ const EnrichForm = (props: AddMediatorProps) => {
                     </Field>
                 }
 
-                {formValues["sourceType"] && formValues["sourceType"].toLowerCase() == "inline" &&
+                {formValues["sourceType"] && formValues["sourceType"].toLowerCase() == "inline" && formValues["inlineType"] == "Inline XML/JSON" &&
                     <Field>
+                        <label>Source XML</label>
+                        <TextArea
+                            onChange={(e: any) => {
+                                setFormValues({ ...formValues, "sourceXML": e });
+                                formValidators["sourceXML"](e);
+                            }}
+                            placeholder="Type your source xml here"
+                            required={false}
+                            value={formValues["sourceXML"] ?? ""}
+                            rows={5}
+                            cols={45}
+                        />
+                        {errors["sourceXML"] && <Error>{errors["sourceXML"]}</Error>}
                     </Field>
                 }
 
+                {formValues["sourceType"] && formValues["sourceType"].toLowerCase() == "inline" && formValues["inlineType"] == "RegistryKey" &&
+                    <Field>
+                        <TextField
+                            label="Inline RegistryKey"
+                            size={50}
+                            placeholder=""
+                            value={formValues["inlineRegistryKey"]}
+                            onChange={(e: any) => {
+                                setFormValues({ ...formValues, "inlineRegistryKey": e });
+                                formValidators["inlineRegistryKey"](e);
+                            }}
+                            required={false}
+                        />
+                        {errors["inlineRegistryKey"] && <Error>{errors["inlineRegistryKey"]}</Error>}
+                    </Field>}
             </ComponentCard>
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -215,7 +245,7 @@ const EnrichForm = (props: AddMediatorProps) => {
                     {errors["targetType"] && <Error>{errors["targetType"]}</Error>}
                 </Field>
 
-                {formValues["targetType"] && formValues["targetType"].toLowerCase() == "custom" ||formValues["targetType"] && formValues["targetType"].toLowerCase() == "key" &&
+                {(formValues["targetType"] && formValues["targetType"].toLowerCase() == "custom" || formValues["targetType"] && formValues["targetType"].toLowerCase() == "key") &&
                     <Field>
                         <TextField
                             label="Target XPath / JSONPath"
