@@ -8,6 +8,7 @@
  */
 body {
     background-color: #000;
+    color: #d4d4d4;
     --vscode-foreground: #cccccc;
     --vscode-font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     --vscode-font-weight: normal;
