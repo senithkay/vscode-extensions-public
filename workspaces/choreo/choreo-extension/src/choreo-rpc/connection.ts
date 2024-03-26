@@ -1,17 +1,16 @@
-import { createProtocolConnection, Logger, ProtocolConnection } from "vscode-languageserver-protocol";
-import { StreamMessageReader, StreamMessageWriter } from 'vscode-jsonrpc/node'
+import { StreamMessageReader, StreamMessageWriter, createMessageConnection, MessageConnection } from 'vscode-jsonrpc/node'
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 
 export class StdioConnection {
-    private _connection: ProtocolConnection;
+    private _connection: MessageConnection;
     private _serverProcess: ChildProcessWithoutNullStreams;
     constructor(private executable_path: string | undefined) {
         console.log("Starting RPC server, path:", this.executable_path);
         this._serverProcess = spawn(`${this.executable_path}` || "choreo", ['start-rpc-server']);
-        this._connection = createProtocolConnection(
+        this._connection = createMessageConnection(
             new StreamMessageReader(this._serverProcess.stdout),
-            new StreamMessageWriter(this._serverProcess.stdin),
-            new RPCServerLogger());
+            new StreamMessageWriter(this._serverProcess.stdin));
+
     }
 
     stop(): Promise<void> {
@@ -23,7 +22,7 @@ export class StdioConnection {
         });
     }
 
-    getProtocolConnection(): ProtocolConnection {
+    getProtocolConnection(): MessageConnection {
         return this._connection;
     }
 
@@ -32,18 +31,3 @@ export class StdioConnection {
     }
 }
 
-class RPCServerLogger implements Logger {
-
-    error(_message: string): void {
-        // do nothing;
-    }
-    warn(_message: string): void {
-        // do nothing
-    }
-    info(_message: string): void {
-        // do nothing
-    }
-    log(_message: string): void {
-        // do nothing
-    }
-}

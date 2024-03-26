@@ -1,20 +1,34 @@
 import { getLogger } from "../logger/logger";
 import * as vscode from "vscode";
-import { Trace, Tracer } from "vscode-jsonrpc"
+import { MessageConnection, Trace, Tracer } from "vscode-jsonrpc"
 import { StdioConnection } from "./connection";
 import { ProtocolConnection } from "vscode-languageserver-protocol";
 
 export function initRPCServer() {
-    (async () => {
-        const client = await ChoreoRPCClient.getInstance();
-        const resp = await client.conn.sendRequest("projects/getProjectsByOrgID", { orgID: "3053" })
-        console.log("Recieved response", resp);
-    })();
+    // (async () => {
+    //     const client = await ChoreoRPCClient.getInstance();
+    //     const resp = await client.conn.sendRequest("projects/getProjectsByOrgID", { orgID: "3053" })
+    //     console.log("Recieved response", resp);
+    //     getLogger().debug("Recieved response", resp);
+    // })();
+
+    ChoreoRPCClient.getInstance().then((client) => {
+        client.conn.sendRequest("projects/getProjectsByOrgID", { orgID: "3053" }).then((resp) => {
+            console.log("Recieved response", resp);
+            getLogger().debug(`Recieved response: ${JSON.stringify(resp)}`);
+        }).catch((err) => {
+            console.error("Error while fetching projects", err);
+            getLogger().error("Error while fetching projects", err);
+        });
+    }).catch((err) => {
+        console.error("Error while initializing rpc client", err);
+        getLogger().error("Error while initializing rpc client", err);
+    });
 
 }
 
 export class ChoreoRPCClient {
-    private _conn: ProtocolConnection;
+    private _conn: MessageConnection;
     private static _instance: ChoreoRPCClient;
 
     private constructor() {
@@ -44,7 +58,7 @@ export class ChoreoRPCClient {
         return ChoreoRPCClient._instance;
     }
 
-    get conn(): ProtocolConnection {
+    get conn(): MessageConnection {
         return this._conn;
     }
 }
