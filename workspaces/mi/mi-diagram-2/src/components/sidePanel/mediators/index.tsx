@@ -11,6 +11,7 @@ import { TextField, Button, Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
 import React, { useState } from "react";
 import { Mediators } from "./List";
 import styled from "@emotion/styled";
+import { ConnectorPage } from "../connectors";
 
 const Wrapper = styled.div`
     height: calc(100vh - 190px);
@@ -46,7 +47,7 @@ const SearchPanel = styled.div`
     height: fit-content;
 `;
 
-const MediatorList = styled.div`
+const ComponentList = styled.div`
     height: 100%;
     overflow-y: auto;
     padding-right: 5px;
@@ -70,6 +71,8 @@ export function MediatorPage(props: MediatorPageProps) {
     }
 
     const handleAllMediatorsClicked = () => {
+        setConnectors(false);
+        setAllMediators(true);
         console.log('All Mediators clicked');
     }
 
@@ -78,6 +81,8 @@ export function MediatorPage(props: MediatorPageProps) {
     };
 
     const handleConnectorsClicked = () => {
+        setAllMediators(false);
+        setConnectors(true);
         console.log('Connectors clicked');
     }
 
@@ -97,7 +102,7 @@ export function MediatorPage(props: MediatorPageProps) {
                     autoFocus={true}
                 />
                 {/*  Categories */}
-                <ButtonContainer style={{ justifyContent: "space-between", marginBottom: "10px" }}>
+                <ButtonContainer style={{ justifyContent: "space-between", marginBottom: "10px", width: "calc(100% - 15px)" }}>
                     <Button onClick={handleAllMediatorsClicked} appearance={isAllMediators ? 'primary' : 'icon'} sx={BtnStyle}>
                         <Icon sx={{marginTop: 2, marginRight: 5}} name="module-icon"/>
                         All Mediators
@@ -112,11 +117,17 @@ export function MediatorPage(props: MediatorPageProps) {
                     </Button>
                 </ButtonContainer>
             </SearchPanel>
-
-            <MediatorList>
-                {/* Mediator List */}
-                <Mediators nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={props.setContent} searchValue={searchValue} />
-            </MediatorList>
+            {isAllMediators && (
+                <ComponentList>
+                    {/* Mediator List */}
+                    <Mediators nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={props.setContent} searchValue={searchValue} />
+                </ComponentList>
+            )}
+            {isConnectors && (
+                <ComponentList>
+                    <ConnectorPage setContent={props.setContent} />
+                </ComponentList>
+            )}
         </Wrapper>
     )
 }
