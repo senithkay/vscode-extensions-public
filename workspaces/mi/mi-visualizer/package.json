@@ -24,6 +24,7 @@
     "@wso2-enterprise/mi-rpc-client": "workspace:*",
     "@wso2-enterprise/service-designer": "workspace:*",
     "@wso2-enterprise/ui-toolkit": "workspace:*",
+    "@wso2-enterprise/mi-data-mapper": "workspace:*",
     "react": "~18.2.0",
     "react-dom": "~18.2.0",
     "react-syntax-highlighter": "~15.5.0",

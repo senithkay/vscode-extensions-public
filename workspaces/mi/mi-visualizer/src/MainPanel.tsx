@@ -34,6 +34,7 @@ import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
 import { OldProjectOverview } from './views/OldProjectOverview';
+import { DataMapper } from './views/DataMapper';
 
 const MainContainer = styled.div`
     display: flex;
@@ -163,6 +164,13 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.ServiceDesigner:
                     setViewComponent(<ServiceDesignerView syntaxTree={machineView.stNode} documentUri={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.DataMapperView:
+                    setViewComponent(
+                        <DataMapper
+                            filePath={machineView.documentUri}
+                        />
+                    );
                     break;
                 case MACHINE_VIEW.APIForm:
                     setViewComponent(<APIWizard apiData={(machineView.customProps as APIWizardProps)?.apiData} path={machineView.documentUri} />);
