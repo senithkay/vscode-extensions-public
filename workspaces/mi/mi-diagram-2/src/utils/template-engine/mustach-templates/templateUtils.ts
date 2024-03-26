@@ -9,7 +9,7 @@
 
 import Mustache from "mustache";
 import { getCallFormDataFromSTNode, getCallMustacheTemplate, getCallXml } from "./core/call";
-import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache, Send, Aggregate, Iterate, Filter, NamedEndpoint, Foreach, Bam, OauthService, Builder, PublishEvent, EntitlementService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache, Send, Aggregate, Iterate, Filter, NamedEndpoint, Foreach, Bam, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogMustacheTemplate, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutMustacheTemplate, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode, getHeaderMustacheTemplate } from "./core/header";
@@ -57,6 +57,8 @@ import { getOauthFormDataFromSTNode, getOauthMustacheTemplate, getOauthXml } fro
 import { getBuilderFormDataFromSTNode, getBuilderMustacheTemplate, getBuilderXml } from "./other/builder";
 import { getPublishEventFormDataFromSTNode, getPublishEventMustacheTemplate, getPublishEventXml } from "./other/publishEvent";
 import { getEntitlementFormDataFromSTNode, getEntitlementMustacheTemplate, getEntitlementXml } from "./other/entitlement";
+import { getRuleFormDataFromSTNode, getRuleMustacheTemplate, getRuleXml } from "./other/rule";
+import { getNtlmFormDataFromSTNode, getNtlmMustacheTemplate, getNtlmXml } from "./other/ntlm";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -145,6 +147,10 @@ export function getMustacheTemplate(name: string) {
             return getPublishEventMustacheTemplate();
         case MEDIATORS.ENTITLEMENT:
             return getEntitlementMustacheTemplate();
+        case MEDIATORS.RULE:
+            return getRuleMustacheTemplate();
+        case MEDIATORS.NTLM:
+            return getNtlmMustacheTemplate();
 
         // Endpoints
         case ENDPOINTS.ADDRESS:
@@ -243,6 +249,10 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getPublishEventXml(data);
         case MEDIATORS.ENTITLEMENT:
             return getEntitlementXml(data);
+        case MEDIATORS.RULE:
+            return getRuleXml(data);
+        case MEDIATORS.NTLM:
+            return getNtlmXml(data);
 
         // Endpoint Forms
         case ENDPOINTS.HTTP:
@@ -340,6 +350,10 @@ export function getDataFromXML(name: string, node: STNode) {
             return getPublishEventFormDataFromSTNode(formData, node as PublishEvent);
         case MEDIATORS.ENTITLEMENT:
             return getEntitlementFormDataFromSTNode(formData, node as EntitlementService);
+        case MEDIATORS.RULE:
+            return getRuleFormDataFromSTNode(formData, node as Rule);
+        case MEDIATORS.NTLM:
+            return getNtlmFormDataFromSTNode(formData, node as Ntlm);
 
         // Endpoint Forms
         case ENDPOINTS.HTTP:

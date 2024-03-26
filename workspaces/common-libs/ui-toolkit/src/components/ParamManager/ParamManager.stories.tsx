@@ -12,7 +12,7 @@ import { ParamConfig, ParamField, ParamManager, Parameters } from "./ParamManage
 
 const generateSpaceSeperatedStringFromParamValues = (paramValues: Parameters) => {
     let result = "";
-    paramValues.parameters.forEach((param) => {
+    paramValues.parameters.forEach(param => {
         result += param.value + " ";
     });
     return result.trim();

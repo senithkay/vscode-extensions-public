@@ -12,6 +12,7 @@ import { history } from './history/activator';
 import { COMMANDS } from './constants';
 import { StateMachineAI, openAIView } from './ai-panel/aiMachine';
 import { AiPanelWebview } from './ai-panel/webview';
+import { activateProjectExplorer } from './project-explorer/activate';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -19,7 +20,7 @@ interface MachineContext extends VisualizerLocation {
 }
 
 const stateMachine = createMachine<MachineContext>({
-    /** @xstate-layout N4IgpgJg5mDOIC5QFsCWA6VA7VAXVAhgDaoBeYAxBAPZZiZYBu1A1vQMYAWY7LACgCdqAKx64A2gAYAuolAAHarDypackAA9EAJgDMAVnT6AjABZ9uyduMB2bad0AOUwBoQAT0QBaJ+mNWATgsAm10ANn99UwBfaLc0BhViMkowASEBdHkiAlwAM2oBZHQuHn4hUXYJGXVFZXw1JE0dbUNtR3b7MMt9fW1JRzdPBF1+9FNO0zD9SX0w7Rsg2PiMeQqxABEwXDFIKlp6bGY2dAS1kU3t3YgEI+p2XNUsKWkX2qUVRtAtBDDncdMi30AQ6gNmgw8iEiRkksMki0kxkcMwCyxACSIsAAkjhcPs6AxjvQMdjcbcmPdHrQXm8mnVPlh1D9jNZDJZzPpQgFAaZJK5ISMDOgQY5FqLupYAto0SScXgKGkMlkcvlCsVZWS7g8Gs8ZLSFB8dUyoQ5HOgbMZdDYrLZZrpTBDhgEAsKLWFAfNtCFJCCZRgBGACBB3OhGKgwAB3AAy1CD2Cg+MOFJOCQDQZDYcjMbjWCg5OY2qeNJqdMNT2NCBZ2m06D+QQsugCjcWYSGiEWxiMAQifMbjicvri6P9geDofDEYAyrgCLx44nCaxiSP0+PI9PZyx4-nKTri7JS-Vy01mRL0PCZlFTCC-tW2wgO12wvDpgt7aE-eg02PMxGAHIEGGUC5Hs+ogPSRonjogTjI4LLcl0N6tgKdhmnC1izLMFjIp+34ZhOABKo7uBQADyfAAKJ-gA+gAaliFEAOpgRBx7fFCYTWuMXp6DY0zIvocH3vMujCjMrR2CCBicbhxFrhGRHphQf4AIL0QA4ipAAqFEsWWXzNJWIRmpxUoWNeYTdMYyHDDYNiGDMVhwcizpcrJq6-opwYUAAYliUYUdRFEbFiWl6UeBnMsZtaLK09rdlZNmIJxNgwjaYRNiCzrSkOqZyb+FEQCouYUMFoXURspF-rpJYGhFjJQUZNgmbF5kJbo1nCQs56wtWuhWhMYSfnQEaCBcVTydmRUlTQBJ3CmGAjWNlS4JNsbTXmWpUrqry1eB+kNexCC8eg2gZRl5iWk4dmOslLLjOEfEdf21pRMNkbLWI8leSR5FUXRDHMXtrGRTojhmsY3b9sYMNBB0SUICYYToHBtimA4-XWdysRDlg1AQHA6hoO89UVl4jjIxazq2uY6NIgE95eCybTnV6ASwki-X6J+2BJCQ5AkwyFburW9hWo4zpWpeNj3o4ki1pZlng86EujNzuWrOsVRbDsVSQILkFHRYnbAn2-YhNWISy6lQR9iYopo5an6YnKuAG2xhksoi5rcsY9tPaYnUCjDpindeQS06Kgm6O5wbu6DCDcsjGXOoH-YmDMxj3hYlPp3BVq2M4sf4Vm63xvHh2GantbOr76d+4i972Z2vLWXYYqNsYxfyRuc65hXFZmHotbR83Jg+mYTecad8z2faSPOkNGtfvlE4AUBIEQAPjXWPYRjuhEfHg8i-K2VKrq+0iAxtzY3eecR29HUiYxguzfs2A4QTaE3yLniyzUdWfHLOYd8JyFWKlAR+hld6hzmFMWwfxwZRGEnYcY1lwZTGakEbGy8iqwAIAAIyIPrQ8QtGq2DGH7OK4t2iLHvDDTstDLBcxvHxLuy8lpazdqQw2hkfBmipgEGmV56b3gmC6d0Mw-i8mmAld6o0uFrRzJAnhHsfgunaLCDoEdeioyzgKPoLp2b9FaP0D+sIYgcI+oo++6YoE-FNKdJw14ZgGEDtybOgIxL2QlnoaYnIl6xCAA */
+    /** @xstate-layout N4IgpgJg5mDOIC5QFsCWA6VA7VAXVAhgDaoBeYAxBAPZZiZYBu1A1vQMYAWY7LACgCdqAKx64A2gAYAuolAAHarDypackAA9EAJgCMANnSSA7AA5dAZgCsuyZIAspyVasAaEAE9E9+7vTHtfQDtK3tJSysATnsAXxj3NAYVYjJKGjoGZjZ0Lh5+IVF2CV1ZJBBFZXw1Mq0EbUlDE3NrWwcnF3cvBFMLdG1jC3sLfVNRyKt9PTiEjGxkknIqWnpsLI5uXkERMXFtUoUlFWrQWr1GswjWx2c3Tx1J9Cs7E0jjXXtQ-WmQRLn8FMWYAEQgE6HkRAIuAAZtQBMgcht8tsilJ9uVDlUsOpalZtJ1EO8rL1IqYSZEgqZAhYLJFvok6AB3LaFXAAETAuDEkCWGVWrHo9LATIKYnZnKKkAQfPYkNUWFRqPUFSOWJqiDe9keuisA2MDX0Nm1+IQ9n0mo+1IGuj0DUi0TpGGoRAgzNFHK5EB5KyY-PQiSdLpFRTFHqlPplmIVMiVGLl2PVw3QQV0kX6NNxI2Ntkaz1MxlNZMk1Id6CIsAAkjhcF7Mr7EmXK3gw8wI3Ko2jlZj43V9JF0JTzDYeu1Ig0s7Y-PZtHbtBZnNpfLT4j8MA2qxQgSCwRDobD4fWK1Xm9RW7R2zHKnG1T2+wPtbph85R-osxZrUZLG-6iY9dYSwIwAICAPHQRhUCFAAZaggOwKAaz5bJEgAoCQLAyDoIgWDj1PeUZEVMpOyvE4CXCPxU2-PVwl7M0s20Bd0DCM1wgsUxTX0P9lyQwDgNA8CGQAZVwAheFg+CfUQjBkJ4tCBKEkSsCgbDZTPPDowI2Njk0Akp20dBBhY4x9AMAJ7BJWj6MYsJLFY-R2Ksf9uNQviADkCDAqBIW5dJvTWP1JMc3ihVc9zPIgJTI1UjsNNVYiEHeOi9KGPMjKCBczLuBBIgsYx0F0Yw7QCB9TEmCYHJQwKGQAJUcigAHk+AAUWcgB9AA1csGoAdXwg5L002p2NMfshhnIs3iyyJaLsXL8tTRxjACEYvk4-zypk6qUIoZyAEF2oAcW2gAVBqevRPqYq0hBBuGmlUzGlMaSzZxDCnO0GhYwI6LK6S+I24CKAAMXLCCGuahrWXLQ7TsI-rEGu1jbvqbKHsmjLLFNJNqXqOjKWiXRvqcoUGsw-AFIocHIea1lauck61N6lVuzNXpnmyrLgmy+xaPJXLqWYpijNCEtGVdIoKqgmCye82sJPQEWg1wcWMKw6VlNw6Roei7sLiTN5SRpYwbFeW4umsXSLW1Oc9cmU1haFUXFfWmr6qatqOu6+mzsZ68el0qJstGa0F0mCxjRCQwnjsZnJFMGxSu+LBqAgOB1DQC9vdigBaF8Mszqx0DtQui6LnUSz+QgFjAdOu2vKdjSGSci20WPrXeUdYhWuX7YVkMJQgauiMu0y-EjkxJDtfQ7Dok3vBpAuiWb0Z6kXfMSwDB3e85fv1PO7sbF6A1JiMiwF0NvNjXMR5niLAw5qnks1zwAfYYQBbufzsk8z0WdbHszupK6AzGusUdJJhCDHXQxlpw3AvqZXWZJ6ikgnqYAmStJZQGfhdWoZghrPh8JAyIlgyTjjtAXBoVhWI+A+AtYwqCZKCWEiwWCmDuyt10s+awRYb62Rzl0AhfY8FPEMq9IW-8AoyWCqgDyW8WHXgMHlPS1p7ADBjuYEqT0KFJgmEMOi1FHAoLEWtX6jlZEgL1GAp45goGjg6GjLGmMT7N1xLOIkS4ZjoAARVYmKgFKmMujgshZpfApiIaSV8vhHimSXraN8U4SyYVgAQAARkQSAfjagjT6M0QIrwixvlDmjIYOVPzWmsGaPUUxO7y2RLgdJiAnj50PoESwp8KHGCzL2IwzwrIUKJCfDu7jqksjQZhXxO8M6XRcAfCYzT+ln3aRlHJSYdHsUkP0celg7bChqRVP6gCvbAMuiSXSh85zBJGDHBZXRm45ScMgz6WUiQdziEAA */
     id: 'mi',
     initial: 'initialize',
     predictableActionArguments: true,
@@ -43,8 +44,16 @@ const stateMachine = createMachine<MachineContext>({
                         })
                     },
                     {
+                        target: 'oldProjectDetected',
+                        cond: (context, event) => event.data.isOldProject === true, // Assuming true means old project detected
+                        actions: assign({
+                            view: (context, event) => MACHINE_VIEW.OldProjectOverview,
+                            projectUri: (context, event) => event.data.projectUri
+                        })
+                    },
+                    {
                         target: 'newProject',
-                        cond: (context, event) => event.data.isProject === false, // Assuming false means new project
+                        cond: (context, event) => event.data.isProject && event.data.isOldProject === false, // Assuming false means new project
                         actions: assign({
                             view: (context, event) => MACHINE_VIEW.Welcome
                         })
@@ -60,6 +69,15 @@ const stateMachine = createMachine<MachineContext>({
             }
         },
         projectDetected: {
+            entry: 'activateProjectExplorer',
+            invoke: {
+                src: 'openWebPanel',
+                onDone: {
+                    target: 'lsInit'
+                }
+            }
+        },
+        oldProjectDetected: {
             invoke: {
                 src: 'openWebPanel',
                 onDone: {
@@ -211,6 +229,9 @@ const stateMachine = createMachine<MachineContext>({
 
     },
     actions: {
+        activateProjectExplorer: (context, event) => {
+            activateProjectExplorer(extension.context);
+        }
     },
     services: {
         waitForLS: (context, event) => {
@@ -218,6 +239,7 @@ const stateMachine = createMachine<MachineContext>({
             return new Promise(async (resolve, reject) => {
                 const ls = (await MILanguageClient.getInstance(extension.context)).languageClient;
                 vscode.commands.executeCommand('setContext', 'MI.status', 'projectLoaded');
+                vscode.commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
                 // Activate the AI Panel State machine after LS is loaded.
                 StateMachineAI.initialize();
                 resolve(ls);
@@ -241,6 +263,9 @@ const stateMachine = createMachine<MachineContext>({
             return new Promise(async (resolve, reject) => {
                 const langClient = StateMachine.context().langClient!;
                 const viewLocation = context;
+                if (context.view?.includes("Form")) {
+                    return resolve(viewLocation);
+                }
                 if (context.documentUri) {
                     const response = await langClient.getSyntaxTree({
                         documentIdentifier: {
@@ -369,7 +394,7 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
 }
 
 async function checkIfMiProject() {
-    let isMiProject = false;
+    let isProject = false, isOldProject = false;
     let projectUri = '';
     try {
         // Check for pom.xml files excluding node_modules directory
@@ -377,17 +402,18 @@ async function checkIfMiProject() {
         if (pomFiles.length > 0) {
             const pomContent = await vscode.workspace.openTextDocument(pomFiles[0]);
             if (pomContent.getText().includes('<projectType>integration-project</projectType>')) {
-                isMiProject = true;
+                isProject = true;
             }
         }
 
         // If not found, check for .project files
-        if (!isMiProject) {
-            const projectFiles = await vscode.workspace.findFiles('**/.project', '**/node_modules/**', 1);
-            if (projectFiles.length > 0) {
-                const projectContent = await vscode.workspace.openTextDocument(projectFiles[0]);
+        if (!isProject) {
+            const projectFiles = await vscode.workspace.findFiles('**/.project', '**/node_modules/**');
+            for (const file of projectFiles) {
+                const projectContent = await vscode.workspace.openTextDocument(file);
                 if (projectContent.getText().includes('<nature>org.wso2.developerstudio.eclipse.mavenmultimodule.project.nature</nature>')) {
-                    isMiProject = true;
+                    isOldProject = true;
+                    break;
                 }
             }
         }
@@ -396,15 +422,20 @@ async function checkIfMiProject() {
         throw err; // Rethrow the error to ensure the error handling flow is not broken
     }
 
-    if (isMiProject) {
+    if (isProject) {
         projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
         vscode.commands.executeCommand('setContext', 'MI.status', 'projectDetected');
+    } else if (isOldProject) {
+        projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
+        vscode.commands.executeCommand('setContext', 'MI.status', 'projectDetected');
+        vscode.commands.executeCommand('setContext', 'MI.projectType', 'oldProjectDetected');
     } else {
         vscode.commands.executeCommand('setContext', 'MI.status', 'unknownProject');
     }
 
     return {
-        isProject: isMiProject,
+        isProject,
+        isOldProject,
         projectUri // Return the path of the detected project
-    }
+    };
 }
