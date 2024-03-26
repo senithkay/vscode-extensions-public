@@ -9,7 +9,7 @@
 
 import Mustache from "mustache";
 import { SERVICE } from "../../../constants";
-import { getAddApiResourceTemplate, getEditApiResourceTemplate, getEditProxyTemplate, getEditSequenceTemplate, getEditServiceTemplate } from "./core/api";
+import { getAddApiResourceTemplate, getEditApiResourceTemplate, getEditProxyTemplate, getEditSequenceTemplate, getEditServiceTemplate, getHandlersTemplate } from "./core/api";
 
 export function getXML(name: string, data: { [key: string]: any }) {
     switch (name) {
@@ -23,6 +23,8 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return Mustache.render(getEditSequenceTemplate(), data);
         case SERVICE.EDIT_PROXY:
             return Mustache.render(getEditProxyTemplate(data.tag), data);    
+        case SERVICE.EDIT_HANDLERS:
+            return Mustache.render(getHandlersTemplate(), data);
         default:
             return "";
     }
