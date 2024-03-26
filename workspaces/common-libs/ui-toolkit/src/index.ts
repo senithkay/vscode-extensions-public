@@ -42,6 +42,7 @@ export * from './components/ClickAwayListener/ClickAwayListener';
 export * from './components/Confirm/Confirm';
 export * from './components/CheckBoxGroup/CheckBoxGroup';
 export * from './components/ErrorBoundary/ErrorBoundary';
+export * from "./components/MarketPlaceCard/MarketPlaceCard";
 
 export * from './components/SampleForm/Header/Header';
 export * from './components/SampleForm/HorizontalIcons/HorizontalIcons';
