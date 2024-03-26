@@ -8,7 +8,7 @@
  */
 
 
-import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange, Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, traversNode, Iterate, Resource, Switch, Foreach, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange, Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, traversNode, Iterate, Resource, Switch, Foreach, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Datamapper, Enrich, FastXSLT, Makefault, Jsontransform, Smooks, Xquery, Xslt } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
 
@@ -330,6 +330,16 @@ export class SizingVisitor implements Visitor {
     }
     beginVisitRule = (node: Rule): void => this.calculateBasicMediator(node);
     beginVisitNtlm = (node: Ntlm): void => this.calculateBasicMediator(node);
+
+    //Transformation Mediators
+    beginVisitDatamapper = (node: Datamapper): void => this.calculateBasicMediator(node);
+    beginVisitEnrich = (node: Enrich): void => this.calculateBasicMediator(node);
+    beginVisitFastXSLT = (node: FastXSLT): void => this.calculateBasicMediator(node);
+    beginVisitMakefault = (node: Makefault): void => this.calculateBasicMediator(node);
+    beginVisitJsontransform = (node: Jsontransform): void => this.calculateBasicMediator(node);
+    beginVisitSmooks = (node: Smooks): void => this.calculateBasicMediator(node);
+    beginVisitXquery = (node: Xquery): void => this.calculateBasicMediator(node);
+    beginVisitXslt = (node: Xslt): void => this.calculateBasicMediator(node);
 
     skipChildren(): boolean {
         return this.skipChildrenVisit;

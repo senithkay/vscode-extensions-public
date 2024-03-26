@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Visitor, STNode, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, Iterate, Resource, Switch, Foreach, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Visitor, STNode, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, Iterate, Resource, Switch, Foreach, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Datamapper, Enrich, FastXSLT, Makefault, Jsontransform, Smooks, Xquery, Xslt } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 import { GroupNodeModel } from "../components/nodes/GroupNode/GroupNodeModel";
@@ -639,6 +639,87 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitNtlm(node: Ntlm): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+
+    //Transformation Mediators
+    beginVisitDatamapper(node: Datamapper): void {
+        this.createNodeAndLinks(node, MEDIATORS.DATAMAPPER);
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitDatamapper(node: Datamapper): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+
+    beginVisitEnrich(node: Enrich): void {
+        this.createNodeAndLinks(node, MEDIATORS.ENRICH);
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitEnrich(node: Enrich): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+
+    beginVisitFastXSLT(node: FastXSLT): void {
+        this.createNodeAndLinks(node, MEDIATORS.FASTXSLT);
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitFastXSLT(node: FastXSLT): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+
+    beginVisitMakefault(node: Makefault): void {
+        this.createNodeAndLinks(node, MEDIATORS.FAULT);
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitMakefault(node: Makefault): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+
+    beginVisitJsontransform(node: Jsontransform): void {
+        this.createNodeAndLinks(node, MEDIATORS.JSONTRANSFORM);
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitJsontransform(node: Jsontransform): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+
+    beginVisitSmooks(node: Smooks): void {
+        this.createNodeAndLinks(node, MEDIATORS.SMOOKS);
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitSmooks(node: Smooks): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+
+    beginVisitXquery(node: Xquery): void {
+        this.createNodeAndLinks(node, MEDIATORS.XQUERY);
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitXquery(node: Xquery): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+
+    beginVisitXslt(node: Xslt): void {
+        this.createNodeAndLinks(node, MEDIATORS.XSLT);
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitXslt(node: Xslt): void {
         this.parents.pop();
         this.skipChildrenVisit = false;
     }

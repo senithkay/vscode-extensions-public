@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STNode, Visitor, Log, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Aggregate, Iterate, Switch, Foreach, Resource, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { STNode, Visitor, Log, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Aggregate, Iterate, Switch, Foreach, Resource, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Datamapper, Enrich, FastXSLT, Makefault, Jsontransform, Smooks, Xquery, Xslt } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 
 export class PositionVisitor implements Visitor {
@@ -252,4 +252,13 @@ export class PositionVisitor implements Visitor {
     endVisitEntitlementService = (node: EntitlementService): void => this.setSkipChildrenVisit(false);
     beginVisitRule = (node: Rule): void => this.setBasicMediatorPosition(node);
     beginVisitNtlm = (node: Ntlm): void => this.setBasicMediatorPosition(node);
+    //Transformation Mediators
+    beginVisitDatamapper = (node: Datamapper): void => this.setBasicMediatorPosition(node);
+    beginVisitEnrich = (node: Enrich): void => this.setBasicMediatorPosition(node);
+    beginVisitFastXSLT = (node: FastXSLT): void => this.setBasicMediatorPosition(node);
+    beginVisitMakefault = (node: Makefault): void => this.setBasicMediatorPosition(node);
+    beginVisitJsontransform = (node: Jsontransform): void => this.setBasicMediatorPosition(node);
+    beginVisitSmooks = (node: Smooks): void => this.setBasicMediatorPosition(node);
+    beginVisitXquery = (node: Xquery): void => this.setBasicMediatorPosition(node);
+    beginVisitXslt = (node: Xslt): void => this.setBasicMediatorPosition(node);
 }

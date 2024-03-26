@@ -914,6 +914,7 @@ export interface ExtensionElement extends STNode {
 export interface Jsontransform extends STNode {
     property: MediatorProperty[];
     schema: string;
+    description: string;
 }
 
 export interface Clone extends STNode {
@@ -1457,7 +1458,7 @@ export interface ValidateResource extends STNode {
 }
 
 export interface SourceEnrich extends STNode {
-    content: any[];
+    content: any;
     clone: boolean;
     xpath: string;
     key: string;
