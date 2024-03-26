@@ -375,9 +375,9 @@ export class NodeFactoryVisitor implements Visitor {
             node.viewState.y = lastStNode.viewState.y + Math.max(lastStNode.viewState.h, lastStNode.viewState.fh || 0) + NODE_GAP.Y;
             node.viewState.x += NODE_DIMENSIONS.START.EDITABLE.WIDTH / 2 - NODE_DIMENSIONS.START.DISABLED.WIDTH / 2;
             this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.endTagRange.end);
-            this.parents.pop();
             this.previousSTNodes = undefined;
         }
+        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
