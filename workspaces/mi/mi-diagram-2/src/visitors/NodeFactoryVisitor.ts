@@ -369,8 +369,10 @@ export class NodeFactoryVisitor implements Visitor {
     }
     endVisitSequence(node: Sequence): void {
         if (node === this.parents[0]) {
-            const lastNode = this.nodes[this.nodes.length - 1].getStNode();
-            node.viewState.y = lastNode.viewState.y + Math.max(lastNode.viewState.h, lastNode.viewState.fh || 0) + NODE_GAP.Y;
+            let lastNode = this.nodes[this.nodes.length - 1];
+            const prevNodes = this.nodes.filter((prevNode) => prevNode.getParentStNode() === node);
+            const lastStNode = lastNode instanceof StartNodeModel ? lastNode.getStNode() : prevNodes[prevNodes.length - 1].getStNode();
+            node.viewState.y = lastStNode.viewState.y + Math.max(lastStNode.viewState.h, lastStNode.viewState.fh || 0) + NODE_GAP.Y;
             node.viewState.x += NODE_DIMENSIONS.START.EDITABLE.WIDTH / 2 - NODE_DIMENSIONS.START.DISABLED.WIDTH / 2;
             this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.endTagRange.end);
             this.parents.pop();
@@ -585,7 +587,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.parents.pop();
         this.skipChildrenVisit = false;
     }
-    
+
     beginVisitBuilder(node: Builder): void {
         this.createNodeAndLinks(node, MEDIATORS.BUILDER);
         this.skipChildrenVisit = true;
