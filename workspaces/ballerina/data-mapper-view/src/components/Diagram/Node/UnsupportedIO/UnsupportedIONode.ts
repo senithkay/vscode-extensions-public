@@ -17,6 +17,7 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const UNSUPPORTED_IO_NODE_TYPE = "data-mapper-node-unsupported-io";
+const NODE_ID = "unsupported-io-node";
 
 export enum UnsupportedExprNodeKind {
     Input,
@@ -36,6 +37,7 @@ export class UnsupportedIONode extends DataMapperNodeModel {
         public unsupportedExpr?: STNode
     ) {
         super(
+            `${NODE_ID}-${kind}`,
             context,
             UNSUPPORTED_IO_NODE_TYPE
         );
@@ -62,7 +64,7 @@ export class UnsupportedIONode extends DataMapperNodeModel {
                 this.x = x;
                 this.y = y;
             }
-            super.setPosition(x, y || this.y);
+            super.setPosition(x, y);
         }
     }
 }

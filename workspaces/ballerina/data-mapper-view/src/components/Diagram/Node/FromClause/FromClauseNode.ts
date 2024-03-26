@@ -34,6 +34,7 @@ import { NodeFindingVisitorByPosition } from "../../visitors/NodeFindingVisitorB
 import { AggregationFunctions } from "../../Label";
 
 export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc";
+const NODE_ID = "from-clause-node";
 
 export class FromClauseNode extends DataMapperNodeModel {
 
@@ -52,6 +53,7 @@ export class FromClauseNode extends DataMapperNodeModel {
         public context: IDataMapperContext,
         public value: FromClause) {
         super(
+            NODE_ID,
             context,
             QUERY_EXPR_SOURCE_NODE_TYPE
         );

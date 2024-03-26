@@ -82,8 +82,10 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	private diagramModel: DiagramModel;
 
 	constructor(
+		public id: string,
 		public context: IDataMapperContext,
-		type: string) {
+		type: string
+	) {
 		super({
 			type
 		});
