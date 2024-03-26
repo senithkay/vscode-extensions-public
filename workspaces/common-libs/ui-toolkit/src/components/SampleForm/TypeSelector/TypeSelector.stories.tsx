@@ -17,6 +17,6 @@ const onClick = (type: string) => {
 }
 
 export const TypeSelector = Template.bind();
-TypeSelector.args = { onTypeSelected: onClick };
+TypeSelector.args = { onTypeSelected: onClick, sx: { width: 600 } };
 
 export default { component: TypeSelector, title: "Sample Form" };
