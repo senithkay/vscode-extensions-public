@@ -1562,8 +1562,18 @@ export interface WSDLEndpointEnableRM extends STNode {
 }
 
 export interface RuleRuleset extends STNode {
-    source: RuleRulesetSource;
-    creation: RuleRulesetCreation;
+    properties: RuleRuleSetProperties;
+    rule: RuleRuleSetRule;
+}
+
+export interface RuleRuleSetProperties {
+    property: MediatorProperty[];
+}
+
+export interface RuleRuleSetRule {
+    value: string;
+    resourceType: string;
+    sourceType: string;
 }
 
 export interface TService extends TExtensibleDocumented, STNode {
@@ -1600,12 +1610,49 @@ export interface AggregateOnComplete extends STNode {
 }
 
 export interface Rule extends STNode {
-    ruleset: RuleRuleset;
-    session: RuleSession[];
-    facts: RuleFacts;
-    results: RuleResults;
-    childMediators: RuleChildMediators;
+    source: RuleSource;
+    target: RuleTarget;
+    ruleSet: RuleRuleset;
+    input: RuleInput;
+    output: RuleOutput;
     description: string;
+}
+
+export interface RuleInput {
+    fact: RuleInputFact[];
+    namespace: string;
+    wrapperElementName: string;
+}
+
+export interface RuleInputFact {
+    elementName: string;
+    namespace: string;
+    type: string;
+    xpath: string;
+}
+
+export interface RuleOutput {
+    fact: RuleOutputFact[];
+    namespace: string;
+    wrapperElementName: string;
+}
+
+export interface RuleOutputFact {
+    elementName: string;
+    namespace: string;
+    type: string;
+}
+
+export interface RuleSource {
+    value: string;
+    xpath: string;
+}
+
+export interface RuleTarget {
+    value: string;
+    action: string;
+    resultXpath: string;
+    xpath: string;
 }
 
 export interface EjbArgs extends STNode {
@@ -1663,6 +1710,15 @@ export enum EnableDisable {
 export enum SetRemove {
     set,
     remove,
+}
+
+export interface Ntlm extends STNode {
+    domain: string;
+    host: string;
+    username: string;
+    password: string;
+    ntlmVersion: string;
+    description: string;
 }
 
 export type DiagramService = APIResource | NamedSequence | Proxy;
