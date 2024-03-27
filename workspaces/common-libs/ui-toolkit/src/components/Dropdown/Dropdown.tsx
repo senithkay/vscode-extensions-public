@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ReactNode } from "react";
+import React, { ComponentProps, ReactNode } from "react";
 import {
     VSCodeDropdown,
     VSCodeOption,
@@ -22,18 +22,16 @@ export interface OptionProps {
     value: any;
 }
 
-export interface DropdownProps {
+export interface DropdownProps extends ComponentProps<"select"> {
     id: string;
     isLoading?: boolean;
     isRequired?: boolean;
     label?: string;
-    value?: string;
-    disabled?: boolean;
     items?: OptionProps[];
     errorMsg?: string;
     sx?: any;
     containerSx?: any;
-    onChange?: (value: string) => void;
+    onValueChange?: (value: string) => void;
 }
 
 const SmallProgressRing = styled(VSCodeProgressRing)`
@@ -63,8 +61,13 @@ const LabelContainer = styled.div<ContainerProps>`
     flex-direction: row;
 `;
 
-export const Dropdown: React.FC<DropdownProps> = (props: DropdownProps) => {
-    const { isLoading, isRequired, value, id, items, label, errorMsg, disabled, sx, containerSx, onChange } = props;
+export const Dropdown = React.forwardRef<HTMLInputElement, DropdownProps>((props, ref) => {
+    const { isLoading, isRequired, id, items, label, errorMsg, sx, containerSx, ...rest } = props;
+
+    const handleValueChange = (e: any) => {
+        props.onValueChange && props.onValueChange(e.target.value);
+        props.onChange && props.onChange(e);
+    };
 
     return (
         <Container sx={containerSx}>
@@ -76,7 +79,7 @@ export const Dropdown: React.FC<DropdownProps> = (props: DropdownProps) => {
                         <label htmlFor={id}>{label}</label> 
                         {(isRequired && label) && (<RequiredFormInput />)}
                     </LabelContainer>
-                    <VSCodeDropdown value={value} id={id} onChange={(e: any) => onChange(e.target.value)} style={sx} disabled={disabled}>
+                    <VSCodeDropdown ref={ref} id={id} style={sx} {...rest} onChange={handleValueChange}>
                         {items?.map((item: OptionProps) => (
                             <VSCodeOption key={item?.id} value={item.value}>
                                 {item?.content || item.value}
@@ -90,4 +93,5 @@ export const Dropdown: React.FC<DropdownProps> = (props: DropdownProps) => {
             )}
         </Container>
     );
-};
+});
+Dropdown.displayName = "Dropdown";
