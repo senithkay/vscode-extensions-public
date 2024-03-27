@@ -15,7 +15,14 @@ const Template: Story<DiagramProps> = (
 
 export const Empty = Template.bind({});
 Empty.args = {
-    model: { name: "", nodes: [], clients: [] },
+    model: {
+        participants: [],
+        location: {
+            fileName: "empty.bal",
+            startLine: { line: 0, offset: 0 },
+            endLine: { line: 0, offset: 0 },
+        },
+    },
 };
 
 export const Basic = Template.bind({});
