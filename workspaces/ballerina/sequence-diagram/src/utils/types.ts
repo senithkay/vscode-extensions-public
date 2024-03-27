@@ -23,10 +23,15 @@ export type Line = {
     offset: number;
 };
 
+export enum ParticipantType {
+    FUNCTION = "FUNCTION",
+    ENDPOINT = "ENDPOINT",
+}
+
 export type Participant = {
     id: string;
     name: string;
-    kind: string;
+    kind: ParticipantType;
     module: Module;
     nodes: Node[];
     location: Location;
@@ -37,11 +42,23 @@ export type Module = {
     packageName: string;
 };
 
+export enum NodeKind {
+    INTERACTION = "INTERACTION",
+    IF = "IF",
+    WHILE = "WHILE",
+}
+
+export enum InteractionType {
+    ENDPOINT_CALL = "ENDPOINT_CALL",
+    FUNCTION_CALL = "FUNCTION_CALL",
+    RETURN_CALL = "RETURN_CALL",
+}
+
 export type Node = {
-    interactionType?: string;
+    interactionType?: InteractionType;
     properties: NodeProperties;
     targetId?: string;
-    kind: string;
+    kind: NodeKind;
     location: Location;
     branches?: NodeBranch[];
 };
@@ -64,3 +81,7 @@ export type NodeProperties = {
     name?: Property;
     condition?: Property;
 };
+
+export type DiagramElementType = ParticipantType | NodeKind | InteractionType;
+
+export type DiagramElement = Participant | Node;
