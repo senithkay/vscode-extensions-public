@@ -61,7 +61,7 @@ const LabelContainer = styled.div<ContainerProps>`
     flex-direction: row;
 `;
 
-export const Dropdown = React.forwardRef<HTMLElement, DropdownProps>((props, ref) => {
+export const Dropdown = React.forwardRef<HTMLSelectElement, DropdownProps>((props, ref) => {
     const { isLoading, isRequired, id, items, label, errorMsg, sx, containerSx, ...rest } = props;
 
     const handleValueChange = (e: any) => {

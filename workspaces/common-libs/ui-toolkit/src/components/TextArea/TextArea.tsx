@@ -12,7 +12,7 @@ import { ErrorBanner } from "../Commons/ErrorBanner";
 import { RequiredFormInput } from "../Commons/RequiredInput";
 import styled from '@emotion/styled';
 
-export interface TextAreaProps extends ComponentProps<"input"> {
+export interface TextAreaProps extends ComponentProps<"textarea"> {
     label?: string;
     id?: string;
     className?: string;
@@ -57,7 +57,6 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
                     ref={ref}
                     autoFocus={autoFocus}
                     validationMessage={validationMessage}
-                    onInput={handleChange}
                     cols={cols}
                     rows={rows}
                     resize={resize}
@@ -65,6 +64,7 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
                     className={className}
                     {...rest}
                     onChange={handleChange}
+                    onInput={(e: any) => { onTextChange && onTextChange(e.target.value) }}
                 >
                     <LabelContainer><div style={{color: "var(--vscode-editor-foreground)"}}>
                         <label htmlFor={`${id}-label`}>{label}</label></div> {(required && label) && (<RequiredFormInput />)}
