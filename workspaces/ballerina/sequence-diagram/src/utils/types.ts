@@ -7,6 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { BaseNodeModel } from "../components/nodes/BaseNode";
+import { EmptyNodeModel } from "../components/nodes/EmptyNode";
+
+// Flow model types
+
 export type Flow = {
     participants: Participant[];
     location: Location;
@@ -85,3 +90,7 @@ export type NodeProperties = {
 export type DiagramElementType = ParticipantType | NodeKind | InteractionType;
 
 export type DiagramElement = Participant | Node;
+
+// Diagram types
+
+export type NodeModel = BaseNodeModel | EmptyNodeModel;

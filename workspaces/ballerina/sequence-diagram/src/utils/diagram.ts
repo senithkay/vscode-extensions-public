@@ -12,12 +12,22 @@ import createEngine, {
 } from "@projectstorm/react-diagrams";
 import { OverlayLayerFactory } from "../components/OverlayLayer";
 import { DagreEngine } from "../resources/dagre/DagreEngine";
+import { NodeLinkFactory } from "../components/NodeLink";
+import { NodePortFactory } from "../components/NodePort";
+import { EmptyNodeFactory } from "../components/nodes/EmptyNode";
+import { ParticipantNodeFactory } from "../components/nodes/ParticipantNode";
+import { Node, Participant } from "./types";
+import _ from "lodash";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
         registerDefaultDeleteItemsAction: false,
     });
 
+    engine.getPortFactories().registerFactory(new NodePortFactory());
+    engine.getLinkFactories().registerFactory(new NodeLinkFactory());
+    engine.getNodeFactories().registerFactory(new EmptyNodeFactory());
+    engine.getNodeFactories().registerFactory(new ParticipantNodeFactory());
     engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 
     return engine;
@@ -42,6 +52,15 @@ export function genDagreEngine() {
             ranker: "tight-tree",
         },
     });
+}
+
+export function getParticipantId(model: Participant) {
+    return _.snakeCase(`participant-${model.id}`);
+}
+export function getNodeId(model: Node) {
+    return _.snakeCase(
+        `node-${model.kind}-${model.location.startLine.line}-${model.location.startLine.offset}-${model.location.endLine.line}-${model.location.endLine.offset}`,
+    );
 }
 
 // // create link between ports
