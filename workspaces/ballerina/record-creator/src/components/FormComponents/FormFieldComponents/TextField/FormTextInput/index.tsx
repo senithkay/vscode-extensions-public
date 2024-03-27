@@ -157,7 +157,7 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
                     data-testid={dataTestId}
                     key={index}
                     placeholder={placeholder}
-                    onChange={handleOnChange}
+                    onTextChange={handleOnChange}
                     onBlur={handleOnBlur}
                     value={inputValue}
                     autoFocus={customProps?.focused}

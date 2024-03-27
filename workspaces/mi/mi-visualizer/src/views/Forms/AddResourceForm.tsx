@@ -136,7 +136,7 @@ export function AddResourceForm({ isOpen, onCancel: handleCancel, onCreate: hand
                             id="url-style-uri-template"
                             label="URI Template"
                             value={uriTemplate}
-                            onChange={(text: string) => {
+                            onTextChange={(text: string) => {
                                 setUriTemplate(text);
                                 setValidUriTemplate(text.match(/^\//) ? true : false);
                             }}
@@ -149,7 +149,7 @@ export function AddResourceForm({ isOpen, onCancel: handleCancel, onCreate: hand
                             id="url-style-url-mapping"
                             label="URL Mapping"
                             value={urlMapping}
-                            onChange={(text: string) => {
+                            onTextChange={(text: string) => {
                                 setUrlMapping(text);
                                 setValidUrlMapping(text.match(/^\//) ? true : false);
                             }}

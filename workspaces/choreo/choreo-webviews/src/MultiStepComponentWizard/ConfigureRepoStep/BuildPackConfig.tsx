@@ -132,7 +132,7 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
                             id='component-port-input'
                             label="Port"
                             placeholder="Port"
-                            onChange={(text: string) => setPortValue(text)}
+                            onTextChange={(text: string) => setPortValue(text)}
                             required
                         />
                     </MarginTopWrap>

@@ -18,7 +18,7 @@ import { Codicon } from "../Codicon/Codicon";
 const Template: ComponentStory<typeof TextField> = (args: TextFieldProps) => <TextField {...args} ref={undefined}/>;
 
 export const TextFieldWithError = Template.bind();
-TextFieldWithError.args = { value: "Sample Text", label: "TextField", errorMsg: "Test Error", autoFocus: true, placeholder: "placeholder", onChange: null };
+TextFieldWithError.args = { value: "Sample Text", label: "TextField", errorMsg: "Test Error", autoFocus: true, placeholder: "placeholder", onTextChange: (txt: string) => {console.log("Text Changed: ", txt)} };
 
 export const RequiredTextFieldWithError = Template.bind();
 RequiredTextFieldWithError.args = { value: "Sample Text", label: "TextField", errorMsg: "Test Error", required: true, placeholder: "placeholder", onChange: null };

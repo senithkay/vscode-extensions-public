@@ -193,7 +193,7 @@ const EnrichForm = (props: AddMediatorProps) => {
                     <Field>
                         <label>Source XML</label>
                         <TextArea
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "sourceXML": e });
                                 formValidators["sourceXML"](e);
                             }}
@@ -214,7 +214,7 @@ const EnrichForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["inlineRegistryKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "inlineRegistryKey": e });
                                 formValidators["inlineRegistryKey"](e);
                             }}
@@ -252,7 +252,7 @@ const EnrichForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["targetXPathJsonPath"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "targetXPathJsonPath": e });
                                 formValidators["targetXPathJsonPath"](e);
                             }}
@@ -269,7 +269,7 @@ const EnrichForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["targetProperty"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "targetProperty": e });
                                 formValidators["targetProperty"](e);
                             }}
@@ -290,7 +290,7 @@ const EnrichForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

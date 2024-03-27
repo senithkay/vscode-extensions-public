@@ -209,7 +209,7 @@ export function EndpointWizard(props: EndpointWizardProps) {
                     id='name-input'
                     label="Endpoint Name"
                     placeholder="Name"
-                    onChange={(text: string) => setEndpointName(text)}
+                    onTextChange={(text: string) => setEndpointName(text)}
                     errorMsg={validateEndpointName(endpointName)}
                     size={46}
                     autoFocus
@@ -223,7 +223,7 @@ export function EndpointWizard(props: EndpointWizardProps) {
                     <TextField
                         placeholder="Address"
                         label="Address"
-                        onChange={(text: string) => setAddress(text)}
+                        onTextChange={(text: string) => setAddress(text)}
                         value={address}
                         id='address-input'
                         errorMsg={validateAddress(address)}
@@ -235,21 +235,21 @@ export function EndpointWizard(props: EndpointWizardProps) {
                         <TextField
                             placeholder="WSDL URI"
                             label="WSDL URI"
-                            onChange={(text: string) => setWsdlUri(text)}
+                            onTextChange={(text: string) => setWsdlUri(text)}
                             value={wsdlUri}
                             id='wsdl-uri'
                         />
                         <TextField
                             placeholder="WSDL Service"
                             label="WSDL Service"
-                            onChange={(text: string) => setWsdlService(text)}
+                            onTextChange={(text: string) => setWsdlService(text)}
                             value={wsdlService}
                             id='wsdl-service'
                         />
                         <TextField
                             placeholder="WSDL Port"
                             label="WSDL Port"
-                            onChange={(text: string) => setWsdlPort(text)}
+                            onTextChange={(text: string) => setWsdlPort(text)}
                             value={wsdlPort}
                             id='wsdl-port'
                         />
@@ -261,12 +261,12 @@ export function EndpointWizard(props: EndpointWizardProps) {
                         <TextField
                             placeholder="URI"
                             label="URI"
-                            onChange={(text: string) => setUri(text)}
+                            onTextChange={(text: string) => setUri(text)}
                             value={uri}
                             id='template-uri'
                         />
                         <span>Target Template</span>
-                        <Dropdown items={templates} value={targetTemplate} onChange={handleTemplateChange} id="target-template"></Dropdown>
+                        <Dropdown items={templates} value={targetTemplate} onValueChange={handleTemplateChange} id="target-template"></Dropdown>
                     </>
                 )}
 
@@ -277,7 +277,7 @@ export function EndpointWizard(props: EndpointWizardProps) {
                             <TextField
                                 placeholder="URI Template"
                                 label="URI Template"
-                                onChange={(text: string) => setURITemplate(text)}
+                                onTextChange={(text: string) => setURITemplate(text)}
                                 value={URITemplate}
                                 id='uri-template-input'
                                 size={46}

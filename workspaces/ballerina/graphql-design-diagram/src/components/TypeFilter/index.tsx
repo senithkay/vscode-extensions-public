@@ -45,7 +45,7 @@ export function TypeFilter(props: TypeFilterProps) {
             id={`operation-filter`}
             label="Operation Type"
             value={type}
-            onChange={handleChange}
+            onValueChange={handleChange}
             items={dropDownItems}
         />
     );

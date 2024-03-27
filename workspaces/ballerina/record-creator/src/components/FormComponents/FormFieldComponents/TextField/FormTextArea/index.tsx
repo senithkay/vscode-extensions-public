@@ -82,7 +82,7 @@ export function FormTextArea(props: FormElementProps<FormTextAreaProps>) {
                     ref={codeAreaRef}
                     className={classes.textArea}
                     placeholder={placeholder}
-                    onChange={handleOnChange}
+                    onTextChange={handleOnChange}
                     value={inputValue}
                     resize="vertical"
                     rows={8}

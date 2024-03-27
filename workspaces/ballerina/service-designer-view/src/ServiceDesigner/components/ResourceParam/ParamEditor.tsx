@@ -72,7 +72,7 @@ export function ParamEditor(props: ParamProps) {
                     errorMsg=""
                     items={options}
                     label="Param Type"
-                    onChange={handleOnSelect}
+                    onValueChange={handleOnSelect}
                     value={param.option}
                 />
             )}
@@ -84,7 +84,7 @@ export function ParamEditor(props: ParamProps) {
                         required
                         placeholder='Enter type'
                         value={param.type}
-                        onChange={handleTypeChange}
+                        onTextChange={handleTypeChange}
                     />
                 )}
                 <TextField
@@ -93,7 +93,7 @@ export function ParamEditor(props: ParamProps) {
                     required
                     placeholder='Enter name'
                     value={param.name}
-                    onChange={handleChange}
+                    onTextChange={handleChange}
                 />
                 {!hideDefaultValue && (
                     <TextField
@@ -101,7 +101,7 @@ export function ParamEditor(props: ParamProps) {
                         size={21}
                         placeholder='Enter default value'
                         value={param.defaultValue}
-                        onChange={handleValueChange}
+                        onTextChange={handleValueChange}
                     />
                 )}
             </EditorContent>

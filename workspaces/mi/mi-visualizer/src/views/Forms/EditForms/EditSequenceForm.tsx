@@ -85,7 +85,7 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onSave }: Res
                         id="seq-name"
                         label="Name"
                         value={name}
-                        onChange={setName}
+                        onTextChange={setName}
                         size={150}
                         errorMsg={name.length > 0 ? undefined : "Required field"}
                     />
@@ -93,7 +93,7 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onSave }: Res
                         <CheckBox label="Statistics" value="statistics" checked={statistics} onChange={setStatistics} />
                         <CheckBox label="Trace" value="trace" checked={trace} onChange={setTrace} />
                     </CheckBoxGroup>
-                    <TextField id="seq-on-error" label="On Error" value={onError} onChange={setOnError} size={150} />
+                    <TextField id="seq-on-error" label="On Error" value={onError} onTextChange={setOnError} size={150} />
                     <ActionContainer>
                         <Button appearance="secondary" onClick={onCancel}>
                             Cancel

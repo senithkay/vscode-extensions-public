@@ -185,7 +185,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
                 <TextField
                     placeholder="Name"
                     label="Template Name"
-                    onChange={(value: string) => handleOnChange("templateName", value)}
+                    onTextChange={(value: string) => handleOnChange("templateName", value)}
                     value={template.templateName}
                     id="template-name-input"
                     autoFocus
@@ -194,13 +194,13 @@ export function TemplateWizard(props: TemplateWizardProps) {
                     size={100}
                 />
                 <span>Template Type</span>
-                <Dropdown items={templateTypes} value={template.templateType} onChange={handleTemplateTypeChange} id="template-type"/>
+                <Dropdown items={templateTypes} value={template.templateType} onValueChange={handleTemplateTypeChange} id="template-type"/>
                 {template.templateType === "HTTP Endpoint Template" && (
                     <>
                         <TextField
                             placeholder="URI Template"
                             label="URI Template"
-                            onChange={(value: string) => handleOnChange("uriTemplate", value)}
+                            onTextChange={(value: string) => handleOnChange("uriTemplate", value)}
                             value={template.uriTemplate}
                             id="uri-template"
                             size={100}
@@ -208,7 +208,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
                         />
 
                         <span>Method</span>
-                        <Dropdown items={httpMethods} value={template.httpMethod} onChange={handleHttpMethodChange} id="endpoint"/>
+                        <Dropdown items={httpMethods} value={template.httpMethod} onValueChange={handleHttpMethodChange} id="endpoint"/>
                     </>
                 )}
                 {template.templateType === "Address Endpoint Template" && (
@@ -216,7 +216,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
                         <TextField
                             placeholder="Address"
                             label="Address"
-                            onChange={(value: string) => handleOnChange("address", value)}
+                            onTextChange={(value: string) => handleOnChange("address", value)}
                             value={template.address}
                             id="uri-template"
                             size={100}
@@ -229,7 +229,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
                         <TextField
                             placeholder="WSDL URI"
                             label="WSDL URI"
-                            onChange={(value: string) => handleOnChange("wsdlUri", value)}
+                            onTextChange={(value: string) => handleOnChange("wsdlUri", value)}
                             value={template.wsdlUri}
                             id="wsdl-uri-input"
                             size={100}
@@ -238,7 +238,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
                         <TextField
                             placeholder="WSDL Service"
                             label="WSDL Service"
-                            onChange={(value: string) => handleOnChange("wsdlService", value)}
+                            onTextChange={(value: string) => handleOnChange("wsdlService", value)}
                             value={template.wsdlService}
                             id="wsdl-service-input"
                             size={100}
@@ -247,7 +247,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
                         <TextField
                             placeholder="WSDL Port"
                             label="WSDL Port"
-                            onChange={(value) => {
+                            onTextChange={(value) => {
                                 if (validNumericInput.test(value)) {
                                     handleOnChange("wsdlPort", Number(value))
                                 } else {

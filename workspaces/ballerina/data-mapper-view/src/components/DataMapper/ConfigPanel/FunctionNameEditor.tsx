@@ -19,7 +19,7 @@ export function FunctionNameEditor(props: FunctionNameEditorProps)  {
             <TextField
                 size={80}
                 onBlur={onBlur}
-                onChange={onChange}
+                onTextChange={onChange}
                 label="Name"
                 required={true}
                 value={value}

@@ -123,7 +123,7 @@ export function SequenceWizard(props: SequenceWizardProps) {
                     id='name-input'
                     label="Name"
                     placeholder="Name"
-                    onChange={(text: string) => setSequenceName(text)}
+                    onTextChange={(text: string) => setSequenceName(text)}
                     errorMsg={validateSequence(sequenceName)}
                     size={40}
                     autoFocus
