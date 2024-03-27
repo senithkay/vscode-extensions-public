@@ -96,7 +96,7 @@ const ProjectForm = () => {
                     </ComponentCard>
                 </HorizontalCardContainer>
             </Container>
-            <TextField onChange={handleProjectName} sx={{ marginTop: 20 }} value={name} label="Project Name" placeholder="Enter a project name" />
+            <TextField onTextChange={handleProjectName} sx={{ marginTop: 20 }} value={name} label="Project Name" placeholder="Enter a project name" />
             <ButtonWrapper>
                 <Button disabled={isLoading} onClick={handleCreateProject} appearance="primary">Create Project</Button>
             </ButtonWrapper>

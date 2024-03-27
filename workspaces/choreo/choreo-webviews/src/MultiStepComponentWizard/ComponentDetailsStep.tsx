@@ -69,7 +69,7 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
                     id='component-name-input'
                     label="Component Name"
                     placeholder="Name"
-                    onChange={(text: string) => setComponentName(text)}
+                    onTextChange={(text: string) => setComponentName(text)}
                     errorMsg={stepValidationErrors["name"]}
                     autoFocus
                     required

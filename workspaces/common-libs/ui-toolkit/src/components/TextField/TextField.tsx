@@ -108,6 +108,7 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
                 id={id}
                 {...rest}
                 onChange={handleChange}
+                onInput={(e: any) => { onTextChange && onTextChange(e.target.value) }}
             >
                 {iconComponent && <span onClick={iconClick} slot={position}>{iconComponent}</span>}
                 <LabelContainer>

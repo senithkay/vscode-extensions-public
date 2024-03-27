@@ -138,7 +138,7 @@ export function OrderByClauseItem(props: {
                                         <Dropdown
                                             id={`order-direction-${itemIndex}-${index}`}
                                             value="ascending"
-                                            onChange={(val: string) => onOrderDirectionChange(val, item)}
+                                            onValueChange={(val: string) => onOrderDirectionChange(val, item)}
                                             items={dropDownItems}
                                         />
                                         {intermediateNode.orderKey.length > 1 && (

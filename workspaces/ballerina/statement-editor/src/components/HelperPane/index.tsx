@@ -129,7 +129,7 @@ export function HelperPane() {
                 <PanelContent>
                     <>
                         <Dropdown
-                            onChange={onLibTypeSelection}
+                            onValueChange={onLibTypeSelection}
                             id="lib-filter-dropdown"
                             value={libraryType}
                             items={[

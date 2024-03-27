@@ -106,7 +106,7 @@ export function ResponseEditor(props: ParamProps) {
                     size={33}
                     placeholder='Enter type'
                     value={definedRecordName}
-                    onChange={handleTypeChange}
+                    onTextChange={handleTypeChange}
                 />
             )}
             <ActionButtons

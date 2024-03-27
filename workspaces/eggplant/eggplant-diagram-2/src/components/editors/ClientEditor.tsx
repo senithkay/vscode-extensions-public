@@ -34,6 +34,6 @@ export function ClientEditor(props: EditorProps) {
                 value={expression.value ? expression.value.toString() : ""}
                 items={dropdownItems}
                 sx={{ width: 165.5, marginBottom: 2 }}
-                onChange={handleOnChange}
+                onValueChange={handleOnChange}
             ></Dropdown>);
 }
