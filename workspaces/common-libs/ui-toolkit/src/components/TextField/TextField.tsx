@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ComponentProps, ReactNode } from 'react';
+import React, { ComponentProps, ReactNode, useEffect, useRef } from 'react';
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
 import { ErrorBanner } from "../Commons/ErrorBanner";
 import { RequiredFormInput } from "../Commons/RequiredInput";
@@ -58,8 +58,10 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
         placeholder, validationMessage, errorMsg, sx, InputProps, onTextChange, ...rest
     } = props;
 
-    // const [, setIsFocused] = React.useState(false);
-    // const textFieldRef = useRef<HTMLInputElement>(null);
+    const [, setIsFocused] = React.useState(false);
+    const textFieldRef = useRef<HTMLInputElement | null>(null);
+    // Assign the forwarded ref to the textFieldRef
+    React.useImperativeHandle(ref, () => textFieldRef.current);
 
     const { iconComponent, position = "start", onClick: iconClick } = icon || {};
     const handleChange = (e: any) => {
@@ -83,18 +85,18 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
         )
     ) : undefined;
 
-    // useEffect(() => {
-    //     if (autoFocus && textFieldRef.current && !value) {
-    //         setIsFocused(true);
-    //         textFieldRef.current?.focus()
-    //     }
-    // }, [autoFocus, value]);
+    useEffect(() => {
+        if (autoFocus && textFieldRef.current && !props.value) {
+            setIsFocused(true);
+            textFieldRef.current?.focus()
+        }
+    }, [autoFocus, props.value]);
 
     return (
         <Container sx={sx}>
             {startAdornment && startAdornment}
             <VSCodeTextField
-                ref={ref}
+                ref={textFieldRef}
                 style={{ width: "100%" }}
                 autoFocus={autoFocus}
                 type={type}
