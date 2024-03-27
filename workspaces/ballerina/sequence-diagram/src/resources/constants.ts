@@ -80,6 +80,8 @@ export const Colors = {
 
 export enum NodeTypes {
     BASE_NODE = "base-node",
+    PARTICIPANT_NODE = "participant-node",
+    INTERACTION_NODE = "interaction-node",
     EMPTY_NODE = "empty-node",
 }
 
@@ -88,8 +90,12 @@ export const NODE_PORT = "node-port";
 export const LOADING_OVERLAY = "loading-overlay";
 
 // sizing
-export const NODE_WIDTH = 280;
-export const NODE_HEIGHT = 50;
+export const NODE_WIDTH = 40;
+export const NODE_HEIGHT = 40;
+
+export const PARTICIPANT_NODE_WIDTH = 180;
+export const PARTICIPANT_NODE_HEIGHT = 40;
+export const PARTICIPANT_TAIL_MIN_HEIGHT = 250
 
 // position
 export const NODE_GAP_Y = 120;
