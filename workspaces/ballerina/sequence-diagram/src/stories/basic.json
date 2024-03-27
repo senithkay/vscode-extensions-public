@@ -1,0 +1,479 @@
+{
+    "participants": [
+        {
+            "id": "#foodClientHash",
+            "name": "foodClient",
+            "kind": "ENDPOINT",
+            "module": {
+                "moduleName": "foo",
+                "packageName": "org"
+            },
+            "nodes": [],
+            "location": {
+                "fileName": "sample.bal",
+                "startLine": {
+                    "line": 3,
+                    "offset": 0
+                },
+                "endLine": {
+                    "line": 3,
+                    "offset": 72
+                }
+            }
+        },
+        {
+            "id": "#printMenuHash",
+            "name": "printMenu",
+            "kind": "FUNCTION",
+            "module": {
+                "moduleName": "foo",
+                "packageName": "org"
+            },
+            "nodes": [
+                {
+                    "interactionType": "ENDPOINT_CALL",
+                    "properties": {
+                        "params": [
+                            {
+                                "type": "string",
+                                "value": "menu"
+                            }
+                        ],
+                        "expr": {
+                            "type": "http:Client",
+                            "value": "foodClient"
+                        },
+                        "method": {
+                            "type": "string",
+                            "value": "get"
+                        },
+                        "value": {
+                            "type": "Food[]",
+                            "value": "menu"
+                        }
+                    },
+                    "targetId": "#foodClientHash",
+                    "kind": "INTERACTION",
+                    "location": {
+                        "fileName": "sample.bal",
+                        "startLine": {
+                            "line": 14,
+                            "offset": 4
+                        },
+                        "endLine": {
+                            "line": 14,
+                            "offset": 48
+                        }
+                    }
+                },
+                {
+                    "interactionType": "FUNCTION_CALL",
+                    "properties": {
+                        "params": [],
+                        "name": {
+                            "type": "string",
+                            "value": "getTypeCount"
+                        },
+                        "value": {
+                            "type": "record {|string 'type; int count;|}[]",
+                            "value": "itemCounts"
+                        }
+                    },
+                    "targetId": "#printMenuHash",
+                    "kind": "INTERACTION",
+                    "location": {
+                        "fileName": "sample.bal",
+                        "startLine": {
+                            "line": 15,
+                            "offset": 4
+                        },
+                        "endLine": {
+                            "line": 15,
+                            "offset": 36
+                        }
+                    }
+                },
+                {
+                    "interactionType": "FUNCTION_CALL",
+                    "properties": {
+                        "params": [
+                            {
+                                "type": "record {|string 'type; int count;|}[]",
+                                "value": "itemCounts"
+                            }
+                        ],
+                        "name": {
+                            "type": "string",
+                            "value": "print"
+                        }
+                    },
+                    "targetId": "#printHash",
+                    "kind": "INTERACTION",
+                    "location": {
+                        "fileName": "sample.bal",
+                        "startLine": {
+                            "line": 17,
+                            "offset": 4
+                        },
+                        "endLine": {
+                            "line": 17,
+                            "offset": 27
+                        }
+                    }
+                },
+                {
+                    "interactionType": "FUNCTION_CALL",
+                    "properties": {
+                        "params": [
+                            {
+                                "type": "ItemInfo[]",
+                                "value": "foodInfo"
+                            }
+                        ],
+                        "name": {
+                            "type": "string",
+                            "value": "extractFoodType"
+                        }
+                    },
+                    "targetId": "#printMenuHash",
+                    "kind": "INTERACTION",
+                    "location": {
+                        "fileName": "",
+                        "startLine": {
+                            "line": 17,
+                            "offset": 4
+                        },
+                        "endLine": {
+                            "line": 17,
+                            "offset": 48
+                        }
+                    }
+                },
+                {
+                    "interactionType": "FUNCTION_CALL",
+                    "properties": {
+                        "params": [
+                            {
+                                "type": "ItemInfo[]",
+                                "value": "foodInfo"
+                            }
+                        ],
+                        "name": {
+                            "type": "string",
+                            "value": "print"
+                        }
+                    },
+                    "targetId": "#printHash",
+                    "kind": "INTERACTION",
+                    "location": {
+                        "fileName": "sample.bal",
+                        "startLine": {
+                            "line": 17,
+                            "offset": 4
+                        },
+                        "endLine": {
+                            "line": 17,
+                            "offset": 27
+                        }
+                    }
+                }
+            ],
+            "location": {
+                "fileName": "sample.bal",
+                "startLine": {
+                    "line": 13,
+                    "offset": 0
+                },
+                "endLine": {
+                    "line": 19,
+                    "offset": 1
+                }
+            }
+        },
+        {
+            "id": "#foodTypeHash",
+            "name": "extractFoodType",
+            "kind": "FUNCTION",
+            "module": {
+                "moduleName": "foo",
+                "packageName": "org"
+            },
+            "nodes": [
+                {
+                    "kind": "WHILE",
+                    "properties": {
+                        "condition": {
+                            "type": "boolean",
+                            "value": "results.length() > 0"
+                        }
+                    },
+                    "branches": [
+                        {
+                            "label": "Body",
+                            "children": [
+                                {
+                                    "interactionType": "ENDPOINT_CALL",
+                                    "properties": {
+                                        "params": [
+                                            {
+                                                "type": "string",
+                                                "value": "\"types/\" + selectedType"
+                                            }
+                                        ],
+                                        "expr": {
+                                            "type": "http:Client",
+                                            "value": "foodClient"
+                                        },
+                                        "method": {
+                                            "type": "string",
+                                            "value": "get"
+                                        },
+                                        "value": {
+                                            "type": "record {|string keyword; boolean isAvailable;|}",
+                                            "value": "ratingRes"
+                                        }
+                                    },
+                                    "targetId": "#foodTypeHash",
+                                    "kind": "INTERACTION",
+                                    "location": {
+                                        "fileName": "sample.bal",
+                                        "startLine": {
+                                            "line": 35,
+                                            "offset": 4
+                                        },
+                                        "endLine": {
+                                            "line": 35,
+                                            "offset": 115
+                                        }
+                                    }
+                                },
+                                {
+                                    "kind": "IF",
+                                    "properties": {
+                                        "condition": {
+                                            "type": "boolean",
+                                            "value": "ratingRes.isAvailable"
+                                        }
+                                    },
+                                    "branches": [
+                                        {
+                                            "label": "THEN",
+                                            "children": [
+                                                {
+                                                    "interactionType": "ENDPOINT_CALL",
+                                                    "properties": {
+                                                        "params": [
+                                                            {
+                                                                "type": "string",
+                                                                "value": "ratingUrl"
+                                                            }
+                                                        ],
+                                                        "expr": {
+                                                            "type": "http:Client",
+                                                            "value": "foodClient"
+                                                        },
+                                                        "method": {
+                                                            "type": "string",
+                                                            "value": "get"
+                                                        },
+                                                        "value": {
+                                                            "type": "int",
+                                                            "value": "rating"
+                                                        }
+                                                    },
+                                                    "targetId": "#foodTypeHash",
+                                                    "kind": "INTERACTION",
+                                                    "location": {
+                                                        "fileName": "",
+                                                        "startLine": {
+                                                            "line": 39,
+                                                            "offset": 8
+                                                        },
+                                                        "endLine": {
+                                                            "line": 39,
+                                                            "offset": 54
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "label": "ELSE",
+                                            "children": [
+                                                {
+                                                    "interactionType": "ENDPOINT_CALL",
+                                                    "properties": {
+                                                        "params": [
+                                                            {
+                                                                "type": "string",
+                                                                "value": "ratingUrl"
+                                                            }
+                                                        ],
+                                                        "expr": {
+                                                            "type": "http:Client",
+                                                            "value": "foodClient"
+                                                        },
+                                                        "method": {
+                                                            "type": "string",
+                                                            "value": "post"
+                                                        },
+                                                        "value": {
+                                                            "type": "http:Response",
+                                                            "value": "postRes"
+                                                        }
+                                                    },
+                                                    "targetId": "#foodTypeHash",
+                                                    "kind": "INTERACTION",
+                                                    "location": {
+                                                        "fileName": "sample.bal",
+                                                        "startLine": {
+                                                            "line": 41,
+                                                            "offset": 8
+                                                        },
+                                                        "endLine": {
+                                                            "line": 41,
+                                                            "offset": 73
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "location": {
+                                        "fileName": "sample.bal",
+                                        "startLine": {
+                                            "line": 38,
+                                            "offset": 4
+                                        },
+                                        "endLine": {
+                                            "line": 42,
+                                            "offset": 5
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "location": {
+                        "fileName": "sample.bal",
+                        "startLine": {
+                            "line": 33,
+                            "offset": 4
+                        },
+                        "endLine": {
+                            "line": 44,
+                            "offset": 5
+                        }
+                    }
+                },
+                {
+                    "interactionType": "RETURN_CALL",
+                    "properties": {
+                        "value": {
+                            "type": "ItemInfo[]"
+                        }
+                    },
+                    "targetId": "#printMenuHash",
+                    "kind": "INTERACTION",
+                    "location": {
+                        "fileName": "sample.bal",
+                        "startLine": {
+                            "line": 39,
+                            "offset": 4
+                        },
+                        "endLine": {
+                            "line": 39,
+                            "offset": 20
+                        }
+                    }
+                }
+            ],
+            "location": {
+                "fileName": "sample.bal",
+                "startLine": {
+                    "line": 21,
+                    "offset": 0
+                },
+                "endLine": {
+                    "line": 25,
+                    "offset": 1
+                }
+            }
+        },
+        {
+            "id": "#typeCountHash",
+            "name": "getTypeCount",
+            "kind": "FUNCTION",
+            "module": {
+                "moduleName": "foo",
+                "packageName": "org"
+            },
+            "nodes": [
+                {
+                    "interactionType": "RETURN_CALL",
+                    "properties": {
+                        "value": {
+                            "type": "record {|string 'type; int count;|}[]"
+                        }
+                    },
+                    "targetId": "#printMenuHash",
+                    "kind": "INTERACTION",
+                    "location": {
+                        "fileName": "sample.bal",
+                        "startLine": {
+                            "line": 43,
+                            "offset": 4
+                        },
+                        "endLine": {
+                            "line": 45,
+                            "offset": 44
+                        }
+                    }
+                }
+            ],
+            "location": {
+                "fileName": "sample.bal",
+                "startLine": {
+                    "line": 46,
+                    "offset": 0
+                },
+                "endLine": {
+                    "line": 50,
+                    "offset": 1
+                }
+            }
+        },
+        {
+            "id": "#printHash",
+            "name": "print",
+            "kind": "FUNCTION",
+            "module": {
+                "moduleName": "foo",
+                "packageName": "org"
+            },
+            "nodes": [],
+            "location": {
+                "fileName": "main.bal",
+                "startLine": {
+                    "line": 48,
+                    "offset": 0
+                },
+                "endLine": {
+                    "line": 48,
+                    "offset": 56
+                }
+            }
+        }
+    ],
+    "location": {
+        "fileName": "sample.bal",
+        "startLine": {
+            "line": 13,
+            "offset": 0
+        },
+        "endLine": {
+            "line": 19,
+            "offset": 1
+        }
+    }
+}
