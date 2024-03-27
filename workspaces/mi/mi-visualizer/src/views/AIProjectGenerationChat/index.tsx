@@ -66,7 +66,6 @@ export function AIProjectGenerationChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
   const [isCodeLoading, setIsCodeLoading] = useState(false);
-  const [initialPrompt, setInitialPrompt] = useState("");
 
      async function fetchBackendUrl() {
           try {
@@ -98,7 +97,6 @@ export function AIProjectGenerationChat() {
               ]);
               addChatEntry("user", machineView.initialPrompt);
               handleSend(false);
-              setInitialPrompt(machineView.initialPrompt);
               rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.clearAIPrompt"] });
             } else {
               if (storedChatArray) {
