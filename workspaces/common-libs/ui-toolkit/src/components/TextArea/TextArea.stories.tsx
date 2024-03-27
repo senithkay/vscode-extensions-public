@@ -14,7 +14,7 @@ import React from "react";
 import { ComponentStory } from "@storybook/react";
 import { TextArea, TextAreaProps } from "./TextArea";
 
-const Template: ComponentStory<typeof TextArea> = (args: TextAreaProps) => <TextArea {...args} />;
+const Template: ComponentStory<typeof TextArea> = (args: TextAreaProps) => <TextArea {...args} ref={undefined} />;
 
 export const TextAreaWithError = Template.bind();
 TextAreaWithError.args = { value: "Sample Text", label: "TextField", errorMsg: "Test Error", autoFocus: true, placeholder: "placeholder", onChange: null };

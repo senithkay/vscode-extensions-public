@@ -2426,6 +2426,7 @@ importers:
       http-server: ^14.1.1
       lodash: ~4.17.21
       react-error-boundary: ^4.0.13
+      react-hook-form: 7.51.2
       typescript: ^4.9.4
     dependencies:
       '@emotion/css': 11.11.2
@@ -2443,6 +2444,7 @@ importers:
       '@wso2-enterprise/font-wso2-vscode': link:../font-wso2-vscode
       classnames: 2.5.1
       lodash: 4.17.21
+      react-hook-form: 7.51.2
     devDependencies:
       '@storybook/addon-actions': 6.5.16
       '@storybook/addon-essentials': 6.5.16_muc74pzdcttibi5pd6oym7ky34
@@ -40101,6 +40103,13 @@ packages:
   /react-error-overlay/6.0.11:
     resolution: {integrity: sha512-/6UZ2qgEyH2aqzYZgQPxEnz33NJ2gNsnHA2o5+o4wW9bLM/JYQitNP9xPhsXwC08hMMovfGe/8retsdDsczPRg==}
     dev: true
+
+  /react-hook-form/7.51.2:
+    resolution: {integrity: sha512-y++lwaWjtzDt/XNnyGDQy6goHskFualmDlf+jzEZvjvz6KWDf7EboL7pUvRCzPTJd0EOPpdekYaQLEvvG6m6HA==}
+    engines: {node: '>=12.22.0'}
+    peerDependencies:
+      react: ^16.8.0 || ^17 || ^18
+    dev: false
 
   /react-icons/4.12.0_react@17.0.2:
     resolution: {integrity: sha512-IBaDuHiShdZqmfc/TwHu6+d6k2ltNCf3AszxNmjJc1KUfXdEeRJOKyNvLmAHaarhzGmTSVygNdyu8/opXv2gaw==}
