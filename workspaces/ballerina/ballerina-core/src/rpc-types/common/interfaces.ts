@@ -8,6 +8,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { Diagnostic } from "vscode-languageserver-types";
 import { NodePosition } from "../../interfaces/ballerina";
 import { CompletionResponse } from "../lang-server/interfaces";
 
@@ -32,4 +33,12 @@ export interface File {
 export interface WorkspacesFileResponse {
     workspaceRoot: string;
     files: File[];
+}
+export interface BallerinaDiagnosticsRequest {
+    ballerinaSource: string;
+    targetPosition: NodePosition;
+    skipSemiColon?: boolean;
+}
+export interface BallerinaDiagnosticsResponse {
+    diagnostics: Diagnostic[];
 }

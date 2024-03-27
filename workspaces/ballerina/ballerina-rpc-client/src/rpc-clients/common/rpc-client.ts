@@ -9,11 +9,14 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    BallerinaDiagnosticsRequest,
+    BallerinaDiagnosticsResponse,
     CommonRPCAPI,
     GoToSourceRequest,
     TypeResponse,
     WorkspaceFileRequest,
     WorkspacesFileResponse,
+    getBallerinaDiagnostics,
     getTypes,
     getWorkspaceFiles,
     goToSource
@@ -38,5 +41,9 @@ export class CommonRpcClient implements CommonRPCAPI {
 
     getWorkspaceFiles(params: WorkspaceFileRequest): Promise<WorkspacesFileResponse> {
         return this._messenger.sendRequest(getWorkspaceFiles, HOST_EXTENSION, params);
+    }
+
+    getBallerinaDiagnostics(params: BallerinaDiagnosticsRequest): Promise<BallerinaDiagnosticsResponse> {
+        return this._messenger.sendRequest(getBallerinaDiagnostics, HOST_EXTENSION, params);
     }
 }
