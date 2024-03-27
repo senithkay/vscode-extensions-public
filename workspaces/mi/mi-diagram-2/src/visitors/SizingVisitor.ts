@@ -227,13 +227,6 @@ export class SizingVisitor implements Visitor {
 
     endVisitStore = (node: Store): void => this.calculateBasicMediator(node);
 
-    endVisitThrottle = (node: Throttle): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
-        this.calculateAdvancedMediator(node, {
-            onAccept: node.onAccept,
-            onReject: node.onReject
-        }, NodeTypes.GROUP_NODE)
-    };
 
     endVisitValidate = (node: Validate): void => {
         node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
@@ -306,6 +299,13 @@ export class SizingVisitor implements Visitor {
         }, NodeTypes.CONDITION_NODE);
     }
     beginVisitConditionalRouter = (node: ConditionalRouter): void => this.calculateBasicMediator(node);
+    endVisitThrottle = (node: Throttle): void => {
+        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CONDITION.WIDTH, h: NODE_DIMENSIONS.CONDITION.HEIGHT };
+        this.calculateAdvancedMediator(node, {
+            OnAccept: node.onAccept,
+            OnReject: node.onReject
+        }, NodeTypes.CONDITION_NODE);
+    }
     //Extesnion Mediators
     beginVisitBean = (node: Bean): void => this.calculateBasicMediator(node);
     beginVisitClass = (node: Class): void => this.calculateBasicMediator(node);
