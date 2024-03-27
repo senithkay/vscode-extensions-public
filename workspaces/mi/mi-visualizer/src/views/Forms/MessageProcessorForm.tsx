@@ -450,11 +450,11 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                     </div>
                 </Container>
                 <span>Message Processor Type</span>
-                <Dropdown items={messageProcessorTypes} value={messageProcessor.messageProcessorType} onChange={handleMessageProcessorTypeChange} id="message-processor-type"/>
+                <Dropdown items={messageProcessorTypes} value={messageProcessor.messageProcessorType} onValueChange={handleMessageProcessorTypeChange} id="message-processor-type"/>
                 <TextField
                     placeholder="Name"
                     label="Message Processor Name"
-                    onChange={(value: string) => handleOnChange("messageProcessorName", value)}
+                    onTextChange={(value: string) => handleOnChange("messageProcessorName", value)}
                     value={messageProcessor.messageProcessorName}
                     id="message-processor-name-input"
                     autoFocus
@@ -465,15 +465,15 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                 {messageProcessor.messageProcessorType != "Scheduled Failover Message Forwarding Processor" && (
                     <>
                         <span>Message Store</span>
-                        <Dropdown items={messageStoreTypes} value={messageProcessor.messageStoreType} onChange={handleMessageStoreTypeChange} id="message-store-type"/>
+                        <Dropdown items={messageStoreTypes} value={messageProcessor.messageStoreType} onValueChange={handleMessageStoreTypeChange} id="message-store-type"/>
                     </>
                 )}
                 {messageProcessor.messageProcessorType === "Scheduled Failover Message Forwarding Processor" && (
                     <>
                         <span>Source Messages Store</span>
-                        <Dropdown items={messageStoreTypes} value={messageProcessor.messageStoreType} onChange={handleSourceMessageStoreTypeChange} id="source-message-store"/>
+                        <Dropdown items={messageStoreTypes} value={messageProcessor.messageStoreType} onValueChange={handleSourceMessageStoreTypeChange} id="source-message-store"/>
                         <span>Target Messages Store</span>
-                        <Dropdown items={messageStoreTypes} value={messageProcessor.targetMessageStoreType} onChange={handleTargetMessageStoreTypeChange} id="target-message-store"/>
+                        <Dropdown items={messageStoreTypes} value={messageProcessor.targetMessageStoreType} onValueChange={handleTargetMessageStoreTypeChange} id="target-message-store"/>
                     </>
                 )}
                 {messageProcessor.messageProcessorType != "Custom Message Processor" && (
@@ -502,7 +502,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                         <TextField
                             placeholder="\temp\test-file.txt"
                             label="Quartz configuration file path"
-                            onChange={(value: string) => handleOnChange("quartzConfigPath", value)}
+                            onTextChange={(value: string) => handleOnChange("quartzConfigPath", value)}
                             value={messageProcessor.quartzConfigPath}
                             id="quartz-config-path-input"
                             size={100}
@@ -510,7 +510,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                         <TextField
                             placeholder="0 0 * * FRI"
                             label="Cron Expression"
-                            onChange={(value: string) => handleOnChange("cron", value)}
+                            onTextChange={(value: string) => handleOnChange("cron", value)}
                             value={messageProcessor.cron}
                             id="cron-input"
                             size={100}
@@ -523,7 +523,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                             <TextField
                                 placeholder="10"
                                 label="Forwarding Interval (Millis)"
-                                onChange={(value: string) => {
+                                onTextChange={(value: string) => {
                                     if (!isNaN(Number(value))) {
                                         handleOnChange("forwardingInterval", Number(value));
                                     } else {
@@ -537,7 +537,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                             <TextField
                                 placeholder="10"
                                 label="Retry Interval (Millis)"
-                                onChange={(value: string) => {
+                                onTextChange={(value: string) => {
                                     if (!isNaN(Number(value))) {
                                         handleOnChange("retryInterval", Number(value));
                                     } else {
@@ -551,7 +551,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                             <TextField
                                 placeholder="10"
                                 label="Maximum redelivery attempts"
-                                onChange={(value: string) => {
+                                onTextChange={(value: string) => {
                                     if (!isNaN(Number(value))) {
                                         handleOnChange("maxRedeliveryAttempts", Number(value));
                                     } else {
@@ -565,7 +565,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                             <TextField
                                 placeholder="10"
                                 label="Maximum store connection attempts"
-                                onChange={(value: string) => {
+                                onTextChange={(value: string) => {
                                     if (!isNaN(Number(value))) {
                                         handleOnChange("maxConnectionAttempts", Number(value));
                                     } else {
@@ -579,7 +579,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                             <TextField
                                 placeholder="10"
                                 label="Store connection attempt interval (Millis)"
-                                onChange={(value: string) => {
+                                onTextChange={(value: string) => {
                                     if (!isNaN(Number(value))) {
                                         handleOnChange("connectionAttemptInterval", Number(value));
                                     } else {
@@ -633,13 +633,13 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                                 </RadioLabel>
                             </RadioBtnContainer>
                             {messageProcessor.faultSequenceType === "Workspace" && (
-                                <Dropdown items={sequences} value={messageProcessor.faultSequence} onChange={handleFaultSequenceChange} id="fault-sequence"/>
+                                <Dropdown items={sequences} value={messageProcessor.faultSequence} onValueChange={handleFaultSequenceChange} id="fault-sequence"/>
                             )}
                             {messageProcessor.faultSequenceType === "Custom" && (
                                 <TextField
                                     placeholder="Sequence"
                                     label="Custom Sequence"
-                                    onChange={(value: string) => handleOnChange("faultSequence", value)}
+                                    onTextChange={(value: string) => handleOnChange("faultSequence", value)}
                                     value={messageProcessor.faultSequence}
                                     id="fault-sequence-custom"
                                     size={100}
@@ -667,13 +667,13 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                                 </RadioLabel>
                             </RadioBtnContainer>
                             {messageProcessor.deactivateSequenceType === "Workspace" && (
-                                <Dropdown items={sequences} value={messageProcessor.deactivateSequence} onChange={handleDeactivateSequenceChange} id="deactivate-sequence"/>
+                                <Dropdown items={sequences} value={messageProcessor.deactivateSequence} onValueChange={handleDeactivateSequenceChange} id="deactivate-sequence"/>
                             )}
                             {messageProcessor.deactivateSequenceType === "Custom" && (
                                 <TextField
                                     placeholder="Sequence"
                                     label="Custom Sequence"
-                                    onChange={(value: string) => handleOnChange("deactivateSequence", value)}
+                                    onTextChange={(value: string) => handleOnChange("deactivateSequence", value)}
                                     value={messageProcessor.deactivateSequence}
                                     id="deactivate-sequence-custom"
                                     size={100}
@@ -682,7 +682,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                             <TextField
                                 placeholder="10"
                                 label="Task Count (Cluster Mode)"
-                                onChange={(value: string) => {
+                                onTextChange={(value: string) => {
                                     if (!isNaN(Number(value))) {
                                         handleOnChange("taskCount", Number(value));
                                     } else {
@@ -700,7 +700,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                         <TextField
                             placeholder="304,305"
                             label="Non retry http status codes"
-                            onChange={(value: string) => handleOnChange("statusCodes", value)}
+                            onTextChange={(value: string) => handleOnChange("statusCodes", value)}
                             value={messageProcessor.statusCodes}
                             id="status-codes-input"
                             size={50}
@@ -708,7 +708,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                         <TextField
                             placeholder="Client Repository"
                             label="Axis2 Client Repository"
-                            onChange={(value: string) => handleOnChange("clientRepository", value)}
+                            onTextChange={(value: string) => handleOnChange("clientRepository", value)}
                             value={messageProcessor.clientRepository}
                             id="client-repository-input"
                             size={100}
@@ -716,7 +716,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                         <TextField
                             placeholder="Configuration"
                             label="Axis2 Configuration"
-                            onChange={(value: string) => handleOnChange("axis2Config", value)}
+                            onTextChange={(value: string) => handleOnChange("axis2Config", value)}
                             value={messageProcessor.axis2Config}
                             id="axis2-config-input"
                             size={100}
@@ -743,13 +743,13 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                             </RadioLabel>
                         </RadioBtnContainer>
                         {messageProcessor.endpointType === "Workspace" && (
-                            <Dropdown items={endpoints} value={messageProcessor.endpoint} onChange={handleEndpointChange} id="endpoint"/>
+                            <Dropdown items={endpoints} value={messageProcessor.endpoint} onValueChange={handleEndpointChange} id="endpoint"/>
                         )}
                         {messageProcessor.endpointType === "Custom" && (
                             <TextField
                                 placeholder="Endpoint"
                                 label="Custom Endpoint"
-                                onChange={(value: string) => handleOnChange("endpoint", value)}
+                                onTextChange={(value: string) => handleOnChange("endpoint", value)}
                                 value={messageProcessor.endpoint}
                                 id="endpoint-custom"
                                 size={100}
@@ -777,20 +777,20 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                             </RadioLabel>
                         </RadioBtnContainer>
                         {messageProcessor.replySequenceType === "Workspace" && (
-                            <Dropdown items={sequences} value={messageProcessor.replySequence} onChange={handleReplySequenceChange} id="reply-sequence"/>
+                            <Dropdown items={sequences} value={messageProcessor.replySequence} onValueChange={handleReplySequenceChange} id="reply-sequence"/>
                         )}
                         {messageProcessor.replySequenceType === "Custom" && (
                             <TextField
                                 placeholder="Sequence"
                                 label="Custom Sequence"
-                                onChange={(value: string) => handleOnChange("replySequence", value)}
+                                onTextChange={(value: string) => handleOnChange("replySequence", value)}
                                 value={messageProcessor.replySequence}
                                 id="reply-sequence-custom"
                                 size={100}
                             />
                         )}
                         <span>Fail Messages Store</span>
-                        <Dropdown items={messageStoreTypes} value={messageProcessor.failMessageStoreType} onChange={handleFailMessageStoreTypeChange} id="fail-message-store"/>
+                        <Dropdown items={messageStoreTypes} value={messageProcessor.failMessageStoreType} onValueChange={handleFailMessageStoreTypeChange} id="fail-message-store"/>
                     </>
                 )}
                 {messageProcessor.messageProcessorType === "Message Sampling Processor" && (
@@ -817,13 +817,13 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                             </RadioLabel>
                         </RadioBtnContainer>
                         {messageProcessor.sequenceType === "Workspace" && (
-                            <Dropdown items={sequences} value={messageProcessor.sequence} onChange={handleSequenceChange} id="sequence"/>
+                            <Dropdown items={sequences} value={messageProcessor.sequence} onValueChange={handleSequenceChange} id="sequence"/>
                         )}
                         {messageProcessor.sequenceType === "Custom" && (
                             <TextField
                                 placeholder="Sequence"
                                 label="Custom Sequence"
-                                onChange={(value: string) => handleOnChange("sequence", value)}
+                                onTextChange={(value: string) => handleOnChange("sequence", value)}
                                 value={messageProcessor.sequence}
                                 id="sequence-custom"
                                 size={100}
@@ -832,7 +832,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                         <TextField
                             placeholder="10"
                             label="Sampling Interval (Millis)"
-                            onChange={(value: string) => {
+                            onTextChange={(value: string) => {
                                 if (!isNaN(Number(value))) {
                                     handleOnChange("samplingInterval", Number(value));
                                 } else {
@@ -846,7 +846,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                         <TextField
                             placeholder="10"
                             label="Sampling Concurrency"
-                            onChange={(value: string) => {
+                            onTextChange={(value: string) => {
                                 if (!isNaN(Number(value))) {
                                     handleOnChange("samplingConcurrency", Number(value));
                                 } else {
@@ -864,7 +864,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                         <TextField
                             placeholder="Provider Class"
                             label="Message Processor Provider Class FQN"
-                            onChange={(value: string) => handleOnChange("providerClass", value)}
+                            onTextChange={(value: string) => handleOnChange("providerClass", value)}
                             value={messageProcessor.providerClass}
                             id="provider-class-input"
                             required

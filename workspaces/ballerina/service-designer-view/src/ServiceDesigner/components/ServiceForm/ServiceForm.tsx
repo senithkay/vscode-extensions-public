@@ -51,7 +51,7 @@ export function ServiceForm(props: ResourceFormProps) {
 						errorMsg=""
 						label="Path"
 						size={70}
-						onChange={handlePathChange}
+						onTextChange={handlePathChange}
 						placeholder="Path"
 						value={config.path}
 					/>
@@ -62,7 +62,7 @@ export function ServiceForm(props: ResourceFormProps) {
 						errorMsg=""
 						label="Port"
 						size={70}
-						onChange={handlePortChange}
+						onTextChange={handlePortChange}
 						placeholder="Port"
 						value={`${config.port}`}
 					/>

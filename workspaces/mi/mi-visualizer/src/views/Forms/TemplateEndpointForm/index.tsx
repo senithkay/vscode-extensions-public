@@ -164,7 +164,7 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
                     label="Name"
                     placeholder="Name"
                     value={endpoint.name}
-                    onChange={(text: string) => handleOnChange('name', text)}
+                    onTextChange={(text: string) => handleOnChange('name', text)}
                     errorMsg={validateEndpointName(endpoint.name)}
                     size={100}
                     autoFocus
@@ -175,14 +175,14 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
                     label="Uri"
                     placeholder="Uri"
                     value={endpoint.uri}
-                    onChange={(text: string) => handleOnChange('uri', text)}
+                    onTextChange={(text: string) => handleOnChange('uri', text)}
                 />
                 <FieldGroup>
                     <span>Template</span>
                     <Dropdown
                         id="template"
                         value={endpoint.template}
-                        onChange={(text: string) => handleOnChange("template", text)}
+                        onValueChange={(text: string) => handleOnChange("template", text)}
                         items={templates}
                     />
                 </FieldGroup>
@@ -190,7 +190,7 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
                     id='description'
                     value={endpoint.description}
                     label="Description"
-                    onChange={(text: string) => handleOnChange('description', text)}
+                    onTextChange={(text: string) => handleOnChange('description', text)}
                 />
                 <FieldGroup>
                     <InlineButtonGroup

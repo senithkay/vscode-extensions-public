@@ -131,7 +131,7 @@ export function NewPayloadNodeForm(props: OptionWidgetProps) {
                 value={payloadSource}
                 rows={16}
                 resize="vertical"
-                onChange={(value: string) => {
+                onTextChange={(value: string) => {
                     if (node) {
                         setPayloadSource(value);
                     }

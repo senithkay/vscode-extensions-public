@@ -202,7 +202,7 @@ export function TaskWizard(props: DetailedTaskWizardProps) {
                     label="Task Name"
                     placeholder="Name"
                     validationMessage="Task name is required"
-                    onChange={(text: string) => handleOnChange("name", text)}
+                    onTextChange={(text: string) => handleOnChange("name", text)}
                     size={100}
                     autoFocus
                     required
@@ -213,7 +213,7 @@ export function TaskWizard(props: DetailedTaskWizardProps) {
                     label="Task Group"
                     placeholder="Group"
                     validationMessage="Task group is required"
-                    onChange={(text: string) => handleOnChange("group", text)}
+                    onTextChange={(text: string) => handleOnChange("group", text)}
                     size={100}
                     required
                 />
@@ -223,7 +223,7 @@ export function TaskWizard(props: DetailedTaskWizardProps) {
                     label="Task Implementation"
                     placeholder="Implementation"
                     validationMessage="Task implementation is required"
-                    onChange={(text: string) => handleOnChange("implementation", text)}
+                    onTextChange={(text: string) => handleOnChange("implementation", text)}
                     size={100}
                     required
                 />
@@ -232,7 +232,7 @@ export function TaskWizard(props: DetailedTaskWizardProps) {
                     id='pinned-servers'
                     label="Pinned Servers"
                     placeholder="Servers"
-                    onChange={(text: string) => handleOnChange("pinnedServers", text)}
+                    onTextChange={(text: string) => handleOnChange("pinnedServers", text)}
                     size={100}
                 />
                 <Typography variant="h4" sx={{ my: 0 }}>Trigger Information of the Task</Typography>
@@ -252,7 +252,7 @@ export function TaskWizard(props: DetailedTaskWizardProps) {
                                 value={task.triggerCount}
                                 id='count'
                                 label="Count"
-                                onChange={(text: string) => {
+                                onTextChange={(text: string) => {
                                     if (!isNaN(Number(text))) {
                                         handleOnChange("triggerCount", Number(text));
                                     }
@@ -264,7 +264,7 @@ export function TaskWizard(props: DetailedTaskWizardProps) {
                                 id='interval'
                                 label="Interval (in seconds)"
                                 validationMessage="Interval is required"
-                                onChange={(text: string) => {
+                                onTextChange={(text: string) => {
                                     if (!isNaN(Number(text))) {
                                         handleOnChange("triggerInterval", Number(text));
                                     }
@@ -280,7 +280,7 @@ export function TaskWizard(props: DetailedTaskWizardProps) {
                                 id='cron'
                                 label="Cron"
                                 validationMessage="Cron is required"
-                                onChange={(text: string) => handleOnChange("triggerCron", text)}
+                                onTextChange={(text: string) => handleOnChange("triggerCron", text)}
                                 size={50}
                                 required
                             />

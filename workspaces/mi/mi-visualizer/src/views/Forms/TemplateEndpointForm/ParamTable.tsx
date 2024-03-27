@@ -73,13 +73,13 @@ const ParamsTable = ({ params, setParams }: any) => {
                         id='param-name'
                         value={param.name}
                         placeholder="Param name"
-                        onChange={(text: string) => handleParamChange(index, "name", text)}
+                        onTextChange={(text: string) => handleParamChange(index, "name", text)}
                     />
                     <TextField
                         id='param-value'
                         value={param.value}
                         placeholder="Param value"
-                        onChange={(text: string) => handleParamChange(index, "value", text)}
+                        onTextChange={(text: string) => handleParamChange(index, "value", text)}
                     />
                     <Codicon iconSx={{ fontSize: 18, mx: 'auto' }} name='trash' onClick={() => handleParamDelete(index)} />
                 </Row>

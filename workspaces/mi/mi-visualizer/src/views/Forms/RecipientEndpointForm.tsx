@@ -182,7 +182,7 @@ export function RecipientWizard(props: RecipientWizardProps) {
                     label="Name"
                     placeholder="Name"
                     value={endpoint.name}
-                    onChange={(text: string) => handleOnChange('name', text)}
+                    onTextChange={(text: string) => handleOnChange('name', text)}
                     errorMsg={validateEndpointName(endpoint.name)}
                     size={100}
                     autoFocus
@@ -218,7 +218,7 @@ export function RecipientWizard(props: RecipientWizardProps) {
                     id='description'
                     value={endpoint.description}
                     label="Description"
-                    onChange={(text: string) => handleOnChange('description', text)}
+                    onTextChange={(text: string) => handleOnChange('description', text)}
                 />
                 <FieldGroup>
                     <InlineButtonGroup

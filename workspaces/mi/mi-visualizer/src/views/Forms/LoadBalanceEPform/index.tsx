@@ -205,7 +205,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                     label="Name"
                     placeholder="Name"
                     value={endpoint.name}
-                    onChange={(text: string) => handleOnChange('name', text)}
+                    onTextChange={(text: string) => handleOnChange('name', text)}
                     errorMsg={validateEndpointName(endpoint.name)}
                     size={100}
                     autoFocus
@@ -216,7 +216,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                     <Dropdown
                         id="algorithm"
                         value={endpoint.algorithm}
-                        onChange={(text: string) => handleOnChange("algorithm", text)}
+                        onValueChange={(text: string) => handleOnChange("algorithm", text)}
                         items={algorithms}
                     />
                 </FieldGroup>
@@ -225,7 +225,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                     <Dropdown
                         id="fail-over"
                         value={endpoint.failover}
-                        onChange={(text: string) => handleOnChange("failover", text)}
+                        onValueChange={(text: string) => handleOnChange("failover", text)}
                         items={trueFalseDropdown}
                     />
                 </FieldGroup>
@@ -234,7 +234,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                     <Dropdown
                         id="build-message"
                         value={endpoint.buildMessage}
-                        onChange={(text: string) => handleOnChange("buildMessage", text)}
+                        onValueChange={(text: string) => handleOnChange("buildMessage", text)}
                         items={trueFalseDropdown}
                     />
                 </FieldGroup>
@@ -269,7 +269,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                     <Dropdown
                         id="session-management"
                         value={endpoint.sessionManagement}
-                        onChange={(text: string) => handleOnChange("sessionManagement", text)}
+                        onValueChange={(text: string) => handleOnChange("sessionManagement", text)}
                         items={sessionManagementOptions}
                     />
                 </FieldGroup>
@@ -277,7 +277,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                     id='session-timeout'
                     value={endpoint.sessionTimeout}
                     label="Session Timeout"
-                    onChange={(text: string) => handleOnChange('sessionTimeout', text)}
+                    onTextChange={(text: string) => handleOnChange('sessionTimeout', text)}
                 />}
 
                 <SubTitle>Miscellaneous Properties</SubTitle>
@@ -285,7 +285,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                     id='description'
                     value={endpoint.description}
                     label="Description"
-                    onChange={(text: string) => handleOnChange('description', text)}
+                    onTextChange={(text: string) => handleOnChange('description', text)}
                 />
                 <FieldGroup>
                     <InlineButtonGroup

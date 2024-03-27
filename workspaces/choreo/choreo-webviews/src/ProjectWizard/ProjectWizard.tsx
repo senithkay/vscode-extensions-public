@@ -282,7 +282,7 @@ export function ProjectWizard(props: { orgId: string }) {
                             label="Project Name"
                             placeholder="Name"
                             validationMessage="Project name is required"
-                            onChange={(text: string) => setProjectName(text)}
+                            onTextChange={(text: string) => setProjectName(text)}
                             errorMsg={isProjectNameTaken && projectNameError}
                             autoFocus
                             required
@@ -290,7 +290,7 @@ export function ProjectWizard(props: { orgId: string }) {
                         <TextArea
                             placeholder="Description"
                             label="Project Description"
-                            onChange={(text: string) => setProjectDescription(text)}
+                            onTextChange={(text: string) => setProjectDescription(text)}
                             value={projectDescription}
                             id='project-description-input'
                         />

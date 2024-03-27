@@ -296,7 +296,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                     {formValues["payloadFormat"] && formValues["payloadFormat"].toLowerCase() == "inline" &&
                         <Field>
                         <TextArea
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "payload": e });
                                 formValidators["payload"](e);
                             }}

@@ -62,7 +62,7 @@ export function TypeResolver(props: TypeResolverProps) {
                     disabled={disabled}
                     errorMsg={errorMessage}
                     required={isRequired}
-                    onChange={handleOnChange}
+                    onTextChange={handleOnChange}
                 />
             );
         case "Dropdown":
@@ -76,7 +76,7 @@ export function TypeResolver(props: TypeResolverProps) {
                     disabled={disabled}
                     errorMsg={errorMessage}
                     isRequired={isRequired}
-                    onChange={handleOnChange}
+                    onValueChange={handleOnChange}
                 />
             );
         case "Checkbox":
@@ -101,7 +101,7 @@ export function TypeResolver(props: TypeResolverProps) {
                     disabled={disabled}
                     label={label}
                     errorMsg={errorMessage}
-                    onChange={handleOnChange}
+                    onTextChange={handleOnChange}
                 />
             );
         default:

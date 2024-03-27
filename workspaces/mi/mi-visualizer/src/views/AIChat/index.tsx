@@ -445,7 +445,7 @@ export function AIChat() {
 
       <div style={{ display: "flex", flexDirection: "column", padding: "10px" }}>
         <TextArea
-          onChange={(e) => setUserInput(e)}
+          onTextChange={(e) => setUserInput(e)}
           placeholder="Type your message here"
           required
           value={userInput}

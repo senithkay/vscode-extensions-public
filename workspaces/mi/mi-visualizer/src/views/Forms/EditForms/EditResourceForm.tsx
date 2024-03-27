@@ -183,7 +183,7 @@ export function EditResourceForm({ resourceData, isOpen, documentUri, onCancel, 
                             id="url-style-uri-template"
                             label="URI Template"
                             value={uriTemplate}
-                            onChange={(text: string) => {
+                            onTextChange={(text: string) => {
                                 setUriTemplate(text);
                                 setValidUriTemplate(text.match(/^\//) ? true : false);
                             }}
@@ -196,7 +196,7 @@ export function EditResourceForm({ resourceData, isOpen, documentUri, onCancel, 
                             id="url-style-url-mapping"
                             label="URL Mapping"
                             value={urlMapping}
-                            onChange={(text: string) => {
+                            onTextChange={(text: string) => {
                                 setUrlMapping(text);
                                 setValidUrlMapping(text.match(/^\//) ? true : false);
                             }}
@@ -310,7 +310,7 @@ export function EditResourceForm({ resourceData, isOpen, documentUri, onCancel, 
                                             value: sequence,
                                         }))}
                                         value={inSequence}
-                                        onChange={setInSequence}
+                                        onValueChange={setInSequence}
                                     />
                                 )}
                                 <CheckBoxContainer>
@@ -335,7 +335,7 @@ export function EditResourceForm({ resourceData, isOpen, documentUri, onCancel, 
                                             value: sequence,
                                         }))}
                                         value={outSequence}
-                                        onChange={setOutSequence}
+                                        onValueChange={setOutSequence}
                                     />
                                 )}
                                 <CheckBoxContainer>
@@ -360,7 +360,7 @@ export function EditResourceForm({ resourceData, isOpen, documentUri, onCancel, 
                                             value: sequence,
                                         }))}
                                         value={faultSequence}
-                                        onChange={setFaultSequence}
+                                        onValueChange={setFaultSequence}
                                     />
                                 )}
                             </React.Fragment>

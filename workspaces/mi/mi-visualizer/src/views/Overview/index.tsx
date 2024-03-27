@@ -171,7 +171,7 @@ export function Overview(props: OverviewProps) {
                         <Codicon name="wand" sx={{ marginRight: '5px' }} /> Describe your Integration to generate with AI
                     </h3>
                     <AIPanel>
-                        <TextArea onChange={handleAiPromptChange} value={inputAiPrompt} rows={4} cols={1000} placeholder="ie. I want to create an API that will route my request based on a header value."></TextArea>
+                        <TextArea onTextChange={handleAiPromptChange} value={inputAiPrompt} rows={4} cols={1000} placeholder="ie. I want to create an API that will route my request based on a header value."></TextArea>
                         <VSCodeButton onClick={handleGenerateWithAI}>
                             <Codicon name="wand" />
                             &nbsp; Generate
