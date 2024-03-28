@@ -49,6 +49,7 @@ import { RequiredParamNode } from "../RequiredParam";
 import { UnionTypeNode } from "../UnionType";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
+const NODE_ID = "query-expr-node";
 
 export enum QueryExprMappingType {
     A2AWithSelect = "array-to-array-with-select",
@@ -73,6 +74,8 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         public value: QueryExpression,
         public parentNode: STNode) {
         super(
+            // `${NODE_ID}-${value.queryPipeline.fromClause.typedBindingPattern.bindingPattern.source.trim()}`,
+            NODE_ID,
             context,
             QUERY_EXPR_NODE_TYPE
         );

@@ -20,7 +20,6 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { getSupportedUnionTypes } from "../../utils/union-type-utils";
 import { TypeDescriptor } from "../commons/DataMapperNode";
 
-import { useStyles } from "./style";
 import { UnionTypesList } from "./UnionTypesList";
 
 export interface UnionTypeSelectorProps {
