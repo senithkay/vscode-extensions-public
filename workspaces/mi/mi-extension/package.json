@@ -123,6 +123,11 @@
         "category": "MI"
       },
       {
+        "command": "MI.showOverview",
+        "title": "Show Overview",
+        "category": "MI"
+      },
+      {
         "command": "MI.openAiPanel",
         "title": "Open MI Ai",
         "category": "MI"

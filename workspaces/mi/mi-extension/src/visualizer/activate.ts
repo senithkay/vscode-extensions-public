@@ -37,6 +37,15 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
             openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: file.fsPath });
         })
     );
+
+    context.subscriptions.push(
+        commands.registerCommand(COMMANDS.SHOW_OVERVIEW, async () => {
+            const displayState: boolean | undefined = extension.context.workspaceState.get('displayOverview');
+            const displayOverview = displayState === undefined ? true : displayState;
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.UnsupportedProject, customProps: { displayOverview } });
+        })
+    );
+
     StateMachine.service().onTransition((state) => {
         if (state.event.viewLocation?.view) {
             commands.executeCommand('setContext', 'showGoToSource', state.event.viewLocation?.documentUri !== undefined);

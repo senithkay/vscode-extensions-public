@@ -132,6 +132,10 @@ interface ImageProps {
   alt: string;
 }
 
+export interface UnsupportedProjectProps {
+  displayOverview?: boolean;
+};
+
 const Card: React.FC<CardProps> = ({ id: index, title, description, expanded, onClick }) => {
   return (
     <React.Fragment>
@@ -160,7 +164,8 @@ const Card: React.FC<CardProps> = ({ id: index, title, description, expanded, on
   );
 };
 
-export function UnsupportedProject() {
+export function UnsupportedProject(props: UnsupportedProjectProps) {
+  const { displayOverview = true } = props;
   const { rpcClient } = useVisualizerContext();
   const [activeWorkspaces, setActiveWorkspaces] = React.useState<WorkspaceFolder>(undefined);
   const [activeCard, setActiveCard] = React.useState<number>(0);
@@ -290,11 +295,13 @@ export function UnsupportedProject() {
               })}
             </Block>
           </Steps>
-          <ButtonContainer>
-            <Button appearance='primary' onClick={disableOverview}>
-              Don't show this again
-            </Button>
-          </ButtonContainer>
+          {displayOverview && (
+            <ButtonContainer>
+              <Button appearance='primary' onClick={disableOverview}>
+                Don't show this again
+              </Button>
+            </ButtonContainer>
+          )}
         </Container>
       </ViewContent>
     </View>
