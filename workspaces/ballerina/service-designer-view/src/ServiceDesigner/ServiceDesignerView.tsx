@@ -83,7 +83,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         setServiceFormOpen(false);
     };
     const handleServiceFormSave = async (service: Service) => {
-        const content = updateServiceDecl({BASE_PATH: service.path, PORT: `${service.port}`, SERVICE_TYPE: "http"});
+        const content = updateServiceDecl({ BASE_PATH: service.path, PORT: `${service.port}`, SERVICE_TYPE: "http" });
         await applyModifications([{
             type: "INSERT",
             isImport: false,
@@ -98,7 +98,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         if (goToSource) {
             goToSource(resource);
         } else {
-            commonRpcClient.goToSource({ position: resource.position });
+            commonRpcClient.goToSource({ position: resource.position! });
         }
     };
 
@@ -136,16 +136,11 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
                 <ResourceForm
                     isOpen={isResourceFormOpen}
                     isBallerniaExt={isParentBallerinaExt}
-                    resourceConfig={serviceConfig?.resources.length > 0 ? editingResource : undefined}
+                    resourceConfig={serviceConfig.resources.length > 0 ? editingResource : undefined}
                     onSave={handleResourceFormSave}
-                    onClose={handleResourceFormClose} 
+                    onClose={handleResourceFormClose}
                     addNameRecord={addNameRecord}
-                    serviceEndPosition={{
-                        startLine: model.closeBraceToken.position.endLine,
-                        startColumn: model.closeBraceToken.position.endColumn,
-                        endLine: model.closeBraceToken.position.endLine,
-                        endColumn: model.closeBraceToken.position.endColumn
-                    }}
+                    serviceEndPosition={model.closeBraceToken.position}
                     commonRpcClient={commonRpcClient}
                     applyModifications={applyModifications}
                 />
@@ -155,7 +150,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
                     isOpen={isServiceFormOpen}
                     serviceConfig={serviceConfig}
                     onSave={handleServiceFormSave}
-                    onClose={handleServiceFormClose} 
+                    onClose={handleServiceFormClose}
                 />
             }
         </div>

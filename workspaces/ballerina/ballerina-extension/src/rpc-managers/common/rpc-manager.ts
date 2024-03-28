@@ -115,7 +115,11 @@ export class CommonRpcManager implements CommonRPCAPI {
                     }
                 });
 
-                const response = { diagnostics: diagResp[0]?.diagnostics || [] } as BallerinaDiagnosticsResponse;
+                const response = {
+                    diagnostics: params.checkSeverity ?
+                        diagResp[0]?.diagnostics.filter(diag => diag.severity === params.checkSeverity) :
+                        diagResp[0]?.diagnostics || []
+                } as BallerinaDiagnosticsResponse;
                 resolve(response);
 
             }

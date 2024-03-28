@@ -124,13 +124,16 @@ export const TypeBrowser: React.FC<TypeBrowserProps> = (props: TypeBrowserProps)
 
     const handleCreateNewRecord = async (name: string) => {
         const source = `type ${name} readonly & record {};`;
+        const position = serviceEndPosition!;
+        position.startLine = serviceEndPosition?.endLine;
+        position.startColumn = serviceEndPosition?.endColumn;
         await applyModifications([{
             type: "INSERT",
             isImport: false,
             config: {
                 "STATEMENT": source
             },
-            ...serviceEndPosition
+            ...position,
         }]);
         setQuery(name);
         fetchTypes();

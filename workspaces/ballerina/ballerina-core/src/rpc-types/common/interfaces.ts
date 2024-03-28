@@ -38,6 +38,7 @@ export interface BallerinaDiagnosticsRequest {
     ballerinaSource: string;
     targetPosition: NodePosition;
     skipSemiColon?: boolean;
+    checkSeverity?: 1 | 2 | 3
 }
 export interface BallerinaDiagnosticsResponse {
     diagnostics: Diagnostic[];
