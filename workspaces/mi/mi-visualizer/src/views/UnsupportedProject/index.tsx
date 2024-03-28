@@ -1,0 +1,303 @@
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import React, { useEffect } from 'react';
+import { ColorThemeKind, WorkspaceFolder } from '@wso2-enterprise/mi-core';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { Button, Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
+import styled from '@emotion/styled';
+import { View, ViewContent, ViewHeader } from '../../components/View';
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 32px;
+
+  * {
+    box-sizing: border-box;
+  }
+`;
+
+const Block = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const Steps = styled.div`
+  display: grid;
+  grid-template-columns: 5fr 8fr;
+  column-gap: 32px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+    row-gap: 32px;
+  }
+`;
+
+const Headline = styled.div`
+  font-size: 26px;
+  font-weight: 400;
+  white-space: nowrap;
+  padding-bottom: 10px;
+`;
+
+const SubTitle = styled.div`
+  font-weight: 400;
+  margin-top: 0;
+  margin-bottom: 5px;
+  font-size: 1.5em;
+  line-height: normal;
+`;
+
+const Body = styled(Typography)`
+  color: var(--vscode-descriptionForeground);
+`;
+
+const CardContainer = styled(Block)`
+  min-height: 400px;
+
+  @media (max-width: 768px) {
+    min-height: 200px;
+  }
+`;
+
+const CardCollapsed = styled.div`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 100%;
+  height: 48px;
+  padding: 4px 16px;
+  border-radius: 6px;
+  :hover {
+    background-color: var(--vscode-welcomePage-tileHoverBackground);
+  }
+`;
+
+const CardExpanded = styled.div`
+  width: 100%;
+  border: 1px solid var(--vscode-focusBorder);
+  border-radius: 6px;
+  padding: 16px;
+  background-color: var(--vscode-welcomePage-tileBackground);
+`;
+
+const CardLayout = styled.div`
+  display: grid;
+  width: 100%;
+  grid-template-columns: 1fr 15fr;
+  row-gap: 4px;
+  align-items: start;
+`;
+
+const CardContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  flex-wrap: wrap;
+`;
+
+const CardTitle = styled(Typography)`
+  color: var(--vscode-walkthrough-stepTitle-foreground);
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  width: 100%;
+`;
+
+interface CardProps {
+  id: number;
+  title: string;
+  description: string;
+  expanded: boolean;
+  onClick: () => void;
+}
+
+interface ImageProps {
+  src: { Light: any; Dark: any };
+  alt: string;
+}
+
+const Card: React.FC<CardProps> = ({ id: index, title, description, expanded, onClick }) => {
+  return (
+    <React.Fragment>
+      {expanded ? (
+        <CardExpanded>
+          <CardContent>
+            <CardTitle variant='body3' sx={{ fontWeight: 600 }}>
+              {title}
+            </CardTitle>
+            <Typography variant='body3'>{description}</Typography>
+          </CardContent>
+        </CardExpanded>
+      ) : (
+        <CardCollapsed onClick={onClick}>
+          <CardLayout>
+            <Typography variant='body3' sx={{ fontWeight: 600 }}>
+              {`${index}.`}
+            </Typography>
+            <CardTitle variant='body3' sx={{ fontWeight: 600 }}>
+              {title}
+            </CardTitle>
+          </CardLayout>
+        </CardCollapsed>
+      )}
+    </React.Fragment>
+  );
+};
+
+export function UnsupportedProject() {
+  const { rpcClient } = useVisualizerContext();
+  const [activeWorkspaces, setActiveWorkspaces] = React.useState<WorkspaceFolder>(undefined);
+  const [activeCard, setActiveCard] = React.useState<number>(0);
+  const [currentThemeKind, setCurrentThemeKind] = React.useState<ColorThemeKind>(undefined);
+
+  const cards = [
+    {
+      title: 'Open Diagram',
+      description: 'Click on the circled button to open the diagram view of the project',
+    },
+    {
+      title: 'Diagram View',
+      description: 'Diagram View can be used to view and edit resource, sequence, and proxies.',
+    },
+    {
+      title: 'Service Designer',
+      description: 'Service Designer can be used to view and edit your services and resources.',
+    },
+  ];
+
+  const imageInfo = [
+    {
+      src: {
+        Light: require('../../../assets/images/open-diagram-light.png'),
+        Dark: require('../../../assets/images/open-diagram-dark.png'),
+      },
+      alt: 'Open Diagram',
+    },
+    {
+      src: {
+        Light: require('../../../assets/images/diagram-view-light.png'),
+        Dark: require('../../../assets/images/diagram-view-dark.png'),
+      },
+      alt: 'Diagram View',
+    },
+    {
+      src: {
+        Light: require('../../../assets/images/service-designer-light.png'),
+        Dark: require('../../../assets/images/service-designer-dark.png'),
+      },
+      alt: 'Service Designer',
+    },
+  ];
+
+  const handleMigrateProject = () => {
+    rpcClient.getMiDiagramRpcClient().migrateProject({ source: activeWorkspaces?.fsPath });
+  };
+
+  useEffect(() => {
+    rpcClient
+      .getMiVisualizerRpcClient()
+      .getWorkspaces()
+      .then(response => {
+        setActiveWorkspaces(response.workspaces[0]);
+      });
+  }, []);
+
+  // Set current theme
+  useEffect(() => {
+    if (rpcClient) {
+      void (async () => {
+        const kind = await rpcClient.getMiVisualizerRpcClient().getCurrentThemeKind();
+        setCurrentThemeKind(kind);
+      })();
+      rpcClient.onThemeChanged((kind: ColorThemeKind) => {
+        setCurrentThemeKind(kind);
+      });
+    }
+  }, [rpcClient]);
+
+  const getImageForTheme: React.FC<ImageProps> = (image) => {
+    switch (currentThemeKind) {
+      case ColorThemeKind.Light:
+        return <img src={image.src.Light} alt={image.alt} />
+      case ColorThemeKind.HighContrastLight:
+        return <img src={image.src.Light} alt={image.alt} />
+      default:
+        return <img src={image.src.Dark} alt={image.alt} />
+    }
+  };
+
+  const images = React.useMemo(() => {
+    return imageInfo.map((image) => getImageForTheme(image));
+  }, [currentThemeKind])
+
+  return (
+    <View>
+      <ViewHeader title={'Project: ' + activeWorkspaces?.name} codicon='project' />
+      <ViewContent padding>
+        <Container>
+          <Block>
+            <Headline>Unsupported Project Detected</Headline>
+            <Body variant='body3'>
+              This project was identified as being created with Integration Studio. The MI VSCode extension has limited
+              functionality for these projects.
+            </Body>
+            <Body variant='body3'>
+              We recommend migrating your project to the latest format to unlock the full suite of features available.
+              For more information, refer to the{' '}
+              <a href='https://ei.docs.wso2.com' target='_blank' rel='noopener noreferrer'>
+                official documentation
+              </a>
+              .
+            </Body>
+          </Block>
+          <Steps>
+            <CardContainer>
+              <SubTitle>Working with Integration Studio Projects</SubTitle>
+              {cards.map((card, index) => (
+                <Card
+                  key={card.title}
+                  id={index + 1}
+                  title={card.title}
+                  description={card.description}
+                  expanded={index === activeCard}
+                  onClick={() => setActiveCard(index)}
+                />
+              ))}
+            </CardContainer>
+            <Block>
+              {images.map((image, index) => {
+                return (
+                  <React.Fragment key={index}>
+                    {index === activeCard && image}
+                  </React.Fragment>
+                );
+              })}
+            </Block>
+          </Steps>
+          <ButtonContainer>
+            <Button appearance='primary' onClick={handleMigrateProject}>
+              <Codicon name='arrow-swap' sx={{ marginRight: '8px' }} />
+              Migrate Project
+            </Button>
+          </ButtonContainer>
+        </Container>
+      </ViewContent>
+    </View>
+  );
+}

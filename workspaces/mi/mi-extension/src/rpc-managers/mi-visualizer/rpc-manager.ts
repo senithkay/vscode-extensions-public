@@ -10,6 +10,7 @@
  */
 import {
     AIVisualizerLocation,
+    ColorThemeKind,
     GettingStartedCategory,
     GettingStartedData,
     GettingStartedSample,
@@ -25,7 +26,7 @@ import {
     WorkspacesResponse
 } from "@wso2-enterprise/mi-core";
 import fetch from 'node-fetch';
-import { workspace } from "vscode";
+import { workspace, window } from "vscode";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { handleOpenFile } from "../../util/fileOperations";
@@ -144,5 +145,12 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     addToHistory(entry: HistoryEntry): void {
         history.push(entry);
         navigate();
+    }
+
+    async getCurrentThemeKind(): Promise<ColorThemeKind> {
+        return new Promise((resolve) => {
+            const currentThemeKind = window.activeColorTheme.kind;
+            resolve(currentThemeKind);
+        });
     }
 }
