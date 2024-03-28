@@ -80,6 +80,7 @@ const CardCollapsed = styled.div`
   height: 48px;
   padding: 4px 16px;
   border-radius: 6px;
+  cursor: pointer;
   :hover {
     background-color: var(--vscode-welcomePage-tileHoverBackground);
   }
