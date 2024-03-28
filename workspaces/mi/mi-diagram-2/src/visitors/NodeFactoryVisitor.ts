@@ -380,7 +380,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitStore = (node: Store): void => this.createNodeAndLinks(node, MEDIATORS.STORE);
-    beginVisitThrottle = (node: Throttle): void => this.createNodeAndLinks(node, MEDIATORS.THROTTLE);
 
     // beginVisitValidate = (node: Validate): void => this.createNodeAndLinks(node, MEDIATORS.VALIDATE);
     beginVisitValidate(node: Validate): void {
@@ -504,6 +503,22 @@ export class NodeFactoryVisitor implements Visitor {
         this.skipChildrenVisit = false;
     }
     beginVisitConditionalRouter = (node: ConditionalRouter): void => this.createNodeAndLinks(node, MEDIATORS.CONDITIONALROUTER);
+
+    beginVisitThrottle(node: Throttle): void {
+        this.createNodeAndLinks(node, MEDIATORS.THROTTLE, NodeTypes.CONDITION_NODE)
+        this.parents.push(node);
+
+        this.visitSubSequences(node, {
+            OnAccept: node.onAccept,
+            OnReject: node.onReject,
+        }, NodeTypes.CONDITION_NODE, false);
+        this.skipChildrenVisit = true;
+    }
+    endVisitThrottle(node: Throttle): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+
     // Extension Mediators
     beginVisitBean(node: Bean): void {
         this.createNodeAndLinks(node, MEDIATORS.BEAN);
