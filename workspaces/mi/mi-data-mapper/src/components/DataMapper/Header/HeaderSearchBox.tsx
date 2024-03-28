@@ -16,7 +16,6 @@ import React, { useEffect, useState } from 'react';
 import debounce from "lodash.debounce";
 
 import { useDMSearchStore } from "../../../store/store";
-import { SelectionState } from "../DataMapper";
 
 import { getInputOutputSearchTerms } from "./utils";
 import { Codicon, SearchBox } from '@wso2-enterprise/ui-toolkit';
@@ -36,11 +35,11 @@ export interface SearchTerm {
 }
 
 interface SearchBoxProps {
-    selection: SelectionState;
+    // selection: SelectionState;
 }
 
 export default function HeaderSearchBox(props: SearchBoxProps) {
-    const { selection } = props;
+    // const { selection } = props;
     const [searchTerm, setSearchTerm] = useState('');
     const [searchOption, setSearchOption] = useState<string[]>([]);
     const [inputSearchTerm, setInputSearchTerm] = useState<SearchTerm>();
@@ -125,9 +124,9 @@ export default function HeaderSearchBox(props: SearchBoxProps) {
         setSearchTerm(modifiedSearchTerm);
     }, [searchOption]);
 
-    useEffect(() => {
-        handleOnSearchTextClear();
-    }, [selection.selectedST.fieldPath]);
+    // useEffect(() => {
+    //     handleOnSearchTextClear();
+    // }, [selection.selectedST.fieldPath]);
 
     const debouncedOnChange = debounce((value: string) => handleSearch(value), 400);
     const filterIcon = (<Codicon name="filter" sx= {{cursor: "auto"}}/>);

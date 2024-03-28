@@ -31,19 +31,17 @@ export const useDiagramModel = (
     isError: boolean;
     refetch: any;
 } => {
-    const zoomLevel = diagramModel.getZoomLevel();
-    const offSetX = diagramModel.getOffsetX();
-    const offSetY = diagramModel.getOffsetY();
-    const noOfNodes = nodes.length;
-    const context = nodes.find(node => node.context)?.context;
-	const fnSource = context ? context.selection.selectedST.stNode.source : undefined;
-    const collapsedFields = context?.collapsedFields;
-    const { inputSearch, outputSearch } = useDMSearchStore();
+    // const zoomLevel = diagramModel.getZoomLevel();
+    // const offSetX = diagramModel.getOffsetX();
+    // const offSetY = diagramModel.getOffsetY();
+    // const noOfNodes = nodes.length;
+    // const context = nodes.find(node => node.context)?.context;
+	// const fnSource = context ? context.selection.selectedST.stNode.source : undefined;
+    // const collapsedFields = context?.collapsedFields;
+    // const { inputSearch, outputSearch } = useDMSearchStore();
 
     const genModel = async () => {
         const newModel = new DiagramModel();
-        newModel.setZoomLevel(zoomLevel);
-        newModel.setOffset(offSetX, offSetY);
         // const showInputFilterEmpty = !nodes.some(
         //     node => (node instanceof RequiredParamNode && node.getSearchFilteredType()) || node instanceof FromClauseNode
         // );
@@ -80,7 +78,7 @@ export const useDiagramModel = (
         isFetching,
         isError,
         refetch,
-    } = useQuery(['genModel', {fnSource, noOfNodes, inputSearch, outputSearch, collapsedFields}], () => genModel(), {});
+    } = useQuery(['genModel', {}], () => genModel(), {});
 
     return { updatedModel, isFetching, isError, refetch };
 };

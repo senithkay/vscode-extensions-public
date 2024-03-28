@@ -57,10 +57,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         deleteField,
         hasHoveredParent
     } = props;
-    const {
-        enableStatementEditor,
-        handleCollapse
-    } = context;
+    // const {
+    //     enableStatementEditor,
+    //     handleCollapse
+    // } = context;
     const classes = useStyles();
     const [isLoading, setIsLoading] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
@@ -108,11 +108,11 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const handleEditValue = () => {
         if (field.value && STKindChecker.isSpecificField(field.value)) {
             const innerExpr = field.value.valueExpr;
-            enableStatementEditor({
-                value: innerExpr.source,
-                valuePosition: innerExpr.position as NodePosition,
-                label: field.value.fieldName.value as string
-            });
+            // enableStatementEditor({
+            //     value: innerExpr.source,
+            //     valuePosition: innerExpr.position as NodePosition,
+            //     label: field.value.fieldName.value as string
+            // });
         }
     };
 
@@ -126,7 +126,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     };
 
     const handleExpand = () => {
-        handleCollapse(fieldId, !expanded);
+        // handleCollapse(fieldId, !expanded);
     };
 
     const handlePortState = (state: PortState) => {

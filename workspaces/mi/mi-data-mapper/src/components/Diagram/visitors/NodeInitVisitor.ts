@@ -13,7 +13,6 @@ import {
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 import { DataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
-import { SelectionState } from "../../DataMapper/DataMapper";
 import {
     MappingConstructorNode,
     RequiredParamNode
@@ -29,12 +28,11 @@ export class NodeInitVisitor implements Visitor {
     private queryNode: DataMapperNodeModel;
 
     constructor(
-        private context: DataMapperContext,
-        private selection: SelectionState
+        private context: DataMapperContext
     ) { }
 
     beginVisitFunctionDefinition(node: FunctionDefinition) {
-        const typeDesc = node.functionSignature?.returnTypeDesc && node.functionSignature.returnTypeDesc.type;
+        const typeDesc = node.functionSignature?.returnTypeDesc && node.functionSignature.returnTypeDesc.type as any;
         const exprFuncBody = STKindChecker.isExpressionFunctionBody(node.functionBody) && node.functionBody;
         let isFnBodyQueryExpr = false;
         if (typeDesc && exprFuncBody) {
@@ -62,7 +60,7 @@ export class NodeInitVisitor implements Visitor {
                         const paramNode = new RequiredParamNode(
                             this.context,
                             param,
-                            param.typeName
+                            param.typeName as any
                         );
                         paramNode.setPosition(0, 0);
                         this.inputParamNodes.push(paramNode);

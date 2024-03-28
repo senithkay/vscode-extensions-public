@@ -33,7 +33,8 @@ export class RequiredParamNodeFactory extends AbstractReactFactory<RequiredParam
                     id={event.model.value && event.model.value.paramName.value}
                     typeDesc={event.model.typeDef}
                     getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
-                    handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
+                    handleCollapse={undefined}
+                    // handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
                 />
             );
         }

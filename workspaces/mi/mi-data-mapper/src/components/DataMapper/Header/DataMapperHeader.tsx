@@ -10,9 +10,6 @@
 import React from "react";
 
 import styled from "@emotion/styled";
-
-import { SelectionState, ViewOption } from "../DataMapper";
-
 import ConfigureButton from "./ConfigureButton";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import HeaderSearchBox from "./HeaderSearchBox";
@@ -20,15 +17,13 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 
 export interface DataMapperHeaderProps {
-    selection: SelectionState;
     hasEditDisabled: boolean;
-    changeSelection: (mode: ViewOption, selection?: SelectionState, navIndex?: number) => void;
     onConfigOpen: () => void;
     onClose?: () => void;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { selection, hasEditDisabled, changeSelection, onConfigOpen, onClose } = props;
+    const { hasEditDisabled, onConfigOpen, onClose } = props;
 
     return (
         <HeaderContainer>
@@ -36,15 +31,16 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                 <Title> DATA MAPPER: </Title>
                 {!hasEditDisabled && (
                     <HeaderBreadcrumb
-                        selection={selection}
-                        changeSelection={changeSelection}
+                        // selection={undefined}
                     />
                 )}
             </BreadCrumb>
             {!hasEditDisabled && !onClose && (
                 <>
                     <FilterBar>
-                        <HeaderSearchBox selection={selection} />
+                        <HeaderSearchBox
+                            // selection={undefined}
+                        />
                     </FilterBar>
                     <ConfigureButton onClick={onConfigOpen}/>
                 </>

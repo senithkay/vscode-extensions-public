@@ -6,87 +6,20 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
-import { Diagnostic } from "vscode-languageserver-types";
-
-import { ExpressionInfo, SelectionState, ViewOption } from "../../components/DataMapper/DataMapper";
-import { HistoryEntry } from "@wso2-enterprise/mi-core";
-import { STModification } from "../../components/types";
+import { DMType } from "@wso2-enterprise/mi-core";
+import { VariableDeclaration } from "typescript";
 
 export interface IDataMapperContext {
-    functionST: FunctionDefinition;
-    selection: SelectionState;
-    langServerRpcClient: any;
-    filePath: string;
-    currentFile?: {
-        content: string,
-        path: string,
-        size: number
-    };
-    changeSelection: (mode: ViewOption, selection?: SelectionState) => void;
-    goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void;
-    diagnostics: Diagnostic[];
-    enableStatementEditor: (expressionInfo: ExpressionInfo) => void;
-    collapsedFields: string[];
-    handleCollapse: (fieldName: string, expand?: boolean) => void;
-    isStmtEditorCanceled: boolean;
-    handleOverlay: (showOverlay: boolean) => void;
-    handleLocalVarConfigPanel: (showPanel: boolean) => void;
-    applyModifications: (modifications: STModification[]) => Promise<void>;
-    updateActiveFile?: (currentFile: any) => void;
-    updateSelectedComponent?: (info: HistoryEntry) => void;
-    referenceManager?: {
-        currentReferences: string[],
-        handleCurrentReferences: (referencedFields: string[]) => void
-    }
+    functionST: VariableDeclaration;
+    inputTrees: DMType[];
+    outputTree: DMType;
 }
 
 export class DataMapperContext implements IDataMapperContext {
 
     constructor(
-        public filePath: string,
-        private _functionST: FunctionDefinition,
-        private _selection: SelectionState,
-        public langServerRpcClient: any,
-        public currentFile: {
-            content: string,
-            path: string,
-            size: number
-        },
-        public changeSelection: (mode: ViewOption, selection?: SelectionState) => void,
-        public goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void,
-        public diagnostics: Diagnostic[],
-        public enableStatementEditor: (expressionInfo: ExpressionInfo) => void,
-        public collapsedFields: string[],
-        public handleCollapse: (fieldName: string, expand?: boolean) => void,
-        public isStmtEditorCanceled: boolean,
-        public handleOverlay: (showOverlay: boolean) => void,
-        public handleLocalVarConfigPanel: (showPanel: boolean) => void,
-        public applyModifications: (modifications: STModification[]) => Promise<void>,
-        public updateActiveFile?: (currentFile: any) => void,
-        public updateSelectedComponent?: (info: HistoryEntry) => void,
-        public referenceManager?: {
-            currentReferences: string[],
-            handleCurrentReferences: (referencedFields: string[]) => void;
-        }
+        public functionST: VariableDeclaration,
+        public inputTrees: DMType[],
+        public outputTree: DMType
     ){}
-
-    public get functionST(): FunctionDefinition {
-        return this._functionST;
-    }
-
-    public set functionST(st: FunctionDefinition) {
-        if (!st && st.kind !== 'FunctionDefinition') {
-            throw new Error("Invalid value set as FunctionST.");
-        }
-        this._functionST = st;
-    }
-
-    public get selection(): SelectionState {
-        return this._selection;
-    }
-
-    public set selection(selection: SelectionState) {
-        this._selection = selection;
-    }
 }

@@ -65,6 +65,6 @@ export class ExpressionLabelModel extends LabelModel {
 				startLine: valueNodePosition.startLine
 			}
 		];
-		void this.context.applyModifications(modifications);
+		// void this.context.applyModifications(modifications);
 	}
 }

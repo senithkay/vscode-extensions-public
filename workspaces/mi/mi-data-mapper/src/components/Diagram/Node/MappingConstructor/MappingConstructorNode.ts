@@ -201,8 +201,8 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         //     }];
         // }
 
-        this.context.applyModifications(modifications);
-        await this.context.applyModifications(modifications);
+        // this.context.applyModifications(modifications);
+        // await this.context.applyModifications(modifications);
     }
 
     public updatePosition() {

@@ -32,8 +32,9 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 
 	generateReactWidget(event: { model: MappingConstructorNode; }): JSX.Element {
 		let valueLabel: string;
-		if (STKindChecker.isSelectClause(event.model.value)
-			&& event.model.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY)
+		if (STKindChecker.isSelectClause(event.model.value))
+			// if (STKindChecker.isSelectClause(event.model.value)
+			// && event.model.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY)
 		{
 			valueLabel = event.model.typeIdentifier.value as string || event.model.typeIdentifier.source;
 		}

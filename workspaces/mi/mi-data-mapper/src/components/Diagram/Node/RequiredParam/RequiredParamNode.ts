@@ -41,17 +41,20 @@ export class RequiredParamNode extends DataMapperNodeModel {
         // this.typeDef = this.getSearchFilteredType();
         this.hasNoMatchingFields = !this.typeDef;
         if (this.typeDef) {
-            const parentPort = this.addPortsForHeaderField(this.typeDef, this.value.paramName.value, "OUT", undefined, this.context.collapsedFields);
+            // const parentPort = this.addPortsForHeaderField(this.typeDef, this.value.paramName.value, "OUT", undefined, this.context.collapsedFields);
+            const parentPort = this.addPortsForHeaderField(this.typeDef, this.value.paramName.value, "OUT", undefined, undefined);
 
             if (this.typeDef.typeName === TypeKind.Record) {
                 const fields = this.typeDef.fields;
                 fields.forEach((subField) => {
                     this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", this.value.paramName.value, '',
-                        parentPort, this.context.collapsedFields, parentPort.collapsed);
+                        // parentPort, this.context.collapsedFields, parentPort.collapsed);
+                        parentPort, undefined, parentPort.collapsed);
                 });
             } else {
                 this.addPortsForInputRecordField(this.typeDef, "OUT", this.value.paramName.value,
-                    '', parentPort, this.context.collapsedFields, parentPort.collapsed);
+                    // '', parentPort, this.context.collapsedFields, parentPort.collapsed);
+                    '', parentPort, undefined, parentPort.collapsed);
             }
         }
     }

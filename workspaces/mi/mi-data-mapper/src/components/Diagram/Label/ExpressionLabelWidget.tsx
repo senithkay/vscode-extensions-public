@@ -117,16 +117,16 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
 
     const onClickEdit = (evt?: React.MouseEvent<HTMLDivElement>) => {
         const currentReference = (link.getSourcePort() as RecordFieldPortModel).fieldFQN;
-        context.referenceManager.handleCurrentReferences([currentReference]);
+        // context.referenceManager.handleCurrentReferences([currentReference]);
         if (evt) {
             evt.preventDefault();
             evt.stopPropagation();
         }
-        context.enableStatementEditor({
-            valuePosition: field.position as NodePosition,
-            value: field.source,
-            label: editorLabel
-        });
+        // context.enableStatementEditor({
+        //     valuePosition: field.position as NodePosition,
+        //     value: field.source,
+        //     label: editorLabel
+        // });
     };
 
     React.useEffect(() => {
@@ -175,7 +175,8 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
 
     let isSourceCollapsed = false;
     let isTargetCollapsed = false;
-    const collapsedFields = props.model?.context?.collapsedFields;
+    const collapsedFields = [""];
+    // const collapsedFields = props.model?.context?.collapsedFields;
 
     const source = props.model?.link?.getSourcePort()
     const target = props.model?.link?.getTargetPort()

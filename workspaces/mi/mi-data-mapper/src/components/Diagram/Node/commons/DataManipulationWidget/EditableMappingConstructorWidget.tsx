@@ -158,7 +158,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	);
 
 	const handleExpand = () => {
-		context.handleCollapse(id, !expanded);
+		// context.handleCollapse(id, !expanded);
 	};
 
 	const handlePortState = (state: PortState) => {

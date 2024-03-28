@@ -9,10 +9,9 @@
 
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
-import { HistoryEntry } from "@wso2-enterprise/mi-core";
-import { DataMapper } from "./components/DataMapper/DataMapper";
-import { StatementEditorComponentProps } from "@wso2-enterprise/record-creator";
+import { DMType } from "@wso2-enterprise/mi-core";
+import { MIDataMapper } from "./components/DataMapper/DataMapper";
+import * as ts from "typescript";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -25,33 +24,16 @@ const queryClient = new QueryClient({
     },
 });
 
-export interface DataMapperViewProps {
-    filePath: string;
-    fnST?: FunctionDefinition;
-    langServerRpcClient?: any;
-    libraryBrowserRpcClient?: any;
-    applyModifications?: (modifications: any[]) => Promise<void>;
-    goToFunction?: (componentInfo: HistoryEntry) => Promise<void>;
-    onClose?: () => void;
-    renderRecordPanel?: (props: {
-        closeAddNewRecord: (createdNewRecord?: string) => void,
-        onUpdate: (update: boolean) => void
-    } & StatementEditorComponentProps) => React.ReactElement;
+export interface MIDataMapperProps {
+    fnST: ts.VariableDeclaration;
+    inputTrees: DMType[];
+    outputTree: DMType;
 }
 
-export function DataMapperView(props: DataMapperViewProps) {
+export function DataMapperView(props: MIDataMapperProps) {
     return (
         <QueryClientProvider client={queryClient}>
-            <DataMapper 
-                fnST={undefined}
-                filePath={props.filePath}
-                langServerRpcClient={undefined}
-                libraryBrowserRpcClient={undefined}
-                applyModifications={undefined}
-                goToFunction={undefined}
-                onClose={undefined}
-                renderRecordPanel={undefined}
-            />
+            <MIDataMapper {...props}/>
         </QueryClientProvider>
     );
 }

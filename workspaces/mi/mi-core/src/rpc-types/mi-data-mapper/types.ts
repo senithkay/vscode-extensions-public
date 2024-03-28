@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { VariableDeclaration } from "typescript";
+import * as ts from "typescript";
 import { DMType } from "../../interfaces/mi-data-mapper";
 
 export interface IOTypeRequest {
@@ -25,5 +25,5 @@ export interface FunctionSTRequest {
 }
 
 export interface FunctionSTResponse {
-    functionST: VariableDeclaration;
+    functionST: ts.VariableDeclaration;
 }

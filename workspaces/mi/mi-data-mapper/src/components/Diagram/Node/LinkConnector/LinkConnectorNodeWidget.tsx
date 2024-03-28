@@ -125,38 +125,38 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const engine = props.engine;
     const { rpcClient } = useVisualizerContext();
 
-    const {
-        enableStatementEditor,
-        updateSelectedComponent,
-        referenceManager: {
-            handleCurrentReferences
-        }
-    } = node.context;
+    // const {
+    //     enableStatementEditor,
+    //     updateSelectedComponent,
+    //     referenceManager: {
+    //         handleCurrentReferences
+    //     }
+    // } = node.context;
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
     const onClickEdit = () => {
-        const valueNode = props.node.valueNode;
-        const currentReferences = node.sourcePorts.map((port) => port.fieldFQN);
-        handleCurrentReferences(currentReferences)
-        if (STKindChecker.isSpecificField(valueNode)) {
-            enableStatementEditor({
-                valuePosition: valueNode.valueExpr.position as NodePosition,
-                value: valueNode.valueExpr.source,
-                label: props.node.editorLabel
-            });
-        } else if (STKindChecker.isBinaryExpression(valueNode)) {
-            enableStatementEditor({
-                valuePosition: valueNode.position as NodePosition,
-                value: valueNode.source,
-                label: props.node.editorLabel
-            });
-        } else {
-            props.node.context.enableStatementEditor({
-                valuePosition: valueNode.position as NodePosition,
-                value: valueNode.source,
-                label: "Expression"
-            });
-        }
+        // const valueNode = props.node.valueNode;
+        // const currentReferences = node.sourcePorts.map((port) => port.fieldFQN);
+        // handleCurrentReferences(currentReferences)
+        // if (STKindChecker.isSpecificField(valueNode)) {
+        //     enableStatementEditor({
+        //         valuePosition: valueNode.valueExpr.position as NodePosition,
+        //         value: valueNode.valueExpr.source,
+        //         label: props.node.editorLabel
+        //     });
+        // } else if (STKindChecker.isBinaryExpression(valueNode)) {
+        //     enableStatementEditor({
+        //         valuePosition: valueNode.position as NodePosition,
+        //         value: valueNode.source,
+        //         label: props.node.editorLabel
+        //     });
+        // } else {
+        //     props.node.context.enableStatementEditor({
+        //         valuePosition: valueNode.position as NodePosition,
+        //         value: valueNode.source,
+        //         label: "Expression"
+        //     });
+        // }
     };
 
     const onClickDelete = () => {

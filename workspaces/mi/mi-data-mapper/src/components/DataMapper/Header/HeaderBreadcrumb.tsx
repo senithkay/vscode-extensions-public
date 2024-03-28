@@ -10,9 +10,6 @@
 import React, { useMemo } from 'react';
 
 import { Breadcrumbs, Codicon } from '@wso2-enterprise/ui-toolkit';
-import { STKindChecker } from "@wso2-enterprise/syntax-tree";
-
-import { SelectionState, ViewOption } from "../DataMapper";
 import { css } from '@emotion/css';
 
 const useStyles = () => ({
@@ -33,51 +30,51 @@ const useStyles = () => ({
 
 
 export interface HeaderBreadcrumbProps {
-    selection: SelectionState;
-    changeSelection: (mode: ViewOption, selection?: SelectionState, navIndex?: number) => void;
+    // selection: SelectionState;
+    // changeSelection: (mode: ViewOption, selection?: SelectionState, navIndex?: number) => void;
 }
 
 export default function HeaderBreadcrumb(props: HeaderBreadcrumbProps) {
-    const { selection, changeSelection } = props;
+    // const { selection, changeSelection } = props;
     const classes = useStyles();
 
-    const [activeLink, links] = useMemo(() => {
-        if (selection.selectedST.stNode) {
-            let isFnDef = STKindChecker.isFunctionDefinition(selection.selectedST.stNode);
-            let label = selection.selectedST.fieldPath;
-            const selectedLink = (
-                <div className={classes.active}>
-                    {isFnDef ? label : `${label}:query`}
-                </div>
-            );
+    // const [activeLink, links] = useMemo(() => {
+    //     if (selection.selectedST.stNode) {
+    //         let isFnDef = STKindChecker.isFunctionDefinition(selection.selectedST.stNode);
+    //         let label = selection.selectedST.fieldPath;
+    //         const selectedLink = (
+    //             <div className={classes.active}>
+    //                 {isFnDef ? label : `${label}:query`}
+    //             </div>
+    //         );
 
-            const restLinks = selection.prevST.length > 0 && (
-                selection.prevST.map((node, index) => {
-                    label = node.fieldPath;
-                    isFnDef = STKindChecker.isFunctionDefinition(node.stNode);
-                    return (
-                        <a
-                            data-index={index}
-                            key={index}
-                            onClick={handleClick}
-                            className={classes.link}
-                            data-testid={`dm-header-breadcrumb-${index}`}
-                        >
-                            {isFnDef ? label : `${label}:query`}
-                        </a>
-                    );
-                })
-            );
+    //         const restLinks = selection.prevST.length > 0 && (
+    //             selection.prevST.map((node, index) => {
+    //                 label = node.fieldPath;
+    //                 isFnDef = STKindChecker.isFunctionDefinition(node.stNode);
+    //                 return (
+    //                     <a
+    //                         data-index={index}
+    //                         key={index}
+    //                         onClick={handleClick}
+    //                         className={classes.link}
+    //                         data-testid={`dm-header-breadcrumb-${index}`}
+    //                     >
+    //                         {isFnDef ? label : `${label}:query`}
+    //                     </a>
+    //                 );
+    //             })
+    //         );
 
-            return [selectedLink, restLinks];
-        }
-        return [undefined, undefined];
-    }, [selection]);
+    //         return [selectedLink, restLinks];
+    //     }
+    //     return [undefined, undefined];
+    // }, [selection]);
 
     function handleClick(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) {
         event.preventDefault();
         const index: number = +event.currentTarget.getAttribute('data-index');
-        changeSelection(ViewOption.NAVIGATE, undefined, index);
+        // TODO: Get the callback from the context and call it with the index
     }
 
     return (
@@ -85,8 +82,8 @@ export default function HeaderBreadcrumb(props: HeaderBreadcrumbProps) {
             maxItems={3}
             separator={<Codicon name="chevron-right" />}
         >
-            {links}
-            {activeLink}
+            {/* {links}
+            {activeLink} */}
         </Breadcrumbs>
     );
 }

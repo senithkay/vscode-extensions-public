@@ -41,8 +41,14 @@ export function DataMapper(props: DataMapperProps) {
     return (
         <>
             {isFetching
-                ? <ProgressIndicator data-testid={'type-select-linear-progress'} />
-                : <DataMapperView filePath={filePath} />
+                ? <ProgressIndicator />
+                : (
+                    <DataMapperView
+                        inputTrees={dmIOTypes.inputTrees}
+                        outputTree={dmIOTypes.outputTree}
+                        fnST={dmFnST.functionST}
+                    />
+                )
             }
         </>
     );

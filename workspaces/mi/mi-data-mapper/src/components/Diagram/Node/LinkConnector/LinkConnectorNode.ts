@@ -216,7 +216,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 ...targetPosition
             }
         ];
-        void this.context.applyModifications(modifications);
+        // void this.context.applyModifications(modifications);
     }
 
     public updatePosition() {
@@ -233,7 +233,8 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     public deleteLink(): void {
         const targetField = this.targetPort.field;
         let modifications: STModification[];
-        const selectedST = this.context.selection.selectedST.stNode;
+        const selectedST = this.valueNode;
+        // const selectedST = this.context.selection.selectedST.stNode;
         const exprFuncBodyPosition: NodePosition = STKindChecker.isFunctionDefinition(selectedST)
             && STKindChecker.isExpressionFunctionBody(selectedST.functionBody)
             && selectedST.functionBody.expression.position;
@@ -265,6 +266,6 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             // }];
         }
 
-        void this.context.applyModifications(modifications);
+        // void this.context.applyModifications(modifications);
     }
 }
