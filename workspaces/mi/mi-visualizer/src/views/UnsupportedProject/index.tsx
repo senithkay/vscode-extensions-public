@@ -206,6 +206,7 @@ export function UnsupportedProject() {
   ];
 
   const disableOverview = async () => {
+    await rpcClient.getMiVisualizerRpcClient().disableOverview();
   };
 
   useEffect(() => {

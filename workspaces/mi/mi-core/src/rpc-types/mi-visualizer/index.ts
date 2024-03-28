@@ -23,4 +23,5 @@ export interface MIVisualizerAPI {
     addToHistory: (params: HistoryEntry) => void;
     goHome: () => void;
     goSelected: (params: number) => void;
+    disableOverview: () => void;
 }

@@ -26,3 +26,4 @@ export const getHistory: RequestType<void, HistoryEntryResponse> = { method: `${
 export const addToHistory: NotificationType<HistoryEntry> = { method: `${_preFix}/addToHistory` };
 export const goHome: NotificationType<void> = { method: `${_preFix}/goHome` };
 export const goSelected: NotificationType<number> = { method: `${_preFix}/goSelected` };
+export const disableOverview: RequestType<void, void> = { method: `${_preFix}/disableOverview` };

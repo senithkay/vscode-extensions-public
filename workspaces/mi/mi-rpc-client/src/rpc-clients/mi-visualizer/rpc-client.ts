@@ -20,6 +20,7 @@ import {
     SampleDownloadRequest,
     WorkspacesResponse,
     addToHistory,
+    disableOverview,
     downloadSelectedSampleFromGithub,
     fetchSamplesFromGithub,
     getCurrentThemeKind,
@@ -83,5 +84,9 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     goSelected(params: number): void {
         return this._messenger.sendNotification(goSelected, HOST_EXTENSION, params);
+    }
+
+    disableOverview(): Promise<void> {
+        return this._messenger.sendRequest(disableOverview, HOST_EXTENSION);
     }
 }

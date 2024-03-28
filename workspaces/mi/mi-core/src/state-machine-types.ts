@@ -92,6 +92,8 @@ export interface VisualizerLocation {
     identifier?: string;
     position?: any;
     projectOpened?: boolean;
+    isMiProject?: boolean;
+    displayOverview?: boolean;
     customProps?: any;
 }
 

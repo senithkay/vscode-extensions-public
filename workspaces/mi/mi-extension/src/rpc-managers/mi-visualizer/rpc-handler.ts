@@ -14,6 +14,7 @@ import {
     ProjectStructureRequest,
     SampleDownloadRequest,
     addToHistory,
+    disableOverview,
     downloadSelectedSampleFromGithub,
     fetchSamplesFromGithub,
     getCurrentThemeKind,
@@ -41,4 +42,5 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onNotification(addToHistory, (args: HistoryEntry) => rpcManger.addToHistory(args));
     messenger.onNotification(goHome, () => rpcManger.goHome());
     messenger.onNotification(goSelected, (args: number) => rpcManger.goSelected(args));
+    messenger.onRequest(disableOverview, () => rpcManger.disableOverview());
 }

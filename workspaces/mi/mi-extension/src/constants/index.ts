@@ -5,6 +5,7 @@ export const COMMANDS = {
     OPEN_PROJECT: "MI.openProject",
     MIGRATE_PROJECT: "MI.migrateProject",
     SELECT_DESTINATION: "MI.selectDestination",
+    DISABLE_OVERVIEW: "MI.disableOverview",
     OPEN_AI_PANEL: "MI.openAiPanel",
     CLEAR_AI_PROMPT: "MI.clearAIPrompt",
     OPEN_WELCOME: "MI.openWelcome",

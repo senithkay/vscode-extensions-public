@@ -31,6 +31,8 @@ import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { handleOpenFile } from "../../util/fileOperations";
 import { openAIView } from "../../ai-panel/aiMachine";
+import { extension } from "../../MIExtensionContext";
+import { VisualizerWebview } from "../../visualizer/webview";
 
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
     async getWorkspaces(): Promise<WorkspacesResponse> {
@@ -151,6 +153,14 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         return new Promise((resolve) => {
             const currentThemeKind = window.activeColorTheme.kind;
             resolve(currentThemeKind);
+        });
+    }
+
+    async disableOverview(): Promise<void> {
+        return new Promise(async (resolve) => {
+            await extension.context.workspaceState.update('displayOverview', false);
+            VisualizerWebview.currentPanel?.dispose();
+            resolve();
         });
     }
 }
