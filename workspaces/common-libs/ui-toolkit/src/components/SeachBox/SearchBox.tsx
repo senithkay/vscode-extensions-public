@@ -44,8 +44,8 @@ export function SearchBox(props: SearchBoxProps) {
             readonly={readonly}
             placeholder={placeholder}
             label={label}
-            onChange={handleChange}
-            value={value}
+            onTextChange={handleChange}
+            value={value || ""}
             id={id}
             sx={sx}
         />

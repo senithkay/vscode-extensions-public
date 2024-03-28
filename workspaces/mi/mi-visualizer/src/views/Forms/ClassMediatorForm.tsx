@@ -73,7 +73,7 @@ export function ClassMediatorForm(props: ClassMediatorProps) {
                     id='package-input'
                     label="Package Name"
                     placeholder="com.example"
-                    onChange={(text: string) => setPackage(text)}
+                    onTextChange={(text: string) => setPackage(text)}
                     size={40}
                     autoFocus
                     required
@@ -83,7 +83,7 @@ export function ClassMediatorForm(props: ClassMediatorProps) {
                     id='class-input'
                     label="Class Name"
                     placeholder="SampleMediator"
-                    onChange={(text: string) => setClassName(text)}
+                    onTextChange={(text: string) => setClassName(text)}
                     size={40}
                     autoFocus
                     required

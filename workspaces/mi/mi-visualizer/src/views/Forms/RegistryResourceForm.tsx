@@ -207,7 +207,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                         id='name-input'
                         label="Resource Name"
                         placeholder="Resource Name"
-                        onChange={(text: string) => setResourceName(text)}
+                        onTextChange={(text: string) => setResourceName(text)}
                         size={40}
                         autoFocus
                         required
@@ -220,7 +220,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                             value={filePath}
                             id='file-path-input'
                             placeholder="File Path"
-                            onChange={(text: string) => setFilePath(text)}
+                            onTextChange={(text: string) => setFilePath(text)}
                             size={40}
                             autoFocus
                             required
@@ -234,7 +234,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                     id='artifact-input'
                     label="Artifact Name"
                     placeholder="Artifact Name"
-                    onChange={(text: string) => setArtifactName(text)}
+                    onTextChange={(text: string) => setArtifactName(text)}
                     errorMsg={validateArtifactName(artifactName)}
                     size={40}
                     autoFocus
@@ -250,7 +250,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                     id='regPath-input'
                     label="Registry Path"
                     placeholder="endpoints"
-                    onChange={(text: string) => setRegistryPath(text)}
+                    onTextChange={(text: string) => setRegistryPath(text)}
                     errorMsg={validateRegistryPath(registryPath)}
                     size={40}
                     autoFocus

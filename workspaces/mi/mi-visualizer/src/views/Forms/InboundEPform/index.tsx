@@ -301,7 +301,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                     id='name-input'
                     label="Name"
                     placeholder="Name"
-                    onChange={(text: string) => handleOnChange("name", text)}
+                    onTextChange={(text: string) => handleOnChange("name", text)}
                     errorMsg={validateName(inboundEndpoint.name)}
                     autoFocus
                     required
@@ -322,7 +322,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                         <Dropdown
                             id="sequence"
                             value={inboundEndpoint.sequence}
-                            onChange={(text: string) => handleOnChange("sequence", text)}
+                            onValueChange={(text: string) => handleOnChange("sequence", text)}
                             items={sequences}
                         />
                         {isCustom.sequence && <>
@@ -330,7 +330,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                                 value={customSequence}
                                 id='custom-sequence'
                                 placeholder="Custom Sequence Name"
-                                onChange={(text: string) => setCustomSequence(text)}
+                                onTextChange={(text: string) => setCustomSequence(text)}
                                 errorMsg={validateName(customSequence)}
                                 required
                                 size={100}
@@ -340,7 +340,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                         <Dropdown
                             id="errorSequence"
                             value={inboundEndpoint.errorSequence}
-                            onChange={(text: string) => handleOnChange("errorSequence", text)}
+                            onValueChange={(text: string) => handleOnChange("errorSequence", text)}
                             items={sequences}
                         />
                         {isCustom.errorSequence && <>
@@ -348,7 +348,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                                 value={customErrorSequence}
                                 id='custom-onerror-sequence'
                                 placeholder="Custom On Error Sequence Name"
-                                onChange={(text: string) => setCustomErrorSequence(text)}
+                                onTextChange={(text: string) => setCustomErrorSequence(text)}
                                 errorMsg={validateName(customErrorSequence)}
                                 required
                                 size={100}
@@ -388,7 +388,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                             id='description'
                             label="Description"
                             placeholder="Description"
-                            onChange={(text: string) => handleAdditionalParamChange("description", text)}
+                            onTextChange={(text: string) => handleAdditionalParamChange("description", text)}
                             cols={150}
                         />
                     </div>

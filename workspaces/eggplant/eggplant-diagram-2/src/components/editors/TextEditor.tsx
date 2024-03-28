@@ -24,6 +24,6 @@ export function TextEditor(props: TextEditorProps) {
     };
 
     return (
-        <TextField value={expression.value ? expression.value.toString() : ""} onChange={handleOnChange} />
+        <TextField value={expression.value ? expression.value.toString() : ""} onTextChange={handleOnChange} />
     );
 }

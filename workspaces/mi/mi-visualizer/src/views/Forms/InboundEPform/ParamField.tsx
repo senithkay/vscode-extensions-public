@@ -29,7 +29,7 @@ const ParamField = ({ field, id, stateValue, handleOnChange }: any) => {
                     value={stateValue ?? String(value)}
                     id={id}
                     label={name ?? getParameterName(id)}
-                    onChange={(text: string) => handleOnChange(id, text)}
+                    onTextChange={(text: string) => handleOnChange(id, text)}
                 />
             ) : type === "checkbox" ? (
                 <CheckBox
@@ -44,7 +44,7 @@ const ParamField = ({ field, id, stateValue, handleOnChange }: any) => {
                     <Dropdown
                         id={id}
                         value={stateValue ?? value}
-                        onChange={(text: string) => handleOnChange(id, text)}
+                        onValueChange={(text: string) => handleOnChange(id, text)}
                         items={items}
                     />
                 </>

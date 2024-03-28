@@ -144,7 +144,7 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
                     id='name-input'
                     label="Project Name"
                     placeholder="Project Name"
-                    onChange={(text: string) => setProjectName(text)}
+                    onTextChange={(text: string) => setProjectName(text)}
                     errorMsg={validateProjectName(projectName)}
                     size={46}
                     autoFocus
@@ -172,7 +172,7 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
                             id='groupid-input'
                             label="Group ID"
                             placeholder="Group ID"
-                            onChange={(text: string) => setGroupID(text)}
+                            onTextChange={(text: string) => setGroupID(text)}
                             errorMsg={validateGroupID(groupID)}
                             size={46}
                             autoFocus
@@ -183,7 +183,7 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
                             id='artifactID-input'
                             label="Atrifact ID"
                             placeholder="Artifact ID"
-                            onChange={(text: string) => setArtifactID(text)}
+                            onTextChange={(text: string) => setArtifactID(text)}
                             errorMsg={validateArtifactID(artifactID)}
                             size={46}
                             autoFocus

@@ -65,14 +65,14 @@ const Endpoint = ({ endpoint, handleEndpointChange, handleSave, onDeleteClick, i
             <Dropdown
                 id="endpoint-type"
                 value={tempEndpoint.type}
-                onChange={(text: string) => handleChanges("type", text)}
+                onValueChange={(text: string) => handleChanges("type", text)}
                 items={endpointTypes}
             />
             {tempEndpoint.type === "static" ? (
                 <TextField
                     id='endpoint-value'
                     value={tempEndpoint.value}
-                    onChange={(text: string) => handleChanges("value", text)}
+                    onTextChange={(text: string) => handleChanges("value", text)}
                     sx={{ marginTop: '-2px' }}
                 />
             ) : (

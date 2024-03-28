@@ -88,7 +88,7 @@ export default function UnionType(props: TypeProps) {
                     )}
                     <div className={stmtEditorHelperClasses.listDropdownWrapper} data-testid="arg-dropdown">
                         <Dropdown
-                            onChange={handleMemberType}
+                            onValueChange={handleMemberType}
                             id="arg-dropdown"
                             value={selectedMemberType}
                             items={memberTypes}

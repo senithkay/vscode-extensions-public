@@ -427,7 +427,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                         <TextField
                             placeholder="Template Name"
                             label="Template Name"
-                            onChange={(value: string) => handleOnChange("templateName", value)}
+                            onTextChange={(value: string) => handleOnChange("templateName", value)}
                             value={endpoint.templateName}
                             id="template-name-input"
                             autoFocus
@@ -486,7 +486,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 <TextField
                     placeholder="Endpoint Name"
                     label="Endpoint Name"
-                    onChange={(value: string) => handleOnChange("endpointName", value)}
+                    onTextChange={(value: string) => handleOnChange("endpointName", value)}
                     value={endpoint.endpointName}
                     id="endpoint-name-input"
                     autoFocus
@@ -536,17 +536,17 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 <TextField
                     placeholder="URI Template"
                     label="URI Template"
-                    onChange={(value: string) => handleOnChange("uriTemplate", value)}
+                    onTextChange={(value: string) => handleOnChange("uriTemplate", value)}
                     value={endpoint.uriTemplate}
                     id="uri-template"
                     size={100}
                 />
                 <span>HTTP Method</span>
-                <Dropdown items={httpMethods} value={endpoint.httpMethod} onChange={handleHttpMethodChange} id="http-method"/>
+                <Dropdown items={httpMethods} value={endpoint.httpMethod} onValueChange={handleHttpMethodChange} id="http-method"/>
                 <TextField
                     placeholder="Description"
                     label="Description"
-                    onChange={(value: string) => handleOnChange("description", value)}
+                    onTextChange={(value: string) => handleOnChange("description", value)}
                     value={endpoint.description}
                     id="description"
                     size={100}
@@ -589,7 +589,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                                     <Td contentEditable={true} onBlur={(e) => editPropertyKey(pair.name, e.currentTarget.textContent || '')}>{pair.name}</Td>
                                     <Td contentEditable={true} onBlur={(e) => editPropertyValue(pair.name, e.currentTarget.textContent || '')}>{pair.value}</Td>
                                     <Td>
-                                        <Dropdown items={scopes} value={pair.scope} onChange={(value) => editPropertyScope(pair.name, value)} id="scope"/>
+                                        <Dropdown items={scopes} value={pair.scope} onValueChange={(value) => editPropertyScope(pair.name, value)} id="scope"/>
                                     </Td>
                                     <TdButton>
                                         <Button onClick={() => removePropertyValue(pair.name)}>Remove</Button>
@@ -602,13 +602,13 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 )}
                 <Typography variant="h4">Auth Configuration</Typography>
                 <span>Auth Type</span>
-                <Dropdown items={authTypes} value={endpoint.authType} onChange={handleAuthTypeChange} id="auth-type"/>
+                <Dropdown items={authTypes} value={endpoint.authType} onValueChange={handleAuthTypeChange} id="auth-type"/>
                 {endpoint.authType === 'Basic Auth' && (
                     <>
                         <TextField
                             placeholder="Username"
                             label="Basic Auth Username"
-                            onChange={(value: string) => handleOnChange("basicAuthUsername", value)}
+                            onTextChange={(value: string) => handleOnChange("basicAuthUsername", value)}
                             value={endpoint.basicAuthUsername}
                             id="basic-auth-username"
                             size={100}
@@ -616,7 +616,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                         <TextField
                             placeholder="Password"
                             label="Basic Auth Password"
-                            onChange={(value: string) => handleOnChange("basicAuthPassword", value)}
+                            onTextChange={(value: string) => handleOnChange("basicAuthPassword", value)}
                             value={endpoint.basicAuthPassword}
                             id="basic-auth-password"
                             size={100}
@@ -626,13 +626,13 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 {endpoint.authType === 'OAuth' && (
                     <>
                         <span>OAuth Authorization Mode</span>
-                        <Dropdown items={authorizationModes} value={endpoint.authMode} onChange={handleAuthModeChange} id="auth-mode"/>
+                        <Dropdown items={authorizationModes} value={endpoint.authMode} onValueChange={handleAuthModeChange} id="auth-mode"/>
                         <span>OAuth Grant Type</span>
-                        <Dropdown items={grantTypes} value={endpoint.grantType} onChange={handleAuthGrantTypeChange} id="grant-type"/>
+                        <Dropdown items={grantTypes} value={endpoint.grantType} onValueChange={handleAuthGrantTypeChange} id="grant-type"/>
                         <TextField
                             placeholder="Client ID"
                             label="Client ID"
-                            onChange={(value: string) => handleOnChange("clientId", value)}
+                            onTextChange={(value: string) => handleOnChange("clientId", value)}
                             value={endpoint.clientId}
                             id="client-id"
                             size={100}
@@ -640,7 +640,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                         <TextField
                             placeholder="Client Secret"
                             label="Client Secret"
-                            onChange={(value: string) => handleOnChange("clientSecret", value)}
+                            onTextChange={(value: string) => handleOnChange("clientSecret", value)}
                             value={endpoint.clientSecret}
                             id="client-secret"
                             size={100}
@@ -648,7 +648,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                         <TextField
                             placeholder="Token Url"
                             label="Token Url"
-                            onChange={(value: string) => handleOnChange("tokenUrl", value)}
+                            onTextChange={(value: string) => handleOnChange("tokenUrl", value)}
                             value={endpoint.tokenUrl}
                             id="token-url"
                             size={100}
@@ -657,7 +657,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                             <TextField
                                 placeholder="Refresh Token"
                                 label="Refresh Token"
-                                onChange={(value: string) => handleOnChange("refreshToken", value)}
+                                onTextChange={(value: string) => handleOnChange("refreshToken", value)}
                                 value={endpoint.refreshToken}
                                 id="refresh-token"
                                 size={100}
@@ -668,7 +668,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                                 <TextField
                                     placeholder="Username"
                                     label="Username"
-                                    onChange={(value: string) => handleOnChange("username", value)}
+                                    onTextChange={(value: string) => handleOnChange("username", value)}
                                     value={endpoint.username}
                                     id="username"
                                     size={100}
@@ -676,7 +676,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                                 <TextField
                                     placeholder="Password"
                                     label="Password"
-                                    onChange={(value: string) => handleOnChange("password", value)}
+                                    onTextChange={(value: string) => handleOnChange("password", value)}
                                     value={endpoint.password}
                                     id="password"
                                     size={100}
@@ -753,7 +753,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 {endpoint.addressingEnabled === 'enable' && (
                     <>
                         <span>Addressing Version</span>
-                        <Dropdown items={addressingVersions} value={endpoint.addressingVersion} onChange={handleAddressingVersionChange} id="addressing-version"/>
+                        <Dropdown items={addressingVersions} value={endpoint.addressingVersion} onValueChange={handleAddressingVersionChange} id="addressing-version"/>
                         <span>Addressing Separate Listener</span>
                         <RadioBtnContainer>
                             <RadioLabel>
@@ -798,7 +798,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 <TextField
                     placeholder="304,305"
                     label="Suspend Error Codes"
-                    onChange={(value: string) => handleOnChange("suspendErrorCodes", value)}
+                    onTextChange={(value: string) => handleOnChange("suspendErrorCodes", value)}
                     value={endpoint.suspendErrorCodes}
                     id="suspend-error-codes"
                     size={100}
@@ -806,7 +806,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 <TextField
                     placeholder="-1"
                     label="Suspend Initial Duration"
-                    onChange={(value) => {
+                    onTextChange={(value) => {
                         if (validNumericInput.test(value)) {
                             handleOnChange("initialDuration", Number(value))
                         } else {
@@ -820,7 +820,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 <TextField
                     placeholder="1000"
                     label="Suspend Maximum Duration"
-                    onChange={(value) => {
+                    onTextChange={(value) => {
                         if (validNumericInput.test(value)) {
                             handleOnChange("maximumDuration", Number(value))
                         } else {
@@ -834,7 +834,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 <TextField
                     placeholder="1"
                     label="Suspend Progression Factor"
-                    onChange={(value) => {
+                    onTextChange={(value) => {
                         if (validNumericInput.test(value)) {
                             handleOnChange("progressionFactor", Number(value))
                         } else {
@@ -848,7 +848,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 <TextField
                     placeholder="304,305"
                     label="Retry Error Codes"
-                    onChange={(value: string) => handleOnChange("retryErrorCodes", value)}
+                    onTextChange={(value: string) => handleOnChange("retryErrorCodes", value)}
                     value={endpoint.retryErrorCodes}
                     id="retry-error-codes"
                     size={100}
@@ -856,7 +856,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 <TextField
                     placeholder="10"
                     label="Retry Count"
-                    onChange={(value) => {
+                    onTextChange={(value) => {
                         if (validNumericInput.test(value)) {
                             handleOnChange("retryCount", Number(value))
                         } else {
@@ -870,7 +870,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 <TextField
                     placeholder="1000"
                     label="Retry Delay"
-                    onChange={(value) => {
+                    onTextChange={(value) => {
                         if (validNumericInput.test(value)) {
                             handleOnChange("retryDelay", Number(value))
                         } else {
@@ -884,7 +884,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 <TextField
                     placeholder="1000"
                     label="Timeout Duration"
-                    onChange={(value) => {
+                    onTextChange={(value) => {
                         if (validNumericInput.test(value)) {
                             handleOnChange("timeoutDuration", Number(value))
                         } else {
@@ -896,7 +896,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                     size={100}
                 />
                 <span>Timeout Action</span>
-                <Dropdown items={timeoutOptions} value={endpoint.timeoutAction} onChange={handleTimeoutActionChange} id="timeout-action"/>
+                <Dropdown items={timeoutOptions} value={endpoint.timeoutAction} onValueChange={handleTimeoutActionChange} id="timeout-action"/>
             </SectionWrapper>
             <ActionContainer>
                 {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
