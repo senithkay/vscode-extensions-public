@@ -11,8 +11,11 @@ import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 import { Button, Codicon, TextField, Typography, Dropdown } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { CreateTaskRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { SectionWrapper } from "./Commons";
+import { yupResolver } from "@hookform/resolvers/yup"
+import * as yup from "yup";
+import { useForm } from "react-hook-form";
 
 const WizardContainer = styled.div`
     display: flex;
@@ -76,30 +79,56 @@ interface DetailedTaskWizardProps {
     path?: string;
 };
 
-const initialInboundEndpoint = {
+type InputsFields = {
+    name?: string;
+    group?: string;
+    implementation?: string;
+    pinnedServers?: string;
+    triggerType?: "simple" | "cron";
+    triggerCount?: number;
+    triggerInterval?: number;
+    triggerCron?: string;
+};
+
+const initialInboundEndpoint: InputsFields = {
     name: "",
     group: "synapse.simple.quartz",
     implementation: "org.apache.synapse.startup.tasks.MessageInjector",
     pinnedServers: "",
     triggerType: "simple",
-    triggerCount: 1,
+    triggerCount: null,
     triggerInterval: 1,
     triggerCron: ""
 };
 
+const schema = yup
+  .object({
+    name: yup.string().required("Task Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Task name"),
+    group: yup.string().required("Task group is required"),
+    implementation: yup.string().required("Task Implementation is required"),
+    pinnedServers: yup.string(),
+    triggerType: yup.mixed<"simple" | "cron">().oneOf(["simple", "cron"]),
+    triggerCount: yup.number().nullable().typeError('Trigger count must be a number').min(1, "Trigger count must be greater than 0"),
+    triggerInterval: yup.number().typeError('Trigger interval must be a number').min(1, "Trigger interval must be greater than 0"),
+    triggerCron: yup.string()
+  })
+
 export function TaskWizard(props: DetailedTaskWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
+    const {
+        reset,
+        register,
+        formState: { errors, isDirty, isValid },
+        handleSubmit,
+        getValues,
+    } = useForm<InputsFields>({
+        defaultValues: initialInboundEndpoint,
+        resolver: yupResolver(schema),
+        mode: "onChange"
+    });
 
     const [isNewTask, setIsNewTask] = useState(true);
-    const [changesOccured, setChangesOccured] = useState(false);
-
-    const [task, setTask] = useState<any>(initialInboundEndpoint);
-
-    const [message, setMessage] = useState({
-        isError: false,
-        text: ""
-    });
 
     useEffect(() => {
         if (props.path) {
@@ -108,54 +137,11 @@ export function TaskWizard(props: DetailedTaskWizardProps) {
                 console.log(taskRes);
                 if (taskRes.name) {
                     setIsNewTask(false);
-                    setTask(taskRes);
-                }
-                else {
-                    clearForm();
+                    reset(taskRes);
                 }
             })();
         }
     }, [props.path]);
-
-    useEffect(() => {
-        const INVALID_CHARS_REGEX = /[@\\^+;:!%&,=*#[\]$?'"<>{}() /]/;
-
-        if (INVALID_CHARS_REGEX.test(task.name)) {
-            handleMessage("Invalid Task Name", true);
-        }
-        else {
-            handleMessage("");
-        }
-    }, [task.name]);
-
-    useEffect(() => {
-        if (isNaN(Number(task.triggerCount)) || isNaN(Number(task.triggerInterval)) || Number(task.triggerCount) < 1 || Number(task.triggerInterval) < 1) {
-            handleMessage("Invalid Count or Interval", true);
-        }
-        else {
-            handleMessage("");
-        }
-    }, [task.triggerCount, task.triggerInterval]);
-
-    const handleMessage = (text: string, isError: boolean = false) => {
-        setMessage({ isError, text });
-    }
-
-    const handleOnChange = (field: any, value: any) => {
-        if (!isNewTask && !changesOccured) {
-            setChangesOccured(true);
-        }
-
-        setTask((prevTask: any) => ({ ...prevTask, [field]: value }));
-    }
-
-    const handleTriggerTypeChange = (type: any) => {
-        if (!isNewTask && !changesOccured) {
-            setChangesOccured(true);
-        }
-
-        setTask((prevTask: any) => ({ ...prevTask, triggerType: type }));
-    };
 
     const openOverview = () => {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
@@ -163,29 +149,23 @@ export function TaskWizard(props: DetailedTaskWizardProps) {
 
     const handleBackButtonClick = () => {
         rpcClient.getMiVisualizerRpcClient().goBack();
-    }
-
-    const clearForm = () => {
-        setTask(initialInboundEndpoint);
-        setMessage({ isError: false, text: "" });
-        setIsNewTask(true);
-    }
-
-    const handleCreateTask = async () => {
-        const ceateTaskParams = {
-            ...task,
-            directory: props.path ?? "",
-        }
-        await rpcClient.getMiDiagramRpcClient().createTask(ceateTaskParams);
-        handleMessage(isNewTask ? "Task created successfully" : "Task updated successfully");
-        clearForm();
-        openOverview();
     };
 
-    const isValid: boolean = !message.isError && task.name.length > 0 && task.group.length > 0 && task.implementation.length > 0
-        && (task.triggerType === 'simple' ?
-            Number(task.triggerCount) >= 1 && Number(task.triggerInterval) >= 1 :
-            task.triggerCron.length > 0);
+    const handleCreateTask = async (values: InputsFields) => {
+        const taskRequest: CreateTaskRequest = {
+            name: values.name,
+            group: values.group,
+            implementation: values.implementation,
+            pinnedServers: values.pinnedServers,
+            triggerType: values.triggerType,
+            triggerCount: values.triggerCount,
+            triggerInterval: values.triggerInterval,
+            triggerCron: values.triggerCron,
+            directory: props.path
+        };
+        await rpcClient.getMiDiagramRpcClient().createTask(taskRequest);
+        openOverview();
+    };
 
     return (
         <WizardContainer>
@@ -197,99 +177,83 @@ export function TaskWizard(props: DetailedTaskWizardProps) {
                     </div>
                 </Container>
                 <TextField
-                    value={task.name}
-                    id='name-input'
                     label="Task Name"
+                    id="name"
                     placeholder="Name"
-                    validationMessage="Task name is required"
-                    onTextChange={(text: string) => handleOnChange("name", text)}
                     size={100}
+                    errorMsg={errors.name?.message.toString()}
                     autoFocus
                     required
+                    {...register("name")}
                 />
                 <TextField
-                    value={task.group}
-                    id='group-input'
                     label="Task Group"
+                    id="group"
                     placeholder="Group"
-                    validationMessage="Task group is required"
-                    onTextChange={(text: string) => handleOnChange("group", text)}
                     size={100}
+                    errorMsg={errors.group?.message.toString()}
                     required
+                    {...register("group")}
                 />
                 <TextField
-                    value={task.implementation}
-                    id='implementation'
                     label="Task Implementation"
+                    id="implementation"
                     placeholder="Implementation"
-                    validationMessage="Task implementation is required"
-                    onTextChange={(text: string) => handleOnChange("implementation", text)}
                     size={100}
+                    errorMsg={errors.implementation?.message.toString()}
                     required
+                    {...register("implementation")}
                 />
                 <TextField
-                    value={task.pinnedServers}
-                    id='pinned-servers'
                     label="Pinned Servers"
+                    id="pinned-servers"
                     placeholder="Servers"
-                    onTextChange={(text: string) => handleOnChange("pinnedServers", text)}
                     size={100}
+                    {...register("pinnedServers")}
                 />
                 <Typography variant="h4" sx={{ my: 0 }}>Trigger Information of the Task</Typography>
                 <TriggerContainer>
                     <FlexDiv>
                         <Typography sx={{ whiteSpace: 'nowrap' }}>Trigger Type</Typography>
                         <Dropdown
-                            id="trigger-type"
-                            value={task.triggerType}
-                            onChange={handleTriggerTypeChange}
+                            id="trigger-group"
                             items={[{ content: "Simple", value: "simple" }, { content: "Cron", value: "cron" }]}
+                            {...register("triggerType")}
                         />
                     </FlexDiv>
-                    {task.triggerType === 'simple' ? (
+                    {getValues("triggerType") === 'simple' ? (
                         <HiddenFormWrapper>
                             <TextField
-                                value={task.triggerCount}
-                                id='count'
+                                id="count"
                                 label="Count"
-                                onTextChange={(text: string) => {
-                                    if (!isNaN(Number(text))) {
-                                        handleOnChange("triggerCount", Number(text));
-                                    }
-                                }}
                                 size={50}
+                                errorMsg={errors.triggerCount?.message as string}
+                                {...register("triggerCount", { valueAsNumber: true })}
                             />
                             <TextField
-                                value={task.triggerInterval}
-                                id='interval'
                                 label="Interval (in seconds)"
-                                validationMessage="Interval is required"
-                                onTextChange={(text: string) => {
-                                    if (!isNaN(Number(text))) {
-                                        handleOnChange("triggerInterval", Number(text));
-                                    }
-                                }}
+                                id="interval"
                                 size={50}
                                 required
+                                errorMsg={errors.triggerInterval?.message.toString()}
+                                {...register("triggerInterval", { valueAsNumber: true })}
                             />
                         </HiddenFormWrapper>
                     ) : (
                         <HiddenFormWrapper>
                             <TextField
-                                value={task.triggerCron}
-                                id='cron'
                                 label="Cron"
-                                validationMessage="Cron is required"
-                                onTextChange={(text: string) => handleOnChange("triggerCron", text)}
+                                id="cron"
                                 size={50}
                                 required
+                                errorMsg={errors.triggerCron?.message.toString()}
+                                {...register("triggerCron")}
                             />
                         </HiddenFormWrapper>
                     )}
                 </TriggerContainer>
             </SectionWrapper>
             <ActionContainer>
-                {message && <Message is-error={message.isError}>{message.text}</Message>}
                 <FlexDiv>
                     <Button
                         appearance="secondary"
@@ -299,8 +263,10 @@ export function TaskWizard(props: DetailedTaskWizardProps) {
                     </Button>
                     <Button
                         appearance="primary"
-                        onClick={handleCreateTask}
-                        disabled={!isValid || (!changesOccured && !isNewTask)}
+                        onClick={handleSubmit((values) => {
+                            handleCreateTask(values);
+                        })}
+                        disabled={(!isDirty && !isNewTask)}
                     >
                         {isNewTask ? "Create" : "Save Changes"}
                     </Button>
