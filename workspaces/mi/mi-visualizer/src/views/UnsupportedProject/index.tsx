@@ -266,7 +266,7 @@ export function UnsupportedProject(props: UnsupportedProjectProps) {
               We recommend migrating your project to the latest format to unlock the full suite of features available.
               For more information, refer to the{' '}
               <a href='https://ei.docs.wso2.com' target='_blank' rel='noopener noreferrer'>
-                official documentation
+                migration documentation
               </a>
               .
             </Body>
