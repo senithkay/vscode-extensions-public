@@ -10,7 +10,7 @@
 import React, { useEffect } from 'react';
 import { ColorThemeKind, WorkspaceFolder } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { Button, Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { View, ViewContent, ViewHeader } from '../../components/View';
 
@@ -115,7 +115,7 @@ const CardTitle = styled(Typography)`
 
 const ButtonContainer = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: end;
   width: 100%;
 `;
 
@@ -168,8 +168,8 @@ export function UnsupportedProject() {
 
   const cards = [
     {
-      title: 'Open Diagram',
-      description: 'Click on the circled button to open the diagram view of the project',
+      title: 'Open Graphical View',
+      description: 'Click on the circled button to open the graphical view for the artifact.',
     },
     {
       title: 'Diagram View',
@@ -184,8 +184,8 @@ export function UnsupportedProject() {
   const imageInfo = [
     {
       src: {
-        Light: require('../../../assets/images/open-diagram-light.png'),
-        Dark: require('../../../assets/images/open-diagram-dark.png'),
+        Light: require('../../../assets/images/open-graphical-view-light.png'),
+        Dark: require('../../../assets/images/open-graphical-view-dark.png'),
       },
       alt: 'Open Diagram',
     },
@@ -205,8 +205,7 @@ export function UnsupportedProject() {
     },
   ];
 
-  const handleMigrateProject = () => {
-    rpcClient.getMiDiagramRpcClient().migrateProject({ source: activeWorkspaces?.fsPath });
+  const disableOverview = async () => {
   };
 
   useEffect(() => {
@@ -291,9 +290,8 @@ export function UnsupportedProject() {
             </Block>
           </Steps>
           <ButtonContainer>
-            <Button appearance='primary' onClick={handleMigrateProject}>
-              <Codicon name='arrow-swap' sx={{ marginRight: '8px' }} />
-              Migrate Project
+            <Button appearance='primary' onClick={disableOverview}>
+              Don't show this again
             </Button>
           </ButtonContainer>
         </Container>
