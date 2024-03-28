@@ -13,6 +13,7 @@ import styled from "@emotion/styled";
 import SidePanelContext from "../SidePanelContexProvider";
 import { getSVGIcon } from "../../../resources/icons/mediatorIcons/icons";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
 const SampleContainer = styled.div`
     display: grid;
@@ -66,6 +67,7 @@ export interface ConnectorPageProps {
 
 export function ConnectorPage(props: ConnectorPageProps) {
     const sidePanelContext = useContext(SidePanelContext);
+    const { rpcClient } = useVisualizerContext();
     const [selectedConnector, setSelectedConnector] = useState(undefined);
     const [operation, setOperation] = useState<string>("");
 
@@ -77,12 +79,6 @@ export function ConnectorPage(props: ConnectorPageProps) {
             connectors: data.data,
         });
     };
-
-    // const { data: connectors, refetch } = useQuery({
-    //     queryKey: 'connectors',
-    //     queryFn: fetchConnectors,
-    //     enabled: false, // This query will not automatically run
-    // });
 
     useEffect(() => {
         if (!sidePanelContext.connectors || sidePanelContext.connectors.length === 0) {
@@ -96,6 +92,8 @@ export function ConnectorPage(props: ConnectorPageProps) {
     }
 
     const selectOperation = (operation: string) => {
+        // getConnectorData
+        const connectorUri = rpcClient.getMiDiagramRpcClient().getConnectorData({ connector: selectedConnector.name, url: selectedConnector.download_url });
         setOperation(operation);
     }
 
@@ -146,14 +144,22 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                 <IconContainer>
                                     {getSVGIcon("Aggregate")}
                                 </IconContainer>
-                                <div >
-                                    <IconLabel>{connector.name}</IconLabel>
+                                <div style={{
+                                    width: '100%',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                    textAlign: 'left'
+                                }}>
+                                    <IconLabel>
+                                        {connector.name}
+                                    </IconLabel>
                                 </div>
                             </ComponentCard>
                         ))}
                     </ButtonGrid>
                 </div>) : (
-                <> 
+                <>
                     <h4>All Operations</h4>
                     <ButtonGrid>
                         {Object.keys(selectedConnector.operations).map((operation: any) => (
@@ -184,19 +190,26 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                 <IconContainer>
                                     {getSVGIcon("loopback")}
                                 </IconContainer>
-                                <div >
+                                <div style={{
+                                    width: '100%',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                    textAlign: 'left'
+                                }}>
                                     <IconLabel>{operation}</IconLabel>
                                 </div>
                             </ComponentCard>
                         ))}
                     </ButtonGrid>
-                    <div style={{ 
-                            display: "flex",
-                            textAlign: "right",
-                            justifyContent: "flex-end",
-                            marginTop: "10px",
-                            marginRight: "10px",
-                            gap: "10px" }}>
+                    <div style={{
+                        display: "flex",
+                        textAlign: "right",
+                        justifyContent: "flex-end",
+                        marginTop: "10px",
+                        marginRight: "10px",
+                        gap: "10px"
+                    }}>
                         <Button
                             appearance="secondary"
                             onClick={onBackClick}

@@ -126,6 +126,8 @@ import {
     ListRegistryArtifactsRequest, RangeFormatRequest,
     MigrateProjectRequest,
     MigrateProjectResponse,
+    GetConnectorDataResponse,
+    GetConnectorDataRequest,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -205,4 +207,5 @@ export interface MiDiagramAPI {
     getBackendRootUrl: () => Promise<GetBackendRootUrlResponse>;
     getAvailableRegistryResources: (params: ListRegistryArtifactsRequest) => Promise<ListRegistryArtifactsResponse>;
     rangeFormat: (params: RangeFormatRequest) => Promise<ApplyEditResponse>;
+    getConnectorData: (params: GetConnectorDataRequest) => Promise<GetConnectorDataResponse>;
 }

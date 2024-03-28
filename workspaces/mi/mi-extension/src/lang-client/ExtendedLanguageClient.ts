@@ -69,6 +69,10 @@ export interface DidOpenParams {
     };
 }
 
+export interface GetConnectorsParams {
+    documentIdentifier: TextDocumentIdentifier;
+}
+
 export interface RangeFormatParams {
     textDocument: TextDocumentIdentifier;
     range: vscode.Range;
@@ -147,5 +151,9 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async rangeFormat(req: RangeFormatParams ): Promise<vscode.TextEdit[]> {
         return this.sendRequest("textDocument/rangeFormatting", req)
+    }
+
+    async getAvailableConnectors(req: GetConnectorsParams): Promise<any> {
+        return this.sendRequest("synapse/availableConnectors", { uri: Uri.parse(req.documentIdentifier.uri).toString() });
     }
 }

@@ -127,6 +127,8 @@ import {
     ListRegistryArtifactsRequest, RangeFormatRequest,
     MigrateProjectRequest,
     MigrateProjectResponse,
+    GetConnectorDataResponse,
+    GetConnectorDataRequest,
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -145,9 +147,9 @@ export const createEndpoint: RequestType<CreateEndpointRequest, CreateEndpointRe
 export const updateLoadBalanceEndpoint: RequestType<UpdateLoadBalanceEPRequest, UpdateLoadBalanceEPResponse> = { method: `${_preFix}/updateLoadBalanceEndpoint` };
 export const getLoadBalanceEndpoint: RequestType<GetLoadBalanceEPRequest, GetLoadBalanceEPResponse> = { method: `${_preFix}/getLoadBalanceEndpoint` };
 export const updateFailoverEndpoint: RequestType<UpdateFailoverEPRequest, UpdateFailoverEPResponse> = { method: `${_preFix}/updateFailoverEndpoint` };
-export const getFailoverEndpoint: RequestType<GetFailoverEPRequest,  GetFailoverEPResponse> = { method: `${_preFix}/getFailoverEndpoint` };
+export const getFailoverEndpoint: RequestType<GetFailoverEPRequest, GetFailoverEPResponse> = { method: `${_preFix}/getFailoverEndpoint` };
 export const updateRecipientEndpoint: RequestType<UpdateRecipientEPRequest, UpdateRecipientEPResponse> = { method: `${_preFix}/updateRecipientEndpoint` };
-export const getRecipientEndpoint: RequestType<GetRecipientEPRequest,GetRecipientEPResponse> = { method: `${_preFix}/getRecipientEndpoint` };
+export const getRecipientEndpoint: RequestType<GetRecipientEPRequest, GetRecipientEPResponse> = { method: `${_preFix}/getRecipientEndpoint` };
 export const updateTemplateEndpoint: RequestType<UpdateTemplateEPRequest, UpdateTemplateEPResponse> = { method: `${_preFix}/updateTemplateEndpoint` };
 export const getTemplateEndpoint: RequestType<GetTemplateEPRequest, GetTemplateEPResponse> = { method: `${_preFix}/getTemplateEndpoint` };
 export const createLocalEntry: RequestType<CreateLocalEntryRequest, CreateLocalEntryResponse> = { method: `${_preFix}/createLocalEntry` };
@@ -207,3 +209,4 @@ export const getSelectiveWorkspaceContext: RequestType<void, GetSelectiveWorkspa
 export const getBackendRootUrl: RequestType<void, GetBackendRootUrlResponse> = { method: `${_preFix}/getBackendRootUrl` };
 export const getAvailableRegistryResources: RequestType<ListRegistryArtifactsRequest, ListRegistryArtifactsResponse> = { method: `${_preFix}/getAvailableRegistryResources` };
 export const rangeFormat: RequestType<RangeFormatRequest, ApplyEditResponse> = { method: `${_preFix}/rangeFormat` };
+export const getConnectorData: RequestType<GetConnectorDataRequest, GetConnectorDataResponse> = { method: `${_preFix}/getConnectorData` };

@@ -55,6 +55,8 @@ import {
     GetAvailableResourcesRequest,
     GetAvailableResourcesResponse,
     GetBackendRootUrlResponse,
+    GetConnectorDataRequest,
+    GetConnectorDataResponse,
     GetDefinitionRequest,
     GetDefinitionResponse,
     GetDiagnosticsReqeust,
@@ -71,21 +73,28 @@ import {
     GetMessageStoreResponse,
     GetProjectRootRequest,
     GetProjectUuidResponse,
+    GetRecipientEPRequest,
+    GetRecipientEPResponse,
     GetSelectiveWorkspaceContextResponse,
     GetTaskRequest,
     GetTaskResponse,
+    GetTemplateEPRequest,
+    GetTemplateEPResponse,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
     GetWorkspaceContextResponse,
     HighlightCodeRequest,
     ImportProjectRequest,
     ImportProjectResponse,
+    ListRegistryArtifactsRequest,
+    ListRegistryArtifactsResponse,
     MiDiagramAPI,
     MigrateProjectRequest,
     MigrateProjectResponse,
     OpenDiagramRequest,
     ProjectDirResponse,
     ProjectRootResponse,
+    RangeFormatRequest,
     RetrieveAddressEndpointRequest,
     RetrieveAddressEndpointResponse,
     RetrieveDefaultEndpointRequest,
@@ -112,6 +121,10 @@ import {
     UpdateHttpEndpointResponse,
     UpdateLoadBalanceEPRequest,
     UpdateLoadBalanceEPResponse,
+    UpdateRecipientEPRequest,
+    UpdateRecipientEPResponse,
+    UpdateTemplateEPRequest,
+    UpdateTemplateEPResponse,
     UpdateWsdlEndpointRequest,
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
@@ -140,9 +153,11 @@ import {
     getAIResponse,
     getAPIDirectory,
     getAddressEndpoint,
+    getAvailableRegistryResources,
     getAvailableResources,
     getBackendRootUrl,
     getConnector,
+    getConnectorData,
     getConnectors,
     getDefaultEndpoint,
     getDefinition,
@@ -159,6 +174,7 @@ import {
     getMessageStore,
     getProjectRoot,
     getProjectUuid,
+    getRecipientEndpoint,
     getSTRequest,
     getSTResponse,
     getSelectiveWorkspaceContext,
@@ -166,6 +182,7 @@ import {
     getSyntaxTree,
     getTask,
     getTemplate,
+    getTemplateEndpoint,
     getTemplates,
     getTextAtRange,
     getWorkspaceContext,
@@ -178,6 +195,7 @@ import {
     migrateProject,
     openDiagram,
     openFile,
+    rangeFormat,
     redo,
     showErrorMessage,
     undo,
@@ -186,25 +204,10 @@ import {
     updateFailoverEndpoint,
     updateHttpEndpoint,
     updateLoadBalanceEndpoint,
-    updateWsdlEndpoint,
-    writeContentToFile,
-    ListRegistryArtifactsResponse,
-    ListRegistryArtifactsRequest,
-    getAvailableRegistryResources,
-    UpdateRecipientEPRequest,
-    UpdateRecipientEPResponse,
     updateRecipientEndpoint,
-    GetRecipientEPRequest,
-    GetRecipientEPResponse,
-    getRecipientEndpoint,
-    UpdateTemplateEPRequest,
-    UpdateTemplateEPResponse,
     updateTemplateEndpoint,
-    GetTemplateEPRequest,
-    GetTemplateEPResponse,
-    getTemplateEndpoint,
-    RangeFormatRequest,
-    rangeFormat
+    updateWsdlEndpoint,
+    writeContentToFile
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -279,7 +282,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     updateRecipientEndpoint(params: UpdateRecipientEPRequest): Promise<UpdateRecipientEPResponse> {
         return this._messenger.sendRequest(updateRecipientEndpoint, HOST_EXTENSION, params);
     }
-    
+
     getRecipientEndpoint(params: GetRecipientEPRequest): Promise<GetRecipientEPResponse> {
         return this._messenger.sendRequest(getRecipientEndpoint, HOST_EXTENSION, params);
     }
@@ -287,7 +290,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     updateTemplateEndpoint(params: UpdateTemplateEPRequest): Promise<UpdateTemplateEPResponse> {
         return this._messenger.sendRequest(updateTemplateEndpoint, HOST_EXTENSION, params);
     }
-    
+
     getTemplateEndpoint(params: GetTemplateEPRequest): Promise<GetTemplateEPResponse> {
         return this._messenger.sendRequest(getTemplateEndpoint, HOST_EXTENSION, params);
     }
@@ -518,5 +521,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     rangeFormat(params: RangeFormatRequest): Promise<ApplyEditResponse> {
         return this._messenger.sendRequest(rangeFormat, HOST_EXTENSION, params);
+    }
+
+    getConnectorData(params: GetConnectorDataRequest): Promise<GetConnectorDataResponse> {
+        return this._messenger.sendRequest(getConnectorData, HOST_EXTENSION, params);
     }
 }

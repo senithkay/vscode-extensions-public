@@ -1026,3 +1026,12 @@ export interface RangeFormatRequest {
     uri: string;
     range: Range
 }
+
+export interface GetConnectorDataRequest {
+    url: string;
+    connector: string;
+}
+
+export interface GetConnectorDataResponse {
+    path: string;
+}

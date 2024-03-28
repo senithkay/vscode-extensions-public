@@ -58,6 +58,8 @@ import {
     GetAvailableResourcesRequest,
     GetAvailableResourcesResponse,
     GetBackendRootUrlResponse,
+    GetConnectorDataRequest,
+    GetConnectorDataResponse,
     GetDefinitionRequest,
     GetDefinitionResponse,
     GetDiagnosticsReqeust,
@@ -74,15 +76,21 @@ import {
     GetMessageStoreResponse,
     GetProjectRootRequest,
     GetProjectUuidResponse,
+    GetRecipientEPRequest,
+    GetRecipientEPResponse,
     GetSelectiveWorkspaceContextResponse,
     GetTaskRequest,
     GetTaskResponse,
+    GetTemplateEPRequest,
+    GetTemplateEPResponse,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
     GetWorkspaceContextResponse,
     HighlightCodeRequest,
     ImportProjectRequest,
     ImportProjectResponse,
+    ListRegistryArtifactsRequest,
+    ListRegistryArtifactsResponse,
     MACHINE_VIEW,
     MiDiagramAPI,
     MigrateProjectRequest,
@@ -90,6 +98,7 @@ import {
     OpenDiagramRequest,
     ProjectDirResponse,
     ProjectRootResponse,
+    RangeFormatRequest,
     RetrieveAddressEndpointRequest,
     RetrieveAddressEndpointResponse,
     RetrieveDefaultEndpointRequest,
@@ -116,23 +125,16 @@ import {
     UpdateHttpEndpointResponse,
     UpdateLoadBalanceEPRequest,
     UpdateLoadBalanceEPResponse,
+    UpdateRecipientEPRequest,
+    UpdateRecipientEPResponse,
+    UpdateTemplateEPRequest,
+    UpdateTemplateEPResponse,
     UpdateWsdlEndpointRequest,
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
     getSTRequest,
-    getSTResponse,
-    ListRegistryArtifactsResponse,
-    ListRegistryArtifactsRequest,
-    UpdateRecipientEPRequest,
-    UpdateRecipientEPResponse,
-    GetRecipientEPRequest,
-    GetRecipientEPResponse,
-    UpdateTemplateEPRequest,
-    UpdateTemplateEPResponse,
-    GetTemplateEPRequest,
-    GetTemplateEPResponse,
-    RangeFormatRequest
+    getSTResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -140,21 +142,21 @@ import * as fs from "fs";
 import * as os from 'os';
 import { Transform } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
+import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, getTemplateEndpointXmlWrapper } from "../../util";
-import { addNewEntryToArtifactXML, changeRootPomPackaging, detectMediaType, getMediatypeAndFileExtension, createMetadataFilesForRegistryCollection, getAvailableRegistryResources } from "../../util/fileOperations";
+import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
+import { addNewEntryToArtifactXML, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension } from "../../util/fileOperations";
 import { importProject } from "../../util/migrationUtils";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
+import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/recipientEndpoint";
 import { rootPomXmlContent } from "../../util/templates";
+import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
-import * as vscode from 'vscode';
-import { replaceFullContentToFile } from "../../util/workspace";
-import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/recipientEndpoint";
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
 const connectorsPath = path.join(".metadata", ".Connectors");
@@ -2473,6 +2475,46 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             });
         });
     }
+
+    async getConnectorData(params: GetConnectorDataRequest): Promise<GetConnectorDataResponse> {
+        const { connector, url } = params;
+        try {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (!workspaceFolders) {
+                throw new Error('No workspace is currently open');
+            }
+            const rootPath = workspaceFolders[0].uri.fsPath;
+
+            const connectorPath = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'registry', `${connector}.zip`)
+
+            const response = await axios.get(url, {
+                responseType: 'stream',
+                headers: {
+                    'User-Agent': 'My Client'
+                }
+            });
+            
+
+            const writer = fs.createWriteStream(
+                path.resolve(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors', `${connector}.zip`)
+            );
+
+            response.data.pipe(writer);
+
+            return new Promise((resolve, reject) => {
+                writer.on('finish', () => {
+                    writer.close();
+                    resolve({ path: connectorPath });
+                });
+                writer.on('error', reject);
+                resolve({ path: connectorPath });
+            });
+        } catch (error) {
+            console.error('Error fetching connector data:', error);
+            throw new Error('Failed to cfail connector data');
+        }      
+    }
+
     async undo(params: UndoRedoParams): Promise<void> {
         const lastsource = undoRedo.undo();
         if (lastsource) {
