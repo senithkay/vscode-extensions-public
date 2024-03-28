@@ -10,13 +10,25 @@
 import React from "react";
 
 import { DataMapperView } from "@wso2-enterprise/mi-data-mapper";
+import { useIOTypes } from "../../Hooks";
 
 interface DataMapperProps {
     filePath: string;
 }
 
+const filePathTemp = "/Users/madusha/play/mi/mi-hw/HelloWorldService/src/main/wso2mi/resources/data-mapper/sample.ts";
+const functionName = "tnf2";
+
 export function DataMapper(props: DataMapperProps) {
     const { filePath } = props;
+
+    const { dmIOTypes, isFetching: isFetchingTnfProfile, isError } = useIOTypes(filePathTemp, functionName);
+
+    if (isError) {
+        console.error("Error fetching IO types !!!");
+    } else if (!isFetchingTnfProfile) {
+        console.log("IO Types", dmIOTypes);
+    }
 
     return (
         <DataMapperView

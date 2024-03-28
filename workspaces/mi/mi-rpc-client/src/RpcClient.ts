@@ -14,18 +14,21 @@ import { MachineStateValue, stateChanged, vscode, getVisualizerState, getAIVisua
 import { MiDiagramRpcClient } from "./rpc-clients/mi-diagram/rpc-client";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { MiVisualizerRpcClient } from "./rpc-clients/mi-visualizer/rpc-client";
+import { MiDataMapperRpcClient } from "./rpc-clients/mi-data-mapper/rpc-client";
 
 export class RpcClient {
 
     private messenger: Messenger;
     private _diagram: MiDiagramRpcClient;
     private _visualizer: MiVisualizerRpcClient;
+    private _dataMapper: MiDataMapperRpcClient;
 
     constructor() {
         this.messenger = new Messenger(vscode);
         this.messenger.start();
         this._diagram = new MiDiagramRpcClient(this.messenger);
         this._visualizer = new MiVisualizerRpcClient(this.messenger);
+        this._dataMapper = new MiDataMapperRpcClient(this.messenger);
     }
 
     getMiDiagramRpcClient(): MiDiagramRpcClient {
@@ -34,6 +37,10 @@ export class RpcClient {
 
     getMiVisualizerRpcClient(): MiVisualizerRpcClient {
         return this._visualizer;
+    }
+
+    getMiDataMapperRpcClient(): MiDataMapperRpcClient {
+        return this._dataMapper;
     }
 
     onStateChanged(callback: (state: MachineStateValue) => void) {

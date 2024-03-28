@@ -8,15 +8,29 @@
  */
 
 import React from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRoot } from "react-dom/client";
 import { VisualizerContextProvider } from "./Context";
 import { Visualizer } from "./Visualizer";
+
+const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        refetchOnWindowFocus: false,
+        staleTime: 1000,
+        cacheTime: 1000,
+      },
+    },
+  });
 
 export function renderWebview(target: HTMLElement, mode: string) {
     const root = createRoot(target);
     root.render(
         <VisualizerContextProvider>
-            <Visualizer mode={mode} />
+            <QueryClientProvider client={queryClient}>
+                <Visualizer mode={mode} />
+            </QueryClientProvider>
         </VisualizerContextProvider>
     );
 }

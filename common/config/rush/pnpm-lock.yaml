@@ -3463,6 +3463,8 @@ importers:
       '@storybook/addon-essentials': ~7.4.0
       '@storybook/addon-links': ~7.4.0
       '@storybook/react-webpack5': ~7.4.0
+      '@tanstack/query-core': ^4.0.0-beta.1
+      '@tanstack/react-query': 4.0.10
       '@types/lodash': ~4.14.198
       '@types/mustache': ~4.2.5
       '@types/node': ^20.10.6
@@ -3507,6 +3509,8 @@ importers:
       '@emotion/css': 11.11.2
       '@emotion/react': 11.11.3_eteh3so6nztr56vqc4nbg6qqla
       '@emotion/styled': 11.11.0_dyeqyavlplouzrsokk7bfa3ywm
+      '@tanstack/query-core': 4.36.1
+      '@tanstack/react-query': 4.0.10_biqbaboplfbrettd7655fr4n2y
       '@types/react-collapse': 5.0.4
       '@types/react-split-pane': 0.1.67_biqbaboplfbrettd7655fr4n2y
       '@types/react-syntax-highlighter': 15.5.11
@@ -6204,17 +6208,6 @@ packages:
 
   /@codemirror/autocomplete/6.15.0:
     resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
-    dependencies:
-      '@codemirror/language': 6.10.1
-      '@codemirror/state': 6.4.1
-      '@codemirror/view': 6.26.0
-      '@lezer/common': 1.2.1
-    dev: false
-
-  /@codemirror/autocomplete/6.15.0_@codemirror+state@6.4.1:
-    resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
-    peerDependencies:
-      '@codemirror/state': ^6.0.0
     dependencies:
       '@codemirror/language': 6.10.1
       '@codemirror/state': 6.4.1
@@ -21408,7 +21401,7 @@ packages:
     peerDependencies:
       '@codemirror/lint': '>=6.0.0'
     dependencies:
-      '@codemirror/autocomplete': 6.15.0_@codemirror+state@6.4.1
+      '@codemirror/autocomplete': 6.15.0
       '@codemirror/commands': 6.3.3
       '@codemirror/language': 6.10.1
       '@codemirror/lint': 6.5.0
