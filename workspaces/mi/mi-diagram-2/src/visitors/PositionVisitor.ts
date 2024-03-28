@@ -152,14 +152,6 @@ export class PositionVisitor implements Visitor {
 
     beginVisitStore = (node: Store): void => this.setBasicMediatorPosition(node);
 
-    beginVisitThrottle = (node: Throttle): void => {
-        this.setAdvancedMediatorPosition(node, {
-            onAccept: node.onAccept,
-            onReject: node.onReject
-        }, NodeTypes.GROUP_NODE);
-    }
-    endVisitThrottle = (node: Throttle): void => this.setSkipChildrenVisit(false);
-
     beginVisitValidate = (node: Validate): void => {
         this.setAdvancedMediatorPosition(node, {
             onFail: node.onFail
@@ -228,6 +220,13 @@ export class PositionVisitor implements Visitor {
     }
     endVisitSwitch = (node: Switch): void => this.setSkipChildrenVisit(false);
     beginVisitConditionalRouter = (node: ConditionalRouter): void => this.setBasicMediatorPosition(node);
+    beginVisitThrottle = (node: Throttle): void => {
+        this.setAdvancedMediatorPosition(node, {
+            OnAccept: node.onAccept,
+            OnReject: node.onReject
+        }, NodeTypes.CONDITION_NODE);
+    }
+    endVisitThrottle = (node: Throttle): void => this.setSkipChildrenVisit(false);
     //Extension Mediators
     beginVisitClass = (node: Class): void => this.setBasicMediatorPosition(node);
     beginVisitBean = (node: Bean): void => this.setBasicMediatorPosition(node);

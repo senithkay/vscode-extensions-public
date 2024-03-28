@@ -1583,8 +1583,23 @@ export interface TService extends TExtensibleDocumented, STNode {
 }
 
 export interface ThrottlePolicy extends STNode {
-    any: any;
+    content: Policy[];
     key: string;
+}
+
+export interface Policy extends OperatorContentType {
+    otherAttributes: any;
+    name: string;
+    id: ID
+}
+
+export interface OperatorContentType extends STNode {
+    policyOrAllOrExactlyOne: any[];
+}
+
+export interface ID extends STNode {
+    value: string;
+    type: string;
 }
 
 export interface TaskTrigger extends STNode {
