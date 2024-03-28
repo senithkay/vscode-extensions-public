@@ -15,6 +15,7 @@ const interfaces: { [key: string]: ts.InterfaceDeclaration } = {};
 
 let inputTypes: DMType[] = [];
 let outputType: DMType | undefined;
+let functionST: ts.VariableDeclaration | undefined;
 
 export function fetchIOTypes(filePath: string, functionName: string) {
     inputTypes = [];
@@ -25,10 +26,23 @@ export function fetchIOTypes(filePath: string, functionName: string) {
         collectInterfaces(sourceFile);
         ts.forEachChild(sourceFile, (node) => findInputsAndOutput(node, functionName));
     } catch (error: any) {
-        throw new Error("Error while creating transformation profile. " + error.message);
+        throw new Error("Error while creating input/output types. " + error.message);
     }
 
     return { inputTypes, outputType };
+}
+
+export function fetchFunctionST(filePath: string, functionName: string) {
+    functionST = undefined;
+
+    try {
+        const sourceFile = getSourceFile(filePath);
+        ts.forEachChild(sourceFile, (node) => findFunctionST(node, functionName));
+    } catch (error: any) {
+        throw new Error("Error while fetching the ST of transformation function. " + error.message);
+    }
+
+    return { functionST };
 }
 
 function getSourceFile(filePath: string) {
@@ -66,6 +80,19 @@ function findInputsAndOutput(node: ts.Node, functionName: string) {
                 }
             });
             outputType = getTypeInfo(initializer.type!);
+        }
+    }
+}
+
+// Find syntax tree of the function
+function findFunctionST(node: ts.Node, functionName: string) {
+    if (ts.isVariableStatement(node)) {
+        const declarationList = node.declarationList;
+        const variableDeclaration = declarationList.declarations[0];
+        const fnName = (variableDeclaration.name as any).text;
+        const initializer = variableDeclaration.initializer;
+        if (fnName === functionName && initializer && ts.isArrowFunction(initializer)) {
+            functionST = variableDeclaration;
         }
     }
 }

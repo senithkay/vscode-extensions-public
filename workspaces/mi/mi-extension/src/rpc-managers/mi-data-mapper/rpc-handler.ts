@@ -9,8 +9,10 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    getIOTypes,
-    IOTypeRequest
+    FunctionSTRequest,
+    IOTypeRequest,
+    getFunctionST,
+    getIOTypes
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDataMapperRpcManager } from "./rpc-manager";
@@ -18,4 +20,5 @@ import { MiDataMapperRpcManager } from "./rpc-manager";
 export function registerMiDataMapperRpcHandlers(messenger: Messenger) {
     const rpcManger = new MiDataMapperRpcManager();
     messenger.onRequest(getIOTypes, (args: IOTypeRequest) => rpcManger.getIOTypes(args));
+    messenger.onRequest(getFunctionST, (args: FunctionSTRequest) => rpcManger.getFunctionST(args));
 }

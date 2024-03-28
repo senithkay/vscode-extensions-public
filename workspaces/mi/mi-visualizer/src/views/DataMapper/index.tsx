@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -10,7 +10,8 @@
 import React from "react";
 
 import { DataMapperView } from "@wso2-enterprise/mi-data-mapper";
-import { useIOTypes } from "../../Hooks";
+import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
+import { useFunctionST, useIOTypes } from "../../Hooks";
 
 interface DataMapperProps {
     filePath: string;
@@ -22,17 +23,27 @@ const functionName = "tnf2";
 export function DataMapper(props: DataMapperProps) {
     const { filePath } = props;
 
-    const { dmIOTypes, isFetching: isFetchingTnfProfile, isError } = useIOTypes(filePathTemp, functionName);
+    const { dmIOTypes, isFetching: isFetchingIOTypes, isError: isTypeError } = useIOTypes(filePathTemp, functionName);
+    const { dmFnST, isFetching: isFetchingFnST, isError: isFnSTError } = useFunctionST(filePathTemp, functionName);
 
-    if (isError) {
+    const isFetching = isFetchingIOTypes || isFetchingFnST;
+
+    if (isTypeError) {
         console.error("Error fetching IO types !!!");
-    } else if (!isFetchingTnfProfile) {
+    } 
+    if (isFnSTError) {
+        console.error("Error fetching function ST !!!");
+    } else if (!isFetching) {
         console.log("IO Types", dmIOTypes);
+        console.log("Function ST", dmFnST);
     }
 
     return (
-        <DataMapperView
-            filePath={filePath}
-        />
+        <>
+            {isFetching
+                ? <ProgressIndicator data-testid={'type-select-linear-progress'} />
+                : <DataMapperView filePath={filePath} />
+            }
+        </>
     );
 };

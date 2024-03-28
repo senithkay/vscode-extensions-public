@@ -9,9 +9,12 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    FunctionSTRequest,
+    FunctionSTResponse,
     IOTypeRequest,
     IOTypeResponse,
     MIDataMapperAPI,
+    getFunctionST,
     getIOTypes
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -26,5 +29,9 @@ export class MiDataMapperRpcClient implements MIDataMapperAPI {
 
     getIOTypes(params: IOTypeRequest): Promise<IOTypeResponse> {
         return this._messenger.sendRequest(getIOTypes, HOST_EXTENSION, params);
+    }
+
+    getFunctionST(params: FunctionSTRequest): Promise<FunctionSTResponse> {
+        return this._messenger.sendRequest(getFunctionST, HOST_EXTENSION, params);
     }
 }

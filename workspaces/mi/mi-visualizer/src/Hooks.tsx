@@ -35,3 +35,29 @@ export const useIOTypes = (
 
     return {dmIOTypes, isFetching, isError, refetch };
 };
+
+export const useFunctionST = (
+    filePath: string,
+    functionName: string
+) => {
+    const { rpcClient } = useVisualizerContext();
+    const getFnST = async () => {
+        try {
+            const profile = await rpcClient
+                .getMiDataMapperRpcClient()
+                .getFunctionST({ filePath, functionName });
+            return profile;
+        } catch (error) {
+            console.error('Error while fetching function ST: ', error);
+        }
+    }
+
+    const {
+        data: dmFnST,
+        isFetching,
+        isError,
+        refetch,
+    } = useQuery(['getFnST', { filePath, functionName }], () => getFnST(), {});
+
+    return {dmFnST, isFetching, isError, refetch };
+};

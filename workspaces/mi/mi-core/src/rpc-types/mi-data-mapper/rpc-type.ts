@@ -8,8 +8,9 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { IOTypeRequest, IOTypeResponse } from "./types";
+import { IOTypeRequest, IOTypeResponse, FunctionSTRequest, FunctionSTResponse } from "./types";
 import { RequestType } from "vscode-messenger-common";
 
 const _preFix = "mi-data-mapper";
 export const getIOTypes: RequestType<IOTypeRequest, IOTypeResponse> = { method: `${_preFix}/getIOTypes` };
+export const getFunctionST: RequestType<FunctionSTRequest, FunctionSTResponse> = { method: `${_preFix}/getFunctionST` };
