@@ -100,7 +100,7 @@ export class CommonRpcManager implements CommonRPCAPI {
                     documentIdentifier: {
                         uri: documentUri,
                     }
-                }) as DiagnosticData;
+                }) as DiagnosticData[];
 
                 // Revert the changes back to the original
                 StateMachine.langClient().didChange({

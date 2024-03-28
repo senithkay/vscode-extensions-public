@@ -34,6 +34,9 @@ export * from "./code-generation/utils/metadata-utils";
 // ------ Ballerina exports -------->
 export type { STNode, NodePosition } from "@wso2-enterprise/syntax-tree";
 export type {
+    GetSyntaxTreeResponse,
+    BallerinaDiagnosticsRequest,
+    BallerinaDiagnosticsResponse,
     BallerinaProjectComponents,
     LibraryDataResponse,
     LibrariesListResponse,
