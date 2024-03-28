@@ -28,6 +28,13 @@ interface BranchData {
     name: string;
     diagnostics: Diagnostic[];
 }
+interface createNodeAndLinks {
+    node: STNode;
+    name?: string;
+    type?: NodeTypes;
+    data?: any;
+}
+
 enum DiagramType {
     DIAGRAM,
     SEQUENCE
@@ -52,7 +59,12 @@ export class NodeFactoryVisitor implements Visitor {
         this.resource = model;
     }
 
-    private createNodeAndLinks(node: STNode, name: string, type: NodeTypes = NodeTypes.MEDIATOR_NODE, data?: any): void {
+    private createNodeAndLinks(params: createNodeAndLinks): void {
+        let { node, name, type, data } = params;
+        if (!type) {
+            type = NodeTypes.MEDIATOR_NODE;
+        }
+
         // create node
         let diagramNode: AnyNode;
         if (type === NodeTypes.MEDIATOR_NODE) {
@@ -131,7 +143,7 @@ export class NodeFactoryVisitor implements Visitor {
                     this.previousSTNodes = [];
                     startNode.viewState.x += (startNode.viewState.w / 2) - (NODE_DIMENSIONS.START.DISABLED.WIDTH / 2);
                     startNode.tag = "start";
-                    this.createNodeAndLinks(startNode, "", NodeTypes.START_NODE, StartNodeType.SUB_SEQUENCE);
+                    this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.SUB_SEQUENCE });
                 } else {
                     this.currentBranchData = { name: sequenceKeys[i], diagnostics: sequence.diagnostics };
                     this.previousSTNodes = [node];
@@ -144,21 +156,21 @@ export class NodeFactoryVisitor implements Visitor {
 
                 } else if (sequence.sequenceAttribute) {
                     sequence.viewState.y += NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y;
-                    this.createNodeAndLinks(sequence, "", NodeTypes.REFERENCE_NODE, [sequence.sequenceAttribute]);
+                    this.createNodeAndLinks({ node: sequence, type: NodeTypes.REFERENCE_NODE, data: [sequence.sequenceAttribute] });
 
                 } else if (sequence.tag === "endpoint") {
                     sequence.viewState.y += NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y;
-                    this.createNodeAndLinks(sequence, "", NodeTypes.MEDIATOR_NODE);
+                    this.createNodeAndLinks({ node: sequence, type: NodeTypes.MEDIATOR_NODE });
 
                 } else if (type !== NodeTypes.GROUP_NODE) {
-                    this.createNodeAndLinks(sequence, "", NodeTypes.EMPTY_NODE);
+                    this.createNodeAndLinks({ node: sequence, type: NodeTypes.EMPTY_NODE });
                 }
 
                 // add the end node for each sub flow in group node
                 if (type === NodeTypes.GROUP_NODE) {
                     sequence.viewState.y = startNode.viewState.y + sequence.viewState.h - NODE_DIMENSIONS.END.HEIGHT;
                     sequence.viewState.x += (sequence.viewState.w / 2) - (NODE_DIMENSIONS.END.WIDTH / 2);
-                    this.createNodeAndLinks(sequence, "", NodeTypes.END_NODE);
+                    this.createNodeAndLinks({ node: sequence, type: NodeTypes.END_NODE });
                 }
             }
         }
@@ -177,7 +189,7 @@ export class NodeFactoryVisitor implements Visitor {
             eNode.viewState.x = eNode.viewState.x + eNode.viewState.w / 2 - NODE_DIMENSIONS.START.DISABLED.WIDTH / 2;
             eNode.viewState.x += node.viewState.fw / 2;
             this.previousSTNodes = [];
-            this.createNodeAndLinks(eNode, MEDIATORS.CLONE, NodeTypes.PLUS_NODE);
+            this.createNodeAndLinks(({ node: eNode, name: MEDIATORS.CLONE, type: NodeTypes.PLUS_NODE }));
         }
 
         // add last nodes in sub sequences to the previous nodes list
@@ -201,7 +213,7 @@ export class NodeFactoryVisitor implements Visitor {
             eNode.viewState.id = JSON.stringify(eNode.range.endTagRange) + "_end";
             eNode.viewState.y = eNode.viewState.y + eNode.viewState.fh;
             eNode.viewState.x = eNode.viewState.x + eNode.viewState.w / 2 - NODE_DIMENSIONS.EMPTY.WIDTH / 2;
-            this.createNodeAndLinks(eNode, "", NodeTypes.CONDITION_NODE_END);
+            this.createNodeAndLinks({ node: eNode, type: NodeTypes.CONDITION_NODE_END });
         }
     }
 
@@ -214,19 +226,19 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitCall = (node: Call): void => {
-        this.createNodeAndLinks(node, MEDIATORS.CALL, NodeTypes.CALL_NODE, node.endpoint);
+        this.createNodeAndLinks({ node, name: MEDIATORS.CALL, type: NodeTypes.CALL_NODE, data: node.endpoint });
         this.skipChildrenVisit = true;
     }
     endVisitCall = (node: Call): void => {
         this.skipChildrenVisit = false;
     }
 
-    beginVisitCallout = (node: Callout): void => this.createNodeAndLinks(node, MEDIATORS.CALLOUT);
-    beginVisitDrop = (node: Drop): void => this.createNodeAndLinks(node, MEDIATORS.DROP);
-    beginVisitEndpoint = (node: Endpoint): void => this.createNodeAndLinks(node, "");
-    beginVisitEndpointHttp = (node: EndpointHttp): void => this.createNodeAndLinks(node, ENDPOINTS.HTTP);
+    beginVisitCallout = (node: Callout): void => this.createNodeAndLinks({ node, name: MEDIATORS.CALLOUT });
+    beginVisitDrop = (node: Drop): void => this.createNodeAndLinks({ node, name: MEDIATORS.DROP });
+    beginVisitEndpoint = (node: Endpoint): void => this.createNodeAndLinks({ node });
+    beginVisitEndpointHttp = (node: EndpointHttp): void => this.createNodeAndLinks({ node, name: ENDPOINTS.HTTP });
 
-    beginVisitHeader = (node: Header): void => this.createNodeAndLinks(node, MEDIATORS.HEADER);
+    beginVisitHeader = (node: Header): void => this.createNodeAndLinks({ node, name: MEDIATORS.HEADER });
 
     beginVisitInSequence(node: Sequence): void {
         const addPosition = {
@@ -235,13 +247,13 @@ export class NodeFactoryVisitor implements Visitor {
         }
         this.currentAddPosition = addPosition;
         this.resource.viewState = node.viewState;
-        this.createNodeAndLinks(this.resource, "", NodeTypes.START_NODE, StartNodeType.IN_SEQUENCE);
+        this.createNodeAndLinks({ node: this.resource, type: NodeTypes.START_NODE, data: StartNodeType.IN_SEQUENCE });
         this.parents.push(node);
     }
     endVisitInSequence(node: Sequence): void {
         node.viewState.x += NODE_DIMENSIONS.START.EDITABLE.WIDTH / 2 - NODE_DIMENSIONS.START.DISABLED.WIDTH / 2;
         node.viewState.y = node.viewState.fh + NODE_GAP.Y;
-        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, StartNodeType.IN_SEQUENCE);
+        this.createNodeAndLinks({ node, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE, data: StartNodeType.IN_SEQUENCE });
         this.parents.pop();
         this.previousSTNodes = [node];
     }
@@ -253,14 +265,14 @@ export class NodeFactoryVisitor implements Visitor {
         }
         this.currentAddPosition = addPosition;
         this.resource.viewState = node.viewState;
-        this.createNodeAndLinks(node, "", NodeTypes.START_NODE, StartNodeType.OUT_SEQUENCE);
+        this.createNodeAndLinks({ node, type: NodeTypes.START_NODE, data: StartNodeType.OUT_SEQUENCE });
         this.currentAddPosition = addPosition;
         this.parents.push(node);
     }
     endVisitOutSequence(node: Sequence): void {
         const lastNode = this.nodes[this.nodes.length - 1].getStNode();
         node.viewState.y = lastNode.viewState.y + Math.max(lastNode.viewState.h, lastNode.viewState.fh || 0) + NODE_GAP.Y;
-        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, StartNodeType.OUT_SEQUENCE);
+        this.createNodeAndLinks({ node, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE, data: StartNodeType.OUT_SEQUENCE });
         this.parents.pop();
         this.previousSTNodes = undefined;
     }
@@ -271,57 +283,57 @@ export class NodeFactoryVisitor implements Visitor {
             character: node.range.startTagRange.end.character
         }
         this.currentAddPosition = addPosition;
-        this.createNodeAndLinks(node, "", NodeTypes.START_NODE, StartNodeType.FAULT_SEQUENCE);
+        this.createNodeAndLinks({ node, type: NodeTypes.START_NODE, data: StartNodeType.FAULT_SEQUENCE });
         this.parents.push(node);
     }
     endVisitFaultSequence(node: Sequence): void {
         const lastNode = this.nodes[this.nodes.length - 1].getStNode();
         node.viewState.y = lastNode.viewState.y + Math.max(lastNode.viewState.h, lastNode.viewState.fh || 0) + NODE_GAP.Y;
-        this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, StartNodeType.FAULT_SEQUENCE);
+        this.createNodeAndLinks({ node, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE, data: StartNodeType.FAULT_SEQUENCE });
         this.parents.pop();
         this.previousSTNodes = undefined;
     }
 
     beginVisitLog = (node: Log): void => {
-        this.createNodeAndLinks(node, MEDIATORS.LOG);
+        this.createNodeAndLinks({ node, name: MEDIATORS.LOG });
         this.skipChildrenVisit = true;
     }
     endVisitLog = (node: Log): void => {
         this.skipChildrenVisit = false;
     }
 
-    beginVisitLoopback = (node: Loopback): void => this.createNodeAndLinks(node, MEDIATORS.LOOPBACK);
-    beginVisitPayloadFactory = (node: PayloadFactory): void => this.createNodeAndLinks(node, MEDIATORS.PAYLOAD);
-    beginVisitProperty = (node: Property): void => this.createNodeAndLinks(node, MEDIATORS.PROPERTY);
+    beginVisitLoopback = (node: Loopback): void => this.createNodeAndLinks({ node, name: MEDIATORS.LOOPBACK });
+    beginVisitPayloadFactory = (node: PayloadFactory): void => this.createNodeAndLinks({ node, name: MEDIATORS.PAYLOAD });
+    beginVisitProperty = (node: Property): void => this.createNodeAndLinks({ node, name: MEDIATORS.PROPERTY });
 
     beginVisitPropertyGroup = (node: PropertyGroup): void => {
-        this.createNodeAndLinks(node, MEDIATORS.PROPERTYGROUP);
+        this.createNodeAndLinks({ node, name: MEDIATORS.PROPERTYGROUP });
         this.skipChildrenVisit = true;
     }
     endVisitPropertyGroup(node: PropertyGroup): void {
         this.skipChildrenVisit = false;
     }
 
-    beginVisitRespond = (node: Respond): void => this.createNodeAndLinks(node, MEDIATORS.RESPOND);
+    beginVisitRespond = (node: Respond): void => this.createNodeAndLinks({ node, name: MEDIATORS.RESPOND });
 
     beginVisitResource = (node: Resource): void => {
         if (node.inSequenceAttribute) {
             node.viewState.y = 40;
             const startNode = structuredClone(node);
             startNode.viewState.id = "inSequenceStart";
-            this.createNodeAndLinks(startNode, "", NodeTypes.START_NODE, StartNodeType.IN_SEQUENCE);
+            this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.IN_SEQUENCE });
 
             const sequneceReferenceNode = structuredClone(node);
             sequneceReferenceNode.viewState.id = "inSequenceNode";
             sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
             sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
-            this.createNodeAndLinks(sequneceReferenceNode, MEDIATORS.SEQUENCE, NodeTypes.REFERENCE_NODE, [node.inSequenceAttribute]);
+            this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: [node.inSequenceAttribute] });
 
             const endNode = structuredClone(node);
             endNode.viewState.id = "inSequenceEnd";
             endNode.viewState.y = sequneceReferenceNode.viewState.y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
             endNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.END.WIDTH) / 2;
-            this.createNodeAndLinks(endNode, MEDIATORS.SEQUENCE, NodeTypes.END_NODE);
+            this.createNodeAndLinks({ node: endNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE });
 
             node.viewState.y += endNode.viewState.y + NODE_DIMENSIONS.END.HEIGHT;
         }
@@ -329,22 +341,22 @@ export class NodeFactoryVisitor implements Visitor {
             const startNode = structuredClone(node);
             startNode.viewState.id = "outSequence";
             startNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.START.DISABLED.WIDTH) / 2;
-            this.createNodeAndLinks(startNode, "", NodeTypes.START_NODE, StartNodeType.OUT_SEQUENCE);
+            this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.OUT_SEQUENCE });
 
             const sequneceReferenceNode = structuredClone(node);
             sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
             sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
-            this.createNodeAndLinks(sequneceReferenceNode, MEDIATORS.SEQUENCE, NodeTypes.REFERENCE_NODE, [node.inSequenceAttribute]);
+            this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: [node.inSequenceAttribute] });
 
             const endNode = structuredClone(node);
             endNode.viewState.y = sequneceReferenceNode.viewState.y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
             endNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.END.WIDTH) / 2;
-            this.createNodeAndLinks(endNode, MEDIATORS.SEQUENCE, NodeTypes.END_NODE);
+            this.createNodeAndLinks({ node: endNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE });
         }
     }
 
     beginVisitSend = (node: Send): void => {
-        this.createNodeAndLinks(node, MEDIATORS.SEND, NodeTypes.CALL_NODE, node.endpoint);
+        this.createNodeAndLinks({ node, name: MEDIATORS.SEND, type: NodeTypes.CALL_NODE, data: node.endpoint });
         this.skipChildrenVisit = true;
     }
     endVisitSend = (node: Send): void => {
@@ -354,7 +366,7 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitSequence = (node: Sequence): void => {
         const isSequnce = this.parents.length == 0;
         if (!isSequnce) {
-            this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.REFERENCE_NODE, [(node as any).key ?? node.tag]);
+            this.createNodeAndLinks({ node, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: [(node as any).key ?? node.tag] });
             this.skipChildrenVisit = true;
         } else {
             const addPosition = {
@@ -362,7 +374,7 @@ export class NodeFactoryVisitor implements Visitor {
                 character: node.range.startTagRange.end.character
             }
             this.currentAddPosition = addPosition;
-            this.createNodeAndLinks(node, "", NodeTypes.START_NODE, StartNodeType.IN_SEQUENCE);
+            this.createNodeAndLinks({ node, type: NodeTypes.START_NODE, data: StartNodeType.IN_SEQUENCE });
             this.diagramType = DiagramType.SEQUENCE;
         }
         this.parents.push(node);
@@ -374,18 +386,18 @@ export class NodeFactoryVisitor implements Visitor {
             const lastStNode = lastNode instanceof StartNodeModel ? lastNode.getStNode() : prevNodes[prevNodes.length - 1].getStNode();
             node.viewState.y = lastStNode.viewState.y + Math.max(lastStNode.viewState.h, lastStNode.viewState.fh || 0) + NODE_GAP.Y;
             node.viewState.x += NODE_DIMENSIONS.START.EDITABLE.WIDTH / 2 - NODE_DIMENSIONS.START.DISABLED.WIDTH / 2;
-            this.createNodeAndLinks(node, MEDIATORS.SEQUENCE, NodeTypes.END_NODE, node.range.endTagRange.end);
+            this.createNodeAndLinks({ node, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE, data: node.range.endTagRange.end });
             this.previousSTNodes = undefined;
         }
         this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
-    beginVisitStore = (node: Store): void => this.createNodeAndLinks(node, MEDIATORS.STORE);
+    beginVisitStore = (node: Store): void => this.createNodeAndLinks({ node, name: MEDIATORS.STORE });
 
-    // beginVisitValidate = (node: Validate): void => this.createNodeAndLinks(node, MEDIATORS.VALIDATE);
+    // beginVisitValidate = (node: Validate): void => this.createNodeAndLinks({ node, name: MEDIATORS.VALIDATE });
     beginVisitValidate(node: Validate): void {
-        this.createNodeAndLinks(node, MEDIATORS.VALIDATE, NodeTypes.GROUP_NODE)
+        this.createNodeAndLinks(({ node, name: MEDIATORS.VALIDATE, type: NodeTypes.GROUP_NODE }))
         this.parents.push(node);
 
         this.visitSubSequences(node, {
@@ -398,11 +410,11 @@ export class NodeFactoryVisitor implements Visitor {
         this.skipChildrenVisit = false;
     }
 
-    beginVisitCallTemplate = (node: CallTemplate): void => this.createNodeAndLinks(node, MEDIATORS.CALLTEMPLATE);
+    beginVisitCallTemplate = (node: CallTemplate): void => this.createNodeAndLinks({ node, name: MEDIATORS.CALLTEMPLATE });
 
     //Advanced Mediators
     beginVisitCache(node: Cache): void {
-        this.createNodeAndLinks(node, MEDIATORS.CACHE, NodeTypes.GROUP_NODE)
+        this.createNodeAndLinks(({ node, name: MEDIATORS.CACHE, type: NodeTypes.GROUP_NODE }))
         this.parents.push(node);
 
         this.visitSubSequences(node, {
@@ -415,7 +427,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.skipChildrenVisit = false;
     }
     beginVisitClone(node: Clone): void {
-        this.createNodeAndLinks(node, MEDIATORS.CLONE, NodeTypes.GROUP_NODE)
+        this.createNodeAndLinks(({ node, name: MEDIATORS.CLONE, type: NodeTypes.GROUP_NODE }))
         this.parents.push(node);
         let targets: { [key: string]: any } = {}
         node.target.map((target, index) => {
@@ -428,14 +440,14 @@ export class NodeFactoryVisitor implements Visitor {
         this.parents.pop();
         this.skipChildrenVisit = false;
     }
-    beginVisitDataServiceCall = (node: DataServiceCall): void => this.createNodeAndLinks(node, MEDIATORS.DATASERVICECALL);
-    beginVisitEnqueue = (node: Enqueue): void => this.createNodeAndLinks(node, MEDIATORS.ENQUEUE);
-    beginVisitTransaction = (node: Transaction): void => this.createNodeAndLinks(node, MEDIATORS.TRANSACTION);
-    beginVisitEvent = (node: Event): void => this.createNodeAndLinks(node, MEDIATORS.EVENT);
+    beginVisitDataServiceCall = (node: DataServiceCall): void => this.createNodeAndLinks({ node, name: MEDIATORS.DATASERVICECALL });
+    beginVisitEnqueue = (node: Enqueue): void => this.createNodeAndLinks({ node, name: MEDIATORS.ENQUEUE });
+    beginVisitTransaction = (node: Transaction): void => this.createNodeAndLinks({ node, name: MEDIATORS.TRANSACTION });
+    beginVisitEvent = (node: Event): void => this.createNodeAndLinks({ node, name: MEDIATORS.EVENT });
 
     //EIP Mediators
     beginVisitAggregate(node: Aggregate): void {
-        this.createNodeAndLinks(node, MEDIATORS.AGGREGATE, NodeTypes.GROUP_NODE)
+        this.createNodeAndLinks(({ node, name: MEDIATORS.AGGREGATE, type: NodeTypes.GROUP_NODE }))
         this.parents.push(node);
 
         this.visitSubSequences(node, {
@@ -448,7 +460,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.skipChildrenVisit = false;
     }
     beginVisitIterate(node: Iterate): void {
-        this.createNodeAndLinks(node, MEDIATORS.ITERATE, NodeTypes.GROUP_NODE)
+        this.createNodeAndLinks(({ node, name: MEDIATORS.ITERATE, type: NodeTypes.GROUP_NODE }))
         this.parents.push(node);
 
         this.visitSubSequences(node, {
@@ -461,7 +473,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.skipChildrenVisit = false;
     }
     beginVisitForeach(node: Foreach): void {
-        this.createNodeAndLinks(node, MEDIATORS.FOREACH, NodeTypes.GROUP_NODE)
+        this.createNodeAndLinks(({ node, name: MEDIATORS.FOREACH, type: NodeTypes.GROUP_NODE }))
         this.parents.push(node);
 
         this.visitSubSequences(node, {
@@ -475,7 +487,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
     //Filter Mediators
     beginVisitFilter(node: Filter): void {
-        this.createNodeAndLinks(node, MEDIATORS.FILTER, NodeTypes.CONDITION_NODE)
+        this.createNodeAndLinks(({ node, name: MEDIATORS.FILTER, type: NodeTypes.CONDITION_NODE }))
         this.parents.push(node);
 
         this.visitSubSequences(node, {
@@ -489,7 +501,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.skipChildrenVisit = false;
     }
     beginVisitSwitch(node: Switch): void {
-        this.createNodeAndLinks(node, MEDIATORS.SWITCH, NodeTypes.GROUP_NODE)
+        this.createNodeAndLinks(({ node, name: MEDIATORS.SWITCH, type: NodeTypes.GROUP_NODE }))
         this.parents.push(node);
         let cases: { [key: string]: any } = {};
         node._case.map((_case, index) => {
@@ -504,10 +516,10 @@ export class NodeFactoryVisitor implements Visitor {
         this.parents.pop();
         this.skipChildrenVisit = false;
     }
-    beginVisitConditionalRouter = (node: ConditionalRouter): void => this.createNodeAndLinks(node, MEDIATORS.CONDITIONALROUTER);
+    beginVisitConditionalRouter = (node: ConditionalRouter): void => this.createNodeAndLinks({ node, name: MEDIATORS.CONDITIONALROUTER });
 
     beginVisitThrottle(node: Throttle): void {
-        this.createNodeAndLinks(node, MEDIATORS.THROTTLE, NodeTypes.CONDITION_NODE)
+        this.createNodeAndLinks(({ node, name: MEDIATORS.THROTTLE, type: NodeTypes.CONDITION_NODE }))
         this.parents.push(node);
 
         this.visitSubSequences(node, {
@@ -523,7 +535,7 @@ export class NodeFactoryVisitor implements Visitor {
 
     // Extension Mediators
     beginVisitBean(node: Bean): void {
-        this.createNodeAndLinks(node, MEDIATORS.BEAN);
+        this.createNodeAndLinks({ node, name: MEDIATORS.BEAN });
         this.skipChildrenVisit = true;
     }
 
@@ -533,7 +545,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitClass(node: Class): void {
-        this.createNodeAndLinks(node, MEDIATORS.CLASS);
+        this.createNodeAndLinks({ node, name: MEDIATORS.CLASS });
         this.skipChildrenVisit = true;
     }
 
@@ -543,7 +555,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitPojoCommand(node: PojoCommand): void {
-        this.createNodeAndLinks(node, MEDIATORS.COMMAND);
+        this.createNodeAndLinks({ node, name: MEDIATORS.COMMAND });
         this.skipChildrenVisit = true;
     }
 
@@ -553,7 +565,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitEjb(node: Ejb): void {
-        this.createNodeAndLinks(node, MEDIATORS.EJB);
+        this.createNodeAndLinks({ node, name: MEDIATORS.EJB });
         this.skipChildrenVisit = true;
     }
 
@@ -563,7 +575,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitScript(node: Script): void {
-        this.createNodeAndLinks(node, MEDIATORS.SCRIPT);
+        this.createNodeAndLinks({ node, name: MEDIATORS.SCRIPT });
         this.skipChildrenVisit = true;
     }
 
@@ -573,7 +585,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitSpring(node: Spring): void {
-        this.createNodeAndLinks(node, MEDIATORS.SPRING);
+        this.createNodeAndLinks({ node, name: MEDIATORS.SPRING });
         this.skipChildrenVisit = true;
     }
 
@@ -584,7 +596,7 @@ export class NodeFactoryVisitor implements Visitor {
 
     //Other Mediators
     beginVisitBam(node: Bam): void {
-        this.createNodeAndLinks(node, MEDIATORS.BAM);
+        this.createNodeAndLinks({ node, name: MEDIATORS.BAM });
         this.skipChildrenVisit = true;
     }
 
@@ -594,7 +606,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitOauthService(node: OauthService): void {
-        this.createNodeAndLinks(node, MEDIATORS.OAUTH);
+        this.createNodeAndLinks({ node, name: MEDIATORS.OAUTH });
         this.skipChildrenVisit = true;
     }
 
@@ -604,7 +616,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitBuilder(node: Builder): void {
-        this.createNodeAndLinks(node, MEDIATORS.BUILDER);
+        this.createNodeAndLinks({ node, name: MEDIATORS.BUILDER });
         this.skipChildrenVisit = true;
     }
 
@@ -614,7 +626,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitPublishEvent(node: PublishEvent): void {
-        this.createNodeAndLinks(node, MEDIATORS.PUBLISHEVENT);
+        this.createNodeAndLinks({ node, name: MEDIATORS.PUBLISHEVENT });
         this.skipChildrenVisit = true;
     }
 
@@ -624,7 +636,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitEntitlementService(node: EntitlementService): void {
-        this.createNodeAndLinks(node, MEDIATORS.ENTITLEMENT, NodeTypes.GROUP_NODE)
+        this.createNodeAndLinks({ node, name: MEDIATORS.ENTITLEMENT, type: NodeTypes.GROUP_NODE })
         this.parents.push(node);
 
         this.visitSubSequences(node, {
@@ -641,7 +653,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitRule(node: Rule): void {
-        this.createNodeAndLinks(node, MEDIATORS.RULE);
+        this.createNodeAndLinks({ node, name: MEDIATORS.RULE });
         this.skipChildrenVisit = true;
     }
 
@@ -651,7 +663,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitNtlm(node: Ntlm): void {
-        this.createNodeAndLinks(node, MEDIATORS.NTLM);
+        this.createNodeAndLinks({ node, name: MEDIATORS.NTLM });
         this.skipChildrenVisit = true;
     }
 
@@ -662,7 +674,7 @@ export class NodeFactoryVisitor implements Visitor {
 
     //Transformation Mediators
     beginVisitDatamapper(node: Datamapper): void {
-        this.createNodeAndLinks(node, MEDIATORS.DATAMAPPER);
+        this.createNodeAndLinks({ node, name: MEDIATORS.DATAMAPPER });
         this.skipChildrenVisit = true;
     }
 
@@ -672,7 +684,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitEnrich(node: Enrich): void {
-        this.createNodeAndLinks(node, MEDIATORS.ENRICH);
+        this.createNodeAndLinks({ node, name: MEDIATORS.ENRICH });
         this.skipChildrenVisit = true;
     }
 
@@ -682,7 +694,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitFastXSLT(node: FastXSLT): void {
-        this.createNodeAndLinks(node, MEDIATORS.FASTXSLT);
+        this.createNodeAndLinks({ node, name: MEDIATORS.FASTXSLT });
         this.skipChildrenVisit = true;
     }
 
@@ -692,7 +704,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitMakefault(node: Makefault): void {
-        this.createNodeAndLinks(node, MEDIATORS.FAULT);
+        this.createNodeAndLinks({ node, name: MEDIATORS.FAULT });
         this.skipChildrenVisit = true;
     }
 
@@ -702,7 +714,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitJsontransform(node: Jsontransform): void {
-        this.createNodeAndLinks(node, MEDIATORS.JSONTRANSFORM);
+        this.createNodeAndLinks({ node, name: MEDIATORS.JSONTRANSFORM });
         this.skipChildrenVisit = true;
     }
 
@@ -712,7 +724,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitSmooks(node: Smooks): void {
-        this.createNodeAndLinks(node, MEDIATORS.SMOOKS);
+        this.createNodeAndLinks({ node, name: MEDIATORS.SMOOKS });
         this.skipChildrenVisit = true;
     }
 
@@ -722,7 +734,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitXquery(node: Xquery): void {
-        this.createNodeAndLinks(node, MEDIATORS.XQUERY);
+        this.createNodeAndLinks({ node, name: MEDIATORS.XQUERY });
         this.skipChildrenVisit = true;
     }
 
@@ -732,7 +744,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitXslt(node: Xslt): void {
-        this.createNodeAndLinks(node, MEDIATORS.XSLT);
+        this.createNodeAndLinks({ node, name: MEDIATORS.XSLT });
         this.skipChildrenVisit = true;
     }
 
