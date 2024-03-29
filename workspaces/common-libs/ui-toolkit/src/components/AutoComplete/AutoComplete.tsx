@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { ComponentProps, Fragment, useEffect, useRef, useState } from 'react'
+import React, { Fragment, useEffect, useRef, useState } from 'react'
 
 import { css, cx } from "@emotion/css";
 import { Combobox, Transition } from '@headlessui/react'
@@ -141,7 +141,7 @@ export const Container = styled.div<ContainerProps>`
     ${(props: ContainerProps) => props.sx}
 `;
 
-export interface AutoCompleteProps extends ComponentProps<"select"> {
+export interface AutoCompleteProps {
     id?: string;
     items: string[];
     required?: boolean;
@@ -153,7 +153,13 @@ export interface AutoCompleteProps extends ComponentProps<"select"> {
     sx?: React.CSSProperties;
     borderBox?: boolean;
     onValueChange?: (item: string, index?: number) => void;
-}
+
+    // new
+    name?: string;
+    value?: string;
+    onBlur?:React.FocusEventHandler<HTMLInputElement>;
+    onChange?:React.ChangeEventHandler<HTMLInputElement>;
+} 
 
 const ComboboxOption: React.FC<any> = styled.div`
     position: relative;
@@ -166,17 +172,16 @@ const ComboboxOption: React.FC<any> = styled.div`
 `;
 
 
-export const AutoComplete = React.forwardRef<HTMLElement, AutoCompleteProps>((props, ref) => {
-    const { id, items, required, label, notItemsFoundMessage, widthOffset = 157, nullable, sx, borderBox, onValueChange } = props;
+export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps>((props, ref) => {
+    const { id, items, required, label, notItemsFoundMessage, widthOffset = 157, nullable, sx, borderBox, onValueChange, ...rest } = props;
     const [query, setQuery] = useState('');
     const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
     const [isUpButton, setIsUpButton] = useState(false);
     const [dropdownWidth, setDropdownWidth] = useState<number>();
     const inputRef = useRef(null);
 
-    const handleChange = (item: any) => {
+    const handleChange = (item: string) => {
         onValueChange && onValueChange(item);
-        props.onChange && props.onChange(item);
     };
     const handleTextFieldFocused = () => {
         setIsTextFieldFocused(true);
@@ -225,7 +230,7 @@ export const AutoComplete = React.forwardRef<HTMLElement, AutoCompleteProps>((pr
 
     return (
         <Container sx={sx}>
-            <Combobox ref={ref} value={props.value} onChange={handleChange} name={props.name} {...(nullable && { nullable })}>
+            <Combobox value={props.value} onChange={handleChange} name={props.name} {...(nullable && { nullable })}>
                 <LabelContainer>
                     <label htmlFor={id}>{label}</label>
                     {(required && label) && (<RequiredFormInput />)}
@@ -234,6 +239,7 @@ export const AutoComplete = React.forwardRef<HTMLElement, AutoCompleteProps>((pr
                     <ComboboxInputWrapper>
                         <Combobox.Input
                             id={id}
+                            ref={ref}
                             // ref={inputRef}
                             displayValue={displayItemValue}
                             onChange={handleInputQueryChange}
@@ -243,6 +249,7 @@ export const AutoComplete = React.forwardRef<HTMLElement, AutoCompleteProps>((pr
                             onBlur={handleTextFieldOutFocused}
                             onFocus={handleTextFieldFocused}
                             onClick={handleTextFieldClick}
+                            {...rest}
                         />
                         <Combobox.Button
                             id={`autocomplete-dropdown-button-${items[0]}`}
