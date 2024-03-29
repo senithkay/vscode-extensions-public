@@ -147,18 +147,15 @@ export interface AutoCompleteProps {
     required?: boolean;
     label?: string;
     notItemsFoundMessage?: string;
-    // selectedItem?: string;
     widthOffset?: number;
     nullable?: boolean;
     sx?: React.CSSProperties;
     borderBox?: boolean;
     onValueChange?: (item: string, index?: number) => void;
-
-    // new
     name?: string;
     value?: string;
-    onBlur?:React.FocusEventHandler<HTMLInputElement>;
-    onChange?:React.ChangeEventHandler<HTMLInputElement>;
+    onBlur?: React.FocusEventHandler<HTMLInputElement>;
+    onChange?: React.ChangeEventHandler<HTMLInputElement>;
 } 
 
 const ComboboxOption: React.FC<any> = styled.div`
@@ -193,9 +190,10 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
         document.getElementById(`autocomplete-dropdown-button-${items[0]}`)?.click();
         document.getElementById(props.value as string)?.focus();
     };
-    const handleTextFieldOutFocused = () => {
+    const handleTextFieldOutFocused = (e: any) => {
         setIsTextFieldFocused(false);
         setIsUpButton(false);
+        props.onBlur && props.onBlur(e);
     };
     const handleComboButtonClick = () => {
         setIsUpButton(!isUpButton);
@@ -239,17 +237,16 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                     <ComboboxInputWrapper>
                         <Combobox.Input
                             id={id}
-                            ref={ref}
-                            // ref={inputRef}
+                            ref={inputRef}
                             displayValue={displayItemValue}
                             onChange={handleInputQueryChange}
                             className={cx(SearchableInput, borderBox && cx(css`
                                 height: 28px;
                             `))}
-                            onBlur={handleTextFieldOutFocused}
                             onFocus={handleTextFieldFocused}
                             onClick={handleTextFieldClick}
                             {...rest}
+                            onBlur={handleTextFieldOutFocused}
                         />
                         <Combobox.Button
                             id={`autocomplete-dropdown-button-${items[0]}`}
