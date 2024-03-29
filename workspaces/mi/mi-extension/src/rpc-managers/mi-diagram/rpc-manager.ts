@@ -2671,23 +2671,27 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async migrateProject({ source }: MigrateProjectRequest): Promise<MigrateProjectResponse> {
         return new Promise(async (resolve) => {
-            if (source) {
-                const sourcePathComponents = source.split(path.sep);
-                const projectName = sourcePathComponents.pop();
-                const migratedProjectName = `${projectName}-migrated`;
-                let target = [...sourcePathComponents, migratedProjectName].join(path.sep);
-                // check if the file exists
-                let i = 0;
-                while (true) {
-                    if (fs.existsSync(target)) {
-                        // update file name if exists
-                        i++;
-                        target = [...sourcePathComponents, `${migratedProjectName}-${i}`].join(path.sep);
-                    } else {
-                        importProject({ source, directory: target, open: true });
-                        break;
-                    }
+            const selection = await vscode.window.showQuickPick(
+                [
+                    {
+                        label: "Select Destination",
+                        description: "Select a destination folder to migrate the project",
+                    },
+                ],
+                {
+                    placeHolder: "Migration Options",
                 }
+            );
+
+            let target;
+            switch (selection?.label) {
+                case "Select Destination":
+                    target = await vscode.commands.executeCommand(COMMANDS.SELECT_DESTINATION, { sourceDir: source });
+                    break;
+            }
+
+            if (source && target) {
+                importProject({ source, directory: target, open: true });
                 resolve({ filePath: target });
             }
         });

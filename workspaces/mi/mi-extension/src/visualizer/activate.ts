@@ -12,6 +12,7 @@ import { commands, window } from 'vscode';
 import { StateMachine, openView } from '../stateMachine';
 import { COMMANDS } from '../constants';
 import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { extension } from '../MIExtensionContext';
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
     context.subscriptions.push(
@@ -29,6 +30,22 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
             openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Welcome });
         })
     );
+    // Activate editor/title items
+    context.subscriptions.push(
+        commands.registerCommand(COMMANDS.OPEN_SERVICE_DESIGNER_BESIDE, async (file: vscode.Uri) => {
+            extension.webviewReveal = true;
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: file.fsPath });
+        })
+    );
+
+    context.subscriptions.push(
+        commands.registerCommand(COMMANDS.SHOW_OVERVIEW, async () => {
+            const displayState: boolean | undefined = extension.context.workspaceState.get('displayOverview');
+            const displayOverview = displayState === undefined ? true : displayState;
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.UnsupportedProject, customProps: { displayOverview } });
+        })
+    );
+
     StateMachine.service().onTransition((state) => {
         if (state.event.viewLocation?.view) {
             commands.executeCommand('setContext', 'showGoToSource', state.event.viewLocation?.documentUri !== undefined);
