@@ -9,7 +9,7 @@
 
 import * as vscode from 'vscode';
 import { COMMANDS } from '../constants';
-import { StateMachineAI, openAIView } from './aiMachine';
+import { StateMachineAI, openAIView } from './aiMachineNew';
 import { AI_MACHINE_VIEW, EVENT_TYPE } from '@wso2-enterprise/mi-core';
 
 export function activateAiPanel(context: vscode.ExtensionContext) {

@@ -15,29 +15,39 @@ import { AiPanelWebview } from './webview';
 import { RPCLayer } from '../RPCLayer';
 import { StateMachine } from '../stateMachine';
 
+
+interface ChatEntry {
+    role: string;
+    content: string;
+    errorCode?: string;
+}
+
 interface AiMachineContext extends AIVisualizerLocation {
     token: string | undefined;
-    errorCode: string | null;
+    errorMessage?: string;
+    errorCode?: string;
+    chatLog: ChatEntry[];
 }
 
 const aiStateMachine = createMachine<AiMachineContext>({
-    /** @xstate-layout N4IgpgJg5mDOIC5QFsCWBaAhqgdKgdqgC6qYA2qAXmAMQQD2+Ye+AbvQNbNpa4HGkK1BAXYBjTCUYBtAAwBdOfMSgADvVgDGKkAA9EAJlkA2HLICsRgJyXzADll2ALAYMAaEAE9D5pzgNWAIzGxgYA7K5hAMyuAL6xHjzYLALkVLQMTCzsXDhJfIQkacKi9BJS+ErSgcpIIOqaFTr6CEZ+Th0GgU5hwSEG5mEe3gjG5oE45qEWxk5WTuaOBvGJGMn8RUK0YABOO-Q7OKpkkgBmB8h5awWpWyJsZZKoMgpKOg1a+M2IUWE4xmErEYwrMxuM7EMvIh7LIcPNjIEBlFjFEbL8ViB8jgdmBMBBPDhWKgwAB3AAy9DxBCgdEYzFKuSxOLxBKJpIpVPwUHu4ieL0UCneGk+3wQgXFsPGUSiFnMNjsxjsgWGP26OCig2MVmiA26VmcGKZuPxhOJJIAcpgiVBJJBaVkGdxrtjjayzZbrbaIDzHhUqoK6h8mnUWuKnHYcE5ZEFkQYnBqwlMVWLw-5xXYugsYoFZAYoobncyTWySQAlV00ADyAAUAKLmgD6ADUAJK1gDqb0DwuDoBa0T+4aM0ZlsgidnMyYCsIC40T0oCCrCBd4LpZptJ5ZZNAAwmTawBBUsN6ulysAWWrABUu2oe88viHoQN-iFpVL4xZISMohHtWOhxBLMbBXZIizdTcKwAMRbfcG1rAARFsbwDO9GgfUUB0jDNZBHXDx0nKEEHjUwXFzQIMwMMYNXMcxQNwcCNxJWsIAELkaEQ5CGwQytzVrW96nvbQnwQMInAmFE7BlZFaMCOVvx+Cc4SMQJ5jjDoo2MeIEhAfB6AgOAdHyIV0OEvtEHQKI-Ao8wNXmKYrBiFxk3QQINXVUJBisFEEV6IF6JSTZ0hMkURLlOEIl+YIQVkZFo2TMJYSCRwtX1QZAVsgKyHoKAYAgSsAFciBC3s9EQUI-ksf8gXsCFHISuYcETDpkTk1xQisALwJKjCRJ6P4QhRDU3M-KZCJGdBU1UuVEXFGIQURLrXSYjlWK5HqzLKhArFkCZejjaUrB27pESnXocBzYwTCs+E8zsJb1xLD1UBtIhIA2x9zLFX4rEmOqQlzBwwjsZM3N+xZaLHRFtSBCwHuLM0t3xD7RSmCYZtRcI7Ck7yrGTFwonVRLXAVBwNQneGIOY1iSHW7tTM+rbscqvNEqVE6wgifGogmaVFXGIccxMALWNgTAACMyHe+nQq+tycCVJxZgsT8AXsKJk3lJr7Fo+Y5NRcZtNiIA */
+    /** @xstate-layout N4IgpgJg5mDOIC5QFsCWBaAhqgdASQDtUAXVTAG1QC8wBiCAewLB1QIDcGBrFtLXQiTKUaCNpwDGmUkwDaABgC6CxYlAAHBrCFM1IAB6IATEYAsOAJwBmAOwBWeaZs2rFm-Lt2ANCACeiGwA2QJw7KysjeXkLAA4Y0wt5AEYAXxSfPmx8IlIKajpGZlYObl4MLMFckTAxEqkZAhVZJNUkEE1tBr1DBCMLEJsY+3lA0zshmLsbH38ECz6cd3k+1xikvs80jPKBHOF82jAAJyOGI5x1cmkAMzPkHEzdoTzRcQZ61DklFT0OnQJuohAjFFjYkuEostAvIYvJpn5EEk4fJLKZbEYhs4nEYtiBHjhyAwoDAIAB5ACuxFoABlSQBxPAAOR+bT+XTaPQsphRySSozsJmSgQs3gRCCSSXioJFkqspjMphiOPSeJ2OAASmBMBBfDT6aSAKoAFRZGi0-0BCDsiRwRkCfLWgRcSRcMRmASsdhw0SmNjMGLlcVx+M12t1AFEABrhgDCxvDpva5vZoB663coKMdmhdklNic7qtGO9SXlTmdGPBwbVoZ1tBj1PDAEF1Ym2Z8ARzEeEQaYkhZYn35BEYoFC36QtFEnCjEkwn3ldt+DgAOrYUgEKAAMTO1KJbHoTBYbx4DzVa6Em53Rz3UDYtUk0g7TSUv2THctSO53qcMUSVmhNFwkLIYBnGRIkSmcsbGrZcLw3bdd33AhDhOM4LiuYhbiOe58XgthEJvZCH3eJ8vmUV9WXfXQuwQSYLBwJFoTtFwjHCF0QLCSwe36J1hQ8WCsnwq8kLvFCYybRkY3Dak22oztUwCGwGL6Cx+z-F0ISMQsJVnb0ljtQIIjtOxBNwYTCNvA8tybPBqTwcNW0os1Og-WinRU4JImFfohjsUwdKiAZTBzdwrElKYzJwcN9DACRKQI+tSQAWQABUbI0E2cpNXJoxTxSMFxQmUl0EmBEUjMLPsQRiKx4n7cZuRdKKYrihLN1oRz1VJJzWhci1aPWP8cD-ZTPSdMw4kLADzGiExnDUtx+k9FrYvihDaAAZSNUlUrk3KFIMRE+nMYF-L6YVfTGQs+hsYr7FiQratGQJVrajbaTpcMABFDRNbL2zyo7xTlIxFn7FwHCzDx1h0qxHBwe1lLWf0-0cNIVQIBgIDgPRHjfA7LXQeHGLqv0-X8sI1MCbSxVnFFCvsP9mOCBqosqfYaAJgb8vlEDauK3MlmSELFSiwliUgCliG5lNgetBjJTcOcEkxJUdJdFT4cGfMB1U16VRDLUdVltz8sgsGhkVNYpmSKYLELAUwezWEIWhcLlKiiBUFgTAACNyEgU2gbTO7R3TQqxhCmE6o1yZGNqiIRjR0coos68rMOwHDp6NYrEsMw1MmDF+hcQtHtRHMFy5JG3vWgjg5zxEwnzyYYXmEZXBMx2TFCYFh3h93NYxlIgA */
     id: 'mi-ai',
-    initial: 'initialize',
+    initial: "Initialize",
     predictableActionArguments: true,
     context: {
         token: undefined,
-        view: null,
-        errorCode: null
+        chatLog: [],
+        errorCode: undefined,
+        errorMessage: undefined
     },
     states: {
-        initialize: {
+        Initialize: {
             invoke: {
                 src: "checkToken",
                 onDone: [
                     {
                         cond: (context, event) => event.data !== undefined, // Token is valid
-                        target: 'ready',
+                        target: "Ready",
                         actions: assign({
                             token: (context, event) => event.data
                         })
@@ -55,113 +65,84 @@ const aiStateMachine = createMachine<AiMachineContext>({
                 }
             }
         },
-        loggedOut: {
 
-        },
-        ready: {
-            initial: 'viewReady',
-            states: {
-                viewLoading: {
-                    invoke: {
-                        src: 'openWebPanel',
-                        onDone: {
-                            target: 'viewNavigated'
-                        }
-                    }
-                },
-                viewNavigated: {
-                    invoke: {
-                        src: 'findView',
-                        onDone: {
-                            target: 'viewReady',
-                            actions: assign({
-                                view: (context, event) => event.data
-                            })
-                        }
-                    }
-                },
-                viewReady: {
-                    on: {
-                        OPEN_VIEW: {
-                            target: "viewLoading",
-                            actions: assign({
-                                initialPrompt: (context, event) => event.viewLocation?.initialPrompt
-                            })
-                        },
-                        CLEAR_PROMPT: {
-                            target: "viewReady",
-                            actions: assign({
-                                initialPrompt: (context, event) => undefined
-                            })
-                        },
-                        FILE_EDIT: {
-                            target: "viewEditing"
-                        }
-                    }
-                },
-                viewEditing: {
-                    on: {
-                        EDIT_DONE: {
-                            target: "viewReady"
-                        }
-                    }
-                },
+        loggedOut: {
+            on: {
+                LOGIN: {
+                    target: "WaitingForLogin",
+                }
             }
         },
+
+        Ready: {
+            invoke: {
+                src: 'getSuggestions',
+                onDone: {
+                    target: "Ready"
+                },
+                onError: {
+                    target: "Ready",
+                    actions: assign({
+                        errorCode: (context, event) => event.data
+                    })
+                }
+            },
+            on: {
+                LOGOUT: "loggedOut",
+                EXECUTE: "Executing",
+                CLEAR: {
+                    target: "Ready",
+                }
+            }
+        },
+
         disabled: {
             invoke: {
                 src: 'disableExtension'
             },
+        },
+
+        WaitingForLogin: {
+            invoke: {
+                src: 'openLogin',
+                onDone: {
+                    target: "Ready"
+                },
+                onError: {
+                    target: "loggedOut",
+                    actions: assign({
+                        errorCode: (context, event) => event.data
+                    })
+                }
+            },
+            on: {
+                CANCEL: "loggedOut",
+                FAILIER: "loggedOut"
+            }
+        },
+
+        Executing: {
+            on: {
+                COMPLETE: "Ready",
+                ERROR: "Ready",
+                STOP: "Ready",
+                LOGEDOUT: "loggedOut"
+            }
         }
     }
 }, {
-    guards: {
-        tokenExists: (context, event) => {
-            return context.token !== undefined;
-        },
-        tokenNotFound: (context, event) => {
-            return context.token === undefined;
-        }
-    },
     services: {
-        checkToken: (context, event) => {
-            return new Promise((resolve, reject) => {
-                // Check for AI API status
-                resolve(true);
-            });
-        },
-        openWebPanel: (context, event) => {
-            return new Promise((resolve, reject) => {
-                if (!AiPanelWebview.currentPanel) {
-                    AiPanelWebview.currentPanel = new AiPanelWebview();
-                    RPCLayer._messenger.onNotification(webviewReady, () => {
-                        resolve(true);
-                    });
-                } else {
-                    AiPanelWebview.currentPanel!.getWebview()?.reveal();
-                    resolve(true);
-                }
-            });
-        },
-        disableExtension: (context, event) => {
-            return async (resolve, reject) => {
-                vscode.commands.executeCommand('setContext', 'MI.aiStatus', 'disabled');
-            };
-        },
-        findView: (context, event) => {
-            return new Promise((resolve, reject) => {
-                switch (StateMachine.context().view) {
-                    case MACHINE_VIEW.Overview:
-                        resolve(AI_MACHINE_VIEW.AIOverview);
-                        break;
-                    default:
-                        resolve(AI_MACHINE_VIEW.AIArtifact);
-                        break;
-                }
-            });
-        }
+        checkToken: checkToken
     }
 });
+
+
+function checkToken(context, event) {
+    return new Promise((resolve, reject) => {
+        // Check for AI API status
+        resolve(true);
+    });
+}
 
 
 // Create a service to interpret the machine
