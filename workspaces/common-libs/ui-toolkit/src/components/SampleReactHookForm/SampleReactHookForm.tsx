@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { useRef } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { TextField } from "../TextField/TextField";
 import { Dropdown } from "../Dropdown/Dropdown";
@@ -37,6 +37,7 @@ export function SampleReactHookForm(props: SampleReactHookFormProps) {
     const {
         getValues,
         register,
+        setValue,
     } = useForm<Inputs>({
         defaultValues: args,
     });
@@ -64,12 +65,12 @@ export function SampleReactHookForm(props: SampleReactHookFormProps) {
                 {...register("address")}
             />
             <AutoComplete
-                // ref={autoComletteRef}
                 id="words"
                 label="Words"
                 required={true}
                 nullable={false}
                 items={["foo", "boo"]}
+                onValueChange={(val: string)=>setValue('words',val)}
                 {...register("words")}
             />
 
