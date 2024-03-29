@@ -14,12 +14,14 @@ import { TextArea } from "../TextArea/TextArea";
 import { Button } from "../Button/Button";
 import styled from "@emotion/styled";
 import { AutoComplete } from "../AutoComplete/AutoComplete";
+import { RadioButtonGroup } from "../RadioButtonGroup/RadioButtonGroup";
 
 type Inputs = {
     name: string;
     products: string;
     address: string;
     words: string;
+    options: string;
 };
 
 export interface SampleReactHookFormProps {
@@ -71,6 +73,12 @@ export function SampleReactHookForm(props: SampleReactHookFormProps) {
                 items={["foo", "boo"]}
                 onValueChange={(val: string)=>setValue('words',val)}
                 {...register("words")}
+            />
+            <RadioButtonGroup
+                id="options"
+                label="Options"
+                options={[{ content: "Option 1", value: "option1" }, { content: "Option 2", value: "option2" }]}
+                {...register("options")}
             />
 
             <Button appearance="primary" onClick={handleSave}> Save </Button>
