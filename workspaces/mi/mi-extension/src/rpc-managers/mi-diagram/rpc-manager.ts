@@ -58,8 +58,8 @@ import {
     GetAvailableResourcesRequest,
     GetAvailableResourcesResponse,
     GetBackendRootUrlResponse,
-    GetConnectorDataRequest,
-    GetConnectorDataResponse,
+    DownloadConnectorRequest,
+    DownloadConnectorResponse,
     GetDefinitionRequest,
     GetDefinitionResponse,
     GetDiagnosticsReqeust,
@@ -133,6 +133,8 @@ import {
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
+    GetAvailableConnectorRequest,
+    GetAvailableConnectorResponse,
     getSTRequest,
     getSTResponse
 } from "@wso2-enterprise/mi-core";
@@ -2476,7 +2478,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
-    async getConnectorData(params: GetConnectorDataRequest): Promise<GetConnectorDataResponse> {
+    async downloadConnector(params: DownloadConnectorRequest): Promise<DownloadConnectorResponse> {
         const { connector, url } = params;
         try {
             const workspaceFolders = workspace.workspaceFolders;
@@ -2485,7 +2487,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
             const rootPath = workspaceFolders[0].uri.fsPath;
 
-            const connectorPath = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'registry', `${connector}.zip`)
+            const connectorPath = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'registry', `${connector.replace(/\s+/g, '')}.zip`)
 
             const response = await axios.get(url, {
                 responseType: 'stream',
@@ -2496,7 +2498,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             
 
             const writer = fs.createWriteStream(
-                path.resolve(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors', `${connector}.zip`)
+                path.resolve(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors', `${connector.replace(/\s+/g, '')}.zip`)
             );
 
             response.data.pipe(writer);
@@ -2732,6 +2734,17 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
                 resolve({ filePath: target });
             }
+        });
+    }
+
+    async getAvailableConnectors(params: GetAvailableConnectorRequest): Promise<GetAvailableConnectorResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getAvailableConnectors({
+                documentUri: params.documentUri
+            });
+
+            resolve(res);
         });
     }
 }

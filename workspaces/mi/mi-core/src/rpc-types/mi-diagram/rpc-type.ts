@@ -127,8 +127,10 @@ import {
     ListRegistryArtifactsRequest, RangeFormatRequest,
     MigrateProjectRequest,
     MigrateProjectResponse,
-    GetConnectorDataResponse,
-    GetConnectorDataRequest,
+    DownloadConnectorResponse,
+    DownloadConnectorRequest,
+    GetAvailableConnectorRequest,
+    GetAvailableConnectorResponse,
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -209,4 +211,5 @@ export const getSelectiveWorkspaceContext: RequestType<void, GetSelectiveWorkspa
 export const getBackendRootUrl: RequestType<void, GetBackendRootUrlResponse> = { method: `${_preFix}/getBackendRootUrl` };
 export const getAvailableRegistryResources: RequestType<ListRegistryArtifactsRequest, ListRegistryArtifactsResponse> = { method: `${_preFix}/getAvailableRegistryResources` };
 export const rangeFormat: RequestType<RangeFormatRequest, ApplyEditResponse> = { method: `${_preFix}/rangeFormat` };
-export const getConnectorData: RequestType<GetConnectorDataRequest, GetConnectorDataResponse> = { method: `${_preFix}/getConnectorData` };
+export const downloadConnector: RequestType<DownloadConnectorRequest, DownloadConnectorResponse> = { method: `${_preFix}/downloadConnector` };
+export const getAvailableConnectors: RequestType<GetAvailableConnectorRequest, GetAvailableConnectorResponse> = { method: `${_preFix}/getAvailableConnectors` };

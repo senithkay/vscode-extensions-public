@@ -29,7 +29,7 @@ import {
     CreateTemplateRequest,
     FileListRequest,
     GetAvailableResourcesRequest,
-    GetConnectorDataRequest,
+    DownloadConnectorRequest,
     GetDefinitionRequest,
     GetDiagnosticsReqeust,
     GetFailoverEPRequest,
@@ -89,11 +89,13 @@ import {
     getAIResponse,
     getAPIDirectory,
     getAddressEndpoint,
+    GetAvailableConnectorRequest,
+    getAvailableConnectors,
     getAvailableRegistryResources,
     getAvailableResources,
     getBackendRootUrl,
     getConnector,
-    getConnectorData,
+    downloadConnector,
     getConnectors,
     getDefaultEndpoint,
     getDefinition,
@@ -225,5 +227,6 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getBackendRootUrl, () => rpcManger.getBackendRootUrl());
     messenger.onRequest(getAvailableRegistryResources, (args: ListRegistryArtifactsRequest) => rpcManger.getAvailableRegistryResources(args));
     messenger.onRequest(rangeFormat, (args: RangeFormatRequest) => rpcManger.rangeFormat(args));
-    messenger.onRequest(getConnectorData, (args: GetConnectorDataRequest) => rpcManger.getConnectorData(args));
+    messenger.onRequest(downloadConnector, (args: DownloadConnectorRequest) => rpcManger.downloadConnector(args));
+    messenger.onRequest(getAvailableConnectors, (args: GetAvailableConnectorRequest) => rpcManger.getAvailableConnectors(args));
 }
