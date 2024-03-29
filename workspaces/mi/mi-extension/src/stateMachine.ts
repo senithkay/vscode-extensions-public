@@ -53,7 +53,7 @@ const stateMachine = createMachine<MachineContext>({
                     },
                     {
                         target: 'newProject',
-                        cond: (context, event) => event.data.isProject && event.data.isOldProject === false, // Assuming false means new project
+                        cond: (context, event) => event.data.isProject === false && event.data.isOldProject === false, // Assuming false means new project
                         actions: assign({
                             view: (context, event) => MACHINE_VIEW.Welcome
                         })
