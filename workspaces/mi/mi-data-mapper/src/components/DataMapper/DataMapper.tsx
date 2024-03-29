@@ -10,18 +10,16 @@
 import React, { useEffect, useState } from "react";
 
 import { css } from "@emotion/css";
-import { traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
-import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
 
 import { DataMapperErrorBoundary } from "./ErrorBoundary";
 import { MIDataMapperProps } from "../..";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
-import { RequiredParamNode } from "../Diagram/Node";
+import { NodeInitVisitor } from "../Visitors/NodeInitVisitor";
+import { traversNode } from "../Diagram/utils/st-utils";
 
 const classes = {
     root: css({
@@ -45,9 +43,9 @@ export function MIDataMapper(props: MIDataMapperProps) {
         async function generateNodes() {
             const context = new DataMapperContext(fnST, inputTrees, outputTree);
 
-            // const nodeInitVisitor = new NodeInitVisitor(context);
-            // traversNode(fnST, nodeInitVisitor);
-            // setNodes(nodeInitVisitor.getNodes());
+            const nodeInitVisitor = new NodeInitVisitor(context);
+            traversNode(fnST, nodeInitVisitor);
+            setNodes(nodeInitVisitor.getNodes());
 
         }
         generateNodes();

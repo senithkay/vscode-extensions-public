@@ -78,16 +78,6 @@ interface DataMapperDiagramProps {
 const defaultModelOptions = { zoom: 90 }
 
 function initDiagramEngine() {
-	// START TODO: clear this up
-	// this is a hack to load all modules for DI to work properly
-	const _NF = Nodes;
-	const _PF = Ports;
-	const _LF = Links;
-	const _LAF = Labels;
-	// END TODO
-
-	const diContext = container.resolve(DataMapperDIContext);
-
 	const engine = new DiagramEngine({
 		registerDefaultPanAndZoomCanvasAction: true,
 		registerDefaultZoomCanvasAction: false
@@ -108,14 +98,7 @@ function initDiagramEngine() {
 	engine.getStateMachine().pushState(new DefaultDiagramState());
 	engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 
-	diContext.nodeFactories.forEach((nf) =>
-		engine.getNodeFactories().registerFactory(nf));
-	diContext.portFactories.forEach((pf) =>
-		engine.getPortFactories().registerFactory(pf));
-	diContext.linkFactories.forEach((lf) =>
-		engine.getLinkFactories().registerFactory(lf));
-	diContext.labelFactories.forEach((lbf) =>
-		engine.getLabelFactories().registerFactory(lbf));
+	engine.getNodeFactories().registerFactory(new Nodes.RequiredParamNodeFactory());
 
 	const state = engine.getStateMachine().getCurrentState();
 	if (state instanceof DefaultDiagramState) {

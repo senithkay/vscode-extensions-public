@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
-import { TypeField } from "../../../types";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { DMType } from "@wso2-enterprise/mi-core";
 
 import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
@@ -25,7 +25,7 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 	public linkedPorts: PortModel[];
 
 	constructor(
-		public field: TypeField,
+		public field: DMType,
 		public portName: string,
 		public portType: "IN" | "OUT",
 		public parentId: string,

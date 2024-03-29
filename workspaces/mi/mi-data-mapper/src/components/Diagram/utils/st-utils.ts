@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import * as ts from 'typescript';
-import { Visitor } from './base-visitor';
+import { Visitor } from '../../../ts/base-visitor';
 
-function traverseNode(node: ts.Node, visitor: Visitor, parent?: ts.Node) {
+export function traversNode(node: ts.Node, visitor: Visitor, parent?: ts.Node) {
     const nodeKind = ts.SyntaxKind[node.kind];
     let beginVisitFn: any = (visitor as any)[`beginVisit${nodeKind}`];
 
@@ -22,7 +22,7 @@ function traverseNode(node: ts.Node, visitor: Visitor, parent?: ts.Node) {
     }
 
     ts.forEachChild(node, childNode => {
-        traverseNode(childNode, visitor, node);
+        traversNode(childNode, visitor, node);
     });
 
     let endVisitFn: any = (visitor as any)[`endVisit${nodeKind}`];

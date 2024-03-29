@@ -7,54 +7,62 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
-import { TypeKind, TypeField } from "../../../types";
-import { RequiredParam } from "@wso2-enterprise/syntax-tree";
+import ts, { ParameterDeclaration } from "typescript";
 
 import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
+import { DataMapperNodeModel } from "../commons/DataMapperNode";
+import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { getSearchFilteredInput } from "../../utils/input-node-utils";
 
-export const REQ_PARAM_NODE_TYPE = "datamapper-node-required-param";
+export const INPUT_PARAM_NODE_TYPE = "datamapper-node-input-param";
 
 export class RequiredParamNode extends DataMapperNodeModel {
-    public typeDef: TypeField;
+    public dmType: DMType;
     public x: number;
     public numberOfFields:  number;
-    originalTypeDef: TypeField;
+    private _paramName: string;
 
     constructor(
         public context: IDataMapperContext,
-        public value: RequiredParam,
-        public typeDesc: TypeDescriptor,
+        public value: ParameterDeclaration,
         public hasNoMatchingFields?: boolean) {
         super(
             context,
-            REQ_PARAM_NODE_TYPE
+            INPUT_PARAM_NODE_TYPE
         );
         this.numberOfFields = 1;
-        // this.originalTypeDef = this.value ? getTypeOfInputParam(this.value, this.context.ballerinaVersion) : undefined;
-        this.typeDef = this.originalTypeDef;
+        this.dmType = this.context.inputTrees.find(inputTree => inputTree.typeName === (this.value.type as any).typeName.escapedText);
+        this._paramName = (this.value.name as any).escapedText;
     }
 
     async initPorts() {
         this.numberOfFields = 1;
-        // this.typeDef = this.getSearchFilteredType();
-        this.hasNoMatchingFields = !this.typeDef;
-        if (this.typeDef) {
-            // const parentPort = this.addPortsForHeaderField(this.typeDef, this.value.paramName.value, "OUT", undefined, this.context.collapsedFields);
-            const parentPort = this.addPortsForHeaderField(this.typeDef, this.value.paramName.value, "OUT", undefined, undefined);
+        this.dmType = this.getSearchFilteredType();
+        this.hasNoMatchingFields = !this.dmType;
 
-            if (this.typeDef.typeName === TypeKind.Record) {
-                const fields = this.typeDef.fields;
+        if (this.dmType) {
+            const parentPort = this.addPortsForHeader(
+                this.dmType,
+                this._paramName,
+                "OUT",
+                undefined,
+                undefined
+            );
+
+            if (this.dmType.kind === TypeKind.Interface) {
+                const fields = this.dmType.fields;
                 fields.forEach((subField) => {
-                    this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", this.value.paramName.value, '',
-                        // parentPort, this.context.collapsedFields, parentPort.collapsed);
-                        parentPort, undefined, parentPort.collapsed);
+                    this.numberOfFields += this.addPortsForInputField(
+                        subField, "OUT", this._paramName, '',
+                        parentPort, undefined, parentPort.collapsed
+                    );
                 });
             } else {
-                this.addPortsForInputRecordField(this.typeDef, "OUT", this.value.paramName.value,
-                    // '', parentPort, this.context.collapsedFields, parentPort.collapsed);
-                    '', parentPort, undefined, parentPort.collapsed);
+                this.addPortsForInputField(
+                    this.dmType, "OUT", this._paramName, '',
+                    parentPort, undefined, parentPort.collapsed
+                );
             }
         }
     }
@@ -63,16 +71,16 @@ export class RequiredParamNode extends DataMapperNodeModel {
         if (this.value) {
             const searchValue = useDMSearchStore.getState().inputSearch;
 
-            const matchesParamName = this.value?.paramName?.value?.toLowerCase()?.includes(searchValue?.toLowerCase());
-            // const type = matchesParamName
-            //     ? this.originalTypeDef
-            //     : getSearchFilteredInput(this.originalTypeDef,  this.value?.paramName?.value);
-            // return type;
+            const matchesParamName = (this.value.name as any).escapedText.toLowerCase().includes(searchValue?.toLowerCase());
+            const type = matchesParamName
+                ? this.dmType
+                : getSearchFilteredInput(this.dmType, this._paramName);
+            return type;
         }
     }
 
     async initLinks() {
-        // Currently we create links from "IN" ports and back tracing the inputs.
+        // Links are always created from "IN" ports by backtracing the inputs.
     }
 
     setPosition(point: Point): void;

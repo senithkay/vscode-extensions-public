@@ -1,37 +1,39 @@
-// tslint:disable: jsx-no-lambda jsx-no-multiline-js
-import * as React from 'react';
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+import React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { TypeKind } from "../../../types";
-import "reflect-metadata";
-import { container, injectable, singleton } from "tsyringe";
+import { TypeKind } from '@wso2-enterprise/mi-core';
 
 import { RecordFieldPortModel } from '../../Port';
-import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 import { RecordTypeTreeWidget } from "../commons/RecordTypeTreeWidget/RecordTypeTreeWidget";
 import { InputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/Search";
 
-import { RequiredParamNode, REQ_PARAM_NODE_TYPE } from './RequiredParamNode';
+import { RequiredParamNode, INPUT_PARAM_NODE_TYPE } from './RequiredParamNode';
 
-@injectable()
-@singleton()
-export class RequiredParamNodeFactory extends AbstractReactFactory<RequiredParamNode, DiagramEngine> implements IDataMapperNodeFactory {
+export class RequiredParamNodeFactory extends AbstractReactFactory<RequiredParamNode, DiagramEngine> {
     constructor() {
-        super(REQ_PARAM_NODE_TYPE);
+        super(INPUT_PARAM_NODE_TYPE);
     }
 
     generateReactWidget(event: { model: RequiredParamNode; }): JSX.Element {
-        if (event.model.hasNoMatchingFields && !event.model.typeDef) {
+        if (event.model.hasNoMatchingFields && !event.model.dmType) {
             return (
                 <InputSearchNoResultFound kind={SearchNoResultFoundKind.InputField} />
             );
-        } else if (event.model.typeDef && event.model.typeDef.typeName === TypeKind.Record) {
+        } else if (event.model.dmType && event.model.dmType.kind === TypeKind.Interface) {
             return (
                 <RecordTypeTreeWidget
                     engine={this.engine}
-                    id={event.model.value && event.model.value.paramName.value}
-                    typeDesc={event.model.typeDef}
+                    id={event.model.value && (event.model.value.name as any).escapedText}
+                    dmType={event.model.dmType}
                     getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
                     handleCollapse={undefined}
                     // handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
@@ -44,5 +46,3 @@ export class RequiredParamNodeFactory extends AbstractReactFactory<RequiredParam
         return undefined;
     }
 }
-
-container.register("NodeFactory", { useClass: RequiredParamNodeFactory });

@@ -18,14 +18,13 @@ import { container, injectable, singleton } from "tsyringe";
 import { RecordFieldPortModel } from '../../Port';
 import { FUNCTION_BODY_QUERY, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from '../../utils/constants';
 import { EditableMappingConstructorWidget } from "../commons/DataManipulationWidget/EditableMappingConstructorWidget";
-import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 import { OutputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/Search";
 
 import { MappingConstructorNode, MAPPING_CONSTRUCTOR_NODE_TYPE } from './MappingConstructorNode';
 
 @injectable()
 @singleton()
-export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingConstructorNode, DiagramEngine> implements IDataMapperNodeFactory {
+export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingConstructorNode, DiagramEngine> {
 	constructor() {
 		super(MAPPING_CONSTRUCTOR_NODE_TYPE);
 	}

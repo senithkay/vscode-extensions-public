@@ -8,6 +8,9 @@
  */
 
 import React from "react";
+
+/** @jsx jsx */
+import { Global, css } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DMType } from "@wso2-enterprise/mi-core";
 import { MIDataMapper } from "./components/DataMapper/DataMapper";
@@ -24,6 +27,14 @@ const queryClient = new QueryClient({
     },
 });
 
+const globalStyles = css`
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+`;
+
 export interface MIDataMapperProps {
     fnST: ts.VariableDeclaration;
     inputTrees: DMType[];
@@ -33,6 +44,7 @@ export interface MIDataMapperProps {
 export function DataMapperView(props: MIDataMapperProps) {
     return (
         <QueryClientProvider client={queryClient}>
+            <Global styles={globalStyles} />
             <MIDataMapper {...props}/>
         </QueryClientProvider>
     );

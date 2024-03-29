@@ -1,3 +1,11 @@
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 export const MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX = "mappingConstructor";
 export const LIST_CONSTRUCTOR_TARGET_PORT_PREFIX = "listConstructor";
 export const PRIMITIVE_TYPE_TARGET_PORT_PREFIX = "primitiveType";
@@ -8,16 +16,27 @@ export const MODULE_VARIABLE_SOURCE_PORT_PREFIX = "moduleVariable";
 export const EXPANDED_QUERY_SOURCE_PORT_PREFIX = "expandedQueryExpr.source";
 export const EXPANDED_QUERY_INPUT_NODE_PREFIX = "expandedQueryExpr.input";
 export const FUNCTION_BODY_QUERY = "FunctionBody.query";
+export const SELECT_CALUSE_QUERY = "SelectClause.query";
 export const SYMBOL_KIND_CONSTANT = "CONSTANT";
+
+export const JSON_MERGE_MODULE_NAME = "ballerina/lang.value";
+export const defaultModelOptions = { zoom: 90 };
+export const VISUALIZER_PADDING = 30;
+export const IO_NODE_DEFAULT_WIDTH = 350;
+export const IO_NODE_HEADER_HEIGHT = 40;
+export const IO_NODE_FIELD_HEIGHT = 35;
+export const GAP_BETWEEN_INPUT_NODES = 100;
+export const GAP_BETWEEN_NODE_HEADER_AND_BODY = 10;
+export const GAP_BETWEEN_FIELDS = 1;
 
 export const OFFSETS = {
     SOURCE_NODE: {
-        X: 50,
-        Y: 100,
+        X: 0,
+        Y: 0,
     },
     TARGET_NODE: {
-        X: 950,
-        Y: 100
+        X: (window.innerWidth -VISUALIZER_PADDING)*(100/defaultModelOptions.zoom)-IO_NODE_DEFAULT_WIDTH,
+        Y: 0
     },
     LET_EXPRESSION_NODE: {
         X: 50,
@@ -44,4 +63,3 @@ export const OFFSETS = {
     QUERY_VIEW_LEFT_MARGIN: 55,
     QUERY_VIEW_TOP_MARGIN: 50,
 }
-

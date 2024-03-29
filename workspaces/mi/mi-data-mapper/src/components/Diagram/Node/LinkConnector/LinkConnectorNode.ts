@@ -238,7 +238,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         const exprFuncBodyPosition: NodePosition = STKindChecker.isFunctionDefinition(selectedST)
             && STKindChecker.isExpressionFunctionBody(selectedST.functionBody)
             && selectedST.functionBody.expression.position;
-        if ((!targetField?.name && targetField?.typeName !== TypeKind.Array
+        if ((!targetField?.fieldName && targetField?.typeName !== TypeKind.Array
             && targetField?.typeName !== TypeKind.Record)
             || (isPositionsEquals(exprFuncBodyPosition, this.valueNode.position)))
         {

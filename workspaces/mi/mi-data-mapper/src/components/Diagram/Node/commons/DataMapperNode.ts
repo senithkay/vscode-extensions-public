@@ -8,7 +8,6 @@
  */
 // tslint:disable: no-empty-interface
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
-import { TypeKind, TypeField } from "../../../types";
 import {
 	AnydataTypeDesc,
 	AnyTypeDesc,
@@ -23,36 +22,17 @@ import {
 	FunctionTypeDesc,
 	FutureTypeDesc,
 	HandleTypeDesc,
-	IntersectionTypeDesc,
-	IntTypeDesc,
-	JsonTypeDesc,
-	MapTypeDesc,
-	NeverTypeDesc,
-	NilTypeDesc,
-	ObjectTypeDesc,
 	OptionalFieldAccess,
-	OptionalTypeDesc,
-	ParenthesisedTypeDesc,
-	QualifiedNameReference,
-	ReadonlyTypeDesc,
-	RecordTypeDesc,
 	SimpleNameReference,
-	SingletonTypeDesc,
 	STKindChecker,
 	STNode,
-	StreamTypeDesc,
-	StringTypeDesc,
-	TableTypeDesc,
-	TupleTypeDesc,
-	TypedescTypeDesc,
-	UnionTypeDesc,
-	XmlTypeDesc
 } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { ArrayElement, EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificFied';
 import { RecordFieldPortModel } from "../../Port";
+import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
 
 export interface DataMapperNodeModelGenerics {
 	PORT: RecordFieldPortModel;
@@ -60,11 +40,6 @@ export interface DataMapperNodeModelGenerics {
 
 export type TypeDescriptor = AnyTypeDesc | AnydataTypeDesc | ArrayTypeDesc | BooleanTypeDesc | ByteTypeDesc | DecimalTypeDesc
 	| DistinctTypeDesc | ErrorTypeDesc | FloatTypeDesc | FunctionTypeDesc | FutureTypeDesc | HandleTypeDesc;
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface IDataMapperNodeFactory {
-
-}
 
 export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMapperNodeModelGenerics> {
 
@@ -86,32 +61,46 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		return this.diagramModel;
 	}
 
+	// extend this class to add link init, port init logics
 	abstract initPorts(): void;
 	abstract initLinks(): void;
-	// extend this class to add link init, port init logics
 
-	protected addPortsForInputRecordField(field: TypeField, type: "IN" | "OUT", parentId: string,
-		                                     portPrefix?: string,
-		                                     parent?: RecordFieldPortModel,
-		                                     collapsedFields?: string[],
-		                                     hidden?: boolean,
-		                                     isOptional?: boolean): number {
-		// const fieldName = field?.name ? getBalRecFieldName(field.name) : '';
-		const fieldName = '';
-		const fieldFQN = parentId ? `${parentId}${fieldName && isOptional ? `?.${fieldName}` : `.${fieldName}`}` : fieldName && fieldName;
+	protected addPortsForInputField(
+		dmType: DMType,
+		portType: "IN" | "OUT",
+		parentId: string,
+		portPrefix?: string,
+		parent?: RecordFieldPortModel,
+		collapsedFields?: string[],
+		hidden?: boolean,
+		isOptional?: boolean
+	): number {
+
+		const fieldName = dmType.fieldName;
+		const fieldFQN = parentId
+			? `${parentId}${fieldName && isOptional
+				? `?.${fieldName}`
+				: `.${fieldName}`}`
+			: fieldName && fieldName;
 		const portName = portPrefix ? `${portPrefix}.${fieldFQN}` : fieldFQN;
 		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(portName);
 		const fieldPort = new RecordFieldPortModel(
-			field, portName, type, parentId, undefined, undefined, fieldFQN,
-			parent, isCollapsed, hidden);
-		this.addPort(fieldPort)
+			dmType, portName, portType, parentId, undefined,
+			undefined, fieldFQN, parent, isCollapsed, hidden
+		);
+
+		this.addPort(fieldPort);
+
 		let numberOfFields = 1;
-		if (field.typeName === TypeKind.Record) {
-			const fields = field?.fields;
+		if (dmType.kind === TypeKind.Interface) {
+			const fields = dmType?.fields;
+
 			if (fields && !!fields.length) {
-				fields.forEach((subField) => {
-					numberOfFields += this.addPortsForInputRecordField(subField, type, fieldFQN, portPrefix,
-						fieldPort, collapsedFields, isCollapsed ? true : hidden, isOptional);
+				fields.forEach(subField => {
+					numberOfFields += this.addPortsForInputField(
+						subField, portType, fieldFQN, portPrefix, fieldPort,
+						collapsedFields, isCollapsed ? true : hidden, isOptional
+					);
 				});
 			}
 		}
@@ -139,7 +128,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 			fieldFQN, parent, isCollapsed, hidden, isWithinSelectClause);
 		this.addPort(fieldPort);
 
-		if (field.type.typeName === TypeKind.Record) {
+		if (field.type.kind === TypeKind.Interface) {
 			const fields = field?.childrenTypes;
 			if (fields && !!fields.length) {
 				fields.forEach((subField) => {
@@ -158,25 +147,28 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		}
 	}
 
-	protected addPortsForHeaderField(field: TypeField, name: string,
-		                                type: "IN" | "OUT",
-		                                portPrefix: string,
-		                                collapsedFields?: string[],
-		                                isWithinSelectClause?: boolean,
-		                                editableRecordField?: EditableRecordField): RecordFieldPortModel {
-		// const fieldName = getBalRecFieldName(name);
-		const fieldName = "getBalRecFieldName(name)";
-		let portName = fieldName;
+	protected addPortsForHeader(
+		dmType: DMType, name: string,
+		portType: "IN" | "OUT",
+		portPrefix: string,
+		collapsedFields?: string[],
+		isWithinSelectClause?: boolean,
+		editableRecordField?: EditableRecordField
+	): RecordFieldPortModel {
+
+		let portName = name;
 		if (portPrefix) {
-			portName = fieldName ? `${portPrefix}.${fieldName}` : portPrefix;
+			portName = name ? `${portPrefix}.${name}` : portPrefix;
 		}
 		const isCollapsed = collapsedFields && collapsedFields.includes(portName);
-		const fieldPort = new RecordFieldPortModel(
-			field, portName, type, undefined, undefined, editableRecordField, fieldName, undefined,
-			isCollapsed, false, isWithinSelectClause);
-		this.addPort(fieldPort)
+		const headerPort = new RecordFieldPortModel(
+			dmType, portName, portType, undefined, undefined, editableRecordField,
+			name, undefined, isCollapsed, false, isWithinSelectClause
+		);
 
-		return fieldPort;
+		this.addPort(headerPort)
+
+		return headerPort;
 	}
 
 	protected genMappings(val: STNode, parentFields?: STNode[]) {

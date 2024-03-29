@@ -15,6 +15,7 @@ module.exports = {
         alias: {
             'react': path.resolve(__dirname, 'node_modules/react'),
             'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+            'typescript': path.resolve(__dirname, 'node_modules/typescript'),
         },
         fallback: { 'process/browser': require.resolve('process/browser'), }
     },

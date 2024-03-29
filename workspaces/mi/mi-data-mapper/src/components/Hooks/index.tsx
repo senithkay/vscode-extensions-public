@@ -34,7 +34,7 @@ export const useDiagramModel = (
     // const zoomLevel = diagramModel.getZoomLevel();
     // const offSetX = diagramModel.getOffsetX();
     // const offSetY = diagramModel.getOffsetY();
-    // const noOfNodes = nodes.length;
+    const noOfNodes = nodes.length;
     // const context = nodes.find(node => node.context)?.context;
 	// const fnSource = context ? context.selection.selectedST.stNode.source : undefined;
     // const collapsedFields = context?.collapsedFields;
@@ -78,7 +78,7 @@ export const useDiagramModel = (
         isFetching,
         isError,
         refetch,
-    } = useQuery(['genModel', {}], () => genModel(), {});
+    } = useQuery(['genModel', {noOfNodes}], () => genModel(), {});
 
     return { updatedModel, isFetching, isError, refetch };
 };

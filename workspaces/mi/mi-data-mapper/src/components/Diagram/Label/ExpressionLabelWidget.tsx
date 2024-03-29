@@ -183,7 +183,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
 
     if (source instanceof RecordFieldPortModel) {
         if (source?.parentId) {
-            const fieldName = source.field.name;
+            const fieldName = source.field.fieldName;
             isSourceCollapsed = collapsedFields?.includes(`${source.parentId}.${fieldName}`)
         } else {
             isSourceCollapsed = collapsedFields?.includes(source.portName)
@@ -192,7 +192,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
 
     if (target instanceof RecordFieldPortModel) {
         if (target?.parentId) {
-            const fieldName = target.field.name;
+            const fieldName = target.field.fieldName;
             isTargetCollapsed = collapsedFields?.includes(`${target.parentId}.${fieldName}`)
         } else {
             isTargetCollapsed = collapsedFields?.includes(target.portName)
