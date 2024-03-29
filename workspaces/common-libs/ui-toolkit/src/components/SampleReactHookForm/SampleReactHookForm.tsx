@@ -6,18 +6,20 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
+import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { TextField } from "../TextField/TextField";
 import { Dropdown } from "../Dropdown/Dropdown";
 import { TextArea } from "../TextArea/TextArea";
 import { Button } from "../Button/Button";
 import styled from "@emotion/styled";
+import { AutoComplete } from "../AutoComplete/AutoComplete";
 
 type Inputs = {
     name: string;
     products: string;
     address: string;
+    words: string;
 };
 
 export interface SampleReactHookFormProps {
@@ -38,6 +40,8 @@ export function SampleReactHookForm(props: SampleReactHookFormProps) {
     } = useForm<Inputs>({
         defaultValues: args,
     });
+
+    // const autoComletteRef = useRef(null);
     const handleSave = () => {
         console.log(getValues());
     };
@@ -59,6 +63,16 @@ export function SampleReactHookForm(props: SampleReactHookFormProps) {
                 id="address"
                 {...register("address")}
             />
+            <AutoComplete
+                // ref={autoComletteRef}
+                id="words"
+                label="Words"
+                required={true}
+                nullable={false}
+                items={["foo", "boo"]}
+                {...register("words")}
+            />
+
             <Button appearance="primary" onClick={handleSave}> Save </Button>
         </FormContainer>
     );
