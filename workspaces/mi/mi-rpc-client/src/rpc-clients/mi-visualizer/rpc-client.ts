@@ -20,7 +20,8 @@ import {
     SampleDownloadRequest,
     WorkspacesResponse,
     addToHistory,
-    disableOverview,
+    toggleDisplayOverview,
+    ToggleDisplayOverviewRequest,
     downloadSelectedSampleFromGithub,
     fetchSamplesFromGithub,
     getCurrentThemeKind,
@@ -86,7 +87,7 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
         return this._messenger.sendNotification(goSelected, HOST_EXTENSION, params);
     }
 
-    disableOverview(): Promise<void> {
-        return this._messenger.sendRequest(disableOverview, HOST_EXTENSION);
+    toggleDisplayOverview(params: ToggleDisplayOverviewRequest): Promise<void> {
+        return this._messenger.sendRequest(toggleDisplayOverview, HOST_EXTENSION, params);
     }
 }

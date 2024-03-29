@@ -23,7 +23,8 @@ import {
     SampleDownloadRequest,
     VisualizerLocation,
     WorkspaceFolder,
-    WorkspacesResponse
+    WorkspacesResponse,
+    ToggleDisplayOverviewRequest
 } from "@wso2-enterprise/mi-core";
 import fetch from 'node-fetch';
 import { workspace, window } from "vscode";
@@ -32,7 +33,6 @@ import { StateMachine, navigate, openView } from "../../stateMachine";
 import { handleOpenFile } from "../../util/fileOperations";
 import { openAIView } from "../../ai-panel/aiMachine";
 import { extension } from "../../MIExtensionContext";
-import { VisualizerWebview } from "../../visualizer/webview";
 
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
     async getWorkspaces(): Promise<WorkspacesResponse> {
@@ -156,10 +156,9 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         });
     }
 
-    async disableOverview(): Promise<void> {
+    async toggleDisplayOverview(params: ToggleDisplayOverviewRequest): Promise<void> {
         return new Promise(async (resolve) => {
-            await extension.context.workspaceState.update('displayOverview', false);
-            VisualizerWebview.currentPanel?.dispose();
+            await extension.context.workspaceState.update('displayOverview', params.displayOverview);
             resolve();
         });
     }

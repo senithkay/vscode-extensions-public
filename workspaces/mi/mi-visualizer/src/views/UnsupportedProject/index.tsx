@@ -10,14 +10,16 @@
 import React, { useEffect } from 'react';
 import { ColorThemeKind, WorkspaceFolder } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { Button, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { View, ViewContent, ViewHeader } from '../../components/View';
+import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   max-width: 1200px;
+  height: 100%;
   margin: 0 auto;
   padding: 0 32px;
   gap: 32px;
@@ -114,10 +116,11 @@ const CardTitle = styled(Typography)`
   color: var(--vscode-walkthrough-stepTitle-foreground);
 `;
 
-const ButtonContainer = styled.div`
+const Footer = styled.div`
   display: flex;
-  justify-content: end;
+  justify-content: center;
   width: 100%;
+  margin-top: auto;
 `;
 
 interface CardProps {
@@ -134,6 +137,7 @@ interface ImageProps {
 }
 
 export interface UnsupportedProjectProps {
+  // Whether to display the overview on startup
   displayOverview?: boolean;
 };
 
@@ -171,6 +175,7 @@ export function UnsupportedProject(props: UnsupportedProjectProps) {
   const [activeWorkspaces, setActiveWorkspaces] = React.useState<WorkspaceFolder>(undefined);
   const [activeCard, setActiveCard] = React.useState<number>(0);
   const [currentThemeKind, setCurrentThemeKind] = React.useState<ColorThemeKind>(undefined);
+  const [displayOverviewOnStartup, setDisplayOverviewOnStartup] = React.useState<boolean>(displayOverview);
 
   const cards = [
     {
@@ -212,7 +217,10 @@ export function UnsupportedProject(props: UnsupportedProjectProps) {
   ];
 
   const disableOverview = async () => {
-    await rpcClient.getMiVisualizerRpcClient().disableOverview();
+    await rpcClient.getMiVisualizerRpcClient().toggleDisplayOverview({
+      displayOverview: !displayOverviewOnStartup,
+    });
+    setDisplayOverviewOnStartup(!displayOverviewOnStartup);
   };
 
   useEffect(() => {
@@ -296,13 +304,11 @@ export function UnsupportedProject(props: UnsupportedProjectProps) {
               })}
             </Block>
           </Steps>
-          {displayOverview && (
-            <ButtonContainer>
-              <Button appearance='primary' onClick={disableOverview}>
-                Don't show this again
-              </Button>
-            </ButtonContainer>
-          )}
+          <Footer>
+            <VSCodeCheckbox value='display-overview' checked={displayOverviewOnStartup} onClick={disableOverview}>
+                Show overview page on startup
+            </VSCodeCheckbox>
+          </Footer>
         </Container>
       </ViewContent>
     </View>
