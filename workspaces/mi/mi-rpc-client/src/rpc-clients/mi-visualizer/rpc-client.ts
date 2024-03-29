@@ -9,6 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    ColorThemeKind,
     GettingStartedData,
     HistoryEntry,
     HistoryEntryResponse,
@@ -19,8 +20,11 @@ import {
     SampleDownloadRequest,
     WorkspacesResponse,
     addToHistory,
+    toggleDisplayOverview,
+    ToggleDisplayOverviewRequest,
     downloadSelectedSampleFromGithub,
     fetchSamplesFromGithub,
+    getCurrentThemeKind,
     getHistory,
     getProjectStructure,
     getWorkspaces,
@@ -45,6 +49,10 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     getProjectStructure(params: ProjectStructureRequest): Promise<ProjectStructureResponse> {
         return this._messenger.sendRequest(getProjectStructure, HOST_EXTENSION, params);
+    }
+
+    getCurrentThemeKind(): Promise<ColorThemeKind> {
+        return this._messenger.sendRequest(getCurrentThemeKind, HOST_EXTENSION);
     }
 
     openView(params: OpenViewRequest): void {
@@ -77,5 +85,9 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     goSelected(params: number): void {
         return this._messenger.sendNotification(goSelected, HOST_EXTENSION, params);
+    }
+
+    toggleDisplayOverview(params: ToggleDisplayOverviewRequest): Promise<void> {
+        return this._messenger.sendRequest(toggleDisplayOverview, HOST_EXTENSION, params);
     }
 }

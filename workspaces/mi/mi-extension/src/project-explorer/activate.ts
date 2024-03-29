@@ -298,10 +298,6 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		revealWebviewPanel(false);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: entry.info?.path });
 	});
-	commands.registerCommand(COMMANDS.OPEN_SERVICE_DESIGNER_BESIDE, async (file: Uri) => {
-		revealWebviewPanel(true);
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: file.fsPath });
-	});
 }
 
 function revealWebviewPanel(beside: boolean = true) {

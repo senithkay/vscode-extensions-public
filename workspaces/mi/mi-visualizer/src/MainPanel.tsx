@@ -33,7 +33,7 @@ import { ProxyView, ResourceView, SequenceView } from './views/Diagram';
 import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
-import { OldProjectOverview } from './views/OldProjectOverview';
+import { UnsupportedProject, UnsupportedProjectProps } from './views/UnsupportedProject';
 
 const MainContainer = styled.div`
     display: flex;
@@ -125,8 +125,12 @@ const MainPanel = () => {
                 case MACHINE_VIEW.Overview:
                     setViewComponent(<Overview stateUpdated />);
                     break;
-                case MACHINE_VIEW.OldProjectOverview:
-                    setViewComponent(<OldProjectOverview />);
+                case MACHINE_VIEW.UnsupportedProject:
+                    setViewComponent(
+                        <UnsupportedProject
+                            displayOverview={(machineView.customProps as UnsupportedProjectProps)?.displayOverview}
+                        />
+                    );
                     break;
                 case MACHINE_VIEW.ResourceView:
                     setViewComponent(
