@@ -11,17 +11,58 @@ export class Debugger extends EventEmitter {
     private commandClient: net.Socket | undefined;
     private eventClient: net.Socket | undefined;
 
+    // maps from sourceFile to array of IRuntimeBreakpoint
+	private breakPoints = new Map<string, DebugProtocol.Breakpoint[]>();
+    // since we want to send breakpoint events, we will assign an id to every event
+	// so that the frontend can match events with breakpoints.
+	private breakpointId = 1;
+
+    private currentDebugpoint: DebugProtocol.Breakpoint| undefined;
+
     constructor(commandPort: number, eventPort: number, host: string) {
         super();
         this.commandPort = commandPort;
         this.eventPort = eventPort;
         this.host = host;
+    }
 
-        // this.commandClient = new net.Socket();
-        // this.eventClient = new net.Socket();
 
-        // // Start listening for events on the event port
-        // this.startListeningToEvents();
+    /*
+	 * Set breakpoint in file with given line.
+	 */
+	public async setBreakPoint(path: string, line: number): Promise<DebugProtocol.Breakpoint> {
+		path = this.normalizePathAndCasing(path);
+
+		const bp: DebugProtocol.Breakpoint = { verified: true, line, id: this.breakpointId++ };
+		let bps = this.breakPoints.get(path);
+		if (!bps) {
+			bps = new Array<DebugProtocol.Breakpoint>();
+			this.breakPoints.set(path, bps);
+		}
+		bps.push(bp);
+
+		// await this.verifyBreakpoints(path);
+
+		return bp;
+	}
+
+    public clearBreakpoints(path: string): void {
+		this.breakPoints.delete(this.normalizePathAndCasing(path));
+	}
+
+    public getBreakpoints(path: string): DebugProtocol.Breakpoint[] {
+        return this.breakPoints.get(this.normalizePathAndCasing(path)) || [];
+    }
+
+    // TODO: get the proper path and update the logic of handling the stackTrace
+    public getPath(){
+        // get the first key of the breakpoint
+        const path = this.breakPoints.keys().next().value;
+        return path;
+    }
+
+    public getCurrentBreakpoint(): DebugProtocol.Breakpoint | undefined{
+        return this.currentDebugpoint;
     }
 
     public initializeDebugger(): Promise<string> {
@@ -106,8 +147,12 @@ export class Debugger extends EventEmitter {
                     const bps: DebugProtocol.Breakpoint = 
                     {
                         verified: true,
-                        line: 4
+                        line: 5,
+                        id: 2
                     };
+                    
+                    this.currentDebugpoint = bps;
+
                     this.sendEvent('breakpointValidated', bps);
                 }
 
@@ -182,28 +227,7 @@ export class Debugger extends EventEmitter {
         });
     }
 
-    // public startListeningToEvents(): void {
-    //     // Listen for data on the event port
-    //     this.eventClient?.on('data', (data) => {
-    //         const eventData = data.toString();
-    //         console.log('Received event:', eventData);
-    //         // convert to eventData to json
-    //         const eventDataJson = JSON.parse(eventData);
-    //         // check if the event is a breakpoint event
-    //         if (eventDataJson.event === 'breakpoint') {
-    //             // send 'stopped' event
-    // 			this.sendEvent('stopOnBreakpoint');
-    //         }
-
-
-
-    //     });
-
-    //     // Error handling for the event client
-    //     this.eventClient?.on('error', (error) => {
-    //         console.error('Event client error:', error);
-    //     });
-    // }
+    
 
     public closeDebugger(): void {
         // Close connections to command and event ports
@@ -216,4 +240,12 @@ export class Debugger extends EventEmitter {
             this.emit(event, ...args);
         }, 0);
     }
+
+    private normalizePathAndCasing(path: string) {
+		if (process.platform === 'win32') {
+			return path.replace(/\//g, '\\').toLowerCase();
+		} else {
+			return path.replace(/\\/g, '/');
+		}
+	}
 }
