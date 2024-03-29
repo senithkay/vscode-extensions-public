@@ -33,10 +33,13 @@ export interface RadioButtonGroupProps extends ComponentProps<"input"> {
 	label?: string;
     sx?: any;
     options?: OptionProps[];
+    orientation?: "vertical" | "horizontal";
 }
 
 export const RadioButtonGroup = React.forwardRef<HTMLInputElement, RadioButtonGroupProps>((props, ref) => {
-    const { id, className, label, options, sx, ...rest } = props;
+    const { id, className, label, options, orientation, sx, ...rest } = props;
+
+    console.log("RadioButtonGroup", orientation);
 
     return (
         <RadioButtonContainer id={id} className={className} sx={sx} {...rest} >
@@ -45,7 +48,7 @@ export const RadioButtonGroup = React.forwardRef<HTMLInputElement, RadioButtonGr
             </div>
             <VSCodeRadioGroup
                 ref={ref}
-                orientation="horizontal"
+                orientation={orientation}
                 {...rest}
             >
                 {options.map((option, index) => (
@@ -53,10 +56,12 @@ export const RadioButtonGroup = React.forwardRef<HTMLInputElement, RadioButtonGr
                         key={index}
                         id={option.id}
                         value={option.value}
-                        label={option.content}
-                    />
+                    >
+                        {option.content}
+                    </VSCodeRadio>
                 ))}
             </VSCodeRadioGroup>
         </RadioButtonContainer>
     );
-};
+});
+RadioButtonGroup.displayName = "RadioButtonGroup";
