@@ -456,7 +456,7 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>HTTP Method</label>
-                    <AutoComplete items={["GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH", "Leave_as_is"]} selectedItem={formValues["httpMethod"]} onChange={(e: any) => {
+                    <AutoComplete items={["GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH", "Leave_as_is"]} value={formValues["httpMethod"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "httpMethod": e });
                         formValidators["httpMethod"](e);
                     }} />
@@ -504,7 +504,7 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
 
                             <Field>
                                 <label>Auth Type</label>
-                                <AutoComplete items={["None", "Basic Auth", "OAuth"]} selectedItem={formValues["authType"]} onChange={(e: any) => {
+                                <AutoComplete items={["None", "Basic Auth", "OAuth"]} value={formValues["authType"]} onValueChange={(e: any) => {
                                     setFormValues({ ...formValues, "authType": e });
                                     formValidators["authType"](e);
                                 }} />
@@ -548,7 +548,7 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                             {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" &&
                                 <Field>
                                     <label>OAuth Grant Type</label>
-                                    <AutoComplete items={["Authorization Code", "Client Credentials", "Password Credentials"]} selectedItem={formValues["oauthGrantType"]} onChange={(e: any) => {
+                                    <AutoComplete items={["Authorization Code", "Client Credentials", "Password Credentials"]} value={formValues["oauthGrantType"]} onValueChange={(e: any) => {
                                         setFormValues({ ...formValues, "oauthGrantType": e });
                                         formValidators["oauthGrantType"](e);
                                     }} />
@@ -659,7 +659,7 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                             {formValues["authType"] && formValues["authType"].toLowerCase() == "oauth" &&
                                 <Field>
                                     <label>OAuth Authentication Mode</label>
-                                    <AutoComplete items={["Header", "Payload"]} selectedItem={formValues["oauthAuthenticationMode"]} onChange={(e: any) => {
+                                    <AutoComplete items={["Header", "Payload"]} value={formValues["oauthAuthenticationMode"]} onValueChange={(e: any) => {
                                         setFormValues({ ...formValues, "oauthAuthenticationMode": e });
                                         formValidators["oauthAuthenticationMode"](e);
                                     }} />
@@ -815,7 +815,7 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
 
                             <Field>
                                 <label>Timeout Action</label>
-                                <AutoComplete items={["never", "discard", "fault"]} selectedItem={formValues["timeoutAction"]} onChange={(e: any) => {
+                                <AutoComplete items={["never", "discard", "fault"]} value={formValues["timeoutAction"]} onValueChange={(e: any) => {
                                     setFormValues({ ...formValues, "timeoutAction": e });
                                     formValidators["timeoutAction"](e);
                                 }} />

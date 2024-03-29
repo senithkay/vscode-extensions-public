@@ -114,7 +114,7 @@ const FastXSLTForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Fast Xslt Schema Type</label>
-                    <AutoComplete items={["Static", "Dynamic"]} selectedItem={formValues["fastXsltSchemaType"]} onChange={(e: any) => {
+                    <AutoComplete items={["Static", "Dynamic"]} value={formValues["fastXsltSchemaType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "fastXsltSchemaType": e });
                         formValidators["fastXsltSchemaType"](e);
                     }} />

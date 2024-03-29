@@ -144,7 +144,7 @@ const CalloutForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Endpoint Type</label>
-                    <AutoComplete items={["URL", "AddressEndpoint"]} selectedItem={formValues["endpointType"]} onChange={(e: any) => {
+                    <AutoComplete items={["URL", "AddressEndpoint"]} value={formValues["endpointType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "endpointType": e });
                         formValidators["endpointType"](e);
                     }} />
@@ -246,7 +246,7 @@ const CalloutForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Payload Type</label>
-                    <AutoComplete items={["XPATH", "PROPERTY", "ENVELOPE"]} selectedItem={formValues["payloadType"]} onChange={(e: any) => {
+                    <AutoComplete items={["XPATH", "PROPERTY", "ENVELOPE"]} value={formValues["payloadType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "payloadType": e });
                         formValidators["payloadType"](e);
                     }} />
@@ -294,7 +294,7 @@ const CalloutForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Result Type</label>
-                    <AutoComplete items={["XPATH", "PROPERTY"]} selectedItem={formValues["resultType"]} onChange={(e: any) => {
+                    <AutoComplete items={["XPATH", "PROPERTY"]} value={formValues["resultType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "resultType": e });
                         formValidators["resultType"](e);
                     }} />
@@ -342,7 +342,7 @@ const CalloutForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Security Type</label>
-                    <AutoComplete items={["TRUE", "FALSE"]} selectedItem={formValues["securityType"]} onChange={(e: any) => {
+                    <AutoComplete items={["TRUE", "FALSE"]} value={formValues["securityType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "securityType": e });
                         formValidators["securityType"](e);
                     }} />
@@ -352,7 +352,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                 {formValues["securityType"] && formValues["securityType"].toLowerCase() == "true" &&
                     <Field>
                         <label>Policies</label>
-                        <AutoComplete items={["TRUE", "FALSE"]} selectedItem={formValues["policies"]} onChange={(e: any) => {
+                        <AutoComplete items={["TRUE", "FALSE"]} value={formValues["policies"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "policies": e });
                             formValidators["policies"](e);
                         }} />

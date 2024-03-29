@@ -329,7 +329,7 @@ const EJBForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Session Id Type</label>
-                    <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["sessionIdType"]} onChange={(e: any) => {
+                    <AutoComplete items={["LITERAL", "EXPRESSION"]} value={formValues["sessionIdType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "sessionIdType": e });
                         formValidators["sessionIdType"](e);
                     }} />

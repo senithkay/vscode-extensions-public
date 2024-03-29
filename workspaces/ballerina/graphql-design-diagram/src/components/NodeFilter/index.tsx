@@ -54,8 +54,8 @@ export function NodeFilter(props: NodeFilterProps) {
                         items={nodeList.map(
                             item => item?.name
                         )}
-                        selectedItem={filteredNode ? filteredNode.name : nodeList[0]?.name}
-                        onChange={(newValue: string) => updateNode(newValue)}
+                        value={filteredNode ? filteredNode.name : nodeList[0]?.name}
+                        onValueChange={(newValue: string) => updateNode(newValue)}
                         label={'Type'}
                         borderBox={true}
                         sx={{

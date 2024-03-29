@@ -118,7 +118,7 @@ const SequenceForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Referring Sequence Type</label>
-                        <AutoComplete items={["Static", "Dynamic"]} selectedItem={formValues["referringSequenceType"]} onChange={(e: any) => {
+                        <AutoComplete items={["Static", "Dynamic"]} value={formValues["referringSequenceType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "referringSequenceType": e });
                             formValidators["referringSequenceType"](e);
                         }} />

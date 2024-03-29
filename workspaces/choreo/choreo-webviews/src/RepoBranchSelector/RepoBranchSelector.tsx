@@ -94,8 +94,8 @@ export function RepoBranchSelector(props: RepoBranchSelectorProps) {
             <BranchSelectorContainer>
                 <AutoComplete
                     items={repoBranches ?? []}
-                    selectedItem={branch}
-                    onChange={handleBranchChange}
+                    value={branch}
+                    onValueChange={handleBranchChange}
                     id="git-branch-selector"
                 />                
                 <RefreshBtn

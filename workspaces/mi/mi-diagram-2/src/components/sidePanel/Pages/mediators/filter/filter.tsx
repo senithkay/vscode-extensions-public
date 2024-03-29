@@ -129,7 +129,7 @@ const FilterForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Condition Type</label>
-                        <AutoComplete items={["Source and Regular Expression", "XPath"]} selectedItem={formValues["conditionType"]} onChange={(e: any) => {
+                        <AutoComplete items={["Source and Regular Expression", "XPath"]} value={formValues["conditionType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "conditionType": e });
                             formValidators["conditionType"](e);
                         }} />

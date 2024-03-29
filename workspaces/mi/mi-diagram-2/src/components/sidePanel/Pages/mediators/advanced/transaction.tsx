@@ -113,7 +113,7 @@ const TransactionForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Action</label>
-                    <AutoComplete items={["Commit transaction", "Fault if no transaction", "Initiate new transaction", "Resume transaction", "Suspend transaction", "Rollback transaction", "Use existing or initiate transaction"]} selectedItem={formValues["action"]} onChange={(e: any) => {
+                    <AutoComplete items={["Commit transaction", "Fault if no transaction", "Initiate new transaction", "Resume transaction", "Suspend transaction", "Rollback transaction", "Use existing or initiate transaction"]} value={formValues["action"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "action": e });
                         formValidators["action"](e);
                     }} />

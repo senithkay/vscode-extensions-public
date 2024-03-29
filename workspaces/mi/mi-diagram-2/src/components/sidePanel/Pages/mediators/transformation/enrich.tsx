@@ -137,7 +137,7 @@ const EnrichForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Source Type</label>
-                    <AutoComplete items={["custom", "envelope", "body", "property", "inline"]} selectedItem={formValues["sourceType"]} onChange={(e: any) => {
+                    <AutoComplete items={["custom", "envelope", "body", "property", "inline"]} value={formValues["sourceType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "sourceType": e });
                         formValidators["sourceType"](e);
                     }} />
@@ -181,7 +181,7 @@ const EnrichForm = (props: AddMediatorProps) => {
                 {formValues["sourceType"] && formValues["sourceType"].toLowerCase() == "inline" &&
                     <Field>
                         <label>Inline Type</label>
-                        <AutoComplete items={["Inline XML/JSON", "RegistryKey"]} selectedItem={formValues["inlineType"]} onChange={(e: any) => {
+                        <AutoComplete items={["Inline XML/JSON", "RegistryKey"]} value={formValues["inlineType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "inlineType": e });
                             formValidators["inlineType"](e);
                         }} />
@@ -229,7 +229,7 @@ const EnrichForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Target Action</label>
-                    <AutoComplete items={["replace", "child", "sibling", "remove"]} selectedItem={formValues["targetAction"]} onChange={(e: any) => {
+                    <AutoComplete items={["replace", "child", "sibling", "remove"]} value={formValues["targetAction"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "targetAction": e });
                         formValidators["targetAction"](e);
                     }} />
@@ -238,7 +238,7 @@ const EnrichForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Target Type</label>
-                    <AutoComplete items={["custom", "body", "property", "envelope", "key"]} selectedItem={formValues["targetType"]} onChange={(e: any) => {
+                    <AutoComplete items={["custom", "body", "property", "envelope", "key"]} value={formValues["targetType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "targetType": e });
                         formValidators["targetType"](e);
                     }} />

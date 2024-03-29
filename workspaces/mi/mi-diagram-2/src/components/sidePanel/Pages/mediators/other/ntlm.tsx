@@ -142,7 +142,7 @@ const NTLMForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Username Value Type</label>
-                    <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["usernameValueType"]} onChange={(e: any) => {
+                    <AutoComplete items={["LITERAL", "EXPRESSION"]} value={formValues["usernameValueType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "usernameValueType": e });
                         formValidators["usernameValueType"](e);
                     }} />
@@ -166,7 +166,7 @@ const NTLMForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Password Value Type</label>
-                    <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["passwordValueType"]} onChange={(e: any) => {
+                    <AutoComplete items={["LITERAL", "EXPRESSION"]} value={formValues["passwordValueType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "passwordValueType": e });
                         formValidators["passwordValueType"](e);
                     }} />
@@ -190,7 +190,7 @@ const NTLMForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Host Value Type</label>
-                    <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["hostValueType"]} onChange={(e: any) => {
+                    <AutoComplete items={["LITERAL", "EXPRESSION"]} value={formValues["hostValueType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "hostValueType": e });
                         formValidators["hostValueType"](e);
                     }} />
@@ -214,7 +214,7 @@ const NTLMForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Domain Value Type</label>
-                    <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["domainValueType"]} onChange={(e: any) => {
+                    <AutoComplete items={["LITERAL", "EXPRESSION"]} value={formValues["domainValueType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "domainValueType": e });
                         formValidators["domainValueType"](e);
                     }} />
@@ -238,7 +238,7 @@ const NTLMForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>NTLM Version Value Type</label>
-                    <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["ntlmVersionValueType"]} onChange={(e: any) => {
+                    <AutoComplete items={["LITERAL", "EXPRESSION"]} value={formValues["ntlmVersionValueType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "ntlmVersionValueType": e });
                         formValidators["ntlmVersionValueType"](e);
                     }} />

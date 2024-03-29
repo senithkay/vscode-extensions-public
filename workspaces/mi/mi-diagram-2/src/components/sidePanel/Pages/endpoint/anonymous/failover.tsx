@@ -165,7 +165,7 @@ const FailoverEndpointForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Scope</label>
-                            <AutoComplete items={["default", "transport", "axis2", "axis2-client"]} selectedItem={formValues["scope"]} onChange={(e: any) => {
+                            <AutoComplete items={["default", "transport", "axis2", "axis2-client"]} value={formValues["scope"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "scope": e });
                                 formValidators["scope"](e);
                             }} />
@@ -174,7 +174,7 @@ const FailoverEndpointForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Value Type</label>
-                            <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["valueType"]} onChange={(e: any) => {
+                            <AutoComplete items={["LITERAL", "EXPRESSION"]} value={formValues["valueType"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "valueType": e });
                                 formValidators["valueType"](e);
                             }} />
