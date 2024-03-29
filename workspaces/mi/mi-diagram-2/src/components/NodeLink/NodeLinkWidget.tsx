@@ -32,6 +32,22 @@ const fadeInZoomIn = keyframes`
         transform: scale(1);
     }
 `;
+const zoomIn = keyframes`
+0% {
+    transform: scale(0.9);
+}
+100% {
+    transform: scale(1.2);
+}
+`;
+const zoomOut = keyframes`
+0% {
+    transform: scale(1.2);
+}
+100% {
+    transform: scale(0.9);
+}
+`;
 
 export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) => {
     const [isHovered, setIsHovered] = useState(false);
@@ -41,9 +57,9 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
     const hasDiagnotics = link.hasDiagnotics();
     const tooltip = hasDiagnotics
         ? link
-              .getDiagnostics()
-              .map((diagnostic) => diagnostic.message)
-              .join("\n")
+            .getDiagnostics()
+            .map((diagnostic) => diagnostic.message)
+            .join("\n")
         : undefined;
 
     useEffect(() => {
@@ -124,13 +140,12 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                                     justifyContent: "center",
                                     alignItems: "center",
                                     borderRadius: "20px",
-                                    border: `2px solid ${
-                                        link.hasDiagnotics()
+                                    border: `2px solid ${link.hasDiagnotics()
                                             ? Colors.ERROR
                                             : link.showAddButton && isHovered
-                                            ? Colors.SECONDARY
-                                            : Colors.PRIMARY
-                                    }`,
+                                                ? Colors.SECONDARY
+                                                : Colors.PRIMARY
+                                        }`,
                                     backgroundColor: `${Colors.SURFACE_BRIGHT}`,
                                     padding: "2px 10px",
                                     boxSizing: "border-box",
@@ -144,8 +159,8 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                                         color: link.hasDiagnotics()
                                             ? Colors.ERROR
                                             : link.showAddButton && isHovered
-                                            ? Colors.SECONDARY
-                                            : Colors.PRIMARY,
+                                                ? Colors.SECONDARY
+                                                : Colors.PRIMARY,
                                         fontSize: "14px",
                                     }}
                                 >
@@ -156,12 +171,12 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                     </div>
                 </foreignObject>
             )}
-            {link.showAddButton && isHovered && (
+            {link.showAddButton && (
                 <foreignObject
                     x={addButtonPosition.x - 10}
                     y={addButtonPosition.y - 10}
                     width="20"
-                    height="20"
+                    height="30"
                     onClick={handleAddNode}
                 >
                     <div
@@ -171,6 +186,14 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                             align-items: center;
                             cursor: pointer;
                             animation: ${fadeInZoomIn} 0.2s ease-out forwards;
+                            svg {
+                                animation: ${zoomOut} 0.2s ease-out forwards;
+                            }
+                            &:hover {
+                                svg {
+                                    animation: ${zoomIn} 0.2s ease-out forwards;
+                                }
+                            }
                         `}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -179,7 +202,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                                 d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
                             />
                             <path
-                                fill={Colors.ON_SURFACE}
+                                fill={isHovered ? Colors.SECONDARY : Colors.PRIMARY}
                                 d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
                             />
                         </svg>
