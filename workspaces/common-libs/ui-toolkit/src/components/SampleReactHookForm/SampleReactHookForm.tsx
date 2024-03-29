@@ -42,7 +42,6 @@ export function SampleReactHookForm(props: SampleReactHookFormProps) {
         defaultValues: args,
     });
 
-    // const autoComletteRef = useRef(null);
     const handleSave = () => {
         console.log(getValues());
     };
