@@ -9,7 +9,7 @@
 import styled from '@emotion/styled';
 import React from 'react';
 import { Codicon } from '../Codicon/Codicon';
-export interface MarketPlaceCardProps {
+export interface CardProps {
     id?: string;
 	sx?: any;
     icon: string;
@@ -32,7 +32,7 @@ const CardWraper = styled.div<CardWrapperProps>`
     }
     display: flex;
     flex-direction: column;
-    ${(props: MarketPlaceCardProps) => props.sx};
+    ${(props: CardProps) => props.sx};
 `;
 
 export interface CardState {
@@ -49,7 +49,7 @@ const CardDescription = styled.div<CardState>`
     color: ${(props: CardState) => (props.isHovered ? 'var(--vscode-button-foreground)' : 'inherit')};
 `;
 
-export const MarketPlaceCard: React.FC<MarketPlaceCardProps> = ( props: MarketPlaceCardProps ) => {
+export const Card: React.FC<CardProps> = ( props: CardProps ) => {
     const { icon, title, description, onClick, id, sx } = props;
 
     const [hovered, setHovered] = React.useState(false);

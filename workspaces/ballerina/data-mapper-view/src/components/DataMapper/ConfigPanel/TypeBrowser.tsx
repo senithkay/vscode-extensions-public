@@ -32,8 +32,8 @@ export function TypeBrowser(props: TypeBrowserProps) {
                 items={recordCompletions.map(
                     item => item?.module ? `${item.module}:${item.insertText}` : item?.insertText
                 )}
-                selectedItem={selectedTypeStr}
-                onChange={onChange}
+                value={selectedTypeStr}
+                onValueChange={onChange}
                 borderBox={true}
             />
             {isLoading && <ProgressIndicator data-testid={'type-select-linear-progress'} />}

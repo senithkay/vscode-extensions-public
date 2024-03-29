@@ -295,7 +295,7 @@ export function ProjectWizard(props: { orgId: string }) {
                             id='project-description-input'
                         />
                         <span>Region</span>
-                        <AutoComplete items={regionLabels} selectedItem={selectedRegion} onChange={handleRegionChange}></AutoComplete>
+                        <AutoComplete items={regionLabels} value={selectedRegion} onValueChange={handleRegionChange}></AutoComplete>
                         <SubContainer>
                             <CardContainer>
                                 <ProjectTypeCard

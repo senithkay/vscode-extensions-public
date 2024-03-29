@@ -238,7 +238,7 @@ const IterateForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Sequence Type</label>
-                        <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE", "NAMED_REFERENCE"]} selectedItem={formValues["sequenceType"]} onChange={(e: any) => {
+                        <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE", "NAMED_REFERENCE"]} value={formValues["sequenceType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "sequenceType": e, "isTargetChanged": true });
                             formValidators["sequenceType"](e);
                         }} />

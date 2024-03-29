@@ -129,7 +129,7 @@ const ScriptForm = (props: AddMediatorProps) => {
 
             <Field>
                 <label>Script Language</label>
-                <AutoComplete items={["js", "rb", "groovy", "nashornJs"]} selectedItem={formValues["scriptLanguage"]} onChange={(e: any) => {
+                <AutoComplete items={["js", "rb", "groovy", "nashornJs"]} value={formValues["scriptLanguage"]} onValueChange={(e: any) => {
                     setFormValues({ ...formValues, "scriptLanguage": e });
                     formValidators["scriptLanguage"](e);
                 }} />
@@ -141,7 +141,7 @@ const ScriptForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Script Type</label>
-                    <AutoComplete items={["INLINE", "REGISTRY_REFERENCE"]} selectedItem={formValues["scriptType"]} onChange={(e: any) => {
+                    <AutoComplete items={["INLINE", "REGISTRY_REFERENCE"]} value={formValues["scriptType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "scriptType": e });
                         formValidators["scriptType"](e);
                     }} />
@@ -168,7 +168,7 @@ const ScriptForm = (props: AddMediatorProps) => {
                 {formValues["scriptType"] && formValues["scriptType"].toLowerCase() == "registry_reference" &&
                     <Field>
                         <label>Key Type</label>
-                        <AutoComplete items={["STATIC_KEY", "DYNAMIC_KEY"]} selectedItem={formValues["keyType"]} onChange={(e: any) => {
+                        <AutoComplete items={["STATIC_KEY", "DYNAMIC_KEY"]} value={formValues["keyType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "keyType": e });
                             formValidators["keyType"](e);
                         }} />

@@ -148,7 +148,7 @@ const SendForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Receiving Sequence Type</label>
-                            <AutoComplete items={["Default", "Static", "Dynamic"]} selectedItem={formValues["receivingSequenceType"]} onChange={(e: any) => {
+                            <AutoComplete items={["Default", "Static", "Dynamic"]} value={formValues["receivingSequenceType"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "receivingSequenceType": e });
                                 formValidators["receivingSequenceType"](e);
                             }} />

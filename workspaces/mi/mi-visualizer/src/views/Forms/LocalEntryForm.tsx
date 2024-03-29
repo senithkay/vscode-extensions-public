@@ -242,8 +242,8 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
               <span>Local Entry Creation Type</span>
               <AutoComplete
                   items={localEntryTypes}
-                  selectedItem={localEntry.type}
-                  onChange={(value: string) => handleLocalEntryFieldChange("type", value)}
+                  value={localEntry.type}
+                  onValueChange={(value: string) => handleLocalEntryFieldChange("type", value)}
                   sx={{ width: "100%" }}
               ></AutoComplete>
               <h5>Advanced Configuration</h5>

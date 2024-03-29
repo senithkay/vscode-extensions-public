@@ -217,7 +217,7 @@ export function EndpointWizard(props: EndpointWizardProps) {
                 />
                 <FieldGroup>
                     <span>Endpoint Type</span>
-                    <AutoComplete sx={{ width: '370px' }} items={endpointTypes} selectedItem={endpointType} onChange={handleEndpointTypeChange}></AutoComplete>
+                    <AutoComplete sx={{ width: '370px' }} items={endpointTypes} value={endpointType} onValueChange={handleEndpointTypeChange}></AutoComplete>
                 </FieldGroup>
                 {endpointType === "Address Endpoint" && (
                     <TextField
@@ -283,7 +283,7 @@ export function EndpointWizard(props: EndpointWizardProps) {
                                 size={46}
                             />
                             <span>Endpoint Type</span>
-                            <AutoComplete sx={{ width: '370px' }} items={methodsTypes} selectedItem={method} onChange={handleMethodChange}></AutoComplete>
+                            <AutoComplete sx={{ width: '370px' }} items={methodsTypes} value={method} onValueChange={handleMethodChange}></AutoComplete>
                         </>
                     )}
                     <RadioBtnContainer>

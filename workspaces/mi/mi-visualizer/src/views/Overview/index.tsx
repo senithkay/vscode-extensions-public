@@ -11,7 +11,7 @@ import React, { useEffect } from "react";
 import { MachineStateValue, ProjectStructureResponse, WorkspaceFolder, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import ProjectStructureView from "./ProjectStructureView";
-import { Button, Icon, Codicon, TextArea, MarketPlaceCard } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, Codicon, TextArea, Card } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { View, ViewContent, ViewHeader } from "../../components/View";
@@ -179,10 +179,10 @@ export function Overview(props: OverviewProps) {
                     </AIPanel>
                     <h3>Or, Select an Entry point to Start</h3>
                     <HorizontalCardContainer>
-                        <MarketPlaceCard icon="globe" title="API" description="Create an HTTP API with a defined interface." onClick={() => handleClick("apis")} />
-                        <MarketPlaceCard icon="arrow-swap" title="Proxy" description="Create a proxy service to process and route messages." onClick={() => handleClick("proxyServices")} />
-                        <MarketPlaceCard icon="tasklist" title="Task" description="Create a task that can be run periodically." onClick={() => handleClick("tasks")} />
-                        <MarketPlaceCard icon="fold-down" title="Inbound Endpoint" description="Mediate messages sent via events." onClick={() => handleClick("inboundEndpoints")} />
+                        <Card icon="globe" title="API" description="Create an HTTP API with a defined interface." onClick={() => handleClick("apis")} />
+                        <Card icon="arrow-swap" title="Proxy" description="Create a proxy service to process and route messages." onClick={() => handleClick("proxyServices")} />
+                        <Card icon="tasklist" title="Task" description="Create a task that can be run periodically." onClick={() => handleClick("tasks")} />
+                        <Card icon="fold-down" title="Inbound Endpoint" description="Mediate messages sent via events." onClick={() => handleClick("inboundEndpoints")} />
                     </HorizontalCardContainer>
                 </AddPanel>
 

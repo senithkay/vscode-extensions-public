@@ -253,7 +253,7 @@ const XQueryForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Script Key Type</label>
-                    <AutoComplete items={["Static", "Dynamic"]} selectedItem={formValues["scriptKeyType"]} onChange={(e: any) => {
+                    <AutoComplete items={["Static", "Dynamic"]} value={formValues["scriptKeyType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "scriptKeyType": e });
                         formValidators["scriptKeyType"](e);
                     }} />

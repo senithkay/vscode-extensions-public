@@ -485,7 +485,7 @@ const RuleForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Target Action</label>
-                    <AutoComplete items={["Replace", "Child", "Sibiling"]} selectedItem={formValues["targetAction"]} onChange={(e: any) => {
+                    <AutoComplete items={["Replace", "Child", "Sibiling"]} value={formValues["targetAction"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "targetAction": e });
                         formValidators["targetAction"](e);
                     }} />
@@ -529,7 +529,7 @@ const RuleForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Rule Set Type</label>
-                    <AutoComplete items={["Regular", "Decision Table"]} selectedItem={formValues["ruleSetType"]} onChange={(e: any) => {
+                    <AutoComplete items={["Regular", "Decision Table"]} value={formValues["ruleSetType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "ruleSetType": e });
                         formValidators["ruleSetType"](e);
                     }} />
@@ -538,7 +538,7 @@ const RuleForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Rule Set Source Type</label>
-                    <AutoComplete items={["INLINE", "REGISTRY_REFERENCE", "URL"]} selectedItem={formValues["ruleSetSourceType"]} onChange={(e: any) => {
+                    <AutoComplete items={["INLINE", "REGISTRY_REFERENCE", "URL"]} value={formValues["ruleSetSourceType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "ruleSetSourceType": e });
                         formValidators["ruleSetSourceType"](e);
                     }} />
