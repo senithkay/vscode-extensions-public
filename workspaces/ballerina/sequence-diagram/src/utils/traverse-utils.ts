@@ -7,54 +7,36 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import _ from "lodash";
 import { BaseVisitor } from "../visitors/BaseVisitor";
-import { DiagramElement, Flow, Node, Participant } from "./types";
+import { DiagramElement, Flow, Node, NodeKind, Participant } from "./types";
+import { DiagramElementKindChecker } from "./check-kind-utils";
 
-export function traverseFlow(flow: Flow, visitor: BaseVisitor) {
-    flow.participants.forEach((participant) => {
-        traverseParticipant(participant, visitor, flow);
-    });
-}
-
-export function traverseParticipant(
-    node: Participant,
-    visitor: BaseVisitor,
-    parent?: Flow,
-) {
-    if (!node.kind) {
-        console.warn("Node kind is not defined", node);
+export function traverseParticipant(participant: Participant, visitor: BaseVisitor, flow: Flow, callNode?: Node) {
+    if (!participant.kind) {
+        console.warn("Node kind is not defined", participant);
         return;
     }
-    let name = "";
-    // convert this kind to a camel case string
-    node.kind.split("_").forEach((kind) => {
-        name += kind.charAt(0).toUpperCase() + kind.slice(1).toLowerCase();
-    });
+    const name = _.chain(participant.kind).camelCase().upperFirst().value();
 
     let beginVisitFn: any = (visitor as any)[`beginVisit${name}`];
     if (!beginVisitFn) {
-        beginVisitFn =
-            visitor.beginVisitParticipant && visitor.beginVisitParticipant;
+        beginVisitFn = visitor.beginVisitParticipant && visitor.beginVisitParticipant;
     }
 
     if (beginVisitFn) {
-        beginVisitFn.bind(visitor)(node, parent);
+        beginVisitFn.bind(visitor)(participant, flow, callNode);
     }
 
-    const keys = Object.keys(node);
+    const keys = Object.keys(participant);
     keys.forEach((key) => {
-        if (visitor.skipChildren()) {
-            return;
-        }
-
-        const childNode = (node as any)[key] as any;
+        const childNode = (participant as any)[key] as any;
         if (Array.isArray(childNode)) {
             childNode.forEach((elementNode) => {
                 if (!elementNode?.kind) {
                     return;
                 }
-
-                traverseNode(elementNode, visitor, node);
+                traverseNode(elementNode, visitor, participant, flow, callNode);
             });
             return;
         }
@@ -62,50 +44,46 @@ export function traverseParticipant(
         if (!childNode.kind) {
             return;
         }
-
-        traverseNode(childNode, visitor, node);
+        traverseNode(childNode, visitor, participant, flow, callNode);
     });
 
     let endVisitFn: any = (visitor as any)[`endVisit${name}`];
     if (!endVisitFn) {
         endVisitFn = visitor.endVisitParticipant && visitor.endVisitParticipant;
     }
-
     if (endVisitFn) {
-        endVisitFn.bind(visitor)(node, parent);
+        endVisitFn.bind(visitor)(participant, flow, callNode);
     }
 }
 
-export function traverseNode(
-    node: Node,
-    visitor: BaseVisitor,
-    parent?: DiagramElement,
-) {
+export function traverseNode(node: Node, visitor: BaseVisitor, parent: DiagramElement, flow: Flow, callNode?: Node) {
     if (!node.kind) {
         console.warn("Node kind is not defined", node);
         return;
     }
-    let name = "";
-    // convert this kind to a camel case string
-    node.kind.split("_").forEach((kind) => {
-        name += kind.charAt(0).toUpperCase() + kind.slice(1).toLowerCase();
-    });
-
+    let name = _.chain(node.kind).camelCase().upperFirst().value();
+    if (node.kind === NodeKind.INTERACTION) {
+        name = _.chain(node.interactionType).camelCase().upperFirst().value();
+    }
     let beginVisitFn: any = (visitor as any)[`beginVisit${name}`];
     if (!beginVisitFn) {
         beginVisitFn = visitor.beginVisitNode && visitor.beginVisitNode;
     }
 
     if (beginVisitFn) {
-        beginVisitFn.bind(visitor)(node, parent);
+        beginVisitFn.bind(visitor)(node, parent, callNode);
+    }
+
+    // navigate to another participant
+    if (DiagramElementKindChecker.isInteraction(node) && node.targetId) {
+        const targetParticipant = flow.participants.find((p) => p.id === node.targetId);
+        if (targetParticipant) {
+            traverseParticipant(targetParticipant, visitor, flow, node);
+        }
     }
 
     const keys = Object.keys(node);
     keys.forEach((key) => {
-        if (visitor.skipChildren()) {
-            return;
-        }
-
         const childNode = (node as any)[key] as any;
         if (Array.isArray(childNode)) {
             childNode.forEach((elementNode) => {
@@ -113,7 +91,7 @@ export function traverseNode(
                     return;
                 }
 
-                traverseNode(elementNode, visitor, node);
+                traverseNode(elementNode, visitor, node, flow);
             });
             return;
         }
@@ -122,7 +100,7 @@ export function traverseNode(
             return;
         }
 
-        traverseNode(childNode, visitor, node);
+        traverseNode(childNode, visitor, node, flow);
     });
 
     let endVisitFn: any = (visitor as any)[`endVisit${name}`];
@@ -131,6 +109,6 @@ export function traverseNode(
     }
 
     if (endVisitFn) {
-        endVisitFn.bind(visitor)(node, parent);
+        endVisitFn.bind(visitor)(node, parent, callNode);
     }
 }
