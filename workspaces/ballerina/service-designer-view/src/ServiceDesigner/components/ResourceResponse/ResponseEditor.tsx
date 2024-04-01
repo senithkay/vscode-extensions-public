@@ -51,7 +51,7 @@ export function ResponseEditor(props: ParamProps) {
 
     const handleCodeChange = (value: string) => {
         const code = responseCodes.find(code => code.title === value).code;
-        onChange({ ...response, code: Number(code) });
+        onChange({ ...response, code: Number(code), source: "" });
     };
 
     const handleTypeChange = (value: string) => {
@@ -59,7 +59,7 @@ export function ResponseEditor(props: ParamProps) {
             const recordName = `${getSourceFromResponseCode(response.code).replace("http:", "")}${response.type ? `${response.type}` : ""}`;
             setDefinedRecordName(recordName);
         }
-        onChange({ ...response, type: value });
+        onChange({ ...response, type: value, source: "" });
     };
 
     const handleOnCancel = () => {

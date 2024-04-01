@@ -124,7 +124,7 @@ export function getCodeFromResponse(response: string, httpMethod: HTTP_METHOD): 
 }
 
 export function findResponseCodeByRecordSource(recordSource: string): number {
-    const code = responseCodes.find((responseCode) =>  recordSource?.includes(responseCode.source));
+    const code = responseCodes.find((responseCode) => recordSource?.includes(responseCode.source));
     return code?.code || 200;
 }
 
@@ -203,7 +203,7 @@ export const getServiceData = async (service: ServiceDeclaration): Promise<Servi
             serviceData = {
                 port: parseInt(port, 10),
                 path: absolutePath
-            };          
+            };
         }
     }
     return serviceData;
@@ -283,6 +283,15 @@ export async function getResponseConfig(resource: ResourceAccessorDefinition, rp
                     source: member.name
                 });
                 index++;
+            } else if (member.typeKind === "typeReference" && member.signature?.includes("ballerina")) {
+                const name = member.moduleID?.moduleName === "http" ? `http:${member.name}` : member.name;
+                response.push({
+                    id: index,
+                    code: getCodeFromResponse(name, resource.functionName.value as HTTP_METHOD),
+                    type: "",
+                    source: name
+                });
+                index++;
             } else if (member.typeKind !== "nil") {
                 type = (members[index + 1]?.typeKind === "nil") ? member.typeKind + "?" : member.typeKind;
                 response.push({
@@ -311,8 +320,8 @@ export function getInlineRecordConfig(resource: ResourceAccessorDefinition, inde
     const statusMatch = member.signature.match(statusRegex);
     const status = statusMatch ? statusMatch[1] : "";
     const subTypeRegex = /\b(\w+)\s+body;/;
-    const subTypeMatch =  member.signature.match(subTypeRegex);
-    const subtype =  subTypeMatch ? subTypeMatch[1] : "";
+    const subTypeMatch = member.signature.match(subTypeRegex);
+    const subtype = subTypeMatch ? subTypeMatch[1] : "";
     return ({
         id: index,
         code: getCodeFromResponse(`http:${status.replace("Status", "")}`, resource.functionName.value as HTTP_METHOD),
@@ -334,7 +343,7 @@ export function getResourcePath(resource: ResourceAccessorDefinition): PathConfi
         }
         resourcePath += STKindChecker.isResourcePathSegmentParam(path) ? path.source : path?.value;
     });
-    return { path: resourcePath, resources: pathParams }; 
+    return { path: resourcePath, resources: pathParams };
 }
 
 export function getQueryParams(resource: ResourceAccessorDefinition): ParameterConfig[] {

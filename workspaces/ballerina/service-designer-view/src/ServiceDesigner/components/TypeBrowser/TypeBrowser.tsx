@@ -158,7 +158,8 @@ export const TypeBrowser: React.FC<TypeBrowserProps> = (props: TypeBrowserProps)
     };
     const handleDeleteButtonClick = () => {
         setIsCleared(true);
-        setQuery('');
+        setQuery("");
+        onChange("");
     };
     const handleQueryChange = (q: string) => {
         setQuery(q);
