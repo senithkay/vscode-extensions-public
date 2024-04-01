@@ -10,109 +10,14 @@
 import * as React from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Button, Codicon, Icon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
-import { css } from '@emotion/css'
 import classnames from "classnames";
 
 import { DataMapperPortWidget } from '../../Port';
 
 import { LinkConnectorNode } from './LinkConnectorNode';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-
-const styles = () => ({
-    root: css({
-        width: '100%',
-        backgroundColor: "var(--vscode-sideBar-background)",
-        padding: "2px",
-        borderRadius: "2px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "5px",
-        color: "var(--vscode-checkbox-border)",
-        alignItems: "center",
-        border: "1px solid var(--vscode-welcomePage-tileBorder)",
-    }),
-    element: css({
-        backgroundColor: 'var(--vscode-input-background)',
-        padding: '5px',
-        cursor: 'pointer',
-        transitionDuration: '0.2s',
-        userSelect: 'none',
-        pointerEvents: 'auto',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        '&:hover': {
-            filter: 'brightness(0.95)',
-        },
-    }),
-    iconWrapper: css({
-        height: '22px',
-        width: '22px',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-    }),
-    fromClause: css({
-        padding: '5px',
-        fontFamily: 'monospace',
-    }),
-    mappingPane: css({
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    }),
-    header: css({
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        "& > *": {
-            margin: "0 2px"
-        }
-    }),
-    icons: css({
-        padding: '8px',
-        '&:hover': {
-            backgroundColor: 'var(--vscode-tab-inactiveBackground)',
-        },
-    }),
-    expandIcon: css({
-        height: '15px',
-        width: '15px',
-        marginTop: '-7px',
-    }),
-    buttonWrapper: css({
-        border: '1px solid var(--vscode-editorWidget-background)',
-        borderRadius: '8px',
-        position: 'absolute',
-        right: '35px',
-    }),
-    separator: css({
-        height: "22px",
-        width: "1px",
-        backgroundColor: "var(--vscode-editor-lineHighlightBorder)",
-    }),
-    editIcon: css({
-        color: "var(--vscode-pickerGroup-border)",
-        padding: "5px",
-        height: "32px",
-        width: "32px"
-    }),
-    functionIcon: css({
-        padding: "3px"
-    }),
-    deleteIcon: css({
-        color: "var(--vscode-editor-selectionBackground)"
-    }),
-    loadingContainer: css({
-        padding: "10px"
-    }),
-    circularProgress: css({
-        color: "var(--vscode-input-background)"
-    })
-});
+import { useIntermediateNodeStyles } from '../../../styles';
 
 export interface LinkConnectorNodeWidgetProps {
     node: LinkConnectorNode;
@@ -121,7 +26,7 @@ export interface LinkConnectorNodeWidgetProps {
 
 export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const node = props.node;
-    const classes = styles();
+    const classes = useIntermediateNodeStyles();
     const engine = props.engine;
     const { rpcClient } = useVisualizerContext();
 

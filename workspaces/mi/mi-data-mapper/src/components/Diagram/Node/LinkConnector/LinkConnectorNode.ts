@@ -31,6 +31,7 @@ import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { MappingConstructorNode } from "../MappingConstructor";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
+const NODE_ID = "link-connector-node";
 
 export class LinkConnectorNode extends DataMapperNodeModel {
 
@@ -54,6 +55,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         public fields: STNode[],
         public isPrimitiveTypeArrayElement?: boolean) {
         super(
+            NODE_ID,
             context,
             LINK_CONNECTOR_NODE_TYPE
         );

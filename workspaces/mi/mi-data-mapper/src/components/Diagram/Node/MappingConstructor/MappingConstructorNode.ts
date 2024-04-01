@@ -20,6 +20,7 @@ import { getSearchFilteredOutput, hasNoOutputMatchFound } from "../../utils/sear
 import { enrichAndProcessType } from "../../utils/type-utils";
 
 export const MAPPING_CONSTRUCTOR_NODE_TYPE = "data-mapper-node-mapping-constructor";
+const NODE_ID = "mapping-constructor-node";
 
 export class MappingConstructorNode extends DataMapperNodeModel {
     public dmType: DMType;
@@ -36,6 +37,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         public value: ObjectLiteralExpression
     ) {
         super(
+            NODE_ID,
             context,
             MAPPING_CONSTRUCTOR_NODE_TYPE
         ); 
@@ -177,7 +179,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 this.x = x;
                 this.y = y;
             }
-            super.setPosition(x, y || this.y);
+            super.setPosition(x, y);
         }
     }
 }

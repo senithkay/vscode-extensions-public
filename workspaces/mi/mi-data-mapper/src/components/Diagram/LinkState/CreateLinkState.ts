@@ -157,6 +157,10 @@ export class CreateLinkState extends State<DiagramEngine> {
 	}
 
 	clearState() {
+		if (this.sourcePort) {
+			this.sourcePort.fireEvent({}, "link-unselected");
+			this.sourcePort.removeLink(this.link);
+		}
 		this.link = undefined;
 		this.sourcePort = undefined;
 	}

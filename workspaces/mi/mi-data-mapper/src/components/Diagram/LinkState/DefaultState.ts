@@ -1,4 +1,4 @@
-import { MouseEvent, TouchEvent } from 'react';
+import { MouseEvent } from 'react';
 
 import {
 	Action,
@@ -27,7 +27,7 @@ export class DefaultState extends State<DiagramEngine> {
 		this.childStates = [new SelectingState()];
 		this.dragCanvas = new DragCanvasState();
 		this.createLink = new CreateLinkState();
-		this.dragItems = new DragDiagramItemsState();
+		this.dragCanvas = new DragCanvasState({allowDrag: false});
 
 		// determine what was clicked on
 		this.registerAction(
@@ -60,16 +60,6 @@ export class DefaultState extends State<DiagramEngine> {
 			})
 		);
 
-		// touch drags the canvas
-		this.registerAction(
-			new Action({
-				type: InputType.TOUCH_START,
-				fire: (event: ActionEvent<TouchEvent>) => {
-					this.transitionWithEvent(new DragCanvasState(), event);
-				}
-			})
-		);
-
 		this.registerAction(
 			new Action({
 				type: InputType.MOUSE_UP,
@@ -91,6 +81,21 @@ export class DefaultState extends State<DiagramEngine> {
 						)
 					) {
 						this.transitionWithEvent(this.createLink, actionEvent);
+					}
+				}
+			})
+		);
+
+
+		this.registerAction(
+			new Action({
+				type: InputType.KEY_UP,
+				fire: (actionEvent) => {
+					// On esc press unselect any selected link
+					if ((actionEvent.event as any).keyCode === 27) {
+						this.engine.getModel().getLinks().forEach((link) => {
+							link.setSelected(false);
+						});
 					}
 				}
 			})

@@ -21,9 +21,9 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import { OutputSearchHighlight } from "../Search";
 
-import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
+import { useIONodesStyles } from "../../../../styles";
 
 export interface EditableRecordFieldWidgetProps {
     parentId: string;
@@ -55,7 +55,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     //     enableStatementEditor,
     //     handleCollapse
     // } = context;
-    const classes = useStyles();
+    const classes = useIONodesStyles();
     const [isLoading, setIsLoading] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [isAddingTypeCast, setIsAddingTypeCast] = useState(false);
@@ -185,7 +185,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             </span>
             {typeName && (
                 <span
-                    className={classnames(classes.typeLabel,
+                    className={classnames(classes.outputTypeLabel,
                         isDisabled && !hasHoveredParent ? classes.typeLabelDisabled : ""
                     )}
                 >
@@ -223,7 +223,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     onMouseEnter={onMouseEnter}
                     onMouseLeave={onMouseLeave}
                 >
-                    <span className={classes.treeLabelInPort}>
+                    <span className={classes.inPort}>
                         {portIn && (
                             <DataMapperPortWidget
                                 engine={engine}

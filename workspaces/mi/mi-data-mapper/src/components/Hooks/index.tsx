@@ -9,54 +9,56 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
-    DiagramEngine,
 	DiagramModel,
     DiagramModelGenerics
 } from "@projectstorm/react-diagrams";
 import { DataMapperNodeModel } from '../Diagram/Node/commons/DataMapperNode';
+import { getIONodeHeight } from '../Diagram/utils/diagram-utils';
 import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
 import { ErrorNodeKind } from '../DataMapper/Error/DataMapperError';
 import { useDMSearchStore } from '../../store/store';
 import { MappingConstructorNode, RequiredParamNode } from '../Diagram/Node';
-import { OFFSETS } from '../Diagram/utils/constants';
+import { GAP_BETWEEN_INPUT_NODES, IO_NODE_DEFAULT_WIDTH, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';
 import { LinkConnectorNode } from '../Diagram/Node/LinkConnector';
 
 export const useDiagramModel = (
     nodes: DataMapperNodeModel[],
     diagramModel: DiagramModel,
-    onError:(kind: ErrorNodeKind) => void
+    onError:(kind: ErrorNodeKind) => void,
+    zoomLevel: number,
 ): {
     updatedModel: DiagramModel<DiagramModelGenerics>;
     isFetching: boolean;
     isError: boolean;
     refetch: any;
 } => {
-    // const zoomLevel = diagramModel.getZoomLevel();
-    // const offSetX = diagramModel.getOffsetX();
-    // const offSetY = diagramModel.getOffsetY();
+    const offSetX = diagramModel.getOffsetX();
+    const offSetY = diagramModel.getOffsetY();
     const noOfNodes = nodes.length;
     // const context = nodes.find(node => node.context)?.context;
 	// const fnSource = context ? context.selection.selectedST.stNode.source : undefined;
     // const collapsedFields = context?.collapsedFields;
-    // const { inputSearch, outputSearch } = useDMSearchStore();
+    const { inputSearch, outputSearch } = useDMSearchStore();
 
     const genModel = async () => {
         const newModel = new DiagramModel();
+        newModel.setZoomLevel(zoomLevel);
+        newModel.setOffset(offSetX, offSetY);
         // const showInputFilterEmpty = !nodes.some(
-        //     node => (node instanceof RequiredParamNode && node.getSearchFilteredType()) || node instanceof FromClauseNode
+        //     node => node instanceof RequiredParamNode && node.getSearchFilteredType()
         // );
         // if (showInputFilterEmpty) {
-        //     const inputSearchNotFoundNode = new RequiredParamNode(undefined, undefined, undefined, true);
+        //     const inputSearchNotFoundNode = new RequiredParamNode(undefined, undefined, undefined);
         //     inputSearchNotFoundNode.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.SOURCE_NODE.Y);
         //     newModel.addNode(inputSearchNotFoundNode);
         // }
         newModel.addAll(...nodes);
         for (const node of nodes) {
             try {
-                // if (node instanceof RequiredParamNode && !node.getSearchFilteredType()) {
-                //     newModel.removeNode(node);
-                //     continue;
-                // }
+                if (node instanceof RequiredParamNode && !node.getSearchFilteredType()) {
+                    newModel.removeNode(node);
+                    continue;
+                }
                 node.setModel(newModel);
                 await node.initPorts();
                 if (node instanceof LinkConnectorNode) {
@@ -78,31 +80,34 @@ export const useDiagramModel = (
         isFetching,
         isError,
         refetch,
-    } = useQuery(['genModel', {noOfNodes}], () => genModel(), {});
+    } = useQuery(['genModel', {noOfNodes, inputSearch, outputSearch, newZoomLevel: zoomLevel}], () => genModel(), {});
 
     return { updatedModel, isFetching, isError, refetch };
 };
 
 
-export const useRepositionedNodes = (nodes: DataMapperNodeModel[]) => {
+export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: number, diagramModel: DiagramModel) => {
     const nodesClone = [...nodes];
-    let requiredParamFields = 0;
-    let numberOfRequiredParamNodes = 0;
-    let additionalSpace = 0;
-    nodesClone.forEach((node) => {
+
+    let prevBottomY = 0;
+
+    nodesClone.forEach(node => {
+        const nodeHeight = node.height === 0 ? 800 : node.height;
+        const exisitingNode = diagramModel.getNodes().find(n => (n as DataMapperNodeModel).id === node.id);
         if (node instanceof MappingConstructorNode) {
-                if (Object.values(node.getPorts()).some(port => Object.keys(port.links).length)){
-                    node.setPosition(OFFSETS.TARGET_NODE.X, 0);
-                } else {
-                    // Bring mapping constructor node close to input node, if it doesn't have any links
-                    node.setPosition(OFFSETS.TARGET_NODE_WITHOUT_MAPPING.X, 0);
-                }
+            const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - IO_NODE_DEFAULT_WIDTH;
+            const y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : 0;
+            node.setPosition(x, y);
         }
         if (node instanceof RequiredParamNode) {
-            node.setPosition(OFFSETS.SOURCE_NODE.X, additionalSpace + (requiredParamFields * 40) + OFFSETS.SOURCE_NODE.Y * (numberOfRequiredParamNodes + 1));
-            
-            requiredParamFields = requiredParamFields + node.numberOfFields;
-            numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
+            const x = OFFSETS.SOURCE_NODE.X;
+            const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
+            let y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;
+
+            node.setPosition(x, y);
+
+            const nodeHeight = getIONodeHeight(node.numberOfFields);
+            prevBottomY = computedY + nodeHeight;
         }
     });
 

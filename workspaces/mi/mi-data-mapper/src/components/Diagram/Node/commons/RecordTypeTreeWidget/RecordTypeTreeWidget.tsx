@@ -14,7 +14,6 @@ import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import { DMType } from "@wso2-enterprise/mi-core";
 
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
-import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../../utils/constants';
 import { InputSearchHighlight } from '../Search';
 import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 import { RecordFieldTreeItemWidget } from "./RecordFieldTreeItemWidget";

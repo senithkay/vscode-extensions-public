@@ -16,6 +16,7 @@ import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import { getSearchFilteredInput } from "../../utils/search-utils";
 
 export const INPUT_PARAM_NODE_TYPE = "datamapper-node-input-param";
+const NODE_ID = "required-param-node";
 
 export class RequiredParamNode extends DataMapperNodeModel {
     public dmType: DMType;
@@ -29,6 +30,7 @@ export class RequiredParamNode extends DataMapperNodeModel {
         public hasNoMatchingFields?: boolean
     ) {
         super(
+            NODE_ID,
             context,
             INPUT_PARAM_NODE_TYPE
         );
