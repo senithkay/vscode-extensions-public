@@ -77,8 +77,6 @@ export const ContentWrapper = styled.div<ContainerProps>`
     &:hover, &.active {
         ${(props: ContainerProps) => `${props.readonly ? "" : "background: var(--vscode-welcomePage-tileHoverBackground)"}`};
     };
-    overflow-x: scroll;
-    overflow-y: hidden;
 `;
 
 export const KeyTextWrapper = styled.div`
