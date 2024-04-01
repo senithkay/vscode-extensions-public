@@ -26,9 +26,7 @@ export namespace BaseNodeStyles {
         min-width: ${NODE_WIDTH}px;
         min-height: ${NODE_HEIGHT}px;
         padding: 0 8px;
-        border: 1.5px solid
-            ${(props: NodeStyleProp) =>
-                props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+        border: 1.5px solid ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
         border-radius: 10px;
         background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
@@ -41,15 +39,6 @@ export namespace BaseNodeStyles {
     export const BottomPortWidget = styled(PortWidget)`
         margin-bottom: -2px;
     `;
-
-    export const Title = styled.div`
-        font-size: 14px;
-        max-width: ${NODE_WIDTH - 50}px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-family: "GilmerMedium";
-    `;
 }
 
 interface BaseNodeWidgetProps {
@@ -58,8 +47,7 @@ interface BaseNodeWidgetProps {
     onClick?: (node: Node) => void;
 }
 
-export interface NodeWidgetProps
-    extends Omit<BaseNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {}
 
 export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const { model, engine, onClick } = props;
@@ -71,15 +59,8 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <BaseNodeStyles.TopPortWidget
-                port={model.getPort("in")!}
-                engine={engine}
-            />
-            <BaseNodeStyles.Title>{model.node.kind}</BaseNodeStyles.Title>
-            <BaseNodeStyles.BottomPortWidget
-                port={model.getPort("out")!}
-                engine={engine}
-            />
+            <BaseNodeStyles.TopPortWidget port={model.getLeftPort()!} engine={engine} />
+            <BaseNodeStyles.BottomPortWidget port={model.getRightPort()!} engine={engine} />
         </BaseNodeStyles.Node>
     );
 }
