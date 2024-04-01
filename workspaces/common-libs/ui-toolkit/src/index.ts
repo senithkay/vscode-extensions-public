@@ -57,4 +57,6 @@ export * from './components/SampleForm/WebAppCreation/WebAppCreation';
 export * from './components/Commons/ErrorBanner';
 export * from './components/Commons/RequiredInput';
 
+export * from './components/FormView/FormView';
+
 export * from './styles';
