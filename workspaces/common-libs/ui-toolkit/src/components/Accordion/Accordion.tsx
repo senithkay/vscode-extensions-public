@@ -26,7 +26,6 @@ type HeaderProps = {
 
 const AccordionContainer = styled.div<ContainerProps>`
     margin-top: 10px;
-    overflow: hidden;
     background-color: var(--vscode-editorHoverWidget-background);
     &:hover {
         background-color: var(--vscode-list-hoverBackground);
