@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Visitor, STNode, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, Iterate, Resource, Switch, Foreach, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Datamapper, Enrich, FastXSLT, Makefault, Jsontransform, Smooks, Xquery, Xslt } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Visitor, STNode, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, Iterate, Resource, Switch, Foreach, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Datamapper, Enrich, FastXSLT, Makefault, Jsontransform, Smooks, Xquery, Xslt, Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 import { GroupNodeModel } from "../components/nodes/GroupNode/GroupNodeModel";
@@ -16,7 +16,7 @@ import { NodeModel } from "@projectstorm/react-diagrams";
 import { ConditionNodeModel } from "../components/nodes/ConditionNode/ConditionNodeModel";
 import { EndNodeModel } from "../components/nodes/EndNode/EndNodeModel";
 import { CallNodeModel } from "../components/nodes/CallNode/CallNodeModel";
-import { ENDPOINTS, MEDIATORS, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
+import { ADD_NEW_SEQUENCE_TAG, ENDPOINTS, MEDIATORS, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { SourceNodeModel, TargetNodeModel, createNodesLink } from "../utils/diagram";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -61,32 +61,41 @@ export class NodeFactoryVisitor implements Visitor {
 
     private createNodeAndLinks(params: createNodeAndLinks): void {
         let { node, name, type, data } = params;
-        if (!type) {
-            type = NodeTypes.MEDIATOR_NODE;
-        }
 
         // create node
         let diagramNode: AnyNode;
-        if (type === NodeTypes.MEDIATOR_NODE) {
-            diagramNode = new MediatorNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
-        } else if (type === NodeTypes.REFERENCE_NODE) {
-            diagramNode = new ReferenceNodeModel(node, name, data[0], this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
-        } else if (type === NodeTypes.GROUP_NODE) {
-            diagramNode = new GroupNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
-        } else if (type === NodeTypes.CONDITION_NODE) {
-            diagramNode = new ConditionNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
-        } else if (type === NodeTypes.START_NODE) {
-            diagramNode = new StartNodeModel(node, data, this.parents[this.parents.length - 1], this.previousSTNodes);
-        } else if (type === NodeTypes.END_NODE) {
-            diagramNode = new EndNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
-        } else if (type === NodeTypes.CALL_NODE) {
-            diagramNode = new CallNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes, data);
-        } else if (type === NodeTypes.EMPTY_NODE) {
-            diagramNode = new EmptyNodeModel(node, this.documentUri);
-        } else if (type === NodeTypes.CONDITION_NODE_END) {
-            diagramNode = new EmptyNodeModel(node, this.documentUri, true);
-        } else if (type === NodeTypes.PLUS_NODE) {
-            diagramNode = new PlusNodeModel(node, name, this.documentUri);
+        switch (type) {
+            case NodeTypes.REFERENCE_NODE:
+                diagramNode = new ReferenceNodeModel(node, name, data[0], this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
+                break;
+            case NodeTypes.GROUP_NODE:
+                diagramNode = new GroupNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
+                break;
+            case NodeTypes.CONDITION_NODE:
+                diagramNode = new ConditionNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
+                break;
+            case NodeTypes.START_NODE:
+                diagramNode = new StartNodeModel(node, data, this.parents[this.parents.length - 1], this.previousSTNodes);
+                break;
+            case NodeTypes.END_NODE:
+                diagramNode = new EndNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
+                break;
+            case NodeTypes.CALL_NODE:
+                diagramNode = new CallNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes, data);
+                break;
+            case NodeTypes.EMPTY_NODE:
+                diagramNode = new EmptyNodeModel(node, this.documentUri);
+                break;
+            case NodeTypes.CONDITION_NODE_END:
+                diagramNode = new EmptyNodeModel(node, this.documentUri, true);
+                break;
+            case NodeTypes.PLUS_NODE:
+                diagramNode = new PlusNodeModel(node, name, this.documentUri);
+                break;
+            default:
+                type = NodeTypes.MEDIATOR_NODE;
+                diagramNode = new MediatorNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
+                break;
         }
         diagramNode.setPosition(node.viewState.x, node.viewState.y);
 
@@ -94,16 +103,18 @@ export class NodeFactoryVisitor implements Visitor {
         if (this.previousSTNodes && this.previousSTNodes.length > 0) {
             for (let i = 0; i < this.previousSTNodes.length; i++) {
                 const previousStNode = this.previousSTNodes[i];
-                const previousNodes = this.nodes.filter((node) => JSON.stringify(node.getStNode().range) === JSON.stringify(previousStNode.range) && !node.getStNode().viewState?.id?.endsWith("_add_subsequence"));
+                const previousNodes = this.nodes.filter((node) => JSON.stringify(node.getStNode().range) === JSON.stringify(previousStNode.range));
                 const previousNode = previousNodes[previousNodes.length - 1];
 
                 const isSequnceConnect = diagramNode instanceof StartNodeModel && previousNode instanceof EndNodeModel;
-                const isEmptyNodeConnect = diagramNode instanceof EmptyNodeModel && previousNode instanceof EmptyNodeModel;
-                const showAddButton = !isSequnceConnect && !(previousNode instanceof EmptyNodeModel && !previousNode.visible);
+                const isEmptyNodeConnect = diagramNode instanceof EmptyNodeModel && previousNode instanceof EmptyNodeModel && type !== NodeTypes.CONDITION_NODE_END;
+                const showAddButton = !isSequnceConnect && !(previousNode instanceof EmptyNodeModel && !previousNode.visible) && type !== NodeTypes.PLUS_NODE;
 
                 const addPosition = this.currentAddPosition != undefined ? this.currentAddPosition :
                     (type === NodeTypes.CONDITION_NODE_END && previousNode instanceof EmptyNodeModel) ? previousStNode.range.endTagRange.start :
                         previousStNode.range.endTagRange?.end ? previousStNode.range.endTagRange.end : previousStNode.range.startTagRange.end;
+
+                const isBrokenLine = previousStNode.viewState.isBrokenLines ?? node.viewState.isBrokenLines;
 
                 const link = createNodesLink(
                     previousNode as SourceNodeModel,
@@ -111,7 +122,7 @@ export class NodeFactoryVisitor implements Visitor {
                     {
                         label: this.currentBranchData?.name,
                         stRange: addPosition,
-                        brokenLine: type === NodeTypes.EMPTY_NODE || isSequnceConnect || isEmptyNodeConnect,
+                        brokenLine: isBrokenLine ?? (type === NodeTypes.EMPTY_NODE || isSequnceConnect || isEmptyNodeConnect),
                         previousNode: previousStNode.tag,
                         parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
                         showArrow: !isSequnceConnect,
@@ -129,7 +140,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.previousSTNodes = [node];
     }
 
-    visitSubSequences(node: STNode, subSequences: { [x: string]: any; }, type: NodeTypes, canAddSubSequences: boolean): void {
+    visitSubSequences(node: STNode, name: string, subSequences: { [x: string]: any; }, type: NodeTypes, canAddSubSequences?: boolean, addNewSequenceRange?: Range): void {
         const sequenceKeys = Object.keys(subSequences);
         // travers sub sequences
         for (let i = 0; i < sequenceKeys.length; i++) {
@@ -156,10 +167,12 @@ export class NodeFactoryVisitor implements Visitor {
 
                 } else if (sequence.sequenceAttribute) {
                     sequence.viewState.y += NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y;
+                    sequence.viewState.x += (sequence.viewState.w / 2) - (NODE_DIMENSIONS.DEFAULT.WIDTH / 2);
                     this.createNodeAndLinks({ node: sequence, type: NodeTypes.REFERENCE_NODE, data: [sequence.sequenceAttribute] });
 
                 } else if (sequence.tag === "endpoint") {
                     sequence.viewState.y += NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y;
+                    sequence.viewState.x += (sequence.viewState.w / 2) - (NODE_DIMENSIONS.DEFAULT.WIDTH / 2);
                     this.createNodeAndLinks({ node: sequence, type: NodeTypes.MEDIATOR_NODE });
 
                 } else if (type !== NodeTypes.GROUP_NODE) {
@@ -169,7 +182,7 @@ export class NodeFactoryVisitor implements Visitor {
                 // add the end node for each sub flow in group node
                 if (type === NodeTypes.GROUP_NODE) {
                     sequence.viewState.y = startNode.viewState.y + sequence.viewState.h - NODE_DIMENSIONS.END.HEIGHT;
-                    sequence.viewState.x += (sequence.viewState.w / 2) - (NODE_DIMENSIONS.END.WIDTH / 2);
+                    sequence.viewState.x = startNode.viewState.x;
                     this.createNodeAndLinks({ node: sequence, type: NodeTypes.END_NODE });
                 }
             }
@@ -177,20 +190,27 @@ export class NodeFactoryVisitor implements Visitor {
         this.previousSTNodes = [node];
 
         // add plus node to add more sub sequences
-        if (canAddSubSequences) {
-            const addPosition = {
-                line: node.range.endTagRange.end.line,
-                character: node.range.endTagRange.end.character
+        if (canAddSubSequences && node.viewState?.subPositions?.[ADD_NEW_SEQUENCE_TAG]) {
+            const plusNodeViewState = node.viewState.subPositions[ADD_NEW_SEQUENCE_TAG];
+            const plusNode: STNode = {
+                tag: ADD_NEW_SEQUENCE_TAG,
+                viewState: plusNodeViewState,
+                range: {
+                    startTagRange: addNewSequenceRange,
+                    endTagRange: addNewSequenceRange,
+                },
+                hasTextNode: false,
+                selfClosed: true,
+                textNode: ""
+            };
+
+            this.currentBranchData = { name: "", diagnostics: [] };
+            if (type === NodeTypes.GROUP_NODE) {
+                this.previousSTNodes = [];
             }
-            this.currentAddPosition = addPosition;
-            const eNode = structuredClone(node);
-            eNode.viewState.id = JSON.stringify(eNode.range.endTagRange) + "_add_subsequence";
-            eNode.viewState.y = eNode.viewState.y + eNode.viewState.h;
-            eNode.viewState.x = eNode.viewState.x + eNode.viewState.w / 2 - NODE_DIMENSIONS.START.DISABLED.WIDTH / 2;
-            eNode.viewState.x += node.viewState.fw / 2;
-            this.previousSTNodes = [];
-            this.createNodeAndLinks(({ node: eNode, name: MEDIATORS.CLONE, type: NodeTypes.PLUS_NODE }));
+            this.createNodeAndLinks(({ node: plusNode, name, type: NodeTypes.PLUS_NODE }));
         }
+        this.previousSTNodes = [node];
 
         // add last nodes in sub sequences to the previous nodes list
         if (type !== NodeTypes.GROUP_NODE) {
@@ -395,12 +415,11 @@ export class NodeFactoryVisitor implements Visitor {
 
     beginVisitStore = (node: Store): void => this.createNodeAndLinks({ node, name: MEDIATORS.STORE });
 
-    // beginVisitValidate = (node: Validate): void => this.createNodeAndLinks({ node, name: MEDIATORS.VALIDATE });
     beginVisitValidate(node: Validate): void {
         this.createNodeAndLinks(({ node, name: MEDIATORS.VALIDATE, type: NodeTypes.GROUP_NODE }))
         this.parents.push(node);
 
-        this.visitSubSequences(node, {
+        this.visitSubSequences(node, MEDIATORS.VALIDATE, {
             OnFail: node.onFail,
         }, NodeTypes.GROUP_NODE, false);
         this.skipChildrenVisit = true;
@@ -417,7 +436,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.createNodeAndLinks(({ node, name: MEDIATORS.CACHE, type: NodeTypes.GROUP_NODE }))
         this.parents.push(node);
 
-        this.visitSubSequences(node, {
+        this.visitSubSequences(node, MEDIATORS.CACHE, {
             OnCacheHit: node.onCacheHit,
         }, NodeTypes.GROUP_NODE, false);
         this.skipChildrenVisit = true;
@@ -433,7 +452,11 @@ export class NodeFactoryVisitor implements Visitor {
         node.target.map((target, index) => {
             targets[target.to || index] = target.endpoint || target.sequence || target
         })
-        this.visitSubSequences(node, targets, NodeTypes.GROUP_NODE, true);
+        const newSequenceRange = {
+            start: node.range.endTagRange.start,
+            end: node.range.endTagRange.start,
+        }
+        this.visitSubSequences(node, MEDIATORS.CLONE, targets, NodeTypes.GROUP_NODE, true, newSequenceRange);
         this.skipChildrenVisit = true;
     }
     endVisitClone(node: Clone): void {
@@ -450,7 +473,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.createNodeAndLinks(({ node, name: MEDIATORS.AGGREGATE, type: NodeTypes.GROUP_NODE }))
         this.parents.push(node);
 
-        this.visitSubSequences(node, {
+        this.visitSubSequences(node, MEDIATORS.AGGREGATE, {
             OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete,
         }, NodeTypes.GROUP_NODE, false)
         this.skipChildrenVisit = true;
@@ -463,7 +486,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.createNodeAndLinks(({ node, name: MEDIATORS.ITERATE, type: NodeTypes.GROUP_NODE }))
         this.parents.push(node);
 
-        this.visitSubSequences(node, {
+        this.visitSubSequences(node, MEDIATORS.ITERATE, {
             Target: node.target.sequence
         }, NodeTypes.GROUP_NODE, false)
         this.skipChildrenVisit = true;
@@ -476,7 +499,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.createNodeAndLinks(({ node, name: MEDIATORS.FOREACH, type: NodeTypes.GROUP_NODE }))
         this.parents.push(node);
 
-        this.visitSubSequences(node, {
+        this.visitSubSequences(node, MEDIATORS.FOREACH, {
             Sequence: node.sequence
         }, NodeTypes.GROUP_NODE, false)
         this.skipChildrenVisit = true;
@@ -490,7 +513,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.createNodeAndLinks(({ node, name: MEDIATORS.FILTER, type: NodeTypes.CONDITION_NODE }))
         this.parents.push(node);
 
-        this.visitSubSequences(node, {
+        this.visitSubSequences(node, MEDIATORS.FILTER, {
             Then: node.then,
             Else: node.else_,
         }, NodeTypes.CONDITION_NODE, false);
@@ -501,15 +524,21 @@ export class NodeFactoryVisitor implements Visitor {
         this.skipChildrenVisit = false;
     }
     beginVisitSwitch(node: Switch): void {
-        this.createNodeAndLinks(({ node, name: MEDIATORS.SWITCH, type: NodeTypes.GROUP_NODE }))
+        this.createNodeAndLinks(({ node, name: MEDIATORS.SWITCH, type: NodeTypes.CONDITION_NODE }))
         this.parents.push(node);
         let cases: { [key: string]: any } = {};
         node._case.map((_case, index) => {
             cases[_case.regex || index] = _case;
         });
-        this.visitSubSequences(node, {
-            ...cases, default: node._default
-        }, NodeTypes.GROUP_NODE, true);
+
+        const defaultNode = node._default;
+        const newSequenceRange = {
+            start: defaultNode ? defaultNode.range.startTagRange.start : node.range.startTagRange.end,
+            end: defaultNode ? defaultNode.range.startTagRange.start : node.range.endTagRange.start,
+        }
+        this.visitSubSequences(node, MEDIATORS.SWITCH, {
+            ...cases, default: defaultNode
+        }, NodeTypes.CONDITION_NODE, true, newSequenceRange);
         this.skipChildrenVisit = true;
     }
     endVisitSwitch(node: Switch): void {
@@ -522,7 +551,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.createNodeAndLinks(({ node, name: MEDIATORS.THROTTLE, type: NodeTypes.CONDITION_NODE }))
         this.parents.push(node);
 
-        this.visitSubSequences(node, {
+        this.visitSubSequences(node, MEDIATORS.THROTTLE, {
             OnAccept: node.onAccept,
             OnReject: node.onReject,
         }, NodeTypes.CONDITION_NODE, false);
@@ -639,7 +668,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.createNodeAndLinks({ node, name: MEDIATORS.ENTITLEMENT, type: NodeTypes.GROUP_NODE })
         this.parents.push(node);
 
-        this.visitSubSequences(node, {
+        this.visitSubSequences(node, MEDIATORS.ENTITLEMENT, {
             OnAccept: node.onAccept,
             OnReject: node.onReject,
             Obligations: node.obligations,

@@ -137,6 +137,10 @@ export const NODE_DIMENSIONS = {
         WIDTH: 23,
         HEIGHT: 21,
     },
+    PLUS: {
+        WIDTH: 24,
+        HEIGHT: 24,
+    },
 };
 
 
@@ -235,3 +239,5 @@ export const SERVICE = {
     EDIT_RESOURCE: "edit-resource",
     EDIT_SEQUENCE: "edit-sequence",
 }
+
+export const ADD_NEW_SEQUENCE_TAG = "addNewSequence";

@@ -8,8 +8,8 @@
  */
 
 
-import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange, Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, traversNode, Iterate, Resource, Switch, Foreach, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Datamapper, Enrich, FastXSLT, Makefault, Jsontransform, Smooks, Xquery, Xslt } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
+import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange, Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, traversNode, Iterate, Resource, Switch, Foreach, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Datamapper, Enrich, FastXSLT, Makefault, Jsontransform, Smooks, Xquery, Xslt, ViewState } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
 
 export class SizingVisitor implements Visitor {
@@ -29,7 +29,7 @@ export class SizingVisitor implements Visitor {
         this.addDiagnostics(node);
     }
 
-    calculateAdvancedMediator = (node: STNode, subSequences: { [x: string]: any; }, type: NodeTypes): void => {
+    calculateAdvancedMediator = (node: STNode, subSequences: { [x: string]: any; }, type: NodeTypes, canAddSubSequences?: boolean, addNewSequenceBefore?: string): void => {
         if (node.viewState == undefined) {
             node.viewState = { x: 0, y: 0, w: 0, h: 0, fw: 0, fh: 0 }
         }
@@ -38,7 +38,8 @@ export class SizingVisitor implements Visitor {
         let subSequencesHeight = NODE_DIMENSIONS.EMPTY.BRANCH.HEIGHT;
         const subSequenceKeys = Object.keys(subSequences);
         for (let i = 0; i < subSequenceKeys.length; i++) {
-            const subSequence = subSequences[subSequenceKeys[i]];
+            const sequenceKey = subSequenceKeys[i];
+            const subSequence = subSequences[sequenceKey];
             if (subSequence) {
                 let subSequenceWidth = NODE_DIMENSIONS.EMPTY.BRANCH.WIDTH;
                 let subSequenceHeight = type === NodeTypes.GROUP_NODE ? NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y : 0;
@@ -73,7 +74,7 @@ export class SizingVisitor implements Visitor {
                 subSequenceHeight += type === NodeTypes.GROUP_NODE ? NODE_DIMENSIONS.END.HEIGHT : NODE_GAP.Y;
                 subSequencesHeight = Math.max(subSequencesHeight, subSequenceHeight);
                 subSequencesWidth = Math.max(subSequencesWidth, subSequenceWidth);
-                subSequence.viewState = { x: 0, y: 0, w: subSequenceWidth, h: subSequenceHeight, l: subSequenceL, r: subSequenceR };
+                subSequence.viewState = { x: 0, y: 0, w: subSequenceWidth, h: subSequenceHeight, l: subSequenceL, r: subSequenceR, isBrokenLines: sequenceKey !== "default" };
                 this.addDiagnostics(subSequence);
             }
         }
@@ -87,9 +88,25 @@ export class SizingVisitor implements Visitor {
             totalWidth += subSequencesWidth + nodeGap;
         }
 
-        node.viewState.l = subSequenceKeys.length > 0 ? subSequences[Object.keys(subSequences)[0]].viewState.l : 0;
-        node.viewState.r = subSequenceKeys.length > 0 ? subSequences[Object.keys(subSequences)[subSequenceKeys.length - 1]].viewState.r : 0;
         node.viewState.fw = Math.max(totalWidth, type === NodeTypes.CONDITION_NODE ? NODE_DIMENSIONS.CONDITION.WIDTH : NODE_DIMENSIONS.GROUP.WIDTH);
+
+        if (canAddSubSequences) {
+            const plusButton: ViewState = { x: 0, y: 0, w: 0, h: 0 };
+            if (node.viewState.subPositions) {
+                node.viewState.subPositions[ADD_NEW_SEQUENCE_TAG] = plusButton;
+            } else {
+                node.viewState.subPositions = {
+                    addNewSequence: plusButton
+                }
+            }
+
+            if (!addNewSequenceBefore) {
+                node.viewState.fw += NODE_GAP.BRANCH_X;
+            }
+        }
+        node.viewState.l = subSequenceKeys.length > 0 ? node.viewState.fw / 2 : 0;
+        node.viewState.r = subSequenceKeys.length > 0 ? node.viewState.fw / 2 : 0;
+
         const topGap = type === NodeTypes.CONDITION_NODE ? (NODE_DIMENSIONS.CONDITION.HEIGHT + NODE_GAP.BRANCH_TOP) : (node.viewState.h / 2) + NODE_GAP.GROUP_NODE_START_Y;
         const bottomGap = type === NodeTypes.CONDITION_NODE ? NODE_GAP.BRANCH_BOTTOM : NODE_GAP.GROUP_NODE_END_Y;
         const sequenceFullHeight = subSequencesHeight;
@@ -259,7 +276,7 @@ export class SizingVisitor implements Visitor {
         });
 
         node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
-        this.calculateAdvancedMediator(node, targets, NodeTypes.GROUP_NODE);
+        this.calculateAdvancedMediator(node, targets, NodeTypes.GROUP_NODE, true);
     }
     beginVisitDataServiceCall = (node: DataServiceCall): void => this.calculateBasicMediator(node);
     beginVisitEnqueue = (node: Enqueue): void => this.calculateBasicMediator(node);
@@ -297,14 +314,14 @@ export class SizingVisitor implements Visitor {
         }, NodeTypes.CONDITION_NODE);
     }
     endVisitSwitch = (node: Switch): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
+        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CONDITION.WIDTH, h: NODE_DIMENSIONS.CONDITION.HEIGHT };
         let cases: { [key: string]: any } = {};
         node._case.map((_case, index) => {
             cases[_case.regex || index] = _case;
         });
         this.calculateAdvancedMediator(node, {
             ...cases, default: node._default
-        }, NodeTypes.GROUP_NODE);
+        }, NodeTypes.CONDITION_NODE, true, "default");
     }
     beginVisitConditionalRouter = (node: ConditionalRouter): void => this.calculateBasicMediator(node);
     endVisitThrottle = (node: Throttle): void => {
