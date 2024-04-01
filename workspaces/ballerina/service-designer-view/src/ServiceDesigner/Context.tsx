@@ -10,4 +10,4 @@
 import { useContext } from "react";
 import { Context } from "./ContextProvider";
 
-export const useDiagnosticContext = () => useContext(Context);
+export const useServiceDesignerContext = () => useContext(Context);

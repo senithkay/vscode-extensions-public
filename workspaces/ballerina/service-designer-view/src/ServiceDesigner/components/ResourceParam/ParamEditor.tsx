@@ -14,7 +14,7 @@ import { ActionButtons, Dropdown, TextField } from '@wso2-enterprise/ui-toolkit'
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { EditorContainer, EditorContent } from '../../styles';
 import { PARAM_TYPES, ParameterConfig } from '@wso2-enterprise/service-designer';
-import { useDiagnosticContext } from '../../Context';
+import { useServiceDesignerContext } from '../../Context';
 import { TypeBrowser } from '../TypeBrowser/TypeBrowser';
 
 const options = [{ id: "0", value: PARAM_TYPES.DEFAULT }, { id: "1", value: PARAM_TYPES.HEADER }];
@@ -36,7 +36,7 @@ export function ParamEditor(props: ParamProps) {
     const { param, option, isEdit, optionList, hideType = false, hideDefaultValue = false,
         onChange, onSave, onCancel } = props;
 
-    const { diagnostics, dPosition, commonRpcClient, applyModifications, serviceEndPosition } = useDiagnosticContext();
+    const { diagnostics, dPosition, commonRpcClient, applyModifications, serviceEndPosition } = useServiceDesignerContext();
 
     const handleOnSelect = (value: string) => {
         onChange({ ...param, option: value as PARAM_TYPES });

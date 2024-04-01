@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { responseCodes, STModification } from '@wso2-enterprise/ballerina-core';
+import { DIAGNOSTIC_SEVERITY, DiagramDiagnostic, responseCodes, STModification } from '@wso2-enterprise/ballerina-core';
 import { DocumentIdentifier } from '@wso2-enterprise/ballerina-core';
 import { BallerinaRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import * as Handlebars from 'handlebars';
@@ -221,6 +221,7 @@ export async function getResource(resource: ResourceAccessorDefinition, rpcClien
         endLine: resource?.functionSignature?.position?.endLine,
         endColumn: resource?.functionSignature?.position?.endColumn
     };
+    const errors = resource.typeData?.diagnostics.filter((diag: DiagramDiagnostic) => diag.diagnosticInfo.severity === DIAGNOSTIC_SEVERITY.ERROR);
     return {
         methods: [resource.functionName.value],
         path: pathConfig.path,
@@ -230,7 +231,8 @@ export async function getResource(resource: ResourceAccessorDefinition, rpcClien
         payloadConfig: payloadConfig,
         responses: response,
         updatePosition: position,
-        position: resource.position
+        position: resource.position,
+        haveErrors: errors.length > 0
     };
 }
 

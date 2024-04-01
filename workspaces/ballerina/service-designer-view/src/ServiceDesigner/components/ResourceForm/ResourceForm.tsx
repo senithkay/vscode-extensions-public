@@ -22,7 +22,7 @@ import { PARAM_TYPES, ParameterConfig, Resource, ResponseConfig } from '@wso2-en
 import { CommonRPCAPI, STModification } from '@wso2-enterprise/ballerina-core';
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { debounce } from "lodash";
-import { useDiagnosticContext } from '../../Context';
+import { useServiceDesignerContext } from '../../Context';
 
 const AdvancedParamTitleWrapper = styled.div`
 	display: flex;
@@ -55,7 +55,7 @@ export function ResourceForm(props: ResourceFormProps) {
 
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
-	const { setDiagnostics, setDPosition, serviceEndPosition } = useDiagnosticContext();
+	const { setDiagnostics, setDPosition, serviceEndPosition } = useServiceDesignerContext();
 
 	const { rpcClient } = useVisualizerContext();
 
@@ -110,7 +110,7 @@ export function ResourceForm(props: ResourceFormProps) {
 				skipSemiColon: true,
 				checkSeverity: 1
 			});
-		if (diag.diagnostics.length > 0) {
+		if (diag?.diagnostics.length > 0) {
 			setDiagnostics(diag.diagnostics);
 		} else {
 			setDiagnostics([]);

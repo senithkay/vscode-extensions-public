@@ -43,6 +43,7 @@ export interface ServiceData {
 
 export interface Resource {
     methods: string[];
+    haveErrors?: boolean;
     path: string;
     pathSegments?: ParameterConfig[];
     params?: ParameterConfig[];

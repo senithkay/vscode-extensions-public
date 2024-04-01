@@ -20,6 +20,7 @@ type MethodProp = {
 
 type ContainerProps = {
     borderColor?: string;
+    haveErrors?: boolean;
 };
 
 type ButtonSectionProps = {
@@ -38,6 +39,7 @@ const AccordionContainer = styled.div<ContainerProps>`
         background-color: var(--vscode-list-hoverBackground);
         cursor: pointer;
     }
+    border: ${(p: ContainerProps) => p.haveErrors ? "1px solid red" : "none"};
 `;
 
 const AccordionHeader = styled.div<HeaderProps>`
@@ -137,7 +139,7 @@ function getColorByMethod(method: string) {
 
 export interface ResourceAccordionProps {
     resource: Resource;
-    goToSource?: (resource: Resource) =>  void;
+    goToSource?: (resource: Resource) => void;
     onEditResource?: (resource: Resource) => void;
     onDeleteResource?: (resource: Resource) => void;
     onResourceImplement?: (resource: Resource) => void;
@@ -213,7 +215,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
     }
 
     return (
-        <AccordionContainer>
+        <AccordionContainer haveErrors={resource.haveErrors}>
             <AccordionHeader onClick={handleResourceClick}>
                 <MethodSection>
                     {resource?.methods?.map((method, index) => {

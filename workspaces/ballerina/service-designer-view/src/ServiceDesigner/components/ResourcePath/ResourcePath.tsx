@@ -10,7 +10,7 @@
 import React from 'react';
 import { Codicon, Dropdown, LinkButton, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
-import { useDiagnosticContext } from '../../Context';
+import { useServiceDesignerContext } from '../../Context';
 
 const verbs = [
 	{
@@ -59,7 +59,7 @@ export interface ResourcePathProps {
 
 export function ResourcePath(props: ResourcePathProps) {
 	const { method, path, onChange } = props;
-	const { diagnostics, dPosition } = useDiagnosticContext();
+	const { diagnostics, dPosition } = useServiceDesignerContext();
 
 	const handlePathChange = (input: string) => {
 		onChange && onChange(method, input);
