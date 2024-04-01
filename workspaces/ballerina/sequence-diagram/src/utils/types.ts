@@ -40,6 +40,7 @@ export type Participant = {
     module: Module;
     nodes: Node[];
     location: Location;
+    viewState?: ViewState;
 };
 
 export type Module = {
@@ -56,7 +57,7 @@ export enum NodeKind {
 export enum InteractionType {
     ENDPOINT_CALL = "ENDPOINT_CALL",
     FUNCTION_CALL = "FUNCTION_CALL",
-    RETURN_CALL = "RETURN_CALL",
+    RETURN = "RETURN",
 }
 
 export type Node = {
@@ -66,6 +67,7 @@ export type Node = {
     kind: NodeKind;
     location: Location;
     branches?: NodeBranch[];
+    viewStates?: ViewState[];
 };
 
 export type NodeBranch = {
@@ -85,6 +87,32 @@ export type NodeProperties = {
     value?: Property;
     name?: Property;
     condition?: Property;
+};
+
+export enum ViewStateLabel {
+    DEFAULT_NODE = "DEFAULT",
+    SOURCE_NODE = "SOURCE_NODE",
+    TARGET_NODE = "TARGET_NODE",
+    RETURN_SOURCE_NODE = "RETURN_SOURCE_NODE",
+    RETURN_TARGET_NODE = "RETURN_TARGET_NODE",
+}
+
+export type ViewState = {
+    label: ViewStateLabel | string;
+    bBox: BBox;
+};
+
+export type BBox = {
+    // element
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    // container
+    cx: number;
+    cy: number;
+    cw: number;
+    ch: number;
 };
 
 export type DiagramElementType = ParticipantType | NodeKind | InteractionType;
