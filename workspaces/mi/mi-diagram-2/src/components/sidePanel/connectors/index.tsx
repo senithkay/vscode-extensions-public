@@ -14,6 +14,7 @@ import SidePanelContext from "../SidePanelContexProvider";
 import { getSVGIcon } from "../../../resources/icons/mediatorIcons/icons";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import AddConnector from "../Pages/AddConnector";
 
 const SampleContainer = styled.div`
     display: grid;
@@ -104,12 +105,20 @@ export function ConnectorPage(props: ConnectorPageProps) {
     const selectOperation = async (operation: string) => {
         // Download Connector
         await rpcClient.getMiDiagramRpcClient().downloadConnector({ connector: selectedConnector.name, url: selectedConnector.download_url });
+
         // Get Connector Data from LS
         const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.documentUri });
+        
         // Get UI Schema Path
-        // const uiSchemaPath = connectorData.data.find((connector: any) => connector.name === selectedConnector.name)?.uiSchemaPath;
-        // const form = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: props.documentUri, operation: operation });
+        const uiSchemaPath = connectorData.connectors.find((connector: any) => connector.name === selectedConnector.name.toLowerCase())?.uiSchemaPath;
+        
+        // Retrieve form
+        const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: uiSchemaPath, operation: operation });
+
+        const connecterForm = <AddConnector formData={(formJSON as any).formJSON} nodePosition={sidePanelContext.nodeRange} documentUri={props.documentUri} />;
+
         setOperation(operation);
+        props.setContent(connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`);
     }
 
     const onBackClick = async () => {

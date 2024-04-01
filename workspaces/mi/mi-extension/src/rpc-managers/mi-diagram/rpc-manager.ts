@@ -153,7 +153,6 @@ import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
 import { addNewEntryToArtifactXML, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension } from "../../util/fileOperations";
-import { generateConnectorForm } from '../../util/formGeneratorFromJSON';
 import { importProject } from "../../util/migrationUtils";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
@@ -2492,31 +2491,38 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const connectorPath = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'registry', `${connector.replace(/\s+/g, '')}.zip`)
 
-            const response = await axios.get(url, {
-                responseType: 'stream',
-                headers: {
-                    'User-Agent': 'My Client'
-                }
-            });
-            
-
-            const writer = fs.createWriteStream(
-                path.resolve(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors', `${connector.replace(/\s+/g, '')}.zip`)
-            );
-
-            response.data.pipe(writer);
-
-            return new Promise((resolve, reject) => {
-                writer.on('finish', () => {
-                    writer.close();
+            if (!fs.existsSync(connectorPath)) {
+                const response = await axios.get(url, {
+                    responseType: 'stream',
+                    headers: {
+                        'User-Agent': 'My Client'
+                    }
+                });
+                
+    
+                const writer = fs.createWriteStream(
+                    path.resolve(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors', `${connector.replace(/\s+/g, '')}.zip`)
+                );
+    
+                response.data.pipe(writer);
+    
+                return new Promise((resolve, reject) => {
+                    writer.on('finish', () => {
+                        writer.close();
+                        resolve({ path: connectorPath });
+                    });
+                    writer.on('error', reject);
                     resolve({ path: connectorPath });
                 });
-                writer.on('error', reject);
+            }
+
+            return new Promise((resolve, reject) => {
                 resolve({ path: connectorPath });
             });
+            
         } catch (error) {
-            console.error('Error fetching connector data:', error);
-            throw new Error('Failed to cfail connector data');
+            console.error('Error downloading connector:', error);
+            throw new Error('Failed to download connector');
         }      
     }
 
@@ -2528,12 +2534,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         const rawData = fs.readFileSync(operationSchema, 'utf-8');
 
         // Parse the JSON
-        const data = JSON.parse(rawData);
+        const formJSON = JSON.parse(rawData);
 
-        // Generate JSX from JSON
-        const jsx = generateConnectorForm(data);
-
-        return {form: jsx};
+        return {formJSON: formJSON};
     }
 
     async undo(params: UndoRedoParams): Promise<void> {

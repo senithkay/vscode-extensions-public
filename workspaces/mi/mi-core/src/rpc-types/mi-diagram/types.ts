@@ -997,13 +997,6 @@ export interface GetAvailableResourcesResponse {
     resources: { [key: string]: any }[]
 }
 
-export interface GetAvailableConnectorRequest {
-    documentUri: string;
-}
-export interface GetAvailableConnectorResponse {
-    data: any;
-}
-
 export interface CreateClassMediatorRequest {
     projectDirectory: string;
     packageName: string;
@@ -1043,11 +1036,19 @@ export interface DownloadConnectorResponse {
     path: string;
 }
 
+export interface GetAvailableConnectorRequest {
+    documentUri: string;
+}
+
+export interface GetAvailableConnectorResponse {
+    connectors: any;
+}
+
 export interface GetConnectorFormRequest {
     uiSchemaPath: string;
     operation: string;
 }
 
 export interface GetConnectorFormResponse {
-    form: string;
+    formJSON: string;
 }

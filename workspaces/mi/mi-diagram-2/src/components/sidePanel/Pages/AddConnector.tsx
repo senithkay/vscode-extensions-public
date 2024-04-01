@@ -13,7 +13,7 @@ import { VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from '../SidePanelContexProvider';
-// import { create } from 'xmlbuilder2';
+import { create } from 'xmlbuilder2';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 const cardStyle = {
@@ -88,18 +88,25 @@ const AddConnector = (props: AddConnectorProps) => {
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
         } else {
-            // const template = create();
-            // const root = template.ele(`${props.formData.connectorName}${props.formData.operationName ? `.${props.formData.operationName}` : ''}`);
-            // // Fill the values
-            // Object.keys(formValues).forEach((key) => {
-            //     root.ele(key).txt(formValues[key]);
-            // });
-            // const modifiedXml = template.end({ prettyPrint: true, headless: true });
-            
-            // rpcClient.getMiDiagramRpcClient().applyEdit({
-            //     documentUri: props.documentUri, range: props.nodePosition, text: modifiedXml
-            // });
-            // sidePanelContext.setIsOpen(false);
+            const template = create();
+            const root = template.ele(`${props.formData.connectorName}${props.formData.operationName ? `.${props.formData.operationName}` : ''}`);
+            // Fill the values
+            Object.keys(formValues).forEach((key) => {
+                root.ele(key).txt(formValues[key]);
+            });
+            const modifiedXml = template.end({ prettyPrint: true, headless: true });
+
+            rpcClient.getMiDiagramRpcClient().applyEdit({
+                documentUri: props.documentUri, range: props.nodePosition, text: modifiedXml
+            });
+            sidePanelContext.setSidePanelState({
+                ...sidePanelContext,
+                isOpen: false,
+                isEditing: false,
+                formValues: undefined,
+                nodeRange: undefined,
+                operationName: undefined
+            });
         }
     };
 

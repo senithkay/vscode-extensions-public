@@ -46,17 +46,21 @@ import {
     CreateTaskResponse,
     CreateTemplateRequest,
     CreateTemplateResponse,
+    DownloadConnectorRequest,
+    DownloadConnectorResponse,
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     FileDirResponse,
     FileListRequest,
     FileListResponse,
+    GetAvailableConnectorRequest,
+    GetAvailableConnectorResponse,
     GetAvailableResourcesRequest,
     GetAvailableResourcesResponse,
     GetBackendRootUrlResponse,
-    DownloadConnectorRequest,
-    DownloadConnectorResponse,
+    GetConnectorFormRequest,
+    GetConnectorFormResponse,
     GetDefinitionRequest,
     GetDefinitionResponse,
     GetDiagnosticsReqeust,
@@ -149,18 +153,17 @@ import {
     createSequence,
     createTask,
     createTemplate,
+    downloadConnector,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
     getAddressEndpoint,
-    GetAvailableConnectorRequest,
-    GetAvailableConnectorResponse,
     getAvailableConnectors,
     getAvailableRegistryResources,
     getAvailableResources,
     getBackendRootUrl,
     getConnector,
-    downloadConnector,
+    getConnectorForm,
     getConnectors,
     getDefaultEndpoint,
     getDefinition,
@@ -532,5 +535,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getAvailableConnectors(params: GetAvailableConnectorRequest): Promise<GetAvailableConnectorResponse> {
         return this._messenger.sendRequest(getAvailableConnectors, HOST_EXTENSION, params);
+    }
+
+    getConnectorForm(params: GetConnectorFormRequest): Promise<GetConnectorFormResponse> {
+        return this._messenger.sendRequest(getConnectorForm, HOST_EXTENSION, params);
     }
 }
