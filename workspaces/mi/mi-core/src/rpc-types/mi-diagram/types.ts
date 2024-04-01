@@ -1042,3 +1042,12 @@ export interface DownloadConnectorRequest {
 export interface DownloadConnectorResponse {
     path: string;
 }
+
+export interface GetConnectorFormRequest {
+    uiSchemaPath: string;
+    operation: string;
+}
+
+export interface GetConnectorFormResponse {
+    form: string;
+}

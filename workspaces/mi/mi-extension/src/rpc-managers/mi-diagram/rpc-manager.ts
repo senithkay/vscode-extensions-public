@@ -47,6 +47,8 @@ import {
     CreateTaskResponse,
     CreateTemplateRequest,
     CreateTemplateResponse,
+    DownloadConnectorRequest,
+    DownloadConnectorResponse,
     ESBConfigsResponse,
     EVENT_TYPE,
     EndpointDirectoryResponse,
@@ -55,11 +57,13 @@ import {
     FileListRequest,
     FileListResponse,
     FileStructure,
+    GetAvailableConnectorRequest,
+    GetAvailableConnectorResponse,
     GetAvailableResourcesRequest,
     GetAvailableResourcesResponse,
     GetBackendRootUrlResponse,
-    DownloadConnectorRequest,
-    DownloadConnectorResponse,
+    GetConnectorFormRequest,
+    GetConnectorFormResponse,
     GetDefinitionRequest,
     GetDefinitionResponse,
     GetDiagnosticsReqeust,
@@ -133,8 +137,6 @@ import {
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
-    GetAvailableConnectorRequest,
-    GetAvailableConnectorResponse,
     getSTRequest,
     getSTResponse
 } from "@wso2-enterprise/mi-core";
@@ -151,6 +153,7 @@ import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
 import { addNewEntryToArtifactXML, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension } from "../../util/fileOperations";
+import { generateConnectorForm } from '../../util/formGeneratorFromJSON';
 import { importProject } from "../../util/migrationUtils";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
@@ -2515,6 +2518,22 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             console.error('Error fetching connector data:', error);
             throw new Error('Failed to cfail connector data');
         }      
+    }
+
+    async getConnectorForm (params: GetConnectorFormRequest): Promise<GetConnectorFormResponse> {
+        const { uiSchemaPath, operation } = params;
+        const operationSchema = path.join(uiSchemaPath, `${operation}.json`);
+
+        // Read the file synchronously
+        const rawData = fs.readFileSync(operationSchema, 'utf-8');
+
+        // Parse the JSON
+        const data = JSON.parse(rawData);
+
+        // Generate JSX from JSON
+        const jsx = generateConnectorForm(data);
+
+        return {form: jsx};
     }
 
     async undo(params: UndoRedoParams): Promise<void> {
