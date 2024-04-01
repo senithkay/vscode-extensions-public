@@ -16,14 +16,6 @@ import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import AddConnector from "../Pages/AddConnector";
 
-const SampleContainer = styled.div`
-    display: grid;
-    justify-items: center;
-    padding: 16px;
-    align-items: center;
-    height: 90%;
-`;
-
 const LoaderWrapper = styled.div`
     display: flex;
     justify-content: center;
@@ -37,13 +29,6 @@ const ProgressRing = styled(VSCodeProgressRing)`
     width: 200px;
     margin-top: auto;
     padding: 4px;
-`;
-
-const SampleGrid = styled.div`
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
 `;
 
 const IconContainer = styled.div`
@@ -66,6 +51,12 @@ const TitleWrapper = styled.div`
     gap: 10px;
 `;
 
+const VersionTag = styled.div`
+    color: #808080;
+    font-size: 10px;
+    padding-left: 2px;
+`;
+
 export interface ConnectorPageProps {
     documentUri: string;
     setContent: any;
@@ -76,6 +67,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
     const sidePanelContext = useContext(SidePanelContext);
     const { rpcClient } = useVisualizerContext();
     const [selectedConnector, setSelectedConnector] = useState(undefined);
+    const [localConnectors, setLocalConnectors] = useState<any[]>([]);
     const [operation, setOperation] = useState<string>("");
 
     const fetchConnectors = async () => {
@@ -88,30 +80,41 @@ export function ConnectorPage(props: ConnectorPageProps) {
     };
 
     useEffect(() => {
+        const fetchLocalConnectorData = async () => {
+            const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.documentUri });
+            if (connectorData) {
+                setLocalConnectors(connectorData.connectors);
+            }
+        };
+
+        fetchLocalConnectorData();
+
         if (!sidePanelContext.connectors || sidePanelContext.connectors.length === 0) {
             fetchConnectors();
         }
     }, []);
-
-    const setContent = (connector: any) => {
-        setSelectedConnector(connector);
-        props.setContent(connector, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${connector}`);
-    }
 
     const searchConnectors = (searchValue: string) => {
         return sidePanelContext.connectors.filter(connector => connector.name.toLowerCase().includes(searchValue.toLowerCase()));
     }
 
     const selectOperation = async (operation: string) => {
-        // Download Connector
-        await rpcClient.getMiDiagramRpcClient().downloadConnector({ connector: selectedConnector.name, url: selectedConnector.download_url });
+
+        // Download connector from store
+        if (selectedConnector.operations) {
+            await rpcClient.getMiDiagramRpcClient().downloadConnector({ connector: selectedConnector.name, url: selectedConnector.download_url });
+
+        }
 
         // Get Connector Data from LS
         const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.documentUri });
-        
+
+        // // Update LS with new connector
+        // await rpcClient.getMiDiagramRpcClient().updateConnectors({ documentUri: props.documentUri });
+
         // Get UI Schema Path
         const uiSchemaPath = connectorData.connectors.find((connector: any) => connector.name === selectedConnector.name.toLowerCase())?.uiSchemaPath;
-        
+
         // Retrieve form
         const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: uiSchemaPath, operation: operation });
 
@@ -136,107 +139,164 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
         return (
             <>
-                {!connectors ? (
-                    <LoaderWrapper>
-                        <ProgressRing />
-                    </LoaderWrapper>
-                ) : !selectedConnector ? (
-                    <div>
-                        <h4>All Connectors</h4>
-                        <ButtonGrid>
-                            {connectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
-                                <ComponentCard
-                                    key={connector.name}
-                                    onClick={() => setSelectedConnector(connector)}
-                                    sx={{
-                                        '&:hover, &.active': {
-                                            '.icon svg g': {
-                                                fill: 'var(--vscode-editor-foreground)'
-                                            },
-                                            backgroundColor: 'var(--vscode-pickerGroup-border)',
-                                            border: '1px solid var(--vscode-focusBorder)'
-                                        },
-                                        alignItems: 'center',
-                                        border: '1px solid var(--vscode-editor-foreground)',
-                                        borderRadius: 2,
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        height: 20,
-                                        justifyContent: 'left',
-                                        marginBottom: 10,
-                                        padding: 10,
-                                        transition: '0.3s',
-                                        width: 180
-                                    }}
-                                >
-                                    <IconContainer>
-                                        {getSVGIcon("Aggregate")}
-                                    </IconContainer>
-                                    <div style={{
-                                        width: '100%',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        whiteSpace: 'nowrap',
-                                        textAlign: 'left'
-                                    }}>
-                                        <IconLabel>
-                                            {connector.name}
-                                        </IconLabel>
-                                    </div>
-                                </ComponentCard>
-                            ))}
-                        </ButtonGrid>
-                    </div>) : (
-                    <>
-                        <TitleWrapper>
-                            <div style={{alignSelf: "center"}}>
-                                <Codicon iconSx={{ fontWeight: "bold", fontSize: 13 }} name='arrow-left' onClick={onBackClick} />
+                {!selectedConnector ?
+                    (!connectors ? (
+                        <LoaderWrapper>
+                            <ProgressRing />
+                        </LoaderWrapper>
+                    ) : (
+                        <>
+                            <div>
+                                <h4>Local Connectors</h4>
+                                <ButtonGrid>
+                                    {localConnectors.map((connector: any) => (
+                                        <ComponentCard
+                                            key={connector.name}
+                                            onClick={() => setSelectedConnector(connector)}
+                                            sx={{
+                                                '&:hover, &.active': {
+                                                    '.icon svg g': {
+                                                        fill: 'var(--vscode-editor-foreground)'
+                                                    },
+                                                    backgroundColor: 'var(--vscode-pickerGroup-border)',
+                                                    border: '1px solid var(--vscode-focusBorder)'
+                                                },
+                                                alignItems: 'center',
+                                                border: '1px solid var(--vscode-editor-foreground)',
+                                                borderRadius: 2,
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                height: 20,
+                                                justifyContent: 'left',
+                                                marginBottom: 10,
+                                                padding: 10,
+                                                transition: '0.3s',
+                                                width: 180
+                                            }}
+                                        >
+                                            <IconContainer>
+                                                {getSVGIcon("Aggregate")}
+                                            </IconContainer>
+                                            <div style={{
+                                                width: '100%',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap',
+                                                textAlign: 'left'
+                                            }}>
+                                                <IconLabel>
+                                                    {connector.name}
+                                                </IconLabel>
+                                                <VersionTag>
+                                                    {connector.version}
+                                                </VersionTag>
+                                            </div>
+                                        </ComponentCard>
+                                    ))}
+                                </ButtonGrid>
                             </div>
-                            <h4>All Operations</h4>
-                        </TitleWrapper>
-                        <ButtonGrid>
-                            {Object.keys(selectedConnector.operations).map((operation: any) => (
-                                <ComponentCard
-                                    key={operation}
-                                    onClick={() => selectOperation(operation)}
-                                    sx={{
-                                        '&:hover, &.active': {
-                                            '.icon svg g': {
-                                                fill: 'var(--vscode-editor-foreground)'
+                            <div>
+                                <h4>Store Connectors</h4>
+                                <ButtonGrid>
+                                    {connectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
+                                        <ComponentCard
+                                            key={connector.name}
+                                            onClick={() => setSelectedConnector(connector)}
+                                            sx={{
+                                                '&:hover, &.active': {
+                                                    '.icon svg g': {
+                                                        fill: 'var(--vscode-editor-foreground)'
+                                                    },
+                                                    backgroundColor: 'var(--vscode-pickerGroup-border)',
+                                                    border: '1px solid var(--vscode-focusBorder)'
+                                                },
+                                                alignItems: 'center',
+                                                border: '1px solid var(--vscode-editor-foreground)',
+                                                borderRadius: 2,
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                height: 20,
+                                                justifyContent: 'left',
+                                                marginBottom: 10,
+                                                padding: 10,
+                                                transition: '0.3s',
+                                                width: 180
+                                            }}
+                                        >
+                                            <IconContainer>
+                                                {getSVGIcon("Aggregate")}
+                                            </IconContainer>
+                                            <div style={{
+                                                width: '100%',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap',
+                                                textAlign: 'left'
+                                            }}>
+                                                <IconLabel>
+                                                    {connector.name}
+                                                </IconLabel>
+                                                <VersionTag>
+                                                    {connector.version}
+                                                </VersionTag>
+                                            </div>
+                                        </ComponentCard>
+                                    ))}
+                                </ButtonGrid>
+                            </div>
+                        </>
+                    )
+                    ) : (
+                        <>
+                            <TitleWrapper>
+                                <div style={{ alignSelf: "center" }}>
+                                    <Codicon iconSx={{ fontWeight: "bold", fontSize: 13 }} name='arrow-left' onClick={onBackClick} />
+                                </div>
+                                <h4>All Operations</h4>
+                            </TitleWrapper>
+                            <ButtonGrid>
+                                {(selectedConnector.operations ? Object.keys(selectedConnector.operations) : selectedConnector.actions).map((operation: any) => (
+                                    <ComponentCard
+                                        key={operation}
+                                        onClick={() => selectOperation(selectedConnector.operations ? operation : operation.name)}
+                                        sx={{
+                                            '&:hover, &.active': {
+                                                '.icon svg g': {
+                                                    fill: 'var(--vscode-editor-foreground)'
+                                                },
+                                                backgroundColor: 'var(--vscode-pickerGroup-border)',
+                                                border: '1px solid var(--vscode-focusBorder)'
                                             },
-                                            backgroundColor: 'var(--vscode-pickerGroup-border)',
-                                            border: '1px solid var(--vscode-focusBorder)'
-                                        },
-                                        alignItems: 'center',
-                                        border: '1px solid var(--vscode-editor-foreground)',
-                                        borderRadius: 2,
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        height: 20,
-                                        justifyContent: 'left',
-                                        marginBottom: 10,
-                                        padding: 10,
-                                        transition: '0.3s',
-                                        width: 180
-                                    }}
-                                >
-                                    <IconContainer>
-                                        {getSVGIcon("loopback")}
-                                    </IconContainer>
-                                    <div style={{
-                                        width: '100%',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        whiteSpace: 'nowrap',
-                                        textAlign: 'left'
-                                    }}>
-                                        <IconLabel>{operation}</IconLabel>
-                                    </div>
-                                </ComponentCard>
-                            ))}
-                        </ButtonGrid>
-                    </>
-                )}
+                                            alignItems: 'center',
+                                            border: '1px solid var(--vscode-editor-foreground)',
+                                            borderRadius: 2,
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            height: 20,
+                                            justifyContent: 'left',
+                                            marginBottom: 10,
+                                            padding: 10,
+                                            transition: '0.3s',
+                                            width: 180
+                                        }}
+                                    >
+                                        <IconContainer>
+                                            {getSVGIcon("loopback")}
+                                        </IconContainer>
+                                        <div style={{
+                                            width: '100%',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                            textAlign: 'left'
+                                        }}>
+                                            <IconLabel>{ selectedConnector.operations ? operation : operation.name}</IconLabel>
+                                        </div>
+                                    </ComponentCard>
+                                ))}
+                            </ButtonGrid>
+                        </>
+                    )}
             </>
         )
     }
