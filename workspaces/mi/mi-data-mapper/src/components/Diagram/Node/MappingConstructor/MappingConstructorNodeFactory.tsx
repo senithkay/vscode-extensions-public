@@ -11,19 +11,15 @@ import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
-import "reflect-metadata";
-import { container, injectable, singleton } from "tsyringe";
+import { Node } from 'typescript';
 
 import { RecordFieldPortModel } from '../../Port';
-import { FUNCTION_BODY_QUERY, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from '../../utils/constants';
+import { MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from '../../utils/constants';
 import { EditableMappingConstructorWidget } from "../commons/DataManipulationWidget/EditableMappingConstructorWidget";
 import { OutputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/Search";
 
 import { MappingConstructorNode, MAPPING_CONSTRUCTOR_NODE_TYPE } from './MappingConstructorNode';
 
-@injectable()
-@singleton()
 export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingConstructorNode, DiagramEngine> {
 	constructor() {
 		super(MAPPING_CONSTRUCTOR_NODE_TYPE);
@@ -31,12 +27,6 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 
 	generateReactWidget(event: { model: MappingConstructorNode; }): JSX.Element {
 		let valueLabel: string;
-		if (STKindChecker.isSelectClause(event.model.value))
-			// if (STKindChecker.isSelectClause(event.model.value)
-			// && event.model.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY)
-		{
-			valueLabel = event.model.typeIdentifier.value as string || event.model.typeIdentifier.source;
-		}
 		return (
 			<>
 				{event.model.hasNoMatchingFields ? (
@@ -47,13 +37,13 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 						id={`${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
 						editableRecordField={event.model.recordField}
 						typeName={event.model.typeName}
-						value={event.model.innermostExpr}
+						value={event.model.value}
 						getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
 						context={event.model.context}
 						mappings={event.model.mappings}
 						valueLabel={valueLabel}
-						deleteField={(node: STNode) => event.model.deleteField(node)}
-						originalTypeName={event.model.typeDef.originalTypeName}
+						deleteField={(node: Node) => event.model.deleteField(node)}
+						originalTypeName={event.model.dmType?.fieldName}
 					/>
 				)}
 			</>
@@ -64,4 +54,3 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 		return undefined;
 	}
 }
-container.register("NodeFactory", { useClass: ExpressionFunctionBodyFactory });

@@ -103,7 +103,8 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                     {fields && <Button
                             appearance="icon"
                             tooltip="Expand/Collapse"
-                            onClick={handleExpand}
+                            onClick={undefined}
+                            disabled={!handleCollapse}
                             sx={{ marginLeft: treeDepth * 16 }}
                         >
                             {expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />}

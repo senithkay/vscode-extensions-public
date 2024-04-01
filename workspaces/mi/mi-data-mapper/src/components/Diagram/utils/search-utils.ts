@@ -8,6 +8,7 @@
  */
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import { useDMSearchStore } from "../../../store/store";
+import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";
 
 export const getSearchFilteredInput = (dmType: DMType, varName?: string) => {
 	const searchValue = useDMSearchStore.getState().inputSearch;
@@ -23,6 +24,42 @@ export const getSearchFilteredInput = (dmType: DMType, varName?: string) => {
 			return filteredType
 		}
 	}
+}
+
+export const getSearchFilteredOutput = (dmType: DMType) => {
+	const searchValue = useDMSearchStore.getState().outputSearch;
+	if (!dmType) {
+		return null
+	}
+	if (!searchValue) {
+		return dmType;
+	}
+
+	let searchType: DMType = dmType;
+
+	if (searchType.typeName === TypeKind.Array) {
+		const subFields = searchType.memberType?.fields
+			?.map(item => getFilteredSubFields(item, searchValue))
+			.filter(item => item);
+
+		return {
+			...searchType,
+			memberType: {
+				...searchType.memberType,
+				fields: subFields || []
+			}
+		}
+	} else if (searchType.typeName === TypeKind.Interface) {
+		const subFields = searchType.fields
+			?.map(item => getFilteredSubFields(item, searchValue))
+			.filter(item => item);
+
+		return {
+			...searchType,
+			fields: subFields || []
+		}
+	}
+	return  null;
 }
 
 export const getFilteredSubFields = (dmType: DMType, searchValue: string) => {
@@ -66,4 +103,35 @@ export const getFilteredSubFields = (dmType: DMType, searchValue: string) => {
 	}
 
 	return null;
+}
+
+export function hasNoOutputMatchFound(dmType: DMType, valueEnrichedType: EditableRecordField): boolean {
+	const searchValue = useDMSearchStore.getState().outputSearch;
+	const filteredTypeDef = valueEnrichedType.type;
+	if (!searchValue) {
+		return false;
+	} else if (dmType.kind === TypeKind.Interface && filteredTypeDef.kind === TypeKind.Interface) {
+		return valueEnrichedType?.childrenTypes.length === 0;
+	} else if (dmType.kind === TypeKind.Array && filteredTypeDef.kind === TypeKind.Array) {
+		return hasNoMatchFoundInArray(valueEnrichedType?.elements, searchValue);
+	}
+	return false;
+}
+
+function hasNoMatchFoundInArray(elements: ArrayElement[], searchValue: string): boolean {
+	if (!elements) {
+		return false;
+	} else if (elements.length === 0) {
+		return true;
+	}
+	return elements.every(element => {
+		if (element.member.type.kind === TypeKind.Interface) {
+			return element.member?.childrenTypes.length === 0;
+		} else if (element.member.type.kind === TypeKind.Array) {
+			return element.member.elements && element.member.elements.length === 0
+		} else if (element.member.value) {
+			const value = element.member.value?.getText() || element.member.value.getText();
+			return !value.toLowerCase().includes(searchValue.toLowerCase());
+		}
+	});
 }

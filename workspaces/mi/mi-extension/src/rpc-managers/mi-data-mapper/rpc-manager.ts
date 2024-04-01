@@ -9,13 +9,15 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    FileContentRequest,
+    FileContentResponse,
     FunctionSTRequest,
     FunctionSTResponse,
     IOTypeRequest,
     IOTypeResponse,
     MIDataMapperAPI
 } from "@wso2-enterprise/mi-core";
-import { fetchFunctionST, fetchIOTypes } from "../../util/dataMapper";
+import { fetchFunctionST, fetchIOTypes, getSourceCode } from "../../util/dataMapper";
 
 export class MiDataMapperRpcManager implements MIDataMapperAPI {
     async getIOTypes(params: IOTypeRequest): Promise<IOTypeResponse> {
@@ -43,13 +45,31 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         return new Promise(async (resolve, reject) => {
             const { filePath, functionName } = params;
             try {
-                const { functionST } = fetchFunctionST(filePath, functionName);
+                const serializedFnST = fetchFunctionST(filePath, functionName);
 
-                if (!functionST) {
+                if (!serializedFnST) {
                     throw new Error("Function ST not found.");
                 }
 
-                return resolve({functionST});
+                return resolve({serializedFnST});
+            } catch (error: any) {
+                console.error(error);
+                reject(error);
+            }
+        });
+    }
+
+    async getFileContent(params: FileContentRequest): Promise<FileContentResponse> {
+        return new Promise(async (resolve, reject) => {
+            const { filePath } = params;
+            try {
+                const fileContent = getSourceCode(filePath);
+
+                if (!fileContent) {
+                    throw new Error("Failed to fetch file content.");
+                }
+
+                return resolve({fileContent});
             } catch (error: any) {
                 console.error(error);
                 reject(error);

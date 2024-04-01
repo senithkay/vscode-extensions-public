@@ -99,6 +99,7 @@ function initDiagramEngine() {
 	engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 
 	engine.getNodeFactories().registerFactory(new Nodes.RequiredParamNodeFactory());
+	engine.getNodeFactories().registerFactory(new Nodes.ExpressionFunctionBodyFactory());
 
 	const state = engine.getStateMachine().getCurrentState();
 	if (state instanceof DefaultDiagramState) {

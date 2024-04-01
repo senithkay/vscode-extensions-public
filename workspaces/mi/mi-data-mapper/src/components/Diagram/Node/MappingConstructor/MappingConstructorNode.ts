@@ -7,110 +7,70 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
-import { TypeKind, STModification, TypeField } from "../../../types";
-import {
-    ExpressionFunctionBody,
-    IdentifierToken,
-    NodePosition,
-    QueryExpression,
-    SelectClause,
-    STKindChecker,
-    STNode,
-    traversNode
-} from "@wso2-enterprise/syntax-tree";
+import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { ObjectLiteralExpression, Node } from "typescript";
 
 import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { ExpressionLabelModel } from "../../Label";
-import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
-import { RecordFieldPortModel } from "../../Port";
 import { MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from "../../utils/constants";
-import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
+import { DataMapperNodeModel } from "../commons/DataMapperNode";
+import { getSearchFilteredOutput, hasNoOutputMatchFound } from "../../utils/search-utils";
+import { enrichAndProcessType } from "../../utils/type-utils";
 
 export const MAPPING_CONSTRUCTOR_NODE_TYPE = "data-mapper-node-mapping-constructor";
 
 export class MappingConstructorNode extends DataMapperNodeModel {
-
+    public dmType: DMType;
     public recordField: EditableRecordField;
     public typeName: string;
     public rootName: string;
     public mappings: FieldAccessToSpecificFied[];
     public hasNoMatchingFields: boolean;
-    public innermostExpr: STNode;
     public x: number;
     public y: number;
-    originalTypeDef: TypeField;
 
     constructor(
         public context: IDataMapperContext,
-        public value: ExpressionFunctionBody | SelectClause,
-        public typeIdentifier: TypeDescriptor | IdentifierToken,
-        public typeDef: TypeField,
-        public queryExpr?: QueryExpression) {
+        public value: ObjectLiteralExpression
+    ) {
         super(
             context,
             MAPPING_CONSTRUCTOR_NODE_TYPE
-        );
-        this.innermostExpr = undefined;
-        this.originalTypeDef = this.typeDef;
+        ); 
+        this.dmType = this.context.outputTree;
     }
 
     async initPorts() {
-        // this.typeDef = getSearchFilteredOutput(this.originalTypeDef);
+        this.dmType = getSearchFilteredOutput(this.dmType);
 
-        if (this.typeDef) {
-            const isSelectClause = STKindChecker.isSelectClause(this.value);
-            // this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
-            if (isSelectClause
-                && this.typeDef.typeName === TypeKind.Array
-                && this.typeDef?.memberType
-                && this.typeDef.memberType.typeName === TypeKind.Record) {
-                this.rootName = this.typeDef.memberType?.name;
+        if (this.dmType) {
+            this.rootName = this.dmType?.fieldName;
+
+            const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value);
+            this.dmType = type;
+            this.hasNoMatchingFields = hasNoOutputMatchFound(this.dmType, valueEnrichedType);
+            this.typeName = valueEnrichedType.type.typeName;
+            const parentPort = this.addPortsForHeader(this.dmType, this.rootName, "IN",
+                MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, [], undefined, valueEnrichedType);
+    
+            if (valueEnrichedType.type.kind === TypeKind.Interface) {
+                this.recordField = valueEnrichedType;
+                if (this.recordField.childrenTypes.length) {
+                    this.recordField.childrenTypes.forEach((field) => {
+                        this.addPortsForOutputRecordField(field, "IN", this.rootName, undefined,
+                            MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
+                            [], parentPort.collapsed);
+                    });
+                }
             }
-            if (this.typeDef.typeName === TypeKind.Union) {
-                // this.typeName = getTypeName(this.typeDef);
-                // const acceptedMembers = getFilteredUnionOutputTypes(this.typeDef);
-                // if (acceptedMembers.length === 1) {
-                //     this.typeDef = acceptedMembers[0];
-                //     this.rootName = acceptedMembers[0]?.name;
-                // }
-            }
-            // const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.innermostExpr,
-            //     this.context.selection.selectedST.stNode);
-            // this.typeDef = type;
-            // this.hasNoMatchingFields = hasNoMatchFound(this.originalTypeDef, valueEnrichedType);
-            // this.typeName = !this.typeName ? getTypeName(valueEnrichedType.type) : this.typeName;
-            // const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
-            //     MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields,
-            //     isSelectClause, valueEnrichedType);
-            // if (valueEnrichedType.type.typeName === TypeKind.Record) {
-            //     this.recordField = valueEnrichedType;
-            //     if (this.recordField.childrenTypes.length) {
-            //         this.recordField.childrenTypes.forEach((field) => {
-            //             this.addPortsForOutputRecordField(field, "IN", this.rootName, undefined,
-            //                 MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
-            //                 this.context.collapsedFields, parentPort.collapsed);
-            //         });
-            //     }
-            // } else if (valueEnrichedType.type.typeName === TypeKind.Array && isSelectClause) {
-            //     // valueEnrichedType only contains a single element as it is being used within the select clause in the query expression
-            //     this.recordField = valueEnrichedType.elements[0].member;
-            //     if (this.recordField.childrenTypes.length) {
-            //         this.recordField.childrenTypes.forEach((field) => {
-            //             this.addPortsForOutputRecordField(field, "IN", this.rootName, undefined,
-            //                 MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
-            //                 this.context.collapsedFields, parentPort.collapsed, true);
-            //         });
-            //     }
-            // }
         }
     }
 
     initLinks(): void {
         const searchValue = useDMSearchStore.getState().outputSearch;
-        const mappings = this.genMappings(this.value.expression);
+        // const mappings = this.genMappings(this.value.properties);
         // this.mappings = getFilteredMappings(mappings, searchValue);
         // this.createLinks(this.mappings);
     }
@@ -174,8 +134,8 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         });
     }
 
-    async deleteField(field: STNode, keepDefaultVal?: boolean) {
-        let modifications: STModification[];
+    async deleteField(field: Node, keepDefaultVal?: boolean) {
+        // let modifications: STModification[];
         // const typeOfValue = getTypeOfValue(this.recordField, field.position);
         // if (keepDefaultVal && !STKindChecker.isSpecificField(field)) {
         //     modifications = [{

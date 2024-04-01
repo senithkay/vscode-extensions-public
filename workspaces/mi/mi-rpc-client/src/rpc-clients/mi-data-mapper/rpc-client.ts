@@ -9,11 +9,14 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    FileContentRequest,
+    FileContentResponse,
     FunctionSTRequest,
     FunctionSTResponse,
     IOTypeRequest,
     IOTypeResponse,
     MIDataMapperAPI,
+    getFileContent,
     getFunctionST,
     getIOTypes
 } from "@wso2-enterprise/mi-core";
@@ -33,5 +36,9 @@ export class MiDataMapperRpcClient implements MIDataMapperAPI {
 
     getFunctionST(params: FunctionSTRequest): Promise<FunctionSTResponse> {
         return this._messenger.sendRequest(getFunctionST, HOST_EXTENSION, params);
+    }
+
+    getFileContent(params: FileContentRequest): Promise<FileContentResponse> {
+        return this._messenger.sendRequest(getFileContent, HOST_EXTENSION, params);
     }
 }

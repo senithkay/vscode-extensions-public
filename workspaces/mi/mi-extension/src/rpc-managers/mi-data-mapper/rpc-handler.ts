@@ -9,8 +9,10 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    FileContentRequest,
     FunctionSTRequest,
     IOTypeRequest,
+    getFileContent,
     getFunctionST,
     getIOTypes
 } from "@wso2-enterprise/mi-core";
@@ -21,4 +23,5 @@ export function registerMiDataMapperRpcHandlers(messenger: Messenger) {
     const rpcManger = new MiDataMapperRpcManager();
     messenger.onRequest(getIOTypes, (args: IOTypeRequest) => rpcManger.getIOTypes(args));
     messenger.onRequest(getFunctionST, (args: FunctionSTRequest) => rpcManger.getFunctionST(args));
+    messenger.onRequest(getFileContent, (args: FileContentRequest) => rpcManger.getFileContent(args));
 }

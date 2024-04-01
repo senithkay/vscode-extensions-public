@@ -10,37 +10,31 @@
 import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { TypeKind, TypeField } from "../../../../types";
-import {
-    MappingConstructor,
-    NodePosition,
-    STKindChecker,
-    STNode
-} from "@wso2-enterprise/syntax-tree";
+import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { TypeKind } from "@wso2-enterprise/mi-core";
+import * as ts from "typescript";
+
 import classnames from "classnames";
-import { Diagnostic } from "vscode-languageserver-types";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
-import { getModification } from "../../../utils/modifications";
 import { OutputSearchHighlight } from "../Search";
 
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
-import { Button, Codicon, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 export interface EditableRecordFieldWidgetProps {
     parentId: string;
     field: EditableRecordField;
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
-    parentMappingConstruct: STNode;
+    parentMappingConstruct: ts.Node;
     context: IDataMapperContext;
     fieldIndex?: number;
     treeDepth?: number;
-    deleteField?: (node: STNode) => Promise<void>;
+    deleteField?: (node: ts.Node) => Promise<void>;
     hasHoveredParent?: boolean;
 }
 
@@ -65,40 +59,44 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const [isLoading, setIsLoading] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [isAddingTypeCast, setIsAddingTypeCast] = useState(false);
+    const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 
-    let fieldName = "getFieldName(field)";
+    let fieldName = field.type.fieldName;
+    let indentation = treeDepth * 16;
+    let expanded = true;
+
+    const typeName = field.type.kind;
+    const isArray = typeName === TypeKind.Array;
+    const isRecord = typeName === TypeKind.Interface;
+
     const fieldId = fieldIndex !== undefined
         ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
         : `${parentId}.${fieldName}`;
     const portIn = getPort(fieldId + ".IN");
-    const specificField = field.hasValue() && STKindChecker.isSpecificField(field.value) && field.value;
-    const mappingConstruct = STKindChecker.isMappingConstructor(parentMappingConstruct) && parentMappingConstruct;
-    const hasValue = specificField && specificField.valueExpr && !!specificField.valueExpr.source;
-    const isArray = field.type.typeName === TypeKind.Array;
-    const isRecord = field.type.typeName === TypeKind.Record;
-    const typeName = "getTypeName(field.type)";
+
+    const propertyAssignment = field.hasValue() && ts.isPropertyAssignment(field.value) && field.value;
+    const mappingConstruct = ts.isObjectLiteralExpression(parentMappingConstruct) && parentMappingConstruct;
+    const hasValue = propertyAssignment
+        && propertyAssignment.initializer
+        && !!propertyAssignment.initializer.getText();
+
     const fields = isRecord && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
-    const isUnionTypedElement = field.originalType.typeName === TypeKind.Union;
-    const isUnresolvedUnionTypedElement = isUnionTypedElement && field.type.typeName === TypeKind.Union;
-    let indentation = treeDepth * 16;
-    const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
-            return false;
-            // return isConnectedViaLink(specificField.valueExpr);
+            // TODO: Check if the field is connected via a link by validating the values
+            return ts.isBinaryExpression(propertyAssignment.initializer);
         }
         return false;
     }, [field]);
 
-    const value: string = "!isArray && !isRecord && hasValue && getInnermostExpressionBody(specificField.valueExpr).source";
-    let expanded = true;
+    const value: string = !isArray && !isRecord && hasValue && propertyAssignment.initializer.getText();
 
     const handleAddValue = async () => {
         setIsLoading(true);
         try {
-            const defaultValue = "getDefaultValue(field.type.typeName)";
+            // const defaultValue = getDefaultValue(field.type.typeName);
             // await createSourceForUserInput(field, mappingConstruct, defaultValue, context.applyModifications);
         } finally {
             setIsLoading(false);
@@ -106,8 +104,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     };
 
     const handleEditValue = () => {
-        if (field.value && STKindChecker.isSpecificField(field.value)) {
-            const innerExpr = field.value.valueExpr;
+        if (field.value && ts.isPropertyAssignment(field.value)) {
+            const innerExpr = field.value.initializer;
             // enableStatementEditor({
             //     value: innerExpr.source,
             //     valuePosition: innerExpr.position as NodePosition,
@@ -154,7 +152,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         if (hasValue
             && !connectedViaLink
             && !hasDefaultValue
-            && ((isArray && !STKindChecker.isQueryExpression(specificField.valueExpr)) || isRecord || hasValueWithoutLink)) {
+            && (isRecord || hasValueWithoutLink)) {
             portIn?.setDescendantHasValue();
             isDisabled = true;
         }
@@ -169,7 +167,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     }
 
     if (isWithinArray) {
-        const elementName = fieldName || field.parentType.type?.name;
+        const elementName = fieldName || field.parentType.type?.fieldName;
         fieldName = elementName ? `${elementName}Item` : 'item';
     }
 
@@ -199,7 +197,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const addOrEditValueMenuItem: ValueConfigMenuItem = hasValue
         ? { title: ValueConfigOption.EditValue, onClick: handleEditValue }
-        : !isUnionTypedElement && { title: ValueConfigOption.InitializeWithValue, onClick: handleAddValue };
+        : { title: ValueConfigOption.InitializeWithValue, onClick: handleAddValue };
 
     const deleteValueMenuItem: ValueConfigMenuItem = {
         title: isWithinArray ? ValueConfigOption.DeleteElement : ValueConfigOption.DeleteValue,

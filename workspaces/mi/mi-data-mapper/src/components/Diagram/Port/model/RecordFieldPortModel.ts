@@ -9,6 +9,7 @@
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { DMType } from "@wso2-enterprise/mi-core";
+import { isPropertyAssignment } from "typescript";
 
 import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
@@ -107,12 +108,9 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 
 		if (editableRecordField?.value) {
 			let expr = editableRecordField.value;
-			if (STKindChecker.isSpecificField(expr)) {
-				expr = expr.valueExpr;
+			if (isPropertyAssignment(expr)) {
+				expr = expr.initializer;
 			}
-			// const innerExpr = getInnermostExpressionBody(expr);
-			// const value: string = innerExpr?.value || innerExpr?.source;
-			// return isDefaultValue(editableRecordField.type, value);
 		}
 
 		return false;

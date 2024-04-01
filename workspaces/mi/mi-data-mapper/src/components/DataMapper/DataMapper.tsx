@@ -15,11 +15,12 @@ import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperConte
 import DataMapperDiagram from "../Diagram/Diagram";
 
 import { DataMapperErrorBoundary } from "./ErrorBoundary";
-import { MIDataMapperProps } from "../..";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { NodeInitVisitor } from "../Visitors/NodeInitVisitor";
 import { traversNode } from "../Diagram/utils/st-utils";
+import { DMType } from "@wso2-enterprise/mi-core";
+import ts from "typescript";
 
 const classes = {
     root: css({
@@ -27,6 +28,12 @@ const classes = {
         height: "100vh",
         overflow: "hidden",
     })
+}
+
+export interface MIDataMapperProps {
+    fnST: ts.VariableDeclaration;
+    inputTrees: DMType[];
+    outputTree: DMType;
 }
 
 export function MIDataMapper(props: MIDataMapperProps) {
@@ -61,12 +68,12 @@ export function MIDataMapper(props: MIDataMapperProps) {
                         onClose={undefined}
                     />
                 )}
-                {/* {nodes.length > 0 && ( */}
+                {nodes.length > 0 && (
                     <DataMapperDiagram
                         nodes={nodes}
                         onError={undefined}
                     />
-                {/* )} */}
+                )}
             </div>
         </DataMapperErrorBoundary>
     )

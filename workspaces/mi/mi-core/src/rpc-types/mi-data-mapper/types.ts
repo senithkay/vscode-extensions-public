@@ -25,5 +25,13 @@ export interface FunctionSTRequest {
 }
 
 export interface FunctionSTResponse {
-    functionST: ts.VariableDeclaration;
+    serializedFnST: string;
+}
+
+export interface FileContentRequest {
+    filePath: string;
+}
+
+export interface FileContentResponse {
+    fileContent: string;
 }

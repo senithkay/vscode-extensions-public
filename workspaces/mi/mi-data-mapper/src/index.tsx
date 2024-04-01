@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useMemo } from "react";
 
 /** @jsx jsx */
 import { Global, css } from '@emotion/react';
@@ -15,6 +15,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DMType } from "@wso2-enterprise/mi-core";
 import { MIDataMapper } from "./components/DataMapper/DataMapper";
 import * as ts from "typescript";
+import { FunctionSTFindingVisitor } from "./components/Visitors/FunctionSTFindingVisitor";
+import { traversNode } from "./components/Diagram/utils/st-utils";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -35,17 +37,35 @@ const globalStyles = css`
   }
 `;
 
-export interface MIDataMapperProps {
-    fnST: ts.VariableDeclaration;
+export interface DataMapperViewProps {
+    filePath: string;
+    fileContent: string;
+    functionName: string;
     inputTrees: DMType[];
     outputTree: DMType;
 }
 
-export function DataMapperView(props: MIDataMapperProps) {
+export function DataMapperView(props: DataMapperViewProps) {
+    const { filePath, fileContent, functionName } = props;
+
+    const functionST = useMemo(() => {
+
+        const sourceFile = ts.createSourceFile(filePath, fileContent, ts.ScriptTarget.Latest, true);
+        const fnSTFindingVisitor = new FunctionSTFindingVisitor(functionName);
+        traversNode(sourceFile, fnSTFindingVisitor);
+
+        return fnSTFindingVisitor.getFunctionST();
+
+    }, [filePath, fileContent, functionName]);
+
     return (
         <QueryClientProvider client={queryClient}>
             <Global styles={globalStyles} />
-            <MIDataMapper {...props}/>
+            <MIDataMapper
+                fnST={functionST}
+                inputTrees={props.inputTrees}
+                outputTree={props.outputTree}
+            />
         </QueryClientProvider>
     );
 }

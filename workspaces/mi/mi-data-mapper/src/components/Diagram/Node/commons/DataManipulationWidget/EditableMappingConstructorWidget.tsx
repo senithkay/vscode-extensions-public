@@ -7,11 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
-import { css } from '@emotion/css';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
+import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { Node, isObjectLiteralExpression } from "typescript";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
@@ -19,86 +19,20 @@ import { FieldAccessToSpecificFied } from "../../../Mappings/FieldAccessToSpecif
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
 import { OutputSearchHighlight } from '../Search';
 import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
-
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
-import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { useIONodesStyles } from '../../../../styles';
 
-const useStyles = () => ({
-	root: css({
-		flexGrow: 1,
-		width: 400,
-		color: "var(--vscode-input-background)",
-		position: "relative",
-		backgroundColor: "var(--vscode-input-background)",
-		padding: "20px"
-	}),
-	header: css({
-		color: "black",
-		backgroundColor: "var(--vscode-editor-inactiveSelectionBackground)",
-		display: "flex",
-		height: "40px",
-		padding: "8px"
-	}),
-	typeLabel: css({
-		marginLeft: "3px",
-		padding: "5px",
-		color: "inherit",
-		fontWeight: 400,
-		fontSize: "13px",
-		minWidth: "100px",
-		marginRight: "24px"
-	}),
-	boldedTypeLabel: css({
-		fontWeight: 800,
-		fontSize: "14px",
-	}),
-	valueLabel: css({
-		padding: "5px",
-		color: "inherit",
-		fontSize: "13px",
-	}),
-	treeLabelInPort: css({
-		float: "left",
-		marginRight: "5px",
-		width: 'fit-content',
-		display: "flex",
-		alignItems: "center"
-	}),
-	label: css({
-		width: "300px",
-		whiteSpace: "nowrap",
-		overflow: "hidden",
-		display: "flex",
-		alignItems: "center",
-		textOverflow: "ellipsis",
-		"&:hover": {
-			overflow: "visible"
-		}
-	}),
-	expandIcon: css({
-		color: "var(--vscode-inputOption-activeForeground)",
-		height: "25px",
-		width: "25px",
-		marginLeft: "auto"
-	}),
-	loader: css({
-		float: "right",
-		marginLeft: "auto",
-		marginRight: '3px',
-		alignSelf: 'center'
-	})
-});
 export interface EditableMappingConstructorWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
 	editableRecordField: EditableRecordField;
 	typeName: string;
-	value: STNode;
+	value: Node;
 	engine: DiagramEngine;
 	getPort: (portId: string) => RecordFieldPortModel;
 	context: IDataMapperContext;
 	valueLabel?: string;
 	mappings?: FieldAccessToSpecificFied[];
-	deleteField?: (node: STNode) => Promise<void>;
+	deleteField?: (node: Node) => Promise<void>;
 	originalTypeName?: string;
 }
 
@@ -116,15 +50,16 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 		valueLabel,
 		deleteField
 	} = props;
-	const classes = useStyles();
+	const classes = useIONodesStyles();
 
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 	const [isHovered, setIsHovered] = useState(false);
 
 	const editableRecordFields = editableRecordField && editableRecordField.childrenTypes;
 	const hasValue = editableRecordFields && editableRecordFields.length > 0;
-	const isBodyMappingConstructor = value && STKindChecker.isMappingConstructor(value);
-	const hasSyntaxDiagnostics = value && value.syntaxDiagnostics.length > 0;
+	const isBodyMappingConstructor = value && isObjectLiteralExpression(value);
+	// const hasSyntaxDiagnostics = value && value.syntaxDiagnostics.length > 0;
+	const hasSyntaxDiagnostics = false;
 	const hasEmptyFields = mappings && (mappings.length === 0 || !mappings.some(mapping => {
 		if (mapping.value) {
 			// check if the field has a value
@@ -151,7 +86,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 					{typeName && ":"}
 				</span>
 			)}
-			<span className={classes.typeLabel}>
+			<span className={classes.outputTypeLabel}>
 				{typeName || ''}
 			</span>
 		</span>
@@ -182,7 +117,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 					onMouseEnter={onMouseEnter}
 					onMouseLeave={onMouseLeave}
 				>
-					<span className={classes.treeLabelInPort}>
+					<span className={classes.inPort}>
 						{portIn && (isBodyMappingConstructor || !hasSyntaxDiagnostics) && (!hasValue
 								|| !expanded
 								|| !isBodyMappingConstructor

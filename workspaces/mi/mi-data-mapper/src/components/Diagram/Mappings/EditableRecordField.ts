@@ -6,19 +6,20 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { DMType } from "@wso2-enterprise/mi-core";
+import { Node } from "typescript";
 
 export interface ArrayElement {
 	member: EditableRecordField;
-	elementNode: STNode;
+	elementNode: Node;
 }
 
 export class EditableRecordField {
 	constructor(
-		public type: any,
-		public value?: STNode,
+		public type: DMType,
+		public value?: Node,
 		public parentType?: EditableRecordField,
-		public originalType?: any,
+		public originalType?: DMType,
 		public childrenTypes?: EditableRecordField[],
 		public elements?: ArrayElement[]
 	){}

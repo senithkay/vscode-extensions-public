@@ -92,7 +92,8 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                         <Button
                             appearance="icon"
                             tooltip="Expand/Collapse"
-                            onClick={handleExpand}
+                            onClick={undefined}
+                            disabled={!handleCollapse}
                             data-testid={`${id}-expand-icon-record-source-node`}
                         >
                             {expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />}

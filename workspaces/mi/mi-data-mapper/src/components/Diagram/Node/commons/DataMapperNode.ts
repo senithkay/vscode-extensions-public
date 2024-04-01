@@ -107,16 +107,18 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		return hidden ? 0 : numberOfFields;
 	}
 
-	protected addPortsForOutputRecordField(field: EditableRecordField, type: "IN" | "OUT",
-		                                      parentId: string, elementIndex?: number,
-		                                      portPrefix?: string,
-		                                      parent?: RecordFieldPortModel,
-		                                      collapsedFields?: string[],
-		                                      hidden?: boolean,
-		                                      isWithinSelectClause?: boolean
+	protected addPortsForOutputRecordField(
+		field: EditableRecordField,
+		type: "IN" | "OUT",
+		parentId: string,
+		elementIndex?: number,
+		portPrefix?: string,
+		parent?: RecordFieldPortModel,
+		collapsedFields?: string[],
+		hidden?: boolean,
+		isWithinSelectClause?: boolean
 	) {
-		// const fieldName = getFieldName(field);
-		const fieldName = "";
+		const fieldName = field.type?.fieldName;
 		if (elementIndex !== undefined) {
 			parentId = parentId ? `${parentId}.${elementIndex}` : elementIndex.toString();
 		}
@@ -148,7 +150,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	}
 
 	protected addPortsForHeader(
-		dmType: DMType, name: string,
+		dmType: DMType,
+		name: string,
 		portType: "IN" | "OUT",
 		portPrefix: string,
 		collapsedFields?: string[],

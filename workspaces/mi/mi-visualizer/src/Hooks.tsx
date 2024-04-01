@@ -10,17 +10,14 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
-export const useIOTypes = (
-    filePath: string,
-    functionName: string
-) => {
+export const useIOTypes = (filePath: string, functionName: string) => {
     const { rpcClient } = useVisualizerContext();
     const getIOTypes = async () => {
         try {
-            const profile = await rpcClient
+            const res = await rpcClient
                 .getMiDataMapperRpcClient()
                 .getIOTypes({ filePath, functionName });
-            return profile;
+            return res;
         } catch (error) {
             console.error('Error while fetching transformation profile: ', error);
         }
@@ -28,36 +25,57 @@ export const useIOTypes = (
 
     const {
         data: dmIOTypes,
-        isFetching,
-        isError,
+        isFetching: isFetchingIOTypes,
+        isError: isTypeError,
         refetch,
     } = useQuery(['getIOTypes', { filePath, functionName }], () => getIOTypes(), {});
 
-    return {dmIOTypes, isFetching, isError, refetch };
+    return {dmIOTypes, isFetchingIOTypes, isTypeError, refetch };
 };
 
-export const useFunctionST = (
-    filePath: string,
-    functionName: string
-) => {
+// export const useFunctionST = (filePath: string, functionName: string) => {
+//     const { rpcClient } = useVisualizerContext();
+//     const getFnST = async () => {
+//         try {
+//             const res = await rpcClient
+//                 .getMiDataMapperRpcClient()
+//                 .getFunctionST({ filePath, functionName });
+//             return res;
+//         } catch (error) {
+//             console.error('Error while fetching function ST: ', error);
+//         }
+//     }
+
+//     const {
+//         data: dmFnST,
+//         isFetching: isFetchingFnST,
+//         isError: isFnSTError,
+//         refetch,
+//     } = useQuery(['getFnST', { filePath, functionName }], () => getFnST(), {});
+
+//     return {dmFnST, isFetchingFnST, isFnSTError, refetch };
+// };
+
+
+export const useFileContent = (filePath: string) => {
     const { rpcClient } = useVisualizerContext();
-    const getFnST = async () => {
+    const getFileContent = async () => {
         try {
-            const profile = await rpcClient
+            const res = await rpcClient
                 .getMiDataMapperRpcClient()
-                .getFunctionST({ filePath, functionName });
-            return profile;
+                .getFileContent({ filePath });
+            return res.fileContent;
         } catch (error) {
-            console.error('Error while fetching function ST: ', error);
+            console.error('Error while fetching file content: ', error);
         }
     }
 
     const {
-        data: dmFnST,
-        isFetching,
-        isError,
+        data: dmFileContent,
+        isFetching: isFetchingFileContent,
+        isError: isFileError,
         refetch,
-    } = useQuery(['getFnST', { filePath, functionName }], () => getFnST(), {});
+    } = useQuery(['getFileContent', { filePath }], () => getFileContent(), {});
 
-    return {dmFnST, isFetching, isError, refetch };
+    return {dmFileContent, isFetchingFileContent, isFileError, refetch };
 };

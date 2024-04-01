@@ -32,7 +32,7 @@ export class RequiredParamNodeFactory extends AbstractReactFactory<RequiredParam
             return (
                 <RecordTypeTreeWidget
                     engine={this.engine}
-                    id={event.model.value && (event.model.value.name as any).escapedText}
+                    id={event.model.value && event.model.value.name.getText()}
                     dmType={event.model.dmType}
                     getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
                     handleCollapse={undefined}

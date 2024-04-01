@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import * as ts from 'typescript'
+import * as ts from 'typescript';
 import * as path from 'path';
 import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
 
@@ -22,7 +22,8 @@ export function fetchIOTypes(filePath: string, functionName: string) {
     outputType = undefined;
 
     try {
-        const sourceFile = getSourceFile(filePath);
+        const resolvedPath = path.resolve(filePath);
+        const sourceFile = getSourceFile(resolvedPath);
         collectInterfaces(sourceFile);
         ts.forEachChild(sourceFile, (node) => findInputsAndOutput(node, functionName));
     } catch (error: any) {
@@ -36,24 +37,29 @@ export function fetchFunctionST(filePath: string, functionName: string) {
     functionST = undefined;
 
     try {
-        const sourceFile = getSourceFile(filePath);
+        const resolvedPath = path.resolve(filePath);
+        const sourceFile = getSourceFile(resolvedPath);
         ts.forEachChild(sourceFile, (node) => findFunctionST(node, functionName));
     } catch (error: any) {
         throw new Error("Error while fetching the ST of transformation function. " + error.message);
     }
 
-    return { functionST };
+    return functionST;
 }
 
-function getSourceFile(filePath: string) {
-    const tsFilePath = path.resolve(filePath);
-    const sourceCode = ts.sys.readFile(tsFilePath, 'utf-8');
+export function getSourceCode(resolvedPath: string) {
+    const sourceCode = ts.sys.readFile(resolvedPath, 'utf-8');
 
     if (!sourceCode) {
         throw new Error("File not found.");
     }
+    return sourceCode;
+}
+
+function getSourceFile(resolvedPath: string) {
+    const sourceCode = getSourceCode(resolvedPath);
     // Parse the TypeScript code
-    const sourceFile = ts.createSourceFile(tsFilePath, sourceCode, ts.ScriptTarget.Latest);
+    const sourceFile = ts.createSourceFile(resolvedPath, sourceCode, ts.ScriptTarget.Latest, true);
     return sourceFile;
 }
 

@@ -9,8 +9,22 @@
 import * as ts from 'typescript';
 import { Visitor } from '../../../ts/base-visitor';
 
+enum SyntaxKindWithRepeatedValue {
+    NumericLiteral = 9,
+    NoSubstitutionTemplateLiteral = 15,
+    TemplateTail = 18,
+    QualifiedName = 166,
+    TypePredicate = 182,
+    ImportType = 205,
+    VariableStatement = 243,
+    DebuggerStatement = 259,
+    JSDocTypeExpression = 316,
+    JSDocTag = 334,
+    JSDocSatisfiesTag = 357,
+}
+
 export function traversNode(node: ts.Node, visitor: Visitor, parent?: ts.Node) {
-    const nodeKind = ts.SyntaxKind[node.kind];
+    const nodeKind = SyntaxKindWithRepeatedValue[node.kind] || ts.SyntaxKind[node.kind];
     let beginVisitFn: any = (visitor as any)[`beginVisit${nodeKind}`];
 
     if (!beginVisitFn) {

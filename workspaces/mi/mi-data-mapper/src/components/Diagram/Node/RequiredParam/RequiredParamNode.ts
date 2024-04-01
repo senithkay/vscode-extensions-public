@@ -13,27 +13,28 @@ import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
-import { getSearchFilteredInput } from "../../utils/input-node-utils";
+import { getSearchFilteredInput } from "../../utils/search-utils";
 
 export const INPUT_PARAM_NODE_TYPE = "datamapper-node-input-param";
 
 export class RequiredParamNode extends DataMapperNodeModel {
     public dmType: DMType;
-    public x: number;
     public numberOfFields:  number;
     private _paramName: string;
+    public x: number;
 
     constructor(
         public context: IDataMapperContext,
         public value: ParameterDeclaration,
-        public hasNoMatchingFields?: boolean) {
+        public hasNoMatchingFields?: boolean
+    ) {
         super(
             context,
             INPUT_PARAM_NODE_TYPE
         );
         this.numberOfFields = 1;
-        this.dmType = this.context.inputTrees.find(inputTree => inputTree.typeName === (this.value.type as any).typeName.escapedText);
-        this._paramName = (this.value.name as any).escapedText;
+        this.dmType = this.context.inputTrees.find(inputTree => inputTree.typeName === (this.value.type as any).typeName.getText());
+        this._paramName = this.value.name.getText();
     }
 
     async initPorts() {
@@ -71,7 +72,7 @@ export class RequiredParamNode extends DataMapperNodeModel {
         if (this.value) {
             const searchValue = useDMSearchStore.getState().inputSearch;
 
-            const matchesParamName = (this.value.name as any).escapedText.toLowerCase().includes(searchValue?.toLowerCase());
+            const matchesParamName = this.value.name.getText().toLowerCase().includes(searchValue?.toLowerCase());
             const type = matchesParamName
                 ? this.dmType
                 : getSearchFilteredInput(this.dmType, this._paramName);
