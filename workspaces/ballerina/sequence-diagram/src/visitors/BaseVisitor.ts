@@ -7,41 +7,39 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Flow, Node, Participant } from "../utils/types";
+import { DiagramElement, Flow, Node, Participant } from "../utils/types";
 
 export interface BaseVisitor {
-    skipChildren(): boolean;
-
     // participants
-    beginVisitParticipant?(node: Participant, parent?: Flow): void;
-    endVisitParticipant?(node: Participant, parent?: Flow): void;
+    beginVisitParticipant?(participant: Participant, flow?: Flow): void;
+    endVisitParticipant?(participant: Participant, flow?: Flow): void;
 
-    beginVisitEndpoint?(node: Participant, parent?: Flow): void;
-    endVisitEndpoint?(node: Participant, parent?: Flow): void;
+    beginVisitEndpoint?(participant: Participant, flow?: Flow): void;
+    endVisitEndpoint?(participant: Participant, flow?: Flow): void;
 
-    beginVisitFunction?(node: Participant, parent?: Flow): void;
-    endVisitFunction?(node: Participant, parent?: Flow): void;
+    beginVisitFunction?(participant: Participant, flow?: Flow): void;
+    endVisitFunction?(participant: Participant, flow?: Flow): void;
 
     // interactions
-    beginVisitNode?(node: Node, parent?: Node): void;
-    endVisitNode?(node: Node, parent?: Node): void;
+    beginVisitNode?(node: Node, parent?: DiagramElement, callNode?: Node): void;
+    endVisitNode?(node: Node, parent?: DiagramElement, callNode?: Node): void;
 
-    beginVisitInteraction?(node: Node, parent?: Node): void;
-    endVisitInteraction?(node: Node, parent?: Node): void;
+    beginVisitInteraction?(node: Node, parent?: DiagramElement): void;
+    endVisitInteraction?(node: Node, parent?: DiagramElement): void;
 
-    beginVisitEndpointCall?(node: Node, parent?: Node): void;
-    endVisitEndpointCall?(node: Node, parent?: Node): void;
+    beginVisitEndpointCall?(node: Node, parent?: DiagramElement): void;
+    endVisitEndpointCall?(node: Node, parent?: DiagramElement): void;
 
-    beginVisitFunctionCall?(node: Node, parent?: Node): void;
-    endVisitFunctionCall?(node: Node, parent?: Node): void;
+    beginVisitFunctionCall?(node: Node, parent?: DiagramElement): void;
+    endVisitFunctionCall?(node: Node, parent?: DiagramElement): void;
 
-    beginVisitReturnCall?(node: Node, parent?: Node): void;
-    endVisitReturnCall?(node: Node, parent?: Node): void;
+    beginVisitReturn?(node: Node, parent?: DiagramElement, callNode?: Node): void;
+    endVisitReturn?(node: Node, parent?: DiagramElement, callNode?: Node): void;
 
     // operations
-    beginVisitWhile?(node: Node, parent?: Node): void;
-    endVisitWhile?(node: Node, parent?: Node): void;
+    beginVisitWhile?(node: Node, parent?: DiagramElement): void;
+    endVisitWhile?(node: Node, parent?: DiagramElement): void;
 
-    beginVisitIf?(node: Node, parent?: Node): void;
-    endVisitIf?(node: Node, parent?: Node): void;
+    beginVisitIf?(node: Node, parent?: DiagramElement): void;
+    endVisitIf?(node: Node, parent?: DiagramElement): void;
 }
