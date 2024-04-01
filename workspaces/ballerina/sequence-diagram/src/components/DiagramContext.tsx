@@ -27,18 +27,11 @@ export const DiagramContext = React.createContext<DiagramContextState>({
 
 export const useDiagramContext = () => React.useContext(DiagramContext);
 
-export function DiagramContextProvider(props: {
-    children: React.ReactNode;
-    value: DiagramContextState;
-}) {
+export function DiagramContextProvider(props: { children: React.ReactNode; value: DiagramContextState }) {
     // enrich context with optional states
     const ctx = {
         ...props.value,
     };
 
-    return (
-        <DiagramContext.Provider value={ctx}>
-            {props.children}
-        </DiagramContext.Provider>
-    );
+    return <DiagramContext.Provider value={ctx}>{props.children}</DiagramContext.Provider>;
 }
