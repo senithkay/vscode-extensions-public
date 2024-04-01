@@ -14,7 +14,7 @@ import { EVENT_TYPE, MachineStateValue, AI_MACHINE_VIEW, webviewReady, AIVisuali
 import { AiPanelWebview } from './webview';
 import { RPCLayer } from '../RPCLayer';
 import { StateMachine } from '../stateMachine';
-
+import * as keytar from 'keytar';
 
 interface ChatEntry {
     role: string;
@@ -137,10 +137,19 @@ const aiStateMachine = createMachine<AiMachineContext>({
 });
 
 
-function checkToken(context, event) {
-    return new Promise((resolve, reject) => {
-        // Check for AI API status
-        resolve(true);
+async function checkToken(context, event) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const token = await keytar.getPassword('MI-AI', 'testUser');
+            if (token) {
+                console.log("Token found: " + token);
+                resolve(token);
+            } else {
+                resolve(undefined);
+            }
+        } catch (error) {
+            reject(error);
+        }
     });
 }
 
@@ -167,3 +176,7 @@ async function checkAiStatus() {
         resolve(true);
     });
 }
+
+aiStateService.onTransition((state) => {
+    console.log("State - " + state.value);
+}).start();
