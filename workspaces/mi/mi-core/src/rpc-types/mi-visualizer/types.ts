@@ -62,6 +62,7 @@ export interface ProjectStructureEntry {
 
 export interface ResourceStructureEntry {
     uriTemplate: string,
+    urlMapping: string,
     method: string
 }
 

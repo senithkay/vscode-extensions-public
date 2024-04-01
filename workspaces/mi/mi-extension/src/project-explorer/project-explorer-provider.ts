@@ -335,8 +335,8 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			// Generate resource structure
 			for (let i = 0; i < entry.resources.length; i++) {
 				const resource = entry.resources[i];
-				const resourceEntry = new ProjectExplorerEntry(resource.uriTemplate ?? "/", isCollapsibleState(false), {
-					name: resource.uriTemplate,
+				const resourceEntry = new ProjectExplorerEntry((resource.uriTemplate || resource.urlMapping) ?? "/", isCollapsibleState(false), {
+					name: (resource.uriTemplate || resource.urlMapping),
 					type: 'resource',
 					path: `${entry.path}/${i}`
 				}, 'code');
