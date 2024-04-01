@@ -14,6 +14,8 @@ import { ActionButtons, Dropdown, TextField } from '@wso2-enterprise/ui-toolkit'
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { EditorContainer, EditorContent } from '../../styles';
 import { PARAM_TYPES, ParameterConfig } from '@wso2-enterprise/service-designer';
+import { useDiagnosticContext } from '../../Context';
+import { TypeBrowser } from '../TypeBrowser/TypeBrowser';
 
 const options = [{ id: "0", value: PARAM_TYPES.DEFAULT }, { id: "1", value: PARAM_TYPES.HEADER }];
 
@@ -33,6 +35,8 @@ export interface ParamProps {
 export function ParamEditor(props: ParamProps) {
     const { param, option, isEdit, optionList, hideType = false, hideDefaultValue = false,
         onChange, onSave, onCancel } = props;
+
+    const { diagnostics, dPosition, commonRpcClient, applyModifications, serviceEndPosition } = useDiagnosticContext();
 
     const handleOnSelect = (value: string) => {
         onChange({ ...param, option: value as PARAM_TYPES });
@@ -69,7 +73,6 @@ export function ParamEditor(props: ParamProps) {
                     id="param-type-selector"
                     sx={{ width: 172 }}
                     isRequired
-                    errorMsg=""
                     items={options}
                     label="Param Type"
                     onChange={handleOnSelect}
@@ -78,28 +81,34 @@ export function ParamEditor(props: ParamProps) {
             )}
             <EditorContent>
                 {!hideType && (
-                    <TextField
-                        size={21}
-                        label='Type'
-                        required
-                        placeholder='Enter type'
-                        value={param.type}
+                    <TypeBrowser
+                        commonRpcClient={commonRpcClient}
+                        serviceEndPosition={serviceEndPosition}
+                        sx={{ position: "relative", width: "175px" }}
+                        borderBox={true}
+                        label="Type"
+                        selectedItem={param.type}
                         onChange={handleTypeChange}
+                        applyModifications={applyModifications}
                     />
                 )}
                 <TextField
                     label='Name'
                     size={21}
                     required
+                    sx={{ width: "175px" }}
                     placeholder='Enter name'
                     value={param.name}
+                    errorMsg={param.name && diagnostics.find(diag => diag.range.start.line === dPosition.startLine && diag.message.includes(param.name))?.message}
                     onChange={handleChange}
                 />
                 {!hideDefaultValue && (
                     <TextField
                         label='Default Value'
                         size={21}
+                        sx={{ width: "175px" }}
                         placeholder='Enter default value'
+                        errorMsg={diagnostics.find(diag => diag.range.start.line === dPosition.startLine && (diag.message.includes("expected") || diag.message.includes("undefined")))?.message}
                         value={param.defaultValue}
                         onChange={handleValueChange}
                     />

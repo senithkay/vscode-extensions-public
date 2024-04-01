@@ -9,7 +9,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { ActionButtons, Button, Divider, LinkButton, SidePanel, SidePanelBody, SidePanelTitleContainer, Typography, ProgressIndicator, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { ActionButtons, Button, Divider, LinkButton, SidePanel, SidePanelBody, SidePanelTitleContainer, Typography, ProgressIndicator } from '@wso2-enterprise/ui-toolkit';
 import { ResourcePath } from '../ResourcePath/ResourcePath';
 import { ResourceResponse } from '../ResourceResponse/ResourceResponse';
 import { ResourceParam } from '../ResourceParam/ResourceParam';
@@ -22,39 +22,12 @@ import { PARAM_TYPES, ParameterConfig, Resource, ResponseConfig } from '@wso2-en
 import { CommonRPCAPI, STModification } from '@wso2-enterprise/ballerina-core';
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { debounce } from "lodash";
+import { useDiagnosticContext } from '../../Context';
 
 const AdvancedParamTitleWrapper = styled.div`
 	display: flex;
 	flex-direction: row;
 `;
-
-const SuccessMessage = styled.div`
-	display: flex;
-	flex-direction: row;
-	border: 1px solid;
-    padding: 10px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    color: #22bb33;
-`;
-
-const ErrorMessage = styled.div`
-	display: flex;
-	flex-direction: row;
-	border: 1px solid;
-    padding: 10px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    color: #BB2124;
-`;
-
-const MessageIcon = styled.div`
-	margin-right: 10px;
-`;
-
-const MessageContent = styled.div`
-`;
-
 
 export interface ResourceFormProps {
 	isOpen: boolean;
@@ -63,14 +36,13 @@ export interface ResourceFormProps {
 	onSave?: (source: string, config: Resource, updatePosition?: NodePosition) => void;
 	getRecordST?: (recordName: string) => void;
 	addNameRecord?: (source: string) => void;
-	serviceEndPosition?: NodePosition;
 	commonRpcClient?: CommonRPCAPI;
 	onClose: () => void;
 	applyModifications?: (modifications: STModification[]) => Promise<void>;
 }
 
 export function ResourceForm(props: ResourceFormProps) {
-	const { isOpen, isBallerniaExt, resourceConfig, onClose, onSave, addNameRecord, serviceEndPosition, commonRpcClient, applyModifications } = props;
+	const { isOpen, isBallerniaExt, resourceConfig, onClose, onSave, addNameRecord, commonRpcClient, applyModifications } = props;
 
 	const [method, setMethod] = useState<HTTP_METHOD>(resourceConfig?.methods[0].toUpperCase() as HTTP_METHOD || HTTP_METHOD.GET);
 	const [path, setPath] = useState<string>(resourceConfig?.path || "path");
@@ -83,9 +55,13 @@ export function ResourceForm(props: ResourceFormProps) {
 
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
-	const [error, setError] = useState<string>("Init");
+	const { setDiagnostics, setDPosition, serviceEndPosition } = useDiagnosticContext();
 
 	const { rpcClient } = useVisualizerContext();
+
+	useEffect(() => {
+		setDPosition(resourceConfig?.updatePosition || serviceEndPosition); // Setting the position of the resource into the context so that we can use it in filtering diagnostic msgs.
+	}, []);
 
 	useEffect(() => {
 		debouncedHandleDiagnostics();
@@ -135,9 +111,9 @@ export function ResourceForm(props: ResourceFormProps) {
 				checkSeverity: 1
 			});
 		if (diag.diagnostics.length > 0) {
-			setError(diag.diagnostics[0].message);
+			setDiagnostics(diag.diagnostics);
 		} else {
-			setError("Success");
+			setDiagnostics([]);
 		}
 		setIsLoading(false);
 	}
@@ -239,31 +215,8 @@ export function ResourceForm(props: ResourceFormProps) {
 					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Responses</Typography>
 					<ResourceResponse method={method} addNameRecord={addNameRecord} response={response} onChange={handleResponseChange} serviceEndPosition={serviceEndPosition} commonRpcClient={commonRpcClient} isBallerniaExt={isBallerniaExt} applyModifications={applyModifications} />
 
-
-					{error.includes("Success") && (
-						<SuccessMessage>
-							<MessageIcon>
-								<Codicon name={error.includes("Init") ? 'info' : 'pass'} />
-							</MessageIcon>
-							<MessageContent>
-								<Typography variant="caption">{error.includes("Init") ? "Loading ..." : "No Errors."}</Typography>
-							</MessageContent>
-						</SuccessMessage>
-					)}
-
-					{!error.includes("Success") && !error.includes("Init") && (
-						<ErrorMessage>
-							<MessageIcon>
-								<Codicon name='error' />
-							</MessageIcon>
-							<MessageContent>
-								<Typography variant="caption">{error}</Typography>
-							</MessageContent>
-						</ErrorMessage>
-					)}
-
 					<ActionButtons
-						primaryButton={{ text: "Save", onClick: handleSave, tooltip: "Save", disabled: !error.includes("Success") && !error.includes("Init") }}
+						primaryButton={{ text: "Save", onClick: handleSave, tooltip: "Save" }}
 						secondaryButton={{ text: "Cancel", onClick: onClose, tooltip: "Cancel" }}
 						sx={{ justifyContent: "flex-end" }}
 					/>
