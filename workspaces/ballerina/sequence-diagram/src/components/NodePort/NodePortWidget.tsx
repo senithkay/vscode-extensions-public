@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from 'react';
-import { PortWidget } from '@projectstorm/react-diagrams-core';
-import { NodePortModel } from './NodePortModel';
+import React from "react";
+import { PortWidget } from "@projectstorm/react-diagrams-core";
+import { NodePortModel } from "./NodePortModel";
 
 interface NodePortWidgetProps {
     port: NodePortModel;
@@ -19,12 +19,14 @@ interface NodePortWidgetProps {
 export const NodePortWidget: React.FC<NodePortWidgetProps> = ({ port, engine }) => {
     return (
         <PortWidget engine={engine} port={port}>
-            <div style={{
-                width: '10px',
-                height: '10px',
-                backgroundColor: '#000',
-                borderRadius: '50%',
-            }} />
+            <div
+                style={{
+                    width: "10px",
+                    height: "10px",
+                    backgroundColor: "#000",
+                    borderRadius: "50%",
+                }}
+            />
         </PortWidget>
     );
 };

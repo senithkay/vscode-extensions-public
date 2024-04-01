@@ -25,7 +25,7 @@ export class NodePortModel extends DefaultPortModel {
         options = options as DefaultPortModelOptions;
         super({
             label: options.label || options.name,
-            alignment: options.in ? PortModelAlignment.TOP : PortModelAlignment.BOTTOM,
+            alignment: options.in ? PortModelAlignment.LEFT : PortModelAlignment.RIGHT,
             type: NODE_PORT,
             ...options,
         });
