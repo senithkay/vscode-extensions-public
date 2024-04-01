@@ -388,7 +388,7 @@ const XSLTForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>XSLT Schema Key Type</label>
-                        <AutoComplete items={["Static", "Dynamic"]} selectedItem={formValues["xsltSchemaKeyType"]} onChange={(e: any) => {
+                        <AutoComplete items={["Static", "Dynamic"]} value={formValues["xsltSchemaKeyType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "xsltSchemaKeyType": e });
                             formValidators["xsltSchemaKeyType"](e);
                         }} />

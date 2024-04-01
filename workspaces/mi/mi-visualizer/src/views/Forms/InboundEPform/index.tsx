@@ -311,8 +311,8 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                     <span>Creation Type</span>
                     <AutoComplete
                         items={creationTypes}
-                        selectedItem={inboundEndpoint.type}
-                        onChange={(text: string) => handleTypeChange(text)}
+                        value={inboundEndpoint.type}
+                        onValueChange={(text: string) => handleTypeChange(text)}
                         sx={{ width: '370px' }}
                     ></AutoComplete>
                 </FieldGroup>

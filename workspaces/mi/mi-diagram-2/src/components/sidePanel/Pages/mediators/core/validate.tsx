@@ -153,7 +153,7 @@ const ValidateForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Validate Schema Key Type</label>
-                            <AutoComplete items={["Static", "Dynamic"]} selectedItem={formValues["validateSchemaKeyType"]} onChange={(e: any) => {
+                            <AutoComplete items={["Static", "Dynamic"]} value={formValues["validateSchemaKeyType"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "validateSchemaKeyType": e });
                                 formValidators["validateSchemaKeyType"](e);
                             }} />

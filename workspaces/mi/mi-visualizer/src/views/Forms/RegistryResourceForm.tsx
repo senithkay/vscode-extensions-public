@@ -197,8 +197,8 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                         <span>Template</span>
                         <AutoComplete
                             items={templates}
-                            selectedItem={seletedTemplate}
-                            onChange={setSelectedTemplate}
+                            value={seletedTemplate}
+                            onValueChange={setSelectedTemplate}
                             sx={{ width: '370px' }}
                         ></AutoComplete>
                     </FieldGroup>

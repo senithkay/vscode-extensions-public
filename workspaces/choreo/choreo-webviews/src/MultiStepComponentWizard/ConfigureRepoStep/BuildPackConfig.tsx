@@ -120,8 +120,8 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
                 {supportedVersions?.length > 0 && (
                     <AutoComplete
                         items={supportedVersions ?? []}
-                        selectedItem={formData.selectedBuildPackVersion}
-                        onChange={handleVersionChange}
+                        value={formData.selectedBuildPackVersion}
+                        onValueChange={handleVersionChange}
                         id="version-selector"
                     /> 
                 )}

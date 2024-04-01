@@ -257,7 +257,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Available Templates</label>
-                    <AutoComplete items={[...availableSequenceTemplates, ...availableEndpointTemplates]} selectedItem={formValues["availableTemplates"]} onChange={(e: any) => {
+                    <AutoComplete items={[...availableSequenceTemplates, ...availableEndpointTemplates]} value={formValues["availableTemplates"]} onValueChange={(e: any) => {
                         const updateValues: { [key: string]: any } = { "availableTemplates": e }
                         if (e != "Select From Templates") {
                             updateValues["targetTemplate"] = e;

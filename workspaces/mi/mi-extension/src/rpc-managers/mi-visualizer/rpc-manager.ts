@@ -10,6 +10,7 @@
  */
 import {
     AIVisualizerLocation,
+    ColorThemeKind,
     GettingStartedCategory,
     GettingStartedData,
     GettingStartedSample,
@@ -22,14 +23,16 @@ import {
     SampleDownloadRequest,
     VisualizerLocation,
     WorkspaceFolder,
-    WorkspacesResponse
+    WorkspacesResponse,
+    ToggleDisplayOverviewRequest
 } from "@wso2-enterprise/mi-core";
 import fetch from 'node-fetch';
-import { workspace } from "vscode";
+import { workspace, window } from "vscode";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { handleOpenFile } from "../../util/fileOperations";
 import { openAIView } from "../../ai-panel/aiMachine";
+import { extension } from "../../MIExtensionContext";
 
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
     async getWorkspaces(): Promise<WorkspacesResponse> {
@@ -144,5 +147,19 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     addToHistory(entry: HistoryEntry): void {
         history.push(entry);
         navigate();
+    }
+
+    async getCurrentThemeKind(): Promise<ColorThemeKind> {
+        return new Promise((resolve) => {
+            const currentThemeKind = window.activeColorTheme.kind;
+            resolve(currentThemeKind);
+        });
+    }
+
+    async toggleDisplayOverview(params: ToggleDisplayOverviewRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            await extension.context.workspaceState.update('displayOverview', params.displayOverview);
+            resolve();
+        });
     }
 }

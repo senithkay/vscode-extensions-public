@@ -9,7 +9,7 @@ import { SequenceWizard } from './views/Forms/SequenceForm';
 import { NavigationBar } from './components/NavigationBar';
 import { ProjectWizard } from './views/Forms/ProjectForm';
 import { ImportProjectWizard } from './views/Forms/ImportProjectForm';
-import { TaskWizard } from './views/Forms/TaskForm';
+import { TaskForm } from './views/Forms/TaskForm';
 import { MessageStoreWizard } from './views/Forms/MessageStoreForm/index';
 import { MessageProcessorWizard } from "./views/Forms/MessageProcessorForm";
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
@@ -33,7 +33,7 @@ import { ProxyView, ResourceView, SequenceView } from './views/Diagram';
 import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
-import { OldProjectOverview } from './views/OldProjectOverview';
+import { UnsupportedProject, UnsupportedProjectProps } from './views/UnsupportedProject';
 
 const MainContainer = styled.div`
     display: flex;
@@ -125,8 +125,12 @@ const MainPanel = () => {
                 case MACHINE_VIEW.Overview:
                     setViewComponent(<Overview stateUpdated />);
                     break;
-                case MACHINE_VIEW.OldProjectOverview:
-                    setViewComponent(<OldProjectOverview />);
+                case MACHINE_VIEW.UnsupportedProject:
+                    setViewComponent(
+                        <UnsupportedProject
+                            displayOverview={(machineView.customProps as UnsupportedProjectProps)?.displayOverview}
+                        />
+                    );
                     break;
                 case MACHINE_VIEW.ResourceView:
                     setViewComponent(
@@ -198,7 +202,7 @@ const MainPanel = () => {
                     setViewComponent(<ProxyServiceWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.TaskForm:
-                    setViewComponent(<TaskWizard path={machineView.documentUri} />);
+                    setViewComponent(<TaskForm path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.TemplateForm:
                     setViewComponent(<TemplateWizard path={machineView.documentUri} />);

@@ -143,7 +143,7 @@ const PropertyForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Property Name</label>
-                   <AutoComplete items={propertyNames} selectedItem={formValues["propertyName"]} onChange={(e: any) => {
+                   <AutoComplete items={propertyNames} value={formValues["propertyName"]} onValueChange={(e: any) => {
                        setFormValues({ ...formValues, "propertyName": e, "newPropertyName": e == "New Property..." ? "" : e });
                        formValidators["propertyName"](e);
                     }} />
@@ -167,7 +167,7 @@ const PropertyForm = (props: AddMediatorProps) => {
 
                {formValues["propertyAction"] == "set" && <Field>
                     <label>Property Data Type</label>
-                    <AutoComplete items={["STRING", "INTEGER", "BOOLEAN", "DOUBLE", "FLOAT", "LONG", "SHORT", "OM", "JSON"]} selectedItem={formValues["propertyDataType"]} onChange={(e: any) => {
+                    <AutoComplete items={["STRING", "INTEGER", "BOOLEAN", "DOUBLE", "FLOAT", "LONG", "SHORT", "OM", "JSON"]} value={formValues["propertyDataType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "propertyDataType": e });
                         formValidators["propertyDataType"](e);
                     }} />
@@ -176,7 +176,7 @@ const PropertyForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Property Action</label>
-                    <AutoComplete items={["set", "remove"]} selectedItem={formValues["propertyAction"]} onChange={(e: any) => {
+                    <AutoComplete items={["set", "remove"]} value={formValues["propertyAction"]} onValueChange={(e: any) => {
                        const newValues: { [key: string]: any } = { "propertyAction": e }
                        if (formValues["propertyAction"] == "remove" && e == "set") {
                            newValues["propertyDataType"] = "STRING";
@@ -190,7 +190,7 @@ const PropertyForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Property Scope</label>
-                    <AutoComplete items={["DEFAULT", "TRANSPORT", "AXIS2", "AXIS2_CLIENT", "OPERATION", "REGISTRY", "SYSTEM", "ANALYTICS"]} selectedItem={formValues["propertyScope"]} onChange={(e: any) => {
+                    <AutoComplete items={["DEFAULT", "TRANSPORT", "AXIS2", "AXIS2_CLIENT", "OPERATION", "REGISTRY", "SYSTEM", "ANALYTICS"]} value={formValues["propertyScope"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "propertyScope": e });
                         formValidators["propertyScope"](e);
                     }} />
@@ -202,7 +202,7 @@ const PropertyForm = (props: AddMediatorProps) => {
 
                    <Field>
                        <label>Property Value Type</label>
-                       <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["propertyValueType"]} onChange={(e: any) => {
+                       <AutoComplete items={["LITERAL", "EXPRESSION"]} value={formValues["propertyValueType"]} onValueChange={(e: any) => {
                            setFormValues({ ...formValues, "propertyValueType": e });
                            formValidators["propertyValueType"](e);
                        }} />

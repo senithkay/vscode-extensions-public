@@ -144,7 +144,7 @@ const BeanForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Action</label>
-                    <AutoComplete items={["CREATE", "REMOVE", "SET_PROPERTY", "GET_PROPERTY"]} selectedItem={formValues["action"]} onChange={(e: any) => {
+                    <AutoComplete items={["CREATE", "REMOVE", "SET_PROPERTY", "GET_PROPERTY"]} value={formValues["action"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "action": e });
                         formValidators["action"](e);
                     }} />
@@ -206,7 +206,7 @@ const BeanForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Value Type</label>
-                            <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["valueType"]} onChange={(e: any) => {
+                            <AutoComplete items={["LITERAL", "EXPRESSION"]} value={formValues["valueType"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "valueType": e });
                                 formValidators["valueType"](e);
                             }} />
@@ -256,7 +256,7 @@ const BeanForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Target Type</label>
-                            <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["targetType"]} onChange={(e: any) => {
+                            <AutoComplete items={["LITERAL", "EXPRESSION"]} value={formValues["targetType"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "targetType": e });
                                 formValidators["targetType"](e);
                             }} />

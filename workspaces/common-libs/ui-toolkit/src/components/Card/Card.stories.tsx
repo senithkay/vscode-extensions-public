@@ -8,11 +8,11 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { MarketPlaceCard, MarketPlaceCardProps } from "./MarketPlaceCard";
+import { Card as CardStory, CardProps } from "./Card";
 
-const Template: ComponentStory<typeof MarketPlaceCard> = (args: MarketPlaceCardProps) => <MarketPlaceCard {...args} />;
+const Template: ComponentStory<typeof CardStory> = (args: CardProps) => <CardStory {...args} />;
 
 export const Card = Template.bind();
 Card.args = { id: "Card", icon: "globe", title: "Title", description: "Description" };
 
-export default { component: MarketPlaceCard, title: "Card" };
+export default { component: Card, title: "Card" };

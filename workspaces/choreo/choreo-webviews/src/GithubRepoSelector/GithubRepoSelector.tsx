@@ -119,8 +119,8 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
                     <label htmlFor="org-drop-down">Organization</label>
                     <AutoComplete
                         items={orgs}
-                        selectedItem={selectedRepo?.org}
-                        onChange={handleGhOrgChange}
+                        value={selectedRepo?.org}
+                        onValueChange={handleGhOrgChange}
                         id="git-org-selector"
                     />
                 </GhRepoSelectorOrgContainer>
@@ -128,8 +128,8 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
                     <label htmlFor="repo-drop-down">Repository</label>
                     <AutoComplete
                         items={repos}
-                        selectedItem={selectedRepo?.repo}
-                        onChange={handleGhRepoChange}
+                        value={selectedRepo?.repo}
+                        onValueChange={handleGhRepoChange}
                         id="git-repo-selector"
                     />
                 </GhRepoSelectorRepoContainer>
