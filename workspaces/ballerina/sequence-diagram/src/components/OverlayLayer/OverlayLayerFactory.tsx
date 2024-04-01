@@ -7,20 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from "react";
-import {
-    AbstractReactFactory,
-    GenerateWidgetEvent,
-} from "@projectstorm/react-canvas-core";
+import { AbstractReactFactory, GenerateWidgetEvent } from "@projectstorm/react-canvas-core";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 
 import { OverlayLayerModel } from "./OverlayLayerModel";
 import { OverlayLayerWidget } from "./OverlayLayerWidget";
 import { LOADING_OVERLAY } from "../../resources/constants";
 
-export class OverlayLayerFactory extends AbstractReactFactory<
-    OverlayLayerModel,
-    DiagramEngine
-> {
+export class OverlayLayerFactory extends AbstractReactFactory<OverlayLayerModel, DiagramEngine> {
     constructor() {
         super(LOADING_OVERLAY);
     }
@@ -29,9 +23,7 @@ export class OverlayLayerFactory extends AbstractReactFactory<
         return new OverlayLayerModel();
     }
 
-    generateReactWidget(
-        event: GenerateWidgetEvent<OverlayLayerModel>,
-    ): JSX.Element {
+    generateReactWidget(event: GenerateWidgetEvent<OverlayLayerModel>): JSX.Element {
         return <OverlayLayerWidget layer={event.model} engine={this.engine} />;
     }
 }

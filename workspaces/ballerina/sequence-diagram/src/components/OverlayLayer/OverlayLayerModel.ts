@@ -27,9 +27,7 @@ export interface OverlayLayerModelGenerics extends LayerModelGenerics {
     ENGINE: DiagramEngine;
 }
 
-export class OverlayLayerModel<
-    G extends OverlayLayerModelGenerics = OverlayLayerModelGenerics,
-> extends LayerModel<G> {
+export class OverlayLayerModel<G extends OverlayLayerModelGenerics = OverlayLayerModelGenerics> extends LayerModel<G> {
     constructor() {
         super({
             type: LOADING_OVERLAY,
@@ -46,10 +44,7 @@ export class OverlayLayerModel<
         FactoryBankListener<
             AbstractModelFactory<
                 BaseModel<BaseModelGenerics>,
-                CanvasEngine<
-                    CanvasEngineListener,
-                    CanvasModel<CanvasModelGenerics>
-                >
+                CanvasEngine<CanvasEngineListener, CanvasModel<CanvasModelGenerics>>
             >
         >
     > {

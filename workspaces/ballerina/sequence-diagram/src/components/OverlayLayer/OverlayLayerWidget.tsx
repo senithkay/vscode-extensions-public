@@ -33,10 +33,7 @@ const Container = styled.div`
 export class OverlayLayerWidget extends React.Component<NodeLayerWidgetProps> {
     render() {
         return (
-            <DiagramStyles.Container
-                background={Colors.SURFACE_BRIGHT}
-                color={Colors.ON_SURFACE}
-            >
+            <DiagramStyles.Container background={Colors.SURFACE_BRIGHT} color={Colors.ON_SURFACE}>
                 <Container>
                     <ProgressRing />
                 </Container>
