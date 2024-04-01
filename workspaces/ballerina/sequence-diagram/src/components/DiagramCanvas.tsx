@@ -31,10 +31,7 @@ export namespace DiagramStyles {
             width: 100%;
         }
 
-        background-image: radial-gradient(
-            ${Colors.SURFACE_CONTAINER} 10%,
-            transparent 0px
-        );
+        /* background-image: radial-gradient(${Colors.SURFACE_CONTAINER} 10%, transparent 0px); */
         background-size: 16px 16px;
         background-color: ${Colors.SURFACE_BRIGHT};
         font-family: "GilmerRegular";
