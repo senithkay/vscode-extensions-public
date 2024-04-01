@@ -32,6 +32,7 @@ export function ResourceParam(props: ResourceParamProps) {
     const [isNew, setIsNew] = useState(false);
 
     const onEdit = (param: ParameterConfig) => {
+        setIsNew(false);
         setEditingSegmentId(param.id);
     };
 
