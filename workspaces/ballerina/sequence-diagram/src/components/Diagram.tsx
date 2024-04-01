@@ -8,79 +8,76 @@
  */
 
 import React, { useEffect, useState } from "react";
-import {
-    DefaultLinkModel,
-    DiagramEngine,
-    DiagramModel,
-    DefaultNodeModel,
-} from "@projectstorm/react-diagrams";
+import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
-import {
-    generateEngine,
-    hasDiagramZoomAndPosition,
-    loadDiagramZoomAndPosition,
-    registerListeners,
-} from "../utils/diagram";
+import { generateEngine, registerListeners } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
-import { traverseFlow } from "../utils/ast";
-import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
+import { traverseParticipant } from "../utils/traverse-utils";
+import { ElementFactoryVisitor } from "../visitors/ElementFactoryVisitor";
 import { OverlayLayerModel } from "./OverlayLayer";
 import { DiagramContextProvider, DiagramContextState } from "./DiagramContext";
-import { Flow } from "../utils/types";
+import { Flow, NodeModel } from "../utils/types";
+import { PositionVisitor } from "../visitors/PositionVisitor";
+import _ from "lodash";
+import { SizingVisitor } from "../visitors/SizingVisitor";
+import { NodeLinkModel } from "./NodeLink";
 
 export interface DiagramProps {
     model: Flow;
 }
 
 export function Diagram(props: DiagramProps) {
-    const { model } = props;
+    const { model: flow } = props;
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
 
     useEffect(() => {
         if (diagramEngine) {
-            getDiagramData();
-            drawDiagram();
+            const { nodes, links } = getDiagramData();
+            drawDiagram(nodes, links);
         }
-    }, [model]);
+    }, [flow]);
 
     const getDiagramData = () => {
-        // run node visitor
-        const nodeVisitor = new NodeFactoryVisitor();
-        traverseFlow(model, nodeVisitor);
+        // get entry participant
+        const entryParticipant = _.find(flow.participants, _.matches({ location: flow.location }));
+        console.log(">> Entry", entryParticipant);
+        if (!entryParticipant) {
+            console.error("Entry participant not found");
+            return { nodes: [], links: [] };
+        }
 
-        // const nodes = nodeVisitor.getNodes();
-        // const links = nodeVisitor.getLinks();
+        const sizingVisitor = new SizingVisitor();
+        traverseParticipant(entryParticipant, sizingVisitor, flow);
+        const positionVisitor = new PositionVisitor(flow);
+        traverseParticipant(entryParticipant, positionVisitor, flow);
+        const elementVisitor = new ElementFactoryVisitor(flow);
+        traverseParticipant(entryParticipant, elementVisitor, flow);
 
-        return {};
+        const nodes = elementVisitor.getNodes();
+        const links = elementVisitor.getLinks();
+
+        console.log(">> updated flow", flow);
+
+        // const nodes: NodeModel[] = [];
+        // const links: NodeLinkModel[] = [];
+
+        return { nodes, links } as {
+            nodes: NodeModel[];
+            links: NodeLinkModel[];
+        };
     };
 
-    const drawDiagram = () => {
+    const drawDiagram = (nodes: NodeModel[], links: NodeLinkModel[]) => {
         const newDiagramModel = new DiagramModel();
         newDiagramModel.addLayer(new OverlayLayerModel());
-        // add nodes and links to the diagram
-
-        // sample model
-        const node1 = new DefaultNodeModel({
-            name: "Node 1",
-            color: "rgb(0,192,255)",
-        });
-        node1.setPosition(100, 100);
-        const port1 = node1.addOutPort("Out");
-
-        const node2 = new DefaultNodeModel("Node 2", "rgb(192,255,0)");
-        const port2 = node2.addInPort("In");
-        node2.setPosition(400, 100);
-
-        const link1 = port1.link<DefaultLinkModel>(port2);
-        link1.getOptions().testName = "Test";
-        link1.addLabel("Hello World!");
-
-        newDiagramModel.addAll(node1, node2, link1);
+        newDiagramModel.addAll(...nodes, ...links);
 
         diagramEngine.setModel(newDiagramModel);
         setDiagramModel(newDiagramModel);
         registerListeners(diagramEngine);
+
+        console.log(">> diagramEngine", diagramEngine);
 
         setTimeout(() => {
             diagramEngine.setModel(newDiagramModel);
@@ -93,18 +90,16 @@ export function Diagram(props: DiagramProps) {
                 diagramEngine.getModel().removeLayer(overlayLayer);
             }
 
-            const hasPreviousPosition = hasDiagramZoomAndPosition();
-            if (hasPreviousPosition) {
-                // reset canvas position to previous position
-                loadDiagramZoomAndPosition(diagramEngine);
-            } else {
-                // change canvas position to first node
-                const firstNode = newDiagramModel.getNodes().at(0);
-                diagramEngine.zoomToFitNodes({
-                    nodes: [firstNode],
-                    maxZoom: 1,
-                });
-            }
+            // const hasPreviousPosition = hasDiagramZoomAndPosition();
+            // if (hasPreviousPosition) {
+            // reset canvas position to previous position
+            //     loadDiagramZoomAndPosition(diagramEngine);
+            // } else {
+            // change canvas position to first node
+            diagramEngine.zoomToFitNodes({
+                maxZoom: 1,
+            });
+            // }
             diagramEngine.repaintCanvas();
             // update the diagram model state
             setDiagramModel(newDiagramModel);
@@ -112,7 +107,7 @@ export function Diagram(props: DiagramProps) {
     };
 
     const context: DiagramContextState = {
-        flow: model,
+        flow: flow,
     };
 
     return (
