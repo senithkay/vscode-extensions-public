@@ -16,6 +16,7 @@ import {
     PARTICIPANT_NODE_WIDTH,
     PARTICIPANT_NODE_HEIGHT,
     PARTICIPANT_TAIL_MIN_HEIGHT,
+    BORDER_WIDTH,
 } from "../../../resources/constants";
 
 namespace ParticipantNodeStyles {
@@ -32,8 +33,7 @@ namespace ParticipantNodeStyles {
         align-items: center;
         min-width: ${PARTICIPANT_NODE_WIDTH}px;
         min-height: ${PARTICIPANT_NODE_HEIGHT}px;
-        padding: 0 8px;
-        border: 1.5px solid ${Colors.OUTLINE_VARIANT};
+        border: ${BORDER_WIDTH}px solid ${Colors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
@@ -57,19 +57,19 @@ interface ParticipantNodeWidgetProps {
 export function ParticipantNodeWidget(props: ParticipantNodeWidgetProps) {
     const { node, engine } = props;
 
+    const maxHeight = Math.max(PARTICIPANT_TAIL_MIN_HEIGHT, node.height);
+
     return (
         <ParticipantNodeStyles.Node>
             <ParticipantNodeStyles.Head>
-                <ParticipantNodeStyles.Title>
-                    {node.participant.name}
-                </ParticipantNodeStyles.Title>
+                <ParticipantNodeStyles.Title>{node.participant.name}</ParticipantNodeStyles.Title>
             </ParticipantNodeStyles.Head>
-            <svg height={PARTICIPANT_TAIL_MIN_HEIGHT} width="10">
+            <svg height={maxHeight} width="10">
                 <line
                     x1="5"
                     y1="0"
                     x2="5"
-                    y2={PARTICIPANT_TAIL_MIN_HEIGHT}
+                    y2={maxHeight}
                     style={{
                         strokeWidth: 1.5,
                         strokeDasharray: "5,5",
