@@ -117,6 +117,8 @@ import {
     UndoRedoParams,
     UpdateAddressEndpointRequest,
     UpdateAddressEndpointResponse,
+    UpdateConnectorRequest,
+    UpdateConnectorResponse,
     UpdateDefaultEndpointRequest,
     UpdateDefaultEndpointResponse,
     UpdateFailoverEPRequest,
@@ -206,6 +208,7 @@ import {
     showErrorMessage,
     undo,
     updateAddressEndpoint,
+    updateConnectors,
     updateDefaultEndpoint,
     updateFailoverEndpoint,
     updateHttpEndpoint,
@@ -535,6 +538,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getAvailableConnectors(params: GetAvailableConnectorRequest): Promise<GetAvailableConnectorResponse> {
         return this._messenger.sendRequest(getAvailableConnectors, HOST_EXTENSION, params);
+    }
+
+    updateConnectors(params: UpdateConnectorRequest): Promise<UpdateConnectorResponse> {
+        return this._messenger.sendRequest(updateConnectors, HOST_EXTENSION, params);
     }
 
     getConnectorForm(params: GetConnectorFormRequest): Promise<GetConnectorFormResponse> {

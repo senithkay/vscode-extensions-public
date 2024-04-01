@@ -1044,6 +1044,15 @@ export interface GetAvailableConnectorResponse {
     connectors: any;
 }
 
+export interface UpdateConnectorRequest {
+    documentUri: string;
+}
+
+export interface UpdateConnectorResponse {
+    connectors: any;
+}
+
+
 export interface GetConnectorFormRequest {
     uiSchemaPath: string;
     operation: string;

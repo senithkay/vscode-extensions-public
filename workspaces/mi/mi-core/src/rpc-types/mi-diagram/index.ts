@@ -132,6 +132,8 @@ import {
     GetAvailableConnectorResponse,
     GetConnectorFormRequest,
     GetConnectorFormResponse,
+    UpdateConnectorResponse,
+    UpdateConnectorRequest,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -213,5 +215,6 @@ export interface MiDiagramAPI {
     rangeFormat: (params: RangeFormatRequest) => Promise<ApplyEditResponse>;
     downloadConnector: (params: DownloadConnectorRequest) => Promise<DownloadConnectorResponse>;
     getAvailableConnectors: (params: GetAvailableConnectorRequest) => Promise<GetAvailableConnectorResponse>;
+    updateConnectors: (params: UpdateConnectorRequest) => Promise<UpdateConnectorResponse>;
     getConnectorForm: (params: GetConnectorFormRequest) => Promise<GetConnectorFormResponse>;
 }

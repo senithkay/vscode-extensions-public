@@ -59,6 +59,7 @@ import {
     ShowErrorMessageRequest,
     UndoRedoParams,
     UpdateAddressEndpointRequest,
+    UpdateConnectorRequest,
     UpdateDefaultEndpointRequest,
     UpdateFailoverEPRequest,
     UpdateHttpEndpointRequest,
@@ -139,6 +140,7 @@ import {
     showErrorMessage,
     undo,
     updateAddressEndpoint,
+    updateConnectors,
     updateDefaultEndpoint,
     updateFailoverEndpoint,
     updateHttpEndpoint,
@@ -231,5 +233,6 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(rangeFormat, (args: RangeFormatRequest) => rpcManger.rangeFormat(args));
     messenger.onRequest(downloadConnector, (args: DownloadConnectorRequest) => rpcManger.downloadConnector(args));
     messenger.onRequest(getAvailableConnectors, (args: GetAvailableConnectorRequest) => rpcManger.getAvailableConnectors(args));
+    messenger.onRequest(updateConnectors, (args: UpdateConnectorRequest) => rpcManger.updateConnectors(args));
     messenger.onRequest(getConnectorForm, (args: GetConnectorFormRequest) => rpcManger.getConnectorForm(args));
 }

@@ -121,6 +121,8 @@ import {
     UndoRedoParams,
     UpdateAddressEndpointRequest,
     UpdateAddressEndpointResponse,
+    UpdateConnectorRequest,
+    UpdateConnectorResponse,
     UpdateDefaultEndpointRequest,
     UpdateDefaultEndpointResponse,
     UpdateFailoverEPRequest,
@@ -2763,6 +2765,17 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getAvailableConnectors({
+                documentUri: params.documentUri
+            });
+
+            resolve(res);
+        });
+    }
+
+    async updateConnectors(params: UpdateConnectorRequest): Promise<UpdateConnectorResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.updateConnectors({
                 documentUri: params.documentUri
             });
 
