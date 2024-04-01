@@ -346,7 +346,7 @@ export function getQueryParams(resource: ResourceAccessorDefinition): ParameterC
                 id: index,
                 name: queryParam?.paramName?.value,
                 type: STKindChecker.isOptionalTypeDesc(queryParam?.typeName) ? (queryParam?.typeName as OptionalTypeDesc).typeDescriptor?.source?.trim() : queryParam?.typeName?.source?.trim(),
-                defaultValue: STKindChecker.isDefaultableParam(queryParam) && queryParam?.expression?.source?.trim(),
+                defaultValue: STKindChecker.isDefaultableParam(queryParam) && queryParam?.expression?.source?.trim() || "",
                 option: isHeaderParam(queryParam?.annotations) ? getParamType("@http:Header") : getParamType(queryParam?.typeName?.source?.trim()),
                 isRequired: !STKindChecker.isOptionalTypeDesc(queryParam?.typeName),
             });
@@ -364,7 +364,7 @@ export function getPayloadConfig(resource: ResourceAccessorDefinition): Paramete
                 id: 0,
                 name: queryParam?.paramName?.value,
                 type: STKindChecker.isOptionalTypeDesc(queryParam?.typeName) ? (queryParam?.typeName as OptionalTypeDesc).typeDescriptor?.source?.trim() : queryParam?.typeName?.source?.trim(),
-                defaultValue: STKindChecker.isDefaultableParam(queryParam) && queryParam?.expression?.source?.trim(),
+                defaultValue: STKindChecker.isDefaultableParam(queryParam) && queryParam?.expression?.source?.trim() || "",
                 option: getParamType("@http:Payload"),
                 isRequired: !STKindChecker.isOptionalTypeDesc(queryParam?.typeName),
             };
