@@ -11,15 +11,13 @@ import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { EmptyNodeModel } from "./EmptyNodeModel";
-import { Colors } from "../../../resources/constants";
+import { BORDER_WIDTH, Colors, EMPTY_NODE_WIDTH } from "../../../resources/constants";
 
 namespace EmptyNodeStyles {
     export const Node = styled.div`
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 180px;
-        height: 16px;
     `;
 
     export type CircleStyleProp = {
@@ -27,24 +25,19 @@ namespace EmptyNodeStyles {
     };
     export const Circle = styled.div<CircleStyleProp>`
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        width: ${(props: CircleStyleProp) => (props.show ? 8 : 0)}px;
-        height: ${(props: CircleStyleProp) => (props.show ? 8 : 0)}px;
-        border: 2px solid
-            ${(props: CircleStyleProp) =>
-                props.show ? Colors.PRIMARY : "transparent"};
+        width: ${(props: CircleStyleProp) => (props.show ? EMPTY_NODE_WIDTH : 0)}px;
+        height: ${(props: CircleStyleProp) => (props.show ? EMPTY_NODE_WIDTH : 0)}px;
+        border: ${BORDER_WIDTH}px solid ${(props: CircleStyleProp) => (props.show ? Colors.PRIMARY : "transparent")};
         border-radius: 50%;
+        background-color: ${(props: CircleStyleProp) => (props.show ? Colors.PRIMARY_CONTAINER : "transparent")};
     `;
 
-    export const TopPortWidget = styled(PortWidget)`
-        margin-top: -2px;
-    `;
+    export const TopPortWidget = styled(PortWidget)``;
 
-    export const BottomPortWidget = styled(PortWidget)`
-        margin-bottom: -2px;
-    `;
+    export const BottomPortWidget = styled(PortWidget)``;
 }
 
 interface EmptyNodeWidgetProps {
@@ -58,11 +51,8 @@ export function EmptyNodeWidget(props: EmptyNodeWidgetProps) {
     return (
         <EmptyNodeStyles.Node>
             <EmptyNodeStyles.Circle show={node.isVisible()}>
-                <EmptyNodeStyles.TopPortWidget port={node.getPort("in")!} engine={engine} />
-                <EmptyNodeStyles.BottomPortWidget
-                    port={node.getPort("out")!}
-                    engine={engine}
-                />
+                <EmptyNodeStyles.TopPortWidget port={node.getLeftPort()!} engine={engine} />
+                <EmptyNodeStyles.BottomPortWidget port={node.getRightPort()!} engine={engine} />
             </EmptyNodeStyles.Circle>
         </EmptyNodeStyles.Node>
     );
