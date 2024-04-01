@@ -7,60 +7,46 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import {
-    DiagramElement,
-    ParticipantType,
-    Participant,
-    NodeKind,
-    InteractionType,
-} from "./types";
+import { DiagramElement, ParticipantType, Participant, NodeKind, InteractionType, Node } from "./types";
 
 export class DiagramElementKindChecker {
     static isParticipant(element: DiagramElement): element is Participant {
-        return (
-            element.kind === ParticipantType.ENDPOINT ||
-            element.kind === ParticipantType.FUNCTION
-        );
+        return element.kind === ParticipantType.ENDPOINT || element.kind === ParticipantType.FUNCTION;
     }
 
-    static isEndpoint(element: DiagramElement): element is Participant {
+    static isEndpoint(element: DiagramElement): element is Node {
         return element.kind === ParticipantType.ENDPOINT;
     }
 
-    static isFunction(element: DiagramElement): element is Participant {
+    static isFunction(element: DiagramElement): element is Node {
         return element.kind === ParticipantType.FUNCTION;
     }
 
-    static isInteraction(element: DiagramElement): boolean {
+    static isNode(element: DiagramElement): element is Node {
+        return element.kind === NodeKind.INTERACTION || element.kind === NodeKind.IF || element.kind === NodeKind.WHILE;
+    }
+
+    static isInteraction(element: DiagramElement): element is Node {
         return element.kind === NodeKind.INTERACTION;
     }
 
-    static isEndpointCall(element: DiagramElement): boolean {
-        return (
-            element.kind === NodeKind.INTERACTION &&
-            element.interactionType === InteractionType.ENDPOINT_CALL
-        );
+    static isEndpointCall(element: DiagramElement): element is Node {
+        return element.kind === NodeKind.INTERACTION && element.interactionType === InteractionType.ENDPOINT_CALL;
     }
 
-    static isFunctionCall(element: DiagramElement): boolean {
-        return (
-            element.kind === NodeKind.INTERACTION &&
-            element.interactionType === InteractionType.FUNCTION_CALL
-        );
+    static isFunctionCall(element: DiagramElement): element is Node {
+        return element.kind === NodeKind.INTERACTION && element.interactionType === InteractionType.FUNCTION_CALL;
     }
 
-    static isReturnCall(element: DiagramElement): boolean {
-        return (
-            element.kind === NodeKind.INTERACTION &&
-            element.interactionType === InteractionType.RETURN_CALL
-        );
+    static isReturn(element: DiagramElement): element is Node {
+        return element.kind === NodeKind.INTERACTION && element.interactionType === InteractionType.RETURN;
     }
 
-    static isIf(element: DiagramElement): boolean {
+    static isIf(element: DiagramElement): element is Node {
         return element.kind === NodeKind.IF;
     }
 
-    static isWhile(element: DiagramElement): boolean {
+    static isWhile(element: DiagramElement): element is Node {
         return element.kind === NodeKind.WHILE;
     }
 }
