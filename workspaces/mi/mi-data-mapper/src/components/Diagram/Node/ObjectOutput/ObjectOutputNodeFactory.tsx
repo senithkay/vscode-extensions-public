@@ -15,7 +15,7 @@ import { Node } from 'typescript';
 
 import { RecordFieldPortModel } from '../../Port';
 import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from '../../utils/constants';
-import { EditableMappingConstructorWidget } from "../commons/DataManipulationWidget/EditableMappingConstructorWidget";
+import { ObjectOutputWidget } from "../commons/DataManipulationWidget/ObjectOutputWidget";
 import { OutputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/Search";
 
 import { ObjectOutputNode, OBJECT_OUTPUT_NODE_TYPE } from './ObjectOutputNode';
@@ -32,10 +32,10 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<ObjectOu
 				{event.model.hasNoMatchingFields ? (
 					<OutputSearchNoResultFound kind={SearchNoResultFoundKind.OutputField}/>
 				) : (
-					<EditableMappingConstructorWidget
+					<ObjectOutputWidget
 						engine={this.engine}
 						id={`${OBJECT_OUTPUT_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
-						editableRecordField={event.model.dmTypeWithValue}
+						dmTypeWithValue={event.model.dmTypeWithValue}
 						typeName={event.model.typeName}
 						value={event.model.value}
 						getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}

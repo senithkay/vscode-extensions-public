@@ -26,7 +26,7 @@ import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
 import { useIONodesStyles } from "../../../../styles";
 import { useDMCollapsedFieldsStore } from '../../../../../store/store';
 
-export interface EditableRecordFieldWidgetProps {
+export interface ObjectOutputFieldWidgetProps {
     parentId: string;
     field: DMTypeWithValue;
     engine: DiagramEngine;
@@ -39,7 +39,7 @@ export interface EditableRecordFieldWidgetProps {
     hasHoveredParent?: boolean;
 }
 
-export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps) {
+export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const {
         parentId,
         field,
@@ -268,7 +268,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             {fields && expanded &&
                 fields.map((subField, index) => {
                     return (
-                        <EditableRecordFieldWidget
+                        <ObjectOutputFieldWidget
                             key={index}
                             engine={engine}
                             field={subField}

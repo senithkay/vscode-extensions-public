@@ -19,13 +19,13 @@ import { FieldAccessToSpecificFied } from "../../../Mappings/FieldAccessToSpecif
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
 import { OutputSearchHighlight } from '../Search';
 import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
-import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
+import { ObjectOutputFieldWidget } from "./ObjectOutputFieldWidget";
 import { useIONodesStyles } from '../../../../styles';
 import { useDMCollapsedFieldsStore } from '../../../../../store/store';
 
-export interface EditableMappingConstructorWidgetProps {
+export interface ObjectOutputWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
-	editableRecordField: DMTypeWithValue;
+	dmTypeWithValue: DMTypeWithValue;
 	typeName: string;
 	value: Node;
 	engine: DiagramEngine;
@@ -38,10 +38,10 @@ export interface EditableMappingConstructorWidgetProps {
 }
 
 
-export function EditableMappingConstructorWidget(props: EditableMappingConstructorWidgetProps) {
+export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const {
 		id,
-		editableRecordField,
+		dmTypeWithValue,
 		typeName,
 		value,
 		engine,
@@ -57,8 +57,8 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	const [isHovered, setIsHovered] = useState(false);
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
-	const editableRecordFields = editableRecordField && editableRecordField.childrenTypes;
-	const hasValue = editableRecordFields && editableRecordFields.length > 0;
+	const fields = dmTypeWithValue && dmTypeWithValue.childrenTypes;
+	const hasValue = fields && fields.length > 0;
 	const isBodyMappingConstructor = value && isObjectLiteralExpression(value);
 	// const hasSyntaxDiagnostics = value && value.syntaxDiagnostics.length > 0;
 	const hasSyntaxDiagnostics = false;
@@ -146,11 +146,11 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 						{label}
 					</span>
 				</TreeHeader>
-				{(expanded && editableRecordFields) && (
+				{(expanded && fields) && (
 					<TreeBody>
-						{editableRecordFields?.map((item, index) => {
+						{fields?.map((item, index) => {
 							return (
-								<EditableRecordFieldWidget
+								<ObjectOutputFieldWidget
 									key={index}
 									engine={engine}
 									field={item}

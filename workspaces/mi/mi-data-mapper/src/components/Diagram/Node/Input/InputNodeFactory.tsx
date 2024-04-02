@@ -35,8 +35,6 @@ export class InputNodeFactory extends AbstractReactFactory<InputNode, DiagramEng
                     id={event.model.value && event.model.value.name.getText()}
                     dmType={event.model.dmType}
                     getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
-                    handleCollapse={undefined}
-                    // handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
                 />
             );
         }
