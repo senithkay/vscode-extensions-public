@@ -14,7 +14,7 @@ import { ActionButtons, Dropdown, TextField } from '@wso2-enterprise/ui-toolkit'
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { EditorContainer, EditorContent } from '../../styles';
 import { PARAM_TYPES, ParameterConfig } from '@wso2-enterprise/service-designer';
-import { useServiceDesignerContext } from '../../Context';
+import { RESOURCE_CHECK, useServiceDesignerContext } from '../../Context';
 import { TypeBrowser } from '../TypeBrowser/TypeBrowser';
 
 const options = [{ id: "0", value: PARAM_TYPES.DEFAULT }, { id: "1", value: PARAM_TYPES.HEADER }];
@@ -108,7 +108,7 @@ export function ParamEditor(props: ParamProps) {
                         size={21}
                         sx={{ width: "175px" }}
                         placeholder='Enter default value'
-                        errorMsg={diagnostics.find(diag => diag.range.start.line === dPosition.startLine && (diag.message.includes("expected") || diag.message.includes("undefined")))?.message}
+                        errorMsg={diagnostics.find(diag => diag.range.start.line === dPosition.startLine && (diag.message.includes(RESOURCE_CHECK.INCOMPATIBLE) || diag.message.includes(RESOURCE_CHECK.UNDEFINED)))?.message}
                         value={param.defaultValue}
                         onChange={handleValueChange}
                     />

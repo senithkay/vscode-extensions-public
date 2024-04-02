@@ -13,7 +13,7 @@ import { ParamIcon } from "./ParamIcon";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import { ActionIconWrapper, ContentSection, DeleteIconWrapper, EditIconWrapper, HeaderLabel, IconTextWrapper, IconWrapper, OptionLabel, disabledHeaderLabel, headerLabelStyles } from "../../styles";
 import { ParameterConfig } from "@wso2-enterprise/service-designer";
-import { useServiceDesignerContext } from "../../Context";
+import { RESOURCE_CHECK, useServiceDesignerContext } from "../../Context";
 
 interface ParamItemProps {
     param: ParameterConfig;
@@ -40,7 +40,7 @@ export function ParamItem(props: ParamItemProps) {
     const haveErrors = () => {
         const resourceErrors = diagnostics.filter(diag => diag.range.start.line === dPosition.startLine);
         const haveName = resourceErrors.filter(diag => diag.message.includes(param.name));
-        const haveDefault = resourceErrors.filter(diag => diag.message.includes("expected") || diag.message.includes("undefined"));
+        const haveDefault = resourceErrors.filter(diag => diag.message.includes(RESOURCE_CHECK.INCOMPATIBLE) || diag.message.includes(RESOURCE_CHECK.UNDEFINED));
         return haveName.length > 0 || haveDefault.length > 0;
     }
 

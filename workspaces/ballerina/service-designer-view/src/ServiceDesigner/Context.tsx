@@ -10,4 +10,9 @@
 import { useContext } from "react";
 import { Context } from "./ContextProvider";
 
+export enum RESOURCE_CHECK {
+  INCOMPATIBLE = "incompatible",
+  UNDEFINED = "undefined"
+}
+
 export const useServiceDesignerContext = () => useContext(Context);
