@@ -122,7 +122,6 @@ import {
     UpdateAddressEndpointRequest,
     UpdateAddressEndpointResponse,
     UpdateConnectorRequest,
-    UpdateConnectorResponse,
     UpdateDefaultEndpointRequest,
     UpdateDefaultEndpointResponse,
     UpdateFailoverEPRequest,
@@ -2483,7 +2482,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     async downloadConnector(params: DownloadConnectorRequest): Promise<DownloadConnectorResponse> {
-        const { connector, url } = params;
+        const { connector, url, version } = params;
         try {
             const workspaceFolders = workspace.workspaceFolders;
             if (!workspaceFolders) {
@@ -2491,7 +2490,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
             const rootPath = workspaceFolders[0].uri.fsPath;
 
-            const connectorPath = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'registry', `${connector.replace(/\s+/g, '')}.zip`)
+            const connectorPath = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'registry', `${connector.replace(/\s+/g, '')}-${version}.zip`)
 
             if (!fs.existsSync(connectorPath)) {
                 const response = await axios.get(url, {
@@ -2503,7 +2502,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 
     
                 const writer = fs.createWriteStream(
-                    path.resolve(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors', `${connector.replace(/\s+/g, '')}.zip`)
+                    path.resolve(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors', `${connector.replace(/\s+/g, '')}-${version}.zip`)
                 );
     
                 response.data.pipe(writer);
@@ -2772,7 +2771,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
-    async updateConnectors(params: UpdateConnectorRequest): Promise<UpdateConnectorResponse> {
+    async updateConnectors(params: UpdateConnectorRequest): Promise<void> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.updateConnectors({
