@@ -71,7 +71,7 @@ export function ParamEditor(props: ParamProps) {
             {optionList && (
                 <Dropdown
                     id="param-type-selector"
-                    sx={{ width: 172 }}
+                    sx={{ zIndex: 2, width: 172 }}
                     isRequired
                     items={options}
                     label="Param Type"
@@ -84,7 +84,7 @@ export function ParamEditor(props: ParamProps) {
                     <TypeBrowser
                         commonRpcClient={commonRpcClient}
                         serviceEndPosition={serviceEndPosition}
-                        sx={{ position: "relative", width: "175px" }}
+                        sx={{ zIndex: 1, position: "relative", width: "175px" }}
                         borderBox={true}
                         label="Type"
                         selectedItem={param.type}
