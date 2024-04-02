@@ -61,7 +61,7 @@ const paramConfigs: ParamConfig = {
                     isRequired: false
                 }
             ],
-            key: "Key 1",
+            key: "Key",
             value: "Int var1 0 true This is a description",
             icon: "query"
         }
@@ -104,10 +104,11 @@ const paramConfigs: ParamConfig = {
 const ParamManagerDefault = () => {
     const [params, setParams] = useState(paramConfigs);
     const handleOnChange = (params: ParamConfig) => {
-        const modifiedParams = { ...params, paramValues: params.paramValues.map((param, index) => {
+        const modifiedParams = { ...params, paramValues: params.paramValues.map(param => {
             return {
                 ...param,
-                key: `Key ${index + 1}`,
+                icon: "query",
+                key: `Key`,
                 value: generateSpaceSeperatedStringFromParamValues(param)
             }
         })};
@@ -165,10 +166,11 @@ const config: ParamConfig = {
 const EnableCondition = () => {
     const [params, setParams] = useState(config);
     const handleOnChange = (params: ParamConfig) => {
-        const modifiedParams = { ...params, paramValues: params.paramValues.map((param, index) => {
+        const modifiedParams = { ...params, paramValues: params.paramValues.map(param => {
             return {
                 ...param,
-                key: `Key ${index + 1}`,
+                icon: "query",
+                key: `Key`,
                 value: generateSpaceSeperatedStringFromParamValues(param)
             }
         })};
@@ -225,10 +227,11 @@ const emptyLogicalExpr: ParamConfig = {
 const EmptyLogicCondition = () => {
     const [params, setParams] = useState(emptyLogicalExpr);
     const handleOnChange = (params: ParamConfig) => {
-        const modifiedParams = { ...params, paramValues: params.paramValues.map((param, index) => {
+        const modifiedParams = { ...params, paramValues: params.paramValues.map(param => {
             return {
                 ...param,
-                key: `Key ${index + 1}`,
+                icon: "query",
+                key: `Key`,
                 value: generateSpaceSeperatedStringFromParamValues(param)
             }
         })};
