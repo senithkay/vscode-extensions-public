@@ -49,7 +49,7 @@ import { getTransactionFormDataFromSTNode, getTransactionMustacheTemplate, getTr
 import { getCacheFormDataFromSTNode, getCacheMustacheTemplate, getCacheXml } from "./advanced/cache";
 import { getAggregateFormDataFromSTNode, getAggregateMustacheTemplate, getAggregateXml } from "./eip/aggreagte";
 import { getIterateFormDataFromSTNode, getIterateMustacheTemplate, getIterateXml } from "./eip/iterate";
-import { getSwitchFormDataFromSTNode, getSwitchMustacheTemplate, getSwitchXml } from "./filter/switch";
+import { getNewSwitchCaseXml, getSwitchFormDataFromSTNode, getSwitchMustacheTemplate, getSwitchXml } from "./filter/switch";
 import { getForEachFormDataFromSTNode, getForeachMustacheTemplate, getForeachXml } from "./eip/foreach";
 import { getBamFormDataFromSTNode, getBamMustacheTemplate } from "./other/bam";
 import { getConditionalRouterFormDataFromSTNode, getConditionalRouterMustacheTemplate, getConditionalRouterXml } from "./filter/cond_router";
@@ -310,6 +310,8 @@ export function getNewSubSequenceXml(name: string) {
     switch (name) {
         case MEDIATORS.CLONE:
             return getNewCloneTargetXml();
+        case MEDIATORS.SWITCH:
+            return getNewSwitchCaseXml();    
     }
 }
 

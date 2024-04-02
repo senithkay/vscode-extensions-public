@@ -267,6 +267,13 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.add-data-source",
+        "title": "Add Data Source",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "project-explorer.view",
         "title": "View"
       },
@@ -402,6 +409,11 @@
         {
           "command": "MI.project-explorer.add-message-store",
           "when": "view == MI.project-explorer && viewItem == messageStores",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-data-source",
+          "when": "view == MI.project-explorer && viewItem == dataSources",
           "group": "inline"
         },
         {

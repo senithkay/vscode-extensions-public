@@ -21,6 +21,7 @@ import { RegistryResourceForm } from './views/Forms/RegistryResourceForm';
 import { ProxyServiceWizard } from "./views/Forms/ProxyServiceForm";
 import { TemplateWizard } from "./views/Forms/TemplateForm";
 import { ClassMediatorForm } from './views/Forms/ClassMediatorForm';
+import { DataSourceWizard } from './views/Forms/DataSourceForm';
 import { HttpEndpointWizard } from "./views/Forms/HTTPEndpointForm";
 import { AddressEndpointWizard } from "./views/Forms/AddressEndpointForm";
 import { WsdlEndpointWizard } from "./views/Forms/WSDLEndpointForm";
@@ -234,6 +235,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.ClassMediatorForm:
                     setViewComponent(<ClassMediatorForm path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.DataSourceForm:
+                    setViewComponent(<DataSourceWizard path={machineView.documentUri} />);
                     break;
                 default:
                     setViewComponent(null);
