@@ -1,5 +1,16 @@
 const path = require('path');
 const webpack = require('webpack');
+
+class RunTailwindCSSPlugin {
+    apply(compiler) {
+        compiler.hooks.beforeCompile.tap("RunTailwindCSSPlugin", () => {
+            // Run npx tailwindcss
+            const execSync = require("child_process").execSync;
+            execSync("npx tailwindcss -i ./src/style.css -o ./build/output.css");
+        });
+    }
+};
+
 module.exports = {
     entry: './src/index.tsx',
     target: "web",
@@ -39,7 +50,7 @@ module.exports = {
             },
             {
                 test: /\.css$/i,
-                use: ['style-loader', 'css-loader']
+                use: ['style-loader', 'css-loader', 'postcss-loader'],
             },
             {
                 test: /\.(woff|woff2|ttf|eot|svg)$/,
@@ -63,5 +74,8 @@ module.exports = {
         },
         static: path.join(__dirname, 'build'),
         port: 3000
-    }
+    },
+    plugins:[
+        new RunTailwindCSSPlugin()
+    ]
 };

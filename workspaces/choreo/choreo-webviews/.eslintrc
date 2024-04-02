@@ -9,5 +9,8 @@
     ],
     "rules": {
         "@typescript-eslint/no-explicit-any": "off"
-    }
+    },
+    "ignorePatterns":[
+        "*.config.js"
+    ]
 }
