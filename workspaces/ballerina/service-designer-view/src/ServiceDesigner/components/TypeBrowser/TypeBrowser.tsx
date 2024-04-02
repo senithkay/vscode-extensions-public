@@ -18,7 +18,7 @@ import { Combobox } from '@headlessui/react'
 
 import { Dropdown } from "./Dropdown";
 import styled from '@emotion/styled';
-import { Codicon } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
 import { Button } from '@wso2-enterprise/ui-toolkit';
 import { CommonRPCAPI, STModification } from '@wso2-enterprise/ballerina-core';
 
@@ -47,6 +47,13 @@ const ComboboxButtonContainer = cx(css`
 const DropdownLabelDiv = cx(css`
     margin-bottom: 4px;
     font-family: var(--font-family);
+    display: flex;
+`);
+
+const OptionalLabel = cx(css`
+    margin-left: 4px !important;
+    font-size: 10px !important;
+    align-self: end;
 `);
 
 interface ContainerProps {
@@ -96,6 +103,7 @@ export interface TypeBrowserProps {
     id?: string;
     commonRpcClient: CommonRPCAPI;
     serviceEndPosition?: NodePosition;
+    isOptional?: boolean;
     label?: string;
     selectedItem?: string;
     widthOffset?: number;
@@ -106,7 +114,7 @@ export interface TypeBrowserProps {
 }
 
 export const TypeBrowser: React.FC<TypeBrowserProps> = (props: TypeBrowserProps) => {
-    const { id, commonRpcClient, selectedItem, serviceEndPosition, label, widthOffset = 157, sx, borderBox, onChange, applyModifications } = props;
+    const { id, isOptional, commonRpcClient, selectedItem, serviceEndPosition, label, widthOffset = 157, sx, borderBox, onChange, applyModifications } = props;
     const [query, setQuery] = useState('');
     const [items, setItems] = useState([]);
     const [isCleared, setIsCleared] = useState(false);
@@ -120,7 +128,7 @@ export const TypeBrowser: React.FC<TypeBrowserProps> = (props: TypeBrowserProps)
 
     useEffect(() => {
         fetchTypes();
-    } , []);
+    }, []);
 
     const handleCreateNewRecord = async (name: string) => {
         const source = `type ${name} readonly & record {};`;
@@ -183,6 +191,7 @@ export const TypeBrowser: React.FC<TypeBrowserProps> = (props: TypeBrowserProps)
             <Combobox value={selectedItem} onChange={handleChange} nullable>
                 <div className={DropdownLabelDiv}>
                     <label>{label}</label>
+                    {isOptional && <Typography className={OptionalLabel} variant="caption">Optional</Typography>}
                 </div>
                 <div>
                     <div>
@@ -202,8 +211,8 @@ export const TypeBrowser: React.FC<TypeBrowserProps> = (props: TypeBrowserProps)
                             id={`autocomplete-dropdown-button-${items[0]}`}
                             className={isTextFieldFocused ? ComboboxButtonContainerActive : ComboboxButtonContainer}
                         >
-                            <Button sx={{width: 20, height: 20}} appearance="icon" tooltip="Clear" onClick={handleDeleteButtonClick}>
-                                <Codicon sx={{marginTop: -6, width: 8}} name="close" className={DropdownIcon} />
+                            <Button sx={{ width: 20, height: 20 }} appearance="icon" tooltip="Clear" onClick={handleDeleteButtonClick}>
+                                <Codicon sx={{ marginTop: -6, width: 8 }} name="close" className={DropdownIcon} />
                             </Button>
                         </Combobox.Button>
                     </div>

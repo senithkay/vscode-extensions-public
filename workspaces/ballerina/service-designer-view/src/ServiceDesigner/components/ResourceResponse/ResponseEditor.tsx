@@ -91,6 +91,7 @@ export function ResponseEditor(props: ParamProps) {
                     commonRpcClient={commonRpcClient}
                     serviceEndPosition={serviceEndPosition}
                     sx={{ zIndex: 1, position: "relative" }}
+                    isOptional={true}
                     borderBox={isBallerniaExt}
                     label="Type"
                     selectedItem={response.type}
