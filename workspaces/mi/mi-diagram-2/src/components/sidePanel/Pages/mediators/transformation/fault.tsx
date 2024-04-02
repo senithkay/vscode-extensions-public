@@ -133,7 +133,7 @@ const FaultForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>SOAP Version</label>
-                    <AutoComplete items={["soap11", "soap12", "POX"]} selectedItem={formValues["soapVersion"]} onChange={(e: any) => {
+                    <AutoComplete items={["soap11", "soap12", "POX"]} value={formValues["soapVersion"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "soapVersion": e });
                         formValidators["soapVersion"](e);
                     }} />
@@ -143,7 +143,7 @@ const FaultForm = (props: AddMediatorProps) => {
                 {formValues["soapVersion"] && formValues["soapVersion"] == "soap11" &&
                     <Field>
                         <label>Code</label>
-                        <AutoComplete items={["VersionMismatch", "MustUnderstand", "Client", "Server"]} selectedItem={formValues["soap11"]} onChange={(e: any) => {
+                        <AutoComplete items={["VersionMismatch", "MustUnderstand", "Client", "Server"]} value={formValues["soap11"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "soap11": e });
                             formValidators["soap11"](e);
                         }} />
@@ -153,7 +153,7 @@ const FaultForm = (props: AddMediatorProps) => {
                 {formValues["soapVersion"] && formValues["soapVersion"] == "soap12" &&
                     <Field>
                         <label>SOAP12</label>
-                        <AutoComplete items={["VersionMismatch", "MustUnderstand", "DatEncodingUnknown", "Sender", "Receiver"]} selectedItem={formValues["soap12"]} onChange={(e: any) => {
+                        <AutoComplete items={["VersionMismatch", "MustUnderstand", "DatEncodingUnknown", "Sender", "Receiver"]} value={formValues["soap12"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "soap12": e });
                             formValidators["soap12"](e);
                         }} />
@@ -234,7 +234,7 @@ const FaultForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Type</label>
-                        <AutoComplete items={["VALUE", "EXPRESSION"]} selectedItem={formValues["detailType"]} onChange={(e: any) => {
+                        <AutoComplete items={["VALUE", "EXPRESSION"]} value={formValues["detailType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "detailType": e });
                             formValidators["detailType"](e);
                         }} />
@@ -282,7 +282,7 @@ const FaultForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Type</label>
-                        <AutoComplete items={["VALUE", "EXPRESSION"]} selectedItem={formValues["reasonType"]} onChange={(e: any) => {
+                        <AutoComplete items={["VALUE", "EXPRESSION"]} value={formValues["reasonType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "reasonType": e });
                             formValidators["reasonType"](e);
                         }} />

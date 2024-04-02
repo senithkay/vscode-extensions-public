@@ -107,3 +107,8 @@ export interface OpenViewRequest {
 export interface HistoryEntryResponse {
     history: HistoryEntry[];
 }
+
+export interface ToggleDisplayOverviewRequest {
+    displayOverview: boolean;
+}
+

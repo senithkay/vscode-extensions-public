@@ -243,7 +243,7 @@ const AggregateForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Completion Min Messages Type</label>
-                        <AutoComplete items={["VALUE", "EXPRESSION"]} selectedItem={formValues["completionMinMessagesType"]} onChange={(e: any) => {
+                        <AutoComplete items={["VALUE", "EXPRESSION"]} value={formValues["completionMinMessagesType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "completionMinMessagesType": e, "isCompleteConditionChanged": true });
                             formValidators["completionMinMessagesType"](e);
                         }} />
@@ -286,7 +286,7 @@ const AggregateForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Completion Max Messages Type</label>
-                        <AutoComplete items={["VALUE", "EXPRESSION"]} selectedItem={formValues["completionMaxMessagesType"]} onChange={(e: any) => {
+                        <AutoComplete items={["VALUE", "EXPRESSION"]} value={formValues["completionMaxMessagesType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "completionMaxMessagesType": e, "isCompleteConditionChanged": true });
                             formValidators["completionMaxMessagesType"](e);
                         }} />
@@ -376,7 +376,7 @@ const AggregateForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Aggregate Element Type</label>
-                    <AutoComplete items={["ROOT", "CHILD"]} selectedItem={formValues["aggregateElementType"]} onChange={(e: any) => {
+                    <AutoComplete items={["ROOT", "CHILD"]} value={formValues["aggregateElementType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "aggregateElementType": e, "isOnCompleteChanged": true });
                         formValidators["aggregateElementType"](e);
                     }} />
@@ -405,7 +405,7 @@ const AggregateForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Sequence Type</label>
-                    <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE"]} selectedItem={formValues["sequenceType"]} onChange={(e: any) => {
+                    <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={formValues["sequenceType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "sequenceType": e, "isOnCompleteChanged": true });
                         formValidators["sequenceType"](e);
                     }} />

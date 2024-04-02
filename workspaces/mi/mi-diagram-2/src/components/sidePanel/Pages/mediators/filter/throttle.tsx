@@ -376,7 +376,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>On Accept Branchsequence Type</label>
-                    <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE"]} selectedItem={formValues["onAcceptBranchsequenceType"]} onChange={(e: any) => {
+                    <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={formValues["onAcceptBranchsequenceType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "onAcceptBranchsequenceType": e, "isThrottleChanged": true, "isOnAcceptChanged": true });
                         formValidators["onAcceptBranchsequenceType"](e);
                     }} />
@@ -407,7 +407,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>On Reject Branchsequence Type</label>
-                    <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE"]} selectedItem={formValues["onRejectBranchsequenceType"]} onChange={(e: any) => {
+                    <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={formValues["onRejectBranchsequenceType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "onRejectBranchsequenceType": e, "isThrottleChanged": true, "isOnRejectChanged": true });
                         formValidators["onRejectBranchsequenceType"](e);
                     }} />
@@ -438,7 +438,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Policy Type</label>
-                    <AutoComplete items={["INLINE", "REGISTRY_REFERENCE"]} selectedItem={formValues["policyType"]} onChange={(e: any) => {
+                    <AutoComplete items={["INLINE", "REGISTRY_REFERENCE"]} value={formValues["policyType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "policyType": e, "isPolicyChanged": true });
                         formValidators["policyType"](e);
                     }} />

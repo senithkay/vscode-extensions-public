@@ -192,7 +192,7 @@ const CacheForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Cache Mediator Implementation</label>
-                    <AutoComplete items={["Default", "611 Compatible"]} selectedItem={formValues["cacheMediatorImplementation"]} onChange={(e: any) => {
+                    <AutoComplete items={["Default", "611 Compatible"]} value={formValues["cacheMediatorImplementation"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "cacheMediatorImplementation": e, "isProtocolChanged": true });
                         formValidators["cacheMediatorImplementation"](e);
                     }} />
@@ -207,7 +207,7 @@ const CacheForm = (props: AddMediatorProps) => {
                 {formValues["cacheMediatorImplementation"] && formValues["cacheMediatorImplementation"].toLowerCase() == "611 compatible" &&
                     <Field>
                         <label>Cache Type</label>
-                        <AutoComplete items={["FINDER", "COLLECTOR"]} selectedItem={formValues["cacheType"]} onChange={(e: any) => {
+                        <AutoComplete items={["FINDER", "COLLECTOR"]} value={formValues["cacheType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "cacheType": e });
                             formValidators["cacheType"](e);
                         }} />
@@ -269,7 +269,7 @@ const CacheForm = (props: AddMediatorProps) => {
                 {formValues["cacheMediatorImplementation"] && formValues["cacheMediatorImplementation"].toLowerCase() == "611 compatible" &&
                     <Field>
                         <label>Scope</label>
-                        <AutoComplete items={["Per-Host", "Per-Mediator"]} selectedItem={formValues["scope"]} onChange={(e: any) => {
+                        <AutoComplete items={["Per-Host", "Per-Mediator"]} value={formValues["scope"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "scope": e, "isCacheChanged": true });
                             formValidators["scope"](e);
                         }} />
@@ -319,7 +319,7 @@ const CacheForm = (props: AddMediatorProps) => {
                 {formValues["cacheMediatorImplementation"] && formValues["cacheMediatorImplementation"].toLowerCase() == "611 compatible" && formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
                     <Field>
                         <label>Implementation Type</label>
-                        <AutoComplete items={["memory", "disk"]} selectedItem={formValues["implementationType"]} onChange={(e: any) => {
+                        <AutoComplete items={["memory", "disk"]} value={formValues["implementationType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "implementationType": e, "isImplementationChanged": true });
                             formValidators["implementationType"](e);
                         }} />
@@ -335,7 +335,7 @@ const CacheForm = (props: AddMediatorProps) => {
                 {formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
                     <Field>
                         <label>Sequence Type</label>
-                        <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE"]} selectedItem={formValues["sequenceType"]} onChange={(e: any) => {
+                        <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={formValues["sequenceType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "sequenceType": e });
                             formValidators["sequenceType"](e);
                         }} />
@@ -368,7 +368,7 @@ const CacheForm = (props: AddMediatorProps) => {
                 {formValues["cacheMediatorImplementation"] && formValues["cacheMediatorImplementation"].toLowerCase() == "default" && formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
                     <Field>
                         <label>Cache Protocol Type</label>
-                        <AutoComplete items={["HTTP"]} selectedItem={formValues["cacheProtocolType"]} onChange={(e: any) => {
+                        <AutoComplete items={["HTTP"]} value={formValues["cacheProtocolType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "cacheProtocolType": e, "isProtocolChanged": true });
                             formValidators["cacheProtocolType"](e);
                         }} />

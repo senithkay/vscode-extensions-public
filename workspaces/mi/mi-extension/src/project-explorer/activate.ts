@@ -168,6 +168,11 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		console.log('Add Local Entry');
 	});
 
+	commands.registerCommand(COMMANDS.ADD_DATA_SOURCE_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DataSourceForm, documentUri: entry.info?.path });
+		console.log('Add Data Source');
+	});
+
 	commands.registerCommand(COMMANDS.REVEAL_ITEM_COMMAND, async (viewLocation: VisualizerLocation) => {
 		const data = projectExplorerDataProvider.getChildren();
 
@@ -220,6 +225,10 @@ export function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.SHOW_LOCAL_ENTRY, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.LocalEntryForm, documentUri: documentUri?.fsPath });
+	});
+	commands.registerCommand(COMMANDS.SHOW_DATA_SOURCE, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DataSourceForm, documentUri: documentUri?.fsPath });
 	});
 	commands.registerCommand(COMMANDS.SHOW_TASK, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
@@ -297,10 +306,6 @@ export function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.OPEN_SERVICE_DESIGNER, async (entry: ProjectExplorerEntry) => {
 		revealWebviewPanel(false);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: entry.info?.path });
-	});
-	commands.registerCommand(COMMANDS.OPEN_SERVICE_DESIGNER_BESIDE, async (file: Uri) => {
-		revealWebviewPanel(true);
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: file.fsPath });
 	});
 }
 

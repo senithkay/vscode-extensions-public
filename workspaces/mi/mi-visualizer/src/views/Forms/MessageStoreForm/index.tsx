@@ -375,8 +375,8 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
             <AutoComplete
                 label="Message Store Type"
                 items={messageStoreTypes}
-                selectedItem={messageStore.type}
-                onChange={(e: string) => handleOnChangeMessageStore("type", e)}
+                value={messageStore.type}
+                onValueChange={(e: string) => handleOnChangeMessageStore("type", e)}
                 sx={{ width: "100%" }}
             />
 
@@ -386,8 +386,8 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                         <AutoComplete
                         label="Pre Configured Profiles"
                         items={preConfiguredProfiles}
-                        selectedItem={preConfiguredProfile}
-                        onChange={handlePreConfiguredProfileChange}
+                        value={preConfiguredProfile}
+                        onValueChange={handlePreConfiguredProfileChange}
                         sx={{ width: "100%" }}
                     />
                     )}
@@ -444,15 +444,15 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <AutoComplete
                         label="Cache Connection"
                         items={["true", "false"]}
-                        selectedItem={messageStore.cacheConnection}
-                        onChange={(e: string) => handleOnChangeMessageStore("cacheConnection", e)}
+                        value={messageStore.cacheConnection}
+                        onValueChange={(e: string) => handleOnChangeMessageStore("cacheConnection", e)}
                         sx={{ width: "100%" }}
                     />
                     <AutoComplete
                         label="JMS API Version"
                         items={["1.0", "1.1"]}
-                        selectedItem={messageStore.jmsAPIVersion}
-                        onChange={(e: string) => handleOnChangeMessageStore("jmsAPIVersion", e)}
+                        value={messageStore.jmsAPIVersion}
+                        onValueChange={(e: string) => handleOnChangeMessageStore("jmsAPIVersion", e)}
                         sx={{ width: "100%" }}
                     />
                 </>
@@ -494,8 +494,8 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <AutoComplete
                         label="SSL Enabled"
                         items={["true", "false"]}
-                        selectedItem={messageStore.sslEnabled}
-                        onChange={(e: string) => handleOnChangeMessageStore("sslEnabled", e)}
+                        value={messageStore.sslEnabled}
+                        onValueChange={(e: string) => handleOnChangeMessageStore("sslEnabled", e)}
                         sx={{ width: "100%" }}/>
                     {messageStore.sslEnabled === "true" && (
                         <>
@@ -621,8 +621,8 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <AutoComplete
                         label="Connection Information Type"
                         items={["Pool", "Carbon Datasource"]}
-                        selectedItem={connectionInformationType}
-                        onChange={handleConnectionInformationTypeChange}
+                        value={connectionInformationType}
+                        onValueChange={handleConnectionInformationTypeChange}
                         sx={{ width: "100%" }}/>
                     {connectionInformationType === "Pool" && (
                         <>
@@ -630,8 +630,8 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                 <AutoComplete
                                 label="RDBMS Type"
                                 items={rdbmsTypes}
-                                selectedItem={rdbmsType}
-                                onChange={handleRdbmsTypeChange}
+                                value={rdbmsType}
+                                onValueChange={handleRdbmsTypeChange}
                                 sx={{ width: "100%" }}/>
                             )}
                             <TextField
@@ -712,14 +712,14 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <AutoComplete
                         label="JMS API Version"
                         items={["1.0", "1.1"]}
-                        selectedItem={messageStore.jmsAPIVersion}
-                        onChange={(e: string) => handleOnChangeMessageStore("jmsAPIVersion", e)}
+                        value={messageStore.jmsAPIVersion}
+                        onValueChange={(e: string) => handleOnChangeMessageStore("jmsAPIVersion", e)}
                         sx={{ width: "100%" }}/>
                     <AutoComplete
                         label="Cache Connection"
                         items={["true", "false"]}
-                        selectedItem={messageStore.cacheConnection}
-                        onChange={(e: string) => handleOnChangeMessageStore("cacheConnection", e)}
+                        value={messageStore.cacheConnection}
+                        onValueChange={(e: string) => handleOnChangeMessageStore("cacheConnection", e)}
                         sx={{ width: "100%" }}/>
                 </>
             )}
@@ -737,8 +737,8 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <AutoComplete
                         label="Connection Information Type"
                         items={["Pool", "Carbon Datasource"]}
-                        selectedItem={connectionInformationType}
-                        onChange={handleConnectionInformationTypeChange}
+                        value={connectionInformationType}
+                        onValueChange={handleConnectionInformationTypeChange}
                         sx={{ width: "100%" }}/>
                     {connectionInformationType === "Pool" && (
                         <>
@@ -746,8 +746,8 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                 <AutoComplete
                                 label="RDBMS Type"
                                 items={rdbmsTypes}
-                                selectedItem={rdbmsType}
-                                onChange={handleRdbmsTypeChange}
+                                value={rdbmsType}
+                                onValueChange={handleRdbmsTypeChange}
                                 sx={{ width: "100%" }}/>
                             )}
                             <TextField
@@ -820,14 +820,14 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <AutoComplete
                         label="Enable Producer Guaranteed Delivery"
                         items={["true", "false"]}
-                        selectedItem={messageStore.enableProducerGuaranteedDelivery}
-                        onChange={(e: string) => handleOnChangeMessageStore("enableProducerGuaranteedDelivery", e)}
+                        value={messageStore.enableProducerGuaranteedDelivery}
+                        onValueChange={(e: string) => handleOnChangeMessageStore("enableProducerGuaranteedDelivery", e)}
                         sx={{ width: "100%" }}/>
                     <AutoComplete
                         label="Fail Over Message Store"
                         items={fallOverMessageStores}
-                        selectedItem={messageStore.failOverMessageStore}
-                        onChange={(e: string) => handleOnChangeMessageStore("failOverMessageStore", e)}
+                        value={messageStore.failOverMessageStore}
+                        onValueChange={(e: string) => handleOnChangeMessageStore("failOverMessageStore", e)}
                         sx={{ width: "100%" }}/>    
                 </>    
                     

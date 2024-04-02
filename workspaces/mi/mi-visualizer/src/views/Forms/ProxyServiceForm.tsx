@@ -9,7 +9,7 @@
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import * as path from 'path';
-import {Button, TextField, Dropdown, Typography, Codicon} from "@wso2-enterprise/ui-toolkit";
+import {Button, TextField, Dropdown, Typography, Codicon, CheckBox} from "@wso2-enterprise/ui-toolkit";
 import { SectionWrapper } from "./Commons";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW, CreateProxyServiceRequest } from "@wso2-enterprise/mi-core";
@@ -277,15 +277,12 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
                 <span>Select the transports:</span>
                 <CheckBoxContainer>
                     {transportTypes.map(transportType => (
-                        <label key={transportType}>
-                            <input
-                                type="checkbox"
-                                value={transportType}
-                                onChange={() => handleTransportsChange(transportType)}
-                                checked={selectedTransports.includes(transportType)}
-                            />
-                            {transportType}
-                        </label>
+                        <CheckBox
+                            label={transportType}
+                            value={transportType}
+                            onChange={() => handleTransportsChange(transportType)}
+                            checked={selectedTransports.includes(transportType)}
+                        />
                     ))}
                 </CheckBoxContainer>
                 {!(proxyService.proxyServiceType === "Custom Proxy" || proxyService.proxyServiceType === "WSDL Based Proxy") && (

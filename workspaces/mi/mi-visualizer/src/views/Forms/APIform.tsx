@@ -224,7 +224,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                     size={46}
                 />
                 <FieldGroup>
-                    <AutoComplete sx={{ width: '370px' }} label="Version Type" items={versionLabels} selectedItem={versionType} onChange={handleVersionTypeChange} />
+                    <AutoComplete sx={{ width: '370px' }} label="Version Type" items={versionLabels} value={versionType} onValueChange={handleVersionTypeChange} />
                     {versionType !== "none" && (
                         <TextField
                             placeholder={versionType === "context" ? "0.0.1" : "https://example.com"}

@@ -141,7 +141,7 @@ const StoreForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Specify As</label>
-                        <AutoComplete items={["Value", "Expression"]} selectedItem={formValues["specifyAs"]} onChange={(e: any) => {
+                        <AutoComplete items={["Value", "Expression"]} value={formValues["specifyAs"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "specifyAs": e });
                             formValidators["specifyAs"](e);
                         }} />
@@ -151,7 +151,7 @@ const StoreForm = (props: AddMediatorProps) => {
                     {formValues["specifyAs"] && formValues["specifyAs"].toLowerCase() == "value" &&
                         <Field>
                             <label>Available Message Stores</label>
-                            <AutoComplete items={[...messageStores]} selectedItem={formValues["availableMessageStores"]} onChange={(e: any) => {
+                            <AutoComplete items={[...messageStores]} value={formValues["availableMessageStores"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "availableMessageStores": e, "messageStore":e });
                                 formValidators["availableMessageStores"](e);
                             }} />
