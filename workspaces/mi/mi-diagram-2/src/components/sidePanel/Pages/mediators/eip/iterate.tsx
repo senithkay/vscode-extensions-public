@@ -167,7 +167,7 @@ const IterateForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["iterateID"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "iterateID": e, "isIterateChanged": true });
                             formValidators["iterateID"](e);
                         }}
@@ -182,7 +182,7 @@ const IterateForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["iterateExpression"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "iterateExpression": e, "isIterateChanged": true });
                             formValidators["iterateExpression"](e);
                         }}
@@ -224,7 +224,7 @@ const IterateForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["attachPath"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "attachPath": e, "isIterateChanged": true });
                             formValidators["attachPath"](e);
                         }}
@@ -252,7 +252,7 @@ const IterateForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["sequenceKey"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "sequenceKey": e, "isTargetChanged": true });
                                     formValidators["sequenceKey"](e);
                                 }}
@@ -269,7 +269,7 @@ const IterateForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["sequenceName"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "sequenceName": e, "isTargetChanged": true });
                                     formValidators["sequenceName"](e);
                                 }}
@@ -287,7 +287,7 @@ const IterateForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e, "isIterateChanged": true });
                             formValidators["description"](e);
                         }}

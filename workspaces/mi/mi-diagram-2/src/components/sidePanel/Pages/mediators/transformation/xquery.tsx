@@ -267,7 +267,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["staticScriptKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "staticScriptKey": e });
                                 formValidators["staticScriptKey"](e);
                             }}
@@ -284,7 +284,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["dynamicScriptKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "dynamicScriptKey": e });
                                 formValidators["dynamicScriptKey"](e);
                             }}
@@ -300,7 +300,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["targetXPath"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "targetXPath": e });
                             formValidators["targetXPath"](e);
                         }}
@@ -330,7 +330,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}
