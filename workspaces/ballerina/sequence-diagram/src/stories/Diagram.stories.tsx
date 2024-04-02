@@ -2,7 +2,8 @@ import React from "react";
 import { Meta, Story } from "@storybook/react/types-6-0";
 import { Diagram, DiagramProps } from "../components/Diagram";
 
-import basicModel from "./basic.json";
+import sampleOneModel from "./sample-1.json";
+import sampleTwoModel from "./sample-2.json";
 
 export default {
     title: "Example/Diagram",
@@ -23,7 +24,12 @@ Empty.args = {
     },
 };
 
-export const Basic = Template.bind({});
-Basic.args = {
-    model: basicModel,
+export const Sample1 = Template.bind({});
+Sample1.args = {
+    model: sampleOneModel,
+};
+
+export const Sample2 = Template.bind({});
+Sample2.args = {
+    model: sampleTwoModel,
 };
