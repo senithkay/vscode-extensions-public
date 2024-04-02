@@ -107,7 +107,7 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
                 placeholder={placeholder}
                 id={id}
                 {...rest}
-                value={props.value ?? ""}
+                { ...!props.name ? { value: props.value ? props.value : ""} : {} } // If name is not provided, then value should be empty (for react-hook-form)
                 onChange={handleChange}
                 onInput={handleChange}
             >

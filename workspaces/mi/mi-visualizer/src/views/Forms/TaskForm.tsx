@@ -71,7 +71,9 @@ export function TaskForm(props: TaskFormProps) {
         formState: { errors, isDirty, isValid },
         handleSubmit,
         getValues,
-    } = useForm<InputsFields>({
+        watch,
+        setValue
+    } = useForm({
         defaultValues: initialInboundEndpoint,
         resolver: yupResolver(schema),
         mode: "onChange"
@@ -115,6 +117,23 @@ export function TaskForm(props: TaskFormProps) {
         await rpcClient.getMiDiagramRpcClient().createTask(taskRequest);
         openOverview();
     };
+
+    watch();
+
+    // If triggerType changed to cron, then clear the triggerCount and triggerInterval and vice versa
+    useEffect(() => {
+        const subscription = watch((value, { name }) => {
+            if (name === 'triggerType') {
+                if (value.triggerType === 'cron') {
+                    setValue('triggerCount', null);
+                    setValue('triggerInterval', 1);
+                } else {
+                    setValue('triggerCron', '');
+                }
+            }
+        });
+        return () => subscription.unsubscribe();
+    }, [watch, setValue]);
 
     return (
         <FormView title="Scheduled Task" onClose={handleBackButtonClick}>
@@ -161,7 +180,7 @@ export function TaskForm(props: TaskFormProps) {
                         <TextField
                             id="count"
                             label="Count"
-                            errorMsg={errors.triggerCount?.message as string}
+                            errorMsg={errors.triggerCount?.message.toString()}
                             {...register("triggerCount", { valueAsNumber: true })}
                         />
                         <TextField
