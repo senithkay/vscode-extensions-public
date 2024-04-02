@@ -232,7 +232,7 @@ export async function getResource(resource: ResourceAccessorDefinition, rpcClien
         responses: response,
         updatePosition: position,
         position: resource.position,
-        haveErrors: errors.length > 0
+        errors: errors
     };
 }
 

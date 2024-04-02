@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, Diagnostic } from "@wso2-enterprise/syntax-tree";
 import { Item } from "@wso2-enterprise/ui-toolkit";
 
 export interface ResponseConfig {
@@ -43,7 +43,7 @@ export interface ServiceData {
 
 export interface Resource {
     methods: string[];
-    haveErrors?: boolean;
+    errors?: Diagnostic[];
     path: string;
     pathSegments?: ParameterConfig[];
     params?: ParameterConfig[];
