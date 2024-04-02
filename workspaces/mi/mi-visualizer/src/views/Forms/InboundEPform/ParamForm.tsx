@@ -8,7 +8,7 @@
  */
 
 import styled from '@emotion/styled';
-import ParamField from './ParamField';
+import ParamField from '../Commons/ParamField';
 
 const Container = styled.div({
     display: "flex",
