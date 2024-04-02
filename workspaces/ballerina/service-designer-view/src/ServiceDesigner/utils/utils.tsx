@@ -325,7 +325,8 @@ export function getInlineRecordConfig(resource: ResourceAccessorDefinition, inde
     return ({
         id: index,
         code: getCodeFromResponse(`http:${status.replace("Status", "")}`, resource.functionName.value as HTTP_METHOD),
-        source: getResponseRecordCode(getCodeFromResponse(`http:${status.replace("Status", "")}`, resource.functionName.value as HTTP_METHOD), subtype)
+        source: getResponseRecordCode(getCodeFromResponse(`http:${status.replace("Status", "")}`, resource.functionName.value as HTTP_METHOD), subtype),
+        type: subtype
     });
 }
 
