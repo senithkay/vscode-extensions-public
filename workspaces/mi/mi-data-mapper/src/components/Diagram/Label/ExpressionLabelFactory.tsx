@@ -2,13 +2,10 @@ import * as React from 'react';
 
 import { AbstractReactFactory, GenerateWidgetEvent } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { container, injectable, singleton } from 'tsyringe';
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { EditableLabelWidget } from './ExpressionLabelWidget';
 
-@injectable()
-@singleton()
 export class ExpressionLabelFactory extends AbstractReactFactory<ExpressionLabelModel, DiagramEngine> {
 	constructor() {
 		super('expression-label');
@@ -22,4 +19,3 @@ export class ExpressionLabelFactory extends AbstractReactFactory<ExpressionLabel
 		return <EditableLabelWidget model={event.model} />;
 	}
 }
-container.register("LabelFactory", {useClass: ExpressionLabelFactory});

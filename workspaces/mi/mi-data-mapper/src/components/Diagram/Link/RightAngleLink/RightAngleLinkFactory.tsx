@@ -10,13 +10,10 @@
 import * as React from 'react';
 
 import { DefaultLinkFactory } from '@projectstorm/react-diagrams';
-import { container, injectable, singleton } from "tsyringe";
 
 import { RightAngleLinkModel } from './RightAngleLinkModel';
 import { RightAngleLinkWidget } from './RightAngleLinkWidget';
 
-@injectable()
-@singleton()
 export class RightAngleLinkFactory extends DefaultLinkFactory<RightAngleLinkModel> {
 	static NAME = 'rightAngle';
 
@@ -32,4 +29,3 @@ export class RightAngleLinkFactory extends DefaultLinkFactory<RightAngleLinkMode
 		return <RightAngleLinkWidget diagramEngine={this.engine} link={event.model} factory={this} />;
 	}
 }
-container.register("LinkFactory", { useClass: RightAngleLinkFactory });

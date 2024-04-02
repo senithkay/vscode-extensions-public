@@ -26,7 +26,6 @@ import {
 	PathFindingLinkFactory
 } from "@projectstorm/react-diagrams";
 import { Icon } from '@wso2-enterprise/ui-toolkit';
-import "reflect-metadata";
 
 import * as Nodes from "./Node";
 import { ErrorNodeKind } from "../DataMapper/Error/DataMapperError";
@@ -35,7 +34,7 @@ import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
 import { DataMapperLinkModel } from './Link/model/DataMapperLink';
 import { DefaultState as LinkState } from './LinkState/DefaultState';
 import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
-import { LinkConnectorNode } from './Node/LinkConnector';
+import { LinkConnectorNode, LinkConnectorNodeFactory } from './Node/LinkConnector';
 import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
 import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
 import { useDiagramModel, useRepositionedNodes } from '../Hooks';
@@ -43,6 +42,10 @@ import { debounce } from 'lodash';
 import { defaultModelOptions } from './utils/constants';
 import { calculateZoomLevel } from './utils/diagram-utils';
 import { IONodesScrollCanvasAction } from './Actions/IONodesScrollCanvasAction';
+import { IntermediatePortFactory, RecordFieldPortFactory } from './Port';
+import { ExpressionLabelFactory } from './Label';
+import { DataMapperLinkFactory } from './Link';
+import { RightAngleLinkFactory } from './Link/RightAngleLink/RightAngleLinkFactory';
 
 const classes = {
 	buttonWrap: css({
@@ -93,8 +96,17 @@ function initDiagramEngine() {
 	engine.getStateMachine().pushState(new DefaultDiagramState());
 	engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 
-	engine.getNodeFactories().registerFactory(new Nodes.RequiredParamNodeFactory());
+	engine.getNodeFactories().registerFactory(new Nodes.InputNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.ExpressionFunctionBodyFactory());
+	engine.getNodeFactories().registerFactory(new LinkConnectorNodeFactory());
+
+	engine.getPortFactories().registerFactory(new RecordFieldPortFactory());
+	engine.getPortFactories().registerFactory(new IntermediatePortFactory());
+
+	engine.getLabelFactories().registerFactory(new ExpressionLabelFactory());
+
+	engine.getLinkFactories().registerFactory(new DataMapperLinkFactory());
+	engine.getLinkFactories().registerFactory(new RightAngleLinkFactory());
 
 	engine.getActionEventBus().registerAction(new IONodesScrollCanvasAction());
 

@@ -10,17 +10,17 @@ import { DMType } from "@wso2-enterprise/mi-core";
 import { Node } from "typescript";
 
 export interface ArrayElement {
-	member: EditableRecordField;
+	member: DMTypeWithValue;
 	elementNode: Node;
 }
 
-export class EditableRecordField {
+export class DMTypeWithValue {
 	constructor(
 		public type: DMType,
 		public value?: Node,
-		public parentType?: EditableRecordField,
+		public parentType?: DMTypeWithValue,
 		public originalType?: DMType,
-		public childrenTypes?: EditableRecordField[],
+		public childrenTypes?: DMTypeWithValue[],
 		public elements?: ArrayElement[]
 	){}
 

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
-import ts, { ParameterDeclaration } from "typescript";
+import { ParameterDeclaration } from "typescript";
 
 import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -15,14 +15,14 @@ import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import { getSearchFilteredInput } from "../../utils/search-utils";
 
-export const INPUT_PARAM_NODE_TYPE = "datamapper-node-input-param";
-const NODE_ID = "required-param-node";
+export const INPUT_NODE_TYPE = "datamapper-node-input";
+const NODE_ID = "input-node";
 
-export class RequiredParamNode extends DataMapperNodeModel {
+export class InputNode extends DataMapperNodeModel {
     public dmType: DMType;
     public numberOfFields:  number;
-    private _paramName: string;
     public x: number;
+    private _paramName: string;
 
     constructor(
         public context: IDataMapperContext,
@@ -32,10 +32,11 @@ export class RequiredParamNode extends DataMapperNodeModel {
         super(
             NODE_ID,
             context,
-            INPUT_PARAM_NODE_TYPE
+            INPUT_NODE_TYPE
         );
         this.numberOfFields = 1;
-        this.dmType = this.context.inputTrees.find(inputTree => inputTree.typeName === (this.value.type as any).typeName.getText());
+        this.dmType = this.context.inputTrees
+            .find(inputTree => inputTree.typeName === (this.value.type as any).typeName.getText());
         this._paramName = this.value.name.getText();
     }
 
@@ -45,13 +46,7 @@ export class RequiredParamNode extends DataMapperNodeModel {
         this.hasNoMatchingFields = !this.dmType;
 
         if (this.dmType) {
-            const parentPort = this.addPortsForHeader(
-                this.dmType,
-                this._paramName,
-                "OUT",
-                undefined,
-                undefined
-            );
+            const parentPort = this.addPortsForHeader(this.dmType, this._paramName, "OUT", undefined, undefined);
 
             if (this.dmType.kind === TypeKind.Interface) {
                 const fields = this.dmType.fields;

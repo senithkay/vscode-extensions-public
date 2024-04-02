@@ -15,20 +15,19 @@ import { useFileContent, useIOTypes } from "../../Hooks";
 
 interface DataMapperProps {
     filePath: string;
+    functionName: string;
 }
 
 export function DataMapper(props: DataMapperProps) {
-    const { filePath } = props;
+    const { filePath, functionName } = props;
 
-    const filePathTemp = "/Users/madusha/play/mi/mi-hw/HelloWorldService/src/main/wso2mi/resources/data-mapper/sample.ts";
-    const functionName = "tnf2";
-
-    const { dmIOTypes, isFetchingIOTypes, isTypeError } = useIOTypes(filePathTemp, functionName);
-    const { dmFileContent, isFetchingFileContent, isFileError } = useFileContent(filePathTemp);
+    const { dmIOTypes, isFetchingIOTypes, isTypeError } = useIOTypes(filePath, functionName);
+    const { dmFileContent, isFetchingFileContent, isFileError } = useFileContent(filePath);
 
     const isFetching = isFetchingIOTypes || isFetchingFileContent;
+    const isError = isTypeError || isFileError;
 
-    if (isTypeError || isFileError) {
+    if (isError) {
         console.error("Error fetching DM metadata");
     } else if (!isFetching) {
         console.log("IO Types", dmIOTypes);
@@ -37,11 +36,12 @@ export function DataMapper(props: DataMapperProps) {
 
     return (
         <>
+            {isError && <div>Error fetching DM metadata</div>}
             {isFetching
                 ? <ProgressIndicator />
                 : (
                     <DataMapperView
-                        filePath={filePathTemp}
+                        filePath={filePath}
                         fileContent={dmFileContent}
                         functionName={functionName}
                         inputTrees={dmIOTypes.inputTrees}

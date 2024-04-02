@@ -1,40 +1,36 @@
-/*
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
- * herein is strictly forbidden, unless permitted by WSO2 in accordance with
- * the WSO2 Commercial License available at http://wso2.com/licenses.
- * For specific language governing the permissions and limitations under
- * this license, please see the license as well as any agreement you’ve
- * entered into with WSO2 governing the purchase of this software and any
- * associated services.
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import * as ts from "typescript"
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
-import { EditableRecordField } from "../Mappings/EditableRecordField";
+import { DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 
 export function enrichAndProcessType(
     typeToBeProcessed: DMType,
     node: ts.Node,
     selectedST?: ts.Node
-): [EditableRecordField, DMType] {
+): [DMTypeWithValue, DMType] {
 
     let type = {...typeToBeProcessed};
-    let valueEnrichedType = getEnrichedRecordType(type, node, selectedST);
+    let valueEnrichedType = getEnrichedDMType(type, node, selectedST);
     return [valueEnrichedType, type];
 }
 
-export function getEnrichedRecordType(
+export function getEnrichedDMType(
     type: DMType,
     node: ts.Node | undefined,
     selectedST?: ts.Node,
-    parentType?: EditableRecordField,
-    childrenTypes?: EditableRecordField[]
-): EditableRecordField {
+    parentType?: DMTypeWithValue,
+    childrenTypes?: DMTypeWithValue[]
+): DMTypeWithValue {
 
-    let editableRecordField: EditableRecordField;
+    let dmTypeWithValue: DMTypeWithValue;
     let valueNode: ts.Node | undefined;
     let nextNode: ts.Node | undefined;
     let originalType: DMType = type;
@@ -46,10 +42,10 @@ export function getEnrichedRecordType(
         nextNode = node;
     }
 
-    editableRecordField = new EditableRecordField(type, valueNode, parentType, originalType);
+    dmTypeWithValue = new DMTypeWithValue(type, valueNode, parentType, originalType);
 
     if (type.kind === TypeKind.Interface) {
-        addChildrenTypes(type, childrenTypes, nextNode, selectedST, editableRecordField);
+        addChildrenTypes(type, childrenTypes, nextNode, selectedST, dmTypeWithValue);
     } else if (type.kind === TypeKind.Array && type?.memberType) {
         // if (nextNode) {
         //     addEnrichedArrayElements(nextNode, type, selectedST, editableRecordField, childrenTypes);
@@ -58,7 +54,7 @@ export function getEnrichedRecordType(
         // }
     }
 
-    return editableRecordField;
+    return dmTypeWithValue;
 }
 
 // export function getEnrichedPrimitiveType(
@@ -113,7 +109,7 @@ export function getEnrichedRecordType(
 
 function getValueNodeAndNextNodeForParentType(
     node: ts.Node | undefined,
-    parentType: EditableRecordField,
+    parentType: DMTypeWithValue,
     originalType: DMType,
     selectedST: ts.Node
 ): [ts.Node?, ts.Node?] {
@@ -161,20 +157,20 @@ function getValueNodeAndNextNodeForParentType(
 
 function addChildrenTypes(
     type: DMType,
-    childrenTypes: EditableRecordField[] | undefined,
+    childrenTypes: DMTypeWithValue[] | undefined,
     nextNode: ts.Node | undefined,
     selectedST: ts.Node,
-    editableRecordField: EditableRecordField
+    dmTypeWithValue: DMTypeWithValue
 ) {
     const fields = type.fields;
     const children = [...childrenTypes ? childrenTypes : []];
     if (fields && !!fields.length) {
         fields.map((field) => {
-            const childType = getEnrichedRecordType(field, nextNode, selectedST, editableRecordField, childrenTypes);
+            const childType = getEnrichedDMType(field, nextNode, selectedST, dmTypeWithValue, childrenTypes);
             children.push(childType);
         });
     }
-    editableRecordField.childrenTypes = children;
+    dmTypeWithValue.childrenTypes = children;
 }
 
 // function addEnrichedArrayElements(

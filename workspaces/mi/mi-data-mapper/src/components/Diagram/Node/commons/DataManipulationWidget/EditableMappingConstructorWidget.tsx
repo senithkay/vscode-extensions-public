@@ -14,7 +14,7 @@ import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
 import { Node, isObjectLiteralExpression } from "typescript";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
-import { EditableRecordField } from "../../../Mappings/EditableRecordField";
+import { DMTypeWithValue } from "../../../Mappings/DMTypeWithValue";
 import { FieldAccessToSpecificFied } from "../../../Mappings/FieldAccessToSpecificFied";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
 import { OutputSearchHighlight } from '../Search';
@@ -24,7 +24,7 @@ import { useIONodesStyles } from '../../../../styles';
 
 export interface EditableMappingConstructorWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
-	editableRecordField: EditableRecordField;
+	editableRecordField: DMTypeWithValue;
 	typeName: string;
 	value: Node;
 	engine: DiagramEngine;

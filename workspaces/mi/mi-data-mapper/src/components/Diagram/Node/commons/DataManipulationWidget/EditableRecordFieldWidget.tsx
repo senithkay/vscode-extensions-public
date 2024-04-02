@@ -17,7 +17,7 @@ import * as ts from "typescript";
 import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
-import { EditableRecordField } from "../../../Mappings/EditableRecordField";
+import { DMTypeWithValue } from "../../../Mappings/DMTypeWithValue";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import { OutputSearchHighlight } from "../Search";
 
@@ -27,7 +27,7 @@ import { useIONodesStyles } from "../../../../styles";
 
 export interface EditableRecordFieldWidgetProps {
     parentId: string;
-    field: EditableRecordField;
+    field: DMTypeWithValue;
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
     parentMappingConstruct: ts.Node;

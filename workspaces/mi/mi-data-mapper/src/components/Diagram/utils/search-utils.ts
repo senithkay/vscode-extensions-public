@@ -8,7 +8,7 @@
  */
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import { useDMSearchStore } from "../../../store/store";
-import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";
+import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 
 export const getSearchFilteredInput = (dmType: DMType, varName?: string) => {
 	const searchValue = useDMSearchStore.getState().inputSearch;
@@ -105,7 +105,7 @@ export const getFilteredSubFields = (dmType: DMType, searchValue: string) => {
 	return null;
 }
 
-export function hasNoOutputMatchFound(dmType: DMType, valueEnrichedType: EditableRecordField): boolean {
+export function hasNoOutputMatchFound(dmType: DMType, valueEnrichedType: DMTypeWithValue): boolean {
 	const searchValue = useDMSearchStore.getState().outputSearch;
 	const filteredTypeDef = valueEnrichedType.type;
 	if (!searchValue) {

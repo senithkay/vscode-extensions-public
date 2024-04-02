@@ -14,11 +14,11 @@ import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import classnames from "classnames";
 
-import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
-import { InputSearchHighlight } from "../Search";
-import { useIONodesStyles } from "../../../../styles";
+import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../Port";
+import { InputSearchHighlight } from "../commons/Search";
+import { useIONodesStyles } from "../../../styles";
 
-export interface RecordFieldTreeItemWidgetProps {
+export interface InputNodeTreeItemWidgetProps {
     parentId: string;
     dmType: DMType;
     engine: DiagramEngine;
@@ -29,7 +29,7 @@ export interface RecordFieldTreeItemWidgetProps {
     hasHoveredParent?: boolean;
 }
 
-export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps) {
+export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
     const { parentId, dmType, getPort, engine, handleCollapse, treeDepth = 0, isOptional, hasHoveredParent } = props;
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
@@ -120,7 +120,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
             {fields && expanded &&
                 fields.map((subField, index) => {
                     return (
-                        <RecordFieldTreeItemWidget
+                        <InputNodeTreeItemWidget
                             key={index}
                             engine={engine}
                             dmType={subField}

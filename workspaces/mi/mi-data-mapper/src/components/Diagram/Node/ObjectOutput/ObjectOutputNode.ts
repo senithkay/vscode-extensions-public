@@ -12,19 +12,19 @@ import { ObjectLiteralExpression, Node } from "typescript";
 
 import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { EditableRecordField } from "../../Mappings/EditableRecordField";
+import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
-import { MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from "../../utils/constants";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { getSearchFilteredOutput, hasNoOutputMatchFound } from "../../utils/search-utils";
 import { enrichAndProcessType } from "../../utils/type-utils";
+import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
 
-export const MAPPING_CONSTRUCTOR_NODE_TYPE = "data-mapper-node-mapping-constructor";
-const NODE_ID = "mapping-constructor-node";
+export const OBJECT_OUTPUT_NODE_TYPE = "data-mapper-node-object-output";
+const NODE_ID = "object-output-node";
 
-export class MappingConstructorNode extends DataMapperNodeModel {
+export class ObjectOutputNode extends DataMapperNodeModel {
     public dmType: DMType;
-    public recordField: EditableRecordField;
+    public dmTypeWithValue: DMTypeWithValue;
     public typeName: string;
     public rootName: string;
     public mappings: FieldAccessToSpecificFied[];
@@ -39,7 +39,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         super(
             NODE_ID,
             context,
-            MAPPING_CONSTRUCTOR_NODE_TYPE
+            OBJECT_OUTPUT_NODE_TYPE
         ); 
         this.dmType = this.context.outputTree;
     }
@@ -52,18 +52,24 @@ export class MappingConstructorNode extends DataMapperNodeModel {
 
             const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value);
             this.dmType = type;
-            this.hasNoMatchingFields = hasNoOutputMatchFound(this.dmType, valueEnrichedType);
             this.typeName = valueEnrichedType.type.typeName;
-            const parentPort = this.addPortsForHeader(this.dmType, this.rootName, "IN",
-                MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, [], undefined, valueEnrichedType);
+
+            this.hasNoMatchingFields = hasNoOutputMatchFound(this.dmType, valueEnrichedType);
+    
+            const parentPort = this.addPortsForHeader(
+                this.dmType, this.rootName, "IN", OBJECT_OUTPUT_TARGET_PORT_PREFIX,
+                [], undefined, valueEnrichedType
+            );
     
             if (valueEnrichedType.type.kind === TypeKind.Interface) {
-                this.recordField = valueEnrichedType;
-                if (this.recordField.childrenTypes.length) {
-                    this.recordField.childrenTypes.forEach((field) => {
-                        this.addPortsForOutputRecordField(field, "IN", this.rootName, undefined,
-                            MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
-                            [], parentPort.collapsed);
+                this.dmTypeWithValue = valueEnrichedType;
+
+                if (this.dmTypeWithValue.childrenTypes.length) {
+                    this.dmTypeWithValue.childrenTypes.forEach((field) => {
+                        this.addPortsForOutputField(
+                            field, "IN", this.rootName, undefined, OBJECT_OUTPUT_TARGET_PORT_PREFIX,
+                            parentPort, [], parentPort.collapsed
+                        );
                     });
                 }
             }

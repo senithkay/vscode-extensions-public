@@ -9,18 +9,18 @@
 
 import { BaseModel } from "@projectstorm/react-canvas-core";
 import {
-    MappingConstructorNode,
-    RequiredParamNode,
+    ObjectOutputNode,
+    InputNode,
 } from "../Node";
 import { IO_NODE_DEFAULT_WIDTH } from "../utils/constants";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 
 export const INPUT_NODES = [
-    RequiredParamNode
+    InputNode
 ];
 
 export const OUTPUT_NODES = [
-    MappingConstructorNode
+    ObjectOutputNode
 ];
 
 export const INTERMEDIATE_NODES: typeof DataMapperNodeModel[] = [];

@@ -11,13 +11,11 @@
 import {
     FileContentRequest,
     FileContentResponse,
-    FunctionSTRequest,
-    FunctionSTResponse,
     IOTypeRequest,
     IOTypeResponse,
     MIDataMapperAPI
 } from "@wso2-enterprise/mi-core";
-import { fetchFunctionST, fetchIOTypes, getSourceCode } from "../../util/dataMapper";
+import { fetchIOTypes, getSourceCode } from "../../util/dataMapper";
 
 export class MiDataMapperRpcManager implements MIDataMapperAPI {
     async getIOTypes(params: IOTypeRequest): Promise<IOTypeResponse> {
@@ -34,24 +32,6 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                     inputTrees: inputTypes,
                     outputTree: outputType
                 });
-            } catch (error: any) {
-                console.error(error);
-                reject(error);
-            }
-        });
-    }
-
-    async getFunctionST(params: FunctionSTRequest): Promise<FunctionSTResponse> {
-        return new Promise(async (resolve, reject) => {
-            const { filePath, functionName } = params;
-            try {
-                const serializedFnST = fetchFunctionST(filePath, functionName);
-
-                if (!serializedFnST) {
-                    throw new Error("Function ST not found.");
-                }
-
-                return resolve({serializedFnST});
             } catch (error: any) {
                 console.error(error);
                 reject(error);

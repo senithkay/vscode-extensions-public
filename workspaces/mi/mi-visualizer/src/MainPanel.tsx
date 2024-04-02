@@ -173,7 +173,8 @@ const MainPanel = () => {
                 case MACHINE_VIEW.DataMapperView:
                     setViewComponent(
                         <DataMapper
-                            filePath={machineView.documentUri}
+                            filePath={"TODO: filePath"}
+                            functionName={"TODO: functionName"}
                         />
                     );
                     break;

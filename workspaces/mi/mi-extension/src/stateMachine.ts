@@ -311,12 +311,8 @@ const stateMachine = createMachine<MachineContext>({
                                 viewLocation.view = MACHINE_VIEW.ProxyView;
                                 viewLocation.stNode = node.proxy;
                                 break;
-                            // case !!node.sequence:
-                            //     viewLocation.view = MACHINE_VIEW.SequenceView;
-                            //     viewLocation.stNode = node.sequence;
-                            //     break;
                             case !!node.sequence:
-                                viewLocation.view = MACHINE_VIEW.DataMapperView;
+                                viewLocation.view = MACHINE_VIEW.SequenceView;
                                 viewLocation.stNode = node.sequence;
                                 break;
                             default:

@@ -2,14 +2,10 @@ import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import "reflect-metadata";
-import { container, injectable, singleton } from "tsyringe";
 
 import { LinkConnectorNode, LINK_CONNECTOR_NODE_TYPE } from './LinkConnectorNode';
 import { LinkConnectorNodeWidget } from './LinkConnectorNodeWidget';
 
-@injectable()
-@singleton()
 export class LinkConnectorNodeFactory extends AbstractReactFactory<LinkConnectorNode, DiagramEngine> {
 	constructor() {
 		super(LINK_CONNECTOR_NODE_TYPE);
@@ -28,5 +24,3 @@ export class LinkConnectorNodeFactory extends AbstractReactFactory<LinkConnector
 		return undefined;
 	}
 }
-
-container.register("NodeFactory",  {useClass: LinkConnectorNodeFactory});

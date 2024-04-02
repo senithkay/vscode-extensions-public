@@ -28,7 +28,7 @@ import {
     OFFSETS, PRIMITIVE_TYPE_TARGET_PORT_PREFIX
 } from "../../utils/constants";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
-import { MappingConstructorNode } from "../MappingConstructor";
+import { ObjectOutputNode } from "../ObjectOutput";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 const NODE_ID = "link-connector-node";
@@ -89,13 +89,13 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
         if (this.outPort) {
             this.getModel().getNodes().map((node) => {
-                if (node instanceof MappingConstructorNode) {
+                if (node instanceof ObjectOutputNode) {
                     // const targetPortPrefix = getTargetPortPrefix(node);
                     if (STKindChecker.isFunctionDefinition(this.parentNode)
                         || STKindChecker.isQueryExpression(this.parentNode)
                         || STKindChecker.isBracedExpression(this.parentNode))
                     {
-                        if (!(node instanceof MappingConstructorNode)) {
+                        if (!(node instanceof ObjectOutputNode)) {
                             // const typeName = targetPortPrefix === PRIMITIVE_TYPE_TARGET_PORT_PREFIX
                             //     ? node.recordField.type.typeName
                             //     : targetPortPrefix === LIST_CONSTRUCTOR_TARGET_PORT_PREFIX

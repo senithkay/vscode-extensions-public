@@ -13,24 +13,24 @@ import { DiagramEngine } from '@projectstorm/react-diagrams-core';
 import { TypeKind } from '@wso2-enterprise/mi-core';
 
 import { RecordFieldPortModel } from '../../Port';
-import { RecordTypeTreeWidget } from "../commons/RecordTypeTreeWidget/RecordTypeTreeWidget";
+import { InputNodeWidget } from "./InputNodeWidget";
 import { InputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/Search";
 
-import { RequiredParamNode, INPUT_PARAM_NODE_TYPE } from './RequiredParamNode';
+import { InputNode, INPUT_NODE_TYPE } from './InputNode';
 
-export class RequiredParamNodeFactory extends AbstractReactFactory<RequiredParamNode, DiagramEngine> {
+export class InputNodeFactory extends AbstractReactFactory<InputNode, DiagramEngine> {
     constructor() {
-        super(INPUT_PARAM_NODE_TYPE);
+        super(INPUT_NODE_TYPE);
     }
 
-    generateReactWidget(event: { model: RequiredParamNode; }): JSX.Element {
+    generateReactWidget(event: { model: InputNode; }): JSX.Element {
         if (event.model.hasNoMatchingFields && !event.model.dmType) {
             return (
                 <InputSearchNoResultFound kind={SearchNoResultFoundKind.InputField} />
             );
         } else if (event.model.dmType && event.model.dmType.kind === TypeKind.Interface) {
             return (
-                <RecordTypeTreeWidget
+                <InputNodeWidget
                     engine={this.engine}
                     id={event.model.value && event.model.value.name.getText()}
                     dmType={event.model.dmType}
@@ -42,7 +42,7 @@ export class RequiredParamNodeFactory extends AbstractReactFactory<RequiredParam
         }
     }
 
-    generateModel(): RequiredParamNode {
+    generateModel(): InputNode {
         return undefined;
     }
 }

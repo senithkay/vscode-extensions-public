@@ -14,18 +14,18 @@ import { DiagramEngine } from '@projectstorm/react-diagrams-core';
 import { Node } from 'typescript';
 
 import { RecordFieldPortModel } from '../../Port';
-import { MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from '../../utils/constants';
+import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from '../../utils/constants';
 import { EditableMappingConstructorWidget } from "../commons/DataManipulationWidget/EditableMappingConstructorWidget";
 import { OutputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/Search";
 
-import { MappingConstructorNode, MAPPING_CONSTRUCTOR_NODE_TYPE } from './MappingConstructorNode';
+import { ObjectOutputNode, OBJECT_OUTPUT_NODE_TYPE } from './ObjectOutputNode';
 
-export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingConstructorNode, DiagramEngine> {
+export class ExpressionFunctionBodyFactory extends AbstractReactFactory<ObjectOutputNode, DiagramEngine> {
 	constructor() {
-		super(MAPPING_CONSTRUCTOR_NODE_TYPE);
+		super(OBJECT_OUTPUT_NODE_TYPE);
 	}
 
-	generateReactWidget(event: { model: MappingConstructorNode; }): JSX.Element {
+	generateReactWidget(event: { model: ObjectOutputNode; }): JSX.Element {
 		let valueLabel: string;
 		return (
 			<>
@@ -34,8 +34,8 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 				) : (
 					<EditableMappingConstructorWidget
 						engine={this.engine}
-						id={`${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
-						editableRecordField={event.model.recordField}
+						id={`${OBJECT_OUTPUT_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
+						editableRecordField={event.model.dmTypeWithValue}
 						typeName={event.model.typeName}
 						value={event.model.value}
 						getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
@@ -50,7 +50,7 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 		);
 	}
 
-	generateModel(): MappingConstructorNode {
+	generateModel(): ObjectOutputNode {
 		return undefined;
 	}
 }

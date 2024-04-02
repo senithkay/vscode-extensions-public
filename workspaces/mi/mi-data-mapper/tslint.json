@@ -12,7 +12,6 @@
             true,
             "@material-ui",
             "monaco-editor",
-            "@ballerina",
             "components",
             "store",
             "views"

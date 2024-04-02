@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-export const MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX = "mappingConstructor";
+export const OBJECT_OUTPUT_TARGET_PORT_PREFIX = "objectOutput";
 export const LIST_CONSTRUCTOR_TARGET_PORT_PREFIX = "listConstructor";
 export const PRIMITIVE_TYPE_TARGET_PORT_PREFIX = "primitiveType";
 export const UNION_TYPE_TARGET_PORT_PREFIX = "unionType";
@@ -19,7 +19,6 @@ export const FUNCTION_BODY_QUERY = "FunctionBody.query";
 export const SELECT_CALUSE_QUERY = "SelectClause.query";
 export const SYMBOL_KIND_CONSTANT = "CONSTANT";
 
-export const JSON_MERGE_MODULE_NAME = "ballerina/lang.value";
 export const defaultModelOptions = { zoom: 90 };
 export const VISUALIZER_PADDING = 0;
 export const IO_NODE_DEFAULT_WIDTH = 350;

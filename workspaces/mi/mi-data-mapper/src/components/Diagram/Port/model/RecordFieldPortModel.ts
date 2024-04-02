@@ -12,7 +12,7 @@ import { DMType } from "@wso2-enterprise/mi-core";
 import { isPropertyAssignment } from "typescript";
 
 import { DataMapperLinkModel } from "../../Link";
-import { EditableRecordField } from "../../Mappings/EditableRecordField";
+import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { IntermediatePortModel } from "../IntermediatePort";
 
 export interface RecordFieldNodeModelGenerics {
@@ -31,7 +31,7 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		public portType: "IN" | "OUT",
 		public parentId: string,
 		public index?: number,
-		public editableRecordField?: EditableRecordField,
+		public editableRecordField?: DMTypeWithValue,
 		public fieldFQN?: string,
 		public parentModel?: RecordFieldPortModel,
 		public collapsed?: boolean,

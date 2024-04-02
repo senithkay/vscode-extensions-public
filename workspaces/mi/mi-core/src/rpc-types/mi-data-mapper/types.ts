@@ -18,15 +18,6 @@ export interface IOTypeResponse {
     outputTree: DMType;
 }
 
-export interface FunctionSTRequest {
-    filePath: string;
-    functionName: string;
-}
-
-export interface FunctionSTResponse {
-    serializedFnST: string;
-}
-
 export interface FileContentRequest {
     filePath: string;
 }

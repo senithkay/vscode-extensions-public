@@ -33,30 +33,6 @@ export const useIOTypes = (filePath: string, functionName: string) => {
     return {dmIOTypes, isFetchingIOTypes, isTypeError, refetch };
 };
 
-// export const useFunctionST = (filePath: string, functionName: string) => {
-//     const { rpcClient } = useVisualizerContext();
-//     const getFnST = async () => {
-//         try {
-//             const res = await rpcClient
-//                 .getMiDataMapperRpcClient()
-//                 .getFunctionST({ filePath, functionName });
-//             return res;
-//         } catch (error) {
-//             console.error('Error while fetching function ST: ', error);
-//         }
-//     }
-
-//     const {
-//         data: dmFnST,
-//         isFetching: isFetchingFnST,
-//         isError: isFnSTError,
-//         refetch,
-//     } = useQuery(['getFnST', { filePath, functionName }], () => getFnST(), {});
-
-//     return {dmFnST, isFetchingFnST, isFnSTError, refetch };
-// };
-
-
 export const useFileContent = (filePath: string) => {
     const { rpcClient } = useVisualizerContext();
     const getFileContent = async () => {

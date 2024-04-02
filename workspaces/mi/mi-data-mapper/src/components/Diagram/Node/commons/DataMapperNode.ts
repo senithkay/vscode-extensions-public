@@ -29,7 +29,7 @@ import {
 } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
-import { ArrayElement, EditableRecordField } from "../../Mappings/EditableRecordField";
+import { ArrayElement, DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificFied';
 import { RecordFieldPortModel } from "../../Port";
 import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
@@ -109,8 +109,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		return hidden ? 0 : numberOfFields;
 	}
 
-	protected addPortsForOutputRecordField(
-		field: EditableRecordField,
+	protected addPortsForOutputField(
+		field: DMTypeWithValue,
 		type: "IN" | "OUT",
 		parentId: string,
 		elementIndex?: number,
@@ -136,7 +136,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 			const fields = field?.childrenTypes;
 			if (fields && !!fields.length) {
 				fields.forEach((subField) => {
-					this.addPortsForOutputRecordField(subField, type, fieldFQN, undefined, portPrefix,
+					this.addPortsForOutputField(subField, type, fieldFQN, undefined, portPrefix,
 						fieldPort, collapsedFields, isCollapsed ? true : hidden);
 				});
 			}
@@ -144,7 +144,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 			const elements: ArrayElement[] = field?.elements;
 			if (elements && !!elements.length) {
 				elements.forEach((element, index) => {
-					this.addPortsForOutputRecordField(element.member, type, fieldFQN, index, portPrefix,
+					this.addPortsForOutputField(element.member, type, fieldFQN, index, portPrefix,
 						fieldPort, collapsedFields, isCollapsed ? true : hidden);
 				});
 			}
@@ -158,7 +158,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		portPrefix: string,
 		collapsedFields?: string[],
 		isWithinSelectClause?: boolean,
-		editableRecordField?: EditableRecordField
+		editableRecordField?: DMTypeWithValue
 	): RecordFieldPortModel {
 
 		let portName = name;

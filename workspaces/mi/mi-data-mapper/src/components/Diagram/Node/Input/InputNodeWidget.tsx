@@ -10,16 +10,16 @@
 import React, { useState } from "react";
 
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
-import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
+import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { DMType } from "@wso2-enterprise/mi-core";
 
-import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
-import { InputSearchHighlight } from '../Search';
-import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
-import { RecordFieldTreeItemWidget } from "./RecordFieldTreeItemWidget";
-import { useIONodesStyles } from "../../../../styles";
+import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Port';
+import { InputSearchHighlight } from '../commons/Search';
+import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
+import { InputNodeTreeItemWidget } from "./InputNodeTreeItemWidget";
+import { useIONodesStyles } from "../../../styles";
 
-export interface RecordTypeTreeWidgetProps {
+export interface InputNodeWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
     dmType: DMType;
     engine: DiagramEngine;
@@ -29,7 +29,7 @@ export interface RecordTypeTreeWidgetProps {
     nodeHeaderSuffix?: string;
 }
 
-export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
+export function InputNodeWidget(props: InputNodeWidgetProps) {
     const { engine, dmType, id, getPort, handleCollapse, valueLabel, nodeHeaderSuffix } = props;
     
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
@@ -58,7 +58,6 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                     {typeName}
                 </span>
             )}
-
         </span>
     );
 
@@ -112,7 +111,7 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                     {
                         dmType.fields.map((field, index) => {
                             return (
-                                <RecordFieldTreeItemWidget
+                                <InputNodeTreeItemWidget
                                     key={index}
                                     engine={engine}
                                     dmType={field}

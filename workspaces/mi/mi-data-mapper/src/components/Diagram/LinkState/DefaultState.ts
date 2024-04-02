@@ -11,7 +11,7 @@ import {
 import { DiagramEngine, DragDiagramItemsState, PortModel } from '@projectstorm/react-diagrams-core';
 
 import { DMCanvasContainerID } from "../Canvas/DataMapperCanvasWidget";
-import { MappingConstructorNode, RequiredParamNode } from '../Node';
+import { ObjectOutputNode, InputNode } from '../Node';
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { LinkOverayContainerID } from '../OverriddenLinkLayer/LinkOverlayPortal';
 
@@ -76,8 +76,8 @@ export class DefaultState extends State<DiagramEngine> {
 
 					if (!isExpandOrCollapse && !isAddElement && !isAddLocalVariable && !isEditLocalVariables
 						&& (element instanceof PortModel
-							|| element instanceof MappingConstructorNode
-							|| element instanceof RequiredParamNode
+							|| element instanceof ObjectOutputNode
+							|| element instanceof InputNode
 						)
 					) {
 						this.transitionWithEvent(this.createLink, actionEvent);
