@@ -40,6 +40,8 @@ enum DiagramType {
     SEQUENCE
 }
 
+const RESTRICTED_NODE_TYPES = ["resource"]
+
 export type AnyNode = MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel | GroupNodeModel | PlusNodeModel;
 
 export class NodeFactoryVisitor implements Visitor {
@@ -105,10 +107,17 @@ export class NodeFactoryVisitor implements Visitor {
                 const previousStNode = this.previousSTNodes[i];
                 const previousNodes = this.nodes.filter((node) => JSON.stringify(node.getStNode().range) === JSON.stringify(previousStNode.range));
                 const previousNode = previousNodes[previousNodes.length - 1];
-
+                const currentNodeType = node.tag;
+                const previousNodeType = previousStNode.tag;
+                
                 const isSequnceConnect = diagramNode instanceof StartNodeModel && previousNode instanceof EndNodeModel;
                 const isEmptyNodeConnect = diagramNode instanceof EmptyNodeModel && previousNode instanceof EmptyNodeModel && type !== NodeTypes.CONDITION_NODE_END;
-                const showAddButton = !isSequnceConnect && !(previousNode instanceof EmptyNodeModel && !previousNode.visible) && type !== NodeTypes.PLUS_NODE;
+                const showAddButton = !isSequnceConnect &&
+                 !(previousNode instanceof EmptyNodeModel 
+                    && !previousNode.visible) 
+                    && type !== NodeTypes.PLUS_NODE
+                    && RESTRICTED_NODE_TYPES.indexOf(currentNodeType) < 0
+                    && RESTRICTED_NODE_TYPES.indexOf(previousNodeType) < 0;
 
                 const addPosition = this.currentAddPosition != undefined ? this.currentAddPosition :
                     (type === NodeTypes.CONDITION_NODE_END && previousNode instanceof EmptyNodeModel) ? previousStNode.range.endTagRange.start :
