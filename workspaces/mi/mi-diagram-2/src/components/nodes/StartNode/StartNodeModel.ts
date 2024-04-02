@@ -85,7 +85,7 @@ export class StartNodeModel extends NodeModel {
         return this.stNode;
     }
 
-    getParentNode(): STNode {
+    getParentStNode(): STNode {
         return this.parentNode;
     }
 
