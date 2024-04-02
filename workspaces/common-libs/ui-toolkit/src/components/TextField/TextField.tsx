@@ -109,6 +109,7 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
                 {...rest}
                 onChange={handleChange}
                 onInput={handleChange}
+                value={props.value || ""}
             >
                 {iconComponent && <span onClick={iconClick} slot={position}>{iconComponent}</span>}
                 <LabelContainer>
