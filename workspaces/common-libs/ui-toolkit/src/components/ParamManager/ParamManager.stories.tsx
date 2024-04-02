@@ -1,3 +1,4 @@
+/* eslint-disable arrow-parens */
 /**
  * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -104,13 +105,15 @@ const paramConfigs: ParamConfig = {
 const ParamManagerDefault = () => {
     const [params, setParams] = useState(paramConfigs);
     const handleOnChange = (params: ParamConfig) => {
-        const modifiedParams = { ...params, paramValues: params.paramValues.map((param, index) => {
-            return {
-                ...param,
-                key: `Key ${index + 1}`,
-                value: generateSpaceSeperatedStringFromParamValues(param)
-            }
-        })};
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param, index) => {
+                return {
+                    ...param,
+                    key: `Key ${index + 1}`,
+                    value: generateSpaceSeperatedStringFromParamValues(param)
+                }
+            })
+        };
         setParams(modifiedParams);
     };
 
@@ -165,13 +168,15 @@ const config: ParamConfig = {
 const EnableCondition = () => {
     const [params, setParams] = useState(config);
     const handleOnChange = (params: ParamConfig) => {
-        const modifiedParams = { ...params, paramValues: params.paramValues.map((param, index) => {
-            return {
-                ...param,
-                key: `Key ${index + 1}`,
-                value: generateSpaceSeperatedStringFromParamValues(param)
-            }
-        })};
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param, index) => {
+                return {
+                    ...param,
+                    key: `Key ${index + 1}`,
+                    value: generateSpaceSeperatedStringFromParamValues(param)
+                }
+            })
+        };
         setParams(modifiedParams);
     };
 
@@ -206,7 +211,7 @@ const paramFieldsWithEmptyLogicalExpr: ParamField[] = [
         label: "Checkbox",
         defaultValue: false,
         enableCondition: [
-            { 1 : "2" }
+            { 1: "2" }
         ]
     },
     {
@@ -225,13 +230,15 @@ const emptyLogicalExpr: ParamConfig = {
 const EmptyLogicCondition = () => {
     const [params, setParams] = useState(emptyLogicalExpr);
     const handleOnChange = (params: ParamConfig) => {
-        const modifiedParams = { ...params, paramValues: params.paramValues.map((param, index) => {
-            return {
-                ...param,
-                key: `Key ${index + 1}`,
-                value: generateSpaceSeperatedStringFromParamValues(param)
-            }
-        })};
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param, index) => {
+                return {
+                    ...param,
+                    key: `Key ${index + 1}`,
+                    value: generateSpaceSeperatedStringFromParamValues(param)
+                }
+            })
+        };
         setParams(modifiedParams);
     };
 

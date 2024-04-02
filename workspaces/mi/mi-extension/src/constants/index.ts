@@ -56,9 +56,11 @@ export const COMMANDS = {
     EDIT_REGISTERY_RESOURCE_COMMAND: 'MI.project-explorer.edit-reg-resource',
     ADD_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.add-class-mediator',
     EDIT_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.edit-class-mediator',
-    CHANGE_SERVER_PATH:'MI.change.server',
+    CHANGE_SERVER_PATH: 'MI.change.server',
     BUILD_PROJECT: 'MI.build-project',
     BUILD_AND_RUN_PROJECT: 'MI.build-and-run',
+    ADD_DATA_SOURCE_COMMAND: 'MI.project-explorer.add-data-source',
+    SHOW_DATA_SOURCE: 'MI.show.data-source',
 };
 
 export const SELECTED_SERVER_PATH = "selected-server-path";
