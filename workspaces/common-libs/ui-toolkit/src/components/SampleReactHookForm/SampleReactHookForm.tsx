@@ -86,7 +86,7 @@ export function SampleReactHookForm(props: SampleReactHookFormProps) {
 
             <FormCheckBox
                 name="isRegistered"
-                label="Test"
+                label="Is Registered?"
                 control={control}
             />
             <Button appearance="primary" onClick={handleSave}> Save </Button>

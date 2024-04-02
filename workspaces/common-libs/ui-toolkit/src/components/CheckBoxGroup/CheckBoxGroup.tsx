@@ -79,7 +79,6 @@ export const FormCheckBox: React.FC<FormCheckBoxProps> = ({ name, control, label
     );
 };
 
-
 export const CheckBoxGroup = ({
     id,
     className,
