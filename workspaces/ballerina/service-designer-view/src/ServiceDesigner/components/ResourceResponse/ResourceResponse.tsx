@@ -82,7 +82,7 @@ export function ResourceResponse(props: ResourceParamProps) {
     const onSaveParam = (paramConfig: ResponseConfig, defineRecordName: string) => {
         const updatedParameters = [...response];
         let modifiedParamConfig: ResponseConfig;
-        if (paramConfig.type && (paramConfig.code !== getDefaultResponse(method))) {
+        if (paramConfig.type && (paramConfig.code !== getDefaultResponse(method)) && !paramConfig.type.includes("error")) {
             modifiedParamConfig = {
                 ...paramConfig,
                 source: getResponseRecordCode(paramConfig.code, paramConfig.type)

@@ -149,12 +149,6 @@ export function ResourceForm(props: ResourceFormProps) {
 			}
 		});
 
-		// Check if "error" is already present in responseString
-		if (responseString !== "" && !responseString.includes("error")) {
-			responseString += " | error?";
-		} else if (responseString === "") {
-			responseString = "error?";
-		}
 		if (!resourceConfig?.updatePosition) {
 			return generateNewResourceFunction({ METHOD: method.toLocaleLowerCase(), PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString });
 		} else {
