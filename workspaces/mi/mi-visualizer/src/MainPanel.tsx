@@ -9,7 +9,7 @@ import { SequenceWizard } from './views/Forms/SequenceForm';
 import { NavigationBar } from './components/NavigationBar';
 import { ProjectWizard } from './views/Forms/ProjectForm';
 import { ImportProjectWizard } from './views/Forms/ImportProjectForm';
-import { TaskWizard } from './views/Forms/TaskForm';
+import { TaskForm } from './views/Forms/TaskForm';
 import { MessageStoreWizard } from './views/Forms/MessageStoreForm/index';
 import { MessageProcessorWizard } from "./views/Forms/MessageProcessorForm";
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
@@ -202,7 +202,7 @@ const MainPanel = () => {
                     setViewComponent(<ProxyServiceWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.TaskForm:
-                    setViewComponent(<TaskWizard path={machineView.documentUri} />);
+                    setViewComponent(<TaskForm path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.TemplateForm:
                     setViewComponent(<TemplateWizard path={machineView.documentUri} />);

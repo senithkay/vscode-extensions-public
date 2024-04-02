@@ -9,7 +9,7 @@
 
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
-import { Button, Codicon, TextField, Typography, Dropdown } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TextField, Typography, Dropdown, RadioButtonGroup, FormView, FormGroup, FormActions } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { CreateTaskRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { SectionWrapper } from "./Commons";
@@ -17,65 +17,13 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 
-const WizardContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 95vw;
-    height: calc(100vh - 140px);
-    overflow: auto;
-`;
-
-const ActionContainer = styled.div`
-    display  : flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    padding: 20px 120px;
-    width: calc(100% - 250px);
-    margin: 0 auto;
-`;
-
-const HiddenFormWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 10px 20px;
-`;
-
-const Container = styled.div`
-    display: flex;
-    flex-direction: row;
-    height: 50px;
-    align-items: center;
-    justify-content: flex-start;
-`;
-
-const TriggerContainer = styled.div({
-    padding: "20px 20px",
-    border: "1px solid #e0e0e0",
-    borderRadius: "5px"
-});
-
-const FlexDiv = styled.div({
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: "20px"
-});
-
-const Message = styled.span((props: any) => ({
-    color: props["is-error"] ? "#f48771" : "",
-}));
 
 export interface Region {
     label: string;
     value: string;
 }
 
-interface DetailedTaskWizardProps {
+interface TaskFormProps {
     path?: string;
 };
 
@@ -102,18 +50,19 @@ const initialInboundEndpoint: InputsFields = {
 };
 
 const schema = yup
-  .object({
-    name: yup.string().required("Task Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Task name"),
-    group: yup.string().required("Task group is required"),
-    implementation: yup.string().required("Task Implementation is required"),
-    pinnedServers: yup.string(),
-    triggerType: yup.mixed<"simple" | "cron">().oneOf(["simple", "cron"]),
-    triggerCount: yup.number().nullable().typeError('Trigger count must be a number').min(1, "Trigger count must be greater than 0"),
-    triggerInterval: yup.number().typeError('Trigger interval must be a number').min(1, "Trigger interval must be greater than 0"),
-    triggerCron: yup.string()
-  })
+    .object({
 
-export function TaskWizard(props: DetailedTaskWizardProps) {
+        name: yup.string().required("Task Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Task name"),
+        group: yup.string().required("Task group is required"),
+        implementation: yup.string().required("Task Implementation is required"),
+        pinnedServers: yup.string(),
+        triggerType: yup.mixed<"simple" | "cron">().oneOf(["simple", "cron"]),
+        triggerCount: yup.number().nullable().typeError('Trigger count must be a number').min(1, "Trigger count must be greater than 0"),
+        triggerInterval: yup.number().typeError('Trigger interval must be a number').min(1, "Trigger interval must be greater than 0"),
+        triggerCron: yup.string()
+    })
+
+export function TaskForm(props: TaskFormProps) {
 
     const { rpcClient } = useVisualizerContext();
     const {
@@ -168,110 +117,90 @@ export function TaskWizard(props: DetailedTaskWizardProps) {
     };
 
     return (
-        <WizardContainer>
-            <SectionWrapper>
-                <Container>
-                    <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
-                    <div style={{ marginLeft: 30 }}>
-                        <Typography variant="h3">{!isNewTask && "Update"} Scheduled Task Artifact</Typography>
-                    </div>
-                </Container>
-                <TextField
-                    label="Task Name"
-                    id="name"
-                    placeholder="Name"
-                    size={100}
-                    errorMsg={errors.name?.message.toString()}
-                    autoFocus
-                    required
-                    {...register("name")}
+        <FormView title="Scheduled Task" onClose={handleBackButtonClick}>
+            <TextField
+                label="Task Name"
+                id="name"
+                placeholder="Name"
+                errorMsg={errors.name?.message.toString()}
+                autoFocus
+                required
+                {...register("name")}
+            />
+            <TextField
+                label="Task Group"
+                id="group"
+                placeholder="Group"
+                errorMsg={errors.group?.message.toString()}
+                required
+                {...register("group")}
+            />
+            <TextField
+                label="Task Implementation"
+                id="implementation"
+                placeholder="Implementation"
+                errorMsg={errors.implementation?.message.toString()}
+                required
+                {...register("implementation")}
+            />
+            <TextField
+                label="Pinned Servers"
+                id="pinned-servers"
+                placeholder="Servers"
+                {...register("pinnedServers")}
+            />
+            <FormGroup title="Trigger Information of the Task">
+                <RadioButtonGroup
+                    label="Trigger Type"
+                    id="trigger-group"
+                    options={[{ content: "Simple", value: "simple" }, { content: "Cron", value: "cron" }]}
+                    {...register("triggerType")}
                 />
-                <TextField
-                    label="Task Group"
-                    id="group"
-                    placeholder="Group"
-                    size={100}
-                    errorMsg={errors.group?.message.toString()}
-                    required
-                    {...register("group")}
-                />
-                <TextField
-                    label="Task Implementation"
-                    id="implementation"
-                    placeholder="Implementation"
-                    size={100}
-                    errorMsg={errors.implementation?.message.toString()}
-                    required
-                    {...register("implementation")}
-                />
-                <TextField
-                    label="Pinned Servers"
-                    id="pinned-servers"
-                    placeholder="Servers"
-                    size={100}
-                    {...register("pinnedServers")}
-                />
-                <Typography variant="h4" sx={{ my: 0 }}>Trigger Information of the Task</Typography>
-                <TriggerContainer>
-                    <FlexDiv>
-                        <Typography sx={{ whiteSpace: 'nowrap' }}>Trigger Type</Typography>
-                        <Dropdown
-                            id="trigger-group"
-                            items={[{ content: "Simple", value: "simple" }, { content: "Cron", value: "cron" }]}
-                            {...register("triggerType")}
+                {getValues("triggerType") === 'simple' ? (
+                    <>
+                        <TextField
+                            id="count"
+                            label="Count"
+                            errorMsg={errors.triggerCount?.message as string}
+                            {...register("triggerCount", { valueAsNumber: true })}
                         />
-                    </FlexDiv>
-                    {getValues("triggerType") === 'simple' ? (
-                        <HiddenFormWrapper>
-                            <TextField
-                                id="count"
-                                label="Count"
-                                size={50}
-                                errorMsg={errors.triggerCount?.message as string}
-                                {...register("triggerCount", { valueAsNumber: true })}
-                            />
-                            <TextField
-                                label="Interval (in seconds)"
-                                id="interval"
-                                size={50}
-                                required
-                                errorMsg={errors.triggerInterval?.message.toString()}
-                                {...register("triggerInterval", { valueAsNumber: true })}
-                            />
-                        </HiddenFormWrapper>
-                    ) : (
-                        <HiddenFormWrapper>
-                            <TextField
-                                label="Cron"
-                                id="cron"
-                                size={50}
-                                required
-                                errorMsg={errors.triggerCron?.message.toString()}
-                                {...register("triggerCron")}
-                            />
-                        </HiddenFormWrapper>
-                    )}
-                </TriggerContainer>
-            </SectionWrapper>
-            <ActionContainer>
-                <FlexDiv>
-                    <Button
-                        appearance="secondary"
-                        onClick={openOverview}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        appearance="primary"
-                        onClick={handleSubmit((values) => {
-                            handleCreateTask(values);
-                        })}
-                        disabled={(!isDirty && !isNewTask)}
-                    >
-                        {isNewTask ? "Create" : "Save Changes"}
-                    </Button>
-                </FlexDiv>
-            </ActionContainer>
-        </WizardContainer>
+                        <TextField
+                            label="Interval (in seconds)"
+                            id="interval"
+                            required
+                            errorMsg={errors.triggerInterval?.message.toString()}
+                            {...register("triggerInterval", { valueAsNumber: true })}
+                        />
+                    </>
+                ) : (
+                    <>
+                        <TextField
+                            label="Cron"
+                            id="cron"
+                            required
+                            errorMsg={errors.triggerCron?.message.toString()}
+                            {...register("triggerCron")}
+                        />
+                    </>
+                )}
+            </FormGroup>
+            <FormActions>
+                <Button
+                    appearance="primary"
+                    onClick={handleSubmit((values) => {
+                        handleCreateTask(values);
+                    })}
+                    disabled={(!isDirty && !isNewTask)}
+                >
+                    {isNewTask ? "Create" : "Save Changes"}
+                </Button>
+                <Button
+                    appearance="secondary"
+                    onClick={openOverview}
+                >
+                    Cancel
+                </Button>
+            </FormActions>
+        </FormView >
     );
 }
