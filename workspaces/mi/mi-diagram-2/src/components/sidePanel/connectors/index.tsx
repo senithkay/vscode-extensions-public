@@ -18,15 +18,17 @@ import AddConnector from "../Pages/AddConnector";
 
 const LoaderWrapper = styled.div`
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 30vh;
-    width: 100vw;
+    padding-top: 15px;
+    height: 100px;
+    width: 100%;
 `;
 
 const ProgressRing = styled(VSCodeProgressRing)`
-    height: 200px;
-    width: 200px;
+    height: 50px;
+    width: 50px;
     margin-top: auto;
     padding: 4px;
 `;
@@ -61,6 +63,7 @@ export interface ConnectorPageProps {
     documentUri: string;
     setContent: any;
     searchValue?: string;
+    clearSearch?: () => void;
 }
 
 export function ConnectorPage(props: ConnectorPageProps) {
@@ -68,7 +71,6 @@ export function ConnectorPage(props: ConnectorPageProps) {
     const { rpcClient } = useVisualizerContext();
     const [selectedConnector, setSelectedConnector] = useState(undefined);
     const [localConnectors, setLocalConnectors] = useState<any[]>([]);
-    const [operation, setOperation] = useState<string>("");
 
     const fetchConnectors = async () => {
         const response = await fetch('https://raw.githubusercontent.com/rosensilva/connectors/main/connectors_list.json');
@@ -94,8 +96,25 @@ export function ConnectorPage(props: ConnectorPageProps) {
         }
     }, []);
 
-    const searchConnectors = (searchValue: string) => {
-        return sidePanelContext.connectors.filter(connector => connector.name.toLowerCase().includes(searchValue.toLowerCase()));
+    const searchStoreConnectors = (searchValue: string) => {
+        return sidePanelContext.connectors && sidePanelContext.connectors.filter(connector => connector.name.toLowerCase().includes(searchValue.toLowerCase()));
+    }
+
+    const searchLocalConnectors = (searchValue: string) => {
+        return localConnectors && localConnectors.filter(connector => connector.name.toLowerCase().includes(searchValue.toLowerCase()));
+    }
+
+    const searchOperations = (searchValue: string) => {
+        if (selectedConnector.operations) {
+            return Object.keys(selectedConnector.operations).filter(key => key.toLowerCase().includes(searchValue.toLowerCase()));
+        }
+
+        return selectedConnector.actions.filter((action: any) => action.name.toLowerCase().includes(searchValue.toLowerCase()));
+    }
+
+    const selectConnector = async (connector: any) => {
+        setSelectedConnector(connector);
+        props.clearSearch();
     }
 
     const selectOperation = async (operation: string) => {
@@ -107,7 +126,6 @@ export function ConnectorPage(props: ConnectorPageProps) {
                 url: selectedConnector.download_url,
                 version: selectedConnector.version
             });
-
         }
 
         // Get Connector Data from LS
@@ -124,132 +142,147 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
         const connecterForm = <AddConnector formData={(formJSON as any).formJSON} nodePosition={sidePanelContext.nodeRange} documentUri={props.documentUri} />;
 
-        setOperation(operation);
         props.setContent(connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`);
     }
 
     const onBackClick = async () => {
         setSelectedConnector(undefined);
-        setOperation("");
+        props.clearSearch();
     }
 
     const ConnectorList = () => {
-        let connectors;
+        let storeConnectors = sidePanelContext.connectors;
+        let localConnectorsFiltered = localConnectors;
+        let operationsFiltered = selectedConnector ?
+            (selectedConnector.operations ? Object.keys(selectedConnector.operations) : selectedConnector.actions)
+            : undefined;
         if (props.searchValue) {
-            connectors = searchConnectors(props.searchValue);
-        } else {
-            connectors = sidePanelContext.connectors;
+            if (selectedConnector) {
+                operationsFiltered = searchOperations(props.searchValue);
+            } else {
+                storeConnectors = searchStoreConnectors(props.searchValue);
+                localConnectorsFiltered = searchLocalConnectors(props.searchValue);
+            }
         }
 
         return (
             <>
                 {!selectedConnector ?
-                    (!connectors ? (
-                        <LoaderWrapper>
-                            <ProgressRing />
-                        </LoaderWrapper>
-                    ) : (
+                    (
                         <>
                             <div>
                                 <h4>Local Connectors</h4>
-                                <ButtonGrid>
-                                    {localConnectors.map((connector: any) => (
-                                        <ComponentCard
-                                            key={connector.name}
-                                            onClick={() => setSelectedConnector(connector)}
-                                            sx={{
-                                                '&:hover, &.active': {
-                                                    '.icon svg g': {
-                                                        fill: 'var(--vscode-editor-foreground)'
+                                {!localConnectorsFiltered ? (
+                                    <LoaderWrapper>
+                                        <ProgressRing />
+                                        Loading connectors...
+                                    </LoaderWrapper>
+                                ) : (
+                                    <ButtonGrid>
+                                        {localConnectorsFiltered.map((connector: any) => (
+                                            <ComponentCard
+                                                key={connector.name}
+                                                onClick={() => setSelectedConnector(connector)}
+                                                sx={{
+                                                    '&:hover, &.active': {
+                                                        '.icon svg g': {
+                                                            fill: 'var(--vscode-editor-foreground)'
+                                                        },
+                                                        backgroundColor: 'var(--vscode-pickerGroup-border)',
+                                                        border: '1px solid var(--vscode-focusBorder)'
                                                     },
-                                                    backgroundColor: 'var(--vscode-pickerGroup-border)',
-                                                    border: '1px solid var(--vscode-focusBorder)'
-                                                },
-                                                alignItems: 'center',
-                                                border: '1px solid var(--vscode-editor-foreground)',
-                                                borderRadius: 2,
-                                                cursor: 'pointer',
-                                                display: 'flex',
-                                                height: 20,
-                                                justifyContent: 'left',
-                                                marginBottom: 10,
-                                                padding: 10,
-                                                transition: '0.3s',
-                                                width: 180
-                                            }}
-                                        >
-                                            <IconContainer>
-                                                {getSVGIcon("Aggregate")}
-                                            </IconContainer>
-                                            <div style={{
-                                                width: '100%',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis',
-                                                whiteSpace: 'nowrap',
-                                                textAlign: 'left'
-                                            }}>
-                                                <IconLabel>
-                                                    {connector.name}
-                                                </IconLabel>
-                                                <VersionTag>
-                                                    {connector.version}
-                                                </VersionTag>
-                                            </div>
-                                        </ComponentCard>
-                                    ))}
-                                </ButtonGrid>
+                                                    alignItems: 'center',
+                                                    border: '1px solid var(--vscode-editor-foreground)',
+                                                    borderRadius: 2,
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    height: 20,
+                                                    justifyContent: 'left',
+                                                    marginBottom: 10,
+                                                    padding: 10,
+                                                    transition: '0.3s',
+                                                    width: 180
+                                                }}
+                                            >
+                                                <IconContainer>
+                                                    {getSVGIcon("Aggregate")}
+                                                </IconContainer>
+                                                <div style={{
+                                                    width: '100%',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap',
+                                                    textAlign: 'left'
+                                                }}>
+                                                    <IconLabel>
+                                                        {connector.name}
+                                                    </IconLabel>
+                                                    <VersionTag>
+                                                        {connector.version}
+                                                    </VersionTag>
+                                                </div>
+                                            </ComponentCard>
+                                        ))}
+                                    </ButtonGrid>
+                                )}
                             </div>
                             <div>
                                 <h4>Store Connectors</h4>
-                                <ButtonGrid>
-                                    {connectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
-                                        <ComponentCard
-                                            key={connector.name}
-                                            onClick={() => setSelectedConnector(connector)}
-                                            sx={{
-                                                '&:hover, &.active': {
-                                                    '.icon svg g': {
-                                                        fill: 'var(--vscode-editor-foreground)'
+                                {!storeConnectors ? (
+                                    <LoaderWrapper>
+                                        <ProgressRing />
+                                        Fetching connectors...
+                                    </LoaderWrapper>
+                                ) :
+                                    <ButtonGrid>
+                                        {storeConnectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
+                                            <ComponentCard
+                                                key={connector.name}
+                                                onClick={() => selectConnector(connector)}
+                                                sx={{
+                                                    '&:hover, &.active': {
+                                                        '.icon svg g': {
+                                                            fill: 'var(--vscode-editor-foreground)'
+                                                        },
+                                                        backgroundColor: 'var(--vscode-pickerGroup-border)',
+                                                        border: '1px solid var(--vscode-focusBorder)'
                                                     },
-                                                    backgroundColor: 'var(--vscode-pickerGroup-border)',
-                                                    border: '1px solid var(--vscode-focusBorder)'
-                                                },
-                                                alignItems: 'center',
-                                                border: '1px solid var(--vscode-editor-foreground)',
-                                                borderRadius: 2,
-                                                cursor: 'pointer',
-                                                display: 'flex',
-                                                height: 20,
-                                                justifyContent: 'left',
-                                                marginBottom: 10,
-                                                padding: 10,
-                                                transition: '0.3s',
-                                                width: 180
-                                            }}
-                                        >
-                                            <IconContainer>
-                                                {getSVGIcon("Aggregate")}
-                                            </IconContainer>
-                                            <div style={{
-                                                width: '100%',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis',
-                                                whiteSpace: 'nowrap',
-                                                textAlign: 'left'
-                                            }}>
-                                                <IconLabel>
-                                                    {connector.name}
-                                                </IconLabel>
-                                                <VersionTag>
-                                                    {connector.version}
-                                                </VersionTag>
-                                            </div>
-                                        </ComponentCard>
-                                    ))}
-                                </ButtonGrid>
+                                                    alignItems: 'center',
+                                                    border: '1px solid var(--vscode-editor-foreground)',
+                                                    borderRadius: 2,
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    height: 20,
+                                                    justifyContent: 'left',
+                                                    marginBottom: 10,
+                                                    padding: 10,
+                                                    transition: '0.3s',
+                                                    width: 180
+                                                }}
+                                            >
+                                                <IconContainer>
+                                                    {getSVGIcon("Aggregate")}
+                                                </IconContainer>
+                                                <div style={{
+                                                    width: '100%',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap',
+                                                    textAlign: 'left'
+                                                }}>
+                                                    <IconLabel>
+                                                        {connector.name}
+                                                    </IconLabel>
+                                                    <VersionTag>
+                                                        {connector.version}
+                                                    </VersionTag>
+                                                </div>
+                                            </ComponentCard>
+                                        ))}
+                                    </ButtonGrid>
+                                }
                             </div>
                         </>
-                    )
                     ) : (
                         <>
                             <TitleWrapper>
@@ -259,7 +292,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                 <h4>All Operations</h4>
                             </TitleWrapper>
                             <ButtonGrid>
-                                {(selectedConnector.operations ? Object.keys(selectedConnector.operations) : selectedConnector.actions).map((operation: any) => {
+                                {(operationsFiltered).map((operation: any) => {
                                     // If operation is hidden, do not render the ComponentCard
                                     if (operation.isHidden) {
                                         return null;

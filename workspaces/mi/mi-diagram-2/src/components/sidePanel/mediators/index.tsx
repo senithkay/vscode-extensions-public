@@ -70,6 +70,10 @@ export function MediatorPage(props: MediatorPageProps) {
         setSearchValue(e);
     }
 
+    const clearSearch = () => {
+        setSearchValue('');
+    }
+
     const handleAllMediatorsClicked = () => {
         setConnectors(false);
         setAllMediators(true);
@@ -125,7 +129,7 @@ export function MediatorPage(props: MediatorPageProps) {
             )}
             {isConnectors && (
                 <ComponentList>
-                    <ConnectorPage setContent={props.setContent} documentUri={props.documentUri} searchValue={searchValue} />
+                    <ConnectorPage setContent={props.setContent} documentUri={props.documentUri} searchValue={searchValue} clearSearch={clearSearch} />
                 </ComponentList>
             )}
         </Wrapper>
