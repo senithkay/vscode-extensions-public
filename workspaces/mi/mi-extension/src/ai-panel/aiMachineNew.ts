@@ -15,6 +15,7 @@ import { AiPanelWebview } from './webview';
 import { RPCLayer } from '../RPCLayer';
 import { StateMachine } from '../stateMachine';
 import * as keytar from 'keytar';
+import axios from 'axios';
 
 interface ChatEntry {
     role: string;
@@ -116,6 +117,7 @@ const aiStateMachine = createMachine<AiMachineContext>({
                 }
             },
             on: {
+                SIGNINSUCCESS: "Ready",
                 CANCEL: "loggedOut",
                 FAILIER: "loggedOut"
             }
@@ -132,7 +134,8 @@ const aiStateMachine = createMachine<AiMachineContext>({
     }
 }, {
     services: {
-        checkToken: checkToken
+        checkToken: checkToken,
+        openLogin: openLogin,
     }
 });
 
@@ -140,7 +143,7 @@ const aiStateMachine = createMachine<AiMachineContext>({
 async function checkToken(context, event) {
     return new Promise(async (resolve, reject) => {
         try {
-            const token = await keytar.getPassword('MI-AI', 'testUser');
+            const token = await keytar.getPassword('MI-AI', 'MIAIUser');
             if (token) {
                 console.log("Token found: " + token);
                 resolve(token);
@@ -153,6 +156,112 @@ async function checkToken(context, event) {
     });
 }
 
+
+
+async function openLogin(context, event) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            initiateInbuiltAuth();
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+async function getAuthUrl(callbackUri: string): Promise<string> {
+    // const state = {
+    //     origin: "vscode.choreo.ext",
+    //     callbackUri: callbackUri
+    // };
+    // const stateBase64 = Buffer.from(JSON.stringify(state), 'binary').toString('base64');
+
+    // return `${this._config.loginUrl}?profile=vs-code&client_id=${this._config.clientId}`
+    //     + `&state=${stateBase64}&code_challenge=${this._challenge.code_challenge}`;
+
+    return "https://api.asgardeo.io/t/wso2mi/oauth2/authorize?response_type=code&redirect_uri=vscode%3A%2F%2Fwso2.micro-integrator%2Fsignin&client_id=yo29V9jLN83xmVCNvlRQ_QGfvcka&scope=openid";
+}
+
+async function initiateInbuiltAuth() {
+    const callbackUri = await vscode.env.asExternalUri(
+        vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.micro-integrator/signin`)
+    );
+    const oauthURL = await getAuthUrl(callbackUri.toString());
+    return vscode.env.openExternal(vscode.Uri.parse(oauthURL));
+}
+
+export interface AccessToken {
+    accessToken : string;
+    expirationTime? : number;
+    loginTime : string;
+    refreshToken? : string;
+}
+
+const CommonReqHeaders = {
+    'Content-Type': 'application/x-www-form-urlencoded; charset=utf8',
+    'Accept': 'application/json'
+};
+
+async function exchangeAuthCodeNew(authCode: string): Promise<AccessToken> {
+    const params = new URLSearchParams({
+        client_id: 'yo29V9jLN83xmVCNvlRQ_QGfvcka',
+        code: authCode,
+        grant_type: 'authorization_code',
+        redirect_uri: 'vscode://wso2.micro-integrator/signin',
+    });
+    try {
+        const response = await axios.post('https://api.asgardeo.io/t/wso2mi/oauth2/token', params.toString(), { headers: CommonReqHeaders });
+        return {
+            accessToken: response.data.access_token,
+            refreshToken: response.data.refresh_token,
+            loginTime: new Date().toISOString(),
+            expirationTime: response.data.expires_in
+        };
+    } catch (err) {
+        throw new Error(`Error while exchanging auth code to token: ${err}`);
+    }
+}
+
+
+async function exchangeAuthCode(authCode: string) {
+        if (!authCode) {
+            throw new Error("Auth code is not provided.");
+        } else {
+            try {
+                var currentTime = Date.now();
+                console.log("Exchanging auth code to token...");
+                const response = await exchangeAuthCodeNew(authCode);
+                console.log("Access token: " + response.accessToken);
+                console.log("Refresh token: " + response.refreshToken);
+                console.log("Login time: " + response.loginTime);
+                console.log("Expiration time: " + response.expirationTime);
+                await keytar.setPassword('MI-AI', 'MIAIUser', response.accessToken);
+                aiStateService.send('SIGNINSUCCESS');
+            } catch (error: any) {
+                const errMsg = "Error while signing in to Choreo! " + error?.message;
+                // getLogger().error(errMsg);
+                // if (error?.cause) {
+                //     getLogger().debug("Cause message: " + JSON.stringify(error.cause?.message));
+                // }
+                throw new Error(errMsg);
+            }
+        }
+}
+
+vscode.window.registerUriHandler({
+    handleUri(uri: vscode.Uri) {
+        if (uri.path === '/signin') {
+            console.log("Signin callback hit");
+            const query = new URLSearchParams(uri.query);
+            const code = query.get('code');
+            console.log("Code: " + code);
+            if (code) {
+                exchangeAuthCode(code);
+            } else {
+                // Handle error here
+            }
+        }
+    }
+});
 
 // Create a service to interpret the machine
 export const aiStateService = interpret(aiStateMachine);
@@ -167,7 +276,11 @@ export const StateMachineAI = {
 };
 
 export function openAIView(type: EVENT_TYPE, viewLocation?: AIVisualizerLocation) {
-    aiStateService.send({ type: type, viewLocation: viewLocation });
+    if (!AiPanelWebview.currentPanel) {
+        AiPanelWebview.currentPanel = new AiPanelWebview();
+    } else {
+        AiPanelWebview.currentPanel!.getWebview()?.reveal();
+    }
 }
 
 async function checkAiStatus() {
@@ -179,4 +292,8 @@ async function checkAiStatus() {
 
 aiStateService.onTransition((state) => {
     console.log("State - " + state.value);
+    if(state.value === "loggedOut") {
+        aiStateService.send('LOGIN');
+    }
 }).start();
+
