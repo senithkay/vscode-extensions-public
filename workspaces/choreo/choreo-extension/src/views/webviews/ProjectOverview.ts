@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Organization, Project } from "@wso2-enterprise/choreo-core";
+import { Organization, Project, WebviewProps } from "@wso2-enterprise/choreo-core";
 import * as vscode from "vscode";
 import { WebViewPanelRpc } from "./rpc/WebviewRPC";
 import { ext } from "../../extensionVariables";
@@ -82,12 +82,14 @@ export class ProjectOverview {
             <script>
               function render() {
                 choreoWebviews.renderChoreoWebViews(
-                  document.getElementById("root"), 
-                  "ProjectOverview", 
-                  "${projectId}", 
-                  "${orgName}", 
-                  ${FREE_COMPONENT_LIMIT}, 
-                  "${choreoEnvConfig.getConsoleUrl()}"
+                  document.getElementById("root"),
+                  ${JSON.stringify({
+                    type: "ProjectOverview",
+                    projectId,
+                    orgName,
+                    componentLimit: FREE_COMPONENT_LIMIT,
+                    choreoUrl: choreoEnvConfig.getConsoleUrl()
+                  } as WebviewProps)}
                 );
               }
               render();

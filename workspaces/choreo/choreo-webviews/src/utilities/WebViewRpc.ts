@@ -99,6 +99,12 @@ import {
     GetBuildPackParams,
     GetBuildpack,
     CreateBalLocalComponentFromExistingSource,
+    AuthState,
+    AuthStoreChangedNotification,
+    GetAuthState,
+    GetLinkedDirState,
+    LinkedDirectoryState,
+    LinkedDirStoreChangedNotification,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -124,7 +130,28 @@ export class ChoreoWebViewAPI {
         this._githubAppClient = new ChoreoGithubAppClientRPCWebView(this._messenger);
         this._choreoProjectManager = new ChoreoProjectManagerRPCWebview(this._messenger);
         this._choreoCellView = new ChoreoCellViewRPCWebview(this._messenger);
+        // TODO: add rpc client here
     }
+
+    // New notifications
+    public onAuthStateChanged(callback: (state: AuthState) => void) {
+        this._messenger.onNotification(AuthStoreChangedNotification, callback);
+    }
+
+    public onLinkedDirStateChanged(callback: (state: LinkedDirectoryState) => void) {
+        this._messenger.onNotification(LinkedDirStoreChangedNotification, callback);
+    }
+
+    // New RPC calls
+    public async getAuthState(): Promise<AuthState> {
+        return this._messenger.sendRequest(GetAuthState, HOST_EXTENSION, undefined);
+    }
+
+    public async getLinkedDirState(): Promise<LinkedDirectoryState> {
+        return this._messenger.sendRequest(GetLinkedDirState, HOST_EXTENSION, undefined);
+    }
+
+    // todo: remove old ones
 
     public async getLoginStatus(): Promise<ChoreoLoginStatus> {
         return this._messenger.sendRequest(GetLoginStatusRequest, HOST_EXTENSION, '');

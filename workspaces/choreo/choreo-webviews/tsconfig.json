@@ -22,7 +22,7 @@
     "jsx": "react",
     "target": "ES6",
     "strictNullChecks": false,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "noUnusedParameters": true,
     "paths": {
       "react": [

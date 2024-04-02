@@ -97,6 +97,11 @@ import {
     GetBuildPackParams,
     GetBuildpack,
     CreateBalLocalComponentFromExistingSource,
+    AuthStoreChangedNotification,
+    NotificationsMethodList,
+    GetAuthState,
+    GetLinkedDirState,
+    LinkedDirStoreChangedNotification,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -111,58 +116,60 @@ import { enrichConsoleDeploymentData, mergeNonClonedProjectData } from "../../..
 import { getLogger } from "../../../logger/logger";
 import { initGit } from "../../../git/main";
 import { dirname, join } from "path";
-import { sendProjectTelemetryEvent, sendTelemetryEvent, sendTelemetryException } from "../../../telemetry/utils";
+import { sendTelemetryEvent, sendTelemetryException } from "../../../telemetry/utils";
 import { existsSync } from "fs";
+import { authStore } from "../../../states/authState";
+import { linkedDirectoryStore } from "../../../states/linkedDirState";
 
 const manager = new ChoreoProjectManager();
 
 // Register handlers
 export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | WebviewView) {
-    messenger.onRequest(GetLoginStatusRequest, () => {
-        return ext.api.status;
-    });
-    messenger.onRequest(GetCurrentOrgRequest, () => {
-        return ext.api.getSelectedOrg();
-    });
 
-    messenger.onRequest(GetUserInfoRequest, async () => {
-        return ext.api.userInfo;
-    });
+    authStore.subscribe((store)=> messenger.sendNotification(AuthStoreChangedNotification, BROADCAST, store.state));
+    linkedDirectoryStore.subscribe((store)=> messenger.sendNotification(LinkedDirStoreChangedNotification, BROADCAST, store.state));
+
+    messenger.onRequest(GetAuthState, ()=>authStore.getState().state);
+    messenger.onRequest(GetLinkedDirState, ()=>linkedDirectoryStore.getState().state);
+    // TODO remove old ones
+
+  
+
 
     // TODO: Remove this once the Choreo project client RPC handlers are registered
-    messenger.onRequest(GetAllProjectsRequest, async (orgId: number) => {
-        const org = ext.api.getOrgById(orgId);
-        if (org) {
-            return ProjectRegistry.getInstance().getProjects(orgId, org.handle);
-        }
-        return [];
-    });
+    // messenger.onRequest(GetAllProjectsRequest, async (orgId: number) => {
+    //     const org = ext.api.getOrgById(orgId);
+    //     if (org) {
+    //         return ProjectRegistry.getInstance().getProjects(orgId, org.handle);
+    //     }
+    //     return [];
+    // });
 
-    messenger.onRequest(GetComponents, async (params: GetComponentsRequestParams) => {
-        const { orgId, projectId } = params;
-        const org = ext.api.getOrgById(orgId);
-        if (org) {
-            return ProjectRegistry.getInstance().getComponents(projectId, org.id, org.handle, org.uuid);
-        }
-        return [];
-    });
+    // messenger.onRequest(GetComponents, async (params: GetComponentsRequestParams) => {
+    //     const { orgId, projectId } = params;
+    //     const org = ext.api.getOrgById(orgId);
+    //     if (org) {
+    //         return ProjectRegistry.getInstance().getComponents(projectId, org.id, org.handle, org.uuid);
+    //     }
+    //     return [];
+    // });
 
-    messenger.onRequest(CheckProjectDeleted, (params: CheckProjectDeletedParams) => {
-        const { orgId, projectId } = params;
-        const org = ext.api.getOrgById(orgId);
-        if (org) {
-            return ProjectRegistry.getInstance().checkProjectDeleted(projectId, orgId, org.handle);
-        }
-        return false;
-    });
+    // messenger.onRequest(CheckProjectDeleted, (params: CheckProjectDeletedParams) => {
+    //     const { orgId, projectId } = params;
+    //     const org = ext.api.getOrgById(orgId);
+    //     if (org) {
+    //         return ProjectRegistry.getInstance().checkProjectDeleted(projectId, orgId, org.handle);
+    //     }
+    //     return false;
+    // });
 
-    messenger.onRequest(GetDeletedComponents, async (params: GetDeletedComponentsParams) => {
-        const { orgId, projectId } = params;
-        const org = ext.api.getOrgById(orgId);
-        if (org) {
-            return ProjectRegistry.getInstance().getDeletedComponents(projectId, org.id, org.handle, org.uuid);
-        }
-    });
+    // messenger.onRequest(GetDeletedComponents, async (params: GetDeletedComponentsParams) => {
+    //     const { orgId, projectId } = params;
+    //     const org = ext.api.getOrgById(orgId);
+    //     if (org) {
+    //         return ProjectRegistry.getInstance().getDeletedComponents(projectId, org.id, org.handle, org.uuid);
+    //     }
+    // });
 
     messenger.onRequest(CreateNonBalLocalComponent, async (params: ChoreoComponentCreationParams) => {
         return ProjectRegistry.getInstance().createNonBalLocalComponent(params);
@@ -176,14 +183,14 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         return ProjectRegistry.getInstance().createBalLocalComponentFromExistingSource(params);
     });
 
-    messenger.onRequest(GetBuildpack, async (params: GetBuildPackParams) => {
-        const { orgId, componentType } = params;
-        const org = ext.api.getOrgById(orgId);
-        if (org) {
-            return ProjectRegistry.getInstance().getBuildpack(org.id, org.uuid, componentType);
-        }
-        return false;
-    });
+    // messenger.onRequest(GetBuildpack, async (params: GetBuildPackParams) => {
+    //     const { orgId, componentType } = params;
+    //     const org = ext.api.getOrgById(orgId);
+    //     if (org) {
+    //         return ProjectRegistry.getInstance().getBuildpack(org.id, org.uuid, componentType);
+    //     }
+    //     return false;
+    // });
 
     messenger.onRequest(RemoveDeletedComponents, async (params: { projectId: string, components: PushedComponent[] }) => {
         const answer = await vscode.window.showInformationMessage(
@@ -196,38 +203,40 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         }
     });
 
-    messenger.onRequest(GetComponentDevDeployment, async (component: Component) => {
-        const { orgHandler } = component;
-        const org = ext.api.getOrgByHandle(orgHandler);
-        if (org) {
-            return ProjectRegistry.getInstance().getComponentDevDeployment(component, org.id, org.handle, org.uuid);
-        }
-        return null;
-    });
+    // messenger.onRequest(GetComponentDevDeployment, async (component: Component) => {
+    //     const { orgHandler } = component;
+    //     const org = ext.api.getOrgByHandle(orgHandler);
+    //     if (org) {
+    //         return ProjectRegistry.getInstance().getComponentDevDeployment(component, org.id, org.handle, org.uuid);
+    //     }
+    //     return null;
+    // });
 
-    messenger.onRequest(GetComponentBuildStatus, async (component: Component) => {
-        const org = ext.api.getOrgByHandle(component.orgHandler);
-        if (!org) {
-            return null;
-        }
-        return ProjectRegistry.getInstance().getComponentBuildStatus(org.id, org.handle, component);
-    });
+    // messenger.onRequest(GetComponentBuildStatus, async (component: Component) => {
+    //     // const org = ext.api.getOrgByHandle(component.orgHandler);
+    //     // if (!org) {
+    //     //     return null;
+    //     // }
+    //     // return ProjectRegistry.getInstance().getComponentBuildStatus(org.id, org.handle, component);
+
+    // });
 
     messenger.onRequest(DeleteComponent, async (params: { projectId: string; component: Component }) => {
         const { orgHandler, displayName } = params.component;
-        const org = ext.api.getOrgByHandle(orgHandler);
-        if (org) {
-            const answer = await vscode.window.showWarningMessage(
-                `Are you sure you want to delete the component ${displayName}? `,
-                { modal: true },
-                "Delete Component"
-            );
-            if (answer === "Delete Component") {
-                await ProjectRegistry.getInstance().deleteComponent(params.component, org.id, org.handle, params.projectId);
-                return params.component;
-            }
-            return null;
-        }
+        // const org = ext.api.getOrgByHandle(orgHandler);
+        // if (org) {
+        //     const answer = await vscode.window.showWarningMessage(
+        //         `Are you sure you want to delete the component ${displayName}? `,
+        //         { modal: true },
+        //         "Delete Component"
+        //     );
+        //     if (answer === "Delete Component") {
+        //         await ProjectRegistry.getInstance().deleteComponent(params.component, org.id, org.handle, params.projectId);
+        //         return params.component;
+        //     }
+        //     return null;
+        // }
+        return null;
     });
 
     messenger.onRequest(getEndpointsForVersion, async (params: { componentId: string; versionId: string; orgId: number }): Promise<EndpointData | null> => {
@@ -235,32 +244,32 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     });
 
     messenger.onRequest(PullComponent, async (params: { projectId: string; componentId: string }) => {
-        const project = await ext.api.getChoreoProject();
-        if (!project) {
-            throw new Error("Project not found");
-        }
-        const org = ext.api.getOrgById(parseInt(project.orgId));
-        if (!org) {
-            throw new Error("Org not found");
-        }
-        await ProjectRegistry.getInstance().pullComponent(org.id, params.componentId, params.projectId);
+        // const project = await ext.api.getChoreoProject();
+        // if (!project) {
+        //     throw new Error("Project not found");
+        // }
+        // const org = ext.api.getOrgById(parseInt(project.orgId));
+        // if (!org) {
+        //     throw new Error("Org not found");
+        // }
+        // await ProjectRegistry.getInstance().pullComponent(org.id, params.componentId, params.projectId);
     });
 
-    messenger.onRequest(GetComponentCount, async (params: GetComponentCountParams) => {
-        const { orgId } = params;
-        const org = ext.api.getOrgById(orgId);
-        if (org) {
-            return ProjectRegistry.getInstance().getComponentCount(orgId);
-        }
-    });
+    // messenger.onRequest(GetComponentCount, async (params: GetComponentCountParams) => {
+    //     const { orgId } = params;
+    //     // const org = ext.api.getOrgById(orgId);
+    //     // if (org) {
+    //     //     return ProjectRegistry.getInstance().getComponentCount(orgId);
+    //     // }
+    // });
 
-    messenger.onRequest(HasChoreoSubscription, async (params: HasChoreoSubscriptionParams) => {
-        const { orgId } = params;
-        const org = ext.api.getOrgById(orgId);
-        if (org) {
-            return ProjectRegistry.getInstance().hasChoreoSubscription(orgId);
-        }
-    });
+    // messenger.onRequest(HasChoreoSubscription, async (params: HasChoreoSubscriptionParams) => {
+    //     const { orgId } = params;
+    //     // const org = ext.api.getOrgById(orgId);
+    //     // if (org) {
+    //     //     return ProjectRegistry.getInstance().hasChoreoSubscription(orgId);
+    //     // }
+    // });
 
     messenger.onRequest(GetProjectLocation, async (projectId: string) => {
         return ProjectRegistry.getInstance().getProjectLocation(projectId);
@@ -280,16 +289,16 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(CloneChoreoProject, (params: CloneChoreoProjectParams) => {
         const { orgId, projectId } = params;
-        const org = ext.api.getOrgById(orgId);
-        if (org) {
-            ProjectRegistry.getInstance()
-                .getProject(projectId, orgId, org.handle)
-                .then((project: Project | undefined) => {
-                    if (project) {
-                        cloneProject(project);
-                    }
-                });
-        }
+        // const org = ext.api.getOrgById(orgId);
+        // if (org) {
+        //     ProjectRegistry.getInstance()
+        //         .getProject(projectId, orgId, org.handle)
+        //         .then((project: Project | undefined) => {
+        //             if (project) {
+        //                 cloneProject(project);
+        //             }
+        //         });
+        // }
     });
 
     messenger.onRequest(AskProjectDirPath, async () => {
@@ -357,46 +366,46 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     });
 
     messenger.onRequest(getChoreoProject, () => {
-        return ext.api.getChoreoProject();
+        return {} as Project;
     });
 
     messenger.onRequest(OpenCellView, () => {
         commands.executeCommand("ballerina.view.cellView");
     });
 
-    messenger.onRequest(getDiagramComponentModel, async (params): Promise<GetComponentModelResponse> => {
-        let componentModels: { [key: string]: ComponentModel } = {};
-        let diagnostics: ComponentModelDiagnostics[] = [];
-        const org = ext.api.getOrgById(params.orgId);
-        if (!org) {
-            throw new Error("Org not found");
-        }
-        await ProjectRegistry.getInstance()
-            .getDiagramModel(params.projId, params.orgId, org.handle)
-            .then(async (component) => {
-                component.forEach((value, _key) => {
-                    // Draw the cell diagram for the last version of the component
-                    const finalVersion = value.apiVersions[value.apiVersions.length - 1];
-                    if (finalVersion.cellDiagram?.success) {
-                        const decodedString = Buffer.from(finalVersion.cellDiagram.data, "base64");
-                        const model: ComponentModel = JSON.parse(decodedString.toString());
-                        enrichConsoleDeploymentData(model.services, finalVersion);
-                        componentModels[`${model.orgName}/${model.id}:${model.version}`] = model;
-                    } else {
-                        componentModels[`${value.orgHandler}/${value.name}:${value.version}`] = mergeNonClonedProjectData(value);
-                        diagnostics.push({ name: `${value.displayName} Component` });
-                    }
-                });
-            })
-            .catch((error: any) => {
-                getLogger().error(`Error while getting diagram model for project ${params.projId}. ${error?.message} ${error?.cause ? error.cause : ""}`);
-            });
+    // messenger.onRequest(getDiagramComponentModel, async (params): Promise<GetComponentModelResponse> => {
+    //     let componentModels: { [key: string]: ComponentModel } = {};
+    //     let diagnostics: ComponentModelDiagnostics[] = [];
+    //     // const org = ext.api.getOrgById(params.orgId);
+    //     // if (!org) {
+    //     //     throw new Error("Org not found");
+    //     // }
+    //     await ProjectRegistry.getInstance()
+    //         .getDiagramModel(params.projId, params.orgId, org.handle)
+    //         .then(async (component) => {
+    //             component.forEach((value, _key) => {
+    //                 // Draw the cell diagram for the last version of the component
+    //                 const finalVersion = value.apiVersions[value.apiVersions.length - 1];
+    //                 if (finalVersion.cellDiagram?.success) {
+    //                     const decodedString = Buffer.from(finalVersion.cellDiagram.data, "base64");
+    //                     const model: ComponentModel = JSON.parse(decodedString.toString());
+    //                     enrichConsoleDeploymentData(model.services, finalVersion);
+    //                     componentModels[`${model.orgName}/${model.id}:${model.version}`] = model;
+    //                 } else {
+    //                     componentModels[`${value.orgHandler}/${value.name}:${value.version}`] = mergeNonClonedProjectData(value);
+    //                     diagnostics.push({ name: `${value.displayName} Component` });
+    //                 }
+    //             });
+    //         })
+    //         .catch((error: any) => {
+    //             getLogger().error(`Error while getting diagram model for project ${params.projId}. ${error?.message} ${error?.cause ? error.cause : ""}`);
+    //         });
 
-        return {
-            componentModels: componentModels,
-            diagnostics: diagnostics,
-        };
-    });
+    //     return {
+    //         componentModels: componentModels,
+    //         diagnostics: diagnostics,
+    //     };
+    // });
 
     messenger.onRequest(SetChoreoInstallOrg, (orgId: number) => {
         ext.api.setChoreoInstallOrg(orgId);
@@ -412,10 +421,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(PushLocalComponentsToChoreo, async function (params: PushLocalComponentsToChoreoParams): Promise<string[]> {
         const { orgId, projectId, componentNames } = params;
-        const org = ext.api.getOrgById(orgId);
-        if (org) {
-            return ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, componentNames, org);
-        }
+        // const org = ext.api.getOrgById(orgId);
+        // if (org) {
+        //     return ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, componentNames, org);
+        // }
         return [];
     });
 
@@ -427,10 +436,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
                 cancellable: false,
             },
             async (_progress, cancellationToken) => {
-                const org = await ext.api.getSelectedOrg();
-                if (org) {
-                    await ProjectRegistry.getInstance().pushLocalComponentToChoreo(params.projectId, params.componentName, org);
-                }
+                // const org = await ext.api.getSelectedOrg();
+                // if (org) {
+                //     await ProjectRegistry.getInstance().pushLocalComponentToChoreo(params.projectId, params.componentName, org);
+                // }
             }
         );
     });
@@ -520,9 +529,9 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         sendTelemetryEvent(event.eventName, event.properties, event.measurements);
     });
 
-    messenger.onNotification(SendProjectTelemetryEventNotification, (event: SendTelemetryEventParams) => {
-        sendProjectTelemetryEvent(event.eventName, event.properties, event.measurements);
-    });
+    // messenger.onNotification(SendProjectTelemetryEventNotification, (event: SendTelemetryEventParams) => {
+    //     sendProjectTelemetryEvent(event.eventName, event.properties, event.measurements);
+    // });
 
     messenger.onNotification(SendTelemetryExceptionNotification, (event: SendTelemetryExceptionParams) => {
         sendTelemetryException(event.error, event.properties, event.measurements);
@@ -564,6 +573,8 @@ export class WebViewPanelRpc {
                     "ghapp/onGHAppAuthCallback",
                     "refreshComponents",
                     "refreshWorkspace",
+                    //new
+                    ...NotificationsMethodList
                 ],
             });
             this._panel = view;
@@ -603,6 +614,8 @@ export class WebViewViewRPC {
                     "ghapp/onGHAppAuthCallback",
                     "refreshComponents",
                     "refreshWorkspace",
+                    // new
+                    ...NotificationsMethodList
                 ],
             });
             this._view = view;

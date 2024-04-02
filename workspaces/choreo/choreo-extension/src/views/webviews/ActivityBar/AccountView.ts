@@ -10,6 +10,7 @@ import * as vscode from 'vscode';
 import { WebViewViewRPC } from '../rpc/WebviewRPC';
 import { getUri } from '../utils';
 import { ext } from '../../../extensionVariables';
+import { WebviewProps } from '@wso2-enterprise/choreo-core';
 
 export class AccountView implements vscode.WebviewViewProvider {
 
@@ -41,17 +42,17 @@ export class AccountView implements vscode.WebviewViewProvider {
 
 		webviewView.webview.html = this._getWebviewContent(webviewView.webview);
 		this._rpc = new WebViewViewRPC(webviewView);
-		this.updateLoginStatus();
-		ext.context.subscriptions.push(ext.api.onStatusChanged(() => this.updateLoginStatus()));
+		// this.updateLoginStatus();
+		// ext.context.subscriptions.push(ext.api.onStatusChanged(() => this.updateLoginStatus()));
 	}
 
-	private async updateLoginStatus() {
-		const isLoggedIn = await ext.api.waitForLogin();
-		if (isLoggedIn && this._view) {
-			const userInfo = ext.api.userInfo;
-			// this._view.description = userInfo?.displayName;
-		}
-	}
+	// private async updateLoginStatus() {
+	// 	const isLoggedIn = await ext.api.waitForLogin();
+	// 	if (isLoggedIn && this._view) {
+	// 		const userInfo = ext.api.userInfo;
+	// 		// this._view.description = userInfo?.displayName;
+	// 	}
+	// }
 
 	private _getWebviewContent(webview: vscode.Webview) {
 		// The JS file from the React build output
@@ -83,7 +84,12 @@ export class AccountView implements vscode.WebviewViewProvider {
 				</body>
 				<script>
 				  function render() {
-					choreoWebviews.renderChoreoWebViews(document.getElementById("root"), "ActivityBarAccountView");
+					choreoWebviews.renderChoreoWebViews(
+						document.getElementById("root"), 
+						${JSON.stringify({
+							type: "ActivityBarAccountView",
+						  } as WebviewProps)}
+					);
 				  }
 				  render();
 				</script>

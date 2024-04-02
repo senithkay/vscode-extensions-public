@@ -12,7 +12,7 @@ import { WebViewPanelRpc } from "./rpc/WebviewRPC";
 import { getUri } from "./utils";
 import { FREE_COMPONENT_LIMIT } from "../../auth/config";
 import { choreoEnvConfig } from "../../auth/auth";
-import { Organization } from "@wso2-enterprise/choreo-core";
+import { Organization, WebviewProps } from "@wso2-enterprise/choreo-core";
 
 export class ChoreoCellView {
 	public static currentPanel: ChoreoCellView | undefined;
@@ -71,12 +71,14 @@ export class ChoreoCellView {
                 <script>
                     function render() {
                         choreoWebviews.renderChoreoWebViews(
-							document.getElementById("root"), 
-							"ChoreoCellView", 
-							"${projectId}", 
-							"${orgName}", 
-							${FREE_COMPONENT_LIMIT},  
-							"${choreoEnvConfig.getConsoleUrl()}"
+							document.getElementById("root"),
+							${JSON.stringify({
+								type: "ChoreoCellView",
+								projectId,
+								orgName,
+								componentLimit: FREE_COMPONENT_LIMIT,
+								choreoUrl: choreoEnvConfig.getConsoleUrl()
+							} as WebviewProps)}
 						);
                     }
                     render();

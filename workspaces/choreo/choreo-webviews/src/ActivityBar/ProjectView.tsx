@@ -12,11 +12,14 @@
  */
 
 import React from "react";
-import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
-import { ProjectActionsCard } from "./Components/ProjectActionsCard";
+// import { useChoreoWebViewContext } from "../context/chorelso-web-view-ctx";
+import { useAuthContext } from "../context/choreo-auth-ctx";
+import { useLinkedDirContext } from "../context/choreo-linked-dir-ctx";
+
+// import { ProjectActionsCard } from "./Components/ProjectActionsCard";
 import styled from "@emotion/styled";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
-import { EmptyWorkspaceMessage } from "./Components/EmptyWorkspaceMessage";
+// import { EmptyWorkspaceMessage } from "./Components/EmptyWorkspaceMessage";
 import { SignInToChoreoMessage } from "./Components/SignIntoChoreoMessage";
 
 const Container = styled.div`
@@ -28,12 +31,33 @@ const Container = styled.div`
 `;
 
 export const ProjectView = () => {
-    const { choreoProject, loginStatus, isChoreoProject, loadingProject } = useChoreoWebViewContext();
+    // const { choreoProject, loginStatus, isChoreoProject, loadingProject } = useChoreoWebViewContext();
+    const { userInfo, loading: loadingAuth, isInitialLoading: initialLoadAuth } = useAuthContext();
+    const { links, loading: loadingDirs, isInitialLoading: initialLoadDirs } = useLinkedDirContext();
+
+    console.log("links", links);
+    console.log("userInfo", userInfo);
 
     return (
         <Container>
-            {!["LoggedIn", "LoggedOut"].includes(loginStatus) && <ProgressIndicator id="project-view-progress" />}
-            {loginStatus === "LoggedOut" && <SignInToChoreoMessage showProjectHeader/>}
+            {(loadingAuth || loadingDirs) && <ProgressIndicator id="project-view-progress" />}
+            {!initialLoadAuth && !initialLoadDirs && (
+                <>
+                    {userInfo ? (
+                        <>
+                            {links.map((item) => (
+                                <div key={item.linkRelativePath}>
+                                    <div>Component Path: {item.componentRelativePath}</div>
+                                </div>
+                            ))}
+                        </>
+                    ) : (
+                        <SignInToChoreoMessage showProjectHeader />
+                    )}
+                </>
+            )}
+
+            {/* {loginStatus === "LoggedOut" && <SignInToChoreoMessage showProjectHeader/>}
             {loginStatus == "LoggedIn" && (
                 <>
                     {loadingProject ? (
@@ -46,7 +70,7 @@ export const ProjectView = () => {
                         </>
                     )}
                 </>
-            )}
+            )} */}
         </Container>
     );
 };

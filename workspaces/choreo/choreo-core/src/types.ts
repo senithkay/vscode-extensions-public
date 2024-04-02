@@ -6,18 +6,23 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-export type ChoreoLoginStatus = 'Initializing' | 'LoggingIn' | 'LoggedIn' | 'LoggedOut';
 
-export type ComponentAccessibility = 'internal' | 'external';
+export type WebviewTypes = "ChoreoCellView" | "ProjectOverview" | "ProjectCreateForm" | "ComponentCreateForm" | "ActivityBarAccountView" | "ActivityBarProjectView"
 
-export type ComponentNetworkVisibility = 'Project' | 'Organization' | 'Public';
+export interface WebviewProps {
+    // TODO: simplify this
+	type: WebviewTypes;
+	projectId?: string;
+	orgName?: string;
+	componentLimit?: number;
+	choreoUrl?: string;
+}
 
 export interface Owner {
     id: string;
     idpId: string;
     createdAt: Date;
 }
-
 export interface Organization {
     id: number;
     uuid: string;
@@ -35,6 +40,49 @@ export interface UserInfo {
     userId: string;
     userCreatedAt: Date;
 }
+
+export interface AuthState {
+    userInfo: UserInfo | null;
+    loading: boolean;
+}
+
+export interface LinkFileContent {
+    component: string;
+    project: string;
+    org: string;
+}
+
+export interface ComponentLinkContent {
+    componentHandle: string;
+    projectHandle: string;
+    orgHandle: string;
+}
+export interface ComponentLink {
+    componentRelativePath: string;
+    componentFullPath: string;
+    linkFullPath: string;
+    linkRelativePath: string;
+    linkContent: ComponentLinkContent;
+}
+
+export interface LinkedDirectoryState {
+    links: ComponentLink[];
+    loading?: boolean;
+    error?: Error;
+}
+
+/////////////////////////////////////
+/////////////////////////////////////
+// TODO: remove OLD /////////////////
+/////////////////////////////////////
+/////////////////////////////////////
+
+export type ChoreoLoginStatus = 'Initializing' | 'LoggingIn' | 'LoggedIn' | 'LoggedOut';
+
+export type ComponentAccessibility = 'internal' | 'external';
+
+export type ComponentNetworkVisibility = 'Project' | 'Organization' | 'Public';
+
 
 export interface Project {
     createdData: string;

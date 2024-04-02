@@ -11,6 +11,7 @@ import React from "react";
 import { render } from "react-dom";
 import styled from "@emotion/styled";
 import ChoreoWebview from "./ChoreoWebview";
+import { WebviewProps } from "@wso2-enterprise/choreo-core";
 
 export const Main: React.FC<any> = styled.main`
   display: flex;
@@ -21,15 +22,12 @@ export const Main: React.FC<any> = styled.main`
 
 export function renderChoreoWebViews(
 	target: HTMLDivElement,
-	type: string,
-	projectId?: string,
-	orgName?: string,
-	componentLimit?: number,
-	choreoUrl?: string,
+	params: WebviewProps,
 ) {
+	console.log('params', params)
 	render(
 		<React.StrictMode>
-			<ChoreoWebview {...{ type, projectId, orgName, componentLimit, choreoUrl }} />
+			<ChoreoWebview {...params} />
 		</React.StrictMode>,
 		target
 	);

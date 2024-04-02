@@ -76,12 +76,6 @@
         "icon": "$(link-external)"
       },
       {
-        "command": "wso2.choreo.org.change",
-        "title": "Change Choreo Organization",
-        "category": "Choreo",
-        "icon": "$(link-external)"
-      },
-      {
         "command": "wso2.choreo.project.delete",
         "title": "Delete Choreo Project",
         "category": "Choreo",
@@ -349,7 +343,8 @@
     "which": "^3.0.0",
     "vscode-jsonrpc": "^6.0.0",
     "vscode-languageserver-protocol": "^3.16.0",
-    "@wso2-enterprise/cell-diagram": "workspace:*"
+    "@wso2-enterprise/cell-diagram": "workspace:*",
+    "zustand": "^4.5.2"
   },
   "repository": {
     "type": "git",

@@ -15,5 +15,13 @@
 		{
 			"path": "workspaces/choreo/choreo-webviews"
 		}
-	]
+	],
+	"settings": {
+		"typescript.tsc.autoDetect": "off",
+		"editor.formatOnSave": false,
+		"prettier.printWidth": 120,
+		"prettier.tabWidth": 4,
+		"search.followSymlinks": false,
+		"debug.inlineValues": "on"
+	  }
 }

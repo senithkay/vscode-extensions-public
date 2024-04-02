@@ -8,16 +8,17 @@
  */
 import { ExtensionContext, StatusBarItem } from "vscode";
 import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
+// import { RpcApi } from "./RpcApi";
+
 import { ChoreoProjectClient, ChoreoSubscriptionClient, ComponentManagementClient, ChoreoCellViewClient, ChoreoDevopsClient } from "@wso2-enterprise/choreo-client";
 import { ChoreoGithubAppClient } from "@wso2-enterprise/choreo-client/lib/github";
-import { AuthHandler } from "./auth/AuthHandler";
+import { ChoreoRPCClient } from "./choreo-rpc/activate";
 
 export class ExtensionVariables {
     public context!: ExtensionContext;
     public isPluginStartup!: boolean;
     public api!: ChoreoExtensionApi;
-    public statusBarItem!: StatusBarItem;
-    public authHandler!: AuthHandler;
+    public statusBarItem!: StatusBarItem;    
 
     public clients!: {
         projectClient: ChoreoProjectClient,
@@ -25,7 +26,9 @@ export class ExtensionVariables {
         subscriptionClient: ChoreoSubscriptionClient,
         componentManagementClient: ComponentManagementClient,
         devopsClient: ChoreoDevopsClient,
-        cellViewClient: ChoreoCellViewClient
+        cellViewClient: ChoreoCellViewClient,
+
+        rpcClient:ChoreoRPCClient
     };
 }
 

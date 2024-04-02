@@ -11,7 +11,8 @@
  *  associated services.
  */
 import React from "react";
-import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+// import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { useAuthContext } from "../context/choreo-auth-ctx";
 import { UserDetails } from "./Account/UserDetails";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { SignInToChoreoMessage } from "./Components/SignIntoChoreoMessage";
@@ -28,12 +29,15 @@ const Container = styled.div`
 // This react component will be rendered in the webview which is in the Choreo Activity Bar.
 // It will use VSCode webview toolkit components to render the list.
 export const AccountView = () => {
-    const { loginStatus } = useChoreoWebViewContext();
+    // const { loginStatus } = useChoreoWebViewContext();
+    const { userInfo, loading, isInitialLoading } = useAuthContext();
     return (
         <Container>
-            {!["LoggedIn", "LoggedOut"].includes(loginStatus) && <ProgressIndicator />}
-            {loginStatus === "LoggedOut" && <SignInToChoreoMessage />}
-            {loginStatus === "LoggedIn" && <UserDetails />}
+            {loading && <ProgressIndicator />}
+            {/* {!["LoggedIn", "LoggedOut"].includes(loginStatus) && <ProgressIndicator />} */}
+            {!isInitialLoading && <>{userInfo ? <UserDetails /> : <SignInToChoreoMessage />}</>}
+            {/* {loginStatus === "LoggedOut" && }
+            {loginStatus === "LoggedIn" && } */}
         </Container>
-    )
+    );
 };

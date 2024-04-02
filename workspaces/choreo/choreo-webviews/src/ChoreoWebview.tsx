@@ -21,7 +21,11 @@ import { ProjectView } from "./ActivityBar/ProjectView";
 import { AccountView } from "./ActivityBar/AccountView";
 import { ChoreoComponentsContextProvider } from "./context/choreo-components-ctx";
 import { ChoreoWebViewContextProvider } from "./context/choreo-web-view-ctx";
+import { LinkedDirContextProvider } from "./context/choreo-linked-dir-ctx";
+import { AuthContextProvider } from "./context/choreo-auth-ctx";
+
 import { ErrorBoundary } from "./ErrorBoundary";
+import { WebviewProps } from "@wso2-enterprise/choreo-core";
 
 export const Main: React.FC<any> = styled.main`
     display: flex;
@@ -30,14 +34,8 @@ export const Main: React.FC<any> = styled.main`
     height: 100vh;
 `;
 
-interface ChoreoWebviewProps {
-    type: string;
-    projectId?: string;
-    orgName?: string;
-    choreoUrl?: string;
-}
 
-function ChoreoWebview(props: ChoreoWebviewProps) {
+function ChoreoWebview(props: WebviewProps) {
     const { type, orgName, projectId, choreoUrl } = props;
     return (
         <ChoreoWebviewQueryClientProvider>
@@ -47,31 +45,45 @@ function ChoreoWebview(props: ChoreoWebviewProps) {
                         switch (type) {
                             case "ChoreoCellView":
                                 return (
-                                    <ChoreoCellView projectId={projectId} orgName={orgName} />
+                                    <AuthContextProvider>
+                                        <ChoreoCellView projectId={projectId} orgName={orgName} />
+                                    </AuthContextProvider>
                                 );
-                            case "ProjectCreateForm":
-                                return (
-                                    <ChoreoWebViewContextProvider choreoUrl={choreoUrl} ctxOrgId={orgName}>
-                                        <ProjectWizard orgId={orgName} />
-                                    </ChoreoWebViewContextProvider>
-                                );
+                            // case "ProjectCreateForm":
+                            //     return (
+                            //         <ChoreoWebViewContextProvider choreoUrl={choreoUrl} ctxOrgId={orgName}>
+                            //             <ProjectWizard orgId={orgName} />
+                            //         </ChoreoWebViewContextProvider>
+                            //     );
                             case "ComponentCreateForm":
                                 return (
                                     <ChoreoWebViewContextProvider choreoUrl={choreoUrl}>
-                                        <ComponentWizard />
+                                        <AuthContextProvider>
+                                            <LinkedDirContextProvider>
+                                                <ComponentWizard />
+                                            </LinkedDirContextProvider>
+                                        </AuthContextProvider>
                                     </ChoreoWebViewContextProvider>
                                 );
                             case "ActivityBarAccountView":
                                 return (
                                     <ChoreoWebViewContextProvider choreoUrl={choreoUrl}>
-                                        <AccountView />
+                                        <AuthContextProvider>
+                                            <LinkedDirContextProvider>
+                                                <AccountView />
+                                            </LinkedDirContextProvider>
+                                        </AuthContextProvider>
                                     </ChoreoWebViewContextProvider>
                                 );
                             case "ActivityBarProjectView":
                                 return (
                                     <ChoreoWebViewContextProvider choreoUrl={choreoUrl}>
                                         <ChoreoComponentsContextProvider>
-                                            <ProjectView />
+                                            <AuthContextProvider>
+                                                <LinkedDirContextProvider>
+                                                    <ProjectView />
+                                                </LinkedDirContextProvider>
+                                            </AuthContextProvider>
                                         </ChoreoComponentsContextProvider>
                                     </ChoreoWebViewContextProvider>
                                 );

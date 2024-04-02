@@ -462,50 +462,50 @@ export class ProjectRegistry {
         }
     }
 
-    async deleteProject(projectId: string, orgId: number): Promise<void> {
-        try {
-            await window.withProgress({
-                title: `Deleting currently opened project.`,
-                location: ProgressLocation.Notification,
-                cancellable: false
-            }, async () => {
-                const org = ext.api.getOrgById(orgId);
-                const allComponents = await this.getComponents(projectId, orgId, org?.handle!, org?.uuid!);
-                const projectLocation = this.getProjectLocation(projectId);
-                if(projectLocation && org){
-                    for (const component of allComponents) {
-                        if (!component.local && component.id) {
-                            await ext.clients.projectClient.deleteComponent({
-                                component,
-                                orgId: orgId,
-                                orgHandle: component.orgHandler,
-                                projectId: projectId,
-                            });
-                        }
+    // async deleteProject(projectId: string, orgId: number): Promise<void> {
+    //     try {
+    //         await window.withProgress({
+    //             title: `Deleting currently opened project.`,
+    //             location: ProgressLocation.Notification,
+    //             cancellable: false
+    //         }, async () => {
+    //             const org = ext.api.getOrgById(orgId);
+    //             const allComponents = await this.getComponents(projectId, orgId, org?.handle!, org?.uuid!);
+    //             const projectLocation = this.getProjectLocation(projectId);
+    //             if(projectLocation && org){
+    //                 for (const component of allComponents) {
+    //                     if (!component.local && component.id) {
+    //                         await ext.clients.projectClient.deleteComponent({
+    //                             component,
+    //                             orgId: orgId,
+    //                             orgHandle: component.orgHandler,
+    //                             projectId: projectId,
+    //                         });
+    //                     }
 
-                        this.deleteLocalComponentFiles(component, projectLocation);
-                        this._removeComponentFromWorkspace(component.name, projectLocation);
-                    }
+    //                     this.deleteLocalComponentFiles(component, projectLocation);
+    //                     this._removeComponentFromWorkspace(component.name, projectLocation);
+    //                 }
 
-                    await ext.clients.projectClient.deleteProject({
-                        orgId: orgId,
-                        orgHandle: org?.handle,
-                        projectId: projectId,
-                    });
-                    const contents = readFileSync(projectLocation);
-                    const content: WorkspaceConfig = JSON.parse(contents.toString());
-                    writeFileSync(projectLocation, JSON.stringify({folders: content.folders}, null, 4));
-                    ext.api.refreshWorkspaceMetadata();
-                    vscode.window.showInformationMessage("Project has been successfully deleted successfully");
-                    this._dataComponents.delete(projectId);
-                    this._dataProjects.delete(orgId);
-                }
-            });
-        } catch (error: any) {
-            vscode.window.showErrorMessage("Failed to delete the project.");
-            getLogger().error(`Failed to delete the project. ` + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
-        }
-    }
+    //                 await ext.clients.projectClient.deleteProject({
+    //                     orgId: orgId,
+    //                     orgHandle: org?.handle,
+    //                     projectId: projectId,
+    //                 });
+    //                 const contents = readFileSync(projectLocation);
+    //                 const content: WorkspaceConfig = JSON.parse(contents.toString());
+    //                 writeFileSync(projectLocation, JSON.stringify({folders: content.folders}, null, 4));
+    //                 ext.api.refreshWorkspaceMetadata();
+    //                 vscode.window.showInformationMessage("Project has been successfully deleted successfully");
+    //                 this._dataComponents.delete(projectId);
+    //                 this._dataProjects.delete(orgId);
+    //             }
+    //         });
+    //     } catch (error: any) {
+    //         vscode.window.showErrorMessage("Failed to delete the project.");
+    //         getLogger().error(`Failed to delete the project. ` + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
+    //     }
+    // }
 
     deleteLocalComponentFiles(component: Component, projectLocation: string): boolean|void {
         if (component.local) {

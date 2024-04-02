@@ -25,8 +25,20 @@ import {
    Endpoint,
    UserInfo,
    EndpointData,
-   Buildpack
+   Buildpack,
+   AuthState,
+   LinkedDirectoryState,
 } from './types';
+
+export const GetAuthState: RequestType<void, AuthState> = { method: 'getAuthState' };
+export const GetLinkedDirState: RequestType<void, LinkedDirectoryState> = { method: 'getLinkedState' };
+
+
+/////////////////////////////////////
+/////////////////////////////////////
+// TODO: remove OLD /////////////////
+/////////////////////////////////////
+/////////////////////////////////////
 
 export interface SubpathAvailableRequest {
       subpath: string;

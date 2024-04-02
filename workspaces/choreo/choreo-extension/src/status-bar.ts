@@ -9,14 +9,15 @@
 import { StatusBarAlignment, window} from "vscode";
 import { ext } from "./extensionVariables";
 
+// TODO: update
 export async function activateStatusBarItem() {
     ext.statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 100);
 	ext.context.subscriptions.push(ext.statusBarItem);
-    if (await ext.api.isChoreoProject()) {
-        const project = await ext.api.getChoreoProject();
-        if (project) {
-            ext.statusBarItem.text = `Choreo: ${project.name}`;
-            ext.statusBarItem.show();
-        }
-    }
+    // if (await ext.api.isChoreoProject()) {
+    //     const project = await ext.api.getChoreoProject();
+    //     if (project) {
+    //         ext.statusBarItem.text = `Choreo: ${project.name}`;
+    //         ext.statusBarItem.show();
+    //     }
+    // }
 }

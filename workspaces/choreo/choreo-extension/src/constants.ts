@@ -13,7 +13,7 @@ export const cloneRepoToCurrentProjectWorkspaceCmdId = 'wso2.choreo.project.repo
 
 export const createNewProjectCmdId = 'wso2.choreo.project.create';
 export const openProjectCmdId = 'wso2.choreo.project.open';
-export const changeChoreoOrgCmdId = 'wso2.choreo.org.change';
+// export const changeChoreoOrgCmdId = 'wso2.choreo.org.change';
 export const deleteProjectCmdId = 'wso2.choreo.project.delete';
 export const openProjectInConsoleCmdId = 'wso2.choreo.project.open.external';
 export const createNewComponentCmdId = 'wso2.choreo.component.create';
@@ -24,10 +24,10 @@ export const openChoreoCellDiagram = 'wso2.choreo.cell.view';
 export const refreshChoreoCellDiagram = 'wso2.choreo.cell.view.refresh';
 
 // Choreo login status
-export const STATUS_LOGGED_IN = "LoggedIn";
-export const STATUS_LOGGED_OUT = "LoggedOut";
-export const STATUS_LOGGING_IN = "LoggingIn";
-export const STATUS_INITIALIZING = "Initializing";
+// export const STATUS_LOGGED_IN = "LoggedIn";
+// export const STATUS_LOGGED_OUT = "LoggedOut";
+// export const STATUS_LOGGING_IN = "LoggingIn";
+// export const STATUS_INITIALIZING = "Initializing";
 
 // views
 export const choreoProjectsTreeId = 'choreo-projects';
@@ -42,3 +42,7 @@ export const OPEN_CHOREO_ACTIVITY = "open-choreo-activity";
 // component.yaml
 export const COMPONENT_YAML_SCHEMA = "choreo";
 export const COMPONENT_YAML_SCHEMA_DIR = "schema/component-schema.json";
+
+
+// NEW
+// TODO; remove old

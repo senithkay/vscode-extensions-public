@@ -9,6 +9,7 @@
 import * as vscode from "vscode";
 import { WebViewPanelRpc } from "./rpc/WebviewRPC";
 import { getUri } from "./utils";
+import { WebviewProps } from "@wso2-enterprise/choreo-core";
 
 export enum WizardTypes {
   projectCreation = "ProjectCreateForm",
@@ -72,13 +73,11 @@ export class WebviewWizard {
             <script>
               function render() {
                 choreoWebviews.renderChoreoWebViews(
-                  document.getElementById("root"), 
-                  "${wizardType.toString()}",
-                  "", 
-                  "${this._orgId}", 
-                  0,  
-                  "" , 
-                  ""
+                  document.getElementById("root"),
+                  ${JSON.stringify({
+                    type: wizardType.toString(),
+                    orgName: this._orgId,
+                  } as WebviewProps)}
                 );
               }
               render();

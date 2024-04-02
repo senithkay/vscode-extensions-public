@@ -17,7 +17,7 @@ import { MockAuthClient, MockKeyChainTokenStorage, MockOrgClient, MockProjectCli
 import { ext } from "../../../extensionVariables";
 import { activateStatusBarItem } from "../../../status-bar";
 import { FOO_PROJECT_1 } from "../mocked-resources/mocked-data";
-import { TokenStorage } from "../../../auth/TokenStorage";
+// import { TokenStorage } from "../../../auth/TokenStorage";
 
 export const TEST_PROJECT_NAME: string = 'FooProject1';
 const projectRoot = join(__dirname, '..', '..', '..', '..', 'src', 'test', 'data', TEST_PROJECT_NAME);
@@ -36,9 +36,9 @@ suite('Choreo Project Tests', () => {
         vscodeTokenStub = sinon.stub(ChoreoAuthClient.prototype, 'exchangeVSCodeToken').callsFake(async (params) =>
             await mockAuthClient.exchangeVSCodeToken(params[0]));
 
-        const mockTokenStore = new MockKeyChainTokenStorage();
-        keyChainGetTokenStub = sinon.stub(TokenStorage.prototype, 'getToken').callsFake(async (params: any) =>
-            await mockTokenStore.getToken(params));
+        // const mockTokenStore = new MockKeyChainTokenStorage();
+        // keyChainGetTokenStub = sinon.stub(TokenStorage.prototype, 'getToken').callsFake(async (params: any) =>
+        //     await mockTokenStore.getToken(params));
 
         const mockOrgClient = new MockOrgClient();
 

@@ -20,55 +20,56 @@ import { CREATE_PROJECT_EVENT } from "@wso2-enterprise/choreo-core";
 import { cloneProject, cloneRepoToCurrentProjectWorkspace } from "../cmds/clone";
 import { ProjectRegistry } from "../registry/project-registry";
 import { sendTelemetryEvent } from "../telemetry/utils";
+import { authStore } from "../states/authState";
 
 let projectWizard: WebviewWizard;
 let componentWizard: WebviewWizard;
 
 export function activateWizards() {
-    const createProjectCmd = commands.registerCommand(createNewProjectCmdId, async (orgId: string) => {
-        const isLoggedIn = await ext.api.waitForLogin();
-        sendTelemetryEvent(CREATE_PROJECT_EVENT);
-        // show a message if user is not logged in
-        if (!isLoggedIn) {
-            window.showInformationMessage('You are not logged in. Please log in to continue.');
-            return;
-        }
-        const organizationId = orgId ? orgId : (await ext.api.getSelectedOrg())?.id;
-        if(organizationId){
-            if (!projectWizard || !projectWizard.getWebview()) {
-                projectWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.projectCreation, `${organizationId}`);
-            }
-            projectWizard.getWebview()?.reveal();
-        }
-    });
+    // const createProjectCmd = commands.registerCommand(createNewProjectCmdId, async (orgId: string) => {
+    //     const isLoggedIn = await ext.api.waitForLogin();
+    //     sendTelemetryEvent(CREATE_PROJECT_EVENT);
+    //     // show a message if user is not logged in
+    //     if (!isLoggedIn) {
+    //         window.showInformationMessage('You are not logged in. Please log in to continue.');
+    //         return;
+    //     }
+    //     const organizationId = orgId ? orgId : (await ext.api.getSelectedOrg())?.id;
+    //     if(organizationId){
+    //         if (!projectWizard || !projectWizard.getWebview()) {
+    //             projectWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.projectCreation, `${organizationId}`);
+    //         }
+    //         projectWizard.getWebview()?.reveal();
+    //     }
+    // });
 
-    const deleteProjectCmd = commands.registerCommand(deleteProjectCmdId, async () => {
-        const isLoggedIn = await ext.api.waitForLogin();
-        if (!isLoggedIn) {
-            window.showInformationMessage("You are not logged in. Please log in to continue.");
-            return;
-        }
+    // const deleteProjectCmd = commands.registerCommand(deleteProjectCmdId, async () => {
+    //     const isLoggedIn = await ext.api.waitForLogin();
+    //     if (!isLoggedIn) {
+    //         window.showInformationMessage("You are not logged in. Please log in to continue.");
+    //         return;
+    //     }
 
-        const choreoProject = await ext.api.getChoreoProject();
-        if (!choreoProject) {
-            window.showInformationMessage("You are not within a Choreo project at the moment");
-            return;
-        }
+    //     const choreoProject = await ext.api.getChoreoProject();
+    //     if (!choreoProject) {
+    //         window.showInformationMessage("You are not within a Choreo project at the moment");
+    //         return;
+    //     }
 
-        const answer = await window.showWarningMessage(
-            `Please confirm the deletion of project '${choreoProject.name}'. This action is not reversible and will result in the removal of all associated components`,
-            { modal: true },
-            "Delete Project"
-        );
-        if (answer === "Delete Project") {
-            await ProjectRegistry.getInstance().deleteProject(choreoProject.id, Number(choreoProject.orgId));
-        }
-    });
+    //     const answer = await window.showWarningMessage(
+    //         `Please confirm the deletion of project '${choreoProject.name}'. This action is not reversible and will result in the removal of all associated components`,
+    //         { modal: true },
+    //         "Delete Project"
+    //     );
+    //     if (answer === "Delete Project") {
+    //         await ProjectRegistry.getInstance().deleteProject(choreoProject.id, Number(choreoProject.orgId));
+    //     }
+    // });
 
     const createComponentCmd = commands.registerCommand(createNewComponentCmdId, async () => {
-        const isLoggedIn = await ext.api.waitForLogin();
+        const userInfo = authStore.getState().state.userInfo;
         // show a message if user is not logged in
-        if (!isLoggedIn) {
+        if (!userInfo) {
             window.showInformationMessage('You are not logged in. Please log in to continue.');
             return;
         }
@@ -80,7 +81,7 @@ export function activateWizards() {
         componentWizard.getWebview()?.reveal();
     });
 
-    ext.context.subscriptions.push(createProjectCmd, createComponentCmd, deleteProjectCmd);
+    ext.context.subscriptions.push(createComponentCmd);
 
     commands.registerCommand(cloneAllComponentsCmdId, cloneProject);
     commands.registerCommand(cloneRepoToCurrentProjectWorkspaceCmdId, cloneRepoToCurrentProjectWorkspace);

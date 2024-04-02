@@ -2139,7 +2139,9 @@ importers:
       webpack-cli: ^4.10.0
       webpack-permissions-plugin: ^1.0.9
       which: ^3.0.0
+      xstate: ^4.38.3
       yarn: ^1.22.19
+      zustand: ^4.5.2
     dependencies:
       '@types/chai': 4.3.11
       '@types/lodash': 4.14.202
@@ -2167,9 +2169,13 @@ importers:
       jwt-decode: 3.1.2
       lodash: 4.17.21
       simple-git: 3.22.0
+      vscode-jsonrpc: 6.0.0
+      vscode-languageserver-protocol: 3.17.5
       vscode-messenger: 0.4.5
       vscode-messenger-common: 0.4.5
       which: 3.0.1
+      xstate: 4.38.3
+      zustand: 4.5.2
     devDependencies:
       '@istanbuljs/nyc-config-typescript': 1.0.2_nyc@15.1.0
       '@playwright/test': 1.37.1
@@ -25748,6 +25754,7 @@ packages:
 
   /file-uri-to-path/1.0.0:
     resolution: {integrity: sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==}
+    requiresBuild: true
 
   /file-uri-to-path/2.0.0:
     resolution: {integrity: sha512-hjPFI8oE/2iQPVe4gbrJ73Pp+Xfub2+WI2LlXDbsaJBwT5wuMh35WNWVYYTpnz895shtwfyutMFLFywpQAFdLg==}
@@ -41264,6 +41271,12 @@ packages:
       tslib: 2.6.2
     dev: true
 
+  /use-sync-external-store/1.2.0:
+    resolution: {integrity: sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dev: false
+
   /use-sync-external-store/1.2.0_react@17.0.2:
     resolution: {integrity: sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==}
     peerDependencies:
@@ -43397,6 +43410,24 @@ packages:
       '@types/react': 17.0.75
       react: 17.0.2
       use-sync-external-store: 1.2.0_react@17.0.2
+    dev: false
+
+  /zustand/4.5.2:
+    resolution: {integrity: sha512-2cN1tPkDVkwCy5ickKrI7vijSjPksFRfqS6237NzT0vqSsztTNnQdHw9mmN7uBdk3gceVXU0a+21jFzFzAc9+g==}
+    engines: {node: '>=12.7.0'}
+    peerDependencies:
+      '@types/react': '>=16.8'
+      immer: '>=9.0.6'
+      react: '>=16.8'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      immer:
+        optional: true
+      react:
+        optional: true
+    dependencies:
+      use-sync-external-store: 1.2.0
     dev: false
 
   /zwitch/1.0.5:

@@ -12,6 +12,7 @@ import { getUri } from '../utils';
 import { ext } from '../../../extensionVariables';
 import { choreoEnvConfig } from '../../../auth/auth';
 import { FREE_COMPONENT_LIMIT } from '../../../auth/config';
+import { WebviewProps } from '@wso2-enterprise/choreo-core';
 
 
 export class ProjectView implements vscode.WebviewViewProvider {
@@ -41,16 +42,16 @@ export class ProjectView implements vscode.WebviewViewProvider {
 		};
 		webviewView.webview.html = this._getWebviewContent(webviewView.webview);
 		this._rpc = new WebViewViewRPC(webviewView);
-		this.updateProjectInfo();
+		// this.updateProjectInfo();
 	}
 
-	private async updateProjectInfo() {
-		await ext.api.waitForLogin();
-		const currentProject = await ext.api.getChoreoProject();
-		if (currentProject && this._view) {
-			this._view.description = currentProject.name;
-		}
-	}
+	// private async updateProjectInfo() {
+	// 	await ext.api.waitForLogin();
+	// 	const currentProject = await ext.api.getChoreoProject();
+	// 	if (currentProject && this._view) {
+	// 		this._view.description = currentProject.name;
+	// 	}
+	// }
 
 	private _getWebviewContent(webview: vscode.Webview) {
 		// The JS file from the React build output
@@ -82,11 +83,13 @@ export class ProjectView implements vscode.WebviewViewProvider {
 				</body>
 				<script>
 				  function render() {
-					choreoWebviews.renderChoreoWebViews(document.getElementById("root"), "ActivityBarProjectView",
-						undefined, // webview will use RPC to get the current project
-						undefined, // webview will use RPC to get the current org
-						${FREE_COMPONENT_LIMIT}, 
-						"${choreoEnvConfig.getConsoleUrl()}"
+					choreoWebviews.renderChoreoWebViews(
+						document.getElementById("root"), 
+						${JSON.stringify({
+							type: "ActivityBarProjectView",
+							componentLimit: FREE_COMPONENT_LIMIT,
+							choreoUrl: choreoEnvConfig.getConsoleUrl()
+						} as WebviewProps)}
 					);
 				  }
 				  render();

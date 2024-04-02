@@ -8,7 +8,7 @@
  */
 // 
 import * as vscode from 'vscode';
-import { STATUS_LOGGED_IN, createNewProjectCmdId, openProjectCmdId } from '../constants';
+import { createNewProjectCmdId, openProjectCmdId } from '../constants';
 import { ext } from '../extensionVariables';
 import { ProjectRegistry } from '../registry/project-registry';
 import { cloneProject } from './clone';
@@ -16,151 +16,151 @@ import path = require('path');
 import { OPEN_PROJECT_EVENT, Organization, Project } from '@wso2-enterprise/choreo-core';
 import { sendTelemetryEvent } from '../telemetry/utils';
 
-export function activateOpenProjectCmd(context: vscode.ExtensionContext) {
-    context.subscriptions.push(vscode.commands.registerCommand(openProjectCmdId, async () => {
-        const isLoggedIn = await ext.api.waitForLogin();
-        sendTelemetryEvent(OPEN_PROJECT_EVENT);
-        // show a message if user is not logged in
-        if (!isLoggedIn) {
-            vscode.window.showInformationMessage('You are not logged in. Please log in to continue.');
-            return;
-        }
-        const currentOrg = await ext.api.getSelectedOrg();
-        if (currentOrg) {
-            showSwitchProjectQuickPick(currentOrg);
-        }
-    }));
-}
+// export function activateOpenProjectCmd(context: vscode.ExtensionContext) {
+//     context.subscriptions.push(vscode.commands.registerCommand(openProjectCmdId, async () => {
+//         const isLoggedIn = await ext.api.waitForLogin();
+//         sendTelemetryEvent(OPEN_PROJECT_EVENT);
+//         // show a message if user is not logged in
+//         if (!isLoggedIn) {
+//             vscode.window.showInformationMessage('You are not logged in. Please log in to continue.');
+//             return;
+//         }
+//         const currentOrg = await ext.api.getSelectedOrg();
+//         if (currentOrg) {
+//             showSwitchProjectQuickPick(currentOrg);
+//         }
+//     }));
+// }
 
-export async function showSwitchProjectQuickPick(org: Organization) {
-    const quickPickInstance = vscode.window.createQuickPick();
-    quickPickInstance.busy = true;
-    quickPickInstance.placeholder = `Loading projects in '${org.name}' organization...`;
-    quickPickInstance.show();
-    quickPickInstance.title = "Open Project";
+// export async function showSwitchProjectQuickPick(org: Organization) {
+//     const quickPickInstance = vscode.window.createQuickPick();
+//     quickPickInstance.busy = true;
+//     quickPickInstance.placeholder = `Loading projects in '${org.name}' organization...`;
+//     quickPickInstance.show();
+//     quickPickInstance.title = "Open Project";
 
-    const isLoggedIn = await ext.api.waitForLogin();
-    // show a message if user is not logged in
-    if (!isLoggedIn) {
-        vscode.window.showInformationMessage('You are not logged in. Please log in to continue.');
-        quickPickInstance.hide();
-        return;
-    }
+//     const isLoggedIn = await ext.api.waitForLogin();
+//     // show a message if user is not logged in
+//     if (!isLoggedIn) {
+//         vscode.window.showInformationMessage('You are not logged in. Please log in to continue.');
+//         quickPickInstance.hide();
+//         return;
+//     }
 
-    let currentProject: Project | undefined;
-    try {
-        currentProject = await ext.api.getChoreoProject();
-    } catch {
-        console.log("User is not within a valid Choreo project");
-    }
-    const { quickPicks, projects } = await getProjectQuickPicks(org, currentProject);
+//     let currentProject: Project | undefined;
+//     try {
+//         currentProject = await ext.api.getChoreoProject();
+//     } catch {
+//         console.log("User is not within a valid Choreo project");
+//     }
+//     const { quickPicks, projects } = await getProjectQuickPicks(org, currentProject);
 
-    quickPickInstance.busy = false;
-    quickPickInstance.placeholder = 'Select a project to continue';
-    quickPickInstance.items = quickPicks;
+//     quickPickInstance.busy = false;
+//     quickPickInstance.placeholder = 'Select a project to continue';
+//     quickPickInstance.items = quickPicks;
 
-    quickPickInstance.onDidAccept(async () => {
-        onDidAcceptProjectList(quickPickInstance, currentProject, projects, org);
-    });
-}
+//     quickPickInstance.onDidAccept(async () => {
+//         onDidAcceptProjectList(quickPickInstance, currentProject, projects, org);
+//     });
+// }
 
-const onDidAcceptProjectList = async (
-    quickPickInstance: vscode.QuickPick<vscode.QuickPickItem>,
-    currentProject: Project | undefined,
-    projects: Project[],
-    org: Organization) => {
-    quickPickInstance.hide();
-    const selection = quickPickInstance.selectedItems[0];
+// const onDidAcceptProjectList = async (
+//     quickPickInstance: vscode.QuickPick<vscode.QuickPickItem>,
+//     currentProject: Project | undefined,
+//     projects: Project[],
+//     org: Organization) => {
+//     quickPickInstance.hide();
+//     const selection = quickPickInstance.selectedItems[0];
 
-    // show organization selection quick pick if user selects the first item
-    if (selection?.label?.includes('Change Organization')) {
-        await showOrgChangeQuickPick();
-        return;
-    }
+//     // show organization selection quick pick if user selects the first item
+//     if (selection?.label?.includes('Change Organization')) {
+//         await showOrgChangeQuickPick();
+//         return;
+//     }
 
-    // show project creation wizard if user selects the last item
-    if (selection?.label.includes('Create New')) {
-        vscode.commands.executeCommand(createNewProjectCmdId, org?.id);
-        return;
-    }
+//     // show project creation wizard if user selects the last item
+//     if (selection?.label.includes('Create New')) {
+//         vscode.commands.executeCommand(createNewProjectCmdId, org?.id);
+//         return;
+//     }
 
-    const selectedProject = projects.find(project => project.name === selection?.label);
-    // if the selected project is already opened, show a message and return
-    if (selectedProject?.id === currentProject?.id) {
-        vscode.window.showInformationMessage('The project is already opened in current window.');
-        return;
-    }
+//     const selectedProject = projects.find(project => project.name === selection?.label);
+//     // if the selected project is already opened, show a message and return
+//     if (selectedProject?.id === currentProject?.id) {
+//         vscode.window.showInformationMessage('The project is already opened in current window.');
+//         return;
+//     }
 
-    if (selectedProject) {
-        const projectLocation = ProjectRegistry.getInstance().getProjectLocation(selectedProject.id);
-        if (projectLocation) {
-            // ask user where to open the project, current window or a new window
-            const openInCurrentWorkspace = await vscode.window.showInformationMessage(
-                'Where do you want to open the project?',
-                {
-                    modal: true,
-                },
-                'Current Window',
-                'New Window',
-            );
-            if (openInCurrentWorkspace === 'Current Window') {
-                await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(projectLocation), {
-                    forceNewWindow: false,
-                });
-            } else if (openInCurrentWorkspace === 'New Window') {
-                await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(projectLocation), {
-                    forceNewWindow: true,
-                });
-            }
-        } else {
-            // Project is not cloned yet, clone the project and open it
-            // show a modal and ask user to select the folder to clone
-            const selectDirectoryPrompt = await vscode.window.showInformationMessage(
-                "The selected project hasn't been cloned yet. Please select a directory where you'd like it to be cloned.",
-                { modal: true },
-                'Select Directory',
-            );
+//     if (selectedProject) {
+//         const projectLocation = ProjectRegistry.getInstance().getProjectLocation(selectedProject.id);
+//         if (projectLocation) {
+//             // ask user where to open the project, current window or a new window
+//             const openInCurrentWorkspace = await vscode.window.showInformationMessage(
+//                 'Where do you want to open the project?',
+//                 {
+//                     modal: true,
+//                 },
+//                 'Current Window',
+//                 'New Window',
+//             );
+//             if (openInCurrentWorkspace === 'Current Window') {
+//                 await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(projectLocation), {
+//                     forceNewWindow: false,
+//                 });
+//             } else if (openInCurrentWorkspace === 'New Window') {
+//                 await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(projectLocation), {
+//                     forceNewWindow: true,
+//                 });
+//             }
+//         } else {
+//             // Project is not cloned yet, clone the project and open it
+//             // show a modal and ask user to select the folder to clone
+//             const selectDirectoryPrompt = await vscode.window.showInformationMessage(
+//                 "The selected project hasn't been cloned yet. Please select a directory where you'd like it to be cloned.",
+//                 { modal: true },
+//                 'Select Directory',
+//             );
 
-            if (selectDirectoryPrompt === 'Select Directory') {
-                cloneProject(selectedProject);
-            }
-        }
-    }
-};
+//             if (selectDirectoryPrompt === 'Select Directory') {
+//                 cloneProject(selectedProject);
+//             }
+//         }
+//     }
+// };
 
-async function showOrgChangeQuickPick() {
-    const quickPickInstance = vscode.window.createQuickPick();
-    quickPickInstance.busy = true;
-    quickPickInstance.title = "Select Organization";
-    quickPickInstance.placeholder = 'Loading organizations...';
-    quickPickInstance.show();
+// async function showOrgChangeQuickPick() {
+//     const quickPickInstance = vscode.window.createQuickPick();
+//     quickPickInstance.busy = true;
+//     quickPickInstance.title = "Select Organization";
+//     quickPickInstance.placeholder = 'Loading organizations...';
+//     quickPickInstance.show();
 
-    const orgs = ext.api.userInfo?.organizations;
-    if (!orgs) {
-        vscode.window.showErrorMessage('Failed to load organizations.');
-        quickPickInstance.hide();
-        return;
-    }
-    const quickPicks = orgs.map(org => {
-        return { label: org.name, description: org.handle };
-    });
-    quickPickInstance.busy = false;
-    quickPickInstance.placeholder = 'Select an organization';
-    quickPickInstance.items = quickPicks;
+//     const orgs = authStore.getState().state?.userInfo?.organizations;
+//     if (!orgs) {
+//         vscode.window.showErrorMessage('Failed to load organizations.');
+//         quickPickInstance.hide();
+//         return;
+//     }
+//     const quickPicks = orgs.map(org => {
+//         return { label: org.name, description: org.handle };
+//     });
+//     quickPickInstance.busy = false;
+//     quickPickInstance.placeholder = 'Select an organization';
+//     quickPickInstance.items = quickPicks;
 
-    quickPickInstance.onDidAccept(async () => {
-        quickPickInstance.hide();
-        const selection = quickPickInstance.selectedItems[0];
-        if (selection) {
-            const selectedOrg = orgs.find(org => org.name === selection.label);
-            if (selectedOrg) {
-                showSwitchProjectQuickPick(selectedOrg);
-            }
-            // change the selected organization
-        }
-    });
-    quickPickInstance.onDidHide(() => quickPickInstance.dispose());
-}
+//     quickPickInstance.onDidAccept(async () => {
+//         quickPickInstance.hide();
+//         const selection = quickPickInstance.selectedItems[0];
+//         if (selection) {
+//             const selectedOrg = orgs.find(org => org.name === selection.label);
+//             if (selectedOrg) {
+//                 showSwitchProjectQuickPick(selectedOrg);
+//             }
+//             // change the selected organization
+//         }
+//     });
+//     quickPickInstance.onDidHide(() => quickPickInstance.dispose());
+// }
 
 async function getProjectQuickPicks(org: Organization, currentProject?: Project) {
     const projects = await ProjectRegistry.getInstance().getProjects(org.id, org.handle);
@@ -213,7 +213,8 @@ export const openProjectInVSCode = async (
     projectId: string,
     organization: Organization) => {
 
-    const currentProject = await ext.api.getChoreoProject();
+    const currentProject: any=null;
+    // await ext.api.getChoreoProject();
 
     // if the selected project is already opened, show a message and return
     if (projectId === currentProject?.id) {

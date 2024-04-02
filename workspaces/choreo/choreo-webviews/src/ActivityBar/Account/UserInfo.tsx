@@ -12,12 +12,10 @@
  */
 import styled from "@emotion/styled";
 import React from "react";
-import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
-import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { useAccountSubscriptionStatus } from "../../hooks/use-account-subscription-status";
 import { Codicon } from "../../Codicon/Codicon";
-import { OPEN_UPGRADE_PLAN_PAGE_EVENT } from "@wso2-enterprise/choreo-core";
+import { useAuthContext } from "../../context/choreo-auth-ctx";
 
 const Container = styled.div`
     display: flex;
@@ -51,8 +49,8 @@ const SignOutButton = styled(VSCodeButton)`
 
 // Diplays the avatar, name and email of the currently logged in user.
 export const UserInfo = () => {
-    const { showUpgradeButton } = useAccountSubscriptionStatus();
-    const { userInfo, selectedOrg } = useChoreoWebViewContext();
+    const {userInfo } = useAuthContext();
+
     if (!userInfo) {
         return null;
     }
@@ -62,20 +60,12 @@ export const UserInfo = () => {
         ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.sign.out");
     };
 
-    const openBillingPortal = () => {
-        ChoreoWebViewAPI.getInstance().openBillingPortal(selectedOrg?.uuid);
-        ChoreoWebViewAPI.getInstance().sendTelemetryEvent({ eventName: OPEN_UPGRADE_PLAN_PAGE_EVENT });
-    };
-
     return (
         <Container id="user-details">
             <img src={userProfilePictureUrl} width="40px" height="40px" />
             <MiddleContainer>
                 <div>{displayName}</div>
                 <Email>{userEmail}</Email>
-                {showUpgradeButton && selectedOrg?.uuid && (
-                    <VSCodeLink onClick={openBillingPortal}>Upgrade</VSCodeLink>
-                )}
             </MiddleContainer>
             <SignOutButton appearance="icon" title="Sign Out" onClick={onSignOut}>
                 <Codicon name="sign-out" />

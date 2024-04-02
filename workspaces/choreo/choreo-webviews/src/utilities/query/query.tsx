@@ -25,7 +25,8 @@ const workspaceStatePersister = (idbValidKey: IDBValidKey = "choreoWebviewData")
             ChoreoWebViewAPI.getInstance().setWebviewCache(idbValidKey, client);
         },
         restoreClient: async () => {
-            return await ChoreoWebViewAPI.getInstance().restoreWebviewCache(idbValidKey);
+            const cache = await ChoreoWebViewAPI.getInstance().restoreWebviewCache(idbValidKey)
+            return cache;
         },
         removeClient: async () => {
             await ChoreoWebViewAPI.getInstance().clearWebviewCache(idbValidKey);

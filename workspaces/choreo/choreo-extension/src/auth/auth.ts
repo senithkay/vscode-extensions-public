@@ -24,6 +24,7 @@ import { ChoreoAIConfig } from '../services/ai';
 import { Organization, SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT } from '@wso2-enterprise/choreo-core';
 import { sendTelemetryEvent } from '../telemetry/utils';
 import { workspace } from 'vscode';
+import { ChoreoRPCClient } from '../../src/choreo-rpc/activate';
 
 export const CHOREO_AUTH_ERROR_PREFIX = "Choreo Login: ";
 
@@ -55,7 +56,7 @@ export async function activateClients(): Promise<void> {
     const readonlyTokenStore: IReadOnlyTokenStorage = {
         getToken : async (orgId: number) => {
             if (orgId) {
-                return ext.authHandler.getToken(orgId);
+                return "" as any;
             }
             throw new Error("Organization ID is not provided.");
         }
@@ -79,36 +80,43 @@ export async function activateClients(): Promise<void> {
     const devopsClient = new ChoreoDevopsClient(readonlyTokenStore, choreoEnvConfig.getDevopsUrl());
     const cellViewClient = new ChoreoCellViewClient(projectClient);
 
+    const rpcClient = new ChoreoRPCClient();
+
+    
+
     ext.clients = {
         githubAppClient,
         projectClient,
         subscriptionClient,
         componentManagementClient,
         devopsClient,
-        cellViewClient
+        cellViewClient,
+
+        rpcClient: rpcClient
     };
 }
 
-export async function initiateInbuiltAuth() {
-    const callbackUri = await vscode.env.asExternalUri(
-        vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.choreo/signin`)
-    );
-    const oauthURL = await ext.authHandler.getAuthUrl(callbackUri.toString());
-    getLogger().debug("OAuth URL: " + oauthURL);
-    return vscode.env.openExternal(vscode.Uri.parse(oauthURL));
-}
+// todo: remove
+// export async function initiateInbuiltAuth() {
+//     const callbackUri = await vscode.env.asExternalUri(
+//         vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.choreo/signin`)
+//     );
+//     const oauthURL = await ext.authHandler.getAuthUrl(callbackUri.toString());
+//     getLogger().debug("OAuth URL: " + oauthURL);
+//     return vscode.env.openExternal(vscode.Uri.parse(oauthURL));
+// }
 
 
 
-export async function promptToOpenSignupPage() {
-    // TODO: need to show this when user logging in for the very first time. (Also convert showInformationMessage to modal)
-    const signUpURL = ext.authHandler.getSignUpUrl();
-    await vscode.window.showInformationMessage("Please complete signup in the Choreo Console", "Sign Up").then((selection) => {
-        if (selection === "Sign Up") {
-            return vscode.env.openExternal(vscode.Uri.parse(signUpURL));
-        }
-    });
-}
+// export async function promptToOpenSignupPage() {
+//     // TODO: need to show this when user logging in for the very first time. (Also convert showInformationMessage to modal)
+//     const signUpURL = ext.authHandler.getSignUpUrl();
+//     await vscode.window.showInformationMessage("Please complete signup in the Choreo Console", "Sign Up").then((selection) => {
+//         if (selection === "Sign Up") {
+//             return vscode.env.openExternal(vscode.Uri.parse(signUpURL));
+//         }
+//     });
+// }
 
 
 export function getConsoleUrl() {

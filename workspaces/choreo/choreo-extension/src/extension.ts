@@ -41,6 +41,8 @@ import { enrichComponentSchema, regexFilePathChecker } from "./utils";
 import { activateCellDiagram } from './cell-diagram/activate';
 import { Cache } from "./cache";
 import { initRPCServer } from "./choreo-rpc/activate";
+import { linkedDirectoryStore } from "./states/linkedDirState";
+import { authStore } from "./states/authState";
 
 export function activateBallerinaExtension() {
     const ext = extensions.getExtension("wso2.ballerina");
@@ -56,14 +58,18 @@ export async function activate(context: vscode.ExtensionContext) {
     ext.isPluginStartup = true;
     ext.context = context;
     ext.api = new ChoreoExtensionApi();
+
+    authStore.persist.rehydrate();
+    linkedDirectoryStore.persist.rehydrate();
+
     setupEvents();
     activateWizards();
-    activateAuth(context);
     activateClients();
+    activateAuth(context);
     activateCmds(context);
     activateActivityBarWebViews(context);
     activateURIHandlers();
-    activateStatusBarItem();
+    // activateStatusBarItem();
     activateCellDiagram(context);
     initRPCServer();
     setupGithubAuthStatusCheck();
@@ -72,6 +78,8 @@ export async function activate(context: vscode.ExtensionContext) {
     openChoreoActivity();
     getLogger().debug("Choreo Extension activated");
     await registerYamlLangugeServer();
+    // states
+    linkedDirectoryStore.getState().refreshState();
     return ext.api;
 }
 
@@ -117,6 +125,7 @@ export function getGitExtensionAPI() {
 
 function setupEvents() {
     const subscription: vscode.Disposable = ext.api.onStatusChanged(async (newStatus) => {
+        // TODO: check this
         vscode.commands.executeCommand("setContext", "choreoLoginStatus", newStatus);
     });
     ext.context.subscriptions.push(subscription);
@@ -145,15 +154,16 @@ function showMsgAndRestart(msg: string): void {
 async function getComponentYamlMetadata():
     Promise<{ project: Project; component: string, isLocalComponent: boolean } | undefined> {
     const openedComponent = await ext.api.getOpenedComponentName();
-    const project = await ext.api.getChoreoProject();
-    if (!openedComponent || !project) {
+    // const project = await ext.api.getChoreoProject();
+    if (!openedComponent) {
         return undefined;
     }
     const isLocalComponent = await ext.api.isLocalComponent(openedComponent);
     if (isLocalComponent === undefined) {
         return undefined;
     }
-    return { project, component: openedComponent, isLocalComponent };
+    // todo: fix following
+    return { project: {} as Project, component: openedComponent, isLocalComponent };
 }
 
 async function registerYamlLangugeServer(): Promise<void> {

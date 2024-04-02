@@ -17,8 +17,9 @@ import { getLogger } from '../logger/logger';
 import { execSync } from 'child_process';
 import { initGit } from '../git/main';
 import { executeWithTaskRetryPrompt } from '../retry';
-import { sendProjectTelemetryEvent, sendTelemetryEvent } from '../telemetry/utils';
+import { sendTelemetryEvent } from '../telemetry/utils';
 import * as vscode from 'vscode';
+import { authStore } from '../states/authState';
 
 export function checkSSHAccessToGitHub() {
     try {
@@ -35,7 +36,7 @@ export function checkSSHAccessToGitHub() {
 }
 
 export const cloneRepoToCurrentProjectWorkspace = async (params: RepoCloneRequestParams) => {
-    sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_START_EVENT);
+    // sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_START_EVENT);
     const { repository, branch, workspaceFilePath, gitProvider } = params;
     let success = false;
     await window.withProgress({
@@ -45,7 +46,7 @@ export const cloneRepoToCurrentProjectWorkspace = async (params: RepoCloneReques
     }, async (progress, cancellationToken) => {
         let cancelled: boolean = false;
         cancellationToken.onCancellationRequested(async () => {
-            sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_CANCEL_EVENT);
+            // sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_CANCEL_EVENT);
             getLogger().debug("Cloning cancelled for " + repository);
             cancelled = true;
         });
@@ -82,9 +83,9 @@ export const cloneRepoToCurrentProjectWorkspace = async (params: RepoCloneReques
             getLogger().error("Git was not initialized"); 
         }
         if (success) {
-            sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_SUCCESS_EVENT);
+            // sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_SUCCESS_EVENT);
         } else {
-            sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_FAILURE_EVENT);
+            // sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_FAILURE_EVENT);
         }
     });
     return success;
@@ -250,7 +251,7 @@ export const cloneProject = async (project: Project, dirPath = "",
         getLogger().debug("Cloning project: " + project.name);
 
         const { id, name: projectName, orgId, branch } = project;
-        const selectedOrg = ext.api.getOrgById(parseInt(orgId));
+        const selectedOrg = authStore.getState().getOrgById(parseInt(orgId))
 
         if (selectedOrg) {
             getLogger().debug("getting folder path to clone project: " + project.name);

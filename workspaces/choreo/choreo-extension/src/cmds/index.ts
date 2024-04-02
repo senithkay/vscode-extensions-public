@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { ExtensionContext } from "vscode";
-import { activateOpenProjectCmd } from "./open-project";
-import { activateOpenInConsoleCmd } from "./open-in-console";
+// import { activateOpenProjectCmd } from "./open-project";
+// import { activateOpenInConsoleCmd } from "./open-in-console";
 
 export function activateCmds(context: ExtensionContext) {
-    activateOpenProjectCmd(context);
-    activateOpenInConsoleCmd(context);
+    // activateOpenProjectCmd(context);
+    // activateOpenInConsoleCmd(context);
 }

@@ -1,0 +1,7 @@
+{
+  "editor.formatOnSave": false,
+  "search.followSymlinks": false,
+  "typescript.tsc.autoDetect": "off",
+  "prettier.printWidth": 120,
+  "prettier.tabWidth": 4,
+}

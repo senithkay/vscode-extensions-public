@@ -138,6 +138,7 @@ export function makeURLSafe(input: string): string {
     return input.trim().replace(/\s+/g, "-").toLowerCase();
 }
 
+// TODO: Delete
 export const getResourcesFromOpenApiFile = (openApiFilePath: string, serviceId: string) => {
     const resourceList: CMResourceFunction[] = [];
     if (existsSync(openApiFilePath)) {
@@ -159,6 +160,7 @@ export const getResourcesFromOpenApiFile = (openApiFilePath: string, serviceId: 
     return resourceList;
 };
 
+// TODO: Delete
 export const getComponentDirPath = (component: Component, projectLocation: string) => {
     const repository = component.repository;
     if (projectLocation && (repository?.appSubPath || repository?.byocBuildConfig)) {

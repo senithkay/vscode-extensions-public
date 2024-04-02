@@ -14,9 +14,7 @@
 import { ProviderResult, Uri, commands, window } from "vscode";
 import { ext } from "./extensionVariables";
 import { getLogger } from "./logger/logger";
-import { executeWithTaskRetryPrompt } from "./retry";
-import { STATUS_LOGGED_IN, choreoSignInCmdId, choreoSignOutCmdId } from "./constants";
-import { openProjectInVSCode } from "./cmds/open-project";
+import { authStore } from "./states/authState";
 
 export function activateURIHandlers() {
     window.registerUriHandler({
@@ -32,8 +30,12 @@ export function activateURIHandlers() {
                     // TODO: Check if status is equal to STATUS_LOGGING_IN, if not, show error message.
                     // It means that the login was initiated from somewhere else or an old page was opened/refreshed in the browser
                     try {
-                        ext.api.signInWithAuthCode(authCode);
-                    } catch (error: any) {
+                        ext.clients.rpcClient.signInWithAuthCode(authCode).then(userInfo=>{
+                            if(userInfo){
+                                authStore.getState().loginSuccess(userInfo);
+                            }
+                        });                        
+                        } catch (error: any) {
                         getLogger().error(`Choreo sign in Failed: ${error.message}`);
                         window.showErrorMessage(`Sign in failed. Please check the logs for more details.`);
                     }
@@ -41,83 +43,48 @@ export function activateURIHandlers() {
                     getLogger().error(`Choreo Login Failed: Authorization code not found!`);
                     window.showErrorMessage(`Choreo Login Failed: Authorization code not found!`);
                 }
-            } else if (uri.path === "/ghapp") {
-                getLogger().info("Choreo Githup auth Callback hit");
-                const urlParams = new URLSearchParams(uri.query);
-                const authCode = urlParams.get("code");
-                const installationId = urlParams.get("installationId");
-                ext.api.getSelectedOrg().then(selectedOrg => {
-                    // TODO:
-                    // Instead of setting _choreoInstallationOrgId as temporary value within ChoreoExtensionsApi.ts
-                    // We should try to pass the orgId within the state when opening the Github URL
-                    // Update Choreo console to pass that orgId back to us within the query params
-                    const choreoIstOrgId = ext.api.getChoreoInstallOrg();
-                    const orgId = choreoIstOrgId ?? selectedOrg?.id;
-                    if (!orgId) {
-                        getLogger().error(`Choreo Github Auth Failed: No Choreo org id found`);
-                        window.showErrorMessage(`Choreo Github Auth Failed: No org id found`);
-                        return;
-                    }
-                    if (authCode) {
-                        getLogger().debug(`Github exchanging code for token`);
-                        executeWithTaskRetryPrompt(() => ext.clients.githubAppClient.obatainAccessToken(authCode, orgId)).catch((err) => {
-                            getLogger().error(`Github App Auth Failed: ${err.message}` + (err?.cause ? "\nCause: " + err.cause.message : ""));
-                            window.showErrorMessage(`Choreo Github Auth Failed: ${err.message}`);
-                        });
-                    } else if (installationId) {
-                        getLogger().debug(`Github App installation id: ${installationId}`);
-                        ext.clients.githubAppClient.fireGHAppAuthCallback({
-                            status: "installed",
-                            installationId,
-                        });
-                    } else {
-                        ext.clients.githubAppClient.fireGHAppAuthCallback({
-                            status: "error",
-                        });
-                        window.showErrorMessage(`Choreo Github Auth Failed`);
-                    }
-                });
             } else if (uri.path === "/overview") {
-                getLogger().info("Choreo Project Overview callback hit");
-                const urlParams = new URLSearchParams(uri.query);
-                const projectId = urlParams.get("projectId");
-                const orgId = urlParams.get("orgId");
-                commands.executeCommand("workbench.view.extension.wso2-choreo");
-                if (!projectId || !orgId) {
-                    return;
-                }
-                // if user logged then open the project overview
-                if (ext.api.status === STATUS_LOGGED_IN) {
-                    const userOrg = ext.api.userInfo?.organizations?.find((org) => org.id.toString() === orgId);
-                    if (userOrg) {
-                        openProjectInVSCode(projectId, userOrg);
-                    } else {
-                        // This Org is not available for the user. Ask the user if they want to sign in with a different account
-                        window.showInformationMessage("The project you are attempting to open belongs to a different organization. Do you wish to sign in with a different account?", "Sign In", "Cancel").then(async (selection) => {
-                            if (selection === "Sign In") {
-                                await commands.executeCommand(choreoSignOutCmdId);
-                                commands.executeCommand(choreoSignInCmdId).then(async () => {
-                                    const userOrg = ext.api.userInfo?.organizations?.find((org) => org.id.toString() === orgId);
-                                    if (userOrg) {
-                                        openProjectInVSCode(projectId, userOrg);
-                                    } else {
-                                        window.showErrorMessage("You are not authorized to view this project");
-                                    }
-                                });
-                            }
-                        });
-                    }
-                } else {
-                    // else open the login page
-                    commands.executeCommand(choreoSignInCmdId).then(async () => {
-                        const userOrg = ext.api.userInfo?.organizations?.find((org) => org.id.toString() === orgId);
-                        if (userOrg) {
-                            openProjectInVSCode(projectId, userOrg);
-                        } else {
-                            window.showErrorMessage("You are not authorized to view this project");
-                        }
-                    });
-                }
+                // TODO: could be reused for component overview page
+                // getLogger().info("Choreo Project Overview callback hit");
+                // const urlParams = new URLSearchParams(uri.query);
+                // const projectId = urlParams.get("projectId");
+                // const orgId = urlParams.get("orgId");
+                // commands.executeCommand("workbench.view.extension.wso2-choreo");
+                // if (!projectId || !orgId) {
+                //     return;
+                // }
+                // // if user logged then open the project overview
+                // if (ext.api.status === STATUS_LOGGED_IN) {
+                //     const userOrg = ext.api.userInfo?.organizations?.find((org) => org.id.toString() === orgId);
+                //     if (userOrg) {
+                //         openProjectInVSCode(projectId, userOrg);
+                //     } else {
+                //         // This Org is not available for the user. Ask the user if they want to sign in with a different account
+                //         window.showInformationMessage("The project you are attempting to open belongs to a different organization. Do you wish to sign in with a different account?", "Sign In", "Cancel").then(async (selection) => {
+                //             if (selection === "Sign In") {
+                //                 await commands.executeCommand(choreoSignOutCmdId);
+                //                 commands.executeCommand(choreoSignInCmdId).then(async () => {
+                //                     const userOrg = ext.api.userInfo?.organizations?.find((org) => org.id.toString() === orgId);
+                //                     if (userOrg) {
+                //                         openProjectInVSCode(projectId, userOrg);
+                //                     } else {
+                //                         window.showErrorMessage("You are not authorized to view this project");
+                //                     }
+                //                 });
+                //             }
+                //         });
+                //     }
+                // } else {
+                //     // else open the login page
+                //     commands.executeCommand(choreoSignInCmdId).then(async () => {
+                //         const userOrg = ext.api.userInfo?.organizations?.find((org) => org.id.toString() === orgId);
+                //         if (userOrg) {
+                //             openProjectInVSCode(projectId, userOrg);
+                //         } else {
+                //             window.showErrorMessage("You are not authorized to view this project");
+                //         }
+                //     });
+                // }
             }
         },
     });
