@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { GetAvailableResourcesRequest, GetAvailableResourcesResponse, GetDefinitionRequest, GetDefinitionResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, ProjectStructureResponse, GetAvailableConnectorRequest, GetAvailableConnectorResponse } from "@wso2-enterprise/mi-core";
+import { GetAvailableResourcesRequest, GetAvailableResourcesResponse, GetDefinitionRequest, GetDefinitionResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, ProjectStructureResponse, GetAvailableConnectorRequest, GetAvailableConnectorResponse, UpdateConnectorRequest } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Range, Uri, workspace } from "vscode";
 import { CompletionParams, LanguageClient, TextEdit } from "vscode-languageclient/node";
@@ -153,7 +153,7 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest("synapse/availableConnectors", { uri: Uri.parse(req.documentUri).toString() });
     }
 
-    async updateConnectors(req: GetAvailableConnectorRequest): Promise<GetAvailableConnectorResponse> {
-        return this.sendRequest("synapse/updateConnectors", { uri: Uri.parse(req.documentUri).toString() });
+    async updateConnectors(req: UpdateConnectorRequest): Promise<void> {
+        return this.sendNotification("synapse/updateConnectors", { uri: Uri.parse(req.documentUri).toString() });
     } 
 }

@@ -1030,6 +1030,7 @@ export interface RangeFormatRequest {
 export interface DownloadConnectorRequest {
     url: string;
     connector: string;
+    version: string;
 }
 
 export interface DownloadConnectorResponse {
@@ -1047,11 +1048,6 @@ export interface GetAvailableConnectorResponse {
 export interface UpdateConnectorRequest {
     documentUri: string;
 }
-
-export interface UpdateConnectorResponse {
-    connectors: any;
-}
-
 
 export interface GetConnectorFormRequest {
     uiSchemaPath: string;

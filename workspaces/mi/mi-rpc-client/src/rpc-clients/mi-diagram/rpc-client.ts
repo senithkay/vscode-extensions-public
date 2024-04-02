@@ -118,7 +118,6 @@ import {
     UpdateAddressEndpointRequest,
     UpdateAddressEndpointResponse,
     UpdateConnectorRequest,
-    UpdateConnectorResponse,
     UpdateDefaultEndpointRequest,
     UpdateDefaultEndpointResponse,
     UpdateFailoverEPRequest,
@@ -540,7 +539,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getAvailableConnectors, HOST_EXTENSION, params);
     }
 
-    updateConnectors(params: UpdateConnectorRequest): Promise<UpdateConnectorResponse> {
+    updateConnectors(params: UpdateConnectorRequest): Promise<void> {
         return this._messenger.sendRequest(updateConnectors, HOST_EXTENSION, params);
     }
 
