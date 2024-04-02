@@ -115,7 +115,7 @@ const BamForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["serverProfileName"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "serverProfileName": e });
                             formValidators["serverProfileName"](e);
                         }}
@@ -133,7 +133,7 @@ const BamForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["streamName"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "streamName": e });
                                 formValidators["streamName"](e);
                             }}
@@ -148,7 +148,7 @@ const BamForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["streamVersion"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "streamVersion": e });
                                 formValidators["streamVersion"](e);
                             }}
@@ -165,7 +165,7 @@ const BamForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

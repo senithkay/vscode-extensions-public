@@ -334,7 +334,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder="Description"
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

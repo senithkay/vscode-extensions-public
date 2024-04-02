@@ -232,7 +232,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["completionTimeout"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "completionTimeout": e, "isCompleteConditionChanged": true });
                                 formValidators["completionTimeout"](e);
                             }}
@@ -257,7 +257,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["completionMinMessagesValue"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "completionMinMessagesValue": e, "isCompleteConditionChanged": true });
                                     formValidators["completionMinMessagesValue"](e);
                                 }}
@@ -274,7 +274,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["completionMinMessages"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "completionMinMessages": e, "isCompleteConditionChanged": true });
                                     formValidators["completionMinMessages"](e);
                                 }}
@@ -300,7 +300,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["completionMaxMessagesValue"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "completionMaxMessagesValue": e, "isCompleteConditionChanged": true });
                                     formValidators["completionMaxMessagesValue"](e);
                                 }}
@@ -317,7 +317,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["completionMaxMessages"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "completionMaxMessages": e, "isCompleteConditionChanged": true });
                                     formValidators["completionMaxMessages"](e);
                                 }}
@@ -335,7 +335,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["aggregateID"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "aggregateID": e, "isAggregateChanged": true });
                             formValidators["aggregateID"](e);
                         }}
@@ -350,7 +350,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["enclosingElementProperty"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "enclosingElementProperty": e, "isOnCompleteChanged": true });
                             formValidators["enclosingElementProperty"](e);
                         }}
@@ -365,7 +365,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["correlationExpression"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "correlationExpression": e, "isCorrelateOnChanged": true });
                             formValidators["correlationExpression"](e);
                         }}
@@ -389,7 +389,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["aggregationExpression"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "aggregationExpression": e, "isOnCompleteChanged": true });
                             formValidators["aggregationExpression"](e);
                         }}
@@ -419,7 +419,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["sequenceKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "sequenceKey": e, "isOnCompleteChanged": true });
                                 formValidators["sequenceKey"](e);
                             }}

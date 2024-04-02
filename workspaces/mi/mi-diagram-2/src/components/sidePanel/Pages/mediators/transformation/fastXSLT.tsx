@@ -128,7 +128,7 @@ const FastXSLTForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["fastXsltDynamicSchemaKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "fastXsltDynamicSchemaKey": e });
                                 formValidators["fastXsltDynamicSchemaKey"](e);
                             }}
@@ -145,7 +145,7 @@ const FastXSLTForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["fastXsltStaticSchemaKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "fastXsltStaticSchemaKey": e });
                                 formValidators["fastXsltStaticSchemaKey"](e);
                             }}
@@ -166,7 +166,7 @@ const FastXSLTForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

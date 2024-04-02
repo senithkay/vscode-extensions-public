@@ -132,7 +132,7 @@ const SequenceForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["staticReferenceKey"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "staticReferenceKey": e });
                                     formValidators["staticReferenceKey"](e);
                                 }}
@@ -149,7 +149,7 @@ const SequenceForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["dynamicReferenceKey"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "dynamicReferenceKey": e });
                                     formValidators["dynamicReferenceKey"](e);
                                 }}
@@ -167,7 +167,7 @@ const SequenceForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

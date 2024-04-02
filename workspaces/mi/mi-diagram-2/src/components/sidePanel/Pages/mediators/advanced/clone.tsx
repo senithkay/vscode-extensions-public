@@ -273,7 +273,7 @@ const CloneForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["cloneId"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "cloneId": e, "isCloneKeysChange": true });
                             formValidators["cloneId"](e);
                         }}
@@ -316,7 +316,7 @@ const CloneForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e, "isCloneKeysChange": true });
                             formValidators["description"](e);
                         }}

@@ -149,7 +149,7 @@ const DataServiceForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["serviceName"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             const updateValues: { [key: string]: any } = { "serviceName": e }
                             if (dataServices.includes(e)) {
                                 updateValues["availableDataServices"] = e;
@@ -191,7 +191,7 @@ const DataServiceForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["operationName"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "operationName": e });
                                 formValidators["operationName"](e);
                             }}
@@ -209,7 +209,7 @@ const DataServiceForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["propertyName"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "propertyName": e });
                                     formValidators["propertyName"](e);
                                 }}
@@ -234,7 +234,7 @@ const DataServiceForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["propertyValue"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "propertyValue": e });
                                         formValidators["propertyValue"](e);
                                     }}
@@ -251,7 +251,7 @@ const DataServiceForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["propertyExpression"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "propertyExpression": e });
                                         formValidators["propertyExpression"](e);
                                     }}
@@ -363,7 +363,7 @@ const DataServiceForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["targetProperty"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "targetProperty": e });
                                 formValidators["targetProperty"](e);
                             }}
@@ -379,7 +379,7 @@ const DataServiceForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}
