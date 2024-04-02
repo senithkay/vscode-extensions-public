@@ -24,6 +24,7 @@ import { OutputSearchHighlight } from "../Search";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
 import { useIONodesStyles } from "../../../../styles";
+import { useDMCollapsedFieldsStore } from '../../../../../store/store';
 
 export interface EditableRecordFieldWidgetProps {
     parentId: string;
@@ -60,6 +61,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const [isHovered, setIsHovered] = useState(false);
     const [isAddingTypeCast, setIsAddingTypeCast] = useState(false);
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
+    const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
     let fieldName = field.type.fieldName;
     let indentation = treeDepth * 16;
@@ -124,7 +126,12 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     };
 
     const handleExpand = () => {
-        // handleCollapse(fieldId, !expanded);
+		const collapsedFields = collapsedFieldsStore.collapsedFields;
+        if (!expanded) {
+            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== fieldId));
+        } else {
+            collapsedFieldsStore.setCollapsedFields([...collapsedFields, fieldId]);
+        }
     };
 
     const handlePortState = (state: PortState) => {

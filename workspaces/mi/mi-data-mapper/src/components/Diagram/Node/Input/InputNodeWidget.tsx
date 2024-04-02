@@ -18,22 +18,23 @@ import { InputSearchHighlight } from '../commons/Search';
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { InputNodeTreeItemWidget } from "./InputNodeTreeItemWidget";
 import { useIONodesStyles } from "../../../styles";
+import { useDMCollapsedFieldsStore } from '../../../../store/store';
 
 export interface InputNodeWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
     dmType: DMType;
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
-    handleCollapse: (portName: string, isExpanded?: boolean) => void;
     valueLabel?: string;
     nodeHeaderSuffix?: string;
 }
 
 export function InputNodeWidget(props: InputNodeWidgetProps) {
-    const { engine, dmType, id, getPort, handleCollapse, valueLabel, nodeHeaderSuffix } = props;
+    const { engine, dmType, id, getPort, valueLabel, nodeHeaderSuffix } = props;
     
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
+    const collapsedFieldsStore = useDMCollapsedFieldsStore();
     
     const classes = useIONodesStyles();
     const typeName = dmType.typeName;
@@ -62,7 +63,12 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
     );
 
     const handleExpand = () => {
-        handleCollapse(id, !expanded);
+        const collapsedFields = collapsedFieldsStore.collapsedFields;
+        if (!expanded) {
+            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== id));
+        } else {
+            collapsedFieldsStore.setCollapsedFields([...collapsedFields, id]);
+        }
     }
 
     const handlePortState = (state: PortState) => {
@@ -90,8 +96,7 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
                         <Button
                             appearance="icon"
                             tooltip="Expand/Collapse"
-                            onClick={undefined}
-                            disabled={!handleCollapse}
+                            onClick={handleExpand}
                             data-testid={`${id}-expand-icon-record-source-node`}
                         >
                             {expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />}
@@ -117,7 +122,6 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
                                     dmType={field}
                                     getPort={getPort}
                                     parentId={id}
-                                    handleCollapse={handleCollapse}
                                     treeDepth={0}
                                     isOptional={dmType.optional}
                                     hasHoveredParent={isHovered}

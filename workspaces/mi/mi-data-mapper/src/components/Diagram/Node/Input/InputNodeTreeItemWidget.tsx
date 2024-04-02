@@ -17,6 +17,8 @@ import classnames from "classnames";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../Port";
 import { InputSearchHighlight } from "../commons/Search";
 import { useIONodesStyles } from "../../../styles";
+import { useDMCollapsedFieldsStore } from '../../../../store/store';
+
 
 export interface InputNodeTreeItemWidgetProps {
     parentId: string;
@@ -24,16 +26,16 @@ export interface InputNodeTreeItemWidgetProps {
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
     treeDepth?: number;
-    handleCollapse: (portName: string, isExpanded?: boolean) => void;
     isOptional?: boolean;
     hasHoveredParent?: boolean;
 }
 
 export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
-    const { parentId, dmType, getPort, engine, handleCollapse, treeDepth = 0, isOptional, hasHoveredParent } = props;
+    const { parentId, dmType, getPort, engine, treeDepth = 0, isOptional, hasHoveredParent } = props;
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
+    const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
     const fieldName = dmType.fieldName;
     const typeName = dmType.kind;
@@ -73,7 +75,12 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
     );
 
     const handleExpand = () => {
-        handleCollapse(fieldId, !expanded);
+        const collapsedFields = collapsedFieldsStore.collapsedFields;
+        if (!expanded) {
+            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== fieldId));
+        } else {
+            collapsedFieldsStore.setCollapsedFields([...collapsedFields, fieldId]);
+        }
     };
 
     const handlePortState = (state: PortState) => {
@@ -103,8 +110,7 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
                     {fields && <Button
                             appearance="icon"
                             tooltip="Expand/Collapse"
-                            onClick={undefined}
-                            disabled={!handleCollapse}
+                            onClick={handleExpand}
                             sx={{ marginLeft: treeDepth * 16 }}
                         >
                             {expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />}
@@ -126,7 +132,6 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
                             dmType={subField}
                             getPort={getPort}
                             parentId={fieldId}
-                            handleCollapse={handleCollapse}
                             treeDepth={treeDepth + 1}
                             isOptional={isOptional || optional}
                             hasHoveredParent={isHovered || hasHoveredParent}

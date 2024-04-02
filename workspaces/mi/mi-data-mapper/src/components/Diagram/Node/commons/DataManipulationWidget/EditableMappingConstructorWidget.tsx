@@ -21,6 +21,7 @@ import { OutputSearchHighlight } from '../Search';
 import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { useIONodesStyles } from '../../../../styles';
+import { useDMCollapsedFieldsStore } from '../../../../../store/store';
 
 export interface EditableMappingConstructorWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -54,6 +55,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 	const [isHovered, setIsHovered] = useState(false);
+	const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
 	const editableRecordFields = editableRecordField && editableRecordField.childrenTypes;
 	const hasValue = editableRecordFields && editableRecordFields.length > 0;
@@ -93,7 +95,12 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	);
 
 	const handleExpand = () => {
-		// context.handleCollapse(id, !expanded);
+		const collapsedFields = collapsedFieldsStore.collapsedFields;
+        if (!expanded) {
+            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== id));
+        } else {
+            collapsedFieldsStore.setCollapsedFields([...collapsedFields, id]);
+        }
 	};
 
 	const handlePortState = (state: PortState) => {

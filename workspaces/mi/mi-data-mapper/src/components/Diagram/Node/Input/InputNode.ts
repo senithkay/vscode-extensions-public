@@ -9,7 +9,7 @@
 import { Point } from "@projectstorm/geometry";
 import { ParameterDeclaration } from "typescript";
 
-import { useDMSearchStore } from "../../../../store/store";
+import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
@@ -46,20 +46,21 @@ export class InputNode extends DataMapperNodeModel {
         this.hasNoMatchingFields = !this.dmType;
 
         if (this.dmType) {
-            const parentPort = this.addPortsForHeader(this.dmType, this._paramName, "OUT", undefined, undefined);
+            const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
+            const parentPort = this.addPortsForHeader(this.dmType, this._paramName, "OUT", undefined, collapsedFields);
 
             if (this.dmType.kind === TypeKind.Interface) {
                 const fields = this.dmType.fields;
                 fields.forEach((subField) => {
                     this.numberOfFields += this.addPortsForInputField(
                         subField, "OUT", this._paramName, '',
-                        parentPort, undefined, parentPort.collapsed
+                        parentPort, collapsedFields, parentPort.collapsed
                     );
                 });
             } else {
                 this.addPortsForInputField(
                     this.dmType, "OUT", this._paramName, '',
-                    parentPort, undefined, parentPort.collapsed
+                    parentPort, collapsedFields, parentPort.collapsed
                 );
             }
         }

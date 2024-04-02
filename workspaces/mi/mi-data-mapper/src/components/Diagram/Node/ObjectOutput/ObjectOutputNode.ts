@@ -10,7 +10,7 @@ import { Point } from "@projectstorm/geometry";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import { ObjectLiteralExpression, Node } from "typescript";
 
-import { useDMSearchStore } from "../../../../store/store";
+import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
@@ -50,6 +50,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
         if (this.dmType) {
             this.rootName = this.dmType?.fieldName;
 
+            const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
             const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value);
             this.dmType = type;
             this.typeName = valueEnrichedType.type.typeName;
@@ -58,7 +59,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
     
             const parentPort = this.addPortsForHeader(
                 this.dmType, this.rootName, "IN", OBJECT_OUTPUT_TARGET_PORT_PREFIX,
-                [], undefined, valueEnrichedType
+                collapsedFields, undefined, valueEnrichedType
             );
     
             if (valueEnrichedType.type.kind === TypeKind.Interface) {
@@ -68,7 +69,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                     this.dmTypeWithValue.childrenTypes.forEach((field) => {
                         this.addPortsForOutputField(
                             field, "IN", this.rootName, undefined, OBJECT_OUTPUT_TARGET_PORT_PREFIX,
-                            parentPort, [], parentPort.collapsed
+                            parentPort, collapsedFields, parentPort.collapsed
                         );
                     });
                 }

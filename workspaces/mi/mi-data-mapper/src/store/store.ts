@@ -1,42 +1,35 @@
-
-import { FunctionDefinition } from '@wso2-enterprise/syntax-tree';
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 import { create } from 'zustand';
 
-export interface DataMapperState {
-  imports: string[];
-  setImports: (imports: string[]) => void;
-  functionST: FunctionDefinition;
-  setFunctionST: (st: FunctionDefinition) => void;
-  filePath: string;
-  setFilePath: (filePath: string) => void;
-  langClientPromise?: any;
-  setLangClientPromise: (lCP: any) => void;
-}
-
 export interface DataMapperSearchState {
-  inputSearch: string;
-  setInputSearch: (inputSearch: string) => void;
-  outputSearch: string;
-  setOutputSearch: (outputSearch: string) => void;
-  resetSearchStore: () => void;
+    inputSearch: string;
+    setInputSearch: (inputSearch: string) => void;
+    outputSearch: string;
+    setOutputSearch: (outputSearch: string) => void;
+    resetSearchStore: () => void;
 }
 
-export const useDMStore = create<DataMapperState>((set) => ({
-  imports: [],
-  functionST: undefined,
-  filePath: undefined,
-  langClientPromise: undefined,
-  setFunctionST: (functionST: FunctionDefinition) => set({ functionST }),
-  setImports: (imports) => set({ imports }),
-  setFilePath: (filePath: string) => set({ filePath }),
-  setLangClientPromise: (langClientPromise: any) => set({ langClientPromise }),
-}));
-
+export interface DataMapperCollapsedFieldsState {
+    collapsedFields: string[];
+    setCollapsedFields: (fields: string[]) => void;
+}
 
 export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
-  inputSearch: "",
-  outputSearch: "",
-  setInputSearch: (inputSearch: string) => set({ inputSearch }),
-  setOutputSearch: (outputSearch: string) => set({ outputSearch }),
-  resetSearchStore: () => set({ inputSearch: '', outputSearch: '' })
+    inputSearch: "",
+    outputSearch: "",
+    setInputSearch: (inputSearch: string) => set({ inputSearch }),
+    setOutputSearch: (outputSearch: string) => set({ outputSearch }),
+    resetSearchStore: () => set({ inputSearch: '', outputSearch: '' })
+}));
+
+export const useDMCollapsedFieldsStore = create<DataMapperCollapsedFieldsState>((set) => ({
+    collapsedFields: [],
+    setCollapsedFields: (collapsedFields: string[])  => set({ collapsedFields }),
 }));

@@ -16,7 +16,7 @@ import { DataMapperNodeModel } from '../Diagram/Node/commons/DataMapperNode';
 import { getIONodeHeight } from '../Diagram/utils/diagram-utils';
 import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
 import { ErrorNodeKind } from '../DataMapper/Error/DataMapperError';
-import { useDMSearchStore } from '../../store/store';
+import { useDMCollapsedFieldsStore, useDMSearchStore } from '../../store/store';
 import { ObjectOutputNode, InputNode } from '../Diagram/Node';
 import { GAP_BETWEEN_INPUT_NODES, IO_NODE_DEFAULT_WIDTH, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';
 import { LinkConnectorNode } from '../Diagram/Node/LinkConnector';
@@ -38,6 +38,7 @@ export const useDiagramModel = (
     // const context = nodes.find(node => node.context)?.context;
 	// const fnSource = context ? context.selection.selectedST.stNode.source : undefined;
     // const collapsedFields = context?.collapsedFields;
+    const collapsedFields = useDMCollapsedFieldsStore(state => state.collapsedFields); // Subscribe to collapsedFields
     const { inputSearch, outputSearch } = useDMSearchStore();
 
     const genModel = async () => {
@@ -80,7 +81,7 @@ export const useDiagramModel = (
         isFetching,
         isError,
         refetch,
-    } = useQuery(['genModel', {noOfNodes, inputSearch, outputSearch, newZoomLevel: zoomLevel}], () => genModel(), {});
+    } = useQuery(['genModel', {noOfNodes, inputSearch, outputSearch, collapsedFields, newZoomLevel: zoomLevel}], () => genModel(), {});
 
     return { updatedModel, isFetching, isError, refetch };
 };
