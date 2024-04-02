@@ -102,7 +102,11 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
         // Download connector from store
         if (selectedConnector.operations) {
-            await rpcClient.getMiDiagramRpcClient().downloadConnector({ connector: selectedConnector.name, url: selectedConnector.download_url });
+            await rpcClient.getMiDiagramRpcClient().downloadConnector({
+                connector: selectedConnector.name,
+                url: selectedConnector.download_url,
+                version: selectedConnector.version
+            });
 
         }
 
@@ -110,7 +114,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
         const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.documentUri });
 
         // // Update LS with new connector
-        // await rpcClient.getMiDiagramRpcClient().updateConnectors({ documentUri: props.documentUri });
+        await rpcClient.getMiDiagramRpcClient().updateConnectors({ documentUri: props.documentUri });
 
         // Get UI Schema Path
         const uiSchemaPath = connectorData.connectors.find((connector: any) => connector.name === selectedConnector.name.toLowerCase())?.uiSchemaPath;
@@ -255,45 +259,52 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                 <h4>All Operations</h4>
                             </TitleWrapper>
                             <ButtonGrid>
-                                {(selectedConnector.operations ? Object.keys(selectedConnector.operations) : selectedConnector.actions).map((operation: any) => (
-                                    <ComponentCard
-                                        key={operation}
-                                        onClick={() => selectOperation(selectedConnector.operations ? operation : operation.name)}
-                                        sx={{
-                                            '&:hover, &.active': {
-                                                '.icon svg g': {
-                                                    fill: 'var(--vscode-editor-foreground)'
+                                {(selectedConnector.operations ? Object.keys(selectedConnector.operations) : selectedConnector.actions).map((operation: any) => {
+                                    // If operation is hidden, do not render the ComponentCard
+                                    if (operation.isHidden) {
+                                        return null;
+                                    }
+
+                                    return (
+                                        <ComponentCard
+                                            key={operation}
+                                            onClick={() => selectOperation(selectedConnector.operations ? operation : operation.name)}
+                                            sx={{
+                                                '&:hover, &.active': {
+                                                    '.icon svg g': {
+                                                        fill: 'var(--vscode-editor-foreground)'
+                                                    },
+                                                    backgroundColor: 'var(--vscode-pickerGroup-border)',
+                                                    border: '1px solid var(--vscode-focusBorder)'
                                                 },
-                                                backgroundColor: 'var(--vscode-pickerGroup-border)',
-                                                border: '1px solid var(--vscode-focusBorder)'
-                                            },
-                                            alignItems: 'center',
-                                            border: '1px solid var(--vscode-editor-foreground)',
-                                            borderRadius: 2,
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            height: 20,
-                                            justifyContent: 'left',
-                                            marginBottom: 10,
-                                            padding: 10,
-                                            transition: '0.3s',
-                                            width: 180
-                                        }}
-                                    >
-                                        <IconContainer>
-                                            {getSVGIcon("loopback")}
-                                        </IconContainer>
-                                        <div style={{
-                                            width: '100%',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            whiteSpace: 'nowrap',
-                                            textAlign: 'left'
-                                        }}>
-                                            <IconLabel>{ selectedConnector.operations ? operation : operation.name}</IconLabel>
-                                        </div>
-                                    </ComponentCard>
-                                ))}
+                                                alignItems: 'center',
+                                                border: '1px solid var(--vscode-editor-foreground)',
+                                                borderRadius: 2,
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                height: 20,
+                                                justifyContent: 'left',
+                                                marginBottom: 10,
+                                                padding: 10,
+                                                transition: '0.3s',
+                                                width: 180
+                                            }}
+                                        >
+                                            <IconContainer>
+                                                {getSVGIcon("loopback")}
+                                            </IconContainer>
+                                            <div style={{
+                                                width: '100%',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap',
+                                                textAlign: 'left'
+                                            }}>
+                                                <IconLabel>{selectedConnector.operations ? operation : operation.name}</IconLabel>
+                                            </div>
+                                        </ComponentCard>
+                                    );
+                                })}
                             </ButtonGrid>
                         </>
                     )}
