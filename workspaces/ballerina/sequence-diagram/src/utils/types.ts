@@ -30,6 +30,7 @@ export type Line = {
 
 export enum ParticipantType {
     FUNCTION = "FUNCTION",
+    WORKER = "WORKER",
     ENDPOINT = "ENDPOINT",
 }
 
@@ -37,27 +38,27 @@ export type Participant = {
     id: string;
     name: string;
     kind: ParticipantType;
-    module: Module;
+    moduleName: string;
     nodes: Node[];
     location: Location;
     viewState?: ViewState;
-};
-
-export type Module = {
-    moduleName: string;
-    packageName: string;
 };
 
 export enum NodeKind {
     INTERACTION = "INTERACTION",
     IF = "IF",
     WHILE = "WHILE",
+    FOREACH = "FOREACH",
+    MATCH = "MATCH",
+    RETURN = "RETURN",
 }
 
 export enum InteractionType {
     ENDPOINT_CALL = "ENDPOINT_CALL",
     FUNCTION_CALL = "FUNCTION_CALL",
     RETURN = "RETURN",
+    METHOD_CALL = "METHOD_CALL",
+    WORKER_CALL = "WORKER_CALL",
 }
 
 export type Node = {
@@ -75,18 +76,18 @@ export type NodeBranch = {
     children: Node[];
 };
 
-export type Property = {
+export type Expression = {
     type: string;
     value?: string;
 };
 
 export type NodeProperties = {
-    params?: Property[];
-    expr?: Property;
-    method?: Property;
-    value?: Property;
-    name?: Property;
-    condition?: Property;
+    params?: Expression[];
+    expr?: Expression;
+    method?: Expression;
+    value?: Expression;
+    name?: Expression;
+    condition?: Expression;
 };
 
 export enum ViewStateLabel {
