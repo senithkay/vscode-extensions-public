@@ -193,6 +193,7 @@ export const MEDIATORS = {
     OAUTH: "OAuth",
     BUILDER: "Builder",
     PUBLISHEVENT: "Publish Event",
+    NTLM: "NTLM",
 }
 
 export const ENDPOINTS = {
