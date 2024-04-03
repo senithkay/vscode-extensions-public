@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -10,34 +10,57 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
-import { EVENT_TYPE, MachineStateValue, AI_MACHINE_VIEW, webviewReady, AIVisualizerLocation, MACHINE_VIEW, AIMachineStateValue } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MachineStateValue, AI_MACHINE_VIEW, webviewReady, AIVisualizerLocation, MACHINE_VIEW, AIMachineStateValue, AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { AiPanelWebview } from './webview';
 import { RPCLayer } from '../RPCLayer';
 import { StateMachine } from '../stateMachine';
+import * as keytar from 'keytar';
+import {getAuthUrl} from './auth';
+
+interface ChatEntry {
+    role: string;
+    content: string;
+    errorCode?: string;
+}
 
 interface AiMachineContext extends AIVisualizerLocation {
-    errorCode: string | null;
+    token: string | undefined;
+    errorMessage?: string;
+    errorCode?: string;
+    chatLog: ChatEntry[];
 }
 
 const aiStateMachine = createMachine<AiMachineContext>({
-    /** @xstate-layout N4IgpgJg5mDOIC5QFsCWBaAhqgdKgdqgC6qYA2qAXmAMQQD2+Ye+AbvQNbNpa4HGkK1BAXYBjTCUYBtAAwBdOfMSgADvVgDGKkAA9EAJlkA2HCYMBWAIwAOY0YMGbAdmMAaEAE9ENqzguygQYALAbOzrKWzgYAvjEePNgsAuRUtGAAThn0GTiqZJIAZjnIOIl8hCSpwqL0ElL4Sko66poNOvoIRqbm1nYOTq4e3ghWzsE4AJwWAMxWwa52xpOOcQkYSRlgmBCeOKyoYADuADL0OwRQdIzMtVxlG7hbO3sHx2cX+FAibHWSqDIFM0kCBWlp8B1EDMQlNJnC4WNZM4bMF3F5ENEbDgrNCbI4xrZgi41iByjhnrt9ocjgBlIiYMQcS7XJgsdj3MkU17UukMplfH7if6AxQKFoacGQhDOGYWHAzSYo4Ko6IWezDDFObG4-HOQnE+Kkx7k7aUt5HABymAOUEkkBowLUEvaIM6VhxfjxsmCCtkCJmMzRI2MxgmVkck1keJckScJM5pu5xwASomaAB5AAKAFELQB9ABqAElswB1R2g50AiGujHRHDjRzK4wBAwByYahAWCyTKbmMKTYz9Hvx41cqkptMWgCCxYA4tOACrZitgl2gN1RvyBZGNv3GGY+zt6vz2JyTKyzRXdqyj3gml4To6pl40ABiRZO2bz2YAIkXF1XKttFrUYtzMJEXFCfdDxmTtjBxHAzy9cMt3DO9NkTJ9swgAQvhoP8ALzX90wtFcxRBNdqylKxwJ3KCjEHWDOzVGZsQjBZQ0VAwQziQ18HoCA4B0cpxTaajQPQINECkjCKhSIQwDEyVQNCTtJgmRwW3CSNdxsGY5IfXZlPXPREGCDt0QQBYDBwYJzBRCxwjmWQDMNBNH3ND5cK+EyJI3RBJmceCXAbKwEJmP19IPYxnEM8dzV5RlLj8kCAq7SwpiHcYbA0sYAjgqyIjYg8wnGVVfWCeKsPNK0bTtCBUprdLwx4vsDx9S97APKxjwMXtrAQwJaMHWxjGqzzqRfYzKOA5qzIQFZbOcQcNIssJA3Cvq-AsCzQnCqCnIms1qRwvCoCamitPa2Cup4uZ4KjfwFRsv0XJWQzcNgTAACMyEgS7QKczsUSxJFjD9frAjhZwLD4mIgA */
+    /** @xstate-layout N4IgpgJg5mDOIC5QFsCWBaAhqgdASQDtUAXVTAG1QC8wBiCAewLB1QIDcGBrFtLXQiTKUaCNpwDGmUkwDaABgC6CxYlAAHBrCFM1IAB6IATEYAsOAJwBmAOwBWeaZs2rFm-Lt2ANCACeiGwA2QJw7KysjeXkLAA4Y0wt5AEYAXxSfPmx8IlIKajpGZlYObl4MLMFckTAxEqkZAhVZJNUkEE1tBr1DBCMLEJsY+3lA0zshmLsbH38ECz6cd3k+1xikvs80jPKBHOF82jAAJyOGI5x1cmkAMzPkHEzdoTzRcQZ61DklFT0OnQJuohAjFFjYkuEostAvIYvJpn5EEk4fJLKZbEYhs4nEYtiBHjhyAwoDAIAB5ACuxFoABlSQBxPAAOR+bT+XTaPQsphRySSozsJmSgQs3gRCCSSXioJFkqspjMphiOPSeJ2OAASmBMBBfDT6aSAKoAFRZGi0-0BCDsiRwRkCfLWgRcSRcMRmASsdhw0SmNjMGLlcVx+M12t1AFEABrhgDCxvDpva5vZoB663coKMdmhdklNic7qtGO9SXlTmdGPBwbVoZ1tBj1PDAEF1Ym2Z8ARzEeEQaYkhZYn35BEYoFC36QtFEnCjEkwn3ldt+DgAOrYUgEKAAMTO1KJbHoTBYbx4DzVa6Em53Rz3UDYtUk0g7TSUv2THctSO53qcMUSVmhNFwkLIYBnGRIkSmcsbGrZcLw3bdd33AhDhOM4LiuYhbiOe58XgthEJvZCH3eJ8vmUV9WXfXQuwQSYLBwJFoTtFwjHCF0QLCSwe36J1hQ8WCsnwq8kLvFCYybRkY3Dak22oztUwCGwGL6Cx+z-F0ISMQsJVnb0ljtQIIjtOxBNwYTCNvA8tybPBqTwcNW0os1Og-WinRU4JImFfohjsUwdKiAZTBzdwrElKYzJwcN9DACRKQI+tSQAWQABUbI0E2cpNXJoxTxSMFxQmUl0EmBEUjMLPsQRiKx4n7cZuRdKKYrihLN1oRz1VJJzWhci1aPWP8cD-ZTPSdMw4kLADzGiExnDUtx+k9FrYvihDaAAZSNUlUrk3KFIMRE+nMYF-L6YVfTGQs+hsYr7FiQratGQJVrajbaTpcMABFDRNbL2zyo7xTlIxFn7FwHCzDx1h0qxHBwe1lLWf0-0cNIVQIBgIDgPRHjfA7LXQeHGLqv0-X8sI1MCbSxVnFFCvsP9mOCBqosqfYaAJgb8vlEDauK3MlmSELFSiwliUgCliG5lNgetBjJTcOcEkxJUdJdFT4cGfMB1U16VRDLUdVltz8sgsGhkVNYpmSKYLELAUwezWEIWhcLlKiiBUFgTAACNyEgU2gbTO7R3TQqxhCmE6o1yZGNqiIRjR0coos68rMOwHDp6NYrEsMw1MmDF+hcQtHtRHMFy5JG3vWgjg5zxEwnzyYYXmEZXBMx2TFCYFh3h93NYxlIgA */
     id: 'mi-ai',
-    initial: 'initialize',
+    initial: "Initialize",
     predictableActionArguments: true,
     context: {
-        view: null,
-        errorCode: null
+        token: undefined,
+        chatLog: [],
+        errorCode: undefined,
+        errorMessage: undefined
+    },
+    on: {
+        DISPOSE: {
+            target: "Initialize",
+        }
     },
     states: {
-        initialize: {
+        Initialize: {
             invoke: {
-                src: checkAiStatus,
+                src: "checkToken",
                 onDone: [
                     {
-                        target: 'ready',
+                        cond: (context, event) => event.data !== undefined, // Token is valid
+                        target: "Ready",
                         actions: assign({
-                            view: (context, event) => AI_MACHINE_VIEW.AIOverview
+                            token: (context, event) => event.data
                         })
+                    },
+                    {
+                        cond: (context, event) => event.data === undefined, // No token found
+                        target: 'loggedOut'
                     }
                 ],
                 onError: {
@@ -48,96 +71,113 @@ const aiStateMachine = createMachine<AiMachineContext>({
                 }
             }
         },
-        ready: {
-            initial: 'viewReady',
-            states: {
-                viewLoading: {
-                    invoke: {
-                        src: 'openWebPanel',
-                        onDone: {
-                            target: 'viewNavigated'
-                        }
-                    }
-                },
-                viewNavigated: {
-                    invoke: {
-                        src: 'findView',
-                        onDone: {
-                            target: 'viewReady',
-                            actions: assign({
-                                view: (context, event) => event.data
-                            })
-                        }
-                    }
-                },
-                viewReady: {
-                    on: {
-                        OPEN_VIEW: {
-                            target: "viewLoading",
-                            actions: assign({
-                                initialPrompt: (context, event) => event.viewLocation?.initialPrompt
-                            })
-                        },
-                        CLEAR_PROMPT: {
-                            target: "viewReady",
-                            actions: assign({
-                                initialPrompt: (context, event) => undefined
-                            })
-                        },
-                        FILE_EDIT: {
-                            target: "viewEditing"
-                        }
-                    }
-                },
-                viewEditing: {
-                    on: {
-                        EDIT_DONE: {
-                            target: "viewReady"
-                        }
-                    }
-                },
+
+        loggedOut: {
+            on: {
+                LOGIN: {
+                    target: "WaitingForLogin",
+                }
             }
         },
+
+        Ready: {
+            invoke: {
+                src: 'getSuggestions',
+                onDone: {
+                    target: "Ready"
+                },
+                onError: {
+                    target: "Ready",
+                    actions: assign({
+                        errorCode: (context, event) => event.data
+                    })
+                }
+            },
+            on: {
+                LOGOUT: "loggedOut",
+                EXECUTE: "Executing",
+                CLEAR: {
+                    target: "Ready",
+                }
+            }
+        },
+
         disabled: {
             invoke: {
                 src: 'disableExtension'
             },
+        },
+
+        WaitingForLogin: {
+            invoke: {
+                src: 'openLogin',
+                onError: {
+                    target: "loggedOut",
+                    actions: assign({
+                        errorCode: (context, event) => event.data
+                    })
+                }
+            },
+            on: {
+                SIGNINSUCCESS: "Ready",
+                CANCEL: "loggedOut",
+                FAILIER: "loggedOut"
+            }
+        },
+
+        Executing: {
+            on: {
+                COMPLETE: "Ready",
+                ERROR: "Ready",
+                STOP: "Ready",
+                LOGEDOUT: "loggedOut"
+            }
         }
     }
 }, {
     services: {
-        openWebPanel: (context, event) => {
-            return new Promise((resolve, reject) => {
-                if (!AiPanelWebview.currentPanel) {
-                    AiPanelWebview.currentPanel = new AiPanelWebview();
-                    RPCLayer._messenger.onNotification(webviewReady, () => {
-                        resolve(true);
-                    });
-                } else {
-                    AiPanelWebview.currentPanel!.getWebview()?.reveal();
-                    resolve(true);
-                }
-            });
-        },
-        disableExtension: (context, event) => {
-            return async (resolve, reject) => {
-                vscode.commands.executeCommand('setContext', 'MI.aiStatus', 'disabled');
-            };
-        },
-        findView: (context, event) => {
-            return new Promise((resolve, reject) => {
-                switch (StateMachine.context().view) {
-                    case MACHINE_VIEW.Overview:
-                        resolve(AI_MACHINE_VIEW.AIOverview);
-                        break;
-                    default:
-                        resolve(AI_MACHINE_VIEW.AIArtifact);
-                        break;
-                }
-            });
-        }
+        checkToken: checkToken,
+        openLogin: openLogin,
     }
 });
+
+
+async function checkToken(context, event) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const token = await keytar.getPassword('MI-AI', 'MIAIUser');
+            if (token) {
+                console.log("Token found: " + token);
+                resolve(token);
+            } else {
+                resolve(undefined);
+            }
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+
+
+async function openLogin(context, event) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            initiateInbuiltAuth();
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+
+async function initiateInbuiltAuth() {
+    const callbackUri = await vscode.env.asExternalUri(
+        vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.micro-integrator/signin`)
+    );
+    const oauthURL = await getAuthUrl(callbackUri.toString());
+    return vscode.env.openExternal(vscode.Uri.parse(oauthURL));
+}
 
 
 // Create a service to interpret the machine
@@ -149,10 +189,18 @@ export const StateMachineAI = {
     service: () => { return aiStateService; },
     context: () => { return aiStateService.getSnapshot().context; },
     state: () => { return aiStateService.getSnapshot().value as AIMachineStateValue; },
-    sendEvent: (eventType: EVENT_TYPE) => { aiStateService.send({ type: eventType }); },
+    sendEvent: (eventType: AI_EVENT_TYPE) => { aiStateService.send({ type: eventType }); },
 };
 
-export function openAIView(type: EVENT_TYPE, viewLocation?: AIVisualizerLocation) {
+export function openAIWebview() {
+    if (!AiPanelWebview.currentPanel) {
+        AiPanelWebview.currentPanel = new AiPanelWebview();
+    } else {
+        AiPanelWebview.currentPanel!.getWebview()?.reveal();
+    }
+}
+
+export function navigateAIView(type: EVENT_TYPE, viewLocation?: AIVisualizerLocation) {
     aiStateService.send({ type: type, viewLocation: viewLocation });
 }
 
@@ -162,3 +210,5 @@ async function checkAiStatus() {
         resolve(true);
     });
 }
+
+

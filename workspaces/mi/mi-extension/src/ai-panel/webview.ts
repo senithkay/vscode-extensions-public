@@ -13,7 +13,7 @@ import { Uri, ViewColumn } from 'vscode';
 import { getComposerJSFiles } from '../util';
 import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
-import { StateMachineAI } from './aiMachineNew';
+import { StateMachineAI } from './aiMachine';
 import { AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 
 export class AiPanelWebview {

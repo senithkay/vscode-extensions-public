@@ -15,7 +15,7 @@ import { registerMiDiagramRpcHandlers } from './rpc-managers/mi-diagram/rpc-hand
 import { VisualizerWebview } from './visualizer/webview';
 import { registerMiVisualizerRpcHandlers } from './rpc-managers/mi-visualizer/rpc-handler';
 import { AiPanelWebview } from './ai-panel/webview';
-import { StateMachineAI } from './ai-panel/aiMachineNew';
+import { StateMachineAI } from './ai-panel/aiMachine';
 
 export class RPCLayer {
     static _messenger: Messenger = new Messenger();

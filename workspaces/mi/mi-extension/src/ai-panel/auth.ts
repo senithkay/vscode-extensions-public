@@ -8,7 +8,7 @@
  */
 import * as keytar from 'keytar';
 import axios from 'axios';
-import { StateMachineAI } from './aiMachineNew';
+import { StateMachineAI } from './aiMachine';
 import { AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 
 export interface AccessToken {
@@ -42,6 +42,7 @@ export async function exchangeAuthCodeNew(authCode: string): Promise<AccessToken
         code: authCode,
         grant_type: 'authorization_code',
         redirect_uri: 'vscode://wso2.micro-integrator/signin',
+        scope: 'openid'
     });
     try {
         const response = await axios.post('https://api.asgardeo.io/t/wso2mi/oauth2/token', params.toString(), { headers: CommonReqHeaders });

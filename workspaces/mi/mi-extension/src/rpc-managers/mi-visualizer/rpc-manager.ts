@@ -31,7 +31,7 @@ import { workspace, window } from "vscode";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { handleOpenFile } from "../../util/fileOperations";
-import { openAIView } from "../../ai-panel/aiMachine";
+import { openAIWebview } from "../../ai-panel/aiMachine";
 import { extension } from "../../MIExtensionContext";
 
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
@@ -65,7 +65,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     openView(params: OpenViewRequest): void {
         if (params.isAiWebview) {
-            openAIView(params.type, params.location as AIVisualizerLocation);
+            openAIWebview();
         } else {
             openView(params.type, params.location as VisualizerLocation);
         }

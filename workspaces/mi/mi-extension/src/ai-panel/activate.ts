@@ -9,7 +9,7 @@
 
 import * as vscode from 'vscode';
 import { COMMANDS } from '../constants';
-import { StateMachineAI, openAIWebview } from './aiMachineNew';
+import { StateMachineAI, openAIWebview } from './aiMachine';
 import { AI_EVENT_TYPE, AI_MACHINE_VIEW, EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { exchangeAuthCode } from './auth';
 
