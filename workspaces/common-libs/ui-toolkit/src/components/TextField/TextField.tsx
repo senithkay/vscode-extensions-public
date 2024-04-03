@@ -33,6 +33,7 @@ export interface TextFieldProps extends ComponentProps<"input"> {
     readonly?: boolean;
     required?: boolean;
     errorMsg?: string;
+    description?: string | ReactNode;
     validationMessage?: string;
     sx?: any;
     onTextChange?: (text: string) => void;
@@ -53,9 +54,15 @@ const LabelContainer = styled.div<ContainerProps>`
     margin-bottom: 4px;
 `;
 
+const Description = styled.div<ContainerProps>`
+    color: var(--vscode-list-deemphasizedForeground);
+    margin-bottom: 4px;
+    text-align: left;
+`;
+
 export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((props, ref) => {
     const { label, type = "text", size = 20, disabled, icon, readonly, id, autoFocus, required,
-        placeholder, validationMessage, errorMsg, sx, InputProps, onTextChange, ...rest
+        placeholder, description, validationMessage, errorMsg, sx, InputProps, onTextChange, ...rest
     } = props;
 
     const [, setIsFocused] = React.useState(false);
@@ -119,6 +126,11 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
                     </div>
                     {(required && label) && (<RequiredFormInput />)}
                 </LabelContainer>
+                {description && (
+                    <Description>
+                        {description}
+                    </Description>
+                )}
             </VSCodeTextField>
             {errorMsg && (
                 <ErrorBanner errorMsg={errorMsg} />
