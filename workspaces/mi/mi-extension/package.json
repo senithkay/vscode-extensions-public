@@ -499,6 +499,8 @@
     "unzipper": "~0.10.14",
     "vscode-debugadapter": "^1.51.0",
     "vscode-debugprotocol": "^1.51.0",
-    "tree-kill": "^1.2.2"
+    "tree-kill": "^1.2.2",
+    "keytar": "~7.9.0",
+    "node-loader": "~2.0.0"
   }
 }
