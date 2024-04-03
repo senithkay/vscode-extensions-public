@@ -158,7 +158,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Format</label>
-                    <AutoComplete items={["LEAVE_AS_IS", "soap11", "soap12", "pox", "get", "rest"]} selectedItem={formValues["format"]} onChange={(e: any) => {
+                    <AutoComplete items={["LEAVE_AS_IS", "soap11", "soap12", "pox", "get", "rest"]} value={formValues["format"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "format": e });
                         formValidators["format"](e);
                     }} />
@@ -197,7 +197,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["suspendErrorCodes"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "suspendErrorCodes": e });
                                 formValidators["suspendErrorCodes"](e);
                             }}
@@ -212,7 +212,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["suspendInitialDuration"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "suspendInitialDuration": e });
                                 formValidators["suspendInitialDuration"](e);
                             }}
@@ -227,7 +227,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["suspendMaximumDuration"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "suspendMaximumDuration": e });
                                 formValidators["suspendMaximumDuration"](e);
                             }}
@@ -242,7 +242,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["suspendProgressionFactor"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "suspendProgressionFactor": e });
                                 formValidators["suspendProgressionFactor"](e);
                             }}
@@ -262,7 +262,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["retryErrorCodes"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "retryErrorCodes": e });
                                 formValidators["retryErrorCodes"](e);
                             }}
@@ -277,7 +277,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["retryCount"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "retryCount": e });
                                 formValidators["retryCount"](e);
                             }}
@@ -292,7 +292,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["retryDelay"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "retryDelay": e });
                                 formValidators["retryDelay"](e);
                             }}
@@ -344,7 +344,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["timeoutDuration"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "timeoutDuration": e });
                                 formValidators["timeoutDuration"](e);
                             }}
@@ -355,7 +355,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Timeout Action</label>
-                        <AutoComplete items={["never", "discard", "fault"]} selectedItem={formValues["timeoutAction"]} onChange={(e: any) => {
+                        <AutoComplete items={["never", "discard", "fault"]} value={formValues["timeoutAction"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "timeoutAction": e });
                             formValidators["timeoutAction"](e);
                         }} />
@@ -366,7 +366,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Optimize</label>
-                    <AutoComplete items={["LEAVE_AS_IS", "mtom", "swa"]} selectedItem={formValues["optimize"]} onChange={(e: any) => {
+                    <AutoComplete items={["LEAVE_AS_IS", "mtom", "swa"]} value={formValues["optimize"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "optimize": e });
                         formValidators["optimize"](e);
                     }} />
@@ -379,7 +379,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["wsdlUri"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "wsdlUri": e });
                             formValidators["wsdlUri"](e);
                         }}
@@ -394,7 +394,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["service"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "service": e });
                             formValidators["service"](e);
                         }}
@@ -409,7 +409,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["port"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "port": e });
                             formValidators["port"](e);
                         }}
@@ -428,7 +428,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["failoverNonRetryErrorCodes"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "failoverNonRetryErrorCodes": e });
                                     formValidators["failoverNonRetryErrorCodes"](e);
                                 }}
@@ -454,7 +454,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["name"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "name": e });
                                     formValidators["name"](e);
                                 }}
@@ -465,7 +465,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Scope</label>
-                            <AutoComplete items={["default", "transport", "axis2", "axis2-client"]} selectedItem={formValues["scope"]} onChange={(e: any) => {
+                            <AutoComplete items={["default", "transport", "axis2", "axis2-client"]} value={formValues["scope"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "scope": e });
                                 formValidators["scope"](e);
                             }} />
@@ -474,7 +474,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Value Type</label>
-                            <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["valueType"]} onChange={(e: any) => {
+                            <AutoComplete items={["LITERAL", "EXPRESSION"]} value={formValues["valueType"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "valueType": e });
                                 formValidators["valueType"](e);
                             }} />
@@ -488,7 +488,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["value"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "value": e });
                                         formValidators["value"](e);
                                     }}
@@ -505,7 +505,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["valueExpression"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "valueExpression": e });
                                         formValidators["valueExpression"](e);
                                     }}
@@ -566,7 +566,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

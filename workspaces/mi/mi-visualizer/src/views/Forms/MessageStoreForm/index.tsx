@@ -368,15 +368,15 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                 label="Message Store Name"
                 placeholder="Name"
                 validationMessage="Message Store name is required"
-                onChange={(e: string) => handleOnChangeMessageStore("name",e)}
+                onTextChange={(e: string) => handleOnChangeMessageStore("name",e)}
                 autoFocus
                 required
             />
             <AutoComplete
                 label="Message Store Type"
                 items={messageStoreTypes}
-                selectedItem={messageStore.type}
-                onChange={(e: string) => handleOnChangeMessageStore("type", e)}
+                value={messageStore.type}
+                onValueChange={(e: string) => handleOnChangeMessageStore("type", e)}
                 sx={{ width: "100%" }}
             />
 
@@ -386,15 +386,15 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                         <AutoComplete
                         label="Pre Configured Profiles"
                         items={preConfiguredProfiles}
-                        selectedItem={preConfiguredProfile}
-                        onChange={handlePreConfiguredProfileChange}
+                        value={preConfiguredProfile}
+                        onValueChange={handlePreConfiguredProfileChange}
                         sx={{ width: "100%" }}
                     />
                     )}
                     <TextField
                         placeholder="Initial Context Factory"
                         label="Initial Context Factory"
-                        onChange={(e: string) => handleOnChangeMessageStore("initialContextFactory", e)}
+                        onTextChange={(e: string) => handleOnChangeMessageStore("initialContextFactory", e)}
                         value={messageStore.initialContextFactory}
                         id="initial-context-factory-input"
                         size={100}
@@ -403,7 +403,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <TextField
                         placeholder="Provider URL"
                         label="Provider URL"
-                        onChange={(e: string) => handleOnChangeMessageStore("providerURL", e)}
+                        onTextChange={(e: string) => handleOnChangeMessageStore("providerURL", e)}
                         value={messageStore.providerURL}
                         id="provider-url-input"
                         size={100}
@@ -412,7 +412,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <TextField
                         placeholder="JNDI Queue Name"
                         label="JNDI Queue Name"
-                        onChange={(e: string) => handleOnChangeMessageStore("jndiQueueName", e)}
+                        onTextChange={(e: string) => handleOnChangeMessageStore("jndiQueueName", e)}
                         value={messageStore.jndiQueueName}
                         id="jndi-queue-name-input"
                         size={100}
@@ -420,7 +420,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <TextField
                         placeholder="Connection Factory"
                         label="Connection Factory"
-                        onChange={(e: string) => handleOnChangeMessageStore("connectionFactory", e)}
+                        onTextChange={(e: string) => handleOnChangeMessageStore("connectionFactory", e)}
                         value={messageStore.connectionFactory}
                         id="connection-factory-input"
                         size={100}
@@ -428,7 +428,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <TextField
                         placeholder="User Name"
                         label="User Name"
-                        onChange={(e: string) => handleOnChangeMessageStore("userName", e)}
+                        onTextChange={(e: string) => handleOnChangeMessageStore("userName", e)}
                         value={messageStore.userName}
                         id="user-name-input"
                         size={100}
@@ -436,7 +436,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <TextField
                         placeholder="Password"
                         label="Password"
-                        onChange={(e: string) => handleOnChangeMessageStore("password", e)}
+                        onTextChange={(e: string) => handleOnChangeMessageStore("password", e)}
                         value={messageStore.password}
                         id="password-input"
                         size={100}
@@ -444,15 +444,15 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <AutoComplete
                         label="Cache Connection"
                         items={["true", "false"]}
-                        selectedItem={messageStore.cacheConnection}
-                        onChange={(e: string) => handleOnChangeMessageStore("cacheConnection", e)}
+                        value={messageStore.cacheConnection}
+                        onValueChange={(e: string) => handleOnChangeMessageStore("cacheConnection", e)}
                         sx={{ width: "100%" }}
                     />
                     <AutoComplete
                         label="JMS API Version"
                         items={["1.0", "1.1"]}
-                        selectedItem={messageStore.jmsAPIVersion}
-                        onChange={(e: string) => handleOnChangeMessageStore("jmsAPIVersion", e)}
+                        value={messageStore.jmsAPIVersion}
+                        onValueChange={(e: string) => handleOnChangeMessageStore("jmsAPIVersion", e)}
                         sx={{ width: "100%" }}
                     />
                 </>
@@ -463,7 +463,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <TextField
                     placeholder="ProviderClass"
                     label="Provide Class"
-                    onChange={(e: string) => handleOnChangeMessageStore("providerClass", e)}
+                    onTextChange={(e: string) => handleOnChangeMessageStore("providerClass", e)}
                     required
                     value={messageStore.providerClass}
                     id="provider-class-input"
@@ -478,7 +478,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <TextField
                         placeholder="RabbitMQ Server Host Name"
                         label="RabbitMQ Server Host Name"
-                        onChange={(e: string) => handleOnChangeMessageStore("rabbitMQServerHostName", e)}
+                        onTextChange={(e: string) => handleOnChangeMessageStore("rabbitMQServerHostName", e)}
                         value={messageStore.rabbitMQServerHostName}
                         id="rabbitMQ-server-host-name-input"
                         size={100}
@@ -486,7 +486,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <TextField
                         placeholder="RabbitMQ Server Port"
                         label="RabbitMQ Server Port"
-                        onChange={(e: string) => handleOnChangeMessageStore("rabbitMQServerPort", e)}
+                        onTextChange={(e: string) => handleOnChangeMessageStore("rabbitMQServerPort", e)}
                         value={messageStore.rabbitMQServerPort}
                         id="rabbitMQ-server-port-input"
                         size={100}
@@ -494,15 +494,15 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <AutoComplete
                         label="SSL Enabled"
                         items={["true", "false"]}
-                        selectedItem={messageStore.sslEnabled}
-                        onChange={(e: string) => handleOnChangeMessageStore("sslEnabled", e)}
+                        value={messageStore.sslEnabled}
+                        onValueChange={(e: string) => handleOnChangeMessageStore("sslEnabled", e)}
                         sx={{ width: "100%" }}/>
                     {messageStore.sslEnabled === "true" && (
                         <>
                             <TextField
                                 placeholder="Key Store Location"
                                 label="Key Store Location"
-                                onChange={(e: string) => handleOnChangeMessageStore("keyStoreLocation", e)}
+                                onTextChange={(e: string) => handleOnChangeMessageStore("keyStoreLocation", e)}
                                 value={messageStore.keyStoreLocation}
                                 id="key-store-location-input"
                                 size={100}
@@ -510,7 +510,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                             <TextField
                                 placeholder="Key Store Type"
                                 label="Key Store Type"
-                                onChange={(e: string) => handleOnChangeMessageStore("keyStoreType", e)}
+                                onTextChange={(e: string) => handleOnChangeMessageStore("keyStoreType", e)}
                                 value={messageStore.keyStoreType}
                                 id="key-store-type-input"
                                 size={100}
@@ -518,7 +518,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                             <TextField
                                 placeholder="Key Store Password"
                                 label="Key Store Password"
-                                onChange={(e: string) => handleOnChangeMessageStore("keyStorePassword", e)}
+                                onTextChange={(e: string) => handleOnChangeMessageStore("keyStorePassword", e)}
                                 value={messageStore.keyStorePassword}
                                 id="key-store-password-input"
                                 size={100}
@@ -526,7 +526,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                             <TextField
                                 placeholder="Trust Store Location"
                                 label="Trust Store Location"
-                                onChange={(e: string) => handleOnChangeMessageStore("trustStoreLocation", e)}
+                                onTextChange={(e: string) => handleOnChangeMessageStore("trustStoreLocation", e)}
                                 value={messageStore.trustStoreLocation}
                                 id="trust-store-location-input"
                                 size={100}
@@ -534,7 +534,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                             <TextField
                                 placeholder="Trust Store Type"
                                 label="Trust Store Type"
-                                onChange={(e: string) => handleOnChangeMessageStore("trustStoreType", e)}
+                                onTextChange={(e: string) => handleOnChangeMessageStore("trustStoreType", e)}
                                 value={messageStore.trustStoreType}
                                 id="trust-store-type-input"
                                 size={100}
@@ -542,7 +542,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                             <TextField
                                 placeholder="Trust Store Password"
                                 label="Trust Store Password"
-                                onChange={(e: string) => handleOnChangeMessageStore("trustStorePassword", e)}
+                                onTextChange={(e: string) => handleOnChangeMessageStore("trustStorePassword", e)}
                                 value={messageStore.trustStorePassword}
                                 id="trust-store-password-input"
                                 size={100}
@@ -550,7 +550,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                             <TextField
                                 placeholder="SSL Version"
                                 label="SSL Version"
-                                onChange={(e: string) => handleOnChangeMessageStore("sslVersion", e)}
+                                onTextChange={(e: string) => handleOnChangeMessageStore("sslVersion", e)}
                                 value={messageStore.sslVersion}
                                 id="ssl-version-input"
                                 size={100}
@@ -560,7 +560,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <TextField
                         placeholder="RabbitMQ Queue Name"
                         label="RabbitMQ Queue Name"
-                        onChange={(e: string) => handleOnChangeMessageStore("rabbitMQQueueName", e)}
+                        onTextChange={(e: string) => handleOnChangeMessageStore("rabbitMQQueueName", e)}
                         value={messageStore.rabbitMQQueueName}
                         id="rabbitMQ-queue-name-input"
                         size={100}
@@ -568,7 +568,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <TextField
                         placeholder="RabbitMQ Exchange Name"
                         label="RabbitMQ Exchange Name"
-                        onChange={(e: string) => handleOnChangeMessageStore("rabbitMQExchangeName", e)}
+                        onTextChange={(e: string) => handleOnChangeMessageStore("rabbitMQExchangeName", e)}
                         value={messageStore.rabbitMQExchangeName}
                         id="rabbitMQ-exchange-name-input"
                         size={100}
@@ -576,7 +576,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <TextField
                         placeholder="Routine Key"
                         label="Routine Key"
-                        onChange={(e: string) => handleOnChangeMessageStore("routineKey", e)}
+                        onTextChange={(e: string) => handleOnChangeMessageStore("routineKey", e)}
                         value={messageStore.routineKey}
                         id="routine-key-input"
                         size={100}
@@ -584,7 +584,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <TextField
                         placeholder="User Name"
                         label="User Name"
-                        onChange={(e: string) => handleOnChangeMessageStore("userName", e)}
+                        onTextChange={(e: string) => handleOnChangeMessageStore("userName", e)}
                         value={messageStore.userName}
                         id="user-name-input"
                         size={100}
@@ -592,7 +592,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <TextField
                         placeholder="Password"
                         label="Password"
-                        onChange={(e: string) => handleOnChangeMessageStore("password", e)}
+                        onTextChange={(e: string) => handleOnChangeMessageStore("password", e)}
                         value={messageStore.password}
                         id="user-name-input"
                         size={100}
@@ -600,7 +600,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <TextField
                         placeholder="Virtual Host"
                         label="Virtual Host"
-                        onChange={(e: string) => handleOnChangeMessageStore("virtualHost", e)}
+                        onTextChange={(e: string) => handleOnChangeMessageStore("virtualHost", e)}
                         value={messageStore.virtualHost}
                         id="virtual-host-input"
                         size={100}
@@ -613,7 +613,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <TextField
                         placeholder="Data Base Table"
                         label="Data Base Table"
-                        onChange={(e: string) => handleOnChangeMessageStore("dataBaseTable", e)}
+                        onTextChange={(e: string) => handleOnChangeMessageStore("dataBaseTable", e)}
                         value={messageStore.dataBaseTable}
                         id="data-base-table-input"
                         size={100}
@@ -621,8 +621,8 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <AutoComplete
                         label="Connection Information Type"
                         items={["Pool", "Carbon Datasource"]}
-                        selectedItem={connectionInformationType}
-                        onChange={handleConnectionInformationTypeChange}
+                        value={connectionInformationType}
+                        onValueChange={handleConnectionInformationTypeChange}
                         sx={{ width: "100%" }}/>
                     {connectionInformationType === "Pool" && (
                         <>
@@ -630,14 +630,14 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                 <AutoComplete
                                 label="RDBMS Type"
                                 items={rdbmsTypes}
-                                selectedItem={rdbmsType}
-                                onChange={handleRdbmsTypeChange}
+                                value={rdbmsType}
+                                onValueChange={handleRdbmsTypeChange}
                                 sx={{ width: "100%" }}/>
                             )}
                             <TextField
                                 placeholder="Driver"
                                 label="Driver"
-                                onChange={(e: string) => handleOnChangeMessageStore("driver", e)}
+                                onTextChange={(e: string) => handleOnChangeMessageStore("driver", e)}
                                 value={messageStore.driver}
                                 id="driver-input"
                                 size={100}
@@ -645,7 +645,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                             <TextField
                                 placeholder="URL"
                                 label="URL"
-                                onChange={(e: string) => handleOnChangeMessageStore("url", e)}
+                                onTextChange={(e: string) => handleOnChangeMessageStore("url", e)}
                                 value={messageStore.url}
                                 id="url-input"
                                 size={100}
@@ -653,7 +653,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                             <TextField
                                 placeholder="User"
                                 label="User"
-                                onChange={(e: string) => handleOnChangeMessageStore("user", e)}
+                                onTextChange={(e: string) => handleOnChangeMessageStore("user", e)}
                                 value={messageStore.user}
                                 id="user-input"
                                 size={100}
@@ -661,7 +661,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                             <TextField
                                 placeholder="Password"
                                 label="Password"
-                                onChange={(e: string) => handleOnChangeMessageStore("password", e)}
+                                onTextChange={(e: string) => handleOnChangeMessageStore("password", e)}
                                 value={messageStore.password}
                                 id="password-input"
                                 size={100}
@@ -673,7 +673,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                             <TextField
                                 placeholder="Data Source Name"
                                 label="Data Source Name"
-                                onChange={(e: string) => handleOnChangeMessageStore("dataSourceName", e)}
+                                onTextChange={(e: string) => handleOnChangeMessageStore("dataSourceName", e)}
                                 value={messageStore.dataSourceName}
                                 id="data-source-name-input"
                                 size={100}
@@ -688,7 +688,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <TextField
                         placeholder="Initial Context Factory"
                         label="Initial Context Factory"
-                        onChange={(e: string) => handleOnChangeMessageStore("initialContextFactory", e)}
+                        onTextChange={(e: string) => handleOnChangeMessageStore("initialContextFactory", e)}
                         value={messageStore.initialContextFactory}
                         id="initial-context-factory-input"
                         size={100}
@@ -696,7 +696,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <TextField
                         placeholder="Queue Connectionfactory"
                         label="Queue Connectionfactory"
-                        onChange={(e:string) => handleOnChangeMessageStore("queueConnectionfactory", e)}
+                        onTextChange={(e:string) => handleOnChangeMessageStore("queueConnectionfactory", e)}
                         value={messageStore.queueConnectionFactory}
                         id="queue-connectionfactory-input"
                         size={100}
@@ -704,7 +704,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <TextField
                         placeholder="JNDI Queue Name"
                         label="JNDI Queue Name"
-                        onChange={(e: string) => handleOnChangeMessageStore("jndiQueueName", e)}
+                        onTextChange={(e: string) => handleOnChangeMessageStore("jndiQueueName", e)}
                         value={messageStore.jndiQueueName}
                         id="jndi-queue-name-input"
                         size={100}
@@ -712,14 +712,14 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <AutoComplete
                         label="JMS API Version"
                         items={["1.0", "1.1"]}
-                        selectedItem={messageStore.jmsAPIVersion}
-                        onChange={(e: string) => handleOnChangeMessageStore("jmsAPIVersion", e)}
+                        value={messageStore.jmsAPIVersion}
+                        onValueChange={(e: string) => handleOnChangeMessageStore("jmsAPIVersion", e)}
                         sx={{ width: "100%" }}/>
                     <AutoComplete
                         label="Cache Connection"
                         items={["true", "false"]}
-                        selectedItem={messageStore.cacheConnection}
-                        onChange={(e: string) => handleOnChangeMessageStore("cacheConnection", e)}
+                        value={messageStore.cacheConnection}
+                        onValueChange={(e: string) => handleOnChangeMessageStore("cacheConnection", e)}
                         sx={{ width: "100%" }}/>
                 </>
             )}
@@ -729,7 +729,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <TextField
                         placeholder="Data Base Table"
                         label="Data Base Table"
-                        onChange={(e: string) => handleOnChangeMessageStore("dataBaseTable", e)}
+                        onTextChange={(e: string) => handleOnChangeMessageStore("dataBaseTable", e)}
                         value={messageStore.dataBaseTable}
                         id="data-base-table-input"
                         size={100}
@@ -737,8 +737,8 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <AutoComplete
                         label="Connection Information Type"
                         items={["Pool", "Carbon Datasource"]}
-                        selectedItem={connectionInformationType}
-                        onChange={handleConnectionInformationTypeChange}
+                        value={connectionInformationType}
+                        onValueChange={handleConnectionInformationTypeChange}
                         sx={{ width: "100%" }}/>
                     {connectionInformationType === "Pool" && (
                         <>
@@ -746,14 +746,14 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                 <AutoComplete
                                 label="RDBMS Type"
                                 items={rdbmsTypes}
-                                selectedItem={rdbmsType}
-                                onChange={handleRdbmsTypeChange}
+                                value={rdbmsType}
+                                onValueChange={handleRdbmsTypeChange}
                                 sx={{ width: "100%" }}/>
                             )}
                             <TextField
                                 placeholder="Driver"
                                 label="Driver"
-                                onChange={(e: string) => handleOnChangeMessageStore("driver", e)}
+                                onTextChange={(e: string) => handleOnChangeMessageStore("driver", e)}
                                 value={messageStore.driver}
                                 id="driver-input"
                                 size={100}
@@ -761,7 +761,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                             <TextField
                                 placeholder="URL"
                                 label="URL"
-                                onChange={(e: string) => handleOnChangeMessageStore("url", e)}
+                                onTextChange={(e: string) => handleOnChangeMessageStore("url", e)}
                                 value={messageStore.url}
                                 id="url-input"
                                 size={100}
@@ -769,7 +769,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                             <TextField
                                 placeholder="User"
                                 label="User"
-                                onChange={(e: string) => handleOnChangeMessageStore("user", e)}
+                                onTextChange={(e: string) => handleOnChangeMessageStore("user", e)}
                                 value={messageStore.user}
                                 id="user-input"
                                 size={100}
@@ -777,7 +777,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                             <TextField
                                 placeholder="Password"
                                 label="Password"
-                                onChange={(e: string) => handleOnChangeMessageStore("password", e)}
+                                onTextChange={(e: string) => handleOnChangeMessageStore("password", e)}
                                 value={messageStore.password}
                                 id="password-input"
                                 size={100}
@@ -789,7 +789,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                             <TextField
                                 placeholder="Data Source Name"
                                 label="Data Source Name"
-                                onChange={(e: string) => handleOnChangeMessageStore("dataSourceName", e)}
+                                onTextChange={(e: string) => handleOnChangeMessageStore("dataSourceName", e)}
                                 value={messageStore.dataSourceName}
                                 id="data-source-name-input"
                                 size={100}
@@ -797,7 +797,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                             <TextField
                                 placeholder="Polling Count"
                                 label="Polling Count"
-                                onChange={(e: string) => handleOnChangeMessageStore("pollingCount", e)}
+                                onTextChange={(e: string) => handleOnChangeMessageStore("pollingCount", e)}
                                 value={messageStore.pollingCount}
                                 id="polling-count-input"
                                 size={100}
@@ -805,7 +805,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                             <TextField
                                 placeholder="XPath"
                                 label="XPath"
-                                onChange={(e: string) => handleOnChangeMessageStore("xPath", e)}
+                                onTextChange={(e: string) => handleOnChangeMessageStore("xPath", e)}
                                 value={messageStore.xPath}
                                 id="xPath-input"
                                 size={100}
@@ -820,14 +820,14 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     <AutoComplete
                         label="Enable Producer Guaranteed Delivery"
                         items={["true", "false"]}
-                        selectedItem={messageStore.enableProducerGuaranteedDelivery}
-                        onChange={(e: string) => handleOnChangeMessageStore("enableProducerGuaranteedDelivery", e)}
+                        value={messageStore.enableProducerGuaranteedDelivery}
+                        onValueChange={(e: string) => handleOnChangeMessageStore("enableProducerGuaranteedDelivery", e)}
                         sx={{ width: "100%" }}/>
                     <AutoComplete
                         label="Fail Over Message Store"
                         items={fallOverMessageStores}
-                        selectedItem={messageStore.failOverMessageStore}
-                        onChange={(e: string) => handleOnChangeMessageStore("failOverMessageStore", e)}
+                        value={messageStore.failOverMessageStore}
+                        onValueChange={(e: string) => handleOnChangeMessageStore("failOverMessageStore", e)}
                         sx={{ width: "100%" }}/>    
                 </>    
                     
@@ -837,7 +837,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                 <span> Save Location: </span>
                 <TextField
                     placeholder="projectDir"
-                    onChange={(text: string) => setProjectDir(text)}
+                    onTextChange={(text: string) => setProjectDir(text)}
                     value={projectDir}
                     id="dir-input"
                     size={100}

@@ -10,7 +10,7 @@
  */
 
 import { Messenger } from "vscode-messenger-webview";
-import { MachineStateValue, stateChanged, vscode, getVisualizerState, getAIVisualizerState, VisualizerLocation, AIVisualizerLocation, webviewReady, onFileContentUpdate, AI_EVENT_TYPE, sendAIStateEvent, AIMachineStateValue, aiStateChanged } from "@wso2-enterprise/mi-core";
+import { MachineStateValue, stateChanged, vscode, getVisualizerState, getAIVisualizerState, VisualizerLocation, AIVisualizerLocation, webviewReady, onFileContentUpdate, AI_EVENT_TYPE, sendAIStateEvent, AIMachineStateValue, aiStateChanged, themeChanged, ColorThemeKind  } from "@wso2-enterprise/mi-core";
 import { MiDiagramRpcClient } from "./rpc-clients/mi-diagram/rpc-client";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { MiVisualizerRpcClient } from "./rpc-clients/mi-visualizer/rpc-client";
@@ -42,6 +42,11 @@ export class RpcClient {
 
     onAIStateChanged(callback: (state: AIMachineStateValue) => void) {
         this.messenger.onNotification(aiStateChanged, callback);
+    }
+
+    onThemeChanged(callback: (kind: ColorThemeKind) => void) {
+        this.messenger.onNotification(themeChanged, callback);
+
     }
 
     getVisualizerState(): Promise<VisualizerLocation> {

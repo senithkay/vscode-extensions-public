@@ -248,7 +248,7 @@ const PayloadForm = (props: AddMediatorProps) => {
             <Wrapper>
                 <Field>
                     <label>Payload Format</label>
-                    <AutoComplete items={["Inline", "Registry Reference"]} selectedItem={formValues["payloadFormat"]} onChange={(e: any) => {
+                    <AutoComplete items={["Inline", "Registry Reference"]} value={formValues["payloadFormat"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "payloadFormat": e });
                         formValidators["payloadFormat"](e);
                     }} />
@@ -257,7 +257,7 @@ const PayloadForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Media Type</label>
-                    <AutoComplete items={["xml", "json", "text"]} selectedItem={formValues["mediaType"]} onChange={(e: any) => {
+                    <AutoComplete items={["xml", "json", "text"]} value={formValues["mediaType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "mediaType": e });
                         formValidators["mediaType"](e);
                     }} />
@@ -266,7 +266,7 @@ const PayloadForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Template Type</label>
-                    <AutoComplete items={["default", "freemarker"]} selectedItem={formValues["templateType"]} onChange={(e: any) => {
+                    <AutoComplete items={["default", "freemarker"]} value={formValues["templateType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "templateType": e });
                         formValidators["templateType"](e);
                     }} />
@@ -280,7 +280,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["payloadKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "payloadKey": e });
                                 formValidators["payloadKey"](e);
                             }}
@@ -296,7 +296,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                     {formValues["payloadFormat"] && formValues["payloadFormat"].toLowerCase() == "inline" &&
                         <Field>
                         <TextArea
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "payload": e });
                                 formValidators["payload"](e);
                             }}
@@ -327,7 +327,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

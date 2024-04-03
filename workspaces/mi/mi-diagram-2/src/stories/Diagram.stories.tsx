@@ -2483,3 +2483,302 @@ NamedSequence.args = {
         "tag": "resource"
     }
 }
+
+export const Switch: Story = {};
+Switch.args = {
+    model: {
+        "mediatorList": [
+            {
+                "_case": [
+                    {
+                        "mediatorList": [
+                            {
+                                "then": {
+                                    "mediatorList": [
+                                        {
+                                            "scope": "default",
+                                            "type": "STRING",
+                                            "group": 0,
+                                            "name": "namePart",
+                                            "expression": "fn:concat(get-property('policyContract'), '_', get-property('policyNumber'), '_', get-property('transactionId'), '_', get-property('systemId'))",
+                                            "range": {
+                                                "startTagRange": {
+                                                    "start": {
+                                                        "line": 6,
+                                                        "character": 20
+                                                    },
+                                                    "end": {
+                                                        "line": 6,
+                                                        "character": 234
+                                                    }
+                                                },
+                                                "endTagRange": {}
+                                            },
+                                            "hasTextNode": false,
+                                            "selfClosed": true,
+                                            "tag": "property"
+                                        }
+                                    ],
+                                    "range": {
+                                        "startTagRange": {
+                                            "start": {
+                                                "line": 5,
+                                                "character": 16
+                                            },
+                                            "end": {
+                                                "line": 5,
+                                                "character": 22
+                                            }
+                                        },
+                                        "endTagRange": {
+                                            "start": {
+                                                "line": 7,
+                                                "character": 16
+                                            },
+                                            "end": {
+                                                "line": 7,
+                                                "character": 23
+                                            }
+                                        }
+                                    },
+                                    "hasTextNode": false,
+                                    "selfClosed": false,
+                                    "tag": "then"
+                                },
+                                "else_": {
+                                    "mediatorList": [
+                                        {
+                                            "scope": "default",
+                                            "type": "STRING",
+                                            "group": 0,
+                                            "name": "namePart",
+                                            "expression": "fn:concat(get-property('transactionId'), '_', get-property('systemId'))",
+                                            "range": {
+                                                "startTagRange": {
+                                                    "start": {
+                                                        "line": 9,
+                                                        "character": 20
+                                                    },
+                                                    "end": {
+                                                        "line": 9,
+                                                        "character": 162
+                                                    }
+                                                },
+                                                "endTagRange": {}
+                                            },
+                                            "hasTextNode": false,
+                                            "selfClosed": true,
+                                            "tag": "property"
+                                        }
+                                    ],
+                                    "range": {
+                                        "startTagRange": {
+                                            "start": {
+                                                "line": 8,
+                                                "character": 16
+                                            },
+                                            "end": {
+                                                "line": 8,
+                                                "character": 22
+                                            }
+                                        },
+                                        "endTagRange": {
+                                            "start": {
+                                                "line": 10,
+                                                "character": 16
+                                            },
+                                            "end": {
+                                                "line": 10,
+                                                "character": 23
+                                            }
+                                        }
+                                    },
+                                    "hasTextNode": false,
+                                    "selfClosed": false,
+                                    "tag": "else"
+                                },
+                                "xpath": "get-property('policyContract') != '' and get-property('policyNumber') != ''",
+                                "range": {
+                                    "startTagRange": {
+                                        "start": {
+                                            "line": 4,
+                                            "character": 12
+                                        },
+                                        "end": {
+                                            "line": 4,
+                                            "character": 104
+                                        }
+                                    },
+                                    "endTagRange": {
+                                        "start": {
+                                            "line": 11,
+                                            "character": 12
+                                        },
+                                        "end": {
+                                            "line": 11,
+                                            "character": 21
+                                        }
+                                    }
+                                },
+                                "hasTextNode": false,
+                                "selfClosed": false,
+                                "tag": "filter"
+                            }
+                        ],
+                        "regex": "PC",
+                        "range": {
+                            "startTagRange": {
+                                "start": {
+                                    "line": 3,
+                                    "character": 8
+                                },
+                                "end": {
+                                    "line": 3,
+                                    "character": 25
+                                }
+                            },
+                            "endTagRange": {
+                                "start": {
+                                    "line": 12,
+                                    "character": 8
+                                },
+                                "end": {
+                                    "line": 12,
+                                    "character": 15
+                                }
+                            }
+                        },
+                        "hasTextNode": false,
+                        "selfClosed": false,
+                        "tag": "case"
+                    },
+                    {
+                        "mediatorList": [
+                            {
+                                "scope": "default",
+                                "type": "STRING",
+                                "group": 0,
+                                "name": "systemId",
+                                "expression": "//ns0:PIClaimsDocRequest/ns0:PostProcessing/ns0:SystemID/text()",
+                                "range": {
+                                    "startTagRange": {
+                                        "start": {
+                                            "line": 15,
+                                            "character": 12
+                                        },
+                                        "end": {
+                                            "line": 15,
+                                            "character": 235
+                                        }
+                                    },
+                                    "endTagRange": {}
+                                },
+                                "hasTextNode": false,
+                                "selfClosed": true,
+                                "tag": "property"
+                            }
+                        ],
+                        "regex": "CC",
+                        "range": {
+                            "startTagRange": {
+                                "start": {
+                                    "line": 14,
+                                    "character": 8
+                                },
+                                "end": {
+                                    "line": 14,
+                                    "character": 25
+                                }
+                            },
+                            "endTagRange": {
+                                "start": {
+                                    "line": 17,
+                                    "character": 8
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "character": 15
+                                }
+                            }
+                        },
+                        "hasTextNode": false,
+                        "selfClosed": false,
+                        "tag": "case"
+                    }
+                ],
+                "_default": {
+                    "mediatorList": [],
+                    "range": {
+                        "startTagRange": {
+                            "start": {
+                                "line": 18,
+                                "character": 8
+                            },
+                            "end": {
+                                "line": 18,
+                                "character": 18
+                            }
+                        },
+                        "endTagRange": {}
+                    },
+                    "hasTextNode": false,
+                    "selfClosed": true,
+                    "tag": "default"
+                },
+                "source": "get-property('centerType')",
+                "range": {
+                    "startTagRange": {
+                        "start": {
+                            "line": 2,
+                            "character": 4
+                        },
+                        "end": {
+                            "line": 2,
+                            "character": 48
+                        }
+                    },
+                    "endTagRange": {
+                        "start": {
+                            "line": 19,
+                            "character": 4
+                        },
+                        "end": {
+                            "line": 19,
+                            "character": 13
+                        }
+                    }
+                },
+                "hasTextNode": false,
+                "selfClosed": false,
+                "tag": "switch"
+            }
+        ],
+        "name": "pnc-doc-generation-get-file-name-sequence",
+        "trace": "disable",
+        "range": {
+            "startTagRange": {
+                "start": {
+                    "line": 1,
+                    "character": 0
+                },
+                "end": {
+                    "line": 1,
+                    "character": 115
+                }
+            },
+            "endTagRange": {
+                "start": {
+                    "line": 20,
+                    "character": 0
+                },
+                "end": {
+                    "line": 20,
+                    "character": 11
+                }
+            }
+        },
+        "hasTextNode": false,
+        "selfClosed": false,
+        "tag": "sequence"
+    }
+}

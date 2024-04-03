@@ -174,7 +174,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                             label="Payload"
                             placeholder=""
                             value={formValues["payload"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "payload": e });
                                 formValidators["payload"](e);
                             }}

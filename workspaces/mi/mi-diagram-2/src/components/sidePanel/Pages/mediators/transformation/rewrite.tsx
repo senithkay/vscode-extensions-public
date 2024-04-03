@@ -128,7 +128,7 @@ const RewriteForm = (props: AddMediatorProps) => {
 
                             <Field>
                                 <label>Rule Action</label>
-                                <AutoComplete items={["Replace", "Remove", "Append", "Prepend", "Set"]} selectedItem={formValues["ruleAction"]} onChange={(e: any) => {
+                                <AutoComplete items={["Replace", "Remove", "Append", "Prepend", "Set"]} value={formValues["ruleAction"]} onValueChange={(e: any) => {
                                     setFormValues({ ...formValues, "ruleAction": e });
                                     formValidators["ruleAction"](e);
                                 }} />
@@ -137,7 +137,7 @@ const RewriteForm = (props: AddMediatorProps) => {
 
                             <Field>
                                 <label>Rule Fragment</label>
-                                <AutoComplete items={["protocol", "host", "port", "path", "query", "ref", "user", "full"]} selectedItem={formValues["ruleFragment"]} onChange={(e: any) => {
+                                <AutoComplete items={["protocol", "host", "port", "path", "query", "ref", "user", "full"]} value={formValues["ruleFragment"]} onValueChange={(e: any) => {
                                     setFormValues({ ...formValues, "ruleFragment": e });
                                     formValidators["ruleFragment"](e);
                                 }} />
@@ -146,7 +146,7 @@ const RewriteForm = (props: AddMediatorProps) => {
 
                             <Field>
                                 <label>Rule Option</label>
-                                <AutoComplete items={["Value", "Expression"]} selectedItem={formValues["ruleOption"]} onChange={(e: any) => {
+                                <AutoComplete items={["Value", "Expression"]} value={formValues["ruleOption"]} onValueChange={(e: any) => {
                                     setFormValues({ ...formValues, "ruleOption": e });
                                     formValidators["ruleOption"](e);
                                 }} />
@@ -160,7 +160,7 @@ const RewriteForm = (props: AddMediatorProps) => {
                                         size={50}
                                         placeholder=""
                                         value={formValues["actionValue"]}
-                                        onChange={(e: any) => {
+                                        onTextChange={(e: any) => {
                                             setFormValues({ ...formValues, "actionValue": e });
                                             formValidators["actionValue"](e);
                                         }}
@@ -177,7 +177,7 @@ const RewriteForm = (props: AddMediatorProps) => {
                                         size={50}
                                         placeholder=""
                                         value={formValues["actionExpression"]}
-                                        onChange={(e: any) => {
+                                        onTextChange={(e: any) => {
                                             setFormValues({ ...formValues, "actionExpression": e });
                                             formValidators["actionExpression"](e);
                                         }}
@@ -193,7 +193,7 @@ const RewriteForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["actionRegex"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "actionRegex": e });
                                         formValidators["actionRegex"](e);
                                     }}
@@ -253,7 +253,7 @@ const RewriteForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["urlRewriteRuleCondition"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "urlRewriteRuleCondition": e });
                                 formValidators["urlRewriteRuleCondition"](e);
                             }}
@@ -324,7 +324,7 @@ const RewriteForm = (props: AddMediatorProps) => {
                     size={50}
                     placeholder=""
                     value={formValues["description"]}
-                    onChange={(e: any) => {
+                    onTextChange={(e: any) => {
                         setFormValues({ ...formValues, "description": e });
                         formValidators["description"](e);
                     }}

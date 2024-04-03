@@ -188,7 +188,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
                     label="Name"
                     placeholder="Name"
                     value={endpoint.name}
-                    onChange={(text: string) => handleOnChange('name', text)}
+                    onTextChange={(text: string) => handleOnChange('name', text)}
                     errorMsg={validateEndpointName(endpoint.name)}
                     size={100}
                     autoFocus
@@ -199,7 +199,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
                     <Dropdown
                         id="build-message"
                         value={endpoint.buildMessage}
-                        onChange={(text: string) => handleOnChange("buildMessage", text)}
+                        onValueChange={(text: string) => handleOnChange("buildMessage", text)}
                         items={buildMessageOptions}
                     />
                 </FieldGroup>
@@ -233,7 +233,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
                     id='description'
                     value={endpoint.description}
                     label="Description"
-                    onChange={(text: string) => handleOnChange('description', text)}
+                    onTextChange={(text: string) => handleOnChange('description', text)}
                 />
                 <FieldGroup>
                     <InlineButtonGroup

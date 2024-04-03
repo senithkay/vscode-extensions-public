@@ -42,7 +42,10 @@
     "react-collapse": "~5.1.1",
     "@types/react-collapse": "~5.0.4",
     "xstate": "~5.9.1",
-    "@xstate/react": "~4.1.0"
+    "@xstate/react": "~4.1.0",
+    "@hookform/resolvers": "~3.3.4",
+    "yup": "~1.4.0",
+    "react-hook-form": "7.51.2"
   },
   "devDependencies": {
     "@storybook/addon-actions": "~7.4.0",

@@ -14,15 +14,18 @@ import {
     ProjectStructureRequest,
     SampleDownloadRequest,
     addToHistory,
+    toggleDisplayOverview,
     downloadSelectedSampleFromGithub,
     fetchSamplesFromGithub,
+    getCurrentThemeKind,
     getHistory,
     getProjectStructure,
     getWorkspaces,
     goBack,
     goHome,
     goSelected,
-    openView
+    openView,
+    ToggleDisplayOverviewRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiVisualizerRpcManager } from "./rpc-manager";
@@ -31,6 +34,7 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     const rpcManger = new MiVisualizerRpcManager();
     messenger.onRequest(getWorkspaces, () => rpcManger.getWorkspaces());
     messenger.onRequest(getProjectStructure, (args: ProjectStructureRequest) => rpcManger.getProjectStructure(args));
+    messenger.onRequest(getCurrentThemeKind, () => rpcManger.getCurrentThemeKind());
     messenger.onNotification(openView, (args: OpenViewRequest) => rpcManger.openView(args));
     messenger.onNotification(goBack, () => rpcManger.goBack());
     messenger.onRequest(fetchSamplesFromGithub, () => rpcManger.fetchSamplesFromGithub());
@@ -39,4 +43,5 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onNotification(addToHistory, (args: HistoryEntry) => rpcManger.addToHistory(args));
     messenger.onNotification(goHome, () => rpcManger.goHome());
     messenger.onNotification(goSelected, (args: number) => rpcManger.goSelected(args));
+    messenger.onRequest(toggleDisplayOverview, (args: ToggleDisplayOverviewRequest) => rpcManger.toggleDisplayOverview(args));
 }

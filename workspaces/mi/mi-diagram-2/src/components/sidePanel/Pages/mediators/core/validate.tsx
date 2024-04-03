@@ -130,7 +130,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["source"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "source": e });
                             formValidators["source"](e);
                         }}
@@ -153,7 +153,7 @@ const ValidateForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Validate Schema Key Type</label>
-                            <AutoComplete items={["Static", "Dynamic"]} selectedItem={formValues["validateSchemaKeyType"]} onChange={(e: any) => {
+                            <AutoComplete items={["Static", "Dynamic"]} value={formValues["validateSchemaKeyType"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "validateSchemaKeyType": e });
                                 formValidators["validateSchemaKeyType"](e);
                             }} />
@@ -167,7 +167,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["validateStaticSchemaKey"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "validateStaticSchemaKey": e });
                                         formValidators["validateStaticSchemaKey"](e);
                                     }}
@@ -184,7 +184,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["validateDynamicSchemaKey"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "validateDynamicSchemaKey": e });
                                         formValidators["validateDynamicSchemaKey"](e);
                                     }}
@@ -243,7 +243,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["featureName"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "featureName": e });
                                     formValidators["featureName"](e);
                                 }}
@@ -309,7 +309,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["location"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "location": e });
                                     formValidators["location"](e);
                                 }}
@@ -324,7 +324,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["locationKey"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "locationKey": e });
                                     formValidators["locationKey"](e);
                                 }}
@@ -378,7 +378,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

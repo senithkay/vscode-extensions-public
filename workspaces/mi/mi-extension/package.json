@@ -103,7 +103,7 @@
       {
         "view": "MI.project-explorer",
         "contents": "This project appears to have been created with Integration Studio. Please note that the VS Code extension offers limited support for these projects. To enhance compatibility, consider migrating your project using the provided migration tool.\n[Migrate Project](command:MI.migrateProject)",
-        "when": "MI.status == 'projectLoaded' && MI.projectType == 'oldProjectDetected'"
+        "when": "MI.status == 'projectLoaded' && MI.projectType == 'unsupportedProject'"
       },
       {
         "view": "MI.project-explorer",
@@ -120,6 +120,11 @@
       {
         "command": "MI.openWelcome",
         "title": "Open MI Welcome",
+        "category": "MI"
+      },
+      {
+        "command": "MI.showOverview",
+        "title": "Show Overview",
         "category": "MI"
       },
       {
@@ -262,6 +267,13 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.add-data-source",
+        "title": "Add Data Source",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "project-explorer.view",
         "title": "View"
       },
@@ -397,6 +409,11 @@
         {
           "command": "MI.project-explorer.add-message-store",
           "when": "view == MI.project-explorer && viewItem == messageStores",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-data-source",
+          "when": "view == MI.project-explorer && viewItem == dataSources",
           "group": "inline"
         },
         {

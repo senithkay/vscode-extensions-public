@@ -141,7 +141,7 @@ const StoreForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Specify As</label>
-                        <AutoComplete items={["Value", "Expression"]} selectedItem={formValues["specifyAs"]} onChange={(e: any) => {
+                        <AutoComplete items={["Value", "Expression"]} value={formValues["specifyAs"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "specifyAs": e });
                             formValidators["specifyAs"](e);
                         }} />
@@ -151,7 +151,7 @@ const StoreForm = (props: AddMediatorProps) => {
                     {formValues["specifyAs"] && formValues["specifyAs"].toLowerCase() == "value" &&
                         <Field>
                             <label>Available Message Stores</label>
-                            <AutoComplete items={[...messageStores]} selectedItem={formValues["availableMessageStores"]} onChange={(e: any) => {
+                            <AutoComplete items={[...messageStores]} value={formValues["availableMessageStores"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "availableMessageStores": e, "messageStore":e });
                                 formValidators["availableMessageStores"](e);
                             }} />
@@ -166,7 +166,7 @@ const StoreForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["messageStore"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "messageStore": e });
                                     formValidators["messageStore"](e);
                                 }}
@@ -183,7 +183,7 @@ const StoreForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["expression"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "expression": e });
                                     formValidators["expression"](e);
                                 }}
@@ -201,7 +201,7 @@ const StoreForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["onStoreSequence"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "onStoreSequence": e });
                             formValidators["onStoreSequence"](e);
                         }}
@@ -216,7 +216,7 @@ const StoreForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

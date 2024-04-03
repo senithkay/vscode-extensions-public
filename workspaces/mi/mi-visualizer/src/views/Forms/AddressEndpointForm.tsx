@@ -354,7 +354,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                         <TextField
                             placeholder="Template Name"
                             label="Template Name"
-                            onChange={(value: string) => handleOnChange("templateName", value)}
+                            onTextChange={(value: string) => handleOnChange("templateName", value)}
                             value={endpoint.templateName}
                             id="template-name-input"
                             autoFocus
@@ -413,7 +413,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                 <TextField
                     placeholder="Endpoint Name"
                     label="Endpoint Name"
-                    onChange={(value: string) => handleOnChange("endpointName", value)}
+                    onTextChange={(value: string) => handleOnChange("endpointName", value)}
                     value={endpoint.endpointName}
                     id="endpoint-name-input"
                     autoFocus
@@ -422,7 +422,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                     size={100}
                 />
                 <span>Format</span>
-                <Dropdown items={formatOptions} value={endpoint.format} onChange={handleFormatChange} id="format"/>
+                <Dropdown items={formatOptions} value={endpoint.format} onValueChange={handleFormatChange} id="format"/>
                 <span>Trace Enabled</span>
                 <RadioBtnContainer>
                     <RadioLabel>
@@ -465,17 +465,17 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                 <TextField
                     placeholder="URI"
                     label="URI"
-                    onChange={(value: string) => handleOnChange("uri", value)}
+                    onTextChange={(value: string) => handleOnChange("uri", value)}
                     value={endpoint.uri}
                     id="uri-template"
                     size={100}
                 />
                 <span>Optimize</span>
-                <Dropdown items={optimizeOptions} value={endpoint.optimize} onChange={handleOptimizeChange} id="optimize"/>
+                <Dropdown items={optimizeOptions} value={endpoint.optimize} onValueChange={handleOptimizeChange} id="optimize"/>
                 <TextField
                     placeholder="Description"
                     label="Description"
-                    onChange={(value: string) => handleOnChange("description", value)}
+                    onTextChange={(value: string) => handleOnChange("description", value)}
                     value={endpoint.description}
                     id="description"
                     size={100}
@@ -518,7 +518,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                                     <Td contentEditable={true} onBlur={(e) => editPropertyKey(pair.name, e.currentTarget.textContent || '')}>{pair.name}</Td>
                                     <Td contentEditable={true} onBlur={(e) => editPropertyValue(pair.name, e.currentTarget.textContent || '')}>{pair.value}</Td>
                                     <Td>
-                                        <Dropdown items={scopes} value={pair.scope} onChange={(value) => editPropertyScope(pair.name, value)} id="scope"/>
+                                        <Dropdown items={scopes} value={pair.scope} onValueChange={(value) => editPropertyScope(pair.name, value)} id="scope"/>
                                     </Td>
                                     <TdButton>
                                         <Button onClick={() => removePropertyValue(pair.name)}>Remove</Button>
@@ -552,7 +552,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                 {endpoint.addressingEnabled === 'enable' && (
                     <>
                         <span>Addressing Version</span>
-                        <Dropdown items={addressingVersions} value={endpoint.addressingVersion} onChange={handleAddressingVersionChange} id="addressing-version"/>
+                        <Dropdown items={addressingVersions} value={endpoint.addressingVersion} onValueChange={handleAddressingVersionChange} id="addressing-version"/>
                         <span>Addressing Separate Listener</span>
                         <RadioBtnContainer>
                             <RadioLabel>
@@ -597,7 +597,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                 <TextField
                     placeholder="304,305"
                     label="Suspend Error Codes"
-                    onChange={(value: string) => handleOnChange("suspendErrorCodes", value)}
+                    onTextChange={(value: string) => handleOnChange("suspendErrorCodes", value)}
                     value={endpoint.suspendErrorCodes}
                     id="suspend-error-codes"
                     size={100}
@@ -605,7 +605,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                 <TextField
                     placeholder="-1"
                     label="Suspend Initial Duration"
-                    onChange={(value) => {
+                    onTextChange={(value) => {
                         if (validNumericInput.test(value)) {
                             handleOnChange("initialDuration", Number(value))
                         } else {
@@ -619,7 +619,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                 <TextField
                     placeholder="1000"
                     label="Suspend Maximum Duration"
-                    onChange={(value) => {
+                    onTextChange={(value) => {
                         if (validNumericInput.test(value)) {
                             handleOnChange("maximumDuration", Number(value))
                         } else {
@@ -633,7 +633,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                 <TextField
                     placeholder="1"
                     label="Suspend Progression Factor"
-                    onChange={(value) => {
+                    onTextChange={(value) => {
                         if (validNumericInput.test(value)) {
                             handleOnChange("progressionFactor", Number(value))
                         } else {
@@ -647,7 +647,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                 <TextField
                     placeholder="304,305"
                     label="Retry Error Codes"
-                    onChange={(value: string) => handleOnChange("retryErrorCodes", value)}
+                    onTextChange={(value: string) => handleOnChange("retryErrorCodes", value)}
                     value={endpoint.retryErrorCodes}
                     id="retry-error-codes"
                     size={100}
@@ -655,7 +655,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                 <TextField
                     placeholder="10"
                     label="Retry Count"
-                    onChange={(value) => {
+                    onTextChange={(value) => {
                         if (validNumericInput.test(value)) {
                             handleOnChange("retryCount", Number(value))
                         } else {
@@ -669,7 +669,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                 <TextField
                     placeholder="1000"
                     label="Retry Delay"
-                    onChange={(value) => {
+                    onTextChange={(value) => {
                         if (validNumericInput.test(value)) {
                             handleOnChange("retryDelay", Number(value))
                         } else {
@@ -683,7 +683,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                 <TextField
                     placeholder="1000"
                     label="Timeout Duration"
-                    onChange={(value) => {
+                    onTextChange={(value) => {
                         if (validNumericInput.test(value)) {
                             handleOnChange("timeoutDuration", Number(value))
                         } else {
@@ -695,7 +695,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                     size={100}
                 />
                 <span>Timeout Action</span>
-                <Dropdown items={timeoutOptions} value={endpoint.timeoutAction} onChange={handleTimeoutActionChange} id="timeout-action"/>
+                <Dropdown items={timeoutOptions} value={endpoint.timeoutAction} onValueChange={handleTimeoutActionChange} id="timeout-action"/>
             </SectionWrapper>
             <ActionContainer>
                 {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}

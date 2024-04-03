@@ -207,7 +207,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                     id='name-input'
                     label="Name"
                     placeholder="Name"
-                    onChange={(text: string) => setAPIName(text)}
+                    onTextChange={(text: string) => setAPIName(text)}
                     errorMsg={validateAPIName(apiName)}
                     size={46}
                     autoFocus
@@ -216,7 +216,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 <TextField
                     placeholder="Context"
                     label="Context"
-                    onChange={(text: string) => setAPIContext(text)}
+                    onTextChange={(text: string) => setAPIContext(text)}
                     value={apiContext}
                     id='context-input'
                     required
@@ -224,12 +224,12 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                     size={46}
                 />
                 <FieldGroup>
-                    <AutoComplete sx={{ width: '370px' }} label="Version Type" items={versionLabels} selectedItem={versionType} onChange={handleVersionTypeChange} />
+                    <AutoComplete sx={{ width: '370px' }} label="Version Type" items={versionLabels} value={versionType} onValueChange={handleVersionTypeChange} />
                     {versionType !== "none" && (
                         <TextField
                             placeholder={versionType === "context" ? "0.0.1" : "https://example.com"}
                             label="Version"
-                            onChange={(text: string) => setVersion(text)}
+                            onTextChange={(text: string) => setVersion(text)}
                             value={version}
                             id='version-input'
                             size={35}

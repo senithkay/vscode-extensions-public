@@ -9,7 +9,7 @@
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import * as path from 'path';
-import {Button, TextField, Dropdown, Typography, Codicon} from "@wso2-enterprise/ui-toolkit";
+import {Button, TextField, Dropdown, Typography, Codicon, CheckBox} from "@wso2-enterprise/ui-toolkit";
 import { SectionWrapper } from "./Commons";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW, CreateProxyServiceRequest } from "@wso2-enterprise/mi-core";
@@ -266,7 +266,7 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
                 <TextField
                     placeholder="Name"
                     label="Proxy Service Name"
-                    onChange={(value: string) => handleOnChange("proxyServiceName", value)}
+                    onTextChange={(value: string) => handleOnChange("proxyServiceName", value)}
                     value={proxyService.proxyServiceName}
                     id="proxy-name-input"
                     autoFocus
@@ -277,15 +277,12 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
                 <span>Select the transports:</span>
                 <CheckBoxContainer>
                     {transportTypes.map(transportType => (
-                        <label key={transportType}>
-                            <input
-                                type="checkbox"
-                                value={transportType}
-                                onChange={() => handleTransportsChange(transportType)}
-                                checked={selectedTransports.includes(transportType)}
-                            />
-                            {transportType}
-                        </label>
+                        <CheckBox
+                            label={transportType}
+                            value={transportType}
+                            onChange={() => handleTransportsChange(transportType)}
+                            checked={selectedTransports.includes(transportType)}
+                        />
                     ))}
                 </CheckBoxContainer>
                 {!(proxyService.proxyServiceType === "Custom Proxy" || proxyService.proxyServiceType === "WSDL Based Proxy") && (
@@ -312,13 +309,13 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
                             </RadioLabel>
                         </RadioBtnContainer>
                         {proxyService.endpointType === "Workspace" && (
-                            <Dropdown items={endpoints} value={proxyService.endpoint} onChange={handleEndpointChange} id="endpoint"/>
+                            <Dropdown items={endpoints} value={proxyService.endpoint} onValueChange={handleEndpointChange} id="endpoint"/>
                         )}
                         {proxyService.endpointType === "Custom" && (
                             <TextField
                                 placeholder="Custom Endpoint"
                                 label="Custom Endpoint"
-                                onChange={(value: string) => handleOnChange("endpoint", value)}
+                                onTextChange={(value: string) => handleOnChange("endpoint", value)}
                                 value={proxyService.endpoint}
                                 id="endpoint-custom"
                                 size={100}
@@ -329,9 +326,9 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
                 {proxyService.proxyServiceType === "Logging Proxy" && (
                     <>
                         <span>Request Log Level</span>
-                        <Dropdown items={logLevelOptions} value={proxyService.requestLogLevel} onChange={handleRequestLogLevelChange} id="request-log-level"/>
+                        <Dropdown items={logLevelOptions} value={proxyService.requestLogLevel} onValueChange={handleRequestLogLevelChange} id="request-log-level"/>
                         <span>Response Log Level</span>
-                        <Dropdown items={logLevelOptions} value={proxyService.responseLogLevel} onChange={handleResponseLogLevelChange} id="response-log-level"/>
+                        <Dropdown items={logLevelOptions} value={proxyService.responseLogLevel} onValueChange={handleResponseLogLevelChange} id="response-log-level"/>
                     </>
                 )}
                 {proxyService.proxyServiceType === "Transformer Proxy" && (
@@ -354,7 +351,7 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
                         <TextField
                             placeholder="WSDL URI"
                             label="WSDL URI"
-                            onChange={(value: string) => handleOnChange("wsdlUri", value)}
+                            onTextChange={(value: string) => handleOnChange("wsdlUri", value)}
                             value={proxyService.wsdlUri}
                             id="wsdl-uri-input"
                             size={100}
@@ -363,7 +360,7 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
                         <TextField
                             placeholder="WSDL Service"
                             label="WSDL Service"
-                            onChange={(value: string) => handleOnChange("wsdlService", value)}
+                            onTextChange={(value: string) => handleOnChange("wsdlService", value)}
                             value={proxyService.wsdlService}
                             id="wsdl-service-input"
                             size={100}
@@ -372,7 +369,7 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
                         <TextField
                             placeholder="WSDL Port"
                             label="WSDL Port"
-                            onChange={(value) => {
+                            onTextChange={(value) => {
                                 if (validNumericInput.test(value)) {
                                     handleOnChange("wsdlPort", Number(value))
                                 } else {

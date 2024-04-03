@@ -374,7 +374,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["sourceXPath"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "sourceXPath": e });
                             formValidators["sourceXPath"](e);
                         }}
@@ -388,7 +388,7 @@ const XSLTForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>XSLT Schema Key Type</label>
-                        <AutoComplete items={["Static", "Dynamic"]} selectedItem={formValues["xsltSchemaKeyType"]} onChange={(e: any) => {
+                        <AutoComplete items={["Static", "Dynamic"]} value={formValues["xsltSchemaKeyType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "xsltSchemaKeyType": e });
                             formValidators["xsltSchemaKeyType"](e);
                         }} />
@@ -402,7 +402,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["xsltStaticSchemaKey"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "xsltStaticSchemaKey": e });
                                     formValidators["xsltStaticSchemaKey"](e);
                                 }}
@@ -419,7 +419,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["xsltDynamicSchemaKey"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "xsltDynamicSchemaKey": e });
                                     formValidators["xsltDynamicSchemaKey"](e);
                                 }}
@@ -467,7 +467,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

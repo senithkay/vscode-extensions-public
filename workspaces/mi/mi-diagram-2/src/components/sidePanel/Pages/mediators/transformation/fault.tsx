@@ -133,7 +133,7 @@ const FaultForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>SOAP Version</label>
-                    <AutoComplete items={["soap11", "soap12", "POX"]} selectedItem={formValues["soapVersion"]} onChange={(e: any) => {
+                    <AutoComplete items={["soap11", "soap12", "POX"]} value={formValues["soapVersion"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "soapVersion": e });
                         formValidators["soapVersion"](e);
                     }} />
@@ -143,7 +143,7 @@ const FaultForm = (props: AddMediatorProps) => {
                 {formValues["soapVersion"] && formValues["soapVersion"] == "soap11" &&
                     <Field>
                         <label>Code</label>
-                        <AutoComplete items={["VersionMismatch", "MustUnderstand", "Client", "Server"]} selectedItem={formValues["soap11"]} onChange={(e: any) => {
+                        <AutoComplete items={["VersionMismatch", "MustUnderstand", "Client", "Server"]} value={formValues["soap11"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "soap11": e });
                             formValidators["soap11"](e);
                         }} />
@@ -153,7 +153,7 @@ const FaultForm = (props: AddMediatorProps) => {
                 {formValues["soapVersion"] && formValues["soapVersion"] == "soap12" &&
                     <Field>
                         <label>SOAP12</label>
-                        <AutoComplete items={["VersionMismatch", "MustUnderstand", "DatEncodingUnknown", "Sender", "Receiver"]} selectedItem={formValues["soap12"]} onChange={(e: any) => {
+                        <AutoComplete items={["VersionMismatch", "MustUnderstand", "DatEncodingUnknown", "Sender", "Receiver"]} value={formValues["soap12"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "soap12": e });
                             formValidators["soap12"](e);
                         }} />
@@ -168,7 +168,7 @@ const FaultForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["actor"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "actor": e });
                                 formValidators["actor"](e);
                             }}
@@ -184,7 +184,7 @@ const FaultForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["role"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "role": e });
                                 formValidators["role"](e);
                             }}
@@ -200,7 +200,7 @@ const FaultForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["node"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "node": e });
                                 formValidators["node"](e);
                             }}
@@ -234,7 +234,7 @@ const FaultForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Type</label>
-                        <AutoComplete items={["VALUE", "EXPRESSION"]} selectedItem={formValues["detailType"]} onChange={(e: any) => {
+                        <AutoComplete items={["VALUE", "EXPRESSION"]} value={formValues["detailType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "detailType": e });
                             formValidators["detailType"](e);
                         }} />
@@ -248,7 +248,7 @@ const FaultForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["detailValue"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "detailValue": e });
                                     formValidators["detailValue"](e);
                                 }}
@@ -265,7 +265,7 @@ const FaultForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["detailExpression"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "detailExpression": e });
                                     formValidators["detailExpression"](e);
                                 }}
@@ -282,7 +282,7 @@ const FaultForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Type</label>
-                        <AutoComplete items={["VALUE", "EXPRESSION"]} selectedItem={formValues["reasonType"]} onChange={(e: any) => {
+                        <AutoComplete items={["VALUE", "EXPRESSION"]} value={formValues["reasonType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "reasonType": e });
                             formValidators["reasonType"](e);
                         }} />
@@ -296,7 +296,7 @@ const FaultForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["reasonValue"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "reasonValue": e });
                                     formValidators["reasonValue"](e);
                                 }}
@@ -313,7 +313,7 @@ const FaultForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["reasonExpression"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "reasonExpression": e });
                                     formValidators["reasonExpression"](e);
                                 }}
@@ -331,7 +331,7 @@ const FaultForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

@@ -140,7 +140,7 @@ const HeaderForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["headerName"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "headerName": e });
                             formValidators["headerName"](e);
                         }}
@@ -151,7 +151,7 @@ const HeaderForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Header Action</label>
-                    <AutoComplete items={["set", "remove"]} selectedItem={formValues["headerAction"]} onChange={(e: any) => {
+                    <AutoComplete items={["set", "remove"]} value={formValues["headerAction"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "headerAction": e });
                         formValidators["headerAction"](e);
                     }} />
@@ -160,7 +160,7 @@ const HeaderForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Scope</label>
-                    <AutoComplete items={["default", "transport"]} selectedItem={formValues["scope"]} onChange={(e: any) => {
+                    <AutoComplete items={["default", "transport"]} value={formValues["scope"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "scope": e });
                         formValidators["scope"](e);
                     }} />
@@ -173,7 +173,7 @@ const HeaderForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Value Type</label>
-                            <AutoComplete items={["LITERAL", "EXPRESSION", "INLINE"]} selectedItem={formValues["valueType"]} onChange={(e: any) => {
+                            <AutoComplete items={["LITERAL", "EXPRESSION", "INLINE"]} value={formValues["valueType"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "valueType": e });
                                 formValidators["valueType"](e);
                             }} />
@@ -187,7 +187,7 @@ const HeaderForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["valueLiteral"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "valueLiteral": e });
                                         formValidators["valueLiteral"](e);
                                     }}
@@ -204,7 +204,7 @@ const HeaderForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["valueExpression"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "valueExpression": e });
                                         formValidators["valueExpression"](e);
                                     }}
@@ -221,7 +221,7 @@ const HeaderForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["valueInline"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "valueInline": e });
                                         formValidators["valueInline"](e);
                                     }}
@@ -240,7 +240,7 @@ const HeaderForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

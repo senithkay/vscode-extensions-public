@@ -28,6 +28,11 @@ export interface ViewState {
     fh?: number;
     l?: number;
     r?: number;
+    subPositions?: { [x: string]: SubPositions; };
+    isBrokenLines?: boolean;
+}
+
+export interface SubPositions extends ViewState {
 }
 
 export interface TagRange {
@@ -268,7 +273,7 @@ export interface TTypes extends TExtensibleDocumented, STNode {
 export interface Bean extends STNode {
     action: string;
     var: string;
-    target:string;
+    target: string;
     clazz: string;
     property: string;
     value: string;
@@ -1022,7 +1027,7 @@ export interface EndpointHttpAuthenticationOauth extends STNode {
     passwordCredentials: EndpointHttpAuthenticationOauthPasswordCredentials;
 }
 
-export interface EndpointHttpAuthenticationOauthPasswordCredentials{
+export interface EndpointHttpAuthenticationOauthPasswordCredentials {
     username: STNode;
     password: STNode;
     clientId: STNode;
@@ -1431,9 +1436,9 @@ export interface EnableSecAndEnableRMAndEnableAddressing extends STNode {
     retryConfig?: EndpointRetryConfig;
 }
 
-export interface EndpointRetryConfig extends STNode{
-    enabledErrorCodes:STNode;
-    disabledErrorCodes:STNode;
+export interface EndpointRetryConfig extends STNode {
+    enabledErrorCodes: STNode;
+    disabledErrorCodes: STNode;
 }
 
 export interface EndpointHttp extends STNode {
@@ -1583,8 +1588,23 @@ export interface TService extends TExtensibleDocumented, STNode {
 }
 
 export interface ThrottlePolicy extends STNode {
-    any: any;
+    content: Policy[];
     key: string;
+}
+
+export interface Policy extends OperatorContentType {
+    otherAttributes: any;
+    name: string;
+    id: ID
+}
+
+export interface OperatorContentType extends STNode {
+    policyOrAllOrExactlyOne: any[];
+}
+
+export interface ID extends STNode {
+    value: string;
+    type: string;
 }
 
 export interface TaskTrigger extends STNode {

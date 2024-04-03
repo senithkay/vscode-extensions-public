@@ -236,7 +236,7 @@ const EJBForm = (props: AddMediatorProps) => {
                     size={50}
                     placeholder=""
                     value={formValues["beanstalk"]}
-                    onChange={(e: any) => {
+                    onTextChange={(e: any) => {
                         setFormValues({ ...formValues, "beanstalk": e });
                         formValidators["beanstalk"](e);
                     }}
@@ -251,7 +251,7 @@ const EJBForm = (props: AddMediatorProps) => {
                     size={50}
                     placeholder=""
                     value={formValues["class"]}
-                    onChange={(e: any) => {
+                    onTextChange={(e: any) => {
                         setFormValues({ ...formValues, "class": e });
                         formValidators["class"](e);
                     }}
@@ -266,7 +266,7 @@ const EJBForm = (props: AddMediatorProps) => {
                     size={50}
                     placeholder=""
                     value={formValues["method"]}
-                    onChange={(e: any) => {
+                    onTextChange={(e: any) => {
                         setFormValues({ ...formValues, "method": e });
                         formValidators["method"](e);
                     }}
@@ -290,7 +290,7 @@ const EJBForm = (props: AddMediatorProps) => {
                     size={50}
                     placeholder=""
                     value={formValues["target"]}
-                    onChange={(e: any) => {
+                    onTextChange={(e: any) => {
                         setFormValues({ ...formValues, "target": e });
                         formValidators["target"](e);
                     }}
@@ -305,7 +305,7 @@ const EJBForm = (props: AddMediatorProps) => {
                     size={50}
                     placeholder=""
                     value={formValues["jndiName"]}
-                    onChange={(e: any) => {
+                    onTextChange={(e: any) => {
                         setFormValues({ ...formValues, "jndiName": e });
                         formValidators["jndiName"](e);
                     }}
@@ -329,7 +329,7 @@ const EJBForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Session Id Type</label>
-                    <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["sessionIdType"]} onChange={(e: any) => {
+                    <AutoComplete items={["LITERAL", "EXPRESSION"]} value={formValues["sessionIdType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "sessionIdType": e });
                         formValidators["sessionIdType"](e);
                     }} />
@@ -343,7 +343,7 @@ const EJBForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["sessionIdLiteral"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "sessionIdLiteral": e });
                                 formValidators["sessionIdLiteral"](e);
                             }}
@@ -360,7 +360,7 @@ const EJBForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["sessionIdExpression"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "sessionIdExpression": e });
                                 formValidators["sessionIdExpression"](e);
                             }}
@@ -378,7 +378,7 @@ const EJBForm = (props: AddMediatorProps) => {
                     size={50}
                     placeholder=""
                     value={formValues["description"]}
-                    onChange={(e: any) => {
+                    onTextChange={(e: any) => {
                         setFormValues({ ...formValues, "description": e });
                         formValidators["description"](e);
                     }}

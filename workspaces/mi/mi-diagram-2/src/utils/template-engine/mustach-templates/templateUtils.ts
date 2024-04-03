@@ -9,7 +9,7 @@
 
 import Mustache from "mustache";
 import { getCallFormDataFromSTNode, getCallMustacheTemplate, getCallXml } from "./core/call";
-import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache, Send, Aggregate, Iterate, Filter, NamedEndpoint, Foreach, Bam, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Enrich, FastXSLT, Makefault, Smooks } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache, Send, Aggregate, Iterate, Filter, NamedEndpoint, Foreach, Bam, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Enrich, FastXSLT, Makefault, Smooks, Throttle } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogMustacheTemplate, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutMustacheTemplate, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode, getHeaderMustacheTemplate } from "./core/header";
@@ -49,7 +49,7 @@ import { getTransactionFormDataFromSTNode, getTransactionMustacheTemplate, getTr
 import { getCacheFormDataFromSTNode, getCacheMustacheTemplate, getCacheXml } from "./advanced/cache";
 import { getAggregateFormDataFromSTNode, getAggregateMustacheTemplate, getAggregateXml } from "./eip/aggreagte";
 import { getIterateFormDataFromSTNode, getIterateMustacheTemplate, getIterateXml } from "./eip/iterate";
-import { getSwitchFormDataFromSTNode, getSwitchMustacheTemplate, getSwitchXml } from "./filter/switch";
+import { getNewSwitchCaseXml, getSwitchFormDataFromSTNode, getSwitchMustacheTemplate, getSwitchXml } from "./filter/switch";
 import { getForEachFormDataFromSTNode, getForeachMustacheTemplate, getForeachXml } from "./eip/foreach";
 import { getBamFormDataFromSTNode, getBamMustacheTemplate } from "./other/bam";
 import { getConditionalRouterFormDataFromSTNode, getConditionalRouterMustacheTemplate, getConditionalRouterXml } from "./filter/cond_router";
@@ -67,6 +67,7 @@ import { getJsonTransformFormDataFromSTNode, getJsonTransformMustacheTemplate, g
 import { getSmooksFormDataFromSTNode, getSmooksMustacheTemplate, getSmooksXml } from "./transformation/smooks";
 import { getXqueryFormDataFromSTNode, getXqueryMustacheTemplate, getXqueryXml } from "./transformation/xquery";
 import { getXsltFormDataFromSTNode, getXsltMustacheTemplate, getXsltXml } from "./transformation/xslt";
+import { getThrottleFormDataFromSTNode, getThrottleXml } from "./filter/throttle";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -126,6 +127,8 @@ export function getMustacheTemplate(name: string) {
             return getFilterMustacheTemplate();
         case MEDIATORS.SWITCH:
             return getSwitchMustacheTemplate();
+        case MEDIATORS.THROTTLE:
+            return getTransactionMustacheTemplate();
         //Transformation Mediators
         case MEDIATORS.PAYLOAD:
             return getPayloadMustacheTemplate();
@@ -246,6 +249,8 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getFilterXml(data);
         case MEDIATORS.SWITCH:
             return getSwitchXml(data);
+        case MEDIATORS.THROTTLE:
+            return getThrottleXml(data);
         //Transformation Mediators
         case MEDIATORS.PAYLOAD:
             return getPayloadXml(data);
@@ -305,6 +310,8 @@ export function getNewSubSequenceXml(name: string) {
     switch (name) {
         case MEDIATORS.CLONE:
             return getNewCloneTargetXml();
+        case MEDIATORS.SWITCH:
+            return getNewSwitchCaseXml();    
     }
 }
 
@@ -359,6 +366,8 @@ export function getDataFromXML(name: string, node: STNode) {
             return getFilterFormDataFromSTNode(formData, node as Filter);
         case MEDIATORS.SWITCH:
             return getSwitchFormDataFromSTNode(formData, node as Switch);
+        case MEDIATORS.THROTTLE:
+            return getThrottleFormDataFromSTNode(formData, node as Throttle);
         //Transformation Mediators
         case MEDIATORS.PAYLOAD:
             return getPayloadFormDataFromSTNode(formData, node as PayloadFactory);

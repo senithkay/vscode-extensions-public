@@ -143,7 +143,7 @@ const PropertyForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Property Name</label>
-                   <AutoComplete items={propertyNames} selectedItem={formValues["propertyName"]} onChange={(e: any) => {
+                   <AutoComplete items={propertyNames} value={formValues["propertyName"]} onValueChange={(e: any) => {
                        setFormValues({ ...formValues, "propertyName": e, "newPropertyName": e == "New Property..." ? "" : e });
                        formValidators["propertyName"](e);
                     }} />
@@ -156,7 +156,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder="New Property Name"
                         value={formValues["newPropertyName"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "newPropertyName": e });
                             formValidators["newPropertyName"](e);
                         }}
@@ -167,7 +167,7 @@ const PropertyForm = (props: AddMediatorProps) => {
 
                {formValues["propertyAction"] == "set" && <Field>
                     <label>Property Data Type</label>
-                    <AutoComplete items={["STRING", "INTEGER", "BOOLEAN", "DOUBLE", "FLOAT", "LONG", "SHORT", "OM", "JSON"]} selectedItem={formValues["propertyDataType"]} onChange={(e: any) => {
+                    <AutoComplete items={["STRING", "INTEGER", "BOOLEAN", "DOUBLE", "FLOAT", "LONG", "SHORT", "OM", "JSON"]} value={formValues["propertyDataType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "propertyDataType": e });
                         formValidators["propertyDataType"](e);
                     }} />
@@ -176,7 +176,7 @@ const PropertyForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Property Action</label>
-                    <AutoComplete items={["set", "remove"]} selectedItem={formValues["propertyAction"]} onChange={(e: any) => {
+                    <AutoComplete items={["set", "remove"]} value={formValues["propertyAction"]} onValueChange={(e: any) => {
                        const newValues: { [key: string]: any } = { "propertyAction": e }
                        if (formValues["propertyAction"] == "remove" && e == "set") {
                            newValues["propertyDataType"] = "STRING";
@@ -190,7 +190,7 @@ const PropertyForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Property Scope</label>
-                    <AutoComplete items={["DEFAULT", "TRANSPORT", "AXIS2", "AXIS2_CLIENT", "OPERATION", "REGISTRY", "SYSTEM", "ANALYTICS"]} selectedItem={formValues["propertyScope"]} onChange={(e: any) => {
+                    <AutoComplete items={["DEFAULT", "TRANSPORT", "AXIS2", "AXIS2_CLIENT", "OPERATION", "REGISTRY", "SYSTEM", "ANALYTICS"]} value={formValues["propertyScope"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "propertyScope": e });
                         formValidators["propertyScope"](e);
                     }} />
@@ -202,7 +202,7 @@ const PropertyForm = (props: AddMediatorProps) => {
 
                    <Field>
                        <label>Property Value Type</label>
-                       <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["propertyValueType"]} onChange={(e: any) => {
+                       <AutoComplete items={["LITERAL", "EXPRESSION"]} value={formValues["propertyValueType"]} onValueChange={(e: any) => {
                            setFormValues({ ...formValues, "propertyValueType": e });
                            formValidators["propertyValueType"](e);
                        }} />
@@ -215,7 +215,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder="Value"
                             value={formValues["value"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "value": e });
                                 formValidators["value"](e);
                             }}
@@ -230,7 +230,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder="Expression"
                             value={formValues["expression"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "expression": e });
                                 formValidators["expression"](e);
                             }}
@@ -245,7 +245,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder="Value String Pattern"
                             value={formValues["valueStringPattern"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "valueStringPattern": e });
                                 formValidators["valueStringPattern"](e);
                             }}
@@ -260,7 +260,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder="Value String Capturing Group"
                             value={formValues["valueStringCapturingGroup"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "valueStringCapturingGroup": e });
                                 formValidators["valueStringCapturingGroup"](e);
                             }}
@@ -277,7 +277,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder="Description"
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

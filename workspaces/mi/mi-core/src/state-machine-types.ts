@@ -12,10 +12,17 @@ import { DiagramService, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src"
 import { Diagnostic } from "vscode-languageserver-types";
 import { NotificationType, RequestType } from "vscode-messenger-common";
 
+export enum ColorThemeKind {
+    Light = 1,
+    Dark = 2,
+    HighContrast = 3,
+    HighContrastLight = 4
+}
+
 export enum MACHINE_VIEW {
     Welcome = "Welcome to MI",
     Overview = "MI Overview",
-    OldProjectOverview = "Old Project Overview",
+    UnsupportedProject = "Unsupported Project",
     Diagram = "MI Diagram",
     ResourceView = "Resource View",
     SequenceView = "Sequence View",
@@ -43,6 +50,7 @@ export enum MACHINE_VIEW {
     RegistryResourceForm = "Registry Resource Creation Form",
     MessageStoreForm = "Message Store Form",
     ClassMediatorForm = "ClassMediator Creation Form",
+    DataSourceForm = "Data Source Creation Form",
 }
 
 export enum AI_MACHINE_VIEW {
@@ -52,7 +60,7 @@ export enum AI_MACHINE_VIEW {
 }
 
 export type MachineStateValue =
-    | 'initialize' | 'projectDetected' | 'oldProjectDetected' | 'LSInit' | 'ready' | 'disabled'
+    | 'initialize' | 'projectDetected' | 'unsupportedProject' | 'LSInit' | 'ready' | 'disabled'
     | { ready: 'viewReady' } | { ready: 'viewEditing' }
     | { newProject: 'viewReady' };
 
@@ -97,6 +105,8 @@ export interface VisualizerLocation {
     identifier?: string;
     position?: any;
     projectOpened?: boolean;
+    isMiProject?: boolean;
+    displayOverview?: boolean;
     customProps?: any;
 }
 
@@ -108,6 +118,7 @@ export interface AIVisualizerLocation {
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
 export const aiStateChanged: NotificationType<AIMachineStateValue> = { method: 'aiStateChanged' };
+export const themeChanged: NotificationType<ColorThemeKind> = { method: 'themeChanged' };
 export const getVisualizerState: RequestType<void, VisualizerLocation> = { method: 'getVisualizerState' };
 export const getAIVisualizerState: RequestType<void, AIVisualizerLocation> = { method: 'getAIVisualizerState' };
 export const sendAIStateEvent: RequestType<AI_EVENT_TYPE, void> = { method: 'sendAIStateEvent' };
