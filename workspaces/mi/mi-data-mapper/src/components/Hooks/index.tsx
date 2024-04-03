@@ -21,6 +21,34 @@ import { ObjectOutputNode, InputNode } from '../Diagram/Node';
 import { GAP_BETWEEN_INPUT_NODES, IO_NODE_DEFAULT_WIDTH, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';
 import { LinkConnectorNode } from '../Diagram/Node/LinkConnector';
 
+export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: number, diagramModel: DiagramModel) => {
+    const nodesClone = [...nodes];
+
+    let prevBottomY = 0;
+
+    nodesClone.forEach(node => {
+        const nodeHeight = node.height === 0 ? 800 : node.height;
+        const exisitingNode = diagramModel.getNodes().find(n => (n as DataMapperNodeModel).id === node.id);
+        if (node instanceof ObjectOutputNode) {
+            const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - IO_NODE_DEFAULT_WIDTH;
+            const y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : 0;
+            node.setPosition(x, y);
+        }
+        if (node instanceof InputNode) {
+            const x = OFFSETS.SOURCE_NODE.X;
+            const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
+            let y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;
+
+            node.setPosition(x, y);
+
+            const nodeHeight = getIONodeHeight(node.numberOfFields);
+            prevBottomY = computedY + nodeHeight;
+        }
+    });
+
+    return nodesClone;
+}
+
 export const useDiagramModel = (
     nodes: DataMapperNodeModel[],
     diagramModel: DiagramModel,
@@ -35,9 +63,6 @@ export const useDiagramModel = (
     const offSetX = diagramModel.getOffsetX();
     const offSetY = diagramModel.getOffsetY();
     const noOfNodes = nodes.length;
-    // const context = nodes.find(node => node.context)?.context;
-	// const fnSource = context ? context.selection.selectedST.stNode.source : undefined;
-    // const collapsedFields = context?.collapsedFields;
     const collapsedFields = useDMCollapsedFieldsStore(state => state.collapsedFields); // Subscribe to collapsedFields
     const { inputSearch, outputSearch } = useDMSearchStore();
 
@@ -45,14 +70,14 @@ export const useDiagramModel = (
         const newModel = new DiagramModel();
         newModel.setZoomLevel(zoomLevel);
         newModel.setOffset(offSetX, offSetY);
-        // const showInputFilterEmpty = !nodes.some(
-        //     node => node instanceof RequiredParamNode && node.getSearchFilteredType()
-        // );
-        // if (showInputFilterEmpty) {
-        //     const inputSearchNotFoundNode = new RequiredParamNode(undefined, undefined, undefined);
-        //     inputSearchNotFoundNode.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.SOURCE_NODE.Y);
-        //     newModel.addNode(inputSearchNotFoundNode);
-        // }
+        const showInputFilterEmpty = !nodes.some(
+            node => node instanceof InputNode && node.getSearchFilteredType()
+        );
+        if (showInputFilterEmpty) {
+            const inputSearchNotFoundNode = new InputNode(undefined, undefined, true);
+            inputSearchNotFoundNode.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.SOURCE_NODE.Y);
+            newModel.addNode(inputSearchNotFoundNode);
+        }
         newModel.addAll(...nodes);
         for (const node of nodes) {
             try {
@@ -85,32 +110,3 @@ export const useDiagramModel = (
 
     return { updatedModel, isFetching, isError, refetch };
 };
-
-
-export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: number, diagramModel: DiagramModel) => {
-    const nodesClone = [...nodes];
-
-    let prevBottomY = 0;
-
-    nodesClone.forEach(node => {
-        const nodeHeight = node.height === 0 ? 800 : node.height;
-        const exisitingNode = diagramModel.getNodes().find(n => (n as DataMapperNodeModel).id === node.id);
-        if (node instanceof ObjectOutputNode) {
-            const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - IO_NODE_DEFAULT_WIDTH;
-            const y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : 0;
-            node.setPosition(x, y);
-        }
-        if (node instanceof InputNode) {
-            const x = OFFSETS.SOURCE_NODE.X;
-            const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
-            let y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;
-
-            node.setPosition(x, y);
-
-            const nodeHeight = getIONodeHeight(node.numberOfFields);
-            prevBottomY = computedY + nodeHeight;
-        }
-    });
-
-    return nodesClone;
-}

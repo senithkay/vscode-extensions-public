@@ -37,7 +37,7 @@ export const getSearchFilteredOutput = (dmType: DMType) => {
 
 	let searchType: DMType = dmType;
 
-	if (searchType.typeName === TypeKind.Array) {
+	if (searchType.kind === TypeKind.Array) {
 		const subFields = searchType.memberType?.fields
 			?.map(item => getFilteredSubFields(item, searchValue))
 			.filter(item => item);
@@ -49,7 +49,7 @@ export const getSearchFilteredOutput = (dmType: DMType) => {
 				fields: subFields || []
 			}
 		}
-	} else if (searchType.typeName === TypeKind.Interface) {
+	} else if (searchType.kind === TypeKind.Interface) {
 		const subFields = searchType.fields
 			?.map(item => getFilteredSubFields(item, searchValue))
 			.filter(item => item);

@@ -23,6 +23,7 @@ export class InputNode extends DataMapperNodeModel {
     public numberOfFields:  number;
     public x: number;
     private _paramName: string;
+    private _originalType: DMType;
 
     constructor(
         public context: IDataMapperContext,
@@ -35,9 +36,12 @@ export class InputNode extends DataMapperNodeModel {
             INPUT_NODE_TYPE
         );
         this.numberOfFields = 1;
-        this.dmType = this.context.inputTrees
+        if (!hasNoMatchingFields) {
+            this._originalType = this.context.inputTrees
             .find(inputTree => inputTree.typeName === (this.value.type as any).typeName.getText());
-        this._paramName = this.value.name.getText();
+            this.dmType = this._originalType;
+            this._paramName = this.value.name.getText();
+        }
     }
 
     async initPorts() {
@@ -72,8 +76,8 @@ export class InputNode extends DataMapperNodeModel {
 
             const matchesParamName = this.value.name.getText().toLowerCase().includes(searchValue?.toLowerCase());
             const type = matchesParamName
-                ? this.dmType
-                : getSearchFilteredInput(this.dmType, this._paramName);
+                ? this._originalType
+                : getSearchFilteredInput(this._originalType, this._paramName);
             return type;
         }
     }
