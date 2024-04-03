@@ -271,7 +271,7 @@ const CommandForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["className"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "className": e });
                             formValidators["className"](e);
                         }}
@@ -296,7 +296,7 @@ const CommandForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

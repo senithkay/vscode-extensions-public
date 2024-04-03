@@ -360,7 +360,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["groupId"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "groupId": e, "isThrottleChanged": true });
                             formValidators["groupId"](e);
                         }}
@@ -390,7 +390,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["onAcceptBranchsequenceKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "onAcceptBranchsequenceKey": e, "isThrottleChanged": true, "isOnAcceptChanged": true });
                                 formValidators["onAcceptBranchsequenceKey"](e);
                             }}
@@ -421,7 +421,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["onRejectBranchsequenceKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "onRejectBranchsequenceKey": e, "isThrottleChanged": true, "isOnRejectChanged": true });
                                 formValidators["onRejectBranchsequenceKey"](e);
                             }}
@@ -453,7 +453,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["maximumConcurrentAccess"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "maximumConcurrentAccess": e, "isPolicyChanged": true });
                                 formValidators["maximumConcurrentAccess"](e);
                             }}
@@ -482,7 +482,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["policyKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "policyKey": e, "isPolicyChanged": true });
                                 formValidators["policyKey"](e);
                             }}
@@ -503,7 +503,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e, "isThrottleChanged": true });
                             formValidators["description"](e);
                         }}

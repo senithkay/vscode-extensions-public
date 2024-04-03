@@ -128,7 +128,7 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["forEachID"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "forEachID": e });
                             formValidators["forEachID"](e);
                         }}
@@ -143,7 +143,7 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["forEachExpression"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "forEachExpression": e });
                             formValidators["forEachExpression"](e);
                         }}
@@ -158,7 +158,7 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}
@@ -192,7 +192,7 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["sequenceKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "sequenceKey": e });
                                 formValidators["sequenceKey"](e);
                             }}
@@ -209,7 +209,7 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["sequenceName"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "sequenceName": e });
                                 formValidators["sequenceName"](e);
                             }}

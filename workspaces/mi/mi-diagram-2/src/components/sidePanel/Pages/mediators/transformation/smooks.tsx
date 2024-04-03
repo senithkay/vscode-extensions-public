@@ -135,7 +135,7 @@ const SmooksForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["inputExpression"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "inputExpression": e });
                             formValidators["inputExpression"](e);
                         }}
@@ -155,7 +155,7 @@ const SmooksForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["configurationKey"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "configurationKey": e });
                             formValidators["configurationKey"](e);
                         }}
@@ -194,7 +194,7 @@ const SmooksForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["outputProperty"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "outputProperty": e });
                                 formValidators["outputProperty"](e);
                             }}
@@ -222,7 +222,7 @@ const SmooksForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["outputExpression"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "outputExpression": e });
                                 formValidators["outputExpression"](e);
                             }}
@@ -243,7 +243,7 @@ const SmooksForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

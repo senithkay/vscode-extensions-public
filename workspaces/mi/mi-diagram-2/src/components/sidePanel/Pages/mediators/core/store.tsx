@@ -166,7 +166,7 @@ const StoreForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["messageStore"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "messageStore": e });
                                     formValidators["messageStore"](e);
                                 }}
@@ -183,7 +183,7 @@ const StoreForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["expression"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "expression": e });
                                     formValidators["expression"](e);
                                 }}
@@ -201,7 +201,7 @@ const StoreForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["onStoreSequence"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "onStoreSequence": e });
                             formValidators["onStoreSequence"](e);
                         }}
@@ -216,7 +216,7 @@ const StoreForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}
