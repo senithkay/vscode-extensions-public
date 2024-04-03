@@ -10,9 +10,10 @@ import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
 import { history } from './history/activator';
 import { COMMANDS } from './constants';
-import { StateMachineAI, openAIView } from './ai-panel/aiMachine';
+import { openAIView } from './ai-panel/aiMachine';
 import { AiPanelWebview } from './ai-panel/webview';
 import { activateProjectExplorer } from './project-explorer/activate';
+import { StateMachineAI } from './ai-panel/aiMachineNew';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;

@@ -10,7 +10,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
-import { EVENT_TYPE, MachineStateValue, AI_MACHINE_VIEW, webviewReady, AIVisualizerLocation, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MachineStateValue, AI_MACHINE_VIEW, webviewReady, AIVisualizerLocation, MACHINE_VIEW, AIMachineStateValue, AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { AiPanelWebview } from './webview';
 import { RPCLayer } from '../RPCLayer';
 import { StateMachine } from '../stateMachine';
@@ -40,6 +40,11 @@ const aiStateMachine = createMachine<AiMachineContext>({
         chatLog: [],
         errorCode: undefined,
         errorMessage: undefined
+    },
+    on: {
+        DISPOSE: {
+            target: "Initialize",
+        }
     },
     states: {
         Initialize: {
@@ -106,9 +111,6 @@ const aiStateMachine = createMachine<AiMachineContext>({
         WaitingForLogin: {
             invoke: {
                 src: 'openLogin',
-                onDone: {
-                    target: "Ready"
-                },
                 onError: {
                     target: "loggedOut",
                     actions: assign({
@@ -271,16 +273,20 @@ export const StateMachineAI = {
     initialize: () => aiStateService.start(),
     service: () => { return aiStateService; },
     context: () => { return aiStateService.getSnapshot().context; },
-    state: () => { return aiStateService.getSnapshot().value as MachineStateValue; },
-    sendEvent: (eventType: EVENT_TYPE) => { aiStateService.send({ type: eventType }); },
+    state: () => { return aiStateService.getSnapshot().value as AIMachineStateValue; },
+    sendEvent: (eventType: AI_EVENT_TYPE) => { aiStateService.send({ type: eventType }); },
 };
 
-export function openAIView(type: EVENT_TYPE, viewLocation?: AIVisualizerLocation) {
+export function openAIWebview() {
     if (!AiPanelWebview.currentPanel) {
         AiPanelWebview.currentPanel = new AiPanelWebview();
     } else {
         AiPanelWebview.currentPanel!.getWebview()?.reveal();
     }
+}
+
+export function navigateAIView(type: EVENT_TYPE, viewLocation?: AIVisualizerLocation) {
+    aiStateService.send({ type: type, viewLocation: viewLocation });
 }
 
 async function checkAiStatus() {
@@ -290,10 +296,10 @@ async function checkAiStatus() {
     });
 }
 
-aiStateService.onTransition((state) => {
-    console.log("State - " + state.value);
-    if(state.value === "loggedOut") {
-        aiStateService.send('LOGIN');
-    }
-}).start();
+// aiStateService.onTransition((state) => {
+//     console.log("State - " + state.value);
+//     if(state.value === "loggedOut") {
+//         aiStateService.send('LOGIN');
+//     }
+// }).start();
 

@@ -8,13 +8,14 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { AI_MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { AIMachineStateValue, AI_EVENT_TYPE, AI_MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { AIOverviewWindow } from './views/AIOverviewWindow';
 import { AIChat } from './views/AIChat';
 import { AIArtifactWindow } from './views/AIArtifactWindow';
+import {SignInToCopilotMessage} from './views/LoggedOutWindow';
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -34,20 +35,33 @@ const ProgressRing = styled(VSCodeProgressRing)`
 const AiPanel = () => {
     const { rpcClient } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
+    const [state, setState] = React.useState<AIMachineStateValue>();
+
+
+    rpcClient?.onAIStateChanged((newState: AIMachineStateValue) => {
+        setState(newState);
+    });
 
     useEffect(() => {
         fetchContext();
-    }, []);
+    }, [state]);
 
+    const login = () => { 
+        rpcClient.sendAIStateEvent(AI_EVENT_TYPE.LOGIN);
+    }
 
     const fetchContext = () => {
         rpcClient.getAIVisualizerState().then((machineView) => {
-            switch (machineView?.view) {
-                case AI_MACHINE_VIEW.AIOverview:
+            switch (machineView?.state) {
+                case "Ready":
                     setViewComponent(<AIOverviewWindow />);
                     break;
-                case AI_MACHINE_VIEW.AIArtifact:
-                    setViewComponent(<AIOverviewWindow />);
+                case "loggedOut":
+                    setViewComponent(<SignInToCopilotMessage />);
+                    // setViewComponent(<h1>Logged Out  <button onClick={login}>LogIn</button></h1>);
+                    break;
+                case "WaitingForLogin":
+                    setViewComponent(<h1>Waiting for login</h1>);
                     break;
                 default:
                     setViewComponent(null);

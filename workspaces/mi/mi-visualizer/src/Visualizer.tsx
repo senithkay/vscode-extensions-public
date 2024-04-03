@@ -9,7 +9,7 @@
 
 import React, { useEffect } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { MachineStateValue } from "@wso2-enterprise/mi-core";
+import { MachineStateValue, AIMachineStateValue } from "@wso2-enterprise/mi-core";
 import MainPanel from "./MainPanel";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
@@ -35,14 +35,17 @@ const ProgressRing = styled(VSCodeProgressRing)`
 
 export function Visualizer({ mode }: { mode: string }) {
     const { rpcClient } = useVisualizerContext();
-    const [state, setState] = React.useState<MachineStateValue>('initialize');
+    const [state, setState] = React.useState<MachineStateValue | AIMachineStateValue>('initialize');
 
-    rpcClient?.onStateChanged((newState: MachineStateValue) => {
+    rpcClient?.onStateChanged((newState: MachineStateValue | AIMachineStateValue) => {
         setState(newState);
     });
 
     useEffect(() => {
         rpcClient.webviewReady();
+        rpcClient.getAIVisualizerState().then(context => {
+            setState(context.state);
+        });
     }, []);
 
     return (
@@ -50,9 +53,9 @@ export function Visualizer({ mode }: { mode: string }) {
             {(() => {
                 switch (mode) {
                     case "visualizer":
-                        return <VisualizerComponent state={state} />
+                        return <VisualizerComponent state={state as MachineStateValue} />
                     case "ai":
-                        return <AiVisualizerComponent state={state} />
+                        return <AiVisualizerComponent state={state as AIMachineStateValue} />
                 }
             })()}
         </ErrorBoundary>
@@ -74,9 +77,9 @@ const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue })
     }
 });
 
-const AiVisualizerComponent = React.memo(({ state }: { state: MachineStateValue }) => {
+const AiVisualizerComponent = React.memo(({ state }: { state: AIMachineStateValue }) => {
     switch (true) {
-        case typeof state === 'object' && 'ready' in state:
+        case state !== 'Initialize':
             return <AiPanel />;
         default:
             return (
