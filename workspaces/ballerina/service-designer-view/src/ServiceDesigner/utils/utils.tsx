@@ -262,55 +262,51 @@ export async function getService(serviceDecl: ServiceDeclaration, rpcClient: any
     }
 }
 
+async function findResponseType(typeSymbol: any, resource: any, index: any, rpcClient: any, members: any) {
+    let type = "";
+    if (typeSymbol.typeKind === "record") {
+        return getInlineRecordConfig(resource, index, typeSymbol);
+    } else if (typeSymbol.typeKind === "typeReference" && !typeSymbol.signature?.includes("ballerina")) {
+        const recordST: string = await getRecordSource(typeSymbol.name, rpcClient);
+        return {
+            id: index,
+            code: findResponseCodeByRecordSource(recordST),
+            type: typeSymbol.name,
+            source: typeSymbol.name
+        };
+    } else if (typeSymbol.typeKind === "typeReference" && typeSymbol.signature?.includes("ballerina")) {
+        const name = typeSymbol.moduleID?.moduleName === "http" ? `http:${typeSymbol.name}` : typeSymbol.name;
+        return {
+            id: index,
+            code: getCodeFromResponse(name, resource.functionName.value as HTTP_METHOD),
+            type: "",
+            source: name
+        };
+    } else if (typeSymbol.typeKind !== "nil") {
+        type = (members && members[index + 1]?.typeKind === "nil") ? typeSymbol.typeKind + "?" : typeSymbol.typeKind;
+        return {
+            id: index,
+            code: ((type === "error" || type === "error?") ? 500 : getCodeFromResponse(typeSymbol.name as string, resource.functionName.value as HTTP_METHOD)),
+            type: type,
+            source: type
+        };
+    }
+}
+
 export async function getResponseConfig(resource: ResourceAccessorDefinition, rpcClient: any): Promise<ResponseConfig[]> {
     let index = 0;
     const response: ResponseConfig[] = [];
     const members = resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.members;
     if (resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.typeKind === "union" && members) {
         for (const member of members) {
-            let type = "";
-            if (member.typeKind === "record") {
-                response.push(
-                    getInlineRecordConfig(resource, index, member)
-                );
-                index++;
-            } else if (member.typeKind === "typeReference" && !member.signature?.includes("ballerina")) {
-                const recordST: string = await getRecordSource(member.name, rpcClient);
-                response.push({
-                    id: index,
-                    code: findResponseCodeByRecordSource(recordST),
-                    type: member.name,
-                    source: member.name
-                });
-                index++;
-            } else if (member.typeKind === "typeReference" && member.signature?.includes("ballerina")) {
-                const name = member.moduleID?.moduleName === "http" ? `http:${member.name}` : member.name;
-                response.push({
-                    id: index,
-                    code: getCodeFromResponse(name, resource.functionName.value as HTTP_METHOD),
-                    type: "",
-                    source: name
-                });
-                index++;
-            } else if (member.typeKind !== "nil") {
-                type = (members[index + 1]?.typeKind === "nil") ? member.typeKind + "?" : member.typeKind;
-                response.push({
-                    id: index,
-                    code: ((type === "error" || type === "error?") ? 500 : getCodeFromResponse(member.name as string, resource.functionName.value as HTTP_METHOD)),
-                    type: type,
-                    source: type
-                });
-                index++;
-            }
+            const res = await findResponseType(member, resource, index, rpcClient, members);
+            response.push(res);
+            index++;
         }
     } else if (resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol) {
-        const type = resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.typeKind;
-        response.push({
-            id: index,
-            code: ((type === "error" || type === "error?") ? 500 : getCodeFromResponse(resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.name as string, resource.functionName.value as HTTP_METHOD)),
-            type: type,
-            source: type
-        });
+        const typeSymbol = resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol;
+        const res = await findResponseType(typeSymbol, resource, index, rpcClient, members);
+        response.push(res);
     }
     return response;
 }
