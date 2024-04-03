@@ -168,7 +168,7 @@ const FaultForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["actor"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "actor": e });
                                 formValidators["actor"](e);
                             }}
@@ -184,7 +184,7 @@ const FaultForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["role"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "role": e });
                                 formValidators["role"](e);
                             }}
@@ -200,7 +200,7 @@ const FaultForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["node"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "node": e });
                                 formValidators["node"](e);
                             }}
@@ -248,7 +248,7 @@ const FaultForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["detailValue"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "detailValue": e });
                                     formValidators["detailValue"](e);
                                 }}
@@ -265,7 +265,7 @@ const FaultForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["detailExpression"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "detailExpression": e });
                                     formValidators["detailExpression"](e);
                                 }}
@@ -296,7 +296,7 @@ const FaultForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["reasonValue"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "reasonValue": e });
                                     formValidators["reasonValue"](e);
                                 }}
@@ -313,7 +313,7 @@ const FaultForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["reasonExpression"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "reasonExpression": e });
                                     formValidators["reasonExpression"](e);
                                 }}
@@ -331,7 +331,7 @@ const FaultForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

@@ -25,9 +25,7 @@ import {
 	NodeLayerFactory,
 	PathFindingLinkFactory
 } from "@projectstorm/react-diagrams";
-import { Icon } from '@wso2-enterprise/ui-toolkit';
 
-import * as Nodes from "./Node";
 import { ErrorNodeKind } from "../DataMapper/Error/DataMapperError";
 import { DataMapperCanvasContainerWidget } from './Canvas/DataMapperCanvasContainerWidget';
 import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
@@ -46,6 +44,8 @@ import { IntermediatePortFactory, RecordFieldPortFactory } from './Port';
 import { ExpressionLabelFactory } from './Label';
 import { DataMapperLinkFactory } from './Link';
 import { RightAngleLinkFactory } from './Link/RightAngleLink/RightAngleLinkFactory';
+import * as Nodes from "./Node";
+import { Icon } from '@wso2-enterprise/ui-toolkit';
 
 const classes = {
 	buttonWrap: css({

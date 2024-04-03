@@ -155,7 +155,7 @@ const ScriptForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["mediateFunction"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "mediateFunction": e });
                                 formValidators["mediateFunction"](e);
                             }}
@@ -185,7 +185,7 @@ const ScriptForm = (props: AddMediatorProps) => {
                                size={50}
                                placeholder=""
                                value={formValues["keyName"]}
-                               onChange={(e: any) => {
+                               onTextChange={(e: any) => {
                                    setFormValues({ ...formValues, "keyName": e });
                                    formValidators["keyName"](e);
                                }}
@@ -200,7 +200,7 @@ const ScriptForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["keyValue"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "keyValue": e });
                                     formValidators["keyValue"](e);
                                 }}
@@ -262,7 +262,7 @@ const ScriptForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["scriptStaticKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "scriptStaticKey": e });
                                 formValidators["scriptStaticKey"](e);
                             }}
@@ -279,7 +279,7 @@ const ScriptForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["scriptDynamicKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "scriptDynamicKey": e });
                                 formValidators["scriptDynamicKey"](e);
                             }}
@@ -296,7 +296,7 @@ const ScriptForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["scriptBody"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "scriptBody": e });
                                 formValidators["scriptBody"](e);
                             }}
@@ -314,7 +314,7 @@ const ScriptForm = (props: AddMediatorProps) => {
                     size={50}
                     placeholder=""
                     value={formValues["description"]}
-                    onChange={(e: any) => {
+                    onTextChange={(e: any) => {
                         setFormValues({ ...formValues, "description": e });
                         formValidators["description"](e);
                     }}
