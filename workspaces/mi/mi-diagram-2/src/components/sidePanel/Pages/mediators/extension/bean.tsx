@@ -158,7 +158,7 @@ const BeanForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["class"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "class": e });
                                 formValidators["class"](e);
                             }}
@@ -174,7 +174,7 @@ const BeanForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["var"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "var": e });
                             formValidators["var"](e);
                         }}
@@ -190,7 +190,7 @@ const BeanForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["property"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "property": e });
                                 formValidators["property"](e);
                             }}
@@ -220,7 +220,7 @@ const BeanForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["valueLiteral"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "valueLiteral": e });
                                         formValidators["valueLiteral"](e);
                                     }}
@@ -237,7 +237,7 @@ const BeanForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["valueExpression"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "valueExpression": e });
                                         formValidators["valueExpression"](e);
                                     }}
@@ -270,7 +270,7 @@ const BeanForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["targetLiteral"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "targetLiteral": e });
                                         formValidators["targetLiteral"](e);
                                     }}
@@ -287,7 +287,7 @@ const BeanForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["targetExpression"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "targetExpression": e });
                                         formValidators["targetExpression"](e);
                                     }}
@@ -305,7 +305,7 @@ const BeanForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

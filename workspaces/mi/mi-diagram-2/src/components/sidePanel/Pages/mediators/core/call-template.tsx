@@ -284,7 +284,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["targetTemplate"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             const updateValues: { [key: string]: any } = { "targetTemplate": e }
                             if (availableEndpointTemplates.includes(e) || availableSequenceTemplates.includes(e)) {
                                 updateValues["availableTemplates"] = e;
@@ -305,7 +305,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["onError"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "onError": e });
                             formValidators["onError"](e);
                         }}
@@ -320,7 +320,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

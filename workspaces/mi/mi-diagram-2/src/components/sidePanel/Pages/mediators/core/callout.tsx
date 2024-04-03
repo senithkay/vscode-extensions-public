@@ -157,7 +157,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["soapAction"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "soapAction": e });
                             formValidators["soapAction"](e);
                         }}
@@ -172,7 +172,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["pathToAxis2Repository"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "pathToAxis2Repository": e });
                             formValidators["pathToAxis2Repository"](e);
                         }}
@@ -187,7 +187,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["pathToAxis2xml"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "pathToAxis2xml": e });
                             formValidators["pathToAxis2xml"](e);
                         }}
@@ -212,7 +212,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["serviceURL"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "serviceURL": e });
                                 formValidators["serviceURL"](e);
                             }}
@@ -260,7 +260,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["payloadMessageXPath"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "payloadMessageXPath": e });
                                 formValidators["payloadMessageXPath"](e);
                             }}
@@ -277,7 +277,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["payloadProperty"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "payloadProperty": e });
                                 formValidators["payloadProperty"](e);
                             }}
@@ -308,7 +308,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["resultMessageXPath"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "resultMessageXPath": e });
                                 formValidators["resultMessageXPath"](e);
                             }}
@@ -325,7 +325,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["resultContextProperty"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "resultContextProperty": e });
                                 formValidators["resultContextProperty"](e);
                             }}
@@ -367,7 +367,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["policyKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "policyKey": e });
                                 formValidators["policyKey"](e);
                             }}
@@ -384,7 +384,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["outboundPolicyKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "outboundPolicyKey": e });
                                 formValidators["outboundPolicyKey"](e);
                             }}
@@ -401,7 +401,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["inboundPolicyKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "inboundPolicyKey": e });
                                 formValidators["inboundPolicyKey"](e);
                             }}
@@ -422,7 +422,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

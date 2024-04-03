@@ -126,7 +126,7 @@ const generateForm = (jsonData: any): string => {
                             size={50}
                             placeholder="${helpTip}"
                             value={formValues["${inputName}"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "${inputName}": e });
                                 formValidators["${inputName}"](e);
                             }}
@@ -142,7 +142,7 @@ const generateForm = (jsonData: any): string => {
                         label="${displayName}"
                         value={formValues["${inputName}"]}
                         autoWidth={true}
-                        onChange={(e: any) => {
+                        onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "${inputName}": e.target.value });
                             formValidators["${inputName}"](e);
                         }}
@@ -168,7 +168,7 @@ const generateForm = (jsonData: any): string => {
                     const comboValues = element.value.comboValues.map((value: string) => `"${value}"`).toString().replaceAll(",", ", ");
                     const comboStr = `
                         <label>${displayName}</label> ${isRequired ? `<RequiredFormInput />` : ''}
-                        <AutoComplete items={[${comboValues}]} selectedItem={formValues["${inputName}"]} onChange={(e: any) => {
+                        <AutoComplete items={[${comboValues}]} selectedItem={formValues["${inputName}"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "${inputName}": e });
                             formValidators["${inputName}"](e);
                         }} />
