@@ -150,7 +150,7 @@ export class ExtendedLanguageClient extends LanguageClient {
     }
 
     async getAvailableConnectors(req: GetAvailableConnectorRequest): Promise<GetAvailableConnectorResponse> {
-        return this.sendRequest("synapse/availableConnectors", { uri: Uri.parse(req.documentUri).toString() });
+        return this.sendRequest("synapse/availableConnectors", { documentIdentifier: { uri: Uri.parse(req.documentUri).toString() }, "connectorName": req.connectorName });
     }
 
     async updateConnectors(req: UpdateConnectorRequest): Promise<void> {

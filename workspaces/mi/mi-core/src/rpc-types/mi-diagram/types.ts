@@ -1039,10 +1039,12 @@ export interface DownloadConnectorResponse {
 
 export interface GetAvailableConnectorRequest {
     documentUri: string;
+    connectorName: string;
 }
 
 export interface GetAvailableConnectorResponse {
-    connectors: any;
+    connectors?: any[];
+    uiSchemaPath?: string;
 }
 
 export interface UpdateConnectorRequest {

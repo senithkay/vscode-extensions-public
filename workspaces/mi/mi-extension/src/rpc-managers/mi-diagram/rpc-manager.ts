@@ -2764,7 +2764,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getAvailableConnectors({
-                documentUri: params.documentUri
+                documentUri: params.documentUri,
+                connectorName: params.connectorName
             });
 
             resolve(res);

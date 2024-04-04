@@ -83,7 +83,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
     useEffect(() => {
         const fetchLocalConnectorData = async () => {
-            const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.documentUri });
+            const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.documentUri, connectorName: "" });
             if (connectorData) {
                 setLocalConnectors(connectorData.connectors);
             }
@@ -129,16 +129,16 @@ export function ConnectorPage(props: ConnectorPageProps) {
         }
 
         // Get Connector Data from LS
-        const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.documentUri });
+        const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
+            documentUri: props.documentUri,
+            connectorName: selectedConnector.name.toLowerCase().replace(/\s/g, '')
+        });
 
         // // Update LS with new connector
         await rpcClient.getMiDiagramRpcClient().updateConnectors({ documentUri: props.documentUri });
 
-        // Get UI Schema Path
-        const uiSchemaPath = connectorData.connectors.find((connector: any) => connector.name === selectedConnector.name.toLowerCase())?.uiSchemaPath;
-
         // Retrieve form
-        const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: uiSchemaPath, operation: operation });
+        const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: connectorData.uiSchemaPath, operation: operation });
 
         const connecterForm = <AddConnector formData={(formJSON as any).formJSON} nodePosition={sidePanelContext.nodeRange} documentUri={props.documentUri} />;
 
@@ -150,12 +150,24 @@ export function ConnectorPage(props: ConnectorPageProps) {
         props.clearSearch();
     }
 
+    function existsInLocalConnectors(connector: any) {
+        return localConnectors.some(localConnector =>
+            localConnector.name === connector.name.toLowerCase().replace(/\s/g, '') && localConnector.version === connector.version);
+    }
+
+
     const ConnectorList = () => {
         let storeConnectors = sidePanelContext.connectors;
         let localConnectorsFiltered = localConnectors;
         let operationsFiltered = selectedConnector ?
             (selectedConnector.operations ? Object.keys(selectedConnector.operations) : selectedConnector.actions)
             : undefined;
+
+        
+        if (storeConnectors) {
+            storeConnectors = storeConnectors.filter(connector => !existsInLocalConnectors(connector));
+        }
+
         if (props.searchValue) {
             if (selectedConnector) {
                 operationsFiltered = searchOperations(props.searchValue);
