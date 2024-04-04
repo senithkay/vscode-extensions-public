@@ -8,39 +8,9 @@
  */
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import {Button, TextField, Dropdown, Typography, Codicon} from "@wso2-enterprise/ui-toolkit";
-import { SectionWrapper } from "./Commons";
+import {Button, TextField, Dropdown, FormView, FormActions} from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW, CreateTemplateRequest } from "@wso2-enterprise/mi-core";
-
-const WizardContainer = styled.div`
-    width: 95%;
-    display  : flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
-`;
-
-const ActionContainer = styled.div`
-    display  : flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-bottom: 20px;
-`;
-
-const Container = styled.div`
-    display: flex;
-    flex-direction: row;
-    height: 50px;
-    align-items: center;
-    justify-content: flex-start;
-`;
-
-export interface Region {
-    label: string;
-    value: string;
-}
 
 interface OptionProps {
     value: string;
@@ -160,7 +130,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
             directory: existingFilePath,
             ...template
         }
-        const file = await rpcClient.getMiDiagramRpcClient().createTemplate(createTemplateParams);
+        await rpcClient.getMiDiagramRpcClient().createTemplate(createTemplateParams);
 
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
@@ -169,19 +139,8 @@ export function TemplateWizard(props: TemplateWizardProps) {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
-    const handleBackButtonClick = () => {
-        rpcClient.getMiVisualizerRpcClient().goBack();
-    }
-
     return (
-        <WizardContainer>
-            <SectionWrapper>
-                <Container>
-                    <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
-                    <div style={{ marginLeft: 30 }}>
-                        <Typography variant="h3">Template Artifact</Typography>
-                    </div>
-                </Container>
+        <FormView title="Template Artifact" onClose={handleCancel}>
                 <TextField
                     placeholder="Name"
                     label="Template Name"
@@ -261,15 +220,8 @@ export function TemplateWizard(props: TemplateWizardProps) {
                         />
                     </>
                 )}
-            </SectionWrapper>
-            <ActionContainer>
-                {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
-                <Button
-                    appearance="secondary"
-                    onClick={handleCancel}
-                >
-                    Cancel
-                </Button>
+            {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
+            <FormActions>
                 <Button
                     appearance="primary"
                     onClick={handleCreateTemplate}
@@ -277,7 +229,13 @@ export function TemplateWizard(props: TemplateWizardProps) {
                 >
                     {isNewTask ? "Create" : "Save Changes"}
                 </Button>
-            </ActionContainer>
-        </WizardContainer>
+                <Button
+                    appearance="secondary"
+                    onClick={handleCancel}
+                >
+                    Cancel
+                </Button>
+            </FormActions>
+    </FormView>
     );
 }

@@ -6,88 +6,10 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import styled from "@emotion/styled";
-import React, { useEffect, useState } from "react";
-import {Button, TextField, Dropdown, Typography, Codicon} from "@wso2-enterprise/ui-toolkit";
-import { SectionWrapper } from "./Commons";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EVENT_TYPE, MACHINE_VIEW, UpdateHttpEndpointRequest } from "@wso2-enterprise/mi-core";
-
-const WizardContainer = styled.div`
-    width: 95%;
-    display  : flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
-`;
-
-const ActionContainer = styled.div`
-    display  : flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-bottom: 20px;
-`;
-
-const Container = styled.div`
-    display: flex;
-    flex-direction: row;
-    height: 50px;
-    align-items: center;
-    justify-content: flex-start;
-`;
-
-const RadioBtnContainer = styled.div`
-    display  : inline-block;
-    flex-direction: column;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-bottom: 5px;
-`;
-
-const RadioLabel = styled.label`
-    margin-right: 10%;
-`;
-
-const Table = styled.table`
-    border: 1px solid;
-    borderCollapse: collapse;
-    width: 75%;
-`;
-
-const Th = styled.th`
-    border: 1px solid;
-    borderCollapse: collapse;
-    Width: 45%;
-`;
-
-const Td = styled.td`
-    border: 1px solid;
-    borderCollapse: collapse;
-    Width: 45%;
-`;
-
-const ThButton = styled.th`
-    border: 1px solid;
-    borderCollapse: collapse;
-    Width: 10%;
-`;
-
-const TdButton = styled.td`
-    border: 1px solid;
-    borderCollapse: collapse;
-    Width: 10%;
-`;
-
-const DivContent = styled.div`
-    display: flex;
-    justify-content: center;
-`;
-
-export interface Region {
-    label: string;
-    value: string;
-}
+import React, {useEffect, useState} from "react";
+import { Button, TextField, Dropdown, RadioButtonGroup, FormView, FormGroup, FormActions, ParamConfig, ParamManager } from "@wso2-enterprise/ui-toolkit";
+import {useVisualizerContext} from "@wso2-enterprise/mi-rpc-client";
+import {EVENT_TYPE, MACHINE_VIEW, UpdateHttpEndpointRequest} from "@wso2-enterprise/mi-core";
 
 interface OptionProps {
     value: string;
@@ -97,21 +19,10 @@ export interface HttpEndpointWizardProps {
     path: string;
 }
 
-interface KeyValuePair {
-    key: string;
-    value: any;
-}
-
-interface Property {
-    name: string;
-    value: any;
-    scope: string;
-}
-
 export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
 
-    const { rpcClient } = useVisualizerContext();
-    const [ endpoint, setEndpoint ] = useState<any>({
+    const {rpcClient} = useVisualizerContext();
+    const [endpoint, setEndpoint] = useState<any>({
         endpointName: "",
         traceEnabled: "",
         statisticsEnabled: "",
@@ -153,33 +64,171 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
     })
     const [isTemplate, setIsTemplate] = useState(false);
     const [directoryPath, setDirectoryPath] = useState("");
-    const [oauthProperties, setOauthProperties] = useState<KeyValuePair[]>([]);
-    const [properties, setProperties] = useState<Property[]>([]);
-    const [parameters, setParameters] = useState<string[]>([]);
     const [message, setMessage] = useState({
         isError: false,
         text: ""
     });
     const validNumericInput = /^\d*$/;
 
-    const isValid: boolean = endpoint.endpointName.length > 0 && endpoint.templateName.length > 0;
+    const isValid: boolean = endpoint.endpointName.length > 0 || endpoint.templateName.length > 0;
+
+    const paramTemplateConfigs: ParamConfig = {
+        paramValues: [],
+        paramFields: [
+            {
+                id: 0,
+                type: "TextField",
+                label: "Parameter",
+                defaultValue: "parameter_value",
+                isRequired: true
+            }]
+    }
+    const [templateParams, setTemplateParams] = useState(paramTemplateConfigs);
+
+    const propertiesConfigs: ParamConfig = {
+        paramValues: [],
+        paramFields: [
+            {
+                id: 0,
+                type: "TextField",
+                label: "Name",
+                defaultValue: "parameter_key",
+                isRequired: true
+            },
+            {
+                id: 1,
+                type: "TextField",
+                label: "Value",
+                defaultValue: "parameter_value",
+                isRequired: true
+            },
+            {
+                id: 2,
+                type: "Dropdown",
+                label: "Scope",
+                values: ["default", "transport", "axis2", "axis2-client"],
+                defaultValue: "default",
+                isRequired: true
+            }]
+    }
+    const [additionalParams, setAdditionalParams] = useState(propertiesConfigs);
+
+    const oauthPropertiesConfigs: ParamConfig = {
+        paramValues: [],
+        paramFields: [
+            {
+                id: 0,
+                type: "TextField",
+                label: "Name",
+                defaultValue: "parameter_key",
+                isRequired: true
+            },
+            {
+                id: 1,
+                type: "TextField",
+                label: "Value",
+                defaultValue: "parameter_value",
+                isRequired: true
+            }]
+    }
+    const [additionalOauthParams, setAdditionalOauthParams] = useState(oauthPropertiesConfigs);
 
     useEffect(() => {
 
         (async () => {
             setDirectoryPath(props.path);
-            const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: props.path });
+            const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({documentUri: props.path});
             if (syntaxTree.syntaxTree.template != undefined) {
                 setIsTemplate(true);
             }
-            const existingEndpoint = await rpcClient.getMiDiagramRpcClient().getHttpEndpoint({ path: props.path });
+            const existingEndpoint = await rpcClient.getMiDiagramRpcClient().getHttpEndpoint({path: props.path});
             setEndpoint(existingEndpoint);
             handleTimeoutActionChange(existingEndpoint.timeoutAction === '' ? 'Never' :
                 existingEndpoint.timeoutAction.charAt(0).toUpperCase() + existingEndpoint.timeoutAction.slice(1));
             handleHttpMethodChange(existingEndpoint.httpMethod);
-            setOauthProperties(existingEndpoint.oauthProperties);
-            setProperties(existingEndpoint.properties);
-            setParameters(existingEndpoint.templateParameters);
+            templateParams.paramValues = [];
+            setTemplateParams(templateParams);
+            let i = 1;
+            existingEndpoint.templateParameters.map((param: any) => {
+                setTemplateParams((prev: any) => {
+                    return {
+                        ...prev,
+                        paramValues: [...prev.paramValues, {
+                            id: prev.paramValues.length,
+                            parameters: [{
+                                id: 0,
+                                value: param,
+                                label: "Parameter",
+                                type: "TextField",
+                            }],
+                            key: i++,
+                            value: param,
+                        }
+                        ]
+                    }
+                });
+            });
+            additionalParams.paramValues = [];
+            setAdditionalParams(additionalParams);
+            existingEndpoint.properties.map((param: any) => {
+                setAdditionalParams((prev: any) => {
+                    return {
+                        ...prev,
+                        paramValues: [...prev.paramValues, {
+                            id: prev.paramValues.length,
+                            parameters: [{
+                                id: 0,
+                                value: param.name,
+                                label: "Name",
+                                type: "TextField",
+                            },
+                                {
+                                    id: 1,
+                                    value: param.value,
+                                    label: "Value",
+                                    type: "TextField",
+                                },
+                                {
+                                    id: 2,
+                                    value: param.scope,
+                                    label: "Scope",
+                                    type: "Dropdown",
+                                    values: ["default", "transport", "axis2", "axis2-client"]
+                                }],
+                            key: param.name,
+                            value: "value:" + param.value + "; scope:" + param.scope + ";",
+                        }
+                        ]
+                    }
+                });
+            });
+            additionalOauthParams.paramValues = [];
+            setAdditionalOauthParams(additionalOauthParams);
+            existingEndpoint.oauthProperties.map((param: any) => {
+                setAdditionalOauthParams((prev: any) => {
+                    return {
+                        ...prev,
+                        paramValues: [...prev.paramValues, {
+                            id: prev.paramValues.length,
+                            parameters: [{
+                                id: 0,
+                                value: param.key,
+                                label: "Name",
+                                type: "TextField",
+                            },
+                                {
+                                    id: 1,
+                                    value: param.value,
+                                    label: "Value",
+                                    type: "TextField",
+                                }],
+                            key: param.key,
+                            value: param.value,
+                        }
+                        ]
+                    }
+                });
+            });
         })();
     }, [props.path]);
 
@@ -197,233 +246,217 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
     }, [endpoint.endpointName, isValid]);
 
     const addressingVersions: OptionProps[] = [
-        { value: "final"},
-        { value: "submission"},
+        {value: "final"},
+        {value: "submission"},
     ];
 
     const grantTypes: OptionProps[] = [
-        { value: "Authorization Code"},
-        { value: "Client Credentials"},
-        { value: "Password"}
+        {value: "Authorization Code"},
+        {value: "Client Credentials"},
+        {value: "Password"}
     ];
 
     const authorizationModes: OptionProps[] = [
-        { value: "Header"},
-        { value: "Payload"},
+        {value: "Header"},
+        {value: "Payload"},
     ];
 
     const authTypes: OptionProps[] = [
-        { value: "None"},
-        { value: "Basic Auth"},
-        { value: "OAuth"}
+        {value: "None"},
+        {value: "Basic Auth"},
+        {value: "OAuth"}
     ];
 
     const timeoutOptions: OptionProps[] = [
-        { value: "Never"},
-        { value: "Discard"},
-        { value: "Fault"}
+        {value: "Never"},
+        {value: "Discard"},
+        {value: "Fault"}
     ];
 
     const httpMethods: OptionProps[] = [
-        { value: "GET"},
-        { value: "POST"},
-        { value: "PUT"},
-        { value: "DELETE"},
-        { value: "HEAD"},
-        { value: "OPTIONS"},
-        { value: "PATCH"},
-        { value: "leave_as_is"}
+        {value: "GET"},
+        {value: "POST"},
+        {value: "PUT"},
+        {value: "DELETE"},
+        {value: "HEAD"},
+        {value: "OPTIONS"},
+        {value: "PATCH"},
+        {value: "leave_as_is"}
     ];
 
-    const scopes: OptionProps[] = [
-        { value: "default"},
-        { value: "transport"},
-        { value: "axis2"},
-        { value: "axis2-client"},
-    ];
-
-    const removeValue = (keyToRemove: string) => {
-        setOauthProperties(prevState =>
-            prevState.filter(pair => pair.key !== keyToRemove)
-        );
+    const handleTemplateParametersChange = (params: any) => {
+        let i = 1;
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: i++,
+                    value: param.parameters[0].value
+                }
+            })
+        };
+        setTemplateParams(modifiedParams);
     };
 
-    const removeParameter = (keyToRemove: string) => {
-        setParameters(prevState =>
-            prevState.filter(item => item !== keyToRemove)
-        );
+    const handleAdditionalPropertiesChange = (params: any) => {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: param.parameters[0].value,
+                    value: generateDisplayValue(param)
+                }
+            })
+        };
+        setAdditionalParams(modifiedParams);
     };
 
-    const editParameter = (oldKey: string, newKey: string) => {
-        const indexToEdit = parameters.indexOf(oldKey);
-        let existingParameters = [...parameters];
-        existingParameters[indexToEdit] = newKey;
-        setParameters(existingParameters);
+    const handleOauthParametersChange = (params: any) => {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: param.parameters[0].value,
+                    value: param.parameters[1].value
+                }
+            })
+        };
+        setAdditionalOauthParams(modifiedParams);
     };
 
-    const addParameter = () => {
-        setParameters([...parameters, 'parameter']);
-    }
-
-    const addValue = () => {
-        setOauthProperties(prevState => [...prevState, { key: 'Parameter_Key', value: 'Parameter_Value' }]);
+    const generateDisplayValue = (paramValues: any) => {
+        const result: string = "value:" + paramValues.parameters[1].value + "; scope:" + paramValues.parameters[2].value + ";";
+        return result.trim();
     };
 
-    const editKey = (oldKey: string, newKey: string) => {
-        setOauthProperties(prevState =>
-            prevState.map(pair =>
-                pair.key === oldKey ? { ...pair, key: newKey } : pair
-            )
-        );
+    const handleTraceEnabledChange = (event: any) => {
+        setEndpoint((prev: any) => ({...prev, traceEnabled: event.target.value}));
     };
 
-    const editValue = (key: string, newValue: string) => {
-        setOauthProperties(prevState =>
-            prevState.map(pair =>
-                pair.key === key ? { ...pair, value: newValue } : pair
-            )
-        );
-    };
-
-    const removePropertyValue = (keyToRemove: string) => {
-        setProperties(prevState =>
-            prevState.filter(pair => pair.name !== keyToRemove)
-        );
-    };
-
-    const addPropertyValue = () => {
-        setProperties(prevState => [...prevState, { name: 'Parameter_Key', value: 'Parameter_Value', scope: 'default' }]);
-    };
-
-    const editPropertyKey = (oldKey: string, newKey: string) => {
-        setProperties(prevState =>
-            prevState.map(pair =>
-                pair.name === oldKey ? { ...pair, name: newKey } : pair
-            )
-        );
-    };
-
-    const editPropertyValue = (key: string, newValue: string) => {
-        setProperties(prevState =>
-            prevState.map(pair =>
-                pair.name === key ? { ...pair, value: newValue } : pair
-            )
-        );
-    };
-
-    const editPropertyScope = (key: string, newScope: string) => {
-        setProperties(prevState =>
-            prevState.map(pair =>
-                pair.name === key ? { ...pair, scope: newScope } : pair
-            )
-        );
-    };
-
-    const handleTraceEnabledChange = (value: string) => {
-        setEndpoint((prev: any) => ({ ...prev, traceEnabled: value }));
-    };
-
-    const handleStatsEnabledChange = (value: string) => {
-        setEndpoint((prev: any) => ({ ...prev, statisticsEnabled: value }));
+    const handleStatsEnabledChange = (event: any) => {
+        setEndpoint((prev: any) => ({...prev, statisticsEnabled: event.target.value}));
     };
 
     const handleHttpMethodChange = (value: string) => {
-        setEndpoint((prev: any) => ({ ...prev, httpMethod: value }));
+        setEndpoint((prev: any) => ({...prev, httpMethod: value}));
     };
 
     const handleAuthTypeChange = (type: string) => {
-        setEndpoint((prev: any) => ({ ...prev, authType: type }));
+        setEndpoint((prev: any) => ({...prev, authType: type}));
     };
 
     const handleAuthModeChange = (value: any) => {
-        setEndpoint((prev: any) => ({ ...prev, authMode: value }));
+        setEndpoint((prev: any) => ({...prev, authMode: value}));
     };
 
     const handleAuthGrantTypeChange = (value: string) => {
-        setEndpoint((prev: any) => ({ ...prev, grantType: value }));
+        setEndpoint((prev: any) => ({...prev, grantType: value}));
     };
 
-    const handleAddressingEnabledChange = (value: string) => {
-        setEndpoint((prev: any) => ({ ...prev, addressingEnabled: value }));
+    const handleAddressingEnabledChange = (event: any) => {
+        setEndpoint((prev: any) => ({...prev, addressingEnabled: event.target.value}));
     };
 
     const handleAddressingVersionChange = (value: string) => {
-        setEndpoint((prev: any) => ({ ...prev, addressingVersion: value }));
+        setEndpoint((prev: any) => ({...prev, addressingVersion: value}));
     };
 
-    const handleAddressListenerChange = (value: string) => {
-        setEndpoint((prev: any) => ({ ...prev, addressListener: value }));
+    const handleAddressListenerChange = (event: any) => {
+        setEndpoint((prev: any) => ({...prev, addressListener: event.target.value}));
     };
 
-    const handleSecurityEnabledChange = (value: string) => {
-        setEndpoint((prev: any) => ({ ...prev, securityEnabled: value }));
+    const handleSecurityEnabledChange = (event: any) => {
+        setEndpoint((prev: any) => ({...prev, securityEnabled: event.target.value}));
     };
 
     const handleTimeoutActionChange = (value: string) => {
-        setEndpoint((prev: any) => ({ ...prev, timeoutAction: value }));
+        setEndpoint((prev: any) => ({...prev, timeoutAction: value}));
     };
 
-    const handlePropertiesChange = (value: boolean) => {
-        if (!value) {
-            setProperties([]);
+    const handlePropertiesChange = (event: any) => {
+        if (!event.target.value) {
+            propertiesConfigs.paramValues = [];
+            setAdditionalParams(propertiesConfigs);
         }
-        setEndpoint((prev: any) => ({ ...prev, requireProperties: value }));
+        setEndpoint((prev: any) => ({...prev, requireProperties: event.target.value}));
     };
 
-    const handleOauthPropertiesChange = (value: boolean) => {
-        if (!value) {
-            setOauthProperties([]);
+    const handleOauthPropertiesChange = (event: any) => {
+        if (!event.target.value) {
+            oauthPropertiesConfigs.paramValues = [];
+            setAdditionalOauthParams(oauthPropertiesConfigs);
         }
-        setEndpoint((prev: any) => ({ ...prev, requireOauthParameters: value }));
+        setEndpoint((prev: any) => ({...prev, requireOauthParameters: event.target.value}));
     };
 
-    const handleParametersChange = (value: boolean) => {
-        if (!value) {
-            setParameters([]);
+    const handleParametersChange = (event: any) => {
+        if (!event.target.value) {
+            paramTemplateConfigs.paramValues = [];
+            setAdditionalParams(paramTemplateConfigs);
         }
-        setEndpoint((prev: any) => ({ ...prev, requireTemplateParameters: value }));
+        setEndpoint((prev: any) => ({...prev, requireTemplateParameters: event.target.value}));
     };
 
     const handleOnChange = (field: any, value: any) => {
-        setEndpoint((prev: any) => ({ ...prev, [field]: value }));
+        setEndpoint((prev: any) => ({...prev, [field]: value}));
     }
 
     const handleMessage = (text: string, isError: boolean = false) => {
-        setMessage({ isError, text });
+        setMessage({isError, text});
     }
 
     const handleUpdateHttpEndpoint = async () => {
 
-        endpoint.properties = properties;
-        endpoint.oauthProperties = oauthProperties;
-        endpoint.templateParameters = parameters;
+        let templateParameters: any = [];
+        templateParams.paramValues.map((param: any) => {
+            templateParameters.push(param.parameters[0].value);
+        })
+        endpoint.templateParameters = templateParameters;
+
+        let endpointProperties: any = [];
+        additionalParams.paramValues.map((param: any) => {
+            endpointProperties.push({
+                name: param.parameters[0].value,
+                value: param.parameters[1].value,
+                scope: param.parameters[2].value
+            });
+        })
+        endpoint.properties = endpointProperties;
+
+        let oauthParameters: any = [];
+        additionalOauthParams.paramValues.map((param: any) => {
+            oauthParameters.push({
+                key: param.parameters[0].value,
+                value: param.parameters[1].value
+            });
+        })
+        endpoint.oauthProperties = oauthParameters;
+
         const updateHttpEndpointParams: UpdateHttpEndpointRequest = {
             directory: directoryPath,
             ...endpoint
         }
-        const file = await rpcClient.getMiDiagramRpcClient().updateHttpEndpoint(updateHttpEndpointParams);
+        await rpcClient.getMiDiagramRpcClient().updateHttpEndpoint(updateHttpEndpointParams);
 
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {view: MACHINE_VIEW.Overview}
+        });
     };
 
     const handleCancel = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {view: MACHINE_VIEW.Overview}
+        });
     };
 
     return (
-        <WizardContainer>
-            <SectionWrapper>
-                <Container>
-                    <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleCancel} />
-                    <div style={{ marginLeft: 30 }}>
-                        <Typography variant="h3">
-                            {isTemplate ? "HTTP Endpoint Template Artifact" : "HTTP Endpoint Artifact"}
-                        </Typography>
-                    </div>
-                </Container>
-                {isTemplate && (
-                    <>
-                        <Typography variant="h4">Template Properties</Typography>
+        <FormView title={isTemplate ? "HTTP Endpoint Template Artifact" : "HTTP Endpoint Artifact"}
+                  onClose={handleCancel}>
+            {isTemplate && (
+                <>
+                    <FormGroup title="Template Properties" isCollapsed={false}>
                         <TextField
                             placeholder="Template Name"
                             label="Template Name"
@@ -435,54 +468,23 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                             validationMessage="Template name is required"
                             size={100}
                         />
-                        <span>Require Template Parameters</span>
-                        <RadioBtnContainer>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    checked={endpoint.requireTemplateParameters === true}
-                                    onChange={() => handleParametersChange(true)}
-                                />
-                                Yes
-                            </RadioLabel>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    checked={endpoint.requireTemplateParameters === false}
-                                    onChange={() => handleParametersChange(false)}
-                                />
-                                No
-                            </RadioLabel>
-                        </RadioBtnContainer>
+                        <RadioButtonGroup
+                            label="Require Template Parameters"
+                            id="template-parameters"
+                            options={[{content: "Yes", value: true}, {content: "No", value: false}]}
+                            onChange={handleParametersChange}
+                            value={endpoint.requireTemplateParameters}
+                        />
                         {endpoint.requireTemplateParameters && (
-                            <>
-                                <span>Parameters</span>
-                                <Button onClick={addParameter}>Add Parameter</Button>
-                                <Table>
-                                    <thead>
-                                    <tr>
-                                        <Th>Name</Th>
-                                        <ThButton>Remove</ThButton>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {parameters.map(item => (
-                                        <tr>
-                                            <Td contentEditable={true} onBlur={(e) => editParameter(item, e.currentTarget.textContent || '')}>{item}</Td>
-                                            <TdButton>
-                                                <DivContent>
-                                                    <Button onClick={() => removeParameter(item)}>Remove</Button>
-                                                </DivContent>
-                                            </TdButton>
-                                        </tr>
-                                    ))}
-                                    </tbody>
-                                </Table>
-                            </>
+                            <ParamManager
+                                paramConfigs={templateParams}
+                                readonly={false}
+                                onChange={handleTemplateParametersChange}/>
                         )}
-                    </>
-                )}
-                <Typography variant="h4">Basic Properties</Typography>
+                    </FormGroup>
+                </>
+            )}
+            <FormGroup title="Basic Properties" isCollapsed={false}>
                 <TextField
                     placeholder="Endpoint Name"
                     label="Endpoint Name"
@@ -494,45 +496,22 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                     validationMessage="Endpoint name is required"
                     size={100}
                 />
-                <span>Trace Enabled</span>
-                <RadioBtnContainer>
-                    <RadioLabel>
-                        <input
-                            type="radio"
-                            checked={endpoint.traceEnabled === 'enable'}
-                            onChange={() => handleTraceEnabledChange('enable')}
-                        />
-                        Enable
-                    </RadioLabel>
-                    <RadioLabel>
-                        <input
-                            type="radio"
-                            checked={endpoint.traceEnabled === 'disable'}
-                            onChange={() => handleTraceEnabledChange('disable')}
-                        />
-                        Disable
-                    </RadioLabel>
-                </RadioBtnContainer>
-                <span>Statistics Enabled</span>
-                <RadioBtnContainer>
-                    <RadioLabel>
-                        <input
-                            type="radio"
-                            checked={endpoint.statisticsEnabled === 'enable'}
-                            onChange={() => handleStatsEnabledChange('enable')}
-                        />
-                        Enable
-                    </RadioLabel>
-                    <RadioLabel>
-                        <input
-                            type="radio"
-                            checked={endpoint.statisticsEnabled === 'disable'}
-                            onChange={() => handleStatsEnabledChange('disable')}
-                        />
-                        Disable
-                    </RadioLabel>
-                </RadioBtnContainer>
-                <Typography variant="h4">Miscellaneous Properties</Typography>
+                <RadioButtonGroup
+                    label="Trace Enabled"
+                    id="trace-enabled"
+                    options={[{content: "Enable", value: "enable"}, {content: "Disable", value: "disable"}]}
+                    onChange={handleTraceEnabledChange}
+                    value={endpoint.traceEnabled}
+                />
+                <RadioButtonGroup
+                    label="Statistics Enabled"
+                    id="statistics-enabled"
+                    options={[{content: "Enable", value: "enable"}, {content: "Disable", value: "disable"}]}
+                    onChange={handleStatsEnabledChange}
+                    value={endpoint.statisticsEnabled}
+                />
+            </FormGroup>
+            <FormGroup title="Miscellaneous Properties" isCollapsed={false}>
                 <TextField
                     placeholder="URI Template"
                     label="URI Template"
@@ -542,7 +521,8 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                     size={100}
                 />
                 <span>HTTP Method</span>
-                <Dropdown items={httpMethods} value={endpoint.httpMethod} onValueChange={handleHttpMethodChange} id="http-method"/>
+                <Dropdown items={httpMethods} value={endpoint.httpMethod} onValueChange={handleHttpMethodChange}
+                          id="http-method"/>
                 <TextField
                     placeholder="Description"
                     label="Description"
@@ -551,58 +531,24 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                     id="description"
                     size={100}
                 />
-                <span>Require Additional Properties</span>
-                <RadioBtnContainer>
-                    <RadioLabel>
-                        <input
-                            type="radio"
-                            checked={endpoint.requireProperties === true}
-                            onChange={() => handlePropertiesChange(true)}
-                        />
-                        Yes
-                    </RadioLabel>
-                    <RadioLabel>
-                        <input
-                            type="radio"
-                            checked={endpoint.requireProperties === false}
-                            onChange={() => handlePropertiesChange(false)}
-                        />
-                        No
-                    </RadioLabel>
-                </RadioBtnContainer>
+                <RadioButtonGroup
+                    label="Require Additional Properties"
+                    id="additional-properties"
+                    options={[{content: "Yes", value: true}, {content: "No", value: false}]}
+                    onChange={handlePropertiesChange}
+                    value={endpoint.requireProperties}
+                />
                 {endpoint.requireProperties && (
-                    <>
-                        <span>Properties</span>
-                        <Button onClick={addPropertyValue}>Add Property</Button>
-                        <Table>
-                            <thead>
-                            <tr>
-                                <Th>Name</Th>
-                                <Th>Value</Th>
-                                <Th>Scope</Th>
-                                <ThButton>Remove</ThButton>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {properties.map(pair => (
-                                <tr>
-                                    <Td contentEditable={true} onBlur={(e) => editPropertyKey(pair.name, e.currentTarget.textContent || '')}>{pair.name}</Td>
-                                    <Td contentEditable={true} onBlur={(e) => editPropertyValue(pair.name, e.currentTarget.textContent || '')}>{pair.value}</Td>
-                                    <Td>
-                                        <Dropdown items={scopes} value={pair.scope} onValueChange={(value) => editPropertyScope(pair.name, value)} id="scope"/>
-                                    </Td>
-                                    <TdButton>
-                                        <Button onClick={() => removePropertyValue(pair.name)}>Remove</Button>
-                                    </TdButton>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </Table>
-                    </>
+                    <ParamManager
+                        paramConfigs={additionalParams}
+                        readonly={false}
+                        onChange={handleAdditionalPropertiesChange}/>
                 )}
-                <Typography variant="h4">Auth Configuration</Typography>
+            </FormGroup>
+            <FormGroup title="Auth Configuration" isCollapsed={false}>
                 <span>Auth Type</span>
-                <Dropdown items={authTypes} value={endpoint.authType} onValueChange={handleAuthTypeChange} id="auth-type"/>
+                <Dropdown items={authTypes} value={endpoint.authType} onValueChange={handleAuthTypeChange}
+                          id="auth-type"/>
                 {endpoint.authType === 'Basic Auth' && (
                     <>
                         <TextField
@@ -626,9 +572,11 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 {endpoint.authType === 'OAuth' && (
                     <>
                         <span>OAuth Authorization Mode</span>
-                        <Dropdown items={authorizationModes} value={endpoint.authMode} onValueChange={handleAuthModeChange} id="auth-mode"/>
+                        <Dropdown items={authorizationModes} value={endpoint.authMode}
+                                  onValueChange={handleAuthModeChange} id="auth-mode"/>
                         <span>OAuth Grant Type</span>
-                        <Dropdown items={grantTypes} value={endpoint.grantType} onValueChange={handleAuthGrantTypeChange} id="grant-type"/>
+                        <Dropdown items={grantTypes} value={endpoint.grantType}
+                                  onValueChange={handleAuthGrantTypeChange} id="grant-type"/>
                         <TextField
                             placeholder="Client ID"
                             label="Client ID"
@@ -683,118 +631,53 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                                 />
                             </>
                         )}
-                        <span>Require Additional OAuth Properties</span>
-                        <RadioBtnContainer>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    checked={endpoint.requireOauthParameters === true}
-                                    onChange={() => handleOauthPropertiesChange(true)}
-                                />
-                                Yes
-                            </RadioLabel>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    checked={endpoint.requireOauthParameters === false}
-                                    onChange={() => handleOauthPropertiesChange(false)}
-                                />
-                                No
-                            </RadioLabel>
-                        </RadioBtnContainer>
+                        <RadioButtonGroup
+                            label="Require Additional OAuth Properties"
+                            id="additional-oauth-properties"
+                            options={[{content: "Yes", value: true}, {content: "No", value: false}]}
+                            onChange={handleOauthPropertiesChange}
+                            value={endpoint.requireOauthParameters}
+                        />
                         {endpoint.requireOauthParameters && (
-                            <>
-                                <span>OAuth Parameters</span>
-                                <Button onClick={addValue}>Add Parameter</Button>
-                                <Table>
-                                    <thead>
-                                    <tr>
-                                        <Th>Name</Th>
-                                        <Th>Value</Th>
-                                        <ThButton>Remove</ThButton>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {oauthProperties.map(pair => (
-                                        <tr>
-                                            <Td contentEditable={true} onBlur={(e) => editKey(pair.key, e.currentTarget.textContent || '')}>{pair.key}</Td>
-                                            <Td contentEditable={true} onBlur={(e) => editValue(pair.key, e.currentTarget.textContent || '')}>{pair.value}</Td>
-                                            <TdButton>
-                                                <Button onClick={() => removeValue(pair.key)}>Remove</Button>
-                                            </TdButton>
-                                        </tr>
-                                    ))}
-                                    </tbody>
-                                </Table>
-                            </>
+                            <ParamManager
+                                paramConfigs={additionalOauthParams}
+                                readonly={false}
+                                onChange={handleOauthParametersChange}/>
                         )}
                     </>
                 )}
-                <Typography variant="h4">Quality of Service Properties</Typography>
-                <span>Addressing</span>
-                <RadioBtnContainer>
-                    <RadioLabel>
-                        <input
-                            type="radio"
-                            checked={endpoint.addressingEnabled === 'enable'}
-                            onChange={() => handleAddressingEnabledChange('enable')}
-                        />
-                        Enable
-                    </RadioLabel>
-                    <RadioLabel>
-                        <input
-                            type="radio"
-                            checked={endpoint.addressingEnabled === 'disable'}
-                            onChange={() => handleAddressingEnabledChange('disable')}
-                        />
-                        Disable
-                    </RadioLabel>
-                </RadioBtnContainer>
+            </FormGroup>
+            <FormGroup title="Quality of Service Properties" isCollapsed={false}>
+                <RadioButtonGroup
+                    label="Addressing"
+                    id="addressing-enabled"
+                    options={[{content: "Enable", value: "enable"}, {content: "Disable", value: "disable"}]}
+                    onChange={handleAddressingEnabledChange}
+                    value={endpoint.addressingEnabled}
+                />
                 {endpoint.addressingEnabled === 'enable' && (
                     <>
                         <span>Addressing Version</span>
-                        <Dropdown items={addressingVersions} value={endpoint.addressingVersion} onValueChange={handleAddressingVersionChange} id="addressing-version"/>
-                        <span>Addressing Separate Listener</span>
-                        <RadioBtnContainer>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    checked={endpoint.addressListener === 'enable'}
-                                    onChange={() => handleAddressListenerChange('enable')}
-                                />
-                                Enable
-                            </RadioLabel>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    checked={endpoint.addressListener === 'disable'}
-                                    onChange={() => handleAddressListenerChange('disable')}
-                                />
-                                Disable
-                            </RadioLabel>
-                        </RadioBtnContainer>
+                        <Dropdown items={addressingVersions} value={endpoint.addressingVersion}
+                                  onValueChange={handleAddressingVersionChange} id="addressing-version"/>
+                        <RadioButtonGroup
+                            label="Addressing Separate Listener"
+                            id="address-separate"
+                            options={[{content: "Enable", value: "enable"}, {content: "Disable", value: "disable"}]}
+                            onChange={handleAddressListenerChange}
+                            value={endpoint.addressListener}
+                        />
                     </>
                 )}
-                <span>Security</span>
-                <RadioBtnContainer>
-                    <RadioLabel>
-                        <input
-                            type="radio"
-                            checked={endpoint.securityEnabled === 'enable'}
-                            onChange={() => handleSecurityEnabledChange('enable')}
-                        />
-                        Enable
-                    </RadioLabel>
-                    <RadioLabel>
-                        <input
-                            type="radio"
-                            checked={endpoint.securityEnabled === 'disable'}
-                            onChange={() => handleSecurityEnabledChange('disable')}
-                        />
-                        Disable
-                    </RadioLabel>
-                </RadioBtnContainer>
-                <Typography variant="h4">Endpoint Error Handling</Typography>
+                <RadioButtonGroup
+                    label="Security"
+                    id="security-enabled"
+                    options={[{content: "Enable", value: "enable"}, {content: "Disable", value: "disable"}]}
+                    onChange={handleSecurityEnabledChange}
+                    value={endpoint.securityEnabled}
+                />
+            </FormGroup>
+            <FormGroup title="Endpoint Error Handling" isCollapsed={false}>
                 <TextField
                     placeholder="304,305"
                     label="Suspend Error Codes"
@@ -896,10 +779,11 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                     size={100}
                 />
                 <span>Timeout Action</span>
-                <Dropdown items={timeoutOptions} value={endpoint.timeoutAction} onValueChange={handleTimeoutActionChange} id="timeout-action"/>
-            </SectionWrapper>
-            <ActionContainer>
-                {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
+                <Dropdown items={timeoutOptions} value={endpoint.timeoutAction}
+                          onValueChange={handleTimeoutActionChange} id="timeout-action"/>
+            </FormGroup>
+            {message && <span style={{color: message.isError ? "#f48771" : ""}}>{message.text}</span>}
+            <FormActions>
                 <Button
                     appearance="secondary"
                     onClick={handleCancel}
@@ -913,7 +797,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 >
                     Save Changes
                 </Button>
-            </ActionContainer>
-        </WizardContainer>
+            </FormActions>
+        </FormView>
     );
 }
