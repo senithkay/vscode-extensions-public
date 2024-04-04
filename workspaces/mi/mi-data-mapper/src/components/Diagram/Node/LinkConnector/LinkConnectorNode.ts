@@ -22,7 +22,7 @@ import { Diagnostic } from "vscode-languageserver-types";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { isPositionsEquals } from "../../../../utils/st-utils";
 import { DataMapperLinkModel } from "../../Link";
-import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
+import { IntermediatePortModel, InputOutputPortModel } from "../../Port";
 import {
     LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
     OFFSETS, PRIMITIVE_TYPE_TARGET_PORT_PREFIX
@@ -35,9 +35,9 @@ const NODE_ID = "link-connector-node";
 
 export class LinkConnectorNode extends DataMapperNodeModel {
 
-    public sourcePorts: RecordFieldPortModel[] = [];
-    public targetMappedPort: RecordFieldPortModel;
-    public targetPort: RecordFieldPortModel;
+    public sourcePorts: InputOutputPortModel[] = [];
+    public targetMappedPort: InputOutputPortModel;
+    public targetPort: InputOutputPortModel;
 
     public inPort: IntermediatePortModel;
     public outPort: IntermediatePortModel;

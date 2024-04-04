@@ -18,20 +18,21 @@ import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { DMTypeWithValue } from "../../../Mappings/DMTypeWithValue";
-import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
+import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../../Port";
 import { OutputSearchHighlight } from "../Search";
 
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
 import { useIONodesStyles } from "../../../../styles";
 import { useDMCollapsedFieldsStore } from '../../../../../store/store';
+import { getDefaultValue, isConnectedViaLink } from "../../../utils/common-utils";
 
 export interface ObjectOutputFieldWidgetProps {
     parentId: string;
     field: DMTypeWithValue;
     engine: DiagramEngine;
-    getPort: (portId: string) => RecordFieldPortModel;
-    parentMappingConstruct: ts.Node;
+    getPort: (portId: string) => InputOutputPortModel;
+    parentObjectLiteralExpr: ts.Node;
     context: IDataMapperContext;
     fieldIndex?: number;
     treeDepth?: number;
@@ -45,21 +46,17 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         field,
         getPort,
         engine,
-        parentMappingConstruct,
+        parentObjectLiteralExpr: parentMappingConstruct,
         context,
         fieldIndex,
         treeDepth = 0,
         deleteField,
         hasHoveredParent
     } = props;
-    // const {
-    //     enableStatementEditor,
-    //     handleCollapse
-    // } = context;
     const classes = useIONodesStyles();
+
     const [isLoading, setIsLoading] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
-    const [isAddingTypeCast, setIsAddingTypeCast] = useState(false);
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
@@ -77,7 +74,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const portIn = getPort(fieldId + ".IN");
 
     const propertyAssignment = field.hasValue() && ts.isPropertyAssignment(field.value) && field.value;
-    const mappingConstruct = ts.isObjectLiteralExpression(parentMappingConstruct) && parentMappingConstruct;
+    const objectLiteralExpr = ts.isObjectLiteralExpression(parentMappingConstruct) && parentMappingConstruct;
     const hasValue = propertyAssignment
         && propertyAssignment.initializer
         && !!propertyAssignment.initializer.getText();
@@ -87,8 +84,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
 
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
-            // TODO: Check if the field is connected via a link by validating the values
-            return ts.isBinaryExpression(propertyAssignment.initializer);
+            return isConnectedViaLink(propertyAssignment.initializer);
         }
         return false;
     }, [field]);
@@ -98,8 +94,8 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const handleAddValue = async () => {
         setIsLoading(true);
         try {
-            // const defaultValue = getDefaultValue(field.type.typeName);
-            // await createSourceForUserInput(field, mappingConstruct, defaultValue, context.applyModifications);
+            const defaultValue = getDefaultValue(field.type.kind);
+            // TODO: Implement updating source with default value
         } finally {
             setIsLoading(false);
         }
@@ -108,11 +104,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const handleEditValue = () => {
         if (field.value && ts.isPropertyAssignment(field.value)) {
             const innerExpr = field.value.initializer;
-            // enableStatementEditor({
-            //     value: innerExpr.source,
-            //     valuePosition: innerExpr.position as NodePosition,
-            //     label: field.value.fieldName.value as string
-            // });
+            // TODO: Implement editing source value
         }
     };
 
@@ -147,8 +139,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     };
 
     const hasValueWithoutLink = value && !connectedViaLink;
-    // const hasDefaultValue = value && getDefaultValue(field.type.typeName) === value.trim();
-    const hasDefaultValue = false;
+    const hasDefaultValue = value && getDefaultValue(field.type.kind) === value.trim();
     let isDisabled = portIn?.descendantHasValue;
 
     if (!isDisabled) {
@@ -159,7 +150,8 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         if (hasValue
             && !connectedViaLink
             && !hasDefaultValue
-            && (isRecord || hasValueWithoutLink)) {
+            && (isRecord || hasValueWithoutLink)
+        ) {
             portIn?.setDescendantHasValue();
             isDisabled = true;
         }
@@ -256,7 +248,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                     </span>
                     {(!isDisabled || hasValue) && (
                         <>
-                            {(isLoading || isAddingTypeCast) ? (
+                            {(isLoading) ? (
                                 <ProgressRing sx={{ height: '16px', width: '16px' }} />
                             ) : (
                                 <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
@@ -274,7 +266,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                             field={subField}
                             getPort={getPort}
                             parentId={fieldId}
-                            parentMappingConstruct={mappingConstruct}
+                            parentObjectLiteralExpr={objectLiteralExpr}
                             context={context}
                             treeDepth={treeDepth + 1}
                             deleteField={deleteField}

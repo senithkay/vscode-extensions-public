@@ -13,7 +13,7 @@ import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { DMType } from "@wso2-enterprise/mi-core";
 
-import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Port';
+import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Port';
 import { InputSearchHighlight } from '../commons/Search';
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { InputNodeTreeItemWidget } from "./InputNodeTreeItemWidget";
@@ -24,7 +24,7 @@ export interface InputNodeWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
     dmType: DMType;
     engine: DiagramEngine;
-    getPort: (portId: string) => RecordFieldPortModel;
+    getPort: (portId: string) => InputOutputPortModel;
     valueLabel?: string;
     nodeHeaderSuffix?: string;
 }

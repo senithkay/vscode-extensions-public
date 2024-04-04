@@ -13,7 +13,7 @@ import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
 import { Node } from 'typescript';
 
-import { RecordFieldPortModel } from '../../Port';
+import { InputOutputPortModel } from '../../Port';
 import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from '../../utils/constants';
 import { ObjectOutputWidget } from "../commons/DataManipulationWidget/ObjectOutputWidget";
 import { OutputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/Search";
@@ -38,7 +38,7 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<ObjectOu
 						dmTypeWithValue={event.model.dmTypeWithValue}
 						typeName={event.model.typeName}
 						value={event.model.value}
-						getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+						getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
 						context={event.model.context}
 						mappings={event.model.mappings}
 						valueLabel={valueLabel}

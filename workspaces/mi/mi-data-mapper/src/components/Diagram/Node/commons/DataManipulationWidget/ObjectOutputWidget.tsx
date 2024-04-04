@@ -15,13 +15,15 @@ import { Node, isObjectLiteralExpression } from "typescript";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { DMTypeWithValue } from "../../../Mappings/DMTypeWithValue";
-import { FieldAccessToSpecificFied } from "../../../Mappings/FieldAccessToSpecificFied";
-import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
+import { MappingMetadata } from "../../../Mappings/FieldAccessToSpecificFied";
+import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../../Port';
 import { OutputSearchHighlight } from '../Search';
 import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 import { ObjectOutputFieldWidget } from "./ObjectOutputFieldWidget";
 import { useIONodesStyles } from '../../../../styles';
 import { useDMCollapsedFieldsStore } from '../../../../../store/store';
+import { getPosition } from '../../..//utils/st-utils';
+import { isEmptyValue } from '../../../utils/common-utils';
 
 export interface ObjectOutputWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -29,14 +31,13 @@ export interface ObjectOutputWidgetProps {
 	typeName: string;
 	value: Node;
 	engine: DiagramEngine;
-	getPort: (portId: string) => RecordFieldPortModel;
+	getPort: (portId: string) => InputOutputPortModel;
 	context: IDataMapperContext;
 	valueLabel?: string;
-	mappings?: FieldAccessToSpecificFied[];
+	mappings?: MappingMetadata[];
 	deleteField?: (node: Node) => Promise<void>;
 	originalTypeName?: string;
 }
-
 
 export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const {
@@ -59,14 +60,12 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 
 	const fields = dmTypeWithValue && dmTypeWithValue.childrenTypes;
 	const hasValue = fields && fields.length > 0;
-	const isBodyMappingConstructor = value && isObjectLiteralExpression(value);
-	// const hasSyntaxDiagnostics = value && value.syntaxDiagnostics.length > 0;
-	const hasSyntaxDiagnostics = false;
+	const isBodyObjectLiteralExpr = value && isObjectLiteralExpression(value);
+
+	const hasSyntaxDiagnostics = false; // TODO: Find diagnostics for the value
 	const hasEmptyFields = mappings && (mappings.length === 0 || !mappings.some(mapping => {
 		if (mapping.value) {
-			// check if the field has a value
-			// return !isEmptyValue(mapping.value.position);
-			return false;
+			return !isEmptyValue(getPosition(mapping.value));
 		}
 		return true;
 	}));
@@ -125,9 +124,9 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 					onMouseLeave={onMouseLeave}
 				>
 					<span className={classes.inPort}>
-						{portIn && (isBodyMappingConstructor || !hasSyntaxDiagnostics) && (!hasValue
+						{portIn && (isBodyObjectLiteralExpr || !hasSyntaxDiagnostics) && (!hasValue
 								|| !expanded
-								|| !isBodyMappingConstructor
+								|| !isBodyObjectLiteralExpr
 								|| hasEmptyFields
 							) &&
 							<DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
@@ -156,7 +155,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 									field={item}
 									getPort={getPort}
 									parentId={id}
-									parentMappingConstruct={value}
+									parentObjectLiteralExpr={value}
 									context={context}
 									treeDepth={0}
 									deleteField={deleteField}

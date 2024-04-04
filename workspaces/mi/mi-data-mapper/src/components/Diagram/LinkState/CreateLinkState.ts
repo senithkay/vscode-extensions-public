@@ -1,3 +1,11 @@
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 import { KeyboardEvent, MouseEvent } from 'react';
 
 import { Action, ActionEvent, InputType, State } from '@projectstorm/react-canvas-core';
@@ -5,7 +13,7 @@ import { DiagramEngine, LinkModel, PortModel } from '@projectstorm/react-diagram
 
 import { ExpressionLabelModel } from "../Label";
 import { ObjectOutputNode, InputNode } from '../Node';
-import { RecordFieldPortModel } from '../Port/model/RecordFieldPortModel';
+import { InputOutputPortModel } from '../Port/model/RecordFieldPortModel';
 
 /**
  * This state is controlling the creation of a link.
@@ -28,7 +36,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]')
 							if (recordFieldElement) {
 								const fieldId = (recordFieldElement.id.split("-"))[1] + ".IN";
-								const portModel = element.getPort(fieldId) as RecordFieldPortModel
+								const portModel = element.getPort(fieldId) as InputOutputPortModel
 								if (portModel) {
 									element = portModel;
 								}
@@ -39,7 +47,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]')
 							if (recordFieldElement) {
 								const fieldId = (recordFieldElement.id.split("-"))[1] + ".OUT";
-								const portModel = element.getPort(fieldId) as RecordFieldPortModel
+								const portModel = element.getPort(fieldId) as InputOutputPortModel
 								if (portModel) {
 									element = portModel;
 								}
@@ -48,7 +56,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 					}
 
 					if (element instanceof PortModel && !this.sourcePort) {
-						if (element instanceof RecordFieldPortModel) {
+						if (element instanceof InputOutputPortModel) {
 							if (element.portType === "OUT") {
 								this.sourcePort = element;
 								element.fireEvent({}, "mappingStartedFrom");
@@ -71,10 +79,10 @@ export class CreateLinkState extends State<DiagramEngine> {
 							}
 						}
 					} else if (element instanceof PortModel && this.sourcePort && element !== this.sourcePort) {
-						if (element instanceof RecordFieldPortModel) {
+						if (element instanceof InputOutputPortModel) {
 							if (element.portType === "IN") {
 								let isDisabled = false;
-								if (element instanceof RecordFieldPortModel) {
+								if (element instanceof InputOutputPortModel) {
 									isDisabled = element.isDisabled();
 								}
 								if (!isDisabled) {
@@ -83,7 +91,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 
 										this.link?.setTargetPort(element);
 										this.engine.getModel().addAll(this.link)
-										if (this.sourcePort instanceof RecordFieldPortModel) {
+										if (this.sourcePort instanceof InputOutputPortModel) {
 											this.sourcePort.linkedPorts.forEach((linkedPort) => {
 												linkedPort.fireEvent({}, "enableNewLinking")
 											})
@@ -95,7 +103,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 							} else {
 								// Selected another input port, change selected port
 								this.sourcePort.fireEvent({}, "link-unselected");
-								if (this.sourcePort instanceof RecordFieldPortModel) {
+								if (this.sourcePort instanceof InputOutputPortModel) {
 									this.sourcePort.linkedPorts.forEach((linkedPort) => {
 										linkedPort.fireEvent({}, "enableNewLinking")
 									})
@@ -104,7 +112,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 								this.sourcePort = element;
 								this.link?.setSourcePort(element);
 								element.fireEvent({}, "mappingStartedFrom");
-								if (element instanceof RecordFieldPortModel) {
+								if (element instanceof InputOutputPortModel) {
 									element.linkedPorts.forEach((linkedPort) => {
 										linkedPort.fireEvent({}, "disableNewLinking")
 									})
@@ -115,7 +123,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 						this.link?.point(0, 0, -1);
 					} else if (element === this.sourcePort) {
 						element.fireEvent({}, "mappingStartedFromSelectedAgain");
-						if (element instanceof RecordFieldPortModel) {
+						if (element instanceof InputOutputPortModel) {
 							element.linkedPorts.forEach((linkedPort) => {
 								linkedPort.fireEvent({}, "enableNewLinking")
 							})

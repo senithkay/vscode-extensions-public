@@ -6,12 +6,12 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 
 import { DataMapperLinkModel } from "../../Link"
 import { IntermediatePortModel } from "../IntermediatePort";
-import { RecordFieldPortModel } from "../model/RecordFieldPortModel";
+import { InputOutputPortModel } from "../model/RecordFieldPortModel";
 import { Icon } from "@wso2-enterprise/ui-toolkit";
 
 export interface DataMapperPortWidgetProps {
 	engine: DiagramEngine;
-	port: IntermediatePortModel | RecordFieldPortModel;
+	port: IntermediatePortModel | InputOutputPortModel;
 	disable?: boolean;
 	dataTestId?: string;
 	handlePortState?: (portState: PortState) => void ;

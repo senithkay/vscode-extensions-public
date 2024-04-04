@@ -7,7 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
-import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { DMType } from "@wso2-enterprise/mi-core";
 import { isPropertyAssignment } from "typescript";
 
@@ -15,13 +14,13 @@ import { DataMapperLinkModel } from "../../Link";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { IntermediatePortModel } from "../IntermediatePort";
 
-export interface RecordFieldNodeModelGenerics {
-	PORT: RecordFieldPortModel;
+export interface InputOutputPortModelGenerics {
+	PORT: InputOutputPortModel;
 }
 
 export const FORM_FIELD_PORT = "form-field-port";
 
-export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFieldNodeModelGenerics> {
+export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOutputPortModelGenerics> {
 
 	public linkedPorts: PortModel[];
 
@@ -33,12 +32,12 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		public index?: number,
 		public editableRecordField?: DMTypeWithValue,
 		public fieldFQN?: string,
-		public parentModel?: RecordFieldPortModel,
+		public parentModel?: InputOutputPortModel,
 		public collapsed?: boolean,
 		public hidden?: boolean,
-		public isWithinSelectClause?: boolean,
 		public descendantHasValue?: boolean,
-		public ancestorHasValue?: boolean) {
+		public ancestorHasValue?: boolean
+	) {
 		super({
 			type: FORM_FIELD_PORT,
 			name: `${portName}.${portType}`
@@ -92,7 +91,7 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		return this.ancestorHasValue || this.descendantHasValue
 	}
 
-	canLinkToPort(port: RecordFieldPortModel): boolean {
+	canLinkToPort(port: InputOutputPortModel): boolean {
 		let isLinkExists = false;
 		if (port.portType === "IN") {
 			isLinkExists = this.linkedPorts.some((linkedPort) => {
@@ -104,7 +103,7 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 	}
 
 	isContainDefaultValue(lm: DataMapperLinkModel): boolean {
-		const editableRecordField = (lm.getTargetPort() as RecordFieldPortModel).editableRecordField;
+		const editableRecordField = (lm.getTargetPort() as InputOutputPortModel).editableRecordField;
 
 		if (editableRecordField?.value) {
 			let expr = editableRecordField.value;

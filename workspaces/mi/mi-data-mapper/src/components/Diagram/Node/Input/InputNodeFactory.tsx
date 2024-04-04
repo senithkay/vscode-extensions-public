@@ -12,7 +12,7 @@ import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
 import { TypeKind } from '@wso2-enterprise/mi-core';
 
-import { RecordFieldPortModel } from '../../Port';
+import { InputOutputPortModel } from '../../Port';
 import { InputNodeWidget } from "./InputNodeWidget";
 import { InputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/Search";
 
@@ -34,7 +34,7 @@ export class InputNodeFactory extends AbstractReactFactory<InputNode, DiagramEng
                     engine={this.engine}
                     id={event.model.value && event.model.value.name.getText()}
                     dmType={event.model.dmType}
-                    getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+                    getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
                 />
             );
         }

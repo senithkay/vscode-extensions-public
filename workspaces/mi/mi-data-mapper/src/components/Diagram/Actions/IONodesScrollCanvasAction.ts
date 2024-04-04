@@ -8,7 +8,7 @@
  */
 
 import { Action, ActionEvent, InputType } from "@projectstorm/react-canvas-core";
-import { RecordFieldPortModel } from "../Port";
+import { InputOutputPortModel } from "../Port";
 import { DataMapperLinkModel } from "../Link";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
@@ -111,7 +111,7 @@ export class IONodesScrollCanvasAction extends Action {
                     // Reposition the intermediate nodes
                     const ports = ouputNode.getPorts();
                     for (const port of Object.values(ports)) {
-                        if (port instanceof RecordFieldPortModel) {
+                        if (port instanceof InputOutputPortModel) {
                             // Output port can only have one link, hence the first link is considered
                             const link = Object.values(port.getLinks())[0];
                             if (link instanceof DataMapperLinkModel) {

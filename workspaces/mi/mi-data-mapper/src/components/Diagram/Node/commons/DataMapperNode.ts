@@ -8,38 +8,18 @@
  */
 // tslint:disable: no-empty-interface
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
-import {
-	AnydataTypeDesc,
-	AnyTypeDesc,
-	ArrayTypeDesc,
-	BooleanTypeDesc,
-	ByteTypeDesc,
-	DecimalTypeDesc,
-	DistinctTypeDesc,
-	ErrorTypeDesc,
-	FieldAccess,
-	FloatTypeDesc,
-	FunctionTypeDesc,
-	FutureTypeDesc,
-	HandleTypeDesc,
-	OptionalFieldAccess,
-	SimpleNameReference,
-	STKindChecker,
-	STNode,
-} from '@wso2-enterprise/syntax-tree';
+import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
+import ts, { Node } from 'typescript';
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { ArrayElement, DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
-import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificFied';
-import { RecordFieldPortModel } from "../../Port";
-import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
+import { MappingMetadata } from '../../Mappings/FieldAccessToSpecificFied';
+import { InputOutputPortModel } from "../../Port";
+import { getPropertyAccessNodes } from '../../utils/common-utils';
 
 export interface DataMapperNodeModelGenerics {
-	PORT: RecordFieldPortModel;
+	PORT: InputOutputPortModel;
 }
-
-export type TypeDescriptor = AnyTypeDesc | AnydataTypeDesc | ArrayTypeDesc | BooleanTypeDesc | ByteTypeDesc | DecimalTypeDesc
-	| DistinctTypeDesc | ErrorTypeDesc | FloatTypeDesc | FunctionTypeDesc | FutureTypeDesc | HandleTypeDesc;
 
 export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & DataMapperNodeModelGenerics> {
 
@@ -72,7 +52,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		portType: "IN" | "OUT",
 		parentId: string,
 		portPrefix?: string,
-		parent?: RecordFieldPortModel,
+		parent?: InputOutputPortModel,
 		collapsedFields?: string[],
 		hidden?: boolean,
 		isOptional?: boolean
@@ -86,7 +66,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 			: fieldName && fieldName;
 		const portName = portPrefix ? `${portPrefix}.${fieldFQN}` : fieldFQN;
 		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(portName);
-		const fieldPort = new RecordFieldPortModel(
+		const fieldPort = new InputOutputPortModel(
 			dmType, portName, portType, parentId, undefined,
 			undefined, fieldFQN, parent, isCollapsed, hidden
 		);
@@ -115,11 +95,11 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		parentId: string,
 		elementIndex?: number,
 		portPrefix?: string,
-		parent?: RecordFieldPortModel,
+		parent?: InputOutputPortModel,
 		collapsedFields?: string[],
-		hidden?: boolean,
-		isWithinSelectClause?: boolean
+		hidden?: boolean
 	) {
+
 		const fieldName = field.type?.fieldName;
 		if (elementIndex !== undefined) {
 			parentId = parentId ? `${parentId}.${elementIndex}` : elementIndex.toString();
@@ -127,9 +107,9 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		const fieldFQN = parentId ? `${parentId}${fieldName && `.${fieldName}`}` : fieldName && fieldName;
 		const portName = portPrefix ? `${portPrefix}.${fieldFQN}` : fieldFQN;
 		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(portName);
-		const fieldPort = new RecordFieldPortModel(
+		const fieldPort = new InputOutputPortModel(
 			field.type, portName, type, parentId, elementIndex, field,
-			fieldFQN, parent, isCollapsed, hidden, isWithinSelectClause);
+			fieldFQN, parent, isCollapsed, hidden);
 		this.addPort(fieldPort);
 
 		if (field.type.kind === TypeKind.Interface) {
@@ -157,18 +137,17 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		portType: "IN" | "OUT",
 		portPrefix: string,
 		collapsedFields?: string[],
-		isWithinSelectClause?: boolean,
 		editableRecordField?: DMTypeWithValue
-	): RecordFieldPortModel {
+	): InputOutputPortModel {
 
 		let portName = name;
 		if (portPrefix) {
 			portName = name ? `${portPrefix}.${name}` : portPrefix;
 		}
 		const isCollapsed = collapsedFields && collapsedFields.includes(portName);
-		const headerPort = new RecordFieldPortModel(
-			dmType, portName, portType, undefined, undefined, editableRecordField,
-			name, undefined, isCollapsed, false, isWithinSelectClause
+		const headerPort = new InputOutputPortModel(
+			dmType, portName, portType, undefined, undefined,
+			editableRecordField, name, undefined, isCollapsed, false,
 		);
 
 		this.addPort(headerPort)
@@ -176,36 +155,27 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		return headerPort;
 	}
 
-	protected genMappings(val: STNode, parentFields?: STNode[]) {
-		let foundMappings: FieldAccessToSpecificFied[] = [];
+	protected genMappings(val: Node, parentFields?: Node[]) {
+		let foundMappings: MappingMetadata[] = [];
 		const currentFields = [...(parentFields ? parentFields : [])];
 		if (val) {
-			if (STKindChecker.isMappingConstructor(val)) {
-				val.fields.forEach((field) => {
-					if (!STKindChecker.isCommaToken(field)) {
-						foundMappings = [...foundMappings, ...this.genMappings(field, [...currentFields, val])];
-					}
+			if (ts.isObjectLiteralExpression(val)) {
+				val.properties.forEach((field) => {
+					foundMappings = [...foundMappings, ...this.genMappings(field, [...currentFields, val])];
 				});
-			} else if (STKindChecker.isSpecificField(val) && val.valueExpr) {
-				// const expr = getInnermostExpressionBody(val.valueExpr);
-				const expr:STNode = null;
-				const isMappingConstructor = STKindChecker.isMappingConstructor(expr);
-				const isListConstructor = STKindChecker.isListConstructor(expr);
-				if (isMappingConstructor || isListConstructor) {
-					foundMappings = [...foundMappings, ...this.genMappings(expr, [...currentFields, val])];
+			} else if (ts.isPropertyAssignment(val) && val.initializer) {
+				const { initializer } = val;
+				const isObjectLiteralExpr = ts.isObjectLiteralExpression(initializer);
+				const isArrayLiteralExpr = ts.isArrayLiteralExpression(initializer);
+				if (isObjectLiteralExpr || isArrayLiteralExpr) {
+					foundMappings = [...foundMappings, ...this.genMappings(initializer, [...currentFields, val])];
 				} else {
 					foundMappings.push(this.getOtherMappings(val, currentFields));
 				}
-			} else if (STKindChecker.isListConstructor(val)) {
-				val.expressions.forEach((expr) => {
-					if (!STKindChecker.isCommaToken(expr)) {
-						foundMappings = [...foundMappings, ...this.genMappings(expr, [...currentFields, val])];
-					}
+			} else if (ts.isArrayLiteralExpression(val)) {
+				val.elements.forEach((expr) => {
+					foundMappings = [...foundMappings, ...this.genMappings(expr, [...currentFields, val])];
 				})
-			} else if (STKindChecker.isLetExpression(val) || STKindChecker.isTypeCastExpression(val)) {
-				// const expr = getInnermostExpressionBody(val);
-				const expr: STNode = null;
-				foundMappings = [...foundMappings, ...this.genMappings(expr, [...currentFields])];
 			} else {
 				foundMappings.push(this.getOtherMappings(val, currentFields));
 			}
@@ -213,18 +183,14 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		return foundMappings;
 	}
 
-	protected getOtherMappings(node: STNode, currentFields: STNode[]) {
-		const valNode = STKindChecker.isSpecificField(node) ? node.valueExpr : node;
+	protected getOtherMappings(node: Node, currentFields: Node[]) {
+		const valNode = ts.isPropertyAssignment(node) ? node.initializer : node;
 		if (valNode) {
-			// const inputNodes = getInputNodes(valNode);
-			const inputNodes: (FieldAccess | OptionalFieldAccess | SimpleNameReference)[] = [];
-			const valueExpr = STKindChecker.isCheckExpression(valNode) ? valNode.expression : valNode;
-			if (inputNodes.length === 1
-				&& !STKindChecker.isQueryExpression(valNode)
-			) {
-				return new FieldAccessToSpecificFied([...currentFields, node], inputNodes[0], valNode);
+			const inputNodes = getPropertyAccessNodes(valNode);
+			if (inputNodes.length === 1) {
+				return new MappingMetadata([...currentFields, node], inputNodes[0], valNode);
 			}
-			return new FieldAccessToSpecificFied([...currentFields, node], undefined, valNode);
+			return new MappingMetadata([...currentFields, node], undefined, valNode);
 		}
 	}
 }

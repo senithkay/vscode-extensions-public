@@ -8,16 +8,20 @@
  */
 import { Point } from "@projectstorm/geometry";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
-import { ObjectLiteralExpression, Node } from "typescript";
+import ts, { ObjectLiteralExpression, Node } from "typescript";
 
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
-import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
+import { MappingMetadata } from "../../Mappings/FieldAccessToSpecificFied";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
-import { getSearchFilteredOutput, hasNoOutputMatchFound } from "../../utils/search-utils";
+import { getFilteredMappings, getSearchFilteredOutput, hasNoOutputMatchFound } from "../../utils/search-utils";
 import { enrichAndProcessType } from "../../utils/type-utils";
 import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
+import { findInputNode, getInputPort, getOutputPort } from "../../utils/common-utils";
+import { InputOutputPortModel } from "../../Port";
+import { DataMapperLinkModel } from "../../Link";
+import { ExpressionLabelModel } from "../../Label";
 
 export const OBJECT_OUTPUT_NODE_TYPE = "data-mapper-node-object-output";
 const NODE_ID = "object-output-node";
@@ -27,7 +31,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
     public dmTypeWithValue: DMTypeWithValue;
     public typeName: string;
     public rootName: string;
-    public mappings: FieldAccessToSpecificFied[];
+    public mappings: MappingMetadata[];
     public hasNoMatchingFields: boolean;
     public x: number;
     public y: number;
@@ -60,8 +64,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             this.hasNoMatchingFields = hasNoOutputMatchFound(this._originalType, valueEnrichedType);
     
             const parentPort = this.addPortsForHeader(
-                this.dmType, this.rootName, "IN", OBJECT_OUTPUT_TARGET_PORT_PREFIX,
-                collapsedFields, undefined, valueEnrichedType
+                this.dmType, this.rootName, "IN", OBJECT_OUTPUT_TARGET_PORT_PREFIX, collapsedFields, valueEnrichedType
             );
     
             if (valueEnrichedType.type.kind === TypeKind.Interface) {
@@ -81,99 +84,77 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
     initLinks(): void {
         const searchValue = useDMSearchStore.getState().outputSearch;
-        // const mappings = this.genMappings(this.value.properties);
-        // this.mappings = getFilteredMappings(mappings, searchValue);
-        // this.createLinks(this.mappings);
+        const mappings = this.genMappings(this.value);
+        this.mappings = getFilteredMappings(mappings, searchValue);
+        this.createLinks(this.mappings);
     }
 
-    private createLinks(mappings: FieldAccessToSpecificFied[]) {
+    private createLinks(mappings: MappingMetadata[]) {
         mappings.forEach((mapping) => {
             const { fields, value, otherVal } = mapping;
             const field = fields[fields.length - 1];
-            if (!value || !value.source) {
+    
+            if (!value || !value.getText()) {
                 // Unsupported mapping
                 return;
             }
-            // const inputNode = getInputNodeExpr(value, this);
-            // let inPort: RecordFieldPortModel;
-            // if (inputNode) {
-            //     inPort = getInputPortsForExpr(inputNode, value);
-            // }
-            // const [outPort, mappedOutPort] = getOutputPortForField(fields,
-            //     this.recordField,
-            //     MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
-            //     (portId: string) =>  this.getPort(portId) as RecordFieldPortModel);
-            // if (inPort && mappedOutPort) {
-            //     const diagnostics = filterDiagnostics(this.context.diagnostics,
-            //         getDiagnosticsPosition(mappedOutPort.editableRecordField, mapping));
-            //     const lm = new DataMapperLinkModel(value, diagnostics, true);
-            //     const mappedField = mappedOutPort.editableRecordField && mappedOutPort.editableRecordField.type;
-            //     const keepDefault = ((mappedField && !mappedField?.name
-            //         && mappedField.typeName !== TypeKind.Array
-            //         && mappedField.typeName !== TypeKind.Record)
-            //         || !STKindChecker.isMappingConstructor(this.value.expression)
-            //     );
-            //     lm.addLabel(new ExpressionLabelModel({
-            //         value: otherVal?.source || value.source,
-            //         valueNode: otherVal || value,
-            //         context: this.context,
-            //         link: lm,
-            //         field: STKindChecker.isSpecificField(field)
-            //             ? field.valueExpr
-            //             : field,
-            //         editorLabel: STKindChecker.isSpecificField(field)
-            //             ? field.fieldName.value as string
-            //             : `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
-            //         deleteLink: () => this.deleteField(field, keepDefault),
-            //     }));
-            //     lm.setTargetPort(mappedOutPort);
-            //     lm.setSourcePort(inPort);
-            //     inPort.addLinkedPort(mappedOutPort);
-            //     lm.registerListener({
-            //         selectionChanged(event) {
-            //             if (event.isSelected) {
-            //                 inPort.fireEvent({}, "link-selected");
-            //                 mappedOutPort.fireEvent({}, "link-selected");
-            //             } else {
-            //                 inPort.fireEvent({}, "link-unselected");
-            //                 mappedOutPort.fireEvent({}, "link-unselected");
-            //             }
-            //         },
-            //     })
-            //     this.getModel().addAll(lm);
-            // }
+
+            const inputNode = findInputNode(value, this);
+            let inPort: InputOutputPortModel;
+
+            if (inputNode) {
+                inPort = getInputPort(inputNode, value);
+            }
+            const [outPort, mappedOutPort] = getOutputPort(
+                fields, this.dmTypeWithValue, OBJECT_OUTPUT_TARGET_PORT_PREFIX,
+                (portId: string) =>  this.getPort(portId) as InputOutputPortModel
+            );
+
+            if (inPort && mappedOutPort) {
+                const lm = new DataMapperLinkModel(value, [], true);
+                const mappedField = mappedOutPort.editableRecordField && mappedOutPort.editableRecordField.type;
+                const keepDefault = ((mappedField && !mappedField?.fieldName
+                    && mappedField.kind !== TypeKind.Array
+                    && mappedField.kind !== TypeKind.Interface)
+                );
+
+                lm.setTargetPort(mappedOutPort);
+                lm.setSourcePort(inPort);
+                inPort.addLinkedPort(mappedOutPort);
+
+                lm.addLabel(new ExpressionLabelModel({
+                    value: otherVal?.getText(),
+                    valueNode: otherVal || value,
+                    context: this.context,
+                    link: lm,
+                    field: ts.isPropertyAssignment(field)
+                        ? field.initializer
+                        : field,
+                    editorLabel: ts.isPropertyAssignment(field)
+                        ? field.name.getText()
+                        : `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
+                    deleteLink: () => this.deleteField(field, keepDefault),
+                }));
+
+                lm.registerListener({
+                    selectionChanged(event) {
+                        if (event.isSelected) {
+                            inPort.fireEvent({}, "link-selected");
+                            mappedOutPort.fireEvent({}, "link-selected");
+                        } else {
+                            inPort.fireEvent({}, "link-unselected");
+                            mappedOutPort.fireEvent({}, "link-unselected");
+                        }
+                    },
+                });
+
+                this.getModel().addAll(lm);
+            }
         });
     }
 
     async deleteField(field: Node, keepDefaultVal?: boolean) {
-        // let modifications: STModification[];
-        // const typeOfValue = getTypeOfValue(this.recordField, field.position);
-        // if (keepDefaultVal && !STKindChecker.isSpecificField(field)) {
-        //     modifications = [{
-        //         type: "INSERT",
-        //         config: {
-        //             "STATEMENT": getDefaultValue(typeOfValue?.typeName)
-        //         },
-        //         ...field.position
-        //     }];
-        // } else if (STKindChecker.isSelectClause(this.value) && STKindChecker.isSpecificField(field)) {
-        //     // if Within query expression expanded view
-        //     modifications = [{
-        //         type: "DELETE",
-        //         ...field.valueExpr?.position
-        //     }];
-        // } else {
-        //     const linkDeleteVisitor = new LinkDeletingVisitor(field.position as NodePosition, this.value.expression);
-        //     traversNode(this.value.expression, linkDeleteVisitor);
-        //     const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
-        //     modifications = [{
-        //         type: "DELETE",
-        //         ...nodePositionsToDelete
-        //     }];
-        // }
-
-        // this.context.applyModifications(modifications);
-        // await this.context.applyModifications(modifications);
+        // TODO: Implement delete field logic
     }
 
     public updatePosition() {

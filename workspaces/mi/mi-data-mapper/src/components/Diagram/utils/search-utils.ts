@@ -9,6 +9,8 @@
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import { useDMSearchStore } from "../../../store/store";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
+import { MappingMetadata } from "../Mappings/FieldAccessToSpecificFied";
+import ts from "typescript";
 
 export const getSearchFilteredInput = (dmType: DMType, varName?: string) => {
 	const searchValue = useDMSearchStore.getState().inputSearch;
@@ -132,6 +134,18 @@ function hasNoMatchFoundInArray(elements: ArrayElement[], searchValue: string): 
 		} else if (element.member.value) {
 			const value = element.member.value?.getText() || element.member.value.getText();
 			return !value.toLowerCase().includes(searchValue.toLowerCase());
+		}
+	});
+}
+
+export function getFilteredMappings(mappings: MappingMetadata[], searchValue: string) {
+	return mappings.filter(mapping => {
+		if (mapping) {
+			const lastField = mapping.fields[mapping.fields.length - 1];
+			const fieldName = ts.isPropertyAssignment(lastField)
+				? lastField.name.getText()
+				: lastField.getText();
+			return searchValue === "" || fieldName.toLowerCase().includes(searchValue.toLowerCase());
 		}
 	});
 }

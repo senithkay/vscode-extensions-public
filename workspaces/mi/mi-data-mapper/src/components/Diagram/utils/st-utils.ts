@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import * as ts from 'typescript';
+import ts, { Node } from 'typescript';
 import { Visitor } from '../../../ts/base-visitor';
 
 enum SyntaxKindWithRepeatedValue {
@@ -21,6 +21,11 @@ enum SyntaxKindWithRepeatedValue {
     JSDocTypeExpression = 316,
     JSDocTag = 334,
     JSDocSatisfiesTag = 357,
+}
+
+export interface NodePosition {
+    start: number;
+    end: number;
 }
 
 export function traversNode(node: ts.Node, visitor: Visitor, parent?: ts.Node) {
@@ -47,4 +52,16 @@ export function traversNode(node: ts.Node, visitor: Visitor, parent?: ts.Node) {
     if (endVisitFn) {
         endVisitFn.bind(visitor)(node, parent);
     }
+}
+
+export function getPosition(node: Node): NodePosition {
+    return {
+        start: node.getStart(),
+        end: node.getEnd()
+    };
+}
+
+export function isPositionsEquals(node1: NodePosition, node2: NodePosition): boolean {
+    return node1.start === node2.start
+        && node1.end === node2.end;
 }

@@ -14,7 +14,7 @@ import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import classnames from "classnames";
 
-import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../Port";
+import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../Port";
 import { InputSearchHighlight } from "../commons/Search";
 import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore } from '../../../../store/store';
@@ -24,7 +24,7 @@ export interface InputNodeTreeItemWidgetProps {
     parentId: string;
     dmType: DMType;
     engine: DiagramEngine;
-    getPort: (portId: string) => RecordFieldPortModel;
+    getPort: (portId: string) => InputOutputPortModel;
     treeDepth?: number;
     isOptional?: boolean;
     hasHoveredParent?: boolean;

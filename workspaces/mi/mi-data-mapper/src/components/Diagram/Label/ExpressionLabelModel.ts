@@ -1,26 +1,26 @@
 import { BaseModelOptions, DeserializeEvent } from '@projectstorm/react-canvas-core';
 import { LabelModel } from '@projectstorm/react-diagrams';
-import { NodePosition, STNode } from '@wso2-enterprise/syntax-tree';
+import { Node } from "typescript";
 
 import { IDataMapperContext } from '../../../utils/DataMapperContext/DataMapperContext';
 import { DataMapperLinkModel } from '../Link';
 
 export interface ExpressionLabelOptions extends BaseModelOptions {
 	value?: string;
-	valueNode?: STNode;
+	valueNode?: Node;
 	context?: IDataMapperContext;
 	link?: DataMapperLinkModel;
-	field?: STNode;
+	field?: Node;
 	editorLabel?: string;
 	deleteLink?: () => void;
 }
 
 export class ExpressionLabelModel extends LabelModel {
 	value?: string;
-	valueNode?: STNode;
+	valueNode?: Node;
 	context: IDataMapperContext;
 	link?: DataMapperLinkModel;
-	field?: STNode;
+	field?: Node;
 	editorLabel?: string;
 	deleteLink?: () => void;
 
@@ -52,19 +52,6 @@ export class ExpressionLabelModel extends LabelModel {
 	}
 
 	updateSource(): void {
-		const valueNodePosition = this.valueNode.position as NodePosition;
-		const modifications = [
-			{
-				type: "INSERT",
-				config: {
-					"STATEMENT": this.value,
-				},
-				endColumn: valueNodePosition.endColumn,
-				endLine: valueNodePosition.endLine,
-				startColumn: valueNodePosition.startColumn,
-				startLine: valueNodePosition.startLine
-			}
-		];
-		// void this.context.applyModifications(modifications);
+		// TODO: Implement update source logic
 	}
 }

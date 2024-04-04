@@ -1,7 +1,7 @@
 import { BezierCurve, Point } from "@projectstorm/geometry";
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
-import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-types";
+import { Node } from "typescript";
 
 import { IntermediatePortModel } from "../../Port";
 import { calculateControlPointOffset } from "../../utils/diagram-utils";
@@ -10,8 +10,12 @@ export const LINK_TYPE_ID = "datamapper-link";
 
 export class DataMapperLinkModel extends DefaultLinkModel {
 
-	constructor(public value?: STNode, public diagnostics: Diagnostic[] = [],
-		public isActualLink: boolean = false, public notContainsLabel?: boolean) {
+	constructor(
+		public value?: Node,
+		public diagnostics: Diagnostic[] = [],
+		public isActualLink: boolean = false,
+		public notContainsLabel?: boolean
+	) {
 		super({
 			type: LINK_TYPE_ID,
 			width: 1,

@@ -13,7 +13,7 @@ import { css } from "@emotion/css";
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import { TypeKind } from "../../../types";
 
-import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Port';
+import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Port';
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../utils/constants';
 
 import { InputSearchHighlight } from './Search';
@@ -65,7 +65,7 @@ export interface RecordTypeTreeWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
     typeDesc: TypeKind;
     engine: DiagramEngine;
-    getPort: (portId: string) => RecordFieldPortModel;
+    getPort: (portId: string) => InputOutputPortModel;
     valueLabel?: string;
     nodeHeaderSuffix?: string;
 }

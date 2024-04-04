@@ -10,10 +10,9 @@
 import React from 'react';
 
 import { css } from '@emotion/css';
-import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import classNames from "classnames";
 
-import { RecordFieldPortModel } from '../Port';
+import { InputOutputPortModel } from '../Port';
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
@@ -97,12 +96,9 @@ export enum LinkState {
 // now we can render all what we want in the label
 export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     const [linkStatus, setLinkStatus] = React.useState<LinkState>(LinkState.LinkNotSelected);
-    const [canUseQueryExpr, setCanUseQueryExpr] = React.useState(false);
-    const [codeActions, setCodeActions] = React.useState([]);
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
     const classes = useStyles();
-    const { link, context, value, field, editorLabel, deleteLink } = props.model;
-    const diagnostic = link && link.hasError() ? link.diagnostics[0] : null;
+    const { link, deleteLink } = props.model;
 
     const onClickDelete = (evt?: React.MouseEvent<HTMLDivElement>) => {
         if (evt) {
@@ -116,17 +112,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     };
 
     const onClickEdit = (evt?: React.MouseEvent<HTMLDivElement>) => {
-        const currentReference = (link.getSourcePort() as RecordFieldPortModel).fieldFQN;
-        // context.referenceManager.handleCurrentReferences([currentReference]);
-        if (evt) {
-            evt.preventDefault();
-            evt.stopPropagation();
-        }
-        // context.enableStatementEditor({
-        //     valuePosition: field.position as NodePosition,
-        //     value: field.source,
-        //     label: editorLabel
-        // });
+        // TODO: Implement edit logic
     };
 
     React.useEffect(() => {
@@ -181,7 +167,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     const source = props.model?.link?.getSourcePort()
     const target = props.model?.link?.getTargetPort()
 
-    if (source instanceof RecordFieldPortModel) {
+    if (source instanceof InputOutputPortModel) {
         if (source?.parentId) {
             const fieldName = source.field.fieldName;
             isSourceCollapsed = collapsedFields?.includes(`${source.parentId}.${fieldName}`)
@@ -190,7 +176,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         }
     }
 
-    if (target instanceof RecordFieldPortModel) {
+    if (target instanceof InputOutputPortModel) {
         if (target?.parentId) {
             const fieldName = target.field.fieldName;
             isTargetCollapsed = collapsedFields?.includes(`${target.parentId}.${fieldName}`)
