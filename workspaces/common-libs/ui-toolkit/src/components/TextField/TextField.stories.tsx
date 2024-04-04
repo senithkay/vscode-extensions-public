@@ -18,7 +18,7 @@ import { Codicon } from "../Codicon/Codicon";
 const Template: ComponentStory<typeof TextField> = (args: TextFieldProps) => <TextField {...args} ref={undefined}/>;
 
 export const TextFieldWithError = Template.bind();
-TextFieldWithError.args = { value: "Sample Text", label: "TextField", errorMsg: "Test Error", autoFocus: true, placeholder: "placeholder", onTextChange: (txt: string) => {console.log("Text Changed: ", txt)} };
+TextFieldWithError.args = { value: "Sample Text", label: "TextField", errorMsg: "Test Error", description: "This is a sample text field component", autoFocus: true, placeholder: "placeholder", onTextChange: (txt: string) => {console.log("Text Changed: ", txt)} };
 
 export const RequiredTextFieldWithError = Template.bind();
 RequiredTextFieldWithError.args = { value: "Sample Text", label: "TextField", errorMsg: "Test Error", required: true, placeholder: "placeholder", onChange: null };
@@ -36,5 +36,13 @@ const clickableIcon = (<Codicon name="edit" sx= {{cursor: "pointer"}}/>)
 
 export const TextFieldWithClickableIcon = Template.bind();
 TextFieldWithClickableIcon.args = { value: "Sample Text", icon: {iconComponent: clickableIcon, position: "end", onClick: () => {console.log("Icon clicked")}}, placeholder: "Search", onChange: null };
+
+export const TextFieldWithCustomDescription = Template.bind();
+TextFieldWithCustomDescription.args = { value: "Sample Text", label: "TextField", errorMsg: "Test Error", description: (
+    <div style={{display: "flex", flexDirection: "row"}}>
+        <div>Custom Description with a Link</div>
+        <div style={{color: "var(--vscode-button-background)", marginLeft: 4}}>Click Here</div>
+    </div>
+), autoFocus: true, placeholder: "placeholder", onTextChange: (txt: string) => {console.log("Text Changed: ", txt)} };
 
 export default { component: TextField, title: "TextField" };
