@@ -21,9 +21,9 @@ export class SizingVisitor implements Visitor {
         this.diagnostic = diagnostic;
     }
 
-    calculateBasicMediator = (node: STNode): void => {
+    calculateBasicMediator = (node: STNode, w: number = NODE_DIMENSIONS.DEFAULT.WIDTH, h: number = NODE_DIMENSIONS.DEFAULT.HEIGHT): void => {
         if (node.viewState == undefined) {
-            node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.DEFAULT.WIDTH, h: NODE_DIMENSIONS.DEFAULT.HEIGHT }
+            node.viewState = { x: 0, y: 0, w, h }
         }
         this.sequenceWidth = Math.max(this.sequenceWidth, node.viewState.w);
         this.addDiagnostics(node);
@@ -178,15 +178,15 @@ export class SizingVisitor implements Visitor {
 
     endVisitHeader = (node: Header): void => this.calculateBasicMediator(node);
     endVisitInSequence = (node: Sequence): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.EDITABLE.WIDTH, h: NODE_DIMENSIONS.START.EDITABLE.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.START.EDITABLE.WIDTH, NODE_DIMENSIONS.START.EDITABLE.HEIGHT);
     }
 
     endVisitOutSequence = (node: Sequence): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.DISABLED.WIDTH, h: NODE_DIMENSIONS.START.DISABLED.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.START.DISABLED.WIDTH, NODE_DIMENSIONS.START.DISABLED.HEIGHT)
     }
 
     endVisitFaultSequence = (node: Sequence): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.DISABLED.WIDTH, h: NODE_DIMENSIONS.START.DISABLED.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.START.DISABLED.WIDTH, NODE_DIMENSIONS.START.DISABLED.HEIGHT)
     }
 
     beginVisitLog = (node: Log): void => {
@@ -244,9 +244,9 @@ export class SizingVisitor implements Visitor {
         const isSequnce = node.mediatorList && node.mediatorList.length > 0;
 
         if (isSequnce) {
-            node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.EDITABLE.WIDTH, h: NODE_DIMENSIONS.START.EDITABLE.HEIGHT };
+            this.calculateBasicMediator(node, NODE_DIMENSIONS.START.EDITABLE.WIDTH, NODE_DIMENSIONS.START.EDITABLE.HEIGHT);
         } else {
-            node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.REFERENCE.WIDTH, h: NODE_DIMENSIONS.REFERENCE.HEIGHT };
+            this.calculateBasicMediator(node, NODE_DIMENSIONS.REFERENCE.WIDTH, NODE_DIMENSIONS.REFERENCE.HEIGHT);
         }
     }
 
@@ -254,7 +254,7 @@ export class SizingVisitor implements Visitor {
 
 
     endVisitValidate = (node: Validate): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT);
         this.calculateAdvancedMediator(node, {
             onFail: node.onFail
         }, NodeTypes.GROUP_NODE);
@@ -264,7 +264,7 @@ export class SizingVisitor implements Visitor {
 
     //Advanced Mediators
     endVisitCache = (node: Cache): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT)
         this.calculateAdvancedMediator(node, {
             OnCacheHit: node.onCacheHit
         }, NodeTypes.GROUP_NODE);
@@ -275,7 +275,7 @@ export class SizingVisitor implements Visitor {
             targets[target.to || index] = target.endpoint || target.sequence || target
         });
 
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT)
         this.calculateAdvancedMediator(node, targets, NodeTypes.GROUP_NODE, true);
     }
     endVisitDataServiceCall = (node: DataServiceCall): void => this.calculateBasicMediator(node);
@@ -288,33 +288,33 @@ export class SizingVisitor implements Visitor {
         if (node?.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.mediatorList) {
             traversNode(node.correlateOnOrCompleteConditionOrOnComplete.onComplete, this);
         }
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT);
         this.calculateAdvancedMediator(node, {
             OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete
         }, NodeTypes.GROUP_NODE);
     }
     endVisitIterate = (node: Iterate): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT);
         this.calculateAdvancedMediator(node, {
             Target: node.target.sequence
         }, NodeTypes.GROUP_NODE);
     }
     endVisitForeach = (node: Foreach): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT);
         this.calculateAdvancedMediator(node, {
             Sequence: node.sequence
         }, NodeTypes.GROUP_NODE);
     }
     //Filter Mediators
     endVisitFilter = (node: Filter): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CONDITION.WIDTH, h: NODE_DIMENSIONS.CONDITION.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.CONDITION.WIDTH, NODE_DIMENSIONS.CONDITION.HEIGHT);
         this.calculateAdvancedMediator(node, {
             then: node.then,
             else: node.else_
         }, NodeTypes.CONDITION_NODE);
     }
     endVisitSwitch = (node: Switch): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CONDITION.WIDTH, h: NODE_DIMENSIONS.CONDITION.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.CONDITION.WIDTH, NODE_DIMENSIONS.CONDITION.HEIGHT);
         let cases: { [key: string]: any } = {};
         node._case.map((_case, index) => {
             cases[_case.regex || index] = _case;
@@ -325,7 +325,7 @@ export class SizingVisitor implements Visitor {
     }
     endVisitConditionalRouter = (node: ConditionalRouter): void => this.calculateBasicMediator(node);
     endVisitThrottle = (node: Throttle): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CONDITION.WIDTH, h: NODE_DIMENSIONS.CONDITION.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.CONDITION.WIDTH, NODE_DIMENSIONS.CONDITION.HEIGHT);
         this.calculateAdvancedMediator(node, {
             OnAccept: node.onAccept,
             OnReject: node.onReject
@@ -345,7 +345,7 @@ export class SizingVisitor implements Visitor {
     endVisitBuild = (node: Builder): void => this.calculateBasicMediator(node);
     endVisitPublishEvent = (node: PublishEvent): void => this.calculateBasicMediator(node);
     endVisitEntitlementService = (node: EntitlementService): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT);
         this.calculateAdvancedMediator(node, {
             OnAccept: node.onAccept,
             OnReject: node.onReject,
