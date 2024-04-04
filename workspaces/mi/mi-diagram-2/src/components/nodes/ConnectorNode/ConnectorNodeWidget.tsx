@@ -113,6 +113,25 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
         setIsPopoverOpen(false);
     }
 
+    const handleOnClick = async () => {
+        const nodeRange = { start: node.stNode.range.startTagRange.start, end: node.stNode.range.endTagRange.end || node.stNode.range.startTagRange.end };
+        const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
+            documentUri: node.documentUri,
+            connectorName: node.stNode.tag.split(".")[0]
+        });
+
+        const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: connectorData.uiSchemaPath, operation: node.stNode.tag.split(".")[1] });
+ 
+        sidePanelContext.setSidePanelState({
+            isOpen: true,
+            operationName: "connector",
+            nodeRange: nodeRange,
+            isEditing: true,
+            formValues: {form: formJSON.formJSON, title: `${connectorData.name} - ${node.stNode.tag.split(".")[1]}`},
+            parentNode: node.mediatorName
+        });
+    }
+
     return (
         <div >
             <Tooltip content={!isPopoverOpen ? tooltip : ""} position={'bottom'} containerPosition={'absolute'}>
@@ -122,7 +141,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                     hovered={isHovered}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
-                    onClick={(e) => node.onClicked(e, node, rpcClient, sidePanelContext)}
+                    onClick={(e) => handleOnClick()}
                 >
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <S.Header>

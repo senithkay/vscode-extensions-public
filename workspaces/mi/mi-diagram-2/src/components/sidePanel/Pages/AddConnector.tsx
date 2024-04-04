@@ -119,7 +119,7 @@ const AddConnector = (props: AddConnectorProps) => {
                         label={element.displayName}
                         size={50}
                         value={formValues[element.name] || ''}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, [element.name]: e });
                             formValidators[element.name](e);
                         }}

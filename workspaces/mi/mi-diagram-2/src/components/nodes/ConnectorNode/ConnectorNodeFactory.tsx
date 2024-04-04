@@ -16,7 +16,7 @@ import { NodeTypes } from "../../../resources/constants";
 
 export class ConnectorNodeFactory extends AbstractReactFactory<ConnectorNodeModel, DiagramEngine> {
     constructor() {
-        super(NodeTypes.CALL_NODE);
+        super(NodeTypes.CONNECTOR_NODE);
     }
 
     generateModel(event: GenerateModelEvent): ConnectorNodeModel {

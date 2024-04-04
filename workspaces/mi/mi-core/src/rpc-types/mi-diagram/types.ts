@@ -1043,7 +1043,10 @@ export interface GetAvailableConnectorRequest {
 
 export interface GetAvailableConnectorResponse {
     connectors?: any[];
+    name?: string;
+    path?: string;
     uiSchemaPath?: string;
+    version?: string;
 }
 
 export interface UpdateConnectorRequest {
