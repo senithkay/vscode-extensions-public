@@ -70,10 +70,12 @@ export function TitleBar(props: TitleBarProps) {
                     }}
                 >
                     <Dropdown
+                        children={null}
+                        ref={null}
                         id="file-select"
                         items={workspaceFiles}
                         label="File"
-                        onChange={handleFileChange}
+                        onValueChange={handleFileChange}
                         value={selectedFile}
                         sx={{ width: 200, marginTop: 2 }}
                     />

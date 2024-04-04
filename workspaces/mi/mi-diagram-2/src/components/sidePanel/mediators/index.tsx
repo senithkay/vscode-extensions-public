@@ -98,7 +98,7 @@ export function MediatorPage(props: MediatorPageProps) {
                     sx={SearchStyle}
                     placeholder="Search"
                     value={searchValue}
-                    onChange={handleSearch}
+                    onTextChange={handleSearch}
                     icon={{
                         iconComponent: searchIcon,
                         position: 'start',

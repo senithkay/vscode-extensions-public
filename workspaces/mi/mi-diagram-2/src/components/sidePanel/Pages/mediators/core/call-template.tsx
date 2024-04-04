@@ -257,7 +257,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Available Templates</label>
-                    <AutoComplete items={[...availableSequenceTemplates, ...availableEndpointTemplates]} selectedItem={formValues["availableTemplates"]} onChange={(e: any) => {
+                    <AutoComplete items={[...availableSequenceTemplates, ...availableEndpointTemplates]} value={formValues["availableTemplates"]} onValueChange={(e: any) => {
                         const updateValues: { [key: string]: any } = { "availableTemplates": e }
                         if (e != "Select From Templates") {
                             updateValues["targetTemplate"] = e;
@@ -284,7 +284,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["targetTemplate"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             const updateValues: { [key: string]: any } = { "targetTemplate": e }
                             if (availableEndpointTemplates.includes(e) || availableSequenceTemplates.includes(e)) {
                                 updateValues["availableTemplates"] = e;
@@ -305,7 +305,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["onError"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "onError": e });
                             formValidators["onError"](e);
                         }}
@@ -320,7 +320,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

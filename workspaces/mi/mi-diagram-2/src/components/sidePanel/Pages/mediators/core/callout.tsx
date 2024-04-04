@@ -144,7 +144,7 @@ const CalloutForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Endpoint Type</label>
-                    <AutoComplete items={["URL", "AddressEndpoint"]} selectedItem={formValues["endpointType"]} onChange={(e: any) => {
+                    <AutoComplete items={["URL", "AddressEndpoint"]} value={formValues["endpointType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "endpointType": e });
                         formValidators["endpointType"](e);
                     }} />
@@ -157,7 +157,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["soapAction"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "soapAction": e });
                             formValidators["soapAction"](e);
                         }}
@@ -172,7 +172,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["pathToAxis2Repository"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "pathToAxis2Repository": e });
                             formValidators["pathToAxis2Repository"](e);
                         }}
@@ -187,7 +187,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["pathToAxis2xml"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "pathToAxis2xml": e });
                             formValidators["pathToAxis2xml"](e);
                         }}
@@ -212,7 +212,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["serviceURL"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "serviceURL": e });
                                 formValidators["serviceURL"](e);
                             }}
@@ -246,7 +246,7 @@ const CalloutForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Payload Type</label>
-                    <AutoComplete items={["XPATH", "PROPERTY", "ENVELOPE"]} selectedItem={formValues["payloadType"]} onChange={(e: any) => {
+                    <AutoComplete items={["XPATH", "PROPERTY", "ENVELOPE"]} value={formValues["payloadType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "payloadType": e });
                         formValidators["payloadType"](e);
                     }} />
@@ -260,7 +260,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["payloadMessageXPath"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "payloadMessageXPath": e });
                                 formValidators["payloadMessageXPath"](e);
                             }}
@@ -277,7 +277,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["payloadProperty"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "payloadProperty": e });
                                 formValidators["payloadProperty"](e);
                             }}
@@ -294,7 +294,7 @@ const CalloutForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Result Type</label>
-                    <AutoComplete items={["XPATH", "PROPERTY"]} selectedItem={formValues["resultType"]} onChange={(e: any) => {
+                    <AutoComplete items={["XPATH", "PROPERTY"]} value={formValues["resultType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "resultType": e });
                         formValidators["resultType"](e);
                     }} />
@@ -308,7 +308,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["resultMessageXPath"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "resultMessageXPath": e });
                                 formValidators["resultMessageXPath"](e);
                             }}
@@ -325,7 +325,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["resultContextProperty"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "resultContextProperty": e });
                                 formValidators["resultContextProperty"](e);
                             }}
@@ -342,7 +342,7 @@ const CalloutForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Security Type</label>
-                    <AutoComplete items={["TRUE", "FALSE"]} selectedItem={formValues["securityType"]} onChange={(e: any) => {
+                    <AutoComplete items={["TRUE", "FALSE"]} value={formValues["securityType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "securityType": e });
                         formValidators["securityType"](e);
                     }} />
@@ -352,7 +352,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                 {formValues["securityType"] && formValues["securityType"].toLowerCase() == "true" &&
                     <Field>
                         <label>Policies</label>
-                        <AutoComplete items={["TRUE", "FALSE"]} selectedItem={formValues["policies"]} onChange={(e: any) => {
+                        <AutoComplete items={["TRUE", "FALSE"]} value={formValues["policies"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "policies": e });
                             formValidators["policies"](e);
                         }} />
@@ -367,7 +367,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["policyKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "policyKey": e });
                                 formValidators["policyKey"](e);
                             }}
@@ -384,7 +384,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["outboundPolicyKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "outboundPolicyKey": e });
                                 formValidators["outboundPolicyKey"](e);
                             }}
@@ -401,7 +401,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["inboundPolicyKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "inboundPolicyKey": e });
                                 formValidators["inboundPolicyKey"](e);
                             }}
@@ -422,7 +422,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

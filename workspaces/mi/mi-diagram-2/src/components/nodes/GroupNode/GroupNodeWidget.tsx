@@ -100,7 +100,7 @@ namespace S {
         top: 20px;
         left: ${(props: ContainerStyleProp) => (NODE_DIMENSIONS.DEFAULT.WIDTH - props.width - NODE_GAP.GROUP_NODE_HORIZONTAL_PADDING) / 2}px;
         width: ${(props: ContainerStyleProp) => props.width}px;
-        height: ${(props: ContainerStyleProp) => props.height}px;
+        height: ${(props: ContainerStyleProp) => props.height - 22}px;
         padding: 0 20px;
         border: 2px dashed ${Colors.OUTLINE_VARIANT};
         border-radius: 10px;

@@ -191,7 +191,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["entitlementServerURL"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "entitlementServerURL": e });
                             formValidators["entitlementServerURL"](e);
                         }}
@@ -206,7 +206,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["username"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "username": e });
                             formValidators["username"](e);
                         }}
@@ -221,7 +221,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["password"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "password": e });
                             formValidators["password"](e);
                         }}
@@ -232,7 +232,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Callback Handler</label>
-                    <AutoComplete items={["UT", "X509", "SAML", "Kerberos", "Custom"]} selectedItem={formValues["callbackHandler"]} onChange={(e: any) => {
+                    <AutoComplete items={["UT", "X509", "SAML", "Kerberos", "Custom"]} value={formValues["callbackHandler"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "callbackHandler": e });
                         formValidators["callbackHandler"](e);
                     }} />
@@ -246,7 +246,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["callbackClassName"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "callbackClassName": e });
                                 formValidators["callbackClassName"](e);
                             }}
@@ -258,7 +258,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Entitlement Client Type</label>
-                    <AutoComplete items={["SOAP - Basic Auth (WSO2 IS 4.0.0 or later)", "THRIFT", "SOAP - Authentication Admin (WSO2 IS 3.2.3 or earlier)", "WSXACML"]} selectedItem={formValues["entitlementClientType"]} onChange={(e: any) => {
+                    <AutoComplete items={["SOAP - Basic Auth (WSO2 IS 4.0.0 or later)", "THRIFT", "SOAP - Authentication Admin (WSO2 IS 3.2.3 or earlier)", "WSXACML"]} value={formValues["entitlementClientType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "entitlementClientType": e });
                         formValidators["entitlementClientType"](e);
                     }} />
@@ -272,7 +272,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["thriftHost"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "thriftHost": e });
                                 formValidators["thriftHost"](e);
                             }}
@@ -289,7 +289,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["thriftPort"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "thriftPort": e });
                                 formValidators["thriftPort"](e);
                             }}
@@ -304,7 +304,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>On Accept Sequence Type</label>
-                        <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE"]} selectedItem={formValues["onAcceptSequenceType"]} onChange={(e: any) => {
+                        <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={formValues["onAcceptSequenceType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "onAcceptSequenceType": e });
                             formValidators["onAcceptSequenceType"](e);
                         }} />
@@ -318,7 +318,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["onAcceptSequenceKey"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "onAcceptSequenceKey": e });
                                     formValidators["onAcceptSequenceKey"](e);
                                 }}
@@ -335,7 +335,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>On Reject Sequence Type</label>
-                        <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE"]} selectedItem={formValues["onRejectSequenceType"]} onChange={(e: any) => {
+                        <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={formValues["onRejectSequenceType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "onRejectSequenceType": e });
                             formValidators["onRejectSequenceType"](e);
                         }} />
@@ -349,7 +349,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["onRejectSequenceKey"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "onRejectSequenceKey": e });
                                     formValidators["onRejectSequenceKey"](e);
                                 }}
@@ -366,7 +366,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Obligations Sequence Type</label>
-                        <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE"]} selectedItem={formValues["obligationsSequenceType"]} onChange={(e: any) => {
+                        <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={formValues["obligationsSequenceType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "obligationsSequenceType": e });
                             formValidators["obligationsSequenceType"](e);
                         }} />
@@ -380,7 +380,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["obligationsSequenceKey"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "obligationsSequenceKey": e });
                                     formValidators["obligationsSequenceKey"](e);
                                 }}
@@ -397,7 +397,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Advice Sequence Type</label>
-                        <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE"]} selectedItem={formValues["adviceSequenceType"]} onChange={(e: any) => {
+                        <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={formValues["adviceSequenceType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "adviceSequenceType": e });
                             formValidators["adviceSequenceType"](e);
                         }} />
@@ -411,7 +411,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["adviceSequenceKey"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "adviceSequenceKey": e });
                                     formValidators["adviceSequenceKey"](e);
                                 }}
@@ -429,7 +429,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

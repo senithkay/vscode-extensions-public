@@ -143,7 +143,7 @@ export function SamplesView() {
                         text: category.title,
                         value: category.title
                     })) : null}
-                    onChange={handleChange}
+                    onValueChange={handleChange}
                     value={filterText}
                     sx={{ width: 230 }}
                 />

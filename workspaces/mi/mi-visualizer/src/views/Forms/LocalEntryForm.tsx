@@ -235,15 +235,15 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
                   label="Local Entry Name"
                   placeholder="Name"
                   validationMessage="LocalEntry name is required"
-                  onChange={(text: string) => handleLocalEntryFieldChange("name", text)}
+                  onTextChange={(text: string) => handleLocalEntryFieldChange("name", text)}
                   autoFocus
                   required
               />
               <span>Local Entry Creation Type</span>
               <AutoComplete
                   items={localEntryTypes}
-                  selectedItem={localEntry.type}
-                  onChange={(value: string) => handleLocalEntryFieldChange("type", value)}
+                  value={localEntry.type}
+                  onValueChange={(value: string) => handleLocalEntryFieldChange("type", value)}
                   sx={{ width: "100%" }}
               ></AutoComplete>
               <h5>Advanced Configuration</h5>
@@ -251,7 +251,7 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
                   <TextField
                       placeholder="Value"
                       label="Value"
-                      onChange={(text: string) => handleLocalEntryFieldChange("inLineTextValue", text)}
+                      onTextChange={(text: string) => handleLocalEntryFieldChange("inLineTextValue", text)}
                       value={localEntry.inLineTextValue}
                       id="value-input"
                       size={100}
@@ -275,7 +275,7 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
                           <TextField
                               placeholder="URL"
                               label="URL"
-                              onChange={(text: string) => handleLocalEntryFieldChange("sourceURL", text)}
+                              onTextChange={(text: string) => handleLocalEntryFieldChange("sourceURL", text)}
                               value={localEntry.sourceURL}
                               id="url-input"
                               size={100}

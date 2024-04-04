@@ -136,7 +136,7 @@ const DataServiceForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Available Data Services</label>
-                    <AutoComplete items={[...dataServices]} selectedItem={formValues["availableDataServices"]} onChange={(e: any) => {
+                    <AutoComplete items={[...dataServices]} value={formValues["availableDataServices"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "availableDataServices": e });
                         formValidators["availableDataServices"](e);
                     }} />
@@ -149,7 +149,7 @@ const DataServiceForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["serviceName"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             const updateValues: { [key: string]: any } = { "serviceName": e }
                             if (dataServices.includes(e)) {
                                 updateValues["availableDataServices"] = e;
@@ -166,7 +166,7 @@ const DataServiceForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Source Type</label>
-                    <AutoComplete items={["INLINE", "BODY"]} selectedItem={formValues["sourceType"]} onChange={(e: any) => {
+                    <AutoComplete items={["INLINE", "BODY"]} value={formValues["sourceType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "sourceType": e });
                         formValidators["sourceType"](e);
                     }} />
@@ -175,7 +175,7 @@ const DataServiceForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Operation Type</label>
-                    <AutoComplete items={["SINGLE", "BATCH", "REQUESTBOX"]} selectedItem={formValues["operationType"]} onChange={(e: any) => {
+                    <AutoComplete items={["SINGLE", "BATCH", "REQUESTBOX"]} value={formValues["operationType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "operationType": e });
                         formValidators["operationType"](e);
                     }} />
@@ -191,7 +191,7 @@ const DataServiceForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["operationName"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "operationName": e });
                                 formValidators["operationName"](e);
                             }}
@@ -209,7 +209,7 @@ const DataServiceForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["propertyName"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "propertyName": e });
                                     formValidators["propertyName"](e);
                                 }}
@@ -220,7 +220,7 @@ const DataServiceForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Property Value Type</label>
-                            <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["propertyValueType"]} onChange={(e: any) => {
+                            <AutoComplete items={["LITERAL", "EXPRESSION"]} value={formValues["propertyValueType"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "propertyValueType": e });
                                 formValidators["propertyValueType"](e);
                             }} />
@@ -234,7 +234,7 @@ const DataServiceForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["propertyValue"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "propertyValue": e });
                                         formValidators["propertyValue"](e);
                                     }}
@@ -251,7 +251,7 @@ const DataServiceForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["propertyExpression"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "propertyExpression": e });
                                         formValidators["propertyExpression"](e);
                                     }}
@@ -349,7 +349,7 @@ const DataServiceForm = (props: AddMediatorProps) => {
                 }
                 <Field>
                     <label>Target Type</label>
-                    <AutoComplete items={["BODY", "PROPERTY"]} selectedItem={formValues["targetType"]} onChange={(e: any) => {
+                    <AutoComplete items={["BODY", "PROPERTY"]} value={formValues["targetType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "targetType": e });
                         formValidators["targetType"](e);
                     }} />
@@ -363,7 +363,7 @@ const DataServiceForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["targetProperty"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "targetProperty": e });
                                 formValidators["targetProperty"](e);
                             }}
@@ -379,7 +379,7 @@ const DataServiceForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

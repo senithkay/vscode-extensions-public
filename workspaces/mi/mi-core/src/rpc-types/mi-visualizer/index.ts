@@ -8,11 +8,13 @@
  */
 
 import { HistoryEntry } from "../../history";
-import { ProjectStructureRequest, ProjectStructureResponse, WorkspacesResponse, OpenViewRequest, HistoryEntryResponse } from "./types";
+import { ColorThemeKind } from "../../state-machine-types";
+import { ProjectStructureRequest, ProjectStructureResponse, WorkspacesResponse, OpenViewRequest, HistoryEntryResponse, ToggleDisplayOverviewRequest } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 export interface MIVisualizerAPI {
     getWorkspaces: () => Promise<WorkspacesResponse>;
     getProjectStructure: (params: ProjectStructureRequest) => Promise<ProjectStructureResponse>;
+    getCurrentThemeKind: () => Promise<ColorThemeKind>;
     openView: (params: OpenViewRequest) => void;
     goBack: () => void;
     fetchSamplesFromGithub: () => Promise<GettingStartedData>;
@@ -21,4 +23,5 @@ export interface MIVisualizerAPI {
     addToHistory: (params: HistoryEntry) => void;
     goHome: () => void;
     goSelected: (params: number) => void;
+    toggleDisplayOverview: (params: ToggleDisplayOverviewRequest) => void;
 }

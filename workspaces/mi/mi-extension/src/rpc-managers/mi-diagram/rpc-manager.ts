@@ -139,7 +139,10 @@ import {
     WriteContentToFileRequest,
     WriteContentToFileResponse,
     getSTRequest,
-    getSTResponse
+    getSTResponse,
+    DataSourceTemplate,
+    GetDataSourceRequest,
+    CreateDataSourceResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -155,6 +158,8 @@ import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
 import { addNewEntryToArtifactXML, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension } from "../../util/fileOperations";
 import { importProject } from "../../util/migrationUtils";
+import { getDataserviceXml } from "../../util/template-engine/mustach-templates/Dataservice";
+import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
 import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/recipientEndpoint";
@@ -652,17 +657,17 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
             const options = {
-                ignoreAttributes : false,
+                ignoreAttributes: false,
                 attributeNamePrefix: "@_",
                 indentBy: '    ',
                 format: true,
             };
-            
+
             const builder = new XMLBuilder(options);
             const filePath = params.path;
 
             if (filePath.includes('.xml') && fs.existsSync(filePath)) {
-                const { name, recipientlist, property, description} = endpointSyntaxTree.syntaxTree.endpoint;
+                const { name, recipientlist, property, description } = endpointSyntaxTree.syntaxTree.endpoint;
 
                 const endpoints = recipientlist.endpoint.map((member: any) => {
                     const { _default, key } = member;
@@ -721,7 +726,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             });
         });
     }
-    
+
     async updateTemplateEndpoint(params: UpdateTemplateEPRequest): Promise<UpdateTemplateEPResponse> {
         return new Promise(async (resolve) => {
             const { directory, ...templateParams } = params;
@@ -744,7 +749,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async getTemplateEndpoint(params: GetTemplateEPRequest): Promise<GetTemplateEPResponse> {
         return new Promise(async (resolve) => {
-            const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });            
+            const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
             const filePath = params.path;
 
             if (filePath.includes('.xml') && fs.existsSync(filePath)) {
@@ -1902,7 +1907,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             if (!params.disableFormatting) {
                 const formatRange = this.getFormatRange(range, text);
-                await this.rangeFormat({uri:params.documentUri, range:formatRange});
+                await this.rangeFormat({ uri: params.documentUri, range: formatRange });
             }
             const content = document.getText();
             undoRedo.addModification(content);
@@ -2738,23 +2743,27 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async migrateProject({ source }: MigrateProjectRequest): Promise<MigrateProjectResponse> {
         return new Promise(async (resolve) => {
-            if (source) {
-                const sourcePathComponents = source.split(path.sep);
-                const projectName = sourcePathComponents.pop();
-                const migratedProjectName = `${projectName}-migrated`;
-                let target = [...sourcePathComponents, migratedProjectName].join(path.sep);
-                // check if the file exists
-                let i = 0;
-                while (true) {
-                    if (fs.existsSync(target)) {
-                        // update file name if exists
-                        i++;
-                        target = [...sourcePathComponents, `${migratedProjectName}-${i}`].join(path.sep);
-                    } else {
-                        importProject({ source, directory: target, open: true });
-                        break;
-                    }
+            const selection = await vscode.window.showQuickPick(
+                [
+                    {
+                        label: "Select Destination",
+                        description: "Select a destination folder to migrate the project",
+                    },
+                ],
+                {
+                    placeHolder: "Migration Options",
                 }
+            );
+
+            let target;
+            switch (selection?.label) {
+                case "Select Destination":
+                    target = await vscode.commands.executeCommand(COMMANDS.SELECT_DESTINATION, { sourceDir: source });
+                    break;
+            }
+
+            if (source && target) {
+                importProject({ source, directory: target, open: true });
                 resolve({ filePath: target });
             }
         });
@@ -2780,6 +2789,94 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             });
 
             resolve(res);
+        })
+    }
+
+    async createDataSource(params: DataSourceTemplate): Promise<CreateDataSourceResponse> {
+        return new Promise(async (resolve) => {
+            const xmlData = await getDataserviceXml(params);
+            const dsPath = path.join(params.projectDirectory, 'src', 'main', 'wso2mi', 'artifacts', 'Data-Sources', params.name + '.xml');
+            fs.writeFileSync(dsPath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: dsPath });
+        });
+    }
+
+    async getDataSource(params: GetDataSourceRequest): Promise<DataSourceTemplate> {
+        const options = {
+            ignoreAttributes: false,
+            allowBooleanAttributes: true,
+            attributeNamePrefix: "@",
+        };
+        const parser = new XMLParser(options);
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+            if (filePath.includes('.xml') && fs.existsSync(filePath)) {
+                const xmlData = fs.readFileSync(filePath, "utf8");
+                const jsonData = parser.parse(xmlData);
+                var response: DataSourceTemplate = {
+                    projectDirectory: '',
+                    type: jsonData.datasource.definition['@type'] === 'RDBMS' ? 'RDBMS' : 'Custom',
+                    name: jsonData.datasource.name,
+                    description: jsonData.datasource.description ?? '',
+                };
+                if (jsonData.datasource.definition['@type'] === 'RDBMS') {
+                    if (jsonData.datasource.definition.configuration) {
+                        response.driverClassName = jsonData.datasource.definition.configuration.driverClassName ?? '';
+                        response.url = jsonData.datasource.definition.configuration.url ?? '';
+                        response.driverClassName = jsonData.datasource.definition.configuration.driverClassName ?? '';
+                        response.username = jsonData.datasource.definition.configuration.username ?? '';
+                        response.password = jsonData.datasource.definition.configuration.password ?? '';
+                        const params: { [key: string]: string | number | boolean } = {};
+                        if (jsonData.datasource.definition.configuration) {
+                            Object.entries(jsonData.datasource.definition.configuration).forEach(([key, value]) => {
+                                params[key] = value as string | number | boolean;
+                            });
+                        }
+                        // remove duplicates
+                        delete params.driverClassName;
+                        delete params.url;
+                        delete params.username;
+                        delete params.password;
+                        delete params.dataSourceClassName;
+                        delete params.dataSourceProps;
+                        response.dataSourceConfigParameters = params;
+                    }
+                    if (jsonData.datasource.jndiConfig) {
+                        response.jndiConfig = {
+                            JNDIConfigName: jsonData.datasource.jndiConfig.name,
+                            useDataSourceFactory: jsonData.datasource.jndiConfig['@useDataSourceFactory'],
+                        };
+                        if (jsonData.datasource.jndiConfig.environment.property) {
+                            const params: { [key: string]: string | number | boolean } = {};
+                            jsonData.datasource.jndiConfig.environment.property.forEach((item) => {
+                                const key = item['@name'].toString();
+                                const val = item['#text'];
+                                params[key] = val;
+                            });
+                            response.jndiConfig.properties = params;
+                        }
+                    }
+                    if (jsonData.datasource.definition.configuration.dataSourceClassName) {
+                        response.externalDSClassName = jsonData.datasource.definition.configuration.dataSourceClassName;
+                        if (jsonData.datasource.definition.configuration.dataSourceProps.property) {
+                            const params: { [key: string]: string | number | boolean } = {};
+                            jsonData.datasource.definition.configuration.dataSourceProps.property.forEach((item) => {
+                                const key = item['@name'].toString();
+                                const val = item['#text'];
+                                params[key] = val;
+                            });
+                            response.dataSourceProperties = params;
+                        }
+                    }
+                }
+                if (jsonData.datasource.definition['@type'] !== 'RDBMS') {
+                    response.customDSType = jsonData.datasource.definition['@type'];
+                    response.customDSConfiguration = jsonData.datasource.definition['#text'];
+                }
+                return resolve(response);
+            }
+            resolve(Promise.reject(new Error('Invalid data source')));
         });
     }
 }

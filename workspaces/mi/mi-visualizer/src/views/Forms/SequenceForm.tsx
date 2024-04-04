@@ -123,7 +123,7 @@ export function SequenceWizard(props: SequenceWizardProps) {
                     id='name-input'
                     label="Name"
                     placeholder="Name"
-                    onChange={(text: string) => setSequenceName(text)}
+                    onTextChange={(text: string) => setSequenceName(text)}
                     errorMsg={validateSequence(sequenceName)}
                     size={40}
                     autoFocus
@@ -134,8 +134,8 @@ export function SequenceWizard(props: SequenceWizardProps) {
                     <span>Available Endpoints</span>
                     <AutoComplete 
                         items={endpoints}
-                        selectedItem={selectedEndpoint}
-                        onChange={handleEndpointChange}
+                        value={selectedEndpoint}
+                        onValueChange={handleEndpointChange}
                         sx={{width: '370px'}}>
                     </AutoComplete>
                 </FieldGroup>
@@ -143,8 +143,8 @@ export function SequenceWizard(props: SequenceWizardProps) {
                     <span>On Error Sequence</span>
                     <AutoComplete 
                         items={sequences}
-                        selectedItem={onErrorSequence}
-                        onChange={handleErrorSequenceChange}
+                        value={onErrorSequence}
+                        onValueChange={handleErrorSequenceChange}
                         sx={{width: '370px'}}>
                     </AutoComplete>
                 </FieldGroup>

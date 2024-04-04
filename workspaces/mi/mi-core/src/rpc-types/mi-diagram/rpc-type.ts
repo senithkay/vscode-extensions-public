@@ -134,6 +134,9 @@ import {
     GetConnectorFormRequest,
     GetConnectorFormResponse,
     UpdateConnectorRequest,
+    CreateDataSourceResponse,
+    GetDataSourceRequest,
+    DataSourceTemplate
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -218,3 +221,5 @@ export const downloadConnector: RequestType<DownloadConnectorRequest, DownloadCo
 export const getAvailableConnectors: RequestType<GetAvailableConnectorRequest, GetAvailableConnectorResponse> = { method: `${_preFix}/getAvailableConnectors` };
 export const updateConnectors: RequestType<UpdateConnectorRequest, void> = { method: `${_preFix}/updateConnectors` };
 export const getConnectorForm: RequestType<GetConnectorFormRequest, GetConnectorFormResponse> = { method: `${_preFix}/getConnectorForm` };
+export const createDataSource: RequestType<DataSourceTemplate, CreateDataSourceResponse> = { method: `${_preFix}/createDataSource` };
+export const getDataSource: RequestType<GetDataSourceRequest, DataSourceTemplate> = { method: `${_preFix}/getDataSource` };

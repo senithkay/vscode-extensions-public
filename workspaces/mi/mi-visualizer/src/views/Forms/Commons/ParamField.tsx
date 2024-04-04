@@ -14,7 +14,7 @@ const Container = styled.div({
     marginBottom: "20px",
 })
 
-const ParamField = ({ field, id, stateValue, handleOnChange }: any) => {
+const ParamField = ({ field, id, stateValue, handleOnChange, handleOnError }: any) => {
     const { name, type, value, items } = field;
 
     const getParameterName = (id: string) => {
@@ -26,10 +26,11 @@ const ParamField = ({ field, id, stateValue, handleOnChange }: any) => {
         <Container>
             {type === "text" ? (
                 <TextField
-                    value={stateValue ?? String(value)}
+                    value={stateValue ?? value ?? ""}
                     id={id}
                     label={name ?? getParameterName(id)}
-                    onChange={(text: string) => handleOnChange(id, text)}
+                    onTextChange={(text: string) => handleOnChange(id, text)}
+                    errorMsg={handleOnError ? handleOnError(id) : undefined}
                 />
             ) : type === "checkbox" ? (
                 <CheckBox
@@ -44,7 +45,7 @@ const ParamField = ({ field, id, stateValue, handleOnChange }: any) => {
                     <Dropdown
                         id={id}
                         value={stateValue ?? value}
-                        onChange={(text: string) => handleOnChange(id, text)}
+                        onValueChange={(text: string) => handleOnChange(id, text)}
                         items={items}
                     />
                 </>

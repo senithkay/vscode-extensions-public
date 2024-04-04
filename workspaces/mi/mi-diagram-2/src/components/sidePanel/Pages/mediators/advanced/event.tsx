@@ -115,7 +115,7 @@ const EventForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Topic Type</label>
-                    <AutoComplete items={["static", "dynamic"]} selectedItem={formValues["topicType"]} onChange={(e: any) => {
+                    <AutoComplete items={["static", "dynamic"]} value={formValues["topicType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "topicType": e });
                         formValidators["topicType"](e);
                     }} />
@@ -128,7 +128,7 @@ const EventForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["staticTopic"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "staticTopic": e });
                             formValidators["staticTopic"](e);
                         }}
@@ -144,7 +144,7 @@ const EventForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["dynamicTopic"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "dynamicTopic": e });
                             formValidators["dynamicTopic"](e);
                         }}
@@ -160,7 +160,7 @@ const EventForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

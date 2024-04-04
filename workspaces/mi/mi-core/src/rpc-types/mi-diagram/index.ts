@@ -133,6 +133,9 @@ import {
     GetConnectorFormRequest,
     GetConnectorFormResponse,
     UpdateConnectorRequest,
+    CreateDataSourceResponse,
+    DataSourceTemplate,
+    GetDataSourceRequest,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -216,4 +219,6 @@ export interface MiDiagramAPI {
     getAvailableConnectors: (params: GetAvailableConnectorRequest) => Promise<GetAvailableConnectorResponse>;
     updateConnectors: (params: UpdateConnectorRequest) => Promise<void>;
     getConnectorForm: (params: GetConnectorFormRequest) => Promise<GetConnectorFormResponse>;
+    createDataSource: (params: DataSourceTemplate) => Promise<CreateDataSourceResponse>;
+    getDataSource: (params: GetDataSourceRequest) => Promise<DataSourceTemplate>;
 }

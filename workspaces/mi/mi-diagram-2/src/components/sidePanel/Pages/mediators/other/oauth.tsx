@@ -117,7 +117,7 @@ const OAuthForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["remoteServiceURL"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "remoteServiceURL": e });
                             formValidators["remoteServiceURL"](e);
                         }}
@@ -135,7 +135,7 @@ const OAuthForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["username"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "username": e });
                                 formValidators["username"](e);
                             }}
@@ -150,7 +150,7 @@ const OAuthForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["password"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "password": e });
                                 formValidators["password"](e);
                             }}
@@ -167,7 +167,7 @@ const OAuthForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

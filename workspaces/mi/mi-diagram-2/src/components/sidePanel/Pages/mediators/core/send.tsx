@@ -148,7 +148,7 @@ const SendForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Receiving Sequence Type</label>
-                            <AutoComplete items={["Default", "Static", "Dynamic"]} selectedItem={formValues["receivingSequenceType"]} onChange={(e: any) => {
+                            <AutoComplete items={["Default", "Static", "Dynamic"]} value={formValues["receivingSequenceType"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "receivingSequenceType": e });
                                 formValidators["receivingSequenceType"](e);
                             }} />
@@ -162,7 +162,7 @@ const SendForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["staticReceivingSequence"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "staticReceivingSequence": e });
                                         formValidators["staticReceivingSequence"](e);
                                     }}
@@ -179,7 +179,7 @@ const SendForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["dynamicReceivingSequence"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "dynamicReceivingSequence": e });
                                         formValidators["dynamicReceivingSequence"](e);
                                     }}
@@ -198,7 +198,7 @@ const SendForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

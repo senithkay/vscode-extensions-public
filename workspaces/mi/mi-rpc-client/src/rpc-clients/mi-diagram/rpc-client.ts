@@ -82,8 +82,6 @@ import {
     GetSelectiveWorkspaceContextResponse,
     GetTaskRequest,
     GetTaskResponse,
-    GetTemplateEPRequest,
-    GetTemplateEPResponse,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
     GetWorkspaceContextResponse,
@@ -215,7 +213,14 @@ import {
     updateRecipientEndpoint,
     updateTemplateEndpoint,
     updateWsdlEndpoint,
-    writeContentToFile
+    writeContentToFile,
+    GetTemplateEPRequest,
+    GetTemplateEPResponse,
+    DataSourceTemplate,
+    GetDataSourceRequest,
+    CreateDataSourceResponse,
+    createDataSource,
+    getDataSource,
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -545,5 +550,13 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getConnectorForm(params: GetConnectorFormRequest): Promise<GetConnectorFormResponse> {
         return this._messenger.sendRequest(getConnectorForm, HOST_EXTENSION, params);
+    }
+    
+    createDataSource(params: DataSourceTemplate): Promise<CreateDataSourceResponse> {
+        return this._messenger.sendRequest(createDataSource, HOST_EXTENSION, params);
+    }
+
+    getDataSource(params: GetDataSourceRequest): Promise<DataSourceTemplate> {
+        return this._messenger.sendRequest(getDataSource, HOST_EXTENSION, params);
     }
 }

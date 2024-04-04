@@ -235,7 +235,7 @@ const LogForm = (props: AddMediatorProps) => {
             <Wrapper>
                 <Field>
                     <label>Log Category</label> <RequiredFormInput />
-                    <AutoComplete items={["INFO", "TRACE", "DEBUG", "WARN", "ERROR", "FATAL"]} selectedItem={formValues["category"]} onChange={(e: any) => {
+                    <AutoComplete items={["INFO", "TRACE", "DEBUG", "WARN", "ERROR", "FATAL"]} value={formValues["category"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "category": e });
                         formValidators["category"](e);
                     }} />
@@ -244,7 +244,7 @@ const LogForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Log Level</label> <RequiredFormInput />
-                    <AutoComplete items={["SIMPLE", "HEADERS", "FULL", "CUSTOM"]} selectedItem={formValues["level"]} onChange={(e: any) => {
+                    <AutoComplete items={["SIMPLE", "HEADERS", "FULL", "CUSTOM"]} value={formValues["level"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "level": e });
                         formValidators["level"](e);
                     }} />
@@ -257,7 +257,7 @@ const LogForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["separator"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "separator": e });
                             formValidators["separator"](e);
                         }}
@@ -282,7 +282,7 @@ const LogForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder="Description"
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}
