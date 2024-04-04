@@ -7,16 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
-import { Button, Codicon, TextField, Typography, Dropdown, RadioButtonGroup, FormView, FormGroup, FormActions } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, RadioButtonGroup, FormView, FormGroup, FormActions } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { CreateTaskRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
-import { SectionWrapper } from "./Commons";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
-
 
 export interface Region {
     label: string;
@@ -49,22 +46,21 @@ const initialInboundEndpoint: InputsFields = {
     triggerCron: ""
 };
 
-const schema = yup
-    .object({
-
-        name: yup.string().required("Task Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Task name"),
-        group: yup.string().required("Task group is required"),
-        implementation: yup.string().required("Task Implementation is required"),
-        pinnedServers: yup.string(),
-        triggerType: yup.mixed<"simple" | "cron">().oneOf(["simple", "cron"]),
-        triggerCount: yup.number().nullable().typeError('Trigger count must be a number').min(1, "Trigger count must be greater than 0"),
-        triggerInterval: yup.number().typeError('Trigger interval must be a number').min(1, "Trigger interval must be greater than 0"),
-        triggerCron: yup.string()
-    })
+const schema = yup.object({
+    name: yup.string().required("Task Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Task name"),
+    group: yup.string().required("Task group is required"),
+    implementation: yup.string().required("Task Implementation is required"),
+    pinnedServers: yup.string(),
+    triggerType: yup.mixed<"simple" | "cron">().oneOf(["simple", "cron"]),
+    triggerCount: yup.number().nullable().typeError('Trigger count must be a number').min(1, "Trigger count must be greater than 0"),
+    triggerInterval: yup.number().typeError('Trigger interval must be a number').min(1, "Trigger interval must be greater than 0"),
+    triggerCron: yup.string()
+})
 
 export function TaskForm(props: TaskFormProps) {
 
     const { rpcClient } = useVisualizerContext();
+    
     const {
         reset,
         register,
