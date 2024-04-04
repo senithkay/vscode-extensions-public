@@ -226,8 +226,6 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                     label="Template Type"
                     id="templateType"
                     items={templates}
-                    value={getValues("templateType")}
-                    onValueChange={(value) => setValue("templateType", value)}
                     {...register("templateType")}
                 ></Dropdown>
                 <TextField
@@ -278,7 +276,8 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                     onClick={handleSubmit((values) => {
                         handleCreateRegResource(values);
                     })}
-                    disabled={!isDirty || !isValid || isSubmitting || getValues("filePath") === "Please select a file or folder"}
+                    disabled={!isDirty || !isValid || (!createOptionValue
+                        && getValues("filePath") === "Please select a file or folder")}
                 >
                     Create
                 </Button>
