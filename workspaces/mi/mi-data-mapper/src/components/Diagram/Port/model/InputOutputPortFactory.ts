@@ -9,9 +9,9 @@
 import { AbstractModelFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 
-import { FORM_FIELD_PORT } from "./RecordFieldPortModel";
+import { FORM_FIELD_PORT } from "./InputOutputPortModel";
 
-export class RecordFieldPortFactory extends AbstractModelFactory<PortModel, DiagramEngine> {
+export class InputOutputPortFactory extends AbstractModelFactory<PortModel, DiagramEngine> {
 
 	constructor() {
 		super(FORM_FIELD_PORT);

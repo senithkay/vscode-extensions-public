@@ -15,7 +15,7 @@ import { Node } from 'typescript';
 
 import { InputOutputPortModel } from '../../Port';
 import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from '../../utils/constants';
-import { ObjectOutputWidget } from "../commons/DataManipulationWidget/ObjectOutputWidget";
+import { ObjectOutputWidget } from "./ObjectOutputWidget";
 import { OutputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/Search";
 
 import { ObjectOutputNode, OBJECT_OUTPUT_NODE_TYPE } from './ObjectOutputNode';

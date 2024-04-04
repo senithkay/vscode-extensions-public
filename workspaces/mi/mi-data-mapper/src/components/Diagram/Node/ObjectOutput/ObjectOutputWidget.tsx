@@ -13,17 +13,17 @@ import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
 import { Node, isObjectLiteralExpression } from "typescript";
 
-import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
-import { DMTypeWithValue } from "../../../Mappings/DMTypeWithValue";
-import { MappingMetadata } from "../../../Mappings/FieldAccessToSpecificFied";
-import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../../Port';
-import { OutputSearchHighlight } from '../Search';
-import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
+import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
+import { MappingMetadata } from "../../Mappings/FieldAccessToSpecificFied";
+import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Port';
+import { OutputSearchHighlight } from '../commons/Search';
+import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { ObjectOutputFieldWidget } from "./ObjectOutputFieldWidget";
-import { useIONodesStyles } from '../../../../styles';
-import { useDMCollapsedFieldsStore } from '../../../../../store/store';
-import { getPosition } from '../../..//utils/st-utils';
-import { isEmptyValue } from '../../../utils/common-utils';
+import { useIONodesStyles } from '../../../styles';
+import { useDMCollapsedFieldsStore } from '../../../../store/store';
+import { getPosition } from '../../utils/st-utils';
+import { isEmptyValue } from '../../utils/common-utils';
 
 export interface ObjectOutputWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields

@@ -13,7 +13,7 @@ import { DiagramEngine, LinkModel, PortModel } from '@projectstorm/react-diagram
 
 import { ExpressionLabelModel } from "../Label";
 import { ObjectOutputNode, InputNode } from '../Node';
-import { InputOutputPortModel } from '../Port/model/RecordFieldPortModel';
+import { InputOutputPortModel } from '../Port/model/InputOutputPortModel';
 
 /**
  * This state is controlling the creation of a link.

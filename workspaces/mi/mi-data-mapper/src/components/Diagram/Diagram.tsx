@@ -40,7 +40,7 @@ import { debounce } from 'lodash';
 import { defaultModelOptions } from './utils/constants';
 import { calculateZoomLevel } from './utils/diagram-utils';
 import { IONodesScrollCanvasAction } from './Actions/IONodesScrollCanvasAction';
-import { IntermediatePortFactory, RecordFieldPortFactory } from './Port';
+import { IntermediatePortFactory, InputOutputPortFactory } from './Port';
 import { ExpressionLabelFactory } from './Label';
 import { DataMapperLinkFactory } from './Link';
 import { RightAngleLinkFactory } from './Link/RightAngleLink/RightAngleLinkFactory';
@@ -100,7 +100,7 @@ function initDiagramEngine() {
 	engine.getNodeFactories().registerFactory(new Nodes.ExpressionFunctionBodyFactory());
 	engine.getNodeFactories().registerFactory(new LinkConnectorNodeFactory());
 
-	engine.getPortFactories().registerFactory(new RecordFieldPortFactory());
+	engine.getPortFactories().registerFactory(new InputOutputPortFactory());
 	engine.getPortFactories().registerFactory(new IntermediatePortFactory());
 
 	engine.getLabelFactories().registerFactory(new ExpressionLabelFactory());

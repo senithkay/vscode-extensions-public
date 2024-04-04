@@ -6,7 +6,7 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 
 import { DataMapperLinkModel } from "../../Link"
 import { IntermediatePortModel } from "../IntermediatePort";
-import { InputOutputPortModel } from "../model/RecordFieldPortModel";
+import { InputOutputPortModel } from "../model/InputOutputPortModel";
 import { Icon } from "@wso2-enterprise/ui-toolkit";
 
 export interface DataMapperPortWidgetProps {

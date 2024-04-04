@@ -16,16 +16,16 @@ import * as ts from "typescript";
 
 import classnames from "classnames";
 
-import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
-import { DMTypeWithValue } from "../../../Mappings/DMTypeWithValue";
-import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../../Port";
-import { OutputSearchHighlight } from "../Search";
+import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
+import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../Port";
+import { OutputSearchHighlight } from "../commons/Search";
 
-import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
-import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
-import { useIONodesStyles } from "../../../../styles";
-import { useDMCollapsedFieldsStore } from '../../../../../store/store';
-import { getDefaultValue, isConnectedViaLink } from "../../../utils/common-utils";
+import { ValueConfigMenu, ValueConfigOption } from "../commons/DataManipulationWidget/ValueConfigButton";
+import { ValueConfigMenuItem } from "../commons/DataManipulationWidget/ValueConfigButton/ValueConfigMenuItem";
+import { useIONodesStyles } from "../../../styles";
+import { useDMCollapsedFieldsStore } from '../../../../store/store';
+import { getDefaultValue, isConnectedViaLink } from "../../utils/common-utils";
 
 export interface ObjectOutputFieldWidgetProps {
     parentId: string;
