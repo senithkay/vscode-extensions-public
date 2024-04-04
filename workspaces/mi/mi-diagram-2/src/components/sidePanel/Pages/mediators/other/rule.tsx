@@ -439,7 +439,7 @@ const RuleForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["sourceValue"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "sourceValue": e });
                             formValidators["sourceValue"](e);
                         }}
@@ -454,7 +454,7 @@ const RuleForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["sourceXPath"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "sourceXPath": e });
                             formValidators["sourceXPath"](e);
                         }}
@@ -474,7 +474,7 @@ const RuleForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["targetValue"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "targetValue": e });
                             formValidators["targetValue"](e);
                         }}
@@ -498,7 +498,7 @@ const RuleForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["targetXPath"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "targetXPath": e });
                             formValidators["targetXPath"](e);
                         }}
@@ -513,7 +513,7 @@ const RuleForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["targetResultXPath"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "targetResultXPath": e });
                             formValidators["targetResultXPath"](e);
                         }}
@@ -552,7 +552,7 @@ const RuleForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["ruleSetSourceCode"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "ruleSetSourceCode": e });
                                 formValidators["ruleSetSourceCode"](e);
                             }}
@@ -569,7 +569,7 @@ const RuleForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["inlineRegistryKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "inlineRegistryKey": e });
                                 formValidators["inlineRegistryKey"](e);
                             }}
@@ -586,7 +586,7 @@ const RuleForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["ruleSetURL"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "ruleSetURL": e });
                                 formValidators["ruleSetURL"](e);
                             }}
@@ -607,7 +607,7 @@ const RuleForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["inputWrapperName"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "inputWrapperName": e });
                             formValidators["inputWrapperName"](e);
                         }}
@@ -622,7 +622,7 @@ const RuleForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["inputNamespace"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "inputNamespace": e });
                             formValidators["inputNamespace"](e);
                         }}
@@ -647,7 +647,7 @@ const RuleForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["outputWrapperName"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "outputWrapperName": e });
                             formValidators["outputWrapperName"](e);
                         }}
@@ -662,7 +662,7 @@ const RuleForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["outputNamespace"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "outputNamespace": e });
                             formValidators["outputNamespace"](e);
                         }}

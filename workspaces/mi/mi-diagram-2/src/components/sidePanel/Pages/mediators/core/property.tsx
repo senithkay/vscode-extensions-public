@@ -156,7 +156,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder="New Property Name"
                         value={formValues["newPropertyName"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "newPropertyName": e });
                             formValidators["newPropertyName"](e);
                         }}
@@ -215,7 +215,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder="Value"
                             value={formValues["value"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "value": e });
                                 formValidators["value"](e);
                             }}
@@ -230,7 +230,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder="Expression"
                             value={formValues["expression"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "expression": e });
                                 formValidators["expression"](e);
                             }}
@@ -245,7 +245,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder="Value String Pattern"
                             value={formValues["valueStringPattern"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "valueStringPattern": e });
                                 formValidators["valueStringPattern"](e);
                             }}
@@ -260,7 +260,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder="Value String Capturing Group"
                             value={formValues["valueStringCapturingGroup"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "valueStringCapturingGroup": e });
                                 formValidators["valueStringCapturingGroup"](e);
                             }}
@@ -277,7 +277,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder="Description"
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

@@ -120,7 +120,7 @@ const TemplateEndpointForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}
@@ -135,7 +135,7 @@ const TemplateEndpointForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["targetTemplate"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "targetTemplate": e });
                             formValidators["targetTemplate"](e);
                         }}
@@ -153,7 +153,7 @@ const TemplateEndpointForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["parameterName"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "parameterName": e });
                                     formValidators["parameterName"](e);
                                 }}
@@ -168,7 +168,7 @@ const TemplateEndpointForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["parameterValue"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "parameterValue": e });
                                     formValidators["parameterValue"](e);
                                 }}
@@ -228,7 +228,7 @@ const TemplateEndpointForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["avaiableTemplates"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "avaiableTemplates": e });
                             formValidators["avaiableTemplates"](e);
                         }}

@@ -257,7 +257,7 @@ const LogForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["separator"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "separator": e });
                             formValidators["separator"](e);
                         }}
@@ -282,7 +282,7 @@ const LogForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder="Description"
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

@@ -116,7 +116,7 @@ const SpringForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["beanName"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "beanName": e });
                             formValidators["beanName"](e);
                         }}
@@ -131,7 +131,7 @@ const SpringForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["configurationKey"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "configurationKey": e });
                             formValidators["configurationKey"](e);
                         }}
@@ -146,7 +146,7 @@ const SpringForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

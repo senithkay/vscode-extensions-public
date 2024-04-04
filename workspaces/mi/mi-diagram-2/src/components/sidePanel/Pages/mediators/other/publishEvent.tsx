@@ -287,7 +287,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                     size={50}
                     placeholder=""
                     value={formValues["streamName"]}
-                    onChange={(e: any) => {
+                    onTextChange={(e: any) => {
                         setFormValues({ ...formValues, "streamName": e });
                         formValidators["streamName"](e);
                     }}
@@ -302,7 +302,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                     size={50}
                     placeholder=""
                     value={formValues["streamVersion"]}
-                    onChange={(e: any) => {
+                    onTextChange={(e: any) => {
                         setFormValues({ ...formValues, "streamVersion": e });
                         formValidators["streamVersion"](e);
                     }}
@@ -317,7 +317,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                     size={50}
                     placeholder=""
                     value={formValues["eventSink"]}
-                    onChange={(e: any) => {
+                    onTextChange={(e: any) => {
                         setFormValues({ ...formValues, "eventSink": e });
                         formValidators["eventSink"](e);
                     }}
@@ -341,7 +341,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                     size={50}
                     placeholder=""
                     value={formValues["asyncTimeout"]}
-                    onChange={(e: any) => {
+                    onTextChange={(e: any) => {
                         setFormValues({ ...formValues, "asyncTimeout": e });
                         formValidators["asyncTimeout"](e);
                     }}
@@ -401,7 +401,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                     size={50}
                     placeholder=""
                     value={formValues["description"]}
-                    onChange={(e: any) => {
+                    onTextChange={(e: any) => {
                         setFormValues({ ...formValues, "description": e });
                         formValidators["description"](e);
                     }}
