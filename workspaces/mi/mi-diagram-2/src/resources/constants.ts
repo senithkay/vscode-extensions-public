@@ -219,6 +219,7 @@ export enum NodeTypes {
     CALL_NODE = "call-node",
     PLUS_NODE = "plus-node",
     EMPTY_NODE = "empty-node",
+    CONNECTOR_NODE = "connector-node",
 }
 
 export const NODE_LINK = "node-link";

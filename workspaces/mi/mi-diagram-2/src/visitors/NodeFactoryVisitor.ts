@@ -23,6 +23,7 @@ import { Diagnostic } from "vscode-languageserver-types";
 import { ReferenceNodeModel } from "../components/nodes/ReferenceNode/ReferenceNodeModel";
 import { DiagramService } from "@wso2-enterprise/mi-syntax-tree/src";
 import { PlusNodeModel } from "../components/nodes/PlusNode/PlusNodeModel";
+import { ConnectorNodeModel } from "../components/nodes/ConnectorNode/ConnectorNodeModel";
 
 interface BranchData {
     name: string;
@@ -75,7 +76,9 @@ export class NodeFactoryVisitor implements Visitor {
             diagramNode = new EmptyNodeModel(node, this.documentUri, true);
         } else if (type === NodeTypes.PLUS_NODE) {
             diagramNode = new PlusNodeModel(node, name, this.documentUri);
-        }
+        } else if (type === NodeTypes.CONNECTOR_NODE) {
+            diagramNode = new ConnectorNodeModel(node, name, this.documentUri);
+        } 
         diagramNode.setPosition(node.viewState.x, node.viewState.y);
 
         // create link
