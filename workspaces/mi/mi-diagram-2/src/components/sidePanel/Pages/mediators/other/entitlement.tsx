@@ -17,6 +17,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Range, TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { FirstCharToUpperCase } from '../../../../../utils/commons';
 
 const cardStyle = {
     display: "block",
@@ -105,13 +106,13 @@ const EntitlementForm = (props: AddMediatorProps) => {
                             else if (key == "advice") sequenceType = formValues["adviceSequenceType"];
                             if (range) {
                                 if (sequenceType == "REGISTRY_REFERENCE") {
-                                    const data = { ...formValues, ["remove" + key.charAt(0).toUpperCase() + key.substring(1)]: true }
+                                    const data = { ...formValues, ["remove" + FirstCharToUpperCase(key)]: true }
                                     const editRange: Range = { start: range.startTagRange.start, end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end }
                                     await applyEdit(data, editRange, true);
                                 }
                             } else {
                                 if (sequenceType == "ANONYMOUS") {
-                                    const data = { ...formValues, ["add" + key.charAt(0).toUpperCase() + key.substring(1)]: true }
+                                    const data = { ...formValues, ["add" + FirstCharToUpperCase(key)]: true }
                                     const editRange: Range = { start: ranges["entitlement"].startTagRange.end, end: ranges["entitlement"].startTagRange.end }
                                     await applyEdit(data, editRange, true);
                                 }

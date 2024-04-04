@@ -1744,3 +1744,14 @@ export interface Ntlm extends STNode {
 
 export type DiagramService = APIResource | NamedSequence | Proxy;
 
+export interface Connector extends STNode {
+    connectorName: string;
+    method: string;
+    parameters: ConnectorParameter[];
+}
+
+export interface ConnectorParameter extends STNode {
+    name: string;
+    value: string;
+    isExpression: boolean;
+}

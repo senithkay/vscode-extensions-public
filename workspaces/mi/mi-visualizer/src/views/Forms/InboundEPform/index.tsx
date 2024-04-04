@@ -15,6 +15,7 @@ import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import ParamForm from "./ParamForm";
 import { inboundEndpointParams } from "./ParamTemplate";
 import CardWrapper from "../Commons/CardWrapper";
+import { TypeChangeButton } from "../Commons";
 
 const CheckboxGroup = styled.div({
     display: "flex",
@@ -135,6 +136,10 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
         })();
     }, []);
 
+    const formTitle = isNewInboundEndpoint 
+        ? "Create new Inbound Endpoint" 
+        : "Edit Inbound Endpoint : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
+
     const handleMessage = (text: string, isError: boolean = false) => {
         setMessage({ isError, text });
     }
@@ -248,8 +253,9 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     ));
 
     return (
-        <FormView title="Scheduled Task" onClose={handleOnClose}>
-            {isNewInboundEndpoint ? <CardWrapper cardsType="INBOUND_ENDPOINT" setType={setInboundEndpointType} /> : <>
+        <FormView title={formTitle} onClose={handleOnClose}>
+            {inboundEndpoint.type === '' ? <CardWrapper cardsType="INBOUND_ENDPOINT" setType={setInboundEndpointType} /> : <>
+                {isNewInboundEndpoint && <TypeChangeButton type={inboundEndpoint.type} onClick={setInboundEndpointType} />}
                 <TextField
                     value={inboundEndpoint.name}
                     id='name-input'

@@ -63,7 +63,7 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
                     id={id}
                     className={className}
                     {...rest}
-                    value={props.value ?? ""}
+                    { ...!props.name ? { value: props.value ? props.value : ""} : {} } // If name is not provided, then value should be empty (for react-hook-form)
                     onChange={handleChange}
                     onInput={(e: any) => { onTextChange && onTextChange(e.target.value) }}
                 >
