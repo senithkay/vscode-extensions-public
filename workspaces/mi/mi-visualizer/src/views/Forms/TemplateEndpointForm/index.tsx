@@ -9,36 +9,9 @@
 
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
-import { Button, Codicon, Dropdown, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
-import { SectionWrapper } from "../Commons";
+import { Button, Dropdown, TextField, FormView, FormGroup, FormActions, ParamManager } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
-import InlineButtonGroup from "../Commons/InlineButtonGroup";
-import ParamsTable from "./ParamTable";
-
-const WizardContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 95vw;
-    height: calc(100vh - 140px);
-    overflow: auto;
-`;
-
-const ActionContainer = styled.div`
-    display  : flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-bottom: 20px;
-    width: 100%;
-    margin-top: 20px;
-`;
-
-const SubTitle = styled.h3`
-    margin: 0px;
-`;
 
 const FieldGroup = styled.div`
     display: flex;
@@ -51,21 +24,8 @@ export interface Region {
     value: string;
 }
 
-const Container = styled.div`
-    display: flex;
-    flex-direction: row;
-    height: 50px;
-    align-items: center;
-    justify-content: flex-start;
-`;
-
 export interface TemplateEndpointWizardProps {
     path: string;
-}
-
-type Endpoint = {
-    type: string;
-    value: string;
 }
 
 export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
@@ -80,19 +40,36 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
     });
 
     const [templates, setTemplates] = useState<any[]>([]);
-    const [parameters, setParameters] = useState<any[]>([]);
-    const [expandParamsView, setExpandParamsView] = useState<boolean>(false);
+    const [paramConfigs, setParamConfigs] = useState<any>({
+        paramValues: [],
+        paramFields: [
+            { id: 1, type: "TextField", label: "Name", defaultValue: "", isRequired: true },
+            { id: 2, type: "TextField", label: "Value", defaultValue: "", isRequired: true },
+        ]
+    });
 
     useEffect(() => {
         (async () => {
             const { parameters, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getTemplateEndpoint({ path: props.path });
 
             setEndpoint(endpoint);
-            setParameters(parameters);
-
-            if (parameters.length > 0) {
-                setExpandParamsView(true);
-            }
+            
+            setParamConfigs((prev: any) => {
+                return {
+                    ...prev,
+                    paramValues: parameters.map((property: any, index: Number) => {
+                        return {
+                            id: prev.paramValues.length + index,
+                            parameters: [
+                                { id: 0, label: 'Name', type: 'TextField', value: property.name, isRequired: true },
+                                { id: 1, label: 'Value', type: 'TextField', value: property.value, isRequired: true },
+                            ],
+                            key: property.name,
+                            value: property.value,
+                        }
+                    })
+                };
+            });
 
             const items = await rpcClient.getMiDiagramRpcClient().getTemplates();
             const templates = items.data.map((temp: string) => {
@@ -107,20 +84,31 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
         setEndpoint((prev: any) => ({ ...prev, [field]: value }));
     }
 
-    const handleAddNewProperty = () => {
-        if (parameters.length > 0 && parameters[parameters.length - 1].name === "" && parameters[parameters.length - 1].value === "") {
-            return;
-        }
-
-        setParameters((prev: any) => [...prev, { name: '', value: '', scope: 'default' }]);
-        setExpandParamsView(true);
+    const handleParamChange = (config: any) => {
+        setParamConfigs((prev: any) => {
+            return {
+                ...prev,
+                paramValues: config.paramValues.map((param: any) => {
+                    return {
+                        ...param,
+                        key: param.parameters[0].value,
+                        value: param.parameters[1].value ?? '',
+                    }
+                })
+            };
+        })
     }
 
     const handleUpdateEndpoint = async () => {
         const updateEndpointParams = {
             directory: props.path,
             ...endpoint,
-            parameters,
+            parameters: paramConfigs.paramValues.map((param: any) => {
+                return {
+                    name: param.key,
+                    value: param.value,
+                }
+            })
         }
         rpcClient.getMiDiagramRpcClient().updateTemplateEndpoint(updateEndpointParams);
         openOverview();
@@ -129,10 +117,6 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
     const openOverview = () => {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
-
-    const handleBackButtonClick = () => {
-        openOverview();
-    }
 
     const validateEndpointName = (name: string) => {
         // Check if the name is empty
@@ -150,15 +134,8 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
     const isValid: boolean = validateEndpointName(endpoint.name) === '' && endpoint.template.length > 0;
 
     return (
-        <WizardContainer>
-            <SectionWrapper>
-                <Container>
-                    <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
-                    <div style={{ marginLeft: 30 }}>
-                        <Typography variant="h3">Template Endpoint Artifact</Typography>
-                    </div>
-                </Container>
-                <SubTitle>Basic Properties</SubTitle>
+        <FormView title="Template Endpoint Artifact" onClose={openOverview}>
+            <FormGroup title="Basic Properties" isCollapsed={false}>
                 <TextField
                     id='name-input'
                     label="Name"
@@ -193,18 +170,11 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
                     onTextChange={(text: string) => handleOnChange('description', text)}
                 />
                 <FieldGroup>
-                    <InlineButtonGroup
-                        label="Parameters"
-                        isHide={expandParamsView}
-                        onShowHideToggle={() => {
-                            setExpandParamsView(!expandParamsView);
-                        }}
-                        addNewFunction={handleAddNewProperty}
-                    />
-                    {expandParamsView && <ParamsTable params={parameters} setParams={setParameters} />}
+                    <span>Parameters</span>
+                    <ParamManager paramConfigs={paramConfigs} onChange={handleParamChange} />
                 </FieldGroup>
-            </SectionWrapper>
-            <ActionContainer>
+            </FormGroup>
+            <FormActions>
                 <Button
                     appearance="secondary"
                     onClick={openOverview}
@@ -218,7 +188,7 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
                 >
                     Update
                 </Button>
-            </ActionContainer>
-        </WizardContainer>
+            </FormActions>
+        </FormView>
     );
 }

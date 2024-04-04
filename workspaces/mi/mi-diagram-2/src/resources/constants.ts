@@ -141,6 +141,10 @@ export const NODE_DIMENSIONS = {
         WIDTH: 24,
         HEIGHT: 24,
     },
+    CONNECTOR: {
+        WIDTH: 120,
+        HEIGHT: 120,
+    },
 };
 
 

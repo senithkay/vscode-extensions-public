@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STNode, Visitor, Log, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Aggregate, Iterate, Switch, Foreach, Resource, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Datamapper, Enrich, FastXSLT, Makefault, Jsontransform, Smooks, Xquery, Xslt } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { STNode, Visitor, Log, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Aggregate, Iterate, Switch, Foreach, Resource, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Datamapper, Enrich, FastXSLT, Makefault, Jsontransform, Smooks, Xquery, Xslt, Connector } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 
 export class PositionVisitor implements Visitor {
@@ -293,4 +293,9 @@ export class PositionVisitor implements Visitor {
     beginVisitSmooks = (node: Smooks): void => this.setBasicMediatorPosition(node);
     beginVisitXquery = (node: Xquery): void => this.setBasicMediatorPosition(node);
     beginVisitXslt = (node: Xslt): void => this.setBasicMediatorPosition(node);
+
+    // Connectors
+    beginVisitConnector = (node: Connector): void => {
+        this.setBasicMediatorPosition(node);
+    }
 }

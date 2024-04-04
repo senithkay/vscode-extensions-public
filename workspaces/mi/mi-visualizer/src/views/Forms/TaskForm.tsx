@@ -7,16 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
-import { Button, Codicon, TextField, Typography, Dropdown, RadioButtonGroup, FormView, FormGroup, FormActions } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, RadioButtonGroup, FormView, FormGroup, FormActions } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { CreateTaskRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
-import { SectionWrapper } from "./Commons";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
-
 
 export interface Region {
     label: string;
@@ -49,29 +46,30 @@ const initialInboundEndpoint: InputsFields = {
     triggerCron: ""
 };
 
-const schema = yup
-    .object({
-
-        name: yup.string().required("Task Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Task name"),
-        group: yup.string().required("Task group is required"),
-        implementation: yup.string().required("Task Implementation is required"),
-        pinnedServers: yup.string(),
-        triggerType: yup.mixed<"simple" | "cron">().oneOf(["simple", "cron"]),
-        triggerCount: yup.number().nullable().typeError('Trigger count must be a number').min(1, "Trigger count must be greater than 0"),
-        triggerInterval: yup.number().typeError('Trigger interval must be a number').min(1, "Trigger interval must be greater than 0"),
-        triggerCron: yup.string()
-    })
+const schema = yup.object({
+    name: yup.string().required("Task Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Task name"),
+    group: yup.string().required("Task group is required"),
+    implementation: yup.string().required("Task Implementation is required"),
+    pinnedServers: yup.string(),
+    triggerType: yup.mixed<"simple" | "cron">().oneOf(["simple", "cron"]),
+    triggerCount: yup.number().nullable().typeError('Trigger count must be a number').min(1, "Trigger count must be greater than 0"),
+    triggerInterval: yup.number().typeError('Trigger interval must be a number').min(1, "Trigger interval must be greater than 0"),
+    triggerCron: yup.string()
+})
 
 export function TaskForm(props: TaskFormProps) {
 
     const { rpcClient } = useVisualizerContext();
+    
     const {
         reset,
         register,
         formState: { errors, isDirty, isValid },
         handleSubmit,
         getValues,
-    } = useForm<InputsFields>({
+        watch,
+        setValue
+    } = useForm({
         defaultValues: initialInboundEndpoint,
         resolver: yupResolver(schema),
         mode: "onChange"
@@ -115,6 +113,23 @@ export function TaskForm(props: TaskFormProps) {
         await rpcClient.getMiDiagramRpcClient().createTask(taskRequest);
         openOverview();
     };
+
+    watch();
+
+    // If triggerType changed to cron, then clear the triggerCount and triggerInterval and vice versa
+    useEffect(() => {
+        const subscription = watch((value, { name }) => {
+            if (name === 'triggerType') {
+                if (value.triggerType === 'cron') {
+                    setValue('triggerCount', null);
+                    setValue('triggerInterval', 1);
+                } else {
+                    setValue('triggerCron', '');
+                }
+            }
+        });
+        return () => subscription.unsubscribe();
+    }, [watch, setValue]);
 
     return (
         <FormView title="Scheduled Task" onClose={handleBackButtonClick}>
@@ -161,7 +176,7 @@ export function TaskForm(props: TaskFormProps) {
                         <TextField
                             id="count"
                             label="Count"
-                            errorMsg={errors.triggerCount?.message as string}
+                            errorMsg={errors.triggerCount?.message.toString()}
                             {...register("triggerCount", { valueAsNumber: true })}
                         />
                         <TextField
