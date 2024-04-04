@@ -18,6 +18,7 @@ import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { getSVGIcon } from "../../../resources/icons/mediatorIcons/icons";
+import { Connector } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 namespace S {
     export type NodeStyleProp = {
@@ -127,7 +128,11 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
             operationName: "connector",
             nodeRange: nodeRange,
             isEditing: true,
-            formValues: {form: formJSON.formJSON, title: `${connectorData.name} - ${node.stNode.tag.split(".")[1]}`},
+            formValues: {
+                form: formJSON.formJSON,
+                title: `${connectorData.name} - ${node.stNode.tag.split(".")[1]}`,
+                parameters: (node.stNode as Connector).parameters
+            },
             parentNode: node.mediatorName
         });
     }
