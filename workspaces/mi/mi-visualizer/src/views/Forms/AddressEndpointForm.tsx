@@ -19,12 +19,6 @@ export interface AddressEndpointWizardProps {
     path: string;
 }
 
-interface Property {
-    name: string;
-    value: any;
-    scope: string;
-}
-
 export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
 
     const {rpcClient} = useVisualizerContext();

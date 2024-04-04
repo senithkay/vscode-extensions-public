@@ -19,12 +19,6 @@ export interface WsdlEndpointWizardProps {
     path: string;
 }
 
-interface Property {
-    name: string;
-    value: any;
-    scope: string;
-}
-
 export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
 
     const {rpcClient} = useVisualizerContext();
