@@ -716,4 +716,7 @@ export interface Visitor {
 
     beginVisitCache?(node: Synapse.Cache): void;
     endVisitCache?(node: Synapse.Cache): void;
+
+    beginVisitConnector?(node: Synapse.Connector): void;
+    endVisitConnector?(node: Synapse.Connector): void;
 }

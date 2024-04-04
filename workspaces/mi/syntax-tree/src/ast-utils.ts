@@ -23,6 +23,10 @@ export function traversNode(node: STNode, visitor: Visitor, parent?: STNode) {
         name = name.charAt(0).toUpperCase() + name.substring(1);
     }
 
+    if (name.includes(".")) {
+        name = "Connector";
+    }
+
     let beginVisitFn: any = (visitor as any)[`beginVisit${name}`];
     if (!beginVisitFn) {
         beginVisitFn = visitor.beginVisitSTNode && visitor.beginVisitSTNode;

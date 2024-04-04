@@ -366,6 +366,9 @@ export class SizingVisitor implements Visitor {
     endVisitXquery = (node: Xquery): void => this.calculateBasicMediator(node);
     endVisitXslt = (node: Xslt): void => this.calculateBasicMediator(node);
 
+    // Connectors
+    endVisitConnector = (node: any): void => this.calculateBasicMediator(node, NODE_DIMENSIONS.CONNECTOR.WIDTH, NODE_DIMENSIONS.CONNECTOR.HEIGHT);
+
     skipChildren(): boolean {
         return this.skipChildrenVisit;
     }
