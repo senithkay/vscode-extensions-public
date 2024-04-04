@@ -148,7 +148,11 @@ export const TypeBrowser: React.FC<TypeBrowserProps> = (props: TypeBrowserProps)
     };
 
     const handleChange = (item: string) => {
-        onChange(item);
+        if (query.includes("?") && query.includes(item)) {
+            onChange(query);
+        } else {
+            onChange(item);
+        }
     };
     const handleTextFieldFocused = () => {
         setIsTextFieldFocused(true);
@@ -183,12 +187,12 @@ export const TypeBrowser: React.FC<TypeBrowserProps> = (props: TypeBrowserProps)
         query === ''
             ? items
             : items.filter(item =>
-                item.toLowerCase().replace(/\s+/g, '').includes(query.toLowerCase().replace(/\s+/g, ''))
+                item.toLowerCase().replace(/\s+/g, '').includes(query.toLowerCase().replace(/\?/g, '').replace(/\s+/g, ''))
             );
 
     return (
         <Container sx={sx}>
-            <Combobox value={selectedItem} onChange={handleChange} nullable>
+            <Combobox value={selectedItem} onChange={handleChange} nullable >
                 <div className={DropdownLabelDiv}>
                     <label>{label}</label>
                     {isOptional && <Typography className={OptionalLabel} variant="caption">Optional</Typography>}

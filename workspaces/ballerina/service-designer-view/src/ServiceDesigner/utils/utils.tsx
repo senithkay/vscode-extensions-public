@@ -268,11 +268,12 @@ async function findResponseType(typeSymbol: any, resource: any, index: any, rpcC
         return getInlineRecordConfig(resource, index, typeSymbol);
     } else if (typeSymbol.typeKind === "typeReference" && !typeSymbol.signature?.includes("ballerina")) {
         const recordST: string = await getRecordSource(typeSymbol.name, rpcClient);
+        type = (members && members[index + 1]?.typeKind === "nil") ? typeSymbol.name + "?" : typeSymbol.name;
         return {
             id: index,
             code: findResponseCodeByRecordSource(recordST),
-            type: typeSymbol.name,
-            source: typeSymbol.name
+            type: type,
+            source: type
         };
     } else if (typeSymbol.typeKind === "typeReference" && typeSymbol.signature?.includes("ballerina")) {
         const name = typeSymbol.moduleID?.moduleName === "http" ? `http:${typeSymbol.name}` : typeSymbol.name;
@@ -300,8 +301,7 @@ export async function getResponseConfig(resource: ResourceAccessorDefinition, rp
     if (resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.typeKind === "union" && members) {
         for (const member of members) {
             const res = await findResponseType(member, resource, index, rpcClient, members);
-            response.push(res);
-            index++;
+            res && response.push(res) && index++;
         }
     } else if (resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol) {
         const typeSymbol = resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol;
