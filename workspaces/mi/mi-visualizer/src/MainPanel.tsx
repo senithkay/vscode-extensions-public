@@ -173,8 +173,8 @@ const MainPanel = () => {
                 case MACHINE_VIEW.DataMapperView:
                     setViewComponent(
                         <DataMapper
-                            filePath={"TODO: filePath"}
-                            functionName={"TODO: functionName"}
+                            filePath={"TODO: Add file path"}
+                            functionName={"TODO: Add function name"}
                         />
                     );
                     break;

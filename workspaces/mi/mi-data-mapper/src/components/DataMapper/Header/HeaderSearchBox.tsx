@@ -30,12 +30,7 @@ export interface SearchTerm {
     isLabelAvailable: boolean;
 }
 
-interface SearchBoxProps {
-    // selection: SelectionState;
-}
-
-export default function HeaderSearchBox(props: SearchBoxProps) {
-    // const { selection } = props;
+export default function HeaderSearchBox() {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchOption, setSearchOption] = useState<string[]>([]);
     const [inputSearchTerm, setInputSearchTerm] = useState<SearchTerm>();
@@ -45,10 +40,6 @@ export default function HeaderSearchBox(props: SearchBoxProps) {
     const handleSearchInputChange = (text: string) => {
         debouncedOnChange(text);
         setSearchTerm(text);
-    };
-
-    const handleSearchOptionChange = (event:  React.ChangeEvent<{value: string[]}>) => {
-        setSearchOption(event.target.value);
     };
 
     const handleSearch = (term: string) => {
@@ -119,10 +110,6 @@ export default function HeaderSearchBox(props: SearchBoxProps) {
         handleSearch(modifiedSearchTerm);
         setSearchTerm(modifiedSearchTerm);
     }, [searchOption]);
-
-    // useEffect(() => {
-    //     handleOnSearchTextClear();
-    // }, [selection.selectedST.fieldPath]);
 
     const debouncedOnChange = debounce((value: string) => handleSearch(value), 400);
     const filterIcon = (<Codicon name="filter" sx= {{cursor: "auto"}}/>);
