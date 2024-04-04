@@ -21,9 +21,9 @@ export class SizingVisitor implements Visitor {
         this.diagnostic = diagnostic;
     }
 
-    calculateBasicMediator = (node: STNode): void => {
+    calculateBasicMediator = (node: STNode, w: number = NODE_DIMENSIONS.DEFAULT.WIDTH, h: number = NODE_DIMENSIONS.DEFAULT.HEIGHT): void => {
         if (node.viewState == undefined) {
-            node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.DEFAULT.WIDTH, h: NODE_DIMENSIONS.DEFAULT.HEIGHT }
+            node.viewState = { x: 0, y: 0, w, h }
         }
         this.sequenceWidth = Math.max(this.sequenceWidth, node.viewState.w);
         this.addDiagnostics(node);
@@ -178,15 +178,15 @@ export class SizingVisitor implements Visitor {
 
     endVisitHeader = (node: Header): void => this.calculateBasicMediator(node);
     endVisitInSequence = (node: Sequence): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.EDITABLE.WIDTH, h: NODE_DIMENSIONS.START.EDITABLE.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.START.EDITABLE.WIDTH, NODE_DIMENSIONS.START.EDITABLE.HEIGHT);
     }
 
     endVisitOutSequence = (node: Sequence): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.DISABLED.WIDTH, h: NODE_DIMENSIONS.START.DISABLED.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.START.DISABLED.WIDTH, NODE_DIMENSIONS.START.DISABLED.HEIGHT)
     }
 
     endVisitFaultSequence = (node: Sequence): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.DISABLED.WIDTH, h: NODE_DIMENSIONS.START.DISABLED.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.START.DISABLED.WIDTH, NODE_DIMENSIONS.START.DISABLED.HEIGHT)
     }
 
     beginVisitLog = (node: Log): void => {
@@ -244,9 +244,9 @@ export class SizingVisitor implements Visitor {
         const isSequnce = node.mediatorList && node.mediatorList.length > 0;
 
         if (isSequnce) {
-            node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.START.EDITABLE.WIDTH, h: NODE_DIMENSIONS.START.EDITABLE.HEIGHT };
+            this.calculateBasicMediator(node, NODE_DIMENSIONS.START.EDITABLE.WIDTH, NODE_DIMENSIONS.START.EDITABLE.HEIGHT);
         } else {
-            node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.REFERENCE.WIDTH, h: NODE_DIMENSIONS.REFERENCE.HEIGHT };
+            this.calculateBasicMediator(node, NODE_DIMENSIONS.REFERENCE.WIDTH, NODE_DIMENSIONS.REFERENCE.HEIGHT);
         }
     }
 
@@ -254,7 +254,7 @@ export class SizingVisitor implements Visitor {
 
 
     endVisitValidate = (node: Validate): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT);
         this.calculateAdvancedMediator(node, {
             onFail: node.onFail
         }, NodeTypes.GROUP_NODE);
@@ -264,7 +264,7 @@ export class SizingVisitor implements Visitor {
 
     //Advanced Mediators
     endVisitCache = (node: Cache): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT)
         this.calculateAdvancedMediator(node, {
             OnCacheHit: node.onCacheHit
         }, NodeTypes.GROUP_NODE);
@@ -275,46 +275,46 @@ export class SizingVisitor implements Visitor {
             targets[target.to || index] = target.endpoint || target.sequence || target
         });
 
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT)
         this.calculateAdvancedMediator(node, targets, NodeTypes.GROUP_NODE, true);
     }
-    beginVisitDataServiceCall = (node: DataServiceCall): void => this.calculateBasicMediator(node);
-    beginVisitEnqueue = (node: Enqueue): void => this.calculateBasicMediator(node);
-    beginVisitTransaction = (node: Transaction): void => this.calculateBasicMediator(node);
-    beginVisitEvent = (node: Event): void => this.calculateBasicMediator(node);
+    endVisitDataServiceCall = (node: DataServiceCall): void => this.calculateBasicMediator(node);
+    endVisitEnqueue = (node: Enqueue): void => this.calculateBasicMediator(node);
+    endVisitTransaction = (node: Transaction): void => this.calculateBasicMediator(node);
+    endVisitEvent = (node: Event): void => this.calculateBasicMediator(node);
 
     //EIP Mediators
     endVisitAggregate = (node: Aggregate): void => {
         if (node?.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.mediatorList) {
             traversNode(node.correlateOnOrCompleteConditionOrOnComplete.onComplete, this);
         }
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT);
         this.calculateAdvancedMediator(node, {
             OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete
         }, NodeTypes.GROUP_NODE);
     }
     endVisitIterate = (node: Iterate): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT);
         this.calculateAdvancedMediator(node, {
             Target: node.target.sequence
         }, NodeTypes.GROUP_NODE);
     }
     endVisitForeach = (node: Foreach): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT);
         this.calculateAdvancedMediator(node, {
             Sequence: node.sequence
         }, NodeTypes.GROUP_NODE);
     }
     //Filter Mediators
     endVisitFilter = (node: Filter): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CONDITION.WIDTH, h: NODE_DIMENSIONS.CONDITION.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.CONDITION.WIDTH, NODE_DIMENSIONS.CONDITION.HEIGHT);
         this.calculateAdvancedMediator(node, {
             then: node.then,
             else: node.else_
         }, NodeTypes.CONDITION_NODE);
     }
     endVisitSwitch = (node: Switch): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CONDITION.WIDTH, h: NODE_DIMENSIONS.CONDITION.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.CONDITION.WIDTH, NODE_DIMENSIONS.CONDITION.HEIGHT);
         let cases: { [key: string]: any } = {};
         node._case.map((_case, index) => {
             cases[_case.regex || index] = _case;
@@ -323,29 +323,29 @@ export class SizingVisitor implements Visitor {
             ...cases, default: node._default
         }, NodeTypes.CONDITION_NODE, true, "default");
     }
-    beginVisitConditionalRouter = (node: ConditionalRouter): void => this.calculateBasicMediator(node);
+    endVisitConditionalRouter = (node: ConditionalRouter): void => this.calculateBasicMediator(node);
     endVisitThrottle = (node: Throttle): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CONDITION.WIDTH, h: NODE_DIMENSIONS.CONDITION.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.CONDITION.WIDTH, NODE_DIMENSIONS.CONDITION.HEIGHT);
         this.calculateAdvancedMediator(node, {
             OnAccept: node.onAccept,
             OnReject: node.onReject
         }, NodeTypes.CONDITION_NODE);
     }
     //Extesnion Mediators
-    beginVisitBean = (node: Bean): void => this.calculateBasicMediator(node);
-    beginVisitClass = (node: Class): void => this.calculateBasicMediator(node);
-    beginVisitPojoCommand = (node: PojoCommand): void => this.calculateBasicMediator(node);
-    beginVisitEjb = (node: Ejb): void => this.calculateBasicMediator(node);
-    beginVisitScript = (node: Script): void => this.calculateBasicMediator(node);
-    beginVisitSpring = (node: Spring): void => this.calculateBasicMediator(node);
+    endVisitBean = (node: Bean): void => this.calculateBasicMediator(node);
+    endVisitClass = (node: Class): void => this.calculateBasicMediator(node);
+    endVisitPojoCommand = (node: PojoCommand): void => this.calculateBasicMediator(node);
+    endVisitEjb = (node: Ejb): void => this.calculateBasicMediator(node);
+    endVisitScript = (node: Script): void => this.calculateBasicMediator(node);
+    endVisitSpring = (node: Spring): void => this.calculateBasicMediator(node);
 
     //Other Mediators
-    beginVisitBam = (node: Bam): void => this.calculateBasicMediator(node);
-    beginVisitOauthService = (node: OauthService): void => this.calculateBasicMediator(node);
-    beginVisitBuild = (node: Builder): void => this.calculateBasicMediator(node);
-    beginVisitPublishEvent = (node: PublishEvent): void => this.calculateBasicMediator(node);
+    endVisitBam = (node: Bam): void => this.calculateBasicMediator(node);
+    endVisitOauthService = (node: OauthService): void => this.calculateBasicMediator(node);
+    endVisitBuild = (node: Builder): void => this.calculateBasicMediator(node);
+    endVisitPublishEvent = (node: PublishEvent): void => this.calculateBasicMediator(node);
     endVisitEntitlementService = (node: EntitlementService): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.GROUP.WIDTH, h: NODE_DIMENSIONS.GROUP.HEIGHT };
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT);
         this.calculateAdvancedMediator(node, {
             OnAccept: node.onAccept,
             OnReject: node.onReject,
@@ -353,18 +353,21 @@ export class SizingVisitor implements Visitor {
             Advice: node.advice
         }, NodeTypes.GROUP_NODE);
     }
-    beginVisitRule = (node: Rule): void => this.calculateBasicMediator(node);
-    beginVisitNtlm = (node: Ntlm): void => this.calculateBasicMediator(node);
+    endVisitRule = (node: Rule): void => this.calculateBasicMediator(node);
+    endVisitNtlm = (node: Ntlm): void => this.calculateBasicMediator(node);
 
     //Transformation Mediators
-    beginVisitDatamapper = (node: Datamapper): void => this.calculateBasicMediator(node);
-    beginVisitEnrich = (node: Enrich): void => this.calculateBasicMediator(node);
-    beginVisitFastXSLT = (node: FastXSLT): void => this.calculateBasicMediator(node);
-    beginVisitMakefault = (node: Makefault): void => this.calculateBasicMediator(node);
-    beginVisitJsontransform = (node: Jsontransform): void => this.calculateBasicMediator(node);
-    beginVisitSmooks = (node: Smooks): void => this.calculateBasicMediator(node);
-    beginVisitXquery = (node: Xquery): void => this.calculateBasicMediator(node);
-    beginVisitXslt = (node: Xslt): void => this.calculateBasicMediator(node);
+    endVisitDatamapper = (node: Datamapper): void => this.calculateBasicMediator(node);
+    endVisitEnrich = (node: Enrich): void => this.calculateBasicMediator(node);
+    endVisitFastXSLT = (node: FastXSLT): void => this.calculateBasicMediator(node);
+    endVisitMakefault = (node: Makefault): void => this.calculateBasicMediator(node);
+    endVisitJsontransform = (node: Jsontransform): void => this.calculateBasicMediator(node);
+    endVisitSmooks = (node: Smooks): void => this.calculateBasicMediator(node);
+    endVisitXquery = (node: Xquery): void => this.calculateBasicMediator(node);
+    endVisitXslt = (node: Xslt): void => this.calculateBasicMediator(node);
+
+    // Connectors
+    endVisitConnector = (node: any): void => this.calculateBasicMediator(node, NODE_DIMENSIONS.CONNECTOR.WIDTH, NODE_DIMENSIONS.CONNECTOR.HEIGHT);
 
     skipChildren(): boolean {
         return this.skipChildrenVisit;

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Visitor, STNode, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, Iterate, Resource, Switch, Foreach, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Datamapper, Enrich, FastXSLT, Makefault, Jsontransform, Smooks, Xquery, Xslt, Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Visitor, STNode, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, Iterate, Resource, Switch, Foreach, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Datamapper, Enrich, FastXSLT, Makefault, Jsontransform, Smooks, Xquery, Xslt, Range, Connector } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 import { GroupNodeModel } from "../components/nodes/GroupNode/GroupNodeModel";
@@ -463,6 +463,12 @@ export class NodeFactoryVisitor implements Visitor {
         this.parents.pop();
         this.skipChildrenVisit = false;
     }
+
+    // Connectors
+    beginVisitConnector(node: Connector): void {
+        // this.createNodeAndLinks({ node, name: node.connectorName, type: NodeTypes.CONNECTOR_NODE });
+    }
+
     beginVisitDataServiceCall = (node: DataServiceCall): void => this.createNodeAndLinks({ node, name: MEDIATORS.DATASERVICECALL });
     beginVisitEnqueue = (node: Enqueue): void => this.createNodeAndLinks({ node, name: MEDIATORS.ENQUEUE });
     beginVisitTransaction = (node: Transaction): void => this.createNodeAndLinks({ node, name: MEDIATORS.TRANSACTION });
