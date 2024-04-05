@@ -68,7 +68,7 @@ export function SampleReactHookForm(props: SampleReactHookFormProps) {
             <FormAutoComplete
                 label="Words"
                 required={true}
-                isNullable={false}
+                isNullable={true}
                 items={["foo", "boo"]}
                 control={control}
                 {...register("words")}
