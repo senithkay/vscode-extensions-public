@@ -8,7 +8,15 @@
  */
 import React, { useState } from "react";
 import { storiesOf } from "@storybook/react";
-import { ParamConfig, ParamField, ParamManager } from "./ParamManager";
+import { ParamConfig, ParamField, ParamManager, Parameters } from "./ParamManager";
+
+const generateSpaceSeperatedStringFromParamValues = (paramValues: Parameters) => {
+    let result = "";
+    paramValues.parameters.forEach(param => {
+        result += param.value + " ";
+    });
+    return result.trim();
+};
 
 // Sample object for ParamManager
 const paramConfigs: ParamConfig = {
@@ -52,7 +60,10 @@ const paramConfigs: ParamConfig = {
                     value: "This is a description",
                     isRequired: false
                 }
-            ]
+            ],
+            key: "Key 1",
+            value: "Int var1 0 true This is a description",
+            icon: "query"
         }
     ],
     paramFields: [
@@ -92,8 +103,15 @@ const paramConfigs: ParamConfig = {
 
 const ParamManagerDefault = () => {
     const [params, setParams] = useState(paramConfigs);
-    const handleOnChange = (params: any) => {
-        setParams(params);
+    const handleOnChange = (params: ParamConfig) => {
+        const modifiedParams = { ...params, paramValues: params.paramValues.map((param, index) => {
+            return {
+                ...param,
+                key: `Key ${index + 1}`,
+                value: generateSpaceSeperatedStringFromParamValues(param)
+            }
+        })};
+        setParams(modifiedParams);
     };
 
     return (
@@ -128,7 +146,7 @@ const paramFields: ParamField[] = [
         defaultValue: false,
         enableCondition: [
             "OR",
-            { "Drop Down": "2", "Text Field": "2" }
+            { 1: "2", 0: "2" }
         ]
     },
     {
@@ -146,8 +164,15 @@ const config: ParamConfig = {
 
 const EnableCondition = () => {
     const [params, setParams] = useState(config);
-    const handleOnChange = (params: any) => {
-        setParams(params);
+    const handleOnChange = (params: ParamConfig) => {
+        const modifiedParams = { ...params, paramValues: params.paramValues.map((param, index) => {
+            return {
+                ...param,
+                key: `Key ${index + 1}`,
+                value: generateSpaceSeperatedStringFromParamValues(param)
+            }
+        })};
+        setParams(modifiedParams);
     };
 
     return (
@@ -181,7 +206,7 @@ const paramFieldsWithEmptyLogicalExpr: ParamField[] = [
         label: "Checkbox",
         defaultValue: false,
         enableCondition: [
-            { "Drop Down": "2" }
+            { 1 : "2" }
         ]
     },
     {
@@ -199,8 +224,15 @@ const emptyLogicalExpr: ParamConfig = {
 
 const EmptyLogicCondition = () => {
     const [params, setParams] = useState(emptyLogicalExpr);
-    const handleOnChange = (params: any) => {
-        setParams(params);
+    const handleOnChange = (params: ParamConfig) => {
+        const modifiedParams = { ...params, paramValues: params.paramValues.map((param, index) => {
+            return {
+                ...param,
+                key: `Key ${index + 1}`,
+                value: generateSpaceSeperatedStringFromParamValues(param)
+            }
+        })};
+        setParams(modifiedParams);
     };
 
     return (
