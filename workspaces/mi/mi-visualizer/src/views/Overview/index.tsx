@@ -8,10 +8,11 @@
  */
 
 import React, { useEffect } from "react";
-import { ProjectStructureResponse, WorkspaceFolder } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureResponse, WorkspaceFolder } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import ProjectStructureView from "./ProjectStructureView";
 import { View, ViewContent, ViewHeader } from "../../components/View";
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 
 interface OverviewProps {
     stateUpdated: boolean;
@@ -46,9 +47,22 @@ export function Overview(props: OverviewProps) {
         setSelected(fsPath);
     }
 
+    const handleAddArtifact = () => {
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.ADD_ARTIFACT
+            },
+        })
+    }
+
     return (
         <View>
             <ViewHeader title={"Project: " + activeWorkspaces?.name} codicon="project">
+                <Button appearance="primary" onClick={handleAddArtifact}>
+                    <Codicon name="add" sx={{ marginRight: "4px" }} />
+                    Add Artifact
+                </Button>
             </ViewHeader>
             <ViewContent padding>
                 {projectStructure && <ProjectStructureView projectStructure={projectStructure} workspaceDir={selected} />}
