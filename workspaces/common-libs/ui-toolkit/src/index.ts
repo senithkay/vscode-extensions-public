@@ -48,6 +48,7 @@ export * from "./components/Card/Card";
 export * from './components/RadioButtonGroup/RadioButtonGroup';
 export * from './components/Accordion/Accordion';
 export * from './components/SyntaxHighlighter/SyntaxHighlighter';
+export * from './components/Alert/Alert';
 
 export * from './components/SampleForm/Header/Header';
 export * from './components/SampleForm/HorizontalIcons/HorizontalIcons';
