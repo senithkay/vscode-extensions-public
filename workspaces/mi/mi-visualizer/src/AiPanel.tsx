@@ -58,7 +58,6 @@ const AiPanel = () => {
                     break;
                 case "loggedOut":
                     setViewComponent(<SignInToCopilotMessage />);
-                    // setViewComponent(<h1>Logged Out  <button onClick={login}>LogIn</button></h1>);
                     break;
                 case "WaitingForLogin":
                     setViewComponent(<h1>Waiting for login</h1>);
