@@ -69,7 +69,7 @@ export function SampleReactHookForm(props: SampleReactHookFormProps) {
                 id="words"
                 label="Words"
                 required={true}
-                nullable={false}
+                nullable={true}
                 items={["foo", "boo"]}
                 onValueChange={(val: string)=>setValue('words',val)}
                 {...register("words")}
