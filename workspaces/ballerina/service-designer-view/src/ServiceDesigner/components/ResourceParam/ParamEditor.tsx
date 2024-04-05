@@ -75,7 +75,7 @@ export function ParamEditor(props: ParamProps) {
                     isRequired
                     items={options}
                     label="Param Type"
-                    onChange={handleOnSelect}
+                    onValueChange={handleOnSelect}
                     value={param.option}
                 />
             )}
