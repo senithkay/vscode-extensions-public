@@ -35,6 +35,7 @@ import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
 import { UnsupportedProject, UnsupportedProjectProps } from './views/UnsupportedProject';
+import { DataMapper } from './views/DataMapper';
 
 const MainContainer = styled.div`
     display: flex;
@@ -168,6 +169,14 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.ServiceDesigner:
                     setViewComponent(<ServiceDesignerView syntaxTree={machineView.stNode} documentUri={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.DataMapperView:
+                    setViewComponent(
+                        <DataMapper
+                            filePath={"TODO: Add file path"}
+                            functionName={"TODO: Add function name"}
+                        />
+                    );
                     break;
                 case MACHINE_VIEW.APIForm:
                     setViewComponent(<APIWizard apiData={(machineView.customProps as APIWizardProps)?.apiData} path={machineView.documentUri} />);

@@ -14,7 +14,7 @@ module.exports = {
         extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
         alias: {
             'react': path.resolve(__dirname, 'node_modules/react'),
-            'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+            'react-dom': path.resolve(__dirname, 'node_modules/react-dom')
         },
         fallback: { 'process/browser': require.resolve('process/browser'), }
     },
@@ -28,6 +28,7 @@ module.exports = {
             {
                 enforce: "pre",
                 test: /\.js$/,
+                exclude: /node_modules\/(?!typescript)/, // Exclude all node_modules except typescript,
                 loader: "source-map-loader"
             },
             {
@@ -39,10 +40,7 @@ module.exports = {
             },
             {
                 test: /\.(woff|woff2|ttf|eot)$/,
-                type: 'asset/resource',
-                generator: {
-                    filename: './fonts/[name][ext]',
-                },
+                type: 'asset/inline',
             },
             {
                 test: /\.(svg|png)$/,
@@ -52,6 +50,7 @@ module.exports = {
                 },
             }
         ],
+        noParse: [require.resolve("typescript/lib/typescript.js")],
     },
     devServer: {
         allowedHosts: 'all',
