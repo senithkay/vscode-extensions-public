@@ -89,14 +89,14 @@ export const NODE_GAP = {
     SEQUENCE_Y: 100,
     GROUP_NODE_START_Y: 50,
     GROUP_NODE_END_Y: 50,
-    GROUP_NODE_HORIZONTAL_GAP: 100,
-    GROUP_NODE_HORIZONTAL_PADDING: 44
+    GROUP_NODE_HORIZONTAL_PADDING: 22,
+    TEXT_NODE_GAP: 25,
 };
 
 export const NODE_DIMENSIONS = {
     DEFAULT: {
-        WIDTH: 120,
-        HEIGHT: 40,
+        WIDTH: 150,
+        HEIGHT: 60,
     },
     START: {
         EDITABLE: {
@@ -113,17 +113,17 @@ export const NODE_DIMENSIONS = {
         HEIGHT: 65,
     },
     REFERENCE: {
-        WIDTH: 120,
-        HEIGHT: 40,
+        WIDTH: 150,
+        HEIGHT: 60,
     },
     GROUP: {
-        WIDTH: 120,
-        HEIGHT: 40,
+        WIDTH: 150,
+        HEIGHT: 60,
     },
     CALL: {
-        WIDTH: 120,
-        FULL_WIDTH: 120 + 110,
-        HEIGHT: 50,
+        WIDTH: 150,
+        FULL_WIDTH: 150 + 110,
+        HEIGHT: 60,
     },
     EMPTY: {
         WIDTH: 0,
@@ -145,6 +145,7 @@ export const NODE_DIMENSIONS = {
         WIDTH: 120,
         HEIGHT: 120,
     },
+    BORDER: 1,
 };
 
 
