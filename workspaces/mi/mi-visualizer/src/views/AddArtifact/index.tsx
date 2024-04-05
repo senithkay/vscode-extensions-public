@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect } from "react";
-import { WorkspaceFolder } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, WorkspaceFolder } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Button, Codicon, TextArea, Card, Typography, LinkButton, Divider } from "@wso2-enterprise/ui-toolkit";
 import { Transition } from "@headlessui/react";
@@ -161,7 +161,8 @@ export function AddArtifactView() {
         console.log("Close button clicked"); // Implement the close logic here
     };
 
-    const handleGenerateWithAI = () => {
+    const handleGenerateWithAI = async () => {
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } })
         rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.openAiPanel", inputAiPrompt] });
     };
 
