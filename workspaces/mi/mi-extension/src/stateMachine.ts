@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import { Uri, ViewColumn, window } from 'vscode';
 import { MILanguageClient } from './lang-client/activator';
 import { extension } from './MIExtensionContext';
-import { EVENT_TYPE, MACHINE_VIEW, MachineStateValue, SyntaxTreeMi, VisualizerLocation, webviewReady } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, HistoryEntry, MACHINE_VIEW, MachineStateValue, SyntaxTreeMi, VisualizerLocation, webviewReady } from '@wso2-enterprise/mi-core';
 import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
@@ -421,11 +421,11 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 
-export function navigate() {
+export function navigate(entry?: HistoryEntry) {
     const historyStack = history.get();
     if (historyStack.length === 0) {
-        history.push({ location: { view: MACHINE_VIEW.Overview, } });
-        stateService.send({ type: "NAVIGATE", viewLocation: { view: MACHINE_VIEW.Overview } });
+        history.push({ location: entry!.location });
+        stateService.send({ type: "NAVIGATE", viewLocation: entry!.location });
     } else {
         const location = historyStack[historyStack.length - 1].location;
         stateService.send({ type: "NAVIGATE", viewLocation: location });

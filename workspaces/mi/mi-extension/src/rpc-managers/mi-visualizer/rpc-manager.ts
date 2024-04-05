@@ -83,8 +83,8 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
 
     goBack(): void {
-        history.pop();
-        navigate();
+        const entry = history.pop();
+        navigate(entry);
     }
 
     async fetchSamplesFromGithub(): Promise<GettingStartedData> {
