@@ -105,7 +105,7 @@ export function SwitchNodeForm(props: OptionWidgetProps) {
                             value={caseBlock.expression.expression || ""}
                             rows={2}
                             resize="vertical"
-                            onChange={(value: string) => {
+                            onTextChange={(value: string) => {
                                 if (node) {
                                     nodeProperties.current.cases[index].expression.expression = value;
                                 }

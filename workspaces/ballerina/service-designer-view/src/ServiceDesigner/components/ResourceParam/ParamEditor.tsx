@@ -100,7 +100,7 @@ export function ParamEditor(props: ParamProps) {
                     placeholder='Enter name'
                     value={param.name}
                     errorMsg={param.name && diagnostics.find(diag => diag.range.start.line === dPosition.startLine && diag.message.includes(param.name))?.message}
-                    onChange={handleChange}
+                    onTextChange={handleChange}
                 />
                 {!hideDefaultValue && (
                     <TextField
@@ -110,7 +110,7 @@ export function ParamEditor(props: ParamProps) {
                         placeholder='Enter default value'
                         errorMsg={diagnostics.find(diag => diag.range.start.line === dPosition.startLine && (diag.message.includes(RESOURCE_CHECK.INCOMPATIBLE) || diag.message.includes(RESOURCE_CHECK.UNDEFINED)))?.message}
                         value={param.defaultValue}
-                        onChange={handleValueChange}
+                        onTextChange={handleValueChange}
                     />
                 )}
             </EditorContent>

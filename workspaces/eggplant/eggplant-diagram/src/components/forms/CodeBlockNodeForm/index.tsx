@@ -118,7 +118,7 @@ export function CodeBlockNodeForm(props: OptionWidgetProps) {
                 value={nodeProperties.current?.codeBlock?.code.trim() || ""}
                 rows={16}
                 resize="vertical"
-                onChange={(value: string) => {
+                onTextChange={(value: string) => {
                     if (node) {
                         nodeProperties.current.codeBlock.code = value;
                     }

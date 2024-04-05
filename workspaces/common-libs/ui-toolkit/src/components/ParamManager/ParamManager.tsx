@@ -19,10 +19,13 @@ import { Param } from './TypeResolver';
 export interface Parameters {
     id: number;
     parameters: Param[];
+    key: string;
+    value: string;
+    icon?: string | React.ReactElement; // Icon for the parameter. Icon name or React element should be passed
 }
 
 export interface ConditionParams {
-    [key: string]: string;
+    [key: number]: string;
 }
 
 export interface EnableCondition {
@@ -79,8 +82,58 @@ export function convertToObject(input: (ConditionParams | string)[]): EnableCond
     if (currentValues.length > 0) {
         result[currentKey!] = currentValues;
     }
-    console.log(result);
     return result;
+}
+
+// This function is used to check the field is enabled or not on the eneble condition
+export function isFieldEnabled(params: Param[], enableCondition?: EnableCondition): boolean {
+    let paramEnabled = false;
+    enableCondition["OR"]?.forEach(item => {
+        params.forEach(par => {
+            if (item[par.id]) {
+                const satisfiedConditionValue = item[par.id];
+                // if one of the condition is satisfied, then the param is enabled
+                if (par.value === satisfiedConditionValue) {
+                    paramEnabled = true;
+                }
+            }
+        });
+    });
+    enableCondition["AND"]?.forEach(item => {
+        paramEnabled = !paramEnabled ? false : paramEnabled; 
+        for (const par of params) {
+            if (item[par.id]) {
+                const satisfiedConditionValue = item[par.id];
+                // if all of the condition is not satisfied, then the param is enabled
+                paramEnabled = (par.value === satisfiedConditionValue);
+                if (!paramEnabled) {
+                    break;
+                }
+            }
+        }
+    });
+    enableCondition["NOT"]?.forEach(item => {
+        for (const par of params) {
+            if (item[par.id]) {
+                const satisfiedConditionValue = item[par.id];
+                // if the condition is not satisfied, then the param is enabled
+                paramEnabled = !(par.value === satisfiedConditionValue);
+                if (!paramEnabled) {
+                    break;
+                }
+            }
+        }
+    });
+    enableCondition["null"]?.forEach(item => {
+        params.forEach(par => {
+            if (item[par.id]) {
+                const satisfiedConditionValue = item[par.id];
+                // if the condition is not satisfied, then the param is enabled
+                paramEnabled = (par.value === satisfiedConditionValue);
+            }
+        });
+    });
+    return paramEnabled;
 }
 
 const getNewParam = (fields: ParamField[], index: number): Parameters => {
@@ -96,9 +149,19 @@ const getNewParam = (fields: ParamField[], index: number): Parameters => {
             enableCondition: field.enableCondition ? convertToObject(field.enableCondition) : undefined
         });
     });
+    // Modify the fields to set field is enabled or not
+    const modifiedParamInfo = paramInfo.map(param => {
+        if (param.enableCondition) {
+            const paramEnabled = isFieldEnabled(paramInfo, param.enableCondition);
+            param.isEnabled = paramEnabled;
+        }
+        return param;
+    });
     return {
         id: index,
-        parameters: paramInfo
+        parameters: modifiedParamInfo,
+        key: "",
+        value: ""
     };
 };
 
@@ -110,7 +173,6 @@ export function ParamManager(props: ParamManagerProps) {
     const { paramConfigs , readonly, onChange } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
-
 
     const onEdit = (param: Parameters) => {
         setEditingSegmentId(param.id);
@@ -168,6 +230,7 @@ export function ParamManager(props: ParamManagerProps) {
                 paramComponents.push(
                     <ParamEditor
                         parameters={param}
+                        paramFields={paramConfigs.paramFields}
                         isTypeReadOnly={false}
                         onSave={onSaveParam}
                         onChange={onChangeParam}

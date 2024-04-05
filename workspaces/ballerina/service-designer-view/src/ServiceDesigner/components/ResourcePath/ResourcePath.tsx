@@ -89,7 +89,7 @@ export function ResourcePath(props: ResourcePathProps) {
 						id="drop-down"
 						items={verbs}
 						label="HTTP Method"
-						onChange={handleMethodChange}
+						onValueChange={handleMethodChange}
 						value={method}
 					/>
 				</div>
@@ -99,7 +99,7 @@ export function ResourcePath(props: ResourcePathProps) {
 					errorMsg={diagnostics.find(diag => diag.range.start.line === dPosition.startLine && diag.message.includes(path))?.message}
 					label="Resource Path"
 					size={70}
-					onChange={handlePathChange}
+					onTextChange={handlePathChange}
 					placeholder="path/foo"
 					value={path}
 				/>

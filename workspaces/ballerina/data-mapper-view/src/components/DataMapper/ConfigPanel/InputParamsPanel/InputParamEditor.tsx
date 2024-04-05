@@ -108,7 +108,7 @@ export function InputParamEditor(props: InputParamEditorProps) {
                         <TextField
                             value={paramName}
                             placeholder={paramName}
-                            onChange={onUpdateParamName}
+                            onTextChange={onUpdateParamName}
                             errorMsg={pramError}
                             size={40}
                         />

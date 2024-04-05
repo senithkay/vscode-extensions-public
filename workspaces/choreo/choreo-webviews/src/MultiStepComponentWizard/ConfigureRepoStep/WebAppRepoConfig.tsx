@@ -109,7 +109,7 @@ export const WebAppRepoConfig = (props: WebAppRepoConfigProps) => {
                             id='build-command'
                             label="Build Command"
                             placeholder="npm run build"
-                            onChange={(text: string) => setBuildCommand(text)}
+                            onTextChange={(text: string) => setBuildCommand(text)}
                             required
                         />
                         <TextField
@@ -117,7 +117,7 @@ export const WebAppRepoConfig = (props: WebAppRepoConfigProps) => {
                             id='build-directory'
                             label="Build output directory"
                             placeholder="build"
-                            onChange={(text: string) => setBuildOutputDirectory(text)}
+                            onTextChange={(text: string) => setBuildOutputDirectory(text)}
                             required
                         />
                         <TextField
@@ -125,7 +125,7 @@ export const WebAppRepoConfig = (props: WebAppRepoConfigProps) => {
                             id='build--node-version'
                             label="Node Version"
                             placeholder="18"
-                            onChange={(text: string) => setNodeVersion(text)}
+                            onTextChange={(text: string) => setNodeVersion(text)}
                             required
                         />
                     </>
@@ -166,7 +166,7 @@ export const WebAppRepoConfig = (props: WebAppRepoConfigProps) => {
                         id='component-port-input'
                         label="Port"
                         placeholder="Port"
-                        onChange={(text: string) => setPortValue(text)}
+                        onTextChange={(text: string) => setPortValue(text)}
                         required
                     />
                 )}

@@ -41,6 +41,9 @@ export * from './components/Swich/Swich';
 export * from './components/ClickAwayListener/ClickAwayListener';
 export * from './components/Confirm/Confirm';
 export * from './components/CheckBoxGroup/CheckBoxGroup';
+export * from './components/ErrorBoundary/ErrorBoundary';
+export * from "./components/Card/Card";
+export * from './components/RadioButtonGroup/RadioButtonGroup';
 
 export * from './components/SampleForm/Header/Header';
 export * from './components/SampleForm/HorizontalIcons/HorizontalIcons';

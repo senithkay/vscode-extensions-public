@@ -120,8 +120,8 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
                 {supportedVersions?.length > 0 && (
                     <AutoComplete
                         items={supportedVersions ?? []}
-                        selectedItem={formData.selectedBuildPackVersion}
-                        onChange={handleVersionChange}
+                        value={formData.selectedBuildPackVersion}
+                        onValueChange={handleVersionChange}
                         id="version-selector"
                     /> 
                 )}
@@ -132,7 +132,7 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
                             id='component-port-input'
                             label="Port"
                             placeholder="Port"
-                            onChange={(text: string) => setPortValue(text)}
+                            onTextChange={(text: string) => setPortValue(text)}
                             required
                         />
                     </MarginTopWrap>

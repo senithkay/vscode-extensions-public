@@ -10,9 +10,21 @@
 import React from "react";
 
 import { Codicon } from "../Codicon/Codicon";
-import { ActionIconWrapper, ContentSection, DeleteIconWrapper, EditIconWrapper, HeaderLabel, IconTextWrapper, disabledHeaderLabel, headerLabelStyles } from "./styles";
+import {
+    ActionIconWrapper,
+    ActionWrapper,
+    DeleteIconWrapper,
+    EditIconWrapper,
+    HeaderLabel,
+    ContentWrapper,
+    KeyTextWrapper,
+    ValueTextWrapper,
+    IconWrapper,
+    IconTextWrapper,
+    Key
+} from "./styles";
 import { Parameters } from "./ParamManager";
-import { Param } from "./TypeResolver";
+import { Icon } from "../Icon/Icon";
 
 interface ParamItemProps {
     params: Parameters;
@@ -20,20 +32,6 @@ interface ParamItemProps {
     onDelete?: (param: Parameters) => void;
     onEditClick?: (param: Parameters) => void;
 }
-
-const getParamComponent = (p: Param, isReadonly: boolean) => {
-    return (
-        <>
-            {(!p.isEnabled || !p.enableCondition) ? (
-                <div data-test-id={`${p.label}-param`} className={isReadonly ? disabledHeaderLabel : headerLabelStyles}>
-                    {p.value.toString()}
-                </div>
-            ) : 
-                null
-            }
-        </>
-    )
-};
 
 export function ParamItem(props: ParamItemProps) {
     const { params, readonly, onDelete, onEditClick } = props;
@@ -52,13 +50,24 @@ export function ParamItem(props: ParamItemProps) {
             onEditClick(params);
         }
     };
+    const icon = (typeof params.icon === "string") ? <Icon name={params.icon} /> : params.icon;
 
     return (
         <HeaderLabel data-testid={`${label}-item`}>
-            <IconTextWrapper readonly={readonly} onClick={handleEdit}>
-                {params.parameters.map(param => getParamComponent(param, readonly))}
-            </IconTextWrapper>
-            <ContentSection>
+            <ContentWrapper readonly={readonly} onClick={handleEdit}>
+                {icon ? (
+                    <IconTextWrapper>
+                        <IconWrapper> {icon} </IconWrapper>
+                        {params.key}
+                    </IconTextWrapper>
+                ) : (
+                    <KeyTextWrapper>
+                        <Key> {params.key} </Key>
+                    </KeyTextWrapper>
+                )}
+                <ValueTextWrapper> {params.value} </ValueTextWrapper>
+            </ContentWrapper>
+            <ActionWrapper>
                 {!readonly && (
                     <ActionIconWrapper>
                         <EditIconWrapper>
@@ -69,7 +78,7 @@ export function ParamItem(props: ParamItemProps) {
                         </DeleteIconWrapper>
                     </ActionIconWrapper>
                 )}
-            </ContentSection>
+            </ActionWrapper>
         </HeaderLabel>
     );
 }
