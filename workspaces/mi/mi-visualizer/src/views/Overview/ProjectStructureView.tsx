@@ -202,7 +202,7 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
             {!ifHasEntries() && (
                 <Container>
                     <Dialog isOpen={true} onClose={() => {}}>
-                        <Typography variant='body1'> No entries found </Typography>
+                        <Typography variant='body1'> No artifacts found </Typography>
                     </Dialog>
                 </Container>
             )}
