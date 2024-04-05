@@ -36,6 +36,7 @@ import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
 import { UnsupportedProject, UnsupportedProjectProps } from './views/UnsupportedProject';
 import { DataMapper } from './views/DataMapper';
+import { AddArtifactView } from './views/AddArtifact';
 
 const MainContainer = styled.div`
     display: flex;
@@ -126,6 +127,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.Overview:
                     setViewComponent(<Overview stateUpdated />);
+                    break;
+                case MACHINE_VIEW.ADD_ARTIFACT:
+                    setViewComponent(<AddArtifactView />);
                     break;
                 case MACHINE_VIEW.UnsupportedProject:
                     setViewComponent(

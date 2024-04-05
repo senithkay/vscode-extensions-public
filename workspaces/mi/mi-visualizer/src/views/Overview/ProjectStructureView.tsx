@@ -8,7 +8,7 @@
  */
 
 import { ProjectStructureEntry, ProjectStructureResponse, ProjectDirectoryMap, EsbDirectoryMap, EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
-import { Codicon, ComponentCard } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, ComponentCard, Dialog, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import path from 'path';
@@ -108,12 +108,16 @@ const artifactTypeMap: Record<string, ArtifactType> = {
     // Add more artifact types as needed
 };
 
-
-
-
-
 const Listing = styled.div({
     marginTop: "2em"
+})
+
+const Container = styled.div({
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
 })
 
 const ProjectStructureView = (props: { projectStructure: any, workspaceDir: string }) => {
@@ -195,7 +199,13 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
                 </>
             }
             {/* else render message */}
-            {!ifHasEntries() && <div> No entries found </div>}
+            {!ifHasEntries() && (
+                <Container>
+                    <Dialog isOpen={true} onClose={() => {}}>
+                        <Typography variant='body1'> No entries found </Typography>
+                    </Dialog>
+                </Container>
+            )}
         </Listing>
     );
 };

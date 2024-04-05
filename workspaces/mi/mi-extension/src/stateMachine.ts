@@ -39,7 +39,19 @@ const stateMachine = createMachine<MachineContext>({
                 onDone: [
                     {
                         target: 'projectDetected',
-                        cond: (context, event) => event.data.isProject === true, // Assuming true means project detected
+                        cond: (context, event) =>
+                            event.data.isProject === true && event.data.emptyProject === true, // Assuming true means project detected
+                        actions: assign({
+                            view: (context, event) => MACHINE_VIEW.ADD_ARTIFACT,
+                            projectUri: (context, event) => event.data.projectUri,
+                            isMiProject: (context, event) => true,
+                            displayOverview: (context, event) => true,
+                        })
+                    },
+                    {
+                        target: 'projectDetected',
+                        cond: (context, event) =>
+                            event.data.isProject === true && event.data.emptyProject === false, // Assuming true means project detected
                         actions: assign({
                             view: (context, event) => MACHINE_VIEW.Overview,
                             projectUri: (context, event) => event.data.projectUri,
@@ -438,7 +450,7 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
 }
 
 async function checkIfMiProject() {
-    let isProject = false, isUnsupportedProject = false, displayOverview = true;
+    let isProject = false, isUnsupportedProject = false, displayOverview = true, emptyProject = false;
     let projectUri = '';
     try {
         // Check for pom.xml files excluding node_modules directory
@@ -466,6 +478,12 @@ async function checkIfMiProject() {
     }
 
     if (isProject) {
+        // Check if the project is empty
+        const files = await vscode.workspace.findFiles('src/main/wso2mi/artifacts/*/*.xml', '**/node_modules/**', 1);
+        if (files.length === 0) {
+            emptyProject = true;
+        }
+        
         projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
         vscode.commands.executeCommand('setContext', 'MI.status', 'projectDetected');
         vscode.commands.executeCommand('setContext', 'MI.projectType', 'miProject'); // for command enablements
@@ -485,6 +503,7 @@ async function checkIfMiProject() {
         isProject,
         isUnsupportedProject,
         displayOverview,
-        projectUri // Return the path of the detected project
+        projectUri, // Return the path of the detected project
+        emptyProject
     };
 }
