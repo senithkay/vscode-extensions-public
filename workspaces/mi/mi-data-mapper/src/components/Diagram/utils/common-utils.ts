@@ -272,6 +272,11 @@ export function isEmptyValue(position: NodePosition): boolean {
 	return position.start === position.end;
 }
 
+export function isDefaultValue(fieldType: DMType, value: string): boolean {
+	const defaultValue = getDefaultValue(fieldType.kind);
+	return defaultValue === value?.trim();
+}
+
 function getInnerExpr(node: PropertyAccessExpression): Node {
     let valueExpr = node.expression;
     while (valueExpr && ts.isPropertyAccessExpression(valueExpr)) {

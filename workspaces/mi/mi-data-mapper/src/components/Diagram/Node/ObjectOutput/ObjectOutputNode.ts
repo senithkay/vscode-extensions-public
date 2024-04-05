@@ -112,7 +112,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
             if (inPort && mappedOutPort) {
                 const lm = new DataMapperLinkModel(value, [], true);
-                const mappedField = mappedOutPort.editableRecordField && mappedOutPort.editableRecordField.type;
+                const mappedField = mappedOutPort.typeWithValue && mappedOutPort.typeWithValue.type;
                 const keepDefault = ((mappedField && !mappedField?.fieldName
                     && mappedField.kind !== TypeKind.Array
                     && mappedField.kind !== TypeKind.Interface)
