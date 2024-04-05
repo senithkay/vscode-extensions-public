@@ -367,10 +367,6 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
-    const handleBack = () => {
-        setMessageProcessor((prev: any) => ({ ...prev, messageProcessorType: '' }));
-    }
-
     const handleCancel = () => {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
@@ -379,8 +375,6 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
         <FormView title="Message Processor" onClose={handleCancel}>
             { messageProcessor.messageProcessorType === '' ? <CardWrapper cardsType="MESSAGE_PROCESSOR" setType={setMessageProcessorType} /> : <>
             { isNewMessageProcessor && <TypeChangeButton type={messageProcessor.messageProcessorType} onClick={setMessageProcessorType} /> }
-                {/*<span><b>Message Processor Type:</b> {messageProcessor.messageProcessorType}</span>*/}
-                {/*{ isNewMessageProcessor && <Button appearance="primary" onClick={handleBack}>Change Message Processor Type</Button> }*/}
                 <TextField
                     placeholder="Name"
                     label="Message Processor Name"
