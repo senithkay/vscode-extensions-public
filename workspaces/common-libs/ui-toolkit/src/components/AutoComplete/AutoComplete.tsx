@@ -245,7 +245,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                             `))}
                             onFocus={handleTextFieldFocused}
                             onClick={handleTextFieldClick}
-                            {...rest}
+                            { ...props.name ? {...rest} : {} } // If name is not provided, then value should be empty (for react-hook-form)
                             onBlur={handleTextFieldOutFocused}
                         />
                         <Combobox.Button
