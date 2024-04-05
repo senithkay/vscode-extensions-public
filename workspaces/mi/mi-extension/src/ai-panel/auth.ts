@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -24,11 +24,6 @@ const CommonReqHeaders = {
 };
 
 export async function getAuthUrl(callbackUri: string): Promise<string> {
-    // const state = {
-    //     origin: "vscode.choreo.ext",
-    //     callbackUri: callbackUri
-    // };
-    // const stateBase64 = Buffer.from(JSON.stringify(state), 'binary').toString('base64');
 
     // return `${this._config.loginUrl}?profile=vs-code&client_id=${this._config.clientId}`
     //     + `&state=${stateBase64}&code_challenge=${this._challenge.code_challenge}`;
@@ -71,13 +66,9 @@ export async function exchangeAuthCode(authCode: string) {
                 console.log("Login time: " + response.loginTime);
                 console.log("Expiration time: " + response.expirationTime);
                 await keytar.setPassword('MI-AI', 'MIAIUser', response.accessToken);
-                StateMachineAI.sendEvent(AI_EVENT_TYPE.SIGNINSUCCESS);
+                StateMachineAI.sendEvent(AI_EVENT_TYPE.SIGN_IN_SUCCESS);
             } catch (error: any) {
                 const errMsg = "Error while signing in to Choreo! " + error?.message;
-                // getLogger().error(errMsg);
-                // if (error?.cause) {
-                //     getLogger().debug("Cause message: " + JSON.stringify(error.cause?.message));
-                // }
                 throw new Error(errMsg);
             }
         }

@@ -68,7 +68,7 @@ export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'Waitin
 
 export enum AI_EVENT_TYPE {
     LOGIN = "LOGIN",
-    SIGNINSUCCESS = "SIGNINSUCCESS",
+    SIGN_IN_SUCCESS = "SIGN_IN_SUCCESS",
     LOGOUT = "LOGOUT",
     EXECUTE = "EXECUTE",
     CLEAR = "CLEAR",
