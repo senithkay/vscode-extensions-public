@@ -7,13 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ProjectStructureEntry, ProjectStructureResponse, ProjectDirectoryMap, EsbDirectoryMap, EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
-import { Codicon, ComponentCard, Dialog, Typography } from '@wso2-enterprise/ui-toolkit';
+import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { Alert, Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import path from 'path';
-import { VSCodeButton, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from "@vscode/webview-ui-toolkit/react";
-
 
 interface ArtifactType {
     title: string;
@@ -200,11 +198,11 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
             }
             {/* else render message */}
             {!ifHasEntries() && (
-                <Container>
-                    <Dialog isOpen={true} onClose={() => {}}>
-                        <Typography variant='body1'> No artifacts found </Typography>
-                    </Dialog>
-                </Container>
+                <Alert
+                    title="No artifacts were found"
+                    subTitle="Add artifacts to your project to see them here"
+                    variant="primary"
+                />
             )}
         </Listing>
     );
