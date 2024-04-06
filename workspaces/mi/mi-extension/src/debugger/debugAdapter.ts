@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Breakpoint, BreakpointEvent, InitializedEvent, LoggingDebugSession, OutputEvent, Source, StackFrame, StoppedEvent, TerminatedEvent, Thread } from 'vscode-debugadapter';
+import { Breakpoint, BreakpointEvent, InitializedEvent, LoggingDebugSession, Scope, StoppedEvent, TerminatedEvent, Thread } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import * as vscode from 'vscode';
 import { executeTasks, updateServerPathAndGet } from './debugHelper';
@@ -162,32 +162,32 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
     protected async setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse, args: DebugProtocol.SetBreakpointsArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
         const breakpoints = args.breakpoints || [];
+        const source = args.source;
 
         const path = args.source.path as string;
-        const clientLines = args.lines || [];
-
         // clear all breakpoints for this file
         this.debuggerHandler?.clearBreakpoints(path);
 
-        // set and verify breakpoint locations
-        const actualBreakpoints0 = clientLines.map(async l => {
-            const debugBreakpoint = await this.debuggerHandler?.setBreakPoint(path, this.convertClientLineToDebugger(l));
+
+        // TODO: we need to validate if the breakpoint locations are valid, 
+        // if the breakpoints are added to an unsupported location, then the breakpoints should be removed
+
+        // set vscode breakpoints
+        const vscodeBreakpoints = breakpoints.map(async bp => {
+            const debugBreakpoint = await this.debuggerHandler?.setVscodeAndDebuggerBreakpoint(source, bp);
             if (debugBreakpoint?.line) {
                 const bp = new Breakpoint(debugBreakpoint?.verified, this.convertDebuggerLineToClient(debugBreakpoint?.line)) as DebugProtocol.Breakpoint;
                 bp.id = debugBreakpoint?.id;
                 return bp;
             }
-
         });
 
-        if (actualBreakpoints0) {
-            const resolvedBreakpoints = await Promise.all(actualBreakpoints0);
+        if (vscodeBreakpoints) {
+            const resolvedBreakpoints = await Promise.all(vscodeBreakpoints);
             response.body = {
                 breakpoints: resolvedBreakpoints.filter(bp => bp !== undefined) as Breakpoint[]
             };
         }
-
-        // send back the actual breakpoint positions
 
         this.sendResponse(response);
     }
@@ -314,6 +314,39 @@ export class MiDebugAdapter extends LoggingDebugSession {
             totalFrames: stackFrames.length
         };
 
+        this.sendResponse(response);
+    }
+
+    protected async variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
+        const vars = args.variablesReference;
+        const variables = await this.debuggerHandler?.getVariables();
+        if (variables) {
+            response.body = {
+                variables: variables
+            };
+        }
+        this.sendResponse(response);
+    }
+
+    protected setVariableRequest(response: DebugProtocol.SetVariableResponse, args: DebugProtocol.SetVariableArguments, request?: DebugProtocol.Request | undefined): void {
+        response.success = true;
+        this.sendResponse(response);
+    }
+
+    protected evaluateRequest(response: DebugProtocol.EvaluateResponse, args: DebugProtocol.EvaluateArguments, request?: DebugProtocol.Request | undefined): void {
+        response.body = {
+            result: "result",
+            variablesReference: 0
+        };
+        this.sendResponse(response);
+    }
+
+    protected scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments, request?: DebugProtocol.Request | undefined): void {
+        response.body = {
+            scopes: [
+                new Scope("Local", 1, false)
+            ]
+        };
         this.sendResponse(response);
     }
 }
