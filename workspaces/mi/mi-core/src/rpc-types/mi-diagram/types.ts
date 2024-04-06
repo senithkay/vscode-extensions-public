@@ -67,7 +67,7 @@ export interface UpdateLoadBalanceEPRequest {
     failover: string;
     buildMessage: string;
     sessionManagement: string;
-    sessionTimeout: string;
+    sessionTimeout: number;
     description: string;
     endpoints: { type: string; value: string; }[];
     properties: { name: string; value: string; scope: string; }[];
@@ -87,7 +87,7 @@ export interface GetLoadBalanceEPResponse {
     failover: string;
     buildMessage: string;
     sessionManagement: string;
-    sessionTimeout: string;
+    sessionTimeout: number;
     description: string;
     endpoints: { type: string; value: string; }[];
     properties: { name: string; value: string; scope: string; }[];

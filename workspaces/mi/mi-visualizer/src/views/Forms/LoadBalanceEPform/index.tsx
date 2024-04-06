@@ -13,6 +13,9 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { Button, Dropdown, TextField, FormView, FormGroup, FormActions, ParamManager } from "@wso2-enterprise/ui-toolkit";
 import { Endpoint, EndpointList, InlineButtonGroup } from "../Commons";
+import { yupResolver } from "@hookform/resolvers/yup"
+import * as yup from "yup";
+import { useForm } from "react-hook-form";
 
 const FieldGroup = styled.div`
     display: flex;
@@ -39,22 +42,54 @@ const initialInlineEndpoint: Endpoint = {
     value: '',
 };
 
+type InputsFields = {
+    name?: string;
+    algorithm?: string;
+    failover?: string;
+    buildMessage?: string;
+    sessionManagement?: string;
+    sessionTimeout?: number;
+    description?: string;
+};
+
+const initialEndpoint: InputsFields = {
+    name: '',
+    algorithm: 'roundRobin',
+    failover: 'false',
+    buildMessage: 'true',
+    sessionManagement: 'none',
+    sessionTimeout: 0,
+    description: '',
+};
+
+const schema = yup.object({
+    name: yup.string().required("Endpoint Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint name"),
+    algorithm: yup.string().required("Algorithm is required"),
+    failover: yup.string().required("Failover is required"),
+    buildMessage: yup.string().required("Build Message is required"),
+    sessionManagement: yup.string().required("Session Management is required"),
+    sessionTimeout: yup.number().typeError('Session Timeout must be a number').min(0, "Session Timeout must be greater than or equal to 0"),
+    description: yup.string(),
+});
+
 export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
 
-    const [endpoint, setEndpoint] = useState<any>({
-        name: '',
-        algorithm: 'roundRobin',
-        failover: 'false',
-        buildMessage: 'true',
-        sessionManagement: 'none',
-        sessionTimeout: '',
-        description: '',
+    const {
+        reset,
+        register,
+        formState: { errors, isDirty },
+        handleSubmit,
+        watch,
+        getValues
+    } = useForm({
+        defaultValues: initialEndpoint,
+        resolver: yupResolver(schema),
+        mode: "onChange"
     });
 
     const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
-
     const [expandEndpointsView, setExpandEndpointsView] = useState<boolean>(false);
     const [showAddNewEndpointView, setShowAddNewEndpointView] = useState<boolean>(false);
     const [newEndpoint, setNewEndpoint] = useState<Endpoint>(initialInlineEndpoint);
@@ -72,7 +107,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
         (async () => {
             const { properties, endpoints, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getLoadBalanceEndpoint({ path: props.path });
 
-            setEndpoint(endpoint);
+            reset(endpoint);
             setEndpoints(endpoints);
 
             setParamConfigs((prev: any) => {
@@ -117,9 +152,15 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
         { content: 'Client ID', value: 'simpleClientSession' },
     ];
 
-    const handleOnChange = (field: string, value: any) => {
-        setEndpoint((prev: any) => ({ ...prev, [field]: value }));
-    }
+    const renderProps = (fieldName: keyof InputsFields, value?: any) => {
+        const watchedValue = watch(fieldName) || watch(fieldName) === 0 ? String(watch(fieldName)) : '';
+        return {
+            id: fieldName,
+            value: value !== undefined ? String(value) : watchedValue,
+            ...register(fieldName),
+            errorMsg: errors[fieldName] && errors[fieldName].message.toString()
+        }
+    };
 
     const handleNewEndpointChange = (field: string, value: string) => {
         setNewEndpoint((prev: any) => ({ ...prev, [field]: value }));
@@ -146,10 +187,10 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
         })
     }
 
-    const handleUpdateEndpoint = async () => {
+    const handleUpdateEndpoint = async (values: any) => {
         const updateEndpointParams = {
             directory: props.path,
-            ...endpoint,
+            ...values,
             endpoints,
             properties: paramConfigs.paramValues.map((param: any) => {
                 return {
@@ -167,62 +208,36 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
-    const validateEndpointName = (name: string) => {
-        // Check if the name is empty
-        if (!name.trim()) {
-            return "Enpoint name is required";
-        }
-
-        // Check if the name contains spaces or special characters
-        if (/[\s~`!@#$%^&*()_+={}[\]:;'",.<>?/\\|]+/.test(name)) {
-            return "Endpoint name cannot contain spaces or special characters";
-        }
-        return "";
+    const handleOnClose = () => {
+        rpcClient.getMiVisualizerRpcClient().goBack();
     };
 
-    const isValid: boolean = validateEndpointName(endpoint.name) === '';
-
     return (
-        <FormView title="Loadbalance Endpoint" onClose={openOverview}>
+        <FormView title="Loadbalance Endpoint" onClose={handleOnClose}>
             <FormGroup title="Basic Properties" isCollapsed={false}>
                 <TextField
-                    id='name-input'
+                    required
+                    autoFocus
                     label="Name"
                     placeholder="Name"
-                    value={endpoint.name}
-                    onTextChange={(text: string) => handleOnChange('name', text)}
-                    errorMsg={validateEndpointName(endpoint.name)}
+                    {...renderProps("name")}
                     size={100}
-                    autoFocus
-                    required
                 />
-                <FieldGroup>
-                    <span>Algorithm</span>
-                    <Dropdown
-                        id="algorithm"
-                        value={endpoint.algorithm}
-                        onValueChange={(text: string) => handleOnChange("algorithm", text)}
-                        items={algorithms}
-                    />
-                </FieldGroup>
-                <FieldGroup>
-                    <span>Fail Over</span>
-                    <Dropdown
-                        id="fail-over"
-                        value={endpoint.failover}
-                        onValueChange={(text: string) => handleOnChange("failover", text)}
-                        items={trueFalseDropdown}
-                    />
-                </FieldGroup>
-                <FieldGroup>
-                    <span>Build Message</span>
-                    <Dropdown
-                        id="build-message"
-                        value={endpoint.buildMessage}
-                        onValueChange={(text: string) => handleOnChange("buildMessage", text)}
-                        items={trueFalseDropdown}
-                    />
-                </FieldGroup>
+                <Dropdown
+                    label="Algorithm"
+                    items={algorithms}
+                    {...renderProps("algorithm")}
+                />
+                <Dropdown
+                    label="Fail Over"
+                    items={trueFalseDropdown}
+                    {...renderProps("failover")}
+                />
+                <Dropdown
+                    label="Build Message"
+                    items={trueFalseDropdown}
+                    {...renderProps("buildMessage")}
+                />
                 <FieldGroup>
                     <InlineButtonGroup
                         label="Endpoints"
@@ -249,28 +264,20 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                 </FieldGroup>
             </FormGroup>
             <FormGroup title="Session Properties" isCollapsed={false}>
-                <FieldGroup>
-                    <span>Session Management</span>
-                    <Dropdown
-                        id="session-management"
-                        value={endpoint.sessionManagement}
-                        onValueChange={(text: string) => handleOnChange("sessionManagement", text)}
-                        items={sessionManagementOptions}
-                    />
-                </FieldGroup>
-                {endpoint.sessionManagement !== 'none' && <TextField
-                    id='session-timeout'
-                    value={endpoint.sessionTimeout}
+                <Dropdown
+                    label="Session Management"
+                    items={sessionManagementOptions}
+                    {...renderProps("sessionManagement")}
+                />
+                {watch('sessionManagement') !== 'none' && <TextField
                     label="Session Timeout"
-                    onTextChange={(text: string) => handleOnChange('sessionTimeout', text)}
+                    {...renderProps("sessionTimeout")}
                 />}
             </FormGroup>
             <FormGroup title="Miscellaneous Properties" isCollapsed={false}>
                 <TextField
-                    id='description'
-                    value={endpoint.description}
                     label="Description"
-                    onTextChange={(text: string) => handleOnChange('description', text)}
+                    {...renderProps("description")}
                 />
                 <FieldGroup>
                     <span>Parameters</span>
@@ -286,8 +293,8 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                 </Button>
                 <Button
                     appearance="primary"
-                    onClick={handleUpdateEndpoint}
-                    disabled={!isValid}
+                    onClick={handleSubmit(handleUpdateEndpoint)}
+                    disabled={!isDirty}
                 >
                     Update
                 </Button>

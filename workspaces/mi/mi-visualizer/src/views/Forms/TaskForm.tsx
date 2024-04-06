@@ -103,10 +103,11 @@ export function TaskForm(props: TaskFormProps) {
         ? "Create new Scheduled Task"
         : "Edit Scheduled Task : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
 
-    const renderProps = (fieldName: keyof InputsFields, value: any = "") => {
+    const renderProps = (fieldName: keyof InputsFields, value?: any) => {
+        const watchedValue = watch(fieldName) || watch(fieldName) === 0 ? String(watch(fieldName)) : '';
         return {
             id: fieldName,
-            value: watch(fieldName) ? String(watch(fieldName)) : value,
+            value: value !== undefined ? String(value) : watchedValue,
             ...register(fieldName),
             errorMsg: errors[fieldName] && errors[fieldName].message.toString()
         }
