@@ -9,8 +9,10 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    BallerinaDiagnosticsRequest,
     GoToSourceRequest,
     WorkspaceFileRequest,
+    getBallerinaDiagnostics,
     getTypes,
     getWorkspaceFiles,
     goToSource
@@ -23,4 +25,5 @@ export function registerCommonRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getTypes, () => rpcManger.getTypes());
     messenger.onNotification(goToSource, (args: GoToSourceRequest) => rpcManger.goToSource(args));
     messenger.onRequest(getWorkspaceFiles, (args: WorkspaceFileRequest) => rpcManger.getWorkspaceFiles(args));
+    messenger.onRequest(getBallerinaDiagnostics, (args: BallerinaDiagnosticsRequest) => rpcManger.getBallerinaDiagnostics(args));
 }

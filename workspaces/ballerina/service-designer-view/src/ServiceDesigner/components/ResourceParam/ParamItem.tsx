@@ -13,6 +13,7 @@ import { ParamIcon } from "./ParamIcon";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import { ActionIconWrapper, ContentSection, DeleteIconWrapper, EditIconWrapper, HeaderLabel, IconTextWrapper, IconWrapper, OptionLabel, disabledHeaderLabel, headerLabelStyles } from "../../styles";
 import { ParameterConfig } from "@wso2-enterprise/service-designer";
+import { RESOURCE_CHECK, useServiceDesignerContext } from "../../Context";
 
 interface ParamItemProps {
     param: ParameterConfig;
@@ -23,6 +24,7 @@ interface ParamItemProps {
 
 export function ParamItem(props: ParamItemProps) {
     const { param, readonly, onDelete, onEditClick } = props;
+    const { diagnostics, dPosition } = useServiceDesignerContext();
 
     const label = param?.type ? `${param.type} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}`
         : `${param.name}`;
@@ -35,8 +37,15 @@ export function ParamItem(props: ParamItemProps) {
         }
     };
 
+    const haveErrors = () => {
+        const resourceErrors = diagnostics.filter(diag => diag.range.start.line === dPosition.startLine);
+        const haveName = resourceErrors.filter(diag => diag.message.includes(param.name));
+        const haveDefault = resourceErrors.filter(diag => diag.message.includes(RESOURCE_CHECK.INCOMPATIBLE) || diag.message.includes(RESOURCE_CHECK.UNDEFINED));
+        return haveName.length > 0 || haveDefault.length > 0;
+    }
+
     return (
-        <HeaderLabel data-testid={`${label}-item`}>
+        <HeaderLabel haveErrors={haveErrors()} data-testid={`${label}-item`}>
             <IconTextWrapper onClick={handleEdit}>
                 <IconWrapper>
                     <ParamIcon option={param?.option?.toLowerCase()} />

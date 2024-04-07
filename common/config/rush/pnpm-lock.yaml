@@ -1626,6 +1626,7 @@ importers:
       '@storybook/cli': ^7.6.10
       '@storybook/react': ~7.4.0
       '@storybook/react-webpack5': ~7.4.0
+      '@types/lodash': ^4.14.200
       '@types/react': ^18.2.33
       '@types/react-dom': ^18.2.14
       '@typescript-eslint/eslint-plugin': ^6.9.1
@@ -1643,6 +1644,7 @@ importers:
       eslint-plugin-react-hooks: ^4.6.0
       eslint-plugin-react-refresh: ^0.4.4
       handlebars: ^4.7.8
+      lodash: ^4.17.21
       monaco-editor: 0.44.0
       react: ^18.2.0
       react-dom: ^18.2.0
@@ -1655,6 +1657,7 @@ importers:
       '@emotion/react': 11.11.3_eteh3so6nztr56vqc4nbg6qqla
       '@emotion/styled': 11.11.0_dyeqyavlplouzrsokk7bfa3ywm
       '@headlessui/react': 1.7.18_biqbaboplfbrettd7655fr4n2y
+      '@types/lodash': 4.14.202
       '@vscode/codicons': 0.0.33
       '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
@@ -1664,6 +1667,7 @@ importers:
       '@wso2-enterprise/syntax-tree': link:../syntax-tree
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       handlebars: 4.7.8
+      lodash: 4.17.21
       monaco-editor: 0.44.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0

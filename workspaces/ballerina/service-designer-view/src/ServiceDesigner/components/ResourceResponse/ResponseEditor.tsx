@@ -32,7 +32,7 @@ export interface ParamProps {
 }
 
 export function ResponseEditor(props: ParamProps) {
-    const { response, isBallerniaExt, onSave, onChange, onCancel, typeCompletions, serviceEndPosition, commonRpcClient, applyModifications } = props;
+    const { response, isBallerniaExt, isEdit, onSave, onChange, onCancel, typeCompletions, serviceEndPosition, commonRpcClient, applyModifications } = props;
 
     console.log("response", typeCompletions);
 
@@ -44,14 +44,14 @@ export function ResponseEditor(props: ParamProps) {
         if (!isNameRecord) {
             const recordName = `${getSourceFromResponseCode(response.code).replace("http:", "")}${response.type ? `${response.type}` : ""}`;
             setDefinedRecordName(recordName);
-        } else {    
+        } else {
             setDefinedRecordName("");
         }
     };
 
     const handleCodeChange = (value: string) => {
         const code = responseCodes.find(code => code.title === value).code;
-        onChange({ ...response, code: Number(code) });
+        onChange({ ...response, code: Number(code), source: "" });
     };
 
     const handleTypeChange = (value: string) => {
@@ -59,7 +59,7 @@ export function ResponseEditor(props: ParamProps) {
             const recordName = `${getSourceFromResponseCode(response.code).replace("http:", "")}${response.type ? `${response.type}` : ""}`;
             setDefinedRecordName(recordName);
         }
-        onChange({ ...response, type: value });
+        onChange({ ...response, type: value, source: "" });
     };
 
     const handleOnCancel = () => {
@@ -91,6 +91,7 @@ export function ResponseEditor(props: ParamProps) {
                     commonRpcClient={commonRpcClient}
                     serviceEndPosition={serviceEndPosition}
                     sx={{ zIndex: 1, position: "relative" }}
+                    isOptional={true}
                     borderBox={isBallerniaExt}
                     label="Type"
                     selectedItem={response.type}
@@ -110,7 +111,7 @@ export function ResponseEditor(props: ParamProps) {
                 />
             )}
             <ActionButtons
-                primaryButton={{ text: "Save", onClick: handleOnSave }}
+                primaryButton={{ text: isEdit ? "Save" : "Add", onClick: handleOnSave }}
                 secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}
                 sx={{ justifyContent: "flex-end" }}
             />

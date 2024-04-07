@@ -12,6 +12,8 @@
  */
 
 import {
+    BallerinaDiagnosticsRequest,
+    BallerinaDiagnosticsResponse,
     GoToSourceRequest,
     TypeResponse,
     WorkspaceFileRequest,
@@ -22,4 +24,5 @@ export interface CommonRPCAPI {
     getTypes: () => Promise<TypeResponse>;
     goToSource: (params: GoToSourceRequest) => void;
     getWorkspaceFiles: (params: WorkspaceFileRequest) => Promise<WorkspacesFileResponse>;
+    getBallerinaDiagnostics: (params: BallerinaDiagnosticsRequest) => Promise<BallerinaDiagnosticsResponse>;
 }

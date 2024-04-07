@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { responseCodes, STModification } from '@wso2-enterprise/ballerina-core';
+import { DIAGNOSTIC_SEVERITY, DiagramDiagnostic, responseCodes, STModification } from '@wso2-enterprise/ballerina-core';
 import { DocumentIdentifier } from '@wso2-enterprise/ballerina-core';
 import { BallerinaRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import * as Handlebars from 'handlebars';
@@ -124,7 +124,7 @@ export function getCodeFromResponse(response: string, httpMethod: HTTP_METHOD): 
 }
 
 export function findResponseCodeByRecordSource(recordSource: string): number {
-    const code = responseCodes.find((responseCode) =>  recordSource?.includes(responseCode.source));
+    const code = responseCodes.find((responseCode) => recordSource?.includes(responseCode.source));
     return code?.code || 200;
 }
 
@@ -203,7 +203,7 @@ export const getServiceData = async (service: ServiceDeclaration): Promise<Servi
             serviceData = {
                 port: parseInt(port, 10),
                 path: absolutePath
-            };          
+            };
         }
     }
     return serviceData;
@@ -221,6 +221,7 @@ export async function getResource(resource: ResourceAccessorDefinition, rpcClien
         endLine: resource?.functionSignature?.position?.endLine,
         endColumn: resource?.functionSignature?.position?.endColumn
     };
+    const errors = resource.typeData?.diagnostics.filter((diag: DiagramDiagnostic) => diag.diagnosticInfo.severity === DIAGNOSTIC_SEVERITY.ERROR);
     return {
         methods: [resource.functionName.value],
         path: pathConfig.path,
@@ -230,7 +231,8 @@ export async function getResource(resource: ResourceAccessorDefinition, rpcClien
         payloadConfig: payloadConfig,
         responses: response,
         updatePosition: position,
-        position: resource.position
+        position: resource.position,
+        errors: errors
     };
 }
 
@@ -260,46 +262,51 @@ export async function getService(serviceDecl: ServiceDeclaration, rpcClient: any
     }
 }
 
+async function findResponseType(typeSymbol: any, resource: any, index: any, rpcClient: any, members: any) {
+    let type = "";
+    if (typeSymbol.typeKind === "record") {
+        return getInlineRecordConfig(resource, index, typeSymbol);
+    } else if (typeSymbol.typeKind === "typeReference" && !typeSymbol.signature?.includes("ballerina")) {
+        const recordST: string = await getRecordSource(typeSymbol.name, rpcClient);
+        type = (members && members[index + 1]?.typeKind === "nil") ? typeSymbol.name + "?" : typeSymbol.name;
+        return {
+            id: index,
+            code: findResponseCodeByRecordSource(recordST),
+            type: type,
+            source: type
+        };
+    } else if (typeSymbol.typeKind === "typeReference" && typeSymbol.signature?.includes("ballerina")) {
+        const name = typeSymbol.moduleID?.moduleName === "http" ? `http:${typeSymbol.name}` : typeSymbol.name;
+        return {
+            id: index,
+            code: getCodeFromResponse(name, resource.functionName.value as HTTP_METHOD),
+            type: "",
+            source: name
+        };
+    } else if (typeSymbol.typeKind !== "nil") {
+        type = (members && members[index + 1]?.typeKind === "nil") ? typeSymbol.typeKind + "?" : typeSymbol.typeKind;
+        return {
+            id: index,
+            code: ((type === "error" || type === "error?") ? 500 : getCodeFromResponse(typeSymbol.name as string, resource.functionName.value as HTTP_METHOD)),
+            type: type,
+            source: type
+        };
+    }
+}
+
 export async function getResponseConfig(resource: ResourceAccessorDefinition, rpcClient: any): Promise<ResponseConfig[]> {
     let index = 0;
     const response: ResponseConfig[] = [];
     const members = resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.members;
     if (resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.typeKind === "union" && members) {
         for (const member of members) {
-            let type = "";
-            if (member.typeKind === "record") {
-                response.push(
-                    getInlineRecordConfig(resource, index, member)
-                );
-                index++;
-            } else if (member.typeKind === "typeReference" && !member.signature?.includes("ballerina")) {
-                const recordST: string = await getRecordSource(member.name, rpcClient);
-                response.push({
-                    id: index,
-                    code: findResponseCodeByRecordSource(recordST),
-                    type: member.name,
-                    source: member.name
-                });
-                index++;
-            } else if (member.typeKind !== "nil") {
-                type = (members[index + 1]?.typeKind === "nil") ? member.typeKind + "?" : member.typeKind;
-                response.push({
-                    id: index,
-                    code: ((type === "error" || type === "error?") ? 500 : getCodeFromResponse(member.name as string, resource.functionName.value as HTTP_METHOD)),
-                    type: type,
-                    source: type
-                });
-                index++;
-            }
+            const res = await findResponseType(member, resource, index, rpcClient, members);
+            res && response.push(res) && index++;
         }
     } else if (resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol) {
-        const type = resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.typeKind;
-        response.push({
-            id: index,
-            code: ((type === "error" || type === "error?") ? 500 : getCodeFromResponse(resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.name as string, resource.functionName.value as HTTP_METHOD)),
-            type: type,
-            source: type
-        });
+        const typeSymbol = resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol;
+        const res = await findResponseType(typeSymbol, resource, index, rpcClient, members);
+        response.push(res);
     }
     return response;
 }
@@ -309,12 +316,13 @@ export function getInlineRecordConfig(resource: ResourceAccessorDefinition, inde
     const statusMatch = member.signature.match(statusRegex);
     const status = statusMatch ? statusMatch[1] : "";
     const subTypeRegex = /\b(\w+)\s+body;/;
-    const subTypeMatch =  member.signature.match(subTypeRegex);
-    const subtype =  subTypeMatch ? subTypeMatch[1] : "";
+    const subTypeMatch = member.signature.match(subTypeRegex);
+    const subtype = subTypeMatch ? subTypeMatch[1] : "";
     return ({
         id: index,
         code: getCodeFromResponse(`http:${status.replace("Status", "")}`, resource.functionName.value as HTTP_METHOD),
-        source: getResponseRecordCode(getCodeFromResponse(`http:${status.replace("Status", "")}`, resource.functionName.value as HTTP_METHOD), subtype)
+        source: getResponseRecordCode(getCodeFromResponse(`http:${status.replace("Status", "")}`, resource.functionName.value as HTTP_METHOD), subtype),
+        type: subtype
     });
 }
 
@@ -332,7 +340,7 @@ export function getResourcePath(resource: ResourceAccessorDefinition): PathConfi
         }
         resourcePath += STKindChecker.isResourcePathSegmentParam(path) ? path.source : path?.value;
     });
-    return { path: resourcePath, resources: pathParams }; 
+    return { path: resourcePath, resources: pathParams };
 }
 
 export function getQueryParams(resource: ResourceAccessorDefinition): ParameterConfig[] {
@@ -344,7 +352,7 @@ export function getQueryParams(resource: ResourceAccessorDefinition): ParameterC
                 id: index,
                 name: queryParam?.paramName?.value,
                 type: STKindChecker.isOptionalTypeDesc(queryParam?.typeName) ? (queryParam?.typeName as OptionalTypeDesc).typeDescriptor?.source?.trim() : queryParam?.typeName?.source?.trim(),
-                defaultValue: STKindChecker.isDefaultableParam(queryParam) && queryParam?.expression?.source?.trim(),
+                defaultValue: STKindChecker.isDefaultableParam(queryParam) && queryParam?.expression?.source?.trim() || "",
                 option: isHeaderParam(queryParam?.annotations) ? getParamType("@http:Header") : getParamType(queryParam?.typeName?.source?.trim()),
                 isRequired: !STKindChecker.isOptionalTypeDesc(queryParam?.typeName),
             });
@@ -362,7 +370,7 @@ export function getPayloadConfig(resource: ResourceAccessorDefinition): Paramete
                 id: 0,
                 name: queryParam?.paramName?.value,
                 type: STKindChecker.isOptionalTypeDesc(queryParam?.typeName) ? (queryParam?.typeName as OptionalTypeDesc).typeDescriptor?.source?.trim() : queryParam?.typeName?.source?.trim(),
-                defaultValue: STKindChecker.isDefaultableParam(queryParam) && queryParam?.expression?.source?.trim(),
+                defaultValue: STKindChecker.isDefaultableParam(queryParam) && queryParam?.expression?.source?.trim() || "",
                 option: getParamType("@http:Payload"),
                 isRequired: !STKindChecker.isOptionalTypeDesc(queryParam?.typeName),
             };

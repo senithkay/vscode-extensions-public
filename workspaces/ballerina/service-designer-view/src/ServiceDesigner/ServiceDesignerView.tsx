@@ -15,6 +15,7 @@ import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-des
 import { getService, updateServiceDecl } from "./utils/utils";
 import { ServiceForm } from "./components/ServiceForm/ServiceForm";
 import { ServiceDesignerAPI, CommonRPCAPI, STModification } from "@wso2-enterprise/ballerina-core";
+import { ContextProvider } from "./ContextProvider";
 
 interface RPCClients {
     serviceDesignerRpcClient: ServiceDesignerAPI;
@@ -83,7 +84,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         setServiceFormOpen(false);
     };
     const handleServiceFormSave = async (service: Service) => {
-        const content = updateServiceDecl({BASE_PATH: service.path, PORT: `${service.port}`, SERVICE_TYPE: "http"});
+        const content = updateServiceDecl({ BASE_PATH: service.path, PORT: `${service.port}`, SERVICE_TYPE: "http" });
         await applyModifications([{
             type: "INSERT",
             isImport: false,
@@ -98,7 +99,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         if (goToSource) {
             goToSource(resource);
         } else {
-            commonRpcClient.goToSource({ position: resource.position });
+            commonRpcClient.goToSource({ position: resource.position! });
         }
     };
 
@@ -123,41 +124,37 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
     };
 
     return (
-        <div data-testid="service-design-view">
-            <ServiceDesigner
-                model={serviceConfig}
-                goToSource={handleGoToSource}
-                onResourceEdit={handleResourceEdit}
-                onResourceDelete={handleResourceDelete}
-                onServiceEdit={handleServiceEdit}
-                onResourceAdd={handleResourceFormOpen}
-            />
-            {isResourceFormOpen &&
-                <ResourceForm
-                    isOpen={isResourceFormOpen}
-                    isBallerniaExt={isParentBallerinaExt}
-                    resourceConfig={serviceConfig?.resources.length > 0 ? editingResource : undefined}
-                    onSave={handleResourceFormSave}
-                    onClose={handleResourceFormClose} 
-                    addNameRecord={addNameRecord}
-                    serviceEndPosition={{
-                        startLine: model.closeBraceToken.position.endLine,
-                        startColumn: model.closeBraceToken.position.endColumn,
-                        endLine: model.closeBraceToken.position.endLine,
-                        endColumn: model.closeBraceToken.position.endColumn
-                    }}
-                    commonRpcClient={commonRpcClient}
-                    applyModifications={applyModifications}
+        <ContextProvider commonRpcClient={commonRpcClient} applyModifications={applyModifications} serviceEndPosition={model.closeBraceToken.position}>
+            <div data-testid="service-design-view">
+                <ServiceDesigner
+                    model={serviceConfig}
+                    goToSource={handleGoToSource}
+                    onResourceEdit={handleResourceEdit}
+                    onResourceDelete={handleResourceDelete}
+                    onServiceEdit={handleServiceEdit}
+                    onResourceAdd={handleResourceFormOpen}
                 />
-            }
-            {isServiceFormOpen &&
-                <ServiceForm
-                    isOpen={isServiceFormOpen}
-                    serviceConfig={serviceConfig}
-                    onSave={handleServiceFormSave}
-                    onClose={handleServiceFormClose} 
-                />
-            }
-        </div>
+                {isResourceFormOpen &&
+                    <ResourceForm
+                        isOpen={isResourceFormOpen}
+                        isBallerniaExt={isParentBallerinaExt}
+                        resourceConfig={serviceConfig.resources.length > 0 ? editingResource : undefined}
+                        onSave={handleResourceFormSave}
+                        onClose={handleResourceFormClose}
+                        addNameRecord={addNameRecord}
+                        commonRpcClient={commonRpcClient}
+                        applyModifications={applyModifications}
+                    />
+                }
+                {isServiceFormOpen &&
+                    <ServiceForm
+                        isOpen={isServiceFormOpen}
+                        serviceConfig={serviceConfig}
+                        onSave={handleServiceFormSave}
+                        onClose={handleServiceFormClose}
+                    />
+                }
+            </div>
+        </ContextProvider>
     )
 }
