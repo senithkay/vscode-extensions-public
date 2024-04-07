@@ -58,3 +58,13 @@ export function getFilterFormDataFromSTNode(data: { [key: string]: any }, node: 
     data.range = node.range;
     return data;
 }
+
+export function getFilterDescription(node: Filter) {
+    if (node.regex) {
+        return node.regex;
+    } else if (node.source) {
+        return node.source;
+    } else if (node.xpath) {
+        return node.xpath;
+    }
+}

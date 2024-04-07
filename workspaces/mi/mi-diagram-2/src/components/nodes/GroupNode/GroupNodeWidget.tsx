@@ -18,6 +18,7 @@ import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { getSVGIcon } from "../../../resources/icons/mediatorIcons/icons";
+import { FirstCharToUpperCase } from "../../../utils/commons";
 
 namespace S {
     export type NodeStyleProp = {
@@ -30,10 +31,9 @@ namespace S {
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
-        width: 100px;
-        height: 36px;
-        padding: 0 8px;
-        border: 2px solid
+        width: ${NODE_DIMENSIONS.GROUP.WIDTH - (NODE_DIMENSIONS.BORDER * 2)}px;
+        height: ${NODE_DIMENSIONS.GROUP.HEIGHT - (NODE_DIMENSIONS.BORDER * 2)}px;
+        border: ${NODE_DIMENSIONS.BORDER}px solid
             ${(props: NodeStyleProp) =>
             props.hasError
                 ? Colors.ERROR
@@ -97,12 +97,12 @@ namespace S {
     };
     export const ChildNodeContainer = styled.div<ContainerStyleProp>`
         position: absolute;
-        top: 20px;
-        left: ${(props: ContainerStyleProp) => (NODE_DIMENSIONS.DEFAULT.WIDTH - props.width - NODE_GAP.GROUP_NODE_HORIZONTAL_PADDING) / 2}px;
-        width: ${(props: ContainerStyleProp) => props.width}px;
-        height: ${(props: ContainerStyleProp) => props.height - 22}px;
-        padding: 0 20px;
-        border: 2px dashed ${Colors.OUTLINE_VARIANT};
+        top: ${NODE_DIMENSIONS.GROUP.HEIGHT / 2}px;
+        left: ${(props: ContainerStyleProp) => ((NODE_DIMENSIONS.GROUP.WIDTH - props.width) / 2) - NODE_GAP.GROUP_NODE_HORIZONTAL_PADDING}px;
+        width: ${(props: ContainerStyleProp) => props.width - (NODE_DIMENSIONS.BORDER * 2)}px;
+        height: ${(props: ContainerStyleProp) => props.height - (NODE_DIMENSIONS.GROUP.HEIGHT / 2) - (NODE_DIMENSIONS.BORDER * 2)}px;
+        padding: 0 ${NODE_GAP.GROUP_NODE_HORIZONTAL_PADDING}px;
+        border: ${NODE_DIMENSIONS.BORDER}px dashed ${Colors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: transparent;
         z-index: -1;
@@ -163,7 +163,7 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <S.Header>
                         <S.IconContainer>{getSVGIcon(node.stNode.tag)}</S.IconContainer>
-                        <S.NodeText>{node.stNode.tag}</S.NodeText>
+                        <S.NodeText>{FirstCharToUpperCase(node.stNode.tag)}</S.NodeText>
                         {isHovered && (
                             <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>
                                 <MoreVertIcon />
