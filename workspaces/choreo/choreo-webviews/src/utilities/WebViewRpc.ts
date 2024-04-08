@@ -23,6 +23,7 @@ import {
     Project,
     CloseWebViewNotification,
     ShowErrorMessage,
+    ShowInfoMessage,
     Component,
     GetProjectLocation,
     OpenExternal,
@@ -105,6 +106,12 @@ import {
     GetLinkedDirState,
     LinkedDirectoryState,
     LinkedDirStoreChangedNotification,
+    IChoreoRPCClient,
+    ChoreoRpcWebview,
+    OpenSubDialogRequest,
+    GetGetRemotes,
+    JoinFilePaths,
+    RefreshLinkedDirState,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -118,6 +125,7 @@ export class ChoreoWebViewAPI {
 
     private readonly _messenger;
     private static _instance: ChoreoWebViewAPI;
+    private _rpcClient: ChoreoRpcWebview;
     private _projectClientRpc: ChoreoProjectClientRPCWebView;
     private _githubAppClient: ChoreoGithubAppClientRPCWebView;
     private _choreoProjectManager: ChoreoProjectManagerRPCWebview;
@@ -126,6 +134,7 @@ export class ChoreoWebViewAPI {
     constructor(vscodeAPI: WebviewApi<unknown>) {
         this._messenger = new Messenger(vscodeAPI);
         this._messenger.start();
+        this._rpcClient = new ChoreoRpcWebview(this._messenger);
         this._projectClientRpc = new ChoreoProjectClientRPCWebView(this._messenger);
         this._githubAppClient = new ChoreoGithubAppClientRPCWebView(this._messenger);
         this._choreoProjectManager = new ChoreoProjectManagerRPCWebview(this._messenger);
@@ -151,6 +160,25 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(GetLinkedDirState, HOST_EXTENSION, undefined);
     }
 
+    public refreshLinkedDirState() {
+        this._messenger.sendNotification(RefreshLinkedDirState, HOST_EXTENSION, undefined);
+    }
+
+    public getChoreoRpcClient(): IChoreoRPCClient {
+        return this._rpcClient;
+    }
+
+    public async showOpenSubDialog(options: OpenDialogOptions): Promise<string[] | undefined> {
+        return this._messenger.sendRequest(OpenSubDialogRequest, HOST_EXTENSION, options);
+    }
+
+    public async getGitRemotes(paths: string[]): Promise<string[]> {
+        return this._messenger.sendRequest(GetGetRemotes, HOST_EXTENSION, paths);
+    }
+
+    public async joinFilePaths(paths: string[]): Promise<string> {
+        return this._messenger.sendRequest(JoinFilePaths, HOST_EXTENSION, paths);
+    }
     // todo: remove old ones
 
     public async getLoginStatus(): Promise<ChoreoLoginStatus> {
@@ -343,6 +371,10 @@ export class ChoreoWebViewAPI {
 
     public showErrorMsg(error: string) {
         this._messenger.sendNotification(ShowErrorMessage, HOST_EXTENSION, error);
+    }
+
+    public showInfoMsg(info: string) {
+        this._messenger.sendNotification(ShowInfoMessage, HOST_EXTENSION, info);
     }
 
     public getChoreoGithubAppClient(): ChoreoGithubAppClientRPCWebView {

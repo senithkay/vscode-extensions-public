@@ -16,6 +16,7 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { Codicon } from "../../Codicon/Codicon";
 import { useAuthContext } from "../../context/choreo-auth-ctx";
+import { CommandIds } from "@wso2-enterprise/choreo-core";
 
 const Container = styled.div`
     display: flex;
@@ -57,7 +58,7 @@ export const UserInfo = () => {
     const { displayName, userEmail, userProfilePictureUrl } = userInfo;
 
     const onSignOut = () => {
-        ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.sign.out");
+        ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.SignOut);
     };
 
     return (

@@ -11,3 +11,5 @@ export * from "./rpc";
 export * from "./manager";
 export * from "./events";
 export * from "./notifications";
+export * from "./constants";
+export * from "./cli-rpc";

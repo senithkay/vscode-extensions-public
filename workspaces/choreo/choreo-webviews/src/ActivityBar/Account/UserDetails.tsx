@@ -19,6 +19,7 @@ import { VSCodeButton, VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
 // import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { Codicon } from "../../Codicon/Codicon";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { CommandIds } from "@wso2-enterprise/choreo-core";
 // import { OrganizationInfo } from "./OrganizationInfo";
 
 const Container = styled.div`
@@ -43,7 +44,7 @@ const Seperator = styled(VSCodeDivider)`
 `;
 
 const openWalkthrough = () => {
-    ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.getStarted");
+    ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.OpenWalkthrough);
 };
 
 export const UserDetails = () => {

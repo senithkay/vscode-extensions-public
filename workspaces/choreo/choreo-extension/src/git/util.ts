@@ -484,3 +484,42 @@ export namespace Versions {
 		return from(major, minor, patch, pre);
 	}
 }
+
+export const removeCredentialsFromGitURL = (gitURL: string): string => {
+    if (gitURL.startsWith("git@")) {
+        // ssh url
+        const parts = gitURL.split(":");
+        if (parts.length === 2) {
+            const repoParts = parts[1].split("/");
+            // Extract user name & org from ssh url & generate an http URL
+            if (repoParts.length === 2) {
+                const username = repoParts[0];
+                const repository = repoParts[1].replace(".git", "");
+                if (gitURL.includes("bitbucket")) {
+                    return `https://bitbucket.org/${username}/${repository}.git`;
+                }
+                return `https://github.com/${username}/${repository}.git`;
+            }
+        }
+    } else {
+        // http/https url
+        try {
+            const parsedURL = new URL(gitURL);
+
+            // If user info is present, remove it
+            if (parsedURL.username) {
+                // Remove only the user info, keep the hostname
+                parsedURL.username = "";
+                parsedURL.password = "";
+            }
+
+            // Convert the URL back to string
+            const redactedURL = parsedURL.toString();
+
+            return redactedURL;
+        } catch (err) {
+            throw err;
+        }
+    }
+    throw new Error(`failed to parse git repository url:${gitURL}`);
+};

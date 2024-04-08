@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "vscode-messenger-common": "^0.4.3",
+    "vscode-messenger-webview": "^0.4.3",
     "@wso2-enterprise/ballerina-languageclient": "workspace:*"
   },
   "repository": {

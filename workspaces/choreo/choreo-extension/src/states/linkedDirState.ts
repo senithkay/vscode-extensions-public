@@ -4,7 +4,8 @@ import {
     LinkFileContent,
     LinkedDirectoryState,
 } from "@wso2-enterprise/choreo-core";
-import { workspace } from "vscode";
+import { Uri, workspace } from "vscode";
+import * as path from "path";
 import * as yaml from "js-yaml";
 import { readFileSync } from "fs";
 import { ext } from "../extensionVariables";
@@ -36,7 +37,6 @@ export const linkedDirectoryStore = createStore(
             storage: createJSONStorage(() => ({
                 getItem: async (name) => {
                     const value = await ext.context.workspaceState.get(name);
-                    console.log('vas2', value)
                     return value ? (value as string) : "";
                 },
                 removeItem: (name) => ext.context.workspaceState.update(name, undefined),
@@ -58,17 +58,23 @@ const getLinkedComponents = async () => {
                 projectHandle: parsedData.project,
                 orgHandle: parsedData.org,
             };
-            const relativePath = workspace.asRelativePath(linkFile);
-            const componentFullPath = linkFile.path.split("/").slice(0, -2).join("/");
-            const componentRelativePath = workspace.asRelativePath(componentFullPath);
+            const workspaceDir = workspace.getWorkspaceFolder(linkFile);
+            if (workspaceDir) {
+                const relativePath = workspace.asRelativePath(linkFile);
+                const componentFullPath = path.dirname(path.dirname(linkFile.path));
+                const componentRelativePath =
+                    componentFullPath === workspaceDir.uri.path ? "." : workspace.asRelativePath(componentFullPath);
 
-            links.push({
-                componentFullPath: componentFullPath,
-                componentRelativePath: componentRelativePath,
-                linkFullPath: linkFile.path,
-                linkRelativePath: relativePath,
-                linkContent: linkContent,
-            } as ComponentLink);
+                links.push({
+                    workspaceName: workspaceDir.name,
+                    workspacePath: workspaceDir.uri.path,
+                    componentFullPath: componentFullPath,
+                    componentRelativePath: componentRelativePath,
+                    linkFullPath: linkFile.path,
+                    linkRelativePath: relativePath,
+                    linkContent: linkContent,
+                } as ComponentLink);
+            }
         }
     }
     return links;

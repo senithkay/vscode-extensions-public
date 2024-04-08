@@ -61,8 +61,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
     authStore.persist.rehydrate();
     linkedDirectoryStore.persist.rehydrate();
+    authStore.subscribe(data=>vscode.commands.executeCommand("setContext", "isLoggedIn", !!data.state.userInfo));
 
-    setupEvents();
     activateWizards();
     activateClients();
     activateAuth(context);
@@ -98,7 +98,7 @@ function setupGithubAuthStatusCheck() {
 async function openChoreoActivity() {
     const shouldOpenChoreoActivity = await ext.api.shouldOpenChoreoActivity();
     if (shouldOpenChoreoActivity) {
-        vscode.commands.executeCommand("choreo.activity.project.focus");
+        vscode.commands.executeCommand("choreo.activity.components.focus");
         await ext.api.resetOpenChoreoActivity();
     }
 
@@ -109,7 +109,7 @@ async function openChoreoActivity() {
         const choreoProjectId = ext.api.getChoreoProjectId();
         if (choreoProjectId && !openedProjects.includes(choreoProjectId)) {
             // activate the Choreo Project view in the sidebar
-            vscode.commands.executeCommand("choreo.activity.project.focus");
+            vscode.commands.executeCommand("choreo.activity.components.focus");
             // add the project id to the opened projects list
             openedProjects.push(choreoProjectId);
             await ext.context.globalState.update("openedProjects", openedProjects);
@@ -121,14 +121,6 @@ export function getGitExtensionAPI() {
     getLogger().debug("Getting Git Extension API");
     const gitExtension = vscode.extensions.getExtension<GitExtension>("vscode.git")!.exports;
     return gitExtension.getAPI(1);
-}
-
-function setupEvents() {
-    const subscription: vscode.Disposable = ext.api.onStatusChanged(async (newStatus) => {
-        // TODO: check this
-        vscode.commands.executeCommand("setContext", "choreoLoginStatus", newStatus);
-    });
-    ext.context.subscriptions.push(subscription);
 }
 
 function registerPreInitHandlers(): any {

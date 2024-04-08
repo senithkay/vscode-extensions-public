@@ -32,6 +32,21 @@ import {
 
 export const GetAuthState: RequestType<void, AuthState> = { method: 'getAuthState' };
 export const GetLinkedDirState: RequestType<void, LinkedDirectoryState> = { method: 'getLinkedState' };
+export const OpenSubDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: 'openDialog' };
+export const GetGetRemotes: RequestType<string[], string[]> = { method: 'getGitRemotes' };
+export const JoinFilePaths: RequestType<string[], string> = { method: 'joinFilePaths' };
+export const ShowErrorMessage: NotificationType<string> = { method: 'showErrorMessage' };
+export const ShowInfoMessage: NotificationType<string> = { method: 'showInfoMessage' };
+export const RefreshLinkedDirState: NotificationType<void> = { method: 'refreshLinkedDirState' };
+
+export interface OpenDialogOptions {   // here
+   title: string,
+   canSelectFiles: boolean, 
+   canSelectFolders: boolean, 
+   canSelectMany: boolean, 
+   defaultUri: string, 
+   filters: { [name: string]: string[] }
+}
 
 
 /////////////////////////////////////
@@ -153,7 +168,7 @@ export const getEndpointsForVersion: RequestType<{componentId: string, versionId
 export const getDiagramComponentModel: RequestType<{ projId: string, orgId: number }, GetComponentModelResponse> = { method: 'getDiagramComponentModel' };
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: 'executeCommand' };
 export const UpdateProjectOverview: RequestType<string, void> = { method: 'updateProjectOverview' };
-export const showOpenDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: 'showOpenDialog' };
+export const showOpenDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: 'showOpenDialog' };   // here
 export const GetComponentCount: RequestType<GetComponentCountParams, ComponentCount> = { method: 'getComponentCount' };
 export const IsBareRepoRequest: RequestType<IsBareRepoRequestParams, boolean> = { method: 'isBareRepo' };
 export const HasChoreoSubscription: RequestType<HasChoreoSubscriptionParams, boolean> = { method: 'hasChoreoSubscription' };
@@ -169,21 +184,12 @@ export const ClearWebviewCache: RequestType<IDBValidKey, void> = { method: 'clea
 export const GoToSource: RequestType<string, void> = { method: 'goToSource' };
 export const IsBallerinaExtInstalled: RequestType<void, boolean> = { method: 'isBallerinaExtInstalled' };
 
-export interface OpenDialogOptions {
-   title: string,
-   canSelectFiles: boolean, 
-   canSelectFolders: boolean, 
-   canSelectMany: boolean, 
-   defaultUri: string, 
-   filters: { [name: string]: string[] }
-}
 
 // notification types
 export const LoginStatusChangedNotification: NotificationType<string> = { method: 'loginStatusChanged' };
 export const SelectedOrgChangedNotification: NotificationType<Organization> = { method: 'selectedOrgChanged' };
 export const SelectedProjectChangedNotification: NotificationType<string> = { method: 'selectedProjectChanged' };
 export const CloseWebViewNotification: NotificationType<void> = { method: 'close' };
-export const ShowErrorMessage: NotificationType<string> = { method: 'showErrorMessage' };
 export const RefreshComponentsNotification: NotificationType<void> = { method: 'refreshComponents' };
 export const RefreshWorkspaceNotification: NotificationType<void> = { method: 'refreshWorkspace' };
 

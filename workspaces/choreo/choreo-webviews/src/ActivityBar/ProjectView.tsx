@@ -35,9 +35,6 @@ export const ProjectView = () => {
     const { userInfo, loading: loadingAuth, isInitialLoading: initialLoadAuth } = useAuthContext();
     const { links, loading: loadingDirs, isInitialLoading: initialLoadDirs } = useLinkedDirContext();
 
-    console.log("links", links);
-    console.log("userInfo", userInfo);
-
     return (
         <Container>
             {(loadingAuth || loadingDirs) && <ProgressIndicator id="project-view-progress" />}

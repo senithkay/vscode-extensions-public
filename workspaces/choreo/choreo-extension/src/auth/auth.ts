@@ -24,7 +24,7 @@ import { ChoreoAIConfig } from '../services/ai';
 import { Organization, SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT } from '@wso2-enterprise/choreo-core';
 import { sendTelemetryEvent } from '../telemetry/utils';
 import { workspace } from 'vscode';
-import { ChoreoRPCClient } from '../../src/choreo-rpc/activate';
+import { ChoreoRPCClient } from '../../src/choreo-rpc';
 
 export const CHOREO_AUTH_ERROR_PREFIX = "Choreo Login: ";
 

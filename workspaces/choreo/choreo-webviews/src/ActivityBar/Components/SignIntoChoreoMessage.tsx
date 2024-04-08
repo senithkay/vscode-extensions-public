@@ -16,6 +16,7 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { useChoreoWebViewContext } from "./../../context/choreo-web-view-ctx";
 import { AlertBox } from "./AlertBox";
+import { CommandIds } from "@wso2-enterprise/choreo-core";
 
 const Container = styled.div`
     display: flex;
@@ -37,7 +38,7 @@ export const SignInToChoreoMessage = (props: { showProjectHeader?: boolean }) =>
     const { showProjectHeader } = props;
 
     const signInToChoreo = () => {
-        ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.sign.in");
+        ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.SignIn);
     };
 
     return (

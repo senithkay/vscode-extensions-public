@@ -7,16 +7,27 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export type WebviewTypes = "ChoreoCellView" | "ProjectOverview" | "ProjectCreateForm" | "ComponentCreateForm" | "ActivityBarAccountView" | "ActivityBarProjectView"
+export type WebviewTypes = "NewComponentForm" |"ChoreoCellView" | "ProjectOverview" | "ProjectCreateForm" | "ComponentCreateForm" | "ActivityBarAccountView" | "ActivityBarProjectView"
 
-export interface WebviewProps {
-    // TODO: simplify this
-	type: WebviewTypes;
+// TODO: delete
+export interface OldProps {
+    type: WebviewTypes;
 	projectId?: string;
 	orgName?: string;
 	componentLimit?: number;
 	choreoUrl?: string;
 }
+
+export interface NewComponentWebview {
+    type: "NewComponentForm";
+    directoryPath: string;
+    organization: Organization;
+    gitInstallUrl: string;
+    project?: Project;
+}
+
+
+export type WebviewProps = OldProps | NewComponentWebview
 
 export interface Owner {
     id: string;
@@ -58,6 +69,8 @@ export interface ComponentLinkContent {
     orgHandle: string;
 }
 export interface ComponentLink {
+    workspaceName: string;
+    workspacePath: string;
     componentRelativePath: string;
     componentFullPath: string;
     linkFullPath: string;
@@ -71,18 +84,80 @@ export interface LinkedDirectoryState {
     error?: Error;
 }
 
-/////////////////////////////////////
-/////////////////////////////////////
-// TODO: remove OLD /////////////////
-/////////////////////////////////////
-/////////////////////////////////////
+export interface ComponentKindBitbucketSource {
+    repository: string;
+    branch: string;
+    path: string;
+}
 
-export type ChoreoLoginStatus = 'Initializing' | 'LoggingIn' | 'LoggedIn' | 'LoggedOut';
+export interface ComponentKindGithubSource {
+    repository: string;
+    branch: string;
+    path: string;
+}
 
-export type ComponentAccessibility = 'internal' | 'external';
+export interface ComponentKindSource {
+    bitbucket?: ComponentKindBitbucketSource;
+    github?: ComponentKindGithubSource;
+}
 
-export type ComponentNetworkVisibility = 'Project' | 'Organization' | 'Public';
+export interface ComponentKindBuildDocker {
+    dockerFilePath: string;
+    dockerContextPath: string;
+    port?: number;
+}
 
+export interface ComponentKindBuildBallerina {
+    sampleTemplate: string;
+    enableCellDiagram: boolean;
+}
+
+export interface ComponentKindBuildWebapp {
+    buildCommand: string;
+    nodeVersion: string;
+    outputDir: string;
+    type: string;
+}
+
+export interface ComponentKindBuildBuildpack {
+    language: string;
+    version: string;
+    port?: number;
+}
+
+export interface ComponentKindSpecBuild {
+    docker?: ComponentKindBuildDocker;
+    ballerina?: ComponentKindBuildBallerina;
+    webapp?: ComponentKindBuildWebapp;
+    buildpack?: ComponentKindBuildBuildpack;
+}
+
+export interface ComponentKindMetadata {
+    name: string;
+    displayName: string;
+    projectName: string;
+}
+
+export interface ComponentKindSpec {
+    type: string;
+    source: ComponentKindSource;
+    build: ComponentKindSpecBuild;
+}
+
+export interface ComponentKind {
+    apiVersion: string;
+    kind: string;
+    metadata: ComponentKindMetadata;
+    spec: ComponentKindSpec;
+}
+
+export enum ChoreoComponentType {
+    Service = 'service',
+    ScheduledTask = 'scheduleTask',
+    ManualTrigger = 'manualTask',
+    Webhook = 'webhook',
+    WebApplication = 'webApp'
+}
 
 export interface Project {
     createdData: string;
@@ -122,6 +197,30 @@ export interface Buildpack {
         type: string
     }[];
 }
+
+export enum ChoreoBuildPackNames {
+    Ballerina = "ballerina",
+    Docker = "docker",
+    React = "react",
+    Angular = "angular",
+    Vue = "vuejs",
+    StaticFiles = "staticweb",
+    MicroIntegrator = "microintegrator",
+}
+
+/////////////////////////////////////
+/////////////////////////////////////
+// TODO: remove OLD /////////////////
+/////////////////////////////////////
+/////////////////////////////////////
+
+export type ChoreoLoginStatus = 'Initializing' | 'LoggingIn' | 'LoggedIn' | 'LoggedOut';
+
+export type ComponentAccessibility = 'internal' | 'external';
+
+export type ComponentNetworkVisibility = 'Project' | 'Organization' | 'Public';
+
+
 
 export interface ComponentCount {
     orgId: number; 
@@ -501,16 +600,6 @@ export enum ChoreoImplementationType {
     MicroIntegrator = "microintegrator",
 }
 
-export enum ChoreoBuildPackNames {
-    Ballerina = "ballerina",
-    Docker = "docker",
-    React = "react",
-    Angular = "angular",
-    Vue = "vuejs",
-    StaticFiles = "staticweb",
-    MicroIntegrator = "microintegrator",
-}
-
 export enum GoogleProviderBuildPackNames {
     JAVA = "java",
     NODEJS = "nodejs",
@@ -520,7 +609,6 @@ export enum GoogleProviderBuildPackNames {
     PHP = "php",
 }
 
-export const WebAppSPATypes = [ChoreoBuildPackNames.React, ChoreoBuildPackNames.Vue, ChoreoBuildPackNames.Angular]
 
 export enum ChoreoServiceType {
     RestApi = "REST",
@@ -530,13 +618,7 @@ export enum ChoreoServiceType {
 
 export const ChoreoServiceTypeList = [ChoreoServiceType.RestApi, ChoreoServiceType.GraphQL, ChoreoServiceType.GRPC]
 
-export enum ChoreoComponentType {
-    Service = 'service',
-    ScheduledTask = 'scheduledTask',
-    ManualTrigger = 'manualTrigger',
-    Webhook = 'webhook',
-    WebApplication = 'webApp'
-}
+
 
 export interface ChoreoComponentCreationParams {
     name: string;

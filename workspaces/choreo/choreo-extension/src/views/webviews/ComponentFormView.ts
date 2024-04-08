@@ -1,0 +1,105 @@
+/*
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+import * as vscode from "vscode";
+import { WebViewPanelRpc } from "./rpc/WebviewRPC";
+import { getUri } from "./utils";
+import { Organization, Project, WebviewProps } from "@wso2-enterprise/choreo-core";
+import { choreoEnvConfig } from "../../auth/auth";
+
+export class ComponentFormView {
+    public static currentPanel: ComponentFormView | undefined;
+    private _panel: vscode.WebviewPanel | undefined;
+    private _disposables: vscode.Disposable[] = [];
+    private _rpcHandler: WebViewPanelRpc;
+
+    constructor(extensionUri: vscode.Uri, directoryPath: string, organization: Organization, project?: Project) {
+        this._panel = ComponentFormView.createWebview();
+        this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
+        this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, directoryPath, organization, project);
+        this._rpcHandler = new WebViewPanelRpc(this._panel);
+    }
+
+    private static createWebview(): vscode.WebviewPanel {
+        const panel = vscode.window.createWebviewPanel(
+            "create-new-component",
+            `Create New Component`,
+            vscode.ViewColumn.One,
+            { enableScripts: true, retainContextWhenHidden: true }
+        );
+
+        
+
+        return panel;
+    }
+
+    public getWebview(): vscode.WebviewPanel | undefined {
+        return this._panel;
+    }
+
+    private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri, directoryPath: string, organization: Organization, project?: Project) {
+        // The JS file from the React build output
+        const scriptUri = getUri(webview, extensionUri, ["resources", "jslibs", "main.js"]);
+
+        const codiconUri = webview.asWebviewUri(
+            vscode.Uri.joinPath(extensionUri, "resources", "codicons", "codicon.css")
+        );
+        const fontsUri = webview.asWebviewUri(
+            vscode.Uri.joinPath(extensionUri, "resources", "fw-vscode", "wso2-vscode.css")
+        );
+
+        return /*html*/ `
+          <!DOCTYPE html>
+          <html lang="en">
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
+              <meta name="theme-color" content="#000000">
+              <title>Choreo Webview Wizard</title>
+              <link rel="stylesheet" href="${codiconUri}">
+              <link rel="stylesheet" href="${fontsUri}">
+              <script src="${scriptUri}"></script>
+              <script src="${fontsUri}"></script>
+            </head>
+            <body>
+              <noscript>You need to enable JavaScript to run this app.</noscript>
+              <div id="root"></div>
+            </body>
+            <script>
+              function render() {
+                choreoWebviews.renderChoreoWebViews(
+                  document.getElementById("root"),
+                  ${JSON.stringify({
+                      type: "NewComponentForm",
+                      directoryPath: directoryPath,
+                      organization,
+                      project,
+                      gitInstallUrl: choreoEnvConfig.getGHAppConfig().installUrl,
+                  } as WebviewProps)}
+                );
+              }
+              render();
+            </script>
+          </html>
+        `;
+    }
+
+    public dispose() {
+        ComponentFormView.currentPanel = undefined;
+        this._panel?.dispose();
+
+        while (this._disposables.length) {
+            const disposable = this._disposables.pop();
+            if (disposable) {
+                disposable.dispose();
+            }
+        }
+
+        this._panel = undefined;
+    }
+}

@@ -9,17 +9,16 @@
 import { ProgressLocation, QuickPickItem, QuickPickOptions, commands, window } from "vscode";
 import { choreoEnvConfig } from "./auth";
 import { ext } from '../extensionVariables';
-import { choreoSignInCmdId, choreoSignInWithAuthCodeCmdId, choreoSignOutCmdId, openWalkthroughCmdId } from '../constants';
 import { getLogger } from '../logger/logger';
 import { sendTelemetryEvent } from '../telemetry/utils';
-import { CHANGE_ORG_EVENT, CHANGE_ORG_EVENT_FAILURE, SIGN_IN_CANCEL_EVENT, SIGN_IN_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_START_EVENT, SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT, SIGN_IN_START_EVENT, SIGN_OUT_FAILURE_EVENT, SIGN_OUT_START_EVENT, SIGN_OUT_SUCCESS_EVENT } from '@wso2-enterprise/choreo-core';
+import { CHANGE_ORG_EVENT, CHANGE_ORG_EVENT_FAILURE, CommandIds, SIGN_IN_CANCEL_EVENT, SIGN_IN_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_START_EVENT, SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT, SIGN_IN_START_EVENT, SIGN_OUT_FAILURE_EVENT, SIGN_OUT_START_EVENT, SIGN_OUT_SUCCESS_EVENT } from '@wso2-enterprise/choreo-core';
 import * as vscode from 'vscode';
 import { authStore } from "../states/authState";
 
 export async function activateAuth(context: vscode.ExtensionContext) {
     await initFromExistingChoreoSession();
 
-    commands.registerCommand(choreoSignInCmdId, async () => {
+    commands.registerCommand(CommandIds.SignIn, async () => {
         try {
             getLogger().debug("Signing in to Choreo");
             sendTelemetryEvent(SIGN_IN_START_EVENT);
@@ -62,7 +61,7 @@ export async function activateAuth(context: vscode.ExtensionContext) {
         }
     });
 
-    commands.registerCommand(choreoSignOutCmdId, async () => {
+    commands.registerCommand(CommandIds.SignOut, async () => {
         try {
             getLogger().debug("Signing out from Choreo");
             sendTelemetryEvent(SIGN_OUT_START_EVENT);
@@ -79,7 +78,7 @@ export async function activateAuth(context: vscode.ExtensionContext) {
         }
     });
 
-    commands.registerCommand(choreoSignInWithAuthCodeCmdId, async () => {
+    commands.registerCommand(CommandIds.SignInWithAuthCode, async () => {
         try {
             // This is used in the extension test runner to sign into choreo
             getLogger().debug("Signing in to Choreo using code");
@@ -109,7 +108,7 @@ export async function activateAuth(context: vscode.ExtensionContext) {
         }
     });
 
-    vscode.commands.registerCommand(openWalkthroughCmdId, () => {
+    vscode.commands.registerCommand(CommandIds.OpenWalkthrough, () => {
         vscode.commands.executeCommand(`workbench.action.openWalkthrough`, `wso2.choreo#choreo.getStarted`, false);
     });
 }

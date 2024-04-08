@@ -12,7 +12,7 @@ import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
 
 import { ChoreoProjectClient, ChoreoSubscriptionClient, ComponentManagementClient, ChoreoCellViewClient, ChoreoDevopsClient } from "@wso2-enterprise/choreo-client";
 import { ChoreoGithubAppClient } from "@wso2-enterprise/choreo-client/lib/github";
-import { ChoreoRPCClient } from "./choreo-rpc/activate";
+import { ChoreoRPCClient } from "./choreo-rpc";
 
 export class ExtensionVariables {
     public context!: ExtensionContext;

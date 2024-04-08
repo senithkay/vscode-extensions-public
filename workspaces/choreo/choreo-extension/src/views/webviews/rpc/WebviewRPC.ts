@@ -102,6 +102,11 @@ import {
     GetAuthState,
     GetLinkedDirState,
     LinkedDirStoreChangedNotification,
+    OpenSubDialogRequest,
+    GetGetRemotes,
+    ShowInfoMessage,
+    JoinFilePaths,
+    RefreshLinkedDirState,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -120,6 +125,8 @@ import { sendTelemetryEvent, sendTelemetryException } from "../../../telemetry/u
 import { existsSync } from "fs";
 import { authStore } from "../../../states/authState";
 import { linkedDirectoryStore } from "../../../states/linkedDirState";
+import { registerChoreoRpcResolver } from "../../../choreo-rpc";
+import { removeCredentialsFromGitURL } from "../../../git/util";
 
 const manager = new ChoreoProjectManager();
 
@@ -130,7 +137,80 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     linkedDirectoryStore.subscribe((store)=> messenger.sendNotification(LinkedDirStoreChangedNotification, BROADCAST, store.state));
 
     messenger.onRequest(GetAuthState, ()=>authStore.getState().state);
-    messenger.onRequest(GetLinkedDirState, ()=>linkedDirectoryStore.getState().state);
+    messenger.onRequest(GetLinkedDirState, async ()=>linkedDirectoryStore.getState().state);
+    messenger.onNotification(RefreshLinkedDirState, () => {
+        linkedDirectoryStore.getState().refreshState();
+    });
+    messenger.onRequest(OpenSubDialogRequest, async (options: OpenDialogOptions) => {
+        try {
+            const result = await window.showOpenDialog({ ...options, defaultUri: Uri.parse(options.defaultUri) });
+            return result?.map((file) => file.fsPath);
+        } catch (error: any) {
+            getLogger().error(error.message);
+            return [];
+        }
+    });
+    messenger.onRequest(GetGetRemotes, async (paths: string[]) => {
+        try {
+            const dirPath = join(...paths);
+            const git = await initGit(ext.context);
+
+            const repoRootPath = await git?.getRepositoryRoot(dirPath);
+            const dotGit = await git?.getRepositoryDotGit(dirPath);
+        
+            if (!repoRootPath || !dotGit) {
+                return [];
+            }
+            const repo = git?.open(repoRootPath!, dotGit);
+            const remotes = await repo?.getRemotes();
+            return remotes?.filter(item=>item.fetchUrl)?.map(item => removeCredentialsFromGitURL(item.fetchUrl!)) ?? [];
+        } catch (error: any) {
+            getLogger().error(error.message);
+            return [];
+        }
+    });
+    messenger.onRequest(JoinFilePaths, (files: string[])=>join(...files));
+    messenger.onRequest(ExecuteCommandRequest, async (args: string[]) => {
+        if (args.length >= 1) {
+            const cmdArgs = args.length > 1 ? args.slice(1) : [];
+            const result = await commands.executeCommand(args[0], ...cmdArgs);
+            return result;
+        }
+    });
+    messenger.onNotification(ShowErrorMessage, (error: string) => {
+        window.showErrorMessage(error);
+    });
+    messenger.onNotification(ShowInfoMessage, (info: string) => {
+        window.showInformationMessage(info);
+    });
+    messenger.onNotification(CloseWebViewNotification, () => {
+        if ("dispose" in view) {
+            view.dispose();
+        }
+    });
+    messenger.onRequest(OpenExternal, (url: string) => {
+        vscode.env.openExternal(vscode.Uri.parse(url));
+    });
+    messenger.onRequest(SetWebviewCache, async (params) => {
+        await ext.context.workspaceState.update(params.cacheKey, params.data);
+    });
+    messenger.onRequest(RestoreWebviewCache, async (cacheKey) => {
+        return ext.context.workspaceState.get(cacheKey);
+    });
+    messenger.onRequest(ClearWebviewCache, async (cacheKey) => {
+        await ext.context.workspaceState.update(cacheKey, undefined);
+    });
+    messenger.onRequest(IsBallerinaExtInstalled, () => {
+        const ext = vscode.extensions.getExtension("wso2.ballerina");
+        return !!ext;
+    });
+    messenger.onRequest(GoToSource, async (filePath): Promise<void> => {
+        if (existsSync(filePath)) {
+            const sourceFile = await vscode.workspace.openTextDocument(filePath);
+            await window.showTextDocument(sourceFile);
+            await commands.executeCommand("workbench.explorer.fileView.focus");
+        }
+    });
     // TODO remove old ones
 
   
@@ -273,10 +353,6 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(GetProjectLocation, async (projectId: string) => {
         return ProjectRegistry.getInstance().getProjectLocation(projectId);
-    });
-
-    messenger.onRequest(OpenExternal, (url: string) => {
-        vscode.env.openExternal(vscode.Uri.parse(url));
     });
 
     messenger.onRequest(OpenChoreoProject, async (projectId: string) => {
@@ -444,14 +520,6 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         );
     });
 
-    messenger.onRequest(GoToSource, async (filePath): Promise<void> => {
-        if (existsSync(filePath)) {
-            const sourceFile = await vscode.workspace.openTextDocument(filePath);
-            await window.showTextDocument(sourceFile);
-            await commands.executeCommand("workbench.explorer.fileView.focus");
-        }
-    });
-
     ext.api.onStatusChanged((newStatus) => {
         messenger.sendNotification(LoginStatusChangedNotification, BROADCAST, newStatus);
     });
@@ -470,21 +538,6 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         messenger.sendNotification(RefreshWorkspaceNotification, BROADCAST, null);
     });
 
-    messenger.onRequest(ExecuteCommandRequest, async (args: string[]) => {
-        if (args.length >= 1) {
-            const cmdArgs = args.length > 1 ? args.slice(1) : [];
-            const result = await commands.executeCommand(args[0], ...cmdArgs);
-            return result;
-        }
-    });
-    messenger.onNotification(ShowErrorMessage, (error: string) => {
-        window.showErrorMessage(error);
-    });
-    messenger.onNotification(CloseWebViewNotification, () => {
-        if ("dispose" in view) {
-            view.dispose();
-        }
-    });
 
     messenger.onRequest(showOpenDialogRequest, async (options: OpenDialogOptions) => {
         try {
@@ -504,22 +557,9 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         ext.api.refreshWorkspaceMetadata();
     });
 
-    messenger.onRequest(SetWebviewCache, async (params) => {
-        await ext.context.workspaceState.update(params.cacheKey, params.data);
-    });
 
-    messenger.onRequest(RestoreWebviewCache, async (cacheKey) => {
-        return ext.context.workspaceState.get(cacheKey);
-    });
 
-    messenger.onRequest(ClearWebviewCache, async (cacheKey) => {
-        await ext.context.workspaceState.update(cacheKey, undefined);
-    });
-
-    messenger.onRequest(IsBallerinaExtInstalled, () => {
-        const ext = vscode.extensions.getExtension("wso2.ballerina");
-        return !!ext;
-    });
+ 
 
     messenger.onRequest(GetLocalComponentDirMetaData, (params: getLocalComponentDirMetaDataRequest) => {
         return ProjectRegistry.getInstance().getLocalComponentDirMetaData(params);
@@ -548,6 +588,9 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     // Register RPC handlers for the Choreo Cell View
     registerChoreoCellViewRPCHandlers(messenger, ext.clients.cellViewClient);
+
+    // Register Choreo CLL RPC handler
+    registerChoreoRpcResolver(messenger, ext.clients.rpcClient);
 }
 
 export class WebViewPanelRpc {

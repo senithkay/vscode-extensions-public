@@ -51,6 +51,7 @@ export const LinkedDirContextProvider: FC<Props> = ({ children }) => {
     });
 
     useEffect(() => {
+        ChoreoWebViewAPI.getInstance().refreshLinkedDirState();
         ChoreoWebViewAPI.getInstance().onLinkedDirStateChanged((linkedDirState) => {
             queryClient.setQueryData(["linked_dir_state"], linkedDirState);
         });

@@ -28,7 +28,6 @@ export const authStore = createStore(
             storage: createJSONStorage(() => ({
                 getItem: async (name) => {
                     const value = await ext.context.globalState.get(name);
-                    console.log('vasl', value)
                     return value ? (value as string) : "";
                 },
                 removeItem: (name) => ext.context.globalState.update(name, undefined),

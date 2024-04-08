@@ -38,7 +38,7 @@ import * as path from "path";
 
 import { enrichDeploymentData, getComponentDirPath, getResourcesFromOpenApiFile, makeURLSafe } from "./utils";
 import { AxiosResponse } from 'axios';
-import { OPEN_CHOREO_ACTIVITY, SELECTED_GLOBAL_ORG_KEY, USER_INFO_KEY } from './constants';
+import { OPEN_CHOREO_ACTIVITY } from './constants';
 import * as yaml from 'js-yaml';
 import { authStore } from './states/authState';
 

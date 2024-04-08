@@ -15,9 +15,9 @@ import { FREE_COMPONENT_LIMIT } from '../../../auth/config';
 import { WebviewProps } from '@wso2-enterprise/choreo-core';
 
 
-export class ProjectView implements vscode.WebviewViewProvider {
+export class ComponentsView implements vscode.WebviewViewProvider {
 
-	public static readonly viewType = 'choreo.activity.project';
+	public static readonly viewType = 'choreo.activity.components';
 
 	private _view?: vscode.WebviewView;
 	private _rpc?: WebViewViewRPC;

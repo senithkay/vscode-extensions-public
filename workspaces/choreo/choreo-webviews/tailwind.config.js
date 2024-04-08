@@ -3,9 +3,21 @@ module.exports = {
     content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
     theme: {
         extend: {},
+        borderRadius: {
+            none: "0",
+            sm: "1px",
+            DEFAULT: "2px",
+        },
+        borderWidth: {
+            DEFAULT: "1px",
+            0: "0",
+            1: "1px",
+            2: "2px",
+        },
         colors: {
             // Color palette from https://github.com/githubocto/tailwind-vscode/blob/main/index.js
-            vscode: {
+            transparent: "transparent",
+            vsc: {
                 contrastActiveBorder: "var(--vscode-contrastActiveBorder)",
                 contrastBorder: "var(--vscode-contrastBorder)",
                 focusBorder: "var(--vscode-focusBorder)",

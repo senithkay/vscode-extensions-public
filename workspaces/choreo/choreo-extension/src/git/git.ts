@@ -515,6 +515,51 @@ export class Git {
 		return false;
 	}
 
+	async getRemotes(repositoryPath: string): Promise<string> {
+		const result = await this.exec(repositoryPath, ['rev-parse', '--show-toplevel']);
+
+		// Keep trailing spaces which are part of the directory name
+		const repoPath = path.normalize(result.stdout.trimLeft().replace(/[\r\n]+$/, ''));
+
+		if (isWindows) {
+			// On Git 2.25+ if you call `rev-parse --show-toplevel` on a mapped drive, instead of getting the mapped
+			// drive path back, you get the UNC path for the mapped drive. So we will try to normalize it back to the
+			// mapped drive path, if possible
+			const repoUri = Uri.file(repoPath);
+			const pathUri = Uri.file(repositoryPath);
+			if (repoUri.authority.length !== 0 && pathUri.authority.length === 0) {
+				const match = /(?<=^\/?)([a-zA-Z])(?=:\/)/.exec(pathUri.path);
+				if (match !== null) {
+					const [, letter] = match;
+
+					try {
+						const networkPath = await new Promise<string | undefined>(resolve =>
+							realpath.native(`${letter}:\\`, { encoding: 'utf8' }, (err, resolvedPath) =>
+								resolve(err !== null ? undefined : resolvedPath),
+							),
+						);
+						if (networkPath !== undefined) {
+							// If the repository is at the root of the mapped drive then we
+							// have to append `\` (ex: D:\) otherwise the path is not valid.
+							const isDriveRoot = pathEquals(repoUri.fsPath, networkPath);
+
+							return path.normalize(
+								repoUri.fsPath.replace(
+									networkPath,
+									`${letter.toLowerCase()}:${isDriveRoot || networkPath.endsWith('\\') ? '\\' : ''}`
+								),
+							);
+						}
+					} catch { }
+				}
+
+				return path.normalize(pathUri.fsPath);
+			}
+		}
+
+		return repoPath;
+	}
+
 	async getRepositoryRoot(repositoryPath: string): Promise<string> {
 		const result = await this.exec(repositoryPath, ['rev-parse', '--show-toplevel']);
 

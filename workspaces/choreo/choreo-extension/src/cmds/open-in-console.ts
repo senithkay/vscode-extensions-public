@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { ExtensionContext, commands } from "vscode";
-import { openProjectInConsoleCmdId } from "../constants";
+// import { openProjectInConsoleCmdId } from "../constants";
 import { ext } from "../extensionVariables";
 import { getLogger } from "../logger/logger";
 import { choreoEnvConfig } from "../auth/auth";
