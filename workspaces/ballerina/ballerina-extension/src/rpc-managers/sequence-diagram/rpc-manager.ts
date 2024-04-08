@@ -38,12 +38,12 @@ export class SequenceDiagramRpcManager implements SequenceDiagramAPI {
                 .getSequenceDiagramModel(params)
                 .then((model) => {
                     console.log(">>> sequence model from backend:", model);
-                    if (!model) {
+                    if (!model || !model.sequenceDiagram) {
                         return new Promise((resolve) => {
                             resolve(undefined);
                         });
                     }
-                    resolve(model as SequenceModelResponse);
+                    resolve(model.sequenceDiagram as SequenceModelResponse);
                 })
                 .catch((error) => {
                     console.log(">>> ERROR from backend:", error);
