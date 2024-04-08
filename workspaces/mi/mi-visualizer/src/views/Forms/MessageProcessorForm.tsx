@@ -12,7 +12,7 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { CreateMessageProcessorRequest } from "@wso2-enterprise/mi-core";
 import CardWrapper from "./Commons/CardWrapper";
-import { TypeChangeButton } from "./Commons";
+import { TypeChip } from "./Commons";
 
 interface OptionProps {
     value: string;
@@ -374,7 +374,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
     return (
         <FormView title="Message Processor" onClose={handleCancel}>
             { messageProcessor.messageProcessorType === '' ? <CardWrapper cardsType="MESSAGE_PROCESSOR" setType={setMessageProcessorType} /> : <>
-            { isNewMessageProcessor && <TypeChangeButton type={messageProcessor.messageProcessorType} onClick={setMessageProcessorType} /> }
+            <TypeChip type={messageProcessor.messageProcessorType} onClick={setMessageProcessorType} showButton={isNewMessageProcessor} />
                 <TextField
                     placeholder="Name"
                     label="Message Processor Name"
