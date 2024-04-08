@@ -173,8 +173,8 @@ const MainPanel = () => {
                 case MACHINE_VIEW.DataMapperView:
                     setViewComponent(
                         <DataMapper
-                            filePath={"TODO: Add file path"}
-                            functionName={"TODO: Add function name"}
+                            filePath={"/Users/madusha/play/mi/mi-hw/HelloWorldService/src/main/wso2mi/resources/data-mapper/sample2.ts"}
+                            functionName={"tnfStd2Person"}
                         />
                     );
                     break;
