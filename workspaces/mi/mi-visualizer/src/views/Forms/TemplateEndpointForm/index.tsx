@@ -15,6 +15,8 @@ import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
+import CardWrapper from "../Commons/CardWrapper";
+import { TypeChangeButton } from "../Commons";
 
 const FieldGroup = styled.div`
     display: flex;
@@ -69,6 +71,8 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
         mode: "onChange"
     });
 
+    const [showCards, setShowCards] = useState(false);
+    const [isNewEndpoint, setIsNewEndpoint] = useState(!props.path.endsWith(".xml"));
     const [templates, setTemplates] = useState<any[]>([]);
     const [paramConfigs, setParamConfigs] = useState<any>({
         paramValues: [],
@@ -79,35 +83,37 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
     });
 
     useEffect(() => {
-        (async () => {
-            const { parameters, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getTemplateEndpoint({ path: props.path });
+        if (!isNewEndpoint) {
+            (async () => {
+                const { parameters, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getTemplateEndpoint({ path: props.path });
 
-            reset(endpoint);
+                reset(endpoint);
 
-            setParamConfigs((prev: any) => {
-                return {
-                    ...prev,
-                    paramValues: parameters.map((property: any, index: Number) => {
-                        return {
-                            id: prev.paramValues.length + index,
-                            parameters: [
-                                { id: 0, label: 'Name', type: 'TextField', value: property.name, isRequired: true },
-                                { id: 1, label: 'Value', type: 'TextField', value: property.value, isRequired: true },
-                            ],
-                            key: property.name,
-                            value: property.value,
-                        }
-                    })
-                };
-            });
+                setParamConfigs((prev: any) => {
+                    return {
+                        ...prev,
+                        paramValues: parameters.map((property: any, index: Number) => {
+                            return {
+                                id: prev.paramValues.length + index,
+                                parameters: [
+                                    { id: 0, label: 'Name', type: 'TextField', value: property.name, isRequired: true },
+                                    { id: 1, label: 'Value', type: 'TextField', value: property.value, isRequired: true },
+                                ],
+                                key: property.name,
+                                value: property.value,
+                            }
+                        })
+                    };
+                });
 
-            const items = await rpcClient.getMiDiagramRpcClient().getTemplates();
-            const templates = items.data.map((temp: string) => {
-                temp = temp.replace(".xml", "");
-                return { value: temp }
-            });
-            setTemplates(templates);
-        })();
+                const items = await rpcClient.getMiDiagramRpcClient().getTemplates();
+                const templates = items.data.map((temp: string) => {
+                    temp = temp.replace(".xml", "");
+                    return { value: temp }
+                });
+                setTemplates(templates);
+            })();
+        }
     }, []);
 
     const renderProps = (fieldName: keyof InputsFields, value?: any) => {
@@ -135,6 +141,74 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
         })
     }
 
+    const setEndpointType = (type: string) => {
+        if (type.includes('HTTP')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.HttpEndpointForm,
+                    documentUri: props.path,
+                    customProps: { type: 'endpoint' }
+                }
+            });
+        } else if (type.includes('WSDL Endpoint')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.WsdlEndpointForm,
+                    documentUri: props.path,
+                    customProps: { type: 'endpoint' }
+                }
+            });
+        } else if (type.includes('Address')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.AddressEndpointForm,
+                    documentUri: props.path,
+                    customProps: { type: 'endpoint' }
+                }
+            });
+        } else if (type.includes('Default')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.DefaultEndpointForm,
+                    documentUri: props.path,
+                    customProps: { type: 'endpoint' }
+                }
+            });
+        } else if (type.includes('Failover')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.FailoverEndPointForm,
+                    documentUri: props.path
+                }
+            });
+        } else if (type.includes('Load Balance')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.LoadBalanceEndPointForm,
+                    documentUri: props.path
+                }
+            });
+        } else if (type.includes('Recipient List')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.RecipientEndPointForm,
+                    documentUri: props.path,
+                }
+            });
+        } else if (type.includes('Template')) {
+            setShowCards(false);
+        } else {
+            setShowCards(true);
+        }
+    };
+
     const handleUpdateEndpoint = async (values: any) => {
         const updateEndpointParams = {
             directory: props.path,
@@ -154,55 +228,54 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
-    const handleOnClose = () => {
-        rpcClient.getMiVisualizerRpcClient().goBack();
-    };
-
     return (
-        <FormView title="Template Endpoint Artifact" onClose={handleOnClose}>
-            <FormGroup title="Basic Properties" isCollapsed={false}>
-                <TextField
-                    required
-                    autoFocus
-                    label="Name"
-                    placeholder="Name"
-                    {...renderProps("name")}
-                    size={100}
-                />
-                <TextField
-                    label="Uri"
-                    placeholder="Uri"
-                    {...renderProps("uri")}
-                />
-                <Dropdown
-                    label="Template"
-                    items={templates}
-                    {...renderProps("template")}
-                />
-                <TextField
-                    label="Description"
-                    {...renderProps("description")}
-                />
-                <FieldGroup>
-                    <span>Parameters</span>
-                    <ParamManager paramConfigs={paramConfigs} onChange={handleParamChange} />
-                </FieldGroup>
-            </FormGroup>
-            <FormActions>
-                <Button
-                    appearance="secondary"
-                    onClick={openOverview}
-                >
-                    Cancel
-                </Button>
-                <Button
-                    appearance="primary"
-                    onClick={handleSubmit(handleUpdateEndpoint)}
-                    disabled={!isDirty}
-                >
-                    Update
-                </Button>
-            </FormActions>
+        <FormView title="Endpoint Artifact" onClose={openOverview}>
+            {showCards ? <CardWrapper cardsType='ENDPOINT' setType={setEndpointType} /> : <>
+                {isNewEndpoint && <TypeChangeButton type={"Template Endpoint"} onClick={setEndpointType} />}
+                <FormGroup title="Basic Properties" isCollapsed={false}>
+                    <TextField
+                        required
+                        autoFocus
+                        label="Name"
+                        placeholder="Name"
+                        {...renderProps("name")}
+                        size={100}
+                    />
+                    <TextField
+                        label="Uri"
+                        placeholder="Uri"
+                        {...renderProps("uri")}
+                    />
+                    <Dropdown
+                        label="Template"
+                        items={templates}
+                        {...renderProps("template")}
+                    />
+                    <TextField
+                        label="Description"
+                        {...renderProps("description")}
+                    />
+                    <FieldGroup>
+                        <span>Parameters</span>
+                        <ParamManager paramConfigs={paramConfigs} onChange={handleParamChange} />
+                    </FieldGroup>
+                </FormGroup>
+                <FormActions>
+                    <Button
+                        appearance="primary"
+                        onClick={handleUpdateEndpoint}
+                        disabled={!isDirty}
+                    >
+                        {isNewEndpoint ? "Create" : "Save Changes"}
+                    </Button>
+                    <Button
+                        appearance="secondary"
+                        onClick={openOverview}
+                    >
+                        Cancel
+                    </Button>
+                </FormActions>
+            </>}
         </FormView>
     );
 }

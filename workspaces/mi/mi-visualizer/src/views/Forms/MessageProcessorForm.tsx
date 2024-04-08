@@ -6,93 +6,13 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import {Button, TextField, Dropdown, Typography, Codicon} from "@wso2-enterprise/ui-toolkit";
-import { SectionWrapper } from "./Commons";
+import {Button, TextField, Dropdown, RadioButtonGroup, FormView, FormActions, ParamConfig, ParamManager} from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { CreateMessageProcessorRequest } from "@wso2-enterprise/mi-core";
-
-const WizardContainer = styled.div`
-    width: 95%;
-    display  : flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
-`;
-
-const ActionContainer = styled.div`
-    display  : flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-bottom: 20px;
-`;
-
-const Container = styled.div`
-    display: flex;
-    flex-direction: row;
-    height: 50px;
-    align-items: center;
-    justify-content: flex-start;
-`;
-
-const Table = styled.table`
-    border: 1px solid;
-    borderCollapse: collapse;
-    width: 75%;
-`;
-
-const Th = styled.th`
-    border: 1px solid;
-    borderCollapse: collapse;
-    Width: 45%;
-`;
-
-const Td = styled.td`
-    border: 1px solid;
-    borderCollapse: collapse;
-    Width: 45%;
-`;
-
-const ThButton = styled.th`
-    border: 1px solid;
-    borderCollapse: collapse;
-    Width: 10%;
-`;
-
-const TdButton = styled.td`
-    border: 1px solid;
-    borderCollapse: collapse;
-    Width: 10%;
-`;
-
-const RadioBtnContainer = styled.div`
-    display  : inline-block;
-    flex-direction: column;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-bottom: 5px;
-`;
-
-const RadioLabel = styled.label`
-    margin-right: 10%;
-`;
-
-const RequiredSpan = styled.span`
-    color: red;
-`;
-
-export interface Region {
-    label: string;
-    value: string;
-}
-
-interface KeyValuePair {
-    key: string;
-    value: any;
-}
+import CardWrapper from "./Commons/CardWrapper";
+import { TypeChangeButton } from "./Commons";
 
 interface OptionProps {
     value: string;
@@ -104,7 +24,7 @@ interface MessageProcessorWizardProps {
 
 const newMessageProcessor = {
     messageProcessorName: "",
-    messageProcessorType: "Scheduled Message Forwarding Processor",
+    messageProcessorType: "",
     messageStoreType: "TestMBStore",
     failMessageStoreType: "",
     sourceMessageStoreType: "TestMBStore",
@@ -143,7 +63,6 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
     const [ messageProcessor, setMessageProcessor ] = useState<any>(newMessageProcessor);
-    const [properties, setProperties] = useState<KeyValuePair[]>([]);
     const [sequences, setSequences] = useState();
     const [endpoints, setEndpoints] = useState();
     const [isNewMessageProcessor, setIsNewMessageProcessor] = useState(!props.path.endsWith(".xml"));
@@ -152,6 +71,35 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
         isError: false,
         text: ""
     });
+
+    const paramConfigs: ParamConfig = {
+        paramValues: [],
+        paramFields: [
+            {
+                id: 0,
+                type: "TextField",
+                label: "Name",
+                defaultValue: "parameter_key",
+                isRequired: true
+            },
+            {
+                id: 1,
+                type: "TextField",
+                label: "Value",
+                defaultValue: "parameter_value",
+                isRequired: true
+            }]
+    }
+
+    const [params, setParams] = useState(paramConfigs);
+
+    const messageStoreTypes: OptionProps[] = [
+        { value: "TestMBStore"},
+        { value: "TestJMSStore"},
+        { value: "TestRabbitMQMessageStore"},
+        { value: "TestJDBCMessageStore"},
+        { value: "TestResquenceMessageStore"}
+    ];
 
     const isValid: boolean = messageProcessor.messageProcessorName.length > 0 &&
         (messageProcessor.messageProcessorType === 'Scheduled Message Forwarding Processor' ? messageProcessor.endpoint.length > 0 :
@@ -191,10 +139,39 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                 } else {
                     setMessageProcessor((prev: any) => ({ ...prev, processorState: 'Deactivate' }));
                 }
-                setProperties(existingMessageProcessor.properties);
+                paramConfigs.paramValues = [];
+                setParams(paramConfigs);
+                existingMessageProcessor.properties.map((param: any) => {
+                    setParams((prev: any) => {
+                        return {
+                            ...prev,
+                            paramValues: [...prev.paramValues, {
+                                id: prev.paramValues.length,
+                                parameters: [{
+                                    id: 0,
+                                    value: param.key,
+                                    label: "Name",
+                                    type: "TextField",
+                                },
+                                    {
+                                        id: 1,
+                                        value: param.value,
+                                        label: "Value",
+                                        type: "TextField",
+                                    },
+                                ],
+                                key: param.key,
+                                value: param.value,
+                            }
+                            ]
+                        }
+                    });
+                });
                 updateTypes(endpointList, sequenceList);
             } else {
                 setMessageProcessor(newMessageProcessor);
+                paramConfigs.paramValues = [];
+                setParams(paramConfigs);
                 setIsNewMessageProcessor(true);
                 setMessage({ isError: false, text: "" });
             }
@@ -252,81 +229,33 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
         }
     };
 
-    const removeValue = (keyToRemove: string) => {
-        updateChangeStatus();
-        setProperties(prevState =>
-            prevState.filter(pair => pair.key !== keyToRemove)
-        );
-    };
-
-    const addValue = () => {
-        updateChangeStatus();
-        setProperties(prevState => [...prevState, { key: 'Parameter_Key', value: 'Parameter_Value' }]);
-    };
-
-    const editKey = (oldKey: string, newKey: string) => {
-        updateChangeStatus();
-        setProperties(prevState =>
-            prevState.map(pair =>
-                pair.key === oldKey ? { ...pair, key: newKey } : pair
-            )
-        );
-    };
-
-    const editValue = (key: string, newValue: string) => {
-        updateChangeStatus();
-        setProperties(prevState =>
-            prevState.map(pair =>
-                pair.key === key ? { ...pair, value: newValue } : pair
-            )
-        );
-    };
-
-    const messageProcessorTypes: OptionProps[] = [
-        { value: "Scheduled Message Forwarding Processor"},
-        { value: "Message Sampling Processor"},
-        { value: "Custom Message Processor"},
-        { value: "Scheduled Failover Message Forwarding Processor"}
-    ];
-
-    const messageStoreTypes: OptionProps[] = [
-        { value: "TestMBStore"},
-        { value: "TestJMSStore"},
-        { value: "TestRabbitMQMessageStore"},
-        { value: "TestJDBCMessageStore"},
-        { value: "TestResquenceMessageStore"}
-    ];
-
-    const processorStates = [
-        'Activate',
-        'Deactivate'
-    ];
-
-    const dropMessageOptions = [
-        'Enabled',
-        'Disabled'
-    ];
-
-    const sequenceSelectionOptions = [
-        "Workspace",
-        "Custom"
-    ];
+    const setMessageProcessorType = (type: string) => {
+        setMessageProcessor((prev: any) => ({ ...prev, messageProcessorType: type }));
+    }
 
     const handleOnChange = (field: any, value: any) => {
         updateChangeStatus();
         setMessageProcessor((prev: any) => ({ ...prev, [field]: value }));
     }
 
+    const handlePropertiesOnChange = (params: any) => {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: param.parameters[0].value,
+                    value: param.parameters[1].value,
+                }
+            })
+        };
+        setParams(modifiedParams);
+    };
+
     const updateChangeStatus = () => {
         if(!isNewMessageProcessor && !changesOccurred) {
             setChangesOccurred(true);
         }
     }
-
-    const handleMessageProcessorTypeChange = (type: string) => {
-        updateChangeStatus();
-        setMessageProcessor((prev: any) => ({ ...prev, messageProcessorType: type }));
-    };
 
     const handleMessageStoreTypeChange = (type: string) => {
         updateChangeStatus();
@@ -408,12 +337,13 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
         setMessageProcessor((prev: any) => ({ ...prev, replySequence: type }));
     };
 
-    const handleAddCustomPropertiesChange = (value: boolean) => {
+    const handleAddCustomPropertiesChange = (event: any) => {
         updateChangeStatus();
-        if (!value) {
-            setProperties([]);
+        if (!event.target.value) {
+            paramConfigs.paramValues = [];
+            setParams(paramConfigs);
         }
-        setMessageProcessor((prev: any) => ({ ...prev, hasCustomProperties: value }));
+        setMessageProcessor((prev: any) => ({ ...prev, hasCustomProperties: event.target.value }));
     };
 
     const handleMessage = (text: string, isError: boolean = false) => {
@@ -422,12 +352,17 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
 
     const handleCreateMessageProcessor = async () => {
 
-        messageProcessor.properties = properties;
+        let customProperties: any = [];
+        params.paramValues.map((param: any) => {
+            customProperties.push({ key: param.parameters[0].value, value: param.parameters[1].value });
+        })
+        messageProcessor.properties = customProperties;
+
         const createMessageProcessorParams: CreateMessageProcessorRequest = {
             directory: props.path,
             ...messageProcessor
         }
-        const filePath = await rpcClient.getMiDiagramRpcClient().createMessageProcessor(createMessageProcessorParams);
+        await rpcClient.getMiDiagramRpcClient().createMessageProcessor(createMessageProcessorParams);
 
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
@@ -436,21 +371,10 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
-    const handleBackButtonClick = () => {
-        rpcClient.getMiVisualizerRpcClient().goBack();
-    }
-
     return (
-        <WizardContainer>
-            <SectionWrapper>
-                <Container>
-                    <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
-                    <div style={{ marginLeft: 30 }}>
-                        <Typography variant="h3">Message Processor Artifact</Typography>
-                    </div>
-                </Container>
-                <span>Message Processor Type</span>
-                <Dropdown items={messageProcessorTypes} value={messageProcessor.messageProcessorType} onValueChange={handleMessageProcessorTypeChange} id="message-processor-type"/>
+        <FormView title="Message Processor" onClose={handleCancel}>
+            { messageProcessor.messageProcessorType === '' ? <CardWrapper cardsType="MESSAGE_PROCESSOR" setType={setMessageProcessorType} /> : <>
+            { isNewMessageProcessor && <TypeChangeButton type={messageProcessor.messageProcessorType} onClick={setMessageProcessorType} /> }
                 <TextField
                     placeholder="Name"
                     label="Message Processor Name"
@@ -463,42 +387,23 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                     size={100}
                 />
                 {messageProcessor.messageProcessorType != "Scheduled Failover Message Forwarding Processor" && (
-                    <>
-                        <span>Message Store</span>
-                        <Dropdown items={messageStoreTypes} value={messageProcessor.messageStoreType} onValueChange={handleMessageStoreTypeChange} id="message-store-type"/>
-                    </>
+                    <Dropdown label="Message Store" items={messageStoreTypes} value={messageProcessor.messageStoreType} onValueChange={handleMessageStoreTypeChange} id="message-store-type"/>
                 )}
                 {messageProcessor.messageProcessorType === "Scheduled Failover Message Forwarding Processor" && (
                     <>
-                        <span>Source Messages Store</span>
-                        <Dropdown items={messageStoreTypes} value={messageProcessor.messageStoreType} onValueChange={handleSourceMessageStoreTypeChange} id="source-message-store"/>
-                        <span>Target Messages Store</span>
-                        <Dropdown items={messageStoreTypes} value={messageProcessor.targetMessageStoreType} onValueChange={handleTargetMessageStoreTypeChange} id="target-message-store"/>
+                        <Dropdown label="Source Messages Store" items={messageStoreTypes} value={messageProcessor.messageStoreType} onValueChange={handleSourceMessageStoreTypeChange} id="source-message-store"/>
+                        <Dropdown label="Target Messages Store" items={messageStoreTypes} value={messageProcessor.targetMessageStoreType} onValueChange={handleTargetMessageStoreTypeChange} id="target-message-store"/>
                     </>
                 )}
                 {messageProcessor.messageProcessorType != "Custom Message Processor" && (
                     <>
-                        <span>Processor State</span>
-                        <RadioBtnContainer>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    value={processorStates[0]}
-                                    checked={messageProcessor.processorState === processorStates[0]}
-                                    onChange={handleProcessorStateChange}
-                                />
-                                {processorStates[0]}
-                            </RadioLabel>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    value={processorStates[1]}
-                                    checked={messageProcessor.processorState === processorStates[1]}
-                                    onChange={handleProcessorStateChange}
-                                />
-                                {processorStates[1]}
-                            </RadioLabel>
-                        </RadioBtnContainer>
+                        <RadioButtonGroup
+                            label="Processor State"
+                            id="processor-state"
+                            options={[{ content: "Activate", value: "Activate" }, { content: "Deactivate", value: "Deactivate" }]}
+                            onChange={handleProcessorStateChange}
+                            value={messageProcessor.processorState}
+                        />
                         <TextField
                             placeholder="\temp\test-file.txt"
                             label="Quartz configuration file path"
@@ -590,48 +495,20 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                                 id="connection-attempt-interval-input"
                                 size={50}
                             />
-                            <span>Drop message after maximum delivery attempts</span>
-                            <RadioBtnContainer>
-                                <RadioLabel>
-                                    <input
-                                        type="radio"
-                                        value={dropMessageOptions[0]}
-                                        checked={messageProcessor.dropMessageOption === dropMessageOptions[0]}
-                                        onChange={handleDropMessageOptionChange}
-                                    />
-                                    {dropMessageOptions[0]}
-                                </RadioLabel>
-                                <RadioLabel>
-                                    <input
-                                        type="radio"
-                                        value={dropMessageOptions[1]}
-                                        checked={messageProcessor.dropMessageOption === dropMessageOptions[1]}
-                                        onChange={handleDropMessageOptionChange}
-                                    />
-                                    {dropMessageOptions[1]}
-                                </RadioLabel>
-                            </RadioBtnContainer>
-                            <span>Fault Sequence Name</span>
-                            <RadioBtnContainer>
-                                <RadioLabel>
-                                    <input
-                                        type="radio"
-                                        value={sequenceSelectionOptions[0]}
-                                        checked={messageProcessor.faultSequenceType === sequenceSelectionOptions[0]}
-                                        onChange={handleFaultSequenceTypeChange}
-                                    />
-                                    {sequenceSelectionOptions[0]}
-                                </RadioLabel>
-                                <RadioLabel>
-                                    <input
-                                        type="radio"
-                                        value={sequenceSelectionOptions[1]}
-                                        checked={messageProcessor.faultSequenceType === sequenceSelectionOptions[1]}
-                                        onChange={handleFaultSequenceTypeChange}
-                                    />
-                                    {sequenceSelectionOptions[1]}
-                                </RadioLabel>
-                            </RadioBtnContainer>
+                            <RadioButtonGroup
+                                label="Drop message after maximum delivery attempts"
+                                id="drop-message-option"
+                                options={[{ content: "Enabled", value: "Enabled" }, { content: "Disabled", value: "Disabled" }]}
+                                onChange={handleDropMessageOptionChange}
+                                value={messageProcessor.dropMessageOption}
+                            />
+                            <RadioButtonGroup
+                                label="Fault Sequence Name"
+                                id="fault-sequence-type"
+                                options={[{ content: "Workspace", value: "Workspace" }, { content: "Custom", value: "Custom" }]}
+                                onChange={handleFaultSequenceTypeChange}
+                                value={messageProcessor.faultSequenceType}
+                            />
                             {messageProcessor.faultSequenceType === "Workspace" && (
                                 <Dropdown items={sequences} value={messageProcessor.faultSequence} onValueChange={handleFaultSequenceChange} id="fault-sequence"/>
                             )}
@@ -645,27 +522,13 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                                     size={100}
                                 />
                             )}
-                            <span>Deactivate Sequence Name</span>
-                            <RadioBtnContainer>
-                                <RadioLabel>
-                                    <input
-                                        type="radio"
-                                        value={sequenceSelectionOptions[0]}
-                                        checked={messageProcessor.deactivateSequenceType === sequenceSelectionOptions[0]}
-                                        onChange={handleDeactivateSequenceTypeChange}
-                                    />
-                                    {sequenceSelectionOptions[0]}
-                                </RadioLabel>
-                                <RadioLabel>
-                                    <input
-                                        type="radio"
-                                        value={sequenceSelectionOptions[1]}
-                                        checked={messageProcessor.deactivateSequenceType === sequenceSelectionOptions[1]}
-                                        onChange={handleDeactivateSequenceTypeChange}
-                                    />
-                                    {sequenceSelectionOptions[1]}
-                                </RadioLabel>
-                            </RadioBtnContainer>
+                            <RadioButtonGroup
+                                label="Deactivate Sequence Name"
+                                id="deactivate-sequence-type"
+                                options={[{ content: "Workspace", value: "Workspace" }, { content: "Custom", value: "Custom" }]}
+                                onChange={handleDeactivateSequenceTypeChange}
+                                value={messageProcessor.deactivateSequenceType}
+                            />
                             {messageProcessor.deactivateSequenceType === "Workspace" && (
                                 <Dropdown items={sequences} value={messageProcessor.deactivateSequence} onValueChange={handleDeactivateSequenceChange} id="deactivate-sequence"/>
                             )}
@@ -719,29 +582,14 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                             onTextChange={(value: string) => handleOnChange("axis2Config", value)}
                             value={messageProcessor.axis2Config}
                             id="axis2-config-input"
-                            size={100}
                         />
-                        <span>Endpoint Name<RequiredSpan>*</RequiredSpan></span>
-                        <RadioBtnContainer>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    value={sequenceSelectionOptions[0]}
-                                    checked={messageProcessor.endpointType === sequenceSelectionOptions[0]}
-                                    onChange={handleEndpointTypeChange}
-                                />
-                                {sequenceSelectionOptions[0]}
-                            </RadioLabel>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    value={sequenceSelectionOptions[1]}
-                                    checked={messageProcessor.endpointType === sequenceSelectionOptions[1]}
-                                    onChange={handleEndpointTypeChange}
-                                />
-                                {sequenceSelectionOptions[1]}
-                            </RadioLabel>
-                        </RadioBtnContainer>
+                        <RadioButtonGroup
+                            label="Endpoint Name"
+                            id="endpoint-type"
+                            options={[{ content: "Workspace", value: "Workspace" }, { content: "Custom", value: "Custom" }]}
+                            onChange={handleEndpointTypeChange}
+                            value={messageProcessor.endpointType}
+                        />
                         {messageProcessor.endpointType === "Workspace" && (
                             <Dropdown items={endpoints} value={messageProcessor.endpoint} onValueChange={handleEndpointChange} id="endpoint"/>
                         )}
@@ -752,30 +600,15 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                                 onTextChange={(value: string) => handleOnChange("endpoint", value)}
                                 value={messageProcessor.endpoint}
                                 id="endpoint-custom"
-                                size={100}
                             />
                         )}
-                        <span>Reply Sequence Name</span>
-                        <RadioBtnContainer>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    value={sequenceSelectionOptions[0]}
-                                    checked={messageProcessor.replySequenceType === sequenceSelectionOptions[0]}
-                                    onChange={handleReplySequenceTypeChange}
-                                />
-                                {sequenceSelectionOptions[0]}
-                            </RadioLabel>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    value={sequenceSelectionOptions[1]}
-                                    checked={messageProcessor.replySequenceType === sequenceSelectionOptions[1]}
-                                    onChange={handleReplySequenceTypeChange}
-                                />
-                                {sequenceSelectionOptions[1]}
-                            </RadioLabel>
-                        </RadioBtnContainer>
+                        <RadioButtonGroup
+                            label="Reply Sequence Name"
+                            id="reply-sequence-type"
+                            options={[{ content: "Workspace", value: "Workspace" }, { content: "Custom", value: "Custom" }]}
+                            onChange={handleReplySequenceTypeChange}
+                            value={messageProcessor.replySequenceType}
+                        />
                         {messageProcessor.replySequenceType === "Workspace" && (
                             <Dropdown items={sequences} value={messageProcessor.replySequence} onValueChange={handleReplySequenceChange} id="reply-sequence"/>
                         )}
@@ -786,36 +619,20 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                                 onTextChange={(value: string) => handleOnChange("replySequence", value)}
                                 value={messageProcessor.replySequence}
                                 id="reply-sequence-custom"
-                                size={100}
                             />
                         )}
-                        <span>Fail Messages Store</span>
-                        <Dropdown items={messageStoreTypes} value={messageProcessor.failMessageStoreType} onValueChange={handleFailMessageStoreTypeChange} id="fail-message-store"/>
+                        <Dropdown label="Fail Messages Store" items={messageStoreTypes} value={messageProcessor.failMessageStoreType} onValueChange={handleFailMessageStoreTypeChange} id="fail-message-store"/>
                     </>
                 )}
                 {messageProcessor.messageProcessorType === "Message Sampling Processor" && (
                     <>
-                        <span>Sequence<RequiredSpan>*</RequiredSpan></span>
-                        <RadioBtnContainer>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    value={sequenceSelectionOptions[0]}
-                                    checked={messageProcessor.sequenceType === sequenceSelectionOptions[0]}
-                                    onChange={handleSequenceTypeChange}
-                                />
-                                {sequenceSelectionOptions[0]}
-                            </RadioLabel>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    value={sequenceSelectionOptions[1]}
-                                    checked={messageProcessor.sequenceType === sequenceSelectionOptions[1]}
-                                    onChange={handleSequenceTypeChange}
-                                />
-                                {sequenceSelectionOptions[1]}
-                            </RadioLabel>
-                        </RadioBtnContainer>
+                        <RadioButtonGroup
+                            label="Sequence Name"
+                            id="sequence-type"
+                            options={[{ content: "Workspace", value: "Workspace" }, { content: "Custom", value: "Custom" }]}
+                            onChange={handleSequenceTypeChange}
+                            value={messageProcessor.sequenceType}
+                        />
                         {messageProcessor.sequenceType === "Workspace" && (
                             <Dropdown items={sequences} value={messageProcessor.sequence} onValueChange={handleSequenceChange} id="sequence"/>
                         )}
@@ -873,64 +690,26 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                         />
                     </>
                 ) : (
-                     <>
-                         <span>Require Custom Properties</span>
-                         <RadioBtnContainer>
-                             <RadioLabel>
-                                 <input
-                                     type="radio"
-                                     checked={messageProcessor.hasCustomProperties === true}
-                                     onChange={() => handleAddCustomPropertiesChange(true)}
-                                 />
-                                 Yes
-                             </RadioLabel>
-                             <RadioLabel>
-                                 <input
-                                     type="radio"
-                                     checked={messageProcessor.hasCustomProperties === false}
-                                     onChange={() => handleAddCustomPropertiesChange(false)}
-                                 />
-                                 No
-                             </RadioLabel>
-                         </RadioBtnContainer>
-                     </>
+                    <RadioButtonGroup
+                        label="Require Custom Properties"
+                        id="custom-properties"
+                        options={[{ content: "Yes", value: true }, { content: "No", value: false }]}
+                        onChange={handleAddCustomPropertiesChange}
+                        value={messageProcessor.hasCustomProperties}
+                    />
                 )}
 
                 {(messageProcessor.hasCustomProperties || messageProcessor.messageProcessorType === "Custom Message Processor") && (
                     <>
                         <span>Parameters</span>
-                        <Button onClick={addValue}>Add Parameter</Button>
-                        <Table>
-                            <thead>
-                            <tr>
-                                <Th>Name</Th>
-                                <Th>Value</Th>
-                                <ThButton>Remove</ThButton>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {properties.map(pair => (
-                                <tr>
-                                    <Td contentEditable={true} onBlur={(e) => editKey(pair.key, e.currentTarget.textContent || '')}>{pair.key}</Td>
-                                    <Td contentEditable={true} onBlur={(e) => editValue(pair.key, e.currentTarget.textContent || '')}>{pair.value}</Td>
-                                    <TdButton>
-                                        <Button onClick={() => removeValue(pair.key)}>Remove</Button>
-                                    </TdButton>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </Table>
+                        <ParamManager
+                            paramConfigs={params}
+                            readonly={false}
+                            onChange={handlePropertiesOnChange} />
                     </>
                 )}
-            </SectionWrapper>
-            <ActionContainer>
                 {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
-                <Button
-                    appearance="secondary"
-                    onClick={handleCancel}
-                >
-                    Cancel
-                </Button>
+            <FormActions>
                 <Button
                     appearance="primary"
                     onClick={handleCreateMessageProcessor}
@@ -938,7 +717,14 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                 >
                     {isNewMessageProcessor ? "Create" : "Save Changes"}
                 </Button>
-            </ActionContainer>
-        </WizardContainer>
+                <Button
+                    appearance="secondary"
+                    onClick={handleCancel}
+                >
+                    Cancel
+                </Button>
+            </FormActions>
+            </>}
+        </FormView>
     );
 }
