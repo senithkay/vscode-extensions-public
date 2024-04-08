@@ -30,12 +30,12 @@ const Container = styled.div`
 // It will use VSCode webview toolkit components to render the list.
 export const AccountView = () => {
     // const { loginStatus } = useChoreoWebViewContext();
-    const { userInfo, loading, isInitialLoading } = useAuthContext();
+    const { userInfo,  } = useAuthContext();
     return (
         <Container>
-            {loading && <ProgressIndicator />}
+            {/* {loading && <ProgressIndicator />} */}
             {/* {!["LoggedIn", "LoggedOut"].includes(loginStatus) && <ProgressIndicator />} */}
-            {!isInitialLoading && <>{userInfo ? <UserDetails /> : <SignInToChoreoMessage />}</>}
+            {/* {!isInitialLoading && <>{userInfo ? <UserDetails /> : <SignInToChoreoMessage />}</>} */}
             {/* {loginStatus === "LoggedOut" && }
             {loginStatus === "LoggedIn" && } */}
         </Container>

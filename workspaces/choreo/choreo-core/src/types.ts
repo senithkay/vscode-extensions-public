@@ -7,7 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export type WebviewTypes = "NewComponentForm" |"ChoreoCellView" | "ProjectOverview" | "ProjectCreateForm" | "ComponentCreateForm" | "ActivityBarAccountView" | "ActivityBarProjectView"
+export type WebviewTypes = "NewComponentForm" | "ComponentsListActivityView" | "AccountActivityView" | "ChoreoCellView"
+// "ActivityBarProjectView" | "ChoreoCellView" | "ProjectOverview" | "ProjectCreateForm" | "ComponentCreateForm" |
 
 // TODO: delete
 export interface OldProps {
@@ -18,6 +19,7 @@ export interface OldProps {
 	choreoUrl?: string;
 }
 
+
 export interface NewComponentWebview {
     type: "NewComponentForm";
     directoryPath: string;
@@ -26,6 +28,14 @@ export interface NewComponentWebview {
     project?: Project;
 }
 
+export interface ComponentsListActivityView {
+    type: "ComponentsListActivityView";
+    initialLinkedDirState: LinkedDirectoryState;
+}
+
+export interface AccountActivityView {
+    type: "AccountActivityView";
+}
 
 export type WebviewProps = OldProps | NewComponentWebview
 

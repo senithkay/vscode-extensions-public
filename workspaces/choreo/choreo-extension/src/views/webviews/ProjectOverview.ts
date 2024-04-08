@@ -84,11 +84,11 @@ export class ProjectOverview {
                 choreoWebviews.renderChoreoWebViews(
                   document.getElementById("root"),
                   ${JSON.stringify({
-                    type: "ProjectOverview",
-                    projectId,
-                    orgName,
-                    componentLimit: FREE_COMPONENT_LIMIT,
-                    choreoUrl: choreoEnvConfig.getConsoleUrl()
+                    // type: "ProjectOverview",
+                    // projectId,
+                    // orgName,
+                    // componentLimit: FREE_COMPONENT_LIMIT,
+                    // choreoUrl: choreoEnvConfig.getConsoleUrl()
                   } as WebviewProps)}
                 );
               }

@@ -1,8 +1,8 @@
 import React, { FC, ReactNode, useEffect } from "react";
-import { Divider, ErrorBanner } from "@wso2-enterprise/ui-toolkit";
-import { TextField } from "../Atoms/TextField";
-import { Dropdown } from "../Atoms/Dropdown";
-import { DirectorySelect } from "../Atoms/DirectorySelect";
+import { Divider } from "@wso2-enterprise/ui-toolkit";
+import { TextField } from "../../Components/FormElements/TextField";
+import { Dropdown } from "../../Components/FormElements/Dropdown";
+import { DirectorySelect } from "../../Components/FormElements/DirectorySelect";
 
 import { z } from "zod";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
     ChoreoBuildPackNames,
     ChoreoComponentType,
+    NewComponentWebview,
     Organization,
     Project,
     WebAppSPATypes,
@@ -18,7 +19,7 @@ import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
-import { WarningBanner } from "../Atoms/WarningBanner";
+import { WarningBanner } from "../../Components/Atoms/WarningBanner";
 
 const componentFormSchema = z
     .object({
@@ -77,14 +78,9 @@ const componentFormSchema = z
 
 type ComponentFormType = z.infer<typeof componentFormSchema>;
 
-interface Props {
-    directoryPath: string;
-    organization: Organization;
-    gitInstallUrl: string;
-    project?: Project;
-}
 
-export const ComponentForm: FC<Props> = ({ project, organization, directoryPath, gitInstallUrl }) => {
+
+export const ComponentFormView: FC<NewComponentWebview> = ({ project, organization, directoryPath, gitInstallUrl }) => {
     const form = useForm<ComponentFormType>({
         resolver: zodResolver(componentFormSchema),
         mode: "all",
@@ -106,10 +102,15 @@ export const ComponentForm: FC<Props> = ({ project, organization, directoryPath,
         },
     });
 
+
     const selectedType = form.watch("type");
     const selectedLang = form.watch("buildPackLang");
     const subPath = form.watch("subPath");
     const repoUrl = form.watch("repoUrl");
+
+    // console.log('directoryPath, subPath', directoryPath, subPath)
+    console.log('adsa', { project, organization, directoryPath, gitInstallUrl })
+
 
     const { isLoading: isLoadingBuildPacks, data: buildpacks = [] } = useQuery({
         queryKey: ["build-packs", { selectedType, orgId: organization?.id }],
@@ -294,7 +295,11 @@ export const ComponentForm: FC<Props> = ({ project, organization, directoryPath,
 
     const showRequireRepoAccess = repoUrl && !isCheckingRepoAccess && !hasRepoAccess;
 
+    console.log('remote', gitRemotes, isLoadingRemotes)
+
     return (
+        <div className="flex flex-row justify-center">
+
         <div className="container">
             <form className="mx-auto max-w-4xl flex flex-col gap-2 p-4">
                 {!project && (
@@ -394,6 +399,7 @@ export const ComponentForm: FC<Props> = ({ project, organization, directoryPath,
                     </Button>
                 </div>
             </form>
+        </div>
         </div>
     );
 };

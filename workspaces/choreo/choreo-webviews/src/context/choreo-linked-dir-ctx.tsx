@@ -11,20 +11,17 @@
  *  associated services.
  */
 import React, { FC, ReactNode, useContext, useEffect } from "react";
-import { ComponentLink } from "@wso2-enterprise/choreo-core";
+import { ComponentLink, LinkedDirectoryState } from "@wso2-enterprise/choreo-core";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+import { ErrorBanner, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 
 export interface ILinkedDirContext {
     links: ComponentLink[];
-    isInitialLoading?: boolean;
-    loading?: boolean;
-    error?: Error;
 }
 
 const defaultContext: ILinkedDirContext = {
     links: [],
-    loading: false,
 };
 
 export const ChoreoLinkedDirContext = React.createContext(defaultContext);
@@ -43,8 +40,7 @@ export const LinkedDirContextProvider: FC<Props> = ({ children }) => {
     const {
         data: linkedDirState,
         error: linkedDirStateError,
-        isLoading: loadingInitialLinkedDirState,
-        isFetching: fetchingLinkedDirState,
+        isLoading
     } = useQuery({
         queryKey: ["linked_dir_state"],
         queryFn: () => ChoreoWebViewAPI.getInstance().getLinkedDirState(),
@@ -61,12 +57,16 @@ export const LinkedDirContextProvider: FC<Props> = ({ children }) => {
         <ChoreoLinkedDirContext.Provider
             value={{
                 links: linkedDirState?.links || [],
-                error: (linkedDirStateError || linkedDirState?.error) as Error,
-                loading: linkedDirState?.loading || fetchingLinkedDirState,
-                isInitialLoading: loadingInitialLinkedDirState
             }}
         >
-            {children}
+            {linkedDirStateError ? (
+                <ErrorBanner errorMsg="Failed load linked components" />
+            ) : (
+                <>
+                    {(isLoading || linkedDirState.loading) && <ProgressIndicator />}
+                    {!isLoading && children}
+                </>
+            )}
         </ChoreoLinkedDirContext.Provider>
     );
 };

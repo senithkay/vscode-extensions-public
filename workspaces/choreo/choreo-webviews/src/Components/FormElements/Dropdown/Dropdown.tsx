@@ -34,7 +34,7 @@ export const Dropdown: FC<Props> = (props) => {
                             "w-full border-[0.5px]",
                             fieldState.error ? "border-vsc-errorForeground" :'border-transparent' 
                         )}
-                        disabled={disabled || loading}
+                        disabled={disabled || loading || undefined}
                         {...field}
                     >
                         {items?.map((item) => (

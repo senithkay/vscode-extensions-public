@@ -37,7 +37,7 @@ export const TextField: FC<Props> = (props) => {
                             "w-full border-[0.5px]",
                             fieldState.error ? "border-vsc-errorForeground" :'border-transparent' 
                         )}
-                        disabled={disabled || loading}
+                        disabled={disabled || loading || undefined}
                         type={type}
                         placeholder={placeholder}
                         {...field}

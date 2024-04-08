@@ -32,12 +32,12 @@ const Container = styled.div`
 
 export const ProjectView = () => {
     // const { choreoProject, loginStatus, isChoreoProject, loadingProject } = useChoreoWebViewContext();
-    const { userInfo, loading: loadingAuth, isInitialLoading: initialLoadAuth } = useAuthContext();
-    const { links, loading: loadingDirs, isInitialLoading: initialLoadDirs } = useLinkedDirContext();
+    // const { userInfo, loading: loadingAuth, isInitialLoading: initialLoadAuth } = useAuthContext();
+    // const { links, loading: loadingDirs, isInitialLoading: initialLoadDirs } = useLinkedDirContext();
 
     return (
         <Container>
-            {(loadingAuth || loadingDirs) && <ProgressIndicator id="project-view-progress" />}
+            {/* {(loadingAuth || loadingDirs) && <ProgressIndicator id="project-view-progress" />}
             {!initialLoadAuth && !initialLoadDirs && (
                 <>
                     {userInfo ? (
@@ -52,7 +52,7 @@ export const ProjectView = () => {
                         <SignInToChoreoMessage showProjectHeader />
                     )}
                 </>
-            )}
+            )} */}
 
             {/* {loginStatus === "LoggedOut" && <SignInToChoreoMessage showProjectHeader/>}
             {loginStatus == "LoggedIn" && (

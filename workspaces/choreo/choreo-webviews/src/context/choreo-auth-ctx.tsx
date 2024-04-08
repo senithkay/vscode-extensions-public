@@ -11,15 +11,14 @@
  *  associated services.
  */
 import React, { FC, ReactNode, useContext, useEffect } from "react";
-import { UserInfo } from "@wso2-enterprise/choreo-core";
+import { AuthState, UserInfo } from "@wso2-enterprise/choreo-core";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+import { SignInView } from "../views/SignInView";
+import { ErrorBanner, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 
 export interface IAuthContext {
     userInfo: UserInfo | null;
-    isInitialLoading?: boolean;
-    loading?: boolean;
-    error?: Error;
 }
 
 const defaultContext: IAuthContext = {
@@ -42,8 +41,7 @@ export const AuthContextProvider: FC<Props> = ({ children }) => {
     const {
         data: authState,
         error: authStateError,
-        isFetching: fetchingAuthState,
-        isLoading: loadingInitialAuthState,
+        isLoading
     } = useQuery({
         queryKey: ["auth_state"],
         queryFn: () => ChoreoWebViewAPI.getInstance().getAuthState(),
@@ -51,21 +49,20 @@ export const AuthContextProvider: FC<Props> = ({ children }) => {
 
     useEffect(() => {
         ChoreoWebViewAPI.getInstance().onAuthStateChanged((authState) => {
-            console.log('authState', authState)
             queryClient.setQueryData(["auth_state"], authState);
         });
     }, []);
 
     return (
-        <ChoreoAuthContext.Provider
-            value={{
-                userInfo: authState?.userInfo || null,
-                error: authStateError as Error,
-                loading: authState?.loading || fetchingAuthState,
-                isInitialLoading: loadingInitialAuthState
-            }}
-        >
-            {children}
+        <ChoreoAuthContext.Provider value={{ userInfo: authState?.userInfo || null }}>
+            {authStateError ? (
+                <ErrorBanner errorMsg="Failed to authenticate user" />
+            ) : (
+                <>
+                    {(authState?.loading || isLoading) && <ProgressIndicator />}
+                    {!isLoading && <>{authState?.userInfo ? children : <SignInView />}</>}
+                </>
+            )}
         </ChoreoAuthContext.Provider>
     );
 };

@@ -10,7 +10,7 @@ import * as vscode from 'vscode';
 import { WebViewViewRPC } from '../rpc/WebviewRPC';
 import { getUri } from '../utils';
 import { ext } from '../../../extensionVariables';
-import { WebviewProps } from '@wso2-enterprise/choreo-core';
+import { AccountActivityView, WebviewProps } from '@wso2-enterprise/choreo-core';
 
 export class AccountView implements vscode.WebviewViewProvider {
 
@@ -87,8 +87,8 @@ export class AccountView implements vscode.WebviewViewProvider {
 					choreoWebviews.renderChoreoWebViews(
 						document.getElementById("root"), 
 						${JSON.stringify({
-							type: "ActivityBarAccountView",
-						  } as WebviewProps)}
+							type: "AccountActivityView",
+						  } as AccountActivityView)}
 					);
 				  }
 				  render();

@@ -12,7 +12,7 @@ import { getUri } from '../utils';
 import { ext } from '../../../extensionVariables';
 import { choreoEnvConfig } from '../../../auth/auth';
 import { FREE_COMPONENT_LIMIT } from '../../../auth/config';
-import { WebviewProps } from '@wso2-enterprise/choreo-core';
+import { ComponentsListActivityView, WebviewProps } from '@wso2-enterprise/choreo-core';
 
 
 export class ComponentsView implements vscode.WebviewViewProvider {
@@ -46,6 +46,7 @@ export class ComponentsView implements vscode.WebviewViewProvider {
 	}
 
 	// private async updateProjectInfo() {
+	// to update the panel title
 	// 	await ext.api.waitForLogin();
 	// 	const currentProject = await ext.api.getChoreoProject();
 	// 	if (currentProject && this._view) {
@@ -86,10 +87,8 @@ export class ComponentsView implements vscode.WebviewViewProvider {
 					choreoWebviews.renderChoreoWebViews(
 						document.getElementById("root"), 
 						${JSON.stringify({
-							type: "ActivityBarProjectView",
-							componentLimit: FREE_COMPONENT_LIMIT,
-							choreoUrl: choreoEnvConfig.getConsoleUrl()
-						} as WebviewProps)}
+							type: "ComponentsListActivityView",
+						} as ComponentsListActivityView)}
 					);
 				  }
 				  render();
