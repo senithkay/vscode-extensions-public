@@ -8,6 +8,7 @@
  */
 import styled from '@emotion/styled';
 
+// Source: https://github.com/PrismJS/prism-themes/blob/master/themes/prism-vsc-dark-plus.css
 export const StyledPre = styled.pre`
     color: var(--vscode-editor-foreground);
     font-size: 13px;
