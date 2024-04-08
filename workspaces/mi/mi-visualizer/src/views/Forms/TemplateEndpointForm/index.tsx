@@ -12,6 +12,9 @@ import { useEffect, useState } from "react";
 import { Button, Dropdown, TextField, FormView, FormGroup, FormActions, ParamManager } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { yupResolver } from "@hookform/resolvers/yup"
+import * as yup from "yup";
+import { useForm } from "react-hook-form";
 
 const FieldGroup = styled.div`
     display: flex;
@@ -28,15 +31,42 @@ export interface TemplateEndpointWizardProps {
     path: string;
 }
 
+type InputsFields = {
+    name?: string;
+    uri?: string;
+    template?: string;
+    description?: string;
+};
+
+const initialEndpoint: InputsFields = {
+    name: '',
+    uri: '',
+    template: '',
+    description: '',
+};
+
+const schema = yup.object({
+    name: yup.string().required("Endpoint Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint name"),
+    uri: yup.string(),
+    template: yup.string().required("Template is required"),
+    description: yup.string(),
+});
+
 export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
 
-    const [endpoint, setEndpoint] = useState<any>({
-        name: '',
-        uri: '',
-        template: '',
-        description: '',
+    const {
+        reset,
+        register,
+        formState: { errors, isDirty },
+        handleSubmit,
+        watch,
+        getValues
+    } = useForm({
+        defaultValues: initialEndpoint,
+        resolver: yupResolver(schema),
+        mode: "onChange"
     });
 
     const [templates, setTemplates] = useState<any[]>([]);
@@ -52,8 +82,8 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
         (async () => {
             const { parameters, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getTemplateEndpoint({ path: props.path });
 
-            setEndpoint(endpoint);
-            
+            reset(endpoint);
+
             setParamConfigs((prev: any) => {
                 return {
                     ...prev,
@@ -80,9 +110,15 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
         })();
     }, []);
 
-    const handleOnChange = (field: string, value: any) => {
-        setEndpoint((prev: any) => ({ ...prev, [field]: value }));
-    }
+    const renderProps = (fieldName: keyof InputsFields, value?: any) => {
+        const watchedValue = watch(fieldName) ? String(watch(fieldName)) : '';
+        return {
+            id: fieldName,
+            value: value !== undefined ? String(value) : watchedValue,
+            ...register(fieldName),
+            errorMsg: errors[fieldName] && errors[fieldName].message.toString()
+        }
+    };
 
     const handleParamChange = (config: any) => {
         setParamConfigs((prev: any) => {
@@ -99,10 +135,10 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
         })
     }
 
-    const handleUpdateEndpoint = async () => {
+    const handleUpdateEndpoint = async (values: any) => {
         const updateEndpointParams = {
             directory: props.path,
-            ...endpoint,
+            ...values,
             parameters: paramConfigs.paramValues.map((param: any) => {
                 return {
                     name: param.key,
@@ -118,56 +154,34 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
-    const validateEndpointName = (name: string) => {
-        // Check if the name is empty
-        if (!name.trim()) {
-            return "Enpoint name is required";
-        }
-
-        // Check if the name contains spaces or special characters
-        if (/[\s~`!@#$%^&*()_+={}[\]:;'",.<>?/\\|]+/.test(name)) {
-            return "Endpoint name cannot contain spaces or special characters";
-        }
-        return "";
+    const handleOnClose = () => {
+        rpcClient.getMiVisualizerRpcClient().goBack();
     };
 
-    const isValid: boolean = validateEndpointName(endpoint.name) === '' && endpoint.template.length > 0;
-
     return (
-        <FormView title="Template Endpoint Artifact" onClose={openOverview}>
+        <FormView title="Template Endpoint Artifact" onClose={handleOnClose}>
             <FormGroup title="Basic Properties" isCollapsed={false}>
                 <TextField
-                    id='name-input'
+                    required
+                    autoFocus
                     label="Name"
                     placeholder="Name"
-                    value={endpoint.name}
-                    onTextChange={(text: string) => handleOnChange('name', text)}
-                    errorMsg={validateEndpointName(endpoint.name)}
+                    {...renderProps("name")}
                     size={100}
-                    autoFocus
-                    required
                 />
                 <TextField
-                    id='uri-input'
                     label="Uri"
                     placeholder="Uri"
-                    value={endpoint.uri}
-                    onTextChange={(text: string) => handleOnChange('uri', text)}
+                    {...renderProps("uri")}
                 />
-                <FieldGroup>
-                    <span>Template</span>
-                    <Dropdown
-                        id="template"
-                        value={endpoint.template}
-                        onValueChange={(text: string) => handleOnChange("template", text)}
-                        items={templates}
-                    />
-                </FieldGroup>
+                <Dropdown
+                    label="Template"
+                    items={templates}
+                    {...renderProps("template")}
+                />
                 <TextField
-                    id='description'
-                    value={endpoint.description}
                     label="Description"
-                    onTextChange={(text: string) => handleOnChange('description', text)}
+                    {...renderProps("description")}
                 />
                 <FieldGroup>
                     <span>Parameters</span>
@@ -183,8 +197,8 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
                 </Button>
                 <Button
                     appearance="primary"
-                    onClick={handleUpdateEndpoint}
-                    disabled={!isValid}
+                    onClick={handleSubmit(handleUpdateEndpoint)}
+                    disabled={!isDirty}
                 >
                     Update
                 </Button>

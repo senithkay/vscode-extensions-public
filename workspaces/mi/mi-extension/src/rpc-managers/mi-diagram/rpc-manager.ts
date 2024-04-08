@@ -501,13 +501,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     scope: prop.scope ?? 'default'
                 }));
 
+                const timeout = session?.sessionTimeout ? Number(session.sessionTimeout) : 0;
+
                 resolve({
                     name,
                     algorithm: loadbalance.algorithm,
                     failover: String(loadbalance.failover) ?? 'false',
                     buildMessage: String(loadbalance.buildMessage) ?? 'false',
                     sessionManagement: session?.type ?? 'none',
-                    sessionTimeout: session?.sessionTimeout ?? '',
+                    sessionTimeout: timeout,
                     description: description ?? '',
                     endpoints: endpoints.length > 0 ? endpoints : [],
                     properties: properties.length > 0 ? properties : []
@@ -520,7 +522,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 failover: 'false',
                 buildMessage: 'true',
                 sessionManagement: 'none',
-                sessionTimeout: '',
+                sessionTimeout: 0,
                 description: '',
                 endpoints: [],
                 properties: []

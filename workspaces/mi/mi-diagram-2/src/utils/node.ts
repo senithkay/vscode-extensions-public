@@ -8,6 +8,10 @@
  */
 
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { MEDIATORS, NODE_GAP } from "../resources/constants";
+import { getLogDescription } from "./template-engine/mustach-templates/core/log";
+import { getFilterDescription } from "./template-engine/mustach-templates/filter/filter";
+import { getPropertyDescription } from "./template-engine/mustach-templates/core/property";
 
 export function getNodeIdFromModel(model: STNode, prefix?: string) {
     if (model.viewState?.id) {
@@ -21,4 +25,39 @@ export function getNodeIdFromModel(model: STNode, prefix?: string) {
         return id;
     }
     return null;
+}
+
+export function getNodeDescription(stNode: any): string {
+    if (stNode.description) {
+        return stNode.description;
+    }
+
+    switch (stNode.tag.toLowerCase()) {
+        case "endpoint": {
+            if (stNode.type) {
+                return stNode.type;
+            }
+            return;
+        }
+        case (MEDIATORS.FILTER.toLowerCase()): {
+            return getFilterDescription(stNode);
+        }
+        case (MEDIATORS.LOG.toLowerCase()): {
+            return getLogDescription(stNode);
+        }
+        case (MEDIATORS.PROPERTY.toLowerCase()): {
+            return getPropertyDescription(stNode);
+        }
+        default:
+            return;
+    }
+}
+
+export function getTextWidth(text: any, font?: any) {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+
+    context.font = font || getComputedStyle(document.body).font;
+
+    return context.measureText(text).width + 5.34 + NODE_GAP.TEXT_NODE_GAP;
 }

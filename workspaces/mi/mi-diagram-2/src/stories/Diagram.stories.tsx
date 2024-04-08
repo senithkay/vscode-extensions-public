@@ -223,6 +223,7 @@ const resourceModel: any = {
                 "hasTextNode": true,
                 "textNode": "\n            ",
                 "selfClosed": false,
+                "description": "looooooooooooooong description",
                 "tag": "log"
             },
             {

@@ -641,6 +641,10 @@
       "projectFolder": "workspaces/mi/mi-rpc-client"
     },
     {
+      "packageName": "@wso2-enterprise/mi-data-mapper",
+      "projectFolder": "workspaces/mi/mi-data-mapper"
+    },
+    {
       "packageName": "api-chat",
       "projectFolder": "workspaces/api-chat/extension",
       "versionPolicyName": "ballerina-extension"

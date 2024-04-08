@@ -107,7 +107,7 @@ export class SizingVisitor implements Visitor {
         node.viewState.l = subSequenceKeys.length > 0 ? node.viewState.fw / 2 : 0;
         node.viewState.r = subSequenceKeys.length > 0 ? node.viewState.fw / 2 : 0;
 
-        const topGap = type === NodeTypes.CONDITION_NODE ? (NODE_DIMENSIONS.CONDITION.HEIGHT + NODE_GAP.BRANCH_TOP) : (node.viewState.h / 2) + NODE_GAP.GROUP_NODE_START_Y;
+        const topGap = type === NodeTypes.CONDITION_NODE ? (NODE_DIMENSIONS.CONDITION.HEIGHT + NODE_GAP.BRANCH_TOP) : node.viewState.h + NODE_GAP.GROUP_NODE_START_Y;
         const bottomGap = type === NodeTypes.CONDITION_NODE ? NODE_GAP.BRANCH_BOTTOM : NODE_GAP.GROUP_NODE_END_Y;
         const sequenceFullHeight = subSequencesHeight;
         node.viewState.fh = topGap + sequenceFullHeight + bottomGap;

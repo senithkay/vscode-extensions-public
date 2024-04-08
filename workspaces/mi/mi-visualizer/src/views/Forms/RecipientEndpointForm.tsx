@@ -13,6 +13,9 @@ import { Button, TextField, FormView, FormGroup, FormActions, ParamManager } fro
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { Endpoint, EndpointList, InlineButtonGroup } from "./Commons";
+import { yupResolver } from "@hookform/resolvers/yup"
+import * as yup from "yup";
+import { useForm } from "react-hook-form";
 
 const FieldGroup = styled.div`
     display: flex;
@@ -39,16 +42,42 @@ const initialInlineEndpoint: Endpoint = {
     value: '',
 };
 
+type InputsFields = {
+    name?: string;
+    description?: string;
+};
+
+const initialEndpoint: InputsFields = {
+    name: '',
+    description: '',
+};
+
+const schema = yup.object({
+    name: yup.string().required("Endpoint Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint name"),
+    description: yup.string(),
+});
+
 export function RecipientWizard(props: RecipientWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
 
-    const [endpoint, setEndpoint] = useState<any>({
-        name: '',
-        description: '',
+    const {
+        reset,
+        register,
+        formState: { errors, isDirty },
+        handleSubmit,
+        watch,
+        getValues
+    } = useForm({
+        defaultValues: initialEndpoint,
+        resolver: yupResolver(schema),
+        mode: "onChange"
     });
 
     const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
+    const [expandEndpointsView, setExpandEndpointsView] = useState<boolean>(false);
+    const [showAddNewEndpointView, setShowAddNewEndpointView] = useState<boolean>(false);
+    const [newEndpoint, setNewEndpoint] = useState<Endpoint>(initialInlineEndpoint);
 
     const [paramConfigs, setParamConfigs] = useState<any>({
         paramValues: [],
@@ -56,18 +85,15 @@ export function RecipientWizard(props: RecipientWizardProps) {
             { id: 1, type: "TextField", label: "Name", defaultValue: "", isRequired: true },
             { id: 2, type: "TextField", label: "Value", defaultValue: "", isRequired: true },
             { id: 3, type: "Dropdown", label: "Scope", defaultValue: "default", values: ["default", "transport", "axis2", "axis2-client"], isRequired: true },
-        ]
-    });
-
-    const [expandEndpointsView, setExpandEndpointsView] = useState<boolean>(false);
-    const [showAddNewEndpointView, setShowAddNewEndpointView] = useState<boolean>(false);
-    const [newEndpoint, setNewEndpoint] = useState<Endpoint>(initialInlineEndpoint);
+        ]    
+    });    
 
     useEffect(() => {
         (async () => {
             const { properties, endpoints, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getRecipientEndpoint({ path: props.path });
 
-            setEndpoint(endpoint);
+            reset(endpoint);
+            setEndpoints(endpoints);
             
             setParamConfigs((prev: any) => {
                 return {
@@ -87,17 +113,21 @@ export function RecipientWizard(props: RecipientWizardProps) {
                 };
             });
 
-            setEndpoints(endpoints);
-
             if (endpoints.length > 0) {
                 setExpandEndpointsView(true);
             }
         })();
     }, []);
 
-    const handleOnChange = (field: string, value: any) => {
-        setEndpoint((prev: any) => ({ ...prev, [field]: value }));
-    }
+    const renderProps = (fieldName: keyof InputsFields, value?: any) => {
+        const watchedValue = watch(fieldName) ? String(watch(fieldName)) : '';
+        return {
+            id: fieldName,
+            value: value !== undefined ? String(value) : watchedValue,
+            ...register(fieldName),
+            errorMsg: errors[fieldName] && errors[fieldName].message.toString()
+        }
+    };
 
     const handleNewEndpointChange = (field: string, value: string) => {
         setNewEndpoint((prev: any) => ({ ...prev, [field]: value }));
@@ -124,10 +154,10 @@ export function RecipientWizard(props: RecipientWizardProps) {
         })
     }
 
-    const handleUpdateEndpoint = async () => {
+    const handleUpdateEndpoint = async (values: any) => {
         const updateEndpointParams = {
             directory: props.path,
-            ...endpoint,
+            ...values,
             endpoints,
             properties: paramConfigs.paramValues.map((param: any) => {
                 return {
@@ -145,34 +175,20 @@ export function RecipientWizard(props: RecipientWizardProps) {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
-    const validateEndpointName = (name: string) => {
-        // Check if the name is empty
-        if (!name.trim()) {
-            return "Enpoint name is required";
-        }
-
-        // Check if the name contains spaces or special characters
-        if (/[\s~`!@#$%^&*()_+={}[\]:;'",.<>?/\\|]+/.test(name)) {
-            return "Endpoint name cannot contain spaces or special characters";
-        }
-        return "";
+    const handleOnClose = () => {
+        rpcClient.getMiVisualizerRpcClient().goBack();
     };
 
-    const isValid: boolean = validateEndpointName(endpoint.name) === '';;
-
     return (
-        <FormView title="Recipient Endpoint Artifact" onClose={openOverview}>
+        <FormView title="Recipient Endpoint Artifact" onClose={handleOnClose}>
             <FormGroup title="Basic Properties" isCollapsed={false}>
                 <TextField
-                    id='name-input'
+                    required
+                    autoFocus
                     label="Name"
                     placeholder="Name"
-                    value={endpoint.name}
-                    onTextChange={(text: string) => handleOnChange('name', text)}
-                    errorMsg={validateEndpointName(endpoint.name)}
+                    {...renderProps('name')}
                     size={100}
-                    autoFocus
-                    required
                 />
                 <FieldGroup>
                     <InlineButtonGroup
@@ -201,10 +217,8 @@ export function RecipientWizard(props: RecipientWizardProps) {
             </FormGroup>
             <FormGroup title="Miscellaneous Properties" isCollapsed={false}>
                 <TextField
-                    id='description'
-                    value={endpoint.description}
                     label="Description"
-                    onTextChange={(text: string) => handleOnChange('description', text)}
+                    {...renderProps('description')}
                 />
                 <FieldGroup>
                     <span>Properties</span>
@@ -220,8 +234,8 @@ export function RecipientWizard(props: RecipientWizardProps) {
                 </Button>
                 <Button
                     appearance="primary"
-                    onClick={handleUpdateEndpoint}
-                    disabled={!isValid}
+                    onClick={handleSubmit(handleUpdateEndpoint)}
+                    disabled={!isDirty}
                 >
                     Update
                 </Button>
