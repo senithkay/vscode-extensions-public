@@ -117,7 +117,7 @@ const CARD_WRAPPER_DATA = {
             }
         ]
     },
-    ENDPOINTS: {
+    ENDPOINT: {
         cards: [
             {
                 title: 'Address Endpoint',
@@ -130,7 +130,7 @@ const CARD_WRAPPER_DATA = {
                 description: 'Description',
             },
             {
-                title: 'Fail Over Endpoint',
+                title: 'Failover Endpoint',
                 icon: 'code',
                 description: 'Description',
             },
@@ -161,7 +161,7 @@ const CARD_WRAPPER_DATA = {
             }
         ]
     },
-    TEMPLATES: {
+    TEMPLATE: {
         cards: [
             {
                 title: 'Address Endpoint Template',

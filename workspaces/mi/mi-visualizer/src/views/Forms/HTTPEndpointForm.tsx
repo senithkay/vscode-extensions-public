@@ -10,6 +10,8 @@ import React, {useEffect, useState} from "react";
 import { Button, TextField, Dropdown, RadioButtonGroup, FormView, FormGroup, FormActions, ParamConfig, ParamManager } from "@wso2-enterprise/ui-toolkit";
 import {useVisualizerContext} from "@wso2-enterprise/mi-rpc-client";
 import {EVENT_TYPE, MACHINE_VIEW, UpdateHttpEndpointRequest} from "@wso2-enterprise/mi-core";
+import CardWrapper from "./Commons/CardWrapper";
+import {TypeChangeButton} from "./Commons";
 
 interface OptionProps {
     value: string;
@@ -17,6 +19,7 @@ interface OptionProps {
 
 export interface HttpEndpointWizardProps {
     path: string;
+    type: string;
 }
 
 export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
@@ -62,6 +65,8 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
         templateParameters: []
 
     })
+    const [showCards, setShowCards] = useState(false);
+    const [isNewEndpoint, setIsNewEndpoint] = useState(!props.path.endsWith(".xml"));
     const [isTemplate, setIsTemplate] = useState(false);
     const [directoryPath, setDirectoryPath] = useState("");
     const [message, setMessage] = useState({
@@ -135,101 +140,102 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
 
     useEffect(() => {
 
-        (async () => {
-            setDirectoryPath(props.path);
-            const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({documentUri: props.path});
-            if (syntaxTree.syntaxTree.template != undefined) {
-                setIsTemplate(true);
-            }
-            const existingEndpoint = await rpcClient.getMiDiagramRpcClient().getHttpEndpoint({path: props.path});
-            setEndpoint(existingEndpoint);
-            handleTimeoutActionChange(existingEndpoint.timeoutAction === '' ? 'Never' :
-                existingEndpoint.timeoutAction.charAt(0).toUpperCase() + existingEndpoint.timeoutAction.slice(1));
-            handleHttpMethodChange(existingEndpoint.httpMethod);
-            templateParams.paramValues = [];
-            setTemplateParams(templateParams);
-            let i = 1;
-            existingEndpoint.templateParameters.map((param: any) => {
-                setTemplateParams((prev: any) => {
-                    return {
-                        ...prev,
-                        paramValues: [...prev.paramValues, {
-                            id: prev.paramValues.length,
-                            parameters: [{
-                                id: 0,
+        if (props.type === 'template') {
+            setIsTemplate(true);
+        }
+        if (!isNewEndpoint) {
+            (async () => {
+                setDirectoryPath(props.path);
+                const existingEndpoint = await rpcClient.getMiDiagramRpcClient().getHttpEndpoint({path: props.path});
+                setEndpoint(existingEndpoint);
+                handleTimeoutActionChange(existingEndpoint.timeoutAction === '' ? 'Never' :
+                    existingEndpoint.timeoutAction.charAt(0).toUpperCase() + existingEndpoint.timeoutAction.slice(1));
+                handleHttpMethodChange(existingEndpoint.httpMethod);
+                templateParams.paramValues = [];
+                setTemplateParams(templateParams);
+                let i = 1;
+                existingEndpoint.templateParameters.map((param: any) => {
+                    setTemplateParams((prev: any) => {
+                        return {
+                            ...prev,
+                            paramValues: [...prev.paramValues, {
+                                id: prev.paramValues.length,
+                                parameters: [{
+                                    id: 0,
+                                    value: param,
+                                    label: "Parameter",
+                                    type: "TextField",
+                                }],
+                                key: i++,
                                 value: param,
-                                label: "Parameter",
-                                type: "TextField",
-                            }],
-                            key: i++,
-                            value: param,
+                            }
+                            ]
                         }
-                        ]
-                    }
+                    });
                 });
-            });
-            additionalParams.paramValues = [];
-            setAdditionalParams(additionalParams);
-            existingEndpoint.properties.map((param: any) => {
-                setAdditionalParams((prev: any) => {
-                    return {
-                        ...prev,
-                        paramValues: [...prev.paramValues, {
-                            id: prev.paramValues.length,
-                            parameters: [{
-                                id: 0,
-                                value: param.name,
-                                label: "Name",
-                                type: "TextField",
-                            },
-                                {
-                                    id: 1,
-                                    value: param.value,
-                                    label: "Value",
+                additionalParams.paramValues = [];
+                setAdditionalParams(additionalParams);
+                existingEndpoint.properties.map((param: any) => {
+                    setAdditionalParams((prev: any) => {
+                        return {
+                            ...prev,
+                            paramValues: [...prev.paramValues, {
+                                id: prev.paramValues.length,
+                                parameters: [{
+                                    id: 0,
+                                    value: param.name,
+                                    label: "Name",
                                     type: "TextField",
                                 },
-                                {
-                                    id: 2,
-                                    value: param.scope,
-                                    label: "Scope",
-                                    type: "Dropdown",
-                                    values: ["default", "transport", "axis2", "axis2-client"]
-                                }],
-                            key: param.name,
-                            value: "value:" + param.value + "; scope:" + param.scope + ";",
+                                    {
+                                        id: 1,
+                                        value: param.value,
+                                        label: "Value",
+                                        type: "TextField",
+                                    },
+                                    {
+                                        id: 2,
+                                        value: param.scope,
+                                        label: "Scope",
+                                        type: "Dropdown",
+                                        values: ["default", "transport", "axis2", "axis2-client"]
+                                    }],
+                                key: param.name,
+                                value: "value:" + param.value + "; scope:" + param.scope + ";",
+                            }
+                            ]
                         }
-                        ]
-                    }
+                    });
                 });
-            });
-            additionalOauthParams.paramValues = [];
-            setAdditionalOauthParams(additionalOauthParams);
-            existingEndpoint.oauthProperties.map((param: any) => {
-                setAdditionalOauthParams((prev: any) => {
-                    return {
-                        ...prev,
-                        paramValues: [...prev.paramValues, {
-                            id: prev.paramValues.length,
-                            parameters: [{
-                                id: 0,
-                                value: param.key,
-                                label: "Name",
-                                type: "TextField",
-                            },
-                                {
-                                    id: 1,
-                                    value: param.value,
-                                    label: "Value",
+                additionalOauthParams.paramValues = [];
+                setAdditionalOauthParams(additionalOauthParams);
+                existingEndpoint.oauthProperties.map((param: any) => {
+                    setAdditionalOauthParams((prev: any) => {
+                        return {
+                            ...prev,
+                            paramValues: [...prev.paramValues, {
+                                id: prev.paramValues.length,
+                                parameters: [{
+                                    id: 0,
+                                    value: param.key,
+                                    label: "Name",
                                     type: "TextField",
-                                }],
-                            key: param.key,
-                            value: param.value,
+                                },
+                                    {
+                                        id: 1,
+                                        value: param.value,
+                                        label: "Value",
+                                        type: "TextField",
+                                    }],
+                                key: param.key,
+                                value: param.value,
+                            }
+                            ]
                         }
-                        ]
-                    }
+                    });
                 });
-            });
-        })();
+            })();
+        }
     }, [props.path]);
 
     useEffect(() => {
@@ -327,6 +333,82 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
     const generateDisplayValue = (paramValues: any) => {
         const result: string = "value:" + paramValues.parameters[1].value + "; scope:" + paramValues.parameters[2].value + ";";
         return result.trim();
+    };
+
+    const setEndpointType = (type: string) => {
+        if (type.includes('Sequence')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.TemplateForm,
+                    documentUri: props.path,
+                    customProps: {type: 'sequence'}
+                }
+            });
+        } else if (type.includes('HTTP')) {
+            setShowCards(false);
+        } else if (type.includes('WSDL Endpoint')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.WsdlEndpointForm,
+                    documentUri: props.path,
+                    customProps: {type: isTemplate ? 'template' : 'endpoint'}
+                }
+            });
+        } else if (type.includes('Address')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.AddressEndpointForm,
+                    documentUri: props.path,
+                    customProps: {type: isTemplate ? 'template' : 'endpoint'}
+                }
+            });
+        } else if (type.includes('Default')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.DefaultEndpointForm,
+                    documentUri: props.path,
+                    customProps: {type: isTemplate ? 'template' : 'endpoint'}
+                }
+            });
+        } else if (type.includes('Failover')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.FailoverEndPointForm,
+                    documentUri: props.path
+                }
+            });
+        } else if (type.includes('Load Balance')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.LoadBalanceEndPointForm,
+                    documentUri: props.path
+                }
+            });
+        } else if (type.includes('Recipient List')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.RecipientEndPointForm,
+                    documentUri: props.path,
+                }
+            });
+        } else if (type.includes('Template')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.TemplateEndPointForm,
+                    documentUri: props.path
+                }
+            });
+        } else {
+            setShowCards(true);
+        }
     };
 
     const handleTraceEnabledChange = (event: any) => {
@@ -452,8 +534,10 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
     };
 
     return (
-        <FormView title={isTemplate ? "HTTP Endpoint Template Artifact" : "HTTP Endpoint Artifact"}
+        <FormView title={(showCards && isTemplate) ? 'Template Artifact' : (showCards && !isTemplate) ? 'Endpoint Artifact' : isTemplate ? "Template Artifact" : "Endpoint Artifact"}
                   onClose={handleCancel}>
+            { showCards ? <CardWrapper cardsType={props.type === 'template' ? 'TEMPLATE' : 'ENDPOINT'} setType={setEndpointType} /> : <>
+            { isNewEndpoint && <TypeChangeButton type={isTemplate ? "HTTP Endpoint Template" : "HTTP Endpoint"} onClick={setEndpointType} /> }
             {isTemplate && (
                 <>
                     <FormGroup title="Template Properties" isCollapsed={false}>
@@ -520,8 +604,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                     id="uri-template"
                     size={100}
                 />
-                <span>HTTP Method</span>
-                <Dropdown items={httpMethods} value={endpoint.httpMethod} onValueChange={handleHttpMethodChange}
+                <Dropdown label="HTTP Method" items={httpMethods} value={endpoint.httpMethod} onValueChange={handleHttpMethodChange}
                           id="http-method"/>
                 <TextField
                     placeholder="Description"
@@ -546,8 +629,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 )}
             </FormGroup>
             <FormGroup title="Auth Configuration" isCollapsed={false}>
-                <span>Auth Type</span>
-                <Dropdown items={authTypes} value={endpoint.authType} onValueChange={handleAuthTypeChange}
+                <Dropdown label="Auth Type" items={authTypes} value={endpoint.authType} onValueChange={handleAuthTypeChange}
                           id="auth-type"/>
                 {endpoint.authType === 'Basic Auth' && (
                     <>
@@ -571,11 +653,9 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 )}
                 {endpoint.authType === 'OAuth' && (
                     <>
-                        <span>OAuth Authorization Mode</span>
-                        <Dropdown items={authorizationModes} value={endpoint.authMode}
+                        <Dropdown label="OAuth Authorization Mode" items={authorizationModes} value={endpoint.authMode}
                                   onValueChange={handleAuthModeChange} id="auth-mode"/>
-                        <span>OAuth Grant Type</span>
-                        <Dropdown items={grantTypes} value={endpoint.grantType}
+                        <Dropdown label="OAuth Grant Type" items={grantTypes} value={endpoint.grantType}
                                   onValueChange={handleAuthGrantTypeChange} id="grant-type"/>
                         <TextField
                             placeholder="Client ID"
@@ -657,8 +737,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 />
                 {endpoint.addressingEnabled === 'enable' && (
                     <>
-                        <span>Addressing Version</span>
-                        <Dropdown items={addressingVersions} value={endpoint.addressingVersion}
+                        <Dropdown label="Addressing Version" items={addressingVersions} value={endpoint.addressingVersion}
                                   onValueChange={handleAddressingVersionChange} id="addressing-version"/>
                         <RadioButtonGroup
                             label="Addressing Separate Listener"
@@ -778,26 +857,26 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                     id="timeout-duration"
                     size={100}
                 />
-                <span>Timeout Action</span>
-                <Dropdown items={timeoutOptions} value={endpoint.timeoutAction}
+                <Dropdown label="Timeout Action" items={timeoutOptions} value={endpoint.timeoutAction}
                           onValueChange={handleTimeoutActionChange} id="timeout-action"/>
             </FormGroup>
             {message && <span style={{color: message.isError ? "#f48771" : ""}}>{message.text}</span>}
             <FormActions>
+                <Button
+                    appearance="primary"
+                    onClick={handleUpdateHttpEndpoint}
+                    disabled={!isValid}
+                >
+                    {isNewEndpoint ? "Create" : "Save Changes"}
+                </Button>
                 <Button
                     appearance="secondary"
                     onClick={handleCancel}
                 >
                     Cancel
                 </Button>
-                <Button
-                    appearance="primary"
-                    onClick={handleUpdateHttpEndpoint}
-                    disabled={!isValid}
-                >
-                    Save Changes
-                </Button>
             </FormActions>
+            </>}
         </FormView>
     );
 }

@@ -387,17 +387,12 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                     size={100}
                 />
                 {messageProcessor.messageProcessorType != "Scheduled Failover Message Forwarding Processor" && (
-                    <>
-                        <span>Message Store</span>
-                        <Dropdown items={messageStoreTypes} value={messageProcessor.messageStoreType} onValueChange={handleMessageStoreTypeChange} id="message-store-type"/>
-                    </>
+                    <Dropdown label="Message Store" items={messageStoreTypes} value={messageProcessor.messageStoreType} onValueChange={handleMessageStoreTypeChange} id="message-store-type"/>
                 )}
                 {messageProcessor.messageProcessorType === "Scheduled Failover Message Forwarding Processor" && (
                     <>
-                        <span>Source Messages Store</span>
-                        <Dropdown items={messageStoreTypes} value={messageProcessor.messageStoreType} onValueChange={handleSourceMessageStoreTypeChange} id="source-message-store"/>
-                        <span>Target Messages Store</span>
-                        <Dropdown items={messageStoreTypes} value={messageProcessor.targetMessageStoreType} onValueChange={handleTargetMessageStoreTypeChange} id="target-message-store"/>
+                        <Dropdown label="Source Messages Store" items={messageStoreTypes} value={messageProcessor.messageStoreType} onValueChange={handleSourceMessageStoreTypeChange} id="source-message-store"/>
+                        <Dropdown label="Target Messages Store" items={messageStoreTypes} value={messageProcessor.targetMessageStoreType} onValueChange={handleTargetMessageStoreTypeChange} id="target-message-store"/>
                     </>
                 )}
                 {messageProcessor.messageProcessorType != "Custom Message Processor" && (
@@ -626,8 +621,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                                 id="reply-sequence-custom"
                             />
                         )}
-                        <span>Fail Messages Store</span>
-                        <Dropdown items={messageStoreTypes} value={messageProcessor.failMessageStoreType} onValueChange={handleFailMessageStoreTypeChange} id="fail-message-store"/>
+                        <Dropdown label="Fail Messages Store" items={messageStoreTypes} value={messageProcessor.failMessageStoreType} onValueChange={handleFailMessageStoreTypeChange} id="fail-message-store"/>
                     </>
                 )}
                 {messageProcessor.messageProcessorType === "Message Sampling Processor" && (

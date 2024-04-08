@@ -245,11 +245,9 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
             )}
             {proxyService.proxyServiceType === "Logging Proxy" && (
                 <>
-                    <span>Request Log Level</span>
-                    <Dropdown items={logLevelOptions} value={proxyService.requestLogLevel}
+                    <Dropdown label="Request Log Level" items={logLevelOptions} value={proxyService.requestLogLevel}
                               onValueChange={handleRequestLogLevelChange} id="request-log-level"/>
-                    <span>Response Log Level</span>
-                    <Dropdown items={logLevelOptions} value={proxyService.responseLogLevel}
+                    <Dropdown label="Response Log Level" items={logLevelOptions} value={proxyService.responseLogLevel}
                               onValueChange={handleResponseLogLevelChange} id="response-log-level"/>
                 </>
             )}

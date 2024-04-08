@@ -10,6 +10,8 @@ import React, {useEffect, useState} from "react";
 import { Button, TextField, Dropdown, RadioButtonGroup, FormView, FormGroup, FormActions, ParamConfig, ParamManager } from "@wso2-enterprise/ui-toolkit";
 import {useVisualizerContext} from "@wso2-enterprise/mi-rpc-client";
 import {EVENT_TYPE, MACHINE_VIEW, UpdateAddressEndpointRequest} from "@wso2-enterprise/mi-core";
+import CardWrapper from "./Commons/CardWrapper";
+import {TypeChangeButton} from "./Commons";
 
 interface OptionProps {
     value: string;
@@ -17,6 +19,7 @@ interface OptionProps {
 
 export interface AddressEndpointWizardProps {
     path: string;
+    type: string;
 }
 
 export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
@@ -50,6 +53,8 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
         templateParameters: []
 
     })
+    const [showCards, setShowCards] = useState(false);
+    const [isNewEndpoint, setIsNewEndpoint] = useState(!props.path.endsWith(".xml"));
     const [isTemplate, setIsTemplate] = useState(false);
     const [directoryPath, setDirectoryPath] = useState("");
     const [message, setMessage] = useState({
@@ -103,75 +108,81 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
 
     useEffect(() => {
 
-        (async () => {
-            setDirectoryPath(props.path);
-            const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({documentUri: props.path});
-            if (syntaxTree.syntaxTree.template != undefined) {
-                setIsTemplate(true);
-            }
-            const existingEndpoint = await rpcClient.getMiDiagramRpcClient().getAddressEndpoint({path: props.path});
-            setEndpoint(existingEndpoint);
-            handleTimeoutActionChange(existingEndpoint.timeoutAction === '' ? 'Never' :
-                existingEndpoint.timeoutAction.charAt(0).toUpperCase() + existingEndpoint.timeoutAction.slice(1));
-            handleFormatChange(existingEndpoint.format);
-            handleOptimizeChange(existingEndpoint.optimize);
-            templateParams.paramValues = [];
-            setTemplateParams(templateParams);
-            let i = 1;
-            existingEndpoint.templateParameters.map((param: any) => {
-                setTemplateParams((prev: any) => {
-                    return {
-                        ...prev,
-                        paramValues: [...prev.paramValues, {
-                            id: prev.paramValues.length,
-                            parameters: [{
-                                id: 0,
+        if (props.type === 'template') {
+            setIsTemplate(true);
+        }
+
+        if (!isNewEndpoint) {
+            (async () => {
+                setDirectoryPath(props.path);
+                const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({documentUri: props.path});
+                if (syntaxTree.syntaxTree.template != undefined) {
+                    setIsTemplate(true);
+                }
+                const existingEndpoint = await rpcClient.getMiDiagramRpcClient().getAddressEndpoint({path: props.path});
+                setEndpoint(existingEndpoint);
+                handleTimeoutActionChange(existingEndpoint.timeoutAction === '' ? 'Never' :
+                    existingEndpoint.timeoutAction.charAt(0).toUpperCase() + existingEndpoint.timeoutAction.slice(1));
+                handleFormatChange(existingEndpoint.format);
+                handleOptimizeChange(existingEndpoint.optimize);
+                templateParams.paramValues = [];
+                setTemplateParams(templateParams);
+                let i = 1;
+                existingEndpoint.templateParameters.map((param: any) => {
+                    setTemplateParams((prev: any) => {
+                        return {
+                            ...prev,
+                            paramValues: [...prev.paramValues, {
+                                id: prev.paramValues.length,
+                                parameters: [{
+                                    id: 0,
+                                    value: param,
+                                    label: "Parameter",
+                                    type: "TextField",
+                                }],
+                                key: i++,
                                 value: param,
-                                label: "Parameter",
-                                type: "TextField",
-                            }],
-                            key: i++,
-                            value: param,
+                            }
+                            ]
                         }
-                        ]
-                    }
+                    });
                 });
-            });
-            additionalParams.paramValues = [];
-            setAdditionalParams(additionalParams);
-            existingEndpoint.properties.map((param: any) => {
-                setAdditionalParams((prev: any) => {
-                    return {
-                        ...prev,
-                        paramValues: [...prev.paramValues, {
-                            id: prev.paramValues.length,
-                            parameters: [{
-                                id: 0,
-                                value: param.name,
-                                label: "Name",
-                                type: "TextField",
-                            },
-                                {
-                                    id: 1,
-                                    value: param.value,
-                                    label: "Value",
+                additionalParams.paramValues = [];
+                setAdditionalParams(additionalParams);
+                existingEndpoint.properties.map((param: any) => {
+                    setAdditionalParams((prev: any) => {
+                        return {
+                            ...prev,
+                            paramValues: [...prev.paramValues, {
+                                id: prev.paramValues.length,
+                                parameters: [{
+                                    id: 0,
+                                    value: param.name,
+                                    label: "Name",
                                     type: "TextField",
                                 },
-                                {
-                                    id: 2,
-                                    value: param.scope,
-                                    label: "Scope",
-                                    type: "Dropdown",
-                                    values: ["default", "transport", "axis2", "axis2-client"]
-                                }],
-                            key: param.name,
-                            value: "value:" + param.value + "; scope:" + param.scope + ";",
+                                    {
+                                        id: 1,
+                                        value: param.value,
+                                        label: "Value",
+                                        type: "TextField",
+                                    },
+                                    {
+                                        id: 2,
+                                        value: param.scope,
+                                        label: "Scope",
+                                        type: "Dropdown",
+                                        values: ["default", "transport", "axis2", "axis2-client"]
+                                    }],
+                                key: param.name,
+                                value: "value:" + param.value + "; scope:" + param.scope + ";",
+                            }
+                            ]
                         }
-                        ]
-                    }
+                    });
                 });
-            });
-        })();
+            })();
+        }
     }, [props.path]);
 
     useEffect(() => {
@@ -243,6 +254,82 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
     const generateDisplayValue = (paramValues: any) => {
         const result: string = "value:" + paramValues.parameters[1].value + "; scope:" + paramValues.parameters[2].value + ";";
         return result.trim();
+    };
+
+    const setEndpointType = (type: string) => {
+        if (type.includes('Sequence')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.TemplateForm,
+                    documentUri: props.path,
+                    customProps: {type: 'sequence'}
+                }
+            });
+        } else if (type.includes('HTTP')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.HttpEndpointForm,
+                    documentUri: props.path,
+                    customProps: {type: isTemplate ? 'template' : 'endpoint'}
+                }
+            });
+        } else if (type.includes('WSDL Endpoint')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.WsdlEndpointForm,
+                    documentUri: props.path,
+                    customProps: {type: isTemplate ? 'template' : 'endpoint'}
+                }
+            });
+        } else if (type.includes('Address')) {
+            setShowCards(false);
+        } else if (type.includes('Default')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.DefaultEndpointForm,
+                    documentUri: props.path,
+                    customProps: {type: isTemplate ? 'template' : 'endpoint'}
+                }
+            });
+        } else if (type.includes('Failover')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.FailoverEndPointForm,
+                    documentUri: props.path
+                }
+            });
+        } else if (type.includes('Load Balance')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.LoadBalanceEndPointForm,
+                    documentUri: props.path
+                }
+            });
+        } else if (type.includes('Recipient List')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.RecipientEndPointForm,
+                    documentUri: props.path,
+                }
+            });
+        } else if (type.includes('Template')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.TemplateEndPointForm,
+                    documentUri: props.path
+                }
+            });
+        } else {
+            setShowCards(true);
+        }
     };
 
     const handleTraceEnabledChange = (event: any) => {
@@ -343,7 +430,9 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
     };
 
     return (
-        <FormView title={isTemplate ? "Address Endpoint Template Artifact" : "Address Endpoint Artifact"} onClose={handleCancel}>
+        <FormView title={(showCards && isTemplate) ? 'Template Artifact' : (showCards && !isTemplate) ? 'Endpoint Artifact' : isTemplate ? "Template Artifact" : "Endpoint Artifact"} onClose={handleCancel}>
+            { showCards ? <CardWrapper cardsType={props.type === 'template' ? 'TEMPLATE' : 'ENDPOINT'} setType={setEndpointType} /> : <>
+            { isNewEndpoint && <TypeChangeButton type={isTemplate ? "Address Endpoint Template" : "Address Endpoint"} onClick={setEndpointType} /> }
             {isTemplate && (
                 <>
                     <FormGroup title="Template Properties" isCollapsed={false}>
@@ -386,8 +475,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                     validationMessage="Endpoint name is required"
                     size={100}
                 />
-                <span>Format</span>
-                <Dropdown items={formatOptions} value={endpoint.format} onValueChange={handleFormatChange} id="format"/>
+                <Dropdown label="Format" items={formatOptions} value={endpoint.format} onValueChange={handleFormatChange} id="format"/>
                 <RadioButtonGroup
                     label="Trace Enabled"
                     id="trace-enabled"
@@ -412,8 +500,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                     id="uri-template"
                     size={100}
                 />
-                <span>Optimize</span>
-                <Dropdown items={optimizeOptions} value={endpoint.optimize} onValueChange={handleOptimizeChange}
+                <Dropdown label="Optimize" items={optimizeOptions} value={endpoint.optimize} onValueChange={handleOptimizeChange}
                           id="optimize"/>
                 <TextField
                     placeholder="Description"
@@ -447,8 +534,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                 />
                 {endpoint.addressingEnabled === 'enable' && (
                     <>
-                        <span>Addressing Version</span>
-                        <Dropdown items={addressingVersions} value={endpoint.addressingVersion}
+                        <Dropdown label="Addressing Version" items={addressingVersions} value={endpoint.addressingVersion}
                                   onValueChange={handleAddressingVersionChange} id="addressing-version"/>
                         <RadioButtonGroup
                             label="Addressing Separate Listener"
@@ -568,26 +654,26 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                     id="timeout-duration"
                     size={100}
                 />
-                <span>Timeout Action</span>
-                <Dropdown items={timeoutOptions} value={endpoint.timeoutAction}
+                <Dropdown label="Timeout Action" items={timeoutOptions} value={endpoint.timeoutAction}
                           onValueChange={handleTimeoutActionChange} id="timeout-action"/>
             </FormGroup>
             {message && <span style={{color: message.isError ? "#f48771" : ""}}>{message.text}</span>}
             <FormActions>
+                <Button
+                    appearance="primary"
+                    onClick={handleUpdateAddressEndpoint}
+                    disabled={!isValid}
+                >
+                    {isNewEndpoint ? "Create" : "Save Changes"}
+                </Button>
                 <Button
                     appearance="secondary"
                     onClick={handleCancel}
                 >
                     Cancel
                 </Button>
-                <Button
-                    appearance="primary"
-                    onClick={handleUpdateAddressEndpoint}
-                    disabled={!isValid}
-                >
-                    Save Changes
-                </Button>
             </FormActions>
+            </>}
         </FormView>
     );
 }

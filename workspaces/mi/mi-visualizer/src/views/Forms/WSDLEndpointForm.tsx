@@ -10,6 +10,8 @@ import React, {useEffect, useState} from "react";
 import { Button, TextField, Dropdown, RadioButtonGroup, FormView, FormGroup, FormActions, ParamConfig, ParamManager } from "@wso2-enterprise/ui-toolkit";
 import {useVisualizerContext} from "@wso2-enterprise/mi-rpc-client";
 import {EVENT_TYPE, MACHINE_VIEW, UpdateWsdlEndpointRequest} from "@wso2-enterprise/mi-core";
+import CardWrapper from "./Commons/CardWrapper";
+import {TypeChangeButton} from "./Commons";
 
 interface OptionProps {
     value: string;
@@ -17,6 +19,7 @@ interface OptionProps {
 
 export interface WsdlEndpointWizardProps {
     path: string;
+    type: string;
 }
 
 export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
@@ -52,6 +55,8 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
         templateParameters: []
 
     })
+    const [showCards, setShowCards] = useState(false);
+    const [isNewEndpoint, setIsNewEndpoint] = useState(!props.path.endsWith(".xml"));
     const [isTemplate, setIsTemplate] = useState(false);
     const [directoryPath, setDirectoryPath] = useState("");
     const [message, setMessage] = useState({
@@ -105,75 +110,81 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
 
     useEffect(() => {
 
-        (async () => {
-            setDirectoryPath(props.path);
-            const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({documentUri: props.path});
-            if (syntaxTree.syntaxTree.template != undefined) {
-                setIsTemplate(true);
-            }
-            const existingEndpoint = await rpcClient.getMiDiagramRpcClient().getWsdlEndpoint({path: props.path});
-            setEndpoint(existingEndpoint);
-            handleTimeoutActionChange(existingEndpoint.timeoutAction === '' ? 'Never' :
-                existingEndpoint.timeoutAction.charAt(0).toUpperCase() + existingEndpoint.timeoutAction.slice(1));
-            handleFormatChange(existingEndpoint.format);
-            handleOptimizeChange(existingEndpoint.optimize);
-            templateParams.paramValues = [];
-            setTemplateParams(templateParams);
-            let i = 1;
-            existingEndpoint.templateParameters.map((param: any) => {
-                setTemplateParams((prev: any) => {
-                    return {
-                        ...prev,
-                        paramValues: [...prev.paramValues, {
-                            id: prev.paramValues.length,
-                            parameters: [{
-                                id: 0,
+        if (props.type === 'template') {
+            setIsTemplate(true);
+        }
+
+        if (!isNewEndpoint) {
+            (async () => {
+                setDirectoryPath(props.path);
+                const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({documentUri: props.path});
+                if (syntaxTree.syntaxTree.template != undefined) {
+                    setIsTemplate(true);
+                }
+                const existingEndpoint = await rpcClient.getMiDiagramRpcClient().getWsdlEndpoint({path: props.path});
+                setEndpoint(existingEndpoint);
+                handleTimeoutActionChange(existingEndpoint.timeoutAction === '' ? 'Never' :
+                    existingEndpoint.timeoutAction.charAt(0).toUpperCase() + existingEndpoint.timeoutAction.slice(1));
+                handleFormatChange(existingEndpoint.format);
+                handleOptimizeChange(existingEndpoint.optimize);
+                templateParams.paramValues = [];
+                setTemplateParams(templateParams);
+                let i = 1;
+                existingEndpoint.templateParameters.map((param: any) => {
+                    setTemplateParams((prev: any) => {
+                        return {
+                            ...prev,
+                            paramValues: [...prev.paramValues, {
+                                id: prev.paramValues.length,
+                                parameters: [{
+                                    id: 0,
+                                    value: param,
+                                    label: "Parameter",
+                                    type: "TextField",
+                                }],
+                                key: i++,
                                 value: param,
-                                label: "Parameter",
-                                type: "TextField",
-                            }],
-                            key: i++,
-                            value: param,
+                            }
+                            ]
                         }
-                        ]
-                    }
+                    });
                 });
-            });
-            additionalParams.paramValues = [];
-            setAdditionalParams(additionalParams);
-            existingEndpoint.properties.map((param: any) => {
-                setAdditionalParams((prev: any) => {
-                    return {
-                        ...prev,
-                        paramValues: [...prev.paramValues, {
-                            id: prev.paramValues.length,
-                            parameters: [{
-                                id: 0,
-                                value: param.name,
-                                label: "Name",
-                                type: "TextField",
-                            },
-                                {
-                                    id: 1,
-                                    value: param.value,
-                                    label: "Value",
+                additionalParams.paramValues = [];
+                setAdditionalParams(additionalParams);
+                existingEndpoint.properties.map((param: any) => {
+                    setAdditionalParams((prev: any) => {
+                        return {
+                            ...prev,
+                            paramValues: [...prev.paramValues, {
+                                id: prev.paramValues.length,
+                                parameters: [{
+                                    id: 0,
+                                    value: param.name,
+                                    label: "Name",
                                     type: "TextField",
                                 },
-                                {
-                                    id: 2,
-                                    value: param.scope,
-                                    label: "Scope",
-                                    type: "Dropdown",
-                                    values: ["default", "transport", "axis2", "axis2-client"]
-                                }],
-                            key: param.name,
-                            value: "value:" + param.value + "; scope:" + param.scope + ";",
+                                    {
+                                        id: 1,
+                                        value: param.value,
+                                        label: "Value",
+                                        type: "TextField",
+                                    },
+                                    {
+                                        id: 2,
+                                        value: param.scope,
+                                        label: "Scope",
+                                        type: "Dropdown",
+                                        values: ["default", "transport", "axis2", "axis2-client"]
+                                    }],
+                                key: param.name,
+                                value: "value:" + param.value + "; scope:" + param.scope + ";",
+                            }
+                            ]
                         }
-                        ]
-                    }
+                    });
                 });
-            });
-        })();
+            })();
+        }
     }, [props.path]);
 
     useEffect(() => {
@@ -245,6 +256,82 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
     const generateDisplayValue = (paramValues: any) => {
         const result: string = "value:" + paramValues.parameters[1].value + "; scope:" + paramValues.parameters[2].value + ";";
         return result.trim();
+    };
+
+    const setEndpointType = (type: string) => {
+        if (type.includes('Sequence')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.TemplateForm,
+                    documentUri: props.path,
+                    customProps: {type: 'sequence'}
+                }
+            });
+        } else if (type.includes('HTTP')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.HttpEndpointForm,
+                    documentUri: props.path,
+                    customProps: {type: isTemplate ? 'template' : 'endpoint'}
+                }
+            });
+        } else if (type.includes('WSDL Endpoint')) {
+            setShowCards(false);
+        } else if (type.includes('Address')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.AddressEndpointForm,
+                    documentUri: props.path,
+                    customProps: {type: isTemplate ? 'template' : 'endpoint'}
+                }
+            });
+        } else if (type.includes('Default')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.DefaultEndpointForm,
+                    documentUri: props.path,
+                    customProps: {type: isTemplate ? 'template' : 'endpoint'}
+                }
+            });
+        } else if (type.includes('Failover')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.FailoverEndPointForm,
+                    documentUri: props.path
+                }
+            });
+        } else if (type.includes('Load Balance')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.LoadBalanceEndPointForm,
+                    documentUri: props.path
+                }
+            });
+        } else if (type.includes('Recipient List')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.RecipientEndPointForm,
+                    documentUri: props.path,
+                }
+            });
+        } else if (type.includes('Template')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.TemplateEndPointForm,
+                    documentUri: props.path
+                }
+            });
+        } else {
+            setShowCards(true);
+        }
     };
 
     const handleTraceEnabledChange = (event: any) => {
@@ -345,8 +432,9 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
     };
 
     return (
-        <FormView title={isTemplate ? "WSDL Endpoint Template Artifact" : "WSDL Endpoint Artifact"}
-                  onClose={handleCancel}>
+        <FormView title={(showCards && isTemplate) ? 'Template Artifact' : (showCards && !isTemplate) ? 'Endpoint Artifact' : isTemplate ? "Template Artifact" : "Endpoint Artifact"} onClose={handleCancel}>
+            { showCards ? <CardWrapper cardsType={props.type === 'template' ? 'TEMPLATE' : 'ENDPOINT'} setType={setEndpointType} /> : <>
+            { isNewEndpoint && <TypeChangeButton type={isTemplate ? "WSDL Endpoint Template" : "WSDL Endpoint"} onClick={setEndpointType} /> }
             {isTemplate && (
                 <>
                     <FormGroup title="Template Properties" isCollapsed={false}>
@@ -389,8 +477,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
                     validationMessage="Endpoint name is required"
                     size={100}
                 />
-                <span>Format</span>
-                <Dropdown items={formatOptions} value={endpoint.format} onValueChange={handleFormatChange} id="format"/>
+                <Dropdown label="Format" items={formatOptions} value={endpoint.format} onValueChange={handleFormatChange} id="format"/>
                 <RadioButtonGroup
                     label="Trace Enabled"
                     id="trace-enabled"
@@ -407,8 +494,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
                 />
             </FormGroup>
             <FormGroup title="Miscellaneous Properties" isCollapsed={false}>
-                <span>Optimize</span>
-                <Dropdown items={optimizeOptions} value={endpoint.optimize} onValueChange={handleOptimizeChange}
+                <Dropdown label="Optimize" items={optimizeOptions} value={endpoint.optimize} onValueChange={handleOptimizeChange}
                           id="optimize"/>
                 <TextField
                     placeholder="Description"
@@ -472,8 +558,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
                 />
                 {endpoint.addressingEnabled === 'enable' && (
                     <>
-                        <span>Addressing Version</span>
-                        <Dropdown items={addressingVersions} value={endpoint.addressingVersion}
+                        <Dropdown label="Addressing Version" items={addressingVersions} value={endpoint.addressingVersion}
                                   onValueChange={handleAddressingVersionChange} id="addressing-version"/>
                         <RadioButtonGroup
                             label="Addressing Separate Listener"
@@ -593,27 +678,26 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
                     id="timeout-duration"
                     size={100}
                 />
-                <span>Timeout Action</span>
-                <Dropdown items={timeoutOptions} value={endpoint.timeoutAction}
+                <Dropdown label="Timeout Action" items={timeoutOptions} value={endpoint.timeoutAction}
                           onValueChange={handleTimeoutActionChange} id="timeout-action"/>
             </FormGroup>
             {message && <span style={{color: message.isError ? "#f48771" : ""}}>{message.text}</span>}
             <FormActions>
-
+                <Button
+                    appearance="primary"
+                    onClick={handleUpdateWsdlEndpoint}
+                    disabled={!isValid}
+                >
+                    {isNewEndpoint ? "Create" : "Save Changes"}
+                </Button>
                 <Button
                     appearance="secondary"
                     onClick={handleCancel}
                 >
                     Cancel
                 </Button>
-                <Button
-                    appearance="primary"
-                    onClick={handleUpdateWsdlEndpoint}
-                    disabled={!isValid}
-                >
-                    Save Changes
-                </Button>
             </FormActions>
+            </>}
         </FormView>
     );
 }
