@@ -160,7 +160,7 @@ const SwitchForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["sourceXPath"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "sourceXPath": e, "isSwitchChanged": true });
                             formValidators["sourceXPath"](e);
                         }}
@@ -178,7 +178,7 @@ const SwitchForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["caseRegex"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "caseRegex": e });
                                 formValidators["caseRegex"](e);
                             }}
@@ -227,7 +227,7 @@ const SwitchForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e, "isSwitchChanged": true });
                             formValidators["description"](e);
                         }}

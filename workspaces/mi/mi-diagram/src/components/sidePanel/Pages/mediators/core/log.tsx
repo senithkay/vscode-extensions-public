@@ -140,7 +140,7 @@ const LogForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["separator"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "separator": e });
                             formValidators["separator"](e);
                         }}
@@ -158,7 +158,7 @@ const LogForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["propertyName"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "propertyName": e });
                                     formValidators["propertyName"](e);
                                 }}
@@ -183,7 +183,7 @@ const LogForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["propertyValue"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "propertyValue": e });
                                         formValidators["propertyValue"](e);
                                     }}
@@ -200,7 +200,7 @@ const LogForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["propertyExpression"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "propertyExpression": e });
                                         formValidators["propertyExpression"](e);
                                     }}
@@ -270,7 +270,7 @@ const LogForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder="Description"
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

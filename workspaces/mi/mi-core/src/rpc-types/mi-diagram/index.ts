@@ -126,6 +126,9 @@ import {
     ListRegistryArtifactsRequest, RangeFormatRequest,
     MigrateProjectRequest,
     MigrateProjectResponse,
+    CreateDataSourceResponse,
+    DataSourceTemplate,
+    GetDataSourceRequest,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -205,4 +208,6 @@ export interface MiDiagramAPI {
     getBackendRootUrl: () => Promise<GetBackendRootUrlResponse>;
     getAvailableRegistryResources: (params: ListRegistryArtifactsRequest) => Promise<ListRegistryArtifactsResponse>;
     rangeFormat: (params: RangeFormatRequest) => Promise<ApplyEditResponse>;
+    createDataSource: (params: DataSourceTemplate) => Promise<CreateDataSourceResponse>;
+    getDataSource: (params: GetDataSourceRequest) => Promise<DataSourceTemplate>;
 }

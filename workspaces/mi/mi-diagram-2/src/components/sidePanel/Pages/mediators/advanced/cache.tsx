@@ -222,7 +222,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["id"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "id": e, "isCacheChanged": true });
                                 formValidators["id"](e);
                             }}
@@ -239,7 +239,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["cacheTimeout"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "cacheTimeout": e, "isCacheChanged": true });
                                 formValidators["cacheTimeout"](e);
                             }}
@@ -256,7 +256,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["maxMessageSize"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "maxMessageSize": e, "isCacheChanged": true });
                                 formValidators["maxMessageSize"](e);
                             }}
@@ -284,7 +284,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["hashGeneratorAttribute"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "hashGeneratorAttribute": e, "isCacheChanged": true });
                                 formValidators["hashGeneratorAttribute"](e);
                             }}
@@ -306,7 +306,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["maxEntryCount"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "maxEntryCount": e, "isImplementationChanged": true });
                                 formValidators["maxEntryCount"](e);
                             }}
@@ -350,7 +350,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["sequenceKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "sequenceKey": e, "isOnCacheHitChanged": true });
                                 formValidators["sequenceKey"](e);
                             }}
@@ -383,7 +383,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["cacheProtocolMethods"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "cacheProtocolMethods": e, "isProtocolChanged": true });
                                 formValidators["cacheProtocolMethods"](e);
                             }}
@@ -417,7 +417,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["headersToIncludeInHash"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "headersToIncludeInHash": e, "isProtocolChanged": true });
                                 formValidators["headersToIncludeInHash"](e);
                             }}
@@ -434,7 +434,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["responseCodes"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "responseCodes": e, "isProtocolChanged": true });
                                 formValidators["responseCodes"](e);
                             }}
@@ -473,7 +473,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["hashGenerator"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "hashGenerator": e, "isProtocolChanged": true });
                                 formValidators["hashGenerator"](e);
                             }}
@@ -494,7 +494,7 @@ const CacheForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e, "isCacheChanged": true });
                             formValidators["description"](e);
                         }}

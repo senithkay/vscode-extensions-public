@@ -13,6 +13,7 @@ import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
 import { getAllMediators } from './Values';
 import { getSVGIcon } from '../../../resources/icons/mediatorIcons/icons';
+import { FirstCharToUpperCase } from '../../../utils/commons';
 
 const ButtonGrid = styled.div`
     display: grid;
@@ -79,7 +80,7 @@ export function Mediators(props: MediatorProps) {
             <>
                 {Object.entries(mediators).map(([key, values]) => (
                     <div key={key}>
-                        <h4>{key.charAt(0).toUpperCase() + key.slice(1)}</h4>
+                        <h4>{FirstCharToUpperCase(key)}</h4>
                         <ButtonGrid>
                             {(values as any[]).map((action: { operationName: React.Key; title: string; }) => (
                                 <ComponentCard
@@ -110,7 +111,7 @@ export function Mediators(props: MediatorProps) {
                                         {getSVGIcon(action.operationName as string)}
                                     </IconContainer>
                                     <div >
-                                        <IconLabel>{action.title.charAt(0).toUpperCase() + action.title.slice(1)}</IconLabel>
+                                        <IconLabel>{FirstCharToUpperCase(action.title)}</IconLabel>
                                     </div>
                                 </ComponentCard>
                             ))}

@@ -9,38 +9,14 @@
 
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
-import { Button, Codicon, Dropdown, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
-import { SectionWrapper } from "../Commons";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
-import Endpoint from "../Commons/Endpoint";
-import PropertiesTable from "../Commons/PropertiesTable";
-import EndpointList from "../Commons/EndpointList";
-import InlineButtonGroup from "../Commons/InlineButtonGroup";
-
-const WizardContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 95vw;
-    height: calc(100vh - 140px);
-    overflow: auto;
-`;
-
-const ActionContainer = styled.div`
-    display  : flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-bottom: 20px;
-    width: 100%;
-    margin-top: 20px;
-`;
-
-const SubTitle = styled.h3`
-    margin: 0px;
-`;
+import { Button, Dropdown, TextField, FormView, FormGroup, FormActions, ParamManager } from "@wso2-enterprise/ui-toolkit";
+import { Endpoint, EndpointList, InlineButtonGroup, TypeChangeButton } from "../Commons";
+import { yupResolver } from "@hookform/resolvers/yup"
+import * as yup from "yup";
+import { useForm } from "react-hook-form";
+import CardWrapper from "../Commons/CardWrapper";
 
 const FieldGroup = styled.div`
     display: flex;
@@ -52,14 +28,6 @@ export interface Region {
     label: string;
     value: string;
 }
-
-const Container = styled.div`
-    display: flex;
-    flex-direction: row;
-    height: 50px;
-    align-items: center;
-    justify-content: flex-start;
-`;
 
 export interface LoadBalanceWizardProps {
     path: string;
@@ -75,44 +43,101 @@ const initialInlineEndpoint: Endpoint = {
     value: '',
 };
 
+type InputsFields = {
+    name?: string;
+    algorithm?: string;
+    failover?: string;
+    buildMessage?: string;
+    sessionManagement?: string;
+    sessionTimeout?: number;
+    description?: string;
+};
+
+const initialEndpoint: InputsFields = {
+    name: '',
+    algorithm: 'roundRobin',
+    failover: 'false',
+    buildMessage: 'true',
+    sessionManagement: 'none',
+    sessionTimeout: 0,
+    description: '',
+};
+
+const schema = yup.object({
+    name: yup.string().required("Endpoint Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint name"),
+    algorithm: yup.string().required("Algorithm is required"),
+    failover: yup.string().required("Failover is required"),
+    buildMessage: yup.string().required("Build Message is required"),
+    sessionManagement: yup.string().required("Session Management is required"),
+    sessionTimeout: yup.number().typeError('Session Timeout must be a number').min(0, "Session Timeout must be greater than or equal to 0"),
+    description: yup.string(),
+});
+
 export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
 
-    const [endpoint, setEndpoint] = useState<any>({
-        name: '',
-        algorithm: 'roundRobin',
-        failover: 'false',
-        buildMessage: 'true',
-        sessionManagement: 'none',
-        sessionTimeout: '',
-        description: '',
+    const {
+        reset,
+        register,
+        formState: { errors, isDirty },
+        handleSubmit,
+        watch,
+        getValues
+    } = useForm({
+        defaultValues: initialEndpoint,
+        resolver: yupResolver(schema),
+        mode: "onChange"
     });
 
     const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
-    const [properties, setProperties] = useState<any[]>([]);
-
     const [expandEndpointsView, setExpandEndpointsView] = useState<boolean>(false);
-    const [expandPropertiesView, setExpandPropertiesView] = useState<boolean>(false);
     const [showAddNewEndpointView, setShowAddNewEndpointView] = useState<boolean>(false);
     const [newEndpoint, setNewEndpoint] = useState<Endpoint>(initialInlineEndpoint);
 
+    const [showCards, setShowCards] = useState(false);
+    const [isNewEndpoint, setIsNewEndpoint] = useState(!props.path.endsWith(".xml"));
+
+    const [paramConfigs, setParamConfigs] = useState<any>({
+        paramValues: [],
+        paramFields: [
+            { id: 1, type: "TextField", label: "Name", defaultValue: "", isRequired: true },
+            { id: 2, type: "TextField", label: "Value", defaultValue: "", isRequired: true },
+            { id: 3, type: "Dropdown", label: "Scope", defaultValue: "default", values: ["default", "transport", "axis2", "axis2-client"], isRequired: true },
+        ]
+    });
+
     useEffect(() => {
-        (async () => {
-            const { properties, endpoints, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getLoadBalanceEndpoint({ path: props.path });
+        if (!isNewEndpoint) {
+            (async () => {
+                const { properties, endpoints, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getLoadBalanceEndpoint({ path: props.path });
 
-            setEndpoint(endpoint);
-            setProperties(properties);
-            setEndpoints(endpoints);
+                reset(endpoint);
+                setEndpoints(endpoints);
 
-            if (endpoints.length > 0) {
-                setExpandEndpointsView(true);
-            }
+                setParamConfigs((prev: any) => {
+                    return {
+                        ...prev,
+                        paramValues: properties.map((property: any, index: Number) => {
+                            return {
+                                id: prev.paramValues.length + index,
+                                parameters: [
+                                    { id: 0, label: 'Name', type: 'TextField', value: property.name, isRequired: true },
+                                    { id: 1, label: 'Value', type: 'TextField', value: property.value, isRequired: true },
+                                    { id: 2, label: 'Scope', type: 'Dropdown', value: property.scope, values: ["default", "transport", "axis2", "axis2-client"], isRequired: true },
+                                ],
+                                key: property.name,
+                                value: property.value,
+                            }
+                        })
+                    };
+                });
 
-            if (properties.length > 0) {
-                setExpandPropertiesView(true);
-            }
-        })();
+                if (endpoints.length > 0) {
+                    setExpandEndpointsView(true);
+                }
+            })();
+        }
     }, []);
 
     const algorithms = [
@@ -133,9 +158,15 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
         { content: 'Client ID', value: 'simpleClientSession' },
     ];
 
-    const handleOnChange = (field: string, value: any) => {
-        setEndpoint((prev: any) => ({ ...prev, [field]: value }));
-    }
+    const renderProps = (fieldName: keyof InputsFields, value?: any) => {
+        const watchedValue = watch(fieldName) || watch(fieldName) === 0 ? String(watch(fieldName)) : '';
+        return {
+            id: fieldName,
+            value: value !== undefined ? String(value) : watchedValue,
+            ...register(fieldName),
+            errorMsg: errors[fieldName] && errors[fieldName].message.toString()
+        }
+    };
 
     const handleNewEndpointChange = (field: string, value: string) => {
         setNewEndpoint((prev: any) => ({ ...prev, [field]: value }));
@@ -147,21 +178,101 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
         setNewEndpoint(initialInlineEndpoint);
     }
 
-    const handleAddNewProperty = () => {
-        if (properties.length > 0 && properties[properties.length - 1].name === "" && properties[properties.length - 1].value === "") {
-            return;
-        }
-
-        setProperties((prev: any) => [...prev, { name: '', value: '', scope: 'default' }]);
-        setExpandPropertiesView(true);
+    const handleParamChange = (config: any) => {
+        setParamConfigs((prev: any) => {
+            return {
+                ...prev,
+                paramValues: config.paramValues.map((param: any) => {
+                    return {
+                        ...param,
+                        key: param.parameters[0].value,
+                        value: param.parameters[1].value ?? '',
+                    }
+                })
+            };
+        })
     }
 
-    const handleUpdateEndpoint = async () => {
+    const setEndpointType = (type: string) => {
+        if (type.includes('HTTP')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.HttpEndpointForm,
+                    documentUri: props.path,
+                    customProps: { type: 'endpoint' }
+                }
+            });
+        } else if (type.includes('WSDL Endpoint')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.WsdlEndpointForm,
+                    documentUri: props.path,
+                    customProps: { type: 'endpoint' }
+                }
+            });
+        } else if (type.includes('Address')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.AddressEndpointForm,
+                    documentUri: props.path,
+                    customProps: { type: 'endpoint' }
+                }
+            });
+        } else if (type.includes('Default')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.DefaultEndpointForm,
+                    documentUri: props.path,
+                    customProps: { type: 'endpoint' }
+                }
+            });
+        } else if (type.includes('Failover')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.FailoverEndPointForm,
+                    documentUri: props.path
+                }
+            });
+        } else if (type.includes('Load Balance')) {
+            setShowCards(false);
+        } else if (type.includes('Recipient List')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.RecipientEndPointForm,
+                    documentUri: props.path
+                }
+            });
+        } else if (type.includes('Template')) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.TemplateEndPointForm,
+                    documentUri: props.path
+                }
+            });
+        } else {
+            setShowCards(true);
+        }
+    }
+
+    const handleUpdateEndpoint = async (values: any) => {
         const updateEndpointParams = {
             directory: props.path,
-            ...endpoint,
+            ...values,
             endpoints,
-            properties,
+            properties: paramConfigs.paramValues.map((param: any) => {
+                return {
+                    name: param.key,
+                    value: param.value,
+                    scope: param.parameters[2].value ?? 'default',
+                }
+            })
         }
         rpcClient.getMiDiagramRpcClient().updateLoadBalanceEndpoint(updateEndpointParams);
         openOverview();
@@ -171,149 +282,96 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
-    const handleBackButtonClick = () => {
-        openOverview();
-    }
-
-    const validateEndpointName = (name: string) => {
-        // Check if the name is empty
-        if (!name.trim()) {
-            return "Enpoint name is required";
-        }
-
-        // Check if the name contains spaces or special characters
-        if (/[\s~`!@#$%^&*()_+={}[\]:;'",.<>?/\\|]+/.test(name)) {
-            return "Endpoint name cannot contain spaces or special characters";
-        }
-        return "";
-    };
-
-    const isValid: boolean = validateEndpointName(endpoint.name) === '';;
-
     return (
-        <WizardContainer>
-            <SectionWrapper>
-                <Container>
-                    <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
-                    <div style={{ marginLeft: 30 }}>
-                        <Typography variant="h3">Load Balance Endpoint Artifact</Typography>
-                    </div>
-                </Container>
-                <SubTitle>Basic Properties</SubTitle>
-                <TextField
-                    id='name-input'
-                    label="Name"
-                    placeholder="Name"
-                    value={endpoint.name}
-                    onTextChange={(text: string) => handleOnChange('name', text)}
-                    errorMsg={validateEndpointName(endpoint.name)}
-                    size={100}
-                    autoFocus
-                    required
-                />
-                <FieldGroup>
-                    <span>Algorithm</span>
+        <FormView title="Endpoint Artifact" onClose={openOverview}>
+            {showCards ? <CardWrapper cardsType='ENDPOINT' setType={setEndpointType} /> : <>
+                {isNewEndpoint && <TypeChangeButton type={"Load Balance Endpoint"} onClick={setEndpointType} />}
+                <FormGroup title="Basic Properties" isCollapsed={false}>
+                    <TextField
+                        required
+                        autoFocus
+                        label="Name"
+                        placeholder="Name"
+                        {...renderProps("name")}
+                        size={100}
+                    />
                     <Dropdown
-                        id="algorithm"
-                        value={endpoint.algorithm}
-                        onValueChange={(text: string) => handleOnChange("algorithm", text)}
+                        label="Algorithm"
                         items={algorithms}
+                        {...renderProps("algorithm")}
                     />
-                </FieldGroup>
-                <FieldGroup>
-                    <span>Fail Over</span>
                     <Dropdown
-                        id="fail-over"
-                        value={endpoint.failover}
-                        onValueChange={(text: string) => handleOnChange("failover", text)}
+                        label="Fail Over"
                         items={trueFalseDropdown}
+                        {...renderProps("failover")}
                     />
-                </FieldGroup>
-                <FieldGroup>
-                    <span>Build Message</span>
                     <Dropdown
-                        id="build-message"
-                        value={endpoint.buildMessage}
-                        onValueChange={(text: string) => handleOnChange("buildMessage", text)}
+                        label="Build Message"
                         items={trueFalseDropdown}
+                        {...renderProps("buildMessage")}
                     />
-                </FieldGroup>
-                <FieldGroup>
-                    <InlineButtonGroup
-                        label="Endpoints"
-                        isHide={expandEndpointsView}
-                        onShowHideToggle={() => {
-                            setExpandEndpointsView(!expandEndpointsView);
-                            setShowAddNewEndpointView(false);
-                            setNewEndpoint({ type: 'inline', value: '' });
-                        }}
-                        addNewFunction={() => {
-                            setShowAddNewEndpointView(true);
-                            setExpandEndpointsView(true);
-                        }}
-                    />
-                    {expandEndpointsView && <EndpointList
-                        endpoints={endpoints}
-                        setEndpoints={setEndpoints}
-                    />}
-                    {showAddNewEndpointView && <Endpoint
-                        endpoint={newEndpoint}
-                        handleEndpointChange={handleNewEndpointChange}
-                        handleSave={handleAddNewEndpoint}
-                    />}
-                </FieldGroup>
-
-                <SubTitle>Session Properties</SubTitle>
-                <FieldGroup>
-                    <span>Session Management</span>
+                    <FieldGroup>
+                        <InlineButtonGroup
+                            label="Endpoints"
+                            isHide={expandEndpointsView}
+                            onShowHideToggle={() => {
+                                setExpandEndpointsView(!expandEndpointsView);
+                                setShowAddNewEndpointView(false);
+                                setNewEndpoint({ type: 'inline', value: '' });
+                            }}
+                            addNewFunction={() => {
+                                setShowAddNewEndpointView(true);
+                                setExpandEndpointsView(true);
+                            }}
+                        />
+                        {expandEndpointsView && <EndpointList
+                            endpoints={endpoints}
+                            setEndpoints={setEndpoints}
+                        />}
+                        {showAddNewEndpointView && <Endpoint
+                            endpoint={newEndpoint}
+                            handleEndpointChange={handleNewEndpointChange}
+                            handleSave={handleAddNewEndpoint}
+                        />}
+                    </FieldGroup>
+                </FormGroup>
+                <FormGroup title="Session Properties" isCollapsed={false}>
                     <Dropdown
-                        id="session-management"
-                        value={endpoint.sessionManagement}
-                        onValueChange={(text: string) => handleOnChange("sessionManagement", text)}
+                        label="Session Management"
                         items={sessionManagementOptions}
+                        {...renderProps("sessionManagement")}
                     />
-                </FieldGroup>
-                {endpoint.sessionManagement !== 'none' && <TextField
-                    id='session-timeout'
-                    value={endpoint.sessionTimeout}
-                    label="Session Timeout"
-                    onTextChange={(text: string) => handleOnChange('sessionTimeout', text)}
-                />}
-
-                <SubTitle>Miscellaneous Properties</SubTitle>
-                <TextField
-                    id='description'
-                    value={endpoint.description}
-                    label="Description"
-                    onTextChange={(text: string) => handleOnChange('description', text)}
-                />
-                <FieldGroup>
-                    <InlineButtonGroup
-                        label="Properties"
-                        isHide={expandPropertiesView}
-                        onShowHideToggle={() => {
-                            setExpandPropertiesView(!expandPropertiesView);
-                        }}
-                        addNewFunction={handleAddNewProperty}
+                    {watch('sessionManagement') !== 'none' && <TextField
+                        label="Session Timeout"
+                        {...renderProps("sessionTimeout")}
+                    />}
+                </FormGroup>
+                <FormGroup title="Miscellaneous Properties" isCollapsed={false}>
+                    <TextField
+                        label="Description"
+                        {...renderProps("description")}
                     />
-                    {expandPropertiesView && <PropertiesTable properties={properties} setProperties={setProperties} />}
-                </FieldGroup>
-            </SectionWrapper>
-            <ActionContainer>
-                <Button
-                    appearance="secondary"
-                    onClick={openOverview}
-                >
-                    Cancel
-                </Button>
-                <Button
-                    appearance="primary"
-                    onClick={handleUpdateEndpoint}
-                    disabled={!isValid}
-                >
-                    Update
-                </Button>
-            </ActionContainer>
-        </WizardContainer>
+                    <FieldGroup>
+                        <span>Parameters</span>
+                        <ParamManager paramConfigs={paramConfigs} onChange={handleParamChange} />
+                    </FieldGroup>
+                </FormGroup>
+                <FormActions>
+                    <Button
+                        appearance="primary"
+                        onClick={handleUpdateEndpoint}
+                        disabled={!isDirty}
+                    >
+                        {isNewEndpoint ? "Create" : "Save Changes"}
+                    </Button>
+                    <Button
+                        appearance="secondary"
+                        onClick={openOverview}
+                    >
+                        Cancel
+                    </Button>
+                </FormActions>
+            </>}
+        </FormView>
     );
 }

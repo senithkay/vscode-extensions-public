@@ -121,7 +121,7 @@ const DataMapperForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}
@@ -136,7 +136,7 @@ const DataMapperForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["configurationLocalPath"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "configurationLocalPath": e });
                             formValidators["configurationLocalPath"](e);
                         }}
@@ -163,7 +163,7 @@ const DataMapperForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["inputSchemaLocalPath"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "inputSchemaLocalPath": e });
                                 formValidators["inputSchemaLocalPath"](e);
                             }}
@@ -192,7 +192,7 @@ const DataMapperForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["outputSchemaLocalPath"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "outputSchemaLocalPath": e });
                                 formValidators["outputSchemaLocalPath"](e);
                             }}

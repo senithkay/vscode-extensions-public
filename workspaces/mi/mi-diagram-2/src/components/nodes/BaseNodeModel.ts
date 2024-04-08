@@ -11,11 +11,12 @@ import { NodeModel } from "@projectstorm/react-diagrams";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getNodeIdFromModel } from "../../utils/node";
 import { NodePortModel } from "../NodePort/NodePortModel";
-import { NodeTypes } from "../../resources/constants";
-import { RpcClient, VisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { Colors, NodeTypes } from "../../resources/constants";
+import { RpcClient } from '@wso2-enterprise/mi-rpc-client';
 import { Diagnostic } from "vscode-languageserver-types";
 import { getDataFromXML } from "../../utils/template-engine/mustach-templates/templateUtils";
 import SidePanelContext from "../sidePanel/SidePanelContexProvider";
+import styled from "@emotion/styled";
 
 export class BaseNodeModel extends NodeModel {
     readonly stNode: STNode;
@@ -127,3 +128,31 @@ export class BaseNodeModel extends NodeModel {
         return this.stNode.diagnostics || [];
     }
 }
+
+
+export const Header = styled.div<{ showBorder: boolean }>`
+    color: ${Colors.ON_SURFACE};
+    display: flex;
+    width: 100%;
+    margin-top: 2px;
+    border-bottom: ${(props: { showBorder: any; }) => props.showBorder ? `0.2px solid ${Colors.OUTLINE_VARIANT};` : "none"};
+    text-align: center;
+`;
+
+export const Description = styled.div`
+    color: ${Colors.ON_SURFACE};
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    text-align: left;
+    font-family: var(--font-family);
+    font-size: var(--type-ramp-minus1-font-size);
+`;
+
+export const Name = styled(Description)`
+    font-size: var(--type-ramp-base-font-size);
+    font-weight: var(--font-weight);
+`;

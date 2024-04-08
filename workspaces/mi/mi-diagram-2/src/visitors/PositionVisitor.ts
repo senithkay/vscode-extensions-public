@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STNode, Visitor, Log, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Aggregate, Iterate, Switch, Foreach, Resource, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Datamapper, Enrich, FastXSLT, Makefault, Jsontransform, Smooks, Xquery, Xslt } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
+import { STNode, Visitor, Log, Call, Callout, Drop, Endpoint, EndpointHttp, Filter, Header, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, CallTemplate, traversNode, ViewState, Class, Cache, Bean, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Aggregate, Iterate, Switch, Foreach, Resource, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Datamapper, Enrich, FastXSLT, Makefault, Jsontransform, Smooks, Xquery, Xslt, Connector } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 
 export class PositionVisitor implements Visitor {
     private position = {
@@ -39,14 +39,14 @@ export class PositionVisitor implements Visitor {
         this.position.y += NODE_GAP.Y + Math.max(node.viewState.h, node.viewState.fh || 0);
     }
 
-    private setAdvancedMediatorPosition(node: STNode, subSequences: { [x: string]: any; }, type: NodeTypes): void {
+    private setAdvancedMediatorPosition(node: STNode, subSequences: { [x: string]: any; }, type: NodeTypes, canAddSubSequences?: boolean, addNewSequenceBefore?: string): void {
         this.setBasicMediatorPosition(node);
 
         const centerX = node.viewState.x + (node.viewState.w / 2);
         const subSequenceKeys = Object.keys(subSequences);
 
         const sequenceOffsets = subSequenceKeys.length > 1 ? subSequences[subSequenceKeys[0]].viewState.l + subSequences[subSequenceKeys[subSequenceKeys.length - 1]].viewState.r : node.viewState.fw;
-        const branchesWidth = node.viewState.fw - sequenceOffsets;
+        const branchesWidth = node.viewState.fw - sequenceOffsets - ((canAddSubSequences && !addNewSequenceBefore) ? NODE_GAP.BRANCH_X : 0);
 
         this.position.x = centerX - (branchesWidth / 2);
         for (let i = 0; i < subSequenceKeys.length; i++) {
@@ -61,6 +61,19 @@ export class PositionVisitor implements Visitor {
                 }
 
                 this.position.x += i > 0 ? subSequence.viewState.l : 0;
+
+                // add plus button
+                if (subSequenceKeys[i] === addNewSequenceBefore) {
+                    if (node.viewState?.subPositions?.[ADD_NEW_SEQUENCE_TAG]) {
+                        node.viewState.subPositions[ADD_NEW_SEQUENCE_TAG].x = (this.position.x - subSequence.viewState.r - (NODE_GAP.BRANCH_X / 2)) - (NODE_DIMENSIONS.PLUS.WIDTH / 2)
+                        if (type === NodeTypes.GROUP_NODE) {
+                            node.viewState.subPositions[ADD_NEW_SEQUENCE_TAG].y = node.viewState.y + node.viewState.h + NODE_GAP.GROUP_NODE_START_Y;
+                        } else {
+                            node.viewState.subPositions[ADD_NEW_SEQUENCE_TAG].y = node.viewState.y + node.viewState.h + NODE_GAP.BRANCH_TOP;
+                        }
+                    }
+                }
+
                 if (subSequence.mediatorList && subSequence.mediatorList.length > 0) {
                     subSequence.tag = "subSequence";
 
@@ -78,6 +91,18 @@ export class PositionVisitor implements Visitor {
                     this.setBasicMediatorPosition(subSequence);
                 }
                 this.position.x += subSequence.viewState.r + NODE_GAP.BRANCH_X;
+            }
+        }
+
+        // show plus node if there is no addNewSequenceBefore
+        if (canAddSubSequences && !addNewSequenceBefore) {
+            if (node.viewState?.subPositions?.[ADD_NEW_SEQUENCE_TAG]) {
+                node.viewState.subPositions[ADD_NEW_SEQUENCE_TAG].x = node.viewState.x + (node.viewState.w / 2) + node.viewState.r - (NODE_DIMENSIONS.PLUS.WIDTH / 2);
+                if (type === NodeTypes.GROUP_NODE) {
+                    node.viewState.subPositions[ADD_NEW_SEQUENCE_TAG].y = node.viewState.y + node.viewState.h + NODE_GAP.GROUP_NODE_START_Y;
+                } else {
+                    node.viewState.subPositions[ADD_NEW_SEQUENCE_TAG].y = node.viewState.y + node.viewState.h + NODE_GAP.BRANCH_TOP;
+                }
             }
         }
 
@@ -132,7 +157,15 @@ export class PositionVisitor implements Visitor {
     beginVisitLoopback = (node: Loopback): void => this.setBasicMediatorPosition(node);
     beginVisitPayloadFactory = (node: PayloadFactory): void => this.setBasicMediatorPosition(node);
     beginVisitProperty = (node: Property): void => this.setBasicMediatorPosition(node);
-    beginVisitPropertyGroup = (node: PropertyGroup): void => this.setBasicMediatorPosition(node);
+
+    beginVisitPropertyGroup = (node: PropertyGroup): void => {
+        this.setBasicMediatorPosition(node);
+        this.skipChildrenVisit = true;
+    }
+    endVisitPropertyGroup = (node: PropertyGroup): void => {
+        this.skipChildrenVisit = false;
+    }
+
     beginVisitRespond = (node: Respond): void => this.setBasicMediatorPosition(node);
 
     beginVisitResource = (node: Resource): void => {
@@ -173,7 +206,7 @@ export class PositionVisitor implements Visitor {
         node.target.map((target, index) => {
             targets[target.to || index] = target.endpoint || target.sequence || target
         });
-        this.setAdvancedMediatorPosition(node, targets, NodeTypes.GROUP_NODE);
+        this.setAdvancedMediatorPosition(node, targets, NodeTypes.GROUP_NODE, true);
     }
     endVisitClone = (node: Clone): void => this.setSkipChildrenVisit(false);
     beginVisitDataServiceCall = (node: DataServiceCall): void => this.setBasicMediatorPosition(node);
@@ -216,7 +249,7 @@ export class PositionVisitor implements Visitor {
         });
         this.setAdvancedMediatorPosition(node, {
             ...cases, default: node._default
-        }, NodeTypes.CONDITION_NODE);
+        }, NodeTypes.CONDITION_NODE, true, "default");
     }
     endVisitSwitch = (node: Switch): void => this.setSkipChildrenVisit(false);
     beginVisitConditionalRouter = (node: ConditionalRouter): void => this.setBasicMediatorPosition(node);
@@ -260,4 +293,9 @@ export class PositionVisitor implements Visitor {
     beginVisitSmooks = (node: Smooks): void => this.setBasicMediatorPosition(node);
     beginVisitXquery = (node: Xquery): void => this.setBasicMediatorPosition(node);
     beginVisitXslt = (node: Xslt): void => this.setBasicMediatorPosition(node);
+
+    // Connectors
+    beginVisitConnector = (node: Connector): void => {
+        this.setBasicMediatorPosition(node);
+    }
 }

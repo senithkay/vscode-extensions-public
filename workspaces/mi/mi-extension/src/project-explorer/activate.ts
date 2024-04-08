@@ -168,6 +168,11 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		console.log('Add Local Entry');
 	});
 
+	commands.registerCommand(COMMANDS.ADD_DATA_SOURCE_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DataSourceForm, documentUri: entry.info?.path });
+		console.log('Add Data Source');
+	});
+
 	commands.registerCommand(COMMANDS.REVEAL_ITEM_COMMAND, async (viewLocation: VisualizerLocation) => {
 		const data = projectExplorerDataProvider.getChildren();
 
@@ -221,6 +226,10 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.LocalEntryForm, documentUri: documentUri?.fsPath });
 	});
+	commands.registerCommand(COMMANDS.SHOW_DATA_SOURCE, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DataSourceForm, documentUri: documentUri?.fsPath });
+	});
 	commands.registerCommand(COMMANDS.SHOW_TASK, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TaskForm, documentUri: documentUri?.fsPath, identifier: resourceIndex });
@@ -258,35 +267,35 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.EndPointForm, documentUri: documentUri?.fsPath });
 	});
-	commands.registerCommand(COMMANDS.SHOW_DEFAULT_ENDPOINT, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+	commands.registerCommand(COMMANDS.SHOW_DEFAULT_ENDPOINT, (documentUri: Uri, type: string, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DefaultEndpointForm, documentUri: documentUri?.fsPath });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DefaultEndpointForm, documentUri: documentUri?.fsPath, customProps: {type:type} });
 	});
-	commands.registerCommand(COMMANDS.SHOW_ADDRESS_ENDPOINT, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+	commands.registerCommand(COMMANDS.SHOW_ADDRESS_ENDPOINT, (documentUri: Uri, type: string, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.AddressEndpointForm, documentUri: documentUri?.fsPath });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.AddressEndpointForm, documentUri: documentUri?.fsPath, customProps: {type:type} });
 	});
-	commands.registerCommand(COMMANDS.SHOW_HTTP_ENDPOINT, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+	commands.registerCommand(COMMANDS.SHOW_HTTP_ENDPOINT, (documentUri: Uri, type: string, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.HttpEndpointForm, documentUri: documentUri?.fsPath });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.HttpEndpointForm, documentUri: documentUri?.fsPath, customProps: {type:type} });
 	});
-	commands.registerCommand(COMMANDS.SHOW_WSDL_ENDPOINT, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+	commands.registerCommand(COMMANDS.SHOW_WSDL_ENDPOINT, (documentUri: Uri, type: string, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.WsdlEndpointForm, documentUri: documentUri?.fsPath });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.WsdlEndpointForm, documentUri: documentUri?.fsPath, customProps: {type:type} });
 	});
-	commands.registerCommand(COMMANDS.SHOW_LOAD_BALANCE_ENDPOINT, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+	commands.registerCommand(COMMANDS.SHOW_LOAD_BALANCE_ENDPOINT, (documentUri: Uri, type: string, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.LoadBalanceEndPointForm, documentUri: documentUri?.fsPath });
 	});
-	commands.registerCommand(COMMANDS.SHOW_FAILOVER_ENDPOINT, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+	commands.registerCommand(COMMANDS.SHOW_FAILOVER_ENDPOINT, (documentUri: Uri, type: string, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.FailoverEndPointForm, documentUri: documentUri?.fsPath });
 	});
-	commands.registerCommand(COMMANDS.SHOW_RECIPIENT_ENDPOINT, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+	commands.registerCommand(COMMANDS.SHOW_RECIPIENT_ENDPOINT, (documentUri: Uri, type: string, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RecipientEndPointForm, documentUri: documentUri?.fsPath });
 	});
-	commands.registerCommand(COMMANDS.SHOW_TEMPLATE_ENDPOINT, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+	commands.registerCommand(COMMANDS.SHOW_TEMPLATE_ENDPOINT, (documentUri: Uri, type: string, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TemplateEndPointForm, documentUri: documentUri?.fsPath });
 	});

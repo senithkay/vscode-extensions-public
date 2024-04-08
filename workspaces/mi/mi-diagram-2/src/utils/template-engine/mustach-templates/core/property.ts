@@ -42,3 +42,9 @@ export function getPropertyFormDataFromSTNode(data: { [key: string]: any }, node
 
     return data;
 }
+
+export function getPropertyDescription(node: Property) {
+    if (node.name) {
+        return node.name;
+    }
+}

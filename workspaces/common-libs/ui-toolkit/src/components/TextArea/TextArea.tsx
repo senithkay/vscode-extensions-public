@@ -44,7 +44,7 @@ const LabelContainer = styled.div<ContainerProps>`
 
 export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
     function TextArea(props: TextAreaProps, ref: React.ForwardedRef<HTMLTextAreaElement>) {
-        const { label, id, className, autoFocus, required, validationMessage, cols = 40, 
+        const { label, id, className, autoFocus, required, validationMessage, cols = 40,
             rows, resize, errorMsg, sx, onTextChange, ...rest
         } = props;
         const handleChange = (e: any) => {
@@ -63,10 +63,11 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
                     id={id}
                     className={className}
                     {...rest}
+                    { ...!props.name ? { value: props.value ? props.value : ""} : {} } // If name is not provided, then value should be empty (for react-hook-form)
                     onChange={handleChange}
                     onInput={(e: any) => { onTextChange && onTextChange(e.target.value) }}
                 >
-                    <LabelContainer><div style={{color: "var(--vscode-editor-foreground)"}}>
+                    <LabelContainer><div style={{ color: "var(--vscode-editor-foreground)" }}>
                         <label htmlFor={`${id}-label`}>{label}</label></div> {(required && label) && (<RequiredFormInput />)}
                     </LabelContainer>
                 </VSCodeTextArea>

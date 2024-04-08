@@ -183,7 +183,7 @@ const DefaultEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["suspendErrorCodes"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "suspendErrorCodes": e });
                                 formValidators["suspendErrorCodes"](e);
                             }}
@@ -198,7 +198,7 @@ const DefaultEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["suspendInitialDuration"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "suspendInitialDuration": e });
                                 formValidators["suspendInitialDuration"](e);
                             }}
@@ -213,7 +213,7 @@ const DefaultEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["suspendMaximumDuration"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "suspendMaximumDuration": e });
                                 formValidators["suspendMaximumDuration"](e);
                             }}
@@ -228,7 +228,7 @@ const DefaultEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["suspendProgressionFactor"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "suspendProgressionFactor": e });
                                 formValidators["suspendProgressionFactor"](e);
                             }}
@@ -248,7 +248,7 @@ const DefaultEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["retryErrorCodes"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "retryErrorCodes": e });
                                 formValidators["retryErrorCodes"](e);
                             }}
@@ -263,7 +263,7 @@ const DefaultEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["retryCount"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "retryCount": e });
                                 formValidators["retryCount"](e);
                             }}
@@ -278,7 +278,7 @@ const DefaultEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["retryDelay"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "retryDelay": e });
                                 formValidators["retryDelay"](e);
                             }}
@@ -330,7 +330,7 @@ const DefaultEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["timeoutDuration"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "timeoutDuration": e });
                                 formValidators["timeoutDuration"](e);
                             }}
@@ -369,7 +369,7 @@ const DefaultEndpointForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["failoverNonRetryErrorCodes"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "failoverNonRetryErrorCodes": e });
                                     formValidators["failoverNonRetryErrorCodes"](e);
                                 }}
@@ -395,7 +395,7 @@ const DefaultEndpointForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["name"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "name": e });
                                     formValidators["name"](e);
                                 }}
@@ -429,7 +429,7 @@ const DefaultEndpointForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["value"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "value": e });
                                         formValidators["value"](e);
                                     }}
@@ -446,7 +446,7 @@ const DefaultEndpointForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["valueExpression"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "valueExpression": e });
                                         formValidators["valueExpression"](e);
                                     }}
@@ -507,7 +507,7 @@ const DefaultEndpointForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

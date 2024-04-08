@@ -28,6 +28,7 @@ export enum MACHINE_VIEW {
     SequenceView = "Sequence View",
     ProxyView = "Proxy View",
     ServiceDesigner = "Service Designer",
+    DataMapperView = "Data Mapper View",
     APIForm = "API Form",
     EndPointForm = "Endpoint Form",
     LoadBalanceEndPointForm = "Load Balance Endpoint Form",
@@ -50,6 +51,7 @@ export enum MACHINE_VIEW {
     RegistryResourceForm = "Registry Resource Creation Form",
     MessageStoreForm = "Message Store Form",
     ClassMediatorForm = "ClassMediator Creation Form",
+    DataSourceForm = "Data Source Creation Form",
 }
 
 export enum AI_MACHINE_VIEW {

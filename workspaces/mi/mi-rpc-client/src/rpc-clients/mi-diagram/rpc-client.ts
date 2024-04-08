@@ -204,7 +204,12 @@ import {
     GetTemplateEPResponse,
     getTemplateEndpoint,
     RangeFormatRequest,
-    rangeFormat
+    rangeFormat,
+    DataSourceTemplate,
+    GetDataSourceRequest,
+    CreateDataSourceResponse,
+    createDataSource,
+    getDataSource,
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -279,7 +284,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     updateRecipientEndpoint(params: UpdateRecipientEPRequest): Promise<UpdateRecipientEPResponse> {
         return this._messenger.sendRequest(updateRecipientEndpoint, HOST_EXTENSION, params);
     }
-    
+
     getRecipientEndpoint(params: GetRecipientEPRequest): Promise<GetRecipientEPResponse> {
         return this._messenger.sendRequest(getRecipientEndpoint, HOST_EXTENSION, params);
     }
@@ -287,7 +292,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     updateTemplateEndpoint(params: UpdateTemplateEPRequest): Promise<UpdateTemplateEPResponse> {
         return this._messenger.sendRequest(updateTemplateEndpoint, HOST_EXTENSION, params);
     }
-    
+
     getTemplateEndpoint(params: GetTemplateEPRequest): Promise<GetTemplateEPResponse> {
         return this._messenger.sendRequest(getTemplateEndpoint, HOST_EXTENSION, params);
     }
@@ -518,5 +523,13 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     rangeFormat(params: RangeFormatRequest): Promise<ApplyEditResponse> {
         return this._messenger.sendRequest(rangeFormat, HOST_EXTENSION, params);
+    }
+
+    createDataSource(params: DataSourceTemplate): Promise<CreateDataSourceResponse> {
+        return this._messenger.sendRequest(createDataSource, HOST_EXTENSION, params);
+    }
+
+    getDataSource(params: GetDataSourceRequest): Promise<DataSourceTemplate> {
+        return this._messenger.sendRequest(getDataSource, HOST_EXTENSION, params);
     }
 }

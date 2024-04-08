@@ -137,7 +137,7 @@ const LoadbalanceEndpointForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["endpointName"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "endpointName": e });
                             formValidators["endpointName"](e);
                         }}
@@ -152,7 +152,7 @@ const LoadbalanceEndpointForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["algorithm"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "algorithm": e });
                             formValidators["algorithm"](e);
                         }}
@@ -188,7 +188,7 @@ const LoadbalanceEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["sessionTimeout"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "sessionTimeout": e });
                                 formValidators["sessionTimeout"](e);
                             }}
@@ -208,7 +208,7 @@ const LoadbalanceEndpointForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["name"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "name": e });
                                     formValidators["name"](e);
                                 }}
@@ -242,7 +242,7 @@ const LoadbalanceEndpointForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["value"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "value": e });
                                         formValidators["value"](e);
                                     }}
@@ -259,7 +259,7 @@ const LoadbalanceEndpointForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["valueExpression"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "valueExpression": e });
                                         formValidators["valueExpression"](e);
                                     }}
@@ -335,7 +335,7 @@ const LoadbalanceEndpointForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["hostName"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "hostName": e });
                                     formValidators["hostName"](e);
                                 }}
@@ -350,7 +350,7 @@ const LoadbalanceEndpointForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["httpPort"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "httpPort": e });
                                     formValidators["httpPort"](e);
                                 }}
@@ -365,7 +365,7 @@ const LoadbalanceEndpointForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["httpsPort"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "httpsPort": e });
                                     formValidators["httpsPort"](e);
                                 }}
@@ -425,7 +425,7 @@ const LoadbalanceEndpointForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

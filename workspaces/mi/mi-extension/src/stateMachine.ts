@@ -448,12 +448,15 @@ async function checkIfMiProject() {
     if (isProject) {
         projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
         vscode.commands.executeCommand('setContext', 'MI.status', 'projectDetected');
+        vscode.commands.executeCommand('setContext', 'MI.projectType', 'miProject'); // for command enablements
+        await extension.context.workspaceState.update('projectType', 'miProject');
     } else if (isUnsupportedProject) {
         projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
         const displayState: boolean | undefined = extension.context.workspaceState.get('displayOverview');
         displayOverview = displayState === undefined ? true : displayState;
         vscode.commands.executeCommand('setContext', 'MI.status', 'projectDetected');
-        vscode.commands.executeCommand('setContext', 'MI.projectType', 'unsupportedProject');
+        vscode.commands.executeCommand('setContext', 'MI.projectType', 'unsupportedProject'); // for command enablements
+        await extension.context.workspaceState.update('projectType', 'unsupportedProject');
     } else {
         vscode.commands.executeCommand('setContext', 'MI.status', 'unknownProject');
     }

@@ -123,7 +123,7 @@ const EnqueueForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["executor"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "executor": e });
                             formValidators["executor"](e);
                         }}
@@ -138,7 +138,7 @@ const EnqueueForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["priority"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "priority": e });
                             formValidators["priority"](e);
                         }}
@@ -153,7 +153,7 @@ const EnqueueForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["sequenceKey"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "sequenceKey": e });
                             formValidators["sequenceKey"](e);
                         }}
@@ -168,7 +168,7 @@ const EnqueueForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

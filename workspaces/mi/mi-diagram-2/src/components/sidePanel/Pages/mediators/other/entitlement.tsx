@@ -17,6 +17,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Range, TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { FirstCharToUpperCase } from '../../../../../utils/commons';
 
 const cardStyle = {
     display: "block",
@@ -105,13 +106,13 @@ const EntitlementForm = (props: AddMediatorProps) => {
                             else if (key == "advice") sequenceType = formValues["adviceSequenceType"];
                             if (range) {
                                 if (sequenceType == "REGISTRY_REFERENCE") {
-                                    const data = { ...formValues, ["remove" + key.charAt(0).toUpperCase() + key.substring(1)]: true }
+                                    const data = { ...formValues, ["remove" + FirstCharToUpperCase(key)]: true }
                                     const editRange: Range = { start: range.startTagRange.start, end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end }
                                     await applyEdit(data, editRange, true);
                                 }
                             } else {
                                 if (sequenceType == "ANONYMOUS") {
-                                    const data = { ...formValues, ["add" + key.charAt(0).toUpperCase() + key.substring(1)]: true }
+                                    const data = { ...formValues, ["add" + FirstCharToUpperCase(key)]: true }
                                     const editRange: Range = { start: ranges["entitlement"].startTagRange.end, end: ranges["entitlement"].startTagRange.end }
                                     await applyEdit(data, editRange, true);
                                 }
@@ -191,7 +192,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["entitlementServerURL"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "entitlementServerURL": e });
                             formValidators["entitlementServerURL"](e);
                         }}
@@ -206,7 +207,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["username"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "username": e });
                             formValidators["username"](e);
                         }}
@@ -221,7 +222,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["password"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "password": e });
                             formValidators["password"](e);
                         }}
@@ -246,7 +247,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["callbackClassName"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "callbackClassName": e });
                                 formValidators["callbackClassName"](e);
                             }}
@@ -272,7 +273,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["thriftHost"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "thriftHost": e });
                                 formValidators["thriftHost"](e);
                             }}
@@ -289,7 +290,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["thriftPort"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "thriftPort": e });
                                 formValidators["thriftPort"](e);
                             }}
@@ -318,7 +319,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["onAcceptSequenceKey"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "onAcceptSequenceKey": e });
                                     formValidators["onAcceptSequenceKey"](e);
                                 }}
@@ -349,7 +350,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["onRejectSequenceKey"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "onRejectSequenceKey": e });
                                     formValidators["onRejectSequenceKey"](e);
                                 }}
@@ -380,7 +381,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["obligationsSequenceKey"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "obligationsSequenceKey": e });
                                     formValidators["obligationsSequenceKey"](e);
                                 }}
@@ -411,7 +412,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["adviceSequenceKey"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "adviceSequenceKey": e });
                                     formValidators["adviceSequenceKey"](e);
                                 }}
@@ -429,7 +430,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

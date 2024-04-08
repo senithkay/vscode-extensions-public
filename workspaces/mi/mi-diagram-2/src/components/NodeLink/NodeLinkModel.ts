@@ -62,6 +62,8 @@ export class NodeLinkModel extends DefaultLinkModel {
                 if ((options as NodeLinkModelOptions).label) {
                     this.label = (options as NodeLinkModelOptions).label;
                     this.linkBottomOffset = LINK_BOTTOM_OFFSET + 80;
+                } else if ((options as NodeLinkModelOptions).label === "") {
+                    this.linkBottomOffset = LINK_BOTTOM_OFFSET + 32;
                 }
                 if ((options as NodeLinkModelOptions).showAddButton === false) {
                     this.showAddButton = (options as NodeLinkModelOptions).showAddButton;
@@ -201,7 +203,7 @@ export class NodeLinkModel extends DefaultLinkModel {
         if (isStraight) {
             // with label
             if (this.label) {
-                return { x: (source.x + target.x) / 2, y: (source.y + target.y) / 2 + 2 };
+                return { x: (source.x + target.x) / 2, y: (source.y + target.y) / 2 + 25 };
             }
             // without label
             return { x: (source.x + target.x) / 2, y: (source.y + target.y) / 2 - 5 };
