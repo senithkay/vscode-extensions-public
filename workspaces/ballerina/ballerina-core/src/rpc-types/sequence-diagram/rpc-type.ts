@@ -5,10 +5,11 @@
  * Dissemination of any information or reproduction of any material contained
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
+ * 
+ * THIS FILE INCLUDES AUTO GENERATED CODE
  */
+import { SequenceModelResponse } from "./interfaces";
+import { RequestType } from "vscode-messenger-common";
 
-import { SequenceModelRequest, SequenceModelResponse } from "./interfaces";
-
-export interface SequenceDiagramAPI {
-    getSequenceModel: (params: SequenceModelRequest) => Promise<SequenceModelResponse>;
-}
+const _preFix = "sequence-diagram";
+export const getSequenceModel: RequestType<void, SequenceModelResponse> = { method: `${_preFix}/getSequenceModel` };

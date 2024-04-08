@@ -55,6 +55,9 @@ export * from "./rpc-types/persist-diagram/interfaces";
 export * from "./rpc-types/project-design-diagram";
 export * from "./rpc-types/project-design-diagram/rpc-type";
 export * from "./rpc-types/project-design-diagram/interfaces";
+export * from "./rpc-types/sequence-diagram";
+export * from "./rpc-types/sequence-diagram/rpc-type";
+export * from "./rpc-types/sequence-diagram/interfaces";
 
 // ------ History class and interface -------->
 export * from "./history";
