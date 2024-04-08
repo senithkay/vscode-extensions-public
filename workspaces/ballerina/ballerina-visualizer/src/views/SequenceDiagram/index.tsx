@@ -40,9 +40,14 @@ export function SequenceDiagram() {
             .getSequenceDiagramRpcClient()
             .getSequenceModel()
             .then((model) => {
-                setModel(model);
+                if ("participants" in model) {
+                    setModel(model as SequenceModelResponse);
+                }
+                // TODO: handle SequenceModelDiagnostic
             });
     };
+
+    console.log(">>> flowModel", flowModel);
 
     return (
         <>

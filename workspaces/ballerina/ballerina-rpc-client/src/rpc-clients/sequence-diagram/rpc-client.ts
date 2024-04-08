@@ -10,6 +10,7 @@
  */
 import {
     SequenceDiagramAPI,
+    SequenceModelDiagnostic,
     SequenceModelResponse,
     getSequenceModel
 } from "@wso2-enterprise/ballerina-core";
@@ -23,7 +24,7 @@ export class SequenceDiagramRpcClient implements SequenceDiagramAPI {
         this._messenger = messenger;
     }
 
-    getSequenceModel(): Promise<SequenceModelResponse> {
+    getSequenceModel(): Promise<SequenceModelResponse | SequenceModelDiagnostic> {
         return this._messenger.sendRequest(getSequenceModel, HOST_EXTENSION);
     }
 }

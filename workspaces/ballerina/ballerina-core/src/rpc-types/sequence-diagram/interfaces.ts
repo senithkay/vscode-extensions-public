@@ -12,9 +12,15 @@ export interface SequenceModelRequest {
     startLine: Line;
     endLine: Line;
 }
+
 export type SequenceModelResponse = {
     participants: Participant[];
     location: Location;
+};
+
+export type SequenceModelDiagnostic = {
+    errorMsg: string;
+    isIncompleteModel: boolean;
 };
 
 export type Flow = SequenceModelResponse;

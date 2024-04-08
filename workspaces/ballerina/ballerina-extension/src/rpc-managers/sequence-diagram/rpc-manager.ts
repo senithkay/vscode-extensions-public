@@ -8,13 +8,13 @@
  *
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { SequenceDiagramAPI, SequenceModelRequest, SequenceModelResponse } from "@wso2-enterprise/ballerina-core";
+import { SequenceDiagramAPI, SequenceModelResponse, SequenceModelDiagnostic } from "@wso2-enterprise/ballerina-core";
 import { SequenceDiagramModelRequest } from "src/core";
 import { StateMachine } from "../../stateMachine";
 import { Uri } from "vscode";
 
 export class SequenceDiagramRpcManager implements SequenceDiagramAPI {
-    async getSequenceModel(): Promise<SequenceModelResponse> {
+    async getSequenceModel(): Promise<SequenceModelResponse | SequenceModelDiagnostic> {
         return new Promise((resolve) => {
             const context = StateMachine.context();
             if (!context.position) {
@@ -36,10 +36,13 @@ export class SequenceDiagramRpcManager implements SequenceDiagramAPI {
                 .getSequenceDiagramModel(params)
                 .then((model) => {
                     console.log(">>> sequence model from backend:", model);
-                    if (!model || !model.sequenceDiagram) {
-                        resolve(undefined);
+                    if (model.sequenceDiagram) {
+                        resolve(model.sequenceDiagram as SequenceModelResponse);
                     }
-                    resolve(model.sequenceDiagram as SequenceModelResponse);
+                    if (model.modelDiagnostic) {
+                        resolve(model.modelDiagnostic);
+                    }
+                    resolve(undefined);
                 })
                 .catch((error) => {
                     console.log(">>> ERROR from backend:", error);

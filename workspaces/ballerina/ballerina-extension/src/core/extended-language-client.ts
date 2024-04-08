@@ -39,7 +39,7 @@ import { debug } from "../utils";
 import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../telemetry";
 import { CancellationToken, DefinitionParams, Location, LocationLink, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
 import { getChoreoExtAPI } from "../choreo-features/activate";
-import { Flow, SequenceModelRequest } from "@wso2-enterprise/ballerina-core";
+import { Flow, SequenceModelRequest, SequenceModelDiagnostic } from "@wso2-enterprise/ballerina-core";
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
 export const HTTP_CONNECTOR_LIST_CACHE = "HTTP_CONNECTOR_LIST_CACHE";
@@ -171,8 +171,10 @@ export interface SyntaxTreeNodeResponse {
 }
 
 export type SequenceDiagramModelRequest = SequenceModelRequest;
+
 export type SequenceDiagramModelResponse = {
     sequenceDiagram: Flow;
+    modelDiagnostic?: SequenceModelDiagnostic
 };
 
 export interface JsonToRecordRequest {

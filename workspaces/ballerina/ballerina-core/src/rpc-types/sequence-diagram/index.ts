@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { SequenceModelRequest, SequenceModelResponse } from "./interfaces";
+import { SequenceModelRequest, SequenceModelResponse, SequenceModelDiagnostic } from "./interfaces";
 
 export interface SequenceDiagramAPI {
-    getSequenceModel: (params: SequenceModelRequest) => Promise<SequenceModelResponse>;
+    getSequenceModel: (params: SequenceModelRequest) => Promise<SequenceModelResponse | SequenceModelDiagnostic>;
 }
