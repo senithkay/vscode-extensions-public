@@ -2409,6 +2409,7 @@ importers:
       '@storybook/react': ^6.5.9
       '@storybook/theming': ^6.5.9
       '@types/lodash': ~4.14.202
+      '@types/prismjs': ^1.26.3
       '@types/react': ^17.0.37
       '@types/react-dom': 17.0.14
       '@typescript-eslint/eslint-plugin': ^6.2.1
@@ -2425,6 +2426,7 @@ importers:
       glob: ^7.2.0
       http-server: ^14.1.1
       lodash: ~4.17.21
+      prismjs: ^1.29.0
       react-error-boundary: ^4.0.13
       react-hook-form: 7.51.2
       typescript: ^4.9.4
@@ -2444,6 +2446,7 @@ importers:
       '@wso2-enterprise/font-wso2-vscode': link:../font-wso2-vscode
       classnames: 2.5.1
       lodash: 4.17.21
+      prismjs: 1.29.0
       react-hook-form: 7.51.2
     devDependencies:
       '@storybook/addon-actions': 6.5.16
@@ -2453,6 +2456,7 @@ importers:
       '@storybook/manager-webpack5': 6.5.16_7sjm5uif3lrlodkmlzqsvrpzla
       '@storybook/react': 6.5.16_6uyefrbdvoxe64pqf6xtl5xz2y
       '@storybook/theming': 6.5.16
+      '@types/prismjs': 1.26.3
       '@types/react': 17.0.75
       '@types/react-dom': 17.0.14
       '@typescript-eslint/eslint-plugin': 6.21.0_kvtlqbor22aedb2662ylb2jf44
