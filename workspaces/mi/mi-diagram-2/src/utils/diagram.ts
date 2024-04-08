@@ -36,7 +36,7 @@ export function generateEngine(): DiagramEngine {
     });
     const state = engine.getStateMachine().getCurrentState();
     if (state instanceof DefaultDiagramState) {
-        state.dragCanvas.config.allowDrag = false;
+        // state.dragCanvas.config.allowDrag = false;
     }
 
     engine.getPortFactories().registerFactory(new NodePortFactory());
