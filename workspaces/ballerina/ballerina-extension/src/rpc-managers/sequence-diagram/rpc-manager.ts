@@ -18,9 +18,7 @@ export class SequenceDiagramRpcManager implements SequenceDiagramAPI {
         return new Promise((resolve) => {
             const context = StateMachine.context();
             if (!context.position) {
-                return new Promise((resolve) => {
-                    resolve(undefined);
-                });
+                resolve(undefined);
             }
             const params: SequenceDiagramModelRequest = {
                 filePath: Uri.parse(context.documentUri!).fsPath,
@@ -39,17 +37,13 @@ export class SequenceDiagramRpcManager implements SequenceDiagramAPI {
                 .then((model) => {
                     console.log(">>> sequence model from backend:", model);
                     if (!model || !model.sequenceDiagram) {
-                        return new Promise((resolve) => {
-                            resolve(undefined);
-                        });
+                        resolve(undefined);
                     }
                     resolve(model.sequenceDiagram as SequenceModelResponse);
                 })
                 .catch((error) => {
                     console.log(">>> ERROR from backend:", error);
-                    return new Promise((resolve) => {
-                        resolve(undefined);
-                    });
+                    resolve(undefined);
                 });
         });
     }
