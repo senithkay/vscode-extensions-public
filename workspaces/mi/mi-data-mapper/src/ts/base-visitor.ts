@@ -10,7 +10,7 @@
  * Run 'npm run generate' to regenerate this file
  */
 
-import * as ts from 'typescript';
+import { ts } from "ts-morph";
 
 export interface Visitor {
     beginVisit?(node: ts.Node, parent?: ts.Node): void;

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
-import ts, { ArrowFunction, Node, ParameterDeclaration, PropertyAccessExpression } from "typescript";
+import { ts } from "ts-morph";
 
 import { PropertyAccessNodeFindingVisitor } from "../../Visitors/PropertyAccessNodeFindingVisitor";
 import { NodePosition, getPosition, isPositionsEquals, traversNode } from "./st-utils";
@@ -17,16 +17,16 @@ import { InputOutputPortModel } from "../Port";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { useDMSearchStore } from "../../../store/store";
 
-export function getPropertyAccessNodes(node: Node) {
+export function getPropertyAccessNodes(node: ts.Node) {
     const propertyAccessNodeVisitor: PropertyAccessNodeFindingVisitor = new PropertyAccessNodeFindingVisitor();
     traversNode(node, propertyAccessNodeVisitor);
     return propertyAccessNodeVisitor.getPropertyAccessNodes();
 }
 
-export function findInputNode(expr: Node, dmNode: DataMapperNodeModel) {
+export function findInputNode(expr: ts.Node, dmNode: DataMapperNodeModel) {
     const dmNodes = dmNode.getModel().getNodes();
     let paramType: InputNode;
-    let paramNode: ParameterDeclaration;
+    let paramNode: ts.ParameterDeclaration;
 
     if (ts.isIdentifier(expr)) {
         paramType = (dmNodes.find((node) => {
@@ -39,7 +39,7 @@ export function findInputNode(expr: Node, dmNode: DataMapperNodeModel) {
         const valueExpr = getInnerExpr(expr);
 
         if (valueExpr && ts.isIdentifier(valueExpr)) {
-            paramNode = (dmNode.context.functionST.initializer as ArrowFunction).parameters.find((param) =>
+            paramNode = (dmNode.context.functionST.initializer as ts.ArrowFunction).parameters.find((param) =>
                 param.name.getText() === valueExpr.text
             );
         }
@@ -49,7 +49,7 @@ export function findInputNode(expr: Node, dmNode: DataMapperNodeModel) {
     }
 }
 
-export function getInputPort(node: InputNode, expr: Node): InputOutputPortModel {
+export function getInputPort(node: InputNode, expr: ts.Node): InputOutputPortModel {
     let typeDesc = node.dmType;
     let portIdBuffer = node?.value && node.value.name.getText();
 
@@ -102,7 +102,7 @@ export function getInputPort(node: InputNode, expr: Node): InputOutputPortModel 
 }
 
 export function getOutputPort(
-    fields: Node[],
+    fields: ts.Node[],
     dmTypeWithValue: DMTypeWithValue,
     portPrefix: string,
     getPort: (portId: string) => InputOutputPortModel
@@ -179,7 +179,7 @@ export function getOutputPort(
     return [port, mappedPort];
 }
 
-export function findNodeByValueNode(value: Node, dmNode: DataMapperNodeModel): InputNode {
+export function findNodeByValueNode(value: ts.Node, dmNode: DataMapperNodeModel): InputNode {
     let foundNode: InputNode;
     if (value) {
         dmNode.getModel().getNodes().find((node) => {
@@ -196,7 +196,7 @@ export function findNodeByValueNode(value: Node, dmNode: DataMapperNodeModel): I
     return foundNode;
 }
 
-export function getFieldNames(expr: PropertyAccessExpression) {
+export function getFieldNames(expr: ts.PropertyAccessExpression) {
     const fieldNames: { name: string, isOptional: boolean }[] = [];
     let nextExp = expr;
     while (nextExp && ts.isPropertyAccessExpression(nextExp)) {
@@ -232,7 +232,7 @@ export const getOptionalField = (field: DMType): DMType | undefined => {
     }
 }
 
-export function isConnectedViaLink(field: Node) {
+export function isConnectedViaLink(field: ts.Node) {
 	const inputNodes = getPropertyAccessNodes(field);
 
 	const isObjectLiteralExpr = ts.isObjectLiteralExpression(field);
@@ -277,7 +277,7 @@ export function isDefaultValue(fieldType: DMType, value: string): boolean {
 	return defaultValue === value?.trim();
 }
 
-function getInnerExpr(node: PropertyAccessExpression): Node {
+function getInnerExpr(node: ts.PropertyAccessExpression): ts.Node {
     let valueExpr = node.expression;
     while (valueExpr && ts.isPropertyAccessExpression(valueExpr)) {
         valueExpr = valueExpr.expression;

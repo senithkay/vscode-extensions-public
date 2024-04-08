@@ -10,7 +10,7 @@ import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import { useDMSearchStore } from "../../../store/store";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { MappingMetadata } from "../Mappings/FieldAccessToSpecificFied";
-import ts from "typescript";
+import { ts } from "ts-morph";
 
 export const getSearchFilteredInput = (dmType: DMType, varName?: string) => {
 	const searchValue = useDMSearchStore.getState().inputSearch;

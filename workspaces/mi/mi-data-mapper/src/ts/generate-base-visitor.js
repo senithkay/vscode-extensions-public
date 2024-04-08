@@ -9,7 +9,7 @@
  */
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var ts = require("typescript");
+var ts = require("ts-morph");
 var fs = require("fs");
 
 var excludedSuffixes = [
@@ -52,7 +52,7 @@ const headerComment = `/**
 `
 
 var fileContent = `${headerComment}
-import * as ts from 'typescript';
+import { ts } from 'ts-morph';
 
 export interface Visitor {
     beginVisit?(node: ts.Node, parent?: ts.Node): void;

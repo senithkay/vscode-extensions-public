@@ -20,7 +20,7 @@ import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { NodeInitVisitor } from "../Visitors/NodeInitVisitor";
 import { traversNode } from "../Diagram/utils/st-utils";
 import { DMType } from "@wso2-enterprise/mi-core";
-import ts from "typescript";
+import { ts } from "ts-morph";
 
 const classes = {
     root: css({

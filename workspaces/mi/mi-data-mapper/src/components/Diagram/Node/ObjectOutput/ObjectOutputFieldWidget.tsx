@@ -12,7 +12,7 @@ import React, { useMemo, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { TypeKind } from "@wso2-enterprise/mi-core";
-import * as ts from "typescript";
+import { ts } from "ts-morph";
 
 import classnames from "classnames";
 

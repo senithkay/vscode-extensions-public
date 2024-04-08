@@ -14,7 +14,7 @@ import { Global, css } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DMType } from "@wso2-enterprise/mi-core";
 import { MIDataMapper } from "./components/DataMapper/DataMapper";
-import * as ts from "typescript";
+import { ts } from "ts-morph";
 import { FunctionSTFindingVisitor } from "./components/Visitors/FunctionSTFindingVisitor";
 import { traversNode } from "./components/Diagram/utils/st-utils";
 

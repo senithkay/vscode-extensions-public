@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
-import { ParameterDeclaration } from "typescript";
+import { ts } from "ts-morph";
 
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -27,7 +27,7 @@ export class InputNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public value: ParameterDeclaration,
+        public value: ts.ParameterDeclaration,
         public hasNoMatchingFields?: boolean
     ) {
         super(

@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import ts, { ArrowFunction, Node, ParenthesizedExpression } from "typescript";
+import { ts } from "ts-morph";
 import { Visitor } from "../../ts/base-visitor";
 import { ObjectOutputNode, InputNode } from "../Diagram/Node";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
@@ -20,7 +20,7 @@ export class NodeInitVisitor implements Visitor {
         private context: DataMapperContext,
     ) {}
 
-    beginVisitArrowFunction(node: ArrowFunction, parent?: Node): void {
+    beginVisitArrowFunction(node: ts.ArrowFunction, parent?: ts.Node): void {
         // Create input nodes
         const params = node.parameters;
         params.forEach((param) => {
@@ -31,7 +31,7 @@ export class NodeInitVisitor implements Visitor {
 
         // Create output node
         if (ts.isParenthesizedExpression(node.body)) {
-            const expr = (node.body as ParenthesizedExpression).expression;
+            const expr = (node.body as ts.ParenthesizedExpression).expression;
 
             if (ts.isObjectLiteralExpression(expr)) {
                 this.outputNode = new ObjectOutputNode(

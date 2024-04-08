@@ -9,7 +9,7 @@
 // tslint:disable: no-empty-interface
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
 import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
-import ts, { Node } from 'typescript';
+import { ts } from 'ts-morph';
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { ArrayElement, DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
@@ -155,7 +155,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		return headerPort;
 	}
 
-	protected genMappings(val: Node, parentFields?: Node[]) {
+	protected genMappings(val: ts.Node, parentFields?: ts.Node[]) {
 		let foundMappings: MappingMetadata[] = [];
 		const currentFields = [...(parentFields ? parentFields : [])];
 		if (val) {
@@ -183,7 +183,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		return foundMappings;
 	}
 
-	protected getOtherMappings(node: Node, currentFields: Node[]) {
+	protected getOtherMappings(node: ts.Node, currentFields: ts.Node[]) {
 		const valNode = ts.isPropertyAssignment(node) ? node.initializer : node;
 		if (valNode) {
 			const inputNodes = getPropertyAccessNodes(valNode);

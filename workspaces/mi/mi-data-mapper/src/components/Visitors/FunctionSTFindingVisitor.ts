@@ -6,18 +6,18 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import ts, { VariableDeclaration, VariableStatement, Node } from "typescript";
+import { ts } from "ts-morph";
 import { Visitor } from "../../ts/base-visitor";
 
 export class FunctionSTFindingVisitor implements Visitor {
-    private _functionST: VariableDeclaration;
+    private _functionST: ts.VariableDeclaration;
 
     constructor(
         private functionName: string,
     ) {}
 
 
-    beginVisitVariableStatement(node: VariableStatement): void {
+    beginVisitVariableStatement(node: ts.VariableStatement): void {
         if (!this._functionST) {
             const declarationList = node.declarationList;
             const variableDeclaration = declarationList.declarations[0];

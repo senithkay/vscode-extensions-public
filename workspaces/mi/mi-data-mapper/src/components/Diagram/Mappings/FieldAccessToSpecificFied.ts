@@ -6,12 +6,12 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Node, PropertyAccessExpression } from "typescript";
+import { ts } from "ts-morph";
 
 export class MappingMetadata {
 	constructor(
-		public fields: Node[],
-		public value: PropertyAccessExpression | Node,
-		public otherVal?: Node
+		public fields: ts.Node[],
+		public value: ts.PropertyAccessExpression | ts.Node,
+		public otherVal?: ts.Node
 	){}
 }

@@ -8,7 +8,7 @@
  */
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
 import { DMType } from "@wso2-enterprise/mi-core";
-import ts from "typescript";
+import { ts } from "ts-morph";
 
 import { DataMapperLinkModel } from "../../Link";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";

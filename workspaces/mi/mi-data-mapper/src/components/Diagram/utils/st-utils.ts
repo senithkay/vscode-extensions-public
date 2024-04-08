@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import ts, { Node } from 'typescript';
+import { ts } from 'ts-morph';
 import { Visitor } from '../../../ts/base-visitor';
 
 enum SyntaxKindWithRepeatedValue {
@@ -54,7 +54,7 @@ export function traversNode(node: ts.Node, visitor: Visitor, parent?: ts.Node) {
     }
 }
 
-export function getPosition(node: Node): NodePosition {
+export function getPosition(node: ts.Node): NodePosition {
     return {
         start: node.getStart(),
         end: node.getEnd()
