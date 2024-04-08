@@ -17,10 +17,9 @@ import 'prismjs/components/prism-java';
 import 'prismjs/components/prism-csharp';
 import 'prismjs/components/prism-bash';
 import 'prismjs/components/prism-sql';
-import "@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.css";
-import "./theme.css";
 
 import styled from "@emotion/styled";
+import { StyledCode, StyledPre } from "./Styles";
 
 interface ContainerProps {
     sx?: any;
@@ -47,11 +46,11 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = (props: Synta
     
     return (
         <Container id={id} className={className} sx={sx}>
-            <pre>
-                <code className={`language-${language}`}>
+            <StyledPre>
+                <StyledCode className={`language-${language}`}>
                     {code}
-                </code>
-            </pre>
+                </StyledCode>
+            </StyledPre>
         </Container>
     );
 };

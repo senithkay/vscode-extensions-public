@@ -19,8 +19,19 @@ const xmlCode = `<note>
 
 const jsonCode = '{"name":"John", "age":30, "car":null}';
 const javaScriptCode = `function add(a, b) {
+    // This is a comment
     return a + b;
 }`;
+const cssCode = `body {
+    background-color: lightblue;
+}`;
+const htmlCode = `<!DOCTYPE html>
+<html>
+<body>
+    <h1>My First Heading</h1>
+    <p>My first paragraph.</p>
+</body>
+</html>`;
 
 const Template: ComponentStory<typeof SyntaxHighlighter> = (args: SyntaxHighlighterProps) => <SyntaxHighlighter {...args} />;
 
@@ -32,5 +43,11 @@ SampleJSON.args = { code: jsonCode, language: "json" };
 
 export const SampleJS = Template.bind();
 SampleJS.args = { code: javaScriptCode, language: "javascript" };
+
+export const SampleCSS = Template.bind();
+SampleCSS.args = { code: cssCode, language: "css" };
+
+export const SampleHTML = Template.bind();
+SampleHTML.args = { code: htmlCode, language: "html" };
 
 export default { component: SyntaxHighlighter, title: "Syntax Highlighter" };
