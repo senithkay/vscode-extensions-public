@@ -242,6 +242,7 @@
                                             ]
                                         }
                                     ],
+                                    "kind": "IF",
                                     "properties": {
                                         "condition": {
                                             "type": "boolean",
@@ -263,6 +264,7 @@
                             ]
                         }
                     ],
+                    "kind": "WHILE",
                     "properties": {
                         "condition": {
                             "type": "boolean",

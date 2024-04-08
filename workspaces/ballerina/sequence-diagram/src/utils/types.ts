@@ -7,87 +7,30 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import {
+    Flow,
+    Location,
+    Line,
+    Participant as SParticipant,
+    ParticipantType,
+    Node as SNode,
+    NodeKind,
+    InteractionType,
+    NodeBranch,
+    NodeProperties,
+    Expression,
+} from "@wso2-enterprise/ballerina-core/lib/rpc-types/sequence-diagram/interfaces";
 import { BaseNodeModel } from "../components/nodes/BaseNode";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 
-// Flow model types
+export { ParticipantType, NodeKind, InteractionType };
+export type { Flow, Location, Line, NodeBranch, NodeProperties, Expression };
 
-export type Flow = {
-    participants: Participant[];
-    location: Location;
-};
-
-export type Location = {
-    fileName: string;
-    startLine: Line;
-    endLine: Line;
-};
-
-export type Line = {
-    line: number;
-    offset: number;
-};
-
-export enum ParticipantType {
-    FUNCTION = "FUNCTION",
-    WORKER = "WORKER",
-    ENDPOINT = "ENDPOINT",
-}
-
-export type Participant = {
-    id: string;
-    name: string;
-    kind: ParticipantType;
-    moduleName: string;
-    nodes: Node[];
-    location: Location;
+export type Participant = SParticipant & {
     viewState?: ViewState;
 };
-
-export enum NodeKind {
-    INTERACTION = "INTERACTION",
-    IF = "IF",
-    WHILE = "WHILE",
-    FOREACH = "FOREACH",
-    MATCH = "MATCH",
-    RETURN = "RETURN",
-}
-
-export enum InteractionType {
-    ENDPOINT_CALL = "ENDPOINT_CALL",
-    FUNCTION_CALL = "FUNCTION_CALL",
-    RETURN = "RETURN",
-    METHOD_CALL = "METHOD_CALL",
-    WORKER_CALL = "WORKER_CALL",
-}
-
-export type Node = {
-    interactionType?: InteractionType;
-    properties: NodeProperties;
-    targetId?: string;
-    kind: NodeKind;
-    location: Location;
-    branches?: NodeBranch[];
+export type Node = SNode & {
     viewStates?: ViewState[];
-};
-
-export type NodeBranch = {
-    label: string;
-    children: Node[];
-};
-
-export type Expression = {
-    type: string;
-    value?: string;
-};
-
-export type NodeProperties = {
-    params?: Expression[];
-    expr?: Expression;
-    method?: Expression;
-    value?: Expression;
-    name?: Expression;
-    condition?: Expression;
 };
 
 export enum ViewStateLabel {

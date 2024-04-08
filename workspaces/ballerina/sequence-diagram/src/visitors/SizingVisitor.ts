@@ -18,8 +18,6 @@ import { DiagramElement, Node, Participant, ViewStateLabel } from "../utils/type
 import { BaseVisitor } from "./BaseVisitor";
 
 export class SizingVisitor implements BaseVisitor {
-    private height = 0;
-
     constructor() {
         console.log(">>>> Sizing factory visitor started");
     }
@@ -28,8 +26,21 @@ export class SizingVisitor implements BaseVisitor {
         if (!participant.viewState) {
             participant.viewState = getInitialViewState();
         }
-        participant.viewState.bBox.w = PARTICIPANT_NODE_WIDTH;
-        participant.viewState.bBox.h = Math.max(this.height, PARTICIPANT_NODE_HEIGHT);
+
+        let childrenHeight = 0;
+        let childrenWidth = 0;
+
+        participant.nodes?.forEach((node) => {
+            if ((node as Node).viewStates) {
+                (node as Node).viewStates.forEach((viewState) => {
+                    childrenHeight += viewState.bBox.h;
+                    childrenWidth += viewState.bBox.w;
+                });
+            }
+        });
+
+        participant.viewState.bBox.w = Math.max(childrenWidth, PARTICIPANT_NODE_WIDTH);
+        participant.viewState.bBox.h = Math.max(childrenHeight, PARTICIPANT_NODE_HEIGHT);
     }
 
     endVisitNode(node: Node, parent?: DiagramElement, callNode?: Node): void {
@@ -54,7 +65,13 @@ export class SizingVisitor implements BaseVisitor {
             ),
         );
 
-        this.height = this.height + INTERACTION_NODE_HEIGHT;
+        let nodeHeight = 0;
+        let nodeWidth = 0;
+
+        node.viewStates.forEach((viewState) => {
+            nodeHeight += viewState.bBox.h;
+            nodeWidth += viewState.bBox.w;
+        });
     }
 
     endVisitEndpointCall(node: Node, parent?: DiagramElement): void {
@@ -66,6 +83,5 @@ export class SizingVisitor implements BaseVisitor {
                 getInitialViewState(ViewStateLabel.RETURN_TARGET_NODE, INTERACTION_NODE_HEIGHT, INTERACTION_NODE_WIDTH),
             ];
         }
-        this.height = this.height + INTERACTION_NODE_HEIGHT * 2;
     }
 }

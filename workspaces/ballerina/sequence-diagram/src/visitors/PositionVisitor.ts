@@ -65,7 +65,7 @@ export class PositionVisitor implements BaseVisitor {
             console.warn(">> Target view state not found for node", node);
             return;
         }
-        const targetParticipant = this.flow.participants.find((participant) => participant.id === node.targetId);
+        const targetParticipant = this.flow.participants.find((participant) => participant.id === node.targetId) as Participant;
         targetNodeViewState.bBox.x = targetParticipant.viewState.bBox.x;
         targetNodeViewState.bBox.y = this.lastInteractionIndex * (INTERACTION_GAP_Y + INTERACTION_NODE_HEIGHT);
         this.lastInteractionIndex++;
@@ -160,7 +160,7 @@ export class PositionVisitor implements BaseVisitor {
             console.warn(">> Target view state not found for node", node);
             return;
         }
-        const targetParticipant = this.flow.participants.find((participant) => participant.id === node.targetId);
+        const targetParticipant = this.flow.participants.find((participant) => participant.id === node.targetId) as Participant;
         targetNodeViewState.bBox.x = targetParticipant.viewState.bBox.x;
         // targetNodeViewState.bBox.y = this.lastInteractionIndex * (INTERACTION_GAP_Y + INTERACTION_NODE_HEIGHT);
         // this.lastInteractionIndex++;

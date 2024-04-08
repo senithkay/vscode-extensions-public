@@ -24,18 +24,21 @@ export function traverseParticipant(participant: Participant, visitor: BaseVisit
         beginVisitFn = visitor.beginVisitParticipant && visitor.beginVisitParticipant;
     }
 
-    if (beginVisitFn) {
+    if (beginVisitFn && !skipNodeVisit(participant)) {
         beginVisitFn.bind(visitor)(participant, flow, callNode);
     }
 
     const keys = Object.keys(participant);
     keys.forEach((key) => {
+        if (skipAttribute(key)) {
+            return;
+        }
         const childNode = (participant as any)[key] as any;
         if (Array.isArray(childNode)) {
             childNode.forEach((elementNode) => {
-                if (!elementNode?.kind) {
-                    return;
-                }
+                // if (!elementNode?.kind) {
+                //     return;
+                // }
                 traverseNode(elementNode, visitor, participant, flow, callNode);
             });
             return;
@@ -51,7 +54,7 @@ export function traverseParticipant(participant: Participant, visitor: BaseVisit
     if (!endVisitFn) {
         endVisitFn = visitor.endVisitParticipant && visitor.endVisitParticipant;
     }
-    if (endVisitFn) {
+    if (endVisitFn && !skipNodeVisit(participant)) {
         endVisitFn.bind(visitor)(participant, flow, callNode);
     }
 }
@@ -59,7 +62,7 @@ export function traverseParticipant(participant: Participant, visitor: BaseVisit
 export function traverseNode(node: Node, visitor: BaseVisitor, parent: DiagramElement, flow: Flow, callNode?: Node) {
     if (!node.kind) {
         console.warn("Node kind is not defined", node);
-        return;
+        // return;
     }
     let name = _.chain(node.kind).camelCase().upperFirst().value();
     if (node.kind === NodeKind.INTERACTION) {
@@ -70,7 +73,7 @@ export function traverseNode(node: Node, visitor: BaseVisitor, parent: DiagramEl
         beginVisitFn = visitor.beginVisitNode && visitor.beginVisitNode;
     }
 
-    if (beginVisitFn) {
+    if (beginVisitFn && !skipNodeVisit(node)) {
         beginVisitFn.bind(visitor)(node, parent, callNode);
     }
 
@@ -84,12 +87,15 @@ export function traverseNode(node: Node, visitor: BaseVisitor, parent: DiagramEl
 
     const keys = Object.keys(node);
     keys.forEach((key) => {
+        if (skipAttribute(key)) {
+            return;
+        }
         const childNode = (node as any)[key] as any;
         if (Array.isArray(childNode)) {
             childNode.forEach((elementNode) => {
-                if (!elementNode?.kind) {
-                    return;
-                }
+                // if (!elementNode?.kind) {
+                //     return;
+                // }
 
                 traverseNode(elementNode, visitor, node, flow);
             });
@@ -108,7 +114,15 @@ export function traverseNode(node: Node, visitor: BaseVisitor, parent: DiagramEl
         endVisitFn = visitor.endVisitNode && visitor.endVisitNode;
     }
 
-    if (endVisitFn) {
+    if (endVisitFn && !skipNodeVisit(node)) {
         endVisitFn.bind(visitor)(node, parent, callNode);
     }
+}
+
+function skipAttribute(key: string) {
+    return key === "viewStates" || key === "viewState";
+}
+
+function skipNodeVisit(el: DiagramElement) {
+    return !el.kind;
 }

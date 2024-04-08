@@ -20,6 +20,8 @@ import { DiagramElementKindChecker } from "./check-kind-utils";
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
         registerDefaultDeleteItemsAction: false,
+        registerDefaultZoomCanvasAction: false,
+        registerDefaultPanAndZoomCanvasAction: true,
     });
 
     engine.getPortFactories().registerFactory(new NodePortFactory());
