@@ -215,19 +215,20 @@ const MainPanel = () => {
                     setViewComponent(<TaskForm path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.TemplateForm:
-                    setViewComponent(<TemplateWizard path={machineView.documentUri} />);
+                    const templateType = machineView.customProps && machineView.customProps.type ? machineView.customProps.type : '';
+                    setViewComponent(<TemplateWizard path={machineView.documentUri} type={templateType}/>);
                     break;
                 case MACHINE_VIEW.HttpEndpointForm:
-                    setViewComponent(<HttpEndpointWizard path={machineView.documentUri} />);
+                    setViewComponent(<HttpEndpointWizard path={machineView.documentUri} type={machineView.customProps.type} />);
                     break;
                 case MACHINE_VIEW.AddressEndpointForm:
-                    setViewComponent(<AddressEndpointWizard path={machineView.documentUri} />);
+                    setViewComponent(<AddressEndpointWizard path={machineView.documentUri} type={machineView.customProps.type} />);
                     break;
                 case MACHINE_VIEW.WsdlEndpointForm:
-                    setViewComponent(<WsdlEndpointWizard path={machineView.documentUri} />);
+                    setViewComponent(<WsdlEndpointWizard path={machineView.documentUri} type={machineView.customProps.type} />);
                     break;
                 case MACHINE_VIEW.DefaultEndpointForm:
-                    setViewComponent(<DefaultEndpointWizard path={machineView.documentUri} />);
+                    setViewComponent(<DefaultEndpointWizard path={machineView.documentUri} type={machineView.customProps.type} />);
                     break;
                 case MACHINE_VIEW.ProjectCreationForm:
                     setViewComponent(<ProjectWizard cancelView={MACHINE_VIEW.Overview} />);

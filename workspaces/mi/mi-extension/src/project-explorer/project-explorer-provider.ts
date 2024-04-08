@@ -355,7 +355,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Endpoint",
 				"command": COMMANDS.SHOW_ENDPOINT,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"arguments": [vscode.Uri.parse(entry.path), 'endpoint', undefined, false]
 			};
 			explorerEntry.command.command = getViewCommand(entry.subType);
 
@@ -392,7 +392,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Template",
 				"command": COMMANDS.SHOW_TEMPLATE,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"arguments": [vscode.Uri.parse(entry.path), 'template', undefined, false]
 			};
 			explorerEntry.command.command = getViewCommand(entry.subType);
 

@@ -15,6 +15,7 @@ import { Button } from "../Button/Button";
 import styled from "@emotion/styled";
 import { FormAutoComplete } from "../AutoComplete/AutoComplete";
 import { RadioButtonGroup } from "../RadioButtonGroup/RadioButtonGroup";
+import { FormCheckBox } from "../CheckBoxGroup/CheckBoxGroup";
 
 type Inputs = {
     name: string;
@@ -22,6 +23,7 @@ type Inputs = {
     address: string;
     words: string;
     options: string;
+    isRegistered: boolean;
 };
 
 export interface SampleReactHookFormProps {
@@ -80,6 +82,11 @@ export function SampleReactHookForm(props: SampleReactHookFormProps) {
                 {...register("options")}
             />
 
+            <FormCheckBox
+                name="isRegistered"
+                label="Is Registered?"
+                control={control}
+            />
             <Button appearance="primary" onClick={handleSave}> Save </Button>
         </FormContainer>
     );
