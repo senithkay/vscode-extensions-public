@@ -39,6 +39,7 @@ import { debug } from "../utils";
 import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../telemetry";
 import { CancellationToken, DefinitionParams, Location, LocationLink, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
 import { getChoreoExtAPI } from "../choreo-features/activate";
+import { Flow, SequenceModelRequest, SequenceModelDiagnostic } from "@wso2-enterprise/ballerina-core";
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
 export const HTTP_CONNECTOR_LIST_CACHE = "HTTP_CONNECTOR_LIST_CACHE";
@@ -88,6 +89,7 @@ enum EXTENDED_APIS {
     DEFINITION_POSITION = 'ballerinaDocument/syntaxTreeNodeByPosition',
     PERSIST_MODEL_ENDPOINT = 'persistERGeneratorService/getPersistERModels',
     DOCUMENT_ST_BY_RANGE = 'ballerinaDocument/syntaxTreeByRange',
+    SEQUENCE_DIAGRAM_MODEL = 'sequenceModelGeneratorService/getSequenceDiagramModel',
 }
 
 enum EXTENDED_APIS_ORG {
@@ -103,7 +105,8 @@ enum EXTENDED_APIS_ORG {
     PARTIAL_PARSER = 'partialParser',
     BALLERINA_TO_OPENAPI = 'openAPILSExtension',
     NOTEBOOK_SUPPORT = "balShell",
-    GRAPHQL_DESIGN = "graphqlDesignService"
+    GRAPHQL_DESIGN = "graphqlDesignService",
+    SEQUENCE_DIAGRAM = "sequenceModelGeneratorService"
 }
 
 export enum DIAGNOSTIC_SEVERITY {
@@ -166,6 +169,13 @@ export interface SyntaxTreeNodeRequestParams {
 export interface SyntaxTreeNodeResponse {
     kind: string;
 }
+
+export type SequenceDiagramModelRequest = SequenceModelRequest;
+
+export type SequenceDiagramModelResponse = {
+    sequenceDiagram: Flow;
+    modelDiagnostic?: SequenceModelDiagnostic
+};
 
 export interface JsonToRecordRequest {
     jsonString: string;
@@ -722,6 +732,11 @@ export class ExtendedLangClient extends LanguageClient {
             Promise.resolve(NOT_SUPPORTED);
     }
 
+    async getSequenceDiagramModel(params: SequenceDiagramModelRequest): Promise<SequenceDiagramModelResponse> {
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.SEQUENCE_DIAGRAM_MODEL);
+        return this.sendRequest(EXTENDED_APIS.SEQUENCE_DIAGRAM_MODEL, params);
+    }
+
     async getExecutorPositions(params: GetBallerinaProjectParams): Promise<ExecutorPositionsResponse | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_EXECUTOR_POSITIONS);
         return isSupported ? this.sendRequest(EXTENDED_APIS.DOCUMENT_EXECUTOR_POSITIONS, params) :
@@ -873,6 +888,7 @@ export class ExtendedLangClient extends LanguageClient {
                 { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true, getSTForResource: true },
                 { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true },
                 { name: EXTENDED_APIS_ORG.GRAPHQL_DESIGN, getGraphqlModel: true },
+                { name: EXTENDED_APIS_ORG.SEQUENCE_DIAGRAM, getSequenceDiagramModel: true },
                 {
                     name: EXTENDED_APIS_ORG.NOTEBOOK_SUPPORT, getResult: true, getShellFileSource: true,
                     getVariableValues: true, deleteDeclarations: true, restartNotebook: true

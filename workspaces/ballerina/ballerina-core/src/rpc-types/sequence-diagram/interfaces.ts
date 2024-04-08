@@ -7,106 +7,91 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { LinePosition } from "../../interfaces/common";
+export interface SequenceModelRequest {
+    filePath: string;
+    startLine: Line;
+    endLine: Line;
+}
 
-export interface DNode {
-    kind: string;
-    isHidden: boolean;
+export type SequenceModelResponse = {
+    participants: Participant[];
     location: Location;
-}
+};
 
-export interface Location {
+export type SequenceModelDiagnostic = {
+    errorMsg: string;
+    isIncompleteModel: boolean;
+};
+
+export type Flow = SequenceModelResponse;
+
+export type Location = {
     fileName: string;
-    startLine: LinePosition;
-    endLine: LinePosition;
+    startLine: Line;
+    endLine: Line;
+};
+
+export type Line = {
+    line: number;
+    offset: number;
+};
+
+export enum ParticipantType {
+    FUNCTION = "FUNCTION",
+    WORKER = "WORKER",
+    ENDPOINT = "ENDPOINT",
 }
 
-export interface DElement extends DNode {
-    elementBody?: DElementBody;
-}
-
-export interface DElementBody extends DNode {
-    childElements: DNode[];
-}
-
-export interface Participant extends DElement {
+export type Participant = {
     id: string;
     name: string;
-    participantKind: PariticipantKind;
-    packageName: string;
-    type?: string;
-    hasInteractions: boolean;
+    kind: ParticipantType;
+    moduleName: string;
+    nodes: Node[];
+    location: Location;
+};
+
+export enum NodeKind {
+    INTERACTION = "INTERACTION",
+    IF = "IF",
+    WHILE = "WHILE",
+    FOREACH = "FOREACH",
+    MATCH = "MATCH",
+    RETURN = "RETURN",
 }
 
-export type PariticipantKind = 'WORKER' | 'ENDPOINT';
-
-export type InteractionType = 'ENDPOINT_INTERACTION' | 'FUNCTION_INTERACTION' | 'METHOD_INTERACTION' | 'RETURN_ACTION';
-
-export interface SequenceModel extends DNode {
-    participants: Participant[];
+export enum InteractionType {
+    ENDPOINT_CALL = "ENDPOINT_CALL",
+    FUNCTION_CALL = "FUNCTION_CALL",
+    RETURN = "RETURN",
+    METHOD_CALL = "METHOD_CALL",
+    WORKER_CALL = "WORKER_CALL",
 }
 
-export interface Interaction extends DNode {
-    sourceId: string;
-    targetId: string;
-    interactionType: InteractionType;
-}
+export type Node = {
+    interactionType?: InteractionType;
+    properties: NodeProperties;
+    targetId?: string;
+    kind: NodeKind;
+    location: Location;
+    branches?: NodeBranch[];
+};
 
-export interface FunctionActionStatement extends Interaction {
-    functionName: string;
-}
+export type NodeBranch = {
+    label: string;
+    children: Node[];
+};
 
-export interface MethodActionStatement extends Interaction {
-    methodName: string;
-    expression: string;
-}
-
-export interface ReturnAction extends Interaction {
-    name: string;
+export type Expression = {
     type: string;
-}
+    value?: string;
+};
 
-export interface EndpointActionStatement extends Interaction {
-    actionName: string;
-    actionPath: string;
-    methodName: string;
-    actionType: ActionType;
-}
-
-export type ActionType = "RESOURCE_ACTION" | "REMOTE_ACTION"
-
-export interface DoStatement extends DElement {
-    onFailClause?: OnFailClause;
-}
-
-export interface OnFailClause extends DElement {
-    type: string;
-    name: string;
-}
-
-export interface WhileStatement extends DElement {
-    condition: string;
-    onFailClause?: OnFailClause;
-}
-
-export interface IfStatement extends DElement {
-    condition: string;
-    elseStatement: DElement;
-}
-
-export interface LockStatement extends DElement {
-    onFailClause: OnFailClause;
-}
-
-export interface ForeachStatement extends DElement {
-    collection: string;
-    onFailClause: OnFailClause;
-}
-
-export interface StatementBlock extends DElement {
-    statementBlockText: string;
-}
-
-export interface ElseStatement extends DElement {
-    
-}
+export type NodeProperties = {
+    params?: Expression[];
+    expr?: Expression;
+    method?: Expression;
+    value?: Expression;
+    name?: Expression;
+    condition?: Expression;
+};
