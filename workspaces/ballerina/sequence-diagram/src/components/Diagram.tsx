@@ -40,7 +40,13 @@ export function Diagram(props: DiagramProps) {
 
     const getDiagramData = () => {
         // get entry participant
-        const entryParticipant = _.find(flow.participants, _.matches({ location: flow.location }));
+        const entryParticipant = flow.participants?.find(
+            (participant) =>
+                flow.location.startLine.line === participant.location.startLine.line &&
+                flow.location.startLine.offset === participant.location.startLine.offset &&
+                flow.location.endLine.line === participant.location.endLine.line &&
+                flow.location.endLine.offset === participant.location.endLine.offset,
+        );
         console.log(">> Entry", entryParticipant);
         if (!entryParticipant) {
             console.error("Entry participant not found");
