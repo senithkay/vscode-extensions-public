@@ -8,6 +8,7 @@ export interface IsRepoAuthorizedReq { orgId: string; repoUrl: string }
 export interface GetComponentsReq {orgId: string; projectHandle: string}
 export interface CreateLinkReq {componentDir: string;  orgHandle: string; projectHandle: string;  componentHandle: string;}
 export interface CreateProjectReq { orgId: string; orgHandler: string; projectName: string; region: string;}
+export interface DeleteCompReq { orgId: string; orgHandler: string; projectId: string; compHandler: string;}
 export interface CreateComponentReq { 
     orgId: string; 
     projectHandle: string; 
@@ -34,6 +35,7 @@ export interface IChoreoRPCClient {
     getBuildPacks(params: BuildPackReq): Promise<Buildpack[]>;
     getRepoBranches(params: GetBranchesReq): Promise<string[]>;
     isRepoAuthorized(params: IsRepoAuthorizedReq): Promise<boolean>;
+    deleteComponent(params: DeleteCompReq): Promise<void>;
 }
 
 export class ChoreoRpcWebview implements IChoreoRPCClient {
@@ -64,6 +66,9 @@ export class ChoreoRpcWebview implements IChoreoRPCClient {
     isRepoAuthorized(params:IsRepoAuthorizedReq): Promise<boolean> {
         return this._messenger.sendRequest(ChoreoRpcIsRepoAuthorizedRequest, HOST_EXTENSION, params);
     }
+    deleteComponent(params:DeleteCompReq): Promise<void> {
+        return this._messenger.sendRequest(ChoreoRpcDeleteComponentRequest, HOST_EXTENSION, params);
+    }
 }
 
 export const ChoreoRpcGetProjectsRequest: RequestType<string, Project[]> = { method: 'rpc/project/getProjects' };
@@ -74,4 +79,5 @@ export const ChoreoRpcCreateComponentRequest: RequestType<CreateComponentReq, vo
 export const ChoreoRpcGetBuildPacksRequest: RequestType<BuildPackReq, Buildpack[]> = { method: 'rpc/component/getBuildPacks' };
 export const ChoreoRpcGetBranchesRequest: RequestType<GetBranchesReq, string[]> = { method: 'rpc/repo/getBranches' };
 export const ChoreoRpcIsRepoAuthorizedRequest: RequestType<IsRepoAuthorizedReq, boolean> = { method: 'rpc/repo/isRepoAuthorized' };
+export const ChoreoRpcDeleteComponentRequest: RequestType<DeleteCompReq, void> = { method: 'rpc/component/delete' };
 

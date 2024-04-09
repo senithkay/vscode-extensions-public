@@ -11,19 +11,25 @@ import { ExtensionContext, window, QuickPickItem } from "vscode";
 import { initGit } from "../../git/main";
 import { Remote } from "../../git";
 
-// export const getGitRemotes = async (context: ExtensionContext, directoryPath: string): Promise<Remote[] | void> => {
-//     const newGit = await initGit(context);
-//     const repoRootPath = await newGit?.getRepositoryRoot(directoryPath);
-//     const dotGit = await newGit?.getRepositoryDotGit(directoryPath);
+export const getGitRemotes = async (context: ExtensionContext, directoryPath: string): Promise<Remote[] | void> => {
+    const newGit = await initGit(context);
+    const repoRootPath = await newGit?.getRepositoryRoot(directoryPath);
+    const dotGit = await newGit?.getRepositoryDotGit(directoryPath);
 
-//     if (!repoRootPath || !dotGit) {
-//         return;
-//     }
+    if (!repoRootPath || !dotGit) {
+        return;
+    }
 
-//     const repo = newGit?.open(repoRootPath!, dotGit);
-//     const remotes = await repo?.getRemotes();
-//     return remotes!;
-// };
+    const repo = newGit?.open(repoRootPath!, dotGit);
+    const remotes = await repo?.getRemotes();
+    return remotes!;
+};
+
+export const getGitRoot = async (context: ExtensionContext, directoryPath: string): Promise<string | void> => {
+    const newGit = await initGit(context);
+    const repoRootPath = await newGit?.getRepositoryRoot(directoryPath);
+    return repoRootPath
+};
 
 // export const resolveGitRemote = async (remotes: Remote[]): Promise<Remote> => {
 //     if (remotes?.length === 0) {

@@ -1,7 +1,7 @@
 import { getLogger } from "../logger/logger";
 import { MessageConnection, Trace, Tracer } from "vscode-jsonrpc";
 import { StdioConnection } from "./connection";
-import { Buildpack, ComponentKind, Project, UserInfo, IChoreoRPCClient, BuildPackReq, GetBranchesReq, IsRepoAuthorizedReq, GetComponentsReq, CreateLinkReq, CreateProjectReq, CreateComponentReq } from "@wso2-enterprise/choreo-core";
+import { Buildpack, ComponentKind, Project, UserInfo, IChoreoRPCClient, BuildPackReq, GetBranchesReq, IsRepoAuthorizedReq, GetComponentsReq, CreateLinkReq, CreateProjectReq, CreateComponentReq, DeleteCompReq } from "@wso2-enterprise/choreo-core";
 import { workspace } from "vscode";
 
 
@@ -49,6 +49,11 @@ export class ChoreoRPCClient implements IChoreoRPCClient{
     async createComponent(params: CreateComponentReq): Promise<void> {
         const client = await ChoreoRPCClient.getInstance();
         await client.conn.sendRequest("component/create", params);
+    }
+
+    async deleteComponent(params: DeleteCompReq): Promise<void> {
+        const client = await ChoreoRPCClient.getInstance();
+        await client.conn.sendRequest("component/delete", params);
     }
 
     async getProjects(orgID: string): Promise<Project[]> {

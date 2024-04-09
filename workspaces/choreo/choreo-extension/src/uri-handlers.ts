@@ -14,7 +14,7 @@
 import { ProviderResult, Uri, commands, window } from "vscode";
 import { ext } from "./extensionVariables";
 import { getLogger } from "./logger/logger";
-import { authStore } from "./states/authState";
+import { authStore } from "./stores/auth-store";
 
 export function activateURIHandlers() {
     window.registerUriHandler({

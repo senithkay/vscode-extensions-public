@@ -5,8 +5,8 @@ import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 
 export const NoLinkedComponentsView = () => {
     return (
-        <div className="w-full flex flex-col px-1 py-2 gap-[10px]">
-            <p>Unable to detect Choreo components in the current workspace.</p>
+        <div className="w-full flex flex-col px-6 py-2 gap-[10px]">
+            <p>Choreo component directories are not detected within the current workspace.</p>
             <p>To create a new component.</p>
             <VSCodeButton
                 className="w-full max-w-80 self-center sm:self-start"
@@ -14,7 +14,7 @@ export const NoLinkedComponentsView = () => {
             >
                 Create Component
             </VSCodeButton>
-            <p>To link an existing component with this directory.</p>
+            <p>To link a directory with an existing component.</p>
             <VSCodeButton
                 className="w-full max-w-80 self-center sm:self-start"
                 onClick={() => ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.LinkExistingComponent)}

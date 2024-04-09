@@ -12,11 +12,13 @@
  */
 
 import { CMResourceFunction, ComponentModel, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
-import { ApiVersion, Component, ComponentYamlContent, ComponentYamlSchema } from "@wso2-enterprise/choreo-core";
-import { existsSync, readFileSync } from "fs";
+import { ApiVersion, Component, ComponentYamlContent, ComponentYamlSchema, LinkFileContent } from "@wso2-enterprise/choreo-core";
+import { existsSync, readFileSync, unlinkSync } from "fs";
 import * as yaml from "js-yaml";
 import { ProjectRegistry } from "./registry/project-registry";
 import { dirname, join } from "path";
+import { workspace } from "vscode";
+import { linkedDirectoryStore } from "./stores/linked-dir-store";
 
 export async function enrichDeploymentData(
     orgId: string,
@@ -218,3 +220,19 @@ export function enrichComponentSchema(
 
     return schema;
 }
+
+export const deleteLinkFile = async (orgHandle: string, projectHandle: string, componentHandle: string) => {
+    const linkFiles = await workspace.findFiles("**/.choreo/link.yaml");
+    for (const linkFile of linkFiles) {
+        const parsedData: LinkFileContent = yaml.load(readFileSync(linkFile.fsPath, "utf8")) as any;
+        if (
+            parsedData.component === componentHandle &&
+            parsedData.project === projectHandle &&
+            parsedData.org === orgHandle
+        ) {
+            unlinkSync(linkFile.path);
+            await linkedDirectoryStore.getState().refreshState();
+            break;
+        }
+    }
+};

@@ -5,7 +5,7 @@ import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 
 export const SignInView = () => {
     return (
-        <div className="w-full flex flex-col px-1 py-2 gap-[10px]">
+        <div className="w-full flex flex-col px-6 py-2 gap-[10px]">
             <p>Sign in to Choreo to get started.</p>
             <VSCodeButton
                 className="w-full max-w-80 self-center sm:self-start"

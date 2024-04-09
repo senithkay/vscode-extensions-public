@@ -40,7 +40,7 @@ import { enrichDeploymentData, getComponentDirPath, getResourcesFromOpenApiFile,
 import { AxiosResponse } from 'axios';
 import { OPEN_CHOREO_ACTIVITY } from './constants';
 import * as yaml from 'js-yaml';
-import { authStore } from './states/authState';
+import { authStore } from './stores/auth-store';
 
 // TODO: delete this file!
 export interface IChoreoExtensionAPI {

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { authStore } from "../states/authState";
+import { authStore } from "../stores/auth-store";
 import { ext } from "../extensionVariables";
 import { getLogger } from "../logger/logger";
 import { getTelemetryReporter } from "./telemetry";

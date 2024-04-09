@@ -18,6 +18,7 @@ import {
     ChoreoRpcCreateLinkRequest,
     ChoreoRpcCreateProjectRequest,
     ChoreoRpcCreateComponentRequest,
+    ChoreoRpcDeleteComponentRequest,
 } from "@wso2-enterprise/choreo-core";
 import { ProgressLocation, window } from "vscode";
 
@@ -40,4 +41,10 @@ export function registerChoreoRpcResolver(messenger: Messenger, rpcClient: IChor
     messenger.onRequest(ChoreoRpcGetBuildPacksRequest, (params) => rpcClient.getBuildPacks(params));
     messenger.onRequest(ChoreoRpcGetBranchesRequest, (params) => rpcClient.getRepoBranches(params));
     messenger.onRequest(ChoreoRpcIsRepoAuthorizedRequest, (params) => rpcClient.isRepoAuthorized(params));
+    messenger.onRequest(ChoreoRpcDeleteComponentRequest, async (params) => {
+        return window.withProgress(
+            { title: `Deleting component ${params.compHandler}...`, location: ProgressLocation.Notification },
+            () => rpcClient.deleteComponent(params)
+        );
+    });
 }

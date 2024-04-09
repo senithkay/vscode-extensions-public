@@ -9,8 +9,8 @@
 import { ExtensionContext, commands } from "vscode";
 import { CommandIds } from "@wso2-enterprise/choreo-core";
 import { window } from "vscode";
-import { authStore } from "../states/authState";
-import { linkedDirectoryStore } from "../states/linkedDirState";
+import { authStore } from "../stores/auth-store";
+import { linkedDirectoryStore } from "../stores/linked-dir-store";
 
 export function refreshComponentsCommand(context: ExtensionContext) {
     context.subscriptions.push(

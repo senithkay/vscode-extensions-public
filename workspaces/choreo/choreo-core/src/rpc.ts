@@ -35,9 +35,15 @@ export const GetLinkedDirState: RequestType<void, LinkedDirectoryState> = { meth
 export const OpenSubDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: 'openDialog' };
 export const GetGetRemotes: RequestType<string[], string[]> = { method: 'getGitRemotes' };
 export const JoinFilePaths: RequestType<string[], string> = { method: 'joinFilePaths' };
+export const SetWebviewCache: RequestType<SetWebviewCacheRequestParam, void> = { method: 'setWebviewCache' };
+export const RestoreWebviewCache: RequestType<IDBValidKey, unknown> = { method: 'restoreWebviewCache' };
+export const ClearWebviewCache: RequestType<IDBValidKey, void> = { method: 'clearWebviewCache' };
+export const GoToSource: RequestType<string, void> = { method: 'goToSource' };
 export const ShowErrorMessage: NotificationType<string> = { method: 'showErrorMessage' };
 export const ShowInfoMessage: NotificationType<string> = { method: 'showInfoMessage' };
 export const RefreshLinkedDirState: NotificationType<void> = { method: 'refreshLinkedDirState' };
+export const DeleteFile: RequestType<string, void> = { method: 'deleteFile' };
+export const ShowConfirmMessage: RequestType<ShowConfirmBoxReq, boolean> = { method: 'showConfirmMessage' };
 
 export interface OpenDialogOptions {   // here
    title: string,
@@ -46,6 +52,11 @@ export interface OpenDialogOptions {   // here
    canSelectMany: boolean, 
    defaultUri: string, 
    filters: { [name: string]: string[] }
+}
+
+export interface ShowConfirmBoxReq {
+   message: string;
+   buttonText: string;
 }
 
 
@@ -178,10 +189,6 @@ export const CreateBalLocalComponentFromExistingSource: RequestType<ChoreoCompon
 export const GetBuildpack: RequestType<GetBuildPackParams, Buildpack[]> = { method: 'getBuildpack' };
 export const FireRefreshComponentList: RequestType<void, void> = { method: 'fireRefreshComponentList' };
 export const FireRefreshWorkspaceMetadata: RequestType<void, void> = { method: 'fireRefreshWorkspaceMetadata' };
-export const SetWebviewCache: RequestType<SetWebviewCacheRequestParam, void> = { method: 'setWebviewCache' };
-export const RestoreWebviewCache: RequestType<IDBValidKey, unknown> = { method: 'restoreWebviewCache' };
-export const ClearWebviewCache: RequestType<IDBValidKey, void> = { method: 'clearWebviewCache' };
-export const GoToSource: RequestType<string, void> = { method: 'goToSource' };
 export const IsBallerinaExtInstalled: RequestType<void, boolean> = { method: 'isBallerinaExtInstalled' };
 
 

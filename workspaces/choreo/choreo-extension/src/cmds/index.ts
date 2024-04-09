@@ -6,12 +6,17 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ExtensionContext } from "vscode";
+import { commands, ExtensionContext } from "vscode";
 // import { activateOpenProjectCmd } from "./open-project";
 // import { activateOpenInConsoleCmd } from "./open-in-console";
-import { linkExistingComponentCommand } from './link-existing-component';
-import { createNewComponentCommand } from './create-new-component';
-import { refreshComponentsCommand } from './refresh-components';
+import { linkExistingComponentCommand } from './link-existing-component-cmd';
+import { createNewComponentCommand } from './create-component-cmd';
+import { refreshComponentsCommand } from './refresh-components-cmd';
+import { deleteComponentCommand } from './delete-component-cmd';
+import { signInCommand } from './sign-in-cmd';
+import { signInWithAuthCodeCommand } from './sign-in-with-code-cmd';
+import { signOutCommand } from './sign-out-cmd';
+import { CommandIds } from "@wso2-enterprise/choreo-core";
 
 export function activateCmds(context: ExtensionContext) {
     // activateOpenProjectCmd(context);
@@ -19,4 +24,12 @@ export function activateCmds(context: ExtensionContext) {
     createNewComponentCommand(context);
     linkExistingComponentCommand(context);
     refreshComponentsCommand(context);
+    deleteComponentCommand(context);
+    signInCommand(context);
+    signInWithAuthCodeCommand(context);
+    signOutCommand(context);
+
+    commands.registerCommand(CommandIds.OpenWalkthrough, () => {
+        commands.executeCommand(`workbench.action.openWalkthrough`, `wso2.choreo#choreo.getStarted`, false);
+    });
 }

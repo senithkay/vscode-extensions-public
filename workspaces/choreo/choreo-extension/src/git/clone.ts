@@ -15,11 +15,11 @@ import { ext } from '../extensionVariables';
 import { ProjectRegistry } from '../registry/project-registry';
 import { getLogger } from '../logger/logger';
 import { execSync } from 'child_process';
-import { initGit } from '../git/main';
+import { initGit } from './main';
 import { executeWithTaskRetryPrompt } from '../retry';
 import { sendTelemetryEvent } from '../telemetry/utils';
 import * as vscode from 'vscode';
-import { authStore } from '../states/authState';
+import { authStore } from '../stores/auth-store';
 
 export function checkSSHAccessToGitHub() {
     try {

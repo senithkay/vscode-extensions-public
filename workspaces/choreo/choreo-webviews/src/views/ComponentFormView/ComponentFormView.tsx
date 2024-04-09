@@ -78,8 +78,6 @@ const componentFormSchema = z
 
 type ComponentFormType = z.infer<typeof componentFormSchema>;
 
-
-
 export const ComponentFormView: FC<NewComponentWebview> = ({ project, organization, directoryPath, gitInstallUrl }) => {
     const form = useForm<ComponentFormType>({
         resolver: zodResolver(componentFormSchema),
@@ -102,15 +100,10 @@ export const ComponentFormView: FC<NewComponentWebview> = ({ project, organizati
         },
     });
 
-
     const selectedType = form.watch("type");
     const selectedLang = form.watch("buildPackLang");
     const subPath = form.watch("subPath");
     const repoUrl = form.watch("repoUrl");
-
-    // console.log('directoryPath, subPath', directoryPath, subPath)
-    console.log('adsa', { project, organization, directoryPath, gitInstallUrl })
-
 
     const { isLoading: isLoadingBuildPacks, data: buildpacks = [] } = useQuery({
         queryKey: ["build-packs", { selectedType, orgId: organization?.id }],
@@ -190,7 +183,7 @@ export const ComponentFormView: FC<NewComponentWebview> = ({ project, organizati
                     region: data.projectRegion,
                 });
             }
-            const componentDir = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryPath, data.subPath])
+            const componentDir = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryPath, data.subPath]);
 
             await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createComponent({
                 orgId: organization.id.toString(),
@@ -216,19 +209,18 @@ export const ComponentFormView: FC<NewComponentWebview> = ({ project, organizati
                 componentDir,
             });
         },
-        onSuccess:(_,data)=>{
+        onSuccess: (_, data) => {
             ChoreoWebViewAPI.getInstance().showInfoMsg(`Component ${data.name} has been successfully created`);
             ChoreoWebViewAPI.getInstance().refreshLinkedDirState();
             ChoreoWebViewAPI.getInstance().closeWebView();
         },
-        onError:(err: any)=>{
-            console.error('Component create failed', err)
+        onError: (err: any) => {
+            console.error("Component create failed", err);
             ChoreoWebViewAPI.getInstance().showErrorMsg(`Failed to create component. Cause: ${err.message}`);
-
-        }
+        },
     });
 
-    const onSubmit: SubmitHandler<ComponentFormType> = (data) => createComponent(data)
+    const onSubmit: SubmitHandler<ComponentFormType> = (data) => createComponent(data);
 
     const additionalConfigs: ReactNode[] = [];
 
@@ -295,111 +287,116 @@ export const ComponentFormView: FC<NewComponentWebview> = ({ project, organizati
 
     const showRequireRepoAccess = repoUrl && !isCheckingRepoAccess && !hasRepoAccess;
 
-    console.log('remote', gitRemotes, isLoadingRemotes)
-
     return (
-        <div className="flex flex-row justify-center">
-
-        <div className="container">
-            <form className="mx-auto max-w-4xl flex flex-col gap-2 p-4">
-                {!project && (
-                    <>
-                        <h1 className="text-xl font-bold">Project Details</h1>
-                        <Divider />
-                        <div className="grid md:grid-cols-2 gap-4 md:gap-6 mb-8">
-                            <TextField
-                                label="Name"
-                                required
-                                name="projectName"
-                                placeholder="project-name"
-                                control={form.control}
-                            />
-                            <Dropdown
-                                label="Region"
-                                required
-                                name="projectRegion"
-                                control={form.control}
-                                items={["US", "EU"]}
-                            />
-                        </div>
-                    </>
-                )}
-                <h1 className="text-xl font-bold">Component Details</h1>
-                <Divider />
-                <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-                    <TextField label="Name" required name="name" placeholder="component-name" control={form.control} />
-                    <DirectorySelect
-                        name="subPath"
-                        label="Directory"
-                        required
-                        control={form.control}
-                        basePath={directoryPath}
-                    />
-                    <Dropdown
-                        label="Repository"
-                        required
-                        name="repoUrl"
-                        control={form.control}
-                        items={gitRemotes}
-                        disabled={gitRemotes?.length === 0}
-                        loading={isLoadingRemotes}
-                        wrapClassName="col-span-full"
-                    />
-                    {showRequireRepoAccess && (
-                        <WarningBanner className="col-span-full">
-                            <span className="text-vsc-inputValidation-warningForeground">
-                                Choreo lacks access to this repository. To grant access, please visit{" "}
-                                <VSCodeLink onClick={openGitInstallUrl}>{gitInstallUrl}</VSCodeLink>
-                            </span>
-                        </WarningBanner>
+        <div className="flex flex-row justify-center p-6">
+            <div className="container">
+                <form className="mx-auto max-w-4xl flex flex-col gap-2 p-4">
+                    {!project && (
+                        <>
+                            <h1 className="text-xl font-bold">Project Details</h1>
+                            <Divider />
+                            <div className="grid md:grid-cols-2 gap-4 md:gap-6 mb-8">
+                                <TextField
+                                    label="Name"
+                                    required
+                                    name="projectName"
+                                    placeholder="project-name"
+                                    control={form.control}
+                                />
+                                <Dropdown
+                                    label="Region"
+                                    required
+                                    name="projectRegion"
+                                    control={form.control}
+                                    items={["US", "EU"]}
+                                />
+                            </div>
+                        </>
                     )}
-                    <Dropdown
-                        label="Branch"
-                        required
-                        name="branch"
-                        control={form.control}
-                        items={branches}
-                        disabled={branches?.length === 0 || !hasRepoAccess}
-                        loading={isLoadingBranches}
-                    />
-                    <Dropdown
-                        label="Type"
-                        required
-                        name="type"
-                        items={[
-                            { label: "Service", value: ChoreoComponentType.Service },
-                            { label: "Scheduled Task", value: ChoreoComponentType.ScheduledTask },
-                            { label: "Manual Trigger", value: ChoreoComponentType.ManualTrigger },
-                            { label: "Web Application", value: ChoreoComponentType.WebApplication },
-                            { label: "Webhook", value: ChoreoComponentType.Webhook },
-                        ]}
-                        control={form.control}
-                    />
-                    <Dropdown
-                        label="Build Pack"
-                        required
-                        name="buildPackLang"
-                        control={form.control}
-                        items={buildpacks?.map((item) => ({ label: item.displayName, value: item.language }))}
-                        loading={isLoadingBuildPacks}
-                    />
-                    {...additionalConfigs}
-                </div>
+                    <h1 className="text-xl font-bold">Component Details</h1>
+                    <Divider />
+                    <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+                        <TextField
+                            label="Name"
+                            required
+                            name="name"
+                            placeholder="component-name"
+                            control={form.control}
+                        />
+                        <DirectorySelect
+                            name="subPath"
+                            label="Directory"
+                            required
+                            control={form.control}
+                            basePath={directoryPath}
+                        />
+                        <Dropdown
+                            label="Repository"
+                            required
+                            name="repoUrl"
+                            control={form.control}
+                            items={gitRemotes}
+                            disabled={gitRemotes?.length === 0}
+                            loading={isLoadingRemotes}
+                            wrapClassName="col-span-full"
+                        />
+                        {showRequireRepoAccess && (
+                            <WarningBanner className="col-span-full">
+                                <span className="text-vsc-inputValidation-warningForeground">
+                                    Choreo lacks access to this repository. To grant access, please visit{" "}
+                                    <VSCodeLink onClick={openGitInstallUrl}>{gitInstallUrl}</VSCodeLink>
+                                </span>
+                            </WarningBanner>
+                        )}
+                        <Dropdown
+                            label="Branch"
+                            required
+                            name="branch"
+                            control={form.control}
+                            items={branches}
+                            disabled={branches?.length === 0 || !hasRepoAccess}
+                            loading={isLoadingBranches}
+                        />
+                        <Dropdown
+                            label="Type"
+                            required
+                            name="type"
+                            items={[
+                                { label: "Service", value: ChoreoComponentType.Service },
+                                { label: "Scheduled Task", value: ChoreoComponentType.ScheduledTask },
+                                { label: "Manual Trigger", value: ChoreoComponentType.ManualTrigger },
+                                { label: "Web Application", value: ChoreoComponentType.WebApplication },
+                                { label: "Webhook", value: ChoreoComponentType.Webhook },
+                            ]}
+                            control={form.control}
+                        />
+                        <Dropdown
+                            label="Build Pack"
+                            required
+                            name="buildPackLang"
+                            control={form.control}
+                            items={buildpacks?.map((item) => ({ label: item.displayName, value: item.language }))}
+                            loading={isLoadingBuildPacks}
+                        />
+                        {...additionalConfigs}
+                    </div>
 
-                <div className="flex gap-3 justify-end pt-6 pb-4">
-                    <Button onClick={() => ChoreoWebViewAPI.getInstance().closeWebView()} appearance="secondary">
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={form.handleSubmit(onSubmit)}
-                        tooltip={showRequireRepoAccess ? "Access to selected repository is required to proceed" : ""}
-                        disabled={showRequireRepoAccess || isCreatingComponent}
-                    >
-                        {isCreatingComponent ? "Creating...": "Create"}
-                    </Button>
-                </div>
-            </form>
-        </div>
+                    <div className="flex gap-3 justify-end pt-6 pb-4">
+                        <Button onClick={() => ChoreoWebViewAPI.getInstance().closeWebView()} appearance="secondary">
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={form.handleSubmit(onSubmit)}
+                            tooltip={
+                                showRequireRepoAccess ? "Access to selected repository is required to proceed" : ""
+                            }
+                            disabled={showRequireRepoAccess || isCreatingComponent}
+                        >
+                            {isCreatingComponent ? "Creating..." : "Create"}
+                        </Button>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 };

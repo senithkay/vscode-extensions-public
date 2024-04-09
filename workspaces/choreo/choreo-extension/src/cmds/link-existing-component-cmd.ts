@@ -9,11 +9,13 @@
 import { ExtensionContext, window, commands, ProgressLocation } from "vscode";
 import { ext } from "../extensionVariables";
 import { CommandIds } from "@wso2-enterprise/choreo-core";
-import { authStore } from "../states/authState";
+import { authStore } from "../stores/auth-store";
 import { initGit } from "../git/main";
 import * as path from "path";
-import { linkedDirectoryStore } from "../states/linkedDirState";
+import * as fs from "fs";
+import { linkedDirectoryStore } from "../stores/linked-dir-store";
 import { selectOrg, selectProject, selectComponent, resolveWorkspaceDirectory } from "./cmd-utils/common-utils";
+import { getGitRoot } from "./cmd-utils/git-utils";
 
 export function linkExistingComponentCommand(context: ExtensionContext) {
     context.subscriptions.push(
@@ -31,34 +33,37 @@ export function linkExistingComponentCommand(context: ExtensionContext) {
 
             const directory = await resolveWorkspaceDirectory();
 
-            const componentDir = await window.showOpenDialog({
-                canSelectFolders: true,
-                canSelectFiles: false,
-                canSelectMany: false,
-                title: "Component Directory",
-                defaultUri: directory.uri,
-            });
+            let discoveredCompPath = "";
 
-            if (componentDir === undefined || componentDir.length === 0) {
-                throw new Error("Component directory is required to link with a component");
+            const gitRoot = await getGitRoot(context, directory.uri.path);
+            if (gitRoot) {
+                const possibleComponentRoot = path.join(gitRoot, selectedComponent.spec.source.github?.path!);
+                if (fs.existsSync(possibleComponentRoot)) {
+                    discoveredCompPath = possibleComponentRoot;
+                }
+            }
+
+            if (discoveredCompPath === "") {
+                const componentDir = await window.showOpenDialog({
+                    canSelectFolders: true,
+                    canSelectFiles: false,
+                    canSelectMany: false,
+                    title: "Component Directory",
+                    defaultUri: directory.uri,
+                });
+
+                if (componentDir === undefined || componentDir.length === 0) {
+                    throw new Error("Component directory is required to link with a component");
+                }
+
+                discoveredCompPath = componentDir[0].path;
             }
 
             await window.withProgress(
                 { title: `Generating Link File...`, location: ProgressLocation.Notification },
                 async () => {
-                    const newGit = await initGit(context);
-                    const repoRootPath = await newGit?.getRepositoryRoot(directory.uri.path);
-                    const relativePath = path.relative(repoRootPath!, componentDir[0]!.path);
-
-                    if (relativePath !== selectedComponent.spec?.source?.github?.path) {
-                        window.showErrorMessage("Invalid Directory Selection", {
-                            modal: true,
-                            detail: `Selected directory does not match with selected component directory. Please navigate into "${selectedComponent.spec?.source?.github?.path}" directory and retry`,
-                        });
-                        return;
-                    }
                     await ext.clients.rpcClient.createComponentLink({
-                        componentDir: componentDir[0].path,
+                        componentDir: discoveredCompPath,
                         componentHandle: selectedComponent.metadata.name,
                         orgHandle: selectedOrg.handle,
                         projectHandle: selectedProject.handler,

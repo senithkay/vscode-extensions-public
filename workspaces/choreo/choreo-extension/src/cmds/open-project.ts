@@ -11,7 +11,7 @@ import * as vscode from 'vscode';
 import { createNewProjectCmdId, openProjectCmdId } from '../constants';
 import { ext } from '../extensionVariables';
 import { ProjectRegistry } from '../registry/project-registry';
-import { cloneProject } from './clone';
+import { cloneProject } from '../git/clone';
 import path = require('path');
 import { OPEN_PROJECT_EVENT, Organization, Project } from '@wso2-enterprise/choreo-core';
 import { sendTelemetryEvent } from '../telemetry/utils';

@@ -15,10 +15,6 @@
     "Other"
   ],
   "activationEvents": [
-    "workspaceContains:.choreo-project",
-    "workspaceContains:**/component.yaml",
-    "onView:choreo-projects",
-    "onView:choreo-account",
     "onStartupFinished"
   ],
   "extensionDependencies": [
@@ -40,16 +36,6 @@
     ],
     "commands": [
       {
-        "command": "wso2.choreo.sign.in",
-        "title": "Sign In",
-        "category": "Choreo"
-      },
-      {
-        "command": "wso2.choreo.sign.out",
-        "title": "Sign Out",
-        "category": "Choreo"
-      },
-      {
         "command": "wso2.choreo.project.clone",
         "title": "Clone to new Workspace"
       },
@@ -60,12 +46,6 @@
       {
         "command": "wso2.choreo.project.create",
         "title": "Create New Project",
-        "category": "Choreo",
-        "icon": "$(add)"
-      },
-      {
-        "command": "wso2.choreo.component.create",
-        "title": "Create New Component (old)",
         "category": "Choreo",
         "icon": "$(add)"
       },
@@ -88,43 +68,64 @@
         "icon": "$(list-selection)"
       },
       {
-        "command": "wso2.choreo.architecture.view",
-        "title": "View Choreo Project Architecture",
-        "category": "Choreo"
-      },
-      {
         "command": "wso2.choreo.cell.view",
         "title": "View Choreo Cell Diagram",
         "category": "Choreo"
       },
-      {
-        "command": "wso2.choreo.sign.in.with.authCode",
-        "title": "Sign In with Auth Code",
-        "category": "Choreo"
-      },
+
       {
         "command": "wso2.choreo.getStarted",
         "title": "Get Started",
         "category": "Choreo"
       },
       {
-        "command": "wso2.choreo.create.component",
-        "title": "Create new Component",
+        "command": "wso2.choreo.sign.in",
+        "title": "Sign In",
         "category": "Choreo",
-        "icon": "$(add)"
+        "icon": "${sign-in}",
+        "enablement": "isLoggedIn == false"
+      },
+      {
+        "command": "wso2.choreo.sign.in.with.authCode",
+        "title": "Sign In with Auth Code",
+        "category": "Choreo",
+        "enablement": "isLoggedIn == false"
+      },
+      {
+        "command": "wso2.choreo.sign.out",
+        "title": "Sign Out",
+        "category": "Choreo",
+        "icon": "${sign-out}",
+        "enablement": "isLoggedIn == true"
+      },
+      {
+        "command": "wso2.choreo.create.component",
+        "title": "Create Component",
+        "category": "Choreo",
+        "icon": "$(add)",
+        "enablement": "isLoggedIn == true"
       },
       {
         "command": "wso2.choreo.refresh.component",
         "title": "Refresh Components",
         "category": "Choreo",
-        "icon": "$(refresh)"
+        "icon": "$(refresh)",
+        "enablement": "isLoggedIn == true"
       },
       {
         "command": "wso2.choreo.link.component",
         "title": "Link Directory",
         "category": "Choreo",
-        "icon": "$(link)"
-      }      
+        "icon": "$(link)",
+        "enablement": "isLoggedIn == true"
+      },
+      {
+        "command": "wso2.choreo.delete.component",
+        "title": "Delete Component",
+        "category": "Choreo",
+        "icon": "$(trash)",
+        "enablement": "isLoggedIn == true"
+      }
     ],
     "viewsContainers": {
       "activitybar": [
@@ -165,12 +166,6 @@
           "command": "wso2.choreo.refresh.component",
           "when": "view == choreo.activity.components && isLoggedIn == true",
           "group": "navigation"
-        }
-      ],
-      "commandPalette": [
-        {
-          "command": "wso2.choreo.architecture.view",
-          "when": "false"
         }
       ]
     },

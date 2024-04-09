@@ -1,0 +1,50 @@
+/*
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+import { ExtensionContext, commands, window } from "vscode";
+import { ext } from "../extensionVariables";
+import { authStore } from "../stores/auth-store";
+import { getLogger } from "../logger/logger";
+import { CommandIds } from "@wso2-enterprise/choreo-core";
+import * as vscode from "vscode";
+
+export function signInWithAuthCodeCommand(context: ExtensionContext) {
+    context.subscriptions.push(
+        commands.registerCommand(CommandIds.SignInWithAuthCode, async () => {
+            try {
+                // This is used in the extension test runner to sign into choreo
+                getLogger().debug("Signing in to Choreo using code");
+
+                const authCode = await vscode.window.showInputBox({
+                    prompt: "Enter Authentication Code: ",
+                    placeHolder: "Code",
+                    ignoreFocusOut: true,
+                });
+
+                if (authCode) {
+                    ext.clients.rpcClient.signInWithAuthCode(authCode).then((userInfo) => {
+                        if (userInfo) {
+                            authStore.getState().loginSuccess(userInfo);
+                        }
+                    });
+                } else {
+                    window.showErrorMessage("Auth Code is required to login");
+                }
+            } catch (error: any) {
+                getLogger().error(
+                    "Error while signing in using Auth Code." +
+                        error?.message +
+                        (error?.cause ? "\nCause: " + error.cause.message : "")
+                );
+                if (error instanceof Error) {
+                    window.showErrorMessage(error.message);
+                }
+            }
+        })
+    );
+}

@@ -16,7 +16,6 @@ import { window, extensions, workspace, ConfigurationChangeEvent, commands, Uri 
 import * as path from "path";
 import * as fs from "fs";
 
-import { activateAuth } from "./auth";
 import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
 
 import { ext } from "./extensionVariables";
@@ -41,15 +40,9 @@ import { enrichComponentSchema, regexFilePathChecker } from "./utils";
 import { activateCellDiagram } from './cell-diagram/activate';
 import { Cache } from "./cache";
 import { initRPCServer } from "./choreo-rpc/activate";
-import { linkedDirectoryStore } from "./states/linkedDirState";
-import { authStore } from "./states/authState";
-
-export function activateBallerinaExtension() {
-    const ext = extensions.getExtension("wso2.ballerina");
-    if (ext && !ext.isActive) {
-        ext.activate();
-    }
-}
+import { linkedDirectoryStore } from "./stores/linked-dir-store";
+import { authStore } from "./stores/auth-store";
+import { dataCacheStore } from "./stores/data-cache-store";
 
 export async function activate(context: vscode.ExtensionContext) {
     activateTelemetry(context);
@@ -59,13 +52,19 @@ export async function activate(context: vscode.ExtensionContext) {
     ext.context = context;
     ext.api = new ChoreoExtensionApi();
 
-    authStore.persist.rehydrate();
-    linkedDirectoryStore.persist.rehydrate();
+    // Initialize stores
+    await authStore.persist.rehydrate();
+    await linkedDirectoryStore.persist.rehydrate();
+    await dataCacheStore.persist.rehydrate();
     authStore.subscribe(data=>vscode.commands.executeCommand("setContext", "isLoggedIn", !!data.state.userInfo));
 
     activateWizards();
     activateClients();
-    activateAuth(context);
+
+    // states
+    authStore.getState().initAuth();
+    linkedDirectoryStore.getState().refreshState();
+
     activateCmds(context);
     activateActivityBarWebViews(context);
     activateURIHandlers();
@@ -77,9 +76,8 @@ export async function activate(context: vscode.ExtensionContext) {
     ext.isPluginStartup = false;
     openChoreoActivity();
     getLogger().debug("Choreo Extension activated");
-    await registerYamlLangugeServer();
-    // states
-    linkedDirectoryStore.getState().refreshState();
+    registerYamlLanguageServer();
+
     return ext.api;
 }
 
@@ -158,7 +156,7 @@ async function getComponentYamlMetadata():
     return { project: {} as Project, component: openedComponent, isLocalComponent };
 }
 
-async function registerYamlLangugeServer(): Promise<void> {
+async function registerYamlLanguageServer(): Promise<void> {
     try {
         const yamlExtension = extensions.getExtension("redhat.vscode-yaml");
         if (!yamlExtension) {

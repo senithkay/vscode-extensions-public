@@ -52,6 +52,36 @@ export interface Organization {
     owner: Owner;
 }
 
+
+export interface DataCacheState {
+    orgs?: {
+        [orgHandle: string]: {
+            projects?: {
+                [projectHandle: string]: {
+                    data?: Project;
+                    components?: { [componentHandle: string]: { data?: ComponentKind; }; };
+                };
+            };
+            data?: Organization;
+        };
+    };
+    loading?: boolean;
+}
+
+
+/*
+export interface DataCacheState {
+    orgs?: {
+        data?:Organization;
+        projects?: {
+            data?: Project;
+            components?: ComponentKind[];
+        }[]
+    }[];
+    loading?: boolean;
+}
+*/
+
 export interface UserInfo {
     displayName: string;
     userEmail: string;
@@ -86,6 +116,9 @@ export interface ComponentLink {
     linkFullPath: string;
     linkRelativePath: string;
     linkContent: ComponentLinkContent;
+    organization?: Organization;
+    project?: Project;
+    component?: ComponentKind;
 }
 
 export interface LinkedDirectoryState {

@@ -8,7 +8,6 @@
  */
 import { QuickPickItem, QuickPickOptions, commands, window } from "vscode";
 import {
-    createNewComponentCmdId,
     createNewProjectCmdId,
     cloneAllComponentsCmdId,
     cloneRepoToCurrentProjectWorkspaceCmdId,
@@ -17,10 +16,10 @@ import {
 import { ext } from "../extensionVariables";
 import { WebviewWizard, WizardTypes } from "../views/webviews/WebviewWizard";
 import { CREATE_PROJECT_EVENT } from "@wso2-enterprise/choreo-core";
-import { cloneProject, cloneRepoToCurrentProjectWorkspace } from "../cmds/clone";
+import { cloneProject, cloneRepoToCurrentProjectWorkspace } from "../git/clone";
 import { ProjectRegistry } from "../registry/project-registry";
 import { sendTelemetryEvent } from "../telemetry/utils";
-import { authStore } from "../states/authState";
+import { authStore } from "../stores/auth-store";
 
 let projectWizard: WebviewWizard;
 let componentWizard: WebviewWizard;
@@ -66,22 +65,22 @@ export function activateWizards() {
     //     }
     // });
 
-    const createComponentCmd = commands.registerCommand(createNewComponentCmdId, async () => {
-        const userInfo = authStore.getState().state.userInfo;
-        // show a message if user is not logged in
-        if (!userInfo) {
-            window.showInformationMessage('You are not logged in. Please log in to continue.');
-            return;
-        }
+    // const createComponentCmd = commands.registerCommand(createNewComponentCmdId, async () => {
+    //     const userInfo = authStore.getState().state.userInfo;
+    //     // show a message if user is not logged in
+    //     if (!userInfo) {
+    //         window.showInformationMessage('You are not logged in. Please log in to continue.');
+    //         return;
+    //     }
 
-        if (componentWizard) {
-            componentWizard.dispose();
-        }
-        componentWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.componentCreation);
-        componentWizard.getWebview()?.reveal();
-    });
+    //     if (componentWizard) {
+    //         componentWizard.dispose();
+    //     }
+    //     componentWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.componentCreation);
+    //     componentWizard.getWebview()?.reveal();
+    // });
 
-    ext.context.subscriptions.push(createComponentCmd);
+    // ext.context.subscriptions.push(createComponentCmd);
 
     commands.registerCommand(cloneAllComponentsCmdId, cloneProject);
     commands.registerCommand(cloneRepoToCurrentProjectWorkspaceCmdId, cloneRepoToCurrentProjectWorkspace);

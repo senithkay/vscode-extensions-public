@@ -112,6 +112,9 @@ import {
     GetGetRemotes,
     JoinFilePaths,
     RefreshLinkedDirState,
+    DeleteFile,
+    ShowConfirmMessage,
+    ShowConfirmBoxReq,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -139,7 +142,17 @@ export class ChoreoWebViewAPI {
         this._githubAppClient = new ChoreoGithubAppClientRPCWebView(this._messenger);
         this._choreoProjectManager = new ChoreoProjectManagerRPCWebview(this._messenger);
         this._choreoCellView = new ChoreoCellViewRPCWebview(this._messenger);
-        // TODO: add rpc client here
+    }
+
+    public static getInstance() {
+        if (!this._instance) {
+            this._instance = new ChoreoWebViewAPI(vscode);
+        }
+        return this._instance;
+    }
+
+    public getChoreoRpcClient(): IChoreoRPCClient {
+        return this._rpcClient;
     }
 
     // New notifications
@@ -152,6 +165,18 @@ export class ChoreoWebViewAPI {
     }
 
     // New RPC calls
+    public showErrorMsg(error: string) {
+        this._messenger.sendNotification(ShowErrorMessage, HOST_EXTENSION, error);
+    }
+
+    public showInfoMsg(info: string) {
+        this._messenger.sendNotification(ShowInfoMessage, HOST_EXTENSION, info);
+    }
+
+    public closeWebView() {
+        this._messenger.sendNotification(CloseWebViewNotification, HOST_EXTENSION, undefined);
+    }
+
     public async getAuthState(): Promise<AuthState> {
         return this._messenger.sendRequest(GetAuthState, HOST_EXTENSION, undefined);
     }
@@ -164,10 +189,6 @@ export class ChoreoWebViewAPI {
         this._messenger.sendNotification(RefreshLinkedDirState, HOST_EXTENSION, undefined);
     }
 
-    public getChoreoRpcClient(): IChoreoRPCClient {
-        return this._rpcClient;
-    }
-
     public async showOpenSubDialog(options: OpenDialogOptions): Promise<string[] | undefined> {
         return this._messenger.sendRequest(OpenSubDialogRequest, HOST_EXTENSION, options);
     }
@@ -178,6 +199,30 @@ export class ChoreoWebViewAPI {
 
     public async joinFilePaths(paths: string[]): Promise<string> {
         return this._messenger.sendRequest(JoinFilePaths, HOST_EXTENSION, paths);
+    }
+
+    public triggerCmd(cmdId: string, ...args: any) {
+        return this._messenger.sendRequest(ExecuteCommandRequest, HOST_EXTENSION, [cmdId, ...args]);
+    }
+
+    public async setWebviewCache(cacheKey: IDBValidKey, data: unknown): Promise<void> {
+        return this._messenger.sendRequest(SetWebviewCache, HOST_EXTENSION, { cacheKey, data });
+    }
+
+    public async restoreWebviewCache(cacheKey: IDBValidKey): Promise<unknown> {
+        return this._messenger.sendRequest(RestoreWebviewCache, HOST_EXTENSION, cacheKey);
+    }
+
+    public async clearWebviewCache(cacheKey: IDBValidKey): Promise<unknown> {
+        return this._messenger.sendRequest(ClearWebviewCache, HOST_EXTENSION, cacheKey);
+    }
+
+    public async deleteFile(filePath: string): Promise<void> {
+        return this._messenger.sendRequest(DeleteFile, HOST_EXTENSION, filePath);
+    }
+
+    public async showConfirmMessage(params: ShowConfirmBoxReq): Promise<boolean> {
+        return this._messenger.sendRequest(ShowConfirmMessage, HOST_EXTENSION, params);
     }
     // todo: remove old ones
 
@@ -361,20 +406,8 @@ export class ChoreoWebViewAPI {
         this._messenger.onNotification(SelectedProjectChangedNotification, callback);
     }
 
-    public triggerCmd(cmdId: string, ...args: any) {
-        return this._messenger.sendRequest(ExecuteCommandRequest, HOST_EXTENSION, [cmdId, ...args]);
-    }
-
     public getProjectClient(): IChoreoProjectClient {
         return this._projectClientRpc;
-    }
-
-    public showErrorMsg(error: string) {
-        this._messenger.sendNotification(ShowErrorMessage, HOST_EXTENSION, error);
-    }
-
-    public showInfoMsg(info: string) {
-        this._messenger.sendNotification(ShowInfoMessage, HOST_EXTENSION, info);
     }
 
     public getChoreoGithubAppClient(): ChoreoGithubAppClientRPCWebView {
@@ -389,19 +422,8 @@ export class ChoreoWebViewAPI {
         return this._choreoCellView;
     }
 
-    public closeWebView() {
-        this._messenger.sendNotification(CloseWebViewNotification, HOST_EXTENSION, undefined);
-    }
-
     public async showOpenDialog(options: OpenDialogOptions): Promise<string[] | undefined> {
         return this._messenger.sendRequest(showOpenDialogRequest, HOST_EXTENSION, options);
-    }
-
-    public static getInstance() {
-        if (!this._instance) {
-            this._instance = new ChoreoWebViewAPI(vscode);
-        }
-        return this._instance;
     }
 
     public setChoreoInstallOrg(orgId: number) {
@@ -438,18 +460,6 @@ export class ChoreoWebViewAPI {
 
     public async fireRefreshComponents(): Promise<void> {
         return this._messenger.sendRequest(FireRefreshComponentList, HOST_EXTENSION, null);
-    }
-
-    public async setWebviewCache(cacheKey: IDBValidKey, data: unknown): Promise<void> {
-        return this._messenger.sendRequest(SetWebviewCache, HOST_EXTENSION, { cacheKey, data });
-    }
-
-    public async restoreWebviewCache(cacheKey: IDBValidKey): Promise<unknown> {
-        return this._messenger.sendRequest(RestoreWebviewCache, HOST_EXTENSION, cacheKey);
-    }
-
-    public async clearWebviewCache(cacheKey: IDBValidKey): Promise<unknown> {
-        return this._messenger.sendRequest(ClearWebviewCache, HOST_EXTENSION, cacheKey);
     }
     
     public async isBallerinaExtInstalled(): Promise<boolean> {

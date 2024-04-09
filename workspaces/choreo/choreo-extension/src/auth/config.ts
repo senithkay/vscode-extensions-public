@@ -50,6 +50,8 @@ export interface IChoreoEnvConfig {
     billingConsoleBaseUrl: string;
 }
 
+// github installation url and console url might be the only needed config
+
 export const DEFAULT_CHOREO_ENV_CONFIG: IChoreoEnvConfig = {
     loginUrl: "https://console.choreo.dev/login",
     tokenUrl: "https://api.asgardeo.io/t/a/oauth2/token",

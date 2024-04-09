@@ -107,6 +107,9 @@ import {
     ShowInfoMessage,
     JoinFilePaths,
     RefreshLinkedDirState,
+    DeleteFile,
+    ShowConfirmMessage,
+    ShowConfirmBoxReq,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -116,15 +119,15 @@ import { registerChoreoProjectManagerRPCHandlers, ChoreoProjectManager } from "@
 import { ext } from "../../../extensionVariables";
 import { ProjectRegistry } from "../../../registry/project-registry";
 import * as vscode from "vscode";
-import { cloneProject, askProjectDirPath } from "../../../cmds/clone";
+import { cloneProject, askProjectDirPath } from "../../../git/clone";
 import { enrichConsoleDeploymentData, mergeNonClonedProjectData } from "../../../utils";
 import { getLogger } from "../../../logger/logger";
 import { initGit } from "../../../git/main";
 import { dirname, join } from "path";
 import { sendTelemetryEvent, sendTelemetryException } from "../../../telemetry/utils";
-import { existsSync } from "fs";
-import { authStore } from "../../../states/authState";
-import { linkedDirectoryStore } from "../../../states/linkedDirState";
+import { existsSync, unlink, unlinkSync } from "fs";
+import { authStore } from "../../../stores/auth-store";
+import { linkedDirectoryStore } from "../../../stores/linked-dir-store";
 import { registerChoreoRpcResolver } from "../../../choreo-rpc";
 import { removeCredentialsFromGitURL } from "../../../git/util";
 
@@ -200,10 +203,6 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     messenger.onRequest(ClearWebviewCache, async (cacheKey) => {
         await ext.context.workspaceState.update(cacheKey, undefined);
     });
-    messenger.onRequest(IsBallerinaExtInstalled, () => {
-        const ext = vscode.extensions.getExtension("wso2.ballerina");
-        return !!ext;
-    });
     messenger.onRequest(GoToSource, async (filePath): Promise<void> => {
         if (existsSync(filePath)) {
             const sourceFile = await vscode.workspace.openTextDocument(filePath);
@@ -211,9 +210,20 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             await commands.executeCommand("workbench.explorer.fileView.focus");
         }
     });
+    messenger.onRequest(DeleteFile, async (linkFilePath) => {
+        unlinkSync(linkFilePath);
+    });
+    messenger.onRequest(ShowConfirmMessage, async (params: ShowConfirmBoxReq) => {
+        const response = await window.showInformationMessage(params.message,{modal: true},params.buttonText);
+        return response === params.buttonText;
+    });
     // TODO remove old ones
 
   
+    messenger.onRequest(IsBallerinaExtInstalled, () => {
+        const ext = vscode.extensions.getExtension("wso2.ballerina");
+        return !!ext;
+    });
 
 
     // TODO: Remove this once the Choreo project client RPC handlers are registered

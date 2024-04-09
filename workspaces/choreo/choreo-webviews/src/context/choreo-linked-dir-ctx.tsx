@@ -18,6 +18,7 @@ import { ErrorBanner, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 
 export interface ILinkedDirContext {
     links: ComponentLink[];
+    isLoading?: boolean;
 }
 
 const defaultContext: ILinkedDirContext = {
@@ -57,6 +58,7 @@ export const LinkedDirContextProvider: FC<Props> = ({ children }) => {
         <ChoreoLinkedDirContext.Provider
             value={{
                 links: linkedDirState?.links || [],
+                isLoading: isLoading || linkedDirState.loading
             }}
         >
             {linkedDirStateError ? (
@@ -64,7 +66,7 @@ export const LinkedDirContextProvider: FC<Props> = ({ children }) => {
             ) : (
                 <>
                     {(isLoading || linkedDirState.loading) && <ProgressIndicator />}
-                    {!isLoading && children}
+                    {children}
                 </>
             )}
         </ChoreoLinkedDirContext.Provider>
