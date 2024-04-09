@@ -1,4 +1,5 @@
 const path = require("path");
+const webpack = require('webpack');
 
 module.exports = {
   entry: "./src/index.tsx",
@@ -18,8 +19,7 @@ module.exports = {
     },
   },
   module: {
-    rules: [
-      {
+    rules: [{
         test: /\.(ts|tsx)$/,
         loader: "ts-loader",
         exclude: '/node_modules/',
@@ -70,7 +70,14 @@ module.exports = {
       'Access-Control-Allow-Origin': '*',
     },
     devMiddleware: {
-      mimeTypes: { 'text/css': ['css'] },
+      mimeTypes: {
+        'text/css': ['css']
+      },
     },
-  }
+  },
+  plugins: [
+    new webpack.optimize.LimitChunkCountPlugin({
+      maxChunks: 1
+    }),
+  ]
 };
