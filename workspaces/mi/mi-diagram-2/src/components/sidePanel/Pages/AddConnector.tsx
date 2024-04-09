@@ -102,7 +102,9 @@ const AddConnector = (props: AddConnectorProps) => {
             const root = template.ele(`${props.formData.connectorName}${props.formData.operationName ? `.${props.formData.operationName}` : ''}`);
             // Fill the values
             Object.keys(formValues).forEach((key) => {
-                root.ele(key).txt(formValues[key]);
+                if (key !== 'configRef') {
+                    root.ele(key).txt(formValues[key]);
+                }
             });
             const modifiedXml = template.end({ prettyPrint: true, headless: true });
 

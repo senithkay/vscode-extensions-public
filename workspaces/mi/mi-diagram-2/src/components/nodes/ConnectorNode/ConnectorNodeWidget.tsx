@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConnectorNodeModel } from "./ConnectorNodeModel";
@@ -99,10 +99,26 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
     const visualizerContext = useVisualizerContext();
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
+    const [iconPath, setIconPath] = useState(null);
     const sidePanelContext = React.useContext(SidePanelContext);
     const { rpcClient } = useVisualizerContext();
     const hasDiagnotics = node.hasDiagnotics();
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
+                documentUri: node.documentUri,
+                connectorName: node.stNode.tag.split(".")[0]
+            });
+
+            const iconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: connectorData.iconPath, name: "icon-small.png" });
+            setIconPath(iconPath.uri);
+    
+        }
+    
+        fetchData();
+    }, [node]);
 
     const handleOnClickMenu = (event: any) => {
         setIsPopoverOpen(!isPopoverOpen);
@@ -150,7 +166,11 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                 >
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <S.Header>
-                        <S.IconContainer>{getSVGIcon("aggregate")}</S.IconContainer>
+                        {iconPath && (
+                            <S.IconContainer>
+                                <img src={iconPath} alt="Icon"/>
+                            </S.IconContainer>
+                        )}
                         <S.NodeText>{node.stNode.tag}</S.NodeText>
                         {isHovered && (
                             <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>

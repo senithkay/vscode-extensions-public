@@ -135,8 +135,10 @@ import {
     GetConnectorFormResponse,
     UpdateConnectorRequest,
     CreateDataSourceResponse,
+    DataSourceTemplate,
     GetDataSourceRequest,
-    DataSourceTemplate
+    GetIconPathUriRequest,
+    GetIconPathUriResponse,
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -219,7 +221,8 @@ export const getAvailableRegistryResources: RequestType<ListRegistryArtifactsReq
 export const rangeFormat: RequestType<RangeFormatRequest, ApplyEditResponse> = { method: `${_preFix}/rangeFormat` };
 export const downloadConnector: RequestType<DownloadConnectorRequest, DownloadConnectorResponse> = { method: `${_preFix}/downloadConnector` };
 export const getAvailableConnectors: RequestType<GetAvailableConnectorRequest, GetAvailableConnectorResponse> = { method: `${_preFix}/getAvailableConnectors` };
-export const updateConnectors: RequestType<UpdateConnectorRequest, void> = { method: `${_preFix}/updateConnectors` };
+export const updateConnectors: NotificationType<UpdateConnectorRequest> = { method: `${_preFix}/updateConnectors` };
 export const getConnectorForm: RequestType<GetConnectorFormRequest, GetConnectorFormResponse> = { method: `${_preFix}/getConnectorForm` };
 export const createDataSource: RequestType<DataSourceTemplate, CreateDataSourceResponse> = { method: `${_preFix}/createDataSource` };
 export const getDataSource: RequestType<GetDataSourceRequest, DataSourceTemplate> = { method: `${_preFix}/getDataSource` };
+export const getIconPathUri: RequestType<GetIconPathUriRequest, GetIconPathUriResponse> = { method: `${_preFix}/getIconPathUri` };

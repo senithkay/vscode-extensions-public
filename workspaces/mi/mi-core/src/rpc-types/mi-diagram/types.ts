@@ -1047,6 +1047,7 @@ export interface GetAvailableConnectorResponse {
     path?: string;
     uiSchemaPath?: string;
     version?: string;
+    iconPath?: string;
 }
 
 export interface UpdateConnectorRequest {
@@ -1090,4 +1091,13 @@ export interface JNDIDatasource {
     useDataSourceFactory: boolean;
     properties?: { [key: string]: string | number | boolean };
     JNDIConfigName: string;
+}
+
+export interface GetIconPathUriRequest {
+    path: string;
+    name: string;
+}
+
+export interface GetIconPathUriResponse {
+    uri: any;
 }

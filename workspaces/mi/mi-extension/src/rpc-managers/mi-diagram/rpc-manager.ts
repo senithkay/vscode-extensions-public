@@ -25,6 +25,7 @@ import {
     CreateAPIResponse,
     CreateClassMediatorRequest,
     CreateClassMediatorResponse,
+    CreateDataSourceResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
     CreateInboundEndpointRequest,
@@ -47,6 +48,7 @@ import {
     CreateTaskResponse,
     CreateTemplateRequest,
     CreateTemplateResponse,
+    DataSourceTemplate,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
     ESBConfigsResponse,
@@ -64,12 +66,15 @@ import {
     GetBackendRootUrlResponse,
     GetConnectorFormRequest,
     GetConnectorFormResponse,
+    GetDataSourceRequest,
     GetDefinitionRequest,
     GetDefinitionResponse,
     GetDiagnosticsReqeust,
     GetDiagnosticsResponse,
     GetFailoverEPRequest,
     GetFailoverEPResponse,
+    GetIconPathUriRequest,
+    GetIconPathUriResponse,
     GetInboundEndpointRequest,
     GetInboundEndpointResponse,
     GetLoadBalanceEPRequest,
@@ -139,10 +144,7 @@ import {
     WriteContentToFileRequest,
     WriteContentToFileResponse,
     getSTRequest,
-    getSTResponse,
-    DataSourceTemplate,
-    GetDataSourceRequest,
-    CreateDataSourceResponse
+    getSTResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -159,7 +161,6 @@ import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpoint
 import { addNewEntryToArtifactXML, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension } from "../../util/fileOperations";
 import { importProject } from "../../util/migrationUtils";
 import { getDataserviceXml } from "../../util/template-engine/mustach-templates/Dataservice";
-import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
 import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/recipientEndpoint";
@@ -2495,7 +2496,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
             const rootPath = workspaceFolders[0].uri.fsPath;
 
-            const connectorPath = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'registry', `${connector.replace(/\s+/g, '')}-${version}.zip`)
+            const connectorDirectory = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors');
+
+            if (!fs.existsSync(connectorDirectory)) {
+                fs.mkdirSync(connectorDirectory, { recursive: true });
+            }
+
+            const connectorPath = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors', `${connector.replace(/\s+/g, '')}-${version}.zip`)
 
             if (!fs.existsSync(connectorPath)) {
                 const response = await axios.get(url, {
@@ -2877,6 +2884,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 return resolve(response);
             }
             resolve(Promise.reject(new Error('Invalid data source')));
+        });
+    }
+
+    async getIconPathUri(params: GetIconPathUriRequest): Promise<GetIconPathUriResponse> {
+        return new Promise(async (resolve) => {
+            if (VisualizerWebview.currentPanel) {
+                let iconUri = VisualizerWebview.currentPanel.getIconPath(params.path, params.name);
+                resolve({uri: iconUri});
+            }
         });
     }
 }

@@ -136,6 +136,8 @@ import {
     CreateDataSourceResponse,
     DataSourceTemplate,
     GetDataSourceRequest,
+    GetIconPathUriRequest,
+    GetIconPathUriResponse,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -217,8 +219,9 @@ export interface MiDiagramAPI {
     rangeFormat: (params: RangeFormatRequest) => Promise<ApplyEditResponse>;
     downloadConnector: (params: DownloadConnectorRequest) => Promise<DownloadConnectorResponse>;
     getAvailableConnectors: (params: GetAvailableConnectorRequest) => Promise<GetAvailableConnectorResponse>;
-    updateConnectors: (params: UpdateConnectorRequest) => Promise<void>;
+    updateConnectors: (params: UpdateConnectorRequest) => void;
     getConnectorForm: (params: GetConnectorFormRequest) => Promise<GetConnectorFormResponse>;
     createDataSource: (params: DataSourceTemplate) => Promise<CreateDataSourceResponse>;
     getDataSource: (params: GetDataSourceRequest) => Promise<DataSourceTemplate>;
+    getIconPathUri: (params: GetIconPathUriRequest) => Promise<GetIconPathUriResponse>;
 }

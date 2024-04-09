@@ -24,6 +24,7 @@ import {
     CreateAPIResponse,
     CreateClassMediatorRequest,
     CreateClassMediatorResponse,
+    CreateDataSourceResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
     CreateInboundEndpointRequest,
@@ -46,6 +47,7 @@ import {
     CreateTaskResponse,
     CreateTemplateRequest,
     CreateTemplateResponse,
+    DataSourceTemplate,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
     ESBConfigsResponse,
@@ -61,12 +63,15 @@ import {
     GetBackendRootUrlResponse,
     GetConnectorFormRequest,
     GetConnectorFormResponse,
+    GetDataSourceRequest,
     GetDefinitionRequest,
     GetDefinitionResponse,
     GetDiagnosticsReqeust,
     GetDiagnosticsResponse,
     GetFailoverEPRequest,
     GetFailoverEPResponse,
+    GetIconPathUriRequest,
+    GetIconPathUriResponse,
     GetInboundEndpointRequest,
     GetInboundEndpointResponse,
     GetLoadBalanceEPRequest,
@@ -82,6 +87,8 @@ import {
     GetSelectiveWorkspaceContextResponse,
     GetTaskRequest,
     GetTaskResponse,
+    GetTemplateEPRequest,
+    GetTemplateEPResponse,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
     GetWorkspaceContextResponse,
@@ -141,6 +148,7 @@ import {
     closeWebViewNotification,
     createAPI,
     createClassMediator,
+    createDataSource,
     createEndpoint,
     createInboundEndpoint,
     createLocalEntry,
@@ -164,6 +172,7 @@ import {
     getConnector,
     getConnectorForm,
     getConnectors,
+    getDataSource,
     getDefaultEndpoint,
     getDefinition,
     getDiagnostics,
@@ -172,6 +181,7 @@ import {
     getEndpointsAndSequences,
     getFailoverEndpoint,
     getHttpEndpoint,
+    getIconPathUri,
     getInboundEndpoint,
     getLoadBalanceEndpoint,
     getLocalEntry,
@@ -213,14 +223,7 @@ import {
     updateRecipientEndpoint,
     updateTemplateEndpoint,
     updateWsdlEndpoint,
-    writeContentToFile,
-    GetTemplateEPRequest,
-    GetTemplateEPResponse,
-    DataSourceTemplate,
-    GetDataSourceRequest,
-    CreateDataSourceResponse,
-    createDataSource,
-    getDataSource,
+    writeContentToFile
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -544,19 +547,23 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getAvailableConnectors, HOST_EXTENSION, params);
     }
 
-    updateConnectors(params: UpdateConnectorRequest): Promise<void> {
-        return this._messenger.sendRequest(updateConnectors, HOST_EXTENSION, params);
+    updateConnectors(params: UpdateConnectorRequest): void {
+        return this._messenger.sendNotification(updateConnectors, HOST_EXTENSION, params);
     }
 
     getConnectorForm(params: GetConnectorFormRequest): Promise<GetConnectorFormResponse> {
         return this._messenger.sendRequest(getConnectorForm, HOST_EXTENSION, params);
     }
-    
+
     createDataSource(params: DataSourceTemplate): Promise<CreateDataSourceResponse> {
         return this._messenger.sendRequest(createDataSource, HOST_EXTENSION, params);
     }
 
     getDataSource(params: GetDataSourceRequest): Promise<DataSourceTemplate> {
         return this._messenger.sendRequest(getDataSource, HOST_EXTENSION, params);
+    }
+
+    getIconPathUri(params: GetIconPathUriRequest): Promise<GetIconPathUriResponse> {
+        return this._messenger.sendRequest(getIconPathUri, HOST_EXTENSION, params);
     }
 }

@@ -27,14 +27,17 @@ import {
     CreateSequenceRequest,
     CreateTaskRequest,
     CreateTemplateRequest,
+    DataSourceTemplate,
     DownloadConnectorRequest,
     FileListRequest,
     GetAvailableConnectorRequest,
     GetAvailableResourcesRequest,
     GetConnectorFormRequest,
+    GetDataSourceRequest,
     GetDefinitionRequest,
     GetDiagnosticsReqeust,
     GetFailoverEPRequest,
+    GetIconPathUriRequest,
     GetInboundEndpointRequest,
     GetLoadBalanceEPRequest,
     GetLocalEntryRequest,
@@ -42,12 +45,14 @@ import {
     GetProjectRootRequest,
     GetRecipientEPRequest,
     GetTaskRequest,
+    GetTemplateEPRequest,
     GetTextAtRangeRequest,
     HighlightCodeRequest,
     ImportProjectRequest,
     ListRegistryArtifactsRequest,
     MigrateProjectRequest,
     OpenDiagramRequest,
+    RangeFormatRequest,
     RetrieveAddressEndpointRequest,
     RetrieveDefaultEndpointRequest,
     RetrieveHttpEndpointRequest,
@@ -63,6 +68,7 @@ import {
     UpdateHttpEndpointRequest,
     UpdateLoadBalanceEPRequest,
     UpdateRecipientEPRequest,
+    UpdateTemplateEPRequest,
     UpdateWsdlEndpointRequest,
     WriteContentToFileRequest,
     applyEdit,
@@ -74,6 +80,7 @@ import {
     closeWebViewNotification,
     createAPI,
     createClassMediator,
+    createDataSource,
     createEndpoint,
     createInboundEndpoint,
     createLocalEntry,
@@ -97,6 +104,7 @@ import {
     getConnector,
     getConnectorForm,
     getConnectors,
+    getDataSource,
     getDefaultEndpoint,
     getDefinition,
     getDiagnostics,
@@ -105,6 +113,7 @@ import {
     getEndpointsAndSequences,
     getFailoverEndpoint,
     getHttpEndpoint,
+    getIconPathUri,
     getInboundEndpoint,
     getLoadBalanceEndpoint,
     getLocalEntry,
@@ -119,6 +128,7 @@ import {
     getSyntaxTree,
     getTask,
     getTemplate,
+    getTemplateEndpoint,
     getTemplates,
     getTextAtRange,
     getWorkspaceContext,
@@ -144,15 +154,7 @@ import {
     updateRecipientEndpoint,
     updateTemplateEndpoint,
     updateWsdlEndpoint,
-    writeContentToFile,
-    UpdateTemplateEPRequest,
-    getTemplateEndpoint,
-    GetTemplateEPRequest,
-    RangeFormatRequest,
-    createDataSource,
-    DataSourceTemplate,
-    GetDataSourceRequest,
-    getDataSource,
+    writeContentToFile
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -237,8 +239,9 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(rangeFormat, (args: RangeFormatRequest) => rpcManger.rangeFormat(args));
     messenger.onRequest(downloadConnector, (args: DownloadConnectorRequest) => rpcManger.downloadConnector(args));
     messenger.onRequest(getAvailableConnectors, (args: GetAvailableConnectorRequest) => rpcManger.getAvailableConnectors(args));
-    messenger.onRequest(updateConnectors, (args: UpdateConnectorRequest) => rpcManger.updateConnectors(args));
+    messenger.onNotification(updateConnectors, (args: UpdateConnectorRequest) => rpcManger.updateConnectors(args));
     messenger.onRequest(getConnectorForm, (args: GetConnectorFormRequest) => rpcManger.getConnectorForm(args));
     messenger.onRequest(createDataSource, (args: DataSourceTemplate) => rpcManger.createDataSource(args));
     messenger.onRequest(getDataSource, (args: GetDataSourceRequest) => rpcManger.getDataSource(args));
+    messenger.onRequest(getIconPathUri, (args: GetIconPathUriRequest) => rpcManger.getIconPathUri(args));
 }
