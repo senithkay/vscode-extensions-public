@@ -129,8 +129,9 @@
       },
       {
         "command": "MI.openAiPanel",
-        "title": "Open MI Ai",
-        "category": "MI"
+        "title": "Open AI Panel",
+        "category": "MI",
+        "icon": "$(wand)"
       },
       {
         "command": "MI.project-explorer.add",
@@ -328,6 +329,11 @@
           "command": "MI.build-and-run",
           "group": "navigation@1",
           "title": "Build and Run Project"
+        },
+        {
+          "command": "MI.openAiPanel",
+          "group": "navigation@1",
+          "title": "Open AI Panel"
         },
         {
           "command": "MI.project-explorer.open-service-designer-beside",
