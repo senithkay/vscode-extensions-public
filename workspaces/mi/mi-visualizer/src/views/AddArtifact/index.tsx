@@ -238,45 +238,45 @@ export function AddArtifactView() {
                                 </Typography>
                                 <HorizontalCardContainer>
                                     <Card
-                                        icon="globe"
+                                        icon="source-control"
                                         title="Endpoint"
-                                        description="Create an HTTP API with a defined interface."
+                                        description="Add description here..."
                                         onClick={() => handleClick("endpoints")}
                                     />
                                     <Card
-                                        icon="globe"
+                                        icon="list-ordered"
                                         title="Sequence"
-                                        description="Create an HTTP API with a defined interface."
+                                        description="Add description here..."
                                         onClick={() => handleClick("sequences")}
                                     />
                                     <Card
-                                        icon="globe"
+                                        icon="output"
                                         title="Registry"
-                                        description="Create an HTTP API with a defined interface."
+                                        description="Add description here..."
                                         onClick={() => handleClick("registry")}
                                     />
                                     <Card
-                                        icon="globe"
+                                        icon="mail"
                                         title="Message Processor"
-                                        description="Create an HTTP API with a defined interface."
+                                        description="Add description here..."
                                         onClick={() => handleClick("messageProcessors")}
                                     />
                                     <Card
-                                        icon="globe"
+                                        icon="file"
                                         title="Template"
-                                        description="Create an HTTP API with a defined interface."
+                                        description="Add description here..."
                                         onClick={() => handleClick("templates")}
                                     />
                                     <Card
-                                        icon="globe"
+                                        icon="database"
                                         title="Message Store"
-                                        description="Create an HTTP API with a defined interface."
+                                        description="Add description here..."
                                         onClick={() => handleClick("messageStores")}
                                     />
                                     <Card
-                                        icon="globe"
+                                        icon="location"
                                         title="Local Entry"
-                                        description="Create an HTTP API with a defined interface."
+                                        description="Add description here..."
                                         onClick={() => handleClick("localEntries")}
                                     />
                                 </HorizontalCardContainer>
