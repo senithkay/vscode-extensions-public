@@ -70,6 +70,17 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 					const modifications = [];
 					let sourceField = sourcePort && sourcePort instanceof InputOutputPortModel && sourcePort.fieldFQN;
 					
+					if (targetPort) {
+						const typeWithValue = (targetPort as InputOutputPortModel).typeWithValue;
+						const expr = typeWithValue.value;
+
+						if (Node.isPropertyAssignment(expr)) {
+							expr.setInitializer(sourceField);
+						}
+
+						targetNode.context.updateFileContent(targetNode.context.sourceFile.getText());
+						// TODO: Handle other types of expressions
+					}
 					// TODO: Replace the initializer of property assignment
 				} else if (targetPortHasLinks) {
 					// TODO: Modify the initializer of property assignment

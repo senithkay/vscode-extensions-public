@@ -20,7 +20,7 @@ import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { NodeInitVisitor } from "../Visitors/NodeInitVisitor";
 import { traversNode } from "../Diagram/utils/st-utils";
 import { DMType } from "@wso2-enterprise/mi-core";
-import { VariableDeclaration } from "ts-morph";
+import { SourceFile, VariableDeclaration } from "ts-morph";
 
 const classes = {
     root: css({
@@ -32,15 +32,19 @@ const classes = {
 
 export interface MIDataMapperProps {
     fnST: VariableDeclaration;
+    sourceFile: SourceFile;
     inputTrees: DMType[];
     outputTree: DMType;
+    updateFileContent: (fileContent: string) => void;
 }
 
 export function MIDataMapper(props: MIDataMapperProps) {
     const {
         fnST,
+        sourceFile,
         inputTrees,
-        outputTree
+        outputTree,
+        updateFileContent
     } = props;
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
 
@@ -48,7 +52,9 @@ export function MIDataMapper(props: MIDataMapperProps) {
 
     useEffect(() => {
         async function generateNodes() {
-            const context = new DataMapperContext(fnST, inputTrees, outputTree);
+            const context = new DataMapperContext(
+                fnST, sourceFile, inputTrees, outputTree, updateFileContent
+            );
 
             const nodeInitVisitor = new NodeInitVisitor(context);
             traversNode(fnST, nodeInitVisitor);

@@ -33,7 +33,7 @@ export const useIOTypes = (filePath: string, functionName: string) => {
     return {dmIOTypes, isFetchingIOTypes, isTypeError, refetch };
 };
 
-export const useFileContent = (filePath: string) => {
+export const useFileContent = (filePath: string, fileVersion: number) => {
     const { rpcClient } = useVisualizerContext();
     const getFileContent = async () => {
         try {
@@ -51,7 +51,7 @@ export const useFileContent = (filePath: string) => {
         isFetching: isFetchingFileContent,
         isError: isFileError,
         refetch,
-    } = useQuery(['getFileContent', { filePath }], () => getFileContent(), {});
+    } = useQuery(['getFileContent', { filePath, fileVersion }], () => getFileContent(), {});
 
     return {dmFileContent, isFetchingFileContent, isFileError, refetch };
 };

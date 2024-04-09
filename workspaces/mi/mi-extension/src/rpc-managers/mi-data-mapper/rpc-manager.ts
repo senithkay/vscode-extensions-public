@@ -9,13 +9,15 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    FileContentRequest,
-    FileContentResponse,
+    GetFileContentResponse,
+    GetFileContentRequest,
     IOTypeRequest,
     IOTypeResponse,
-    MIDataMapperAPI
+    MIDataMapperAPI,
+    UpdateFileContentRequest
 } from "@wso2-enterprise/mi-core";
 import { fetchIOTypes, getSourceCode } from "../../util/dataMapper";
+import { Project } from "ts-morph";
 
 export class MiDataMapperRpcManager implements MIDataMapperAPI {
     async getIOTypes(params: IOTypeRequest): Promise<IOTypeResponse> {
@@ -39,7 +41,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         });
     }
 
-    async getFileContent(params: FileContentRequest): Promise<FileContentResponse> {
+    async getFileContent(params: GetFileContentRequest): Promise<GetFileContentResponse> {
         return new Promise(async (resolve, reject) => {
             const { filePath } = params;
             try {
@@ -55,5 +57,12 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 reject(error);
             }
         });
+    }
+
+    async updateFileContent(params: UpdateFileContentRequest): Promise<void> {
+        const project = new Project();
+        const sourceFile = project.addSourceFileAtPath(params.filePath);
+        sourceFile.replaceWithText(params.fileContent);
+        sourceFile.save();
     }
 }

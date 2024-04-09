@@ -9,13 +9,15 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    FileContentRequest,
-    FileContentResponse,
+    GetFileContentRequest,
+    GetFileContentResponse,
     IOTypeRequest,
     IOTypeResponse,
     MIDataMapperAPI,
+    UpdateFileContentRequest,
     getFileContent,
-    getIOTypes
+    getIOTypes,
+    updateFileContent
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -31,7 +33,11 @@ export class MiDataMapperRpcClient implements MIDataMapperAPI {
         return this._messenger.sendRequest(getIOTypes, HOST_EXTENSION, params);
     }
 
-    getFileContent(params: FileContentRequest): Promise<FileContentResponse> {
+    getFileContent(params: GetFileContentRequest): Promise<GetFileContentResponse> {
         return this._messenger.sendRequest(getFileContent, HOST_EXTENSION, params);
+    }
+
+    updateFileContent(params: UpdateFileContentRequest): void {
+        return this._messenger.sendNotification(updateFileContent, HOST_EXTENSION, params);
     }
 }

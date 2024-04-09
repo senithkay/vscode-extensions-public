@@ -6,9 +6,16 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { IOTypeRequest, IOTypeResponse, FileContentRequest, FileContentResponse } from "./types";
+import {
+    IOTypeRequest,
+    IOTypeResponse,
+    GetFileContentRequest,
+    GetFileContentResponse,
+    UpdateFileContentRequest
+} from "./types";
 
 export interface MIDataMapperAPI {
     getIOTypes: (params: IOTypeRequest) => Promise<IOTypeResponse>;
-    getFileContent: (params: FileContentRequest) => Promise<FileContentResponse>;
+    getFileContent: (params: GetFileContentRequest) => Promise<GetFileContentResponse>;
+    updateFileContent: (params: UpdateFileContentRequest) => void;
 }

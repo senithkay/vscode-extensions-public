@@ -7,19 +7,23 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { DMType } from "@wso2-enterprise/mi-core";
-import { VariableDeclaration } from "ts-morph";
+import { SourceFile, VariableDeclaration } from "ts-morph";
 
 export interface IDataMapperContext {
     functionST: VariableDeclaration;
+    sourceFile: SourceFile;
     inputTrees: DMType[];
     outputTree: DMType;
+    updateFileContent: (fileContent: string) => void;
 }
 
 export class DataMapperContext implements IDataMapperContext {
 
     constructor(
         public functionST: VariableDeclaration,
+        public sourceFile: SourceFile,
         public inputTrees: DMType[],
-        public outputTree: DMType
+        public outputTree: DMType,
+        public updateFileContent: (fileContent: string) => void
     ){}
 }

@@ -43,19 +43,30 @@ export interface DataMapperViewProps {
     functionName: string;
     inputTrees: DMType[];
     outputTree: DMType;
+    updateFileContent: (fileContent: string) => void;
 }
 
 export function DataMapperView(props: DataMapperViewProps) {
-    const { filePath, fileContent, functionName } = props;
+    const {
+        filePath,
+        fileContent,
+        functionName,
+        inputTrees,
+        outputTree,
+        updateFileContent
+    } = props;
 
-    const functionST = useMemo(() => {
+    const { functionST, sourceFile } = useMemo(() => {
 
         const project = new Project({useInMemoryFileSystem: true});
         const sourceFile = project.createSourceFile(filePath, fileContent);
 
         const fnSTFindingVisitor = new FunctionSTFindingVisitor(functionName);
         traversNode(sourceFile, fnSTFindingVisitor);
-        return fnSTFindingVisitor.getFunctionST();
+        return {
+            functionST: fnSTFindingVisitor.getFunctionST(),
+            sourceFile: sourceFile,
+        };
 
     }, [filePath, fileContent, functionName]);
 
@@ -64,8 +75,10 @@ export function DataMapperView(props: DataMapperViewProps) {
             <Global styles={globalStyles} />
             <MIDataMapper
                 fnST={functionST}
-                inputTrees={props.inputTrees}
-                outputTree={props.outputTree}
+                sourceFile={sourceFile}
+                inputTrees={inputTrees}
+                outputTree={outputTree}
+                updateFileContent={updateFileContent}
             />
         </QueryClientProvider>
     );
