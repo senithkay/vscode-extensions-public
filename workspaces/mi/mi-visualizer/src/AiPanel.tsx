@@ -51,19 +51,22 @@ const AiPanel = () => {
     }
 
     const fetchContext = () => {
-        switch(state) {
-            case "Ready":
-                setViewComponent(<AIOverviewWindow />);
-                break;
-            case "loggedOut":
-                setViewComponent(<SignInToCopilotMessage />);
-                break;
-            case "WaitingForLogin":
-                setViewComponent(<h1>Waiting for login</h1>);
-                break;
-            default:
-                setViewComponent(null);
-        }
+        rpcClient.getAIVisualizerState().then((machineView) => {
+            switch (machineView?.state) {
+                case "Ready":
+                    setViewComponent(<AIOverviewWindow />);
+                    break;
+                case "loggedOut":
+                    setViewComponent(<SignInToCopilotMessage />);
+                    break;
+                case "WaitingForLogin":
+                    setViewComponent(<h1>Waiting for login</h1>);
+                    break;
+                default:
+                    setViewComponent(null);
+            }
+        });
+        
     }
 
     return (

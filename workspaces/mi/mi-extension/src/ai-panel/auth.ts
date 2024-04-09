@@ -28,7 +28,8 @@ export async function getAuthUrl(callbackUri: string): Promise<string> {
     // return `${this._config.loginUrl}?profile=vs-code&client_id=${this._config.clientId}`
     //     + `&state=${stateBase64}&code_challenge=${this._challenge.code_challenge}`;
 
-    return "https://api.asgardeo.io/t/wso2mi/oauth2/authorize?response_type=code&redirect_uri=vscode%3A%2F%2Fwso2.micro-integrator%2Fsignin&client_id=yo29V9jLN83xmVCNvlRQ_QGfvcka&scope=openid";
+    const state = encodeURIComponent(btoa(JSON.stringify({callbackUri: 'vscode://wso2.micro-integrator/signin'})));
+    return `https://api.asgardeo.io/t/wso2mi/oauth2/authorize?response_type=code&redirect_uri=https://ecee6381-fddd-43c1-a742-8ec7930c9126.e1-us-east-azure.choreoapps.dev&client_id=yo29V9jLN83xmVCNvlRQ_QGfvcka&scope=openid&state=${state}`;
 }
 
 export async function exchangeAuthCodeNew(authCode: string): Promise<AccessToken> {
@@ -36,7 +37,8 @@ export async function exchangeAuthCodeNew(authCode: string): Promise<AccessToken
         client_id: 'yo29V9jLN83xmVCNvlRQ_QGfvcka',
         code: authCode,
         grant_type: 'authorization_code',
-        redirect_uri: 'vscode://wso2.micro-integrator/signin',
+        // redirect_uri: 'vscode://wso2.micro-integrator/signin',
+        redirect_uri: 'https://ecee6381-fddd-43c1-a742-8ec7930c9126.e1-us-east-azure.choreoapps.dev',
         scope: 'openid'
     });
     try {
