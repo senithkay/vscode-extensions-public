@@ -1757,10 +1757,6 @@ importers:
       '@emotion/css': ~11.11.2
       '@emotion/react': ^11.9.3
       '@emotion/styled': ^11.10.5
-      '@material-ui/core': ^4.12.3
-      '@material-ui/icons': ^4.9.1
-      '@material-ui/lab': ^4.0.0-alpha.52
-      '@material-ui/pickers': ^3.2.10
       '@storybook/react': ^6.5.9
       '@tanstack/query-core': ^4.0.0-beta.1
       '@tanstack/react-query': 4.0.10
@@ -1779,6 +1775,7 @@ importers:
       '@wso2-enterprise/syntax-tree': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       classnames: ^2.2.6
+      copyfiles: ^2.4.1
       lodash.debounce: ^4.0.8
       react: ^17.0.2
       react-dom: ^17.0.2
@@ -1798,10 +1795,6 @@ importers:
       '@emotion/css': 11.11.2
       '@emotion/react': 11.11.3_7nbm7nfx3p2z47ghw7mvcj2mjy
       '@emotion/styled': 11.11.0_ku5kn3mlo2pzkbrm3xhhve3cky
-      '@material-ui/core': 4.12.4_bljuhzqk2fxulovaiic5vr6rce
-      '@material-ui/icons': 4.11.3_jetzmixjich6tzwthd6mealwfi
-      '@material-ui/lab': 4.0.0-alpha.61_jetzmixjich6tzwthd6mealwfi
-      '@material-ui/pickers': 3.3.11_phlbjj2qqbzyjdfzujtmlw3coi
       '@tanstack/query-core': 4.36.1
       '@tanstack/react-query': 4.0.10_sfoxds7t5ydpegc3knd667wn6m
       '@vscode/webview-ui-toolkit': 1.4.0_react@17.0.2
@@ -1830,6 +1823,7 @@ importers:
       '@types/react': 17.0.75
       '@types/react-dom': 17.0.14
       '@types/react-lottie': 1.2.10
+      copyfiles: 2.4.1
       storybook: 6.5.16_jgxnvbe4faw3ohf4h6p42qq6oy
       tslib: 2.6.2
       tslint: 6.1.3_typescript@4.9.5

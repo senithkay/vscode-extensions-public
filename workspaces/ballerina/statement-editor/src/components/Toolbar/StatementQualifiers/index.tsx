@@ -6,21 +6,13 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-// tslint:disable: jsx-no-multiline-js jsx-no-lambda
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda no-empty
 import React, { useContext, useEffect } from "react";
 
-import {
-    Checkbox,
-    IconButton,
-    ListItem,
-    ListItemText,
-    Menu
-} from "@material-ui/core";
-// import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { Button, Codicon, Menu, MenuItem, Typography } from "@wso2-enterprise/ui-toolkit";
 
-import ToolbarDropdownArrow from "../../../assets/icons/ToolbarDropdownArrow";
-import ToolbarQualifierIcon from "../../../assets/icons/ToolbarQualifierIcon";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import {
     getFilteredQualifiers,
@@ -87,54 +79,37 @@ export default function StatementQualifiers() {
 
     return (
         <>
-            {/* <StatementEditorHint content={"Statement-qualifiers"}> */}
-                <IconButton
-                    onClick={handleClick}
-                    data-testid="toolbar-qualifier-options"
-                    aria-controls={open ? 'qualifier-menu' : undefined}
-                    aria-haspopup="true"
-                    aria-expanded={open ? 'true' : undefined}
-                    className={statementEditorClasses.toolbarIcons}
-                >
-                    <ToolbarQualifierIcon/>
-                    <ToolbarDropdownArrow/>
-                </IconButton>
-            {/* </StatementEditorHint> */}
-            <Menu
-                elevation={0}
-                anchorEl={anchorEl}
-                getContentAnchorEl={null}
-                id="qualifier-menu"
-                open={open}
-                onClose={handleClose}
-                onClick={handleClose}
-                variant={"menu"}
-                transformOrigin={{ horizontal: 'left', vertical: 'top' }}
-                anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
-                className={statementEditorClasses.QualifierDropdownBase}
-                disableScrollLock={true}
+            <Button
+                onClick={handleClick}
+                data-testid="toolbar-qualifier-options"
+                className={statementEditorClasses.toolbarIcons}
+                tooltip="Visibility"
             >
+                <Codicon sx={{ color: "var(--vscode-editorGutter-deletedBackground)" }} name="globe" />
+                <Codicon sx={{ color: "var(--vscode-editorGutter-deletedBackground)" }} name="chevron-down" />
+            </ Button>
+            <Menu>
                 {supportedQualifiers.map((qualifier, key) => (
-                    <ListItem
+                    <MenuItem
                         key={key}
                         data-testid="qualifier-list-item"
-                        className={statementEditorClasses.qualifierListItem}
-                    >
-                        <ListItemText
-                            data-testid="qualifier-list-item-label"
-                            primary={qualifier}
-                        />
-                        <Checkbox
-                            classes={{
-                                root: statementEditorClasses.QualifierCheckbox,
-                                checked: statementEditorClasses.checked
-                            }}
-                            edge={"end"}
-                            data-testid="qualifier-check"
-                            checked={checked.includes(qualifier)}
-                            onClick={handleCheckboxClick(qualifier)}
-                        />
-                    </ListItem>
+                        item={{
+                            id: key,
+                            label: (
+                                <>
+                                    <Typography variant="body2">
+                                        {qualifier}
+                                    </Typography>
+                                    <VSCodeCheckbox
+                                        data-testid="qualifier-check"
+                                        checked={checked.includes(qualifier)}
+                                        onChange={handleCheckboxClick(qualifier)}
+                                    />
+                                </>
+                            ),
+                            onClick: () => {},
+                        }}
+                    />
                 ))}
             </Menu>
         </>
