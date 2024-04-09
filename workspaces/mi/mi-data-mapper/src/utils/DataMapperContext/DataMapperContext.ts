@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { DMType } from "@wso2-enterprise/mi-core";
-import { ts } from "ts-morph";
+import { VariableDeclaration } from "ts-morph";
 
 export interface IDataMapperContext {
-    functionST: ts.VariableDeclaration;
+    functionST: VariableDeclaration;
     inputTrees: DMType[];
     outputTree: DMType;
 }
@@ -18,7 +18,7 @@ export interface IDataMapperContext {
 export class DataMapperContext implements IDataMapperContext {
 
     constructor(
-        public functionST: ts.VariableDeclaration,
+        public functionST: VariableDeclaration,
         public inputTrees: DMType[],
         public outputTree: DMType
     ){}

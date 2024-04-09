@@ -7,17 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { DMType } from "@wso2-enterprise/mi-core";
-import { ts } from "ts-morph";
+import { Node } from "ts-morph";
 
 export interface ArrayElement {
 	member: DMTypeWithValue;
-	elementNode: ts.Node;
+	elementNode: Node;
 }
 
 export class DMTypeWithValue {
 	constructor(
 		public type: DMType,
-		public value?: ts.Node,
+		public value?: Node,
 		public parentType?: DMTypeWithValue,
 		public originalType?: DMType,
 		public childrenTypes?: DMTypeWithValue[],

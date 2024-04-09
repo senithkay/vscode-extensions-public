@@ -11,7 +11,7 @@ import React, { useState } from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
-import { ts } from "ts-morph";
+import { Node } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
@@ -29,13 +29,13 @@ export interface ObjectOutputWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
 	dmTypeWithValue: DMTypeWithValue;
 	typeName: string;
-	value: ts.Node;
+	value: Node;
 	engine: DiagramEngine;
 	getPort: (portId: string) => InputOutputPortModel;
 	context: IDataMapperContext;
 	valueLabel?: string;
 	mappings?: MappingMetadata[];
-	deleteField?: (node: ts.Node) => Promise<void>;
+	deleteField?: (node: Node) => Promise<void>;
 	originalTypeName?: string;
 }
 
@@ -60,7 +60,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 
 	const fields = dmTypeWithValue && dmTypeWithValue.childrenTypes;
 	const hasValue = fields && fields.length > 0;
-	const isBodyObjectLiteralExpr = value && ts.isObjectLiteralExpression(value);
+	const isBodyObjectLiteralExpr = value && Node.isObjectLiteralExpression(value);
 
 	const hasSyntaxDiagnostics = false; // TODO: Find diagnostics for the value
 	const hasEmptyFields = mappings && (mappings.length === 0 || !mappings.some(mapping => {

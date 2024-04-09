@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
-import { ts } from "ts-morph";
+import { ParameterDeclaration } from "ts-morph";
 
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -27,7 +27,7 @@ export class InputNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public value: ts.ParameterDeclaration,
+        public value: ParameterDeclaration,
         public hasNoMatchingFields?: boolean
     ) {
         super(
@@ -38,9 +38,9 @@ export class InputNode extends DataMapperNodeModel {
         this.numberOfFields = 1;
         if (!hasNoMatchingFields) {
             this._originalType = this.context.inputTrees
-            .find(inputTree => inputTree.typeName === (this.value.type as any).typeName.getText());
+            .find(inputTree => inputTree.typeName === this.value.getType().getText());
             this.dmType = this._originalType;
-            this._paramName = this.value.name.getText();
+            this._paramName = this.value.getName();
         }
     }
 
@@ -74,7 +74,7 @@ export class InputNode extends DataMapperNodeModel {
         if (this.value) {
             const searchValue = useDMSearchStore.getState().inputSearch;
 
-            const matchesParamName = this.value.name.getText().toLowerCase().includes(searchValue?.toLowerCase());
+            const matchesParamName = this.value.getName().toLowerCase().includes(searchValue?.toLowerCase());
             const type = matchesParamName
                 ? this._originalType
                 : getSearchFilteredInput(this._originalType, this._paramName);

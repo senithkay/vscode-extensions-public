@@ -6,29 +6,29 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ts } from "ts-morph";
+import { Identifier, Node, PropertyAccessExpression } from "ts-morph";
 import { Visitor } from "../../ts/base-visitor";
 
 export class PropertyAccessNodeFindingVisitor implements Visitor {
-    private inputNodes: (ts.PropertyAccessExpression | ts.Identifier)[];
+    private inputNodes: (PropertyAccessExpression | Identifier)[];
 
     constructor() {
         this.inputNodes = []
     }
 
-    public beginVisitPropertyAccessExpression(node: ts.PropertyAccessExpression, parent?: ts.Node) {
-        if (!parent || !ts.isPropertyAccessExpression(parent)) {
+    public beginVisitPropertyAccessExpression(node: PropertyAccessExpression, parent?: Node) {
+        if (!parent || !Node.isPropertyAccessExpression(parent)) {
             this.inputNodes.push(node)
         }
     }
 
-    public beginVisitIdentifier(node: ts.Identifier, parent?: ts.Node) {
-        if (!parent || !ts.isPropertyAccessExpression(parent)) {
+    public beginVisitIdentifier(node: Identifier, parent?: Node) {
+        if (!parent || !Node.isPropertyAccessExpression(parent)) {
             this.inputNodes.push(node);
         }
     }
 
-    public getPropertyAccessNodes() {
+    public getPropertyAccessNodes(): (PropertyAccessExpression | Identifier)[] {
         return this.inputNodes
     }
 }

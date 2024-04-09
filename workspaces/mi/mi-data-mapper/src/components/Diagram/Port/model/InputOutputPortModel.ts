@@ -8,7 +8,7 @@
  */
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
 import { DMType } from "@wso2-enterprise/mi-core";
-import { ts } from "ts-morph";
+import { Node } from "ts-morph";
 
 import { DataMapperLinkModel } from "../../Link";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
@@ -120,8 +120,8 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 		if (typeWithValue?.value) {
 			let expr = typeWithValue.value;
 	
-			if (ts.isPropertyAssignment(expr)) {
-				expr = expr.initializer;
+			if (Node.isPropertyAssignment(expr)) {
+				expr = expr.getInitializer();
 			}
 			const value = expr?.getText();
 			if (value !== undefined) {

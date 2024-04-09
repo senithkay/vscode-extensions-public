@@ -9,7 +9,7 @@
 // tslint:disable: no-empty-interface
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
 import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
-import { ts } from 'ts-morph';
+import { Node } from 'ts-morph';
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { ArrayElement, DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
@@ -155,25 +155,25 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		return headerPort;
 	}
 
-	protected genMappings(val: ts.Node, parentFields?: ts.Node[]) {
+	protected genMappings(val: Node, parentFields?: Node[]) {
 		let foundMappings: MappingMetadata[] = [];
 		const currentFields = [...(parentFields ? parentFields : [])];
 		if (val) {
-			if (ts.isObjectLiteralExpression(val)) {
-				val.properties.forEach((field) => {
+			if (Node.isObjectLiteralExpression(val)) {
+				val.getProperties().forEach((field) => {
 					foundMappings = [...foundMappings, ...this.genMappings(field, [...currentFields, val])];
 				});
-			} else if (ts.isPropertyAssignment(val) && val.initializer) {
-				const { initializer } = val;
-				const isObjectLiteralExpr = ts.isObjectLiteralExpression(initializer);
-				const isArrayLiteralExpr = ts.isArrayLiteralExpression(initializer);
+			} else if (Node.isPropertyAssignment(val) && val.getInitializer()) {
+				const initializer = val.getInitializer();
+				const isObjectLiteralExpr = Node.isObjectLiteralExpression(initializer);
+				const isArrayLiteralExpr = Node.isArrayLiteralExpression(initializer);
 				if (isObjectLiteralExpr || isArrayLiteralExpr) {
 					foundMappings = [...foundMappings, ...this.genMappings(initializer, [...currentFields, val])];
 				} else {
 					foundMappings.push(this.getOtherMappings(val, currentFields));
 				}
-			} else if (ts.isArrayLiteralExpression(val)) {
-				val.elements.forEach((expr) => {
+			} else if (Node.isArrayLiteralExpression(val)) {
+				val.getElements().forEach((expr) => {
 					foundMappings = [...foundMappings, ...this.genMappings(expr, [...currentFields, val])];
 				})
 			} else {
@@ -183,8 +183,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		return foundMappings;
 	}
 
-	protected getOtherMappings(node: ts.Node, currentFields: ts.Node[]) {
-		const valNode = ts.isPropertyAssignment(node) ? node.initializer : node;
+	protected getOtherMappings(node: Node, currentFields: Node[]) {
+		const valNode = Node.isPropertyAssignment(node) ? node.getInitializer() : node;
 		if (valNode) {
 			const inputNodes = getPropertyAccessNodes(valNode);
 			if (inputNodes.length === 1) {

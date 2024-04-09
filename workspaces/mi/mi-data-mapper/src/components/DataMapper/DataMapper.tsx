@@ -20,7 +20,7 @@ import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { NodeInitVisitor } from "../Visitors/NodeInitVisitor";
 import { traversNode } from "../Diagram/utils/st-utils";
 import { DMType } from "@wso2-enterprise/mi-core";
-import { ts } from "ts-morph";
+import { VariableDeclaration } from "ts-morph";
 
 const classes = {
     root: css({
@@ -31,7 +31,7 @@ const classes = {
 }
 
 export interface MIDataMapperProps {
-    fnST: ts.VariableDeclaration;
+    fnST: VariableDeclaration;
     inputTrees: DMType[];
     outputTree: DMType;
 }

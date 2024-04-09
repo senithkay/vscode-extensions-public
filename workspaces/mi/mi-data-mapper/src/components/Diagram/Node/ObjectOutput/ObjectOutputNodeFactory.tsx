@@ -11,7 +11,7 @@ import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { ts } from 'ts-morph';
+import { Node } from 'ts-morph';
 
 import { InputOutputPortModel } from '../../Port';
 import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from '../../utils/constants';
@@ -42,7 +42,7 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<ObjectOu
 						context={event.model.context}
 						mappings={event.model.mappings}
 						valueLabel={valueLabel}
-						deleteField={(node: ts.Node) => event.model.deleteField(node)}
+						deleteField={(node: Node) => event.model.deleteField(node)}
 						originalTypeName={event.model.dmType?.fieldName}
 					/>
 				)}

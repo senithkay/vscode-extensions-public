@@ -14,7 +14,7 @@ import { Global, css } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DMType } from "@wso2-enterprise/mi-core";
 import { MIDataMapper } from "./components/DataMapper/DataMapper";
-import { ts } from "ts-morph";
+import { Project } from "ts-morph";
 import { FunctionSTFindingVisitor } from "./components/Visitors/FunctionSTFindingVisitor";
 import { traversNode } from "./components/Diagram/utils/st-utils";
 
@@ -50,10 +50,11 @@ export function DataMapperView(props: DataMapperViewProps) {
 
     const functionST = useMemo(() => {
 
-        const sourceFile = ts.createSourceFile(filePath, fileContent, ts.ScriptTarget.Latest, true);
+        const project = new Project({useInMemoryFileSystem: true});
+        const sourceFile = project.createSourceFile(filePath, fileContent);
+
         const fnSTFindingVisitor = new FunctionSTFindingVisitor(functionName);
         traversNode(sourceFile, fnSTFindingVisitor);
-
         return fnSTFindingVisitor.getFunctionST();
 
     }, [filePath, fileContent, functionName]);

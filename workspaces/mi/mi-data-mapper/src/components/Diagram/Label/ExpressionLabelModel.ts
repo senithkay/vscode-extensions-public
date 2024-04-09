@@ -8,27 +8,27 @@
  */
 import { BaseModelOptions, DeserializeEvent } from '@projectstorm/react-canvas-core';
 import { LabelModel } from '@projectstorm/react-diagrams';
-import { ts } from "ts-morph";
+import { Node } from "ts-morph";
 
 import { IDataMapperContext } from '../../../utils/DataMapperContext/DataMapperContext';
 import { DataMapperLinkModel } from '../Link';
 
 export interface ExpressionLabelOptions extends BaseModelOptions {
 	value?: string;
-	valueNode?: ts.Node;
+	valueNode?: Node;
 	context?: IDataMapperContext;
 	link?: DataMapperLinkModel;
-	field?: ts.Node;
+	field?: Node;
 	editorLabel?: string;
 	deleteLink?: () => void;
 }
 
 export class ExpressionLabelModel extends LabelModel {
 	value?: string;
-	valueNode?: ts.Node;
+	valueNode?: Node;
 	context: IDataMapperContext;
 	link?: DataMapperLinkModel;
-	field?: ts.Node;
+	field?: Node;
 	editorLabel?: string;
 	deleteLink?: () => void;
 

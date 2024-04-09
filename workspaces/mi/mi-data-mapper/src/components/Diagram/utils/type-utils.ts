@@ -6,12 +6,12 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ts } from "ts-morph"
+import { Node, PropertyAssignment } from "ts-morph"
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
 import { DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 
-export function enrichAndProcessType(typeToBeProcessed: DMType, node: ts.Node): [DMTypeWithValue, DMType] {
+export function enrichAndProcessType(typeToBeProcessed: DMType, node: Node): [DMTypeWithValue, DMType] {
     let type = {...typeToBeProcessed};
     let valueEnrichedType = getEnrichedDMType(type, node);
     return [valueEnrichedType, type];
@@ -19,14 +19,14 @@ export function enrichAndProcessType(typeToBeProcessed: DMType, node: ts.Node): 
 
 export function getEnrichedDMType(
     type: DMType,
-    node: ts.Node | undefined,
+    node: Node | undefined,
     parentType?: DMTypeWithValue,
     childrenTypes?: DMTypeWithValue[]
 ): DMTypeWithValue {
 
     let dmTypeWithValue: DMTypeWithValue;
-    let valueNode: ts.Node | undefined;
-    let nextNode: ts.Node | undefined;
+    let valueNode: Node | undefined;
+    let nextNode: Node | undefined;
     let originalType: DMType = type;
 
     if (parentType) {
@@ -48,22 +48,22 @@ export function getEnrichedDMType(
 }
 
 function getValueNodeAndNextNodeForParentType(
-    node: ts.Node | undefined,
+    node: Node | undefined,
     parentType: DMTypeWithValue,
     originalType: DMType
-): [ts.Node?, ts.Node?] {
+): [Node?, Node?] {
 
-    if (node && ts.isObjectLiteralExpression(node)) {
-        const propertyAssignment = node.properties.find((val) =>
-            ts.isPropertyAssignment(val)
+    if (node && Node.isObjectLiteralExpression(node)) {
+        const propertyAssignment = node.getProperties().find((val) =>
+            Node.isPropertyAssignment(val)
             && originalType?.fieldName
-            && val.name.getText() === originalType?.fieldName
-        ) as ts.PropertyAssignment;
+            && val.getName() === originalType?.fieldName
+        ) as PropertyAssignment;
 
         if (parentType.type.typeName === TypeKind.Array) {
             return [node, node];
         } else if (propertyAssignment) {
-            return [propertyAssignment, propertyAssignment?.initializer];
+            return [propertyAssignment, propertyAssignment?.getInitializer()];
         }
     }
     return [undefined, undefined];
@@ -72,7 +72,7 @@ function getValueNodeAndNextNodeForParentType(
 function addChildrenTypes(
     type: DMType,
     childrenTypes: DMTypeWithValue[] | undefined,
-    nextNode: ts.Node | undefined,
+    nextNode: Node | undefined,
     dmTypeWithValue: DMTypeWithValue
 ) {
     const fields = type.fields;

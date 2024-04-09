@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ts } from 'ts-morph';
+import { ts, Node } from 'ts-morph';
 import { Visitor } from '../../../ts/base-visitor';
 
 enum SyntaxKindWithRepeatedValue {
@@ -28,8 +28,8 @@ export interface NodePosition {
     end: number;
 }
 
-export function traversNode(node: ts.Node, visitor: Visitor, parent?: ts.Node) {
-    const nodeKind = SyntaxKindWithRepeatedValue[node.kind] || ts.SyntaxKind[node.kind];
+export function traversNode(node: Node, visitor: Visitor, parent?: Node) {
+    const nodeKind = SyntaxKindWithRepeatedValue[node.getKind()] || ts.SyntaxKind[node.getKind()];
     let beginVisitFn: any = (visitor as any)[`beginVisit${nodeKind}`];
 
     if (!beginVisitFn) {
@@ -40,7 +40,7 @@ export function traversNode(node: ts.Node, visitor: Visitor, parent?: ts.Node) {
         beginVisitFn.bind(visitor)(node, parent);
     }
 
-    ts.forEachChild(node, childNode => {
+    node.forEachChild(childNode => {
         traversNode(childNode, visitor, node);
     });
 
@@ -54,7 +54,7 @@ export function traversNode(node: ts.Node, visitor: Visitor, parent?: ts.Node) {
     }
 }
 
-export function getPosition(node: ts.Node): NodePosition {
+export function getPosition(node: Node): NodePosition {
     return {
         start: node.getStart(),
         end: node.getEnd()

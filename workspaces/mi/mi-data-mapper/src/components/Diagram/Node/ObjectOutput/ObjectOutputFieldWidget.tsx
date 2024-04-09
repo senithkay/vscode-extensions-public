@@ -12,7 +12,7 @@ import React, { useMemo, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { TypeKind } from "@wso2-enterprise/mi-core";
-import { ts } from "ts-morph";
+import { Node } from "ts-morph";
 
 import classnames from "classnames";
 
@@ -32,11 +32,11 @@ export interface ObjectOutputFieldWidgetProps {
     field: DMTypeWithValue;
     engine: DiagramEngine;
     getPort: (portId: string) => InputOutputPortModel;
-    parentObjectLiteralExpr: ts.Node;
+    parentObjectLiteralExpr: Node;
     context: IDataMapperContext;
     fieldIndex?: number;
     treeDepth?: number;
-    deleteField?: (node: ts.Node) => Promise<void>;
+    deleteField?: (node: Node) => Promise<void>;
     hasHoveredParent?: boolean;
 }
 
@@ -73,23 +73,23 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         : `${parentId}.${fieldName}`;
     const portIn = getPort(fieldId + ".IN");
 
-    const propertyAssignment = field.hasValue() && ts.isPropertyAssignment(field.value) && field.value;
-    const objectLiteralExpr = ts.isObjectLiteralExpression(parentMappingConstruct) && parentMappingConstruct;
+    const propertyAssignment = field.hasValue() && Node.isPropertyAssignment(field.value) && field.value;
+    const objectLiteralExpr = Node.isObjectLiteralExpression(parentMappingConstruct) && parentMappingConstruct;
     const hasValue = propertyAssignment
-        && propertyAssignment.initializer
-        && !!propertyAssignment.initializer.getText();
+        && propertyAssignment.getInitializer()
+        && !!propertyAssignment.getInitializer().getText();
 
     const fields = isRecord && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
 
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
-            return isConnectedViaLink(propertyAssignment.initializer);
+            return isConnectedViaLink(propertyAssignment.getInitializer());
         }
         return false;
     }, [field]);
 
-    const value: string = !isArray && !isRecord && hasValue && propertyAssignment.initializer.getText();
+    const value: string = !isArray && !isRecord && hasValue && propertyAssignment.getInitializer().getText();
 
     const handleAddValue = async () => {
         setIsLoading(true);
@@ -102,8 +102,8 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     };
 
     const handleEditValue = () => {
-        if (field.value && ts.isPropertyAssignment(field.value)) {
-            const innerExpr = field.value.initializer;
+        if (field.value && Node.isPropertyAssignment(field.value)) {
+            const innerExpr = field.value.getInitializer();
             // TODO: Implement editing source value
         }
     };

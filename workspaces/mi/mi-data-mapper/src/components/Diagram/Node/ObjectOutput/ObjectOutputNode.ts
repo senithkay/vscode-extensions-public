@@ -8,7 +8,7 @@
  */
 import { Point } from "@projectstorm/geometry";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
-import { ts } from "ts-morph";
+import { Node, ObjectLiteralExpression } from "ts-morph";
 
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -39,7 +39,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public value: ts.ObjectLiteralExpression
+        public value: ObjectLiteralExpression
     ) {
         super(
             NODE_ID,
@@ -127,11 +127,11 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                     valueNode: otherVal || value,
                     context: this.context,
                     link: lm,
-                    field: ts.isPropertyAssignment(field)
-                        ? field.initializer
+                    field: Node.isPropertyAssignment(field)
+                        ? field.getInitializer()
                         : field,
-                    editorLabel: ts.isPropertyAssignment(field)
-                        ? field.name.getText()
+                    editorLabel: Node.isPropertyAssignment(field)
+                        ? field.getKindName()
                         : `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
                     deleteLink: () => this.deleteField(field, keepDefault),
                 }));
@@ -153,7 +153,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
         });
     }
 
-    async deleteField(field: ts.Node, keepDefaultVal?: boolean) {
+    async deleteField(field: Node, keepDefaultVal?: boolean) {
         // TODO: Implement delete field logic
     }
 
