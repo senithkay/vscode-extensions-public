@@ -94,7 +94,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
         response.body.supportsEvaluateForHovers = true;
 
         // make VS Code show a 'step back' button
-        response.body.supportsStepBack = true;
+        // response.body.supportsStepBack = true;
 
         // make VS Code support data breakpoints
         response.body.supportsDataBreakpoints = true;
@@ -110,7 +110,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
         response.body.supportsBreakpointLocationsRequest = true;
 
         // make VS Code provide "Step in Target" functionality
-        response.body.supportsStepInTargetsRequest = true;
+        // response.body.supportsStepInTargetsRequest = true;
 
         // the adapter defines two exceptions filters, one with support for conditions.
         response.body.supportsExceptionFilterOptions = true;
@@ -152,7 +152,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
         response.body.supportSuspendDebuggee = true;
         response.body.supportTerminateDebuggee = true;
-        response.body.supportsFunctionBreakpoints = true;
+        // response.body.supportsFunctionBreakpoints = true;
         response.body.supportsDelayedStackTraceLoading = false;
 
 
@@ -250,10 +250,10 @@ export class MiDebugAdapter extends LoggingDebugSession {
         });
     }
 
-    protected setFunctionBreakPointsRequest(response: DebugProtocol.SetFunctionBreakpointsResponse, args: DebugProtocol.SetFunctionBreakpointsArguments, request?: DebugProtocol.Request | undefined): void {
-        response.success = false;
-        this.sendResponse(response);
-    }
+    // protected setFunctionBreakPointsRequest(response: DebugProtocol.SetFunctionBreakpointsResponse, args: DebugProtocol.SetFunctionBreakpointsArguments, request?: DebugProtocol.Request | undefined): void {
+    //     response.success = false;
+    //     this.sendResponse(response);
+    // }
 
     protected breakpointLocationsRequest(response: DebugProtocol.BreakpointLocationsResponse, args: DebugProtocol.BreakpointLocationsArguments, request?: DebugProtocol.Request | undefined): void {
         // get the current breakpoints and send their location data
