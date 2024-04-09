@@ -17,7 +17,8 @@ import {
     Position,
     TextDocument,
     window,
-    workspace
+    workspace,
+    RelativePattern,
 } from 'vscode';
 import * as path from 'path';
 import {
@@ -81,13 +82,14 @@ export class MILanguageClient {
                     args: [...args, main],
                     options: {},
                 };
-
+                let workspaceFolder = workspace.workspaceFolders![0];
                 // Options to control the language client
                 let clientOptions: LanguageClientOptions = {
                     initializationOptions: { "settings": getXMLSettings() },
                     synchronize: {
                         //preferences starting with these will trigger didChangeConfiguration
-                        configurationSection: ['xml', '[SynapseXml]']
+                        configurationSection: ['xml', '[SynapseXml]'],
+                        fileEvents: workspace.createFileSystemWatcher(new RelativePattern(workspaceFolder, '**/*.zip'))
                     },
                     // Register the server for synapse xml documents
                     documentSelector: [{ scheme: 'file', language: 'SynapseXml' }],
