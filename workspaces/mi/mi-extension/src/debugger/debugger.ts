@@ -4,16 +4,27 @@ import { DebugProtocol } from 'vscode-debugprotocol';
 import { StateMachine } from '../stateMachine';
 import { SyntaxTreeMi } from '@wso2-enterprise/mi-core';
 
+export interface BreakpointInfo {
+    sequence: any; // TODO: update based on the BE model
+    command?: string;
+    'command-argument'?: string; // BE model supports hyphenated keys
+}
+
 export class Debugger extends EventEmitter {
     private commandPort: number;
     private eventPort: number;
     private host: string;
+    private isDebuggerActive = false;
 
     private commandClient: net.Socket | undefined;
     private eventClient: net.Socket | undefined;
 
     // maps from sourceFile to array of DebugProtocol.Breakpoint
     private breakPoints = new Map<string, DebugProtocol.Breakpoint[]>();
+
+    // Add a map to store the mapping between debugger runtime and DebugProtocol.Breakpoint
+    private debuggingRuntimeBreakpointMap = new Map<BreakpointInfo, DebugProtocol.Breakpoint>();
+
     // since we want to send breakpoint events, we will assign an id to every event
     // so that the frontend can match events with breakpoints.
     private breakpointId = 1;
@@ -33,56 +44,58 @@ export class Debugger extends EventEmitter {
     /*
      * Set breakpoint in file with given line.
      */
-    public async setBreakPoint(path: string, line: number): Promise<DebugProtocol.Breakpoint> {
-        path = this.normalizePathAndCasing(path);
-
-        const bp: DebugProtocol.Breakpoint = { verified: true, line, id: this.breakpointId++ };
-        let bps = this.breakPoints.get(path);
-        if (!bps) {
-            bps = new Array<DebugProtocol.Breakpoint>();
-            this.breakPoints.set(path, bps);
-        }
-        bps.push(bp);
-
-        // await this.verifyBreakpoints(path);
-
-        return bp;
-    }
-
-    public async setVscodeAndDebuggerBreakpoint(source: DebugProtocol.Source, sourceBreakpoint: DebugProtocol.SourceBreakpoint): Promise<DebugProtocol.Breakpoint> {
-        const debugBreakpoint: DebugProtocol.Breakpoint = {
-            id: this.breakpointId++,
+    public async setBreakPoint(source: DebugProtocol.Source, line: number): Promise<DebugProtocol.Breakpoint> {
+        const breakpoint: DebugProtocol.Breakpoint = {
             verified: true,
-            line: sourceBreakpoint.line, // TODO this.convertClientLineToDebugger()
+            line: line,
+            id: this.breakpointId++,
             source: source,
-            column: sourceBreakpoint.column
+            column: 0 // debug points are restricted to line breakpoints
         };
 
         if (source.path) {
-            let bps = this.breakPoints.get(source.path);
-            if (!bps) {
-                bps = new Array<DebugProtocol.Breakpoint>();
-                this.breakPoints.set(source.path, bps);
+            const path = this.normalizePathAndCasing(source.path);
+            // get current breakpoints for the path
+            let breakpoints = this.breakPoints.get(path);
+            if (!breakpoints) {
+                breakpoints = new Array<DebugProtocol.Breakpoint>();
+                this.breakPoints.set(source.path, breakpoints);
             }
-            bps.push(debugBreakpoint);
+            breakpoints.push(breakpoint);
         }
 
-        // create the serverDebugBreakpoints
-        const langClient = StateMachine.context().langClient!;
-        const response = await langClient.getSyntaxTree({
-            documentIdentifier: {
-                uri: source.path!
-            },
-        });
 
-        if (response?.syntaxTree) {
-            const node: SyntaxTreeMi = response.syntaxTree;
-            // visit through the node and find the matching one with the sourceBreakpoint.line and sourceBreakpoint.column
-            // create the debugger server breakpoints
+        // TODO: Add the mi-LS call to verify ig the breakpoints are valid
+        //await this.verifyBreakpoints(path);
+
+        //TODO: get the breakpoint info from mi-LS and send breakpoint command to the mi runtime.
+        const breakpointInfo: BreakpointInfo[] = await this.getBreakpointInformation([breakpoint]);
+
+        this.debuggingRuntimeBreakpointMap.set(breakpointInfo[0], breakpoint);
+        // TODO: Enable sending the breakpoint command to the debugger, check if we need to clear the breakpoint before setting it
+        // if(this.isDebuggerActive){
+        //     await this.sendSetBreakpointCommand(breakpointInfo[0]);
+        // }
+        
+        return breakpoint;
+    }
+
+    public dummyBreakpointPosition = 0;
+    public async getBreakpointInformation(breakpoints: DebugProtocol.Breakpoint[]): Promise<BreakpointInfo[]> {
+        // TODO: add the LS call to get the breakpoint info for the DebugProtocol.Breakpoint
+        const breakpointInfo = { "sequence": { "api": { "api-key": "HelloWorld", "resource": { "method": "GET" }, "sequence-type": "api_inseq", "mediator-position": this.dummyBreakpointPosition.toString() } }, "mediation-component": "sequence" };
+        this.dummyBreakpointPosition++;
+        return [breakpointInfo];
+    }
 
 
-        }
-        return debugBreakpoint;
+
+    public async getBreakpointInfo(breakpoints: DebugProtocol.Breakpoint[]): Promise<BreakpointInfo[]> {
+        // TODO: add the LS call to get the breakpoint info for the DebugProtocol.Breakpoint
+        const breakpointCommand = { "sequence": { "api": { "api-key": "HelloWorld", "resource": { "method": "GET" }, "sequence-type": "api_inseq", "mediator-position": "0" } }, "mediation-component": "sequence" };
+        const breakpointCommand2 = { "sequence": { "api": { "api-key": "HelloWorld", "resource": { "method": "GET" }, "sequence-type": "api_inseq", "mediator-position": "1" } }, "mediation-component": "sequence" };
+
+        return [breakpointCommand, breakpointCommand2];
     }
 
     public clearBreakpoints(path: string): void {
@@ -104,40 +117,26 @@ export class Debugger extends EventEmitter {
         return this.currentDebugpoint;
     }
 
-    public initializeDebugger(): Promise<string> {
-        return new Promise((resolve, reject) => {
-            // Start the debugger by connecting to the backend debugger
-            this.startDebugger()
-                .then(() => {
-                    // Once debugger is started, send the initial request
-                    // wait for 10 seconds before running below code
-                    setTimeout(() => {
-                        const initialRequest = { "command": "resume" };
-                        this.sendRequest(JSON.stringify(initialRequest))
-                            .then((response) => {
-                                // After sending initial request, send the breakpoint command
-                                this.sendBreakpointCommand()
-                                    .then((breakpointResponse) => {
-                                        // Resolve the promise with the breakpoint response
-                                        resolve(breakpointResponse);
-                                    })
-                                    .catch((error) => {
-                                        // Reject the promise if there's an error sending the breakpoint command
-                                        reject(error);
-                                    });
-                            })
-                            .catch((error) => {
-                                // Reject the promise if there's an error sending the request
-                                reject(error);
-                            });
-                    }, 12000);
+    public async initializeDebugger(): Promise<void> {
+        await this.startDebugger();
+        // Once debugger is started, send the initial request
+        // wait for 10 seconds before running below code since it takes time to deploy the CAP
+        setTimeout(async () => {
+            await this.sendResumeCommand();
+            // get the list of breakpoints
+            const breakpoints = this.getBreakpoints(this.getPath());
+            // first we need to clear all the breakpoints
+            const allBreakpointInfo = await this.getBreakpointInfo(breakpoints);
+            // clear the breakpoints
+            for (const info of allBreakpointInfo) {
+                await this.sendClearBreakpointCommand(info);
+            }
 
-                })
-                .catch((error) => {
-                    // Reject the promise if there's an error starting the debugger
-                    reject(error);
-                });
-        });
+            // set the breakpoints
+            for (const info of allBreakpointInfo) {
+                await this.sendSetBreakpointCommand(info);
+            }
+        }, 12000);
     }
 
     public startDebugger(): Promise<void> {
@@ -151,6 +150,7 @@ export class Debugger extends EventEmitter {
             // Connect to the command port
             this.commandClient?.connect(this.commandPort, this.host, () => {
                 console.log('Connected to command port');
+                this.isDebuggerActive = true;
                 // Once connected, resolve the promise
                 resolve();
             });
@@ -196,18 +196,33 @@ export class Debugger extends EventEmitter {
 
                         // send 'stopped' event
                         this.sendEvent('stopOnBreakpoint');
-                        // create debugprotocol breakpoint object
-                        // mocking
 
-                        const bps: DebugProtocol.Breakpoint =
-                        {
-                            verified: true,
-                            line: 5,
-                            id: 2
-                        };
+                        // create new eventDataJson with removing the event field
+                        const eventInfo = { ...eventDataJson };
+                        delete eventInfo.event;
+                        const event: BreakpointInfo = eventInfo;
 
-                        this.currentDebugpoint = bps;
-                        this.sendEvent('breakpointValidated', bps);
+                        // Convert objects to strings before using them as keys in the map
+                        const eventString = JSON.stringify(event.sequence);
+                        const breakpointKey = Array.from(this.debuggingRuntimeBreakpointMap.keys()).find(key => JSON.stringify(key.sequence) === eventString);
+                        if (breakpointKey) {
+                            const breakpoint = this.debuggingRuntimeBreakpointMap.get(breakpointKey);
+                            this.currentDebugpoint = breakpoint;
+                            this.sendEvent('breakpointValidated', breakpoint);
+                        } else {
+                            // create debugprotocol breakpoint object
+                            // mocking for testing
+
+                            const bps: DebugProtocol.Breakpoint =
+                            {
+                                verified: true,
+                                line: 5,
+                                id: 2
+                            };
+
+                            this.currentDebugpoint = bps;
+                            this.sendEvent('breakpointValidated', bps);
+                        }
                     }
                     resolve();
 
@@ -322,15 +337,15 @@ export class Debugger extends EventEmitter {
 
     //     };
     // }
-    
+
     // public  createVariables(jsonResponse: any, variablesReference: number): DebugProtocol.Variable[] {
     //     const variables: DebugProtocol.Variable[] = [];
-    
+
     //     for (const key in jsonResponse) {
     //         if (jsonResponse.hasOwnProperty(key)) {
     //             const value = jsonResponse[key];
     //             let childVariablesReference = 0;
-    
+
     //             if (typeof value === 'object') {
     //                 // If the value is an object, create child variables and assign a unique reference
     //                 childVariablesReference = ++variablesReference;
@@ -343,12 +358,23 @@ export class Debugger extends EventEmitter {
     //             }
     //         }
     //     }
-    
+
     //     return variables;
     // }
 
 
 
+    public async sendClearBreakpointCommand(breakpointInfo: BreakpointInfo): Promise<void> {
+        breakpointInfo.command = "clear";
+        breakpointInfo['command-argument'] = "breakpoint";
+        await this.sendRequest(JSON.stringify(breakpointInfo));
+    }
+
+    public async sendSetBreakpointCommand(breakpointInfo: BreakpointInfo): Promise<void> {
+        breakpointInfo.command = "set";
+        breakpointInfo['command-argument'] = "breakpoint";
+        await this.sendRequest(JSON.stringify(breakpointInfo));
+    }
 
     public sendBreakpointCommand(): Promise<string> {
         const breakpointCommand = { "sequence": { "api": { "api-key": "HelloWorld", "resource": { "method": "GET" }, "sequence-type": "api_inseq", "mediator-position": "0" } }, "command": "clear", "command-argument": "breakpoint", "mediation-component": "sequence" };

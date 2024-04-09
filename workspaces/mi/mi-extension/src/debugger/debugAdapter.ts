@@ -21,10 +21,10 @@ export class MiDebugAdapter extends LoggingDebugSession {
     private static threadID = 1;
 
     public constructor() {
-        super("mi-debug.txt");
+        super();
         // this debugger uses zero-based lines and columns
-        this.setDebuggerLinesStartAt1(true);
-        this.setDebuggerColumnsStartAt1(true);
+        this.setDebuggerLinesStartAt1(false);
+        this.setDebuggerColumnsStartAt1(false);
 
         this.debuggerHandler = new Debugger(9005, 9006, 'localhost');
         // setup event handlers
@@ -163,20 +163,24 @@ export class MiDebugAdapter extends LoggingDebugSession {
     protected async setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse, args: DebugProtocol.SetBreakpointsArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
         const breakpoints = args.breakpoints || [];
         const source = args.source;
+        // TODO: check if breakpoint sources and source args is the same
 
-        const path = args.source.path as string;
+        const path = source.path;
         // clear all breakpoints for this file
-        this.debuggerHandler?.clearBreakpoints(path);
-
+        if (path){
+            this.debuggerHandler?.clearBreakpoints(path);
+        }
 
         // TODO: we need to validate if the breakpoint locations are valid, 
         // if the breakpoints are added to an unsupported location, then the breakpoints should be removed
 
-        // set vscode breakpoints
+        // set vscode breakpoints and the mi-debugger breakpoints
         const vscodeBreakpoints = breakpoints.map(async bp => {
-            const debugBreakpoint = await this.debuggerHandler?.setVscodeAndDebuggerBreakpoint(source, bp);
+            const debugBreakpoint = await this.debuggerHandler?.setBreakPoint(source, this.convertClientLineToDebugger(bp.line));
             if (debugBreakpoint?.line) {
-                const bp = new Breakpoint(debugBreakpoint?.verified, this.convertDebuggerLineToClient(debugBreakpoint?.line)) as DebugProtocol.Breakpoint;
+                const bp = new Breakpoint(debugBreakpoint?.verified, this.convertDebuggerLineToClient(debugBreakpoint?.line),
+                this.convertDebuggerColumnToClient(debugBreakpoint?.column || 0)) as DebugProtocol.Breakpoint;
+                bp.source = debugBreakpoint?.source;
                 bp.id = debugBreakpoint?.id;
                 return bp;
             }
@@ -200,7 +204,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
 
     protected launchRequest(response: DebugProtocol.LaunchResponse, args?: DebugProtocol.LaunchRequestArguments, request?: DebugProtocol.Request): void {
-
         this._configurationDone.wait().then(() => {
             updateServerPathAndGet().then((serverPath) => {
                 if (!serverPath) {
@@ -209,14 +212,12 @@ export class MiDebugAdapter extends LoggingDebugSession {
                 } else {
                     executeTasks(serverPath)
                         .then(() => {
-                            this.sendResponse(response);
-                            /// execute after 5 seconds
-                            setTimeout(() => {
-
-                                this.debuggerHandler?.initializeDebugger();
-
-
+                            //mi-server takes around 9 seconds to start
+                            setTimeout(async () => {
+                                await this.debuggerHandler?.initializeDebugger();
                             }, 10000);
+                            // this.debuggerHandler?.initializeDebugger();
+                            this.sendResponse(response);
                         })
                         .catch(error => {
                             vscode.window.showErrorMessage(`Error while launching run and debug`);
@@ -274,7 +275,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
     }
 
     protected threadsRequest(response: DebugProtocol.ThreadsResponse): void {
-
         // runtime supports no threads so just return a default thread.
         response.body = {
             threads: [
@@ -288,13 +288,11 @@ export class MiDebugAdapter extends LoggingDebugSession {
     }
 
     protected stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments, request?: DebugProtocol.Request | undefined): void {
-
         const stackFrames: DebugProtocol.StackFrame[] = [];
 
-        // getPath 
+        // TODO: get the correct path when there are breakpoints in multiple files
         const path = this.debuggerHandler?.getPath();
         const currentBreakpoint = this.debuggerHandler?.getCurrentBreakpoint();
-
 
         const xmlStackFrame: DebugProtocol.StackFrame = {
             id: 1,
@@ -303,8 +301,8 @@ export class MiDebugAdapter extends LoggingDebugSession {
                 name: "HelloWorld.xml",
                 path: path
             },
-            line: currentBreakpoint?.line || 1,
-            column: 1
+            line: currentBreakpoint?.line || 0,
+            column: 0
         };
 
         stackFrames.push(xmlStackFrame);
@@ -344,7 +342,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
     protected scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments, request?: DebugProtocol.Request | undefined): void {
         response.body = {
             scopes: [
-                new Scope("Local", 1, false)
+                new Scope("Local", 1, false) // TODO: cehck for the scope
             ]
         };
         this.sendResponse(response);
