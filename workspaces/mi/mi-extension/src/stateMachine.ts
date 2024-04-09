@@ -10,9 +10,10 @@ import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
 import { history } from './history/activator';
 import { COMMANDS } from './constants';
-import { StateMachineAI, openAIView } from './ai-panel/aiMachine';
+import { openAIWebview } from './ai-panel/aiMachine';
 import { AiPanelWebview } from './ai-panel/webview';
 import { activateProjectExplorer } from './project-explorer/activate';
+import { StateMachineAI } from './ai-panel/aiMachine';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -349,7 +350,7 @@ const stateMachine = createMachine<MachineContext>({
         updateAIView: () => {
             return new Promise(async (resolve, reject) => {
                 if (AiPanelWebview.currentPanel) {
-                    openAIView(EVENT_TYPE.OPEN_VIEW);
+                    openAIWebview();
                 }
                 resolve(true);
             });

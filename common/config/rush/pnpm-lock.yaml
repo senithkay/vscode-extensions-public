@@ -3302,10 +3302,12 @@ importers:
       fast-xml-parser: ~4.3.2
       glob: ^10.3.3
       jsonix: ~3.0.0
+      keytar: ~7.9.0
       lodash: ~4.17.21
       mocha: ^10.2.0
       mustache: ~4.2.0
       node-fetch: ~2.6.2
+      node-loader: ~2.0.0
       rimraf: ~5.0.5
       tree-kill: ^1.2.2
       ts-loader: ^9.4.4
@@ -3338,9 +3340,11 @@ importers:
       copyfiles: 2.4.1
       fast-xml-parser: 4.3.5
       jsonix: 3.0.0
+      keytar: 7.9.0
       lodash: 4.17.21
       mustache: 4.2.0
       node-fetch: 2.6.13
+      node-loader: 2.0.0_webpack@5.90.1
       tree-kill: 1.2.2
       unzipper: 0.10.14
       uuid: 9.0.1
@@ -37131,7 +37135,6 @@ packages:
     dependencies:
       loader-utils: 2.0.4
       webpack: 5.90.1_webpack-cli@5.1.4
-    dev: true
 
   /node-notifier/5.4.5:
     resolution: {integrity: sha512-tVbHs7DyTLtzOiN78izLA85zRqB9NvEXkAf014Vx3jtSvn/xBl6bR8ZYifj+dFcFrKI21huSQgJZ6ZtL3B4HfQ==}

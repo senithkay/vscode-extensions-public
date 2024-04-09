@@ -13,6 +13,8 @@ import { Uri, ViewColumn } from 'vscode';
 import { getComposerJSFiles } from '../util';
 import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
+import { StateMachineAI } from './aiMachine';
+import { AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 
 export class AiPanelWebview {
     public static currentPanel: AiPanelWebview | undefined;
@@ -92,6 +94,7 @@ export class AiPanelWebview {
 
     public dispose() {
         AiPanelWebview.currentPanel = undefined;
+        StateMachineAI.sendEvent(AI_EVENT_TYPE.DISPOSE);
         this._panel?.dispose();
 
         while (this._disposables.length) {

@@ -9,18 +9,35 @@
 
 import * as vscode from 'vscode';
 import { COMMANDS } from '../constants';
-import { StateMachineAI, openAIView } from './aiMachine';
-import { AI_MACHINE_VIEW, EVENT_TYPE } from '@wso2-enterprise/mi-core';
+import { StateMachineAI, openAIWebview } from './aiMachine';
+import { AI_EVENT_TYPE, AI_MACHINE_VIEW, EVENT_TYPE } from '@wso2-enterprise/mi-core';
+import { exchangeAuthCode } from './auth';
 
 export function activateAiPanel(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand(COMMANDS.OPEN_AI_PANEL, (initialPrompt?: string) => {
-            openAIView(EVENT_TYPE.OPEN_VIEW, { initialPrompt });
+            openAIWebview();
         })
     );
     context.subscriptions.push(
         vscode.commands.registerCommand(COMMANDS.CLEAR_AI_PROMPT, () => {
-            StateMachineAI.sendEvent(EVENT_TYPE.CLEAR_PROMPT);
+            StateMachineAI.sendEvent(AI_EVENT_TYPE.CLEAR_PROMPT);
         })
     );
+
+    vscode.window.registerUriHandler({
+        handleUri(uri: vscode.Uri) {
+            if (uri.path === '/signin') {
+                console.log("Signin callback hit");
+                const query = new URLSearchParams(uri.query);
+                const code = query.get('code');
+                console.log("Code: " + code);
+                if (code) {
+                    exchangeAuthCode(code);
+                } else {
+                    // Handle error here
+                }
+            }
+        }
+    });
 }
