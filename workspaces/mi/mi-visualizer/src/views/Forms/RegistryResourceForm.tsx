@@ -52,7 +52,6 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
     const schema = yup
         .object({
             createOption: yup.mixed<"new" | "import">().oneOf(["new", "import"]),
-            showImport: yup.boolean(),
             artifactName: yup.string().required("Artifact Name is required").test('validateArtifactName',
                 'Artifact name already exists', value => {
                     return !artifactNames.includes(value);

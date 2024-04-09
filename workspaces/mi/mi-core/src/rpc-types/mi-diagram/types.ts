@@ -412,8 +412,10 @@ export interface CreateSequenceRequest {
     name: string;
     endpoint: string;
     onErrorSequence: string;
+    getContentOnly: boolean;
 }
 export interface CreateSequenceResponse {
+    fileContent: string;
     filePath: string;
 }
 
@@ -970,6 +972,7 @@ export interface CreateRegistryResourceRequest {
     registryPath: string;
     registryRoot: string;
     createOption: string;
+    content?: string;
 }
 
 export interface CreateRegistryResourceResponse {
