@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { window, QuickPickItem, QuickPickItemKind, workspace, WorkspaceFolder } from "vscode";
-import { ext } from "../../extensionVariables";
+import { ext } from "../extensionVariables";
 import { ComponentKind, Organization, Project, UserInfo } from "@wso2-enterprise/choreo-core";
 
 export const selectComponent = async (org: Organization, project: Project): Promise<ComponentKind> => {

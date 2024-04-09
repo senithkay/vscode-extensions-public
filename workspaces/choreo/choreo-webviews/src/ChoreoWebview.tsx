@@ -12,17 +12,12 @@
  */
 
 import React from "react";
-import { ComponentWizard } from "./MultiStepComponentWizard/ComponentWizard";
-import { ChoreoCellView } from "./ChoreoCellView/CellView";
-import { ChoreoWebviewQueryClientProvider } from "./utilities/query/query";
-import { ProjectView } from "./ActivityBar/ProjectView";
-// import { AccountView } from "./ActivityBar/AccountView_old";
+import { ChoreoWebviewQueryClientProvider } from "./utilities/query";
 import { LinkedDirContextProvider } from "./context/choreo-linked-dir-ctx";
 import { AuthContextProvider } from "./context/choreo-auth-ctx";
 import { ComponentFormView } from "./views/ComponentFormView";
 import { AccountView } from "./views/AccountView";
 import { ComponentListView } from "./views/ComponentListView";
-
 import { ErrorBoundary } from "./ErrorBoundary";
 import {
     NewComponentWebview,
@@ -53,71 +48,6 @@ function ChoreoWebview(props: WebviewProps) {
                                     return null;
                             }
                         })()}
-                        {/* {(() => {
-                                if (props.type === "NewComponentForm") {
-                                    return (
-                                        <div className="h-screen flex flex-row justify-center">
-                                            <ComponentForm {...(props as NewComponentWebview)} />
-                                        </div>
-                                    );
-                                } else {
-                                    const { type, orgName, projectId, choreoUrl } = props;
-                                    return null;
-                                    // return (
-                                    //     <>
-                                    //         {(() => {
-                                    //             switch (type) {
-                                    //                 // case "ChoreoCellView":
-                                    //                 //     return (
-                                    //                 //         <AuthContextProvider>
-                                    //                 //             <ChoreoCellView
-                                    //                 //                 projectId={projectId}
-                                    //                 //                 orgName={orgName}
-                                    //                 //             />
-                                    //                 //         </AuthContextProvider>
-                                    //                 //     );
-                                    //                 // case "ProjectCreateForm":
-                                    //                 //     return (
-                                    //                 //         <ChoreoWebViewContextProvider choreoUrl={choreoUrl} ctxOrgId={orgName}>
-                                    //                 //             <ProjectWizard orgId={orgName} />
-                                    //                 //         </ChoreoWebViewContextProvider>
-                                    //                 //     );
-                                    //                 // case "ComponentCreateForm":
-                                    //                 //     return (
-                                    //                 //         <ChoreoWebViewContextProvider choreoUrl={choreoUrl}>
-                                    //                 //             <AuthContextProvider>
-                                    //                 //                 <LinkedDirContextProvider>
-                                    //                 //                     <ComponentWizard />
-                                    //                 //                 </LinkedDirContextProvider>
-                                    //                 //             </AuthContextProvider>
-                                    //                 //         </ChoreoWebViewContextProvider>
-                                    //                 //     );
-                                    //                 // case "ActivityBarAccountView":
-                                    //                 //     return (
-                                    //                 //         <ChoreoWebViewContextProvider choreoUrl={choreoUrl}>
-                                    //                 //             <AuthContextProvider>
-                                    //                 //                 <LinkedDirContextProvider>
-                                    //                 //                     <AccountView />
-                                    //                 //                 </LinkedDirContextProvider>
-                                    //                 //             </AuthContextProvider>
-                                    //                 //         </ChoreoWebViewContextProvider>
-                                    //                 //     );
-                                    //                 // case "ActivityBarProjectView":
-                                    //                 //     return (
-                                    //                 //         <ChoreoWebViewContextProvider choreoUrl={choreoUrl}>
-                                    //                 //             <ChoreoComponentsContextProvider>
-                                    //                 //                 <ProjectView />
-                                    //                 //             </ChoreoComponentsContextProvider>
-                                    //                 //         </ChoreoWebViewContextProvider>
-                                    //                 //     );
-                                    //                 default:
-                                    //                     return null;
-                                    //             }
-                                    //         })()}
-                                    //     </>
-                                    // );
-                                }
-                            })()} */}
                     </main>
                 </AuthContextProvider>
             </ErrorBoundary>

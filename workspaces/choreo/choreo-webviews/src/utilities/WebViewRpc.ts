@@ -94,7 +94,6 @@ import {
     RestoreWebviewCache,
     ClearWebviewCache,
     GoToSource,
-    IsBallerinaExtInstalled,
     RefreshWorkspaceNotification,
     Buildpack,
     GetBuildPackParams,
@@ -460,9 +459,5 @@ export class ChoreoWebViewAPI {
 
     public async fireRefreshComponents(): Promise<void> {
         return this._messenger.sendRequest(FireRefreshComponentList, HOST_EXTENSION, null);
-    }
-    
-    public async isBallerinaExtInstalled(): Promise<boolean> {
-        return this._messenger.sendRequest(IsBallerinaExtInstalled, HOST_EXTENSION, undefined);
     }
 }

@@ -14,7 +14,7 @@ import React from "react";
 
 import { QueryClient } from "@tanstack/react-query";
 import { PersistedClient, Persister, PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
-import { ChoreoWebViewAPI } from "../WebViewRpc";
+import { ChoreoWebViewAPI } from "./WebViewRpc";
 
 /**
  * Persist data within vscode workspace cache
@@ -39,6 +39,7 @@ const queryClient = new QueryClient({
         queries: {
             cacheTime: 1000 * 60 * 60 * 24, // 24 hours
             retry: false,
+            // TODO: enable refetchOnWindowFocus: false
         },
     },
 });

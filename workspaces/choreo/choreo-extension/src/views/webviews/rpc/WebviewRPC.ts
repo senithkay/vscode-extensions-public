@@ -14,16 +14,12 @@ import { commands, WebviewPanel, window, Uri, ProgressLocation, WebviewView } fr
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from "vscode-messenger-common";
 import {
-    GetCurrentOrgRequest,
-    GetAllProjectsRequest,
-    GetLoginStatusRequest,
     ExecuteCommandRequest,
     LoginStatusChangedNotification,
     SelectedOrgChangedNotification,
     CloseWebViewNotification,
     SelectedProjectChangedNotification,
     Project,
-    GetComponents,
     GetProjectLocation,
     OpenExternal,
     OpenChoreoProject,
@@ -36,36 +32,27 @@ import {
     UpdateProjectOverview,
     isSubpathAvailable,
     SubpathAvailableRequest,
-    getDiagramComponentModel,
     DeleteComponent,
     PullComponent,
     PushLocalComponentToChoreo,
     showOpenDialogRequest,
     OpenDialogOptions,
-    GetDeletedComponents,
     getPreferredProjectRepository,
     setPreferredProjectRepository,
     PushedComponent,
     RemoveDeletedComponents,
-    GetComponentCount,
-    CheckProjectDeleted,
     IsBareRepoRequest,
     IsBareRepoRequestParams,
-    HasChoreoSubscription,
     SendTelemetryEventNotification,
     SendTelemetryEventParams,
     SendTelemetryExceptionNotification,
     SendTelemetryExceptionParams,
-    SendProjectTelemetryEventNotification,
     CreateNonBalLocalComponent,
     CreateNonBalLocalComponentFromExistingSource,
     GetLocalComponentDirMetaData,
     getLocalComponentDirMetaDataRequest,
     getConsoleUrl,
     ChoreoComponentCreationParams,
-    GetUserInfoRequest,
-    GetComponentBuildStatus,
-    GetComponentDevDeployment,
     ReadEndpointsYaml,
     OpenBillingPortal,
     RefreshComponentsNotification,
@@ -74,11 +61,6 @@ import {
     OpenCellView,
     AskProjectDirPath,
     CloneChoreoProjectWithDir,
-    GetComponentsRequestParams,
-    CheckProjectDeletedParams,
-    GetDeletedComponentsParams,
-    GetComponentCountParams,
-    HasChoreoSubscriptionParams,
     CloneChoreoProjectParams,
     PushLocalComponentsToChoreoParams,
     SetExpandedComponents,
@@ -92,10 +74,7 @@ import {
     RestoreWebviewCache,
     ClearWebviewCache,
     GoToSource,
-    IsBallerinaExtInstalled,
     RefreshWorkspaceNotification,
-    GetBuildPackParams,
-    GetBuildpack,
     CreateBalLocalComponentFromExistingSource,
     AuthStoreChangedNotification,
     NotificationsMethodList,
@@ -111,21 +90,18 @@ import {
     ShowConfirmMessage,
     ShowConfirmBoxReq,
 } from "@wso2-enterprise/choreo-core";
-import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
 import { registerChoreoProjectManagerRPCHandlers, ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager/";
-
 import { ext } from "../../../extensionVariables";
 import { ProjectRegistry } from "../../../registry/project-registry";
 import * as vscode from "vscode";
 import { cloneProject, askProjectDirPath } from "../../../git/clone";
-import { enrichConsoleDeploymentData, mergeNonClonedProjectData } from "../../../utils";
 import { getLogger } from "../../../logger/logger";
 import { initGit } from "../../../git/main";
 import { dirname, join } from "path";
 import { sendTelemetryEvent, sendTelemetryException } from "../../../telemetry/utils";
-import { existsSync, unlink, unlinkSync } from "fs";
+import { existsSync, unlinkSync } from "fs";
 import { authStore } from "../../../stores/auth-store";
 import { linkedDirectoryStore } from "../../../stores/linked-dir-store";
 import { registerChoreoRpcResolver } from "../../../choreo-rpc";
@@ -219,11 +195,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     });
     // TODO remove old ones
 
-  
-    messenger.onRequest(IsBallerinaExtInstalled, () => {
-        const ext = vscode.extensions.getExtension("wso2.ballerina");
-        return !!ext;
-    });
+
 
 
     // TODO: Remove this once the Choreo project client RPC handlers are registered
@@ -566,10 +538,6 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     messenger.onRequest(FireRefreshWorkspaceMetadata, () => {
         ext.api.refreshWorkspaceMetadata();
     });
-
-
-
- 
 
     messenger.onRequest(GetLocalComponentDirMetaData, (params: getLocalComponentDirMetaDataRequest) => {
         return ProjectRegistry.getInstance().getLocalComponentDirMetaData(params);

@@ -9,17 +9,9 @@
 
 import React from "react";
 import { render } from "react-dom";
-import styled from "@emotion/styled";
 import ChoreoWebview from "./ChoreoWebview";
 import { WebviewProps } from "@wso2-enterprise/choreo-core";
 import "./style.css"
-
-export const Main: React.FC<any> = styled.main`
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  height: 100vh;
-`;
 
 export function renderChoreoWebViews(
 	target: HTMLDivElement,

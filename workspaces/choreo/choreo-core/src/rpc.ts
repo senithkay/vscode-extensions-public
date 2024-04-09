@@ -189,7 +189,6 @@ export const CreateBalLocalComponentFromExistingSource: RequestType<ChoreoCompon
 export const GetBuildpack: RequestType<GetBuildPackParams, Buildpack[]> = { method: 'getBuildpack' };
 export const FireRefreshComponentList: RequestType<void, void> = { method: 'fireRefreshComponentList' };
 export const FireRefreshWorkspaceMetadata: RequestType<void, void> = { method: 'fireRefreshWorkspaceMetadata' };
-export const IsBallerinaExtInstalled: RequestType<void, boolean> = { method: 'isBallerinaExtInstalled' };
 
 
 // notification types

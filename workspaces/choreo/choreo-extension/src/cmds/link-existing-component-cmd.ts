@@ -10,12 +10,11 @@ import { ExtensionContext, window, commands, ProgressLocation } from "vscode";
 import { ext } from "../extensionVariables";
 import { CommandIds } from "@wso2-enterprise/choreo-core";
 import { authStore } from "../stores/auth-store";
-import { initGit } from "../git/main";
 import * as path from "path";
 import * as fs from "fs";
 import { linkedDirectoryStore } from "../stores/linked-dir-store";
-import { selectOrg, selectProject, selectComponent, resolveWorkspaceDirectory } from "./cmd-utils/common-utils";
-import { getGitRoot } from "./cmd-utils/git-utils";
+import { selectOrg, selectProject, selectComponent, resolveWorkspaceDirectory } from "./cmd-utils";
+import { getGitRoot } from "../git/util";
 
 export function linkExistingComponentCommand(context: ExtensionContext) {
     context.subscriptions.push(

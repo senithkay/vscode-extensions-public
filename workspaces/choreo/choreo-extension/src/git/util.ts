@@ -3,11 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Event, Disposable, EventEmitter } from 'vscode';
+import { Event, Disposable, EventEmitter, ExtensionContext } from 'vscode';
 import { dirname, sep, relative } from 'path';
 import { Readable } from 'stream';
 import { promises as fs, createReadStream } from 'fs';
 import * as byline from 'byline';
+import { Remote } from './api/git';
+import { initGit } from './main';
 
 export const isMacintosh = process.platform === 'darwin';
 export const isWindows = process.platform === 'win32';
@@ -522,4 +524,24 @@ export const removeCredentialsFromGitURL = (gitURL: string): string => {
         }
     }
     throw new Error(`failed to parse git repository url:${gitURL}`);
+};
+
+export const getGitRemotes = async (context: ExtensionContext, directoryPath: string): Promise<Remote[] | void> => {
+    const newGit = await initGit(context);
+    const repoRootPath = await newGit?.getRepositoryRoot(directoryPath);
+    const dotGit = await newGit?.getRepositoryDotGit(directoryPath);
+
+    if (!repoRootPath || !dotGit) {
+        return;
+    }
+
+    const repo = newGit?.open(repoRootPath!, dotGit);
+    const remotes = await repo?.getRemotes();
+    return remotes!;
+};
+
+export const getGitRoot = async (context: ExtensionContext, directoryPath: string): Promise<string | void> => {
+    const newGit = await initGit(context);
+    const repoRootPath = await newGit?.getRepositoryRoot(directoryPath);
+    return repoRootPath;
 };

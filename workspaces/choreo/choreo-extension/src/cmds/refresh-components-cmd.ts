@@ -8,7 +8,6 @@
  */
 import { ExtensionContext, commands } from "vscode";
 import { CommandIds } from "@wso2-enterprise/choreo-core";
-import { window } from "vscode";
 import { authStore } from "../stores/auth-store";
 import { linkedDirectoryStore } from "../stores/linked-dir-store";
 

@@ -9,7 +9,7 @@
 import { ExtensionContext, commands, window, ProgressLocation } from "vscode";
 import { CommandIds } from "@wso2-enterprise/choreo-core";
 import { authStore } from "../stores/auth-store";
-import { selectComponent, selectOrg, selectProject } from "./cmd-utils/common-utils";
+import { selectComponent, selectOrg, selectProject } from "./cmd-utils";
 import { ext } from "../extensionVariables";
 import { deleteLinkFile } from "../utils";
 
