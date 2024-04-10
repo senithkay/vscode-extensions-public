@@ -902,7 +902,14 @@ export interface DbMediatorConnectionPoolProperty extends STNode {
 }
 
 export interface Proxy extends STNode {
-    descriptionOrTargetOrPublishWSDL: any | ProxyPolicy | Parameter | ProxyTarget | ProxyPublishWSDL;
+    target: ProxyTarget;
+    publishWSDL: ProxyPublishWSDL;
+    policy: ProxyPolicy;
+    enableAddressing: STNode;
+    enableSec: STNode;
+    enableRM: STNode;
+    parameters: Parameter[];
+    description: string;
     name: string;
     transports: string;
     pinnedServers: string;
