@@ -7,58 +7,51 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React from "react";
 
 import { DataMapperView } from "@wso2-enterprise/mi-data-mapper";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
-import { useFileContent, useIOTypes } from "../../Hooks";
+import { useIOTypes } from "../../Hooks";
 
 interface DataMapperProps {
     filePath: string;
     functionName: string;
+    fileContent: string;
 }
 
 export function DataMapper(props: DataMapperProps) {
     const { rpcClient } = useVisualizerContext();
-    const { filePath, functionName } = props;
-
-    const [fileVersion, setFileVersion] = useState(0);
+    const { filePath, functionName, fileContent } = props;
 
     const { dmIOTypes, isFetchingIOTypes, isTypeError } = useIOTypes(filePath, functionName);
-    const { dmFileContent, isFetchingFileContent, isFileError } = useFileContent(filePath, fileVersion);
-
-    const isFetching = isFetchingIOTypes || isFetchingFileContent;
-    const isError = isTypeError || isFileError;
 
     const updateFileContent = async (newContent: string) => {
         try {
             await rpcClient
                 .getMiDataMapperRpcClient()
                 .updateFileContent({ filePath, fileContent: newContent });
-            setFileVersion((prevVersion) => prevVersion + 1);
         } catch (error) {
             console.error("Error while updating file content: ", error);
         }
     };
 
-    if (isError) {
-        console.error("Error fetching DM metadata");
-    } else if (!isFetching) {
+    if (isTypeError) {
+        console.error("Error fetching DM input/output types");
+    } else if (!isFetchingIOTypes) {
         console.log("IO Types", dmIOTypes);
-        console.log("File Content", dmFileContent);
     }
 
     return (
         <>
-            {isError && <div>Error fetching DM metadata</div>}
-            {isFetching
+            {isTypeError && <div>Error fetching input/output types</div>}
+            {isFetchingIOTypes
                 ? <ProgressIndicator />
                 : (
                     <DataMapperView
                         filePath={filePath}
-                        fileContent={dmFileContent}
+                        fileContent={fileContent}
                         functionName={functionName}
                         inputTrees={dmIOTypes.inputTrees}
                         outputTree={dmIOTypes.outputTree}

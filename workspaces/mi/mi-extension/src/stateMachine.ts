@@ -13,6 +13,7 @@ import { COMMANDS } from './constants';
 import { StateMachineAI, openAIView } from './ai-panel/aiMachine';
 import { AiPanelWebview } from './ai-panel/webview';
 import { activateProjectExplorer } from './project-explorer/activate';
+import { getSourceCode } from './util/dataMapper';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -145,7 +146,8 @@ const stateMachine = createMachine<MachineContext>({
                             actions: assign({
                                 view: (context, event) => event.data.view,
                                 stNode: (context, event) => event.data.stNode,
-                                diagnostics: (context, event) => event.data.diagnostics
+                                diagnostics: (context, event) => event.data.diagnostics,
+                                dataMapperProps: (context, event) => event.data?.dataMapperProps
                             })
                         }
                     }
@@ -165,7 +167,8 @@ const stateMachine = createMachine<MachineContext>({
                             target: "viewNavigated",
                             actions: assign({
                                 stNode: (context, event) => event.data.stNode,
-                                diagnostics: (context, event) => event.data.diagnostics
+                                diagnostics: (context, event) => event.data.diagnostics,
+                                dataMapperProps: (context, event) => event.data?.dataMapperProps
                             })
                         }
                     }
@@ -202,7 +205,8 @@ const stateMachine = createMachine<MachineContext>({
                                 documentUri: (context, event) => event.viewLocation.documentUri,
                                 position: (context, event) => event.viewLocation.position,
                                 projectOpened: (context, event) => true,
-                                customProps: (context, event) => event.viewLocation.customProps
+                                customProps: (context, event) => event.viewLocation.customProps,
+                                dataMapperProps: (context, event) => event.data?.dataMapperProps
                             })
                         },
                         FILE_EDIT: {
@@ -311,9 +315,23 @@ const stateMachine = createMachine<MachineContext>({
                                 viewLocation.view = MACHINE_VIEW.ProxyView;
                                 viewLocation.stNode = node.proxy;
                                 break;
+                            // case !!node.sequence:
+                            //     viewLocation.view = MACHINE_VIEW.SequenceView;
+                            //     viewLocation.stNode = node.sequence;
+                            //     break;
                             case !!node.sequence:
-                            viewLocation.view = MACHINE_VIEW.DataMapperView;
-                                viewLocation.stNode = node.sequence;
+                                // TODO: Use node.dataMapper to identify the data mapper function
+                                const filePath = "/Users/madusha/play/mi/mi-hw/HelloWorldService/src/main/wso2mi/resources/data-mapper/sample2.ts";
+                                const functionName="tnfStd2Person";
+
+                                const fileContent = getSourceCode(filePath);
+                                viewLocation.dataMapperProps = {
+                                    filePath: filePath,
+                                    functionName: functionName,
+                                    fileContent: fileContent
+                                };
+
+                                viewLocation.view = MACHINE_VIEW.DataMapperView;
                                 break;
                             default:
                                 // Handle default case
@@ -339,7 +357,8 @@ const stateMachine = createMachine<MachineContext>({
                             view: context.view,
                             documentUri: context.documentUri,
                             position: context.position,
-                            identifier: context.identifier
+                            identifier: context.identifier,
+                            dataMapperProps: context?.dataMapperProps
                         }
                     });
                 }

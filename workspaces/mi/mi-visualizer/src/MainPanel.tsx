@@ -171,12 +171,7 @@ const MainPanel = () => {
                     setViewComponent(<ServiceDesignerView syntaxTree={machineView.stNode} documentUri={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.DataMapperView:
-                    setViewComponent(
-                        <DataMapper
-                            filePath={"/Users/madusha/play/mi/mi-hw/HelloWorldService/src/main/wso2mi/resources/data-mapper/sample2.ts"}
-                            functionName={"tnfStd2Person"}
-                        />
-                    );
+                    setViewComponent(<DataMapper {...machineView.dataMapperProps} />);
                     break;
                 case MACHINE_VIEW.APIForm:
                     setViewComponent(<APIWizard apiData={(machineView.customProps as APIWizardProps)?.apiData} path={machineView.documentUri} />);

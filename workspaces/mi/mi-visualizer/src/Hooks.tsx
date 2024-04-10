@@ -19,7 +19,7 @@ export const useIOTypes = (filePath: string, functionName: string) => {
                 .getIOTypes({ filePath, functionName });
             return res;
         } catch (error) {
-            console.error('Error while fetching transformation profile: ', error);
+            console.error('Error while fetching input/output types: ', error);
         }
     }
 
