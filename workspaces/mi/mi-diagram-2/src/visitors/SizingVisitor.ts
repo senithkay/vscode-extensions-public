@@ -8,7 +8,68 @@
  */
 
 
-import { Bean, Call, CallTemplate, Callout, Class, Drop, Ejb, Endpoint, EndpointHttp, Filter, Header, Log, Loopback, PayloadFactory, PojoCommand, Property, PropertyGroup, Respond, STNode, Script, Send, Sequence, Spring, Store, TagRange, Range, Throttle, Validate, Visitor, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, traversNode, Iterate, Resource, Switch, Foreach, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Datamapper, Enrich, FastXSLT, Makefault, Jsontransform, Smooks, Xquery, Xslt, ViewState } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import {
+    Bean,
+    Call,
+    CallTemplate,
+    Callout,
+    Class,
+    Drop,
+    Ejb,
+    Endpoint,
+    EndpointHttp,
+    Filter,
+    Header,
+    Log,
+    Loopback,
+    PayloadFactory,
+    PojoCommand,
+    Property,
+    PropertyGroup,
+    Respond,
+    STNode,
+    Script,
+    Send,
+    Sequence,
+    Spring,
+    Store,
+    TagRange,
+    Range,
+    Throttle,
+    Validate,
+    Visitor,
+    Enqueue,
+    Transaction,
+    Event,
+    DataServiceCall,
+    Clone,
+    Cache,
+    Aggregate,
+    traversNode,
+    Iterate,
+    Resource,
+    Switch,
+    Foreach,
+    Bam,
+    ConditionalRouter,
+    OauthService,
+    Builder,
+    PublishEvent,
+    EntitlementService,
+    Rule,
+    Ntlm,
+    Datamapper,
+    Enrich,
+    FastXSLT,
+    Makefault,
+    Jsontransform,
+    Smooks,
+    Xquery,
+    Xslt,
+    ViewState,
+    Target,
+    ProxyTarget,
+} from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
 
@@ -227,6 +288,28 @@ export class SizingVisitor implements Visitor {
                 ...node.viewState,
                 fh: node.viewState.fh + namedSequenceHeight
             };
+        }
+    }
+
+    endVisitTarget = (node: Target | ProxyTarget): void => {
+        if (node.tag === "target") {
+            const proxyTargetNode = node as ProxyTarget;
+            const namedSequenceHeight = NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
+            if (proxyTargetNode.inSequenceAttribute) {
+                proxyTargetNode.viewState = {
+                    x: 0,
+                    y: 0,
+                    w: NODE_DIMENSIONS.START.EDITABLE.WIDTH,
+                    h: 0,
+                    fh: namedSequenceHeight
+                };
+            }
+            if (proxyTargetNode.outSequenceAttribute) {
+                proxyTargetNode.viewState = {
+                    ...proxyTargetNode.viewState,
+                    fh: proxyTargetNode.viewState.fh + namedSequenceHeight
+                };
+            }
         }
     }
 

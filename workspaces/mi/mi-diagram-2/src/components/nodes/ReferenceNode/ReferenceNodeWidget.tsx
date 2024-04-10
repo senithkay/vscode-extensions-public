@@ -89,6 +89,7 @@ namespace S {
         &:hover {
             text-decoration: ${(props: TagProps) => props.selectable ? "underline" : "none"};
             color: ${(props: TagProps) => props.selectable ? Colors.SECONDARY : Colors.ON_SURFACE};
+        }
     `;
 }
 interface ReferenceNodeWidgetProps {
@@ -115,7 +116,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
             range: node.stNode.range.startTagRange,
         });
 
-        const regex = /\s*key\s*=\s*(['"])(.*?)\1/;
+        const regex = /\s*(?:key|inSequence|outSequence)\s*=\s*(['"])(.*?)\1/;
         const match = text.text.match(regex);
         if (match) {
             const keyPart = match[0].split("=")[0];

@@ -11,7 +11,7 @@ import { Button, TextField, Dropdown, RadioButtonGroup, FormView, FormGroup, For
 import {useVisualizerContext} from "@wso2-enterprise/mi-rpc-client";
 import {EVENT_TYPE, MACHINE_VIEW, UpdateDefaultEndpointRequest} from "@wso2-enterprise/mi-core";
 import CardWrapper from "./Commons/CardWrapper";
-import {TypeChangeButton} from "./Commons";
+import {TypeChip} from "./Commons";
 
 interface OptionProps {
     value: string;
@@ -431,7 +431,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
     return (
         <FormView title={(showCards && isTemplate) ? 'Template Artifact' : (showCards && !isTemplate) ? 'Endpoint Artifact' : isTemplate ? "Template Artifact" : "Endpoint Artifact"} onClose={handleCancel}>
             { showCards ? <CardWrapper cardsType={props.type === 'template' ? 'TEMPLATE' : 'ENDPOINT'} setType={setEndpointType} /> : <>
-            { isNewEndpoint && <TypeChangeButton type={isTemplate ? "Default Endpoint Template" : "Default Endpoint"} onClick={setEndpointType} /> }
+            <TypeChip type={isTemplate ? "Default Endpoint Template" : "Default Endpoint"} onClick={setEndpointType} showButton={isNewEndpoint} />
             {isTemplate && (
                 <>
                     <FormGroup title="Template Properties" isCollapsed={false}>

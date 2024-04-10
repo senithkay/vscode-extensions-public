@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
+
 import { FormView } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
@@ -21,83 +21,36 @@ export function EndpointWizard(props: EndpointWizardProps) {
     const { rpcClient } = useVisualizerContext();
 
     const setEndpointType = (type: string) => {
-        if (type === 'HTTP Endpoint') {
+        const endpointMappings: { [key: string]: MACHINE_VIEW } = {
+            'HTTP Endpoint': MACHINE_VIEW.HttpEndpointForm,
+            'WSDL Endpoint': MACHINE_VIEW.WsdlEndpointForm,
+            'Address Endpoint': MACHINE_VIEW.AddressEndpointForm,
+            'Default Endpoint': MACHINE_VIEW.DefaultEndpointForm,
+            'Failover Endpoint': MACHINE_VIEW.FailoverEndPointForm,
+            'Load Balance Endpoint': MACHINE_VIEW.LoadBalanceEndPointForm,
+            'Recipient List Endpoint': MACHINE_VIEW.RecipientEndPointForm,
+            'Template Endpoint': MACHINE_VIEW.TemplateEndPointForm,
+        };
+    
+        const view = endpointMappings[type];
+        if (view) {
             rpcClient.getMiVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
-                    view: MACHINE_VIEW.HttpEndpointForm,
+                    view,
                     documentUri: props.path,
                     customProps: {type: 'endpoint'}
-                }
-            });
-        } else if (type === 'WSDL Endpoint') {
-            rpcClient.getMiVisualizerRpcClient().openView({
-                type: EVENT_TYPE.OPEN_VIEW,
-                location: {
-                    view: MACHINE_VIEW.WsdlEndpointForm,
-                    documentUri: props.path,
-                    customProps: {type: 'endpoint'}
-                }
-            });
-        } else if (type === 'Address Endpoint') {
-            rpcClient.getMiVisualizerRpcClient().openView({
-                type: EVENT_TYPE.OPEN_VIEW,
-                location: {
-                    view: MACHINE_VIEW.AddressEndpointForm,
-                    documentUri: props.path,
-                    customProps: {type: 'endpoint'}
-                }
-            });
-        } else if (type === 'Default Endpoint') {
-            rpcClient.getMiVisualizerRpcClient().openView({
-                type: EVENT_TYPE.OPEN_VIEW,
-                location: {
-                    view: MACHINE_VIEW.DefaultEndpointForm,
-                    documentUri: props.path,
-                    customProps: {type: 'endpoint'}
-                }
-            });
-        } else if (type === 'Failover Endpoint') {
-            rpcClient.getMiVisualizerRpcClient().openView({
-                type: EVENT_TYPE.OPEN_VIEW,
-                location: {
-                    view: MACHINE_VIEW.FailoverEndPointForm,
-                    documentUri: props.path
-                }
-            });
-        } else if (type === 'Load Balance Endpoint') {
-            rpcClient.getMiVisualizerRpcClient().openView({
-                type: EVENT_TYPE.OPEN_VIEW,
-                location: {
-                    view: MACHINE_VIEW.LoadBalanceEndPointForm,
-                    documentUri: props.path
-                }
-            });
-        } else if (type === 'Recipient List Endpoint') {
-            rpcClient.getMiVisualizerRpcClient().openView({
-                type: EVENT_TYPE.OPEN_VIEW,
-                location: {
-                    view: MACHINE_VIEW.RecipientEndPointForm,
-                    documentUri: props.path
-                }
-            });
-        } else if (type === 'Template Endpoint') {
-            rpcClient.getMiVisualizerRpcClient().openView({
-                type: EVENT_TYPE.OPEN_VIEW,
-                location: {
-                    view: MACHINE_VIEW.TemplateEndPointForm,
-                    documentUri: props.path
                 }
             });
         }
     };
 
-    const handleCancel = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+    const handleOnClose = () => {
+        rpcClient.getMiVisualizerRpcClient().goBack();
     };
 
     return (
-        <FormView title={"Endpoint Artifact"} onClose={handleCancel}>
+        <FormView title={"Create Endpoint Artifact"} onClose={handleOnClose}>
             <CardWrapper cardsType={"ENDPOINT"} setType={setEndpointType} />
         </FormView>
     );

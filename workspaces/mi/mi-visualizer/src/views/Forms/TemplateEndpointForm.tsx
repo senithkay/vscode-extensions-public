@@ -9,13 +9,13 @@
 
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
-import { Button, TextField, FormView, FormGroup, FormActions, ParamManager } from "@wso2-enterprise/ui-toolkit";
+import { Button, Dropdown, TextField, FormView, FormGroup, FormActions, ParamManager } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
-import { Endpoint, EndpointList, InlineButtonGroup, TypeChip } from "./Commons";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
+import { TypeChip } from "./Commons";
 
 const FieldGroup = styled.div`
     display: flex;
@@ -28,42 +28,38 @@ export interface Region {
     value: string;
 }
 
-export interface RecipientWizardProps {
+export interface TemplateEndpointWizardProps {
     path: string;
 }
 
-type Endpoint = {
-    type: string;
-    value: string;
-}
-
-const initialInlineEndpoint: Endpoint = {
-    type: 'inline',
-    value: '',
-};
-
 type InputsFields = {
     name?: string;
+    uri?: string;
+    template?: string;
     description?: string;
-    endpoints?: Endpoint[];
-    properties?: any[];
+    endpoints?: any[];
+    parameters?: any[];
 };
 
 const initialEndpoint: InputsFields = {
     name: '',
+    uri: '',
+    template: '',
     description: '',
     endpoints: [],
-    properties: [],
+    parameters: [],
 };
 
 const schema = yup.object({
     name: yup.string().required("Endpoint Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint name"),
+    uri: yup.string(),
+    template: yup.string().required("Template is required"),
     description: yup.string(),
     endpoints: yup.array(),
-    properties: yup.array(),
+    parameters: yup.array(),
 });
 
-export function RecipientWizard(props: RecipientWizardProps) {
+export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
 
@@ -82,38 +78,31 @@ export function RecipientWizard(props: RecipientWizardProps) {
         mode: "onChange"
     });
 
-    const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
-    const [expandEndpointsView, setExpandEndpointsView] = useState<boolean>(false);
-    const [showAddNewEndpointView, setShowAddNewEndpointView] = useState<boolean>(false);
-    const [newEndpoint, setNewEndpoint] = useState<Endpoint>(initialInlineEndpoint);
-
+    const [templates, setTemplates] = useState<any[]>([]);
     const [paramConfigs, setParamConfigs] = useState<any>({
         paramValues: [],
         paramFields: [
             { id: 1, type: "TextField", label: "Name", defaultValue: "", isRequired: true },
             { id: 2, type: "TextField", label: "Value", defaultValue: "", isRequired: true },
-            { id: 3, type: "Dropdown", label: "Scope", defaultValue: "default", values: ["default", "transport", "axis2", "axis2-client"], isRequired: true },
         ]
     });
 
     useEffect(() => {
         if (!isNewEndpoint) {
             (async () => {
-                const { properties, endpoints, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getRecipientEndpoint({ path: props.path });
+                const { parameters, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getTemplateEndpoint({ path: props.path });
 
                 reset(endpoint);
-                setEndpoints(endpoints);
 
                 setParamConfigs((prev: any) => {
                     return {
                         ...prev,
-                        paramValues: properties.map((property: any, index: Number) => {
+                        paramValues: parameters.map((property: any, index: Number) => {
                             return {
                                 id: prev.paramValues.length + index,
                                 parameters: [
                                     { id: 0, label: 'Name', type: 'TextField', value: property.name, isRequired: true },
                                     { id: 1, label: 'Value', type: 'TextField', value: property.value, isRequired: true },
-                                    { id: 2, label: 'Scope', type: 'Dropdown', value: property.scope, values: ["default", "transport", "axis2", "axis2-client"], isRequired: true },
                                 ],
                                 key: property.name,
                                 value: property.value,
@@ -122,9 +111,12 @@ export function RecipientWizard(props: RecipientWizardProps) {
                     };
                 });
 
-                if (endpoints.length > 0) {
-                    setExpandEndpointsView(true);
-                }
+                const items = await rpcClient.getMiDiagramRpcClient().getTemplates();
+                const templates = items.data.map((temp: string) => {
+                    temp = temp.replace(".xml", "");
+                    return { value: temp }
+                });
+                setTemplates(templates);
             })();
         }
     }, [props.path]);
@@ -136,16 +128,6 @@ export function RecipientWizard(props: RecipientWizardProps) {
             errorMsg: errors[fieldName] && errors[fieldName].message.toString()
         }
     };
-
-    const handleNewEndpointChange = (field: string, value: string) => {
-        setNewEndpoint((prev: any) => ({ ...prev, [field]: value }));
-    }
-
-    const handleAddNewEndpoint = () => {
-        setEndpoints((prev: any) => [...prev, newEndpoint]);
-        setShowAddNewEndpointView(false);
-        setNewEndpoint(initialInlineEndpoint);
-    }
 
     const handleParamChange = (config: any) => {
         setParamConfigs((prev: any) => {
@@ -161,7 +143,7 @@ export function RecipientWizard(props: RecipientWizardProps) {
             };
         })
 
-        setValue('properties', config.paramValues.map((param: any) => ({
+        setValue('parameters', config.paramValues.map((param: any) => ({
             name: param.parameters[0].value,
             value: param.parameters[1].value,
             scope: param.parameters[2].value ?? 'default',
@@ -172,9 +154,8 @@ export function RecipientWizard(props: RecipientWizardProps) {
         const updateEndpointParams = {
             directory: props.path,
             ...values,
-            endpoints,
         }
-        rpcClient.getMiDiagramRpcClient().updateRecipientEndpoint(updateEndpointParams);
+        rpcClient.getMiDiagramRpcClient().updateTemplateEndpoint(updateEndpointParams);
         openOverview();
     };
 
@@ -196,7 +177,7 @@ export function RecipientWizard(props: RecipientWizardProps) {
     return (
         <FormView title="Endpoint Artifact" onClose={openOverview}>
             <TypeChip
-                type={"Recipient List Endpoint"}
+                type={"Template Endpoint"}
                 onClick={changeType}
                 showButton={isNewEndpoint}
             />
@@ -206,45 +187,25 @@ export function RecipientWizard(props: RecipientWizardProps) {
                     autoFocus
                     label="Name"
                     placeholder="Name"
-                    {...renderProps('name')}
+                    {...renderProps("name")}
                     size={100}
                 />
-                <FieldGroup>
-                    <InlineButtonGroup
-                        label="Endpoints"
-                        isHide={expandEndpointsView}
-                        onShowHideToggle={() => {
-                            setExpandEndpointsView(!expandEndpointsView);
-                            setShowAddNewEndpointView(false);
-                            setNewEndpoint({ type: 'inline', value: '' });
-                        }}
-                        addNewFunction={() => {
-                            setShowAddNewEndpointView(true);
-                            setExpandEndpointsView(true);
-                        }}
-                    />
-                    {expandEndpointsView && (
-                        <EndpointList
-                        endpoints={endpoints}
-                        setEndpoints={setEndpoints}
-                    />
-                    )}
-                    {showAddNewEndpointView && (
-                        <Endpoint
-                        endpoint={newEndpoint}
-                        handleEndpointChange={handleNewEndpointChange}
-                        handleSave={handleAddNewEndpoint}
-                    />
-                    )}
-                </FieldGroup>
-            </FormGroup>
-            <FormGroup title="Miscellaneous Properties" isCollapsed={false}>
+                <TextField
+                    label="Uri"
+                    placeholder="Uri"
+                    {...renderProps("uri")}
+                />
+                <Dropdown
+                    label="Template"
+                    items={templates}
+                    {...renderProps("template")}
+                />
                 <TextField
                     label="Description"
-                    {...renderProps('description')}
+                    {...renderProps("description")}
                 />
                 <FieldGroup>
-                    <span>Properties</span>
+                    <span>Parameters</span>
                     <ParamManager paramConfigs={paramConfigs} onChange={handleParamChange} />
                 </FieldGroup>
             </FormGroup>

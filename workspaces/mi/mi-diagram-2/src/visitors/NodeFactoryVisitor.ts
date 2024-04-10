@@ -7,7 +7,69 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Visitor, STNode, Call, CallTemplate, Callout, Drop, Filter, Header, Log, Loopback, PayloadFactory, Property, PropertyGroup, Respond, Send, Sequence, Store, Throttle, Validate, traversNode, Endpoint, EndpointHttp, Position, Bean, Class, PojoCommand, Ejb, Script, Spring, Enqueue, Transaction, Event, DataServiceCall, Clone, Cache, Aggregate, Iterate, Resource, Switch, Foreach, Bam, ConditionalRouter, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Datamapper, Enrich, FastXSLT, Makefault, Jsontransform, Smooks, Xquery, Xslt, Range, Connector } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import {
+    Visitor,
+    STNode,
+    Call,
+    CallTemplate,
+    Callout,
+    Drop,
+    Filter,
+    Header,
+    Log,
+    Loopback,
+    PayloadFactory,
+    Property,
+    PropertyGroup,
+    Respond,
+    Send,
+    Sequence,
+    Store,
+    Throttle,
+    Validate,
+    traversNode,
+    Endpoint,
+    EndpointHttp,
+    Position,
+    Bean,
+    Class,
+    PojoCommand,
+    Ejb,
+    Script,
+    Spring,
+    Enqueue,
+    Transaction,
+    Event,
+    DataServiceCall,
+    Clone,
+    Cache,
+    Aggregate,
+    Iterate,
+    Resource,
+    Switch,
+    Foreach,
+    Bam,
+    ConditionalRouter,
+    OauthService,
+    Builder,
+    PublishEvent,
+    EntitlementService,
+    Rule,
+    Ntlm,
+    Datamapper,
+    Enrich,
+    FastXSLT,
+    Makefault,
+    Jsontransform,
+    Smooks,
+    Xquery,
+    Xslt,
+    Range,
+    Connector,
+    DiagramService,
+    ProxyTarget,
+    Target
+} from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 import { GroupNodeModel } from "../components/nodes/GroupNode/GroupNodeModel";
@@ -21,7 +83,6 @@ import { SourceNodeModel, TargetNodeModel, createNodesLink } from "../utils/diag
 import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
 import { Diagnostic } from "vscode-languageserver-types";
 import { ReferenceNodeModel } from "../components/nodes/ReferenceNode/ReferenceNodeModel";
-import { DiagramService } from "@wso2-enterprise/mi-syntax-tree/src";
 import { PlusNodeModel } from "../components/nodes/PlusNode/PlusNodeModel";
 
 interface BranchData {
@@ -39,6 +100,8 @@ enum DiagramType {
     DIAGRAM,
     SEQUENCE
 }
+
+const RESTRICTED_NODE_TYPES = ["resource", "target"]
 
 export type AnyNode = MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel | GroupNodeModel | PlusNodeModel;
 
@@ -105,10 +168,17 @@ export class NodeFactoryVisitor implements Visitor {
                 const previousStNode = this.previousSTNodes[i];
                 const previousNodes = this.nodes.filter((node) => JSON.stringify(node.getStNode().range) === JSON.stringify(previousStNode.range));
                 const previousNode = previousNodes[previousNodes.length - 1];
-
+                const currentNodeType = node.tag;
+                const previousNodeType = previousStNode.tag;
+                
                 const isSequnceConnect = diagramNode instanceof StartNodeModel && previousNode instanceof EndNodeModel;
                 const isEmptyNodeConnect = diagramNode instanceof EmptyNodeModel && previousNode instanceof EmptyNodeModel && type !== NodeTypes.CONDITION_NODE_END;
-                const showAddButton = !isSequnceConnect && !(previousNode instanceof EmptyNodeModel && !previousNode.visible) && type !== NodeTypes.PLUS_NODE;
+                const showAddButton = !isSequnceConnect &&
+                 !(previousNode instanceof EmptyNodeModel 
+                    && !previousNode.visible) 
+                    && type !== NodeTypes.PLUS_NODE
+                    && RESTRICTED_NODE_TYPES.indexOf(currentNodeType) < 0
+                    && RESTRICTED_NODE_TYPES.indexOf(previousNodeType) < 0;
 
                 const addPosition = this.currentAddPosition != undefined ? this.currentAddPosition :
                     (type === NodeTypes.CONDITION_NODE_END && previousNode instanceof EmptyNodeModel) ? previousStNode.range.endTagRange.start :
@@ -372,6 +442,48 @@ export class NodeFactoryVisitor implements Visitor {
             endNode.viewState.y = sequneceReferenceNode.viewState.y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
             endNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.END.WIDTH) / 2;
             this.createNodeAndLinks({ node: endNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE });
+        }
+    }
+    
+    beginVisitTarget = (node: Target | ProxyTarget): void => {
+        if (node.tag === "target") {
+            const proxyTargetNode = node as ProxyTarget;
+            if (proxyTargetNode.inSequenceAttribute) {
+                proxyTargetNode.viewState.y = 40;
+                const startNode = structuredClone(proxyTargetNode);
+                startNode.viewState.id = "inSequenceStart";
+                this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.IN_SEQUENCE });
+        
+                const sequneceReferenceNode = structuredClone(proxyTargetNode);
+                sequneceReferenceNode.viewState.id = "inSequenceNode";
+                sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
+                sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
+                this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: [proxyTargetNode.inSequenceAttribute] });
+        
+                const endNode = structuredClone(proxyTargetNode);
+                endNode.viewState.id = "inSequenceEnd";
+                endNode.viewState.y = sequneceReferenceNode.viewState.y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
+                endNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.END.WIDTH) / 2;
+                this.createNodeAndLinks({ node: endNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE });
+        
+                proxyTargetNode.viewState.y += endNode.viewState.y + NODE_DIMENSIONS.END.HEIGHT;
+            }
+            if (proxyTargetNode.outSequenceAttribute) {
+                const startNode = structuredClone(proxyTargetNode);
+                startNode.viewState.id = "outSequence";
+                startNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.START.DISABLED.WIDTH) / 2;
+                this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.OUT_SEQUENCE });
+        
+                const sequneceReferenceNode = structuredClone(proxyTargetNode);
+                sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
+                sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
+                this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: [proxyTargetNode.inSequenceAttribute] });
+        
+                const endNode = structuredClone(proxyTargetNode);
+                endNode.viewState.y = sequneceReferenceNode.viewState.y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
+                endNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.END.WIDTH) / 2;
+                this.createNodeAndLinks({ node: endNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE });
+            }
         }
     }
 

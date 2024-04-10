@@ -37,13 +37,13 @@ export interface HttpEndpointArgs {
     addressListener: string | null;
     securityEnabled: string;
     suspendErrorCodes: string;
-    initialDuration: string;
-    maximumDuration: string;
-    progressionFactor: string;
+    initialDuration: number;
+    maximumDuration: number;
+    progressionFactor: number;
     retryErrorCodes: string;
-    retryCount: string;
-    retryDelay: string;
-    timeoutDuration: string;
+    retryCount: number;
+    retryDelay: number;
+    timeoutDuration: number;
     timeoutAction: string | null;
     templateName: string;
     requireTemplateParameters: boolean;
@@ -131,9 +131,9 @@ export function getHttpEndpointMustacheTemplate() {
 
 export function getHttpEndpointXml(data: HttpEndpointArgs) {
 
-    data.retryCount = data.retryCount === '' ? '0' : data.retryCount;
-    data.initialDuration = data.initialDuration === '' ? '-1' : data.initialDuration;
-    data.progressionFactor = data.progressionFactor === '' ? '1' : data.progressionFactor;
+    data.retryCount = Number(data.retryCount ?? 0);
+    data.initialDuration = Number(data.initialDuration ?? -1);
+    data.progressionFactor = Number(data.progressionFactor ?? 1);
     data.httpMethod = (data.httpMethod === 'leave_as_is' || data.httpMethod === null) ? null : data.httpMethod.toLowerCase();
 
     let timeout, authentication, basicAuth, oauth, authorizationCode, clientCredentials, passwordCredentials, endpoint, template;
