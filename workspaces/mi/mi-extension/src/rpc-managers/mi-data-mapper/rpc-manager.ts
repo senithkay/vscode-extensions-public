@@ -18,6 +18,7 @@ import {
 } from "@wso2-enterprise/mi-core";
 import { fetchIOTypes, getSourceCode } from "../../util/dataMapper";
 import { Project } from "ts-morph";
+import { navigate } from "../../stateMachine";
 
 export class MiDataMapperRpcManager implements MIDataMapperAPI {
     async getIOTypes(params: IOTypeRequest): Promise<IOTypeResponse> {
@@ -64,5 +65,6 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         const sourceFile = project.addSourceFileAtPath(params.filePath);
         sourceFile.replaceWithText(params.fileContent);
         sourceFile.save();
+        navigate()
     }
 }
