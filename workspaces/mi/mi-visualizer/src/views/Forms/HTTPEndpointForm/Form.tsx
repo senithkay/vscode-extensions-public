@@ -1,0 +1,375 @@
+/*
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import { TextField, Dropdown, RadioButtonGroup, FormGroup, ParamManager } from "@wso2-enterprise/ui-toolkit";
+
+interface OptionProps {
+    value: string;
+}
+
+const Form = ({
+    renderProps,
+    watch,
+    setValue,
+    isTemplate,
+    templateParams,
+    setTemplateParams,
+    additionalParams,
+    setAdditionalParams,
+    additionalOauthParams,
+    setAdditionalOauthParams
+}: any) => {
+    const addressingVersions: OptionProps[] = [
+        { value: "final" },
+        { value: "submission" },
+    ];
+
+    const grantTypes: OptionProps[] = [
+        { value: "Authorization Code" },
+        { value: "Client Credentials" },
+        { value: "Password" }
+    ];
+
+    const authorizationModes: OptionProps[] = [
+        { value: "Header" },
+        { value: "Payload" },
+    ];
+
+    const authTypes: OptionProps[] = [
+        { value: "None" },
+        { value: "Basic Auth" },
+        { value: "OAuth" }
+    ];
+
+    const timeoutOptions: OptionProps[] = [
+        { value: "Never" },
+        { value: "Discard" },
+        { value: "Fault" }
+    ];
+
+    const httpMethods: OptionProps[] = [
+        { value: "GET" },
+        { value: "POST" },
+        { value: "PUT" },
+        { value: "DELETE" },
+        { value: "HEAD" },
+        { value: "OPTIONS" },
+        { value: "PATCH" },
+        { value: "leave_as_is" }
+    ];
+
+    const generateDisplayValue = (paramValues: any) => {
+        const result: string = "value:" + paramValues.parameters[1].value + "; scope:" + paramValues.parameters[2].value + ";";
+        return result.trim();
+    };
+
+    const handleTemplateParametersChange = (params: any) => {
+        const modifiedParams = {
+            paramFields: params.paramFields, 
+            paramValues: params.paramValues.map((param: any, index: number) => {
+                return {
+                    ...param,
+                    key: index + 1,
+                    value: param.parameters[0].value
+                }
+            })
+        };
+        setTemplateParams(modifiedParams);
+
+        const templateParameters: any = [];
+        modifiedParams.paramValues.map((param: any) => {
+            templateParameters.push(param.parameters[0].value);
+        })
+        setValue('templateParameters', templateParameters)
+    };
+
+    const handleAdditionalPropertiesChange = (params: any) => {
+        const modifiedParams = {
+            paramFields: params.paramFields, 
+            paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: param.parameters[0].value,
+                    value: generateDisplayValue(param)
+                }
+            })
+        };
+        setAdditionalParams(modifiedParams);
+
+        const endpointProperties: any = [];
+        modifiedParams.paramValues.map((param: any) => {
+            endpointProperties.push({
+                name: param.parameters[0].value,
+                value: param.parameters[1].value,
+                scope: param.parameters[2].value
+            });
+        });
+        setValue('properties', endpointProperties);
+    };
+
+    const handleOauthParametersChange = (params: any) => {
+        const modifiedParams = {
+            paramFields: params.paramFields,
+            paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: param.parameters[0].value,
+                    value: param.parameters[1].value
+                }
+            })
+        };
+        setAdditionalOauthParams(modifiedParams);
+
+        const oauthProperties: any = [];
+        modifiedParams.paramValues.map((param: any) => {
+            oauthProperties.push({
+                key: param.parameters[0].value,
+                value: param.parameters[1].value
+            });
+        });
+        setValue('oauthProperties', oauthProperties);
+    };
+
+    return (
+        <>
+            {isTemplate && (
+                <FormGroup title="Template Properties" isCollapsed={false}>
+                    <TextField
+                        required
+                        autoFocus
+                        label="Template Name"
+                        placeholder="Template Name"
+                        {...renderProps("templateName")}
+                    />
+                    <RadioButtonGroup
+                        label="Require Template Parameters"
+                        options={[{ content: "Yes", value: true }, { content: "No", value: false }]}
+                        {...renderProps("requireTemplateParameters")}
+                    />
+                    {watch('requireTemplateParameters') && (
+                        <ParamManager
+                            paramConfigs={templateParams}
+                            readonly={false}
+                            onChange={handleTemplateParametersChange}
+                        />
+                    )}
+                </FormGroup>
+            )}
+            <FormGroup title="Basic Properties" isCollapsed={false}>
+                <TextField
+                    required
+                    autoFocus
+                    label="Endpoint Name"
+                    placeholder="Endpoint Name"
+                    {...renderProps("endpointName")}
+                    size={100}
+                />
+                <RadioButtonGroup
+                    label="Trace Enabled"
+                    options={[{ content: "Enable", value: "enable" }, { content: "Disable", value: "disable" }]}
+                    {...renderProps("traceEnabled")}
+                />
+                <RadioButtonGroup
+                    label="Statistics Enabled"
+                    options={[{ content: "Enable", value: "enable" }, { content: "Disable", value: "disable" }]}
+                    {...renderProps("statisticsEnabled")}
+                />
+            </FormGroup>
+            <FormGroup title="Miscellaneous Properties" isCollapsed={false}>
+                <TextField
+                    required
+                    label="URI Template"
+                    placeholder="URI Template"
+                    {...renderProps("uriTemplate")}
+                />
+                <Dropdown
+                    required
+                    label="HTTP Method"
+                    items={httpMethods}
+                    {...renderProps("httpMethod")}
+                />
+                <TextField
+                    label="Description"
+                    placeholder="Description"
+                    {...renderProps("description")}
+                />
+                <RadioButtonGroup
+                    label="Require Additional Properties"
+                    options={[{ content: "Yes", value: true }, { content: "No", value: false }]}
+                    {...renderProps("requireProperties")}
+                />
+                {watch('requireProperties') && (
+                    <ParamManager
+                        paramConfigs={additionalParams}
+                        readonly={false}
+                        onChange={handleAdditionalPropertiesChange}
+                    />
+                )}
+            </FormGroup>
+            <FormGroup title="Auth Configuration" isCollapsed={true}>
+                <Dropdown
+                    label="Auth Type"
+                    items={authTypes}
+                    {...renderProps("authType")}
+                />
+                {watch('authType') === 'Basic Auth' && <>
+                    <TextField
+                        required
+                        label="Basic Auth Username"
+                        placeholder="Username"
+                        {...renderProps("basicAuthUsername")}
+                    />
+                    <TextField
+                        required
+                        label="Basic Auth Password"
+                        placeholder="Password"
+                        {...renderProps("basicAuthPassword")}
+                    />
+                </>}
+                {watch('authType') === 'OAuth' && <>
+                    <Dropdown
+                        label="OAuth Authorization Mode"
+                        items={authorizationModes}
+                        {...renderProps("authMode")}
+                    />
+                    <Dropdown
+                        label="OAuth Grant Type"
+                        items={grantTypes}
+                        {...renderProps("grantType")}
+                    />
+                    <TextField
+                        required
+                        label="Client ID"
+                        placeholder="Client ID"
+                        {...renderProps("clientId")}
+                    />
+                    <TextField
+                        required
+                        label="Client Secret"
+                        placeholder="Client Secret"
+                        {...renderProps("clientSecret")}
+                    />
+                    <TextField
+                        required
+                        label="Token Url"
+                        placeholder="Token Url"
+                        {...renderProps("tokenUrl")}
+                    />
+                    {watch('grantType') === 'Authorization Code' && (
+                        <TextField
+                            required
+                            label="Refresh Token"
+                            placeholder="Refresh Token"
+                            {...renderProps("refreshToken")}
+                        />
+                    )}
+                    {watch('grantType') === 'Password' && <>
+                        <TextField
+                            required
+                            label="Username"
+                            placeholder="Username"
+                            {...renderProps("username")}
+                        />
+                        <TextField
+                            required
+                            label="Password"
+                            placeholder="Password"
+                            {...renderProps("password")}
+                        />
+                    </>}
+                    <RadioButtonGroup
+                        label="Require Additional OAuth Properties"
+                        options={[{ content: "Yes", value: true }, { content: "No", value: false }]}
+                        {...renderProps("requireOauthParameters")}
+                    />
+                    {watch('requireOauthParameters') && (
+                        <ParamManager
+                            paramConfigs={additionalOauthParams}
+                            readonly={false}
+                            onChange={handleOauthParametersChange}
+                        />
+                    )}
+                </>}
+            </FormGroup>
+            <FormGroup title="Quality of Service Properties" isCollapsed={true}>
+                <RadioButtonGroup
+                    label="Addressing"
+                    options={[{ content: "Enable", value: "enable" }, { content: "Disable", value: "disable" }]}
+                    {...renderProps("addressingEnabled")}
+                />
+                {watch('addressingEnabled') === 'enable' && <>
+                    <Dropdown
+                        label="Addressing Version"
+                        items={addressingVersions}
+                        {...renderProps("addressingVersion")}
+                    />
+                    <RadioButtonGroup
+                        label="Addressing Separate Listener"
+                        options={[{ content: "Enable", value: "enable" }, { content: "Disable", value: "disable" }]}
+                        {...renderProps("addressListener")}
+                    />
+                </>}
+                <RadioButtonGroup
+                    label="Security"
+                    options={[{ content: "Enable", value: "enable" }, { content: "Disable", value: "disable" }]}
+                    {...renderProps("securityEnabled")}
+                />
+            </FormGroup>
+            <FormGroup title="Endpoint Error Handling" isCollapsed={true}>
+                <TextField
+                    label="Suspend Error Codes"
+                    placeholder="304,305"
+                    {...renderProps("suspendErrorCodes")}
+                />
+                <TextField
+                    label="Suspend Initial Duration"
+                    placeholder="-1"
+                    {...renderProps("initialDuration")}
+                />
+                <TextField
+                    label="Suspend Maximum Duration"
+                    placeholder="1000"
+                    {...renderProps("maximumDuration")}
+                />
+                <TextField
+                    label="Suspend Progression Factor"
+                    placeholder="1"
+                    {...renderProps("progressionFactor")}
+                />
+                <TextField
+                    label="Retry Error Codes"
+                    placeholder="304,305"
+                    {...renderProps("retryErrorCodes")}
+                />
+                <TextField
+                    label="Retry Count"
+                    placeholder="10"
+                    {...renderProps("retryCount")}
+                />
+                <TextField
+                    label="Retry Delay"
+                    placeholder="1000"
+                    {...renderProps("retryDelay")}
+                />
+                <TextField
+                    label="Timeout Duration"
+                    placeholder="1000"
+                    {...renderProps("timeoutDuration")}
+                />
+                <Dropdown
+                    label="Timeout Action"
+                    items={timeoutOptions}
+                    {...renderProps("timeoutAction")}
+                />
+            </FormGroup>
+        </>
+    )
+}
+
+export default Form;

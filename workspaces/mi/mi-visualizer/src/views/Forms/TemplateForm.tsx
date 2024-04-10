@@ -11,7 +11,7 @@ import {Button, TextField, FormView, FormActions} from "@wso2-enterprise/ui-tool
 import {useVisualizerContext} from "@wso2-enterprise/mi-rpc-client";
 import {EVENT_TYPE, MACHINE_VIEW, CreateTemplateRequest} from "@wso2-enterprise/mi-core";
 import CardWrapper from "./Commons/CardWrapper";
-import {TypeChangeButton} from "./Commons";
+import {TypeChip} from "./Commons";
 
 export interface TemplateWizardProps {
     path: string;
@@ -130,7 +130,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
     return (
         <FormView title="Template Artifact" onClose={handleCancel}>
             {template.templateType === '' ? <CardWrapper cardsType="TEMPLATE" setType={setTemplateType}/> : <>
-                <TypeChangeButton type="Sequence Template" onClick={setTemplateType}/>
+                <TypeChip type="Sequence Template" onClick={setTemplateType} showButton={true}/>
                 <TextField
                     placeholder="Name"
                     label="Template Name"
