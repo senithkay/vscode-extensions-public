@@ -99,17 +99,6 @@ export const useStatementEditorToolbarStyles = () => ({
         fontSize: '12px',
         marginTop: '2px',
     }),
-    qualifierListItem: css({
-        "& .MuiListItem-root": {
-            padding: '0px',
-            display: "inline-block"
-        },
-        "& .MuiListItemText-root": {
-            minWidth: 'auto',
-            margin: '0 0 0 12px'
-        },
-        ...removePadding
-    }),
     QualifierCheckbox: css({
         float: 'right',
         marginRight: 0,
@@ -141,13 +130,6 @@ export const useStatementEditorToolbarStyles = () => ({
         },
     }),
     checked: css({}),
-    QualifierDropdownBase: css({
-        '& .MuiMenu-list': {
-            width: "110px",
-            border: "1px solid #DEE0E7",
-            borderRadius: '5px'
-        },
-    }),
     toolbarDivider: css({
         borderLeft: '1px solid var(--vscode-panel-border)',
         height: "70%",
