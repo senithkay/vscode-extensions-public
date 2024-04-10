@@ -15,6 +15,7 @@ import {
     GettingStartedData,
     GettingStartedSample,
     GoToSourceRequest,
+    GoToSourceRequest,
     HistoryEntry,
     HistoryEntryResponse,
     MIVisualizerAPI,
@@ -30,7 +31,7 @@ import {
     GetAllRegistryPathsRequest
 } from "@wso2-enterprise/mi-core";
 import fetch from 'node-fetch';
-import { workspace, window } from "vscode";
+import { workspace, window, commands, Uri, ViewColumn } from "vscode";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { goToSource, handleOpenFile } from "../../util/fileOperations";
@@ -176,5 +177,17 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     goToSource(params: GoToSourceRequest): void {
         goToSource(params.filePath, params.position);
+    }
+
+    async goToSource(params: GoToSourceRequest): Promise<void> {
+        const { path } = params;
+		if (path) {
+			const openedEditor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === path);
+			if (openedEditor) {
+				await window.showTextDocument(openedEditor.document, { viewColumn: openedEditor.viewColumn });
+			} else {
+				await commands.executeCommand('vscode.open', Uri.parse(path), { viewColumn: ViewColumn.Beside });
+			}
+		}
     }
 }

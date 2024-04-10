@@ -124,6 +124,10 @@ export interface ToggleDisplayOverviewRequest {
     displayOverview: boolean;
 }
 
+export interface GoToSourceRequest {
+    path: string;
+}
+
 export interface GetAllRegistryPathsRequest {
     path: string;
 }
