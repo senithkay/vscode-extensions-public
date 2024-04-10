@@ -32,7 +32,7 @@ const paramConfigs: ParamConfig = {
                 }, {
                     value: "0",
                 }, {
-                    value: "true",
+                    value: true,
                 }, {
                     value: "This is a description",
                 }
