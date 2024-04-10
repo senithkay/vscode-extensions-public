@@ -16,6 +16,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { SignInView } from "../views/SignInView";
 import { ErrorBanner, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
+import classNames from "classnames";
 
 export interface IAuthContext {
     userInfo: UserInfo | null;
@@ -33,15 +34,16 @@ export const useAuthContext = () => {
 
 interface Props {
     children: ReactNode;
+    viewType?: string;
 }
 
-export const AuthContextProvider: FC<Props> = ({ children }) => {
+export const AuthContextProvider: FC<Props> = ({ children, viewType }) => {
     const queryClient = useQueryClient();
 
     const {
         data: authState,
         error: authStateError,
-        isLoading
+        isLoading,
     } = useQuery({
         queryKey: ["auth_state"],
         queryFn: () => ChoreoWebViewAPI.getInstance().getAuthState(),
@@ -60,7 +62,15 @@ export const AuthContextProvider: FC<Props> = ({ children }) => {
             ) : (
                 <>
                     {(authState?.loading || isLoading) && <ProgressIndicator />}
-                    {!isLoading && <>{authState?.userInfo ? children : <SignInView />}</>}
+                    {!isLoading && (
+                        <>
+                            {authState?.userInfo ? (
+                                children
+                            ) : (
+                                <SignInView className={!viewType?.includes("ActivityView") && "py-6"} />
+                            )}
+                        </>
+                    )}
                 </>
             )}
         </ChoreoAuthContext.Provider>

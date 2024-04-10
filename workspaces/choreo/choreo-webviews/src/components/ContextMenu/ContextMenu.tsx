@@ -4,8 +4,10 @@ import { FC } from "react";
 import { ClickAwayListener, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 
+export interface ContextMenuItem { label: string; onClick?: () => void }
+
 interface Props extends PropsWithChildren {
-    options: { label: string; onClick?: () => void }[];
+    options: ContextMenuItem[];
     loading?: boolean;
 }
 

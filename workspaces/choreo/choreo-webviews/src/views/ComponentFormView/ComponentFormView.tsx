@@ -1,8 +1,8 @@
 import React, { FC, ReactNode, useEffect } from "react";
 import { Divider } from "@wso2-enterprise/ui-toolkit";
-import { TextField } from "../../Components/FormElements/TextField";
-import { Dropdown } from "../../Components/FormElements/Dropdown";
-import { DirectorySelect } from "../../Components/FormElements/DirectorySelect";
+import { TextField } from "../../components/FormElements/TextField";
+import { Dropdown } from "../../components/FormElements/Dropdown";
+import { DirectorySelect } from "../../components/FormElements/DirectorySelect";
 
 import { z } from "zod";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -19,7 +19,7 @@ import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
-import { WarningBanner } from "../../Components/Atoms/WarningBanner";
+import { Banner } from "../../components/Banner";
 
 const componentFormSchema = z
     .object({
@@ -341,12 +341,12 @@ export const ComponentFormView: FC<NewComponentWebview> = ({ project, organizati
                             wrapClassName="col-span-full"
                         />
                         {showRequireRepoAccess && (
-                            <WarningBanner className="col-span-full">
+                            <Banner type="warning" className="col-span-full">
                                 <span className="text-vsc-inputValidation-warningForeground">
                                     Choreo lacks access to this repository. To grant access, please visit{" "}
                                     <VSCodeLink onClick={openGitInstallUrl}>{gitInstallUrl}</VSCodeLink>
                                 </span>
-                            </WarningBanner>
+                            </Banner>
                         )}
                         <Dropdown
                             label="Branch"

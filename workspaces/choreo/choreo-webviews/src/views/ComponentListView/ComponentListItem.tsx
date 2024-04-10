@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import { ComponentLink } from "@wso2-enterprise/choreo-core";
-import { ContextMenu } from "../../Components/Atoms/ContextMenu";
+import { ContextMenu } from "../../components/ContextMenu";
 import classNames from "classnames";
 import { useMutation } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
@@ -11,6 +11,8 @@ interface Props {
 }
 
 export const ComponentListItem: FC<Props> = ({ item, isListLoading }) => {
+    const isItemEnriched = item.component;
+
     const { mutate: confirmDelete } = useMutation({
         mutationFn: async () => {
             const accepted = await ChoreoWebViewAPI.getInstance().showConfirmMessage({
@@ -41,8 +43,11 @@ export const ComponentListItem: FC<Props> = ({ item, isListLoading }) => {
 
     const { mutate: unlinkComponent } = useMutation({
         mutationFn: async () => {
+            const confirmMsg = isItemEnriched
+                ? `Are you sure you want to unlink this component. This action will delete the file ${item.linkRelativePath}, from the component directory`
+                : `Unlinking the directory will remove the file ${item.linkRelativePath} from the directory. Are you sure you want to continue`;
             const accepted = await ChoreoWebViewAPI.getInstance().showConfirmMessage({
-                message: `Are you sure you want to unlink this component. This action will delete ${item.linkRelativePath} from the component directory`,
+                message: confirmMsg,
                 buttonText: "Unlink",
             });
             if (accepted) {
@@ -54,8 +59,6 @@ export const ComponentListItem: FC<Props> = ({ item, isListLoading }) => {
             }
         },
     });
-
-    const isItemEnriched = item.component;
 
     return (
         <div
@@ -78,13 +81,17 @@ export const ComponentListItem: FC<Props> = ({ item, isListLoading }) => {
                 )}
             </div>
             <div className="pt-1 pr-[6px]">
-                {isItemEnriched && !deletingComponent && (
+                {!deletingComponent && (
                     <ContextMenu
-                        options={[
-                            { label: "Open in Console" },
-                            { label: "Unlink", onClick: () => unlinkComponent() },
-                            { label: "Delete", onClick: () => confirmDelete() },
-                        ]}
+                        options={
+                            isItemEnriched
+                                ? [
+                                      { label: "Open in Console" },
+                                      { label: "Unlink", onClick: () => unlinkComponent() },
+                                      { label: "Delete", onClick: () => confirmDelete() },
+                                  ]
+                                : [{ label: "Unlink", onClick: () => unlinkComponent() }]
+                        }
                     />
                 )}
             </div>

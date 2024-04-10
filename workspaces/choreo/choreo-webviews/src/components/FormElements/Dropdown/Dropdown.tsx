@@ -1,4 +1,4 @@
-import React, { FC, ReactNode } from "react";
+import React, { FC, HTMLProps, ReactNode } from "react";
 import { VSCodeDropdown , VSCodeOption } from "@vscode/webview-ui-toolkit/react";
 import { FormElementWrap } from "../FormElementWrap";
 import classnames from "classnames";
@@ -12,7 +12,7 @@ interface Props {
     control?: Control;
     items?: ({ value: string; label?: string } | string)[];
     disabled?: boolean;
-    wrapClassName?: string;
+    wrapClassName?: HTMLProps<HTMLElement>["className"];
 }
 
 export const Dropdown: FC<Props> = (props) => {

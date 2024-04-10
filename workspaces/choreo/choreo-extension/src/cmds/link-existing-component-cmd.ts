@@ -55,6 +55,10 @@ export function linkExistingComponentCommand(context: ExtensionContext) {
                     throw new Error("Component directory is required to link with a component");
                 }
 
+                if (!componentDir[0].path.startsWith(directory.uri.path)){
+                    throw new Error("Component directory must be within your workspace");
+                }
+
                 discoveredCompPath = componentDir[0].path;
             }
 

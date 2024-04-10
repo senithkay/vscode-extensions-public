@@ -12,13 +12,13 @@
  */
 
 import React from "react";
-import { ChoreoWebviewQueryClientProvider } from "./utilities/query";
+import { ChoreoWebviewQueryClientProvider } from "./utilities/reactQueryClient";
 import { LinkedDirContextProvider } from "./context/choreo-linked-dir-ctx";
 import { AuthContextProvider } from "./context/choreo-auth-ctx";
 import { ComponentFormView } from "./views/ComponentFormView";
 import { AccountView } from "./views/AccountView";
 import { ComponentListView } from "./views/ComponentListView";
-import { ErrorBoundary } from "./ErrorBoundary";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import {
     NewComponentWebview,
     WebviewProps,
@@ -30,7 +30,7 @@ function ChoreoWebview(props: WebviewProps) {
     return (
         <ChoreoWebviewQueryClientProvider>
             <ErrorBoundary>
-                <AuthContextProvider>
+                <AuthContextProvider viewType={props.type}>
                     <main>
                         {(() => {
                             switch (props.type) {

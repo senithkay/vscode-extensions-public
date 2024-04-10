@@ -1,4 +1,4 @@
-import React, { FC, PropsWithChildren, ReactNode } from "react";
+import React, { FC, HTMLProps, PropsWithChildren, ReactNode } from "react";
 import { RequiredFormInput } from "@wso2-enterprise/ui-toolkit";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import classNames from "classnames";
@@ -8,7 +8,7 @@ interface Props extends PropsWithChildren {
     required?: boolean;
     errorMsg?: string;
     loading?: boolean;
-    className?: string;
+    className?: HTMLProps<HTMLElement>["className"];
 }
 
 export const FormElementWrap: FC<Props> = (props) => {

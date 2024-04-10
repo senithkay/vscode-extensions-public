@@ -19,7 +19,7 @@ export const AccountView: FC<AccountActivityView> = () => {
             <div className="flex flex-col gap-0.5">
                 <h3 className="font-bold line-clamp-1">{userInfo.displayName}</h3>
                 <p>{userInfo.userEmail}</p>
-                <VSCodeLink onClick={onSignOut}>Sign Out</VSCodeLink>
+                <VSCodeLink onClick={onSignOut} className="text-xs">Sign Out</VSCodeLink>
             </div>
         </div>
     );

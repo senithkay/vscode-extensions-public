@@ -13,8 +13,8 @@
 
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import React, { FC, Component, ErrorInfo } from "react";
-import { ErrorBanner } from "@wso2-enterprise/ui-toolkit";
-import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { Banner } from "../Banner";
 
 interface ErrorBoundaryCProps {
     children: React.ReactNode;
@@ -25,6 +25,7 @@ interface ErrorBoundaryState {
     hasError: boolean;
     clearedCache: boolean;
 }
+
 class ErrorBoundaryC extends Component<ErrorBoundaryCProps, ErrorBoundaryState> {
     constructor(props: ErrorBoundaryCProps) {
         super(props);
@@ -50,9 +51,9 @@ class ErrorBoundaryC extends Component<ErrorBoundaryCProps, ErrorBoundaryState> 
     render() {
         if (this.state.hasError) {
             return (
-                <div className="mt-4">
-                    <ErrorBanner errorMsg="Oops! Something went wrong. Please reopen this window and try again" />
-                </div>
+                <Banner type="error" className="m-6">
+                    Oops! Something went wrong. Please reopen this window and try again
+                </Banner>
             );
         }
 
