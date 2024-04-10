@@ -10,7 +10,6 @@
 import React from "react";
 
 import { Button, Codicon, Divider, Icon, Tooltip } from "@wso2-enterprise/ui-toolkit";
-import * as MonacoEditor from 'monaco-editor';
 import { Diagnostic } from "vscode-languageserver-types";
 
 import { useStyles } from "../style";
@@ -30,18 +29,11 @@ export function DiagnosticTooltip(props: Partial<Props>) {
     const classes = useStyles();
     const source = diagnostic.source || value
 
-    const codeRef = (ref: HTMLPreElement) => {
-        if (ref) {
-            void MonacoEditor.editor.colorizeElement(ref, { theme: 'choreoLightTheme' });
-        }
-    }
-
     const Code = () => (
         <>
             <Divider />
             <div className={classes.source}>
                 <code
-                    ref={codeRef}
                     data-lang="ballerina"
                     className={classes.code}
                 >
