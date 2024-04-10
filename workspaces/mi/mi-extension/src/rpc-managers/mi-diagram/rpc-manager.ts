@@ -1196,10 +1196,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
   ${endpointAttributes}
 </sequence>`;
 
-            const filePath = path.join(directory, `${name}.xml`);
-            fs.writeFileSync(filePath, xmlData);
-            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-            resolve({ filePath: filePath });
+            if (params.getContentOnly) {
+                resolve({ filePath: "", fileContent: xmlData });
+            } else {
+                const filePath = path.join(directory, `${name}.xml`);
+                fs.writeFileSync(filePath, xmlData);
+                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                resolve({ filePath: filePath, fileContent: "" });
+            }
         });
     }
 
@@ -2564,7 +2568,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async createRegistryResource(params: CreateRegistryResourceRequest): Promise<CreateRegistryResourceResponse> {
         return new Promise(async (resolve) => {
-            var registryDir = path.join(params.projectDirectory, 'src', 'main', 'wso2mi', 'resources', 'registry', params.registryRoot);
+            var projectDir = params.projectDirectory;
+            const fileUri = Uri.file(params.projectDirectory);
+            const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
+            if (workspaceFolder) {
+                params.projectDirectory = workspaceFolder?.uri.fsPath;
+                projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
+            }
+            var registryDir = path.join(projectDir, params.registryRoot);
             var transformedPath = params.registryRoot === "gov" ? "/_system/governance" : "/_system/config";
             if (params.createOption === "import") {
                 if (fs.existsSync(params.filePath)) {
@@ -2592,7 +2603,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 var fileName = params.resourceName;
                 const fileData = getMediatypeAndFileExtension(params.templateType);
                 fileName = fileName + "." + fileData.fileExtension;
-                const fileContent = getRegistryResourceContent(params.templateType, params.resourceName);
+                var fileContent = params.content ? params.content : getRegistryResourceContent(params.templateType, params.resourceName);
                 const registryPath = path.join(registryDir, params.registryPath);
                 const destPath = path.join(registryPath, fileName);
                 if (!fs.existsSync(registryPath)) {
