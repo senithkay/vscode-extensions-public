@@ -7,16 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
-import { Button, Codicon, TextField, Typography, Dropdown, RadioButtonGroup, FormView, FormGroup, FormActions } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, RadioButtonGroup, FormView, FormGroup, FormActions } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { CreateTaskRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
-import { SectionWrapper } from "./Commons";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
-
 
 export interface Region {
     label: string;
@@ -44,34 +41,45 @@ const initialInboundEndpoint: InputsFields = {
     implementation: "org.apache.synapse.startup.tasks.MessageInjector",
     pinnedServers: "",
     triggerType: "simple",
-    triggerCount: null,
+    triggerCount: 1,
     triggerInterval: 1,
     triggerCron: ""
 };
 
-const schema = yup
-    .object({
-
-        name: yup.string().required("Task Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Task name"),
-        group: yup.string().required("Task group is required"),
-        implementation: yup.string().required("Task Implementation is required"),
-        pinnedServers: yup.string(),
-        triggerType: yup.mixed<"simple" | "cron">().oneOf(["simple", "cron"]),
-        triggerCount: yup.number().nullable().typeError('Trigger count must be a number').min(1, "Trigger count must be greater than 0"),
-        triggerInterval: yup.number().typeError('Trigger interval must be a number').min(1, "Trigger interval must be greater than 0"),
-        triggerCron: yup.string()
+const schema = yup.object({
+    name: yup.string().required("Task Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Task name"),
+    group: yup.string().required("Task group is required"),
+    implementation: yup.string().required("Task Implementation is required"),
+    pinnedServers: yup.string(),
+    triggerType: yup.mixed().oneOf(["simple", "cron"]),
+    triggerCount: yup.number().when('triggerType', {
+        is: 'simple',
+        then: (schema) => schema.typeError('Trigger count must be a number').min(1, "Trigger count must be greater than 0"),
+        otherwise: (schema) => schema.notRequired().default(1),
+    }),
+    triggerInterval: yup.number().when('triggerType', {
+        is: 'simple',
+        then: (schema) => schema.required('Trigger Interval is required').typeError('Trigger count must be a number').min(1, "Trigger count must be greater than 1"),
+        otherwise: (schema) => schema.notRequired().default(1),
+    }),
+    triggerCron: yup.string().when('triggerType', {
+        is: 'cron',
+        then: (schema) => schema.required("Trigger cron is required"),
+        otherwise: (schema) => schema.notRequired().default(''),
     })
+})
 
 export function TaskForm(props: TaskFormProps) {
 
     const { rpcClient } = useVisualizerContext();
+
     const {
         reset,
         register,
-        formState: { errors, isDirty, isValid },
+        formState: { errors, isDirty },
         handleSubmit,
-        getValues,
-    } = useForm<InputsFields>({
+        watch,
+    } = useForm({
         defaultValues: initialInboundEndpoint,
         resolver: yupResolver(schema),
         mode: "onChange"
@@ -80,10 +88,9 @@ export function TaskForm(props: TaskFormProps) {
     const [isNewTask, setIsNewTask] = useState(true);
 
     useEffect(() => {
-        if (props.path) {
+        if (props.path && props.path.endsWith(".xml")) {
             (async () => {
                 const taskRes = await rpcClient.getMiDiagramRpcClient().getTask({ path: props.path });
-                console.log(taskRes);
                 if (taskRes.name) {
                     setIsNewTask(false);
                     reset(taskRes);
@@ -92,24 +99,31 @@ export function TaskForm(props: TaskFormProps) {
         }
     }, [props.path]);
 
+    const formTitle = isNewTask
+        ? "Create new Scheduled Task"
+        : "Edit Scheduled Task : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
+
+    const renderProps = (fieldName: keyof InputsFields, value?: any) => {
+        const watchedValue = watch(fieldName) || watch(fieldName) === 0 ? String(watch(fieldName)) : '';
+        return {
+            id: fieldName,
+            value: value !== undefined ? String(value) : watchedValue,
+            ...register(fieldName),
+            errorMsg: errors[fieldName] && errors[fieldName].message.toString()
+        }
+    };
+
     const openOverview = () => {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
-    const handleBackButtonClick = () => {
+    const handleOnClose = () => {
         rpcClient.getMiVisualizerRpcClient().goBack();
     };
 
-    const handleCreateTask = async (values: InputsFields) => {
+    const handleCreateTask = async (values: any) => {
         const taskRequest: CreateTaskRequest = {
-            name: values.name,
-            group: values.group,
-            implementation: values.implementation,
-            pinnedServers: values.pinnedServers,
-            triggerType: values.triggerType,
-            triggerCount: values.triggerCount,
-            triggerInterval: values.triggerInterval,
-            triggerCron: values.triggerCron,
+            ...values,
             directory: props.path
         };
         await rpcClient.getMiDiagramRpcClient().createTask(taskRequest);
@@ -117,79 +131,65 @@ export function TaskForm(props: TaskFormProps) {
     };
 
     return (
-        <FormView title="Scheduled Task" onClose={handleBackButtonClick}>
+        <FormView title={formTitle} onClose={handleOnClose}>
             <TextField
-                label="Task Name"
-                id="name"
-                placeholder="Name"
-                errorMsg={errors.name?.message.toString()}
+                required
                 autoFocus
-                required
-                {...register("name")}
-            />
-            <TextField
-                label="Task Group"
-                id="group"
-                placeholder="Group"
-                errorMsg={errors.group?.message.toString()}
-                required
-                {...register("group")}
-            />
-            <TextField
-                label="Task Implementation"
-                id="implementation"
-                placeholder="Implementation"
-                errorMsg={errors.implementation?.message.toString()}
-                required
-                {...register("implementation")}
+                label="Task Name"
+                placeholder="Name"
+                {...renderProps("name")}
             />
             <TextField
                 label="Pinned Servers"
-                id="pinned-servers"
                 placeholder="Servers"
-                {...register("pinnedServers")}
+                {...renderProps("pinnedServers")}
             />
-            <FormGroup title="Trigger Information of the Task">
+            <FormGroup title="Trigger Information of the Task" isCollapsed={false}>
                 <RadioButtonGroup
                     label="Trigger Type"
-                    id="trigger-group"
                     options={[{ content: "Simple", value: "simple" }, { content: "Cron", value: "cron" }]}
-                    {...register("triggerType")}
+                    {...renderProps("triggerType")}
                 />
-                {getValues("triggerType") === 'simple' ? (
+                {watch("triggerType") === 'simple' ? (
                     <>
                         <TextField
-                            id="count"
                             label="Count"
-                            errorMsg={errors.triggerCount?.message as string}
-                            {...register("triggerCount", { valueAsNumber: true })}
+                            {...renderProps("triggerCount")}
                         />
                         <TextField
-                            label="Interval (in seconds)"
-                            id="interval"
                             required
-                            errorMsg={errors.triggerInterval?.message.toString()}
-                            {...register("triggerInterval", { valueAsNumber: true })}
+                            label="Interval (in seconds)"
+                            {...renderProps("triggerInterval")}
                         />
                     </>
                 ) : (
                     <>
                         <TextField
-                            label="Cron"
-                            id="cron"
                             required
-                            errorMsg={errors.triggerCron?.message.toString()}
-                            {...register("triggerCron")}
+                            label="Cron"
+                            {...renderProps("triggerCron")}
                         />
                     </>
                 )}
             </FormGroup>
+            <FormGroup title="Advanced">
+                <TextField
+                    required
+                    label="Task Group"
+                    placeholder="Group"
+                    {...renderProps("group")}
+                />
+                <TextField
+                    required
+                    label="Task Implementation"
+                    placeholder="Implementation"
+                    {...renderProps("implementation")}
+                />
+            </FormGroup>
             <FormActions>
                 <Button
                     appearance="primary"
-                    onClick={handleSubmit((values) => {
-                        handleCreateTask(values);
-                    })}
+                    onClick={handleSubmit(handleCreateTask)}
                     disabled={(!isDirty && !isNewTask)}
                 >
                     {isNewTask ? "Create" : "Save Changes"}

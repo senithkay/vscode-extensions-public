@@ -121,10 +121,11 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
     const { rpcClient } = useVisualizerContext();
 
     const handleClick = async (documentUri: string, view: MACHINE_VIEW) => {
+        const type = view === MACHINE_VIEW.EndPointForm ? 'endpoint' : 'template';
         if (view === MACHINE_VIEW.EndPointForm || view === MACHINE_VIEW.TemplateForm) {
             view = await getView(documentUri);
         }
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view, documentUri } });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view, documentUri, customProps: {type: type} }});
     };
 
     const handlePlusClick = async (key: string, command: string) => {

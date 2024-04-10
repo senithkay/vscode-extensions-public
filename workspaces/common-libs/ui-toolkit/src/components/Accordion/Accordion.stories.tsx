@@ -8,7 +8,7 @@
  */
 
 import React from "react";
-import Accordion from "./Accordion";
+import { Accordion } from "./Accordion";
 import { Typography } from "../Typography/Typography";
 import { Button } from "../Button/Button";
 
@@ -19,7 +19,7 @@ export default {
 
 export const AccordionStory = () => {
     return (
-        <Accordion header={"Accordion Header"}>
+        <Accordion header={"Accordion Header"} isExpanded={true}>
             <Typography>Accordion Contents</Typography>
             <Button>Test</Button>
         </Accordion>

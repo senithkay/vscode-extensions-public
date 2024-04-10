@@ -99,7 +99,7 @@ export function getDefaultEndpointXml(data: DefaultEndpointArgs) {
     data.templateName != null && data.templateName != '' ? template = true : endpoint = true;
 
     data.endpointName = (data.endpointName != null && data.endpointName != '') ?
-        "endpoint_urn_uuid_".concat(generateUUID()) : data.endpointName;
+        data.endpointName : "endpoint_urn_uuid_".concat(generateUUID());
 
     let parameters: any = [];
     if (!data.requireTemplateParameters || data.templateParameters.length == 0) {

@@ -18,6 +18,7 @@ import { Combobox, Transition } from '@headlessui/react'
 // import { Dropdown } from "./Dropdown";
 import styled from '@emotion/styled';
 import { RequiredFormInput } from '../Commons/RequiredInput';
+import { Control, Controller } from 'react-hook-form';
 
 export interface ComboboxOptionProps {
     active?: boolean;
@@ -245,7 +246,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                             `))}
                             onFocus={handleTextFieldFocused}
                             onClick={handleTextFieldClick}
-                            {...rest}
+                            { ...props.name ? {...rest} : {} } // If name is not provided, then value should be empty (for react-hook-form)
                             onBlur={handleTextFieldOutFocused}
                         />
                         <Combobox.Button
@@ -307,3 +308,34 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
     )
 });
 AutoComplete.displayName = 'AutoComplete';
+
+interface FormAutoCompleteProps {
+    name: string;
+    label?: string;
+    control: Control<any>;
+    items: string[];
+    isRequired?: boolean;
+    isNullable?: boolean;
+}
+
+export const FormAutoComplete: React.FC<FormAutoCompleteProps> = ({ name, control, label, items, isNullable, isRequired }) => {
+    return (
+        <Controller
+            name={name}
+            control={control}
+            render={({ field: { onChange, value } }) => {
+                return (
+                    <AutoComplete
+                        items={items}
+                        label={label}
+                        required={isRequired}
+                        nullable={isNullable}
+                        value={value}
+                        onValueChange={(val: string) => onChange(val)}
+                    />
+                );
+            }}
+        />
+    );
+};
+

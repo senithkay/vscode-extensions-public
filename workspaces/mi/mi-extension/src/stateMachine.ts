@@ -10,9 +10,10 @@ import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
 import { history } from './history/activator';
 import { COMMANDS } from './constants';
-import { StateMachineAI, openAIView } from './ai-panel/aiMachine';
+import { openAIWebview } from './ai-panel/aiMachine';
 import { AiPanelWebview } from './ai-panel/webview';
 import { activateProjectExplorer } from './project-explorer/activate';
+import { StateMachineAI } from './ai-panel/aiMachine';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -349,7 +350,7 @@ const stateMachine = createMachine<MachineContext>({
         updateAIView: () => {
             return new Promise(async (resolve, reject) => {
                 if (AiPanelWebview.currentPanel) {
-                    openAIView(EVENT_TYPE.OPEN_VIEW);
+                    openAIWebview();
                 }
                 resolve(true);
             });
@@ -448,12 +449,15 @@ async function checkIfMiProject() {
     if (isProject) {
         projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
         vscode.commands.executeCommand('setContext', 'MI.status', 'projectDetected');
+        vscode.commands.executeCommand('setContext', 'MI.projectType', 'miProject'); // for command enablements
+        await extension.context.workspaceState.update('projectType', 'miProject');
     } else if (isUnsupportedProject) {
         projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
         const displayState: boolean | undefined = extension.context.workspaceState.get('displayOverview');
         displayOverview = displayState === undefined ? true : displayState;
         vscode.commands.executeCommand('setContext', 'MI.status', 'projectDetected');
-        vscode.commands.executeCommand('setContext', 'MI.projectType', 'unsupportedProject');
+        vscode.commands.executeCommand('setContext', 'MI.projectType', 'unsupportedProject'); // for command enablements
+        await extension.context.workspaceState.update('projectType', 'unsupportedProject');
     } else {
         vscode.commands.executeCommand('setContext', 'MI.status', 'unknownProject');
     }

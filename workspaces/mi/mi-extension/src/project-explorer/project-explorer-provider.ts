@@ -335,8 +335,8 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			// Generate resource structure
 			for (let i = 0; i < entry.resources.length; i++) {
 				const resource = entry.resources[i];
-				const resourceEntry = new ProjectExplorerEntry(resource.uriTemplate ?? "/", isCollapsibleState(false), {
-					name: resource.uriTemplate,
+				const resourceEntry = new ProjectExplorerEntry((resource.uriTemplate || resource.urlMapping) ?? "/", isCollapsibleState(false), {
+					name: (resource.uriTemplate || resource.urlMapping),
 					type: 'resource',
 					path: `${entry.path}/${i}`
 				}, 'code');
@@ -355,7 +355,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Endpoint",
 				"command": COMMANDS.SHOW_ENDPOINT,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"arguments": [vscode.Uri.parse(entry.path), 'endpoint', undefined, false]
 			};
 			explorerEntry.command.command = getViewCommand(entry.subType);
 
@@ -392,7 +392,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Template",
 				"command": COMMANDS.SHOW_TEMPLATE,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"arguments": [vscode.Uri.parse(entry.path), 'template', undefined, false]
 			};
 			explorerEntry.command.command = getViewCommand(entry.subType);
 
@@ -430,7 +430,14 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"command": COMMANDS.SHOW_LOCAL_ENTRY,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
-
+		} else if (entry.type === "DATA_SOURCE") {
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			explorerEntry.contextValue = 'dataSource';
+			explorerEntry.command = {
+				"title": "Show Data Source",
+				"command": COMMANDS.SHOW_DATA_SOURCE,
+				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+			};
 		} else {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 		}

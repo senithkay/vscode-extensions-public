@@ -81,10 +81,11 @@ export const FormActions: React.FC<FormActionsProps> = ({ children }) => {
 interface FormGroupProps {
     title: string;
     children?: React.ReactNode;
+    isCollapsed?: boolean;
 }
 
-export const FormGroup: React.FC<FormGroupProps> = ({ title, children }) => {
-    const [collapsed, setCollapsed] = useState(true);
+export const FormGroup: React.FC<FormGroupProps> = ({ title, children, isCollapsed = true }) => {
+    const [collapsed, setCollapsed] = useState(isCollapsed);
 
     const toggleCollapse = () => setCollapsed(!collapsed);
 

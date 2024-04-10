@@ -67,7 +67,7 @@ export class EndNodeModel extends NodeModel {
         return this.stNode;
     }
 
-    getParentNode(): STNode {
+    getParentStNode(): STNode {
         return this.parentNode;
     }
 

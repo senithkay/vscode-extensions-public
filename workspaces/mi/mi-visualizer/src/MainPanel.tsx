@@ -21,6 +21,7 @@ import { RegistryResourceForm } from './views/Forms/RegistryResourceForm';
 import { ProxyServiceWizard } from "./views/Forms/ProxyServiceForm";
 import { TemplateWizard } from "./views/Forms/TemplateForm";
 import { ClassMediatorForm } from './views/Forms/ClassMediatorForm';
+import { DataSourceWizard } from './views/Forms/DataSourceForm';
 import { HttpEndpointWizard } from "./views/Forms/HTTPEndpointForm";
 import { AddressEndpointWizard } from "./views/Forms/AddressEndpointForm";
 import { WsdlEndpointWizard } from "./views/Forms/WSDLEndpointForm";
@@ -34,6 +35,7 @@ import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
 import { UnsupportedProject, UnsupportedProjectProps } from './views/UnsupportedProject';
+import { DataMapper } from './views/DataMapper';
 
 const MainContainer = styled.div`
     display: flex;
@@ -168,6 +170,14 @@ const MainPanel = () => {
                 case MACHINE_VIEW.ServiceDesigner:
                     setViewComponent(<ServiceDesignerView syntaxTree={machineView.stNode} documentUri={machineView.documentUri} />);
                     break;
+                case MACHINE_VIEW.DataMapperView:
+                    setViewComponent(
+                        <DataMapper
+                            filePath={"TODO: Add file path"}
+                            functionName={"TODO: Add function name"}
+                        />
+                    );
+                    break;
                 case MACHINE_VIEW.APIForm:
                     setViewComponent(<APIWizard apiData={(machineView.customProps as APIWizardProps)?.apiData} path={machineView.documentUri} />);
                     break;
@@ -205,19 +215,20 @@ const MainPanel = () => {
                     setViewComponent(<TaskForm path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.TemplateForm:
-                    setViewComponent(<TemplateWizard path={machineView.documentUri} />);
+                    const templateType = machineView.customProps && machineView.customProps.type ? machineView.customProps.type : '';
+                    setViewComponent(<TemplateWizard path={machineView.documentUri} type={templateType}/>);
                     break;
                 case MACHINE_VIEW.HttpEndpointForm:
-                    setViewComponent(<HttpEndpointWizard path={machineView.documentUri} />);
+                    setViewComponent(<HttpEndpointWizard path={machineView.documentUri} type={machineView.customProps.type} />);
                     break;
                 case MACHINE_VIEW.AddressEndpointForm:
-                    setViewComponent(<AddressEndpointWizard path={machineView.documentUri} />);
+                    setViewComponent(<AddressEndpointWizard path={machineView.documentUri} type={machineView.customProps.type} />);
                     break;
                 case MACHINE_VIEW.WsdlEndpointForm:
-                    setViewComponent(<WsdlEndpointWizard path={machineView.documentUri} />);
+                    setViewComponent(<WsdlEndpointWizard path={machineView.documentUri} type={machineView.customProps.type} />);
                     break;
                 case MACHINE_VIEW.DefaultEndpointForm:
-                    setViewComponent(<DefaultEndpointWizard path={machineView.documentUri} />);
+                    setViewComponent(<DefaultEndpointWizard path={machineView.documentUri} type={machineView.customProps.type} />);
                     break;
                 case MACHINE_VIEW.ProjectCreationForm:
                     setViewComponent(<ProjectWizard cancelView={MACHINE_VIEW.Overview} />);
@@ -234,6 +245,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.ClassMediatorForm:
                     setViewComponent(<ClassMediatorForm path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.DataSourceForm:
+                    setViewComponent(<DataSourceWizard path={machineView.documentUri} />);
                     break;
                 default:
                     setViewComponent(null);

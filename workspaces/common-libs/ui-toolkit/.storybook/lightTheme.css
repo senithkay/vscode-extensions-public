@@ -672,4 +672,5 @@ body {
     --vscode-gitlens-graphScrollMarkerStashesColor: #e467e4;
     --vscode-gitlens-graphMinimapMarkerTagsColor: #d2a379;
     --vscode-gitlens-graphScrollMarkerTagsColor: #d2a379;
+    --vscode-debugTokenExpression-string: #a31515;
 }

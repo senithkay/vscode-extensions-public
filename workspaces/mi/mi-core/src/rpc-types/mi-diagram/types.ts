@@ -67,7 +67,7 @@ export interface UpdateLoadBalanceEPRequest {
     failover: string;
     buildMessage: string;
     sessionManagement: string;
-    sessionTimeout: string;
+    sessionTimeout: number;
     description: string;
     endpoints: { type: string; value: string; }[];
     properties: { name: string; value: string; scope: string; }[];
@@ -87,7 +87,7 @@ export interface GetLoadBalanceEPResponse {
     failover: string;
     buildMessage: string;
     sessionManagement: string;
-    sessionTimeout: string;
+    sessionTimeout: number;
     description: string;
     endpoints: { type: string; value: string; }[];
     properties: { name: string; value: string; scope: string; }[];
@@ -412,8 +412,10 @@ export interface CreateSequenceRequest {
     name: string;
     endpoint: string;
     onErrorSequence: string;
+    getContentOnly: boolean;
 }
 export interface CreateSequenceResponse {
+    fileContent: string;
     filePath: string;
 }
 
@@ -970,6 +972,7 @@ export interface CreateRegistryResourceRequest {
     registryPath: string;
     registryRoot: string;
     createOption: string;
+    content?: string;
 }
 
 export interface CreateRegistryResourceResponse {
@@ -1021,8 +1024,38 @@ export interface RegistryArtifact {
     path: string;
     isCollection: boolean;
 }
-
 export interface RangeFormatRequest {
     uri: string;
     range: Range
+}
+
+export interface CreateDataSourceResponse {
+    path: string;
+}
+
+export interface GetDataSourceRequest {
+    path: string;
+}
+
+export interface DataSourceTemplate {
+    name: string;
+    projectDirectory: string;
+    description?: string;
+    jndiConfig?: JNDIDatasource;
+    driverClassName?: string;
+    url?: string;
+    type: string;
+    username?: string;
+    password?: string;
+    dataSourceConfigParameters?: { [key: string]: string | number | boolean };
+    dataSourceProperties?: { [key: string]: string | number | boolean };
+    externalDSClassName?: string;
+    customDSType?: string;
+    customDSConfiguration?: string;
+}
+
+export interface JNDIDatasource {
+    useDataSourceFactory: boolean;
+    properties?: { [key: string]: string | number | boolean };
+    JNDIConfigName: string;
 }

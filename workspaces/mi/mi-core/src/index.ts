@@ -12,6 +12,7 @@ export * from "./state-machine-types";
 export * from "./vscode";
 
 export * from "./interfaces/mi";
+export * from "./interfaces/mi-data-mapper";
 
 // ------ History class and interface -------->
 export * from "./history";
@@ -24,3 +25,6 @@ export * from "./rpc-types/mi-visualizer/index";
 export * from "./rpc-types/mi-visualizer/rpc-type";
 export * from "./rpc-types/mi-visualizer/types";
 
+export * from "./rpc-types/mi-data-mapper/index";
+export * from "./rpc-types/mi-data-mapper/rpc-type";
+export * from "./rpc-types/mi-data-mapper/types";

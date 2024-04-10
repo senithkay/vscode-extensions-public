@@ -46,3 +46,11 @@ export function getLogFormDataFromSTNode(data: { [key: string]: any }, node: Log
 
   return data;
 }
+
+export function getLogDescription(node: Log) {
+  if (node.property) {
+    return node.property.map((property: any) => {
+      return property.name;
+    }).join(", ");
+  }
+}

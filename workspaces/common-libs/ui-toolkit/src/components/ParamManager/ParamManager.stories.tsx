@@ -1,3 +1,4 @@
+/* eslint-disable arrow-parens */
 /**
  * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -208,7 +209,7 @@ const paramFieldsWithEmptyLogicalExpr: ParamField[] = [
         label: "Checkbox",
         defaultValue: false,
         enableCondition: [
-            { 1 : "2" }
+            { 1: "2" }
         ]
     },
     {

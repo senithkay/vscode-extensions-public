@@ -13,8 +13,9 @@ import { Dropdown } from "../Dropdown/Dropdown";
 import { TextArea } from "../TextArea/TextArea";
 import { Button } from "../Button/Button";
 import styled from "@emotion/styled";
-import { AutoComplete } from "../AutoComplete/AutoComplete";
+import { FormAutoComplete } from "../AutoComplete/AutoComplete";
 import { RadioButtonGroup } from "../RadioButtonGroup/RadioButtonGroup";
+import { FormCheckBox } from "../CheckBoxGroup/CheckBoxGroup";
 
 type Inputs = {
     name: string;
@@ -22,6 +23,7 @@ type Inputs = {
     address: string;
     words: string;
     options: string;
+    isRegistered: boolean;
 };
 
 export interface SampleReactHookFormProps {
@@ -39,7 +41,7 @@ export function SampleReactHookForm(props: SampleReactHookFormProps) {
     const {
         getValues,
         register,
-        setValue,
+        control
     } = useForm<Inputs>({
         defaultValues: args,
     });
@@ -65,13 +67,12 @@ export function SampleReactHookForm(props: SampleReactHookFormProps) {
                 id="address"
                 {...register("address")}
             />
-            <AutoComplete
-                id="words"
+            <FormAutoComplete
                 label="Words"
                 required={true}
-                nullable={false}
+                isNullable={true}
                 items={["foo", "boo"]}
-                onValueChange={(val: string)=>setValue('words',val)}
+                control={control}
                 {...register("words")}
             />
             <RadioButtonGroup
@@ -81,6 +82,11 @@ export function SampleReactHookForm(props: SampleReactHookFormProps) {
                 {...register("options")}
             />
 
+            <FormCheckBox
+                name="isRegistered"
+                label="Is Registered?"
+                control={control}
+            />
             <Button appearance="primary" onClick={handleSave}> Save </Button>
         </FormContainer>
     );
