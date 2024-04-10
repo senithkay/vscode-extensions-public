@@ -251,13 +251,11 @@ export function ConnectorPage(props: ConnectorPageProps) {
             // Retrieve form
             const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: connectorData.uiSchemaPath, operation: operation });
 
-            if (formJSON) {
-                const connecterForm = <AddConnector formData={(formJSON as any).formJSON} nodePosition={sidePanelContext.nodeRange} documentUri={props.documentUri} />;
+            const connecterForm = <AddConnector formData={(formJSON as any).formJSON} nodePosition={sidePanelContext.nodeRange} documentUri={props.documentUri} />;
 
-                props.setContent(connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`);
-            }
+            props.setContent(connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`);
         }
-
+        
         setIsGeneratingForm(false);
     }
 
