@@ -44,6 +44,7 @@ export const ShowInfoMessage: NotificationType<string> = { method: 'showInfoMess
 export const RefreshLinkedDirState: NotificationType<void> = { method: 'refreshLinkedDirState' };
 export const DeleteFile: RequestType<string, void> = { method: 'deleteFile' };
 export const ShowConfirmMessage: RequestType<ShowConfirmBoxReq, boolean> = { method: 'showConfirmMessage' };
+export const OpenComponentInConsole: RequestType<OpenComponentInConsoleReq, void> = { method: 'openComponentInConsole' };
 
 export interface OpenDialogOptions {   // here
    title: string,
@@ -57,6 +58,12 @@ export interface OpenDialogOptions {   // here
 export interface ShowConfirmBoxReq {
    message: string;
    buttonText: string;
+}
+
+export interface OpenComponentInConsoleReq {
+   orgHandler: string;
+   projectHandler: string;
+   componentHandler: string;
 }
 
 

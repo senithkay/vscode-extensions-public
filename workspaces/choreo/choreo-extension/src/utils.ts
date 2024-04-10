@@ -17,7 +17,7 @@ import { existsSync, readFileSync, unlinkSync } from "fs";
 import * as yaml from "js-yaml";
 import { ProjectRegistry } from "./registry/project-registry";
 import { dirname, join } from "path";
-import { workspace } from "vscode";
+import { commands, window, workspace } from "vscode";
 import { linkedDirectoryStore } from "./stores/linked-dir-store";
 
 export async function enrichDeploymentData(
@@ -236,3 +236,11 @@ export const deleteLinkFile = async (orgHandle: string, projectHandle: string, c
         }
     }
 };
+
+export const goTosource = async (filePath: string) => {
+    if (existsSync(filePath)) {
+        const sourceFile = await workspace.openTextDocument(filePath);
+        await window.showTextDocument(sourceFile);
+        await commands.executeCommand("workbench.explorer.fileView.focus");
+    }
+}

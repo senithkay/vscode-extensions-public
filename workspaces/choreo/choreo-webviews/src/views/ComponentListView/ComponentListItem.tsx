@@ -60,6 +60,13 @@ export const ComponentListItem: FC<Props> = ({ item, isListLoading }) => {
         },
     });
 
+    const openInConsole = () =>
+        ChoreoWebViewAPI.getInstance().OpenComponentInConsole({
+            componentHandler: item.component.metadata.name,
+            orgHandler: item.organization.handle,
+            projectHandler: item.project.handler,
+        });
+
     return (
         <div
             className={classNames({
@@ -86,7 +93,7 @@ export const ComponentListItem: FC<Props> = ({ item, isListLoading }) => {
                         options={
                             isItemEnriched
                                 ? [
-                                      { label: "Open in Console" },
+                                      { label: "Open in Console", onClick: () => openInConsole() },
                                       { label: "Unlink", onClick: () => unlinkComponent() },
                                       { label: "Delete", onClick: () => confirmDelete() },
                                   ]

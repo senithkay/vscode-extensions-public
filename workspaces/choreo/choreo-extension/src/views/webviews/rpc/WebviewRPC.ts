@@ -89,6 +89,8 @@ import {
     DeleteFile,
     ShowConfirmMessage,
     ShowConfirmBoxReq,
+    OpenComponentInConsole,
+    OpenComponentInConsoleReq,
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -106,6 +108,7 @@ import { authStore } from "../../../stores/auth-store";
 import { linkedDirectoryStore } from "../../../stores/linked-dir-store";
 import { registerChoreoRpcResolver } from "../../../choreo-rpc";
 import { removeCredentialsFromGitURL } from "../../../git/util";
+import { choreoEnvConfig } from "../../../auth/auth";
 
 const manager = new ChoreoProjectManager();
 
@@ -192,6 +195,14 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     messenger.onRequest(ShowConfirmMessage, async (params: ShowConfirmBoxReq) => {
         const response = await window.showInformationMessage(params.message,{modal: true},params.buttonText);
         return response === params.buttonText;
+    });
+    messenger.onRequest(OpenComponentInConsole, async (params: OpenComponentInConsoleReq) => {
+        // TODO: Replace selectedComponent.metadata.name, if available
+        const url = `${choreoEnvConfig.getConsoleUrl()}/organizations/${params.orgHandler}/projects/${
+            params.projectHandler
+        }/components/${params.componentHandler}`;
+        const consoleUrl = Uri.parse(url);
+        vscode.env.openExternal(consoleUrl);
     });
     // TODO remove old ones
 

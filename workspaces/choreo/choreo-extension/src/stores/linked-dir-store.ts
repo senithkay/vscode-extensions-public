@@ -134,8 +134,17 @@ const getEnrichedLinks = async (links: ComponentLink[]) => {
 
                 if (matchingComponent) {
                     linkItemWithData.component = matchingComponent;
+                } else {
+                    linkItemWithData.component = undefined;
                 }
+            } else {
+                linkItemWithData.project = undefined;
+                linkItemWithData.component = undefined;
             }
+        } else {
+            linkItemWithData.organization = undefined;
+            linkItemWithData.project = undefined;
+            linkItemWithData.component = undefined;
         }
         linksWithData.push(linkItemWithData);
     }

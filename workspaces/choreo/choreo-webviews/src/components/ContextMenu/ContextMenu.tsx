@@ -4,27 +4,25 @@ import { FC } from "react";
 import { ClickAwayListener, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 
-export interface ContextMenuItem { label: string; onClick?: () => void }
+export interface ContextMenuItem {
+    label: string;
+    onClick?: () => void;
+}
 
 interface Props extends PropsWithChildren {
     options: ContextMenuItem[];
-    loading?: boolean;
 }
 
-export const ContextMenu: FC<Props> = ({ options, loading }) => {
+export const ContextMenu: FC<Props> = ({ options }) => {
     const [isOpen, setIsOpen] = useState(false);
     return (
         <ClickAwayListener onClickAway={() => setIsOpen(false)}>
             <span className="relative ">
-                {loading ? (
-                    <VSCodeProgressRing className="h-4 w-4" />
-                ) : (
-                    <VSCodeButton appearance="icon" onClick={() => setIsOpen(true)} title="More Actions">
-                        <Codicon name="ellipsis" />
-                    </VSCodeButton>
-                )}
+                <VSCodeButton appearance="icon" onClick={() => setIsOpen(true)} title="More Actions">
+                    <Codicon name="ellipsis" />
+                </VSCodeButton>
                 {isOpen && (
-                    <div className="absolute z-20 right-0 top-0 bg-vsc-menu-background shadow w-max border-1 border-vsc-dropdown-background">
+                    <div className="absolute z-20 right-0 top-0 bg-vsc-menu-background shadow w-max min-w-24 border-1 border-vsc-dropdown-background">
                         {options.map((item) => (
                             <div
                                 key={item.label}

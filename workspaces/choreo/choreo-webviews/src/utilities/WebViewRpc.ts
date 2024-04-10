@@ -114,8 +114,9 @@ import {
     DeleteFile,
     ShowConfirmMessage,
     ShowConfirmBoxReq,
+    OpenComponentInConsoleReq,
+    OpenComponentInConsole,
 } from "@wso2-enterprise/choreo-core";
-import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
 import { ChoreoProjectClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/project/rpc";
 import { ChoreoGithubAppClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/github/rpc/ghapp-client-rpc-webview";
@@ -222,6 +223,10 @@ export class ChoreoWebViewAPI {
 
     public async showConfirmMessage(params: ShowConfirmBoxReq): Promise<boolean> {
         return this._messenger.sendRequest(ShowConfirmMessage, HOST_EXTENSION, params);
+    }
+
+    public async OpenComponentInConsole(params: OpenComponentInConsoleReq): Promise<void> {
+        return this._messenger.sendRequest(OpenComponentInConsole, HOST_EXTENSION, params);
     }
     // todo: remove old ones
 
@@ -379,10 +384,6 @@ export class ChoreoWebViewAPI {
 
     public async openCellView(): Promise<void> {
         return this._messenger.sendRequest(OpenCellView, HOST_EXTENSION, undefined);
-    }
-
-    public async getDiagramComponentModel(projId: string, orgId: number): Promise<GetComponentModelResponse> {
-        return this._messenger.sendRequest(getDiagramComponentModel, HOST_EXTENSION, { projId, orgId } );
     }
 
     public onLoginStatusChanged(callback: (newStatus: ChoreoLoginStatus) => void) {

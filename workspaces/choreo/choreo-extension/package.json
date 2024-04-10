@@ -125,6 +125,13 @@
         "category": "Choreo",
         "icon": "$(trash)",
         "enablement": "isLoggedIn == true"
+      },
+      {
+        "command": "wso2.choreo.component.open.external",
+        "title": "Open Component in Choreo Console",
+        "category": "Choreo",
+        "icon": "$(globe)",
+        "enablement": "isLoggedIn == true"
       }
     ],
     "viewsContainers": {
