@@ -1793,6 +1793,12 @@ export const getOptionalRecordField = (field: TypeField): TypeField | undefined 
 	}
 }
 
+export const isOptionalAndNillableField = (field: TypeField) => {
+	return field.optional
+		&& field.typeName === PrimitiveBalType.Union
+		&& field.members?.some(member => member.typeName === '()');
+}
+
 export const getOptionalArrayField = (field: TypeField): TypeField | undefined => {
 	if (PrimitiveBalType.Array === field.typeName && field.optional) {
 		return field;
