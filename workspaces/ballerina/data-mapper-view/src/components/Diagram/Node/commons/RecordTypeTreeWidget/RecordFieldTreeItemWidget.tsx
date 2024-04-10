@@ -14,7 +14,7 @@ import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 import classnames from "classnames";
 
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
-import { getBalRecFieldName, getOptionalRecordField, getTypeName } from "../../../utils/dm-utils";
+import { getBalRecFieldName, getOptionalRecordField, getTypeName, isOptionalAndNillableField } from "../../../utils/dm-utils";
 import { InputSearchHighlight } from "../Search";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { useIONodesStyles } from "../../../../styles";
@@ -151,7 +151,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                             parentId={fieldId}
                             handleCollapse={handleCollapse}
                             treeDepth={treeDepth + 1}
-                            isOptional={isOptional || optional}
+                            isOptional={isOptional || optional || isOptionalAndNillableField(subField)}
                             hasHoveredParent={isHovered || hasHoveredParent}
                             hasLinkViaCollectClause={hasLinkViaCollectClause}
                         />
