@@ -14,7 +14,7 @@ import { ParamConfig, ParamField, ParamManager, ParamValueConfig } from "./Param
 const generateSpaceSeperatedStringFromParamValues = (paramValues: ParamValueConfig) => {
     let result = "";
     paramValues.paramValues.forEach(param => {
-        result += param + " ";
+        result += param.value + " ";
     });
     return result.trim();
 };
@@ -25,11 +25,17 @@ const paramConfigs: ParamConfig = {
         {
             id: 0,
             paramValues: [
-                "int",
-                "var1",
-                "0",
-                true,
-                "This is a description"
+                {
+                    value: "int",
+                }, {
+                    value: "var1",
+                }, {
+                    value: "0",
+                }, {
+                    value: "true",
+                }, {
+                    value: "This is a description",
+                }
             ],
             key: "Key",
             value: "int var1 0 true This is a description",

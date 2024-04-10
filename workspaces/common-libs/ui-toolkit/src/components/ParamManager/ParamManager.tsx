@@ -18,9 +18,14 @@ import { Param } from './TypeResolver';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
+export interface ParamValue {
+    value: (string | boolean);
+    isEnabled?: boolean;
+}
+
 export interface ParamValueConfig {
     id: number;
-    paramValues: (string | boolean)[];
+    paramValues: ParamValue[];
     key: string;
     value: string;
     icon?: string | React.ReactElement; // Icon for the parameter. Icon name or React element should be passed
@@ -214,12 +219,13 @@ export function ParamManager(props: ParamManagerProps) {
     };
 
     const paramValues: Parameters[] = paramConfigs.paramValues.map(paramValue => {
-        const params: Param[] = paramValue.paramValues.map((value, id) => {
+        const params: Param[] = paramValue.paramValues.map((paramVal, id) => {
             const param: Param = { 
                 id: id,
                 label: getParamFieldLabelFromParamId(paramConfigs.paramFields, id),
                 type: getParamFieldTypeFromParamId(paramConfigs.paramFields, id),
-                value: value,
+                value: paramVal.value,
+                isEnabled: paramVal.isEnabled,
                 isRequired: getParamFieldIsRequiredFromParamId(paramConfigs.paramFields, id),
                 values: getParamFieldValuesFromParamId(paramConfigs.paramFields, id),
                 enableCondition: getParamFieldEnableConditionFromParamId(paramConfigs.paramFields, id),
@@ -233,9 +239,15 @@ export function ParamManager(props: ParamManagerProps) {
         const updatedParameters: ParamValueConfig[] = [...paramConfigs.paramValues];
         setEditingSegmentId(updatedParameters.length);
         const newParams: Parameters = getNewParam(paramConfigs.paramFields, updatedParameters.length);
+        const paramValues = newParams.parameters.map(param => {
+            return {
+                value: param.value,
+                isEnabled: param.isEnabled
+            };
+        });
         updatedParameters.push({
             ...newParams,
-            paramValues: newParams.parameters.map(param => param.value)
+            paramValues: paramValues
         });
         onChange({ ...paramConfigs, paramValues: updatedParameters });
         setIsNew(true);
@@ -258,9 +270,15 @@ export function ParamManager(props: ParamManagerProps) {
         const updatedParameters: ParamValueConfig[] = [...paramConfigs.paramValues];
         const index = updatedParameters.findIndex(param => param.id === paramConfig.id);
         if (index !== -1) {
+            const paramValues = paramConfig.parameters.map(param => {
+                return {
+                    value: param.value,
+                    isEnabled: param.isEnabled
+                };
+            });
             updatedParameters[index] = {
                 ...paramConfig,
-                paramValues: paramConfig.parameters.map(param => param.value)
+                paramValues: paramValues
             };
         }
         onChange({ ...paramConfigs, paramValues: updatedParameters });
