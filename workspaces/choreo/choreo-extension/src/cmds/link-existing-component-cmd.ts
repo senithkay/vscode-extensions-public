@@ -68,14 +68,15 @@ export function linkExistingComponentCommand(context: ExtensionContext) {
             let matchingComponent: ComponentKind | null = null;
             for (const component of components) {
                 const compPath = path.join(gitRoot, component.spec.source.github?.path!);
-                if (fs.existsSync(compPath)) {
+                if (fs.existsSync(compPath) && compPath === componentDir[0].path) {
                     matchingComponent = component;
                     break;
                 }
             }
 
             if (!matchingComponent) {
-                throw new Error("No matching components was found for the selected directory");
+                window.showInformationMessage("No matching components was found for the selected directory");
+                return;
             }
 
             await window.withProgress(

@@ -53,7 +53,7 @@ export const ComponentListItem: FC<Props> = ({ item, isListLoading }) => {
             if (accepted) {
                 await ChoreoWebViewAPI.getInstance().deleteFile(item.linkFullPath);
                 ChoreoWebViewAPI.getInstance().showInfoMsg(
-                    `Component ${item.component?.metadata?.name} has been successfully unlinked`
+                    `The directory ${item.componentFullPath} has been successfully unlinked from component ${item.component?.metadata?.name}`
                 );
                 ChoreoWebViewAPI.getInstance().refreshLinkedDirState();
             }
