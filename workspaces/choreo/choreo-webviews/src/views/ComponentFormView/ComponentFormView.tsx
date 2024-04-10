@@ -150,6 +150,7 @@ export const ComponentFormView: FC<NewComponentWebview> = ({ project, organizati
                 }
             }
         },
+        refetchOnWindowFocus: false
     });
 
     const { isLoading: isCheckingRepoAccess, data: hasRepoAccess } = useQuery({

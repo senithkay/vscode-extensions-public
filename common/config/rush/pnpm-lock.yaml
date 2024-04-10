@@ -2232,7 +2232,6 @@ importers:
       copyfiles: ~2.4.1
       css-loader: ^6.7.3
       file-loader: ^6.2.0
-      idb-keyval: ~6.2.0
       node-loader: ^2.0.0
       node-sass: ^8.0.0
       path: ^0.12.7
@@ -2264,7 +2263,6 @@ importers:
       '@wso2-enterprise/choreo-core': link:../choreo-core
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       classnames: 2.3.3
-      idb-keyval: 6.2.1
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-hook-form: 7.51.2_react@18.2.0
