@@ -17,6 +17,18 @@
 		},
 		{
 			"path": "workspaces/ballerina/statement-editor"
+		},
+		{
+			"path": "workspaces/ballerina/graphql-design-diagram"
+		},
+		{
+			"path": "workspaces/ballerina/persist-layer-diagram"
+		},
+		{
+			"path": "workspaces/ballerina/service-designer"
+		},
+		{
+			"path": "workspaces/ballerina/ballerina-core"
 		}
 	],
 	"settings": {

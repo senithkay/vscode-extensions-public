@@ -7,7 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { monaco } from "react-monaco-editor";
 
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
@@ -15,6 +14,7 @@ import {
     GraphqlDesignServiceRequest, GraphqlDesignServiceResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STNode } from "@wso2-enterprise/syntax-tree";
+import { URI } from "vscode-uri";
 
 export async function getModelForGraphqlService(
     graphqlDesignRequest: GraphqlDesignServiceRequest,
@@ -28,7 +28,7 @@ export async function getSyntaxTree(filePath: string, langClientPromise: Promise
     const langClient: DiagramEditorLangClientInterface = await langClientPromise;
     const resp = await langClient.getSyntaxTree({
         documentIdentifier: {
-            uri: monaco.Uri.file(filePath).toString()
+            uri: URI.file(filePath).toString()
         }
     });
     return resp.syntaxTree;
