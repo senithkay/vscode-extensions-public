@@ -18,6 +18,13 @@ import { Param } from './TypeResolver';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
+export interface ParamValueConfig {
+    id: number;
+    paramValues: (string | boolean)[];
+    key: string;
+    value: string;
+    icon?: string | React.ReactElement; // Icon for the parameter. Icon name or React element should be passed
+}
 export interface Parameters {
     id: number;
     parameters: Param[];
@@ -45,7 +52,7 @@ export interface ParamField {
 }
 
 export interface ParamConfig {
-    paramValues: Parameters[];
+    paramValues: ParamValueConfig[];
     paramFields: ParamField[];
 }
 
@@ -171,6 +178,32 @@ export function findFieldFromParam(field: ParamField[], value: Param): ParamFiel
     return field?.find(item => item.label === value?.label) || null;
 }
 
+export const getParamFieldLabelFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.label;
+}
+
+const getParamFieldTypeFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.type;
+}
+
+const getParamFieldIsRequiredFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.isRequired;
+}
+
+const getParamFieldValuesFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.values;
+}
+
+const getParamFieldEnableConditionFromParamId = (paramFields: ParamField[], paramId: number): EnableCondition => {
+    const paramField = paramFields[paramId];
+    const enableCondition = convertToObject(paramField.enableCondition);
+    return enableCondition === null ? undefined : enableCondition;
+}
+
 export function ParamManager(props: ParamManagerProps) {
     const { paramConfigs , readonly, onChange } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
@@ -180,11 +213,30 @@ export function ParamManager(props: ParamManagerProps) {
         setEditingSegmentId(param.id);
     };
 
+    const paramValues: Parameters[] = paramConfigs.paramValues.map(paramValue => {
+        const params: Param[] = paramValue.paramValues.map((value, id) => {
+            const param: Param = { 
+                id: id,
+                label: getParamFieldLabelFromParamId(paramConfigs.paramFields, id),
+                type: getParamFieldTypeFromParamId(paramConfigs.paramFields, id),
+                value: value,
+                isRequired: getParamFieldIsRequiredFromParamId(paramConfigs.paramFields, id),
+                values: getParamFieldValuesFromParamId(paramConfigs.paramFields, id),
+                enableCondition: getParamFieldEnableConditionFromParamId(paramConfigs.paramFields, id),
+            };
+            return param;
+        });
+        return { ...paramValue, parameters: params };
+    });
+
     const onAddClick = () => {
-        const updatedParameters = [...paramConfigs.paramValues];
+        const updatedParameters: ParamValueConfig[] = [...paramConfigs.paramValues];
         setEditingSegmentId(updatedParameters.length);
         const newParams: Parameters = getNewParam(paramConfigs.paramFields, updatedParameters.length);
-        updatedParameters.push(newParams);
+        updatedParameters.push({
+            ...newParams,
+            paramValues: newParams.parameters.map(param => param.value)
+        });
         onChange({ ...paramConfigs, paramValues: updatedParameters });
         setIsNew(true);
     };
@@ -203,10 +255,13 @@ export function ParamManager(props: ParamManagerProps) {
     };
 
     const onChangeParam = (paramConfig: Parameters) => {
-        const updatedParameters = [...paramConfigs.paramValues];
+        const updatedParameters: ParamValueConfig[] = [...paramConfigs.paramValues];
         const index = updatedParameters.findIndex(param => param.id === paramConfig.id);
         if (index !== -1) {
-            updatedParameters[index] = paramConfig;
+            updatedParameters[index] = {
+                ...paramConfig,
+                paramValues: paramConfig.parameters.map(param => param.value)
+            };
         }
         onChange({ ...paramConfigs, paramValues: updatedParameters });
     };
@@ -239,7 +294,7 @@ export function ParamManager(props: ParamManagerProps) {
     };
 
     const paramComponents: React.ReactElement[] = [];
-    paramConfigs?.paramValues
+    paramValues
         .forEach((param , index) => {
             if (editingSegmentId === index) {
                 paramComponents.push(

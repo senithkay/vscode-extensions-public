@@ -9,12 +9,12 @@
  */
 import React, { useState } from "react";
 import { storiesOf } from "@storybook/react";
-import { ParamConfig, ParamField, ParamManager, Parameters } from "./ParamManager";
+import { ParamConfig, ParamField, ParamManager, ParamValueConfig } from "./ParamManager";
 
-const generateSpaceSeperatedStringFromParamValues = (paramValues: Parameters) => {
+const generateSpaceSeperatedStringFromParamValues = (paramValues: ParamValueConfig) => {
     let result = "";
-    paramValues.parameters.forEach(param => {
-        result += param.value + " ";
+    paramValues.paramValues.forEach(param => {
+        result += param + " ";
     });
     return result.trim();
 };
@@ -24,46 +24,15 @@ const paramConfigs: ParamConfig = {
     paramValues: [
         {
             id: 0,
-            parameters: [
-                {
-                    id: 0,
-                    label: "Type",
-                    type: "TextField",
-                    value: "int",
-                    isRequired: true
-                },
-                {
-                    id: 1,
-                    label: "Name",
-                    type: "TextField",
-                    value: "var1",
-                    isRequired: true
-                },
-                {
-                    id: 2,
-                    label: "Dropdown Sample",
-                    type: "Dropdown",
-                    value: "0",
-                    isRequired: false,
-                    values: ["0", "1", "2"],
-                },
-                {
-                    id: 3,
-                    label: "Is Required",
-                    type: "Checkbox",
-                    value: true,
-                    isRequired: false
-                },
-                {
-                    id: 4,
-                    label: "Description",
-                    type: "TextArea",
-                    value: "This is a description",
-                    isRequired: false
-                }
+            paramValues: [
+                "int",
+                "var1",
+                "0",
+                true,
+                "This is a description"
             ],
             key: "Key",
-            value: "Int var1 0 true This is a description",
+            value: "int var1 0 true This is a description",
             icon: "query"
         }
     ],
@@ -71,7 +40,7 @@ const paramConfigs: ParamConfig = {
         {
             type: "TextField",
             label: "Type",
-            defaultValue: "John Doe",
+            defaultValue: "int",
             isRequired: true
         },
         {
