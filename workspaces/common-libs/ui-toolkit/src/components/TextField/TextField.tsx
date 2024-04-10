@@ -117,6 +117,7 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
                 { ...!props.name ? { value: props.value ? props.value : ""} : {} } // If name is not provided, then value should be empty (for react-hook-form)
                 onChange={handleChange}
                 onInput={handleChange}
+                value={props.value || ""}
             >
                 {iconComponent && <span onClick={iconClick} slot={position}>{iconComponent}</span>}
                 <LabelContainer>
