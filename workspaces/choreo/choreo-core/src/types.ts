@@ -30,7 +30,7 @@ export interface NewComponentWebview {
 
 export interface ComponentsListActivityView {
     type: "ComponentsListActivityView";
-    initialLinkedDirState: LinkedDirectoryState;
+    directoryPath?: string;
 }
 
 export interface AccountActivityView {

@@ -150,7 +150,7 @@ export const ComponentFormView: FC<NewComponentWebview> = ({ project, organizati
                 }
             }
         },
-        refetchOnWindowFocus: false
+        refetchOnWindowFocus: false,
     });
 
     const { isLoading: isCheckingRepoAccess, data: hasRepoAccess } = useQuery({
@@ -286,7 +286,17 @@ export const ComponentFormView: FC<NewComponentWebview> = ({ project, organizati
         }
     }
 
-    const showRequireRepoAccess = repoUrl && !isCheckingRepoAccess && !hasRepoAccess;
+    let invalidRepoMsg: ReactNode = "";
+    if (!isLoadingRemotes && gitRemotes?.length === 0) {
+        invalidRepoMsg = "The selected repository does not contain any Git remotes";
+    } else if (repoUrl && !isCheckingRepoAccess && !hasRepoAccess) {
+        invalidRepoMsg = (
+            <>
+                Choreo lacks access to this repository. To grant access, please visit{" "}
+                <VSCodeLink onClick={openGitInstallUrl}>{gitInstallUrl}</VSCodeLink>
+            </>
+        );
+    }
 
     return (
         <div className="flex flex-row justify-center p-6">
@@ -341,12 +351,9 @@ export const ComponentFormView: FC<NewComponentWebview> = ({ project, organizati
                             loading={isLoadingRemotes}
                             wrapClassName="col-span-full"
                         />
-                        {showRequireRepoAccess && (
+                        {invalidRepoMsg && (
                             <Banner type="warning" className="col-span-full">
-                                <span className="text-vsc-inputValidation-warningForeground">
-                                    Choreo lacks access to this repository. To grant access, please visit{" "}
-                                    <VSCodeLink onClick={openGitInstallUrl}>{gitInstallUrl}</VSCodeLink>
-                                </span>
+                                <span className="text-vsc-inputValidation-warningForeground">{invalidRepoMsg}</span>
                             </Banner>
                         )}
                         <Dropdown
@@ -388,10 +395,8 @@ export const ComponentFormView: FC<NewComponentWebview> = ({ project, organizati
                         </Button>
                         <Button
                             onClick={form.handleSubmit(onSubmit)}
-                            tooltip={
-                                showRequireRepoAccess ? "Access to selected repository is required to proceed" : ""
-                            }
-                            disabled={showRequireRepoAccess || isCreatingComponent}
+                            tooltip={invalidRepoMsg ? "Invalid repo selection" : ""}
+                            disabled={!!invalidRepoMsg || isCreatingComponent}
                         >
                             {isCreatingComponent ? "Creating..." : "Create"}
                         </Button>
