@@ -1,0 +1,25 @@
+{
+	"folders": [
+		{
+			"path": "workspaces/ballerina/ballerina-extension"
+		},
+		{
+			"path": "workspaces/ballerina/ballerina-visualizer"
+		},
+		{
+			"path": "workspaces/ballerina/overview-view"
+		},
+		{
+			"path": "workspaces/common-libs/ui-toolkit"
+		},
+		{
+			"path": "workspaces/ballerina/data-mapper-view"
+		},
+		{
+			"path": "workspaces/ballerina/statement-editor"
+		}
+	],
+	"settings": {
+		"typescript.tsc.autoDetect": "off"
+	}
+}
