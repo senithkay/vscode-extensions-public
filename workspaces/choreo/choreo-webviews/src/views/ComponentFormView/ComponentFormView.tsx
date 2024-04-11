@@ -353,7 +353,7 @@ export const ComponentFormView: FC<NewComponentWebview> = ({ project, organizati
                         />
                         {invalidRepoMsg && (
                             <Banner type="warning" className="col-span-full">
-                                <span className="text-vsc-inputValidation-warningForeground">{invalidRepoMsg}</span>
+                                {invalidRepoMsg}
                             </Banner>
                         )}
                         <Dropdown
