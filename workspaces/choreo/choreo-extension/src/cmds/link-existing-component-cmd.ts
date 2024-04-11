@@ -13,7 +13,7 @@ import { authStore } from "../stores/auth-store";
 import * as path from "path";
 import * as fs from "fs";
 import { linkedDirectoryStore } from "../stores/linked-dir-store";
-import { selectOrg, selectProject, selectComponent, resolveWorkspaceDirectory } from "./cmd-utils";
+import { selectOrg, selectProject, resolveWorkspaceDirectory } from "./cmd-utils";
 import { getGitRoot } from "../git/util";
 import { goTosource } from "../utils";
 
@@ -31,7 +31,7 @@ export function linkExistingComponentCommand(context: ExtensionContext) {
                 canSelectFolders: true,
                 canSelectFiles: false,
                 canSelectMany: false,
-                title: "Component Directory",
+                title: "Select directory that needs to be linked with a component (1/3)",
                 defaultUri: directory.uri,
             });
 
@@ -48,9 +48,13 @@ export function linkExistingComponentCommand(context: ExtensionContext) {
                 throw new Error("Selected directory is not within a git directory");
             }
 
-            const selectedOrg = await selectOrg(userInfo);
+            const selectedOrg = await selectOrg(userInfo,"Select organization (2/3)");
 
-            const selectedProject = await selectProject(selectedOrg);
+            const selectedProject = await selectProject(
+                selectedOrg,
+                `Loading projects from '${selectedOrg.name}' (3/3)`,
+                `Select project from '${selectedOrg.name}' (3/3)`
+            );
 
             const components = await window.withProgress(
                 { title: `Fetching components of ${selectedProject.name}...`, location: ProgressLocation.Notification },

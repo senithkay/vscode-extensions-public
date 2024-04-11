@@ -20,11 +20,20 @@ export function openComponentInConsoleCommand(context: ExtensionContext) {
                 throw new Error("You are not logged in. Please log in and retry.");
             }
 
-            const selectedOrg = await selectOrg(userInfo);
+            const selectedOrg = await selectOrg(userInfo,"Select organization (1/3)");
 
-            const selectedProject = await selectProject(selectedOrg);
+            const selectedProject = await selectProject(
+                selectedOrg,
+                `Loading projects from '${selectedOrg.name}' (2/3)`,
+                `Select project from '${selectedOrg.name}' (2/3)`
+            );
 
-            const selectedComponent = await selectComponent(selectedOrg, selectedProject);
+            const selectedComponent = await selectComponent(
+                selectedOrg,
+                selectedProject,
+                `Loading components from '${selectedProject.name}' (3/3)`,
+                `Select component from '${selectedProject.name}' to open in Console (3/3)`
+            );
 
             // TODO: Replace selectedComponent.metadata.name, if available
             const url = `${choreoEnvConfig.getConsoleUrl()}/organizations/${selectedOrg?.handle}/projects/${

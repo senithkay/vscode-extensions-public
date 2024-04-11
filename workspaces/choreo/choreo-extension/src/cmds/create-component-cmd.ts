@@ -25,9 +25,13 @@ export function createNewComponentCommand(context: ExtensionContext) {
 
             const workspaceDir = await resolveWorkspaceDirectory();
 
-            const selectedOrg = await selectOrg(userInfo);
+            const selectedOrg = await selectOrg(userInfo, "Select organization (1/2)");
 
-            const selectedProject = await selectProjectWithCreateNew(selectedOrg);
+            const selectedProject = await selectProjectWithCreateNew(
+                selectedOrg,
+                `Loading projects from '${selectedOrg.name}' (2/2)`,
+                `Select project from '${selectedOrg.name}' to create your component in (2/2)`
+            );
 
             if (selectedProject === "new-project") {
                 if (componentWizard) {
@@ -39,7 +43,12 @@ export function createNewComponentCommand(context: ExtensionContext) {
                 if (componentWizard) {
                     componentWizard.dispose();
                 }
-                componentWizard = new ComponentFormView(ext.context.extensionUri, workspaceDir.uri.path, selectedOrg, selectedProject);
+                componentWizard = new ComponentFormView(
+                    ext.context.extensionUri,
+                    workspaceDir.uri.path,
+                    selectedOrg,
+                    selectedProject
+                );
                 componentWizard.getWebview()?.reveal();
             }
         })
