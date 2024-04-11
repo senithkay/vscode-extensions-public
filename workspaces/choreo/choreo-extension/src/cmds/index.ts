@@ -7,8 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { commands, ExtensionContext } from "vscode";
-// import { activateOpenProjectCmd } from "./open-project";
-// import { activateOpenInConsoleCmd } from "./open-in-console";
 import { linkExistingComponentCommand } from './link-existing-component-cmd';
 import { createNewComponentCommand } from './create-component-cmd';
 import { refreshComponentsCommand } from './refresh-components-cmd';
@@ -20,8 +18,6 @@ import { openComponentInConsoleCommand } from './open-component-in-console-cmd';
 import { CommandIds } from "@wso2-enterprise/choreo-core";
 
 export function activateCmds(context: ExtensionContext) {
-    // activateOpenProjectCmd(context);
-    // activateOpenInConsoleCmd(context);
     createNewComponentCommand(context);
     linkExistingComponentCommand(context);
     refreshComponentsCommand(context);

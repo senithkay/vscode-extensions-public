@@ -8,7 +8,6 @@
  */
 import { QuickPickItem, QuickPickOptions, commands, window } from "vscode";
 import {
-    createNewProjectCmdId,
     cloneAllComponentsCmdId,
     cloneRepoToCurrentProjectWorkspaceCmdId,
     deleteProjectCmdId
@@ -25,23 +24,6 @@ let projectWizard: WebviewWizard;
 let componentWizard: WebviewWizard;
 
 export function activateWizards() {
-    // const createProjectCmd = commands.registerCommand(createNewProjectCmdId, async (orgId: string) => {
-    //     const isLoggedIn = await ext.api.waitForLogin();
-    //     sendTelemetryEvent(CREATE_PROJECT_EVENT);
-    //     // show a message if user is not logged in
-    //     if (!isLoggedIn) {
-    //         window.showInformationMessage('You are not logged in. Please log in to continue.');
-    //         return;
-    //     }
-    //     const organizationId = orgId ? orgId : (await ext.api.getSelectedOrg())?.id;
-    //     if(organizationId){
-    //         if (!projectWizard || !projectWizard.getWebview()) {
-    //             projectWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.projectCreation, `${organizationId}`);
-    //         }
-    //         projectWizard.getWebview()?.reveal();
-    //     }
-    // });
-
     // const deleteProjectCmd = commands.registerCommand(deleteProjectCmdId, async () => {
     //     const isLoggedIn = await ext.api.waitForLogin();
     //     if (!isLoggedIn) {

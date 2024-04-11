@@ -44,12 +44,6 @@
         "title": "Clone a repo to current Project Workspace"
       },
       {
-        "command": "wso2.choreo.project.create",
-        "title": "Create New Project",
-        "category": "Choreo",
-        "icon": "$(add)"
-      },
-      {
         "command": "wso2.choreo.project.open",
         "title": "Open Choreo Project",
         "category": "Choreo",
@@ -60,12 +54,6 @@
         "title": "Delete Choreo Project",
         "category": "Choreo",
         "icon": "$(trash)"
-      },
-      {
-        "command": "wso2.choreo.project.open.external",
-        "title": "Open Project in Choreo Console",
-        "category": "Choreo",
-        "icon": "$(list-selection)"
       },
       {
         "command": "wso2.choreo.cell.view",
@@ -130,7 +118,7 @@
         "command": "wso2.choreo.component.open.external",
         "title": "Open Component in Choreo Console",
         "category": "Choreo",
-        "icon": "$(globe)",
+        "icon": "$(link-external)",
         "enablement": "isLoggedIn == true"
       }
     ],

@@ -8,7 +8,7 @@
  */
 // 
 import * as vscode from 'vscode';
-import { createNewProjectCmdId, openProjectCmdId } from '../constants';
+import { openProjectCmdId } from '../constants';
 import { ext } from '../extensionVariables';
 import { ProjectRegistry } from '../registry/project-registry';
 import { cloneProject } from '../git/clone';
