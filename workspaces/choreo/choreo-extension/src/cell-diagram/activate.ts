@@ -8,7 +8,7 @@
  */
 
 import * as vscode from 'vscode';
-import { openChoreoCellDiagram, refreshChoreoCellDiagram } from '../constants';
+import { openChoreoCellDiagram } from '../constants';
 import { ext } from '../extensionVariables';
 import { CellDiagramView } from "../views/webviews/CellDiagramView";
 
