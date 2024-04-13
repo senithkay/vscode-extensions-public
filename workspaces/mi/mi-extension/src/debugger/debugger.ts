@@ -2,7 +2,7 @@ import * as net from 'net';
 import { EventEmitter } from 'events';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { StateMachine } from '../stateMachine';
-import { ValidateBreakpointsRequest, ValidateBreakpointsResponse } from '@wso2-enterprise/mi-core';
+import { GetBreakpointInfoRequest, GetBreakpointInfoResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse } from '@wso2-enterprise/mi-core';
 
 export interface BreakpointInfo {
     sequence: any; // TODO: update based on the BE model
@@ -107,6 +107,22 @@ export class Debugger extends EventEmitter {
     public dummyBreakpointPosition = 0;
     public async getBreakpointInformation(breakpoints: DebugProtocol.Breakpoint[]): Promise<BreakpointInfo[]> {
         // TODO: add the LS call to get the breakpoint info for the DebugProtocol.Breakpoint
+        const langClient = StateMachine.context().langClient!;
+        for (const breakpoint of breakpoints) {
+            if(breakpoint.line){
+                const getBreakpointInfoRequest: GetBreakpointInfoRequest = {
+                    filePath: this.getPath(),
+                    breakpoints: [{ line: breakpoint.line }]
+                };
+
+                const breakpointInfo: GetBreakpointInfoResponse = await langClient.getBreakpointInfo(getBreakpointInfoRequest);
+                console.log('Breakpoint Info:', breakpointInfo);
+                // TODO: ask for the BE model changes
+
+            }
+            
+        }
+        
         const breakpointInfo = { "sequence": { "api": { "api-key": "HelloWorld", "resource": { "method": "GET" }, "sequence-type": "api_inseq", "mediator-position": this.dummyBreakpointPosition.toString() } }, "mediation-component": "sequence" };
         this.dummyBreakpointPosition++;
         return [breakpointInfo];

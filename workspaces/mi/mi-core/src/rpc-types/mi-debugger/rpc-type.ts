@@ -8,8 +8,9 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { ValidateBreakpointsRequest, ValidateBreakpointsResponse } from "./types";
+import { ValidateBreakpointsRequest, ValidateBreakpointsResponse, GetBreakpointInfoRequest, GetBreakpointInfoResponse } from "./types";
 import { RequestType } from "vscode-messenger-common";
 
 const _preFix = "mi-debugger";
 export const validateBreakpoints: RequestType<ValidateBreakpointsRequest, ValidateBreakpointsResponse> = { method: `${_preFix}/validateBreakpoints` };
+export const getBreakpointInfo: RequestType<GetBreakpointInfoRequest, GetBreakpointInfoResponse> = { method: `${_preFix}/getBreakpointInfo` };

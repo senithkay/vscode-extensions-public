@@ -11,7 +11,9 @@
 import {
     MiDebuggerAPI,
     ValidateBreakpointsRequest,
-    ValidateBreakpointsResponse
+    ValidateBreakpointsResponse,
+    GetBreakpointInfoRequest,
+    GetBreakpointInfoResponse
 } from "@wso2-enterprise/mi-core";
 import { StateMachine } from "../../stateMachine";
 
@@ -22,6 +24,15 @@ export class MiDebuggerRpcManager implements MiDebuggerAPI {
             const definition = await langClient.validateBreakpoints(params);
 
             resolve(definition);
+        });
+    }
+
+    async getBreakpointInfo(params: GetBreakpointInfoRequest): Promise<GetBreakpointInfoResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const breakpointInfo = await langClient.getBreakpointInfo(params);
+
+            resolve(breakpointInfo);
         });
     }
 }

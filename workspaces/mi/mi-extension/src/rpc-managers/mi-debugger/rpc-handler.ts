@@ -9,8 +9,10 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    validateBreakpoints,
-    ValidateBreakpointsRequest
+    ValidateBreakpointsRequest,
+    getBreakpointInfo,
+    GetBreakpointInfoRequest,
+    validateBreakpoints
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDebuggerRpcManager } from "./rpc-manager";
@@ -18,4 +20,5 @@ import { MiDebuggerRpcManager } from "./rpc-manager";
 export function registerMiDebuggerRpcHandlers(messenger: Messenger) {
     const rpcManger = new MiDebuggerRpcManager();
     messenger.onRequest(validateBreakpoints, (args: ValidateBreakpointsRequest) => rpcManger.validateBreakpoints(args));
+    messenger.onRequest(getBreakpointInfo, (args: GetBreakpointInfoRequest) => rpcManger.getBreakpointInfo(args));
 }

@@ -9,7 +9,7 @@
 
 export interface ValidateBreakpointsRequest {
     filePath: string;
-    breakpoints: BreakpointPosition[];
+    breakpoints: BreakpointPosition[]; // TODO: breakpointPosition should consist of the filePath and the line number
 }
 
 export interface BreakpointPosition {
@@ -24,5 +24,59 @@ export interface BreakpointValidity {
 
 export interface ValidateBreakpointsResponse  {
     breakPointValidity: BreakpointValidity[]; // TODO: ask the BE to fix this typo
+}
+
+export interface GetBreakpointInfoRequest {
+    filePath: string;
+    breakpoints: BreakpointPosition[];
+}
+
+export interface GetBreakpointInfoResponse {
+    breakpointInfo: BreakpointInfo[];
+}
+
+export interface BreakpointInfo {
+    sequence?: BreakpointSequence; // TODO: update as SequenceBreakpoint
+    template?: BreakpointTemplate;
+    command?: string;
+    "command-argument"?: string;
+    "mediation-component": string;
+}
+
+export interface BreakpointSequence {
+    api?: ApiBreakpoint;
+    proxy?: ProxyBreakpoint;
+    inbound?: InboundEndpointBreakpoint;
+    "sequence-type": string;
+    "sequence-key": string;
+    "mediator-position": string;
+}
+
+export interface ApiBreakpoint {
+    "api-key": string;
+    "resource": {
+        "method": string;
+        "uri-template": string;
+        "url-mapping": string;
+    };
+    "sequence-type": string;
+    "mediator-position": string;
+}
+
+export interface ProxyBreakpoint {
+    "proxy-key": string;
+    "sequence-type": string;
+    "mediator-position": string;
+}
+
+export interface InboundEndpointBreakpoint {
+    "inbound-key": string;
+    "sequence-type": string;
+    "mediator-position": string;
+}
+
+export interface BreakpointTemplate {
+    "template-key": string;
+    "mediator-position": string;
 }
     

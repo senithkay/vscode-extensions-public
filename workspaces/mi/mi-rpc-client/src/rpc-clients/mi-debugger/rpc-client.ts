@@ -12,6 +12,9 @@ import {
     MiDebuggerAPI,
     ValidateBreakpointsRequest,
     ValidateBreakpointsResponse,
+    getBreakpointInfo,
+    GetBreakpointInfoRequest,
+    GetBreakpointInfoResponse,
     validateBreakpoints
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -26,5 +29,9 @@ export class MiDebuggerRpcClient implements MiDebuggerAPI {
 
     validateBreakpoints(params: ValidateBreakpointsRequest): Promise<ValidateBreakpointsResponse> {
         return this._messenger.sendRequest(validateBreakpoints, HOST_EXTENSION, params);
+    }
+
+    getBreakpointInfo(params: GetBreakpointInfoRequest): Promise<GetBreakpointInfoResponse> {
+        return this._messenger.sendRequest(getBreakpointInfo, HOST_EXTENSION, params);
     }
 }

@@ -7,8 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ValidateBreakpointsRequest, ValidateBreakpointsResponse } from "./types";
+import { ValidateBreakpointsRequest, ValidateBreakpointsResponse, GetBreakpointInfoRequest, GetBreakpointInfoResponse } from "./types";
 
 export interface MiDebuggerAPI {
     validateBreakpoints: (params: ValidateBreakpointsRequest) => Promise<ValidateBreakpointsResponse>;
+    getBreakpointInfo: (params: GetBreakpointInfoRequest) => Promise<GetBreakpointInfoResponse>;
 }
