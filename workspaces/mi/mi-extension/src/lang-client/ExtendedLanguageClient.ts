@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { GetAvailableResourcesRequest, GetAvailableResourcesResponse, GetDefinitionRequest, GetDefinitionResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, ProjectStructureResponse } from "@wso2-enterprise/mi-core";
+import { GetAvailableResourcesRequest, GetAvailableResourcesResponse, GetDefinitionRequest, GetDefinitionResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, ProjectStructureResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Range, Uri, workspace } from "vscode";
 import { CompletionParams, LanguageClient, TextEdit } from "vscode-languageclient/node";
@@ -147,5 +147,9 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async rangeFormat(req: RangeFormatParams ): Promise<vscode.TextEdit[]> {
         return this.sendRequest("textDocument/rangeFormatting", req)
+    }
+
+    async validateBreakpoints(req: ValidateBreakpointsRequest): Promise<ValidateBreakpointsResponse> {
+        return this.sendRequest("synapse/validateBreakpoints", req);
     }
 }

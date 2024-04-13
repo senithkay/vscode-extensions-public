@@ -2,7 +2,7 @@ import * as net from 'net';
 import { EventEmitter } from 'events';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { StateMachine } from '../stateMachine';
-import { SyntaxTreeMi } from '@wso2-enterprise/mi-core';
+import { ValidateBreakpointsRequest, ValidateBreakpointsResponse } from '@wso2-enterprise/mi-core';
 
 export interface BreakpointInfo {
     sequence: any; // TODO: update based on the BE model
@@ -40,44 +40,68 @@ export class Debugger extends EventEmitter {
         this.host = host;
     }
 
-
     /*
      * Set breakpoint in file with given line.
      */
     public async setBreakPoint(source: DebugProtocol.Source, line: number): Promise<DebugProtocol.Breakpoint> {
-        const breakpoint: DebugProtocol.Breakpoint = {
-            verified: true,
-            line: line,
-            id: this.breakpointId++,
-            source: source,
-            column: 0 // debug points are restricted to line breakpoints
-        };
+        return new Promise<DebugProtocol.Breakpoint>(async (resolve, reject) => {
+            const langClient = StateMachine.context().langClient!;
+            const breakpoint: DebugProtocol.Breakpoint = {
+                verified: false,
+                line: line,
+                id: this.breakpointId++,
+                source: source,
+                column: 0 // debug points are restricted to line breakpoints
+            };
 
-        if (source.path) {
-            const path = this.normalizePathAndCasing(source.path);
-            // get current breakpoints for the path
-            let breakpoints = this.breakPoints.get(path);
-            if (!breakpoints) {
-                breakpoints = new Array<DebugProtocol.Breakpoint>();
-                this.breakPoints.set(source.path, breakpoints);
+            if (source.path) {
+                const path = this.normalizePathAndCasing(source.path);
+                // get current breakpoints for the path
+                let breakpoints = this.breakPoints.get(path);
+                if (!breakpoints) {
+                    breakpoints = new Array<DebugProtocol.Breakpoint>();
+                    this.breakPoints.set(source.path, breakpoints);
+                }
+                breakpoints.push(breakpoint);
             }
-            breakpoints.push(breakpoint);
-        }
 
 
-        // TODO: Add the mi-LS call to verify ig the breakpoints are valid
-        //await this.verifyBreakpoints(path);
+            // TODO: Add the mi-LS call to verify ig the breakpoints are valid
+            //await this.verifyBreakpoints(path);
+            try {
+                if (source.path) {
+                    const validateBreakpointsRequest: ValidateBreakpointsRequest = {
+                        filePath: source.path,
+                        breakpoints: [{ line: line }]
+                    };
+                    const response: ValidateBreakpointsResponse = await langClient.validateBreakpoints(validateBreakpointsRequest);
+                    if (response?.breakPointValidity[0]?.valid) {
+                        breakpoint.verified = true;
+                    }
+                }
+            } catch (error) {
+                console.error('Error setting breakpoint:', error);
+                return Promise.reject(error);
+            }
 
-        //TODO: get the breakpoint info from mi-LS and send breakpoint command to the mi runtime.
-        const breakpointInfo: BreakpointInfo[] = await this.getBreakpointInformation([breakpoint]);
 
-        this.debuggingRuntimeBreakpointMap.set(breakpointInfo[0], breakpoint);
-        // TODO: Enable sending the breakpoint command to the debugger, check if we need to clear the breakpoint before setting it
-        // if(this.isDebuggerActive){
-        //     await this.sendSetBreakpointCommand(breakpointInfo[0]);
-        // }
-        
-        return breakpoint;
+            //TODO: get the breakpoint info from mi-LS and send breakpoint command to the mi runtime.
+            if (breakpoint.verified) {
+                const breakpointInfo: BreakpointInfo[] = await this.getBreakpointInformation([breakpoint]);
+                this.debuggingRuntimeBreakpointMap.set(breakpointInfo[0], breakpoint);
+            }
+
+            // TODO: Enable sending the breakpoint command to the debugger, check if we need to clear the breakpoint before setting it
+            // if(this.isDebuggerActive){
+            //     await this.sendSetBreakpointCommand(breakpointInfo[0]);
+            // }
+
+            resolve(breakpoint);
+
+        }).catch((error) => {
+            console.error('Error setting breakpoint:', error);
+            return Promise.reject(error);
+        });
     }
 
     public dummyBreakpointPosition = 0;

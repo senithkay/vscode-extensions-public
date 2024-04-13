@@ -16,6 +16,7 @@ import { VisualizerWebview } from './visualizer/webview';
 import { registerMiVisualizerRpcHandlers } from './rpc-managers/mi-visualizer/rpc-handler';
 import { AiPanelWebview } from './ai-panel/webview';
 import { StateMachineAI } from './ai-panel/aiMachine';
+import { registerMiDebuggerRpcHandlers } from './rpc-managers/mi-debugger/rpc-handler';
 
 export class RPCLayer {
     static _messenger: Messenger = new Messenger();
@@ -43,6 +44,7 @@ export class RPCLayer {
         RPCLayer._messenger.onRequest(getVisualizerState, () => getContext());
         registerMiDiagramRpcHandlers(RPCLayer._messenger);
         registerMiVisualizerRpcHandlers(RPCLayer._messenger);
+        registerMiDebuggerRpcHandlers(RPCLayer._messenger);
         // ----- AI Webview RPC Methods
         RPCLayer._messenger.onRequest(getAIVisualizerState, () => getAIContext());
     }
