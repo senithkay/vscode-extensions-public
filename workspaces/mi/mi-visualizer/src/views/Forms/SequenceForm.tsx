@@ -7,13 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { useEffect, useState } from "react";
-import { AutoComplete, Button, FormGroup, TextField, FormView, FormActions, CheckBox } from "@wso2-enterprise/ui-toolkit";
+import { FormAutoComplete, Button, FormGroup, TextField, FormView, FormActions, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
-import AddToRegistry, { getArifactNamesAndPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
+import AddToRegistry, { getRegistryArifactNames, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
 
 export interface SequenceWizardProps {
     path: string;
@@ -24,6 +24,8 @@ type InputsFields = {
     endpoint?: string;
     onErrorSequence?: string;
     saveInReg?: boolean;
+    trace?: boolean;
+    statistics?: boolean;
     //reg form
     artifactName?: string;
     registryPath?: string
@@ -35,6 +37,8 @@ const initialSequence: InputsFields = {
     endpoint: "",
     onErrorSequence: "",
     saveInReg: false,
+    trace: false,
+    statistics: false,
     //reg form
     artifactName: "",
     registryPath: "/",
@@ -45,19 +49,27 @@ export function SequenceWizard(props: SequenceWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
     const [endpoints, setEndpoints] = useState([]);
+    // sequence file names
     const [sequences, setSequences] = useState([]);
+    // sequence artifact names
+    const [seqArtifactNames, setSeqArtifactNames] = useState([]);
     const [artifactNames, setArtifactNames] = useState([]);
     const [registryPaths, setRegistryPaths] = useState([]);
 
     const schema = yup.object({
-        name: yup.string().required("Task Name is required").matches(/^[a-zA-Z0-9]*$/, "Invalid characters in sequence name")
+        name: yup.string().required("Sequence name is required").matches(/^[a-zA-Z0-9]*$/, "Invalid characters in sequence name")
             .test('validateSequenceName',
-                'Sequence name already exists', value => {
-                    return !sequences.includes(value);
-                }),
+                'Sequence file name already exists', value => {
+                    return !sequences.includes(value)
+                }).test('validateSequenceName',
+                    'Sequence artifact name already exists', value => {
+                        return !seqArtifactNames.includes(value)
+                    }),
         endpoint: yup.string(),
         onErrorSequence: yup.string(),
         saveInReg: yup.boolean(),
+        trace: yup.boolean(),
+        statistics: yup.boolean(),
         artifactName: yup.string().when('saveInReg', {
             is: false,
             then: () =>
@@ -73,7 +85,7 @@ export function SequenceWizard(props: SequenceWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().test('validateRegistryPath', 'Resource already exists', value => {
+                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
                     const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
                     return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
                 }),
@@ -86,27 +98,51 @@ export function SequenceWizard(props: SequenceWizardProps) {
         watch,
         handleSubmit,
         getValues,
-        formState: { errors, isValid, isDirty },
-        setValue } = useForm<InputsFields>({
-            defaultValues: initialSequence,
-            resolver: yupResolver(schema),
-            mode: "onChange",
-        });
+        control,
+        formState: { errors, isDirty },
+    } = useForm<InputsFields>({
+        defaultValues: initialSequence,
+        resolver: yupResolver(schema),
+        mode: "onChange",
+    });
 
     useEffect(() => {
         (async () => {
-            const data = await rpcClient.getMiDiagramRpcClient().getEndpointsAndSequences();
-            setEndpoints(data.data[0]);
-            setSequences(data.data[1]);
-            const result = await getArifactNamesAndPaths(props.path, rpcClient);
+            const response = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
+                documentIdentifier: props.path,
+                resourceType: "sequence",
+            });
+            if (response.resources) {
+                const sequenceNames = response.resources.map((resource) => resource.name);
+                setSeqArtifactNames(sequenceNames);
+                const seqPaths = response.resources.map((resource) => resource.artifactPath.replace(".xml", ""));
+                setSequences(seqPaths);
+            }
+            const endpointResponse = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
+                documentIdentifier: props.path,
+                resourceType: "endpoint",
+            });
+            // get endpoints from registry and workspace
+            let endpointNames = [];
+            if (endpointResponse.registryResources) {
+                const registryKeys = endpointResponse.registryResources.map((resource) => resource.registryKey);
+                endpointNames.push(...registryKeys);
+            }
+            if (endpointResponse.resources) {
+                const resources = endpointResponse.resources.map((resource) => resource.name);
+                endpointNames.push(...resources);
+            }
+            setEndpoints(endpointNames);
+            const result = await getRegistryArifactNames(props.path, rpcClient);
             setArtifactNames(result.artifactNamesArr);
-            setRegistryPaths(result.registryPathsArr);
+            const res = await rpcClient.getMiVisualizerRpcClient().getAllRegistryPaths({
+                path: props.path,
+            });
+            setRegistryPaths(res.registryPaths);
         })();
     }, []);
 
     const handleCreateSequence = async (values: any) => {
-        console.log(getValues("saveInReg"));
-        console.log(errors);
         const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: props.path })).path;
         const sequenceDir = `${projectDir}/src/main/wso2mi/artifacts/sequences`;
         const createSequenceParams = {
@@ -116,11 +152,9 @@ export function SequenceWizard(props: SequenceWizardProps) {
         }
         const result = await rpcClient.getMiDiagramRpcClient().createSequence(createSequenceParams);
         if (watch("saveInReg")) {
-            console.log("saving to registry");
             await saveToRegistry(rpcClient, props.path, values.registryType, values.name, result.fileContent, values.registryPath, values.artifactName);
-        } else {
-            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
         }
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
     const handleCancel = () => {
@@ -141,33 +175,38 @@ export function SequenceWizard(props: SequenceWizardProps) {
                 {...register("name")}
             />
             <FormGroup title="Advanced Configuration" isCollapsed={true}>
-                <AutoComplete
-                    nullable={true}
-                    id="endpoint"
+                <FormAutoComplete
                     label="Endpoint"
+                    required={false}
+                    isNullable={true}
                     items={endpoints}
-                    value={watch("endpoint")}
-                    onValueChange={(value) => setValue("endpoint", value)}
-                    {...register("endpoint")}>
-                </AutoComplete>
-                <AutoComplete
-                    nullable={true}
-                    id="on-error-sequence"
+                    control={control}
+                    {...register("endpoint")}
+                />
+                <FormAutoComplete
                     label="On Error Sequence"
+                    required={false}
+                    isNullable={true}
                     items={sequences}
-                    value={watch("onErrorSequence")}
-                    onValueChange={(value) => setValue("onErrorSequence", value)}
-                    {...register("onErrorSequence")}>
-                </AutoComplete>
+                    control={control}
+                    {...register("onErrorSequence")}
+                />
+                <FormCheckBox
+                    label="Enable tracing"
+                    {...register("trace")}
+                    control={control}
+                />
+                <FormCheckBox
+                    label="Enable statistics"
+                    {...register("statistics")}
+                    control={control}
+                />
             </FormGroup>
-            <CheckBox
+            <FormCheckBox
                 label="Save the sequence in registry"
                 {...register("saveInReg")}
-                checked={watch("saveInReg")}
-                value="registry"
-                onChange={(checked) => setValue("saveInReg", checked, { shouldValidate: true })}
-            >
-            </CheckBox>
+                control={control}
+            />
             {watch("saveInReg") && (<>
                 <AddToRegistry path={props.path} fileName={watch("name")} register={register} errors={errors} getValues={getValues} />
             </>)}
@@ -180,7 +219,7 @@ export function SequenceWizard(props: SequenceWizardProps) {
                 </Button>
                 <Button
                     appearance="primary"
-                    disabled={!isDirty || !isValid}
+                    disabled={!isDirty}
                     onClick={handleSubmit(handleCreateSequence)}
                 >
                     Create

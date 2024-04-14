@@ -413,6 +413,8 @@ export interface CreateSequenceRequest {
     endpoint: string;
     onErrorSequence: string;
     getContentOnly: boolean;
+    statistics: boolean;
+    trace: boolean;
 }
 export interface CreateSequenceResponse {
     fileContent: string;
@@ -998,6 +1000,7 @@ export interface GetAvailableResourcesRequest {
 
 export interface GetAvailableResourcesResponse {
     resources: { [key: string]: any }[]
+    registryResources: { [key: string]: any }[]
 }
 
 export interface CreateClassMediatorRequest {

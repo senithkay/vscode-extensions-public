@@ -34,35 +34,29 @@ export async function saveToRegistry(rpcClient: RpcClient, path: string, registr
         content: content,
     }
     const regfilePath = await rpcClient.getMiDiagramRpcClient().createRegistryResource(regRequest);
-    rpcClient.getMiDiagramRpcClient().openFile(regfilePath);
-    rpcClient.getMiDiagramRpcClient().closeWebView();
 }
 
 export function formatRegistryPath(path: string, registryType: string, fileName: string): string {
-    var regPath = '/_system/';
+    let regPath = '';
     if (registryType === 'gov') {
-        regPath = regPath + 'governance';
+        regPath = regPath + 'gov';
     } else {
-        regPath = regPath + 'config';
+        regPath = regPath + 'conf';
     }
     path.startsWith('/') ? regPath = regPath + path : regPath = regPath + '/' + path;
     regPath.endsWith('/') ? regPath = regPath + fileName + '.xml' : regPath = regPath + '/' + fileName + '.xml';
     return regPath;
 }
 
-export async function getArifactNamesAndPaths(path: string, rpcClient: RpcClient)
-    : Promise<{ artifactNamesArr: string[], registryPathsArr: string[] }> {
+export async function getRegistryArifactNames(path: string, rpcClient: RpcClient)
+    : Promise<{ artifactNamesArr: string[] }> {
     const response = await rpcClient.getMiDiagramRpcClient().getAvailableRegistryResources({ path: path });
     const artifacts = response.artifacts;
     var tempArtifactNames: string[] = [];
-    var tempRegistryPaths: string[] = [];
     for (let i = 0; i < artifacts.length; i++) {
-        artifacts[i].isCollection ? tempRegistryPaths.push(artifacts[i].path) : tempRegistryPaths.push(
-            artifacts[i].path.endsWith("/") ? artifacts[i].path + artifacts[i].file
-                : artifacts[i].path + "/" + artifacts[i].file);
         tempArtifactNames.push(artifacts[i].name);
     }
-    return { artifactNamesArr: tempArtifactNames, registryPathsArr: tempRegistryPaths };
+    return { artifactNamesArr: tempArtifactNames };
 }
 
 export function AddToRegistry(props: AddToRegistryProps) {

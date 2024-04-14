@@ -1177,10 +1177,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async createSequence(params: CreateSequenceRequest): Promise<CreateSequenceResponse> {
         return new Promise(async (resolve) => {
-            const { directory, name, endpoint, onErrorSequence } = params;
+            const { directory, name, endpoint, onErrorSequence, statistics, trace } = params;
 
             let endpointAttributes = ``;
             let errorSequence = ``;
+            let statisticsAttribute = ``;
+            let traceAttribute = ``;
             if (endpoint) {
                 endpointAttributes = `<send>
           <endpoint key="${endpoint.replace(".xml", "")}"/>
@@ -1190,9 +1192,17 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (onErrorSequence) {
                 errorSequence = `onError="${onErrorSequence}"`;
             }
+            if (statistics) {
+                statisticsAttribute = `statistics="enable"`;
+            }
+            if (trace) {
+                traceAttribute = `trace="enable"`;
+            } else {
+                traceAttribute = `trace="disable"`;
+            }
 
             const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
-<sequence name="${name}" ${errorSequence} trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+<sequence name="${name}" ${errorSequence} ${traceAttribute} ${statisticsAttribute} xmlns="http://ws.apache.org/ns/synapse">
   ${endpointAttributes}
 </sequence>`;
 
@@ -2568,15 +2578,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async createRegistryResource(params: CreateRegistryResourceRequest): Promise<CreateRegistryResourceResponse> {
         return new Promise(async (resolve) => {
-            var projectDir = params.projectDirectory;
+            let projectDir = params.projectDirectory;
             const fileUri = Uri.file(params.projectDirectory);
             const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
             if (workspaceFolder) {
                 params.projectDirectory = workspaceFolder?.uri.fsPath;
                 projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
             }
-            var registryDir = path.join(projectDir, params.registryRoot);
-            var transformedPath = params.registryRoot === "gov" ? "/_system/governance" : "/_system/config";
+            let registryDir = path.join(projectDir, params.registryRoot);
+            let transformedPath = params.registryRoot === "gov" ? "/_system/governance" : "/_system/config";
             if (params.createOption === "import") {
                 if (fs.existsSync(params.filePath)) {
                     const fileName = path.basename(params.filePath);
@@ -2600,10 +2610,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     resolve({ path: destPath });
                 }
             } else {
-                var fileName = params.resourceName;
+                let fileName = params.resourceName;
                 const fileData = getMediatypeAndFileExtension(params.templateType);
                 fileName = fileName + "." + fileData.fileExtension;
-                var fileContent = params.content ? params.content : getRegistryResourceContent(params.templateType, params.resourceName);
+                let fileContent = params.content ? params.content : getRegistryResourceContent(params.templateType, params.resourceName);
                 const registryPath = path.join(registryDir, params.registryPath);
                 const destPath = path.join(registryPath, fileName);
                 if (!fs.existsSync(registryPath)) {
