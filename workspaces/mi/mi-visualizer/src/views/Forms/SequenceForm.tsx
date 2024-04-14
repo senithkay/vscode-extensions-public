@@ -112,12 +112,18 @@ export function SequenceWizard(props: SequenceWizardProps) {
                 documentIdentifier: props.path,
                 resourceType: "sequence",
             });
+            let sequenceNamesArr = [];
             if (response.resources) {
                 const sequenceNames = response.resources.map((resource) => resource.name);
                 setSeqArtifactNames(sequenceNames);
                 const seqPaths = response.resources.map((resource) => resource.artifactPath.replace(".xml", ""));
-                setSequences(seqPaths);
+                sequenceNamesArr.push(...seqPaths);
             }
+            if (response.registryResources) {
+                const registryKeys = response.registryResources.map((resource) => resource.registryKey);
+                sequenceNamesArr.push(...registryKeys);
+            }
+            setSequences(sequenceNamesArr);
             const endpointResponse = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
                 documentIdentifier: props.path,
                 resourceType: "endpoint",
