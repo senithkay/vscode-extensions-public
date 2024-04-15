@@ -15,6 +15,7 @@ interface OptionProps {
 
 const Form = ({
     renderProps,
+    register,
     watch,
     setValue,
     isTemplate,
@@ -150,7 +151,7 @@ const Form = ({
                     <RadioButtonGroup
                         label="Require Template Parameters"
                         options={[{ content: "Yes", value: true }, { content: "No", value: false }]}
-                        {...renderProps("requireTemplateParameters")}
+                        {...register("requireTemplateParameters")}
                     />
                     {watch('requireTemplateParameters') && (
                         <ParamManager
@@ -202,7 +203,7 @@ const Form = ({
                 <RadioButtonGroup
                     label="Require Additional Properties"
                     options={[{ content: "Yes", value: true }, { content: "No", value: false }]}
-                    {...renderProps("requireProperties")}
+                    {...register("requireProperties")}
                 />
                 {watch('requireProperties') && (
                     <ParamManager

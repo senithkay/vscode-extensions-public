@@ -6,111 +6,102 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {Button, TextField, FormView, FormActions} from "@wso2-enterprise/ui-toolkit";
 import {useVisualizerContext} from "@wso2-enterprise/mi-rpc-client";
 import {EVENT_TYPE, MACHINE_VIEW, CreateTemplateRequest} from "@wso2-enterprise/mi-core";
 import CardWrapper from "./Commons/CardWrapper";
 import {TypeChip} from "./Commons";
+import {useForm} from "react-hook-form";
+import * as yup from "yup";
+import {yupResolver} from "@hookform/resolvers/yup";
 
 export interface TemplateWizardProps {
     path: string;
     type: string;
 }
 
+type InputsFields = {
+    templateName?: string;
+    templateType?: string;
+    address?: string;
+    uriTemplate?: string;
+    httpMethod?: string;
+    wsdlUri?: string;
+    wsdlService?: string;
+    wsdlPort?: number;
+};
+
+const newTemplate: InputsFields = {
+    templateName: "",
+    templateType: "",
+    address: "",
+    uriTemplate: "",
+    httpMethod: "GET",
+    wsdlUri: "",
+    wsdlService: "",
+    wsdlPort: 8080,
+}
+
 export function TemplateWizard(props: TemplateWizardProps) {
 
     const {rpcClient} = useVisualizerContext();
-    const [template, setTemplate] = useState<any>({
-        templateName: "",
-        templateType: "",
-        address: "",
-        uriTemplate: "",
-        httpMethod: "GET",
-        wsdlUri: "",
-        wsdlService: "",
-        wsdlPort: null
+    const [templateType, setTemplateType] = useState("");
 
-    })
-    const [message, setMessage] = useState({
-        isError: false,
-        text: ""
+    const schema = yup.object({
+        templateName: yup.string().required("Template Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Template Name"),
+        templateType: yup.string().default(""),
+        address: yup.string().notRequired().default(""),
+        uriTemplate: yup.string().notRequired().default(""),
+        httpMethod: yup.string().notRequired().default("GET"),
+        wsdlUri: yup.string().notRequired().default(""),
+        wsdlService: yup.string().notRequired().default(""),
+        wsdlPort: yup.number().notRequired().default(8080)
     });
 
-    const isValid: boolean = template.templateName.length > 0;
+    const {
+        register,
+        formState: {errors, isDirty},
+        handleSubmit,
+        setValue,
+    } = useForm({
+        defaultValues: newTemplate,
+        resolver: yupResolver(schema),
+        mode: "onChange"
+    });
 
-    useEffect(() => {
-        setTemplate((prev: any) => ({...prev, templateType: props.type}));
-    }, []);
+    const setEndpointType = (type: string) => {
 
-    useEffect(() => {
-        const INVALID_CHARS_REGEX = /[@\\^+;:!%&,=*#[\]$?'"<>{}() /]/;
-
-        if (!isValid) {
-            handleMessage("Please fill all the mandatory fields", true);
-        } else if (INVALID_CHARS_REGEX.test(template.templateName)) {
-            handleMessage("Invalid template name", true);
+        if (type === 'Sequence Template') {
+            setTemplateType(type);
         } else {
-            handleMessage("");
-        }
+            const endpointMappings: { [key: string]: MACHINE_VIEW } = {
+                'HTTP Endpoint Template': MACHINE_VIEW.HttpEndpointForm,
+                'WSDL Endpoint Template': MACHINE_VIEW.WsdlEndpointForm,
+                'Address Endpoint Template': MACHINE_VIEW.AddressEndpointForm,
+                'Default Endpoint Template': MACHINE_VIEW.DefaultEndpointForm,
+            };
 
-    }, [template.templateName, isValid]);
-
-    const setTemplateType = (type: string) => {
-        if (type === 'HTTP Endpoint Template') {
-            rpcClient.getMiVisualizerRpcClient().openView({
-                type: EVENT_TYPE.OPEN_VIEW,
-                location: {
-                    view: MACHINE_VIEW.HttpEndpointForm,
-                    documentUri: props.path,
-                    customProps: {type: 'template'}
-                }
-            });
-        } else if (type === 'WSDL Endpoint Template') {
-            rpcClient.getMiVisualizerRpcClient().openView({
-                type: EVENT_TYPE.OPEN_VIEW,
-                location: {
-                    view: MACHINE_VIEW.WsdlEndpointForm,
-                    documentUri: props.path,
-                    customProps: {type: 'template'}
-                }
-            });
-        } else if (type === 'Address Endpoint Template') {
-            rpcClient.getMiVisualizerRpcClient().openView({
-                type: EVENT_TYPE.OPEN_VIEW,
-                location: {
-                    view: MACHINE_VIEW.AddressEndpointForm,
-                    documentUri: props.path,
-                    customProps: {type: 'template'}
-                }
-            });
-        } else if (type === 'Default Endpoint Template') {
-            rpcClient.getMiVisualizerRpcClient().openView({
-                type: EVENT_TYPE.OPEN_VIEW,
-                location: {
-                    view: MACHINE_VIEW.DefaultEndpointForm,
-                    documentUri: props.path,
-                    customProps: {type: 'template'}
-                }
-            });
-        } else {
-            setTemplate((prev: any) => ({...prev, templateType: type}));
+            const view = endpointMappings[type];
+            if (view) {
+                rpcClient.getMiVisualizerRpcClient().openView({
+                    type: EVENT_TYPE.OPEN_VIEW,
+                    location: {
+                        view,
+                        documentUri: props.path,
+                        customProps: {type: 'template'}
+                    }
+                });
+            }
         }
     };
 
-    const handleOnChange = (field: any, value: any) => {
-        setTemplate((prev: any) => ({...prev, [field]: value}));
-    }
+    const handleCreateTemplate = async (values: any) => {
 
-    const handleMessage = (text: string, isError: boolean = false) => {
-        setMessage({isError, text});
-    }
-
-    const handleCreateTemplate = async () => {
-
+        setValue('templateType', 'Sequence Template');
         const createTemplateParams: CreateTemplateRequest = {
             directory: props.path,
-            ...template
+            ...values
         }
         await rpcClient.getMiDiagramRpcClient().createTemplate(createTemplateParams);
 
@@ -129,25 +120,22 @@ export function TemplateWizard(props: TemplateWizardProps) {
 
     return (
         <FormView title="Template Artifact" onClose={handleCancel}>
-            {template.templateType === '' ? <CardWrapper cardsType="TEMPLATE" setType={setTemplateType}/> : <>
+            {templateType === '' ? <CardWrapper cardsType="TEMPLATE" setType={setEndpointType}/> : <>
                 <TypeChip type="Sequence Template" onClick={setTemplateType} showButton={true}/>
                 <TextField
                     placeholder="Name"
                     label="Template Name"
-                    onTextChange={(value: string) => handleOnChange("templateName", value)}
-                    value={template.templateName}
-                    id="template-name-input"
                     autoFocus
                     required
-                    validationMessage="Template name is required"
-                    size={100}
+                    id="templateName"
+                    errorMsg={errors.templateName?.message.toString()}
+                    {...register("templateName")}
                 />
-                {message && <span style={{color: message.isError ? "#f48771" : ""}}>{message.text}</span>}
                 <FormActions>
                     <Button
                         appearance="primary"
-                        onClick={handleCreateTemplate}
-                        disabled={!isValid}
+                        onClick={handleSubmit(handleCreateTemplate)}
+                        disabled={!isDirty}
                     >
                         Create
                     </Button>
