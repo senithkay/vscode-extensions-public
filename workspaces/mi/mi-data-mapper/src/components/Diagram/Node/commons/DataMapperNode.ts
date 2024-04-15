@@ -137,7 +137,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		portType: "IN" | "OUT",
 		portPrefix: string,
 		collapsedFields?: string[],
-		editableRecordField?: DMTypeWithValue
+		field?: DMTypeWithValue
 	): InputOutputPortModel {
 
 		let portName = name;
@@ -147,7 +147,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		const isCollapsed = collapsedFields && collapsedFields.includes(portName);
 		const headerPort = new InputOutputPortModel(
 			dmType, portName, portType, undefined, undefined,
-			editableRecordField, name, undefined, isCollapsed, false,
+			field, name, undefined, isCollapsed, false,
 		);
 
 		this.addPort(headerPort)

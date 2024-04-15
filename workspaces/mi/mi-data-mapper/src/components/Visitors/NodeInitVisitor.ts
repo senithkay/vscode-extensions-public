@@ -31,12 +31,11 @@ export class NodeInitVisitor implements Visitor {
 
         // Create output node
         if (Node.isParenthesizedExpression(node.getBody())) {
-            const expr = (node.getBody() as ParenthesizedExpression).getExpression();
 
-            if (Node.isObjectLiteralExpression(expr)) {
+            if (node.getReturnType().isInterface()) {
                 this.outputNode = new ObjectOutputNode(
                     this.context,
-                    expr
+                    node.getBody() as ParenthesizedExpression
                 );
             }
         }

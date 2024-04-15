@@ -46,7 +46,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         field,
         getPort,
         engine,
-        parentObjectLiteralExpr: parentMappingConstruct,
+        parentObjectLiteralExpr,
         context,
         fieldIndex,
         treeDepth = 0,
@@ -74,7 +74,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const portIn = getPort(fieldId + ".IN");
 
     const propertyAssignment = field.hasValue() && Node.isPropertyAssignment(field.value) && field.value;
-    const objectLiteralExpr = Node.isObjectLiteralExpression(parentMappingConstruct) && parentMappingConstruct;
+    const objectLiteralExpr = parentObjectLiteralExpr && Node.isObjectLiteralExpression(parentObjectLiteralExpr) && parentObjectLiteralExpr;
     const hasValue = propertyAssignment
         && propertyAssignment.getInitializer()
         && !!propertyAssignment.getInitializer().getText();

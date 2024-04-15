@@ -15,6 +15,7 @@ import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { IntermediatePortModel } from "../IntermediatePort";
 import { DataMapperNodeModel } from "../../Node/commons/DataMapperNode";
 import { isDefaultValue } from "../../utils/common-utils";
+import { createSourceForMapping } from "../../utils/modification-utils";
 
 export interface InputOutputPortModelGenerics {
 	PORT: InputOutputPortModel;
@@ -67,7 +68,6 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 				const valueType = this.getValueType(lm);
 
 				if (valueType === ValueType.Default) {
-					const modifications = [];
 					let sourceField = sourcePort && sourcePort instanceof InputOutputPortModel && sourcePort.fieldFQN;
 					
 					if (targetPort) {
@@ -76,6 +76,8 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 
 						if (Node.isPropertyAssignment(expr)) {
 							expr.setInitializer(sourceField);
+						} else {
+							expr.replaceWithText(sourceField);
 						}
 
 						targetNode.context.updateFileContent(targetNode.context.sourceFile.getText());
@@ -85,7 +87,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 				} else if (targetPortHasLinks) {
 					// TODO: Modify the initializer of property assignment
 				} else {
-					// TODO: Create a new property assignment
+					createSourceForMapping(lm);
 				}
 			})
 		});

@@ -8,7 +8,7 @@
  */
 import { Point } from "@projectstorm/geometry";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
-import { Node, ObjectLiteralExpression } from "ts-morph";
+import { Node, ParenthesizedExpression } from "ts-morph";
 
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -39,7 +39,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public value: ObjectLiteralExpression
+        public value: ParenthesizedExpression
     ) {
         super(
             NODE_ID,
@@ -57,7 +57,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             this.rootName = this.dmType?.fieldName;
 
             const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
-            const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value);
+            const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value.getExpression());
             this.dmType = type;
             this.typeName = valueEnrichedType.type.typeName;
 
@@ -84,7 +84,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
     initLinks(): void {
         const searchValue = useDMSearchStore.getState().outputSearch;
-        const mappings = this.genMappings(this.value);
+        const mappings = this.genMappings(this.value.getExpression());
         this.mappings = getFilteredMappings(mappings, searchValue);
         this.createLinks(this.mappings);
     }
@@ -131,8 +131,8 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                         ? field.getInitializer()
                         : field,
                     editorLabel: Node.isPropertyAssignment(field)
-                        ? field.getKindName()
-                        : `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
+                        ? field.getName()
+                        : outPort.fieldFQN && `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
                     deleteLink: () => this.deleteField(field, keepDefault),
                 }));
 

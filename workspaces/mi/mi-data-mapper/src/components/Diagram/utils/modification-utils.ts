@@ -6,16 +6,168 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { STModification } from "../../types";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { TypeKind } from "@wso2-enterprise/mi-core";
+import { ArrayLiteralExpression, Node, ObjectLiteralExpression, Type } from "ts-morph";
 
-export function getModification(statement: string, targetPosition: NodePosition): STModification {
-    return {
-        type: "INSERT",
-        isImport: false,
-        config: {
-            "STATEMENT": statement
-        },
-        ...targetPosition
-    };
+import { DataMapperLinkModel } from "../Link";
+import { InputOutputPortModel } from "../Port";
+import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
+import { getFieldIndexes, getFieldNameFromOutputPort, getLinebreak, getPropertyAssignment } from "./common-utils";
+import { ObjectOutputNode } from "../Node";
+
+export async function createSourceForMapping(link: DataMapperLinkModel) {
+    if (!link.getSourcePort() || !link.getTargetPort()) {
+		return;
+	}
+
+    let source = "";
+	let lhs = "";
+	let rhs = "";
+
+	const sourcePort = link.getSourcePort() as InputOutputPortModel;
+	const targetPort = link.getTargetPort() as InputOutputPortModel;
+	const targetNode = targetPort.getNode() as DataMapperNodeModel;
+	const fieldIndexes = targetPort && getFieldIndexes(targetPort);
+	const parentFieldNames: string[] = [];
+	const { sourceFile, updateFileContent } = targetNode.context;
+
+	rhs = sourcePort.fieldFQN;
+	lhs = getFieldNameFromOutputPort(targetPort);
+
+	let objectLitExpr;
+	let parent = targetPort.parentModel;
+	let fromFieldIndex = -1;
+
+	while (parent != null && parent.parentModel) {
+		const parentFieldName = getFieldNameFromOutputPort(parent);
+		if (parentFieldName
+			&& !(parent.field.kind === TypeKind.Interface && parent.parentModel.field.kind === TypeKind.Array)
+		) {
+			parentFieldNames.push(parentFieldName);
+		}
+		parent = parent.parentModel;
+	}
+
+	if (targetNode instanceof ObjectOutputNode) {
+		const targetExpr = targetNode.value.getExpression();
+		if (Node.isObjectLiteralExpression(targetExpr)) {
+			objectLitExpr = targetExpr;
+		}
+	}
+
+	let targetObjectLitExpr = objectLitExpr;
+
+	if (parentFieldNames.length > 0) {
+		const fieldNames = parentFieldNames.reverse();
+
+		for (let i = 0; i < fieldNames.length; i++) {
+			const fieldName = fieldNames[i];
+			const propAssignment = getPropertyAssignment(objectLitExpr, fieldName);
+
+			if (propAssignment && propAssignment.getInitializer()) {
+				const valueExpr = propAssignment.getInitializer();
+
+				if (!valueExpr.getText()) {
+					const valueExprSource = constructValueExprSource(lhs, rhs, fieldNames, i);
+                    valueExpr.replaceWithText(valueExprSource);
+                    updateSourceFile();
+                    return valueExprSource;
+				}
+
+				if (Node.isObjectLiteralExpression(valueExpr))  {
+					objectLitExpr = valueExpr;
+				} else if (Node.isArrayLiteralExpression(valueExpr)
+					&& fieldIndexes !== undefined && !!fieldIndexes.length) {
+					objectLitExpr = getNextObjectLitExpr(valueExpr);
+				}
+
+				if (i === fieldNames.length - 1) {
+					targetObjectLitExpr = objectLitExpr;
+				}
+			} else {
+				fromFieldIndex = i;
+				targetObjectLitExpr = objectLitExpr;
+				break;
+			}
+		}
+
+		if (fromFieldIndex >= 0 && fromFieldIndex <= fieldNames.length) {
+			const missingFields = fieldNames.slice(fromFieldIndex);
+			source = createPropAssignment(missingFields);
+		} else {
+			const propAssignment = getPropertyAssignment(targetObjectLitExpr, lhs);
+
+			if (propAssignment && !propAssignment.getInitializer().getText()) {
+				const valueExprSource = constructValueExprSource(lhs, rhs, [], 0);
+                propAssignment.getInitializer().replaceWithText(valueExprSource);
+                updateSourceFile();
+                return valueExprSource;
+			}
+			source = `${lhs}: ${rhs}`;
+		}
+	} else {
+		const propAssignment = getPropertyAssignment(targetObjectLitExpr, lhs);
+
+		if (propAssignment && !propAssignment.getInitializer().getText()) {
+			const valueExprSource = constructValueExprSource(lhs, rhs, [], 0);
+            propAssignment.getInitializer().replaceWithText(valueExprSource);
+            updateSourceFile();
+            return valueExprSource;
+		}
+		source = `${lhs}: ${rhs}`;
+	}
+
+	if (targetObjectLitExpr) {
+        targetObjectLitExpr.addProperty(writer => {
+            writer.writeLine(source);
+        });
+	} else if (targetNode instanceof ObjectOutputNode) {
+        targetNode.value.replaceWithText(`{${getLinebreak()}${source}}`);
+	}
+
+    updateSourceFile();
+
+	function createPropAssignment(missingFields: string[]): string {
+		return missingFields.length > 0
+			? `${missingFields[0]}: {${getLinebreak()}${createPropAssignment(missingFields.slice(1))}}`
+			: `${lhs}: ${rhs}`;
+	}
+
+	function getNextObjectLitExpr(arrayLitExpr: ArrayLiteralExpression): ObjectLiteralExpression {
+		const targetExpr = arrayLitExpr.getElements()[fieldIndexes.pop() * 2];
+		if (Node.isObjectLiteralExpression(targetExpr)) {
+			return targetExpr;
+		} else if (Node.isArrayLiteralExpression(targetExpr)) {
+			return getNextObjectLitExpr(targetExpr);
+		}
+	}
+
+    function updateSourceFile() {
+        updateFileContent(sourceFile.getText());
+    }
+
+	return `${lhs} = ${rhs}`;
+}
+
+function constructValueExprSource(lhs: string, rhs: string, fieldNames: string[], fieldIndex: number) {
+	let source = "";
+
+	if (fieldIndex >= 0 && fieldIndex <= fieldNames.length) {
+		const missingFields = fieldNames.slice(fieldIndex);
+		source = createValueExpr(missingFields, true);
+	} else {
+		source = rhs;
+	}
+
+	function createValueExpr(missingFields: string[], isRoot?: boolean): string {
+		return missingFields.length
+			? isRoot
+				? `{${getLinebreak()}${createValueExpr(missingFields.slice(1))}}`
+				: `${missingFields[0]}: {${getLinebreak()}${createValueExpr(missingFields.slice(1))}}`
+			: isRoot
+				? rhs
+				: `${lhs}: ${rhs}`;
+	}
+
+	return source;
 }

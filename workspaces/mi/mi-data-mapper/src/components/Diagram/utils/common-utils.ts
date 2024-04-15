@@ -7,7 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
-import { ts, ArrowFunction, Identifier, Node, ParameterDeclaration, PropertyAccessExpression } from "ts-morph";
+import {
+    ts,
+    ArrowFunction,
+    Identifier,
+    Node,
+    ObjectLiteralExpression,
+    ParameterDeclaration,
+    PropertyAccessExpression,
+    PropertyAssignment
+} from "ts-morph";
 
 import { PropertyAccessNodeFindingVisitor } from "../../Visitors/PropertyAccessNodeFindingVisitor";
 import { NodePosition, getPosition, isPositionsEquals, traversNode } from "./st-utils";
@@ -277,6 +286,42 @@ export function isEmptyValue(position: NodePosition): boolean {
 export function isDefaultValue(fieldType: DMType, value: string): boolean {
 	const defaultValue = getDefaultValue(fieldType.kind);
 	return defaultValue === value?.trim();
+}
+
+export function getFieldIndexes(targetPort: InputOutputPortModel): number[] {
+	const fieldIndexes = [];
+    const parentPort = targetPort?.parentModel;
+
+	if (targetPort?.index !== undefined) {
+		fieldIndexes.push(targetPort.index);
+	}
+
+	if (parentPort) {
+		fieldIndexes.push(...getFieldIndexes(parentPort));
+	}
+
+	return fieldIndexes;
+}
+
+export function getFieldNameFromOutputPort(outputPort: InputOutputPortModel): string {
+	let fieldName = outputPort.field?.fieldName;
+	if (outputPort?.typeWithValue?.originalType) {
+		fieldName = outputPort.typeWithValue.originalType?.fieldName;
+	}
+	return fieldName;
+}
+
+export function getPropertyAssignment(objectLitExpr: ObjectLiteralExpression, targetFieldName: string) {
+	return objectLitExpr.getProperties()?.find((property) =>
+		Node.isPropertyAssignment(property) && property.getName() === targetFieldName
+	) as PropertyAssignment;
+}
+
+export function getLinebreak(){
+	if (navigator.userAgent.indexOf("Windows") !== -1){
+		return "\r\n";
+	}
+	return "\n";
 }
 
 function getInnerExpr(node: PropertyAccessExpression): Node {

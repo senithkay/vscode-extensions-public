@@ -64,6 +64,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         const project = new Project();
         const sourceFile = project.addSourceFileAtPath(params.filePath);
         sourceFile.replaceWithText(params.fileContent);
+        sourceFile.formatText();
         sourceFile.save();
         navigate()
     }
