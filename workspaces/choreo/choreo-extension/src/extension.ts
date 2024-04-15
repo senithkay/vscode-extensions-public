@@ -43,6 +43,7 @@ import { initRPCServer } from "./choreo-rpc/activate";
 import { linkedDirectoryStore } from "./stores/linked-dir-store";
 import { authStore } from "./stores/auth-store";
 import { dataCacheStore } from "./stores/data-cache-store";
+import { HandlerError } from "./error-utils";
 
 export async function activate(context: vscode.ExtensionContext) {
     activateTelemetry(context);
@@ -56,7 +57,7 @@ export async function activate(context: vscode.ExtensionContext) {
     await authStore.persist.rehydrate();
     await linkedDirectoryStore.persist.rehydrate();
     await dataCacheStore.persist.rehydrate();
-    authStore.subscribe(data=>vscode.commands.executeCommand("setContext", "isLoggedIn", !!data.state.userInfo));
+    authStore.subscribe(data => vscode.commands.executeCommand("setContext", "isLoggedIn", !!data.state.userInfo));
 
     activateWizards();
     activateClients();
