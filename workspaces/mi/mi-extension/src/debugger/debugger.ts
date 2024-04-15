@@ -22,6 +22,9 @@ export class Debugger extends EventEmitter {
     // maps from sourceFile to array of DebugProtocol.Breakpoint
     private breakPoints = new Map<string, DebugProtocol.Breakpoint[]>();
 
+    // currentFile that analyzes the breakpoints
+    private currentFile: string | undefined;
+
     // Add a map to store the mapping between debugger runtime and DebugProtocol.Breakpoint
     private debuggingRuntimeBreakpointMap = new Map<BreakpointInfo, DebugProtocol.Breakpoint>();
 
@@ -38,6 +41,10 @@ export class Debugger extends EventEmitter {
         this.commandPort = commandPort;
         this.eventPort = eventPort;
         this.host = host;
+    }
+
+    public setCurrentFilePath(file: string): void {
+        this.currentFile = file;
     }
 
     /*
@@ -111,7 +118,7 @@ export class Debugger extends EventEmitter {
         for (const breakpoint of breakpoints) {
             if(breakpoint.line){
                 const getBreakpointInfoRequest: GetBreakpointInfoRequest = {
-                    filePath: this.getPath(),
+                    filePath: this.getCurrentFilePath(),
                     breakpoints: [{ line: breakpoint.line }]
                 };
 
@@ -147,10 +154,14 @@ export class Debugger extends EventEmitter {
     }
 
     // TODO: get the proper path and update the logic of handling the stackTrace
-    public getPath() {
-        // get the first key of the breakpoint
-        const path = this.breakPoints.keys().next().value;
-        return path;
+    // public getPath() {
+    //     // get the first key of the breakpoint
+    //     const path = this.breakPoints.keys().next().value;
+    //     return path;
+    // }
+
+    public getCurrentFilePath(): string {
+        return this.currentFile || '';
     }
 
     public getCurrentBreakpoint(): DebugProtocol.Breakpoint | undefined {
@@ -164,7 +175,7 @@ export class Debugger extends EventEmitter {
         setTimeout(async () => {
             await this.sendResumeCommand();
             // get the list of breakpoints
-            const breakpoints = this.getBreakpoints(this.getPath());
+            const breakpoints = this.getBreakpoints(this.getCurrentFilePath());
             // first we need to clear all the breakpoints
             const allBreakpointInfo = await this.getBreakpointInfo(breakpoints);
             // clear the breakpoints
