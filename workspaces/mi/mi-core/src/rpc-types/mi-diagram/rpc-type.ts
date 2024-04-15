@@ -141,6 +141,7 @@ import {
     CreateConnectionResponse,
     GetConnectorConnectionsRequest,
     GetConnectorConnectionsResponse,
+    DeleteArtifactRequest,
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -229,3 +230,4 @@ export const getDataSource: RequestType<GetDataSourceRequest, DataSourceTemplate
 export const getIconPathUri: RequestType<GetIconPathUriRequest, GetIconPathUriResponse> = { method: `${_preFix}/getIconPathUri` };
 export const createConnection: RequestType<CreateConnectionRequest, CreateConnectionResponse> = { method: `${_preFix}/createConnection` };
 export const getConnectorConnections: RequestType<GetConnectorConnectionsRequest, GetConnectorConnectionsResponse> = { method: `${_preFix}/getConnectorConnections` };
+export const deleteArtifact: RequestType<DeleteArtifactRequest, void> = { method: `${_preFix}/deleteArtifact` };

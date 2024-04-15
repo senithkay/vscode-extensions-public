@@ -52,6 +52,7 @@ import {
     DataSourceTemplate,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
+    DeleteArtifactRequest,
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
@@ -164,6 +165,7 @@ import {
     createTask,
     createTemplate,
     downloadConnector,
+    deleteArtifact,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -572,5 +574,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getConnectorConnections(params: GetConnectorConnectionsRequest): Promise<GetConnectorConnectionsResponse> {
         return this._messenger.sendRequest(getConnectorConnections, HOST_EXTENSION, params);
+    }
+
+    deleteArtifact(params: DeleteArtifactRequest): Promise<void> {
+        return this._messenger.sendRequest(deleteArtifact, HOST_EXTENSION, params);
     }
 }

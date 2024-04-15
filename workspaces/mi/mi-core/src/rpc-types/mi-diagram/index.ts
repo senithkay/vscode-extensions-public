@@ -140,6 +140,7 @@ import {
     CreateConnectionResponse,
     GetConnectorConnectionsRequest,
     GetConnectorConnectionsResponse,
+    DeleteArtifactRequest,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -227,4 +228,5 @@ export interface MiDiagramAPI {
     getIconPathUri: (params: GetIconPathUriRequest) => Promise<GetIconPathUriResponse>;
     createConnection: (params: CreateConnectionRequest) => Promise<CreateConnectionResponse>;
     getConnectorConnections: (params: GetConnectorConnectionsRequest) => Promise<GetConnectorConnectionsResponse>;
+    deleteArtifact: (params: DeleteArtifactRequest) => Promise<void>;
 }

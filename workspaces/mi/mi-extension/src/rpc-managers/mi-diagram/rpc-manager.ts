@@ -53,6 +53,7 @@ import {
     DataSourceTemplate,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
+    DeleteArtifactRequest,
     ESBConfigsResponse,
     EVENT_TYPE,
     EndpointDirectoryResponse,
@@ -157,7 +158,7 @@ import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
-import { StateMachine, openView } from "../../stateMachine";
+import { StateMachine, navigate, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
 import { addNewEntryToArtifactXML, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension } from "../../util/fileOperations";
@@ -2965,6 +2966,17 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             });
 
             resolve(res);
+        });
+    }
+
+    async deleteArtifact(params: DeleteArtifactRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            await workspace.fs.delete(Uri.file(params.path));
+            await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND); // Refresh the project explore view
+
+            undoRedo.addModification('');
+            navigate();
+            resolve();
         });
     }
 }

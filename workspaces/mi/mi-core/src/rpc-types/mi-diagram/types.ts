@@ -1134,3 +1134,8 @@ export interface GetConnectorConnectionsRequest {
 export interface GetConnectorConnectionsResponse {
     connections?: ConnectorConnection[]
 }
+
+export interface DeleteArtifactRequest {
+    path: string;
+}
+

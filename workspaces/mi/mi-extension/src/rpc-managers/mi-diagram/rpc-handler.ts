@@ -28,6 +28,7 @@ import {
     CreateSequenceRequest,
     CreateTaskRequest,
     CreateTemplateRequest,
+    DeleteArtifactRequest,
     DataSourceTemplate,
     DownloadConnectorRequest,
     GetAvailableConnectorRequest,
@@ -95,6 +96,7 @@ import {
     createTask,
     createTemplate,
     downloadConnector,
+    deleteArtifact,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -247,4 +249,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getIconPathUri, (args: GetIconPathUriRequest) => rpcManger.getIconPathUri(args));
     messenger.onRequest(createConnection, (args: CreateConnectionRequest) => rpcManger.createConnection(args));
     messenger.onRequest(getConnectorConnections, (args: GetConnectorConnectionsRequest) => rpcManger.getConnectorConnections(args));
+    messenger.onRequest(deleteArtifact, (args: DeleteArtifactRequest) => rpcManger.deleteArtifact(args));
 }
