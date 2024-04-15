@@ -37,7 +37,6 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
         watch,
         setValue
     } = useForm({
-        defaultValues: initialEndpoint,
         resolver: yupResolver(getSchema(props.type)),
         mode: "onChange"
     });
@@ -94,6 +93,8 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                     }))
                 }));
             })();
+        } else {
+            reset(initialEndpoint);
         }
     }, [props.path]);
 
@@ -148,6 +149,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
             />
             <Form
                 renderProps={renderProps}
+                register={register}
                 watch={watch}
                 setValue={setValue}
                 isTemplate={isTemplate}

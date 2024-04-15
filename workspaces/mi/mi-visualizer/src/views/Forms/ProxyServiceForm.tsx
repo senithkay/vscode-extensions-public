@@ -8,9 +8,12 @@
  */
 import React, {useEffect, useState} from "react";
 import * as path from 'path';
-import { Button, TextField, Dropdown, CheckBox, RadioButtonGroup, FormView, FormActions } from "@wso2-enterprise/ui-toolkit";
+import {Button, TextField, Dropdown, CheckBox, RadioButtonGroup, FormView, FormActions} from "@wso2-enterprise/ui-toolkit";
 import {useVisualizerContext} from "@wso2-enterprise/mi-rpc-client";
 import {EVENT_TYPE, MACHINE_VIEW, CreateProxyServiceRequest} from "@wso2-enterprise/mi-core";
+import {useForm} from "react-hook-form";
+import * as yup from "yup";
+import {yupResolver} from "@hookform/resolvers/yup";
 
 
 interface OptionProps {
@@ -21,40 +24,70 @@ export interface ProxyServiceWizardProps {
     path: string;
 }
 
+type InputsFields = {
+    proxyServiceName?: string;
+    proxyServiceType?: string;
+    endpointType?: string;
+    endpoint?: string;
+    requestLogLevel?: string;
+    responseLogLevel?: string;
+    securityPolicy?: string;
+    requestXslt?: string;
+    responseXslt?: string;
+    wsdlUri?: string;
+    wsdlService?: string;
+    wsdlPort: number;
+};
+
+const newProxyService: InputsFields = {
+    proxyServiceName: "",
+    proxyServiceType: "Custom Proxy",
+    endpointType: "",
+    endpoint: "",
+    requestLogLevel: "None",
+    responseLogLevel: "None",
+    securityPolicy: "",
+    requestXslt: "",
+    responseXslt: "",
+    wsdlUri: "",
+    wsdlService: "",
+    wsdlPort: 8080,
+}
+
+const schema = yup.object({
+    proxyServiceName: yup.string().required("Template Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Template Name"),
+    proxyServiceType: yup.string().default(""),
+    endpointType: yup.string().notRequired().default(""),
+    endpoint: yup.string().notRequired().default(""),
+    requestLogLevel: yup.string().notRequired().default("None"),
+    responseLogLevel: yup.string().notRequired().default("None"),
+    securityPolicy: yup.string().notRequired().default(""),
+    requestXslt: yup.string().notRequired().default(""),
+    responseXslt: yup.string().notRequired().default(""),
+    wsdlUri: yup.string().notRequired().default(""),
+    wsdlService: yup.string().notRequired().default(""),
+    wsdlPort: yup.number().notRequired().default(8080)
+});
+
 export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
 
-    const {rpcClient} = useVisualizerContext();
-    const [proxyService, setProxyService] = useState<any>({
-        proxyServiceName: "",
-        proxyServiceType: "Custom Proxy",
-        endpointType: "",
-        endpoint: "",
-        requestLogLevel: "None",
-        responseLogLevel: "None",
-        securityPolicy: "",
-        requestXslt: "",
-        responseXslt: "",
-        wsdlUri: "",
-        wsdlService: "",
-        wsdlPort: null,
+    const {
+        register,
+        formState: {errors, isDirty},
+        handleSubmit,
+        watch,
+    } = useForm({
+        defaultValues: newProxyService,
+        resolver: yupResolver(schema),
+        mode: "onChange"
+    });
 
-    })
+    const {rpcClient} = useVisualizerContext();
     const [selectedTransports, setSelectedTransports] = useState(['http', 'https']);
     const [transformResponse, setTransformResponse] = useState([]);
     const [publishContract, setPublishContract] = useState([]);
     const [endpoints, setEndpoints] = useState([]);
     const [directoryPath, setDirectoryPath] = useState("");
-    const [message, setMessage] = useState({
-        isError: false,
-        text: ""
-    });
-    const validNumericInput = /^\d*$/;
-
-    const isValid: boolean = proxyService.proxyServiceName.length > 0 && selectedTransports.length > 0 &&
-        (proxyService.proxyServiceType === 'WSDL Based Proxy' ? (proxyService.wsdlUri.length > 0 && proxyService.wsdlService.length > 0 && proxyService.wsdlPort != null && proxyService.wsdlPort > 0) :
-            proxyService.proxyServiceType === 'Transformer Proxy' ? proxyService.requestXslt.length > 0 :
-                transformResponse.includes("true") ? proxyService.responseXslt.length > 0 :
-                    proxyService.proxyServiceType != 'Custom Proxy' ? proxyService.endpoint.length > 0 : proxyService.proxyServiceType.length > 0);
 
     useEffect(() => {
 
@@ -71,25 +104,6 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
         })();
 
     }, []);
-
-    useEffect(() => {
-        const INVALID_CHARS_REGEX = /[@\\^+;:!%&,=*#[\]$?'"<>{}() /]/;
-        const VALID_URI_REGEX = /^(https?:\/\/)?www\.[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i;
-        const VALID_WSDL_URI_REGEX = /\.wsdl$/i;
-
-        if (!isValid) {
-            handleMessage("Please fill all the mandatory fields", true);
-        } else if (INVALID_CHARS_REGEX.test(proxyService.proxyServiceName)) {
-            handleMessage("Invalid proxy service name", true);
-        } else if (proxyService.proxyServiceType != 'Custom Proxy' && proxyService.proxyServiceType != 'WSDL Based Proxy' && proxyService.endpointType === 'Custom' && !VALID_URI_REGEX.test(proxyService.endpoint)) {
-            handleMessage("Invalid endpoint URI", true);
-        } else if (proxyService.proxyServiceType === 'WSDL Based Proxy' && (!VALID_WSDL_URI_REGEX.test(proxyService.wsdlUri) || !VALID_URI_REGEX.test(proxyService.wsdlUri))) {
-            handleMessage("Invalid WSDL URI", true);
-        } else {
-            handleMessage("");
-        }
-
-    }, [proxyService.proxyServiceName, proxyService.proxyServiceType, proxyService.endpointType, proxyService.endpoint, proxyService.wsdlUri, isValid]);
 
     const transportTypes = [
         'http',
@@ -109,44 +123,12 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
         {value: "Simple"}
     ];
 
-    const handleProxyServiceTypeChange = (type: string) => {
-        setProxyService((prev: any) => ({...prev, proxyServiceType: type}));
-    };
-
     const handleTransportsChange = (value: string) => {
         if (selectedTransports.includes(value)) {
             setSelectedTransports(selectedTransports.filter(item => item !== value));
         } else {
             setSelectedTransports([...selectedTransports, value]);
         }
-    };
-
-    const handleRequestLogLevelChange = (value: string) => {
-        setProxyService((prev: any) => ({...prev, requestLogLevel: value}));
-    };
-
-    const handleResponseLogLevelChange = (value: string) => {
-        setProxyService((prev: any) => ({...prev, responseLogLevel: value}));
-    };
-
-    const handleEndpointChange = (value: string) => {
-        setProxyService((prev: any) => ({...prev, endpoint: value}));
-    };
-
-    const handleEndpointTypeChange = (event: any) => {
-        setProxyService((prev: any) => ({...prev, endpointType: event.target.value}));
-    };
-
-    const handleSecurityPolicyChange = (value: string) => {
-        setProxyService((prev: any) => ({...prev, securityPolicy: value}));
-    };
-
-    const handleRequestXsltChange = (value: string) => {
-        setProxyService((prev: any) => ({...prev, requestXslt: value}));
-    };
-
-    const handleResponseXsltChange = (value: string) => {
-        setProxyService((prev: any) => ({...prev, responseXslt: value}));
     };
 
     const handleTransformResponseOptionChange = (value: string) => {
@@ -165,29 +147,30 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
         }
     };
 
-    const handleOnChange = (field: any, value: any) => {
-        setProxyService((prev: any) => ({...prev, [field]: value}));
-    }
-
-    const handleMessage = (text: string, isError: boolean = false) => {
-        setMessage({isError, text});
-    }
-
-    const handleCreateProxyService = async () => {
+    const handleCreateProxyService = async (values: any) => {
 
         const createProxyServiceParams: CreateProxyServiceRequest = {
             directory: directoryPath,
             selectedTransports: selectedTransports.join(' '),
             transformResponse: transformResponse.length > 0 ? transformResponse.join('') : null,
             publishContract: publishContract.length > 0 ? publishContract.join('') : null,
-            ...proxyService
+            ...values
         }
-        const file = await rpcClient.getMiDiagramRpcClient().createProxyService(createProxyServiceParams);
+        await rpcClient.getMiDiagramRpcClient().createProxyService(createProxyServiceParams);
 
         rpcClient.getMiVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: {view: MACHINE_VIEW.Overview}
         });
+    };
+
+    const renderProps = (fieldName: keyof InputsFields) => {
+        return {
+            id: fieldName,
+            value: String(watch(fieldName)),
+            ...register(fieldName),
+            errorMsg: errors[fieldName] && errors[fieldName].message.toString()
+        }
     };
 
     const handleCancel = () => {
@@ -202,13 +185,9 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
             <TextField
                 placeholder="Name"
                 label="Proxy Service Name"
-                onTextChange={(value: string) => handleOnChange("proxyServiceName", value)}
-                value={proxyService.proxyServiceName}
-                id="proxy-name-input"
                 autoFocus
                 required
-                validationMessage="Proxy service name is required"
-                size={100}
+                {...renderProps('proxyServiceName')}
             />
             <span>Select the transports:</span>
             {transportTypes.map(transportType => (
@@ -219,39 +198,32 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
                     checked={selectedTransports.includes(transportType)}
                 />
             ))}
-            {!(proxyService.proxyServiceType === "Custom Proxy" || proxyService.proxyServiceType === "WSDL Based Proxy") && (
+            {!(watch('proxyServiceType') === "Custom Proxy" || watch('proxyServiceType') === "WSDL Based Proxy") && (
                 <>
                     <RadioButtonGroup
                         label="Target Endpoint"
-                        id="target-endpoint"
                         options={[{content: "Workspace", value: "Workspace"}, {content: "Custom", value: "Custom"}]}
-                        onChange={handleEndpointTypeChange}
+                        {...renderProps('endpointType')}
                     />
-                    {proxyService.endpointType === "Workspace" && (
-                        <Dropdown items={endpoints} value={proxyService.endpoint} onValueChange={handleEndpointChange}
-                                  id="endpoint"/>
+                    {watch('endpointType') === "Workspace" && (
+                        <Dropdown items={endpoints} {...renderProps('endpoint')} />
                     )}
-                    {proxyService.endpointType === "Custom" && (
+                    {watch('endpointType') === "Custom" && (
                         <TextField
                             placeholder="Custom Endpoint"
                             label="Custom Endpoint"
-                            onTextChange={(value: string) => handleOnChange("endpoint", value)}
-                            value={proxyService.endpoint}
-                            id="endpoint-custom"
-                            size={100}
+                            {...renderProps('endpoint')}
                         />
                     )}
                 </>
             )}
-            {proxyService.proxyServiceType === "Logging Proxy" && (
+            {watch('proxyServiceType') === "Logging Proxy" && (
                 <>
-                    <Dropdown label="Request Log Level" items={logLevelOptions} value={proxyService.requestLogLevel}
-                              onValueChange={handleRequestLogLevelChange} id="request-log-level"/>
-                    <Dropdown label="Response Log Level" items={logLevelOptions} value={proxyService.responseLogLevel}
-                              onValueChange={handleResponseLogLevelChange} id="response-log-level"/>
+                    <Dropdown label="Request Log Level" items={logLevelOptions} {...renderProps('requestLogLevel')} />
+                    <Dropdown label="Response Log Level" items={logLevelOptions} {...renderProps('responseLogLevel')} />
                 </>
             )}
-            {proxyService.proxyServiceType === "Transformer Proxy" && (
+            {watch('proxyServiceType') === "Transformer Proxy" && (
                 <CheckBox
                     label="Transform Responses"
                     value="true"
@@ -259,40 +231,25 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
                     checked={transformResponse.includes("true")}
                 />
             )}
-            {proxyService.proxyServiceType === "WSDL Based Proxy" && (
+            {watch('proxyServiceType') === "WSDL Based Proxy" && (
                 <>
                     <TextField
                         placeholder="WSDL URI"
                         label="WSDL URI"
-                        onTextChange={(value: string) => handleOnChange("wsdlUri", value)}
-                        value={proxyService.wsdlUri}
-                        id="wsdl-uri-input"
-                        size={100}
                         required
+                        {...renderProps('wsdlUri')}
                     />
                     <TextField
                         placeholder="WSDL Service"
                         label="WSDL Service"
-                        onTextChange={(value: string) => handleOnChange("wsdlService", value)}
-                        value={proxyService.wsdlService}
-                        id="wsdl-service-input"
-                        size={100}
                         required
+                        {...renderProps('wsdlService')}
                     />
                     <TextField
                         placeholder="WSDL Port"
                         label="WSDL Port"
-                        onTextChange={(value) => {
-                            if (validNumericInput.test(value)) {
-                                handleOnChange("wsdlPort", Number(value))
-                            } else {
-                                handleOnChange("wsdlPort", null)
-                            }
-                        }}
-                        value={proxyService.wsdlPort}
-                        id="wsdl-port-input"
-                        size={50}
                         required
+                        {...renderProps('wsdlPort')}
                     />
                     <CheckBox
                         label="Publish Same Service Contract"
@@ -302,7 +259,6 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
                     />
                 </>
             )}
-            {message && <span style={{color: message.isError ? "#f48771" : ""}}>{message.text}</span>}
             <FormActions>
                 <Button
                     appearance="secondary"
@@ -312,8 +268,8 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
                 </Button>
                 <Button
                     appearance="primary"
-                    onClick={handleCreateProxyService}
-                    disabled={!isValid}
+                    onClick={handleSubmit(handleCreateProxyService)}
+                    disabled={!isDirty}
                 >
                     Create
                 </Button>
