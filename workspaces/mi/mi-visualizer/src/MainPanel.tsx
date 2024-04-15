@@ -118,7 +118,7 @@ const MainPanel = () => {
     }
 
     const fetchContext = () => {
-        rpcClient.getVisualizerState().then((machineView) => {
+        rpcClient.getVisualizerState().then(async (machineView) => {
             let shouldShowNavigator = true;
             switch (machineView?.view) {
                 case MACHINE_VIEW.Welcome:
@@ -147,7 +147,7 @@ const MainPanel = () => {
                             diagnostics={machineView.diagnostics}
                         />
                     );
-                    rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
+                    await rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
                     break;
                 case MACHINE_VIEW.SequenceView:
                     setViewComponent(
@@ -158,7 +158,7 @@ const MainPanel = () => {
                             diagnostics={machineView.diagnostics}
                         />
                     );
-                    rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
+                    await rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
                     break;
                 case MACHINE_VIEW.ProxyView:
                     setViewComponent(
@@ -169,7 +169,7 @@ const MainPanel = () => {
                             diagnostics={machineView.diagnostics}
                         />
                     );
-                    rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
+                    await rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
                     break;
                 case MACHINE_VIEW.ServiceDesigner:
                     setViewComponent(<ServiceDesignerView syntaxTree={machineView.stNode} documentUri={machineView.documentUri} />);
