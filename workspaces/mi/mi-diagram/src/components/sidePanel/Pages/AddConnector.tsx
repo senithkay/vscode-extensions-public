@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, ComponentCard, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
@@ -56,6 +56,12 @@ const AddConnector = (props: AddConnectorProps) => {
     const [errors, setErrors] = useState({} as any);
 
     const formValidators: { [key: string]: (e?: any) => string | undefined } = {};
+
+    useEffect(() => {
+        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
+            setFormValues({ ...formValues, ...sidePanelContext.formValues, "isCallChanged": false, "isEndpointChanged": false, "isSourceChanged": false, "isTargetChanged": false });
+        }
+    }, [sidePanelContext.formValues]);
 
     const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
         const value = e ?? formValues[id];

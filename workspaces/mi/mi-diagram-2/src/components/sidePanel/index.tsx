@@ -79,6 +79,7 @@ const SidePanelList = (props: SidePanelListProps) => {
             isOpen: false,
             isEditing: false,
             formValues: {},
+            connectors: sidePanelContext.connectors,
         });
     };
 

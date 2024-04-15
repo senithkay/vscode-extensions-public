@@ -84,6 +84,7 @@ import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
 import { Diagnostic } from "vscode-languageserver-types";
 import { ReferenceNodeModel } from "../components/nodes/ReferenceNode/ReferenceNodeModel";
 import { PlusNodeModel } from "../components/nodes/PlusNode/PlusNodeModel";
+import { ConnectorNodeModel } from "../components/nodes/ConnectorNode/ConnectorNodeModel";
 
 interface BranchData {
     name: string;
@@ -154,6 +155,9 @@ export class NodeFactoryVisitor implements Visitor {
                 break;
             case NodeTypes.PLUS_NODE:
                 diagramNode = new PlusNodeModel(node, name, this.documentUri);
+                break;
+            case NodeTypes.CONNECTOR_NODE:
+                diagramNode = new ConnectorNodeModel(node, name, this.documentUri);
                 break;
             default:
                 type = NodeTypes.MEDIATOR_NODE;
@@ -578,7 +582,7 @@ export class NodeFactoryVisitor implements Visitor {
 
     // Connectors
     beginVisitConnector(node: Connector): void {
-        // this.createNodeAndLinks({ node, name: node.connectorName, type: NodeTypes.CONNECTOR_NODE });
+        this.createNodeAndLinks({ node, name: node.connectorName, type: NodeTypes.CONNECTOR_NODE });
     }
 
     beginVisitDataServiceCall = (node: DataServiceCall): void => this.createNodeAndLinks({ node, name: MEDIATORS.DATASERVICECALL });

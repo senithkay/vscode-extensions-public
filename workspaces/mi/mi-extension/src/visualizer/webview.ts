@@ -51,7 +51,6 @@ export class VisualizerWebview {
             beside ? ViewColumn.Beside : ViewColumn.Active,
             {
                 enableScripts: true,
-                localResourceRoots: [Uri.file(path.join(extension.context.extensionPath, 'resources'))],
                 retainContextWhenHidden: true,
             }
         );
@@ -60,6 +59,16 @@ export class VisualizerWebview {
 
     public getWebview(): vscode.WebviewPanel | undefined {
         return this._panel;
+    }
+
+    public getIconPath(iconPath: string, name: string): string | undefined {
+        const panel = this.getWebview();
+        const iconPathUri = vscode.Uri.file(path.join(iconPath, name).toString());
+
+        if (panel) {
+            const iconUri = panel.webview.asWebviewUri(iconPathUri);
+            return iconUri.toString();
+        }
     }
 
     private getWebviewContent(webview: vscode.Webview) {

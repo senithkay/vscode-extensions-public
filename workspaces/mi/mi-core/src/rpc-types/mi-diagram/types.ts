@@ -1029,6 +1029,42 @@ export interface RangeFormatRequest {
     range: Range
 }
 
+export interface DownloadConnectorRequest {
+    url: string;
+    connector: string;
+    version: string;
+}
+
+export interface DownloadConnectorResponse {
+    path: string;
+}
+
+export interface GetAvailableConnectorRequest {
+    documentUri: string;
+    connectorName: string;
+}
+
+export interface GetAvailableConnectorResponse {
+    connectors?: any[];
+    name?: string;
+    path?: string;
+    uiSchemaPath?: string;
+    version?: string;
+    iconPath?: string;
+}
+
+export interface UpdateConnectorRequest {
+    documentUri: string;
+}
+
+export interface GetConnectorFormRequest {
+    uiSchemaPath: string;
+    operation: string;
+}
+
+export interface GetConnectorFormResponse {
+    formJSON: string;
+}
 export interface CreateDataSourceResponse {
     path: string;
 }
@@ -1058,4 +1094,13 @@ export interface JNDIDatasource {
     useDataSourceFactory: boolean;
     properties?: { [key: string]: string | number | boolean };
     JNDIConfigName: string;
+}
+
+export interface GetIconPathUriRequest {
+    path: string;
+    name: string;
+}
+
+export interface GetIconPathUriResponse {
+    uri: any;
 }
