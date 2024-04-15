@@ -2584,14 +2584,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return { formJSON: formJSON };
     }
 
-    async undo(params: UndoRedoParams): Promise<void> {
+    undo(params: UndoRedoParams): void {
         const lastsource = undoRedo.undo();
         if (lastsource) {
             fs.writeFileSync(params.path, lastsource);
         }
     }
 
-    async redo(params: UndoRedoParams): Promise<void> {
+    redo(params: UndoRedoParams): void {
         const lastsource = undoRedo.redo();
         if (lastsource) {
             fs.writeFileSync(params.path, lastsource);

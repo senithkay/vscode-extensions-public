@@ -482,8 +482,8 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getProjectUuid, HOST_EXTENSION);
     }
 
-    initUndoRedoManager(params: UndoRedoParams): void {
-        return this._messenger.sendNotification(initUndoRedoManager, HOST_EXTENSION, params);
+    initUndoRedoManager(params: UndoRedoParams): Promise<void> {
+        return this._messenger.sendRequest(initUndoRedoManager, HOST_EXTENSION, params);
     }
 
     undo(params: UndoRedoParams): void {
