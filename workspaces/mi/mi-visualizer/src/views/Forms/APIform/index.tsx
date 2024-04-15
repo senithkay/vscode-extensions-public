@@ -6,33 +6,20 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
-import { AutoComplete, Button, Codicon, TextField, Typography, CheckBox } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, FormView, FormActions, Dropdown, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { FieldGroup, SectionWrapper } from "../Commons";
+import { FieldGroup } from "../Commons";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getXML } from "../../../utils/template-engine/mustache-templates/templateUtils";
 import { SERVICE } from "../../../constants";
 import Handler from "./Handler";
-
-const WizardContainer = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 95vw;
-    height: calc(100vh - 140px);
-    overflow: auto;
-`;
-
-const ActionContainer = styled.div`
-    display  : flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-bottom: 20px;
-`;
+import { yupResolver } from "@hookform/resolvers/yup"
+import * as yup from "yup";
+import { useForm } from "react-hook-form";
 
 const TitleBar = styled.div({
     display: 'flex',
@@ -46,14 +33,6 @@ const LocationText = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-`;
-
-const Container = styled.div`
-    display: flex;
-    flex-direction: row;
-    height: 50px;
-    align-items: center;
-    justify-content: flex-start;
 `;
 
 export interface Region {
@@ -70,10 +49,38 @@ export interface APIData {
     statistics?: boolean;
     version?: string;
     swaggerdefPath?: string;
-    apiRange: Range;
+    apiRange?: Range;
     handlersRange?: Range;
     handlers?: [];
 }
+
+const initialAPI: APIData = {
+    apiName: "",
+    apiContext: "/",
+    hostName: "",
+    port: "",
+    trace: false,
+    statistics: false,
+    version: "",
+    swaggerdefPath: "",
+    apiRange: undefined,
+    handlersRange: undefined,
+    handlers: []
+};
+
+const schema = yup.object({
+    apiName: yup.string().required("API Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in name"),
+    apiContext: yup.string().required("API Context is required"),
+    hostName: yup.string(),
+    port: yup.string(),
+    trace: yup.boolean(),
+    statistics: yup.boolean(),
+    version: yup.string(),
+    swaggerdefPath: yup.string(),
+    apiRange: yup.object(),
+    handlersRange: yup.object(),
+    handlers: yup.array()
+});
 
 export interface APIWizardProps {
     apiData?: APIData;
@@ -84,16 +91,21 @@ type VersionType = "none" | "context" | "url";
 
 export function APIWizard({ apiData, path }: APIWizardProps) {
     const { rpcClient } = useVisualizerContext();
-    const [apiName, setAPIName] = useState("");
-    const [apiContext, setAPIContext] = useState("/");
-    const [hostName, setHostName] = useState("");
-    const [port, setPort] = useState("");
-    const [trace, setTrace] = useState(false);
-    const [statistics, setStatistics] = useState(false);
-    const [versionType, setVersionType] = useState("none");
-    const [version, setVersion] = useState("");
-    const [swaggerdefPath, setSwaggerdefPath] = useState("");
 
+    const {
+        reset,
+        register,
+        formState: { errors, isDirty },
+        handleSubmit,
+        watch,
+        setValue,
+        control
+    } = useForm({
+        resolver: yupResolver(schema),
+        mode: "onChange"
+    });
+
+    const [versionType, setVersionType] = useState("none");
     const [handlers, setHandlers] = useState([]);
 
     const identifyVersionType = (version: string): VersionType => {
@@ -110,20 +122,27 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
         if (apiData) {
             const versionType = identifyVersionType(apiData.version);
 
-            setAPIName(apiData.apiName);
-            setAPIContext(apiData.apiContext);
+            reset(apiData);
             setVersionType(versionType);
-            setVersion(apiData.version);
-            setSwaggerdefPath(apiData.swaggerdefPath);
-            setHostName(apiData.hostName);
-            setPort(apiData.port);
-            setTrace(apiData.trace ?? false);
-            setStatistics(apiData.statistics ?? false);
             setHandlers(apiData.handlers ?? []);
+        } else {
+            reset(initialAPI);
         }
     }, [apiData]);
 
-    const versionLabels = ['none', 'context', 'url'];
+    const versionLabels = [
+        { content: "None", value: "none" },
+        { content: "Context", value: "context" },
+        { content: "URL", value: "url" }
+    ];
+
+    const renderProps = (fieldName: keyof APIData) => {
+        return {
+            id: fieldName,
+            ...register(fieldName),
+            errorMsg: errors[fieldName] && errors[fieldName].message.toString()
+        }
+    };
 
     const handleVersionTypeChange = (type: string) => {
         setVersionType(type);
@@ -140,18 +159,18 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
         setHandlers([...handlers, { name: "", properties: [] }]);
     }
 
-    const handleCreateAPI = async () => {
+    const handleCreateAPI = async (values: any) => {
         if (!apiData) {
             // Create API
             const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: path })).path;
             const APIDir = `${projectDir}/src/main/wso2mi/artifacts/apis`;
             const createAPIParams = {
-                name: apiName,
-                context: apiContext,
                 directory: APIDir,
-                swaggerDef: swaggerdefPath,
+                name: values.apiName,
+                context: values.apiContext,
+                swaggerDef: values.swaggerdefPath,
                 type: versionType,
-                version: version
+                version: values.version
             }
             const file = await rpcClient.getMiDiagramRpcClient().createAPI(createAPIParams);
             console.log("API created");
@@ -159,14 +178,15 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
         } else {
             // Update API
             const formValues = {
-                name: apiName,
-                context: apiContext,
+                name: values.apiName,
+                context: values.apiContext,
+                hostName: values.hostName,
+                version: values.version,
+                type: versionType,
                 version_type: versionType,
-                version: version,
-                hostName,
-                port: port === "0" ? undefined : port,
-                trace: trace ? "enable" : undefined,
-                statistics: statistics ? "enable" : undefined,
+                port: values.port === "0" ? undefined : values.port,
+                trace: values.trace ? "enable" : undefined,
+                statistics: values.statistics ? "enable" : undefined,
             }
             const xml = getXML(SERVICE.EDIT_SERVICE, formValues);
             await rpcClient.getMiDiagramRpcClient().applyEdit({
@@ -191,177 +211,109 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
 
     const handleSwaggerPathSelection = async () => {
         const projectDirectory = await rpcClient.getMiDiagramRpcClient().askProjectDirPath();
-        setSwaggerdefPath(projectDirectory.path);
+        setValue("swaggerdefPath", projectDirectory.path);
     }
 
-    const validateAPIName = (name: string) => {
-        // Check if the name is empty
-        if (!name.trim()) {
-            return "Name is required";
-        }
-
-        // Check if the name has spaces
-        if (/\s/.test(name)) {
-            return "Name cannot contain spaces";
-        }
-
-        return "";
-    };
-
-    const validateAPIContext = (name: string) => {
-        // Check if the name is empty
-        if (!name.trim()) {
-            return "Context is required";
-        }
-
-        // Check if the name has spaces
-        if (/\s/.test(name)) {
-            return "Context cannot contain spaces";
-        }
-
-        // Check if the name starts with /
-        if (!name.startsWith("/")) {
-            return "Context should start with /";
-        }
-
-        return "";
-    }
-
-    const handleBackButtonClick = () => {
+    const handleOnClose = () => {
         rpcClient.getMiVisualizerRpcClient().goBack();
     }
 
-    const isValid: boolean = !validateAPIName(apiName) && !validateAPIContext(apiContext) && versionType.length > 0;
-    const contentUpdated: boolean = apiData ?
-        (apiData.apiName !== apiName)
-        || (apiData.apiContext !== apiContext)
-        || (apiData.hostName !== hostName)
-        || (apiData.port !== port)
-        || (apiData.trace !== trace)
-        || (apiData.statistics !== statistics)
-        || (apiData?.version ? apiData?.version !== version : false)
-        || (apiData?.swaggerdefPath ? apiData?.swaggerdefPath !== swaggerdefPath : false)
-        || (JSON.stringify(apiData?.handlers) !== JSON.stringify(handlers))
-        : true;
-
     return (
-        <WizardContainer>
-            <SectionWrapper>
-                <Container>
-                    <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
-                    <div style={{ marginLeft: 30 }}>
-                        <Typography variant="h3">{apiData && "Edit "}Synapse API Artifact</Typography>
-                    </div>
-                </Container>
+        <FormView title={`${apiData ? "Edit " : ""}Synapse API Artifact`} onClose={handleOnClose}>
+            <TextField
+                required
+                label="Name"
+                placeholder="Name"
+                {...renderProps("apiName")}
+            />
+            <TextField
+                required
+                label="Context"
+                placeholder="Context"
+                {...renderProps("apiContext")}
+            />
+            {apiData && <>
                 <TextField
-                    value={apiName}
-                    id='name-input'
-                    label="Name"
-                    placeholder="Name"
-                    onTextChange={(text: string) => setAPIName(text)}
-                    errorMsg={validateAPIName(apiName)}
-                    size={100}
-                    autoFocus
-                    required
+                    label="Host Name"
+                    placeholder="Host Name"
+                    {...renderProps("hostName")}
                 />
                 <TextField
-                    placeholder="Context"
-                    label="Context"
-                    onTextChange={(text: string) => setAPIContext(text)}
-                    value={apiContext}
-                    id='context-input'
-                    required
-                    errorMsg={validateAPIContext(apiContext)}
-                    size={46}
+                    label="Port"
+                    placeholder="Port"
+                    {...renderProps("port")}
                 />
-                {apiData && <>
+            </>}
+            <FieldGroup>
+                <Dropdown
+                    id="version-type"
+                    label="Version Type"
+                    value={versionType}
+                    items={versionLabels}
+                    onValueChange={handleVersionTypeChange}
+                />
+                {versionType !== "none" && (
                     <TextField
-                        placeholder="Host Name"
-                        label="Host Name"
-                        onTextChange={(text: string) => setHostName(text)}
-                        value={hostName}
-                        id='host-name-input'
-                        size={46}
+                        label="Version"
+                        placeholder={versionType === "context" ? "0.0.1" : "https://example.com"}
+                        {...renderProps("version")}
                     />
-                    <TextField
-                        placeholder="Port"
-                        label="Port"
-                        onTextChange={(text: string) => Number(text) ? setPort(text) : setPort("0")}
-                        value={port}
-                        id='port-input'
-                        size={46}
-                    />
-                </>}
+                )}
+            </FieldGroup>
+            {apiData && <>
+                <FormCheckBox
+                    name="trace"
+                    label="Trace Enabled"
+                    control={control}
+                />
+                <FormCheckBox
+                    name="statistics"
+                    label="Statistics Enabled"
+                    control={control}
+                />
                 <FieldGroup>
-                    <AutoComplete sx={{ width: '370px' }} label="Version Type" items={versionLabels} value={versionType} onValueChange={handleVersionTypeChange} />
-                    {versionType !== "none" && (
-                        <TextField
-                            placeholder={versionType === "context" ? "0.0.1" : "https://example.com"}
-                            label="Version"
-                            onTextChange={(text: string) => setVersion(text)}
-                            value={version}
-                            id='version-input'
-                            size={35}
+                    <TitleBar>
+                        <span>Handlers</span>
+                        <Button
+                            appearance="primary"
+                            onClick={addNewHandler}
+                        >
+                            Add Handler
+                        </Button>
+                    </TitleBar>
+                    {handlers.map((handler, index) => (
+                        <Handler
+                            key={index}
+                            id={index}
+                            last={handlers.length - 1}
+                            handler={handler}
+                            setHandlers={setHandlers}
                         />
-                    )}
+                    ))}
                 </FieldGroup>
-                {apiData && <>
-                    <CheckBox
-                        label="Trace Enabled"
-                        value={String(trace)}
-                        checked={trace}
-                        onChange={(checked: boolean) => setTrace(checked)}
-                    />
-                    <CheckBox
-                        label="Statistics Enabled"
-                        value={String(statistics)}
-                        checked={statistics}
-                        onChange={(checked: boolean) => setStatistics(checked)}
-                    />
-                    <FieldGroup>
-                        <TitleBar>
-                            <span>Handlers</span>
-                            <Button
-                                appearance="primary"
-                                onClick={addNewHandler}
-                            >
-                                Add Handler
-                            </Button>
-                        </TitleBar>
-                        {handlers.map((handler, index) => (
-                            <Handler
-                                key={index}
-                                id={index}
-                                last={handlers.length - 1}
-                                handler={handler}
-                                setHandlers={setHandlers}
-                            />
-                        ))}
-                    </FieldGroup>
-                </>}
-                <FieldGroup>
-                    <span>  Swagger Def Path  </span>
-                    {!!swaggerdefPath ? <LocationText>{swaggerdefPath}</LocationText> : <span>Please choose a directory for swagger definition. </span>}
-                    <Button appearance="secondary" onClick={handleSwaggerPathSelection} id="select-swagger-path-btn">
-                        Select Location
-                    </Button>
-                </FieldGroup>
-                <ActionContainer>
-                    <Button
-                        appearance="secondary"
-                        onClick={handleCancel}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        appearance="primary"
-                        onClick={handleCreateAPI}
-                        disabled={!isValid || !contentUpdated}
-                    >
-                        {apiData ? "Update" : "Create"}
-                    </Button>
-                </ActionContainer>
-            </SectionWrapper>
-        </WizardContainer>
+            </>}
+            <FieldGroup>
+                <span>Swagger Def Path</span>
+                {!!watch('swaggerdefPath') ? <LocationText>{watch('swaggerdefPath')}</LocationText> : <span>Please choose a directory for swagger definition. </span>}
+                <Button appearance="secondary" onClick={handleSwaggerPathSelection} id="select-swagger-path-btn">
+                    Select Location
+                </Button>
+            </FieldGroup>
+            <FormActions>
+                <Button
+                    appearance="primary"
+                    onClick={handleSubmit(handleCreateAPI)}
+                    disabled={!isDirty}
+                >
+                    {apiData ? "Save changes" : "Create"}
+                </Button>
+                <Button
+                    appearance="secondary"
+                    onClick={handleCancel}
+                >
+                    Cancel
+                </Button>
+            </FormActions>
+        </FormView>
     );
 }
