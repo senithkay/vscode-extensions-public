@@ -8,10 +8,9 @@
  */
 
 import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
-import { Alert, Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Alert, Codicon, ContextMenu, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import path from 'path';
 
 interface ArtifactType {
     title: string;
@@ -110,19 +109,11 @@ const Listing = styled.div({
     marginTop: "2em"
 })
 
-const Container = styled.div({
-    width: "100%",
-    height: "100%",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-})
-
 const ProjectStructureView = (props: { projectStructure: any, workspaceDir: string }) => {
     const { projectStructure } = props;
     const { rpcClient } = useVisualizerContext();
 
-    const handleClick = async (documentUri: string, view: MACHINE_VIEW) => {
+    const designView = async (documentUri: string, view: MACHINE_VIEW) => {
         const type = view === MACHINE_VIEW.EndPointForm ? 'endpoint' : 'template';
         if (view === MACHINE_VIEW.EndPointForm || view === MACHINE_VIEW.TemplateForm) {
             view = await getView(documentUri);
@@ -130,11 +121,14 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view, documentUri, customProps: {type: type} }});
     };
 
-    const handlePlusClick = async (key: string, command: string) => {
-        const dir = path.join(props.workspaceDir, 'src', 'main', 'wso2mi', 'artifacts', key);
-        const entry = { info: { path: dir } };
-        await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: [command, entry] });
-    };
+    const goToSource = async (path: string) => {
+        await rpcClient.getMiVisualizerRpcClient().goToSource({ path });
+    }
+
+    const deleteArtifact = async (path: string) => {
+        await rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path });
+        await rpcClient.getMiDiagramRpcClient().deleteArtifact({ path });
+    }
 
     const ifHasEntries = () => {
         const artifacts = projectStructure.directoryMap.src.main.wso2mi.artifacts;
@@ -188,7 +182,9 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
                                         icon={artifactTypeMap[key].icon}
                                         name={entry.name}
                                         description={artifactTypeMap[key].description(entry)}
-                                        onClick={() => { handleClick(artifactTypeMap[key].path(entry), artifactTypeMap[key].view) }}
+                                        designView={() => designView(artifactTypeMap[key].path(entry), artifactTypeMap[key].view)}
+                                        goToSource={() => goToSource(artifactTypeMap[key].path(entry))}
+                                        deleteArtifact={() => deleteArtifact(artifactTypeMap[key].path(entry))}
                                     />
                                 ))}
                             </div>
@@ -212,14 +208,16 @@ interface EntryProps {
     icon: string; // Changed to string to use codicon names
     name: string;
     description: string;
-    onClick: () => void; // Added onClick callback prop
+    // Context menu action callbacks
+    designView?: () => void;
+    goToSource?: () => void;
+    deleteArtifact?: () => void;
 }
 
 const EntryContainer = styled.div`
     display: flex;
     align-items: center;
     margin-bottom: 10px;
-    cursor: pointer;
     padding: 10px;
     background-color: var(--vscode-editorHoverWidget-background);
     &:hover {
@@ -227,9 +225,9 @@ const EntryContainer = styled.div`
     }
 `;
 
-const Entry: React.FC<EntryProps> = ({ icon, name, description, onClick }) => {
+const Entry: React.FC<EntryProps> = ({ icon, name, description, designView, goToSource, deleteArtifact }) => {
     return (
-        <EntryContainer onClick={onClick}>
+        <EntryContainer>
             <div style={{ width: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10px' }}>
                 <Codicon name={icon} />
             </div>
@@ -240,7 +238,26 @@ const Entry: React.FC<EntryProps> = ({ icon, name, description, onClick }) => {
                 {description}
             </div>
             <div style={{ marginLeft: 'auto' }}>
-                <Codicon name="more" />
+                <ContextMenu
+                    menuSx={{ transform: "translateX(-50%)" }}
+                    menuItems={[
+                        {
+                            id: "designView",
+                            label: "Design View",
+                            onClick: designView,
+                        },
+                        {
+                            id: "goToSource",
+                            label: "Go to Source",
+                            onClick: goToSource,
+                        },
+                        {
+                            id: "deleteArtifact",
+                            label: "Delete",
+                            onClick: deleteArtifact
+                        }
+                    ]}
+                />
             </div>
         </EntryContainer>
     );
