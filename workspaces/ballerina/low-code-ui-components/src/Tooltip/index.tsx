@@ -15,7 +15,6 @@ import { withStyles } from '@material-ui/core/styles';
 import TooltipBase, { TooltipProps } from '@material-ui/core/Tooltip';
 import { ErrorIcon, InfoIcon, WarningIcon } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { STNode } from '@wso2-enterprise/syntax-tree';
-import * as MonacoEditor from 'monaco-editor';
 
 import useStyles, { toolbarHintStyles, tooltipInvertedStyles, tooltipStyles } from "./style";
 import { getDiagnosticsFromST, getSourceFromST } from './utils';
@@ -62,13 +61,6 @@ export function Tooltip(props: Partial<TooltipPropsExtended>) {
         defaultMessage: "You can use variables within the scope"
     });
 
-    // Ref: <code>
-    const codeRef = (ref: HTMLPreElement) => {
-        if (ref) {
-            MonacoEditor.editor.colorizeElement(ref, { theme: 'choreoLightTheme' });
-        }
-    };
-
     const {
         children,
         heading,
@@ -106,7 +98,7 @@ export function Tooltip(props: Partial<TooltipPropsExtended>) {
 
     const GenericExamples = () => (
         <pre className={styles.exampleCodeWrap}>
-            <span>E.g.</span><code ref={codeRef} data-lang="ballerina" className={styles.codeExample}>{typeExamples}</code>
+            <span>E.g.</span><code data-lang="ballerina" className={styles.codeExample}>{typeExamples}</code>
         </pre>
     );
     const GenericCodeHints = () => (
@@ -144,7 +136,6 @@ export function Tooltip(props: Partial<TooltipPropsExtended>) {
 
         const Code = () => (
             <code
-                ref={codeRef}
                 data-lang="ballerina"
                 className={example ? styles.codeExample : styles.code}
             >
@@ -182,11 +173,11 @@ export function Tooltip(props: Partial<TooltipPropsExtended>) {
 
         const ToolTipContent = () => (
             contentType ? (
-                    <>
-                        <Typography className={styles.stmtEditorTooltipContent}>{toolTipContent}</Typography>
-                        <Typography className={styles.suggestionDataType}> {contentType}</Typography>
-                    </>
-                ) :
+                <>
+                    <Typography className={styles.stmtEditorTooltipContent}>{toolTipContent}</Typography>
+                    <Typography className={styles.suggestionDataType}> {contentType}</Typography>
+                </>
+            ) :
                 <div>{toolTipContent}</div>
         );
 

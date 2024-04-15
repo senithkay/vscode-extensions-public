@@ -6,7 +6,8 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { monaco } from "react-monaco-editor";
+
+import { URI } from "vscode-uri";
 
 import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, PartialSTRequest, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { PARAM_TYPES } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
@@ -745,7 +746,7 @@ export function addImportStatements(
 export async function getKeywordTypes(docUri: string, getLangClient: () => Promise<ExpressionEditorLangClientInterface>) {
     const completionParams: CompletionParams = {
         textDocument: {
-            uri: monaco.Uri.file(docUri).toString()
+            uri: URI.file(docUri).toString()
         },
         context: {
             triggerKind: 25,
