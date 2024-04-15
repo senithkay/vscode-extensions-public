@@ -68,8 +68,8 @@ export function EntryNodeWidget(props: EntryNodeProps) {
                     engine={engine}
                 />
                 {node.nodeObject.type &&
-                    node.nodeObject.type === ChoreoComponentType.ScheduledTask ? <ScheduledTriggerIcon /> :
-                    node.nodeObject.type === ChoreoComponentType.ManualTrigger ? <ManualTriggerIcon /> :
+                    node.nodeObject.type === ChoreoComponentType.ScheduledTask.toString() ? <ScheduledTriggerIcon /> :
+                    node.nodeObject.type === ChoreoComponentType.ManualTrigger.toString() ? <ManualTriggerIcon /> :
                         <DefaultEntryPointIcon />
                 }
                 <DisplayName>{displayName}</DisplayName>
