@@ -6,21 +6,24 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ArrowFunction, ParenthesizedExpression, Node } from "ts-morph";
+import { ArrowFunction, ParenthesizedExpression, Node, PropertyAssignment } from "ts-morph";
 import { Visitor } from "../../ts/base-visitor";
-import { ObjectOutputNode, InputNode } from "../Diagram/Node";
+import { ObjectOutputNode, InputNode, LinkConnectorNode } from "../Diagram/Node";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
+import { getPropertyAccessNodes, isConditionalExpression } from "../Diagram/utils/common-utils";
 
 export class NodeInitVisitor implements Visitor {
     private inputNodes: DataMapperNodeModel[] = [];
     private outputNode: DataMapperNodeModel;
+    private intermediateNodes: DataMapperNodeModel[] = [];
+    private mapIdentifiers: Node[] = [];
 
     constructor(
         private context: DataMapperContext,
     ) {}
 
-    beginVisitArrowFunction(node: ArrowFunction, parent?: Node): void {
+    beginVisitArrowFunction(node: ArrowFunction): void {
         // Create input nodes
         const params = node.getParameters();
         params.forEach((param) => {
@@ -39,7 +42,33 @@ export class NodeInitVisitor implements Visitor {
                 );
             }
         }
-        
+    }
+
+    beginVisitPropertyAssignment(node: PropertyAssignment, parent?: Node): void {
+        const initializer = node.getInitializer();
+        this.mapIdentifiers.push(node)
+
+        if (initializer
+            && !Node.isObjectLiteralExpression(initializer)
+            && !Node.isArrayLiteralExpression(initializer)
+        ) {
+            const propertyAccessNodes = getPropertyAccessNodes(initializer);
+            if (propertyAccessNodes.length > 1
+                || (propertyAccessNodes.length === 1
+                    && isConditionalExpression(initializer)
+                )
+            ){
+                const linkConnectorNode = new LinkConnectorNode(
+                    this.context,
+                    node,
+                    node.getName(),
+                    parent,
+                    propertyAccessNodes,
+                    this.mapIdentifiers.slice(0)
+                );
+                this.intermediateNodes.push(linkConnectorNode);
+            }
+        }
     }
 
     getNodes() {
@@ -47,6 +76,7 @@ export class NodeInitVisitor implements Visitor {
         if (this.outputNode) {
             nodes.push(this.outputNode);
         }
+        nodes.push(...this.intermediateNodes);
         return nodes;
     }
 }

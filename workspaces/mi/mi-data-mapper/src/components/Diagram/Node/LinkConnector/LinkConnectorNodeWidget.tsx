@@ -9,14 +9,13 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Button, Codicon, Icon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import classnames from "classnames";
 
 import { DataMapperPortWidget } from '../../Port';
-
 import { LinkConnectorNode } from './LinkConnectorNode';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { useIntermediateNodeStyles } from '../../../styles';
 
 export interface LinkConnectorNodeWidgetProps {

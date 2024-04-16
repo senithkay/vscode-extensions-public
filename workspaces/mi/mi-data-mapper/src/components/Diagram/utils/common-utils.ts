@@ -6,6 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+import { NodeModel } from "@projectstorm/react-diagrams";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import {
     ts,
@@ -21,10 +22,11 @@ import {
 import { PropertyAccessNodeFindingVisitor } from "../../Visitors/PropertyAccessNodeFindingVisitor";
 import { NodePosition, getPosition, isPositionsEquals, traversNode } from "./st-utils";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
-import { InputNode } from "../Node";
+import { InputNode, ObjectOutputNode } from "../Node";
 import { InputOutputPortModel } from "../Port";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { useDMSearchStore } from "../../../store/store";
+import { OBJECT_OUTPUT_TARGET_PORT_PREFIX, PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "./constants";
 
 export function getPropertyAccessNodes(node: Node): (Identifier | PropertyAccessExpression)[] {
     const propertyAccessNodeVisitor: PropertyAccessNodeFindingVisitor = new PropertyAccessNodeFindingVisitor();
@@ -322,6 +324,25 @@ export function getLinebreak(){
 		return "\r\n";
 	}
 	return "\n";
+}
+
+export function isConditionalExpression (node: Node): boolean {
+	return Node.isConditionalExpression(node)
+			|| (Node.isBinaryExpression(node)
+                && (node.getOperatorToken().getKind() === ts.SyntaxKind.QuestionQuestionToken
+                    || node.getOperatorToken().getKind() === ts.SyntaxKind.AmpersandAmpersandEqualsToken
+                    || node.getOperatorToken().getKind() === ts.SyntaxKind.BarBarToken
+                ));
+}
+
+export function getTargetPortPrefix(node: NodeModel): string {
+	switch (true) {
+		case node instanceof ObjectOutputNode:
+			return OBJECT_OUTPUT_TARGET_PORT_PREFIX;
+        // TODO: Update cases for other node types
+		default:
+			return PRIMITIVE_TYPE_TARGET_PORT_PREFIX;
+	}
 }
 
 function getInnerExpr(node: PropertyAccessExpression): Node {

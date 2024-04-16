@@ -124,6 +124,9 @@ export interface Visitor {
     beginVisitPrefixUnaryExpression?(node: tsm.PrefixUnaryExpression, parent?: tsm.Node): void;
     endVisitPrefixUnaryExpression?(node: tsm.PrefixUnaryExpression, parent?: tsm.Node): void;
 
+    beginVisitPropertyAssignment?(node: tsm.PropertyAssignment, parent?: tsm.Node): void;
+    endVisitPropertyAssignment?(node: tsm.PropertyAssignment, parent?: tsm.Node): void;
+
     beginVisitPostfixUnaryExpression?(node: tsm.PostfixUnaryExpression, parent?: tsm.Node): void;
     endVisitPostfixUnaryExpression?(node: tsm.PostfixUnaryExpression, parent?: tsm.Node): void;
 

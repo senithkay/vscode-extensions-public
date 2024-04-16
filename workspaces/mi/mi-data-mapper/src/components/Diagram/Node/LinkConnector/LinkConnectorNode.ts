@@ -6,29 +6,25 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { TypeKind, STModification } from "../../../types";
-import {
-    FieldAccess,
-    NodePosition,
-    OptionalFieldAccess,
-    SimpleNameReference,
-    STKindChecker,
-    STNode,
-    traversNode
-} from "@wso2-enterprise/syntax-tree";
+import { TypeKind } from "@wso2-enterprise/mi-core";
 import md5 from "blueimp-md5";
 import { Diagnostic } from "vscode-languageserver-types";
+import { Identifier, Node, PropertyAccessExpression } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { isPositionsEquals } from "../../../../utils/st-utils";
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel, InputOutputPortModel } from "../../Port";
-import {
-    LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
-    OFFSETS, PRIMITIVE_TYPE_TARGET_PORT_PREFIX
-} from "../../utils/constants";
+import { OFFSETS } from "../../utils/constants";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ObjectOutputNode } from "../ObjectOutput";
+import { getPosition, isPositionsEquals } from "../../utils/st-utils";
+import {
+    findInputNode,
+    getDefaultValue,
+    getInputPort,
+    getOutputPort,
+    getTargetPortPrefix
+} from "../../utils/common-utils";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 const NODE_ID = "link-connector-node";
@@ -36,8 +32,8 @@ const NODE_ID = "link-connector-node";
 export class LinkConnectorNode extends DataMapperNodeModel {
 
     public sourcePorts: InputOutputPortModel[] = [];
-    public targetMappedPort: InputOutputPortModel;
     public targetPort: InputOutputPortModel;
+    public targetMappedPort: InputOutputPortModel;
 
     public inPort: IntermediatePortModel;
     public outPort: IntermediatePortModel;
@@ -48,21 +44,22 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public valueNode: STNode,
+        public valueNode: Node,
         public editorLabel: string,
-        public parentNode: STNode,
-        public fieldAccessNodes: (FieldAccess | OptionalFieldAccess | SimpleNameReference)[],
-        public fields: STNode[],
-        public isPrimitiveTypeArrayElement?: boolean) {
+        public parentNode: Node,
+        public fieldAccessNodes: (PropertyAccessExpression | Identifier)[],
+        public fields: Node[],
+        public isPrimitiveTypeArrayElement?: boolean
+    ) {
         super(
             NODE_ID,
             context,
             LINK_CONNECTOR_NODE_TYPE
         );
-        if (STKindChecker.isSpecificField(valueNode)) {
-            this.value = valueNode.valueExpr ? valueNode.valueExpr.source.trim() : '';
+        if (Node.isPropertyAssignment(valueNode)) {
+            this.value = valueNode.getInitializer() ? valueNode.getInitializer().getText().trim() : '';
         } else {
-            this.value = valueNode.value ? (valueNode.value as string).trim()  : valueNode.source.trim();
+            this.value = valueNode.getText().trim();
         }
     }
 
@@ -70,51 +67,34 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         this.sourcePorts = [];
         this.targetMappedPort = undefined;
         this.inPort = new IntermediatePortModel(
-            md5(JSON.stringify(this.valueNode.position) + "IN")
+            md5(JSON.stringify(getPosition(this.valueNode)) + "IN")
             , "IN"
         );
         this.addPort(this.inPort);
         this.outPort = new IntermediatePortModel(
-            md5(JSON.stringify(this.valueNode.position) + "OUT")
+            md5(JSON.stringify(getPosition(this.valueNode)) + "OUT")
             , "OUT"
         );
         this.addPort(this.outPort);
 
         this.fieldAccessNodes.forEach((field) => {
-            // const inputNode = getInputNodeExpr(field, this);
-            // if (inputNode) {
-            //     this.sourcePorts.push(getInputPortsForExpr(inputNode, field));
-            // }
+            const inputNode = findInputNode(field, this);
+            if (inputNode) {
+                this.sourcePorts.push(getInputPort(inputNode, field));
+            }
         })
 
         if (this.outPort) {
             this.getModel().getNodes().map((node) => {
+    
                 if (node instanceof ObjectOutputNode) {
-                    // const targetPortPrefix = getTargetPortPrefix(node);
-                    if (STKindChecker.isFunctionDefinition(this.parentNode)
-                        || STKindChecker.isQueryExpression(this.parentNode)
-                        || STKindChecker.isBracedExpression(this.parentNode))
-                    {
-                        if (!(node instanceof ObjectOutputNode)) {
-                            // const typeName = targetPortPrefix === PRIMITIVE_TYPE_TARGET_PORT_PREFIX
-                            //     ? node.recordField.type.typeName
-                            //     : targetPortPrefix === LIST_CONSTRUCTOR_TARGET_PORT_PREFIX
-                            //         ? (node as ListConstructorNode | UnionTypeNode).rootName
-                            //         : undefined;
-                            // this.targetPort = node.getPort(
-                            //     `${targetPortPrefix}${typeName ? `.${typeName}` : ''}.IN`
-                            // ) as RecordFieldPortModel;
-                        }
-                        this.targetMappedPort = this.targetPort;
-                    } else {
-                        // const rootName = targetPortPrefix === LIST_CONSTRUCTOR_TARGET_PORT_PREFIX
-                        //     ? (node as ListConstructorNode | UnionTypeNode).rootName
-                        //     : undefined;
-                        // [this.targetPort, this.targetMappedPort] = getOutputPortForField(this.fields,
-                        //     node.recordField, targetPortPrefix,
-                        //     (portId: string) =>  node.getPort(portId) as RecordFieldPortModel,
-                        //     rootName);
-                    }
+                    const targetPortPrefix = getTargetPortPrefix(node);
+
+                    [this.targetPort, this.targetMappedPort] = getOutputPort(
+                        this.fields, node.dmTypeWithValue, targetPortPrefix,
+                        (portId: string) =>  node.getPort(portId) as InputOutputPortModel
+                    );
+
                     if (this.targetMappedPort?.portName !== this.targetPort?.portName) {
                         this.hidden = true;
                     }
@@ -124,17 +104,45 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     }
 
     initLinks(): void {
-        if (!this.hidden) {
+        if (this.hidden) {
+            if (this.targetMappedPort) {
+                this.sourcePorts.forEach((sourcePort) => {
+                    const inPort = this.targetMappedPort;
+                    const lm = new DataMapperLinkModel(undefined, this.diagnostics, true);
+
+                    sourcePort.addLinkedPort(this.targetMappedPort);
+
+                    lm.setTargetPort(this.targetMappedPort);
+                    lm.setSourcePort(sourcePort);
+                    lm.registerListener({
+                        selectionChanged(event) {
+                            if (event.isSelected) {
+                                inPort.fireEvent({}, "link-selected");
+                                sourcePort.fireEvent({}, "link-selected");
+                            } else {
+                                inPort.fireEvent({}, "link-unselected");
+                                sourcePort.fireEvent({}, "link-unselected");
+                            }
+                        },
+                    })
+                    this.getModel().addAll(lm);
+
+                    if (!this.editorLabel) {
+                        this.editorLabel = this.targetMappedPort.fieldFQN.split('.').pop();
+                    }
+                })
+            }
+        } else {
             this.sourcePorts.forEach((sourcePort) => {
                 const inPort = this.inPort;
-
                 const lm = new DataMapperLinkModel(undefined, undefined, true);
+    
                 if (sourcePort) {
-                    lm.setTargetPort(this.inPort);
-                    lm.setSourcePort(sourcePort);
                     sourcePort.addLinkedPort(this.inPort);
                     sourcePort.addLinkedPort(this.targetMappedPort)
 
+                    lm.setTargetPort(this.inPort);
+                    lm.setSourcePort(sourcePort);
                     lm.registerListener({
                         selectionChanged(event) {
                             if (event.isSelected) {
@@ -155,9 +163,9 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 const targetPort = this.targetMappedPort;
 
                 const lm = new DataMapperLinkModel(undefined, this.diagnostics, true);
+
                 lm.setTargetPort(this.targetMappedPort);
                 lm.setSourcePort(this.outPort);
-
                 lm.registerListener({
                     selectionChanged(event) {
                         if (event.isSelected) {
@@ -175,50 +183,18 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 }
                 this.getModel().addAll(lm);
             }
-        } else {
-            if (this.targetMappedPort) {
-                this.sourcePorts.forEach((sourcePort) => {
-                    const inPort = this.targetMappedPort;
-
-                    const lm = new DataMapperLinkModel(undefined, this.diagnostics, true);
-                    lm.setTargetPort(this.targetMappedPort);
-                    lm.setSourcePort(sourcePort);
-                    sourcePort.addLinkedPort(this.targetMappedPort);
-
-                    lm.registerListener({
-                        selectionChanged(event) {
-                            if (event.isSelected) {
-                                inPort.fireEvent({}, "link-selected");
-                                sourcePort.fireEvent({}, "link-selected");
-                            } else {
-                                inPort.fireEvent({}, "link-unselected");
-                                sourcePort.fireEvent({}, "link-unselected");
-                            }
-                        },
-                    })
-                    this.getModel().addAll(lm);
-                    if (!this.editorLabel) {
-                        this.editorLabel = this.targetMappedPort.fieldFQN.split('.').pop();
-                    }
-                })
-            }
         }
     }
 
-    updateSource(): void {
-        const targetPosition = STKindChecker.isSpecificField(this.valueNode)
-            ? this.valueNode.valueExpr.position as NodePosition
-            : this.valueNode.position as NodePosition;
-        const modifications = [
-            {
-                type: "INSERT",
-                config: {
-                    "STATEMENT": this.value,
-                },
-                ...targetPosition
-            }
-        ];
-        // void this.context.applyModifications(modifications);
+    updateSource(suffix: string): void {
+        const { sourceFile, updateFileContent } = this.context;
+        this.value = `${this.value} + ${suffix}`;
+        const targetNode = Node.isPropertyAssignment(this.valueNode)
+            ? this.valueNode.getInitializer()
+            : this.valueNode;
+        
+        targetNode.replaceWithText(this.value);
+        updateFileContent(sourceFile.getText());
     }
 
     public updatePosition() {
@@ -234,40 +210,25 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
     public deleteLink(): void {
         const targetField = this.targetPort.field;
-        let modifications: STModification[];
-        const selectedST = this.valueNode;
-        // const selectedST = this.context.selection.selectedST.stNode;
-        const exprFuncBodyPosition: NodePosition = STKindChecker.isFunctionDefinition(selectedST)
-            && STKindChecker.isExpressionFunctionBody(selectedST.functionBody)
-            && selectedST.functionBody.expression.position;
-        if ((!targetField?.fieldName && targetField?.typeName !== TypeKind.Array
-            && targetField?.typeName !== TypeKind.Record)
-            || (isPositionsEquals(exprFuncBodyPosition, this.valueNode.position)))
+        const { functionST, sourceFile, updateFileContent } = this.context;
+
+        const variableDeclaration = functionST
+            .getVariableStatementOrThrow()
+            .getDeclarationList()
+            .getDeclarations()[0];
+        const initializer = variableDeclaration.getInitializer();
+        const exprFuncBodyPosition = Node.isArrowFunction(initializer)
+            && getPosition(initializer.getBody());
+
+        if ((!targetField?.fieldName
+            && targetField?.kind !== TypeKind.Array
+            && targetField?.kind !== TypeKind.Interface)
+                || isPositionsEquals(exprFuncBodyPosition, getPosition(this.valueNode)))
         {
-            let deletePosition = this.valueNode.position;
-            if (STKindChecker.isQueryExpression(this.valueNode)) {
-                const selectClause = this.valueNode?.selectClause || this.valueNode?.resultClause;
-                deletePosition = selectClause.expression?.position;
-            }
-            // Fallback to the default value if the target is a primitive type element
-            modifications = [{
-                type: "INSERT",
-                config: {
-                    // "STATEMENT": getDefaultValue(targetField?.typeName)
-                },
-                ...deletePosition
-            }];
+            this.valueNode.replaceWithText(getDefaultValue(targetField?.kind));
+            updateFileContent(sourceFile.getText());
         } else {
-            // const linkDeleteVisitor = new LinkDeletingVisitor(this.valueNode.position as NodePosition, this.parentNode);
-            // traversNode(this.context.selection.selectedST.stNode, linkDeleteVisitor);
-            // const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
-
-            // modifications = [{
-            //     type: "DELETE",
-            //     ...nodePositionsToDelete
-            // }];
+            // TODO: Handle the case where the target field is an array or an interface
         }
-
-        // void this.context.applyModifications(modifications);
     }
 }
