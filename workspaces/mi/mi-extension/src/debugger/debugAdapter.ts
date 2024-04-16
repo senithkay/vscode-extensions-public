@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Breakpoint, BreakpointEvent, InitializedEvent, LoggingDebugSession, Scope, StoppedEvent, TerminatedEvent, Thread } from 'vscode-debugadapter';
+import { Breakpoint, BreakpointEvent, Handles, InitializedEvent, LoggingDebugSession, Scope, StoppedEvent, TerminatedEvent, Thread } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import * as vscode from 'vscode';
 import { executeTasks, updateServerPathAndGet } from './debugHelper';
@@ -19,6 +19,8 @@ export class MiDebugAdapter extends LoggingDebugSession {
     private debuggerHandler: Debugger | undefined;
     // we don't support multiple threads, so we can use a hardcoded ID for the default thread
     private static threadID = 1;
+
+    private variableHandles: Handles<any>;
 
     public constructor() {
         super();
@@ -81,6 +83,32 @@ export class MiDebugAdapter extends LoggingDebugSession {
             this.sendEvent(new TerminatedEvent());
         });
 
+        // Create an instance of Handles to manage variable references
+        this.variableHandles = new Handles<any>();
+
+    }
+
+    // TODO: Handle variable types
+    private generateDebugVariable(name: string, val: any): DebugProtocol.Variable {
+        if (val === null) {
+            return { name: name, value: '', variablesReference: 0 };
+        } else if (val instanceof Array) {
+            let index = 0;
+            let vals = val.map((v: any): any => {
+                return this.generateDebugVariable(String(index++), v);
+            });
+
+            let ref = this.variableHandles.create(vals);
+            return { name: name, value: val.toString(), variablesReference: ref };
+        } else if (val instanceof Object) {
+            let vals = Object.getOwnPropertyNames(val).map((key: any): any => {
+                return this.generateDebugVariable(key, val[key]);
+            });
+            let ref = this.variableHandles.create(vals);
+            return { name: name, value: JSON.stringify(val), variablesReference: ref };
+        } else {
+            return { name: name, value: String(val), variablesReference: 0 };
+        }
     }
 
     protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
@@ -165,8 +193,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
         const source = args.source;
         const path = source.path;
         // clear all breakpoints for this file
-        if (path){
-            // TODO: we could set the currentPath in the debuggerHandler and then clear the breakpoints for that path
+        if (path) {
             this.debuggerHandler?.setCurrentFilePath(path);
             this.debuggerHandler?.clearBreakpoints(path);
         }
@@ -176,7 +203,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
             const debugBreakpoint = await this.debuggerHandler?.setBreakPoint(source, this.convertClientLineToDebugger(bp.line));
             if (debugBreakpoint?.line) {
                 const bp = new Breakpoint(debugBreakpoint?.verified, this.convertDebuggerLineToClient(debugBreakpoint?.line),
-                this.convertDebuggerColumnToClient(debugBreakpoint?.column || 0)) as DebugProtocol.Breakpoint;
+                    this.convertDebuggerColumnToClient(debugBreakpoint?.column || 0)) as DebugProtocol.Breakpoint;
                 bp.source = debugBreakpoint?.source;
                 bp.id = debugBreakpoint?.id;
                 return bp;
@@ -256,7 +283,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
     // protected breakpointLocationsRequest(response: DebugProtocol.BreakpointLocationsResponse, args: DebugProtocol.BreakpointLocationsArguments, request?: DebugProtocol.Request | undefined): void {
     //     // get the current breakpoints and send their location data
     //     const breakpoints = this.debuggerHandler?.getBreakpoints(args.source.path as string);
-       
+
     //     if (breakpoints) {
     //         response.body = {
     //             breakpoints: breakpoints.map(bp => {
@@ -294,7 +321,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
         const path = this.debuggerHandler?.getCurrentFilePath() || "";
         const currentBreakpoint = this.debuggerHandler?.getCurrentBreakpoint();
 
-        const line = currentBreakpoint?.line? this.convertDebuggerLineToClient(currentBreakpoint.line) : 0;
+        const line = currentBreakpoint?.line ? this.convertDebuggerLineToClient(currentBreakpoint.line) : 0;
 
         const xmlStackFrame: DebugProtocol.StackFrame = {
             id: 1,
@@ -318,13 +345,14 @@ export class MiDebugAdapter extends LoggingDebugSession {
     }
 
     protected async variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
-        const vars = args.variablesReference;
-        const variables = await this.debuggerHandler?.getVariables();
-        if (variables) {
+        const vars = this.variableHandles.get(args.variablesReference);
+        if (vars !== null) {
+            let variables: DebugProtocol.Variable[] = Array.isArray(vars) ? vars : [vars];
             response.body = {
                 variables: variables
             };
         }
+
         this.sendResponse(response);
     }
 
@@ -341,12 +369,22 @@ export class MiDebugAdapter extends LoggingDebugSession {
         this.sendResponse(response);
     }
 
-    protected scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments, request?: DebugProtocol.Request | undefined): void {
+    protected async scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
+        const variables = await this.debuggerHandler?.getVariables();
+
+        const localScope = variables?.map((v: any): any => {
+            let name = Object.getOwnPropertyNames(v)[0];
+            let value = v[name];
+            let val = this.generateDebugVariable(name, value);
+            return val;
+        });
+
         response.body = {
             scopes: [
-                new Scope("Local", 1, false) // TODO: cehck for the scope
+                new Scope("Local", this.variableHandles.create(localScope), false) // TODO: cehck for the scope
             ]
         };
+
         this.sendResponse(response);
     }
 }

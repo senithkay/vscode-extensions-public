@@ -153,13 +153,6 @@ export class Debugger extends EventEmitter {
         return this.breakPoints.get(this.normalizePathAndCasing(path)) || [];
     }
 
-    // TODO: get the proper path and update the logic of handling the stackTrace
-    // public getPath() {
-    //     // get the first key of the breakpoint
-    //     const path = this.breakPoints.keys().next().value;
-    //     return path;
-    // }
-
     public getCurrentFilePath(): string {
         return this.currentFile || '';
     }
@@ -337,10 +330,10 @@ export class Debugger extends EventEmitter {
     }
 
 
-    public async sendPropertiesCommand(): Promise<DebugProtocol.Variable[]> {
+
+    public async sendPropertiesCommand(): Promise<JSON[]> {
         const contextList = ["axis2", "axis2-client", "transport", "synapse"];
-        // const contextList = ["axis2", "axis2-client"];
-        const variables: DebugProtocol.Variable[] = [];
+        const variables: JSON[] = [];
 
         for (const context of contextList) {
             let propertiesCommand: any = { "command": "get", "command-argument": "properties", "context": context };
@@ -351,26 +344,15 @@ export class Debugger extends EventEmitter {
             try {
                 const response = await this.sendRequest(JSON.stringify(propertiesCommand));
                 const jsonResponse = JSON.parse(response);
-                // convert the properties to debugprotocol variables
-                const key = Object.keys(jsonResponse)[0]; // Assuming only one key is present
-                const value = jsonResponse[key];
-                const variable: DebugProtocol.Variable = {
-                    name: key,
-                    value: JSON.stringify(response),
-                    variablesReference: 0
-                };
-                variables.push(variable);
-
+                variables.push(jsonResponse);
             } catch (error) {
                 console.error(`Error sending request for ${context}:`, error);
-
             }
-
         }
         return variables;
     }
 
-    public async getVariables(): Promise<DebugProtocol.Variable[]> {
+    public async getVariables(): Promise<JSON[]> {
         const variables = await this.sendPropertiesCommand();
         return variables;
     }
