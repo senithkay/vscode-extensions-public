@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { TextField, RadioButtonGroup } from "@wso2-enterprise/ui-toolkit";
 import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
-import { FieldErrors, UseFormGetValues, UseFormRegister } from "react-hook-form";
+import { Control, FieldErrors, UseFormGetValues, UseFormRegister } from "react-hook-form";
 import { CreateRegistryResourceRequest } from "@wso2-enterprise/mi-core";
+import ControllerField, { FieldType } from "./Commons/ControllerField";
 
 export interface AddToRegistryProps {
     path: string;
@@ -18,6 +18,7 @@ export interface AddToRegistryProps {
     register: UseFormRegister<any>;
     getValues: UseFormGetValues<any>;
     errors: FieldErrors<any>;
+    control: Control<any, any>;
 }
 
 export async function saveToRegistry(rpcClient: RpcClient, path: string, registryType: string,
@@ -48,37 +49,46 @@ export function formatRegistryPath(path: string, registryType: string, fileName:
     return regPath;
 }
 
-export async function getRegistryArifactNames(path: string, rpcClient: RpcClient)
-    : Promise<{ artifactNamesArr: string[] }> {
+export async function getArtifactNamesAndRegistryPaths(path: string, rpcClient: RpcClient)
+    : Promise<{ artifactNamesArr: string[], registryPaths: string[] }> {
     const response = await rpcClient.getMiDiagramRpcClient().getAvailableRegistryResources({ path: path });
     const artifacts = response.artifacts;
     var tempArtifactNames: string[] = [];
     for (let i = 0; i < artifacts.length; i++) {
         tempArtifactNames.push(artifacts[i].name);
     }
-    return { artifactNamesArr: tempArtifactNames };
+    const res = await rpcClient.getMiVisualizerRpcClient().getAllRegistryPaths({
+        path: path,
+    });
+    return { artifactNamesArr: tempArtifactNames, registryPaths: res.registryPaths };
 }
 
 export function AddToRegistry(props: AddToRegistryProps) {
     return (
         <div>
-            <TextField
-                id='artifactName'
-                label="Artifact Name"
-                errorMsg={props.errors.artifactName?.message.toString()}
-                {...props.register("artifactName")}
+            <ControllerField
+                required
+                autoFocus
+                id="artifactName"
+                label="Artifact name"
+                control={props.control}
+                errors={props.errors}
             />
-            <RadioButtonGroup
-                label="Select registry type"
+            <ControllerField
                 id="registryType"
+                label="Select registry type"
+                control={props.control}
+                errors={props.errors}
+                fieldType={FieldType.RADIO_GROUP}
                 options={[{ content: "Governance registry (gov)", value: "gov" }, { content: "Configuration registry (conf)", value: "conf" }]}
-                {...props.register("registryType")}
             />
-            <TextField
-                id='registryPath'
-                label="Registry Path"
-                errorMsg={props.errors.registryPath?.message.toString()}
-                {...props.register("registryPath")}
+            <ControllerField
+                required
+                autoFocus
+                id="registryPath"
+                label="Registry path"
+                control={props.control}
+                errors={props.errors}
             />
         </div>
     );

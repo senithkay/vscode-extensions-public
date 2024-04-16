@@ -7,13 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { useEffect, useState } from "react";
-import { FormAutoComplete, Button, FormGroup, TextField, FormView, FormActions, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
+import { Button, FormGroup, FormView, FormActions } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
-import AddToRegistry, { getRegistryArifactNames, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
+import AddToRegistry, { getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
+import ControllerField, { FieldType } from "./Commons/ControllerField";
 
 export interface SequenceWizardProps {
     path: string;
@@ -75,8 +76,8 @@ export function SequenceWizard(props: SequenceWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().required("Artifact Name is required").test('validateArtifactName',
-                    'Artifact name already exists', value => {
+                yup.string().required("Artifact Name is required").matches(/^[a-zA-Z0-9]*$/, "Invalid characters in artifact name")
+                    .test('validateArtifactName', 'Artifact name already exists', value => {
                         return !artifactNames.includes(value);
                     }),
         }),
@@ -85,10 +86,11 @@ export function SequenceWizard(props: SequenceWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
-                    const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
-                    return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
-                }),
+                yup.string().required('Registry path is required').matches(/^[a-zA-Z0-9/]*$/, "Invalid characters in registry path")
+                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
+                        const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
+                        return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
+                    }),
         }),
         registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
     });
@@ -139,12 +141,9 @@ export function SequenceWizard(props: SequenceWizardProps) {
                 endpointNames.push(...resources);
             }
             setEndpoints(endpointNames);
-            const result = await getRegistryArifactNames(props.path, rpcClient);
+            const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
             setArtifactNames(result.artifactNamesArr);
-            const res = await rpcClient.getMiVisualizerRpcClient().getAllRegistryPaths({
-                path: props.path,
-            });
-            setRegistryPaths(res.registryPaths);
+            setRegistryPaths(result.registryPaths);
         })();
     }, []);
 
@@ -158,7 +157,8 @@ export function SequenceWizard(props: SequenceWizardProps) {
         }
         const result = await rpcClient.getMiDiagramRpcClient().createSequence(createSequenceParams);
         if (watch("saveInReg")) {
-            await saveToRegistry(rpcClient, props.path, values.registryType, values.name, result.fileContent, values.registryPath, values.artifactName);
+            await saveToRegistry(rpcClient, props.path, values.registryType, values.name, result.fileContent,
+                values.registryPath, values.artifactName);
         }
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
@@ -173,48 +173,60 @@ export function SequenceWizard(props: SequenceWizardProps) {
 
     return (
         <FormView title="Create New Sequence" onClose={handleBackButtonClick}>
-            <TextField
-                id='name-input'
+            <ControllerField
+                required
+                autoFocus
+                id="name"
                 label="Name"
-                placeholder="Name"
-                errorMsg={errors.name?.message.toString()}
-                {...register("name")}
+                control={control}
+                errors={errors}
             />
             <FormGroup title="Advanced Configuration" isCollapsed={true}>
-                <FormAutoComplete
+                <ControllerField
+                    id="endpoint"
                     label="Endpoint"
-                    required={false}
                     isNullable={true}
+                    required={false}
+                    fieldType={FieldType.AUTOCOMPLETE}
                     items={endpoints}
                     control={control}
-                    {...register("endpoint")}
+                    errors={errors}
                 />
-                <FormAutoComplete
-                    label="On Error Sequence"
-                    required={false}
+                <ControllerField
+                    id="onErrorSequence"
+                    label="On-error sequence"
                     isNullable={true}
+                    required={false}
+                    fieldType={FieldType.AUTOCOMPLETE}
                     items={sequences}
                     control={control}
-                    {...register("onErrorSequence")}
+                    errors={errors}
                 />
-                <FormCheckBox
+                <ControllerField
+                    id="trace"
                     label="Enable tracing"
-                    {...register("trace")}
+                    fieldType={FieldType.CHECKBOX}
                     control={control}
+                    errors={errors}
                 />
-                <FormCheckBox
+                <ControllerField
+                    id="statistics"
                     label="Enable statistics"
-                    {...register("statistics")}
+                    fieldType={FieldType.CHECKBOX}
                     control={control}
+                    errors={errors}
                 />
             </FormGroup>
-            <FormCheckBox
+            <ControllerField
+                id="saveInReg"
                 label="Save the sequence in registry"
-                {...register("saveInReg")}
+                fieldType={FieldType.CHECKBOX}
                 control={control}
+                errors={errors}
             />
             {watch("saveInReg") && (<>
-                <AddToRegistry path={props.path} fileName={watch("name")} register={register} errors={errors} getValues={getValues} />
+                <AddToRegistry path={props.path} fileName={watch("name")} register={register} errors={errors}
+                    getValues={getValues} control={control} />
             </>)}
             <FormActions>
                 <Button
