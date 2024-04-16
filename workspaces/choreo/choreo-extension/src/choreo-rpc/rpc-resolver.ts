@@ -19,6 +19,10 @@ import {
     ChoreoRpcCreateProjectRequest,
     ChoreoRpcCreateComponentRequest,
     ChoreoRpcDeleteComponentRequest,
+    ChoreoRpcCreateBuildRequest,
+    ChoreoRpcGetDeploymentTracksRequest,
+    ChoreoRpcGetBuildsRequest,
+    ChoreoRpcGetCommitsRequest,
 } from "@wso2-enterprise/choreo-core";
 import { ProgressLocation, window } from "vscode";
 
@@ -47,4 +51,13 @@ export function registerChoreoRpcResolver(messenger: Messenger, rpcClient: IChor
             () => rpcClient.deleteComponent(params)
         );
     });
+    messenger.onRequest(ChoreoRpcCreateBuildRequest, async (params) => {
+        return window.withProgress(
+            { title: `Triggering build for ${params.componentName}...`, location: ProgressLocation.Notification },
+            () => rpcClient.createBuild(params)
+        );
+    });
+    messenger.onRequest(ChoreoRpcGetDeploymentTracksRequest, (params) => rpcClient.getDeploymentTracks(params));
+    messenger.onRequest(ChoreoRpcGetBuildsRequest, (params) => rpcClient.getBuilds(params));
+    messenger.onRequest(ChoreoRpcGetCommitsRequest, (params) => rpcClient.getCommits(params));
 }

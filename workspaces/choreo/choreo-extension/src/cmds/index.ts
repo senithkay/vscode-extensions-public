@@ -15,6 +15,7 @@ import { signInCommand } from './sign-in-cmd';
 import { signInWithAuthCodeCommand } from './sign-in-with-code-cmd';
 import { signOutCommand } from './sign-out-cmd';
 import { openComponentInConsoleCommand } from './open-component-in-console-cmd';
+import { viewComponentCommand } from './view-component-cmd';
 import { CommandIds } from "@wso2-enterprise/choreo-core";
 
 export function activateCmds(context: ExtensionContext) {
@@ -26,6 +27,7 @@ export function activateCmds(context: ExtensionContext) {
     signInWithAuthCodeCommand(context);
     signOutCommand(context);
     openComponentInConsoleCommand(context);
+    viewComponentCommand(context);
 
     commands.registerCommand(CommandIds.OpenWalkthrough, () => {
         commands.executeCommand(`workbench.action.openWalkthrough`, `wso2.choreo#choreo.getStarted`, false);

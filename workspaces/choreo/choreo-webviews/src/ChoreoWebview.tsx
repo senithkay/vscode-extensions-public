@@ -16,14 +16,16 @@ import { ChoreoWebviewQueryClientProvider } from "./utilities/reactQueryClient";
 import { LinkedDirContextProvider } from "./context/choreo-linked-dir-ctx";
 import { AuthContextProvider } from "./context/choreo-auth-ctx";
 import { ComponentFormView } from "./views/ComponentFormView";
+import { ComponentDetailsView } from "./views/ComponentDetailsView";
 import { AccountView } from "./views/AccountView";
 import { ComponentListView } from "./views/ComponentListView";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import {
-    NewComponentWebview,
+    NewComponentWebviewProps,
     WebviewProps,
-    AccountActivityView,
-    ComponentsListActivityView,
+    AccountActivityViewProps,
+    ComponentsListActivityViewProps,
+    ComponentsDetailsWebviewProps,
 } from "@wso2-enterprise/choreo-core";
 
 function ChoreoWebview(props: WebviewProps) {
@@ -35,13 +37,15 @@ function ChoreoWebview(props: WebviewProps) {
                         {(() => {
                             switch (props.type) {
                                 case "NewComponentForm":
-                                    return <ComponentFormView {...(props as NewComponentWebview)} />;
+                                    return <ComponentFormView {...(props as NewComponentWebviewProps)} />;
+                                case "ComponentDetailsView":
+                                    return <ComponentDetailsView {...(props as ComponentsDetailsWebviewProps)} />;
                                 case "AccountActivityView":
-                                    return <AccountView {...(props as AccountActivityView)} />;
+                                    return <AccountView {...(props as AccountActivityViewProps)} />;
                                 case "ComponentsListActivityView":
                                     return (
                                         <LinkedDirContextProvider>
-                                            <ComponentListView {...(props as ComponentsListActivityView)} />
+                                            <ComponentListView {...(props as ComponentsListActivityViewProps)} />
                                         </LinkedDirContextProvider>
                                     );
                                 default:

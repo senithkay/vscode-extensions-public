@@ -1,7 +1,7 @@
 import { getLogger } from "../logger/logger";
 import { MessageConnection, Trace, Tracer } from "vscode-jsonrpc";
 import { StdioConnection } from "./connection";
-import { Buildpack, ComponentKind, Project, UserInfo, IChoreoRPCClient, BuildPackReq, GetBranchesReq, IsRepoAuthorizedReq, GetComponentsReq, CreateLinkReq, CreateProjectReq, CreateComponentReq, DeleteCompReq } from "@wso2-enterprise/choreo-core";
+import { Buildpack, ComponentKind, Project, UserInfo, IChoreoRPCClient, BuildPackReq, GetBranchesReq, IsRepoAuthorizedReq, GetComponentsReq, CreateLinkReq, CreateProjectReq, CreateComponentReq, DeleteCompReq, CreateBuildReq, BuildKind, GetDeploymentTracksReq, DeploymentTrack, GetBuildsReq, GetCommitsReq, CommitHistory } from "@wso2-enterprise/choreo-core";
 import { workspace } from "vscode";
 
 
@@ -116,6 +116,30 @@ export class ChoreoRPCClient implements IChoreoRPCClient{
     async signOut(): Promise<string | void> {
         const client = await ChoreoRPCClient.getInstance();
         await client.conn.sendRequest("auth/signOut");
+    }
+
+    async createBuild(params: CreateBuildReq): Promise<BuildKind> {
+        const client = await ChoreoRPCClient.getInstance();
+        const response: {build: BuildKind} = await client.conn.sendRequest("build/create", params);
+        return response.build;
+    }
+
+    async getDeploymentTracks(params: GetDeploymentTracksReq): Promise<DeploymentTrack[]> {
+        const client = await ChoreoRPCClient.getInstance();
+        const response: { deploymentTracks: DeploymentTrack[] } = await client.conn.sendRequest("component/getDeploymentTracks", params);
+        return response.deploymentTracks;
+    }
+
+    async getBuilds(params: GetBuildsReq): Promise<BuildKind[]> {
+        const client = await ChoreoRPCClient.getInstance();
+        const response: { builds: BuildKind[] } = await client.conn.sendRequest("build/getList", params);
+        return response.builds;
+    }
+
+    async getCommits(params: GetCommitsReq): Promise<CommitHistory[]> {
+        const client = await ChoreoRPCClient.getInstance();
+        const response: { commits: CommitHistory[] } = await client.conn.sendRequest("component/getCommits", params);
+        return response.commits;
     }
 }
 

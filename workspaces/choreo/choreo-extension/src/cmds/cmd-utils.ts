@@ -9,29 +9,38 @@
 import { window, QuickPickItem, QuickPickItemKind, workspace, WorkspaceFolder } from "vscode";
 import { ext } from "../extensionVariables";
 import { ComponentKind, Organization, Project, UserInfo } from "@wso2-enterprise/choreo-core";
+import { dataCacheStore } from "../stores/data-cache-store";
 
 export const selectComponent = async (
     org: Organization,
     project: Project,
-    loadingPlaceholder = "Loading Components...",
-    selectPlaceholder = "Select Component"
+    loadingTitle = "Loading Components...",
+    selectTitle = "Select Component"
 ): Promise<ComponentKind> => {
-    const components = await quickPickLoader(
-        ext.clients.rpcClient.getComponentList({
-            orgId: org.id.toString(),
-            projectHandle: project.handler,
-        }),
-        loadingPlaceholder
-    );
+    const selectedComponent = await quickPickWithLoader({
+        cacheQuickPicks: dataCacheStore
+            .getState()
+            .getComponents(org.handle, project.handler)
+            .map((item) => ({ label: item.metadata.name, item })),
+        loadQuickPicks: async () => {
+            const components = await ext.clients.rpcClient.getComponentList({
+                orgId: org.id.toString(),
+                projectHandle: project.handler,
+            });
+            dataCacheStore.getState().setComponents(org.handle, project.handler, components);
 
-    const componentItems: QuickPickItem[] = components?.map((item) => ({ label: item.metadata.name }));
+            if (components.length === 0) {
+                throw new Error(
+                    "You do not have any existing components in your project. Please retry after creating one."
+                );
+            }
 
-    const componentSelection = await window.showQuickPick(componentItems, {
-        title: selectPlaceholder,
-        ignoreFocusOut: true,
+            return components.map((item) => ({ label: item.metadata.name, item }));
+        },
+        loadingTitle,
+        selectTitle,
+        placeholder: "Component Name",
     });
-
-    const selectedComponent = components?.find((item) => item.metadata.name === componentSelection?.label);
 
     if (!selectedComponent) {
         throw new Error("Failed to select component");
@@ -42,30 +51,28 @@ export const selectComponent = async (
 
 export const selectProject = async (
     org: Organization,
-    loadingPlaceholder = "Loading projects...",
-    selectPlaceholder = "Select project"
+    loadingTitle = "Loading projects...",
+    selectTitle = "Select project"
 ): Promise<Project> => {
-    const projects = await quickPickLoader(ext.clients.rpcClient.getProjects(org.id.toString()), loadingPlaceholder);
+    const selectedProject = await quickPickWithLoader({
+        cacheQuickPicks: dataCacheStore
+            .getState()
+            .getProjects(org.handle)
+            .map((item) => ({ label: item.name, detail: `Handle: ${item.handler}`, item })),
+        loadQuickPicks: async () => {
+            const projects = await ext.clients.rpcClient.getProjects(org.id.toString());
+            dataCacheStore.getState().setProjects(org.handle, projects);
 
-    if (projects.length === 0) {
-        throw new Error("You do not have any existing components or projects. Please try creating one.");
-    }
+            if (projects.length === 0) {
+                throw new Error("You do not have any existing components or projects. Please try creating one.");
+            }
 
-    if (projects.length === 1) {
-        return projects[0];
-    }
-
-    const projectItems: QuickPickItem[] = projects?.map((item) => ({
-        label: item.name,
-        detail: `Handle: ${item.handler}`,
-    }));
-
-    const projectSelection = await window.showQuickPick(projectItems, {
-        title: selectPlaceholder,
-        ignoreFocusOut: true,
+            return projects.map((item) => ({ label: item.name, detail: `Handle: ${item.handler}`, item }));
+        },
+        loadingTitle,
+        selectTitle,
+        placeholder: "Project Name",
     });
-
-    const selectedProject = projects?.find((item) => item.name === projectSelection?.label);
 
     if (!selectedProject) {
         throw new Error("Failed to select project");
@@ -74,54 +81,80 @@ export const selectProject = async (
     return selectedProject;
 };
 
-export const selectProjectWithCreateNew = async (org: Organization,
-    loadingPlaceholder = "Loading projects...",
-    selectPlaceholder = "Select project"): Promise<Project | "new-project"> => {
-    const projects = await quickPickLoader(ext.clients.rpcClient.getProjects(org.id.toString()), loadingPlaceholder);
-
-    const projectItems: QuickPickItem[] = [];
-
-    if (projects.length === 0) {
-        return "new-project";
-    } else if (projects.length > 0) {
-        projectItems.push({ kind: QuickPickItemKind.Separator, label: "Existing projects" });
-        projectItems.push(
-            ...projects?.map((item) => ({
-                label: item.name,
-                detail: `Handle: ${item.handler}`,
-            }))
-        );
+export const selectProjectWithCreateNew = async (
+    org: Organization,
+    loadingTitle = "Loading projects...",
+    selectTitle = "Select project"
+): Promise<Project | "new-project"> => {
+    type ProjectQuickPick = QuickPickItem & { item?: Project };
+    const projectQuickPicks: ProjectQuickPick[] = [];
+    const projectCachePicks = dataCacheStore
+        .getState()
+        .getProjects(org.handle)
+        .map((item) => ({ label: item.name, detail: `Handle: ${item.handler}`, item }));
+    if (projectCachePicks.length > 0) {
+        projectQuickPicks.push({ kind: QuickPickItemKind.Separator, label: "Existing projects" });
+        projectQuickPicks.push(...projectCachePicks);
     }
-
-    projectItems.push({ kind: QuickPickItemKind.Separator, label: "New Project" });
-    projectItems.push({
+    projectQuickPicks.push({ kind: QuickPickItemKind.Separator, label: "New Project" });
+    projectQuickPicks.push({
         label: "Create New",
         detail: `Create new project within ${org.name} organization`,
         alwaysShow: true,
     });
 
-    const projectSelection = await window.showQuickPick(projectItems, {
-        title: selectPlaceholder,
-        ignoreFocusOut: true,
+    const quickPick = window.createQuickPick();
+    quickPick.busy = true;
+    quickPick.title = loadingTitle;
+    quickPick.ignoreFocusOut = true;
+    quickPick.placeholder = "Project Name";
+    quickPick.items = projectQuickPicks;
+    quickPick.show();
+
+    ext.clients.rpcClient
+        .getProjects(org.id.toString())
+        .then((projects) => {
+            dataCacheStore.getState().setProjects(org.handle, projects);
+            quickPick.busy = false;
+            quickPick.title = selectTitle || "Select an options";
+            const updatedQuickPicks: ProjectQuickPick[] = [];
+            const projectQuickPicks = projects?.map((item) => ({
+                label: item.name,
+                detail: `Handle: ${item.handler}`,
+                item,
+            }));
+            if (projects?.length > 0) {
+                updatedQuickPicks.push({ kind: QuickPickItemKind.Separator, label: "Existing projects" });
+                updatedQuickPicks.push(...projectQuickPicks);
+            }
+            updatedQuickPicks.push({ kind: QuickPickItemKind.Separator, label: "New Project" });
+            updatedQuickPicks.push({
+                label: "Create New",
+                detail: `Create new project within ${org.name} organization`,
+                alwaysShow: true,
+            });
+        })
+        .catch((err) => {
+            quickPick.dispose();
+            throw(err);
+        });
+
+    const selectedQuickPick = await new Promise((resolve) => {
+        quickPick.onDidAccept(() => resolve(quickPick.selectedItems[0]));
+        quickPick.onDidHide(() => resolve(null));
     });
+    quickPick.dispose();
 
-    if (projectSelection?.label === "Create New") {
+    if ((selectedQuickPick as QuickPickItem)?.label === "Create New") {
         return "new-project";
+    } else if ((selectedQuickPick as ProjectQuickPick)?.item) {
+        return (selectedQuickPick as ProjectQuickPick)?.item!;
     }
 
-    const selectedProject = projects?.find((item) => item.name === projectSelection?.label);
-
-    if (!selectedProject) {
-        throw new Error("Failed to select project");
-    }
-
-    return selectedProject;
+    throw new Error("Failed to select project");
 };
 
-export const selectOrg = async (
-    userInfo: UserInfo,
-    selectPlaceholder = "Select organization"
-): Promise<Organization> => {
+export const selectOrg = async (userInfo: UserInfo, selectTitle = "Select organization"): Promise<Organization> => {
     const items: QuickPickItem[] = userInfo.organizations?.map((item) => ({
         label: item.name,
         detail: `Handle: ${item.handle}`,
@@ -135,7 +168,11 @@ export const selectOrg = async (
         return userInfo.organizations[0];
     }
 
-    const orgSelection = await window.showQuickPick(items, { title: selectPlaceholder, ignoreFocusOut: true });
+    const orgSelection = await window.showQuickPick(items, {
+        title: selectTitle,
+        ignoreFocusOut: true,
+        placeHolder: "Organization Name",
+    });
 
     const selectedOrg = userInfo.organizations.find((item) => item.name === orgSelection?.label);
 
@@ -165,155 +202,59 @@ export const resolveWorkspaceDirectory = async (): Promise<WorkspaceFolder> => {
     }
 };
 
-async function quickPickLoader<T>(promise: Promise<T>, ladingMessage: string = "Loading..."): Promise<T> {
-    const quickPick = window.createQuickPick();
-    quickPick.busy = true;
-    quickPick.title = ladingMessage;
-    quickPick.show();
-    quickPick.ignoreFocusOut = true;
-
-    try {
-        const result = await promise;
-        return result;
-    } finally {
-        quickPick.hide();
+export const resolveWorksQuickPick = async <T>(
+    items: (QuickPickItem & { item: T })[] = [],
+    quickPickTitle = "selectItem",
+    emptyError = "No items found to pick"
+): Promise<T> => {
+    if (items?.length === 0) {
+        throw new Error(emptyError);
+    } else if (items?.length === 1) {
+        return items[0]?.item;
+    } else {
+        const itemSelection = await window.showQuickPick(items, { title: quickPickTitle, ignoreFocusOut: true });
+        if (!itemSelection?.item) {
+            throw new Error("No items selected");
+        }
+        return itemSelection?.item;
     }
-}
-
-
-/*
-export const selectComponent = async (
-    org: Organization,
-    project: Project,
-    loadingTitle = "Loading Components...",
-    selectTitle = "Select Component"
-): Promise<ComponentKind> => {
-    const selectedComponent = await quickPickLoaderWithCache({
-        cacheQuickPicks: dataCacheStore
-            .getState()
-            .getComponents(org.handle, project.handler)
-            .map((item) => ({ label: item.metadata.name, item })),
-        loadQuickPicks: async () => {
-            const components = await ext.clients.rpcClient.getComponentList({
-                orgId: org.id.toString(),
-                projectHandle: project.handler,
-            });
-            dataCacheStore.getState().setComponents(org.handle, project.handler, components);
-
-            if (components.length === 0) {
-                throw new Error("You do not have any existing components in your project. Please try creating one.");
-            }
-
-            return components.map((item) => ({ label: item.metadata.name, item }));
-        },
-        loadingTitle,
-        selectTitle,
-        autoSelectFirst: true,
-        placeholderName: "Component Name",
-    });
-
-    if (!selectedComponent) {
-        throw new Error("Failed to select component");
-    }
-
-    return selectedComponent;
 };
 
-
-export const selectProject = async (
-    org: Organization,
-    loadingTitle = "Loading projects...",
-    selectTitle = "Select project"
-): Promise<Project> => {
-    const selectedProject = await quickPickLoaderWithCache({
-        cacheQuickPicks: dataCacheStore
-            .getState()
-            .getProjects(org.handle)
-            .map((item) => ({ label: item.name, detail: `Handle: ${item.handler}`, item })),
-        loadQuickPicks: async () => {
-            const projects = await ext.clients.rpcClient.getProjects(org.id.toString());
-            dataCacheStore.getState().setProjects(org.handle, projects);
-
-            if (projects.length === 0) {
-                throw new Error("You do not have any existing components or projects. Please try creating one.");
-            }
-
-            return projects.map((item) => ({ label: item.name, detail: `Handle: ${item.handler}`, item }));
-        },
-        loadingTitle,
-        selectTitle,
-        autoSelectFirst: true,
-        placeholderName: "Project Name",
-    });
-
-    if (!selectedProject) {
-        throw new Error("Failed to select project");
-    }
-
-    return selectedProject;
-};
-
-async function quickPickLoaderWithCache<T>(params: {
+async function quickPickWithLoader<T>(params: {
     cacheQuickPicks?: (QuickPickItem & { item: T })[];
     loadQuickPicks: () => Promise<(QuickPickItem & { item: T })[]>;
     loadingTitle?: string;
     selectTitle?: string;
-    autoSelectFirst?: boolean;
-    placeholderName?: string;
+    placeholder?: string;
 }): Promise<T | undefined | null> {
     const quickPick = window.createQuickPick();
     quickPick.busy = true;
     quickPick.title = params.loadingTitle || "Loading...";
     quickPick.ignoreFocusOut = true;
-    quickPick.placeholder = params.placeholderName;
+    quickPick.placeholder = params.placeholder;
     if (params.cacheQuickPicks) {
         quickPick.items = params.cacheQuickPicks;
     }
     quickPick.show();
 
-    let quickPickResponse: any;
-    try {
-        quickPickResponse = await Promise.race([
-            (async () => {
-                const quickPickItems = await params.loadQuickPicks();
-                return quickPickItems;
-            })(),
-            (async () => {
-                const selectedQuickPick: QuickPickItem = await new Promise((resolve) =>
-                    quickPick.onDidAccept(() => resolve(quickPick.selectedItems[0]))
-                );
-                const selectedT = params.cacheQuickPicks?.find((item) => item.label === selectedQuickPick.label)?.item;
-                return selectedT;
-            })(),
-            (async () => {
-                await new Promise((_, reject) => quickPick.onDidHide(() => reject("Closed quick pick without selecting")));
-            })(),
-        ]);
-        if (Array.isArray(quickPickResponse)) {
-            quickPick.items = quickPickResponse;
+    params
+        .loadQuickPicks()
+        .then((quickPickItems) => {
+            quickPick.items = quickPickItems;
             quickPick.busy = false;
             quickPick.title = params.selectTitle || "Select an options";
-            quickPick.show();
+        })
+        .catch((err) => {
+            quickPick.dispose();
+            throw(err);
+        });
 
-            quickPickResponse = await Promise.race([
-                (async () => {
-                    const selectedQuickPick: QuickPickItem = await new Promise((resolve) =>
-                        quickPick.onDidAccept(() => resolve(quickPick.selectedItems[0]))
-                    );
-                    const selectedT = quickPickResponse.find((item) => item.label === selectedQuickPick.label)?.item;
-                    return selectedT;
-                })(),
-                (async () => {
-                    await new Promise((_, reject) => quickPick.onDidHide(() => reject("Closed quick pick without selecting")));
-                })(),
-            ]);
-        }
-    } catch (err) {
-        console.info(err);
-        return null;
-    } finally {
-        quickPick.dispose();
-    }
-    return quickPickResponse;
+    const selectedQuickPick = await new Promise((resolve) => {
+        quickPick.onDidAccept(() => resolve(quickPick.selectedItems[0]));
+        quickPick.onDidHide(() => resolve(null));
+    });
+    quickPick.dispose();
+    const selectedT = (selectedQuickPick as QuickPickItem & { item: T })?.item;
+
+    return selectedT;
 }
-*/

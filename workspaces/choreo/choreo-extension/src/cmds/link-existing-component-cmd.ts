@@ -13,107 +13,126 @@ import { authStore } from "../stores/auth-store";
 import * as path from "path";
 import * as fs from "fs";
 import { linkedDirectoryStore } from "../stores/linked-dir-store";
-import { selectOrg, selectProject, resolveWorkspaceDirectory } from "./cmd-utils";
+import { selectOrg, selectProject, resolveWorkspaceDirectory, resolveWorksQuickPick } from "./cmd-utils";
 import { getGitRoot } from "../git/util";
 import { goTosource } from "../utils";
 
 export function linkExistingComponentCommand(context: ExtensionContext) {
     context.subscriptions.push(
         commands.registerCommand(CommandIds.LinkExistingComponent, async () => {
-            const userInfo = authStore.getState().state.userInfo;
-            if (!userInfo) {
-                throw new Error("You are not logged in. Please log in and retry.");
-            }
-
-            const directory = await resolveWorkspaceDirectory();
-
-            const componentDir = await window.showOpenDialog({
-                canSelectFolders: true,
-                canSelectFiles: false,
-                canSelectMany: false,
-                title: "Select directory that needs to be linked with a component (1/3)",
-                defaultUri: directory.uri,
-            });
-
-            if (componentDir === undefined || componentDir.length === 0) {
-                throw new Error("Component directory is required to link with a component");
-            }
-
-            if (!componentDir[0].path.startsWith(directory.uri.path)) {
-                throw new Error("Component directory must be within your workspace");
-            }
-
-            const gitRoot = await getGitRoot(context, directory.uri.path);
-            if (!gitRoot) {
-                throw new Error("Selected directory is not within a git directory");
-            }
-
-            const selectedOrg = await selectOrg(userInfo,"Select organization (2/3)");
-
-            const selectedProject = await selectProject(
-                selectedOrg,
-                `Loading projects from '${selectedOrg.name}' (3/3)`,
-                `Select project from '${selectedOrg.name}' (3/3)`
-            );
-
-            const components = await window.withProgress(
-                { title: `Fetching components of ${selectedProject.name}...`, location: ProgressLocation.Notification },
-                () =>
-                    ext.clients.rpcClient.getComponentList({
-                        orgId: selectedOrg.id.toString(),
-                        projectHandle: selectedProject.handler,
-                    })
-            );
-
-            if (components.length === 0) {
-                throw new Error(`No components found to link within ${selectedProject.name} .`);
-            }
-
-            let matchingComponent: ComponentKind | null = null;
-            for (const component of components) {
-                const compPath = path.join(gitRoot, component.spec.source.github?.path!);
-                if (fs.existsSync(compPath) && compPath === componentDir[0].path) {
-                    matchingComponent = component;
-                    break;
+            // TODO: add try catch for all other command blocks
+            try {
+                const userInfo = authStore.getState().state.userInfo;
+                if (!userInfo) {
+                    throw new Error("You are not logged in. Please log in and retry.");
                 }
-            }
 
-            if (!matchingComponent) {
-                window.showInformationMessage("No matching components was found for the selected directory");
-                return;
-            }
+                const directory = await resolveWorkspaceDirectory();
 
-            await window.withProgress(
-                { title: `Generating Link File...`, location: ProgressLocation.Notification },
-                async () => {
-                    await ext.clients.rpcClient.createComponentLink({
-                        componentDir: path.join(gitRoot, matchingComponent?.spec.source.github?.path!),
-                        componentHandle: matchingComponent?.metadata.name!,
-                        orgHandle: selectedOrg.handle,
-                        projectHandle: selectedProject.handler,
-                    });
+                const componentDir = await window.showOpenDialog({
+                    canSelectFolders: true,
+                    canSelectFiles: false,
+                    canSelectMany: false,
+                    title: "Select directory that needs to be linked with a component (1/3)",
+                    defaultUri: directory.uri,
+                });
 
-                    await linkedDirectoryStore.getState().refreshState();
+                if (componentDir === undefined || componentDir.length === 0) {
+                    throw new Error("Component directory is required to link with a component");
+                }
 
-                    window
-                        .showInformationMessage(
-                            `Selected directory has been successfully linked with component ${matchingComponent?.metadata.name}`,
-                            "View link file"
-                        )
-                        .then((selection) => {
-                            if (selection === "View link file") {
-                                goTosource(
-                                    path.join(
-                                        gitRoot,
-                                        matchingComponent?.spec.source.github?.path!,
-                                        ".choreo",
-                                        "link.yaml"
-                                    )
-                                );
-                            }
+                if (!componentDir[0].path.startsWith(directory.uri.path)) {
+                    throw new Error("Component directory must be within your workspace");
+                }
+
+                const gitRoot = await getGitRoot(context, directory.uri.path);
+                if (!gitRoot) {
+                    throw new Error("Selected directory is not within a git directory");
+                }
+
+                const selectedOrg = await selectOrg(userInfo, "Select organization (2/3)");
+
+                const selectedProject = await selectProject(
+                    selectedOrg,
+                    `Loading projects from '${selectedOrg.name}' (3/3)`,
+                    `Select project from '${selectedOrg.name}' (3/3)`
+                );
+
+                const components = await window.withProgress(
+                    {
+                        title: `Fetching components of ${selectedProject.name}...`,
+                        location: ProgressLocation.Notification,
+                    },
+                    () =>
+                        ext.clients.rpcClient.getComponentList({
+                            orgId: selectedOrg.id.toString(),
+                            projectHandle: selectedProject.handler,
+                        })
+                );
+
+                // TODO: check if component/project repo matches with one of the remote URL
+
+                if (components.length === 0) {
+                    throw new Error(`No components found to link within ${selectedProject.name} .`);
+                }
+
+                let matchingComponents: ComponentKind[] = [];
+                for (const component of components) {
+                    const compPath = path.join(gitRoot, component.spec.source.github?.path!);
+                    if (fs.existsSync(compPath) && compPath === componentDir[0].path) {
+                        matchingComponents.push(component);
+                    }
+                }
+
+                if (matchingComponents.length === 0) {
+                    window.showInformationMessage("No matching components was found for the selected directory");
+                    return;
+                }
+
+                if (matchingComponents.length > 1) {
+                    const matchingComponent = await resolveWorksQuickPick(
+                        matchingComponents.map((item) => ({ item, label: item.metadata.name })),
+                        `Select component to link with selected directory`,
+                        "No components"
+                    );
+                    matchingComponents = [matchingComponent];
+                }
+
+                await window.withProgress(
+                    { title: `Generating Link File...`, location: ProgressLocation.Notification },
+                    async () => {
+                        await ext.clients.rpcClient.createComponentLink({
+                            componentDir: path.join(gitRoot, matchingComponents[0]?.spec.source.github?.path!),
+                            componentHandle: matchingComponents[0]?.metadata.name!,
+                            orgHandle: selectedOrg.handle,
+                            projectHandle: selectedProject.handler,
                         });
-                }
-            );
+
+                        await linkedDirectoryStore.getState().refreshState();
+
+                        window
+                            .showInformationMessage(
+                                `Selected directory has been successfully linked with component ${matchingComponents[0]?.metadata.name}`,
+                                "View link file"
+                            )
+                            .then((selection) => {
+                                if (selection === "View link file") {
+                                    goTosource(
+                                        path.join(
+                                            gitRoot,
+                                            matchingComponents[0]?.spec.source.github?.path!,
+                                            ".choreo",
+                                            "link.yaml"
+                                        )
+                                    );
+                                }
+                            });
+                    }
+                );
+            } catch (err: any) {
+                console.error("Failed to link component", err);
+                window.showErrorMessage(err?.message || "Failed to link component");
+            }
         })
     );
 }

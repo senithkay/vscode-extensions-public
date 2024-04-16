@@ -24,7 +24,10 @@ export const authStore = createStore(
                 dataCacheStore.getState().setOrgs(userInfo.organizations);
                 set(({ state }) => ({ state: { ...state, userInfo, loading: false } }))
             },
-            logout: () => set(({ state }) => ({ state: { ...state, userInfo: null, loading: false } })),
+            logout: () => {
+                ext.clients.rpcClient.signOut();
+                set(({ state }) => ({ state: { ...state, userInfo: null, loading: false } }));
+            },
             getOrgById: (orgId) =>
                 get().state.userInfo?.organizations.find((org) => org.id.toString() === orgId.toString()),
             getOrgByHandle: (orgHandle) => get().state.userInfo?.organizations.find((org) => org.handle === orgHandle),

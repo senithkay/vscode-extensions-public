@@ -1,4 +1,4 @@
-import { Buildpack, ComponentKind, Project } from "./types";
+import { BuildKind, Buildpack, CommitHistory, ComponentKind, DeploymentTrack, Project } from "./types";
 import { HOST_EXTENSION, RequestType } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 
@@ -25,6 +25,11 @@ export interface CreateComponentReq {
     spaNodeVersion: string;
     spaOutputDir: string;
 }
+export interface GetBuildsReq { orgId: string; componentName: string; projectHandle: string; deploymentTrackId: string; }
+export interface CreateBuildReq { orgId: string; componentName: string; projectHandle: string; deploymentTrackId: string; commitHash: string}
+export interface GetDeploymentTracksReq { orgId: string; orgHandler: string; projectId: string; compHandler: string; }
+export interface GetCommitsReq { orgId: string; orgHandler: string; projectId: string; compHandler: string; branch: string}
+
 
 export interface IChoreoRPCClient {
     getProjects(orgID: string): Promise<Project[]>;
@@ -36,6 +41,10 @@ export interface IChoreoRPCClient {
     getRepoBranches(params: GetBranchesReq): Promise<string[]>;
     isRepoAuthorized(params: IsRepoAuthorizedReq): Promise<boolean>;
     deleteComponent(params: DeleteCompReq): Promise<void>;
+    getBuilds(params: GetBuildsReq): Promise<BuildKind[]>;
+    createBuild(params: CreateBuildReq): Promise<BuildKind>;
+    getDeploymentTracks(params: GetDeploymentTracksReq): Promise<DeploymentTrack[]>;
+    getCommits(params: GetCommitsReq): Promise<CommitHistory[]>;
 }
 
 export class ChoreoRpcWebview implements IChoreoRPCClient {
@@ -69,6 +78,18 @@ export class ChoreoRpcWebview implements IChoreoRPCClient {
     deleteComponent(params:DeleteCompReq): Promise<void> {
         return this._messenger.sendRequest(ChoreoRpcDeleteComponentRequest, HOST_EXTENSION, params);
     }
+    getBuilds(params:GetBuildsReq): Promise<BuildKind[]> {
+        return this._messenger.sendRequest(ChoreoRpcGetBuildsRequest, HOST_EXTENSION, params);
+    }
+    createBuild(params:CreateBuildReq): Promise<BuildKind> {
+        return this._messenger.sendRequest(ChoreoRpcCreateBuildRequest, HOST_EXTENSION, params);
+    }
+    getDeploymentTracks(params:GetDeploymentTracksReq): Promise<DeploymentTrack[]> {
+        return this._messenger.sendRequest(ChoreoRpcGetDeploymentTracksRequest, HOST_EXTENSION, params);
+    }
+    getCommits(params:GetCommitsReq): Promise<CommitHistory[]> {
+        return this._messenger.sendRequest(ChoreoRpcGetCommitsRequest, HOST_EXTENSION, params);
+    }
 }
 
 export const ChoreoRpcGetProjectsRequest: RequestType<string, Project[]> = { method: 'rpc/project/getProjects' };
@@ -80,4 +101,7 @@ export const ChoreoRpcGetBuildPacksRequest: RequestType<BuildPackReq, Buildpack[
 export const ChoreoRpcGetBranchesRequest: RequestType<GetBranchesReq, string[]> = { method: 'rpc/repo/getBranches' };
 export const ChoreoRpcIsRepoAuthorizedRequest: RequestType<IsRepoAuthorizedReq, boolean> = { method: 'rpc/repo/isRepoAuthorized' };
 export const ChoreoRpcDeleteComponentRequest: RequestType<DeleteCompReq, void> = { method: 'rpc/component/delete' };
-
+export const ChoreoRpcCreateBuildRequest: RequestType<CreateBuildReq, BuildKind> = { method: 'rpc/build/create' };
+export const ChoreoRpcGetDeploymentTracksRequest: RequestType<GetDeploymentTracksReq, DeploymentTrack[]> = { method: 'rpc/component/getDeploymentTracks' };
+export const ChoreoRpcGetBuildsRequest: RequestType<GetBuildsReq, BuildKind[]> = { method: 'rpc/build/getList' };
+export const ChoreoRpcGetCommitsRequest: RequestType<GetCommitsReq, CommitHistory[]> = { method: 'rpc/component/getCommits' };

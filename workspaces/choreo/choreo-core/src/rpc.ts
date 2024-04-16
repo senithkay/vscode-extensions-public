@@ -28,6 +28,8 @@ import {
    Buildpack,
    AuthState,
    LinkedDirectoryState,
+   ComponentKind,
+   WebviewQuickPickItem,
 } from './types';
 
 export const GetAuthState: RequestType<void, AuthState> = { method: 'getAuthState' };
@@ -44,8 +46,15 @@ export const ShowInfoMessage: NotificationType<string> = { method: 'showInfoMess
 export const RefreshLinkedDirState: NotificationType<void> = { method: 'refreshLinkedDirState' };
 export const DeleteFile: RequestType<string, void> = { method: 'deleteFile' };
 export const ShowConfirmMessage: RequestType<ShowConfirmBoxReq, boolean> = { method: 'showConfirmMessage' };
+export const ShowQuickPick: RequestType<ShowWebviewQuickPickItemsReq, WebviewQuickPickItem | undefined> = { method: 'showQuickPicks' };
 export const OpenComponentInConsole: RequestType<OpenComponentInConsoleReq, void> = { method: 'openComponentInConsole' };
+export const ViewComponentDetails: RequestType<ViewComponentDetailsReq, void> = { method: 'viewComponentDetails' };
+export const ReadServiceEndpoints: RequestType<string, ReadEndpointsResp> = { method: 'readServiceEndpoints' };
 
+export interface ReadEndpointsResp {
+   endpoints: Endpoint[];
+   filePath: string;
+}
 export interface OpenDialogOptions {   // here
    title: string,
    canSelectFiles: boolean, 
@@ -66,7 +75,17 @@ export interface OpenComponentInConsoleReq {
    componentHandler: string;
 }
 
+export interface ViewComponentDetailsReq {
+   organization: Organization;
+   project: Project;
+   component: ComponentKind;
+   componentPath: string;
+}
 
+export interface ShowWebviewQuickPickItemsReq {
+   items: WebviewQuickPickItem[];
+   title: string;
+}
 /////////////////////////////////////
 /////////////////////////////////////
 // TODO: remove OLD /////////////////

@@ -87,6 +87,7 @@ const getLinkedDirs = async (previousLink: ComponentLink[]) => {
             }
         }
     }
+    links.sort((a, b) => a.linkRelativePath.localeCompare(b.linkRelativePath));
     return links;
 };
 

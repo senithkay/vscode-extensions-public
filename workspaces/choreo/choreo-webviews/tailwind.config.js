@@ -2,7 +2,11 @@
 module.exports = {
     content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
     theme: {
-        extend: {},
+        extend: {
+            screens:{
+                sm: "512px",
+            }
+        },
         borderRadius: {
             none: "0",
             sm: "1px",

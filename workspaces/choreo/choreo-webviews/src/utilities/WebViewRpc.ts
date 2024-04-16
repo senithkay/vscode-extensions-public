@@ -116,6 +116,13 @@ import {
     ShowConfirmBoxReq,
     OpenComponentInConsoleReq,
     OpenComponentInConsole,
+    ViewComponentDetailsReq,
+    ViewComponentDetails,
+    ReadServiceEndpoints,
+    ReadEndpointsResp,
+    ShowQuickPick,
+    ShowWebviewQuickPickItemsReq,
+    WebviewQuickPickItem,
 } from "@wso2-enterprise/choreo-core";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
 import { ChoreoProjectClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/project/rpc";
@@ -227,6 +234,18 @@ export class ChoreoWebViewAPI {
 
     public async OpenComponentInConsole(params: OpenComponentInConsoleReq): Promise<void> {
         return this._messenger.sendRequest(OpenComponentInConsole, HOST_EXTENSION, params);
+    }
+
+    public async ViewComponent(params: ViewComponentDetailsReq): Promise<void> {
+        return this._messenger.sendRequest(ViewComponentDetails, HOST_EXTENSION, params);
+    }
+
+    public async readServiceEndpoints(componentPath: string): Promise<ReadEndpointsResp> {
+        return this._messenger.sendRequest(ReadServiceEndpoints, HOST_EXTENSION, componentPath);
+    }
+
+    public async showQuickPicks(params: ShowWebviewQuickPickItemsReq): Promise<WebviewQuickPickItem | undefined> {
+        return this._messenger.sendRequest(ShowQuickPick, HOST_EXTENSION, params);
     }
     // todo: remove old ones
 

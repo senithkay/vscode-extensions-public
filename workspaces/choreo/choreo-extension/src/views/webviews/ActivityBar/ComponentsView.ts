@@ -12,7 +12,7 @@ import { getUri } from '../utils';
 import { ext } from '../../../extensionVariables';
 import { choreoEnvConfig } from '../../../auth/auth';
 import { FREE_COMPONENT_LIMIT } from '../../../auth/config';
-import { ComponentsListActivityView, WebviewProps } from '@wso2-enterprise/choreo-core';
+import { WebviewProps } from '@wso2-enterprise/choreo-core';
 
 
 export class ComponentsView implements vscode.WebviewViewProvider {
@@ -89,7 +89,7 @@ export class ComponentsView implements vscode.WebviewViewProvider {
 						${JSON.stringify({
 							type: "ComponentsListActivityView",
 							directoryPath: vscode.workspace.workspaceFolders?.[0]?.uri?.path
-						} as ComponentsListActivityView)}
+						} as WebviewProps)}
 					);
 				  }
 				  render();

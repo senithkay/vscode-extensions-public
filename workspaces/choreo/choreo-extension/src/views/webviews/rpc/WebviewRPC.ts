@@ -91,6 +91,13 @@ import {
     ShowConfirmBoxReq,
     OpenComponentInConsole,
     OpenComponentInConsoleReq,
+    ViewComponentDetails,
+    ViewComponentDetailsReq,
+    ReadServiceEndpoints,
+    EndpointYamlContent,
+    ShowQuickPick,
+    ShowWebviewQuickPickItemsReq,
+    WebviewQuickPickItem,
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -103,12 +110,14 @@ import { getLogger } from "../../../logger/logger";
 import { initGit } from "../../../git/main";
 import { dirname, join } from "path";
 import { sendTelemetryEvent, sendTelemetryException } from "../../../telemetry/utils";
-import { existsSync, unlinkSync } from "fs";
+import { existsSync, readFileSync, unlinkSync } from "fs";
 import { authStore } from "../../../stores/auth-store";
 import { linkedDirectoryStore } from "../../../stores/linked-dir-store";
 import { registerChoreoRpcResolver } from "../../../choreo-rpc";
 import { removeCredentialsFromGitURL } from "../../../git/util";
 import { choreoEnvConfig } from "../../../auth/auth";
+import { showComponentDetails } from "../../../cmds/view-component-cmd";
+import * as yaml from "js-yaml";
 
 const manager = new ChoreoProjectManager();
 
@@ -204,6 +213,24 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         const consoleUrl = Uri.parse(url);
         vscode.env.openExternal(consoleUrl);
     });
+    messenger.onRequest(ViewComponentDetails, async (params) => {
+        showComponentDetails(params.organization, params.project, params.component, params.componentPath)
+    });
+    messenger.onRequest(ReadServiceEndpoints, async (componentPath: string) => {
+        const endpointsYamlPath = join(componentPath, '.choreo', 'endpoints.yaml');
+            if (existsSync(endpointsYamlPath)) {
+                const endpointFileContent: EndpointYamlContent = yaml.load(readFileSync(endpointsYamlPath, "utf8")) as any;
+                return {endpoints:endpointFileContent.endpoints,filePath:endpointsYamlPath};
+            }
+        return {endpoints:[],filePath:""};
+    });
+    messenger.onRequest(ShowQuickPick, async (params) => {
+        const itemSelection = await window.showQuickPick(params.items as vscode.QuickPickItem[], {
+            title: params.title,
+        });
+        return itemSelection as WebviewQuickPickItem;
+    });
+
     // TODO remove old ones
 
 

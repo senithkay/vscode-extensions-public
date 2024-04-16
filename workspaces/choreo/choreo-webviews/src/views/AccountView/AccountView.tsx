@@ -1,10 +1,10 @@
 import React, { FC } from "react";
-import { AccountActivityView, CommandIds } from "@wso2-enterprise/choreo-core";
+import { AccountActivityViewProps, CommandIds } from "@wso2-enterprise/choreo-core";
 import { useAuthContext } from "../../context/choreo-auth-ctx";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 
-export const AccountView: FC<AccountActivityView> = () => {
+export const AccountView: FC<AccountActivityViewProps> = () => {
     const { userInfo } = useAuthContext();
 
     const onSignOut = () => {
