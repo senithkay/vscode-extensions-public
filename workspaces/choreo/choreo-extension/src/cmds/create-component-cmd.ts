@@ -12,6 +12,7 @@ import { CommandIds } from "@wso2-enterprise/choreo-core";
 import { authStore } from "../stores/auth-store";
 import { ComponentFormView } from "../views/webviews/ComponentFormView";
 import { resolveWorkspaceDirectory, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
+import { handlerError } from "../error-utils";
 
 let componentWizard: ComponentFormView;
 

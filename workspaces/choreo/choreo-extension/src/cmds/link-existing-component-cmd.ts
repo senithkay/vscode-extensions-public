@@ -13,7 +13,7 @@ import { authStore } from "../stores/auth-store";
 import * as path from "path";
 import * as fs from "fs";
 import { linkedDirectoryStore } from "../stores/linked-dir-store";
-import { selectOrg, selectProject, resolveWorkspaceDirectory, resolveWorksQuickPick } from "./cmd-utils";
+import { selectOrg, selectProject, resolveWorkspaceDirectory, resolveQuickPick } from "./cmd-utils";
 import { getGitRoot } from "../git/util";
 import { goTosource } from "../utils";
 
@@ -90,7 +90,7 @@ export function linkExistingComponentCommand(context: ExtensionContext) {
                 }
 
                 if (matchingComponents.length > 1) {
-                    const matchingComponent = await resolveWorksQuickPick(
+                    const matchingComponent = await resolveQuickPick(
                         matchingComponents.map((item) => ({ item, label: item.metadata.name })),
                         `Select component to link with selected directory`,
                         "No components"

@@ -202,7 +202,7 @@ export const resolveWorkspaceDirectory = async (): Promise<WorkspaceFolder> => {
     }
 };
 
-export const resolveWorksQuickPick = async <T>(
+export const resolveQuickPick = async <T>(
     items: (QuickPickItem & { item: T })[] = [],
     quickPickTitle = "selectItem",
     emptyError = "No items found to pick"

@@ -1,8 +1,8 @@
 import { getLogger } from "../logger/logger";
-import { ChoreoRPCClient } from "./client";
+import { RPCClient } from "./client";
 
 export function initRPCServer() {
-    ChoreoRPCClient.getInstance()
+    RPCClient.getInstance()
         .then(() => {
             console.log("Initialized Choreo RPC Client successfully");
         })
