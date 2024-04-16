@@ -70,15 +70,18 @@ export function DataMapperView(props: DataMapperViewProps) {
 
     }, [filePath, fileContent, functionName]);
 
+    const applyModifications = () => {
+        updateFileContent(sourceFile.getText());
+    };
+
     return (
         <QueryClientProvider client={queryClient}>
             <Global styles={globalStyles} />
             <MIDataMapper
                 fnST={functionST}
-                sourceFile={sourceFile}
                 inputTrees={inputTrees}
                 outputTree={outputTree}
-                updateFileContent={updateFileContent}
+                applyModifications={applyModifications}
             />
         </QueryClientProvider>
     );

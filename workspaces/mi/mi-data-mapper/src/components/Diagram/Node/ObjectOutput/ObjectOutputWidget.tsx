@@ -64,7 +64,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 
 	const hasSyntaxDiagnostics = false; // TODO: Find diagnostics for the value
 	const hasEmptyFields = mappings && (mappings.length === 0 || !mappings.some(mapping => {
-		if (mapping.value) {
+		if (mapping.value && !mapping.value.wasForgotten()) {
 			return !isEmptyValue(getPosition(mapping.value));
 		}
 		return true;

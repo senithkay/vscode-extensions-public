@@ -30,7 +30,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	const targetNode = targetPort.getNode() as DataMapperNodeModel;
 	const fieldIndexes = targetPort && getFieldIndexes(targetPort);
 	const parentFieldNames: string[] = [];
-	const { sourceFile, updateFileContent } = targetNode.context;
+	const { applyModifications } = targetNode.context;
 
 	rhs = sourcePort.fieldFQN;
 	lhs = getFieldNameFromOutputPort(targetPort);
@@ -71,7 +71,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 				if (!valueExpr.getText()) {
 					const valueExprSource = constructValueExprSource(lhs, rhs, fieldNames, i);
                     valueExpr.replaceWithText(valueExprSource);
-                    updateSourceFile();
+                    applyModifications();
                     return valueExprSource;
 				}
 
@@ -101,7 +101,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 			if (propAssignment && !propAssignment.getInitializer().getText()) {
 				const valueExprSource = constructValueExprSource(lhs, rhs, [], 0);
                 propAssignment.getInitializer().replaceWithText(valueExprSource);
-                updateSourceFile();
+                applyModifications();
                 return valueExprSource;
 			}
 			source = `${lhs}: ${rhs}`;
@@ -112,7 +112,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		if (propAssignment && !propAssignment.getInitializer().getText()) {
 			const valueExprSource = constructValueExprSource(lhs, rhs, [], 0);
             propAssignment.getInitializer().replaceWithText(valueExprSource);
-            updateSourceFile();
+            applyModifications();
             return valueExprSource;
 		}
 		source = `${lhs}: ${rhs}`;
@@ -126,7 +126,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
         targetNode.value.replaceWithText(`{${getLinebreak()}${source}}`);
 	}
 
-    updateSourceFile();
+    applyModifications();
 
 	function createPropAssignment(missingFields: string[]): string {
 		return missingFields.length > 0
@@ -142,10 +142,6 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 			return getNextObjectLitExpr(targetExpr);
 		}
 	}
-
-    function updateSourceFile() {
-        updateFileContent(sourceFile.getText());
-    }
 
 	return `${lhs} = ${rhs}`;
 }
@@ -182,7 +178,6 @@ export function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
 	let rhs = "";
 	const sourcePort = link.getSourcePort();
 	const targetNode = targetPort.getNode();
-	const { sourceFile, updateFileContent } = (targetNode as DataMapperNodeModel).context;
 
 	if (sourcePort && sourcePort instanceof InputOutputPortModel) {
 		rhs = sourcePort.fieldFQN;
@@ -201,5 +196,5 @@ export function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
 		}
 	});
 
-	updateFileContent(sourceFile.getText());
+	(targetNode as DataMapperNodeModel).context.applyModifications();
 }

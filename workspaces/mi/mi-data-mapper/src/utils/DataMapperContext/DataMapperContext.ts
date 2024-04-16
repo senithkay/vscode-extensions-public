@@ -11,19 +11,17 @@ import { SourceFile, VariableDeclaration } from "ts-morph";
 
 export interface IDataMapperContext {
     functionST: VariableDeclaration;
-    sourceFile: SourceFile;
     inputTrees: DMType[];
     outputTree: DMType;
-    updateFileContent: (fileContent: string) => void;
+    applyModifications: () => void;
 }
 
 export class DataMapperContext implements IDataMapperContext {
 
     constructor(
         public functionST: VariableDeclaration,
-        public sourceFile: SourceFile,
         public inputTrees: DMType[],
         public outputTree: DMType,
-        public updateFileContent: (fileContent: string) => void
+        public applyModifications: () => void
     ){}
 }

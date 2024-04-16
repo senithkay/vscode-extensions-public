@@ -80,7 +80,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 							expr.replaceWithText(sourceField);
 						}
 
-						targetNode.context.updateFileContent(targetNode.context.sourceFile.getText());
+						targetNode.context.applyModifications();
 					}
 				} else if (targetPortHasLinks) {
 					modifySourceForMultipleMappings(lm);

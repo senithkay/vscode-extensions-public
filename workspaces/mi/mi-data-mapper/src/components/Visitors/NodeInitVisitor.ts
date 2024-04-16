@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ArrowFunction, ParenthesizedExpression, Node, PropertyAssignment } from "ts-morph";
+import { ArrowFunction, ParenthesizedExpression, Node, PropertyAssignment, ObjectLiteralExpression } from "ts-morph";
 import { Visitor } from "../../ts/base-visitor";
 import { ObjectOutputNode, InputNode, LinkConnectorNode } from "../Diagram/Node";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
@@ -68,6 +68,22 @@ export class NodeInitVisitor implements Visitor {
                 );
                 this.intermediateNodes.push(linkConnectorNode);
             }
+        }
+    }
+
+    beginVisitObjectLiteralExpression(node: ObjectLiteralExpression): void {
+        this.mapIdentifiers.push(node);
+    }
+
+    endVisitPropertyAssignment(node: PropertyAssignment): void {
+        if (this.mapIdentifiers.length > 0) {
+            this.mapIdentifiers.pop()
+        }    
+    }
+
+    endVisitObjectLiteralExpression(node: ObjectLiteralExpression): void {
+        if (this.mapIdentifiers.length > 0) {
+            this.mapIdentifiers.pop()
         }
     }
 

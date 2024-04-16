@@ -187,14 +187,13 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     }
 
     updateSource(suffix: string): void {
-        const { sourceFile, updateFileContent } = this.context;
         this.value = `${this.value} + ${suffix}`;
         const targetNode = Node.isPropertyAssignment(this.valueNode)
             ? this.valueNode.getInitializer()
             : this.valueNode;
         
         targetNode.replaceWithText(this.value);
-        updateFileContent(sourceFile.getText());
+        this.context.applyModifications();
     }
 
     public updatePosition() {
@@ -210,7 +209,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
     public deleteLink(): void {
         const targetField = this.targetPort.field;
-        const { functionST, sourceFile, updateFileContent } = this.context;
+        const { functionST, applyModifications } = this.context;
 
         const variableDeclaration = functionST
             .getVariableStatementOrThrow()
@@ -226,7 +225,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 || isPositionsEquals(exprFuncBodyPosition, getPosition(this.valueNode)))
         {
             this.valueNode.replaceWithText(getDefaultValue(targetField?.kind));
-            updateFileContent(sourceFile.getText());
+            applyModifications();
         } else {
             // TODO: Handle the case where the target field is an array or an interface
         }
