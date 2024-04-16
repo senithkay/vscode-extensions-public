@@ -13,7 +13,7 @@ import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
-import AddToRegistry, { getRegistryArifactNames, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
+import AddToRegistry, { getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
 
 export interface SequenceWizardProps {
     path: string;
@@ -65,11 +65,11 @@ export function SequenceWizard(props: SequenceWizardProps) {
                     'Sequence artifact name already exists', value => {
                         return !seqArtifactNames.includes(value)
                     }),
-        endpoint: yup.string(),
-        onErrorSequence: yup.string(),
-        saveInReg: yup.boolean(),
-        trace: yup.boolean(),
-        statistics: yup.boolean(),
+        endpoint: yup.string().notRequired(),
+        onErrorSequence: yup.string().notRequired(),
+        saveInReg: yup.boolean().default(false),
+        trace: yup.boolean().default(false),
+        statistics: yup.boolean().default(false),
         artifactName: yup.string().when('saveInReg', {
             is: false,
             then: () =>
@@ -107,6 +107,10 @@ export function SequenceWizard(props: SequenceWizardProps) {
     });
 
     useEffect(() => {
+        console.log(errors);
+    }, [errors]);
+
+    useEffect(() => {
         (async () => {
             const response = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
                 documentIdentifier: props.path,
@@ -139,12 +143,9 @@ export function SequenceWizard(props: SequenceWizardProps) {
                 endpointNames.push(...resources);
             }
             setEndpoints(endpointNames);
-            const result = await getRegistryArifactNames(props.path, rpcClient);
+            const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
             setArtifactNames(result.artifactNamesArr);
-            const res = await rpcClient.getMiVisualizerRpcClient().getAllRegistryPaths({
-                path: props.path,
-            });
-            setRegistryPaths(res.registryPaths);
+            setRegistryPaths(result.registryPaths);
         })();
     }, []);
 

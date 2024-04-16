@@ -6,116 +6,140 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Button,
     TextField,
-    SidePanel,
-    SidePanelTitleContainer,
-    SidePanelBody,
-    Codicon,
-    CheckBox,
-    CheckBoxGroup,
+    FormView,
+    FormActions,
+    FormCheckBox,
+    FormAutoComplete,
 } from "@wso2-enterprise/ui-toolkit";
-import styled from "@emotion/styled";
-import { SIDE_PANEL_WIDTH } from "../../../constants";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { useForm } from "react-hook-form";
 
-export type Protocol = "http" | "https";
-
-export type Method = "get" | "post" | "put" | "delete" | "patch" | "head" | "options";
-
-export type EditSequenceForm = {
-    name: string;
-    trace: boolean;
-    statistics: boolean;
-    onError: string;
-};
+export type EditSequenceFields = {
+    name?: string;
+    onError?: string;
+    trace?: boolean;
+    statistics?: boolean;
+}
 
 export type ResourceProps = {
     isOpen: boolean;
-    sequenceData: EditSequenceForm;
+    sequenceData: EditSequenceFields;
     onCancel: () => void;
-    onSave: (data: EditSequenceForm) => void;
+    onSave: (data: EditSequenceFields) => void;
+    documentUri: string;
 };
 
-const ActionContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-bottom: 20px;
-`;
+export function EditSequenceForm({ sequenceData, isOpen, onCancel, onSave, documentUri }: ResourceProps) {
 
-const SidePanelBodyWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-`;
+    const { rpcClient } = useVisualizerContext();
+    // sequence file names
+    const [sequences, setSequences] = useState([]);
+    // sequence artifact names
+    const [seqArtifactNames, setSeqArtifactNames] = useState([]);
 
-export function EditSequenceForm({ sequenceData, isOpen, onCancel, onSave }: ResourceProps) {
-    const [name, setName] = useState<string>(sequenceData.name);
-    const [trace, setTrace] = useState<boolean>(sequenceData.trace);
-    const [statistics, setStatistics] = useState<boolean>(sequenceData.statistics);
-    const [onError, setOnError] = useState<string>(sequenceData.onError);
+    const initialSequence: EditSequenceFields = {
+        name: sequenceData.name,
+        onError: sequenceData.onError,
+        trace: sequenceData.trace,
+        statistics: sequenceData.statistics,
+    };
 
-    const isValid = name.length > 0;
+    const schema = yup.object({
+        name: yup.string().required("Sequence name is required").matches(/^[a-zA-Z0-9]*$/, "Invalid characters in sequence name")
+            .test('validateSequenceName',
+                'Sequence file name already exists', value => {
+                    return !(sequences.includes(value) && sequenceData.name !== value)
+                }).test('validateSequenceName',
+                    'Sequence artifact name already exists', value => {
+                        return !(seqArtifactNames.includes(value) && sequenceData.name !== value)
+                    }),
+        endpoint: yup.string().notRequired(),
+        onError: yup.string().notRequired(),
+        trace: yup.boolean().default(false),
+        statistics: yup.boolean().default(false),
+    });
 
-    const isUpdated =
-        sequenceData.name !== name ||
-        sequenceData.trace !== trace ||
-        sequenceData.statistics !== statistics ||
-        sequenceData.onError !== onError;
+    const {
+        register,
+        handleSubmit,
+        control,
+        formState: { errors, isDirty },
+    } = useForm<EditSequenceFields>({
+        defaultValues: initialSequence,
+        resolver: yupResolver(schema),
+        mode: "onChange",
+    });
+
+    useEffect(() => {
+        (async () => {
+            const response = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
+                documentIdentifier: documentUri,
+                resourceType: "sequence",
+            });
+            let sequenceNamesArr = [];
+            if (response.resources) {
+                const sequenceNames = response.resources.map((resource) => resource.name);
+                setSeqArtifactNames(sequenceNames);
+                const seqPaths = response.resources.map((resource) => resource.artifactPath.replace(".xml", ""));
+                sequenceNamesArr.push(...seqPaths);
+            }
+            if (response.registryResources) {
+                const registryKeys = response.registryResources.map((resource) => resource.registryKey);
+                sequenceNamesArr.push(...registryKeys);
+            }
+            setSequences(sequenceNamesArr);
+        })();
+    }, []);
+
     return (
-        <SidePanel
-            isOpen={isOpen}
-            alignmanet="right"
-            width={SIDE_PANEL_WIDTH}
-            overlay={false}
-            sx={{ transition: "all 0.3s ease-in-out" }}
-        >
-            <SidePanelTitleContainer>
-                <Button sx={{ marginLeft: "auto" }} onClick={onCancel} appearance="icon">
-                    <Codicon name="close" />
+        <FormView title={`Edit Sequence : ${sequenceData.name}`} onClose={onCancel}>
+            <TextField
+                id='seqName'
+                label="Name"
+                placeholder="Name"
+                errorMsg={errors.name?.message.toString()}
+                {...register("name")}
+            />
+            <FormCheckBox
+                label="Enable statistics"
+                {...register("statistics")}
+                control={control}
+            />
+            <FormCheckBox
+                label="Enable tracing"
+                {...register("trace")}
+                control={control}
+            />
+            <FormAutoComplete
+                label="On Error Sequence"
+                required={false}
+                isNullable={true}
+                items={sequences.filter(seq => seq !== sequenceData.name)}
+                control={control}
+                {...register("onError")}
+            />
+            <FormActions>
+                <Button
+                    appearance="secondary"
+                    onClick={onCancel}
+                >
+                    Cancel
                 </Button>
-            </SidePanelTitleContainer>
-            <SidePanelBody>
-                <SidePanelBodyWrapper>
-                    <h3>Edit Sequence</h3>
-                    <TextField
-                        id="seq-name"
-                        label="Name"
-                        value={name}
-                        onTextChange={setName}
-                        size={150}
-                        errorMsg={name.length > 0 ? undefined : "Required field"}
-                    />
-                    <CheckBoxGroup columns={2}>
-                        <CheckBox label="Statistics" value="statistics" checked={statistics} onChange={setStatistics} />
-                        <CheckBox label="Trace" value="trace" checked={trace} onChange={setTrace} />
-                    </CheckBoxGroup>
-                    <TextField id="seq-on-error" label="On Error" value={onError} onTextChange={setOnError} size={150} />
-                    <ActionContainer>
-                        <Button appearance="secondary" onClick={onCancel}>
-                            Cancel
-                        </Button>
-                        <Button
-                            appearance="primary"
-                            onClick={() =>
-                                onSave({
-                                    name,
-                                    trace,
-                                    statistics,
-                                    onError,
-                                })
-                            }
-                            disabled={!isValid || !isUpdated}
-                        >
-                            Update
-                        </Button>
-                    </ActionContainer>
-                </SidePanelBodyWrapper>
-            </SidePanelBody>
-        </SidePanel>
+                <Button
+                    appearance="primary"
+                    disabled={!isDirty}
+                    onClick={handleSubmit((values) => onSave(values))}
+                >
+                    Update
+                </Button>
+            </FormActions>
+        </FormView>
     );
 }
 
