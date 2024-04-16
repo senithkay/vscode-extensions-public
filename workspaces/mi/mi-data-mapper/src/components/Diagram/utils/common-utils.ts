@@ -287,7 +287,7 @@ export function isEmptyValue(position: NodePosition): boolean {
 
 export function isDefaultValue(fieldType: DMType, value: string): boolean {
 	const defaultValue = getDefaultValue(fieldType.kind);
-	return defaultValue === value?.trim();
+	return defaultValue === value?.trim().replace(/(\r\n|\n|\r|\s)/g, "");
 }
 
 export function getFieldIndexes(targetPort: InputOutputPortModel): number[] {
