@@ -21,6 +21,7 @@ interface SidePanelContext {
     formValues?: { [key: string]: any };
     title?: string;
     isFormOpen?: boolean;
+    connectors?: any[];
     setSidePanelState?: Dispatch<SetStateAction<any>>;
 }
 
@@ -34,6 +35,7 @@ const SidePanelContext = React.createContext<SidePanelContext>({
     formValues: {},
     title: undefined,
     isFormOpen: false,
+    connectors: [],
     setSidePanelState: () => {},
 })
 

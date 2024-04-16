@@ -360,7 +360,11 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command.command = getViewCommand(entry.subType);
 
 		} else if (entry.type === "SEQUENCE") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			let icon = 'code';
+			if (entry.isRegistryResource) {
+				icon = 'file-code';
+			}
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon);
 			explorerEntry.contextValue = 'sequence';
 			explorerEntry.command = {
 				"title": "Show Diagram",

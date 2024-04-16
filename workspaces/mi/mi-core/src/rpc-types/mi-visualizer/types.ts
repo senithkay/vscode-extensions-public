@@ -56,8 +56,8 @@ export interface ProjectStructureEntry {
     type: string,
     subType?: string,
     name: string,
-    path: string
-
+    path: string,
+    isRegistryResource?: boolean
 }
 
 export interface ResourceStructureEntry {
@@ -113,3 +113,10 @@ export interface ToggleDisplayOverviewRequest {
     displayOverview: boolean;
 }
 
+export interface GetAllRegistryPathsRequest {
+    path: string;
+}
+
+export interface GetAllRegistryPathsResponse {
+    registryPaths: string[];
+}

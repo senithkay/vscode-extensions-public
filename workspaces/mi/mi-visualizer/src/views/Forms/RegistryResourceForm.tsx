@@ -100,24 +100,25 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
     const createOptionValue = watch("createOption", "new") === "new";
 
     useEffect(() => {
-        if (artifactNames.length === 0 || registryPaths.length === 0) {
-            const request = {
-                path: props.path
-            }
-            rpcClient.getMiDiagramRpcClient().getAvailableRegistryResources(request).then(response => {
-                const artifacts = response.artifacts;
-                var tempArtifactNames: string[] = [];
-                var tempRegistryPaths: string[] = [];
-                for (let i = 0; i < artifacts.length; i++) {
-                    artifacts[i].isCollection ? tempRegistryPaths.push(artifacts[i].path) : tempRegistryPaths.push(
-                        artifacts[i].path.endsWith("/") ? artifacts[i].path + artifacts[i].file
-                            : artifacts[i].path + "/" + artifacts[i].file);
-                    tempArtifactNames.push(artifacts[i].name);
+        (async () => {
+            if (artifactNames.length === 0 || registryPaths.length === 0) {
+                const request = {
+                    path: props.path
                 }
-                setArtifactNames(tempArtifactNames);
-                setRegistryPaths(tempRegistryPaths);
-            });
-        }
+                rpcClient.getMiDiagramRpcClient().getAvailableRegistryResources(request).then(response => {
+                    const artifacts = response.artifacts;
+                    var tempArtifactNames: string[] = [];
+                    for (let i = 0; i < artifacts.length; i++) {
+                        tempArtifactNames.push(artifacts[i].name);
+                    }
+                    setArtifactNames(tempArtifactNames);
+                });
+                const res = await rpcClient.getMiVisualizerRpcClient().getAllRegistryPaths({
+                    path: props.path,
+                });
+                setRegistryPaths(res.registryPaths);
+            }
+        })();
     }, []);
 
     const getFileExtension = () => {
@@ -144,11 +145,11 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
     }
 
     const formatRegistryPath = (path: string) => {
-        var regPath = '/_system/';
+        let regPath = '';
         if (getValues("registryType") === 'gov') {
-            regPath = regPath + 'governance';
+            regPath = 'gov';
         } else {
-            regPath = regPath + 'config';
+            regPath = 'conf';
         }
         path.startsWith('/') ? regPath = regPath + path : regPath = regPath + '/' + path;
         if (createOptionValue) {

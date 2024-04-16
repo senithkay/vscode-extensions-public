@@ -27,7 +27,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
     const { rpcClient } = useVisualizerContext();
 
     const isNewEndpoint = !props.path.endsWith(".xml");
-    const [isTemplate, setIsTemplate] = useState(props.type === 'template');
+    const isTemplate = props.type === 'template';
 
     const {
         reset,
@@ -37,7 +37,6 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
         watch,
         setValue
     } = useForm({
-        defaultValues: initialEndpoint,
         resolver: yupResolver(getSchema(props.type)),
         mode: "onChange"
     });
@@ -48,10 +47,6 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
     useEffect(() => {
         if (!isNewEndpoint) {
             (async () => {
-                const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: props.path });
-                if (syntaxTree.syntaxTree.template != undefined) {
-                    setIsTemplate(true);
-                }
 
                 const existingEndpoint = await rpcClient.getMiDiagramRpcClient().getWsdlEndpoint({ path: props.path });
                 reset(existingEndpoint);
@@ -85,6 +80,8 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
                     }))
                 }));
             })();
+        } else {
+            reset(initialEndpoint);
         }
     }, [props.path]);
 
@@ -100,6 +97,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
     const renderProps = (fieldName: keyof InputsFields) => {
         return {
             id: fieldName,
+            value: String(watch(fieldName)),
             ...register(fieldName),
             errorMsg: errors[fieldName] && errors[fieldName].message.toString()
         }
@@ -139,6 +137,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
             />
             <Form
                 renderProps={renderProps}
+                register={register}
                 watch={watch}
                 setValue={setValue}
                 isTemplate={isTemplate}

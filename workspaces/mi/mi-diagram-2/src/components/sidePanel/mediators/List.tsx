@@ -13,6 +13,7 @@ import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
 import { getAllMediators } from './Values';
 import { getSVGIcon } from '../../../resources/icons/mediatorIcons/icons';
+import AddConnector from '../Pages/AddConnector';
 import { FirstCharToUpperCase } from '../../../utils/commons';
 
 const ButtonGrid = styled.div`
@@ -44,8 +45,8 @@ export function Mediators(props: MediatorProps) {
         parentNode: sidePanelContext.operationName?.toLowerCase() != sidePanelContext.parentNode?.toLowerCase() ? sidePanelContext.parentNode : undefined,
     });
 
-    const setContent = (content: any) => {
-        props.setContent(content.form, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${content.title}`);
+    const setContent = (content: any, title?: string) => {
+        props.setContent(content.form || content, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${content.title || title}`);
     }
 
     const searchForm = (value: string, search?: boolean) => {
@@ -63,6 +64,13 @@ export function Mediators(props: MediatorProps) {
     const MediatorList = () => {
         let mediators;
         if (sidePanelContext.isEditing && sidePanelContext.operationName) {
+            if (sidePanelContext.operationName === "connector") {
+                
+                const connecterForm = <AddConnector formData={sidePanelContext.formValues.form} nodePosition={sidePanelContext.nodeRange} documentUri={props.documentUri} />;
+                setContent(connecterForm, FirstCharToUpperCase(sidePanelContext.formValues.title));
+                return <></>;
+            } 
+            
             const form = searchForm(sidePanelContext.operationName, false);
 
             if (form) {

@@ -143,7 +143,7 @@ export const NODE_DIMENSIONS = {
     },
     CONNECTOR: {
         WIDTH: 120,
-        HEIGHT: 120,
+        HEIGHT: 40,
     },
     BORDER: 1,
 };
@@ -228,6 +228,7 @@ export enum NodeTypes {
     CALL_NODE = "call-node",
     PLUS_NODE = "plus-node",
     EMPTY_NODE = "empty-node",
+    CONNECTOR_NODE = "connector-node",
 }
 
 export const NODE_LINK = "node-link";
