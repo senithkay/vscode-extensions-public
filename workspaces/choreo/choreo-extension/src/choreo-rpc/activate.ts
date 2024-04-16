@@ -1,5 +1,5 @@
 import { getLogger } from "../logger/logger";
-import { ChoreoRPCClient, RPCClient } from "./client";
+import { RPCClient } from "./client";
 
 export function initRPCServer() {
     RPCClient.getInstance()

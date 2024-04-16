@@ -1,52 +1,54 @@
-import { window } from 'vscode'
+import { window as w } from 'vscode'
 import { ResponseError } from "vscode-jsonrpc";
 import { ErrorCode } from "./choreo-rpc/constants";
 import { getLogger } from "./logger/logger";
 import { authStore } from "./stores/auth-store";
 
-export function HandlerError(err: any) {
+export function handlerError(err: any) {
     if (err instanceof ResponseError) {
         switch (err.code) {
             case ErrorCode.ParseError:
-                console.error("ParseError", err.message);
+                getLogger().error("ParseError", err);
                 break;
             case ErrorCode.InvalidRequest:
-                console.error("InvalidRequest", err.message);
+                getLogger().error("InvalidRequest", err);
                 break;
             case ErrorCode.MethodNotFound:
-                console.error("MethodNotFound", err.message);
+                getLogger().error("MethodNotFound", err);
                 break;
             case ErrorCode.InvalidParams:
-                console.error("InvalidParams", err.message);
+                getLogger().error("InvalidParams", err);
                 break;
             case ErrorCode.InternalError:
-                console.error("InternalError", err.message);
+                getLogger().error("InternalError", err);
                 break;
             case ErrorCode.UnauthorizedError:
-                getLogger().debug("Signing out from Choreo");
                 authStore.getState().logout();
-                window.showErrorMessage("Unauthorized. Please sign in again.");
+                w.showErrorMessage("Unauthorized. Please sign in again.");
                 break;
             case ErrorCode.TokenNotFoundError:
-                console.error("TokenNotFoundError", err.message);
+                authStore.getState().logout();
+                w.showErrorMessage("Token not found. Please sign in again.");
                 break;
             case ErrorCode.InvalidTokenError:
-                console.error("InvalidTokenError", err.message);
+                authStore.getState().logout();
+                w.showErrorMessage("Invalid token. Please sign in again.");
                 break;
             case ErrorCode.ForbiddenError:
-                console.error("ForbiddenError", err.message);
+                getLogger().error("ForbiddenError", err);
                 break;
             case ErrorCode.RefreshTokenError:
-                console.error("RefreshTokenError", err.message);
+                authStore.getState().logout();
+                w.showErrorMessage("Error refreshing token. Please sign in again.");
                 break;
             case ErrorCode.ComponentNotFound:
-                console.error("ComponentNotFound", err.message);
+                w.showErrorMessage("Component not found");
                 break;
             case ErrorCode.ProjectNotFound:
-                console.error("ProjectNotFound", err.message);
+                w.showErrorMessage("Project not found");
                 break;
             default:
-                console.error("UnknownError", err.message);
+                getLogger().error("Unknown error", err);
                 break;
         }
     }

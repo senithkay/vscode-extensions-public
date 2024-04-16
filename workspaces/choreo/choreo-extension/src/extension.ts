@@ -43,7 +43,7 @@ import { initRPCServer } from "./choreo-rpc/activate";
 import { linkedDirectoryStore } from "./stores/linked-dir-store";
 import { authStore } from "./stores/auth-store";
 import { dataCacheStore } from "./stores/data-cache-store";
-import { HandlerError } from "./error-utils";
+import { handlerError } from "./error-utils";
 
 export async function activate(context: vscode.ExtensionContext) {
     activateTelemetry(context);

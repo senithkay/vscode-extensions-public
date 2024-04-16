@@ -3,6 +3,7 @@ import { MessageConnection, Trace, Tracer } from "vscode-jsonrpc";
 import { StdioConnection } from "./connection";
 import { Buildpack, ComponentKind, Project, UserInfo, IChoreoRPCClient, BuildPackReq, GetBranchesReq, IsRepoAuthorizedReq, GetComponentsReq, CreateLinkReq, CreateProjectReq, CreateComponentReq, DeleteCompReq } from "@wso2-enterprise/choreo-core";
 import { workspace } from "vscode";
+import { handlerError } from "../error-utils";
 
 export class RPCClient {
     private _conn: MessageConnection | undefined;
@@ -39,11 +40,18 @@ export class RPCClient {
         return RPCClient._instance;
     }
 
-    get conn(): MessageConnection {
+    async sendRequest<T>(method: string, params?: any): Promise<T> {
+        this._conn?.sendRequest
         if (!this._conn) {
             throw new Error("Connection is not initialized");
         }
-        return this._conn;
+        try {
+            return await this._conn.sendRequest<T>(method, params);
+        } catch (e) {
+            getLogger().error("Error sending request", e);
+            handlerError(e);
+            throw e;
+        }
     }
 }
 
@@ -63,29 +71,29 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
         if (!this.client) {
             throw new Error("RPC client is not initialized");
         }
-        const response: { project: Project } = await this.client.conn.sendRequest("project/create", params);
-        return response.project;
+        const resp = await this.client.sendRequest<{ project: Project }>("project/create", params);
+        return resp.project;
     }
 
     async createComponent(params: CreateComponentReq): Promise<void> {
         if (!this.client) {
             throw new Error("RPC client is not initialized");
         }
-        await this.client.conn.sendRequest("component/create", params);
+        await this.client.sendRequest("component/create", params);
     }
 
     async deleteComponent(params: DeleteCompReq): Promise<void> {
         if (!this.client) {
             throw new Error("RPC client is not initialized");
         }
-        await this.client.conn.sendRequest("component/delete", params);
+        await this.client.sendRequest("component/delete", params);
     }
 
     async getProjects(orgID: string): Promise<Project[]> {
         if (!this.client) {
             throw new Error("RPC client is not initialized");
         }
-        const response: { projects: Project[] } = await this.client.conn.sendRequest("project/getProjects", { orgID });
+        const response = await this.client.sendRequest<{ projects: Project[] }>("project/getProjects", { orgID });
         return response.projects;
     }
 
@@ -93,7 +101,7 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
         if (!this.client) {
             throw new Error("RPC client is not initialized");
         }
-        const response: { components: ComponentKind[] } = await this.client.conn.sendRequest("component/getList", params);
+        const response = await this.client.sendRequest<{ components: ComponentKind[] }>("component/getList", params);
         return response.components;
     }
 
@@ -101,7 +109,7 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
         if (!this.client) {
             throw new Error("RPC client is not initialized");
         }
-        const response: { buildPacks: Buildpack[] } = await this.client.conn.sendRequest("component/getBuildPacks", params);
+        const response = await this.client.sendRequest<{ buildPacks: Buildpack[] }>("component/getBuildPacks", params);
         return response.buildPacks;
     }
 
@@ -110,7 +118,7 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
         if (!this.client) {
             throw new Error("RPC client is not initialized");
         }
-        const response: { branches: string[] } = await this.client.conn.sendRequest("repo/getBranches", params);
+        const response = await this.client.sendRequest<{ branches: string[] }>("repo/getBranches", params);
         return response.branches;
     }
 
@@ -118,7 +126,7 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
         if (!this.client) {
             throw new Error("RPC client is not initialized");
         }
-        const response: { isAccessible: boolean } = await this.client.conn.sendRequest("repo/isRepoAuthorized", params);
+        const response = await this.client.sendRequest<{ isAccessible: boolean }>("repo/isRepoAuthorized", params);
         return response.isAccessible;
     }
 
@@ -126,14 +134,14 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
         if (!this.client) {
             throw new Error("RPC client is not initialized");
         }
-        await this.client.conn.sendRequest("component/createLink", params);
+        await this.client.sendRequest("component/createLink", params);
     }
 
     async getUserInfo(): Promise<UserInfo> {
         if (!this.client) {
             throw new Error("RPC client is not initialized");
         }
-        const response: { userInfo: UserInfo; isLoggedIn: boolean } = await this.client.conn.sendRequest("auth/getUserInfo");
+        const response = await this.client.sendRequest<{ userInfo: UserInfo; isLoggedIn: boolean }>("auth/getUserInfo");
         return response.userInfo;
     }
 
@@ -141,7 +149,7 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
         if (!this.client) {
             throw new Error("RPC client is not initialized");
         }
-        const response: { loginUrl: string } = await this.client.conn.sendRequest("auth/getSignInUrl", { callbackUrl });
+        const response = await this.client.sendRequest<{ loginUrl: string }>("auth/getSignInUrl", { callbackUrl });
         return response.loginUrl;
     }
 
@@ -149,7 +157,7 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
         if (!this.client) {
             throw new Error("RPC client is not initialized");
         }
-        const response: { userInfo: UserInfo } = await this.client.conn.sendRequest("auth/signInWithAuthCode", {
+        const response = await this.client.sendRequest<{ userInfo: UserInfo }>("auth/signInWithAuthCode", {
             authCode,
             orgId,
         });
@@ -160,7 +168,7 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
         if (!this.client) {
             throw new Error("RPC client is not initialized");
         }
-        await this.client.conn.sendRequest("auth/signOut");
+        await this.client.sendRequest("auth/signOut");
     }
 }
 
