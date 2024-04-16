@@ -9,6 +9,7 @@
 import { window, QuickPickItem, QuickPickItemKind, workspace, WorkspaceFolder } from "vscode";
 import { ext } from "../extensionVariables";
 import { ComponentKind, Organization, Project, UserInfo } from "@wso2-enterprise/choreo-core";
+import { getLogger } from "src/logger/logger";
 
 export const selectComponent = async (
     org: Organization,
@@ -175,6 +176,9 @@ async function quickPickLoader<T>(promise: Promise<T>, ladingMessage: string = "
     try {
         const result = await promise;
         return result;
+    } catch (err) {
+        console.error(err);
+        throw err;
     } finally {
         quickPick.hide();
     }
