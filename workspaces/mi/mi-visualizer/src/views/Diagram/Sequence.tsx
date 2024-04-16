@@ -10,10 +10,11 @@ import React from "react";
 import { Diagnostic } from "vscode-languageserver-types";
 import { NamedSequence } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { Diagram } from "@wso2-enterprise/mi-diagram-2";
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 import { generateSequenceData, onSequenceEdit } from "../../utils/form";
-import { EditSequenceForm, EditSequenceFields } from "../Forms/EditForms/EditSequenceForm";
+import { EditSequenceForm } from "../Forms/EditForms/EditSequenceForm";
 
 export interface SequenceViewProps {
     model: NamedSequence;
@@ -24,39 +25,35 @@ export interface SequenceViewProps {
 export const SequenceView = ({ model: SequenceModel, documentUri, diagnostics }: SequenceViewProps) => {
     const { rpcClient } = useVisualizerContext();
     const model = SequenceModel as NamedSequence;
-    const data = generateSequenceData(model) as EditSequenceFields
+    const data = generateSequenceData(model) as EditSequenceForm
     const [isFormOpen, setFormOpen] = React.useState(false);
 
     const handleEditSequence = () => {
         setFormOpen(true);
     }
 
-    const onSave = (data: EditSequenceFields) => {
+    const onSave = (data: EditSequenceForm) => {
         onSequenceEdit(data, model.range.startTagRange, documentUri, rpcClient);
         setFormOpen(false);
     }
-
+    
     return (
         <View>
-            {isFormOpen ?
+            <ViewHeader title={`Sequence: ${model.name}`} codicon="globe" onEdit={handleEditSequence} />
+            <ViewContent>
+                <Diagram
+                    model={model}
+                    documentUri={documentUri}
+                    diagnostics={diagnostics}
+                    isFormOpen={isFormOpen}
+                />
                 <EditSequenceForm
-                    sequenceData={data}
                     isOpen={isFormOpen}
+                    sequenceData={data}
                     onCancel={() => setFormOpen(false)}
                     onSave={onSave}
-                    documentUri={documentUri}
-                /> :
-                <>
-                    <ViewHeader title={`Sequence: ${model.name}`} codicon="globe" onEdit={handleEditSequence} />
-                    <ViewContent>
-                        <Diagram
-                            model={model}
-                            documentUri={documentUri}
-                            diagnostics={diagnostics}
-                            isFormOpen={isFormOpen}
-                        />
-                    </ViewContent>
-                </>}
+                />
+            </ViewContent>
         </View>
     )
 }

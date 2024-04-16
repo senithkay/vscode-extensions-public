@@ -9,7 +9,7 @@
 import { APIResource, Range, NamedSequence } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
 import { EditAPIForm, Method } from "../views/Forms/EditForms/EditResourceForm";
-import { EditSequenceFields } from "../views/Forms/EditForms/EditSequenceForm";
+import { EditSequenceForm } from "../views/Forms/EditForms/EditSequenceForm";
 import { SERVICE } from "../constants";
 import { getXML } from "./template-engine/mustache-templates/templateUtils";
 
@@ -33,17 +33,17 @@ export const generateResourceData = (model: APIResource): EditAPIForm => {
                 head: false,
                 options: false,
             }), // Extract boolean values for each method
-        protocol: {
-            http: true,
-            https: true,
-        }, // Extract boolean values for each protocol
+            protocol: {
+                http: true,
+                https: true,
+            }, // Extract boolean values for each protocol
     }
 
     return resourceData;
 }
 
 export const generateSequenceData = (model: NamedSequence): any => {
-    const sequenceData: EditSequenceFields = {
+    const sequenceData: EditSequenceForm = {
         name: model.name,
         trace: model.trace !== "enable" ? false : true,
         statistics: model.statistics !== "enable" ? false : true,
@@ -65,38 +65,38 @@ export const onResourceEdit = (
     rpcClient: RpcClient,
 ) => {
     const { uriTemplate, urlMapping, methods, inSequence, outSequence, faultSequence } = data;
-    const formValues = {
-        methods: Object
-            .keys(methods)
-            .filter((method) => methods[method as keyof typeof methods])
-            .map(method => method.toUpperCase())
-            .join(" "), // Extract selected methods and create string containing the methods for the XML
-        uri_template: uriTemplate,
-        url_mapping: urlMapping,
-        in_sequence: inSequence,
-        out_sequence: outSequence,
-        fault_sequence: faultSequence,
-    };
+        const formValues = {
+            methods: Object
+                .keys(methods)
+                .filter((method) => methods[method as keyof typeof methods])
+                .map(method => method.toUpperCase())
+                .join(" "), // Extract selected methods and create string containing the methods for the XML
+            uri_template: uriTemplate,
+            url_mapping: urlMapping,
+            in_sequence: inSequence,
+            out_sequence: outSequence,
+            fault_sequence: faultSequence,
+        };
 
-    const xml = getXML(SERVICE.EDIT_RESOURCE, formValues);
-    const sortedRanges = deleteRanges.sort((a, b) => b.start.line - a.start.line || b.start.character - a.start.character);
-    rpcClient.getMiDiagramRpcClient().applyEdit({
-        text: xml,
-        documentUri: documentUri,
-        range: range
-    }).then(async () => {
-        for (const range of sortedRanges) {
-            await rpcClient.getMiDiagramRpcClient().applyEdit({
-                text: "",
-                documentUri: documentUri,
-                range: range
-            });
-        }
-    });
+        const xml = getXML(SERVICE.EDIT_RESOURCE, formValues);
+        const sortedRanges = deleteRanges.sort((a, b) => b.start.line - a.start.line || b.start.character - a.start.character);
+        rpcClient.getMiDiagramRpcClient().applyEdit({
+            text: xml,
+            documentUri: documentUri,
+            range: range
+        }).then(async () => {
+            for (const range of sortedRanges) {
+                await rpcClient.getMiDiagramRpcClient().applyEdit({
+                    text: "",
+                    documentUri: documentUri,
+                    range: range
+                });
+            }
+        });
 }
 
 export const onSequenceEdit = (
-    data: EditSequenceFields,
+    data: EditSequenceForm,
     range: Range,
     documentUri: string,
     rpcClient: RpcClient,
