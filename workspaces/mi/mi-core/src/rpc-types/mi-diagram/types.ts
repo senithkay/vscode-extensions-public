@@ -1101,3 +1101,13 @@ export interface GetIconPathUriRequest {
 export interface GetIconPathUriResponse {
     uri: any;
 }
+
+export interface CreateConnectionRequest {
+    connectionName: string;
+    keyValuesXML: string;
+    directory: string;
+}
+
+export interface CreateConnectionResponse {
+    name: string
+}

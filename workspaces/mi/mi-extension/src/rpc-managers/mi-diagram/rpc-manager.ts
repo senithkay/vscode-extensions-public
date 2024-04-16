@@ -25,6 +25,8 @@ import {
     CreateAPIResponse,
     CreateClassMediatorRequest,
     CreateClassMediatorResponse,
+    CreateConnectionRequest,
+    CreateConnectionResponse,
     CreateDataSourceResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
@@ -2511,14 +2513,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         'User-Agent': 'My Client'
                     }
                 });
-                
-    
+
                 const writer = fs.createWriteStream(
                     path.resolve(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors', `${connector.replace(/\s+/g, '')}-${version}.zip`)
                 );
-    
+
                 response.data.pipe(writer);
-    
+
                 return new Promise((resolve, reject) => {
                     writer.on('finish', () => {
                         writer.close();
@@ -2532,24 +2533,24 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             return new Promise((resolve, reject) => {
                 resolve({ path: connectorPath });
             });
-            
         } catch (error) {
             console.error('Error downloading connector:', error);
             throw new Error('Failed to download connector');
-        }      
+        }
     }
 
-    async getConnectorForm (params: GetConnectorFormRequest): Promise<GetConnectorFormResponse> {
+    async getConnectorForm(params: GetConnectorFormRequest): Promise<GetConnectorFormResponse> {
         const { uiSchemaPath, operation } = params;
         const operationSchema = path.join(uiSchemaPath, `${operation}.json`);
 
-        // Read the file synchronously
-        const rawData = fs.readFileSync(operationSchema, 'utf-8');
+        if (!fs.existsSync(operationSchema)) {
+            return { formJSON: '' };
+        }
 
-        // Parse the JSON
+        const rawData = fs.readFileSync(operationSchema, 'utf-8');
         const formJSON = JSON.parse(rawData);
 
-        return {formJSON: formJSON};
+        return { formJSON: formJSON };
     }
 
     async undo(params: UndoRedoParams): Promise<void> {
@@ -2891,8 +2892,29 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             if (VisualizerWebview.currentPanel) {
                 let iconUri = VisualizerWebview.currentPanel.getIconPath(params.path, params.name);
-                resolve({uri: iconUri});
+                resolve({ uri: iconUri });
             }
+        });
+    }
+
+    async createConnection(params: CreateConnectionRequest): Promise<CreateConnectionResponse> {
+        return new Promise(async (resolve) => {
+            const { connectionName, keyValuesXML, directory } = params;
+            const localEntryPath = directory;
+
+            const xmlData =
+                `<?xml version="1.0" encoding="UTF-8"?>
+<localEntry key="${connectionName}" xmlns="http://ws.apache.org/ns/synapse">
+    ${keyValuesXML}
+</localEntry>`;
+
+            const filePath = path.join(localEntryPath, `${connectionName}.xml`);
+            if (!fs.existsSync(localEntryPath)) {
+                fs.mkdirSync(localEntryPath);
+            }
+
+            fs.writeFileSync(filePath, xmlData);
+            resolve({ name: connectionName });
         });
     }
 }

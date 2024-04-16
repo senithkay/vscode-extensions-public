@@ -138,6 +138,8 @@ import {
     GetDataSourceRequest,
     GetIconPathUriRequest,
     GetIconPathUriResponse,
+    CreateConnectionRequest,
+    CreateConnectionResponse,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -224,4 +226,5 @@ export interface MiDiagramAPI {
     createDataSource: (params: DataSourceTemplate) => Promise<CreateDataSourceResponse>;
     getDataSource: (params: GetDataSourceRequest) => Promise<DataSourceTemplate>;
     getIconPathUri: (params: GetIconPathUriRequest) => Promise<GetIconPathUriResponse>;
+    createConnection: (params: CreateConnectionRequest) => Promise<CreateConnectionResponse>; 
 }

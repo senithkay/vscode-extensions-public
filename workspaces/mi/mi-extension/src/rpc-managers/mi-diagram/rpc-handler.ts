@@ -16,6 +16,7 @@ import {
     ConnectorRequest,
     CreateAPIRequest,
     CreateClassMediatorRequest,
+    CreateConnectionRequest,
     CreateEndpointRequest,
     CreateInboundEndpointRequest,
     CreateLocalEntryRequest,
@@ -80,6 +81,7 @@ import {
     closeWebViewNotification,
     createAPI,
     createClassMediator,
+    createConnection,
     createDataSource,
     createEndpoint,
     createInboundEndpoint,
@@ -244,4 +246,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createDataSource, (args: DataSourceTemplate) => rpcManger.createDataSource(args));
     messenger.onRequest(getDataSource, (args: GetDataSourceRequest) => rpcManger.getDataSource(args));
     messenger.onRequest(getIconPathUri, (args: GetIconPathUriRequest) => rpcManger.getIconPathUri(args));
+    messenger.onRequest(createConnection, (args: CreateConnectionRequest) => rpcManger.createConnection(args));
 }

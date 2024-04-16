@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -8,14 +8,13 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { Button, ComponentCard, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from '../SidePanelContexProvider';
 import { create } from 'xmlbuilder2';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
-import AddConnection from './AddConnection';
 
 const cardStyle = {
     display: "block",
@@ -30,11 +29,14 @@ const Error = styled.span`
     font-size: 12px;
 `;
 
-interface AddConnectorProps {
+interface AddConnectionProps {
     formData: any;
     nodePosition: Range;
     documentUri: string;
     uiSchemaPath?: string;
+    connectionType: string;
+    onNewConnection: (connectionName: string) => void;
+    cancelConnection: () => void;
 }
 
 interface Element {
@@ -50,14 +52,12 @@ interface Element {
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
-const AddConnector = (props: AddConnectorProps) => {
+const AddConnection = (props: AddConnectionProps) => {
     const { rpcClient } = useVisualizerContext();
 
     const sidePanelContext = React.useContext(SidePanelContext);
     const [formValues, setFormValues] = useState({} as any);
     const [errors, setErrors] = useState({} as any);
-    const [connectionForm, setConnectionForm] = useState('');
-    const [connections, setConnections] = useState([] as any);
 
     const formValidators: { [key: string]: (e?: any) => string | undefined } = {};
 
@@ -91,18 +91,7 @@ const AddConnector = (props: AddConnectorProps) => {
         return error;
     };
 
-    const onPlusClick = async () => {
-        const type = formValues['configRef'];
-        const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: props.uiSchemaPath, operation: type.toLowerCase() });
-
-        setConnectionForm(connectionFormJSON.formJSON);
-    }
-
-    const cancelConnection = () => {
-        setConnectionForm('');
-    }
-
-    const onClick = async () => {
+    const onAddConnection = async () => {
         const newErrors = {} as any;
         Object.keys(formValidators).forEach((key) => {
             const error = formValidators[key]();
@@ -114,34 +103,33 @@ const AddConnector = (props: AddConnectorProps) => {
             setErrors(newErrors);
         } else {
             const template = create();
-            const root = template.ele(`${props.formData.connectorName}${props.formData.operationName ? `.${props.formData.operationName}` : ''}`);
-            root.att('configKey', formValues['configKey']);
+            const root = template.ele(`${props.formData.connectorName}.init`);
+            root.ele('connectionType').txt(props.connectionType);
             // Fill the values
             Object.keys(formValues).forEach((key) => {
-                if (key !== 'configRef' && key !== 'configKey') {
-                    root.ele(key).txt(formValues[key]);
+                if (key !== 'configRef') {
+                    if (key === 'connectionName') {
+                        root.ele('name').txt(formValues[key]);
+                    } else {
+                        root.ele(key).txt(formValues[key]);
+                    }
                 }
             });
             const modifiedXml = template.end({ prettyPrint: true, headless: true });
 
-            rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: modifiedXml
+            const LocalEntryPath = props.documentUri.replace(/\/apis\/.*$/, `/local-entries`);
+
+            const connectionName = await rpcClient.getMiDiagramRpcClient().createConnection({
+                connectionName: formValues['connectionName'],
+                connectorName: props.formData.connectorName,
+                connectionType: props.connectionType,
+                keyValuesXML: modifiedXml,
+                directory: LocalEntryPath
             });
-            sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                isOpen: false,
-                isEditing: false,
-                formValues: undefined,
-                nodeRange: undefined,
-                operationName: undefined
-            });
+
+            props.onNewConnection(connectionName.name);
         }
     };
-
-    const onNewConnection = async (connectionName: string) => {
-        setConnections([...connections, connectionName]); 
-        setConnectionForm('');
-    }
 
     const renderFormElement = (element: Element) => {
         switch (element.inputType) {
@@ -181,14 +169,6 @@ const AddConnector = (props: AddConnectorProps) => {
                 formValues[element.name] = formValues[element.name] ?? element.allowedConnectionTypes[0];
                 return (<>
                     <label>{element.displayName}</label> {element.required && <RequiredFormInput />}
-                    <AutoComplete
-                        items={connections}
-                        value={formValues['configKey']}
-                        onValueChange={(e: any) => {
-                            setFormValues({ ...formValues, ['configKey']: e });
-                            formValidators[element.name](e);
-                        }}
-                        sx={{ color: 'var(--vscode-editor-foreground)', width: '300px', marginBottom: "10px" }} />
                     <div style={{ display: "flex", flexDirection: "row", width: '100%', gap: '10px' }}>
                         <VSCodeDropdown
                             label={element.displayName}
@@ -211,9 +191,6 @@ const AddConnector = (props: AddConnectorProps) => {
                                 ))
                             }
                         </VSCodeDropdown>
-                        <Button onClick={() => onPlusClick()}>
-                            +
-                        </Button>
                     </div>
                 </>);
             default:
@@ -245,32 +222,25 @@ const AddConnector = (props: AddConnectorProps) => {
 
     return (
         <div style={{ padding: "10px" }}>
-            {connectionForm ?
-                <AddConnection
-                    formData={connectionForm}
-                    nodePosition={sidePanelContext.nodeRange}
-                    documentUri={props.documentUri}
-                    uiSchemaPath={props.uiSchemaPath}
-                    connectionType={formValues['configRef']}
-                    onNewConnection={onNewConnection}
-                    cancelConnection={cancelConnection} />
-                :
-                <>
-                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        {renderForm(props.formData.elements)}
-                    </ComponentCard>
-                    <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
-                        <Button
-                            appearance="primary"
-                            onClick={onClick}
-                        >
-                            Submit
-                        </Button>
-                    </div>
-                </>
-            }
-        </div>
+            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                {renderForm(props.formData.elements)}
+            </ComponentCard>
+            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px", gap: "10px" }}>
+                <Button
+                    appearance="secondary"
+                    onClick={props.cancelConnection}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    appearance="primary"
+                    onClick={onAddConnection}
+                >
+                    Add
+                </Button>
+            </div>
+        </div >
     );
 };
 
-export default AddConnector;
+export default AddConnection;

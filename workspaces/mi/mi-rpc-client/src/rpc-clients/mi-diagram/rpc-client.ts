@@ -24,6 +24,8 @@ import {
     CreateAPIResponse,
     CreateClassMediatorRequest,
     CreateClassMediatorResponse,
+    CreateConnectionRequest,
+    CreateConnectionResponse,
     CreateDataSourceResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
@@ -148,6 +150,7 @@ import {
     closeWebViewNotification,
     createAPI,
     createClassMediator,
+    createConnection,
     createDataSource,
     createEndpoint,
     createInboundEndpoint,
@@ -565,5 +568,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getIconPathUri(params: GetIconPathUriRequest): Promise<GetIconPathUriResponse> {
         return this._messenger.sendRequest(getIconPathUri, HOST_EXTENSION, params);
+    }
+
+    createConnection(params: CreateConnectionRequest): Promise<CreateConnectionResponse> {
+        return this._messenger.sendRequest(createConnection, HOST_EXTENSION, params);
     }
 }
