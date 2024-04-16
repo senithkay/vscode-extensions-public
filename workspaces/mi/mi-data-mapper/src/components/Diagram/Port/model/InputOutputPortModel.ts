@@ -15,7 +15,7 @@ import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { IntermediatePortModel } from "../IntermediatePort";
 import { DataMapperNodeModel } from "../../Node/commons/DataMapperNode";
 import { isDefaultValue } from "../../utils/common-utils";
-import { createSourceForMapping } from "../../utils/modification-utils";
+import { createSourceForMapping, modifySourceForMultipleMappings } from "../../utils/modification-utils";
 
 export interface InputOutputPortModelGenerics {
 	PORT: InputOutputPortModel;
@@ -81,11 +81,9 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 						}
 
 						targetNode.context.updateFileContent(targetNode.context.sourceFile.getText());
-						// TODO: Handle other types of expressions
 					}
-					// TODO: Replace the initializer of property assignment
 				} else if (targetPortHasLinks) {
-					// TODO: Modify the initializer of property assignment
+					modifySourceForMultipleMappings(lm);
 				} else {
 					createSourceForMapping(lm);
 				}

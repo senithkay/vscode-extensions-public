@@ -14,6 +14,7 @@ import { InputOutputPortModel } from "../Port";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { getFieldIndexes, getFieldNameFromOutputPort, getLinebreak, getPropertyAssignment } from "./common-utils";
 import { ObjectOutputNode } from "../Node";
+import { ExpressionLabelModel } from "../Label";
 
 export async function createSourceForMapping(link: DataMapperLinkModel) {
     if (!link.getSourcePort() || !link.getTargetPort()) {
@@ -170,4 +171,35 @@ function constructValueExprSource(lhs: string, rhs: string, fieldNames: string[]
 	}
 
 	return source;
+}
+
+export function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
+	const targetPort = link.getTargetPort();
+	if (!targetPort) {
+		return;
+	}
+
+	let rhs = "";
+	const sourcePort = link.getSourcePort();
+	const targetNode = targetPort.getNode();
+	const { sourceFile, updateFileContent } = (targetNode as DataMapperNodeModel).context;
+
+	if (sourcePort && sourcePort instanceof InputOutputPortModel) {
+		rhs = sourcePort.fieldFQN;
+	}
+
+	Object.keys(targetPort.getLinks()).forEach((linkId) => {
+
+		if (linkId !== link.getID()) {
+			const targerPortLink = targetPort.getLinks()[linkId];
+
+			if (targerPortLink.getLabels().length > 0) {
+				const valueNode = (targerPortLink.getLabels()[0] as ExpressionLabelModel).valueNode;
+				const newSource = `${valueNode.getText()} + ${rhs}`;
+				valueNode.replaceWithText(newSource);
+			}
+		}
+	});
+
+	updateFileContent(sourceFile.getText());
 }
