@@ -8,13 +8,12 @@
  */
 
 import { useEffect, useState } from "react";
-import { Button, FormView, FormGroup, FormActions } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, RadioButtonGroup, FormView, FormGroup, FormActions } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { CreateTaskRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
-import ControllerField, { FieldType } from "./Commons/ControllerField";
 
 export interface Region {
     label: string;
@@ -76,10 +75,10 @@ export function TaskForm(props: TaskFormProps) {
 
     const {
         reset,
+        register,
         formState: { errors, isDirty },
         handleSubmit,
         watch,
-        control
     } = useForm({
         defaultValues: initialInboundEndpoint,
         resolver: yupResolver(schema),
@@ -104,6 +103,14 @@ export function TaskForm(props: TaskFormProps) {
         ? "Create new Scheduled Task"
         : "Edit Scheduled Task : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
 
+    const renderProps = (fieldName: keyof InputsFields) => {
+        return {
+            id: fieldName,
+            ...register(fieldName),
+            errorMsg: errors[fieldName] && errors[fieldName].message.toString()
+        }
+    };
+
     const openOverview = () => {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
@@ -123,73 +130,58 @@ export function TaskForm(props: TaskFormProps) {
 
     return (
         <FormView title={formTitle} onClose={handleOnClose}>
-            <ControllerField
+            <TextField
                 required
                 autoFocus
-                id="name"
                 label="Task Name"
                 placeholder="Name"
-                control={control}
-                errors={errors}
+                {...renderProps("name")}
             />
-            <ControllerField
-                id="pinnedServers"
+            <TextField
                 label="Pinned Servers"
                 placeholder="Servers"
-                control={control}
-                errors={errors}
+                {...renderProps("pinnedServers")}
             />
             <FormGroup title="Trigger Information of the Task" isCollapsed={false}>
-                <ControllerField
-                    id="triggerType"
+                <RadioButtonGroup
                     label="Trigger Type"
                     options={[{ content: "Simple", value: "simple" }, { content: "Cron", value: "cron" }]}
-                    fieldType={FieldType.RADIO_GROUP}
-                    control={control}
-                    errors={errors}
+                    {...renderProps("triggerType")}
                 />
                 {watch("triggerType") === 'simple' ? (
                     <>
-                        <ControllerField
-                            id="triggerCount"
+                        <TextField
                             label="Count"
-                            control={control}
-                            errors={errors}
+                            {...renderProps("triggerCount")}
                         />
-                        <ControllerField
+                        <TextField
                             required
-                            id="triggerInterval"
                             label="Interval (in seconds)"
-                            control={control}
-                            errors={errors}
+                            {...renderProps("triggerInterval")}
                         />
                     </>
                 ) : (
-                    <ControllerField
-                        required
-                        id="triggerCron"
-                        label="Cron"
-                        control={control}
-                        errors={errors}
-                    />
+                    <>
+                        <TextField
+                            required
+                            label="Cron"
+                            {...renderProps("triggerCron")}
+                        />
+                    </>
                 )}
             </FormGroup>
             <FormGroup title="Advanced">
-                <ControllerField
+                <TextField
                     required
-                    id="group"
                     label="Task Group"
                     placeholder="Group"
-                    control={control}
-                    errors={errors}
+                    {...renderProps("group")}
                 />
-                <ControllerField
+                <TextField
                     required
-                    id="implementation"
                     label="Task Implementation"
                     placeholder="Implementation"
-                    control={control}
-                    errors={errors}
+                    {...renderProps("implementation")}
                 />
             </FormGroup>
             <FormActions>
