@@ -103,8 +103,6 @@ import {
     RetrieveDefaultEndpointResponse,
     GetLocalEntryRequest,
     GetLocalEntryResponse,
-    FileListRequest,
-    FileListResponse,
     UpdateLoadBalanceEPRequest,
     UpdateLoadBalanceEPResponse,
     GetLoadBalanceEPRequest,
@@ -170,7 +168,6 @@ export const getSequenceDirectory: RequestType<void, SequenceDirectoryResponse> 
 export const createSequence: RequestType<CreateSequenceRequest, CreateSequenceResponse> = { method: `${_preFix}/createSequence` };
 export const createMessageStore: RequestType<CreateMessageStoreRequest, CreateMessageStoreResponse> = { method: `${_preFix}/createMessageStore` };
 export const getMessageStore: RequestType<GetMessageStoreRequest, GetMessageStoreResponse> = { method: `${_preFix}/getMessageStore` };
-export const getXmlFileList: RequestType<FileListRequest, FileListResponse> = { method: `${_preFix}/getXmlFileList` };
 export const createInboundEndpoint: RequestType<CreateInboundEndpointRequest, CreateInboundEndpointResponse> = { method: `${_preFix}/createInboundEndpoint` };
 export const createMessageProcessor: RequestType<CreateMessageProcessorRequest, CreateMessageProcessorResponse> = { method: `${_preFix}/createMessageProcessor` };
 export const getMessageProcessor: RequestType<RetrieveMessageProcessorRequest, RetrieveMessageProcessorResponse> = { method: `${_preFix}/getMessageProcessor` };

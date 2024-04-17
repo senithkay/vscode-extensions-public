@@ -102,8 +102,6 @@ import {
     RetrieveDefaultEndpointResponse,
     GetLocalEntryRequest,
     GetLocalEntryResponse,
-    FileListRequest,
-    FileListResponse,
     UpdateLoadBalanceEPRequest,
     UpdateLoadBalanceEPResponse,
     GetLoadBalanceEPRequest,
@@ -168,7 +166,6 @@ export interface MiDiagramAPI {
     createSequence: (params: CreateSequenceRequest) => Promise<CreateSequenceResponse>;
     createMessageStore: (params: CreateMessageStoreRequest) => Promise<CreateMessageStoreResponse>;
     getMessageStore: (params: GetMessageStoreRequest) => Promise<GetMessageStoreResponse>;
-    getXmlFileList: (params: FileListRequest) => Promise<FileListResponse>;
     createInboundEndpoint: (params: CreateInboundEndpointRequest) => Promise<CreateInboundEndpointResponse>;
     createMessageProcessor: (params: CreateMessageProcessorRequest) => Promise<CreateMessageProcessorResponse>;
     getMessageProcessor: (params: RetrieveMessageProcessorRequest) => Promise<RetrieveMessageProcessorResponse>;

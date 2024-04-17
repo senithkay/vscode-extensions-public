@@ -6,176 +6,307 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import { AutoComplete, Button, TextField, Codicon , Typography } from "@wso2-enterprise/ui-toolkit";
-import { SectionWrapper } from "../Commons";
+import { AutoComplete, Button, TextField, ParamManager, ParamConfig, FormView , FormGroup , FormActions } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import  SampleTable  from "./Table";
-import {messageStoreTypes,preConfiguredProfiles,rdbmsTypes} from './types';
+import {preConfiguredProfiles,rdbmsTypes} from './types';
 import { rabbitMQInitialValues, jmsInitialValues, jdbcInitialValues, wso2MbInitialValues, resequenceInitialValues, poolInitialValues,carbonDatasourceInitialValues, sslInitialValues } from './typeValues';
-import { CreateMessageStoreRequest } from "@wso2-enterprise/mi-core";
-import path from "path";
-
-const WizardContainer = styled.div`
-    width: 95%;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
-    overflow-y: auto;
-`;
-
-const ActionContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-bottom: 20px;
-`;
-
-const Container = styled.div`
-    display: flex;
-    flex-direction: row;
-    height: 50px;
-    align-items: center;
-    justify-content: flex-start;
-`;
+import { CreateMessageStoreRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { useForm } from "react-hook-form";
+import CardWrapper from "../Commons/CardWrapper";
 
 export type CustomParameter={
     name: string,
     value: string,
-    selected: boolean
 }
+
 export interface MessageStoreWizardProps{
     path:string
 }
 
+const schema = yup.
+    object({
+        name: yup.string().required("Task Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Message Store name"),
+        type: yup.string(),
+        connectionInformationType: yup.string(),
+        initialContextFactory: yup.string().required().when('type', {
+            is: "JMS Message Store",
+            then: (schema)=>schema.required("Initial Context Factory is required"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        providerURL: yup.string().required().when('type', {
+            is: "JMS Message Store",
+            then: (schema)=>schema.required("Provide URL is required").matches(/^(https?:\/\/)?www\.[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i, "Provide URL should be a valid url"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        providerClass: yup.string().required().when('type', {
+            is: "Custom Message Store",
+            then: (schema)=>schema.required("Provider Class is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Provider Class"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        rabbitMQServerHostName: yup.string().required().when('type', {
+            is: "RabbitMQ Message Store",
+            then: (schema)=>schema.required("RabbitMQ Host Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in RabbitMQ Host Name"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        rabbitMQServerPort: yup.string().required().when('type', {
+            is: "RabbitMQ Message Store",
+            then: (schema)=>schema.required("Server Port is required").matches(/^[0-9]*$/, "Provide Port should be a number"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        dataBaseTable: yup.string().required().when('type', {
+            is: "JDBC Message Store" || "Resequence Message Store",
+            then: (schema)=>schema.required("Data Base Table is required"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        driver: yup.string().required().when('type', {
+            is: "JDBC Message Store" || "Resequence Message Store",
+            then: (schema)=>schema.required().when('connectionInformationType', {
+                is: "Pool",
+                then: (schema)=>schema.required("Driver is required"),
+                otherwise: (schema)=>schema.notRequired()
+            }),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        url: yup.string().required().when('type', {
+            is: "JDBC Message Store" || "Resequence Message Store",
+            then: (schema)=>schema.required().when('connectionInformationType', {
+                is: "Pool",
+                then: (schema)=>schema.required("JDBC URL is required").matches(/^(jdbc:)?[a-zA-Z0-9]+:\/\//, "URL should be a valid url"),
+                otherwise: (schema)=>schema.notRequired()
+            }),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        user: yup.string().required().when('type', {
+            is: "JDBC Message Store" || "Resequence Message Store",
+            then: (schema)=>schema.required().when('connectionInformationType', {
+                is: "Pool",
+                then: (schema)=>schema.required("User Name is required"),
+                otherwise: (schema)=>schema.notRequired()
+            }),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        queueConnectionFactory: yup.string().required().when('type', {
+            is: "WSO2 MB Message Store",
+            then: (schema)=>schema.required("Queue Connection Factory is required"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        jndiQueueName: yup.string().required().when('type', {
+            is: "WSO2 MB Message Store",
+            then: (schema)=>schema.required("JNDI Queue Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Message Store name"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+
+    })
+
+type InputsFields = {
+    name?: string;
+    type?: string;
+    connectionInformationType?: string;
+    initialContextFactory?: string;
+    connectionFactory?: string;
+    providerURL?: string;
+    userName?: string;
+    password?: string;
+    cacheConnection?: string;
+    jmsAPIVersion?: string;
+    providerClass?: string;
+    rabbitMQServerHostName?: string;
+    rabbitMQServerPort?: string;
+    dataBaseTable?: string;
+    driver?: string;
+    url?: string;
+    user?: string;
+    dataSourceName?: string;
+    queueConnectionFactory?: string;
+    jndiQueueName?: string;
+    pollingCount?: string;
+    xPath?: string;
+    enableProducerGuaranteedDelivery?: boolean;
+    sslEnabled?: boolean;
+    trustStoreLocation?: string;
+    trustStoreType?: string;
+    trustStorePassword?: string;
+    keyStoreLocation?: string;
+    keyStoreType?: string;
+    keyStorePassword?: string;
+    sslVersion?: string;
+    rabbitMQQueueName?: string;
+    rabbitMQExchangeName?: string;
+    routineKey?: string;
+    virtualHost?: string;
+    customParameters?: CustomParameter[];
+    failOverMessageStore?: string;
+};
+
+const initialMessageStore: InputsFields = {
+    name: "",
+    type: "",
+    initialContextFactory: "",
+    connectionInformationType: "Pool",
+    providerURL: "",
+    connectionFactory: "",
+    jndiQueueName: "",
+    userName: "",
+    password: "",
+    cacheConnection: "false",
+    jmsAPIVersion: "1.1",
+    rabbitMQServerHostName: "",
+    rabbitMQServerPort: "",
+    sslEnabled: false,
+    trustStoreLocation: "",
+    trustStoreType: "",
+    trustStorePassword: "",
+    keyStoreLocation: "",
+    keyStoreType: "",
+    keyStorePassword: "",
+    sslVersion: "",
+    rabbitMQQueueName: "",
+    rabbitMQExchangeName: "",
+    routineKey: "",
+    virtualHost: "",
+    dataBaseTable: "",
+    driver: "",
+    url: "",
+    user: "",
+    dataSourceName: "",
+    queueConnectionFactory: "",
+    pollingCount: "",
+    xPath: "",
+    enableProducerGuaranteedDelivery: false,
+    providerClass: "",
+    customParameters: [] ,
+    failOverMessageStore: ""
+};
+ 
+
+const generateDisplayValue = (paramValues: any) => {
+    const result: string = paramValues.parameters[1].value ;
+    return result.trim();
+};
+
 export function MessageStoreWizard(props: MessageStoreWizardProps) {
     const { rpcClient } = useVisualizerContext();
-    const [messageStore, setMessageStore] = useState({
-        name: "",
-        type: "JMS Message Store",
-        initialContextFactory: "",
-        providerURL: "",
-        connectionFactory: "",
-        jndiQueueName: "",
-        userName: "",
-        password: "",
-        cacheConnection: "false",
-        jmsAPIVersion: "1.1",
-        rabbitMQServerHostName: "",
-        rabbitMQServerPort: "",
-        sslEnabled: "",
-        trustStoreLocation: "",
-        trustStoreType: "",
-        trustStorePassword: "",
-        keyStoreLocation: "",
-        keyStoreType: "",
-        keyStorePassword: "",
-        sslVersion: "",
-        rabbitMQQueueName: "",
-        rabbitMQExchangeName: "",
-        routineKey: "",
-        virtualHost: "",
-        dataBaseTable: "",
-        driver: "",
-        url: "",
-        user: "",
-        dataSourceName: "",
-        queueConnectionFactory: "",
-        pollingCount: "",
-        xPath: "",
-        enableProducerGuaranteedDelivery: "",
-        providerClass: "",
-        customParameters: [] ,
-        failOverMessageStore: ""
+    const {
+        reset,
+        register,
+        formState: { errors, isDirty, isValid },
+        handleSubmit,
+        getValues,
+        watch,
+        setValue
+    } = useForm<InputsFields>({
+        defaultValues: initialMessageStore,
+        resolver: yupResolver(schema),
+        mode: "onChange"
     });
-    const [projectDir, setProjectDir] = useState("");
     const [rows, setRows] = useState<CustomParameter[]>([]);
     const [existingFilePath, setExistingFilePath] = useState(props.path);
-    const isNewTask = !existingFilePath.endsWith(".xml");
+    const [isNewTask, setIsNewTask] = useState(true);
     const [preConfiguredProfile, setPreConfiguredProfile] = useState("Other");
     const [connectionInformationType, setConnectionInformationType] = useState("Pool");
     const [rdbmsType, setRdbmsType] = useState("Other");
+    const [type, setType] = useState("");
     const [message, setMessage] = useState({
         isError: false,
         text: ""
     });
     const [fallOverMessageStores, setFallOverMessageStores] = useState([]);
-    
-    useEffect(() => {
-        const INVALID_CHARS_REGEX = /[@\\^+;:!%&,=*#[\]$?'"<>{}() /]/;
-        const VALID_URI_REGEX = /^(https?:\/\/)?www\.[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i;
-        const VALID_ONLY_NUMBERS_REGEX = /^[0-9]*$/;
-        const VALID_JDBC_URL_REGEX = /^(jdbc:)?[a-zA-Z0-9]+:\/\//;
-        if(!isValid){
-            handleMessage("Please fill all the required fields", true);
-        } else if (INVALID_CHARS_REGEX.test(messageStore.name)) {
-            handleMessage("Message Store name cannot contain special characters", true);
-        } else if (!VALID_URI_REGEX.test(messageStore.providerURL) && messageStore.type === "JMS Message Store") {
-            handleMessage("Provide URL should be a valid url", true);
-        } else if (!VALID_ONLY_NUMBERS_REGEX.test(messageStore.pollingCount) && messageStore.type === "Resequence Message Store") {
-            handleMessage("Polling count should be a number", true);
-        } else if (!VALID_JDBC_URL_REGEX.test(messageStore.url) && (messageStore.type === "JDBC Message Store" || messageStore.type === "Resequence Message Store") && connectionInformationType === "Pool") {
-            handleMessage("URL should be a valid url", true);
-        } else {
-            handleMessage("", false);
+    const paramConfigs:ParamConfig = {
+        paramValues: [],
+        paramFields: [
+        {
+            id: 0,
+            type: "TextField",
+            label: "Name",
+            defaultValue: "Parameter Name",
+            isRequired: true
+        },
+        {
+            id: 1,
+            type: "TextField",
+            label: "Value",
+            defaultValue: "Parameter Value",
+            isRequired: true
+        }]
+    }
+
+    const [params, setParams] = useState(paramConfigs);
+
+    const handleOnChange = (params: any) => {
+        const modifiedParams = { ...params, paramValues: params.paramValues.map((param: any) => {
+            return {
+                ...param,
+                key: param.parameters[0].value,
+                value: generateDisplayValue(param),
+                icon: "query"
+            }
+        })};
+        setParams(modifiedParams);
+        console.log(params);
+    };
+
+    const setMessageStoreType = (type: string) => {
+        setType(type);
+        setValue("type", type);
+    }
+
+    const renderProps = (fieldName: keyof InputsFields, value: any = "") => {
+        return {
+            id: fieldName,
+            value: watch(fieldName) ? String(watch(fieldName)) : value,
+            ...register(fieldName),
+            errorMsg: errors[fieldName] && errors[fieldName].message.toString()
         }
-    }, [messageStore]);
+    };
+    
+    const renderDropDownProps = (fieldName: keyof InputsFields, value: any = "") => {
+        return {
+            id: fieldName,
+            value: watch(fieldName) ? String(watch(fieldName)) : value,
+            onValueChange: (event: any) => setValue(fieldName, event)
+        }
+    };
 
     useEffect(() => {
         if(isNewTask){
             switch(rdbmsType){
                 case "MySQL":
-                    setMessageStore((prev: any) => {
-                        return{
-                            ...prev,
-                            driver: "com.mysql.jdbc.Driver",
-                            url: "jdbc:mysql://localhost:3306/test",
-                            user: "root"
-                        }
-                    });
+                    reset({ ...getValues(), ...{
+                        driver: "com.mysql.jdbc.Driver",
+                        url: "jdbc:mysql://localhost:3306/test",
+                        user: "root"
+                    }});
                     break;
                 case "Oracle":
-                    setMessageStore((prev: any) => {
-                        return{
-                            ...prev,
-                            driver: "oracle.jdbc.driver.OracleDriver",
-                            url: "jdbc:oracle:thin:@localhost:1521:xe",
-                            user: "root"
-                        }
-                    });
+                    reset({ ...getValues(), ...{
+                        driver: "oracle.jdbc.OracleDriver",
+                        url: "jdbc:oracle:thin:@localhost:1521:xe",
+                        user: "root"
+                    }})
                     break;
                 case "MS SQL":
-                    setMessageStore((prev: any) => {
-                        return{
-                            ...prev,
-                            driver: "com.microsoft.sqlserver.jdbc.SQLServerDriver",
-                            url: "jdbc:sqlserver://localhost:1433;databaseName=test",
-                            user: "root"
-                        }
-                    });
+                    reset({ ...getValues(), ...{
+                        driver: "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+                        url: "jdbc:sqlserver://localhost:1433;databaseName=test",
+                        user: "root"
+                    }});
                     break;
                 case "PostgreSQL":
-                    setMessageStore((prev: any) => {
-                        return{
-                            ...prev,
-                            driver: "org.postgresql.Driver",
-                            url: "jdbc:postgresql://localhost:5432/test",
-                            user: "root"
-                        }
-                    });
+                    reset({ ...getValues(), ...{
+                        driver: "org.postgresql.Driver",
+                        url: "jdbc:postgresql://localhost:5432/test",
+                        user: "root"
+                    }});
                     break;
                 case "Other":
-                    setMessageStore((prev: any) => {
-                        return{
-                            ...prev,
-                            driver: "",
-                            url: "",
-                            user: ""
-                        }
-                    });
+                    reset({ ...getValues(), ...{
+                        driver: "",
+                        url: "",
+                        user: ""
+                    }});
                     break;            
             }
         }    
@@ -184,118 +315,128 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
     useEffect(() => {
         if(isNewTask){
             if(connectionInformationType === "Pool"){
-                setMessageStore((prev: any) => ({ ...prev, ...poolInitialValues()}));
+                reset({ ...getValues(), ...poolInitialValues() });
             }
             if(connectionInformationType === "Carbon Datasource"){
-                setMessageStore((prev: any) => ({ ...prev, ...carbonDatasourceInitialValues() }));
+                reset({ ...getValues(), ...carbonDatasourceInitialValues() });
             }
         }
     }, [connectionInformationType]);
    
     useEffect(() => {
         (async () => {
-            const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({path: props.path})).path;
-            const messageStoreDir = path.join(projectDir, "src", "main", "wso2mi", "artifacts", "message-stores");
-            const xmlFileNames = await rpcClient.getMiDiagramRpcClient().getXmlFileList({ path: messageStoreDir });
-            setFallOverMessageStores(xmlFileNames.files);
-            setProjectDir(messageStoreDir);
-            if (!isNewTask) {
-                if (existingFilePath.includes('/messageStore')) {
-                    setExistingFilePath(existingFilePath.replace('/messageStores', '/message-stores'));
-                }
-                const existingMessageStore = await rpcClient.getMiDiagramRpcClient().getMessageStore({ path: existingFilePath });
-                if(existingMessageStore.xPath){
-                    setConnectionInformationType("Carbon Datasource");
-                }
-                setMessageStore(existingMessageStore);
-                if(existingMessageStore.type === "Custom Message Store"){
-                    existingMessageStore.customParameters.map((param: any) => {
-                        setRows((prev: any) => [...prev, { name:param.name,value:param.value, selected: false }]);
-                    });   
-                };                
+            const xmlFileNames = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
+                resourceType:"messageStore",
+                documentIdentifier: props.path,
+            });
+            if(xmlFileNames.resources){
+                const failOverMessageStores = xmlFileNames.resources.map((resource: any) => resource.artifactPath.replace(".xml", ""));
+                setFallOverMessageStores(failOverMessageStores);
             }
         })();
     }, []);
+
+    useEffect(() => {
+        if (props.path) {
+            (async () => {
+                const messageStore = await rpcClient.getMiDiagramRpcClient().getMessageStore({ path: props.path });
+                console.log(messageStore);
+                if (messageStore.name) {
+                    if(messageStore.dataSourceName){
+                        setValue("connectionInformationType", "Carbon Datasource");
+                    }
+                    if(messageStore.type === "Custom Message Store"){
+                        messageStore.customParameters.map((param: any) => {
+                            setParams((prev: any) => {
+                                return {
+                                    ...prev,
+                                    paramValues: [...prev.paramValues, {
+                                        id: prev.paramValues.length,
+                                        parameters: [{
+                                            id: 0,
+                                            value: param.name,
+                                            label: "Name",
+                                            type: "TextField",
+                                        },
+                                        {
+                                            id: 1,
+                                            value: param.value,
+                                            label: "Value",
+                                            type: "TextField",    
+                                        }],
+                                        key: param.name,
+                                        value: param.value,
+                                        }
+                                ]
+                            }});
+                        });
+                    };
+                    setIsNewTask(false);
+                    setType(messageStore.type);
+                    reset(messageStore);
+                }
+            })();
+        }
+    }, [props.path]);
   
     useEffect(() => {
         if(isNewTask){
             if (preConfiguredProfile === "WSO2 MB") {
-                setMessageStore((prev: any) => {
-                    return {
-                        ...prev,
-                        initialContextFactory: "org.wso2.andes.jndi.PropertiesFileInitialContextFactory",
-                        providerURL: "conf/jndi.properties",
-                        connectionFactory: "QueueConnectionFactory",
-                    }
-                })
-               
+                return reset({ ...getValues(), ...{
+                    initialContextFactory: "org.wso2.andes.jndi.PropertiesFileInitialContextFactory",
+                    providerURL: "conf/jndi.properties",
+                    connectionFactory: "QueueConnectionFactory",
+                }}); 
             }
             if (preConfiguredProfile === "ActiveMQ") {
-                return setMessageStore((prev: any) => {
-                    return {
-                        ...prev,
-                        initialContextFactory: "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
-                        providerURL: "tcp://localhost:61616",
-                        connectionFactory: "QueueConnectionFactory",
-                    }
-                });
+                return reset({ ...getValues(), ...{
+                    initialContextFactory: "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
+                    providerURL: "tcp://localhost:61616",
+                    connectionFactory: "QueueConnectionFactory",
+                }});
             }
             if (preConfiguredProfile === "Other") {
-                return setMessageStore((prev: any) => {
-                    return {
-                        ...prev,
-                        initialContextFactory: "",
-                        providerURL: "",
-                        connectionFactory: "",
-                    }
-                })
+                return reset({ ...getValues(), ...{
+                    initialContextFactory: "",
+                    providerURL: "",
+                    connectionFactory: "",
+                }});
             }
         }
- }  , [preConfiguredProfile]);
+    }  , [preConfiguredProfile]);
   
     useEffect( () => {
         if(isNewTask){
-            if (messageStore.type === "JMS Message Store") {
-                setMessageStore((prev: any) => ({ ...prev, ...jmsInitialValues() }));
+            if (type === "JMS Message Store") {
+                reset({ ...getValues(), ...jmsInitialValues() });
                 }
-            else if (messageStore.type === "RabbitMQ Message Store") {
-                setMessageStore((prev: any) => ({ ...prev, ...rabbitMQInitialValues() }));
+            else if (type === "RabbitMQ Message Store") {
+                reset({ ...getValues(), ...rabbitMQInitialValues() });
             }   
-            else if (messageStore.type === "JDBC Message Store") {
-                setMessageStore((prev: any) => ({ ...prev, ...jdbcInitialValues() }));
+            else if (type === "JDBC Message Store") {
+                reset({ ...getValues(), ...jdbcInitialValues() });
                 handleConnectionInformationTypeChange("Pool");
             }
-            else if(messageStore.type === "WSO2 MB Message Store"){
-                setMessageStore((prev: any) => ({ ...prev, ...wso2MbInitialValues() }));
+            else if(type === "WSO2 MB Message Store"){
+                reset({ ...getValues(), ...wso2MbInitialValues()});
             }
-            else if(messageStore.type === "Resquence Message Store"){
-                setMessageStore((prev: any) => ({ ...prev, ...resequenceInitialValues() }));
+            else if(type === "Resquence Message Store"){
+                reset({ ...getValues(), ...resequenceInitialValues() });
                 handleConnectionInformationTypeChange("Pool");
             }
-            else if(messageStore.type === "Custom Message Store"){
-                setMessageStore((prev: any) => ({ ...prev, providerClass: "" }));
+            else if(type === "Custom Message Store"){
                 setRows([]);
-            }
-            setMessageStore((prev: any) => ({ ...prev, enableProducerGuaranteedDelivery: "false"}));
+            } 
         }
-    }, [messageStore.type]);
+    }, [type]);
   
     useEffect(() => {
-        if (messageStore.sslEnabled === "true") {
-            setMessageStore((prev: any) => ({ ...prev, ...sslInitialValues() }));
+        if (getValues("sslEnabled") === true) {
+            reset({ ...getValues(), ...sslInitialValues() });
         }  
         else{
         }        
-    }, [messageStore.sslEnabled]);
-
-    const handleOnChangeMessageStore = (name:string,value:string) => {
-        setMessageStore((prev: any) => {
-            return {
-                ...prev,
-                [name]: value,
-            };
-        })
-        }
+    }, [watch("sslEnabled")]);
 
     const handleConnectionInformationTypeChange = (type: string) => {
         setConnectionInformationType(type);
@@ -312,22 +453,66 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
     const handleMessage = (text: string, isError: boolean = false) => {
         setMessage({ isError, text });
     }
+    
+    const removeDuplicateParameters = () => {
+        const uniqueParameters = watch("customParameters")?.filter((parameter,index,self) =>
+            index === self.findIndex((t) => (
+                t.name === parameter.name && t.value === parameter.value
+            ))
+        )
+        setValue("customParameters", uniqueParameters);
+        return uniqueParameters;
+    };
 
-    const handleCreateMessageStore = async () => {
-        if(messageStore.type === "Custom Message Store"){
-            messageStore.customParameters = [];
-            rows.map((row: any) => {
-                messageStore.customParameters.push({ name: row.name, value: row.value });
-            });
+    const handleCreateMessageStore = async (values:InputsFields) => {
+        if(getValues("type") === "Custom Message Store"){
+            setValue("customParameters", []);
+            params.paramValues.map((param: any) => {
+                setValue("customParameters", [{ name: param.parameters[0].value, value: param.parameters[1].value }]);
+            })
         }  
         const createMessageStoreParams: CreateMessageStoreRequest = {
-            directory: projectDir,
-            ...messageStore
+            directory: props.path,
+            name: values.name,
+            type: values.type,
+            initialContextFactory: values.initialContextFactory,
+            providerURL: values.providerURL,
+            connectionFactory: values.connectionFactory,
+            jndiQueueName: values.jndiQueueName,
+            userName: values.userName,
+            password: values.password,
+            cacheConnection: values.cacheConnection,
+            jmsAPIVersion: values.jmsAPIVersion,
+            providerClass: values.providerClass,
+            rabbitMQServerHostName: values.rabbitMQServerHostName,
+            rabbitMQServerPort: values.rabbitMQServerPort,
+            sslEnabled: values.sslEnabled.toString(),
+            trustStoreLocation: values.trustStoreLocation,
+            trustStoreType: values.trustStoreType,
+            trustStorePassword: values.trustStorePassword,
+            keyStoreLocation: values.keyStoreLocation,
+            keyStoreType: values.keyStoreType,
+            keyStorePassword: values.keyStorePassword,
+            sslVersion: values.sslVersion,
+            rabbitMQQueueName: values.rabbitMQQueueName,
+            rabbitMQExchangeName: values.rabbitMQExchangeName,
+            routineKey: values.routineKey,
+            virtualHost: values.virtualHost,
+            dataBaseTable: values.dataBaseTable,
+            driver: values.driver,
+            url: values.url,
+            user: values.user,
+            dataSourceName: values.dataSourceName,
+            queueConnectionFactory: values.queueConnectionFactory,
+            pollingCount: values.pollingCount,
+            xPath: values.xPath,
+            enableProducerGuaranteedDelivery: values.enableProducerGuaranteedDelivery.toString(),
+            failOverMessageStore: values.failOverMessageStore,
+            customParameters : removeDuplicateParameters(),   
         };
         console.log(createMessageStoreParams);
         const file= await rpcClient.getMiDiagramRpcClient().createMessageStore(createMessageStoreParams);
-        rpcClient.getMiDiagramRpcClient().openFile(file);
-        rpcClient.getMiDiagramRpcClient().closeWebView();
+        openOverview();
     };
   
     const handleCancel = () => {
@@ -336,531 +521,453 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
 
     const handleBackButtonClick = () => {
       rpcClient.getMiVisualizerRpcClient().goBack();
-    }  
-
-    const handleUrlValidation = (url: string) => {
-      return url.length > 0 && url.includes("http") 
     }
     
-    const isValid: boolean = 
-        messageStore.name?.length > 0  &&
-        messageStore.type?.length > 0 &&
-        (messageStore.type==="JMS Message Store" ? messageStore?.initialContextFactory?.length > 0 && messageStore?.providerURL?.length > 0  : true) &&
-        (messageStore.type==="RabbitMQ Message Store" ? messageStore?.rabbitMQServerHostName?.length > 0 && messageStore?.rabbitMQServerPort?.length > 0 && messageStore?.rabbitMQQueueName?.length > 0 && messageStore?.rabbitMQExchangeName?.length > 0 && messageStore?.routineKey?.length > 0 && messageStore?.userName?.length > 0 && messageStore?.virtualHost?.length > 0 : true) &&
-        (messageStore.type==="JDBC Message Store" ? messageStore?.dataBaseTable?.length > 0 && (connectionInformationType === "Pool" ? messageStore?.driver?.length > 0 && messageStore?.url?.length > 0 && messageStore?.user?.length > 0 && messageStore?.password?.length > 0 : messageStore?.dataSourceName?.length > 0) : true) &&
-        (messageStore.type==="WSO2 MB Message Store" ? messageStore?.initialContextFactory?.length > 0 && messageStore?.queueConnectionFactory?.length > 0 && messageStore?.jndiQueueName?.length > 0 : true) &&
-        (messageStore.type==="Resequence Message Store" ? messageStore?.dataBaseTable?.length > 0 && (connectionInformationType === "Pool" ? messageStore?.driver?.length > 0 && messageStore?.url?.length > 0 && messageStore?.user?.length > 0 && messageStore?.password?.length > 0 : messageStore?.dataSourceName?.length > 0 && messageStore?.pollingCount?.length > 0 && messageStore?.xPath?.length > 0) : true)&&
-        (messageStore.type==="Custom Message Store" ? messageStore.providerClass.length > 0 : true) 
-    ;
+    const openOverview = () => {
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+    };
 
     return (
-    <WizardContainer>
-        <SectionWrapper>
-            <Container>
-                <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
-                <div style={{ marginLeft: 30 }}>
-                    <Typography variant="h3">{isNewTask?'Create Message Store Artifact':`${messageStore.name}:Message Store`}</Typography>
-                </div>
-            </Container>
+    <FormView title="Message Store" onClose={handleBackButtonClick}>
+        {type === "" ? <CardWrapper cardsType="MESSAGE_STORE" setType={setMessageStoreType} /> :
+            <>
             <TextField
-                value={messageStore.name}
-                id="name-input"
                 label="Message Store Name"
                 placeholder="Name"
-                validationMessage="Message Store name is required"
-                onTextChange={(e: string) => handleOnChangeMessageStore("name",e)}
                 autoFocus
                 required
+                {...renderProps("name")}
             />
-            <AutoComplete
-                label="Message Store Type"
-                items={messageStoreTypes}
-                value={messageStore.type}
-                onValueChange={(e: string) => handleOnChangeMessageStore("type", e)}
-                sx={{ width: "100%" }}
-            />
-
-            {messageStore.type === "JMS Message Store" && (
+            {getValues("type") === "JMS Message Store" && (
                 <>
-                    {isNewTask && (
+                    <FormGroup title="Miscellaneous Properties" isCollapsed={false}>
+                        {isNewTask && (
+                            <AutoComplete
+                            label="Pre Configured Profiles"
+                            items={preConfiguredProfiles}
+                            value={preConfiguredProfile}
+                            onValueChange={handlePreConfiguredProfileChange}
+                            sx={{ width: "100%" }}
+                        />
+                        )}
+                        <TextField
+                            placeholder="Initial Context Factory"
+                            label="Initial Context Factory"
+                            size={100}
+                            required
+                            {...renderProps("initialContextFactory")}
+                        />
+                        <TextField
+                            placeholder="Provider URL"
+                            label="Provider URL"
+                            size={100}
+                            required
+                            {...renderProps("providerURL")}
+                        />
+                    </FormGroup>
+                    <FormGroup title="Advanced Properties">
+                        <TextField
+                            placeholder="JNDI Queue Name"
+                            label="JNDI Queue Name"
+                            size={100}
+                            {...renderProps("jndiQueueName")}
+                        />
+                        <TextField
+                            placeholder="Connection Factory"
+                            label="Connection Factory"
+                            size={100}
+                            {...renderProps("connectionFactory")}
+                        />
+                        <TextField
+                            placeholder="User Name"
+                            label="User Name"
+                            size={100}
+                            {...renderProps("userName")}
+                        />
+                        <TextField
+                            placeholder="Password"
+                            label="Password"
+                            size={100}
+                            {...renderProps("password")}
+                        />
                         <AutoComplete
-                        label="Pre Configured Profiles"
-                        items={preConfiguredProfiles}
-                        value={preConfiguredProfile}
-                        onValueChange={handlePreConfiguredProfileChange}
-                        sx={{ width: "100%" }}
-                    />
-                    )}
-                    <TextField
-                        placeholder="Initial Context Factory"
-                        label="Initial Context Factory"
-                        onTextChange={(e: string) => handleOnChangeMessageStore("initialContextFactory", e)}
-                        value={messageStore.initialContextFactory}
-                        id="initial-context-factory-input"
-                        size={100}
-                        required
-                    />
-                    <TextField
-                        placeholder="Provider URL"
-                        label="Provider URL"
-                        onTextChange={(e: string) => handleOnChangeMessageStore("providerURL", e)}
-                        value={messageStore.providerURL}
-                        id="provider-url-input"
-                        size={100}
-                        required
-                    />
-                    <TextField
-                        placeholder="JNDI Queue Name"
-                        label="JNDI Queue Name"
-                        onTextChange={(e: string) => handleOnChangeMessageStore("jndiQueueName", e)}
-                        value={messageStore.jndiQueueName}
-                        id="jndi-queue-name-input"
-                        size={100}
-                    />
-                    <TextField
-                        placeholder="Connection Factory"
-                        label="Connection Factory"
-                        onTextChange={(e: string) => handleOnChangeMessageStore("connectionFactory", e)}
-                        value={messageStore.connectionFactory}
-                        id="connection-factory-input"
-                        size={100}
-                    />
-                    <TextField
-                        placeholder="User Name"
-                        label="User Name"
-                        onTextChange={(e: string) => handleOnChangeMessageStore("userName", e)}
-                        value={messageStore.userName}
-                        id="user-name-input"
-                        size={100}
-                    />
-                    <TextField
-                        placeholder="Password"
-                        label="Password"
-                        onTextChange={(e: string) => handleOnChangeMessageStore("password", e)}
-                        value={messageStore.password}
-                        id="password-input"
-                        size={100}
-                    />
-                    <AutoComplete
-                        label="Cache Connection"
-                        items={["true", "false"]}
-                        value={messageStore.cacheConnection}
-                        onValueChange={(e: string) => handleOnChangeMessageStore("cacheConnection", e)}
-                        sx={{ width: "100%" }}
-                    />
-                    <AutoComplete
-                        label="JMS API Version"
-                        items={["1.0", "1.1"]}
-                        value={messageStore.jmsAPIVersion}
-                        onValueChange={(e: string) => handleOnChangeMessageStore("jmsAPIVersion", e)}
-                        sx={{ width: "100%" }}
-                    />
+                            label="Cache Connection"
+                            items={["true", "false"]}
+                            sx={{ width: "100%" }}
+                            {...renderProps("cacheConnection")}
+                        />
+                        <AutoComplete
+                            label="JMS API Version"
+                            items={["1.0", "1.1"]}
+                            sx={{ width: "100%" }}
+                            {...renderProps("jmsAPIVersion")}
+                        />
+                    </FormGroup>
+                    
                 </>
             )}
     
-            {messageStore.type === "Custom Message Store" && (
+            {getValues("type") === "Custom Message Store" && (
                 <>
                     <TextField
                     placeholder="ProviderClass"
                     label="Provide Class"
-                    onTextChange={(e: string) => handleOnChangeMessageStore("providerClass", e)}
                     required
-                    value={messageStore.providerClass}
-                    id="provider-class-input"
+                    {...renderProps("providerClass")}
                     /> 
                     <span>Parameters</span>
-                    <SampleTable rows={rows} setRows={setRows} />
+                    <ParamManager
+                        paramConfigs={params}
+                        readonly={false}
+                        onChange={handleOnChange} />
                 </>
             )}
     
-            {messageStore.type === "RabbitMQ Message Store" && (
+            {getValues("type") === "RabbitMQ Message Store" && (
                 <>
+                    <FormGroup title="Miscellaneous Properties" isCollapsed={false}>
                     <TextField
                         placeholder="RabbitMQ Server Host Name"
                         label="RabbitMQ Server Host Name"
-                        onTextChange={(e: string) => handleOnChangeMessageStore("rabbitMQServerHostName", e)}
-                        value={messageStore.rabbitMQServerHostName}
-                        id="rabbitMQ-server-host-name-input"
                         size={100}
-                        required/>
+                        required
+                        {...renderProps("rabbitMQServerHostName")}
+                    />
                     <TextField
                         placeholder="RabbitMQ Server Port"
                         label="RabbitMQ Server Port"
-                        onTextChange={(e: string) => handleOnChangeMessageStore("rabbitMQServerPort", e)}
-                        value={messageStore.rabbitMQServerPort}
-                        id="rabbitMQ-server-port-input"
                         size={100}
-                        required/>
+                        required
+                        {...renderProps("rabbitMQServerPort")}
+                    />
                     <AutoComplete
                         label="SSL Enabled"
                         items={["true", "false"]}
-                        value={messageStore.sslEnabled}
-                        onValueChange={(e: string) => handleOnChangeMessageStore("sslEnabled", e)}
-                        sx={{ width: "100%" }}/>
-                    {messageStore.sslEnabled === "true" && (
-                        <>
+                        sx={{ width: "100%" }}
+                        {...renderDropDownProps("sslEnabled")}  
+                    />
+                    {getValues("sslEnabled") === true && (
+                        <FormGroup title="SSL Properties">
                             <TextField
                                 placeholder="Key Store Location"
                                 label="Key Store Location"
-                                onTextChange={(e: string) => handleOnChangeMessageStore("keyStoreLocation", e)}
-                                value={messageStore.keyStoreLocation}
-                                id="key-store-location-input"
                                 size={100}
-                                required/>
+                                {...renderProps("keyStoreLocation")}
+                            />
                             <TextField
                                 placeholder="Key Store Type"
                                 label="Key Store Type"
-                                onTextChange={(e: string) => handleOnChangeMessageStore("keyStoreType", e)}
-                                value={messageStore.keyStoreType}
-                                id="key-store-type-input"
                                 size={100}
-                                required/>
+                                {...renderProps("keyStoreType")}
+                            />
                             <TextField
                                 placeholder="Key Store Password"
                                 label="Key Store Password"
-                                onTextChange={(e: string) => handleOnChangeMessageStore("keyStorePassword", e)}
-                                value={messageStore.keyStorePassword}
-                                id="key-store-password-input"
                                 size={100}
-                                required/>
+                                {...renderProps("keyStorePassword")}
+                            />
                             <TextField
                                 placeholder="Trust Store Location"
                                 label="Trust Store Location"
-                                onTextChange={(e: string) => handleOnChangeMessageStore("trustStoreLocation", e)}
-                                value={messageStore.trustStoreLocation}
-                                id="trust-store-location-input"
                                 size={100}
-                                required/>
+                                {...renderProps("trustStoreLocation")}
+                            />
                             <TextField
                                 placeholder="Trust Store Type"
                                 label="Trust Store Type"
-                                onTextChange={(e: string) => handleOnChangeMessageStore("trustStoreType", e)}
-                                value={messageStore.trustStoreType}
-                                id="trust-store-type-input"
                                 size={100}
-                                required/>
+                                {...renderProps("trustStoreType")}
+                            />
                             <TextField
                                 placeholder="Trust Store Password"
                                 label="Trust Store Password"
-                                onTextChange={(e: string) => handleOnChangeMessageStore("trustStorePassword", e)}
-                                value={messageStore.trustStorePassword}
-                                id="trust-store-password-input"
                                 size={100}
-                                required/>
+                                {...renderProps("trustStorePassword")}
+                            />
                             <TextField
                                 placeholder="SSL Version"
                                 label="SSL Version"
-                                onTextChange={(e: string) => handleOnChangeMessageStore("sslVersion", e)}
-                                value={messageStore.sslVersion}
-                                id="ssl-version-input"
                                 size={100}
-                                required/>
-                        </>
-                    )}    
-                    <TextField
-                        placeholder="RabbitMQ Queue Name"
-                        label="RabbitMQ Queue Name"
-                        onTextChange={(e: string) => handleOnChangeMessageStore("rabbitMQQueueName", e)}
-                        value={messageStore.rabbitMQQueueName}
-                        id="rabbitMQ-queue-name-input"
-                        size={100}
-                        required/>
-                    <TextField
-                        placeholder="RabbitMQ Exchange Name"
-                        label="RabbitMQ Exchange Name"
-                        onTextChange={(e: string) => handleOnChangeMessageStore("rabbitMQExchangeName", e)}
-                        value={messageStore.rabbitMQExchangeName}
-                        id="rabbitMQ-exchange-name-input"
-                        size={100}
-                        required/>
-                    <TextField
-                        placeholder="Routine Key"
-                        label="Routine Key"
-                        onTextChange={(e: string) => handleOnChangeMessageStore("routineKey", e)}
-                        value={messageStore.routineKey}
-                        id="routine-key-input"
-                        size={100}
-                        required/>
-                    <TextField
-                        placeholder="User Name"
-                        label="User Name"
-                        onTextChange={(e: string) => handleOnChangeMessageStore("userName", e)}
-                        value={messageStore.userName}
-                        id="user-name-input"
-                        size={100}
-                        required/>
-                    <TextField
-                        placeholder="Password"
-                        label="Password"
-                        onTextChange={(e: string) => handleOnChangeMessageStore("password", e)}
-                        value={messageStore.password}
-                        id="user-name-input"
-                        size={100}
-                        required/>    
-                    <TextField
-                        placeholder="Virtual Host"
-                        label="Virtual Host"
-                        onTextChange={(e: string) => handleOnChangeMessageStore("virtualHost", e)}
-                        value={messageStore.virtualHost}
-                        id="virtual-host-input"
-                        size={100}
-                        required/>
-                </>
-            )}
-
-            {messageStore.type === "JDBC Message Store" && (
-                <>
-                    <TextField
-                        placeholder="Data Base Table"
-                        label="Data Base Table"
-                        onTextChange={(e: string) => handleOnChangeMessageStore("dataBaseTable", e)}
-                        value={messageStore.dataBaseTable}
-                        id="data-base-table-input"
-                        size={100}
-                        required/>
-                    <AutoComplete
-                        label="Connection Information Type"
-                        items={["Pool", "Carbon Datasource"]}
-                        value={connectionInformationType}
-                        onValueChange={handleConnectionInformationTypeChange}
-                        sx={{ width: "100%" }}/>
-                    {connectionInformationType === "Pool" && (
-                        <>
-                            {isNewTask && (
-                                <AutoComplete
-                                label="RDBMS Type"
-                                items={rdbmsTypes}
-                                value={rdbmsType}
-                                onValueChange={handleRdbmsTypeChange}
-                                sx={{ width: "100%" }}/>
-                            )}
-                            <TextField
-                                placeholder="Driver"
-                                label="Driver"
-                                onTextChange={(e: string) => handleOnChangeMessageStore("driver", e)}
-                                value={messageStore.driver}
-                                id="driver-input"
-                                size={100}
-                                required/>
-                            <TextField
-                                placeholder="URL"
-                                label="URL"
-                                onTextChange={(e: string) => handleOnChangeMessageStore("url", e)}
-                                value={messageStore.url}
-                                id="url-input"
-                                size={100}
-                                required/>
-                            <TextField
-                                placeholder="User"
-                                label="User"
-                                onTextChange={(e: string) => handleOnChangeMessageStore("user", e)}
-                                value={messageStore.user}
-                                id="user-input"
-                                size={100}
-                                required/>
-                            <TextField
-                                placeholder="Password"
-                                label="Password"
-                                onTextChange={(e: string) => handleOnChangeMessageStore("password", e)}
-                                value={messageStore.password}
-                                id="password-input"
-                                size={100}
-                                required/>
-                        </>
+                                {...renderProps("sslVersion")}
+                            />
+                        </FormGroup>
                     )}
-                    {connectionInformationType === "Carbon Datasource" && (
-                        <>
-                            <TextField
-                                placeholder="Data Source Name"
-                                label="Data Source Name"
-                                onTextChange={(e: string) => handleOnChangeMessageStore("dataSourceName", e)}
-                                value={messageStore.dataSourceName}
-                                id="data-source-name-input"
-                                size={100}
-                                required/>
-                        </>
-                    )}    
+                    </FormGroup>
+                    <FormGroup title="Miscellaneous Properties">
+                        <TextField
+                            placeholder="RabbitMQ Queue Name"
+                            label="RabbitMQ Queue Name"
+                            size={100}
+                            {...renderProps("rabbitMQQueueName")}
+                        />
+                        <TextField
+                            placeholder="RabbitMQ Exchange Name"
+                            label="RabbitMQ Exchange Name"
+                            size={100}
+                            {...renderProps("rabbitMQExchangeName")}
+                        />
+                        <TextField
+                            placeholder="Routine Key"
+                            label="Routine Key"
+                            size={100}
+                            {...renderProps("routineKey")}
+                        />
+                        <TextField
+                            placeholder="User Name"
+                            label="User Name"
+                            size={100}
+                            {...renderProps("userName")}
+                        />
+                        <TextField
+                            placeholder="Password"
+                            label="Password"
+                            size={100}
+                            {...renderProps("password")}
+                        />    
+                        <TextField
+                            placeholder="Virtual Host"
+                            label="Virtual Host"
+                            size={100}
+                            {...renderProps("virtualHost")}
+                        />
+                    </FormGroup>
                 </>
             )}
 
-            {messageStore.type === "WSO2 MB Message Store" && (
+            {getValues("type") === "JDBC Message Store" && (
                 <>
-                    <TextField
-                        placeholder="Initial Context Factory"
-                        label="Initial Context Factory"
-                        onTextChange={(e: string) => handleOnChangeMessageStore("initialContextFactory", e)}
-                        value={messageStore.initialContextFactory}
-                        id="initial-context-factory-input"
-                        size={100}
-                        required/>
-                    <TextField
-                        placeholder="Queue Connectionfactory"
-                        label="Queue Connectionfactory"
-                        onTextChange={(e:string) => handleOnChangeMessageStore("queueConnectionfactory", e)}
-                        value={messageStore.queueConnectionFactory}
-                        id="queue-connectionfactory-input"
-                        size={100}
-                        required/>
+                    <FormGroup title="Miscellaneous Properties" isCollapsed={false}>
+                        <TextField
+                            placeholder="Data Base Table"
+                            label="Data Base Table"
+                            size={100}
+                            required
+                            {...renderProps("dataBaseTable")}
+                        />
+                        <AutoComplete
+                            label="Connection Information Type"
+                            items={["Pool", "Carbon Datasource"]}
+                            sx={{ width: "100%" }}
+                            {...renderDropDownProps("connectionInformationType")}
+                        />
+                        {getValues("connectionInformationType") === "Pool" && (
+                            <>
+                                {isNewTask && (
+                                    <AutoComplete
+                                    label="RDBMS Type"
+                                    items={rdbmsTypes}
+                                    value={rdbmsType}
+                                    onValueChange={handleRdbmsTypeChange}
+                                    sx={{ width: "100%" }}/>
+                                )}
+                                <TextField
+                                    placeholder="Driver"
+                                    label="Driver"
+                                    size={100}
+                                    required
+                                    {...renderProps("driver")}
+                                />
+                                <TextField
+                                    placeholder="URL"
+                                    label="URL"
+                                    size={100}
+                                    required
+                                    {...renderProps("url")}
+                                />
+                                <TextField
+                                    placeholder="User"
+                                    label="User"
+                                    size={100}
+                                    required
+                                    {...renderProps("user")}
+                                />
+                                <TextField
+                                    placeholder="Password"
+                                    label="Password"
+                                    size={100}
+                                    required
+                                    {...renderProps("password")}
+                                />
+                            </>
+                        )}
+                        {watch("connectionInformationType") === "Carbon Datasource" && (
+                            <>
+                                <TextField
+                                    placeholder="Data Source Name"
+                                    label="Data Source Name"
+                                    size={100}
+                                    required
+                                    {...renderProps("dataSourceName")}
+                                />
+                            </>
+                        )}
+                    </FormGroup>    
+                </>
+            )}
+
+            {getValues("type") === "WSO2 MB Message Store" && (
+                <>
                     <TextField
                         placeholder="JNDI Queue Name"
                         label="JNDI Queue Name"
-                        onTextChange={(e: string) => handleOnChangeMessageStore("jndiQueueName", e)}
-                        value={messageStore.jndiQueueName}
-                        id="jndi-queue-name-input"
                         size={100}
-                        required/>
-                    <AutoComplete
-                        label="JMS API Version"
-                        items={["1.0", "1.1"]}
-                        value={messageStore.jmsAPIVersion}
-                        onValueChange={(e: string) => handleOnChangeMessageStore("jmsAPIVersion", e)}
-                        sx={{ width: "100%" }}/>
-                    <AutoComplete
-                        label="Cache Connection"
-                        items={["true", "false"]}
-                        value={messageStore.cacheConnection}
-                        onValueChange={(e: string) => handleOnChangeMessageStore("cacheConnection", e)}
-                        sx={{ width: "100%" }}/>
+                        required
+                        {...renderProps("jndiQueueName")}
+                    />
+                    <FormGroup title="Miscellaneous Properties">
+                        <TextField
+                            placeholder="Initial Context Factory"
+                            label="Initial Context Factory"
+                            size={100}
+                            required
+                            {...renderProps("initialContextFactory")}
+                        />
+                        <TextField
+                            placeholder="Queue Connectionfactory"
+                            label="Queue Connectionfactory"
+                            size={100}
+                            required
+                            {...renderProps("queueConnectionFactory")}
+                        />
+                    </FormGroup>    
+                    <FormGroup title="Advanced Properties">
+                        <AutoComplete
+                            label="JMS API Version"
+                            items={["1.0", "1.1"]}
+                            sx={{ width: "100%" }}
+                            {...renderProps("jmsAPIVersion")}
+                        />
+                        <AutoComplete
+                            label="Cache Connection"
+                            items={["true", "false"]}
+                            sx={{ width: "100%" }}
+                            {...renderProps("cacheConnection")}
+                        />
+                    </FormGroup>
                 </>
             )}
 
-            {messageStore.type === "Resequence Message Store" && (
+            {getValues("type") === "Resequence Message Store" && (
                 <>
-                    <TextField
-                        placeholder="Data Base Table"
-                        label="Data Base Table"
-                        onTextChange={(e: string) => handleOnChangeMessageStore("dataBaseTable", e)}
-                        value={messageStore.dataBaseTable}
-                        id="data-base-table-input"
-                        size={100}
-                        required/>
-                    <AutoComplete
-                        label="Connection Information Type"
-                        items={["Pool", "Carbon Datasource"]}
-                        value={connectionInformationType}
-                        onValueChange={handleConnectionInformationTypeChange}
-                        sx={{ width: "100%" }}/>
-                    {connectionInformationType === "Pool" && (
-                        <>
-                            {isNewTask && (
-                                <AutoComplete
-                                label="RDBMS Type"
-                                items={rdbmsTypes}
-                                value={rdbmsType}
-                                onValueChange={handleRdbmsTypeChange}
-                                sx={{ width: "100%" }}/>
-                            )}
-                            <TextField
-                                placeholder="Driver"
-                                label="Driver"
-                                onTextChange={(e: string) => handleOnChangeMessageStore("driver", e)}
-                                value={messageStore.driver}
-                                id="driver-input"
-                                size={100}
-                                required/>
-                            <TextField
-                                placeholder="URL"
-                                label="URL"
-                                onTextChange={(e: string) => handleOnChangeMessageStore("url", e)}
-                                value={messageStore.url}
-                                id="url-input"
-                                size={100}
-                                required/>
-                            <TextField
-                                placeholder="User"
-                                label="User"
-                                onTextChange={(e: string) => handleOnChangeMessageStore("user", e)}
-                                value={messageStore.user}
-                                id="user-input"
-                                size={100}
-                                required/>
-                            <TextField
-                                placeholder="Password"
-                                label="Password"
-                                onTextChange={(e: string) => handleOnChangeMessageStore("password", e)}
-                                value={messageStore.password}
-                                id="password-input"
-                                size={100}
-                                required/>
-                        </> 
-                    )}
-                    {connectionInformationType=== "Carbon Datasource" && (
-                        <>
-                            <TextField
-                                placeholder="Data Source Name"
-                                label="Data Source Name"
-                                onTextChange={(e: string) => handleOnChangeMessageStore("dataSourceName", e)}
-                                value={messageStore.dataSourceName}
-                                id="data-source-name-input"
-                                size={100}
-                                required/>
-                            <TextField
-                                placeholder="Polling Count"
-                                label="Polling Count"
-                                onTextChange={(e: string) => handleOnChangeMessageStore("pollingCount", e)}
-                                value={messageStore.pollingCount}
-                                id="polling-count-input"
-                                size={100}
-                                required/>
-                            <TextField
-                                placeholder="XPath"
-                                label="XPath"
-                                onTextChange={(e: string) => handleOnChangeMessageStore("xPath", e)}
-                                value={messageStore.xPath}
-                                id="xPath-input"
-                                size={100}
-                                required/>
-                        </>
-                    )}  
+                    <FormGroup title="Miscellaneous Properties" isCollapsed={false}>
+                        <TextField
+                            placeholder="Data Base Table"
+                            label="Data Base Table"
+                            size={100}
+                            required
+                            {...renderProps("dataBaseTable")}
+                        />
+                        <AutoComplete
+                            label="Connection Information Type"
+                            items={["Pool", "Carbon Datasource"]}
+                            sx={{ width: "100%" }}
+                            {...renderDropDownProps("connectionInformationType")}
+                        />
+                        {watch("connectionInformationType") === "Pool" && (
+                            <>
+                                {isNewTask && (
+                                    <AutoComplete
+                                    label="RDBMS Type"
+                                    items={rdbmsTypes}
+                                    value={rdbmsType}
+                                    onValueChange={handleRdbmsTypeChange}
+                                    sx={{ width: "100%" }}/>
+                                )}
+                                <TextField
+                                    placeholder="Driver"
+                                    label="Driver"
+                                    size={100}
+                                    required
+                                    {...renderProps("driver")}
+                                />
+                                <TextField
+                                    placeholder="URL"
+                                    label="URL"
+                                    size={100}
+                                    required
+                                    {...renderProps("url")}
+                                />
+                                <TextField
+                                    placeholder="User"
+                                    label="User"
+                                    size={100}
+                                    required
+                                    {...renderProps("user")}
+                                />
+                                <TextField
+                                    placeholder="Password"
+                                    label="Password"
+                                    size={100}
+                                    required
+                                    {...renderProps("password")}
+                                />
+                            </> 
+                        )}
+                        {watch("connectionInformationType") === "Carbon Datasource" && (
+                            <>
+                                <TextField
+                                    placeholder="Data Source Name"
+                                    label="Data Source Name"
+                                    size={100}
+                                    required
+                                    {...renderProps("dataSourceName")}
+                                />
+                            </>
+                        )}
+                    </FormGroup>
+                    <FormGroup title="Advanced Properties">
+                        <TextField
+                            placeholder="Polling Count"
+                            label="Polling Count"
+                            size={100}
+                            {...renderProps("pollingCount")}
+                        />
+                        <TextField
+                            placeholder="XPath"
+                            label="XPath"
+                            size={100}
+                            {...renderProps("xPath")}
+                        />
+                    </FormGroup>   
                 </>
             )}
 
-            {messageStore.type !== "Custom Message Store"&& messageStore.type!=="In Memory Message Store" && (
-                <>
+            {getValues("type") !== "Custom Message Store" && getValues("type") !=="In Memory Message Store" && (
+                <FormGroup title="Guaranteed Properties">
                     <AutoComplete
                         label="Enable Producer Guaranteed Delivery"
                         items={["true", "false"]}
-                        value={messageStore.enableProducerGuaranteedDelivery}
-                        onValueChange={(e: string) => handleOnChangeMessageStore("enableProducerGuaranteedDelivery", e)}
-                        sx={{ width: "100%" }}/>
+                        sx={{ width: "100%" }}
+                        {...renderDropDownProps("enableProducerGuaranteedDelivery")}
+                    />
                     <AutoComplete
                         label="Fail Over Message Store"
                         items={fallOverMessageStores}
-                        value={messageStore.failOverMessageStore}
-                        onValueChange={(e: string) => handleOnChangeMessageStore("failOverMessageStore", e)}
-                        sx={{ width: "100%" }}/>    
-                </>    
+                        sx={{ width: "100%" }}
+                        {...renderDropDownProps("failOverMessageStore")}
+                    />    
+                </FormGroup>    
                     
             )}
-
-            <div style={{ display: "flex", alignItems: "center" }}>
-                <span> Save Location: </span>
-                <TextField
-                    placeholder="projectDir"
-                    onTextChange={(text: string) => setProjectDir(text)}
-                    value={projectDir}
-                    id="dir-input"
-                    size={100}
-                    readonly={true}
-                />
-            </div>
-        </SectionWrapper>
-        <ActionContainer>
-            {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
-            <Button 
-                appearance="secondary"
-                onClick={handleCancel}
-            >
-                Cancel
-            </Button>
-            <Button
-                appearance="primary"
-                onClick={handleCreateMessageStore}
-                disabled={message.isError}
-            >
-                {isNewTask ? "Create" : "Update"}
-            </Button>
-        </ActionContainer>
-    </WizardContainer>
+            <FormActions>
+                {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
+                <Button 
+                    appearance="secondary"
+                    onClick={handleCancel}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    appearance="primary"
+                    onClick={handleSubmit((values) => {
+                        handleCreateMessageStore(values);
+                      })}
+                    disabled={!isValid || !isDirty}
+                >
+                    {isNewTask ? "Create" : "Update"}
+                </Button>
+            </FormActions>
+            </>}        
+    </FormView>
   );
 }
