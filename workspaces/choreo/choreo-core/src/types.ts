@@ -7,37 +7,33 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export type WebviewTypes = "NewComponentForm" | "ComponentsListActivityView" | "AccountActivityView" | "ChoreoCellView"
-// "ActivityBarProjectView" | "ChoreoCellView" | "ProjectOverview" | "ProjectCreateForm" | "ComponentCreateForm" |
+export type WebviewTypes = "NewComponentForm" | "ComponentsListActivityView" | "AccountActivityView" | "ComponentDetailsView" | "ChoreoCellView"
 
-// TODO: delete
-export interface OldProps {
-    type: WebviewTypes;
-	projectId?: string;
-	orgName?: string;
-	componentLimit?: number;
-	choreoUrl?: string;
-}
-
-
-export interface NewComponentWebview {
+export interface NewComponentWebviewProps {
     type: "NewComponentForm";
     directoryPath: string;
     organization: Organization;
     gitInstallUrl: string;
     project?: Project;
 }
+export interface ComponentsDetailsWebviewProps {
+    type: "ComponentDetailsView";
+    directoryPath?: string;
+    organization: Organization;
+    project: Project;
+    component: ComponentKind;
+}
 
-export interface ComponentsListActivityView {
+export interface ComponentsListActivityViewProps {
     type: "ComponentsListActivityView";
     directoryPath?: string;
 }
 
-export interface AccountActivityView {
+export interface AccountActivityViewProps {
     type: "AccountActivityView";
 }
 
-export type WebviewProps = OldProps | NewComponentWebview
+export type WebviewProps = ComponentsDetailsWebviewProps | NewComponentWebviewProps | AccountActivityViewProps | ComponentsListActivityViewProps
 
 export interface Owner {
     id: string;
@@ -69,18 +65,10 @@ export interface DataCacheState {
 }
 
 
-/*
-export interface DataCacheState {
-    orgs?: {
-        data?:Organization;
-        projects?: {
-            data?: Project;
-            components?: ComponentKind[];
-        }[]
-    }[];
-    loading?: boolean;
+export interface EndpointYamlContent {
+    version: string;
+    endpoints: Endpoint[];
 }
-*/
 
 export interface UserInfo {
     displayName: string;
@@ -241,6 +229,56 @@ export interface Buildpack {
     }[];
 }
 
+
+export interface BuildKind {
+    apiVersion: string;
+    kind: string;
+    metadata: {
+        name: string;
+        componentName: string;
+        projectName: string;
+    };
+    spec: {
+        revision: string;
+    };
+    status: {
+        runId: number;
+        conclusion: string;
+        status: string;
+        startedAt: string;
+        completedAt: string;
+        images: {
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+        }[];
+        gitCommit: {
+            message: string;
+            author: string;
+            date: string;
+            email: string;
+        };
+    };
+}
+
+export interface DeploymentTrack {
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    apiVersion: string;
+    branch: string;
+    description: string;
+    componentId: string;
+    latest: boolean;
+    versionStrategy: string;
+}
+
+export interface CommitHistory {
+    message: string;
+    sha: string;
+    isLatest: boolean;
+}
+
 export enum ChoreoBuildPackNames {
     Ballerina = "ballerina",
     Docker = "docker",
@@ -249,6 +287,27 @@ export enum ChoreoBuildPackNames {
     Vue = "vuejs",
     StaticFiles = "staticweb",
     MicroIntegrator = "microintegrator",
+}
+
+export interface WebviewQuickPickItem{
+    kind?: WebviewQuickPickItemKind;
+    /**  A human-readable string which is rendered prominent. */
+    label: string;
+    /** A human-readable string which is rendered less prominent in the same line. */
+    description?: string;
+    /** A human-readable string which is rendered less prominent in a separate line */
+    detail?: string;
+    /** Always show this item. */
+    alwaysShow?: boolean;
+    /** Optional flag indicating if this item is picked initially.  */
+	picked?: boolean;
+    /** Any data to be passed */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    item?: any;
+}
+export enum WebviewQuickPickItemKind {
+    Separator = -1,
+    Default = 0,
 }
 
 /////////////////////////////////////

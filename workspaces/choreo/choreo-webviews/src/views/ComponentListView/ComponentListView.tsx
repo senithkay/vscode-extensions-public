@@ -1,11 +1,11 @@
 import React, { FC } from "react";
-import { ComponentsListActivityView } from "@wso2-enterprise/choreo-core";
+import { ComponentsListActivityViewProps } from "@wso2-enterprise/choreo-core";
 import { useLinkedDirContext } from "../../context/choreo-linked-dir-ctx";
 import { ComponentsEmptyView } from "./ComponentsEmptyView";
 import { ComponentListItem } from "./ComponentListItem";
 import { InvalidWorkspaceView } from "./InvalidWorkspaceView";
 
-export const ComponentListView: FC<ComponentsListActivityView> = ({ directoryPath }) => {
+export const ComponentListView: FC<ComponentsListActivityViewProps> = ({ directoryPath }) => {
     const { links, isLoading } = useLinkedDirContext();
 
     if (!directoryPath) {
@@ -18,8 +18,11 @@ export const ComponentListView: FC<ComponentsListActivityView> = ({ directoryPat
 
     return (
         <div className="w-full flex flex-col py-2">
-            {links.map((item) => (
-                <ComponentListItem item={item} key={item.componentFullPath} isListLoading={isLoading} />
+            {links.map((item, index) => (
+                <>
+                    <ComponentListItem item={item} key={item.componentFullPath} isListLoading={isLoading} />
+                    {index !== links?.length - 1 && <div key={index} className="h-[0.5px] bg-vsc-dropdown-border opacity-70" />}
+                </>
             ))}
         </div>
     );

@@ -7,14 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import classNames from "classnames";
+import React, { HTMLProps } from "react";
 
 export interface CodiconProps {
     name: string;
+    className?: HTMLProps<HTMLElement>["className"];
 }
 
-export function Codicon(props: CodiconProps) {
-    return (
-        <i className={`codicon codicon-${props.name}`}></i>
-    );
+export function Codicon({ name, className }: CodiconProps) {
+    return <i className={classNames(`codicon`, `codicon-${name}`, className)}></i>;
 }

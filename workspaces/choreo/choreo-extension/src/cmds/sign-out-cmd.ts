@@ -19,7 +19,6 @@ export function signOutCommand(context: ExtensionContext) {
             try {
                 getLogger().debug("Signing out from Choreo");
                 sendTelemetryEvent(SIGN_OUT_START_EVENT);
-                await ext.clients.rpcClient.signOut();
                 authStore.getState().logout();
                 sendTelemetryEvent(SIGN_OUT_SUCCESS_EVENT);
                 window.showInformationMessage('Successfully signed out from Choreo!');

@@ -67,6 +67,14 @@ export const ComponentListItem: FC<Props> = ({ item, isListLoading }) => {
             projectHandler: item.project.handler,
         });
 
+    const viewComponentDetails = () =>
+        ChoreoWebViewAPI.getInstance().ViewComponent({
+            component: item.component!,
+            project: item.project!,
+            organization: item.organization!,
+            componentPath: item.componentFullPath,
+        });
+
     return (
         <div
             className={classNames({
@@ -75,6 +83,7 @@ export const ComponentListItem: FC<Props> = ({ item, isListLoading }) => {
                 "animate-pulse cursor-progress": !isItemEnriched && isListLoading,
                 "animate-pulse": deletingComponent,
             })}
+            onClick={viewComponentDetails}
         >
             <div className="flex-1 flex flex-col gap-0.5 pl-5 py-3 ">
                 <h3 className="text-sm font-bold">{item.linkContent.componentHandle}</h3>
@@ -94,10 +103,10 @@ export const ComponentListItem: FC<Props> = ({ item, isListLoading }) => {
                             isItemEnriched
                                 ? [
                                       { label: "Open in Console", onClick: () => openInConsole() },
-                                      { label: "Unlink", onClick: () => unlinkComponent() },
-                                      { label: "Delete", onClick: () => confirmDelete() },
+                                      { label: "Unlink Directory", onClick: () => unlinkComponent() },
+                                      { label: "Delete Component", onClick: () => confirmDelete() },
                                   ]
-                                : [{ label: "Unlink", onClick: () => unlinkComponent() }]
+                                : [{ label: "Unlink Directory", onClick: () => unlinkComponent() }]
                         }
                     />
                 )}

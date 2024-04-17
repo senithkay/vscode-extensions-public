@@ -1,7 +1,28 @@
 import { getLogger } from "../logger/logger";
 import { MessageConnection, Trace, Tracer } from "vscode-jsonrpc";
 import { StdioConnection } from "./connection";
-import { Buildpack, ComponentKind, Project, UserInfo, IChoreoRPCClient, BuildPackReq, GetBranchesReq, IsRepoAuthorizedReq, GetComponentsReq, CreateLinkReq, CreateProjectReq, CreateComponentReq, DeleteCompReq } from "@wso2-enterprise/choreo-core";
+import {
+    Buildpack,
+    ComponentKind,
+    Project,
+    UserInfo,
+    IChoreoRPCClient,
+    BuildPackReq,
+    GetBranchesReq,
+    IsRepoAuthorizedReq,
+    GetComponentsReq,
+    CreateLinkReq,
+    CreateProjectReq,
+    CreateComponentReq,
+    DeleteCompReq,
+    CreateBuildReq,
+    BuildKind,
+    GetDeploymentTracksReq,
+    DeploymentTrack,
+    GetBuildsReq,
+    GetCommitsReq,
+    CommitHistory,
+} from "@wso2-enterprise/choreo-core";
 import { workspace } from "vscode";
 import { handlerError } from "../error-utils";
 
@@ -9,8 +30,7 @@ export class RPCClient {
     private _conn: MessageConnection | undefined;
     private static _instance: RPCClient;
 
-    private constructor() {
-    }
+    private constructor() {}
 
     async init() {
         getLogger().debug("Activating choreo rpc server");
@@ -22,7 +42,10 @@ export class RPCClient {
         // todo: send proper version
 
         try {
-            const resp = await this._conn.sendRequest<{}>("initialize", { clientName: "vscode", clientVersion: "1.0.0" });
+            const resp = await this._conn.sendRequest<{}>("initialize", {
+                clientName: "vscode",
+                clientVersion: "1.0.0",
+            });
             console.log("Initialized RPC server", resp);
         } catch (e) {
             getLogger().error("failed to initialize rpc client", e);
@@ -41,7 +64,7 @@ export class RPCClient {
     }
 
     async sendRequest<T>(method: string, params?: any): Promise<T> {
-        this._conn?.sendRequest
+        this._conn?.sendRequest;
         if (!this._conn) {
             throw new Error("Connection is not initialized");
         }
@@ -69,7 +92,6 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
             getLogger().error("Error initializing RPC client", e);
         }
     }
-
 
     async createProject(params: CreateProjectReq): Promise<Project> {
         if (!this.client) {
@@ -126,7 +148,6 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
         return response.buildPacks;
     }
 
-
     async getRepoBranches(params: GetBranchesReq) {
         if (!this.client) {
             throw new Error("RPC client is not initialized");
@@ -182,6 +203,41 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
             throw new Error("RPC client is not initialized");
         }
         await this.client.sendRequest("auth/signOut");
+    }
+
+    async createBuild(params: CreateBuildReq): Promise<BuildKind> {
+        if (!this.client) {
+            throw new Error("RPC client is not initialized");
+        }
+        const response: { build: BuildKind } = await this.client.sendRequest("build/create", params);
+        return response.build;
+    }
+
+    async getDeploymentTracks(params: GetDeploymentTracksReq): Promise<DeploymentTrack[]> {
+        if (!this.client) {
+            throw new Error("RPC client is not initialized");
+        }
+        const response: { deploymentTracks: DeploymentTrack[] } = await this.client.sendRequest(
+            "component/getDeploymentTracks",
+            params
+        );
+        return response.deploymentTracks;
+    }
+
+    async getBuilds(params: GetBuildsReq): Promise<BuildKind[]> {
+        if (!this.client) {
+            throw new Error("RPC client is not initialized");
+        }
+        const response: { builds: BuildKind[] } = await this.client.sendRequest("build/getList", params);
+        return response.builds;
+    }
+
+    async getCommits(params: GetCommitsReq): Promise<CommitHistory[]> {
+        if (!this.client) {
+            throw new Error("RPC client is not initialized");
+        }
+        const response: { commits: CommitHistory[] } = await this.client.sendRequest("component/getCommits", params);
+        return response.commits;
     }
 }
 

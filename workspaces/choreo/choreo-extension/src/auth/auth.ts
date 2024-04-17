@@ -51,7 +51,7 @@ switch (choreoEnv) {
 
 export const choreoEnvConfig: ChoreoEnvConfig = new ChoreoEnvConfig(pickedEnvConfig);
 
-export async function activateClients(): Promise<void> {
+export function activateClients(): void {
 
     const readonlyTokenStore: IReadOnlyTokenStorage = {
         getToken : async (orgId: number) => {

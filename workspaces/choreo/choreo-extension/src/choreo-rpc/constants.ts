@@ -16,5 +16,6 @@ export enum ErrorCode {
     MaxProjectCountError = -32007,
     RepoAccessNeeded = -32008,
     EpYamlNotFound = -32009,
+    UserNotFound = -32010,
 }
 

@@ -9,7 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
     ChoreoBuildPackNames,
     ChoreoComponentType,
-    NewComponentWebview,
+    NewComponentWebviewProps,
     WebAppSPATypes,
 } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
@@ -21,7 +21,7 @@ import { componentFormSchema } from "./componentFormSchema";
 
 type ComponentFormType = z.infer<typeof componentFormSchema>;
 
-export const ComponentFormView: FC<NewComponentWebview> = ({ project, organization, directoryPath, gitInstallUrl }) => {
+export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organization, directoryPath, gitInstallUrl }) => {
     const form = useForm<ComponentFormType>({
         resolver: zodResolver(componentFormSchema),
         mode: "all",
@@ -62,7 +62,6 @@ export const ComponentFormView: FC<NewComponentWebview> = ({ project, organizati
                 form.setValue("langVersion", "");
             }
         },
-        refetchOnWindowFocus: false,
     });
 
     const { isLoading: isLoadingRemotes, data: gitRemotes = [] } = useQuery({
@@ -93,7 +92,6 @@ export const ComponentFormView: FC<NewComponentWebview> = ({ project, organizati
                 }
             }
         },
-        refetchOnWindowFocus: false,
     });
 
     const { isLoading: isCheckingRepoAccess, data: hasRepoAccess } = useQuery({
@@ -264,7 +262,7 @@ export const ComponentFormView: FC<NewComponentWebview> = ({ project, organizati
     }
 
     return (
-        <div className="flex flex-row justify-center p-6">
+        <div className="flex flex-row justify-center p-1 md:p-3 lg:p-4 xl:p-6">
             <div className="container">
                 <form className="mx-auto max-w-4xl flex flex-col gap-2 p-4">
                     {!project && (

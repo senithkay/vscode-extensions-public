@@ -51,16 +51,18 @@ export async function activate(context: vscode.ExtensionContext) {
     getLogger().debug("Activating Choreo Extension");
     ext.isPluginStartup = true;
     ext.context = context;
-    ext.api = new ChoreoExtensionApi();
+    ext.api = new ChoreoExtensionApi(); // todo: remove
+
+    await initRPCServer();
+    activateClients(); // todo: remove (after extracting rpc client out!)
 
     // Initialize stores
     await authStore.persist.rehydrate();
     await linkedDirectoryStore.persist.rehydrate();
     await dataCacheStore.persist.rehydrate();
-    authStore.subscribe(data => vscode.commands.executeCommand("setContext", "isLoggedIn", !!data.state.userInfo));
+    authStore.subscribe(({state}) => vscode.commands.executeCommand("setContext", "isLoggedIn", !!state.userInfo));
 
-    activateWizards();
-    activateClients();
+    activateWizards(); // todo: remove
 
     // states
     authStore.getState().initAuth();
@@ -70,12 +72,10 @@ export async function activate(context: vscode.ExtensionContext) {
     activateActivityBarWebViews(context);
     activateURIHandlers();
     // activateStatusBarItem();
-    activateCellDiagram(context);
-    initRPCServer();
+    activateCellDiagram(context);  // todo: remove
     setupGithubAuthStatusCheck();
     registerPreInitHandlers();
     ext.isPluginStartup = false;
-    openChoreoActivity();
     getLogger().debug("Choreo Extension activated");
     registerYamlLanguageServer();
 
@@ -88,33 +88,6 @@ function setupGithubAuthStatusCheck() {
     });
 }
 
-// This function is called when the extension is activated.
-// it will check if the opened project is a Choreo project.
-// if so, it will check if the project is being opened for the first time
-// using a vscode global state variable which is set when the project is opened.
-// if the project is being opened for the first time, it will activate the Choreo Project view in the sidebar.
-// Also open choreo activity if OPEN_CHOREO_ACTIVITY value is set
-async function openChoreoActivity() {
-    const shouldOpenChoreoActivity = await ext.api.shouldOpenChoreoActivity();
-    if (shouldOpenChoreoActivity) {
-        vscode.commands.executeCommand("choreo.activity.components.focus");
-        await ext.api.resetOpenChoreoActivity();
-    }
-
-    const isChoreoProject = ext.api.isChoreoProject();
-    if (isChoreoProject) {
-        // check if the project is being opened for the first time
-        const openedProjects: string[] = ext.context.globalState.get("openedProjects") || [];
-        const choreoProjectId = ext.api.getChoreoProjectId();
-        if (choreoProjectId && !openedProjects.includes(choreoProjectId)) {
-            // activate the Choreo Project view in the sidebar
-            vscode.commands.executeCommand("choreo.activity.components.focus");
-            // add the project id to the opened projects list
-            openedProjects.push(choreoProjectId);
-            await ext.context.globalState.update("openedProjects", openedProjects);
-        }
-    }
-}
 
 export function getGitExtensionAPI() {
     getLogger().debug("Getting Git Extension API");
