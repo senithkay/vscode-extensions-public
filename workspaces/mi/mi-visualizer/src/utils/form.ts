@@ -64,7 +64,7 @@ export const generateProxyData = (model: Proxy): EditProxyForm => {
         policies: model.policies,
         publishWSDL: {
             ...model.publishWSDL,
-            inlineWsdl: model.publishWSDL?.inlineWsdl ? inlineFormatter(model.publishWSDL.inlineWsdl) : "",
+            inlineWsdl: model.publishWSDL?.inlineWsdl ? inlineFormatter(model.publishWSDL.inlineWsdl) : "</definition>",
         },
         wsdlType: model.publishWSDL ? (model.publishWSDL.endpoint ? "ENDPOINT" : (model.publishWSDL.uri ? "SOURCE_URL" : (model.publishWSDL.key ? "REGISTRY_KEY" : "INLINE"))):"NONE",
         name: model.name,

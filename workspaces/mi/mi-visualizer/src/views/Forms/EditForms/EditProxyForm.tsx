@@ -230,7 +230,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
         outSequence: proxyData.target?.outSequenceAttribute,
         securityEnabled: proxyData.enableSec?.hasTextNode ?? false,
         wsdlType: proxyData.wsdlType ?? "NONE",
-        wsdlInLine: proxyData.publishWSDL?.inlineWsdl ?? "<definition/>",
+        wsdlInLine: proxyData.publishWSDL?.inlineWsdl,
         preservePolicy: proxyData.publishWSDL?.preservePolicy ??true,
         wsdlUrl: proxyData.publishWSDL?.uri ?? "http://default/wsdl/url",
         registryKey: proxyData.publishWSDL?.key ?? "default_registry_key",
@@ -312,18 +312,6 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
             defaultValue: "value",
             isRequired: true,
             values: []
-        },
-        {
-            id: 1,
-            type: "TextField",
-            label: "There is no policy available for this service. Please add a policy.",
-            defaultValue: "Policy Value",
-            enableCondition:[
-                {
-                    0: ''
-                }
-            ]
-        
         }]
     }
     const [policies, setPolicies] = useState(policyConfigs);
@@ -335,6 +323,13 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
             type: "TextField",
             label: "Location",
             defaultValue: "Resource Location",
+            isRequired: true
+        },
+        {
+            id: 1,
+            type: "TextField",
+            label: "Key",
+            defaultValue: "Resource Key",
             isRequired: true
         }]
     }
@@ -408,7 +403,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
             return {
                 ...param,
                 key: type !== "policies" ? param.parameters[0].value : param.key,
-                value: type !== "policies" ? param.parameters[1].value : param.parameters[0].value ?? "",
+                value: type !== "policies" ? param.parameters[1].value  : param.parameters[0].value ?? "",
                 icon: "query"
             }
         })};
@@ -424,10 +419,10 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
         console.log(params);
     };
 
-    const renderProps = (fieldName: keyof InputsFields, value?: any) => {
+    const renderProps = (fieldName: keyof InputsFields) => {
         return {
             id: fieldName,
-            value: watch(fieldName) ? String(watch(fieldName)) : value,
+            value: watch(fieldName) ? String(watch(fieldName)) : '',
             ...register(fieldName),
             errorMsg: errors[fieldName] && errors[fieldName].message.toString()
         }
@@ -581,7 +576,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
     React.useEffect(() => {
         (async () => {
             transportParser(proxyData.transports);
-            handleXMLInputChange(proxyData.publishWSDL?.inlineWsdl ?? `<Definition/>`);
+            handleXMLInputChange(proxyData.publishWSDL?.inlineWsdl);
             let resources:string[] = []
             const sequence = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
                 documentIdentifier: documentUri,
@@ -640,7 +635,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
     }, [isOpen, documentUri]);
 
     useEffect(() => {
-        setValue("transports", transportGenerator(), { shouldValidate: true });
+        setValue("transports", transportGenerator(), { shouldValidate: true  , shouldDirty: true });
     }, [transports]);
 
     useEffect(() => {
