@@ -94,6 +94,7 @@ export const BuildsSection: FC<Props> = ({ component, organization, project }) =
         },
         enabled: !!deploymentTrack,
         refetchInterval: hasOngoingBuilds ? 10000 : false,
+        refetchOnWindowFocus: true,
     });
 
     const { mutate: triggerBuild, isLoading: isTriggeringBuild } = useMutation({
@@ -117,20 +118,25 @@ export const BuildsSection: FC<Props> = ({ component, organization, project }) =
                         label: "Build Latest",
                         alwaysShow: true,
                         detail: latestCommit.message,
-                        description: latestCommit.sha,
+                        description: getShortenedHash(latestCommit.sha),
                         item: latestCommit,
+                        picked: true,
                     },
                     { kind: WebviewQuickPickItemKind.Separator, label: "Previous Commits" },
-                    ...commits?.map((item) => ({ label: item.message, description: item.sha, item })),
+                    ...commits
+                        ?.filter((item) => !item.isLatest)
+                        ?.map((item) => ({ label: item.message, description: getShortenedHash(item.sha), item })),
                 ],
             });
-            triggerBuild({
-                commitHash: (pickedItem?.item as CommitHistory)?.sha,
-                componentName: component.metadata.name,
-                deploymentTrackId: deploymentTrack?.id,
-                projectHandle: project.handler,
-                orgId: organization.id?.toString(),
-            });
+            if(pickedItem?.item){
+                triggerBuild({
+                    commitHash: (pickedItem?.item as CommitHistory)?.sha,
+                    componentName: component.metadata.name,
+                    deploymentTrackId: deploymentTrack?.id,
+                    projectHandle: project.handler,
+                    orgId: organization.id?.toString(),
+                });
+            }
         },
     });
 
@@ -191,7 +197,11 @@ export const BuildsSection: FC<Props> = ({ component, organization, project }) =
                             {builds?.map((item) => {
                                 let status: ReactNode = item.status?.conclusion;
                                 if (item.status?.conclusion === "") {
-                                    status = <span className="text-vsc-charts-orange">{item.status?.status}</span>;
+                                    status = (
+                                        <span className="text-vsc-charts-orange animate-pulse">
+                                            {item.status?.status}
+                                        </span>
+                                    );
                                 } else {
                                     if (item.status?.conclusion === "success") {
                                         status = <span className="text-vsc-charts-green">{status}</span>;

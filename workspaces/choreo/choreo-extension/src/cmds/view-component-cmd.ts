@@ -70,15 +70,17 @@ export const showComponentDetails = (
 ) => {
     const componentKey = `${org.handle}-${project.handler}-${component.metadata.name}`;
     if (componentViewMap.has(componentKey)) {
-        componentViewMap.get(componentKey)?.dispose();
+        componentViewMap.get(componentKey)?.getWebview()?.reveal()
+    }else{
+        const componentDetailsView = new ComponentDetailsView(
+            ext.context.extensionUri,
+            org,
+            project,
+            component,
+            componentPath
+        );
+        componentDetailsView.getWebview()?.reveal();
+        componentViewMap.set(componentKey, componentDetailsView);
     }
-    const componentDetailsView = new ComponentDetailsView(
-        ext.context.extensionUri,
-        org,
-        project,
-        component,
-        componentPath
-    );
-    componentDetailsView.getWebview()?.reveal();
-    componentViewMap.set(componentKey, componentDetailsView);
 };
+// TODO: clear webview when component delete

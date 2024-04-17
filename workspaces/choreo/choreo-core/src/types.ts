@@ -299,6 +299,8 @@ export interface WebviewQuickPickItem{
     detail?: string;
     /** Always show this item. */
     alwaysShow?: boolean;
+    /** Optional flag indicating if this item is picked initially.  */
+	picked?: boolean;
     /** Any data to be passed */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     item?: any;

@@ -1,4 +1,4 @@
-import { window as w } from 'vscode'
+import { window as w } from "vscode";
 import { ResponseError } from "vscode-jsonrpc";
 import { ErrorCode } from "./choreo-rpc/constants";
 import { getLogger } from "./logger/logger";
@@ -47,10 +47,12 @@ export function handlerError(err: any) {
             case ErrorCode.ProjectNotFound:
                 w.showErrorMessage("Project not found");
                 break;
+            case ErrorCode.UserNotFound:
+                // Ignore error
+                break;
             default:
                 getLogger().error("Unknown error", err);
                 break;
         }
     }
 }
-
