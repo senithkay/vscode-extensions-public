@@ -383,7 +383,7 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
         viewLocation.documentUri = Uri.parse(viewLocation.documentUri).fsPath;
     }
     // Set the projectUri If undefined.
-    if (!viewLocation?.projectUri) {
+    if (!viewLocation?.projectUri && vscode.workspace.workspaceFolders) {
         viewLocation!.projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
     }
     updateProjectExplorer(viewLocation);
@@ -438,7 +438,7 @@ async function checkIfMiProject() {
                 const projectContent = await vscode.workspace.openTextDocument(projectFiles[0]);
                 if (projectContent.getText().includes('<nature>org.wso2.developerstudio.eclipse.mavenmultimodule.project.nature</nature>')) {
                     isUnsupportedProject = true;
-                }   
+                }
             }
         }
     } catch (err) {
