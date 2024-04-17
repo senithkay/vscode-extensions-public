@@ -68,9 +68,10 @@ export async function exchangeAuthCode(authCode: string) {
                 console.log("Login time: " + response.loginTime);
                 console.log("Expiration time: " + response.expirationTime);
                 await keytar.setPassword('MI-AI', 'MIAIUser', response.accessToken);
+                await keytar.setPassword('MI-AI', 'MIAIRefreshToken', response.refreshToken ?? '');
                 StateMachineAI.sendEvent(AI_EVENT_TYPE.SIGN_IN_SUCCESS);
             } catch (error: any) {
-                const errMsg = "Error while signing in to Choreo! " + error?.message;
+                const errMsg = "Error while signing in to MI AI! " + error?.message;
                 throw new Error(errMsg);
             }
         }
