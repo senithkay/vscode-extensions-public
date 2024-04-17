@@ -82,15 +82,16 @@ export function FailoverWizard(props: FailoverWizardProps) {
     const [expandEndpointsView, setExpandEndpointsView] = useState<boolean>(false);
     const [showAddNewEndpointView, setShowAddNewEndpointView] = useState<boolean>(false);
     const [newEndpoint, setNewEndpoint] = useState<Endpoint>(initialInlineEndpoint);
+    const [savedEPName, setSavedEPName] = useState<string>("");
 
     const schema = yup.object({
         name: yup.string().required("Endpoint name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint name")
             .test('validateEndpointName',
                 'Endpoint file name already exists', value => {
-                    return !existingEndpoints.includes(value)
+                    return !isNewEndpoint ? !(existingEndpoints.includes(value) && value !== savedEPName) : !existingEndpoints.includes(value);
                 }).test('validateEndpointName',
                     'Endpoint artifact name already exists', value => {
-                        return !existingArtifactNames.includes(value)
+                        return !isNewEndpoint ? !(existingArtifactNames.includes(value) && value !== savedEPName) : !existingArtifactNames.includes(value);
                     }),
         buildMessage: yup.string().required("Build Message is required"),
         description: yup.string(),
@@ -180,18 +181,18 @@ export function FailoverWizard(props: FailoverWizardProps) {
                 documentIdentifier: props.path,
                 resourceType: "endpoint",
             });
-            let endpointNamesArr = [];
+            let endpointArtifactNamesArr = [];
             if (endpointResponse.resources) {
                 const endpointNames = endpointResponse.resources.map((resource) => resource.name);
-                setExistingArtifactNames(endpointNames);
+                endpointArtifactNamesArr.push(...endpointNames);
                 const epPaths = endpointResponse.resources.map((resource) => resource.artifactPath.replace(".xml", ""));
-                endpointNamesArr.push(...epPaths);
+                setExistingEndpoints(epPaths);
             }
             if (endpointResponse.registryResources) {
-                const registryKeys = endpointResponse.registryResources.map((resource) => resource.registryKey);
-                endpointNamesArr.push(...registryKeys);
+                const registryKeys = endpointResponse.registryResources.map((resource) => resource.name);
+                endpointArtifactNamesArr.push(...registryKeys);
             }
-            setExistingEndpoints(endpointNamesArr);
+            setExistingArtifactNames(endpointArtifactNamesArr);
             const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
             setArtifactNames(result.artifactNamesArr);
             setRegistryPaths(result.registryPaths);

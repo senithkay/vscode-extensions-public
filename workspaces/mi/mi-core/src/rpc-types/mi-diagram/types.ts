@@ -126,10 +126,12 @@ export interface UpdateRecipientEPRequest {
     description: string;
     endpoints: { type: string; value: string; }[];
     properties: { name: string; value: string; scope: string; }[];
+    getContentOnly: boolean;
 }
 
 export interface UpdateRecipientEPResponse {
     path: string;
+    content: string;
 }
 
 export interface GetRecipientEPRequest {
