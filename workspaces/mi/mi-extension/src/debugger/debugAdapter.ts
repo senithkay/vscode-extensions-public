@@ -196,27 +196,30 @@ export class MiDebugAdapter extends LoggingDebugSession {
         if (path) {
             this.debuggerHandler?.setCurrentFilePath(path);
             this.debuggerHandler?.clearBreakpoints(path);
-        }
 
-        // set vscode breakpoints and the mi-debugger breakpoints
-        const vscodeBreakpoints = breakpoints.map(async bp => {
-            const debugBreakpoint = await this.debuggerHandler?.setBreakPoint(source, this.convertClientLineToDebugger(bp.line));
-            if (debugBreakpoint?.line) {
-                const bp = new Breakpoint(debugBreakpoint?.verified, this.convertDebuggerLineToClient(debugBreakpoint?.line),
-                    this.convertDebuggerColumnToClient(debugBreakpoint?.column || 0)) as DebugProtocol.Breakpoint;
-                bp.source = debugBreakpoint?.source;
-                bp.id = debugBreakpoint?.id;
-                return bp;
+            //convert all the breakpoints lines to debugger lines
+            breakpoints.forEach(bp => {
+                bp.line = this.convertClientLineToDebugger(bp.line);
+            });
+            // set runtime breakpoints
+            const runtimeBreakpoints = await this.debuggerHandler?.createRuntimeBreakpoints(path, breakpoints);
+            // create debug breakpoints from runtime breakpoints
+            if (runtimeBreakpoints) {
+                const vscodeBreakpoints = runtimeBreakpoints.map(async runtimeBp => {
+                    const bp = new Breakpoint(runtimeBp?.verified, this.convertDebuggerLineToClient(runtimeBp?.line), 0) as DebugProtocol.Breakpoint;
+                    bp.source = source;
+                    bp.id = runtimeBp?.id;
+                    return bp;
+                });
+
+                if (vscodeBreakpoints) {
+                    const resolvedBreakpoints = await Promise.all(vscodeBreakpoints);
+                    response.body = {
+                        breakpoints: resolvedBreakpoints.filter(bp => bp !== undefined) as Breakpoint[]
+                    };
+                }
             }
-        });
-
-        if (vscodeBreakpoints) {
-            const resolvedBreakpoints = await Promise.all(vscodeBreakpoints);
-            response.body = {
-                breakpoints: resolvedBreakpoints.filter(bp => bp !== undefined) as Breakpoint[]
-            };
         }
-
         this.sendResponse(response);
     }
 
@@ -310,7 +313,9 @@ export class MiDebugAdapter extends LoggingDebugSession {
         };
         this.sendResponse(response);
     }
-    protected nextRequest(response: DebugProtocol.NextResponse, args: DebugProtocol.NextArguments, request?: DebugProtocol.Request | undefined): void {
+    protected async nextRequest(response: DebugProtocol.NextResponse, args: DebugProtocol.NextArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
+        await this.debuggerHandler?.sendResumeCommand();
+
         this.sendResponse(response);
     }
 
@@ -323,18 +328,17 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
         const line = currentBreakpoint?.line ? this.convertDebuggerLineToClient(currentBreakpoint.line) : 0;
 
-        const xmlStackFrame: DebugProtocol.StackFrame = {
+        const miStackFrame: DebugProtocol.StackFrame = {
             id: 1,
-            name: "XML Processing",
+            name: "MI Extension",
             source: {
-                name: "HelloWorld.xml",
                 path: path
             },
             line: line,
             column: 0
         };
 
-        stackFrames.push(xmlStackFrame);
+        stackFrames.push(miStackFrame);
 
         response.body = {
             stackFrames: stackFrames,

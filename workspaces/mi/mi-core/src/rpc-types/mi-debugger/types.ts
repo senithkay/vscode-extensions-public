@@ -9,7 +9,7 @@
 
 export interface ValidateBreakpointsRequest {
     filePath: string;
-    breakpoints: BreakpointPosition[]; // TODO: breakpointPosition should consist of the filePath and the line number
+    breakpoints: BreakpointPosition[];
 }
 
 export interface BreakpointPosition {
@@ -23,7 +23,7 @@ export interface BreakpointValidity {
 }
 
 export interface ValidateBreakpointsResponse  {
-    breakPointValidity: BreakpointValidity[]; // TODO: ask the BE to fix this typo
+    breakpointValidity: BreakpointValidity[];
 }
 
 export interface GetBreakpointInfoRequest {

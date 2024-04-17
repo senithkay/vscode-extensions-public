@@ -2,12 +2,13 @@ import * as net from 'net';
 import { EventEmitter } from 'events';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { StateMachine } from '../stateMachine';
-import { GetBreakpointInfoRequest, GetBreakpointInfoResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse } from '@wso2-enterprise/mi-core';
+import { BreakpointInfo, GetBreakpointInfoRequest, GetBreakpointInfoResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse } from '@wso2-enterprise/mi-core';
 
-export interface BreakpointInfo {
-    sequence: any; // TODO: update based on the BE model
-    command?: string;
-    'command-argument'?: string; // BE model supports hyphenated keys
+export interface RuntimeBreakpoint {
+    id: number;
+    line: number;
+    verified: boolean;
+    filePath: string;
 }
 
 export class Debugger extends EventEmitter {
@@ -19,22 +20,20 @@ export class Debugger extends EventEmitter {
     private commandClient: net.Socket | undefined;
     private eventClient: net.Socket | undefined;
 
-    // maps from sourceFile to array of DebugProtocol.Breakpoint
-    private breakPoints = new Map<string, DebugProtocol.Breakpoint[]>();
+    // maps from sourceFile to array of RuntimeBreakpoint
+    private runtimeBreakpoints = new Map<string, RuntimeBreakpoint[]>();
 
     // currentFile that analyzes the breakpoints
     private currentFile: string | undefined;
 
-    // Add a map to store the mapping between debugger runtime and DebugProtocol.Breakpoint
-    private debuggingRuntimeBreakpointMap = new Map<BreakpointInfo, DebugProtocol.Breakpoint>();
+    // Add a map to store the mapping between debugger runtime and RuntimeBreakpoint
+    private debuggingRuntimeBreakpointMap = new Map<BreakpointInfo, RuntimeBreakpoint>();
 
     // since we want to send breakpoint events, we will assign an id to every event
     // so that the frontend can match events with breakpoints.
     private breakpointId = 1;
 
     private currentDebugpoint: DebugProtocol.Breakpoint | undefined;
-
-    private variables: DebugProtocol.Variable[] = [];
 
     constructor(commandPort: number, eventPort: number, host: string) {
         super();
@@ -47,110 +46,96 @@ export class Debugger extends EventEmitter {
         this.currentFile = file;
     }
 
-    /*
-     * Set breakpoint in file with given line.
-     */
-    public async setBreakPoint(source: DebugProtocol.Source, line: number): Promise<DebugProtocol.Breakpoint> {
-        return new Promise<DebugProtocol.Breakpoint>(async (resolve, reject) => {
+    public async createRuntimeBreakpoints(path: string, breakpoints: DebugProtocol.SourceBreakpoint[]) {
+        try {
             const langClient = StateMachine.context().langClient!;
-            const breakpoint: DebugProtocol.Breakpoint = {
-                verified: false,
-                line: line,
-                id: this.breakpointId++,
-                source: source,
-                column: 0 // debug points are restricted to line breakpoints
-            };
+            const breakpointPerFile: RuntimeBreakpoint[] = [];
+            if (path) {
+                // create BreakpointPosition array
+                const breakpointPositions = breakpoints.map((breakpoint) => {
+                    return { line: breakpoint.line };
+                });
+                const normalizedPath = this.normalizePathAndCasing(path);
 
-            if (source.path) {
-                const path = this.normalizePathAndCasing(source.path);
-                // get current breakpoints for the path
-                let breakpoints = this.breakPoints.get(path);
-                if (!breakpoints) {
-                    breakpoints = new Array<DebugProtocol.Breakpoint>();
-                    this.breakPoints.set(source.path, breakpoints);
-                }
-                breakpoints.push(breakpoint);
-            }
+                const validateBreakpointsRequest: ValidateBreakpointsRequest = {
+                    filePath: path,
+                    breakpoints: [...breakpointPositions]
+                };
+                const response: ValidateBreakpointsResponse = await langClient.validateBreakpoints(validateBreakpointsRequest);
+
+                if (response?.breakpointValidity) {
+
+                    for (const breakpoint of response.breakpointValidity) {
+                        const runtimeBreakpoint: RuntimeBreakpoint = {
+                            id: this.breakpointId++,
+                            line: breakpoint.line,
+                            verified: breakpoint.valid,
+                            filePath: normalizedPath
+                        };
 
 
-            // TODO: Add the mi-LS call to verify ig the breakpoints are valid
-            //await this.verifyBreakpoints(path);
-            try {
-                if (source.path) {
-                    const validateBreakpointsRequest: ValidateBreakpointsRequest = {
-                        filePath: source.path,
-                        breakpoints: [{ line: line }]
-                    };
-                    const response: ValidateBreakpointsResponse = await langClient.validateBreakpoints(validateBreakpointsRequest);
-                    if (response?.breakPointValidity[0]?.valid) {
-                        breakpoint.verified = true;
+                        // get current breakpoints for the path
+                        let currentBreakpointsPerSource = this.runtimeBreakpoints.get(normalizedPath);
+                        if (!currentBreakpointsPerSource) {
+                            currentBreakpointsPerSource = new Array<RuntimeBreakpoint>();
+                            this.runtimeBreakpoints.set(normalizedPath, currentBreakpointsPerSource);
+                        }
+                        currentBreakpointsPerSource.push(runtimeBreakpoint);
+                        breakpointPerFile.push(runtimeBreakpoint);
                     }
                 }
-            } catch (error) {
-                console.error('Error setting breakpoint:', error);
-                return Promise.reject(error);
+
+                // LS call for breakpoint info
+                const breakpointInfo = await this.getBreakpointInformation2(breakpointPerFile);
+                // map the runtime breakpoint to the breakpoint info
+                for (let i = 0; i < breakpointPerFile.length; i++) {
+                    this.debuggingRuntimeBreakpointMap.set(breakpointInfo[i], breakpointPerFile[i]);
+                }
+
+                if (this.isDebuggerActive) {
+                    for (const info of breakpointInfo) {
+                        await this.sendSetBreakpointCommand(info);
+                    }
+                }
+
+                return breakpointPerFile;
             }
-
-
-            //TODO: get the breakpoint info from mi-LS and send breakpoint command to the mi runtime.
-            if (breakpoint.verified) {
-                const breakpointInfo: BreakpointInfo[] = await this.getBreakpointInformation([breakpoint]);
-                this.debuggingRuntimeBreakpointMap.set(breakpointInfo[0], breakpoint);
-            }
-
-            // TODO: Enable sending the breakpoint command to the debugger, check if we need to clear the breakpoint before setting it
-            // if(this.isDebuggerActive){
-            //     await this.sendSetBreakpointCommand(breakpointInfo[0]);
-            // }
-
-            resolve(breakpoint);
-
-        }).catch((error) => {
+        } catch (error) {
             console.error('Error setting breakpoint:', error);
             return Promise.reject(error);
-        });
-    }
-
-    public dummyBreakpointPosition = 0;
-    public async getBreakpointInformation(breakpoints: DebugProtocol.Breakpoint[]): Promise<BreakpointInfo[]> {
-        // TODO: add the LS call to get the breakpoint info for the DebugProtocol.Breakpoint
-        const langClient = StateMachine.context().langClient!;
-        for (const breakpoint of breakpoints) {
-            if(breakpoint.line){
-                const getBreakpointInfoRequest: GetBreakpointInfoRequest = {
-                    filePath: this.getCurrentFilePath(),
-                    breakpoints: [{ line: breakpoint.line }]
-                };
-
-                const breakpointInfo: GetBreakpointInfoResponse = await langClient.getBreakpointInfo(getBreakpointInfoRequest);
-                console.log('Breakpoint Info:', breakpointInfo);
-                // TODO: ask for the BE model changes
-
-            }
-            
         }
-        
-        const breakpointInfo = { "sequence": { "api": { "api-key": "HelloWorld", "resource": { "method": "GET" }, "sequence-type": "api_inseq", "mediator-position": this.dummyBreakpointPosition.toString() } }, "mediation-component": "sequence" };
-        this.dummyBreakpointPosition++;
-        return [breakpointInfo];
     }
 
+    public async getBreakpointInformation2(breakpoints: RuntimeBreakpoint[]): Promise<BreakpointInfo[]> {
+        const langClient = StateMachine.context().langClient!;
+        // create BreakpointPosition[] array
+        const breakpointPositions = breakpoints.map((breakpoint) => {
+            return { line: breakpoint.line };
+        });
 
+        const getBreakpointInfoRequest: GetBreakpointInfoRequest = {
+            filePath: this.getCurrentFilePath(),
+            breakpoints: [...breakpointPositions]
+        };
 
-    public async getBreakpointInfo(breakpoints: DebugProtocol.Breakpoint[]): Promise<BreakpointInfo[]> {
-        // TODO: add the LS call to get the breakpoint info for the DebugProtocol.Breakpoint
-        const breakpointCommand = { "sequence": { "api": { "api-key": "HelloWorld", "resource": { "method": "GET" }, "sequence-type": "api_inseq", "mediator-position": "0" } }, "mediation-component": "sequence" };
-        const breakpointCommand2 = { "sequence": { "api": { "api-key": "HelloWorld", "resource": { "method": "GET" }, "sequence-type": "api_inseq", "mediator-position": "1" } }, "mediation-component": "sequence" };
-
-        return [breakpointCommand, breakpointCommand2];
+        const breakpointInfo1: GetBreakpointInfoResponse = await langClient.getBreakpointInfo(getBreakpointInfoRequest);
+        console.log('Breakpoint Info:', breakpointInfo1);
+        return breakpointInfo1.breakpointInfo;
     }
 
     public clearBreakpoints(path: string): void {
-        this.breakPoints.delete(this.normalizePathAndCasing(path));
+        this.runtimeBreakpoints.delete(this.normalizePathAndCasing(path));
+        // clear the debuggingRuntimeBreakpointMap fields with the matchin path
+        for (const [key, value] of this.debuggingRuntimeBreakpointMap) {
+            if (value.filePath === this.normalizePathAndCasing(path)) {
+                this.sendClearBreakpointCommand(key);
+                this.debuggingRuntimeBreakpointMap.delete(key);
+            }
+        }
     }
 
-    public getBreakpoints(path: string): DebugProtocol.Breakpoint[] {
-        return this.breakPoints.get(this.normalizePathAndCasing(path)) || [];
+    public getRuntimeBreakpoints(path: string): RuntimeBreakpoint[] {
+        return this.runtimeBreakpoints.get(this.normalizePathAndCasing(path)) || [];
     }
 
     public getCurrentFilePath(): string {
@@ -168,16 +153,11 @@ export class Debugger extends EventEmitter {
         setTimeout(async () => {
             await this.sendResumeCommand();
             // get the list of breakpoints
-            const breakpoints = this.getBreakpoints(this.getCurrentFilePath());
-            // first we need to clear all the breakpoints
-            const allBreakpointInfo = await this.getBreakpointInfo(breakpoints);
-            // clear the breakpoints
-            for (const info of allBreakpointInfo) {
-                await this.sendClearBreakpointCommand(info);
-            }
+            const runtimeBreakpoints = this.getRuntimeBreakpoints(this.getCurrentFilePath());
+            const runtimeBreakpointInfo = await this.getBreakpointInformation2(runtimeBreakpoints);
 
-            // set the breakpoints
-            for (const info of allBreakpointInfo) {
+            for (const info of runtimeBreakpointInfo) {
+                await this.sendClearBreakpointCommand(info);
                 await this.sendSetBreakpointCommand(info);
             }
         }, 12000);
@@ -357,46 +337,6 @@ export class Debugger extends EventEmitter {
         return variables;
     }
 
-
-
-    // creating variables with variable reference
-    // TODO: Check the logic on creating structured variables
-    // public  createVariable(name: string, value: any, variablesReference: number): DebugProtocol.Variable {
-    //     return {
-    //         name: name,
-    //         value: JSON.stringify(value),
-    //         variablesReference: variablesReference,
-    //         namedVariables: variablesReference,
-
-    //     };
-    // }
-
-    // public  createVariables(jsonResponse: any, variablesReference: number): DebugProtocol.Variable[] {
-    //     const variables: DebugProtocol.Variable[] = [];
-
-    //     for (const key in jsonResponse) {
-    //         if (jsonResponse.hasOwnProperty(key)) {
-    //             const value = jsonResponse[key];
-    //             let childVariablesReference = 0;
-
-    //             if (typeof value === 'object') {
-    //                 // If the value is an object, create child variables and assign a unique reference
-    //                 childVariablesReference = ++variablesReference;
-    //                 const childVariables = this.createVariables(value, childVariablesReference);
-    //                 variables.push(this.createVariable(key, value, childVariablesReference));
-    //                 variables.push(...childVariables);
-    //             } else {
-    //                 // If the value is not an object, create a regular variable
-    //                 variables.push(this.createVariable(key, value, childVariablesReference));
-    //             }
-    //         }
-    //     }
-
-    //     return variables;
-    // }
-
-
-
     public async sendClearBreakpointCommand(breakpointInfo: BreakpointInfo): Promise<void> {
         breakpointInfo.command = "clear";
         breakpointInfo['command-argument'] = "breakpoint";
@@ -407,29 +347,6 @@ export class Debugger extends EventEmitter {
         breakpointInfo.command = "set";
         breakpointInfo['command-argument'] = "breakpoint";
         await this.sendRequest(JSON.stringify(breakpointInfo));
-    }
-
-    public sendBreakpointCommand(): Promise<string> {
-        const breakpointCommand = { "sequence": { "api": { "api-key": "HelloWorld", "resource": { "method": "GET" }, "sequence-type": "api_inseq", "mediator-position": "0" } }, "command": "clear", "command-argument": "breakpoint", "mediation-component": "sequence" };
-        //convert the json breakpoirtCommand to string
-        const breakpointString = JSON.stringify(breakpointCommand);
-        return new Promise((resolve, reject) => {
-            // Send breakpoint command request
-            this.sendRequest(breakpointString)
-                .then((response) => {
-                    const breakpointCommand2 = { "sequence": { "api": { "api-key": "HelloWorld", "resource": { "method": "GET" }, "sequence-type": "api_inseq", "mediator-position": "0" } }, "command": "set", "command-argument": "breakpoint", "mediation-component": "sequence" };
-                    this.sendRequest(JSON.stringify(breakpointCommand2));
-                    const breakpointCommand3 = { "sequence": { "api": { "api-key": "HelloWorld", "resource": { "method": "GET" }, "sequence-type": "api_inseq", "mediator-position": "1" } }, "command": "set", "command-argument": "breakpoint", "mediation-component": "sequence" };
-                    this.sendRequest(JSON.stringify(breakpointCommand3));
-
-                    // Resolve the promise with the response
-                    resolve(response);
-                })
-                .catch((error) => {
-                    // Reject the promise if there's an error sending the request
-                    reject(error);
-                });
-        });
     }
 
     public sendResumeCommand(): Promise<string> {
