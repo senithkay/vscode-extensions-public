@@ -12,7 +12,7 @@ import { CancellationToken, DebugConfiguration, ProviderResult, WorkspaceFolder 
 import { MiDebugAdapter } from './debugAdapter';
 import { COMMANDS, SELECTED_SERVER_PATH } from '../constants';
 import { extension } from '../MIExtensionContext';
-import { executeBuildTask, executeTasks, updateServerPathAndGet } from './debugHelper';
+import { executeBuildTask, executeTasks, getServerPath } from './debugHelper';
 import { getBuildTask } from './tasks';
 
 
@@ -33,7 +33,7 @@ class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
 export function activateDebugger(context: vscode.ExtensionContext) {
 
     vscode.commands.registerCommand(COMMANDS.BUILD_AND_RUN_PROJECT, async () => {
-        updateServerPathAndGet().then(async (serverPath) => {
+        getServerPath().then(async (serverPath) => {
             if (!serverPath) {
                 vscode.window.showErrorMessage("Server path not found");
                 return;
@@ -43,7 +43,7 @@ export function activateDebugger(context: vscode.ExtensionContext) {
     });
 
     vscode.commands.registerCommand(COMMANDS.BUILD_PROJECT, async () => {
-        updateServerPathAndGet().then(async (serverPath) => {
+        getServerPath().then(async (serverPath) => {
             if (!serverPath) {
                 vscode.window.showErrorMessage("Server path not found");
                 return;

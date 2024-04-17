@@ -10,7 +10,7 @@
 import { Breakpoint, BreakpointEvent, Handles, InitializedEvent, LoggingDebugSession, Scope, StoppedEvent, TerminatedEvent, Thread } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import * as vscode from 'vscode';
-import { executeTasks, updateServerPathAndGet } from './debugHelper';
+import { executeTasks, getServerPath } from './debugHelper';
 import { Subject } from 'await-notify';
 import { Debugger } from './debugger';
 
@@ -232,7 +232,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
     protected launchRequest(response: DebugProtocol.LaunchResponse, args?: DebugProtocol.LaunchRequestArguments, request?: DebugProtocol.Request): void {
         this._configurationDone.wait().then(() => {
-            updateServerPathAndGet().then((serverPath) => {
+            getServerPath().then((serverPath) => {
                 if (!serverPath) {
                     response.success = false;
                     this.sendResponse(response);

@@ -103,7 +103,7 @@ export async function executeTasks(serverPath: string): Promise<void> {
     }
 }
 
-export async function updateServerPathAndGet(): Promise<string | undefined> {
+export async function getServerPath(): Promise<string | undefined> {
     const currentPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
     if (!currentPath) {
         await vscode.commands.executeCommand(COMMANDS.CHANGE_SERVER_PATH);
