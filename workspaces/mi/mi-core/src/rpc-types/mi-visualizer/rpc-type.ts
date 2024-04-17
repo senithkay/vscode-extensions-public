@@ -10,7 +10,7 @@
  */
 import { HistoryEntry } from "../../history";
 import { ColorThemeKind } from "../../state-machine-types";
-import { ProjectStructureRequest, ProjectStructureResponse, WorkspacesResponse, OpenViewRequest, HistoryEntryResponse, ToggleDisplayOverviewRequest } from "./types";
+import { ProjectStructureRequest, ProjectStructureResponse, WorkspacesResponse, OpenViewRequest, HistoryEntryResponse, ToggleDisplayOverviewRequest, GoToSourceRequest } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -27,3 +27,4 @@ export const addToHistory: NotificationType<HistoryEntry> = { method: `${_preFix
 export const goHome: NotificationType<void> = { method: `${_preFix}/goHome` };
 export const goSelected: NotificationType<number> = { method: `${_preFix}/goSelected` };
 export const toggleDisplayOverview: RequestType<ToggleDisplayOverviewRequest, void> = { method: `${_preFix}/toggleDisplayOverview` };
+export const goToSource: NotificationType<GoToSourceRequest> = { method: `${_preFix}/goToSource` };

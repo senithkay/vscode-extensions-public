@@ -25,7 +25,7 @@ import { ValueConfigMenu, ValueConfigOption } from "../commons/DataManipulationW
 import { ValueConfigMenuItem } from "../commons/DataManipulationWidget/ValueConfigButton/ValueConfigMenuItem";
 import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore } from '../../../../store/store';
-import { getDefaultValue, isConnectedViaLink } from "../../utils/common-utils";
+import { getDefaultValue, getEditorLineAndColumn, isConnectedViaLink } from "../../utils/common-utils";
 
 export interface ObjectOutputFieldWidgetProps {
     parentId: string;
@@ -103,8 +103,9 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
 
     const handleEditValue = () => {
         if (field.value && Node.isPropertyAssignment(field.value)) {
-            const innerExpr = field.value.getInitializer();
-            // TODO: Implement editing source value
+            const initializer = field.value.getInitializer();
+            const range = getEditorLineAndColumn(initializer);
+            context.goToSource(range);
         }
     };
 

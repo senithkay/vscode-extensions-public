@@ -11,6 +11,7 @@
 import {
     ColorThemeKind,
     GettingStartedData,
+    GoToSourceRequest,
     HistoryEntry,
     HistoryEntryResponse,
     MIVisualizerAPI,
@@ -31,7 +32,8 @@ import {
     goBack,
     goHome,
     goSelected,
-    openView
+    openView,
+    goToSource
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -87,7 +89,11 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
         return this._messenger.sendNotification(goSelected, HOST_EXTENSION, params);
     }
 
-    toggleDisplayOverview(params: ToggleDisplayOverviewRequest): Promise<void> {
-        return this._messenger.sendRequest(toggleDisplayOverview, HOST_EXTENSION, params);
+    toggleDisplayOverview(params: ToggleDisplayOverviewRequest): void {
+        return this._messenger.sendNotification(toggleDisplayOverview, HOST_EXTENSION, params);
+    }
+
+    goToSource(params: GoToSourceRequest): void {
+        return this._messenger.sendNotification(goToSource, HOST_EXTENSION, params);
     }
 }

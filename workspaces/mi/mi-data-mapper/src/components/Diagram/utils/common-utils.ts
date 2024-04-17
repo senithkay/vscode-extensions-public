@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { NodeModel } from "@projectstorm/react-diagrams";
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { DMType, TypeKind, Range } from "@wso2-enterprise/mi-core";
 import {
     ts,
     ArrowFunction,
@@ -343,6 +343,25 @@ export function getTargetPortPrefix(node: NodeModel): string {
 		default:
 			return PRIMITIVE_TYPE_TARGET_PORT_PREFIX;
 	}
+}
+
+export function getEditorLineAndColumn(node: Node): Range {
+    const sourceFile = node.getSourceFile();
+
+    const { line: startLine, column: startColumn } = sourceFile.getLineAndColumnAtPos(node.getStart());
+    const { line: endLine, column: endColumn } = sourceFile.getLineAndColumnAtPos(node.getEnd());
+
+    // Subtract 1 from line and column values to match the editor line and column values
+    return {
+        start: {
+            line: startLine - 1,
+            column: startColumn - 1
+        },
+        end: {
+            line: endLine - 1,
+            column: endColumn - 1
+        }
+    };
 }
 
 function getInnerExpr(node: PropertyAccessExpression): Node {

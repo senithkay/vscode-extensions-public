@@ -14,6 +14,7 @@ import {
     GettingStartedCategory,
     GettingStartedData,
     GettingStartedSample,
+    GoToSourceRequest,
     HistoryEntry,
     HistoryEntryResponse,
     MIVisualizerAPI,
@@ -30,7 +31,7 @@ import fetch from 'node-fetch';
 import { workspace, window } from "vscode";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
-import { handleOpenFile } from "../../util/fileOperations";
+import { goToSource, handleOpenFile } from "../../util/fileOperations";
 import { openAIView } from "../../ai-panel/aiMachine";
 import { extension } from "../../MIExtensionContext";
 
@@ -161,5 +162,9 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             await extension.context.workspaceState.update('displayOverview', params.displayOverview);
             resolve();
         });
+    }
+
+    goToSource(params: GoToSourceRequest): void {
+        goToSource(params.filePath, params.position);
     }
 }
