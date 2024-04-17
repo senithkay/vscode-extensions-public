@@ -11,13 +11,10 @@
 import {
     IOTypeRequest,
     IOTypeResponse,
-    GetFileContentRequest,
-    GetFileContentResponse,
     UpdateFileContentRequest
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "mi-data-mapper";
 export const getIOTypes: RequestType<IOTypeRequest, IOTypeResponse> = { method: `${_preFix}/getIOTypes` };
-export const getFileContent: RequestType<GetFileContentRequest, GetFileContentResponse> = { method: `${_preFix}/getFileContent` };
 export const updateFileContent: NotificationType<UpdateFileContentRequest> = { method: `${_preFix}/updateFileContent` };
