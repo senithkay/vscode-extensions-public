@@ -57,23 +57,23 @@ export async function exchangeAuthCodeNew(authCode: string): Promise<AccessToken
 
 
 export async function exchangeAuthCode(authCode: string) {
-        if (!authCode) {
-            throw new Error("Auth code is not provided.");
-        } else {
-            try {
-                console.log("Exchanging auth code to token...");
-                const response = await exchangeAuthCodeNew(authCode);
-                console.log("Access token: " + response.accessToken);
-                console.log("Refresh token: " + response.refreshToken);
-                console.log("Login time: " + response.loginTime);
-                console.log("Expiration time: " + response.expirationTime);
-                await extension.context.secrets.store('MIAIUser', response.accessToken);
-                await extension.context.secrets.store('MIAIRefreshToken', response.refreshToken ?? '');
-                StateMachineAI.sendEvent(AI_EVENT_TYPE.SIGN_IN_SUCCESS);
-            } catch (error: any) {
-                const errMsg = "Error while signing in to MI AI! " + error?.message;
-                throw new Error(errMsg);
-            }
+    if (!authCode) {
+        throw new Error("Auth code is not provided.");
+    } else {
+        try {
+            console.log("Exchanging auth code to token...");
+            const response = await exchangeAuthCodeNew(authCode);
+            console.log("Access token: " + response.accessToken);
+            console.log("Refresh token: " + response.refreshToken);
+            console.log("Login time: " + response.loginTime);
+            console.log("Expiration time: " + response.expirationTime);
+            await extension.context.secrets.store('MIAIUser', response.accessToken);
+            await extension.context.secrets.store('MIAIRefreshToken', response.refreshToken ?? '');
+            StateMachineAI.sendEvent(AI_EVENT_TYPE.SIGN_IN_SUCCESS);
+        } catch (error: any) {
+            const errMsg = "Error while signing in to MI AI! " + error?.message;
+            throw new Error(errMsg);
         }
     }
 }
+
