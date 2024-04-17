@@ -147,6 +147,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
             formValues: {
                 form: formJSON.formJSON,
                 title: `${connectorData.name} - ${node.stNode.tag.split(".")[1]}`,
+                uiSchemaPath: connectorData.uiSchemaPath,
                 parameters: (node.stNode as Connector).parameters
             },
             parentNode: node.mediatorName

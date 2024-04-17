@@ -121,8 +121,6 @@ const AddConnection = (props: AddConnectionProps) => {
 
             const connectionName = await rpcClient.getMiDiagramRpcClient().createConnection({
                 connectionName: formValues['connectionName'],
-                connectorName: props.formData.connectorName,
-                connectionType: props.connectionType,
                 keyValuesXML: modifiedXml,
                 directory: LocalEntryPath
             });

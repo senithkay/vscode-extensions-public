@@ -253,7 +253,9 @@ export function ConnectorPage(props: ConnectorPageProps) {
             const connecterForm = <AddConnector formData={(formJSON as any).formJSON}
                 nodePosition={sidePanelContext.nodeRange}
                 documentUri={props.documentUri}
-                uiSchemaPath={connectorData.uiSchemaPath} />;
+                uiSchemaPath={connectorData.uiSchemaPath}
+                connectorName={connector.name}
+                operationName={operation} />;
 
             props.setContent(connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`);
         }
