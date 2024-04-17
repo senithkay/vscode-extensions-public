@@ -10,10 +10,10 @@ import { TypeKind } from "@wso2-enterprise/mi-core";
 import { ArrayLiteralExpression, Node, ObjectLiteralExpression, Type } from "ts-morph";
 
 import { DataMapperLinkModel } from "../Link";
-import { InputOutputPortModel } from "../Port";
+import { InputOutputPortModel, IntermediatePortModel } from "../Port";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { getFieldIndexes, getFieldNameFromOutputPort, getLinebreak, getPropertyAssignment } from "./common-utils";
-import { ObjectOutputNode } from "../Node";
+import { LinkConnectorNode, ObjectOutputNode } from "../Node";
 import { ExpressionLabelModel } from "../Label";
 
 export async function createSourceForMapping(link: DataMapperLinkModel) {
@@ -183,18 +183,33 @@ export function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
 		rhs = sourcePort.fieldFQN;
 	}
 
-	Object.keys(targetPort.getLinks()).forEach((linkId) => {
+	if (targetNode instanceof LinkConnectorNode) {
+		targetNode.updateSource(rhs);
+	} else {
+		Object.keys(targetPort.getLinks()).forEach((linkId) => {
 
-		if (linkId !== link.getID()) {
-			const targerPortLink = targetPort.getLinks()[linkId];
+			if (linkId !== link.getID()) {
+				const targerPortLink = targetPort.getLinks()[linkId];
+				let valueNode: Node;
+	
+				if (sourcePort instanceof IntermediatePortModel) {
+					if (sourcePort.getParent() instanceof LinkConnectorNode) {
+						valueNode = (sourcePort.getParent() as LinkConnectorNode).valueNode;
+					}
+				} else if (targerPortLink.getLabels().length > 0) {
+					valueNode = (targerPortLink.getLabels()[0] as ExpressionLabelModel).valueNode;
+				} else if (targetNode instanceof ObjectOutputNode) {
+					const linkConnector = targetNode.getModel().getNodes().find(node =>
+						node instanceof LinkConnectorNode
+						&& node.targetPort.portName === (targerPortLink.getTargetPort() as InputOutputPortModel).portName
+					);
+					valueNode = (linkConnector as LinkConnectorNode).valueNode;
+				}
 
-			if (targerPortLink.getLabels().length > 0) {
-				const valueNode = (targerPortLink.getLabels()[0] as ExpressionLabelModel).valueNode;
 				const newSource = `${valueNode.getText()} + ${rhs}`;
 				valueNode.replaceWithText(newSource);
+				(targetNode as DataMapperNodeModel).context.applyModifications();
 			}
-		}
-	});
-
-	(targetNode as DataMapperNodeModel).context.applyModifications();
+		});
+	}
 }
