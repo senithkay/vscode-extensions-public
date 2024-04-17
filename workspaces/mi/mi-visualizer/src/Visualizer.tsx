@@ -43,9 +43,11 @@ export function Visualizer({ mode }: { mode: string }) {
 
     useEffect(() => {
         rpcClient.webviewReady();
-        rpcClient.getAIVisualizerState().then(context => {
-            setState(context.state);
-        });
+        if (mode === "ai") {
+            rpcClient.getAIVisualizerState().then(context => {
+                setState(context.state);
+            });
+        }
     }, []);
 
     return (
