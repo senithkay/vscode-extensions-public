@@ -585,8 +585,8 @@ export interface Visitor {
     beginVisitRewriteRewriteruleAction?(node: Synapse.RewriteRewriteruleAction): void;
     endVisitRewriteRewriteruleAction?(node: Synapse.RewriteRewriteruleAction): void;
 
-    beginVisitTarget?(node: Synapse.Target): void;
-    endVisitTarget?(node: Synapse.Target): void;
+    beginVisitTarget?(node: Synapse.Target | Synapse.ProxyTarget): void;
+    endVisitTarget?(node: Synapse.Target | Synapse.ProxyTarget): void;
 
     beginVisitDbMediatorConnection?(node: Synapse.DbMediatorConnection): void;
     endVisitDbMediatorConnection?(node: Synapse.DbMediatorConnection): void;

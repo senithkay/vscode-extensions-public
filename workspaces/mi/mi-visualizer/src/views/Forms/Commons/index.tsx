@@ -65,25 +65,33 @@ const BadgeWrapper: any = styled.div({
     alignItems: "center",
     justifyContent: "center",
 });
-export function TypeChangeButton(props: { onClick: (type: string) => void, title?: string, type: string }) {
+type TypeChipProps = { 
+    type: string,
+    onClick: (type: string) => void, 
+    showButton: boolean,
+    title?: string, 
+};
+export function TypeChip(props: TypeChipProps) {
     return (
         <ButtonWrapper>
             <BadgeWrapper>
-                <span>Selected Type:</span>
+                <span>Type:</span>
                 <Badge color="#4d4d4d" sx={{
                     color: "#fff",
                     padding: 5,
                     borderRadius: 5,
-                }}>{props.type ?? 'HTTP'}</Badge>
+                }}>
+                    {props.type ?? 'HTTP'}
+                </Badge>
             </BadgeWrapper>
-            <Button
+            {props.showButton && <Button
                 appearance="primary"
                 onClick={() => props.onClick("")}
                 sx={{ display: "flex", gap: 10 }}
             >
                 <Codicon iconSx={{ fontWeight: "bold", fontSize: 15 }} name='arrow-left' />
                 <TitleWrapper>{props.title ?? "Change Type"}</TitleWrapper>
-            </Button>
+            </Button>}
         </ButtonWrapper>
     )
 }

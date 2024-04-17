@@ -27,13 +27,13 @@ export interface WsdlEndpointArgs {
     addressListener: string | null;
     securityEnabled: string;
     suspendErrorCodes: string;
-    initialDuration: string;
-    maximumDuration: string;
-    progressionFactor: string;
+    initialDuration: number;
+    maximumDuration: number;
+    progressionFactor: number;
     retryErrorCodes: string;
-    retryCount: string;
-    retryDelay: string;
-    timeoutDuration: string;
+    retryCount: number;
+    retryDelay: number;
+    timeoutDuration: number;
     timeoutAction: string | null;
     templateName: string;
     requireTemplateParameters: boolean;
@@ -77,9 +77,9 @@ export function getWsdlEndpointMustacheTemplate() {
 
 export function getWsdlEndpointXml(data: WsdlEndpointArgs) {
 
-    data.retryCount = data.retryCount === '' ? '0' : data.retryCount;
-    data.initialDuration = data.initialDuration === '' ? '-1' : data.initialDuration;
-    data.progressionFactor = data.progressionFactor === '' ? '1' : data.progressionFactor;
+    data.retryCount = Number(data.retryCount ?? 0);
+    data.initialDuration = Number(data.initialDuration ?? -1);
+    data.progressionFactor = Number(data.progressionFactor ?? 1);
     data.optimize = (data.optimize === 'LEAVE_AS_IS' || data.optimize === null) ? null : data.optimize.toLowerCase();
     data.format = (data.format === 'LEAVE_AS_IS' || data.format === null) ? null : data.format === 'SOAP 1.1' ? 'soap11' :
         data.format === 'SOAP 1.2' ? 'soap12' : data.format.toLowerCase();
@@ -102,7 +102,7 @@ export function getWsdlEndpointXml(data: WsdlEndpointArgs) {
     data.templateName != null && data.templateName != '' ? template = true : endpoint = true;
 
     data.endpointName = (data.endpointName != null && data.endpointName != '') ?
-        "endpoint_urn_uuid_".concat(generateUUID()) : data.endpointName;
+         data.endpointName : "endpoint_urn_uuid_".concat(generateUUID());
 
     let parameters: any = [];
     if (!data.requireTemplateParameters || data.templateParameters.length == 0) {

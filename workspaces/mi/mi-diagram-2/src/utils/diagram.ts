@@ -27,6 +27,7 @@ import { OverlayLayerFactory } from "../components/OverlayLoader/OverlayLayerFac
 import { ReferenceNodeFactory } from "../components/nodes/ReferenceNode/ReferenceNodeFactory";
 import { GroupNodeFactory } from "../components/nodes/GroupNode/GroupNodeFactory";
 import { PlusNodeFactory } from "../components/nodes/PlusNode/PlusNodeFactory";
+import { ConnectorNodeFactory } from "../components/nodes/ConnectorNode/ConnectorNodeFactory";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -36,13 +37,14 @@ export function generateEngine(): DiagramEngine {
     });
     const state = engine.getStateMachine().getCurrentState();
     if (state instanceof DefaultDiagramState) {
-        state.dragCanvas.config.allowDrag = false;
+        // state.dragCanvas.config.allowDrag = false;
     }
 
     engine.getPortFactories().registerFactory(new NodePortFactory());
     engine.getLinkFactories().registerFactory(new NodeLinkFactory());
     engine.getNodeFactories().registerFactory(new MediatorNodeFactory());
     engine.getNodeFactories().registerFactory(new ReferenceNodeFactory());
+    engine.getNodeFactories().registerFactory(new ConnectorNodeFactory());
     engine.getNodeFactories().registerFactory(new StartNodeFactory());
     engine.getNodeFactories().registerFactory(new EndNodeFactory());
     engine.getNodeFactories().registerFactory(new ConditionNodeFactory());

@@ -6,66 +6,15 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import styled from "@emotion/styled";
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import * as path from 'path';
-import {Button, TextField, Dropdown, Typography, Codicon, CheckBox} from "@wso2-enterprise/ui-toolkit";
-import { SectionWrapper } from "./Commons";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EVENT_TYPE, MACHINE_VIEW, CreateProxyServiceRequest } from "@wso2-enterprise/mi-core";
+import {Button, TextField, Dropdown, CheckBox, RadioButtonGroup, FormView, FormActions} from "@wso2-enterprise/ui-toolkit";
+import {useVisualizerContext} from "@wso2-enterprise/mi-rpc-client";
+import {EVENT_TYPE, MACHINE_VIEW, CreateProxyServiceRequest} from "@wso2-enterprise/mi-core";
+import {useForm} from "react-hook-form";
+import * as yup from "yup";
+import {yupResolver} from "@hookform/resolvers/yup";
 
-const WizardContainer = styled.div`
-    width: 95%;
-    display  : flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
-`;
-
-const ActionContainer = styled.div`
-    display  : flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-bottom: 20px;
-`;
-
-const Container = styled.div`
-    display: flex;
-    flex-direction: row;
-    height: 50px;
-    align-items: center;
-    justify-content: flex-start;
-`;
-
-const RadioBtnContainer = styled.div`
-    display  : inline-block;
-    flex-direction: column;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-bottom: 5px;
-`;
-
-const CheckBoxContainer = styled.div`
-    display  : flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-bottom: 5px;
-`;
-
-const RadioLabel = styled.label`
-    margin-right: 10%;
-`;
-
-const RequiredSpan = styled.span`
-    color: red;
-`;
-
-export interface Region {
-    label: string;
-    value: string;
-}
 
 interface OptionProps {
     value: string;
@@ -75,40 +24,70 @@ export interface ProxyServiceWizardProps {
     path: string;
 }
 
+type InputsFields = {
+    proxyServiceName?: string;
+    proxyServiceType?: string;
+    endpointType?: string;
+    endpoint?: string;
+    requestLogLevel?: string;
+    responseLogLevel?: string;
+    securityPolicy?: string;
+    requestXslt?: string;
+    responseXslt?: string;
+    wsdlUri?: string;
+    wsdlService?: string;
+    wsdlPort: number;
+};
+
+const newProxyService: InputsFields = {
+    proxyServiceName: "",
+    proxyServiceType: "Custom Proxy",
+    endpointType: "",
+    endpoint: "",
+    requestLogLevel: "None",
+    responseLogLevel: "None",
+    securityPolicy: "",
+    requestXslt: "",
+    responseXslt: "",
+    wsdlUri: "",
+    wsdlService: "",
+    wsdlPort: 8080,
+}
+
+const schema = yup.object({
+    proxyServiceName: yup.string().required("Template Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Template Name"),
+    proxyServiceType: yup.string().default(""),
+    endpointType: yup.string().notRequired().default(""),
+    endpoint: yup.string().notRequired().default(""),
+    requestLogLevel: yup.string().notRequired().default("None"),
+    responseLogLevel: yup.string().notRequired().default("None"),
+    securityPolicy: yup.string().notRequired().default(""),
+    requestXslt: yup.string().notRequired().default(""),
+    responseXslt: yup.string().notRequired().default(""),
+    wsdlUri: yup.string().notRequired().default(""),
+    wsdlService: yup.string().notRequired().default(""),
+    wsdlPort: yup.number().notRequired().default(8080)
+});
+
 export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
 
-    const { rpcClient } = useVisualizerContext();
-    const [ proxyService, setProxyService ] = useState<any>({
-        proxyServiceName: "",
-        proxyServiceType: "Custom Proxy",
-        endpointType: "",
-        endpoint: "",
-        requestLogLevel: "None",
-        responseLogLevel: "None",
-        securityPolicy: "",
-        requestXslt: "",
-        responseXslt: "",
-        wsdlUri: "",
-        wsdlService: "",
-        wsdlPort: null,
+    const {
+        register,
+        formState: {errors, isDirty},
+        handleSubmit,
+        watch,
+    } = useForm({
+        defaultValues: newProxyService,
+        resolver: yupResolver(schema),
+        mode: "onChange"
+    });
 
-    })
+    const {rpcClient} = useVisualizerContext();
     const [selectedTransports, setSelectedTransports] = useState(['http', 'https']);
     const [transformResponse, setTransformResponse] = useState([]);
     const [publishContract, setPublishContract] = useState([]);
     const [endpoints, setEndpoints] = useState([]);
     const [directoryPath, setDirectoryPath] = useState("");
-    const [message, setMessage] = useState({
-        isError: false,
-        text: ""
-    });
-    const validNumericInput = /^\d*$/;
-
-    const isValid: boolean = proxyService.proxyServiceName.length > 0 && selectedTransports.length > 0 &&
-        (proxyService.proxyServiceType === 'WSDL Based Proxy' ? (proxyService.wsdlUri.length > 0 && proxyService.wsdlService.length > 0 && proxyService.wsdlPort != null && proxyService.wsdlPort > 0) :
-            proxyService.proxyServiceType === 'Transformer Proxy' ? proxyService.requestXslt.length > 0 :
-            transformResponse.includes("true") ? proxyService.responseXslt.length > 0 :
-                proxyService.proxyServiceType != 'Custom Proxy' ? proxyService.endpoint.length > 0 : proxyService.proxyServiceType.length > 0);
 
     useEffect(() => {
 
@@ -119,31 +98,12 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
             const items = await rpcClient.getMiDiagramRpcClient().getEndpointsAndSequences();
             const endpoints = items.data[0].map((seq: string) => {
                 seq = seq.replace(".xml", "");
-                return { value: seq }
+                return {value: seq}
             });
             setEndpoints(endpoints);
         })();
 
     }, []);
-
-    useEffect(() => {
-        const INVALID_CHARS_REGEX = /[@\\^+;:!%&,=*#[\]$?'"<>{}() /]/;
-        const VALID_URI_REGEX = /^(https?:\/\/)?www\.[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i;
-        const VALID_WSDL_URI_REGEX = /\.wsdl$/i;
-
-        if (!isValid) {
-            handleMessage("Please fill all the mandatory fields", true);
-        } else if (INVALID_CHARS_REGEX.test(proxyService.proxyServiceName)) {
-            handleMessage("Invalid proxy service name", true);
-        } else if (proxyService.proxyServiceType != 'Custom Proxy' && proxyService.proxyServiceType != 'WSDL Based Proxy' && proxyService.endpointType === 'Custom' && !VALID_URI_REGEX.test(proxyService.endpoint)) {
-            handleMessage("Invalid endpoint URI", true);
-        } else if (proxyService.proxyServiceType === 'WSDL Based Proxy' && (!VALID_WSDL_URI_REGEX.test(proxyService.wsdlUri) || !VALID_URI_REGEX.test(proxyService.wsdlUri))) {
-            handleMessage("Invalid WSDL URI", true);
-        } else {
-            handleMessage("");
-        }
-
-    }, [proxyService.proxyServiceName, proxyService.proxyServiceType, proxyService.endpointType, proxyService.endpoint, proxyService.wsdlUri, isValid]);
 
     const transportTypes = [
         'http',
@@ -158,19 +118,10 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
     ];
 
     const logLevelOptions: OptionProps[] = [
-        { value: "None"},
-        { value: "Full"},
-        { value: "Simple"}
+        {value: "None"},
+        {value: "Full"},
+        {value: "Simple"}
     ];
-
-    const endpointSelectionOptions = [
-        "Workspace",
-        "Custom"
-    ];
-
-    const handleProxyServiceTypeChange = (type: string) => {
-        setProxyService((prev: any) => ({ ...prev, proxyServiceType: type }));
-    };
 
     const handleTransportsChange = (value: string) => {
         if (selectedTransports.includes(value)) {
@@ -178,34 +129,6 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
         } else {
             setSelectedTransports([...selectedTransports, value]);
         }
-    };
-
-    const handleRequestLogLevelChange = (value: string) => {
-        setProxyService((prev: any) => ({ ...prev, requestLogLevel: value }));
-    };
-
-    const handleResponseLogLevelChange = (value: string) => {
-        setProxyService((prev: any) => ({ ...prev, responseLogLevel: value }));
-    };
-
-    const handleEndpointChange = (value: string) => {
-        setProxyService((prev: any) => ({ ...prev, endpoint: value }));
-    };
-
-    const handleEndpointTypeChange = (event: any) => {
-        setProxyService((prev: any) => ({ ...prev, endpointType: event.target.value }));
-    };
-
-    const handleSecurityPolicyChange = (value: string) => {
-        setProxyService((prev: any) => ({ ...prev, securityPolicy: value }));
-    };
-
-    const handleRequestXsltChange = (value: string) => {
-        setProxyService((prev: any) => ({ ...prev, requestXslt: value }));
-    };
-
-    const handleResponseXsltChange = (value: string) => {
-        setProxyService((prev: any) => ({ ...prev, responseXslt: value }));
     };
 
     const handleTransformResponseOptionChange = (value: string) => {
@@ -224,179 +147,119 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
         }
     };
 
-    const handleOnChange = (field: any, value: any) => {
-        setProxyService((prev: any) => ({ ...prev, [field]: value }));
-    }
-
-    const handleMessage = (text: string, isError: boolean = false) => {
-        setMessage({ isError, text });
-    }
-
-    const handleCreateProxyService = async () => {
+    const handleCreateProxyService = async (values: any) => {
 
         const createProxyServiceParams: CreateProxyServiceRequest = {
             directory: directoryPath,
             selectedTransports: selectedTransports.join(' '),
             transformResponse: transformResponse.length > 0 ? transformResponse.join('') : null,
             publishContract: publishContract.length > 0 ? publishContract.join('') : null,
-            ...proxyService
+            ...values
         }
-        const file = await rpcClient.getMiDiagramRpcClient().createProxyService(createProxyServiceParams);
+        await rpcClient.getMiDiagramRpcClient().createProxyService(createProxyServiceParams);
 
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {view: MACHINE_VIEW.Overview}
+        });
+    };
+
+    const renderProps = (fieldName: keyof InputsFields) => {
+        return {
+            id: fieldName,
+            value: String(watch(fieldName)),
+            ...register(fieldName),
+            errorMsg: errors[fieldName] && errors[fieldName].message.toString()
+        }
     };
 
     const handleCancel = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {view: MACHINE_VIEW.Overview}
+        });
     };
 
-    const handleBackButtonClick = () => {
-        rpcClient.getMiVisualizerRpcClient().goBack();
-    }
-
     return (
-        <WizardContainer>
-            <SectionWrapper>
-                <Container>
-                    <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
-                    <div style={{ marginLeft: 30 }}>
-                        <Typography variant="h3">Proxy Service Artifact</Typography>
-                    </div>
-                </Container>
-                <TextField
-                    placeholder="Name"
-                    label="Proxy Service Name"
-                    onTextChange={(value: string) => handleOnChange("proxyServiceName", value)}
-                    value={proxyService.proxyServiceName}
-                    id="proxy-name-input"
-                    autoFocus
-                    required
-                    validationMessage="Proxy service name is required"
-                    size={100}
+        <FormView title="Proxy Service" onClose={handleCancel}>
+            <TextField
+                placeholder="Name"
+                label="Proxy Service Name"
+                autoFocus
+                required
+                {...renderProps('proxyServiceName')}
+            />
+            <span>Select the transports:</span>
+            {transportTypes.map(transportType => (
+                <CheckBox
+                    label={transportType}
+                    value={transportType}
+                    onChange={() => handleTransportsChange(transportType)}
+                    checked={selectedTransports.includes(transportType)}
                 />
-                <span>Select the transports:</span>
-                <CheckBoxContainer>
-                    {transportTypes.map(transportType => (
-                        <CheckBox
-                            label={transportType}
-                            value={transportType}
-                            onChange={() => handleTransportsChange(transportType)}
-                            checked={selectedTransports.includes(transportType)}
-                        />
-                    ))}
-                </CheckBoxContainer>
-                {!(proxyService.proxyServiceType === "Custom Proxy" || proxyService.proxyServiceType === "WSDL Based Proxy") && (
-                    <>
-                        <span>Target Endpoint<RequiredSpan>*</RequiredSpan></span>
-                        <RadioBtnContainer>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    value={endpointSelectionOptions[0]}
-                                    checked={proxyService.endpointType === endpointSelectionOptions[0]}
-                                    onChange={handleEndpointTypeChange}
-                                />
-                                {endpointSelectionOptions[0]}
-                            </RadioLabel>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    value={endpointSelectionOptions[1]}
-                                    checked={proxyService.endpointType === endpointSelectionOptions[1]}
-                                    onChange={handleEndpointTypeChange}
-                                />
-                                {endpointSelectionOptions[1]}
-                            </RadioLabel>
-                        </RadioBtnContainer>
-                        {proxyService.endpointType === "Workspace" && (
-                            <Dropdown items={endpoints} value={proxyService.endpoint} onValueChange={handleEndpointChange} id="endpoint"/>
-                        )}
-                        {proxyService.endpointType === "Custom" && (
-                            <TextField
-                                placeholder="Custom Endpoint"
-                                label="Custom Endpoint"
-                                onTextChange={(value: string) => handleOnChange("endpoint", value)}
-                                value={proxyService.endpoint}
-                                id="endpoint-custom"
-                                size={100}
-                            />
-                        )}
-                    </>
-                )}
-                {proxyService.proxyServiceType === "Logging Proxy" && (
-                    <>
-                        <span>Request Log Level</span>
-                        <Dropdown items={logLevelOptions} value={proxyService.requestLogLevel} onValueChange={handleRequestLogLevelChange} id="request-log-level"/>
-                        <span>Response Log Level</span>
-                        <Dropdown items={logLevelOptions} value={proxyService.responseLogLevel} onValueChange={handleResponseLogLevelChange} id="response-log-level"/>
-                    </>
-                )}
-                {proxyService.proxyServiceType === "Transformer Proxy" && (
-                    <>
-                        <CheckBoxContainer>
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    value="true"
-                                    checked={transformResponse.includes("true")}
-                                    onChange={() => handleTransformResponseOptionChange("true")}
-                                />
-                                Transform Responses
-                            </label>
-                        </CheckBoxContainer>
-                    </>
-                )}
-                {proxyService.proxyServiceType === "WSDL Based Proxy" && (
-                    <>
+            ))}
+            {!(watch('proxyServiceType') === "Custom Proxy" || watch('proxyServiceType') === "WSDL Based Proxy") && (
+                <>
+                    <RadioButtonGroup
+                        label="Target Endpoint"
+                        options={[{content: "Workspace", value: "Workspace"}, {content: "Custom", value: "Custom"}]}
+                        {...renderProps('endpointType')}
+                    />
+                    {watch('endpointType') === "Workspace" && (
+                        <Dropdown items={endpoints} {...renderProps('endpoint')} />
+                    )}
+                    {watch('endpointType') === "Custom" && (
                         <TextField
-                            placeholder="WSDL URI"
-                            label="WSDL URI"
-                            onTextChange={(value: string) => handleOnChange("wsdlUri", value)}
-                            value={proxyService.wsdlUri}
-                            id="wsdl-uri-input"
-                            size={100}
-                            required
+                            placeholder="Custom Endpoint"
+                            label="Custom Endpoint"
+                            {...renderProps('endpoint')}
                         />
-                        <TextField
-                            placeholder="WSDL Service"
-                            label="WSDL Service"
-                            onTextChange={(value: string) => handleOnChange("wsdlService", value)}
-                            value={proxyService.wsdlService}
-                            id="wsdl-service-input"
-                            size={100}
-                            required
-                        />
-                        <TextField
-                            placeholder="WSDL Port"
-                            label="WSDL Port"
-                            onTextChange={(value) => {
-                                if (validNumericInput.test(value)) {
-                                    handleOnChange("wsdlPort", Number(value))
-                                } else {
-                                    handleOnChange("wsdlPort", null)
-                                }
-                            }}
-                            value={proxyService.wsdlPort}
-                            id="wsdl-port-input"
-                            size={50}
-                            required
-                        />
-                        <CheckBoxContainer>
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    value="true"
-                                    checked={publishContract.includes("true")}
-                                    onChange={() => handlePublishContractOptionChange("true")}
-                                />
-                                Publish Same Service Contract
-                            </label>
-                        </CheckBoxContainer>
-                    </>
-                )}
-            </SectionWrapper>
-            <ActionContainer>
-                {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
+                    )}
+                </>
+            )}
+            {watch('proxyServiceType') === "Logging Proxy" && (
+                <>
+                    <Dropdown label="Request Log Level" items={logLevelOptions} {...renderProps('requestLogLevel')} />
+                    <Dropdown label="Response Log Level" items={logLevelOptions} {...renderProps('responseLogLevel')} />
+                </>
+            )}
+            {watch('proxyServiceType') === "Transformer Proxy" && (
+                <CheckBox
+                    label="Transform Responses"
+                    value="true"
+                    onChange={() => handleTransformResponseOptionChange("true")}
+                    checked={transformResponse.includes("true")}
+                />
+            )}
+            {watch('proxyServiceType') === "WSDL Based Proxy" && (
+                <>
+                    <TextField
+                        placeholder="WSDL URI"
+                        label="WSDL URI"
+                        required
+                        {...renderProps('wsdlUri')}
+                    />
+                    <TextField
+                        placeholder="WSDL Service"
+                        label="WSDL Service"
+                        required
+                        {...renderProps('wsdlService')}
+                    />
+                    <TextField
+                        placeholder="WSDL Port"
+                        label="WSDL Port"
+                        required
+                        {...renderProps('wsdlPort')}
+                    />
+                    <CheckBox
+                        label="Publish Same Service Contract"
+                        value="true"
+                        onChange={() => handlePublishContractOptionChange("true")}
+                        checked={transformResponse.includes("true")}
+                    />
+                </>
+            )}
+            <FormActions>
                 <Button
                     appearance="secondary"
                     onClick={handleCancel}
@@ -405,12 +268,12 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
                 </Button>
                 <Button
                     appearance="primary"
-                    onClick={handleCreateProxyService}
-                    disabled={!isValid}
+                    onClick={handleSubmit(handleCreateProxyService)}
+                    disabled={!isDirty}
                 >
                     Create
                 </Button>
-            </ActionContainer>
-        </WizardContainer>
+            </FormActions>
+        </FormView>
     );
 }

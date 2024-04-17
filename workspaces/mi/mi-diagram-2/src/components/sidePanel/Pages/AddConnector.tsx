@@ -7,13 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, ComponentCard, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from '../SidePanelContexProvider';
-// import { create } from 'xmlbuilder2';
+import { create } from 'xmlbuilder2';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 const cardStyle = {
@@ -57,6 +57,16 @@ const AddConnector = (props: AddConnectorProps) => {
 
     const formValidators: { [key: string]: (e?: any) => string | undefined } = {};
 
+    useEffect(() => {
+        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
+            const parametersValues = sidePanelContext.formValues.parameters.map((param: any) => ({
+                [param.name]: param.value
+            }));
+            const flattenedParameters = Object.assign({}, ...parametersValues);
+            setFormValues({ ...formValues, ...flattenedParameters });
+        }
+    }, [sidePanelContext.formValues]);
+
     const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
         const value = e ?? formValues[id];
         const newErrors = { ...errors };
@@ -88,18 +98,27 @@ const AddConnector = (props: AddConnectorProps) => {
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
         } else {
-            // const template = create();
-            // const root = template.ele(`${props.formData.connectorName}${props.formData.operationName ? `.${props.formData.operationName}` : ''}`);
-            // // Fill the values
-            // Object.keys(formValues).forEach((key) => {
-            //     root.ele(key).txt(formValues[key]);
-            // });
-            // const modifiedXml = template.end({ prettyPrint: true, headless: true });
-            
-            // rpcClient.getMiDiagramRpcClient().applyEdit({
-            //     documentUri: props.documentUri, range: props.nodePosition, text: modifiedXml
-            // });
-            // sidePanelContext.setIsOpen(false);
+            const template = create();
+            const root = template.ele(`${props.formData.connectorName}${props.formData.operationName ? `.${props.formData.operationName}` : ''}`);
+            // Fill the values
+            Object.keys(formValues).forEach((key) => {
+                if (key !== 'configRef') {
+                    root.ele(key).txt(formValues[key]);
+                }
+            });
+            const modifiedXml = template.end({ prettyPrint: true, headless: true });
+
+            rpcClient.getMiDiagramRpcClient().applyEdit({
+                documentUri: props.documentUri, range: props.nodePosition, text: modifiedXml
+            });
+            sidePanelContext.setSidePanelState({
+                ...sidePanelContext,
+                isOpen: false,
+                isEditing: false,
+                formValues: undefined,
+                nodeRange: undefined,
+                operationName: undefined
+            });
         }
     };
 
@@ -112,7 +131,7 @@ const AddConnector = (props: AddConnectorProps) => {
                         label={element.displayName}
                         size={50}
                         value={formValues[element.name] || ''}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, [element.name]: e });
                             formValidators[element.name](e);
                         }}

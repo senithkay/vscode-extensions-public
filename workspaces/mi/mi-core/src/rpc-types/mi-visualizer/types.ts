@@ -67,12 +67,13 @@ export interface ProjectStructureEntry {
     type: string,
     subType?: string,
     name: string,
-    path: string
-
+    path: string,
+    isRegistryResource?: boolean
 }
 
 export interface ResourceStructureEntry {
     uriTemplate: string,
+    urlMapping: string,
     method: string
 }
 
@@ -121,6 +122,14 @@ export interface HistoryEntryResponse {
 
 export interface ToggleDisplayOverviewRequest {
     displayOverview: boolean;
+}
+
+export interface GetAllRegistryPathsRequest {
+    path: string;
+}
+
+export interface GetAllRegistryPathsResponse {
+    registryPaths: string[];
 }
 
 export interface GoToSourceRequest {

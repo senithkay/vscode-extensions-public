@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/await-thenable */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *

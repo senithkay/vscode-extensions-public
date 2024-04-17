@@ -10,17 +10,24 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
 import { RequiredFormInput } from '../Commons/RequiredInput';
+import { FieldValues, useController, UseControllerProps } from 'react-hook-form';
 
-export interface FileSelectorProps {
+type FileSelectorBaseProps = {
     id?: string;
+    name?: string;
 	label: string;
-    selectedFile?: string;
-    onSelect: () => void;
 	selectionText?: string;
     btnText?: string;
 	required?: boolean;
 	sx?: any;
+    onSelect: () => void;
 }
+
+export type FileSelectorProps = FileSelectorBaseProps & {
+    selectedFile?: string;
+}
+
+export type FormFileSelectorProps<T extends FieldValues> = FileSelectorBaseProps & UseControllerProps<T>;
 
 const BrowseBtn = styled(VSCodeButton)`
     width: fit-content;
@@ -62,3 +69,26 @@ export const LocationSelector: React.FC<FileSelectorProps> = (props: FileSelecto
         </Container>
     );
 };
+
+export const FormLocationSelector = <T extends FieldValues>(props: FormFileSelectorProps<T>) => {
+    const { id, name, control, label, selectionText, btnText, required, onSelect, sx } = props;
+    const {
+        field: { value, ...rest },
+    } = useController<T>({ name, control });
+
+    return (
+        <LocationSelector
+            id={id}
+            name={name}
+            label={label}
+            selectedFile={value}
+            onSelect={onSelect}
+            selectionText={selectionText}
+            btnText={btnText}
+            required={required}
+            sx={sx}
+            {...rest}
+        />
+    );
+};
+

@@ -10,11 +10,8 @@
 import * as vscode from 'vscode';
 import { StateMachine } from './stateMachine';
 import { extension } from './MIExtensionContext';
-import { activateProjectExplorer } from './project-explorer/activate';
-import { activateAiPrompt } from './ai-prompt/activate';
 import { activate as activateHistory } from './history';
 import { activateVisualizer } from './visualizer/activate';
-import { activateActivityPanel } from './activity-panel/activate';
 import { activateAiPanel } from './ai-panel/activate';
 import { RPCLayer } from './RPCLayer';
 
