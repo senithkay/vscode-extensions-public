@@ -7,6 +7,5 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export { Diagram } from "./components/Diagram";
-export * from "./components/Form";
+export * from "./Keylookup/Keylookup";
 
