@@ -16,6 +16,7 @@ import styled from "@emotion/styled";
 import { FormAutoComplete } from "../AutoComplete/AutoComplete";
 import { RadioButtonGroup } from "../RadioButtonGroup/RadioButtonGroup";
 import { FormCheckBox } from "../CheckBoxGroup/CheckBoxGroup";
+import { FormLocationSelector } from "../LocationSelector/LocationSelector";
 
 type Inputs = {
     name: string;
@@ -24,6 +25,7 @@ type Inputs = {
     words: string;
     options: string;
     isRegistered: boolean;
+    selectedFile: string;
 };
 
 export interface SampleReactHookFormProps {
@@ -34,6 +36,7 @@ export interface SampleReactHookFormProps {
 const FormContainer = styled.div`
     display: flex;
     flex-direction: column;
+    gap: 8px;
 `;
 
 export function SampleReactHookForm(props: SampleReactHookFormProps) {
@@ -86,6 +89,14 @@ export function SampleReactHookForm(props: SampleReactHookFormProps) {
                 name="isRegistered"
                 label="Is Registered?"
                 control={control}
+            />
+            <FormLocationSelector
+                name="selectedFile"
+                label="Select File"
+                control={control}
+                onSelect={() => console.log("File selected")}
+                btnText="Browse"
+                required={true}
             />
             <Button appearance="primary" onClick={handleSave}> Save </Button>
         </FormContainer>
