@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, ParamConfig, ParamManager, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
@@ -34,7 +34,9 @@ interface AddConnectorProps {
     formData: any;
     nodePosition: Range;
     documentUri: string;
-    uiSchemaPath?: string;
+    uiSchemaPath: string;
+    connectorName?: string;
+    operationName?: string;
 }
 
 interface Element {
@@ -51,6 +53,7 @@ const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const AddConnector = (props: AddConnectorProps) => {
+    const { formData, nodePosition, documentUri, uiSchemaPath } = props;
     const { rpcClient } = useVisualizerContext();
 
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -60,6 +63,42 @@ const AddConnector = (props: AddConnectorProps) => {
     const [connections, setConnections] = useState([] as any);
 
     const formValidators: { [key: string]: (e?: any) => string | undefined } = {};
+
+    const paramConfigs: ParamConfig = {
+        paramValues: [],
+        paramFields: [
+            {
+                id: 0,
+                type: "TextField",
+                label: "Key",
+                defaultValue: "",
+                isRequired: true
+            },
+            {
+                id: 1,
+                type: "TextField",
+                label: "Value",
+                defaultValue: "",
+                isRequired: true
+            }]
+    };
+
+    const [params, setParams] = useState(paramConfigs);
+
+    const handleOnChange = (params: any) => {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: param.parameters[0].value,
+                    value: param.parameters[1].value,
+                    icon: "query"
+                }
+            })
+        };
+        setParams(modifiedParams);
+    };
+
 
     useEffect(() => {
         if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
@@ -110,11 +149,19 @@ const AddConnector = (props: AddConnectorProps) => {
                 newErrors[key] = (error);
             }
         });
+
+        params.paramValues.forEach(param => {
+            formValues[param.key] = param.value;
+        });
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
         } else {
             const template = create();
-            const root = template.ele(`${props.formData.connectorName}${props.formData.operationName ? `.${props.formData.operationName}` : ''}`);
+
+            const connectorName = props.formData?.connectorName ?? props.connectorName.toLowerCase().replace(/\s/g, '');
+            const operationName = props.formData?.operationName ?? props.operationName;
+            const root = template.ele(`${connectorName}${operationName ? `.${operationName}` : ''}`);
             root.att('configKey', formValues['configKey']);
             // Fill the values
             Object.keys(formValues).forEach((key) => {
@@ -139,7 +186,7 @@ const AddConnector = (props: AddConnectorProps) => {
     };
 
     const onNewConnection = async (connectionName: string) => {
-        setConnections([...connections, connectionName]); 
+        setConnections([...connections, connectionName]);
         setConnectionForm('');
     }
 
@@ -188,7 +235,7 @@ const AddConnector = (props: AddConnectorProps) => {
                             setFormValues({ ...formValues, ['configKey']: e });
                             formValidators[element.name](e);
                         }}
-                        sx={{ color: 'var(--vscode-editor-foreground)', width: '300px', marginBottom: "10px" }} />
+                        sx={{ color: 'var(--vscode-editor-foreground)', width: '100%', marginBottom: "10px" }} />
                     <div style={{ display: "flex", flexDirection: "row", width: '100%', gap: '10px' }}>
                         <VSCodeDropdown
                             label={element.displayName}
@@ -245,7 +292,22 @@ const AddConnector = (props: AddConnectorProps) => {
 
     return (
         <div style={{ padding: "10px" }}>
-            {connectionForm ?
+            {!formData ? (
+                <>
+                    <ParamManager
+                        paramConfigs={params}
+                        readonly={false}
+                        onChange={handleOnChange} />
+                    <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
+                        <Button
+                            appearance="primary"
+                            onClick={onClick}
+                        >
+                            Submit
+                        </Button>
+                    </div>
+                </>
+            ) : connectionForm ?
                 <AddConnection
                     formData={connectionForm}
                     nodePosition={sidePanelContext.nodeRange}
