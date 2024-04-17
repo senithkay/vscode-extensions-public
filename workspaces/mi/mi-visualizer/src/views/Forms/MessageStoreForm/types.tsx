@@ -7,16 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export const messageStoreTypes = [
-    "JMS Message Store",
-    "In Memory Message Store",
-    "Custom Message Store",
-    "RabbitMQ Message Store",
-    "JDBC Message Store",
-    "WSO2 MB Message Store",
-    "Resequence Message Store",
-];
-
 export const preConfiguredProfiles = [
     "Other",
     "WSO2 MB",

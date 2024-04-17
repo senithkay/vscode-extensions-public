@@ -27,3 +27,41 @@ export const getEditSequenceTemplate = () => {
     return `<sequence name="{{name}}"{{#trace}} trace="{{{trace}}}"{{/trace}}{{#statistics}} statistics="{{{statistics}}}"{{/statistics}}{{#onError}} onError="{{{onError}}}"{{/onError}}>`
 }
 
+export const getEditProxyProxyTemplate = () => {
+    return `<proxy name="{{name}}" {{#trace}}trace="{{{trace}}}"{{/trace}} {{#onError}} onError="{{{onError}}}"{{/onError}} {{#pinnedServers}}pinnedServers="{{{pinnedServers}}}"{{/pinnedServers}} {{#serviceGroup}}serviceGroup="{{{serviceGroup}}}"{{/serviceGroup}}  {{#startOnLoad}}startOnLoad="{{{startOnLoad}}}"{{/startOnLoad}} {{#statistics}}statistics="{{{statistics}}}"{{/statistics}} {{#transports}}transports="http https"{{/transports}}  xmlns="http://ws.apache.org/ns/synapse">
+</proxy>
+`
+}
+
+export const getEditProxyTemplate = (name:string) => {
+    switch (name) {
+        case "proxy":
+            return `<proxy name="{{name}}" {{#trace}}trace="{{{trace}}}"{{/trace}} {{#onError}} onError="{{{onError}}}"{{/onError}} {{#pinnedServers}}pinnedServers="{{{pinnedServers}}}"{{/pinnedServers}} {{#serviceGroup}}serviceGroup="{{{serviceGroup}}}"{{/serviceGroup}}  {{#startOnLoad}}startOnLoad="{{{startOnLoad}}}"{{/startOnLoad}} {{#statistics}}statistics="{{{statistics}}}"{{/statistics}} {{#transports}}transports="{{{transports}}}"{{/transports}}  xmlns="http://ws.apache.org/ns/synapse">`
+        case "target":
+            return `<target {{#endpoint}}endpoint="{{{endpoint}}}"{{/endpoint}} {{#inSequence}}inSequence="{{{inSequence}}}"{{/inSequence}} {{#outSequence}}outSequence="{{{outSequence}}}"{{/outSequence}} {{#faultSequence}}faultSequence="{{{faultSequence}}}"{{/faultSequence}}>`
+        case "other":
+            return `{{#wsdlEnabled}}
+            <publishWSDL {{#publishWsdl.key}}key="{{{publishWsdl.key}}}"{{/publishWsdl.key}} {{#publishWsdl.preservePolicy}}preservePolicy="{{{publishWsdl.preservePolicy}}}"{{/publishWsdl.preservePolicy}} {{#publishWsdl.uri}}uri="{{{publishWsdl.uri}}}"{{/publishWsdl.uri}}>
+                {{#publishWsdl.inlineWsdl}}{{{publishWsdl.inlineWsdl}}}{{/publishWsdl.inlineWsdl}}
+                {{#publishWsdl.resource}}<resource key="{{key}}" location="{{location}}"/>{{/publishWsdl.resource}} 
+            </publishWSDL>
+            {{/wsdlEnabled}}
+            {{#policies}}
+            <policy key="{{key}}"/>
+            {{/policies}}
+            {{#parameters}}
+            <parameter name="{{name}}">{{textNode}}</parameter>
+            {{/parameters}}
+            {{#enableSec}}
+            <enableSec/>
+            {{/enableSec}}
+            {{#enableAddressing}}
+            <enableAddressing/>
+            {{/enableAddressing}}
+            `
+        default:
+            return ""                
+    }
+}
+
+

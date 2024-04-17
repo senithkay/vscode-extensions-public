@@ -54,8 +54,6 @@ import {
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     FileDirResponse,
-    FileListRequest,
-    FileListResponse,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
     GetAvailableResourcesRequest,
@@ -203,7 +201,6 @@ import {
     getWorkspaceContext,
     getWorkspaceRoot,
     getWsdlEndpoint,
-    getXmlFileList,
     highlightCode,
     importProject,
     initUndoRedoManager,
@@ -341,10 +338,6 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getMessageStore(params: GetMessageStoreRequest): Promise<GetMessageStoreResponse> {
         return this._messenger.sendRequest(getMessageStore, HOST_EXTENSION, params);
-    }
-
-    getXmlFileList(params: FileListRequest): Promise<FileListResponse> {
-        return this._messenger.sendRequest(getXmlFileList, HOST_EXTENSION, params);
     }
 
     createInboundEndpoint(params: CreateInboundEndpointRequest): Promise<CreateInboundEndpointResponse> {

@@ -881,6 +881,7 @@ export interface NamedEndpoint extends Endpoint, STNode {
 export interface ProxyPublishWSDL extends STNode {
     definitions: TDefinitions;
     description: DescriptionType;
+    inlineWsdl:string;
     resource: Resource[];
     uri: string;
     key: string;
@@ -902,13 +903,21 @@ export interface DbMediatorConnectionPoolProperty extends STNode {
     value: string;
 }
 
+export interface ServiceParameter {
+    name: string;
+    value: string;
+}
+
+export interface ServicePolicy  {
+    value: string;
+}
+
 export interface Proxy extends STNode {
     target: ProxyTarget;
     publishWSDL: ProxyPublishWSDL;
-    policy: ProxyPolicy;
+    policies: ProxyPolicy[];
     enableAddressing: STNode;
     enableSec: STNode;
-    enableRM: STNode;
     parameters: Parameter[];
     description: string;
     name: string;
@@ -918,6 +927,7 @@ export interface Proxy extends STNode {
     startOnLoad: boolean;
     statistics: string;
     trace: string;
+    onError: string;
 }
 
 export interface ExtensionElement extends STNode {
