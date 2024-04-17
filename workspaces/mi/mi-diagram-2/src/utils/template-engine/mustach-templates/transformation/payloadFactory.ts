@@ -70,7 +70,7 @@ export function getPayloadFormDataFromSTNode(data: { [key: string]: any }, node:
     } else {
         data.payloadFormat = "Registry Reference";
     }
-    if (node.args) {
+    if (node.args && node.args.arg) {
         data.args = node.args.arg.map((arg) => {
             return [ arg.value ? "Value" : "Expression", arg.value, arg.expression, arg.evaluator, arg.literal];
         });

@@ -16,6 +16,7 @@ import { AIOverviewWindow } from './views/AIOverviewWindow';
 import { AIChat } from './views/AIChat';
 import { AIArtifactWindow } from './views/AIArtifactWindow';
 import {SignInToCopilotMessage} from './views/LoggedOutWindow';
+import { WaitingForLoginMessage } from './views/WaitingForLoginWindow';
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -60,7 +61,7 @@ const AiPanel = () => {
                     setViewComponent(<SignInToCopilotMessage />);
                     break;
                 case "WaitingForLogin":
-                    setViewComponent(<h1>Waiting for login</h1>);
+                    setViewComponent(<WaitingForLoginMessage />);
                     break;
                 default:
                     setViewComponent(null);
