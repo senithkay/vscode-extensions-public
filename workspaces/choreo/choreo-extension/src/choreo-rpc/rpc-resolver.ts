@@ -19,6 +19,7 @@ import {
     ChoreoRpcCreateProjectRequest,
     ChoreoRpcCreateComponentRequest,
     ChoreoRpcDeleteComponentRequest,
+    ChoreoRpcCreateEpYaml
 } from "@wso2-enterprise/choreo-core";
 import { ProgressLocation, window } from "vscode";
 
@@ -47,4 +48,5 @@ export function registerChoreoRpcResolver(messenger: Messenger, rpcClient: IChor
             () => rpcClient.deleteComponent(params)
         );
     });
+    messenger.onRequest(ChoreoRpcCreateEpYaml, (params) => rpcClient.createEpYaml(params));
 }

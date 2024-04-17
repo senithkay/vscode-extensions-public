@@ -152,6 +152,28 @@ export const ComponentFormView: FC<NewComponentWebview> = ({ project, organizati
                 componentHandle: data.name,
                 componentDir,
             });
+
+            const res = await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createEpYaml({
+                orgId: organization.id.toString(),
+                projectHandle: selectedProject.handler,
+                name: data.name,
+                type: data.type,
+                buildPackLang: data.buildPackLang,
+                componentDir,
+                repoUrl: data.repoUrl,
+                branch: data.branch,
+                langVersion: data.langVersion,
+                dockerFile: data.dockerFile,
+                port: data.port,
+                spaBuildCommand: data.spaBuildCommand,
+                spaNodeVersion: data.spaNodeVersion,
+                spaOutputDir: data.spaOutputDir,
+            });
+
+            if (!res.success) {
+                throw new Error("Failed to create EP YAML");
+            }
+
         },
         onSuccess: (_, data) => {
             ChoreoWebViewAPI.getInstance().showInfoMsg(`Component ${data.name} has been successfully created`);
