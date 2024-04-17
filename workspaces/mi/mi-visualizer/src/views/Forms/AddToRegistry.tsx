@@ -48,15 +48,18 @@ export function formatRegistryPath(path: string, registryType: string, fileName:
     return regPath;
 }
 
-export async function getRegistryArifactNames(path: string, rpcClient: RpcClient)
-    : Promise<{ artifactNamesArr: string[] }> {
+export async function getArtifactNamesAndRegistryPaths(path: string, rpcClient: RpcClient)
+    : Promise<{ artifactNamesArr: string[], registryPaths: string[] }> {
     const response = await rpcClient.getMiDiagramRpcClient().getAvailableRegistryResources({ path: path });
     const artifacts = response.artifacts;
     var tempArtifactNames: string[] = [];
     for (let i = 0; i < artifacts.length; i++) {
         tempArtifactNames.push(artifacts[i].name);
     }
-    return { artifactNamesArr: tempArtifactNames };
+    const res = await rpcClient.getMiVisualizerRpcClient().getAllRegistryPaths({
+        path: path,
+    });
+    return { artifactNamesArr: tempArtifactNames, registryPaths: res.registryPaths };
 }
 
 export function AddToRegistry(props: AddToRegistryProps) {
