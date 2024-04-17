@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, ParamConfig, ParamManager, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, ParamConfig, ParamManager, RequiredFormInput, TextField, LinkButton } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
@@ -59,8 +59,9 @@ const AddConnector = (props: AddConnectorProps) => {
     const sidePanelContext = React.useContext(SidePanelContext);
     const [formValues, setFormValues] = useState({} as any);
     const [errors, setErrors] = useState({} as any);
-    const [connectionForm, setConnectionForm] = useState('');
+    const [isAddingConnection, setIsAddingConnection] = useState(false);
     const [connections, setConnections] = useState([] as any);
+    const [allowedConnectionTypes, setAllowedConnectionTypes] = useState([]);
 
     const formValidators: { [key: string]: (e?: any) => string | undefined } = {};
 
@@ -99,6 +100,23 @@ const AddConnector = (props: AddConnectorProps) => {
         setParams(modifiedParams);
     };
 
+    useEffect(() => {
+        if (props.formData && props.formData !== "") {
+            const findAllowedConnectionTypes = (elements: any): string[] | undefined => {
+                for (let element of elements) {
+                    if (element.type === 'attribute' && element.value.inputType === 'connection') {
+                        return element.value.allowedConnectionTypes;
+                    }
+                    if (element.type === 'attributeGroup') {
+                        return findAllowedConnectionTypes(element.value.elements);
+                    }
+                }
+            };
+
+            const connectionTypes = findAllowedConnectionTypes(props.formData.elements);
+            setAllowedConnectionTypes(connectionTypes);
+        }
+    }, [props.formData]);
 
     useEffect(() => {
         if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
@@ -130,15 +148,8 @@ const AddConnector = (props: AddConnectorProps) => {
         return error;
     };
 
-    const onPlusClick = async () => {
-        const type = formValues['configRef'];
-        const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: props.uiSchemaPath, operation: type.toLowerCase() });
-
-        setConnectionForm(connectionFormJSON.formJSON);
-    }
-
     const cancelConnection = () => {
-        setConnectionForm('');
+        setIsAddingConnection(false);
     }
 
     const onClick = async () => {
@@ -172,7 +183,7 @@ const AddConnector = (props: AddConnectorProps) => {
             const modifiedXml = template.end({ prettyPrint: true, headless: true });
 
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: modifiedXml
+                documentUri: documentUri, range: nodePosition, text: modifiedXml
             });
             sidePanelContext.setSidePanelState({
                 ...sidePanelContext,
@@ -187,7 +198,7 @@ const AddConnector = (props: AddConnectorProps) => {
 
     const onNewConnection = async (connectionName: string) => {
         setConnections([...connections, connectionName]);
-        setConnectionForm('');
+        setIsAddingConnection(false);
     }
 
     const renderFormElement = (element: Element) => {
@@ -227,7 +238,15 @@ const AddConnector = (props: AddConnectorProps) => {
             case 'connection':
                 formValues[element.name] = formValues[element.name] ?? element.allowedConnectionTypes[0];
                 return (<>
-                    <label>{element.displayName}</label> {element.required && <RequiredFormInput />}
+                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: '100%', gap: '10px' }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                            <label>{element.displayName}</label>
+                            {element.required && <RequiredFormInput />}
+                        </div>
+                        <LinkButton onClick={() => setIsAddingConnection(true)}>
+                            Add new connection
+                        </LinkButton>
+                    </div>
                     <AutoComplete
                         items={connections}
                         value={formValues['configKey']}
@@ -236,32 +255,6 @@ const AddConnector = (props: AddConnectorProps) => {
                             formValidators[element.name](e);
                         }}
                         sx={{ color: 'var(--vscode-editor-foreground)', width: '100%', marginBottom: "10px" }} />
-                    <div style={{ display: "flex", flexDirection: "row", width: '100%', gap: '10px' }}>
-                        <VSCodeDropdown
-                            label={element.displayName}
-                            value={formValues[element.name]}
-                            autoWidth={true}
-                            onChange={(e: any) => {
-                                setFormValues({ ...formValues, [element.name]: e.target.value });
-                                formValidators[element.name](e);
-                            }}
-                            style={{ color: 'var(--vscode-editor-foreground)', width: '90%' }}
-                        >
-                            {
-                                element.allowedConnectionTypes.map((value: string) => (
-                                    <VSCodeOption
-                                        style={{
-                                            color: 'var(--vscode-editor-foreground)',
-                                            background: 'var(--vscode-editor-background)'
-                                        }}>{value}
-                                    </VSCodeOption>
-                                ))
-                            }
-                        </VSCodeDropdown>
-                        <Button onClick={() => onPlusClick()}>
-                            +
-                        </Button>
-                    </div>
                 </>);
             default:
                 return null;
@@ -307,13 +300,12 @@ const AddConnector = (props: AddConnectorProps) => {
                         </Button>
                     </div>
                 </>
-            ) : connectionForm ?
+            ) : isAddingConnection ?
                 <AddConnection
-                    formData={connectionForm}
+                    allowedConnectionTypes={allowedConnectionTypes}
                     nodePosition={sidePanelContext.nodeRange}
-                    documentUri={props.documentUri}
-                    uiSchemaPath={props.uiSchemaPath}
-                    connectionType={formValues['configRef']}
+                    documentUri={documentUri}
+                    uiSchemaPath={uiSchemaPath}
                     onNewConnection={onNewConnection}
                     cancelConnection={cancelConnection} />
                 :

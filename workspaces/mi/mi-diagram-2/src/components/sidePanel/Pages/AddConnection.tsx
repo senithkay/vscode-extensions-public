@@ -30,13 +30,12 @@ const Error = styled.span`
 `;
 
 interface AddConnectionProps {
-    formData: any;
     nodePosition: Range;
     documentUri: string;
     uiSchemaPath?: string;
-    connectionType: string;
     onNewConnection: (connectionName: string) => void;
     cancelConnection: () => void;
+    allowedConnectionTypes: string[];
 }
 
 interface Element {
@@ -53,13 +52,27 @@ const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const AddConnection = (props: AddConnectionProps) => {
+    const { allowedConnectionTypes, uiSchemaPath, documentUri, onNewConnection, cancelConnection } = props;
     const { rpcClient } = useVisualizerContext();
 
     const sidePanelContext = React.useContext(SidePanelContext);
     const [formValues, setFormValues] = useState({} as any);
     const [errors, setErrors] = useState({} as any);
+    const [connectionType, setConnectionType] = useState(allowedConnectionTypes[0]);
+    const [formData, setFormData] = useState({} as any);
 
     const formValidators: { [key: string]: (e?: any) => string | undefined } = {};
+
+    useEffect(() => {
+        const fetchFormData = async () => {
+            if (connectionType) {
+                const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: uiSchemaPath, operation: connectionType.toLowerCase() });
+                setFormData(connectionFormJSON.formJSON);
+            }
+        };
+
+        fetchFormData();
+    }, [connectionType]);
 
     useEffect(() => {
         if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
@@ -103,8 +116,8 @@ const AddConnection = (props: AddConnectionProps) => {
             setErrors(newErrors);
         } else {
             const template = create();
-            const root = template.ele(`${props.formData.connectorName}.init`);
-            root.ele('connectionType').txt(props.connectionType);
+            const root = template.ele(`${formData.connectorName}.init`);
+            root.ele('connectionType').txt(connectionType);
             // Fill the values
             Object.keys(formValues).forEach((key) => {
                 if (key !== 'configRef') {
@@ -117,7 +130,7 @@ const AddConnection = (props: AddConnectionProps) => {
             });
             const modifiedXml = template.end({ prettyPrint: true, headless: true });
 
-            const LocalEntryPath = props.documentUri.replace(/\/apis\/.*$/, `/local-entries`);
+            const LocalEntryPath = documentUri.replace(/\/apis\/.*$/, `/local-entries`);
 
             const connectionName = await rpcClient.getMiDiagramRpcClient().createConnection({
                 connectionName: formValues['connectionName'],
@@ -125,7 +138,7 @@ const AddConnection = (props: AddConnectionProps) => {
                 directory: LocalEntryPath
             });
 
-            props.onNewConnection(connectionName.name);
+            onNewConnection(connectionName.name);
         }
     };
 
@@ -219,25 +232,53 @@ const AddConnection = (props: AddConnectionProps) => {
     };
 
     return (
-        <div style={{ padding: "10px" }}>
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                {renderForm(props.formData.elements)}
-            </ComponentCard>
-            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px", gap: "10px" }}>
-                <Button
-                    appearance="secondary"
-                    onClick={props.cancelConnection}
+        <>
+            <label>{"Connection Type"}</label> {<RequiredFormInput />}
+            <div style={{ padding: "10px" }}>
+                <VSCodeDropdown
+                    label={"Connection Type"}
+                    value={connectionType}
+                    autoWidth={true}
+                    onChange={(e: any) => {
+                        setConnectionType(e.target.value);
+                    }}
+                    style={{ color: 'var(--vscode-editor-foreground)', width: '100%' }}
                 >
-                    Cancel
-                </Button>
-                <Button
-                    appearance="primary"
-                    onClick={onAddConnection}
-                >
-                    Add
-                </Button>
-            </div>
-        </div >
+                    {
+                        allowedConnectionTypes.map((value: string) => (
+                            <VSCodeOption
+                                style={{
+                                    color: 'var(--vscode-editor-foreground)',
+                                    background: 'var(--vscode-editor-background)'
+                                }}>{value}
+                            </VSCodeOption>
+                        ))
+                    }
+                </VSCodeDropdown>
+                {formData && formData.elements && formData.elements.length > 0 && (
+                    <>
+                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                            {renderForm(formData.elements)}
+                        </ComponentCard>
+                        <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px", gap: "10px" }}>
+                            <Button
+                                appearance="secondary"
+                                onClick={cancelConnection}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                appearance="primary"
+                                onClick={onAddConnection}
+                            >
+                                Add
+                            </Button>
+                        </div>
+                    </>
+                )}
+
+            </div >
+        </>
     );
 };
 
