@@ -30,6 +30,7 @@ export interface ViewState {
     r?: number;
     subPositions?: { [x: string]: SubPositions; };
     isBrokenLines?: boolean;
+    canAddAfter?: boolean;
 }
 
 export interface SubPositions extends ViewState {
