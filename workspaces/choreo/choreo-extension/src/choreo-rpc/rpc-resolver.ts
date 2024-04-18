@@ -23,6 +23,10 @@ import {
     ChoreoRpcGetDeploymentTracksRequest,
     ChoreoRpcGetBuildsRequest,
     ChoreoRpcGetCommitsRequest,
+    ChoreoRpcGetEnvsRequest,
+    ChoreoRpcGetEndpointsRequest,
+    ChoreoRpcGetDeploymentStatusRequest,
+    ChoreoRpcCreateDeploymentRequest,
 } from "@wso2-enterprise/choreo-core";
 import { ProgressLocation, window } from "vscode";
 
@@ -60,4 +64,13 @@ export function registerChoreoRpcResolver(messenger: Messenger, rpcClient: IChor
     messenger.onRequest(ChoreoRpcGetDeploymentTracksRequest, (params) => rpcClient.getDeploymentTracks(params));
     messenger.onRequest(ChoreoRpcGetBuildsRequest, (params) => rpcClient.getBuilds(params));
     messenger.onRequest(ChoreoRpcGetCommitsRequest, (params) => rpcClient.getCommits(params));
+    messenger.onRequest(ChoreoRpcGetEnvsRequest, (params) => rpcClient.getEnvs(params));
+    messenger.onRequest(ChoreoRpcGetEndpointsRequest, (params) => rpcClient.getComponentEndpoints(params));
+    messenger.onRequest(ChoreoRpcGetDeploymentStatusRequest, (params) => rpcClient.getDeploymentStatus(params));
+    messenger.onRequest(ChoreoRpcCreateDeploymentRequest, async (params) => {
+        return window.withProgress(
+            { title: `Deploying component ${params.componentName} in ${params.envName} environment...`, location: ProgressLocation.Notification },
+            () => rpcClient.createDeployment(params)
+        );
+    });
 }

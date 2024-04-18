@@ -1,5 +1,5 @@
-import { Divider } from "@wso2-enterprise/ui-toolkit";
 import React, { FC, PropsWithChildren } from "react";
+import { Divider } from "../../../components/Divider";
 
 interface Props extends PropsWithChildren {
     title: string;
@@ -10,8 +10,10 @@ export const RightPanelSection: FC<Props> = ({ title, children, showDivider = tr
     return (
         <>
             {showDivider && <Divider />}
-            <div className="text-base">{title}</div>
-            <div className="flex flex-col gap-1">{children}</div>
+            <div className="flex flex-col gap-3">
+                <div className="text-base">{title}</div>
+                <div className="flex flex-col gap-1">{children}</div>
+            </div>
         </>
     );
 };
@@ -23,7 +25,7 @@ export interface IRightPanelSectionItem {
 
 export const RightPanelSectionItem: FC<IRightPanelSectionItem> = ({ label, value }) => {
     return (
-        <div className="flex justify-between items-center mt">
+        <div className="flex justify-between items-center hover:bg-vsc-editorHoverWidget-background">
             <div className="font-light">{label}</div>
             <div>{value}</div>
         </div>

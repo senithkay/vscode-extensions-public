@@ -16,7 +16,7 @@ export const ComponentListItem: FC<Props> = ({ item, isListLoading }) => {
     const { mutate: confirmDelete } = useMutation({
         mutationFn: async () => {
             const accepted = await ChoreoWebViewAPI.getInstance().showConfirmMessage({
-                message: "Are you sure you want to delete this component. This action is not reversible",
+                message: "Are you sure you want to delete this Choreo component? This action will not affect any local files and will only delete the component created in Choreo. Please note that this action is not reversible.",
                 buttonText: "Delete",
             });
             if (accepted) {
@@ -78,7 +78,7 @@ export const ComponentListItem: FC<Props> = ({ item, isListLoading }) => {
     return (
         <div
             className={classNames({
-                flex: true,
+                "flex duration-100": true,
                 "cursor-pointer hover:bg-vsc-list-hoverBackground": isItemEnriched,
                 "animate-pulse cursor-progress": !isItemEnriched && isListLoading,
                 "animate-pulse": deletingComponent,

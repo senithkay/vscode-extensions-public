@@ -21,10 +21,10 @@ export const EndpointsSection: FC<Props> = ({ directoryPath, component }) => {
 
     return (
         <>
-            {endpointsResp?.endpoints?.map((item, index) => (
+            {endpointsResp?.endpoints?.map((item) => (
                 <RightPanelSection
                     key={item.name}
-                    title={endpointsResp?.endpoints?.length > 1 ? `Endpoint-${index + 1}` : `Endpoint`}
+                    title={`Endpoint: ${item.name}`}
                 >
                     <RightPanelSectionItem label="Port" value={item.port} />
                     {item.type && <RightPanelSectionItem label="Type" value={item.type} />}

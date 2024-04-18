@@ -30,7 +30,7 @@ import {
 
 function ChoreoWebview(props: WebviewProps) {
     return (
-        <ChoreoWebviewQueryClientProvider>
+        <ChoreoWebviewQueryClientProvider type={props.type}>
             <ErrorBoundary>
                 <AuthContextProvider viewType={props.type}>
                     <main>

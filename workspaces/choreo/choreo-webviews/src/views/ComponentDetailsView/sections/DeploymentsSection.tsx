@@ -1,0 +1,309 @@
+import React, { FC, ReactNode } from "react";
+import { ComponentKind, DeploymentTrack, Environment, Organization, Project } from "@wso2-enterprise/choreo-core";
+import { Button } from "../../../components/Button";
+import { Codicon } from "../../../components/Codicon";
+import classNames from "classnames";
+import { SkeletonText } from "../../../components/SkeletonText";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
+import { getTimeAgo, toTitleCase } from "../../../utilities/helpers";
+import { Divider } from "../../../components/Divider";
+import { getTypeForDisplayType } from "../utils";
+import { CommitLink } from "../../../components/CommitLink";
+import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import clipboardy from "clipboardy";
+
+interface Props {
+    component: ComponentKind;
+    project: Project;
+    organization: Organization;
+    deploymentTrack?: DeploymentTrack;
+    envs: Environment[];
+    loadingEnvs: boolean;
+}
+
+export const DeploymentsSection: FC<Props> = (props) => {
+    const { envs, loadingEnvs } = props;
+
+    if (loadingEnvs) {
+        return (
+            <>
+                {Array.from(new Array(2)).map((_, index) => (
+                    <EnvItemSkeleton key={index} />
+                ))}
+            </>
+        );
+    }
+
+    return (
+        <>
+            {envs?.map((item) => (
+                <EnvItem key={item.id} env={item} {...props} />
+            ))}
+        </>
+    );
+};
+
+const EnvItem: FC<Props & { env: Environment }> = ({ organization, project, deploymentTrack, component, env }) => {
+    const {
+        data: deploymentStatus,
+        isLoading: loadingDeploymentStatus,
+        refetch: refetchDeploymentStatus,
+    } = useQuery({
+        queryKey: [
+            "get-deployment-status",
+            {
+                organization: organization.handle,
+                project: project.handler,
+                component: component.metadata.name,
+                deploymentTrackId: deploymentTrack?.id,
+                envId: env.id,
+            },
+        ],
+        queryFn: () =>
+            ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getDeploymentStatus({
+                orgId: organization.id.toString(),
+                orgUuid: organization.uuid,
+                orgHandler: organization.handle,
+                projectId: project.id,
+                compHandler: component.metadata.name,
+                deploymentTrackId: deploymentTrack?.id,
+                envId: env.id,
+            }),
+        enabled: !!deploymentTrack?.id,
+    });
+
+    const endpointsQueryEnabled =
+        !!deploymentTrack?.id &&
+        getTypeForDisplayType(component.spec.type) === "service" &&
+        deploymentStatus?.deploymentStatusV2 === "ACTIVE";
+
+    const { data: endpoints = [], isLoading: loadingEndpoints } = useQuery({
+        queryKey: [
+            "get-deployed-endpoints",
+            {
+                organization: organization.handle,
+                project: project.handler,
+                component: component.metadata.name,
+                deploymentTrackId: deploymentTrack?.id,
+                deployStatus: deploymentStatus?.deploymentStatusV2,
+            },
+        ],
+        queryFn: () =>
+            ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getComponentEndpoints({
+                orgId: organization.id.toString(),
+                orgHandler: organization.handle,
+                projectId: project.id,
+                compHandler: component.metadata.name,
+                deploymentTrackId: deploymentTrack?.id,
+            }),
+        enabled: endpointsQueryEnabled,
+    });
+
+    let timeAgo = "";
+    if (deploymentStatus?.build?.deployedAt) {
+        timeAgo = getTimeAgo(deploymentStatus?.build?.deployedAt);
+    }
+
+    let statusStr = deploymentStatus?.deploymentStatusV2;
+    if (statusStr === "ACTIVE") {
+        statusStr = "Deployed";
+    }
+
+    const { mutate: copyUrl } = useMutation({
+        mutationFn: (url: string) => clipboardy.write(url),
+        onSuccess: () => ChoreoWebViewAPI.getInstance().showInfoMsg("The URL has been copied to the clipboard."),
+    });
+
+    const openExternal = (url: string) => ChoreoWebViewAPI.getInstance().openExternal(url);
+
+    return (
+        <>
+            <Divider />
+            <div>
+                <div className="flex items-center gap-1 mb-3">
+                    <h3 className="text-base lg:text-lg flex-1">{env.name} Environment</h3>
+                    <Button
+                        onClick={() => refetchDeploymentStatus()}
+                        appearance="icon"
+                        title="Refresh Build List"
+                        className="opacity-50"
+                    >
+                        <Codicon name="refresh" />
+                    </Button>
+                    <Button appearance="secondary" disabled={deploymentStatus?.deploymentStatusV2 !== "ACTIVE"}>
+                        View Logs
+                    </Button>
+                </div>
+                <div className="flex flex-col gap-3 ">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+                        {loadingDeploymentStatus ? (
+                            <>
+                                <GridColumnItem label="Status">
+                                    <SkeletonText className="w-24" />
+                                </GridColumnItem>
+                                <GridColumnItem label="Commit">
+                                    <SkeletonText className="w-12" />
+                                </GridColumnItem>
+                                <GridColumnItem label="URL">
+                                    <SkeletonText className="max-w-44" />
+                                </GridColumnItem>
+                            </>
+                        ) : (
+                            <>
+                                <GridColumnItem label="Status">
+                                    <span
+                                        className={classNames({
+                                            "text-vsc-errorForeground":
+                                                deploymentStatus?.deploymentStatusV2 === "ERROR",
+                                            "text-vsc-charts-lines":
+                                                deploymentStatus?.deploymentStatusV2 === "SUSPENDED",
+                                            "text-vsc-foreground":
+                                                deploymentStatus?.deploymentStatusV2 === "NOT_DEPLOYED",
+                                            "text-vsc-charts-green": deploymentStatus?.deploymentStatusV2 === "ACTIVE",
+                                            "text-vsc-charts-orange":
+                                                deploymentStatus?.deploymentStatusV2 === "IN_PROGRESS",
+                                        })}
+                                    >
+                                        {toTitleCase(statusStr) || "Not Deployed"}
+                                    </span>
+                                    {timeAgo && <span className="ml-2 opacity-70">{`(${timeAgo})`}</span>}
+                                </GridColumnItem>
+                                {deploymentStatus?.build?.commit?.sha && (
+                                    <GridColumnItem label="Commit">
+                                        <CommitLink
+                                            commitHash={deploymentStatus?.build?.commit?.sha}
+                                            commitMessage={deploymentStatus?.build?.commit?.message}
+                                            repoPath={component?.spec?.source?.github?.repository}
+                                        />
+                                    </GridColumnItem>
+                                )}
+                                {deploymentStatus?.invokeUrl && (
+                                    <GridColumnItem label="Invoke URL">{deploymentStatus?.invokeUrl}</GridColumnItem>
+                                )}
+                                {endpointsQueryEnabled && (
+                                    <>
+                                        {loadingEndpoints ? (
+                                            <GridColumnItem label="URL">
+                                                <SkeletonText className="max-w-44" />
+                                            </GridColumnItem>
+                                        ) : (
+                                            <>
+                                                {endpoints.filter(item=>item.environmentId === env.id).map((item) => {
+                                                    const endpointsNodes: ReactNode[] = [
+                                                        <GridColumnItem
+                                                            label={
+                                                                endpoints.length > 1
+                                                                    ? `Project URL (${item.displayName})`
+                                                                    : "Project URL"
+                                                            }
+                                                        >
+                                                            <VSCodeLink
+                                                                title="Copy URL"
+                                                                className="line-clamp-1 text-vsc-foreground"
+                                                                onClick={() => copyUrl(item.projectUrl)}
+                                                            >
+                                                                {item.projectUrl}
+                                                            </VSCodeLink>
+                                                        </GridColumnItem>,
+                                                    ];
+                                                    if (item.visibility === "Organization") {
+                                                        endpointsNodes.push(
+                                                            <GridColumnItem
+                                                                label={
+                                                                    endpoints.length > 1
+                                                                        ? `Organization URL (${item.displayName})`
+                                                                        : "Organization URL"
+                                                                }
+                                                            >
+                                                                <VSCodeLink
+                                                                    title="Copy URL"
+                                                                    className="line-clamp-1 text-vsc-foreground"
+                                                                    onClick={() => copyUrl(item.organizationUrl)}
+                                                                >
+                                                                    {item.organizationUrl}
+                                                                </VSCodeLink>
+                                                            </GridColumnItem>
+                                                        );
+                                                    } else if (item.visibility === "Public") {
+                                                        endpointsNodes.push(
+                                                            <GridColumnItem
+                                                                label={
+                                                                    endpoints.length > 1
+                                                                        ? `Public URL (${item.displayName})`
+                                                                        : "Public URL"
+                                                                }
+                                                            >
+                                                                <div className="flex items-center gap-1">
+                                                                    <VSCodeLink
+                                                                        title="Copy URL"
+                                                                        className="flex-1 line-clamp-1 text-vsc-foreground"
+                                                                        onClick={() => copyUrl(item.publicUrl)}
+                                                                    >
+                                                                        {item.publicUrl}
+                                                                    </VSCodeLink>
+                                                                    <Button
+                                                                        appearance="icon"
+                                                                        title="Open URL"
+                                                                        onClick={() => openExternal(item.publicUrl)}
+                                                                    >
+                                                                        <Codicon name="link-external" />
+                                                                    </Button>
+                                                                </div>
+                                                            </GridColumnItem>
+                                                        );
+                                                    }
+                                                    return endpointsNodes;
+                                                })}
+                                            </>
+                                        )}
+                                    </>
+                                )}
+                            </>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+};
+
+const EnvItemSkeleton: FC = () => {
+    return (
+        <>
+            <Divider />
+            <div>
+                <div className="flex items-center gap-1 mb-3">
+                    <SkeletonText className="w-52" />
+                    <div className="flex-1" />
+                    <Button disabled appearance="icon" className="opacity-50">
+                        <Codicon name="refresh" />
+                    </Button>
+                    <Button appearance="secondary" disabled>
+                        View Logs
+                    </Button>
+                </div>
+                <div className="flex flex-col gap-3 ">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+                        <GridColumnItem label="Status">
+                            <SkeletonText className="w-24" />
+                        </GridColumnItem>
+                        <GridColumnItem label="Commit">
+                            <SkeletonText className="w-12" />
+                        </GridColumnItem>
+                        <GridColumnItem label="URL">
+                            <SkeletonText className="max-w-44" />
+                        </GridColumnItem>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+};
+
+const GridColumnItem: FC<{ label: string; children?: ReactNode }> = ({ label, children }) => (
+    <div className={classNames("flex flex-col")}>
+        <div className="text-[9px] md:text-xs opacity-75 font-light">{label}</div>
+        <div className="w-full capitalize line-clamp-1">{children}</div>
+    </div>
+);

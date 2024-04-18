@@ -14,10 +14,10 @@ import {
 } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Button } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { Banner } from "../../components/Banner";
 import { componentFormSchema } from "./componentFormSchema";
+import { Button } from "../../components/Button";
 
 type ComponentFormType = z.infer<typeof componentFormSchema>;
 
@@ -62,6 +62,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
                 form.setValue("langVersion", "");
             }
         },
+        refetchOnWindowFocus: false,
     });
 
     const { isLoading: isLoadingRemotes, data: gitRemotes = [] } = useQuery({
@@ -92,6 +93,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
                 }
             }
         },
+        refetchOnWindowFocus: false,
     });
 
     const { isLoading: isCheckingRepoAccess, data: hasRepoAccess } = useQuery({
@@ -336,7 +338,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
                         </Button>
                         <Button
                             onClick={form.handleSubmit(onSubmit)}
-                            tooltip={invalidRepoMsg ? "Invalid repo selection" : ""}
+                            title={invalidRepoMsg ? "Invalid repo selection" : ""}
                             disabled={!!invalidRepoMsg || isCreatingComponent}
                         >
                             {isCreatingComponent ? "Creating..." : "Create"}

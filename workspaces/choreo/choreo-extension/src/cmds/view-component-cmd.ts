@@ -69,8 +69,8 @@ export const showComponentDetails = (
     componentPath: string
 ) => {
     const componentKey = `${org.handle}-${project.handler}-${component.metadata.name}`;
-    if (componentViewMap.has(componentKey)) {
-        componentViewMap.get(componentKey)?.getWebview()?.reveal()
+    if (componentViewMap.has(componentKey) && componentViewMap.get(componentKey)?.getWebview()) {
+        componentViewMap.get(componentKey)?.getWebview()?.reveal();
     }else{
         const componentDetailsView = new ComponentDetailsView(
             ext.context.extensionUri,

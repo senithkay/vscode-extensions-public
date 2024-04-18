@@ -71,10 +71,10 @@ const getLinkedDirs = async (previousLink: ComponentLink[]) => {
                 };
 
                 const matchingPreviousLink = previousLink.find(
-                    ({ linkContent }) =>
-                        linkContent.orgHandle === linkContent.orgHandle &&
-                        linkContent.projectHandle === linkContent.projectHandle &&
-                        linkContent.componentHandle === linkContent.componentHandle
+                    ({ linkContent: prevLinkContent }) =>
+                        prevLinkContent.orgHandle === linkContent.orgHandle &&
+                        prevLinkContent.projectHandle === linkContent.projectHandle &&
+                        prevLinkContent.componentHandle === linkContent.componentHandle
                 );
 
                 if (matchingPreviousLink) {
@@ -107,12 +107,16 @@ const getEnrichedLinks = async (links: ComponentLink[]) => {
             if (orgProjectMap.has(linkItem.linkContent.orgHandle)) {
                 projects = orgProjectMap.get(linkItem.linkContent.orgHandle) ?? [];
             } else {
-                projects = await ext.clients.rpcClient.getProjects(matchingOrg.id.toString());
-                orgProjectMap.set(linkItem.linkContent.orgHandle, projects);
-                dataCacheStore.getState().setProjects(matchingOrg.handle, projects);
+                try {
+                    projects = await ext.clients.rpcClient.getProjects(matchingOrg.id.toString());
+                    orgProjectMap.set(linkItem.linkContent.orgHandle, projects);
+                    dataCacheStore.getState().setProjects(matchingOrg.handle, projects);
+                } catch (err) {
+                    console.log("failed to enrich directory projects", err);
+                }
             }
 
-            const matchingProject = projects.find((item) => item.handler === linkItem.linkContent?.projectHandle);
+            const matchingProject = projects?.find((item) => item.handler === linkItem.linkContent?.projectHandle);
             if (matchingProject) {
                 linkItemWithData.project = matchingProject;
 
@@ -121,15 +125,21 @@ const getEnrichedLinks = async (links: ComponentLink[]) => {
                 if (projectComponentMap.has(compListKey)) {
                     components = projectComponentMap.get(compListKey) ?? [];
                 } else {
-                    components = await ext.clients.rpcClient.getComponentList({
-                        orgId: matchingOrg.id.toString(),
-                        projectHandle: matchingProject.handler,
-                    });
-                    projectComponentMap.set(compListKey, components);
-                    dataCacheStore.getState().setComponents(matchingOrg.handle, matchingProject.handler, components);
+                    try {
+                        components = await ext.clients.rpcClient.getComponentList({
+                            orgId: matchingOrg.id.toString(),
+                            projectHandle: matchingProject.handler,
+                        });
+                        projectComponentMap.set(compListKey, components);
+                        dataCacheStore
+                            .getState()
+                            .setComponents(matchingOrg.handle, matchingProject.handler, components);
+                    } catch (err) {
+                        console.log("failed to enrich directory components", err);
+                    }
                 }
 
-                const matchingComponent = components.find(
+                const matchingComponent = components?.find(
                     (item) => item.metadata.name === linkItem.linkContent?.componentHandle
                 );
 

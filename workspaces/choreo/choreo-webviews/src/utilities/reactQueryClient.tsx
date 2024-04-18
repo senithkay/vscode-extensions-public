@@ -19,17 +19,17 @@ import { ChoreoWebViewAPI } from "./WebViewRpc";
 /**
  * Persist data within vscode workspace cache
  */
-const workspaceStatePersister = (idbValidKey: IDBValidKey = "choreoWebviewData") => {
+const workspaceStatePersister = (queryBaseKey: string) => {
     return {
         persistClient: async (client: PersistedClient) => {
-            ChoreoWebViewAPI.getInstance().setWebviewCache(idbValidKey, client);
+            ChoreoWebViewAPI.getInstance().setWebviewCache(queryBaseKey, client);
         },
         restoreClient: async () => {
-            const cache = await ChoreoWebViewAPI.getInstance().restoreWebviewCache(idbValidKey)
+            const cache = await ChoreoWebViewAPI.getInstance().restoreWebviewCache(queryBaseKey)
             return cache;
         },
         removeClient: async () => {
-            await ChoreoWebViewAPI.getInstance().clearWebviewCache(idbValidKey);
+            await ChoreoWebViewAPI.getInstance().clearWebviewCache(queryBaseKey);
         },
     } as Persister;
 };
@@ -39,19 +39,16 @@ const queryClient = new QueryClient({
         queries: {
             cacheTime: 1000 * 60 * 60 * 24, // 24 hours
             retry: false,
-            refetchOnWindowFocus: false,
         },
     },
 });
 
-const persister = workspaceStatePersister();
-
-export const ChoreoWebviewQueryClientProvider = ({ children }: { children: React.ReactNode }) => {
+export const ChoreoWebviewQueryClientProvider = ({ type, children }: { type: string; children: React.ReactNode, }) => {
     return (
         <PersistQueryClientProvider
             client={queryClient}
             persistOptions={{
-                persister,
+                persister: workspaceStatePersister(`react-query-persister-${type}`),
                 buster: "choreo-webview-cache-v1",
             }}
         >

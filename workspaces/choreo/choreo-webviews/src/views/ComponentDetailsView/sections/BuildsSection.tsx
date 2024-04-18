@@ -1,51 +1,37 @@
 import React, { FC, ReactNode, useState } from "react";
 import {
+    BuildKind,
     CommitHistory,
     ComponentKind,
-    ComponentsDetailsWebviewProps,
     CreateBuildReq,
+    CreateDeploymentReq,
     DeploymentTrack,
+    Environment,
     Organization,
     Project,
     WebviewQuickPickItemKind,
 } from "@wso2-enterprise/choreo-core";
-import { Button, Divider } from "@wso2-enterprise/ui-toolkit";
+import { Button } from "../../../components/Button";
 import { Codicon } from "../../../components/Codicon";
 import classNames from "classnames";
-import { ContextMenu } from "../../../components/ContextMenu";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { SkeletonText } from "../../../components/SkeletonText";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
+import { getShortenedHash, getTimeAgo } from "../../../utilities/helpers";
+import { CommitLink } from "../../../components/CommitLink";
 
 interface Props {
     component: ComponentKind;
     project: Project;
     organization: Organization;
+    deploymentTrack?: DeploymentTrack;
+    envs: Environment[];
 }
 
-export const BuildsSection: FC<Props> = ({ component, organization, project }) => {
-    // get deployment track
-    const [deploymentTrack, setDeploymentTrack] = useState<DeploymentTrack>(); // TODO: move this to store
+export const BuildsSection: FC<Props> = ({ component, organization, project, deploymentTrack, envs }) => {
+    const queryClient = useQueryClient();
     const [hasOngoingBuilds, setHasOngoingBuilds] = useState(false);
-
-    // TODO: show a dropdown
-    const { isLoading: isLoadingDeploymentTracks, data: deploymentTracks = [] } = useQuery({
-        queryKey: [
-            "get-deployment-tracks",
-            { component: component.metadata.name, organization: organization.handle, project: project.handler },
-        ],
-        queryFn: () =>
-            ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getDeploymentTracks({
-                compHandler: component.metadata.name,
-                orgHandler: organization.handle,
-                orgId: organization.id.toString(),
-                projectId: project.id,
-            }),
-        onSuccess: (deploymentTracks) => {
-            if (!deploymentTrack) {
-                setDeploymentTrack(deploymentTracks?.find((item) => item.latest));
-            }
-        },
-    });
+    const [visibleBuildCount, setVisibleBuildCount] = useState(5);
 
     const { isLoading: isLoadingCommits, data: commits = [] } = useQuery({
         queryKey: [
@@ -94,7 +80,6 @@ export const BuildsSection: FC<Props> = ({ component, organization, project }) =
         },
         enabled: !!deploymentTrack,
         refetchInterval: hasOngoingBuilds ? 10000 : false,
-        refetchOnWindowFocus: true,
     });
 
     const { mutate: triggerBuild, isLoading: isTriggeringBuild } = useMutation({
@@ -128,7 +113,7 @@ export const BuildsSection: FC<Props> = ({ component, organization, project }) =
                         ?.map((item) => ({ label: item.message, description: getShortenedHash(item.sha), item })),
                 ],
             });
-            if(pickedItem?.item){
+            if (pickedItem?.item) {
                 triggerBuild({
                     commitHash: (pickedItem?.item as CommitHistory)?.sha,
                     componentName: component.metadata.name,
@@ -140,10 +125,64 @@ export const BuildsSection: FC<Props> = ({ component, organization, project }) =
         },
     });
 
+    const { mutate: triggerDeployment } = useMutation({
+        mutationFn: async (params: { build: BuildKind; env: Environment }) => {
+            await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createDeployment({
+                commitHash: params.build.spec.revision,
+                buildRef: params.build.status.images?.[0]?.id,
+                componentName: component.metadata.name,
+                envId: params.env.id,
+                envName: params.env.name,
+                deploymentTrackId: deploymentTrack?.id,
+                orgId: organization.id.toString(),
+                orgHandler: organization.handle,
+                projectId: project.id,
+                projectHandle: project.handler,
+            });
+        },
+        onSuccess: (_, params) => {
+            queryClient.refetchQueries({
+                queryKey: [
+                    "get-deployment-status",
+                    {
+                        organization: organization.handle,
+                        project: project.handler,
+                        component: component.metadata.name,
+                        deploymentTrackId: deploymentTrack?.id,
+                        envId: params.env.id,
+                    },
+                ],
+            });
+            ChoreoWebViewAPI.getInstance().showInfoMsg(
+                `Deployment for ${params.env?.name} has been successfully triggered`
+            );
+        },
+    });
+
+    const { mutate: selectEnvToDeploy } = useMutation({
+        mutationFn: async ({ build }: { build: BuildKind }) => {
+            const pickedItem = await ChoreoWebViewAPI.getInstance().showQuickPicks({
+                title: "Select the environment to deploy the build",
+                items: envs.map((item) => ({ label: item.name, item })),
+            });
+            if (pickedItem?.item) {
+                triggerDeployment({ build: build, env: pickedItem.item });
+            }
+        },
+    });
+
     return (
         <div>
-            <div className="flex items-center justify-between gap-1 mb-2">
-                <h3 className="text-base lg:text-lg">Builds</h3>
+            <div className="flex items-center gap-1 mb-3">
+                <h3 className="text-base lg:text-lg flex-1">Builds</h3>
+                <Button
+                    onClick={() => refetchBuilds()}
+                    appearance="icon"
+                    title="Refresh Build List"
+                    className="opacity-50"
+                >
+                    <Codicon name="refresh" />
+                </Button>
                 {!isLoadingBuilds && builds?.length > 0 && (
                     <Button
                         disabled={isLoadingCommits || commits.length === 0 || isTriggeringBuild}
@@ -167,25 +206,44 @@ export const BuildsSection: FC<Props> = ({ component, organization, project }) =
                             key={index}
                             className="grid grid-cols-2 md:grid-cols-4 py-1 hover:bg-vsc-editorHoverWidget-background"
                         >
-                            <GridColumnItem label="Build ID" index={0} loading />
-                            <GridColumnItem label="Commit ID" index={1} loading />
-                            <GridColumnItem label="Started" index={2} loading />
-                            <GridColumnItem label="Status" index={3} loading />
+                            <GridColumnItem label="Build ID" index={0}>
+                                <SkeletonText className="w-20" />
+                            </GridColumnItem>
+                            <GridColumnItem label="Commit" index={1}>
+                                <div className="w-full flex justify-end md:justify-start">
+                                    <SkeletonText className="w-12" />
+                                </div>
+                            </GridColumnItem>
+                            <GridColumnItem label="Started" index={2}>
+                                <SkeletonText className="w-20" />
+                            </GridColumnItem>
+                            <GridColumnItem label="Status" index={3}>
+                                <div className="flex gap-2 justify-start md:justify-between items-center flex-row-reverse md:flex-row">
+                                    <SkeletonText className="w-12" />
+                                    <SkeletonText className="w-10" />
+                                </div>
+                            </GridColumnItem>
                         </div>
                     ))}
+                    <div className="h-10" />
                 </>
             ) : (
                 <>
                     {builds.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center gap-2 lg:p-10 p-5">
-                            <p className="text-center">There aren't any builds available</p>
-                            <Button
-                                disabled={isLoadingCommits || commits.length === 0 || isTriggeringBuild}
-                                onClick={() => selectCommitForBuild()}
-                            >
-                                Build Component
-                            </Button>
-                        </div>
+                        <>
+                            <div className="flex flex-col items-center justify-center gap-3 lg:p-12 p-5">
+                                <p className="text-center opacity-50 font-light text-base">
+                                    There aren't any builds available
+                                </p>
+                                <Button
+                                    disabled={isLoadingCommits || commits.length === 0 || isTriggeringBuild}
+                                    onClick={() => selectCommitForBuild()}
+                                >
+                                    Build Component
+                                </Button>
+                            </div>
+                            <div className="h-10" />
+                        </>
                     ) : (
                         <>
                             <div className="grid-cols-2 md:grid-cols-4 md:grid hidden py-2 font-light text-xs">
@@ -194,19 +252,19 @@ export const BuildsSection: FC<Props> = ({ component, organization, project }) =
                                 <div>Started</div>
                                 <div>Status</div>
                             </div>
-                            {builds?.map((item) => {
+                            {builds?.slice(0, visibleBuildCount)?.map((item) => {
                                 let status: ReactNode = item.status?.conclusion;
                                 if (item.status?.conclusion === "") {
                                     status = (
-                                        <span className="text-vsc-charts-orange animate-pulse">
-                                            {item.status?.status}
+                                        <span className="text-vsc-charts-orange animate-pulse capitalize">
+                                            {item.status?.status?.replaceAll("_", " ")}
                                         </span>
                                     );
                                 } else {
                                     if (item.status?.conclusion === "success") {
-                                        status = <span className="text-vsc-charts-green">{status}</span>;
+                                        status = <span className="text-vsc-charts-green capitalize">{status}</span>;
                                     } else if (item.status?.conclusion === "failure") {
-                                        status = <span className="text-vsc-errorForeground">{status}</span>;
+                                        status = <span className="text-vsc-errorForeground capitalize">{status}</span>;
                                     }
                                 }
 
@@ -219,7 +277,11 @@ export const BuildsSection: FC<Props> = ({ component, organization, project }) =
                                             {item.status?.runId}
                                         </GridColumnItem>
                                         <GridColumnItem label="Commit ID" index={1}>
-                                            {getShortenedHash(item.spec?.revision)}
+                                            <CommitLink
+                                                commitHash={item.spec?.revision}
+                                                commitMessage={item.status?.gitCommit?.message}
+                                                repoPath={component?.spec?.source?.github?.repository}
+                                            />
                                         </GridColumnItem>
                                         <GridColumnItem label="Started" index={2}>
                                             {getTimeAgo(item.status?.startedAt)}
@@ -229,13 +291,17 @@ export const BuildsSection: FC<Props> = ({ component, organization, project }) =
                                                 <div>{status}</div>
                                                 <div className="flex gap-1">
                                                     {["success", "failed"].includes(item.status?.conclusion) && (
-                                                        <Button appearance="icon" tooltip="View Logs">
+                                                        <Button appearance="icon" title="View Logs">
                                                             <Codicon name="console" />
                                                         </Button>
                                                     )}
                                                     {item.status?.conclusion === "success" && (
-                                                        <Button appearance="icon" tooltip="Deploy Build">
-                                                            <Codicon name="cloud-upload" className="scale-110" />
+                                                        <Button
+                                                            appearance="icon"
+                                                            title="Deploy Build"
+                                                            onClick={() => selectEnvToDeploy({ build: item })}
+                                                        >
+                                                            <Codicon name="rocket" />
                                                         </Button>
                                                     )}
                                                 </div>
@@ -244,6 +310,13 @@ export const BuildsSection: FC<Props> = ({ component, organization, project }) =
                                     </div>
                                 );
                             })}
+                            {builds.length > visibleBuildCount && (
+                                <div className="flex flex-row justify-end mt-2">
+                                    <Button appearance="icon" onClick={() => setVisibleBuildCount((v) => v + 5)}>
+                                        View More
+                                    </Button>
+                                </div>
+                            )}
                         </>
                     )}
                 </>
@@ -252,43 +325,9 @@ export const BuildsSection: FC<Props> = ({ component, organization, project }) =
     );
 };
 
-const GridColumnItem: FC<{ label: string; index?: number; children?: ReactNode; loading?: boolean }> = ({
-    label,
-    index,
-    children,
-    loading,
-}) => (
+const GridColumnItem: FC<{ label: string; index?: number; children?: ReactNode }> = ({ label, index, children }) => (
     <div className={classNames("flex flex-col", index % 2 == 1 && "md:items-start items-end")}>
-        <div className="block: md:hidden text-[9px] font-light">{label}</div>
+        <div className="block md:hidden text-[9px] font-light">{label}</div>
         <div className={classNames("w-full", index % 2 == 1 && "text-right md:text-left")}>{children}</div>
-        {loading && <div className="animate-pulse h-4 my-0.5 w-20 bg-vsc-button-secondaryBackground rounded" />}
     </div>
 );
-const getShortenedHash = (hash: string) => hash?.substring(0, 7);
-
-const getTimeAgo = (timestamp: string): string => {
-    const currentTime = new Date();
-    const previousTime = new Date(timestamp);
-    const timeDifference = currentTime.getTime() - previousTime.getTime();
-
-    const seconds = Math.floor(timeDifference / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    const months = Math.floor(days / 30);
-    const years = Math.floor(months / 12);
-
-    if (years > 0) {
-        return `${years} year${years > 1 ? "s" : ""} ago`;
-    } else if (months > 0) {
-        return `${months} month${months > 1 ? "s" : ""} ago`;
-    } else if (days > 0) {
-        return `${days} day${days > 1 ? "s" : ""} ago`;
-    } else if (hours > 0) {
-        return `${hours} hour${hours > 1 ? "s" : ""} ago`;
-    } else if (minutes > 0) {
-        return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
-    } else {
-        return `Just now`;
-    }
-};

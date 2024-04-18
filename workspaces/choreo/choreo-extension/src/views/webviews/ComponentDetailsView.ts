@@ -26,7 +26,7 @@ export class ComponentDetailsView {
 
     private static createWebview(component: ComponentKind): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
-            "ComponentDetailsView",
+            `ComponentDetailsView-${component.metadata.name}`,
             `Component: ${component.metadata.name}`,
             vscode.ViewColumn.One,
             { enableScripts: true, retainContextWhenHidden: true }
@@ -46,9 +46,6 @@ export class ComponentDetailsView {
         const codiconUri = webview.asWebviewUri(
             vscode.Uri.joinPath(extensionUri, "resources", "codicons", "codicon.css")
         );
-        const fontsUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(extensionUri, "resources", "fw-vscode", "wso2-vscode.css")
-        );
 
         return /*html*/ `
           <!DOCTYPE html>
@@ -59,9 +56,7 @@ export class ComponentDetailsView {
               <meta name="theme-color" content="#000000">
               <title>Choreo Webview Wizard</title>
               <link rel="stylesheet" href="${codiconUri}">
-              <link rel="stylesheet" href="${fontsUri}">
               <script src="${scriptUri}"></script>
-              <script src="${fontsUri}"></script>
             </head>
             <body>
               <noscript>You need to enable JavaScript to run this app.</noscript>

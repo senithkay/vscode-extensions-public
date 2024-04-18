@@ -22,6 +22,13 @@ import {
     GetBuildsReq,
     GetCommitsReq,
     CommitHistory,
+    Environment,
+    GetProjectEnvsReq,
+    ComponentEP,
+    GetComponentEndpointsReq,
+    GetDeploymentStatusReq,
+    ComponentDeployment,
+    CreateDeploymentReq,
 } from "@wso2-enterprise/choreo-core";
 import { workspace } from "vscode";
 import { handlerError } from "../error-utils";
@@ -63,14 +70,18 @@ export class RPCClient {
         return RPCClient._instance;
     }
 
-    async sendRequest<T>(method: string, params?: any): Promise<T> {
-        this._conn?.sendRequest;
+    async sendRequest<T>(method: string, params?: any, isRetry?: boolean): Promise<T> {
         if (!this._conn) {
             throw new Error("Connection is not initialized");
         }
         try {
             return await this._conn.sendRequest<T>(method, params);
-        } catch (e) {
+        } catch (e: any) {
+            // TODO: have a better way to check if connection is closed
+            if(e.message?.includes("Connection is closed") && !isRetry){
+                await this.init();
+                return this.sendRequest(method, params, true);
+            }
             getLogger().error("Error sending request", e);
             handlerError(e);
             throw e;
@@ -227,6 +238,37 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
         }
         const response: { commits: CommitHistory[] } = await this.client.sendRequest("component/getCommits", params);
         return response.commits;
+    }
+
+    async getEnvs(params: GetProjectEnvsReq): Promise<Environment[]> {
+        if (!this.client) {
+            throw new Error("RPC client is not initialized");
+        }
+        const response: { envs: Environment[] } = await this.client.sendRequest("project/getEnvs", params);
+        return response.envs;
+    }
+
+    async getComponentEndpoints(params: GetComponentEndpointsReq): Promise<ComponentEP[]> {
+        if (!this.client) {
+            throw new Error("RPC client is not initialized");
+        }
+        const response: { endpoints: ComponentEP[] } = await this.client.sendRequest("component/getEndpoints", params);
+        return response.endpoints;
+    }
+
+    async getDeploymentStatus(params: GetDeploymentStatusReq): Promise<ComponentDeployment | null> {
+        if (!this.client) {
+            throw new Error("RPC client is not initialized");
+        }
+        const response: { deployment: ComponentDeployment | undefined } | undefined = await this.client.sendRequest("component/getDeploymentStatus", params);
+        return response?.deployment ?? null;
+    }
+
+    async createDeployment(params: CreateDeploymentReq): Promise<void> {
+        if (!this.client) {
+            throw new Error("RPC client is not initialized");
+        }
+        await this.client.sendRequest("deployment/create", params);
     }
 }
 

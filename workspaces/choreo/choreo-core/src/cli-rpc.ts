@@ -1,4 +1,4 @@
-import { BuildKind, Buildpack, CommitHistory, ComponentKind, DeploymentTrack, Project } from "./types";
+import { BuildKind, Buildpack, CommitHistory, ComponentDeployment, ComponentEP, ComponentKind, DeploymentTrack, Environment, Project } from "./types";
 import { HOST_EXTENSION, RequestType } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 
@@ -29,7 +29,10 @@ export interface GetBuildsReq { orgId: string; componentName: string; projectHan
 export interface CreateBuildReq { orgId: string; componentName: string; projectHandle: string; deploymentTrackId: string; commitHash: string}
 export interface GetDeploymentTracksReq { orgId: string; orgHandler: string; projectId: string; compHandler: string; }
 export interface GetCommitsReq { orgId: string; orgHandler: string; projectId: string; compHandler: string; branch: string}
-
+export interface GetProjectEnvsReq { orgId: string; orgUuid: string; projectId: string;}
+export interface GetComponentEndpointsReq { orgId: string; orgHandler: string; projectId: string; compHandler: string; deploymentTrackId: string}
+export interface GetDeploymentStatusReq { orgId: string; orgHandler: string; orgUuid: string; projectId: string; compHandler: string; deploymentTrackId: string; envId: string}
+export interface CreateDeploymentReq { orgId: string; orgHandler: string; componentName: string; projectHandle: string; projectId: string; deploymentTrackId: string; commitHash: string; envName: string; envId: string; buildRef: string}
 
 export interface IChoreoRPCClient {
     getProjects(orgID: string): Promise<Project[]>;
@@ -45,6 +48,10 @@ export interface IChoreoRPCClient {
     createBuild(params: CreateBuildReq): Promise<BuildKind>;
     getDeploymentTracks(params: GetDeploymentTracksReq): Promise<DeploymentTrack[]>;
     getCommits(params: GetCommitsReq): Promise<CommitHistory[]>;
+    getEnvs(params: GetProjectEnvsReq): Promise<Environment[]>;
+    getComponentEndpoints(params: GetComponentEndpointsReq): Promise<ComponentEP[]>;
+    getDeploymentStatus(params: GetDeploymentStatusReq): Promise<ComponentDeployment | null>;
+    createDeployment(params: CreateDeploymentReq): Promise<void>;
 }
 
 export class ChoreoRpcWebview implements IChoreoRPCClient {
@@ -90,6 +97,18 @@ export class ChoreoRpcWebview implements IChoreoRPCClient {
     getCommits(params:GetCommitsReq): Promise<CommitHistory[]> {
         return this._messenger.sendRequest(ChoreoRpcGetCommitsRequest, HOST_EXTENSION, params);
     }
+    getEnvs(params:GetProjectEnvsReq): Promise<Environment[]> {
+        return this._messenger.sendRequest(ChoreoRpcGetEnvsRequest, HOST_EXTENSION, params);
+    }
+    getComponentEndpoints(params:GetComponentEndpointsReq): Promise<ComponentEP[]> {
+        return this._messenger.sendRequest(ChoreoRpcGetEndpointsRequest, HOST_EXTENSION, params);
+    }
+    getDeploymentStatus(params:GetDeploymentStatusReq): Promise<ComponentDeployment | null> {
+        return this._messenger.sendRequest(ChoreoRpcGetDeploymentStatusRequest, HOST_EXTENSION, params);
+    }
+    createDeployment(params:CreateDeploymentReq): Promise<void> {
+        return this._messenger.sendRequest(ChoreoRpcCreateDeploymentRequest, HOST_EXTENSION, params);
+    }
 }
 
 export const ChoreoRpcGetProjectsRequest: RequestType<string, Project[]> = { method: 'rpc/project/getProjects' };
@@ -105,3 +124,7 @@ export const ChoreoRpcCreateBuildRequest: RequestType<CreateBuildReq, BuildKind>
 export const ChoreoRpcGetDeploymentTracksRequest: RequestType<GetDeploymentTracksReq, DeploymentTrack[]> = { method: 'rpc/component/getDeploymentTracks' };
 export const ChoreoRpcGetBuildsRequest: RequestType<GetBuildsReq, BuildKind[]> = { method: 'rpc/build/getList' };
 export const ChoreoRpcGetCommitsRequest: RequestType<GetCommitsReq, CommitHistory[]> = { method: 'rpc/component/getCommits' };
+export const ChoreoRpcGetEnvsRequest: RequestType<GetProjectEnvsReq, Environment[]> = { method: 'rpc/project/getEnvs' };
+export const ChoreoRpcGetEndpointsRequest: RequestType<GetComponentEndpointsReq, ComponentEP[]> = { method: 'rpc/component/getEndpoints' };
+export const ChoreoRpcGetDeploymentStatusRequest: RequestType<GetDeploymentStatusReq, ComponentDeployment | null> = { method: 'rpc/component/getDeploymentStatus' };
+export const ChoreoRpcCreateDeploymentRequest: RequestType<CreateDeploymentReq, void> = { method: 'rpc/deployment/create' };

@@ -37,7 +37,7 @@ export function deleteComponentCommand(context: ExtensionContext) {
             );
 
             const accepted = await window.showInformationMessage(
-                "Are you sure you want to delete this component. This action is not reversible",
+                "Are you sure you want to delete this Choreo component? This action will not affect any local files and will only delete the component created in Choreo. Please note that this action is not reversible.",
                 { modal: true },
                 "Delete"
             );

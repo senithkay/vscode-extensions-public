@@ -19,10 +19,10 @@ export const ComponentListView: FC<ComponentsListActivityViewProps> = ({ directo
     return (
         <div className="w-full flex flex-col py-2">
             {links.map((item, index) => (
-                <>
-                    <ComponentListItem item={item} key={item.componentFullPath} isListLoading={isLoading} />
-                    {index !== links?.length - 1 && <div key={index} className="h-[0.5px] bg-vsc-dropdown-border opacity-70" />}
-                </>
+                <div key={item.componentFullPath}>
+                    <ComponentListItem item={item} isListLoading={isLoading} />
+                    {index !== links?.length - 1 && <div className="h-[0.5px] bg-vsc-dropdown-border opacity-70" />}
+                </div>
             ))}
         </div>
     );
