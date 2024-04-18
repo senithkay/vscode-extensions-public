@@ -27,6 +27,7 @@ export interface ComboboxOptionProps {
 export interface DropdownContainerProps {
     widthOffset?: number;
     dropdownWidth?: number;
+    display?: boolean;
 }
 
 const ComboboxButtonContainerActive = cx(css`
@@ -127,6 +128,7 @@ const DropdownContainer: React.FC<DropdownContainerProps> = styled.div`
     padding-top: 5px;
     padding-bottom: 5px;
     z-index: 1;
+    display: ${(props: DropdownContainerProps) => (props.display ? 'block' : 'none')};
     ul {
         margin: 0;
         padding: 0;
@@ -155,6 +157,7 @@ export interface AutoCompleteProps {
     notItemsFoundMessage?: string;
     widthOffset?: number;
     nullable?: boolean;
+    allowItemCreate?: boolean;
     sx?: React.CSSProperties;
     borderBox?: boolean;
     onValueChange?: (item: string, index?: number) => void;
@@ -190,7 +193,7 @@ const getItem = (item: string | ItemComponent) => {
 
 
 export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps>((props, ref) => {
-    const { id, items, required, label, notItemsFoundMessage, widthOffset = 157, nullable, sx, borderBox, onValueChange, ...rest } = props;
+    const { id, items, required, label, notItemsFoundMessage, widthOffset = 157, nullable, allowItemCreate = false, sx, borderBox, onValueChange, ...rest } = props;
     const [query, setQuery] = useState('');
     const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
     const [isUpButton, setIsUpButton] = useState(false);
@@ -232,7 +235,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
             ? items
             : items.filter(filteredItem => {
                 const item = getItemKey(filteredItem);
-                item.toLowerCase().replace(/\s+/g, '').includes(query.toLowerCase().replace(/\s+/g, ''))
+                return item.toLowerCase().replace(/\s+/g, '').includes(query.toLowerCase().replace(/\s+/g, ''))
             });
 
     const ComboboxOptionContainer = ({ active }: ComboboxOptionProps) => {
@@ -290,7 +293,6 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                                     }}
                                 />
                             )}
-
                         </Combobox.Button>
                     </ComboboxInputWrapper>
                     <Transition
@@ -298,12 +300,18 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                         afterLeave={handleAfterLeave}
                         ref={ref}
                     >
-                        <DropdownContainer widthOffset={widthOffset} dropdownWidth={dropdownWidth}>
+                        <DropdownContainer display={!(filteredResults.length === 0 && query !== "" && allowItemCreate)} widthOffset={widthOffset} dropdownWidth={dropdownWidth}>
                             <Combobox.Options>
-                                {filteredResults.length === 0 && query !== '' ? (
-                                    <NothingFound>
-                                        {notItemsFoundMessage || 'No options'}
-                                    </NothingFound>
+                                {filteredResults.length === 0 && query !== "" ? (
+                                    allowItemCreate ? (
+                                        <ComboboxOption key={0}>
+                                            <Combobox.Option className={ComboboxOptionContainer} value={query} key={0}>
+                                                {query}
+                                            </Combobox.Option>
+                                        </ComboboxOption>
+                                    ) : (
+                                        <NothingFound>{notItemsFoundMessage || "No options"}</NothingFound>
+                                    )
                                 ) : (
                                     filteredResults.map((filteredItem: string | ItemComponent, i: number) => {
                                         const item = getItem(filteredItem);
