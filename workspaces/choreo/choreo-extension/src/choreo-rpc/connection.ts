@@ -2,6 +2,7 @@ import { StreamMessageReader, StreamMessageWriter, createMessageConnection, Mess
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import * as os from 'os'
 import { getLogger } from '../logger/logger';
+import path from 'path';
 
 export class StdioConnection {
     private _connection: MessageConnection;
@@ -12,13 +13,8 @@ export class StdioConnection {
         const homeDir = os.homedir();
         // generate the path for the executable based on the platform
         let userHome = homeDir;
-        let pathSeparator = "/";
-        if (process.platform === "win32") {
-            userHome = process.env.USERPROFILE || homeDir;
-            pathSeparator = "\\";
-        }
 
-        let genPath = `${userHome}${pathSeparator}.choreo${pathSeparator}bin${pathSeparator}choreo`;
+        let genPath = path.join(userHome, ".choreo", "bin", "choreo");
 
         if (this.executable_path && this.executable_path !== "") {
             genPath = this.executable_path;
