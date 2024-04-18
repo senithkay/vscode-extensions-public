@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { Fragment, useEffect, useRef, useState } from 'react'
+import React, { Fragment, ReactNode, useEffect, useRef, useState } from 'react'
 
 import { css, cx } from "@emotion/css";
 import { Combobox, Transition } from '@headlessui/react'
@@ -142,9 +142,14 @@ export const Container = styled.div<ContainerProps>`
     ${(props: ContainerProps) => props.sx}
 `;
 
+export interface ItemComponent {
+    key: string; // For searching
+    item: ReactNode; // For rendering option
+}
+
 export interface AutoCompleteProps {
     id?: string;
-    items: string[];
+    items: (string | ItemComponent)[];
     required?: boolean;
     label?: string;
     notItemsFoundMessage?: string;
@@ -169,6 +174,20 @@ const ComboboxOption: React.FC<any> = styled.div`
     list-style: none;
 `;
 
+const getItemKey = (item: string | ItemComponent) => {
+    if (typeof item === 'string') {
+        return item;
+    }
+    return item.key;
+}
+
+const getItem = (item: string | ItemComponent) => {
+    if (typeof item === 'string') {
+        return item;
+    }
+    return item.item;
+}
+
 
 export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps>((props, ref) => {
     const { id, items, required, label, notItemsFoundMessage, widthOffset = 157, nullable, sx, borderBox, onValueChange, ...rest } = props;
@@ -178,8 +197,8 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
     const [dropdownWidth, setDropdownWidth] = useState<number>();
     const inputRef = useRef(null);
 
-    const handleChange = (item: string) => {
-        onValueChange && onValueChange(item);
+    const handleChange = (item: string | ItemComponent) => {
+        onValueChange && onValueChange(getItemKey(item));
     };
     const handleTextFieldFocused = () => {
         setIsTextFieldFocused(true);
@@ -206,14 +225,15 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
     const handleInputQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setQuery(event.target.value);
     };
-    const displayItemValue = (item: string) => item;
+    const displayItemValue = (item: string | ItemComponent) => getItemKey(item);
 
     const filteredResults =
         query === ''
             ? items
-            : items.filter(item =>
+            : items.filter(filteredItem => {
+                const item = getItemKey(filteredItem);
                 item.toLowerCase().replace(/\s+/g, '').includes(query.toLowerCase().replace(/\s+/g, ''))
-            );
+            });
 
     const ComboboxOptionContainer = ({ active }: ComboboxOptionProps) => {
         return active ? OptionContainer : ActiveOptionContainer;
@@ -285,13 +305,15 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                                         {notItemsFoundMessage || 'No options'}
                                     </NothingFound>
                                 ) : (
-                                    filteredResults.map((item: string, i: number) => {
+                                    filteredResults.map((filteredItem: string | ItemComponent, i: number) => {
+                                        const item = getItem(filteredItem);
+                                        const itemKey = getItemKey(filteredItem);
                                         return (
                                             <ComboboxOption key={i}>
                                                 <Combobox.Option
                                                     className={ComboboxOptionContainer}
-                                                    value={item}
-                                                    key={item}
+                                                    value={itemKey}
+                                                    key={i}
                                                 >
                                                     {item}
                                                 </Combobox.Option>
