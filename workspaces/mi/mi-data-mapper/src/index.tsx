@@ -12,9 +12,10 @@ import React, { useMemo } from "react";
 /** @jsx jsx */
 import { Global, css } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { DMType } from "@wso2-enterprise/mi-core";
+import { DMType, Range } from "@wso2-enterprise/mi-core";
+import { Project } from "ts-morph";
+
 import { MIDataMapper } from "./components/DataMapper/DataMapper";
-import * as ts from "typescript";
 import { FunctionSTFindingVisitor } from "./components/Visitors/FunctionSTFindingVisitor";
 import { traversNode } from "./components/Diagram/utils/st-utils";
 
@@ -43,28 +44,48 @@ export interface DataMapperViewProps {
     functionName: string;
     inputTrees: DMType[];
     outputTree: DMType;
+    goToSource: (range: Range) => void;
+    updateFileContent: (fileContent: string) => void;
 }
 
 export function DataMapperView(props: DataMapperViewProps) {
-    const { filePath, fileContent, functionName } = props;
+    const {
+        filePath,
+        fileContent,
+        functionName,
+        inputTrees,
+        outputTree,
+        goToSource,
+        updateFileContent
+    } = props;
 
-    const functionST = useMemo(() => {
+    const { functionST, sourceFile } = useMemo(() => {
 
-        const sourceFile = ts.createSourceFile(filePath, fileContent, ts.ScriptTarget.Latest, true);
+        const project = new Project({useInMemoryFileSystem: true});
+        const sourceFile = project.createSourceFile(filePath, fileContent);
+
         const fnSTFindingVisitor = new FunctionSTFindingVisitor(functionName);
         traversNode(sourceFile, fnSTFindingVisitor);
-
-        return fnSTFindingVisitor.getFunctionST();
+        return {
+            functionST: fnSTFindingVisitor.getFunctionST(),
+            sourceFile: sourceFile,
+        };
 
     }, [filePath, fileContent, functionName]);
+
+    const applyModifications = () => {
+        updateFileContent(sourceFile.getText());
+    };
 
     return (
         <QueryClientProvider client={queryClient}>
             <Global styles={globalStyles} />
             <MIDataMapper
                 fnST={functionST}
-                inputTrees={props.inputTrees}
-                outputTree={props.outputTree}
+                inputTrees={inputTrees}
+                outputTree={outputTree}
+                goToSource={goToSource}
+                applyModifications={applyModifications}
             />
         </QueryClientProvider>
     );

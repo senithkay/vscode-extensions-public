@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import ts, { VariableDeclaration, VariableStatement, Node } from "typescript";
+import { Node, VariableDeclaration, VariableStatement } from "ts-morph";
 import { Visitor } from "../../ts/base-visitor";
 
 export class FunctionSTFindingVisitor implements Visitor {
@@ -19,14 +19,14 @@ export class FunctionSTFindingVisitor implements Visitor {
 
     beginVisitVariableStatement(node: VariableStatement): void {
         if (!this._functionST) {
-            const declarationList = node.declarationList;
-            const variableDeclaration = declarationList.declarations[0];
+            const variableDeclaration = node
+                .getDeclarationList()
+                .getDeclarations()[0];
+
+            const fnName = variableDeclaration.getName();
+            const initializer = variableDeclaration.getInitializer();
     
-            const fnName = variableDeclaration.name.getText();
-    
-            const initializer = variableDeclaration.initializer;
-    
-            if (fnName === this.functionName && initializer && ts.isArrowFunction(initializer)) {
+            if (fnName === this.functionName && initializer && Node.isArrowFunction(initializer)) {
                 this._functionST = variableDeclaration;
             }   
         }     

@@ -66,7 +66,8 @@ async function getContext(): Promise<VisualizerLocation> {
             projectOpened: context.projectOpened,
             customProps: context.customProps,
             stNode: context.stNode,
-            diagnostics: context.diagnostics
+            diagnostics: context.diagnostics,
+            dataMapperProps: context.dataMapperProps,
         });
     });
 }

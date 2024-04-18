@@ -9,15 +9,16 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Button, Codicon, Icon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import classnames from "classnames";
+import { Node } from "ts-morph";
 
 import { DataMapperPortWidget } from '../../Port';
-
 import { LinkConnectorNode } from './LinkConnectorNode';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { useIntermediateNodeStyles } from '../../../styles';
+import { getEditorLineAndColumn } from '../../utils/common-utils';
 
 export interface LinkConnectorNodeWidgetProps {
     node: LinkConnectorNode;
@@ -25,43 +26,21 @@ export interface LinkConnectorNodeWidgetProps {
 }
 
 export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
-    const node = props.node;
+    const { node, engine } = props;
+    const { goToSource } = node.context;
     const classes = useIntermediateNodeStyles();
-    const engine = props.engine;
-    const { rpcClient } = useVisualizerContext();
 
-    // const {
-    //     enableStatementEditor,
-    //     updateSelectedComponent,
-    //     referenceManager: {
-    //         handleCurrentReferences
-    //     }
-    // } = node.context;
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
     const onClickEdit = () => {
-        // const valueNode = props.node.valueNode;
-        // const currentReferences = node.sourcePorts.map((port) => port.fieldFQN);
-        // handleCurrentReferences(currentReferences)
-        // if (STKindChecker.isSpecificField(valueNode)) {
-        //     enableStatementEditor({
-        //         valuePosition: valueNode.valueExpr.position as NodePosition,
-        //         value: valueNode.valueExpr.source,
-        //         label: props.node.editorLabel
-        //     });
-        // } else if (STKindChecker.isBinaryExpression(valueNode)) {
-        //     enableStatementEditor({
-        //         valuePosition: valueNode.position as NodePosition,
-        //         value: valueNode.source,
-        //         label: props.node.editorLabel
-        //     });
-        // } else {
-        //     props.node.context.enableStatementEditor({
-        //         valuePosition: valueNode.position as NodePosition,
-        //         value: valueNode.source,
-        //         label: "Expression"
-        //     });
-        // }
+        let nodeToBeEdited = node.valueNode;
+
+        if (Node.isPropertyAssignment(node.valueNode)) {
+            nodeToBeEdited = node.valueNode.getInitializer();
+        }
+
+        const range = getEditorLineAndColumn(nodeToBeEdited);
+        goToSource(range);
     };
 
     const onClickDelete = () => {

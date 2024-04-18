@@ -9,7 +9,7 @@
  */
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var ts = require("typescript");
+var ts = require("ts-morph");
 var fs = require("fs");
 
 var excludedSuffixes = [
@@ -34,8 +34,8 @@ var kinds = Object.keys(ts.SyntaxKind).filter(function (k) {
 
 const visitorFunctions = kinds.map(kind => {
     return `
-    beginVisit${kind}?(node: ts.${kind}, parent?: ts.Node): void;
-    endVisit${kind}?(node: ts.${kind}, parent?: ts.Node): void;`;
+    beginVisit${kind}?(node: tsm.${kind}, parent?: tsm.Node): void;
+    endVisit${kind}?(node: tsm.${kind}, parent?: tsm.Node): void;`;
 }).join('\n');
 
 const headerComment = `/**
@@ -52,11 +52,11 @@ const headerComment = `/**
 `
 
 var fileContent = `${headerComment}
-import * as ts from 'typescript';
+import * as tsm from 'ts-morph';
 
 export interface Visitor {
-    beginVisit?(node: ts.Node, parent?: ts.Node): void;
-    endVisit?(node: ts.Node, parent?: ts.Node): void;
+    beginVisit?(node: tsm.Node, parent?: tsm.Node): void;
+    endVisit?(node: tsm.Node, parent?: tsm.Node): void;
     ${visitorFunctions}
 }
 `;

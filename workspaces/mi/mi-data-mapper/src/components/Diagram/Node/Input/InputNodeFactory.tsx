@@ -32,7 +32,7 @@ export class InputNodeFactory extends AbstractReactFactory<InputNode, DiagramEng
             return (
                 <InputNodeWidget
                     engine={this.engine}
-                    id={event.model.value && event.model.value.name.getText()}
+                    id={event.model.value && event.model.value.getName()}
                     dmType={event.model.dmType}
                     getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
                 />

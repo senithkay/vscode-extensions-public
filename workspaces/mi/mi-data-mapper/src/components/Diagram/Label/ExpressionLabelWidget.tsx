@@ -16,6 +16,7 @@ import { InputOutputPortModel } from '../Port';
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { getEditorLineAndColumn } from '../utils/common-utils';
 
 export interface EditableLabelWidgetProps {
     model: ExpressionLabelModel;
@@ -98,7 +99,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     const [linkStatus, setLinkStatus] = React.useState<LinkState>(LinkState.LinkNotSelected);
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
     const classes = useStyles();
-    const { link, deleteLink } = props.model;
+    const { field, link, context, deleteLink } = props.model;
 
     const onClickDelete = (evt?: React.MouseEvent<HTMLDivElement>) => {
         if (evt) {
@@ -112,7 +113,8 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     };
 
     const onClickEdit = (evt?: React.MouseEvent<HTMLDivElement>) => {
-        // TODO: Implement edit logic
+        const range = getEditorLineAndColumn(field);
+        context.goToSource(range);
     };
 
     React.useEffect(() => {

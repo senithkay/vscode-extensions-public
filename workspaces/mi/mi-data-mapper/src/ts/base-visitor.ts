@@ -10,498 +10,447 @@
  * Run 'npm run generate' to regenerate this file
  */
 
-import * as ts from 'typescript';
+import * as tsm from 'ts-morph';
 
 export interface Visitor {
-    beginVisit?(node: ts.Node, parent?: ts.Node): void;
-    endVisit?(node: ts.Node, parent?: ts.Node): void;
+    beginVisit?(node: tsm.Node, parent?: tsm.Node): void;
+    endVisit?(node: tsm.Node, parent?: tsm.Node): void;
     
-    beginVisitNumericLiteral?(node: ts.NumericLiteral, parent?: ts.Node): void;
-    endVisitNumericLiteral?(node: ts.NumericLiteral, parent?: ts.Node): void;
+    beginVisitNumericLiteral?(node: tsm.NumericLiteral, parent?: tsm.Node): void;
+    endVisitNumericLiteral?(node: tsm.NumericLiteral, parent?: tsm.Node): void;
 
-    beginVisitBigIntLiteral?(node: ts.BigIntLiteral, parent?: ts.Node): void;
-    endVisitBigIntLiteral?(node: ts.BigIntLiteral, parent?: ts.Node): void;
+    beginVisitBigIntLiteral?(node: tsm.BigIntLiteral, parent?: tsm.Node): void;
+    endVisitBigIntLiteral?(node: tsm.BigIntLiteral, parent?: tsm.Node): void;
 
-    beginVisitStringLiteral?(node: ts.StringLiteral, parent?: ts.Node): void;
-    endVisitStringLiteral?(node: ts.StringLiteral, parent?: ts.Node): void;
+    beginVisitStringLiteral?(node: tsm.StringLiteral, parent?: tsm.Node): void;
+    endVisitStringLiteral?(node: tsm.StringLiteral, parent?: tsm.Node): void;
 
-    beginVisitRegularExpressionLiteral?(node: ts.RegularExpressionLiteral, parent?: ts.Node): void;
-    endVisitRegularExpressionLiteral?(node: ts.RegularExpressionLiteral, parent?: ts.Node): void;
+    beginVisitRegularExpressionLiteral?(node: tsm.RegularExpressionLiteral, parent?: tsm.Node): void;
+    endVisitRegularExpressionLiteral?(node: tsm.RegularExpressionLiteral, parent?: tsm.Node): void;
 
-    beginVisitNoSubstitutionTemplateLiteral?(node: ts.NoSubstitutionTemplateLiteral, parent?: ts.Node): void;
-    endVisitNoSubstitutionTemplateLiteral?(node: ts.NoSubstitutionTemplateLiteral, parent?: ts.Node): void;
+    beginVisitNoSubstitutionTemplateLiteral?(node: tsm.NoSubstitutionTemplateLiteral, parent?: tsm.Node): void;
+    endVisitNoSubstitutionTemplateLiteral?(node: tsm.NoSubstitutionTemplateLiteral, parent?: tsm.Node): void;
 
-    beginVisitTemplateHead?(node: ts.TemplateHead, parent?: ts.Node): void;
-    endVisitTemplateHead?(node: ts.TemplateHead, parent?: ts.Node): void;
+    beginVisitTemplateHead?(node: tsm.TemplateHead, parent?: tsm.Node): void;
+    endVisitTemplateHead?(node: tsm.TemplateHead, parent?: tsm.Node): void;
 
-    beginVisitTemplateMiddle?(node: ts.TemplateMiddle, parent?: ts.Node): void;
-    endVisitTemplateMiddle?(node: ts.TemplateMiddle, parent?: ts.Node): void;
+    beginVisitTemplateMiddle?(node: tsm.TemplateMiddle, parent?: tsm.Node): void;
+    endVisitTemplateMiddle?(node: tsm.TemplateMiddle, parent?: tsm.Node): void;
 
-    beginVisitTemplateTail?(node: ts.TemplateTail, parent?: ts.Node): void;
-    endVisitTemplateTail?(node: ts.TemplateTail, parent?: ts.Node): void;
+    beginVisitTemplateTail?(node: tsm.TemplateTail, parent?: tsm.Node): void;
+    endVisitTemplateTail?(node: tsm.TemplateTail, parent?: tsm.Node): void;
 
-    beginVisitIdentifier?(node: ts.Identifier, parent?: ts.Node): void;
-    endVisitIdentifier?(node: ts.Identifier, parent?: ts.Node): void;
+    beginVisitIdentifier?(node: tsm.Identifier, parent?: tsm.Node): void;
+    endVisitIdentifier?(node: tsm.Identifier, parent?: tsm.Node): void;
 
-    beginVisitPrivateIdentifier?(node: ts.PrivateIdentifier, parent?: ts.Node): void;
-    endVisitPrivateIdentifier?(node: ts.PrivateIdentifier, parent?: ts.Node): void;
+    beginVisitPrivateIdentifier?(node: tsm.PrivateIdentifier, parent?: tsm.Node): void;
+    endVisitPrivateIdentifier?(node: tsm.PrivateIdentifier, parent?: tsm.Node): void;
 
-    beginVisitQualifiedName?(node: ts.QualifiedName, parent?: ts.Node): void;
-    endVisitQualifiedName?(node: ts.QualifiedName, parent?: ts.Node): void;
+    beginVisitQualifiedName?(node: tsm.QualifiedName, parent?: tsm.Node): void;
+    endVisitQualifiedName?(node: tsm.QualifiedName, parent?: tsm.Node): void;
 
-    beginVisitComputedPropertyName?(node: ts.ComputedPropertyName, parent?: ts.Node): void;
-    endVisitComputedPropertyName?(node: ts.ComputedPropertyName, parent?: ts.Node): void;
+    beginVisitComputedPropertyName?(node: tsm.ComputedPropertyName, parent?: tsm.Node): void;
+    endVisitComputedPropertyName?(node: tsm.ComputedPropertyName, parent?: tsm.Node): void;
 
-    beginVisitTypeParameter?(node: ts.TypeParameter, parent?: ts.Node): void;
-    endVisitTypeParameter?(node: ts.TypeParameter, parent?: ts.Node): void;
+    beginVisitTypeParameter?(node: tsm.TypeParameter, parent?: tsm.Node): void;
+    endVisitTypeParameter?(node: tsm.TypeParameter, parent?: tsm.Node): void;
 
-    beginVisitDecorator?(node: ts.Decorator, parent?: ts.Node): void;
-    endVisitDecorator?(node: ts.Decorator, parent?: ts.Node): void;
+    beginVisitDecorator?(node: tsm.Decorator, parent?: tsm.Node): void;
+    endVisitDecorator?(node: tsm.Decorator, parent?: tsm.Node): void;
 
-    beginVisitPropertyDeclaration?(node: ts.PropertyDeclaration, parent?: ts.Node): void;
-    endVisitPropertyDeclaration?(node: ts.PropertyDeclaration, parent?: ts.Node): void;
+    beginVisitPropertyDeclaration?(node: tsm.PropertyDeclaration, parent?: tsm.Node): void;
+    endVisitPropertyDeclaration?(node: tsm.PropertyDeclaration, parent?: tsm.Node): void;
 
-    beginVisitMethodDeclaration?(node: ts.MethodDeclaration, parent?: ts.Node): void;
-    endVisitMethodDeclaration?(node: ts.MethodDeclaration, parent?: ts.Node): void;
+    beginVisitMethodDeclaration?(node: tsm.MethodDeclaration, parent?: tsm.Node): void;
+    endVisitMethodDeclaration?(node: tsm.MethodDeclaration, parent?: tsm.Node): void;
 
-    beginVisitClassStaticBlockDeclaration?(node: ts.ClassStaticBlockDeclaration, parent?: ts.Node): void;
-    endVisitClassStaticBlockDeclaration?(node: ts.ClassStaticBlockDeclaration, parent?: ts.Node): void;
+    beginVisitClassStaticBlockDeclaration?(node: tsm.ClassStaticBlockDeclaration, parent?: tsm.Node): void;
+    endVisitClassStaticBlockDeclaration?(node: tsm.ClassStaticBlockDeclaration, parent?: tsm.Node): void;
 
-    beginVisitTypePredicate?(node: ts.TypePredicate, parent?: ts.Node): void;
-    endVisitTypePredicate?(node: ts.TypePredicate, parent?: ts.Node): void;
+    beginVisitNamedTupleMember?(node: tsm.NamedTupleMember, parent?: tsm.Node): void;
+    endVisitNamedTupleMember?(node: tsm.NamedTupleMember, parent?: tsm.Node): void;
 
-    beginVisitTypeReference?(node: ts.TypeReference, parent?: ts.Node): void;
-    endVisitTypeReference?(node: ts.TypeReference, parent?: ts.Node): void;
+    beginVisitObjectBindingPattern?(node: tsm.ObjectBindingPattern, parent?: tsm.Node): void;
+    endVisitObjectBindingPattern?(node: tsm.ObjectBindingPattern, parent?: tsm.Node): void;
 
-    beginVisitNamedTupleMember?(node: ts.NamedTupleMember, parent?: ts.Node): void;
-    endVisitNamedTupleMember?(node: ts.NamedTupleMember, parent?: ts.Node): void;
+    beginVisitArrayBindingPattern?(node: tsm.ArrayBindingPattern, parent?: tsm.Node): void;
+    endVisitArrayBindingPattern?(node: tsm.ArrayBindingPattern, parent?: tsm.Node): void;
 
-    beginVisitTemplateLiteralTypeSpan?(node: ts.TemplateLiteralTypeSpan, parent?: ts.Node): void;
-    endVisitTemplateLiteralTypeSpan?(node: ts.TemplateLiteralTypeSpan, parent?: ts.Node): void;
+    beginVisitBindingElement?(node: tsm.BindingElement, parent?: tsm.Node): void;
+    endVisitBindingElement?(node: tsm.BindingElement, parent?: tsm.Node): void;
 
-    beginVisitObjectBindingPattern?(node: ts.ObjectBindingPattern, parent?: ts.Node): void;
-    endVisitObjectBindingPattern?(node: ts.ObjectBindingPattern, parent?: ts.Node): void;
+    beginVisitArrayLiteralExpression?(node: tsm.ArrayLiteralExpression, parent?: tsm.Node): void;
+    endVisitArrayLiteralExpression?(node: tsm.ArrayLiteralExpression, parent?: tsm.Node): void;
 
-    beginVisitArrayBindingPattern?(node: ts.ArrayBindingPattern, parent?: ts.Node): void;
-    endVisitArrayBindingPattern?(node: ts.ArrayBindingPattern, parent?: ts.Node): void;
+    beginVisitObjectLiteralExpression?(node: tsm.ObjectLiteralExpression, parent?: tsm.Node): void;
+    endVisitObjectLiteralExpression?(node: tsm.ObjectLiteralExpression, parent?: tsm.Node): void;
 
-    beginVisitBindingElement?(node: ts.BindingElement, parent?: ts.Node): void;
-    endVisitBindingElement?(node: ts.BindingElement, parent?: ts.Node): void;
+    beginVisitPropertyAccessExpression?(node: tsm.PropertyAccessExpression, parent?: tsm.Node): void;
+    endVisitPropertyAccessExpression?(node: tsm.PropertyAccessExpression, parent?: tsm.Node): void;
 
-    beginVisitArrayLiteralExpression?(node: ts.ArrayLiteralExpression, parent?: ts.Node): void;
-    endVisitArrayLiteralExpression?(node: ts.ArrayLiteralExpression, parent?: ts.Node): void;
+    beginVisitElementAccessExpression?(node: tsm.ElementAccessExpression, parent?: tsm.Node): void;
+    endVisitElementAccessExpression?(node: tsm.ElementAccessExpression, parent?: tsm.Node): void;
 
-    beginVisitObjectLiteralExpression?(node: ts.ObjectLiteralExpression, parent?: ts.Node): void;
-    endVisitObjectLiteralExpression?(node: ts.ObjectLiteralExpression, parent?: ts.Node): void;
+    beginVisitCallExpression?(node: tsm.CallExpression, parent?: tsm.Node): void;
+    endVisitCallExpression?(node: tsm.CallExpression, parent?: tsm.Node): void;
 
-    beginVisitPropertyAccessExpression?(node: ts.PropertyAccessExpression, parent?: ts.Node): void;
-    endVisitPropertyAccessExpression?(node: ts.PropertyAccessExpression, parent?: ts.Node): void;
+    beginVisitNewExpression?(node: tsm.NewExpression, parent?: tsm.Node): void;
+    endVisitNewExpression?(node: tsm.NewExpression, parent?: tsm.Node): void;
 
-    beginVisitElementAccessExpression?(node: ts.ElementAccessExpression, parent?: ts.Node): void;
-    endVisitElementAccessExpression?(node: ts.ElementAccessExpression, parent?: ts.Node): void;
+    beginVisitTaggedTemplateExpression?(node: tsm.TaggedTemplateExpression, parent?: tsm.Node): void;
+    endVisitTaggedTemplateExpression?(node: tsm.TaggedTemplateExpression, parent?: tsm.Node): void;
 
-    beginVisitCallExpression?(node: ts.CallExpression, parent?: ts.Node): void;
-    endVisitCallExpression?(node: ts.CallExpression, parent?: ts.Node): void;
+    beginVisitParenthesizedExpression?(node: tsm.ParenthesizedExpression, parent?: tsm.Node): void;
+    endVisitParenthesizedExpression?(node: tsm.ParenthesizedExpression, parent?: tsm.Node): void;
 
-    beginVisitNewExpression?(node: ts.NewExpression, parent?: ts.Node): void;
-    endVisitNewExpression?(node: ts.NewExpression, parent?: ts.Node): void;
+    beginVisitFunctionExpression?(node: tsm.FunctionExpression, parent?: tsm.Node): void;
+    endVisitFunctionExpression?(node: tsm.FunctionExpression, parent?: tsm.Node): void;
 
-    beginVisitTaggedTemplateExpression?(node: ts.TaggedTemplateExpression, parent?: ts.Node): void;
-    endVisitTaggedTemplateExpression?(node: ts.TaggedTemplateExpression, parent?: ts.Node): void;
+    beginVisitArrowFunction?(node: tsm.ArrowFunction, parent?: tsm.Node): void;
+    endVisitArrowFunction?(node: tsm.ArrowFunction, parent?: tsm.Node): void;
 
-    beginVisitParenthesizedExpression?(node: ts.ParenthesizedExpression, parent?: ts.Node): void;
-    endVisitParenthesizedExpression?(node: ts.ParenthesizedExpression, parent?: ts.Node): void;
+    beginVisitDeleteExpression?(node: tsm.DeleteExpression, parent?: tsm.Node): void;
+    endVisitDeleteExpression?(node: tsm.DeleteExpression, parent?: tsm.Node): void;
 
-    beginVisitFunctionExpression?(node: ts.FunctionExpression, parent?: ts.Node): void;
-    endVisitFunctionExpression?(node: ts.FunctionExpression, parent?: ts.Node): void;
+    beginVisitTypeOfExpression?(node: tsm.TypeOfExpression, parent?: tsm.Node): void;
+    endVisitTypeOfExpression?(node: tsm.TypeOfExpression, parent?: tsm.Node): void;
 
-    beginVisitArrowFunction?(node: ts.ArrowFunction, parent?: ts.Node): void;
-    endVisitArrowFunction?(node: ts.ArrowFunction, parent?: ts.Node): void;
+    beginVisitVoidExpression?(node: tsm.VoidExpression, parent?: tsm.Node): void;
+    endVisitVoidExpression?(node: tsm.VoidExpression, parent?: tsm.Node): void;
 
-    beginVisitDeleteExpression?(node: ts.DeleteExpression, parent?: ts.Node): void;
-    endVisitDeleteExpression?(node: ts.DeleteExpression, parent?: ts.Node): void;
+    beginVisitAwaitExpression?(node: tsm.AwaitExpression, parent?: tsm.Node): void;
+    endVisitAwaitExpression?(node: tsm.AwaitExpression, parent?: tsm.Node): void;
 
-    beginVisitTypeOfExpression?(node: ts.TypeOfExpression, parent?: ts.Node): void;
-    endVisitTypeOfExpression?(node: ts.TypeOfExpression, parent?: ts.Node): void;
+    beginVisitPrefixUnaryExpression?(node: tsm.PrefixUnaryExpression, parent?: tsm.Node): void;
+    endVisitPrefixUnaryExpression?(node: tsm.PrefixUnaryExpression, parent?: tsm.Node): void;
 
-    beginVisitVoidExpression?(node: ts.VoidExpression, parent?: ts.Node): void;
-    endVisitVoidExpression?(node: ts.VoidExpression, parent?: ts.Node): void;
+    beginVisitPropertyAssignment?(node: tsm.PropertyAssignment, parent?: tsm.Node): void;
+    endVisitPropertyAssignment?(node: tsm.PropertyAssignment, parent?: tsm.Node): void;
 
-    beginVisitAwaitExpression?(node: ts.AwaitExpression, parent?: ts.Node): void;
-    endVisitAwaitExpression?(node: ts.AwaitExpression, parent?: ts.Node): void;
+    beginVisitPostfixUnaryExpression?(node: tsm.PostfixUnaryExpression, parent?: tsm.Node): void;
+    endVisitPostfixUnaryExpression?(node: tsm.PostfixUnaryExpression, parent?: tsm.Node): void;
 
-    beginVisitPrefixUnaryExpression?(node: ts.PrefixUnaryExpression, parent?: ts.Node): void;
-    endVisitPrefixUnaryExpression?(node: ts.PrefixUnaryExpression, parent?: ts.Node): void;
+    beginVisitBinaryExpression?(node: tsm.BinaryExpression, parent?: tsm.Node): void;
+    endVisitBinaryExpression?(node: tsm.BinaryExpression, parent?: tsm.Node): void;
 
-    beginVisitPostfixUnaryExpression?(node: ts.PostfixUnaryExpression, parent?: ts.Node): void;
-    endVisitPostfixUnaryExpression?(node: ts.PostfixUnaryExpression, parent?: ts.Node): void;
+    beginVisitConditionalExpression?(node: tsm.ConditionalExpression, parent?: tsm.Node): void;
+    endVisitConditionalExpression?(node: tsm.ConditionalExpression, parent?: tsm.Node): void;
 
-    beginVisitBinaryExpression?(node: ts.BinaryExpression, parent?: ts.Node): void;
-    endVisitBinaryExpression?(node: ts.BinaryExpression, parent?: ts.Node): void;
+    beginVisitTemplateExpression?(node: tsm.TemplateExpression, parent?: tsm.Node): void;
+    endVisitTemplateExpression?(node: tsm.TemplateExpression, parent?: tsm.Node): void;
 
-    beginVisitConditionalExpression?(node: ts.ConditionalExpression, parent?: ts.Node): void;
-    endVisitConditionalExpression?(node: ts.ConditionalExpression, parent?: ts.Node): void;
+    beginVisitYieldExpression?(node: tsm.YieldExpression, parent?: tsm.Node): void;
+    endVisitYieldExpression?(node: tsm.YieldExpression, parent?: tsm.Node): void;
 
-    beginVisitTemplateExpression?(node: ts.TemplateExpression, parent?: ts.Node): void;
-    endVisitTemplateExpression?(node: ts.TemplateExpression, parent?: ts.Node): void;
+    beginVisitSpreadElement?(node: tsm.SpreadElement, parent?: tsm.Node): void;
+    endVisitSpreadElement?(node: tsm.SpreadElement, parent?: tsm.Node): void;
 
-    beginVisitYieldExpression?(node: ts.YieldExpression, parent?: ts.Node): void;
-    endVisitYieldExpression?(node: ts.YieldExpression, parent?: ts.Node): void;
+    beginVisitClassExpression?(node: tsm.ClassExpression, parent?: tsm.Node): void;
+    endVisitClassExpression?(node: tsm.ClassExpression, parent?: tsm.Node): void;
 
-    beginVisitSpreadElement?(node: ts.SpreadElement, parent?: ts.Node): void;
-    endVisitSpreadElement?(node: ts.SpreadElement, parent?: ts.Node): void;
+    beginVisitOmittedExpression?(node: tsm.OmittedExpression, parent?: tsm.Node): void;
+    endVisitOmittedExpression?(node: tsm.OmittedExpression, parent?: tsm.Node): void;
 
-    beginVisitClassExpression?(node: ts.ClassExpression, parent?: ts.Node): void;
-    endVisitClassExpression?(node: ts.ClassExpression, parent?: ts.Node): void;
+    beginVisitExpressionWithTypeArguments?(node: tsm.ExpressionWithTypeArguments, parent?: tsm.Node): void;
+    endVisitExpressionWithTypeArguments?(node: tsm.ExpressionWithTypeArguments, parent?: tsm.Node): void;
 
-    beginVisitOmittedExpression?(node: ts.OmittedExpression, parent?: ts.Node): void;
-    endVisitOmittedExpression?(node: ts.OmittedExpression, parent?: ts.Node): void;
+    beginVisitAsExpression?(node: tsm.AsExpression, parent?: tsm.Node): void;
+    endVisitAsExpression?(node: tsm.AsExpression, parent?: tsm.Node): void;
 
-    beginVisitExpressionWithTypeArguments?(node: ts.ExpressionWithTypeArguments, parent?: ts.Node): void;
-    endVisitExpressionWithTypeArguments?(node: ts.ExpressionWithTypeArguments, parent?: ts.Node): void;
+    beginVisitNonNullExpression?(node: tsm.NonNullExpression, parent?: tsm.Node): void;
+    endVisitNonNullExpression?(node: tsm.NonNullExpression, parent?: tsm.Node): void;
 
-    beginVisitAsExpression?(node: ts.AsExpression, parent?: ts.Node): void;
-    endVisitAsExpression?(node: ts.AsExpression, parent?: ts.Node): void;
+    beginVisitMetaProperty?(node: tsm.MetaProperty, parent?: tsm.Node): void;
+    endVisitMetaProperty?(node: tsm.MetaProperty, parent?: tsm.Node): void;
 
-    beginVisitNonNullExpression?(node: ts.NonNullExpression, parent?: ts.Node): void;
-    endVisitNonNullExpression?(node: ts.NonNullExpression, parent?: ts.Node): void;
+    beginVisitSatisfiesExpression?(node: tsm.SatisfiesExpression, parent?: tsm.Node): void;
+    endVisitSatisfiesExpression?(node: tsm.SatisfiesExpression, parent?: tsm.Node): void;
 
-    beginVisitMetaProperty?(node: ts.MetaProperty, parent?: ts.Node): void;
-    endVisitMetaProperty?(node: ts.MetaProperty, parent?: ts.Node): void;
+    beginVisitTemplateSpan?(node: tsm.TemplateSpan, parent?: tsm.Node): void;
+    endVisitTemplateSpan?(node: tsm.TemplateSpan, parent?: tsm.Node): void;
 
-    beginVisitSyntheticExpression?(node: ts.SyntheticExpression, parent?: ts.Node): void;
-    endVisitSyntheticExpression?(node: ts.SyntheticExpression, parent?: ts.Node): void;
+    beginVisitBlock?(node: tsm.Block, parent?: tsm.Node): void;
+    endVisitBlock?(node: tsm.Block, parent?: tsm.Node): void;
 
-    beginVisitSatisfiesExpression?(node: ts.SatisfiesExpression, parent?: ts.Node): void;
-    endVisitSatisfiesExpression?(node: ts.SatisfiesExpression, parent?: ts.Node): void;
+    beginVisitEmptyStatement?(node: tsm.EmptyStatement, parent?: tsm.Node): void;
+    endVisitEmptyStatement?(node: tsm.EmptyStatement, parent?: tsm.Node): void;
 
-    beginVisitTemplateSpan?(node: ts.TemplateSpan, parent?: ts.Node): void;
-    endVisitTemplateSpan?(node: ts.TemplateSpan, parent?: ts.Node): void;
+    beginVisitVariableStatement?(node: tsm.VariableStatement, parent?: tsm.Node): void;
+    endVisitVariableStatement?(node: tsm.VariableStatement, parent?: tsm.Node): void;
 
-    beginVisitSemicolonClassElement?(node: ts.SemicolonClassElement, parent?: ts.Node): void;
-    endVisitSemicolonClassElement?(node: ts.SemicolonClassElement, parent?: ts.Node): void;
+    beginVisitExpressionStatement?(node: tsm.ExpressionStatement, parent?: tsm.Node): void;
+    endVisitExpressionStatement?(node: tsm.ExpressionStatement, parent?: tsm.Node): void;
 
-    beginVisitBlock?(node: ts.Block, parent?: ts.Node): void;
-    endVisitBlock?(node: ts.Block, parent?: ts.Node): void;
+    beginVisitIfStatement?(node: tsm.IfStatement, parent?: tsm.Node): void;
+    endVisitIfStatement?(node: tsm.IfStatement, parent?: tsm.Node): void;
 
-    beginVisitEmptyStatement?(node: ts.EmptyStatement, parent?: ts.Node): void;
-    endVisitEmptyStatement?(node: ts.EmptyStatement, parent?: ts.Node): void;
+    beginVisitDoStatement?(node: tsm.DoStatement, parent?: tsm.Node): void;
+    endVisitDoStatement?(node: tsm.DoStatement, parent?: tsm.Node): void;
 
-    beginVisitVariableStatement?(node: ts.VariableStatement, parent?: ts.Node): void;
-    endVisitVariableStatement?(node: ts.VariableStatement, parent?: ts.Node): void;
+    beginVisitWhileStatement?(node: tsm.WhileStatement, parent?: tsm.Node): void;
+    endVisitWhileStatement?(node: tsm.WhileStatement, parent?: tsm.Node): void;
 
-    beginVisitExpressionStatement?(node: ts.ExpressionStatement, parent?: ts.Node): void;
-    endVisitExpressionStatement?(node: ts.ExpressionStatement, parent?: ts.Node): void;
+    beginVisitForStatement?(node: tsm.ForStatement, parent?: tsm.Node): void;
+    endVisitForStatement?(node: tsm.ForStatement, parent?: tsm.Node): void;
 
-    beginVisitIfStatement?(node: ts.IfStatement, parent?: ts.Node): void;
-    endVisitIfStatement?(node: ts.IfStatement, parent?: ts.Node): void;
+    beginVisitForInStatement?(node: tsm.ForInStatement, parent?: tsm.Node): void;
+    endVisitForInStatement?(node: tsm.ForInStatement, parent?: tsm.Node): void;
 
-    beginVisitDoStatement?(node: ts.DoStatement, parent?: ts.Node): void;
-    endVisitDoStatement?(node: ts.DoStatement, parent?: ts.Node): void;
+    beginVisitForOfStatement?(node: tsm.ForOfStatement, parent?: tsm.Node): void;
+    endVisitForOfStatement?(node: tsm.ForOfStatement, parent?: tsm.Node): void;
 
-    beginVisitWhileStatement?(node: ts.WhileStatement, parent?: ts.Node): void;
-    endVisitWhileStatement?(node: ts.WhileStatement, parent?: ts.Node): void;
+    beginVisitContinueStatement?(node: tsm.ContinueStatement, parent?: tsm.Node): void;
+    endVisitContinueStatement?(node: tsm.ContinueStatement, parent?: tsm.Node): void;
 
-    beginVisitForStatement?(node: ts.ForStatement, parent?: ts.Node): void;
-    endVisitForStatement?(node: ts.ForStatement, parent?: ts.Node): void;
+    beginVisitBreakStatement?(node: tsm.BreakStatement, parent?: tsm.Node): void;
+    endVisitBreakStatement?(node: tsm.BreakStatement, parent?: tsm.Node): void;
 
-    beginVisitForInStatement?(node: ts.ForInStatement, parent?: ts.Node): void;
-    endVisitForInStatement?(node: ts.ForInStatement, parent?: ts.Node): void;
+    beginVisitReturnStatement?(node: tsm.ReturnStatement, parent?: tsm.Node): void;
+    endVisitReturnStatement?(node: tsm.ReturnStatement, parent?: tsm.Node): void;
 
-    beginVisitForOfStatement?(node: ts.ForOfStatement, parent?: ts.Node): void;
-    endVisitForOfStatement?(node: ts.ForOfStatement, parent?: ts.Node): void;
+    beginVisitWithStatement?(node: tsm.WithStatement, parent?: tsm.Node): void;
+    endVisitWithStatement?(node: tsm.WithStatement, parent?: tsm.Node): void;
 
-    beginVisitContinueStatement?(node: ts.ContinueStatement, parent?: ts.Node): void;
-    endVisitContinueStatement?(node: ts.ContinueStatement, parent?: ts.Node): void;
+    beginVisitSwitchStatement?(node: tsm.SwitchStatement, parent?: tsm.Node): void;
+    endVisitSwitchStatement?(node: tsm.SwitchStatement, parent?: tsm.Node): void;
 
-    beginVisitBreakStatement?(node: ts.BreakStatement, parent?: ts.Node): void;
-    endVisitBreakStatement?(node: ts.BreakStatement, parent?: ts.Node): void;
+    beginVisitLabeledStatement?(node: tsm.LabeledStatement, parent?: tsm.Node): void;
+    endVisitLabeledStatement?(node: tsm.LabeledStatement, parent?: tsm.Node): void;
 
-    beginVisitReturnStatement?(node: ts.ReturnStatement, parent?: ts.Node): void;
-    endVisitReturnStatement?(node: ts.ReturnStatement, parent?: ts.Node): void;
+    beginVisitThrowStatement?(node: tsm.ThrowStatement, parent?: tsm.Node): void;
+    endVisitThrowStatement?(node: tsm.ThrowStatement, parent?: tsm.Node): void;
 
-    beginVisitWithStatement?(node: ts.WithStatement, parent?: ts.Node): void;
-    endVisitWithStatement?(node: ts.WithStatement, parent?: ts.Node): void;
+    beginVisitTryStatement?(node: tsm.TryStatement, parent?: tsm.Node): void;
+    endVisitTryStatement?(node: tsm.TryStatement, parent?: tsm.Node): void;
 
-    beginVisitSwitchStatement?(node: ts.SwitchStatement, parent?: ts.Node): void;
-    endVisitSwitchStatement?(node: ts.SwitchStatement, parent?: ts.Node): void;
+    beginVisitDebuggerStatement?(node: tsm.DebuggerStatement, parent?: tsm.Node): void;
+    endVisitDebuggerStatement?(node: tsm.DebuggerStatement, parent?: tsm.Node): void;
 
-    beginVisitLabeledStatement?(node: ts.LabeledStatement, parent?: ts.Node): void;
-    endVisitLabeledStatement?(node: ts.LabeledStatement, parent?: ts.Node): void;
+    beginVisitVariableDeclaration?(node: tsm.VariableDeclaration, parent?: tsm.Node): void;
+    endVisitVariableDeclaration?(node: tsm.VariableDeclaration, parent?: tsm.Node): void;
 
-    beginVisitThrowStatement?(node: ts.ThrowStatement, parent?: ts.Node): void;
-    endVisitThrowStatement?(node: ts.ThrowStatement, parent?: ts.Node): void;
+    beginVisitVariableDeclarationList?(node: tsm.VariableDeclarationList, parent?: tsm.Node): void;
+    endVisitVariableDeclarationList?(node: tsm.VariableDeclarationList, parent?: tsm.Node): void;
 
-    beginVisitTryStatement?(node: ts.TryStatement, parent?: ts.Node): void;
-    endVisitTryStatement?(node: ts.TryStatement, parent?: ts.Node): void;
+    beginVisitFunctionDeclaration?(node: tsm.FunctionDeclaration, parent?: tsm.Node): void;
+    endVisitFunctionDeclaration?(node: tsm.FunctionDeclaration, parent?: tsm.Node): void;
 
-    beginVisitDebuggerStatement?(node: ts.DebuggerStatement, parent?: ts.Node): void;
-    endVisitDebuggerStatement?(node: ts.DebuggerStatement, parent?: ts.Node): void;
+    beginVisitClassDeclaration?(node: tsm.ClassDeclaration, parent?: tsm.Node): void;
+    endVisitClassDeclaration?(node: tsm.ClassDeclaration, parent?: tsm.Node): void;
 
-    beginVisitVariableDeclaration?(node: ts.VariableDeclaration, parent?: ts.Node): void;
-    endVisitVariableDeclaration?(node: ts.VariableDeclaration, parent?: ts.Node): void;
+    beginVisitInterfaceDeclaration?(node: tsm.InterfaceDeclaration, parent?: tsm.Node): void;
+    endVisitInterfaceDeclaration?(node: tsm.InterfaceDeclaration, parent?: tsm.Node): void;
 
-    beginVisitVariableDeclarationList?(node: ts.VariableDeclarationList, parent?: ts.Node): void;
-    endVisitVariableDeclarationList?(node: ts.VariableDeclarationList, parent?: ts.Node): void;
+    beginVisitTypeAliasDeclaration?(node: tsm.TypeAliasDeclaration, parent?: tsm.Node): void;
+    endVisitTypeAliasDeclaration?(node: tsm.TypeAliasDeclaration, parent?: tsm.Node): void;
 
-    beginVisitFunctionDeclaration?(node: ts.FunctionDeclaration, parent?: ts.Node): void;
-    endVisitFunctionDeclaration?(node: ts.FunctionDeclaration, parent?: ts.Node): void;
+    beginVisitEnumDeclaration?(node: tsm.EnumDeclaration, parent?: tsm.Node): void;
+    endVisitEnumDeclaration?(node: tsm.EnumDeclaration, parent?: tsm.Node): void;
 
-    beginVisitClassDeclaration?(node: ts.ClassDeclaration, parent?: ts.Node): void;
-    endVisitClassDeclaration?(node: ts.ClassDeclaration, parent?: ts.Node): void;
+    beginVisitModuleDeclaration?(node: tsm.ModuleDeclaration, parent?: tsm.Node): void;
+    endVisitModuleDeclaration?(node: tsm.ModuleDeclaration, parent?: tsm.Node): void;
 
-    beginVisitInterfaceDeclaration?(node: ts.InterfaceDeclaration, parent?: ts.Node): void;
-    endVisitInterfaceDeclaration?(node: ts.InterfaceDeclaration, parent?: ts.Node): void;
+    beginVisitModuleBlock?(node: tsm.ModuleBlock, parent?: tsm.Node): void;
+    endVisitModuleBlock?(node: tsm.ModuleBlock, parent?: tsm.Node): void;
 
-    beginVisitTypeAliasDeclaration?(node: ts.TypeAliasDeclaration, parent?: ts.Node): void;
-    endVisitTypeAliasDeclaration?(node: ts.TypeAliasDeclaration, parent?: ts.Node): void;
+    beginVisitCaseBlock?(node: tsm.CaseBlock, parent?: tsm.Node): void;
+    endVisitCaseBlock?(node: tsm.CaseBlock, parent?: tsm.Node): void;
 
-    beginVisitEnumDeclaration?(node: ts.EnumDeclaration, parent?: ts.Node): void;
-    endVisitEnumDeclaration?(node: ts.EnumDeclaration, parent?: ts.Node): void;
+    beginVisitImportEqualsDeclaration?(node: tsm.ImportEqualsDeclaration, parent?: tsm.Node): void;
+    endVisitImportEqualsDeclaration?(node: tsm.ImportEqualsDeclaration, parent?: tsm.Node): void;
 
-    beginVisitModuleDeclaration?(node: ts.ModuleDeclaration, parent?: ts.Node): void;
-    endVisitModuleDeclaration?(node: ts.ModuleDeclaration, parent?: ts.Node): void;
+    beginVisitImportDeclaration?(node: tsm.ImportDeclaration, parent?: tsm.Node): void;
+    endVisitImportDeclaration?(node: tsm.ImportDeclaration, parent?: tsm.Node): void;
 
-    beginVisitModuleBlock?(node: ts.ModuleBlock, parent?: ts.Node): void;
-    endVisitModuleBlock?(node: ts.ModuleBlock, parent?: ts.Node): void;
+    beginVisitImportClause?(node: tsm.ImportClause, parent?: tsm.Node): void;
+    endVisitImportClause?(node: tsm.ImportClause, parent?: tsm.Node): void;
 
-    beginVisitCaseBlock?(node: ts.CaseBlock, parent?: ts.Node): void;
-    endVisitCaseBlock?(node: ts.CaseBlock, parent?: ts.Node): void;
+    beginVisitNamespaceImport?(node: tsm.NamespaceImport, parent?: tsm.Node): void;
+    endVisitNamespaceImport?(node: tsm.NamespaceImport, parent?: tsm.Node): void;
 
-    beginVisitNamespaceExportDeclaration?(node: ts.NamespaceExportDeclaration, parent?: ts.Node): void;
-    endVisitNamespaceExportDeclaration?(node: ts.NamespaceExportDeclaration, parent?: ts.Node): void;
+    beginVisitNamedImports?(node: tsm.NamedImports, parent?: tsm.Node): void;
+    endVisitNamedImports?(node: tsm.NamedImports, parent?: tsm.Node): void;
 
-    beginVisitImportEqualsDeclaration?(node: ts.ImportEqualsDeclaration, parent?: ts.Node): void;
-    endVisitImportEqualsDeclaration?(node: ts.ImportEqualsDeclaration, parent?: ts.Node): void;
+    beginVisitImportSpecifier?(node: tsm.ImportSpecifier, parent?: tsm.Node): void;
+    endVisitImportSpecifier?(node: tsm.ImportSpecifier, parent?: tsm.Node): void;
 
-    beginVisitImportDeclaration?(node: ts.ImportDeclaration, parent?: ts.Node): void;
-    endVisitImportDeclaration?(node: ts.ImportDeclaration, parent?: ts.Node): void;
+    beginVisitExportDeclaration?(node: tsm.ExportDeclaration, parent?: tsm.Node): void;
+    endVisitExportDeclaration?(node: tsm.ExportDeclaration, parent?: tsm.Node): void;
 
-    beginVisitImportClause?(node: ts.ImportClause, parent?: ts.Node): void;
-    endVisitImportClause?(node: ts.ImportClause, parent?: ts.Node): void;
+    beginVisitNamedExports?(node: tsm.NamedExports, parent?: tsm.Node): void;
+    endVisitNamedExports?(node: tsm.NamedExports, parent?: tsm.Node): void;
 
-    beginVisitNamespaceImport?(node: ts.NamespaceImport, parent?: ts.Node): void;
-    endVisitNamespaceImport?(node: ts.NamespaceImport, parent?: ts.Node): void;
+    beginVisitNamespaceExport?(node: tsm.NamespaceExport, parent?: tsm.Node): void;
+    endVisitNamespaceExport?(node: tsm.NamespaceExport, parent?: tsm.Node): void;
 
-    beginVisitNamedImports?(node: ts.NamedImports, parent?: ts.Node): void;
-    endVisitNamedImports?(node: ts.NamedImports, parent?: ts.Node): void;
+    beginVisitExportSpecifier?(node: tsm.ExportSpecifier, parent?: tsm.Node): void;
+    endVisitExportSpecifier?(node: tsm.ExportSpecifier, parent?: tsm.Node): void;
 
-    beginVisitImportSpecifier?(node: ts.ImportSpecifier, parent?: ts.Node): void;
-    endVisitImportSpecifier?(node: ts.ImportSpecifier, parent?: ts.Node): void;
+    beginVisitExternalModuleReference?(node: tsm.ExternalModuleReference, parent?: tsm.Node): void;
+    endVisitExternalModuleReference?(node: tsm.ExternalModuleReference, parent?: tsm.Node): void;
 
-    beginVisitExportDeclaration?(node: ts.ExportDeclaration, parent?: ts.Node): void;
-    endVisitExportDeclaration?(node: ts.ExportDeclaration, parent?: ts.Node): void;
+    beginVisitJsxElement?(node: tsm.JsxElement, parent?: tsm.Node): void;
+    endVisitJsxElement?(node: tsm.JsxElement, parent?: tsm.Node): void;
 
-    beginVisitNamedExports?(node: ts.NamedExports, parent?: ts.Node): void;
-    endVisitNamedExports?(node: ts.NamedExports, parent?: ts.Node): void;
+    beginVisitJsxSelfClosingElement?(node: tsm.JsxSelfClosingElement, parent?: tsm.Node): void;
+    endVisitJsxSelfClosingElement?(node: tsm.JsxSelfClosingElement, parent?: tsm.Node): void;
 
-    beginVisitNamespaceExport?(node: ts.NamespaceExport, parent?: ts.Node): void;
-    endVisitNamespaceExport?(node: ts.NamespaceExport, parent?: ts.Node): void;
+    beginVisitJsxOpeningElement?(node: tsm.JsxOpeningElement, parent?: tsm.Node): void;
+    endVisitJsxOpeningElement?(node: tsm.JsxOpeningElement, parent?: tsm.Node): void;
 
-    beginVisitExportSpecifier?(node: ts.ExportSpecifier, parent?: ts.Node): void;
-    endVisitExportSpecifier?(node: ts.ExportSpecifier, parent?: ts.Node): void;
+    beginVisitJsxClosingElement?(node: tsm.JsxClosingElement, parent?: tsm.Node): void;
+    endVisitJsxClosingElement?(node: tsm.JsxClosingElement, parent?: tsm.Node): void;
 
-    beginVisitMissingDeclaration?(node: ts.MissingDeclaration, parent?: ts.Node): void;
-    endVisitMissingDeclaration?(node: ts.MissingDeclaration, parent?: ts.Node): void;
+    beginVisitJsxFragment?(node: tsm.JsxFragment, parent?: tsm.Node): void;
+    endVisitJsxFragment?(node: tsm.JsxFragment, parent?: tsm.Node): void;
 
-    beginVisitExternalModuleReference?(node: ts.ExternalModuleReference, parent?: ts.Node): void;
-    endVisitExternalModuleReference?(node: ts.ExternalModuleReference, parent?: ts.Node): void;
+    beginVisitJsxOpeningFragment?(node: tsm.JsxOpeningFragment, parent?: tsm.Node): void;
+    endVisitJsxOpeningFragment?(node: tsm.JsxOpeningFragment, parent?: tsm.Node): void;
 
-    beginVisitJsxElement?(node: ts.JsxElement, parent?: ts.Node): void;
-    endVisitJsxElement?(node: ts.JsxElement, parent?: ts.Node): void;
+    beginVisitJsxClosingFragment?(node: tsm.JsxClosingFragment, parent?: tsm.Node): void;
+    endVisitJsxClosingFragment?(node: tsm.JsxClosingFragment, parent?: tsm.Node): void;
 
-    beginVisitJsxSelfClosingElement?(node: ts.JsxSelfClosingElement, parent?: ts.Node): void;
-    endVisitJsxSelfClosingElement?(node: ts.JsxSelfClosingElement, parent?: ts.Node): void;
+    beginVisitJsxAttribute?(node: tsm.JsxAttribute, parent?: tsm.Node): void;
+    endVisitJsxAttribute?(node: tsm.JsxAttribute, parent?: tsm.Node): void;
 
-    beginVisitJsxOpeningElement?(node: ts.JsxOpeningElement, parent?: ts.Node): void;
-    endVisitJsxOpeningElement?(node: ts.JsxOpeningElement, parent?: ts.Node): void;
+    beginVisitJsxSpreadAttribute?(node: tsm.JsxSpreadAttribute, parent?: tsm.Node): void;
+    endVisitJsxSpreadAttribute?(node: tsm.JsxSpreadAttribute, parent?: tsm.Node): void;
 
-    beginVisitJsxClosingElement?(node: ts.JsxClosingElement, parent?: ts.Node): void;
-    endVisitJsxClosingElement?(node: ts.JsxClosingElement, parent?: ts.Node): void;
+    beginVisitJsxExpression?(node: tsm.JsxExpression, parent?: tsm.Node): void;
+    endVisitJsxExpression?(node: tsm.JsxExpression, parent?: tsm.Node): void;
 
-    beginVisitJsxFragment?(node: ts.JsxFragment, parent?: ts.Node): void;
-    endVisitJsxFragment?(node: ts.JsxFragment, parent?: ts.Node): void;
+    beginVisitJsxNamespacedName?(node: tsm.JsxNamespacedName, parent?: tsm.Node): void;
+    endVisitJsxNamespacedName?(node: tsm.JsxNamespacedName, parent?: tsm.Node): void;
 
-    beginVisitJsxOpeningFragment?(node: ts.JsxOpeningFragment, parent?: ts.Node): void;
-    endVisitJsxOpeningFragment?(node: ts.JsxOpeningFragment, parent?: ts.Node): void;
+    beginVisitCaseClause?(node: tsm.CaseClause, parent?: tsm.Node): void;
+    endVisitCaseClause?(node: tsm.CaseClause, parent?: tsm.Node): void;
 
-    beginVisitJsxClosingFragment?(node: ts.JsxClosingFragment, parent?: ts.Node): void;
-    endVisitJsxClosingFragment?(node: ts.JsxClosingFragment, parent?: ts.Node): void;
+    beginVisitDefaultClause?(node: tsm.DefaultClause, parent?: tsm.Node): void;
+    endVisitDefaultClause?(node: tsm.DefaultClause, parent?: tsm.Node): void;
 
-    beginVisitJsxAttribute?(node: ts.JsxAttribute, parent?: ts.Node): void;
-    endVisitJsxAttribute?(node: ts.JsxAttribute, parent?: ts.Node): void;
+    beginVisitHeritageClause?(node: tsm.HeritageClause, parent?: tsm.Node): void;
+    endVisitHeritageClause?(node: tsm.HeritageClause, parent?: tsm.Node): void;
 
-    beginVisitJsxAttributes?(node: ts.JsxAttributes, parent?: ts.Node): void;
-    endVisitJsxAttributes?(node: ts.JsxAttributes, parent?: ts.Node): void;
+    beginVisitCatchClause?(node: tsm.CatchClause, parent?: tsm.Node): void;
+    endVisitCatchClause?(node: tsm.CatchClause, parent?: tsm.Node): void;
 
-    beginVisitJsxSpreadAttribute?(node: ts.JsxSpreadAttribute, parent?: ts.Node): void;
-    endVisitJsxSpreadAttribute?(node: ts.JsxSpreadAttribute, parent?: ts.Node): void;
+    beginVisitImportAttributes?(node: tsm.ImportAttributes, parent?: tsm.Node): void;
+    endVisitImportAttributes?(node: tsm.ImportAttributes, parent?: tsm.Node): void;
 
-    beginVisitJsxExpression?(node: ts.JsxExpression, parent?: ts.Node): void;
-    endVisitJsxExpression?(node: ts.JsxExpression, parent?: ts.Node): void;
+    beginVisitImportAttribute?(node: tsm.ImportAttribute, parent?: tsm.Node): void;
+    endVisitImportAttribute?(node: tsm.ImportAttribute, parent?: tsm.Node): void;
 
-    beginVisitJsxNamespacedName?(node: ts.JsxNamespacedName, parent?: ts.Node): void;
-    endVisitJsxNamespacedName?(node: ts.JsxNamespacedName, parent?: ts.Node): void;
+    beginVisitEnumMember?(node: tsm.EnumMember, parent?: tsm.Node): void;
+    endVisitEnumMember?(node: tsm.EnumMember, parent?: tsm.Node): void;
 
-    beginVisitCaseClause?(node: ts.CaseClause, parent?: ts.Node): void;
-    endVisitCaseClause?(node: ts.CaseClause, parent?: ts.Node): void;
+    beginVisitSourceFile?(node: tsm.SourceFile, parent?: tsm.Node): void;
+    endVisitSourceFile?(node: tsm.SourceFile, parent?: tsm.Node): void;
 
-    beginVisitDefaultClause?(node: ts.DefaultClause, parent?: ts.Node): void;
-    endVisitDefaultClause?(node: ts.DefaultClause, parent?: ts.Node): void;
+    beginVisitJSDocTypeExpression?(node: tsm.JSDocTypeExpression, parent?: tsm.Node): void;
+    endVisitJSDocTypeExpression?(node: tsm.JSDocTypeExpression, parent?: tsm.Node): void;
 
-    beginVisitHeritageClause?(node: ts.HeritageClause, parent?: ts.Node): void;
-    endVisitHeritageClause?(node: ts.HeritageClause, parent?: ts.Node): void;
+    beginVisitJSDocNameReference?(node: tsm.JSDocNameReference, parent?: tsm.Node): void;
+    endVisitJSDocNameReference?(node: tsm.JSDocNameReference, parent?: tsm.Node): void;
 
-    beginVisitCatchClause?(node: ts.CatchClause, parent?: ts.Node): void;
-    endVisitCatchClause?(node: ts.CatchClause, parent?: ts.Node): void;
+    beginVisitJSDocMemberName?(node: tsm.JSDocMemberName, parent?: tsm.Node): void;
+    endVisitJSDocMemberName?(node: tsm.JSDocMemberName, parent?: tsm.Node): void;
 
-    beginVisitImportAttributes?(node: ts.ImportAttributes, parent?: ts.Node): void;
-    endVisitImportAttributes?(node: ts.ImportAttributes, parent?: ts.Node): void;
+    beginVisitJSDoc?(node: tsm.JSDoc, parent?: tsm.Node): void;
+    endVisitJSDoc?(node: tsm.JSDoc, parent?: tsm.Node): void;
 
-    beginVisitImportAttribute?(node: ts.ImportAttribute, parent?: ts.Node): void;
-    endVisitImportAttribute?(node: ts.ImportAttribute, parent?: ts.Node): void;
+    beginVisitJSDocTypeLiteral?(node: tsm.JSDocTypeLiteral, parent?: tsm.Node): void;
+    endVisitJSDocTypeLiteral?(node: tsm.JSDocTypeLiteral, parent?: tsm.Node): void;
 
-    beginVisitAssertClause?(node: ts.AssertClause, parent?: ts.Node): void;
-    endVisitAssertClause?(node: ts.AssertClause, parent?: ts.Node): void;
+    beginVisitJSDocLink?(node: tsm.JSDocLink, parent?: tsm.Node): void;
+    endVisitJSDocLink?(node: tsm.JSDocLink, parent?: tsm.Node): void;
 
-    beginVisitAssertEntry?(node: ts.AssertEntry, parent?: ts.Node): void;
-    endVisitAssertEntry?(node: ts.AssertEntry, parent?: ts.Node): void;
+    beginVisitJSDocLinkCode?(node: tsm.JSDocLinkCode, parent?: tsm.Node): void;
+    endVisitJSDocLinkCode?(node: tsm.JSDocLinkCode, parent?: tsm.Node): void;
 
-    beginVisitImportTypeAssertionContainer?(node: ts.ImportTypeAssertionContainer, parent?: ts.Node): void;
-    endVisitImportTypeAssertionContainer?(node: ts.ImportTypeAssertionContainer, parent?: ts.Node): void;
+    beginVisitJSDocLinkPlain?(node: tsm.JSDocLinkPlain, parent?: tsm.Node): void;
+    endVisitJSDocLinkPlain?(node: tsm.JSDocLinkPlain, parent?: tsm.Node): void;
 
-    beginVisitEnumMember?(node: ts.EnumMember, parent?: ts.Node): void;
-    endVisitEnumMember?(node: ts.EnumMember, parent?: ts.Node): void;
+    beginVisitJSDocTag?(node: tsm.JSDocTag, parent?: tsm.Node): void;
+    endVisitJSDocTag?(node: tsm.JSDocTag, parent?: tsm.Node): void;
 
-    beginVisitUnparsedPrologue?(node: ts.UnparsedPrologue, parent?: ts.Node): void;
-    endVisitUnparsedPrologue?(node: ts.UnparsedPrologue, parent?: ts.Node): void;
+    beginVisitJSDocAugmentsTag?(node: tsm.JSDocAugmentsTag, parent?: tsm.Node): void;
+    endVisitJSDocAugmentsTag?(node: tsm.JSDocAugmentsTag, parent?: tsm.Node): void;
 
-    beginVisitUnparsedPrepend?(node: ts.UnparsedPrepend, parent?: ts.Node): void;
-    endVisitUnparsedPrepend?(node: ts.UnparsedPrepend, parent?: ts.Node): void;
+    beginVisitJSDocImplementsTag?(node: tsm.JSDocImplementsTag, parent?: tsm.Node): void;
+    endVisitJSDocImplementsTag?(node: tsm.JSDocImplementsTag, parent?: tsm.Node): void;
 
-    beginVisitUnparsedSyntheticReference?(node: ts.UnparsedSyntheticReference, parent?: ts.Node): void;
-    endVisitUnparsedSyntheticReference?(node: ts.UnparsedSyntheticReference, parent?: ts.Node): void;
+    beginVisitJSDocAuthorTag?(node: tsm.JSDocAuthorTag, parent?: tsm.Node): void;
+    endVisitJSDocAuthorTag?(node: tsm.JSDocAuthorTag, parent?: tsm.Node): void;
 
-    beginVisitSourceFile?(node: ts.SourceFile, parent?: ts.Node): void;
-    endVisitSourceFile?(node: ts.SourceFile, parent?: ts.Node): void;
+    beginVisitJSDocDeprecatedTag?(node: tsm.JSDocDeprecatedTag, parent?: tsm.Node): void;
+    endVisitJSDocDeprecatedTag?(node: tsm.JSDocDeprecatedTag, parent?: tsm.Node): void;
 
-    beginVisitBundle?(node: ts.Bundle, parent?: ts.Node): void;
-    endVisitBundle?(node: ts.Bundle, parent?: ts.Node): void;
+    beginVisitJSDocClassTag?(node: tsm.JSDocClassTag, parent?: tsm.Node): void;
+    endVisitJSDocClassTag?(node: tsm.JSDocClassTag, parent?: tsm.Node): void;
 
-    beginVisitUnparsedSource?(node: ts.UnparsedSource, parent?: ts.Node): void;
-    endVisitUnparsedSource?(node: ts.UnparsedSource, parent?: ts.Node): void;
+    beginVisitJSDocPublicTag?(node: tsm.JSDocPublicTag, parent?: tsm.Node): void;
+    endVisitJSDocPublicTag?(node: tsm.JSDocPublicTag, parent?: tsm.Node): void;
 
-    beginVisitInputFiles?(node: ts.InputFiles, parent?: ts.Node): void;
-    endVisitInputFiles?(node: ts.InputFiles, parent?: ts.Node): void;
+    beginVisitJSDocPrivateTag?(node: tsm.JSDocPrivateTag, parent?: tsm.Node): void;
+    endVisitJSDocPrivateTag?(node: tsm.JSDocPrivateTag, parent?: tsm.Node): void;
 
-    beginVisitJSDocTypeExpression?(node: ts.JSDocTypeExpression, parent?: ts.Node): void;
-    endVisitJSDocTypeExpression?(node: ts.JSDocTypeExpression, parent?: ts.Node): void;
+    beginVisitJSDocProtectedTag?(node: tsm.JSDocProtectedTag, parent?: tsm.Node): void;
+    endVisitJSDocProtectedTag?(node: tsm.JSDocProtectedTag, parent?: tsm.Node): void;
 
-    beginVisitJSDocNameReference?(node: ts.JSDocNameReference, parent?: ts.Node): void;
-    endVisitJSDocNameReference?(node: ts.JSDocNameReference, parent?: ts.Node): void;
+    beginVisitJSDocReadonlyTag?(node: tsm.JSDocReadonlyTag, parent?: tsm.Node): void;
+    endVisitJSDocReadonlyTag?(node: tsm.JSDocReadonlyTag, parent?: tsm.Node): void;
 
-    beginVisitJSDocMemberName?(node: ts.JSDocMemberName, parent?: ts.Node): void;
-    endVisitJSDocMemberName?(node: ts.JSDocMemberName, parent?: ts.Node): void;
+    beginVisitJSDocOverrideTag?(node: tsm.JSDocOverrideTag, parent?: tsm.Node): void;
+    endVisitJSDocOverrideTag?(node: tsm.JSDocOverrideTag, parent?: tsm.Node): void;
 
-    beginVisitJSDoc?(node: ts.JSDoc, parent?: ts.Node): void;
-    endVisitJSDoc?(node: ts.JSDoc, parent?: ts.Node): void;
+    beginVisitJSDocCallbackTag?(node: tsm.JSDocCallbackTag, parent?: tsm.Node): void;
+    endVisitJSDocCallbackTag?(node: tsm.JSDocCallbackTag, parent?: tsm.Node): void;
 
-    beginVisitJSDocComment?(node: ts.JSDocComment, parent?: ts.Node): void;
-    endVisitJSDocComment?(node: ts.JSDocComment, parent?: ts.Node): void;
+    beginVisitJSDocOverloadTag?(node: tsm.JSDocOverloadTag, parent?: tsm.Node): void;
+    endVisitJSDocOverloadTag?(node: tsm.JSDocOverloadTag, parent?: tsm.Node): void;
 
-    beginVisitJSDocTypeLiteral?(node: ts.JSDocTypeLiteral, parent?: ts.Node): void;
-    endVisitJSDocTypeLiteral?(node: ts.JSDocTypeLiteral, parent?: ts.Node): void;
+    beginVisitJSDocEnumTag?(node: tsm.JSDocEnumTag, parent?: tsm.Node): void;
+    endVisitJSDocEnumTag?(node: tsm.JSDocEnumTag, parent?: tsm.Node): void;
 
-    beginVisitJSDocLink?(node: ts.JSDocLink, parent?: ts.Node): void;
-    endVisitJSDocLink?(node: ts.JSDocLink, parent?: ts.Node): void;
+    beginVisitJSDocParameterTag?(node: tsm.JSDocParameterTag, parent?: tsm.Node): void;
+    endVisitJSDocParameterTag?(node: tsm.JSDocParameterTag, parent?: tsm.Node): void;
 
-    beginVisitJSDocLinkCode?(node: ts.JSDocLinkCode, parent?: ts.Node): void;
-    endVisitJSDocLinkCode?(node: ts.JSDocLinkCode, parent?: ts.Node): void;
+    beginVisitJSDocReturnTag?(node: tsm.JSDocReturnTag, parent?: tsm.Node): void;
+    endVisitJSDocReturnTag?(node: tsm.JSDocReturnTag, parent?: tsm.Node): void;
 
-    beginVisitJSDocLinkPlain?(node: ts.JSDocLinkPlain, parent?: ts.Node): void;
-    endVisitJSDocLinkPlain?(node: ts.JSDocLinkPlain, parent?: ts.Node): void;
+    beginVisitJSDocThisTag?(node: tsm.JSDocThisTag, parent?: tsm.Node): void;
+    endVisitJSDocThisTag?(node: tsm.JSDocThisTag, parent?: tsm.Node): void;
 
-    beginVisitJSDocTag?(node: ts.JSDocTag, parent?: ts.Node): void;
-    endVisitJSDocTag?(node: ts.JSDocTag, parent?: ts.Node): void;
+    beginVisitJSDocTypeTag?(node: tsm.JSDocTypeTag, parent?: tsm.Node): void;
+    endVisitJSDocTypeTag?(node: tsm.JSDocTypeTag, parent?: tsm.Node): void;
 
-    beginVisitJSDocAugmentsTag?(node: ts.JSDocAugmentsTag, parent?: ts.Node): void;
-    endVisitJSDocAugmentsTag?(node: ts.JSDocAugmentsTag, parent?: ts.Node): void;
+    beginVisitJSDocTemplateTag?(node: tsm.JSDocTemplateTag, parent?: tsm.Node): void;
+    endVisitJSDocTemplateTag?(node: tsm.JSDocTemplateTag, parent?: tsm.Node): void;
 
-    beginVisitJSDocImplementsTag?(node: ts.JSDocImplementsTag, parent?: ts.Node): void;
-    endVisitJSDocImplementsTag?(node: ts.JSDocImplementsTag, parent?: ts.Node): void;
+    beginVisitJSDocTypedefTag?(node: tsm.JSDocTypedefTag, parent?: tsm.Node): void;
+    endVisitJSDocTypedefTag?(node: tsm.JSDocTypedefTag, parent?: tsm.Node): void;
 
-    beginVisitJSDocAuthorTag?(node: ts.JSDocAuthorTag, parent?: ts.Node): void;
-    endVisitJSDocAuthorTag?(node: ts.JSDocAuthorTag, parent?: ts.Node): void;
+    beginVisitJSDocSeeTag?(node: tsm.JSDocSeeTag, parent?: tsm.Node): void;
+    endVisitJSDocSeeTag?(node: tsm.JSDocSeeTag, parent?: tsm.Node): void;
 
-    beginVisitJSDocDeprecatedTag?(node: ts.JSDocDeprecatedTag, parent?: ts.Node): void;
-    endVisitJSDocDeprecatedTag?(node: ts.JSDocDeprecatedTag, parent?: ts.Node): void;
+    beginVisitJSDocPropertyTag?(node: tsm.JSDocPropertyTag, parent?: tsm.Node): void;
+    endVisitJSDocPropertyTag?(node: tsm.JSDocPropertyTag, parent?: tsm.Node): void;
 
-    beginVisitJSDocClassTag?(node: ts.JSDocClassTag, parent?: ts.Node): void;
-    endVisitJSDocClassTag?(node: ts.JSDocClassTag, parent?: ts.Node): void;
+    beginVisitJSDocThrowsTag?(node: tsm.JSDocThrowsTag, parent?: tsm.Node): void;
+    endVisitJSDocThrowsTag?(node: tsm.JSDocThrowsTag, parent?: tsm.Node): void;
 
-    beginVisitJSDocPublicTag?(node: ts.JSDocPublicTag, parent?: ts.Node): void;
-    endVisitJSDocPublicTag?(node: ts.JSDocPublicTag, parent?: ts.Node): void;
+    beginVisitJSDocSatisfiesTag?(node: tsm.JSDocSatisfiesTag, parent?: tsm.Node): void;
+    endVisitJSDocSatisfiesTag?(node: tsm.JSDocSatisfiesTag, parent?: tsm.Node): void;
 
-    beginVisitJSDocPrivateTag?(node: ts.JSDocPrivateTag, parent?: ts.Node): void;
-    endVisitJSDocPrivateTag?(node: ts.JSDocPrivateTag, parent?: ts.Node): void;
+    beginVisitSyntaxList?(node: tsm.SyntaxList, parent?: tsm.Node): void;
+    endVisitSyntaxList?(node: tsm.SyntaxList, parent?: tsm.Node): void;
 
-    beginVisitJSDocProtectedTag?(node: ts.JSDocProtectedTag, parent?: ts.Node): void;
-    endVisitJSDocProtectedTag?(node: ts.JSDocProtectedTag, parent?: ts.Node): void;
+    beginVisitNotEmittedStatement?(node: tsm.NotEmittedStatement, parent?: tsm.Node): void;
+    endVisitNotEmittedStatement?(node: tsm.NotEmittedStatement, parent?: tsm.Node): void;
 
-    beginVisitJSDocReadonlyTag?(node: ts.JSDocReadonlyTag, parent?: ts.Node): void;
-    endVisitJSDocReadonlyTag?(node: ts.JSDocReadonlyTag, parent?: ts.Node): void;
+    beginVisitPartiallyEmittedExpression?(node: tsm.PartiallyEmittedExpression, parent?: tsm.Node): void;
+    endVisitPartiallyEmittedExpression?(node: tsm.PartiallyEmittedExpression, parent?: tsm.Node): void;
 
-    beginVisitJSDocOverrideTag?(node: ts.JSDocOverrideTag, parent?: ts.Node): void;
-    endVisitJSDocOverrideTag?(node: ts.JSDocOverrideTag, parent?: ts.Node): void;
-
-    beginVisitJSDocCallbackTag?(node: ts.JSDocCallbackTag, parent?: ts.Node): void;
-    endVisitJSDocCallbackTag?(node: ts.JSDocCallbackTag, parent?: ts.Node): void;
-
-    beginVisitJSDocOverloadTag?(node: ts.JSDocOverloadTag, parent?: ts.Node): void;
-    endVisitJSDocOverloadTag?(node: ts.JSDocOverloadTag, parent?: ts.Node): void;
-
-    beginVisitJSDocEnumTag?(node: ts.JSDocEnumTag, parent?: ts.Node): void;
-    endVisitJSDocEnumTag?(node: ts.JSDocEnumTag, parent?: ts.Node): void;
-
-    beginVisitJSDocParameterTag?(node: ts.JSDocParameterTag, parent?: ts.Node): void;
-    endVisitJSDocParameterTag?(node: ts.JSDocParameterTag, parent?: ts.Node): void;
-
-    beginVisitJSDocReturnTag?(node: ts.JSDocReturnTag, parent?: ts.Node): void;
-    endVisitJSDocReturnTag?(node: ts.JSDocReturnTag, parent?: ts.Node): void;
-
-    beginVisitJSDocThisTag?(node: ts.JSDocThisTag, parent?: ts.Node): void;
-    endVisitJSDocThisTag?(node: ts.JSDocThisTag, parent?: ts.Node): void;
-
-    beginVisitJSDocTypeTag?(node: ts.JSDocTypeTag, parent?: ts.Node): void;
-    endVisitJSDocTypeTag?(node: ts.JSDocTypeTag, parent?: ts.Node): void;
-
-    beginVisitJSDocTemplateTag?(node: ts.JSDocTemplateTag, parent?: ts.Node): void;
-    endVisitJSDocTemplateTag?(node: ts.JSDocTemplateTag, parent?: ts.Node): void;
-
-    beginVisitJSDocTypedefTag?(node: ts.JSDocTypedefTag, parent?: ts.Node): void;
-    endVisitJSDocTypedefTag?(node: ts.JSDocTypedefTag, parent?: ts.Node): void;
-
-    beginVisitJSDocSeeTag?(node: ts.JSDocSeeTag, parent?: ts.Node): void;
-    endVisitJSDocSeeTag?(node: ts.JSDocSeeTag, parent?: ts.Node): void;
-
-    beginVisitJSDocPropertyTag?(node: ts.JSDocPropertyTag, parent?: ts.Node): void;
-    endVisitJSDocPropertyTag?(node: ts.JSDocPropertyTag, parent?: ts.Node): void;
-
-    beginVisitJSDocThrowsTag?(node: ts.JSDocThrowsTag, parent?: ts.Node): void;
-    endVisitJSDocThrowsTag?(node: ts.JSDocThrowsTag, parent?: ts.Node): void;
-
-    beginVisitJSDocSatisfiesTag?(node: ts.JSDocSatisfiesTag, parent?: ts.Node): void;
-    endVisitJSDocSatisfiesTag?(node: ts.JSDocSatisfiesTag, parent?: ts.Node): void;
-
-    beginVisitSyntaxList?(node: ts.SyntaxList, parent?: ts.Node): void;
-    endVisitSyntaxList?(node: ts.SyntaxList, parent?: ts.Node): void;
-
-    beginVisitNotEmittedStatement?(node: ts.NotEmittedStatement, parent?: ts.Node): void;
-    endVisitNotEmittedStatement?(node: ts.NotEmittedStatement, parent?: ts.Node): void;
-
-    beginVisitPartiallyEmittedExpression?(node: ts.PartiallyEmittedExpression, parent?: ts.Node): void;
-    endVisitPartiallyEmittedExpression?(node: ts.PartiallyEmittedExpression, parent?: ts.Node): void;
-
-    beginVisitCommaListExpression?(node: ts.CommaListExpression, parent?: ts.Node): void;
-    endVisitCommaListExpression?(node: ts.CommaListExpression, parent?: ts.Node): void;
+    beginVisitCommaListExpression?(node: tsm.CommaListExpression, parent?: tsm.Node): void;
+    endVisitCommaListExpression?(node: tsm.CommaListExpression, parent?: tsm.Node): void;
 }
