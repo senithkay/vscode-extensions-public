@@ -561,10 +561,12 @@ export interface UpdateHttpEndpointRequest {
     templateName: string;
     requireTemplateParameters: boolean;
     templateParameters: any;
+    getContentOnly: boolean;
 }
 
 export interface UpdateHttpEndpointResponse {
     path: string;
+    content: string;
 }
 
 export interface RetrieveHttpEndpointRequest {
@@ -638,10 +640,12 @@ export interface UpdateAddressEndpointRequest {
     templateName: string;
     requireTemplateParameters: boolean;
     templateParameters: any;
+    getContentOnly: boolean;
 }
 
 export interface UpdateAddressEndpointResponse {
     path: string;
+    content: string;
 }
 
 export interface RetrieveAddressEndpointRequest {
@@ -705,10 +709,12 @@ export interface UpdateWsdlEndpointRequest {
     templateName: string;
     requireTemplateParameters: boolean;
     templateParameters: any;
+    getContentOnly: boolean;
 }
 
 export interface UpdateWsdlEndpointResponse {
     path: string;
+    content: string;
 }
 
 export interface RetrieveWsdlEndpointRequest {
@@ -771,10 +777,12 @@ export interface UpdateDefaultEndpointRequest {
     templateName: string;
     requireTemplateParameters: boolean;
     templateParameters: any;
+    getContentOnly: boolean;
 }
 
 export interface UpdateDefaultEndpointResponse {
     path: string;
+    content: string;
 }
 
 export interface RetrieveDefaultEndpointRequest {
@@ -849,10 +857,12 @@ export interface CreateTemplateRequest {
     wsdlUri: string;
     wsdlService: string;
     wsdlPort: number | null;
+    getContentOnly: boolean;
 }
 
 export interface CreateTemplateResponse {
     path: string;
+    content: string;
 }
 
 export interface RetrieveTemplateRequest {
@@ -991,8 +1001,8 @@ export interface BrowseFileRequest {
 
 export interface GetAvailableResourcesRequest {
     documentIdentifier: string;
-    resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate" |
-    "dataService"| "dataSource" | "localEntry" | "dataMapper" | "js" | "json" | "smooksConfig" | "wsdl" | "ws_policy" | "xsd" | "xsl" | "xslt" | "yaml";
+    resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate" | "proxyService" |
+    "dataService" | "dataSource" | "localEntry" | "dataMapper" | "js" | "json" | "smooksConfig" | "wsdl" | "ws_policy" | "xsd" | "xsl" | "xslt" | "yaml";
 }
 
 export interface GetAvailableResourcesResponse {

@@ -124,7 +124,7 @@ const Form = ({
                     )}
                 </FormGroup>
             )}
-            <FormGroup title="Basic Properties" isCollapsed={false}>
+            <FormGroup title="Basic Properties" isCollapsed={isTemplate}>
                 <TextField
                     required
                     autoFocus
@@ -149,7 +149,7 @@ const Form = ({
                     {...renderProps("statisticsEnabled")}
                 />
             </FormGroup>
-            <FormGroup title="Miscellaneous Properties" isCollapsed={false}>
+            <FormGroup title="Miscellaneous Properties" isCollapsed={true}>
                 <Dropdown
                     label="Optimize"
                     items={optimizeOptions}

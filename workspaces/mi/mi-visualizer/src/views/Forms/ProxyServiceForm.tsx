@@ -15,7 +15,6 @@ import {useForm} from "react-hook-form";
 import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
 
-
 interface OptionProps {
     value: string;
 }
@@ -54,22 +53,27 @@ const newProxyService: InputsFields = {
     wsdlPort: 8080,
 }
 
-const schema = yup.object({
-    proxyServiceName: yup.string().required("Template Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Template Name"),
-    proxyServiceType: yup.string().default(""),
-    endpointType: yup.string().notRequired().default(""),
-    endpoint: yup.string().notRequired().default(""),
-    requestLogLevel: yup.string().notRequired().default("None"),
-    responseLogLevel: yup.string().notRequired().default("None"),
-    securityPolicy: yup.string().notRequired().default(""),
-    requestXslt: yup.string().notRequired().default(""),
-    responseXslt: yup.string().notRequired().default(""),
-    wsdlUri: yup.string().notRequired().default(""),
-    wsdlService: yup.string().notRequired().default(""),
-    wsdlPort: yup.number().notRequired().default(8080)
-});
-
 export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
+
+    const schema = yup.object({
+        proxyServiceName: yup.string().required("Proxy Service Name is required")
+            .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Proxy Service Name")
+            .test('validateProxyServiceName',
+                'Proxy Service with same name already exists', value => {
+                    return !proxyServices.includes(value)
+                }),
+        proxyServiceType: yup.string().default(""),
+        endpointType: yup.string().notRequired().default(""),
+        endpoint: yup.string().notRequired().default(""),
+        requestLogLevel: yup.string().notRequired().default("None"),
+        responseLogLevel: yup.string().notRequired().default("None"),
+        securityPolicy: yup.string().notRequired().default(""),
+        requestXslt: yup.string().notRequired().default(""),
+        responseXslt: yup.string().notRequired().default(""),
+        wsdlUri: yup.string().notRequired().default(""),
+        wsdlService: yup.string().notRequired().default(""),
+        wsdlPort: yup.number().notRequired().default(8080)
+    });
 
     const {
         register,
@@ -87,23 +91,8 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
     const [transformResponse, setTransformResponse] = useState([]);
     const [publishContract, setPublishContract] = useState([]);
     const [endpoints, setEndpoints] = useState([]);
+    const [proxyServices, setProxyServices] = useState([]);
     const [directoryPath, setDirectoryPath] = useState("");
-
-    useEffect(() => {
-
-        (async () => {
-            const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({path: props.path})).path;
-            const proxyServicesDir = path.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts', 'proxy-services');
-            setDirectoryPath(proxyServicesDir);
-            const items = await rpcClient.getMiDiagramRpcClient().getEndpointsAndSequences();
-            const endpoints = items.data[0].map((seq: string) => {
-                seq = seq.replace(".xml", "");
-                return {value: seq}
-            });
-            setEndpoints(endpoints);
-        })();
-
-    }, []);
 
     const transportTypes = [
         'http',
@@ -122,6 +111,31 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
         {value: "Full"},
         {value: "Simple"}
     ];
+
+    useEffect(() => {
+        (async () => {
+            const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({path: props.path})).path;
+            const proxyServicesDir = path.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts', 'proxy-services');
+            setDirectoryPath(proxyServicesDir);
+            const items = await rpcClient.getMiDiagramRpcClient().getEndpointsAndSequences();
+            const endpoints = items.data[0].map((seq: string) => {
+                seq = seq.replace(".xml", "");
+                return {value: seq}
+            });
+            setEndpoints(endpoints);
+
+            const proxyServiceResponse = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
+                documentIdentifier: props.path,
+                resourceType: "proxyService",
+            });
+
+            if (proxyServiceResponse.resources) {
+                const resources = proxyServiceResponse.resources.map((resource) => resource.name);
+                setProxyServices(resources);
+            }
+        })();
+
+    }, []);
 
     const handleTransportsChange = (value: string) => {
         if (selectedTransports.includes(value)) {
@@ -157,17 +171,12 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
             ...values
         }
         await rpcClient.getMiDiagramRpcClient().createProxyService(createProxyServiceParams);
-
-        rpcClient.getMiVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {view: MACHINE_VIEW.Overview}
-        });
+        handleCancel();
     };
 
     const renderProps = (fieldName: keyof InputsFields) => {
         return {
             id: fieldName,
-            value: String(watch(fieldName)),
             ...register(fieldName),
             errorMsg: errors[fieldName] && errors[fieldName].message.toString()
         }
