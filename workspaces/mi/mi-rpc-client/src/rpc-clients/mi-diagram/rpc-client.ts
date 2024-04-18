@@ -63,6 +63,8 @@ import {
     GetAvailableResourcesRequest,
     GetAvailableResourcesResponse,
     GetBackendRootUrlResponse,
+    GetConnectorConnectionsRequest,
+    GetConnectorConnectionsResponse,
     GetConnectorFormRequest,
     GetConnectorFormResponse,
     GetDataSourceRequest,
@@ -173,6 +175,7 @@ import {
     getAvailableResources,
     getBackendRootUrl,
     getConnector,
+    getConnectorConnections,
     getConnectorForm,
     getConnectors,
     getDataSource,
@@ -572,5 +575,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     createConnection(params: CreateConnectionRequest): Promise<CreateConnectionResponse> {
         return this._messenger.sendRequest(createConnection, HOST_EXTENSION, params);
+    }
+
+    getConnectorConnections(params: GetConnectorConnectionsRequest): Promise<GetConnectorConnectionsResponse> {
+        return this._messenger.sendRequest(getConnectorConnections, HOST_EXTENSION, params);
     }
 }

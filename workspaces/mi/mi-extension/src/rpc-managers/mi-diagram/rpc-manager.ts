@@ -66,6 +66,8 @@ import {
     GetAvailableResourcesRequest,
     GetAvailableResourcesResponse,
     GetBackendRootUrlResponse,
+    GetConnectorConnectionsRequest,
+    GetConnectorConnectionsResponse,
     GetConnectorFormRequest,
     GetConnectorFormResponse,
     GetDataSourceRequest,
@@ -2915,6 +2917,18 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             fs.writeFileSync(filePath, xmlData);
             resolve({ name: connectionName });
+        });
+    }
+
+    async getConnectorConnections(params: GetConnectorConnectionsRequest): Promise<GetConnectorConnectionsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getConnectorConnections({
+                documentUri: params.documentUri,
+                connectorName: params.connectorName
+            });
+
+            resolve(res);
         });
     }
 }

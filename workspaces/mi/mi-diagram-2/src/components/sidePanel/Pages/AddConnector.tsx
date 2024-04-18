@@ -113,8 +113,21 @@ const AddConnector = (props: AddConnectorProps) => {
                 }
             };
 
-            const connectionTypes = findAllowedConnectionTypes(props.formData.elements);
-            setAllowedConnectionTypes(connectionTypes);
+            (async () => {
+                const allowedTypes = findAllowedConnectionTypes(props.formData.elements);
+                setAllowedConnectionTypes(allowedTypes);
+
+                const connectorData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
+                    documentUri: props.documentUri,
+                    connectorName: props.formData?.connectorName ?? props.connectorName.toLowerCase().replace(/\s/g, '')
+                });
+
+                const filteredConnections = connectorData.connections.filter(
+                    connection => allowedTypes.includes(connection.connectionType));
+                const connectorNames = filteredConnections.map(connector => connector.name);
+
+                setConnections(connectorNames);
+            })();
         }
     }, [props.formData]);
 
@@ -249,7 +262,7 @@ const AddConnector = (props: AddConnectorProps) => {
                     </div>
                     <AutoComplete
                         items={connections}
-                        value={formValues['configKey']}
+                        value={formValues['configKey'] ?? connections[0]}
                         onValueChange={(e: any) => {
                             setFormValues({ ...formValues, ['configKey']: e });
                             formValidators[element.name](e);

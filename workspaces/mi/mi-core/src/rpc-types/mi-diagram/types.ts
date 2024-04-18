@@ -1111,3 +1111,18 @@ export interface CreateConnectionRequest {
 export interface CreateConnectionResponse {
     name: string
 }
+
+export interface ConnectorConnection {
+    name: string;
+    path: string;
+    connectionType?: string;
+}
+
+export interface GetConnectorConnectionsRequest {
+    documentUri: string;
+    connectorName: string;
+}
+
+export interface GetConnectorConnectionsResponse {
+    connections?: ConnectorConnection[]
+}

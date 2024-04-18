@@ -53,7 +53,7 @@ namespace S {
     `;
 
     export const IconContainer = styled.div`
-        padding: 0 8px;
+        padding: 0 4px;
         display: flex;
         align-items: center;
         justify-content: center;
