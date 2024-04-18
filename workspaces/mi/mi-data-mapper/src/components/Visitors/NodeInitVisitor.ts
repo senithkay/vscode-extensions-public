@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ArrowFunction, ParenthesizedExpression, Node, PropertyAssignment, ObjectLiteralExpression } from "ts-morph";
+import { ArrowFunction, ParenthesizedExpression, Node, PropertyAssignment, ObjectLiteralExpression, FunctionDeclaration, Block, ReturnStatement } from "ts-morph";
 import { Visitor } from "../../ts/base-visitor";
 import { ObjectOutputNode, InputNode, LinkConnectorNode } from "../Diagram/Node";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
@@ -23,7 +23,7 @@ export class NodeInitVisitor implements Visitor {
         private context: DataMapperContext,
     ) {}
 
-    beginVisitArrowFunction(node: ArrowFunction): void {
+    beginVisitFunctionDeclaration(node: FunctionDeclaration): void {
         // Create input nodes
         const params = node.getParameters();
         params.forEach((param) => {
@@ -32,15 +32,18 @@ export class NodeInitVisitor implements Visitor {
             this.inputNodes.push(paramNode);
         });
 
-        // Create output node
-        if (Node.isParenthesizedExpression(node.getBody())) {
+        const body = node.getBody();
 
-            if (node.getReturnType().isInterface()) {
-                this.outputNode = new ObjectOutputNode(
-                    this.context,
-                    node.getBody() as ParenthesizedExpression
-                );
-            }
+        if (Node.isBlock(body)) {
+            body.getStatements().forEach((statement) => {
+                if (Node.isReturnStatement(statement)) {
+                    const returnStatement = statement as ReturnStatement;
+                    this.outputNode = new ObjectOutputNode(
+                        this.context,
+                        returnStatement
+                    );
+                }
+            });
         }
     }
 

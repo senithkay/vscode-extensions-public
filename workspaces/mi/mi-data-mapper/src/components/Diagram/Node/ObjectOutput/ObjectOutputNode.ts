@@ -8,7 +8,7 @@
  */
 import { Point } from "@projectstorm/geometry";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
-import { Node, ParenthesizedExpression } from "ts-morph";
+import { Node, ReturnStatement } from "ts-morph";
 
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -39,7 +39,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public value: ParenthesizedExpression
+        public value: ReturnStatement
     ) {
         super(
             NODE_ID,

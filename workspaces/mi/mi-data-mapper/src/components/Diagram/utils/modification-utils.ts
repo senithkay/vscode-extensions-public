@@ -123,7 +123,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
             writer.writeLine(source);
         });
 	} else if (targetNode instanceof ObjectOutputNode) {
-        targetNode.value.replaceWithText(`{${getLinebreak()}${source}}`);
+        targetNode.value.getExpression().replaceWithText(`{${getLinebreak()}${source}}`);
 	}
 
     applyModifications();

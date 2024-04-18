@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ts, Node, Project, SourceFile, Type } from 'ts-morph';
+import { ts, Node, Project, SourceFile, Type, ParameterDeclaration } from 'ts-morph';
 import * as path from 'path';
 import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
 
@@ -42,23 +42,14 @@ export function getSourceCode(resolvedPath: string) {
 
 // Find inputs and output types
 function findInputsAndOutput(functionName: string) {
-    const varDecls = sourceFile.getVariableDeclarations();
-    varDecls.forEach((varDecl) => {
-        const variableDeclaration = varDecl
-            .getVariableStatementOrThrow()
-            .getDeclarationList()
-            .getDeclarations()[0];
-        const fnName = variableDeclaration.getName();
-        const initializer = variableDeclaration.getInitializer();
+    const fn = sourceFile.getFunction(functionName);
 
-        if (fnName === functionName && initializer && Node.isArrowFunction(initializer)) {
-            const parameters = initializer.getParameters();
-            parameters.forEach((param) => {
-                inputTypes.push(getTypeInfo(param.getType()));
-            });
-            outputType = getTypeInfo(initializer.getReturnType());
-        }
-    });
+    if (fn) {
+        fn.getParameters().forEach((param) => {
+            inputTypes.push(getTypeInfo(param.getType()));
+        });
+        outputType = getTypeInfo(fn.getReturnType())
+    }
 }
 
 // Function to extract type information

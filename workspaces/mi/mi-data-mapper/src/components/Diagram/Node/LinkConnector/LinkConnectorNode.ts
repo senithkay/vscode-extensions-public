@@ -210,14 +210,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     public deleteLink(): void {
         const targetField = this.targetPort.field;
         const { functionST, applyModifications } = this.context;
-
-        const variableDeclaration = functionST
-            .getVariableStatementOrThrow()
-            .getDeclarationList()
-            .getDeclarations()[0];
-        const initializer = variableDeclaration.getInitializer();
-        const exprFuncBodyPosition = Node.isArrowFunction(initializer)
-            && getPosition(initializer.getBody());
+        const exprFuncBodyPosition = getPosition(functionST.getBody());
 
         if ((!targetField?.fieldName
             && targetField?.kind !== TypeKind.Array
