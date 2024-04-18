@@ -93,13 +93,15 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
     private client: RPCClient | undefined;
 
     public constructor() {
-        RPCClient.getInstance()
-            .then((client) => {
-                this.client = client;
-            })
-            .catch((err) => {
-                getLogger().error("Error initializing RPC client", err);
-            });
+        this.init()
+    }
+
+    async init() {
+        try {
+            this.client = await RPCClient.getInstance();
+        } catch (e) {
+            getLogger().error("Error initializing RPC client", e);
+        }
     }
 
     async createProject(params: CreateProjectReq): Promise<Project> {
@@ -115,6 +117,15 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
             throw new Error("RPC client is not initialized");
         }
         await this.client.sendRequest("component/create", params);
+    }
+
+    async createEpYaml(params: CreateComponentReq): Promise<{ success: boolean }> {
+        if (!this.client) {
+            throw new Error("RPC client is not initialized");
+        }
+        console.log("Creating ep yaml", params);
+        const resp = await this.client.sendRequest<{ success: boolean }>("component/createEpYaml", params);
+        return resp;
     }
 
     async deleteComponent(params: DeleteCompReq): Promise<void> {
