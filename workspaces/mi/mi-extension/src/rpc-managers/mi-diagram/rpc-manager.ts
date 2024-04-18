@@ -1336,9 +1336,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const {
                 directory, templateName, templateType, address, uriTemplate, httpMethod,
-                wsdlUri, wsdlService, wsdlPort } = params;
+                wsdlUri, wsdlService, wsdlPort, traceEnabled, statisticsEnabled } = params;
 
-            const getTemplateParams = { templateName, templateType, address, uriTemplate, httpMethod, wsdlUri, wsdlService, wsdlPort };
+            const getTemplateParams = { templateName, templateType, address, uriTemplate, httpMethod,
+                wsdlUri, wsdlService, wsdlPort, traceEnabled, statisticsEnabled };
 
             const xmlData = getTemplateXmlWrapper(getTemplateParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
@@ -1394,7 +1395,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     httpMethod: '',
                     wsdlUri: '',
                     wsdlService: '',
-                    wsdlPort: null
+                    wsdlPort: null,
+                    traceEnabled: false,
+                    statisticsEnabled: false
                 };
 
                 if (jsonData.template.endpoint?.address) {
@@ -1417,6 +1420,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     response.wsdlPort = jsonData.template.endpoint.wsdl["@_"]["@_port"];
                 } else {
                     response.templateType = 'Sequence Template';
+                    if (jsonData.template.sequence["@_"] !== undefined) {
+                        response.traceEnabled = jsonData.template.sequence["@_"]["@_trace"] !== undefined;
+                        response.statisticsEnabled = jsonData.template.sequence["@_"]["@_statistics"] !== undefined;
+                    }
                 }
 
                 resolve(response);

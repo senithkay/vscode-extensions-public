@@ -31,6 +31,8 @@ type InputsFields = {
     wsdlUri?: string;
     wsdlService?: string;
     wsdlPort?: number;
+    traceEnabled?: boolean;
+    statisticsEnabled?: boolean;
     saveInReg?: boolean;
     //reg form
     artifactName?: string;
@@ -47,6 +49,8 @@ const newTemplate: InputsFields = {
     wsdlUri: "",
     wsdlService: "",
     wsdlPort: 8080,
+    traceEnabled: false,
+    statisticsEnabled: false,
     saveInReg: false,
     //reg form
     artifactName: "",
@@ -61,11 +65,11 @@ export function TemplateWizard(props: TemplateWizardProps) {
             .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Template Name")
             .test('validateTemplateName',
                 'Template with same name already exists', value => {
-                    return !templates.includes(value)
+                    return !isNewTemplate ? !(templates.includes(value) && value !== savedTemplateName) : !templates.includes(value);
                 })
             .test('validateTemplateArtifactName',
                 'Template artifact name already exists', value => {
-                    return !templateArtifactNames.includes(value)
+                    return !isNewTemplate ? !(templateArtifactNames.includes(value) && value !== savedTemplateName) : !templateArtifactNames.includes(value);
                 }),
         templateType: yup.string().default(""),
         address: yup.string().notRequired().default(""),
@@ -74,7 +78,9 @@ export function TemplateWizard(props: TemplateWizardProps) {
         wsdlUri: yup.string().notRequired().default(""),
         wsdlService: yup.string().notRequired().default(""),
         wsdlPort: yup.number().notRequired().default(8080),
-        saveInReg: yup.boolean(),
+        traceEnabled: yup.boolean().default(false),
+        statisticsEnabled: yup.boolean().default(false),
+        saveInReg: yup.boolean().default(false),
         artifactName: yup.string().when('saveInReg', {
             is: false,
             then: () =>
@@ -106,6 +112,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
         getValues,
         watch,
         control,
+        reset
     } = useForm({
         defaultValues: newTemplate,
         resolver: yupResolver(schema),
@@ -118,9 +125,21 @@ export function TemplateWizard(props: TemplateWizardProps) {
     const [templateArtifactNames, setTemplateArtifactNames] = useState([]);
     const [artifactNames, setArtifactNames] = useState([]);
     const [registryPaths, setRegistryPaths] = useState([]);
+    const isNewTemplate = !props.path.endsWith(".xml");
+    const [savedTemplateName, setSavedTemplateName] = useState<string>("");
 
     useEffect(() => {
         (async () => {
+
+            if (!isNewTemplate) {
+                const existingTemplates = await rpcClient.getMiDiagramRpcClient().getTemplate({path: props.path});
+                reset(existingTemplates);
+                setSavedTemplateName(existingTemplates.templateName);
+                setValue('saveInReg', false);
+            } else {
+                reset(newTemplate);
+            }
+
             const endpointTemplateResponse = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
                 documentIdentifier: props.path,
                 resourceType: "endpointTemplate",
@@ -158,7 +177,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
             setArtifactNames(result.artifactNamesArr);
             setRegistryPaths(result.registryPaths);
         })();
-    }, []);
+    }, [props.path]);
 
     const setEndpointType = (type: string) => {
 
@@ -211,8 +230,8 @@ export function TemplateWizard(props: TemplateWizardProps) {
 
     return (
         <FormView title="Template Artifact" onClose={handleCancel}>
-            {templateType === '' ? <CardWrapper cardsType="TEMPLATE" setType={setEndpointType}/> : <>
-                <TypeChip type="Sequence Template" onClick={setTemplateType} showButton={true}/>
+            {templateType === '' && isNewTemplate ? <CardWrapper cardsType="TEMPLATE" setType={setEndpointType}/> : <>
+                <TypeChip type="Sequence Template" onClick={setTemplateType} showButton={isNewTemplate}/>
                 <TextField
                     placeholder="Name"
                     label="Template Name"
@@ -223,20 +242,34 @@ export function TemplateWizard(props: TemplateWizardProps) {
                     {...register("templateName")}
                 />
                 <FormCheckBox
-                    label="Save the sequence in registry"
-                    {...register("saveInReg")}
+                    label="Trace Enabled"
+                    {...register("traceEnabled")}
                     control={control}
                 />
-                {watch("saveInReg") && (<>
-                    <AddToRegistry path={props.path} fileName={watch("templateName")} register={register} errors={errors} getValues={getValues} />
-                </>)}
+                <FormCheckBox
+                    label="Statistics Enabled"
+                    {...register("statisticsEnabled")}
+                    control={control}
+                />
+                {isNewTemplate && (
+                    <>
+                        <FormCheckBox
+                            label="Save the sequence in registry"
+                            {...register("saveInReg")}
+                            control={control}
+                        />
+                        {watch("saveInReg") && (<>
+                            <AddToRegistry path={props.path} fileName={watch("templateName")} register={register} errors={errors} getValues={getValues} />
+                        </>)}
+                    </>
+                )}
                 <FormActions>
                     <Button
                         appearance="primary"
                         onClick={handleSubmit(handleCreateTemplate)}
                         disabled={!isDirty}
                     >
-                        Create
+                        {isNewTemplate ? "Create" : "Save Changes"}
                     </Button>
                     <Button
                         appearance="secondary"

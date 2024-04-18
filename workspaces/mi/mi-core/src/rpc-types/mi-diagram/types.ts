@@ -857,6 +857,8 @@ export interface CreateTemplateRequest {
     wsdlUri: string;
     wsdlService: string;
     wsdlPort: number | null;
+    traceEnabled: boolean;
+    statisticsEnabled: boolean;
     getContentOnly: boolean;
 }
 
@@ -878,6 +880,8 @@ export interface RetrieveTemplateResponse {
     wsdlUri: string;
     wsdlService: string;
     wsdlPort: number | null;
+    traceEnabled: boolean;
+    statisticsEnabled: boolean;
 }
 
 export interface ProjectRootResponse {
