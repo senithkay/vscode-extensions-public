@@ -3,6 +3,7 @@ import { EventEmitter } from 'events';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { StateMachine } from '../stateMachine';
 import { BreakpointInfo, GetBreakpointInfoRequest, GetBreakpointInfoResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse } from '@wso2-enterprise/mi-core';
+import { isPortActivelyListening } from './debugHelper';
 
 export interface RuntimeBreakpoint {
     id: number;
@@ -147,20 +148,30 @@ export class Debugger extends EventEmitter {
     }
 
     public async initializeDebugger(): Promise<void> {
-        await this.startDebugger();
-        // Once debugger is started, send the initial request
-        // wait for 10 seconds before running below code since it takes time to deploy the CAP
-        setTimeout(async () => {
-            await this.sendResumeCommand();
-            // get the list of breakpoints
-            const runtimeBreakpoints = this.getRuntimeBreakpoints(this.getCurrentFilePath());
-            const runtimeBreakpointInfo = await this.getBreakpointInformation2(runtimeBreakpoints);
+        return new Promise(async (resolve, reject) => {
+            await this.startDebugger();
 
-            for (const info of runtimeBreakpointInfo) {
-                await this.sendClearBreakpointCommand(info);
-                await this.sendSetBreakpointCommand(info);
-            }
-        }, 12000);
+            const readinessPort = 9201;
+            const maxTimeout = 12000;
+            isPortActivelyListening(readinessPort, maxTimeout).then((isListening) => {
+                if (isListening) {
+                    console.log('Port is actively listening');
+                    this.sendResumeCommand().then(async () => {
+                        const runtimeBreakpoints = this.getRuntimeBreakpoints(this.getCurrentFilePath());
+                        const runtimeBreakpointInfo = await this.getBreakpointInformation2(runtimeBreakpoints);
+
+                        for (const info of runtimeBreakpointInfo) {
+                            await this.sendClearBreakpointCommand(info);
+                            await this.sendSetBreakpointCommand(info);
+                        }
+                        resolve();
+                    });
+                } else {
+                    console.log('Port is not actively listening or timeout reached');
+                    resolve();
+                }
+            });
+        });
     }
 
     public startDebugger(): Promise<void> {

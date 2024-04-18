@@ -238,12 +238,9 @@ export class MiDebugAdapter extends LoggingDebugSession {
                     this.sendResponse(response);
                 } else {
                     executeTasks(serverPath)
-                        .then(() => {
-                            //mi-server takes around 9 seconds to start
-                            setTimeout(async () => {
-                                await this.debuggerHandler?.initializeDebugger();
-                            }, 10000);
-                            // this.debuggerHandler?.initializeDebugger();
+                        .then(async () => {
+                            console.log('Intializing debugger');
+                            await this.debuggerHandler?.initializeDebugger();
                             this.sendResponse(response);
                         })
                         .catch(error => {

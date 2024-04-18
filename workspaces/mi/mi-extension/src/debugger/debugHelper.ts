@@ -39,6 +39,42 @@ export async function isPortInUse(port: number): Promise<boolean> {
     });
 }
 
+export async function isPortActivelyListening(port: number, timeout: number): Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
+        const startTime = Date.now();
+
+        const checkPort = () => {
+            if (Date.now() - startTime >= timeout) {
+                resolve(false); // Timeout reached
+            } else {
+                if (process.platform === 'win32') {
+                    const command = `netstat -an | find "LISTENING" | find ":${port}"`;
+                    childprocess.exec(command, (error, stdout, stderr) => {
+                        if (!error && stdout.trim() !== '') {
+                            resolve(true);
+                        } else {
+                            console.log('retrying');
+                            setTimeout(checkPort, 1000); // Check again after 1 second
+                        }
+                    });
+                } else {
+                    const command = `lsof -i :${port}`;
+                    childprocess.exec(command, (error, stdout, stderr) => {
+                        if (!error && stdout.trim() !== '') {
+                            resolve(true);
+                        } else {
+                            console.log('retrying');
+                            setTimeout(checkPort, 1000); // Check again after 1 second
+                        }
+                    });
+                }
+            }
+        };
+
+        checkPort(); // Start checking the port
+    });
+}
+
 export async function checkPorts(): Promise<boolean> {
     for (const port of PORTS_TO_CHECK) {
         const inUse = await isPortInUse(port);
@@ -95,9 +131,28 @@ export async function executeTasks(serverPath: string): Promise<void> {
     const portsInUse = await checkPorts();
 
     if (!portsInUse) {
-        const runTask = getRunTask(serverPath);
+        return new Promise<void>(async (resolve) => {
+            const runTask = getRunTask(serverPath);
+            await vscode.tasks.executeTask(runTask);
+            console.log('Running the server');
 
-        await vscode.tasks.executeTask(runTask);
+            // promise is resolved once the port is actively listening only
+
+            const commandPort = 9005;
+            const maxTimeout = 10000;
+            isPortActivelyListening(commandPort, maxTimeout).then((isListening) => {
+                if (isListening) {
+                    console.log('Port is actively listening');
+                    resolve();
+                    // Proceed with connecting to the port
+                } else {
+                    console.log('Port is not actively listening or timeout reached');
+                    resolve();
+                    // TODO: Handle the case where the port is not actively listening or timeout reached
+                }
+            });
+
+        });
     } else {
         vscode.window.showInformationMessage('Server is already running');
     }
