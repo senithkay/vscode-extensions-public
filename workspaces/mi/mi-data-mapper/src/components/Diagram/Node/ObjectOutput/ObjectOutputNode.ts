@@ -39,7 +39,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public value: ReturnStatement
+        public value: ReturnStatement | undefined
     ) {
         super(
             NODE_ID,
@@ -57,7 +57,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             this.rootName = this.dmType?.fieldName;
 
             const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
-            const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value.getExpression());
+            const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value && this.value.getExpression());
             this.dmType = type;
             this.typeName = valueEnrichedType.type.typeName;
 
@@ -83,6 +83,9 @@ export class ObjectOutputNode extends DataMapperNodeModel {
     }
 
     initLinks(): void {
+        if (!this.value) {
+            return;
+        }
         const searchValue = useDMSearchStore.getState().outputSearch;
         const mappings = this.genMappings(this.value.getExpression());
         this.mappings = getFilteredMappings(mappings, searchValue);

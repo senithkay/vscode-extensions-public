@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ArrowFunction, ParenthesizedExpression, Node, PropertyAssignment, ObjectLiteralExpression, FunctionDeclaration, Block, ReturnStatement } from "ts-morph";
+import { Node, PropertyAssignment, ObjectLiteralExpression, FunctionDeclaration, ReturnStatement } from "ts-morph";
 import { Visitor } from "../../ts/base-visitor";
 import { ObjectOutputNode, InputNode, LinkConnectorNode } from "../Diagram/Node";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
@@ -35,15 +35,13 @@ export class NodeInitVisitor implements Visitor {
         const body = node.getBody();
 
         if (Node.isBlock(body)) {
-            body.getStatements().forEach((statement) => {
-                if (Node.isReturnStatement(statement)) {
-                    const returnStatement = statement as ReturnStatement;
-                    this.outputNode = new ObjectOutputNode(
-                        this.context,
-                        returnStatement
-                    );
-                }
-            });
+            const returnStatement = body.getStatements()
+                .find((statement) => Node.isReturnStatement(statement)) as ReturnStatement;
+
+            this.outputNode = new ObjectOutputNode(
+                this.context,
+                returnStatement
+            );
         }
     }
 

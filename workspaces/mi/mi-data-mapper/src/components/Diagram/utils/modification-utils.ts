@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { TypeKind } from "@wso2-enterprise/mi-core";
-import { ArrayLiteralExpression, Node, ObjectLiteralExpression, Type } from "ts-morph";
+import { ArrayLiteralExpression, Block, Node, ObjectLiteralExpression, ReturnStatement, Type } from "ts-morph";
 
 import { DataMapperLinkModel } from "../Link";
 import { InputOutputPortModel, IntermediatePortModel } from "../Port";
@@ -50,9 +50,18 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	}
 
 	if (targetNode instanceof ObjectOutputNode) {
-		const targetExpr = targetNode.value.getExpression();
-		if (Node.isObjectLiteralExpression(targetExpr)) {
-			objectLitExpr = targetExpr;
+		if (targetNode.value) {
+			const targetExpr = targetNode.value.getExpression();
+			if (Node.isObjectLiteralExpression(targetExpr)) {
+				objectLitExpr = targetExpr;
+			}
+		} else {
+			// When the return statement is not available in the function body
+			const fnBody = targetNode.context.functionST.getBody() as Block;
+			fnBody.addStatements([`return {}`]);
+			const returnStatement = fnBody.getStatements()
+				.find(statement => Node.isReturnStatement(statement)) as ReturnStatement;
+			objectLitExpr = returnStatement.getExpression() as ObjectLiteralExpression;
 		}
 	}
 
