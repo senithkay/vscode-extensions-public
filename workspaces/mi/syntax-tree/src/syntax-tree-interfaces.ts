@@ -28,6 +28,12 @@ export interface ViewState {
     fh?: number;
     l?: number;
     r?: number;
+    subPositions?: { [x: string]: SubPositions; };
+    isBrokenLines?: boolean;
+    canAddAfter?: boolean;
+}
+
+export interface SubPositions extends ViewState {
 }
 
 export interface TagRange {
@@ -268,7 +274,7 @@ export interface TTypes extends TExtensibleDocumented, STNode {
 export interface Bean extends STNode {
     action: string;
     var: string;
-    target:string;
+    target: string;
     clazz: string;
     property: string;
     value: string;
@@ -875,6 +881,7 @@ export interface NamedEndpoint extends Endpoint, STNode {
 export interface ProxyPublishWSDL extends STNode {
     definitions: TDefinitions;
     description: DescriptionType;
+    inlineWsdl:string;
     resource: Resource[];
     uri: string;
     key: string;
@@ -896,8 +903,23 @@ export interface DbMediatorConnectionPoolProperty extends STNode {
     value: string;
 }
 
+export interface ServiceParameter {
+    name: string;
+    value: string;
+}
+
+export interface ServicePolicy  {
+    value: string;
+}
+
 export interface Proxy extends STNode {
-    descriptionOrTargetOrPublishWSDL: any | ProxyPolicy | Parameter | ProxyTarget | ProxyPublishWSDL;
+    target: ProxyTarget;
+    publishWSDL: ProxyPublishWSDL;
+    policies: ProxyPolicy[];
+    enableAddressing: STNode;
+    enableSec: STNode;
+    parameters: Parameter[];
+    description: string;
     name: string;
     transports: string;
     pinnedServers: string;
@@ -905,6 +927,7 @@ export interface Proxy extends STNode {
     startOnLoad: boolean;
     statistics: string;
     trace: string;
+    onError: string;
 }
 
 export interface ExtensionElement extends STNode {
@@ -914,6 +937,7 @@ export interface ExtensionElement extends STNode {
 export interface Jsontransform extends STNode {
     property: MediatorProperty[];
     schema: string;
+    description: string;
 }
 
 export interface Clone extends STNode {
@@ -1021,7 +1045,7 @@ export interface EndpointHttpAuthenticationOauth extends STNode {
     passwordCredentials: EndpointHttpAuthenticationOauthPasswordCredentials;
 }
 
-export interface EndpointHttpAuthenticationOauthPasswordCredentials{
+export interface EndpointHttpAuthenticationOauthPasswordCredentials {
     username: STNode;
     password: STNode;
     clientId: STNode;
@@ -1430,9 +1454,9 @@ export interface EnableSecAndEnableRMAndEnableAddressing extends STNode {
     retryConfig?: EndpointRetryConfig;
 }
 
-export interface EndpointRetryConfig extends STNode{
-    enabledErrorCodes:STNode;
-    disabledErrorCodes:STNode;
+export interface EndpointRetryConfig extends STNode {
+    enabledErrorCodes: STNode;
+    disabledErrorCodes: STNode;
 }
 
 export interface EndpointHttp extends STNode {
@@ -1457,7 +1481,7 @@ export interface ValidateResource extends STNode {
 }
 
 export interface SourceEnrich extends STNode {
-    content: any[];
+    content: any;
     clone: boolean;
     xpath: string;
     key: string;
@@ -1562,8 +1586,18 @@ export interface WSDLEndpointEnableRM extends STNode {
 }
 
 export interface RuleRuleset extends STNode {
-    source: RuleRulesetSource;
-    creation: RuleRulesetCreation;
+    properties: RuleRuleSetProperties;
+    rule: RuleRuleSetRule;
+}
+
+export interface RuleRuleSetProperties {
+    property: MediatorProperty[];
+}
+
+export interface RuleRuleSetRule {
+    value: string;
+    resourceType: string;
+    sourceType: string;
 }
 
 export interface TService extends TExtensibleDocumented, STNode {
@@ -1572,8 +1606,23 @@ export interface TService extends TExtensibleDocumented, STNode {
 }
 
 export interface ThrottlePolicy extends STNode {
-    any: any;
+    content: Policy[];
     key: string;
+}
+
+export interface Policy extends OperatorContentType {
+    otherAttributes: any;
+    name: string;
+    id: ID
+}
+
+export interface OperatorContentType extends STNode {
+    policyOrAllOrExactlyOne: any[];
+}
+
+export interface ID extends STNode {
+    value: string;
+    type: string;
 }
 
 export interface TaskTrigger extends STNode {
@@ -1600,12 +1649,49 @@ export interface AggregateOnComplete extends STNode {
 }
 
 export interface Rule extends STNode {
-    ruleset: RuleRuleset;
-    session: RuleSession[];
-    facts: RuleFacts;
-    results: RuleResults;
-    childMediators: RuleChildMediators;
+    source: RuleSource;
+    target: RuleTarget;
+    ruleSet: RuleRuleset;
+    input: RuleInput;
+    output: RuleOutput;
     description: string;
+}
+
+export interface RuleInput {
+    fact: RuleInputFact[];
+    namespace: string;
+    wrapperElementName: string;
+}
+
+export interface RuleInputFact {
+    elementName: string;
+    namespace: string;
+    type: string;
+    xpath: string;
+}
+
+export interface RuleOutput {
+    fact: RuleOutputFact[];
+    namespace: string;
+    wrapperElementName: string;
+}
+
+export interface RuleOutputFact {
+    elementName: string;
+    namespace: string;
+    type: string;
+}
+
+export interface RuleSource {
+    value: string;
+    xpath: string;
+}
+
+export interface RuleTarget {
+    value: string;
+    action: string;
+    resultXpath: string;
+    xpath: string;
 }
 
 export interface EjbArgs extends STNode {
@@ -1665,5 +1751,25 @@ export enum SetRemove {
     remove,
 }
 
+export interface Ntlm extends STNode {
+    domain: string;
+    host: string;
+    username: string;
+    password: string;
+    ntlmVersion: string;
+    description: string;
+}
+
 export type DiagramService = APIResource | NamedSequence | Proxy;
 
+export interface Connector extends STNode {
+    connectorName: string;
+    method: string;
+    parameters: ConnectorParameter[];
+}
+
+export interface ConnectorParameter extends STNode {
+    name: string;
+    value: string;
+    isExpression: boolean;
+}

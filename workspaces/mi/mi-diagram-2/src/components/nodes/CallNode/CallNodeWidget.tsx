@@ -11,7 +11,7 @@ import React, { useEffect } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { CallNodeModel } from "./CallNodeModel";
-import { Colors, ENDPOINTS } from "../../../resources/constants";
+import { Colors, ENDPOINTS, NODE_DIMENSIONS } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { Button, Menu, MenuItem, Popover, Tooltip, ClickAwayListener } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon, PlusIcon } from "../../../resources";
@@ -19,6 +19,9 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getSVGIcon } from "../../../resources/icons/mediatorIcons/icons";
+import { getNodeDescription } from "../../../utils/node";
+import { Header, Description, Name } from "../BaseNodeModel";
+import { FirstCharToUpperCase } from "../../../utils/commons";
 
 namespace S {
     export type NodeStyleProp = {
@@ -31,10 +34,9 @@ namespace S {
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
-        min-width: 100px;
-        height: 36px;
-        padding: 0 8px;
-        border: 2px solid
+        width: ${NODE_DIMENSIONS.CALL.WIDTH - (NODE_DIMENSIONS.BORDER * 2)}px;
+        height: ${NODE_DIMENSIONS.CALL.HEIGHT - (NODE_DIMENSIONS.BORDER * 2)}px;
+        border: ${NODE_DIMENSIONS.BORDER}px solid
             ${(props: NodeStyleProp) =>
             props.hasError ? Colors.ERROR : props.selected ? Colors.SECONDARY : props.hovered ? Colors.SECONDARY : Colors.OUTLINE_VARIANT};
         border-radius: 10px;
@@ -45,18 +47,15 @@ namespace S {
         font-size: var(--type-ramp-base-font-size);
     `;
 
-    export const Header = styled.div<{}>`
+    export const Body = styled.div<{}>`
         display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        align-items: center;
-        width: 100%;
+        max-width: 100%;
     `;
 
     export const CircleContainer = styled.div`
         position: absolute;
-        top: -5px;
-        left: 120px;
+        top: 5px;
+        left: ${NODE_DIMENSIONS.CALL.WIDTH}px;
         color: ${Colors.ON_SURFACE};
         cursor: pointer;
         font-family: var(--font-family);
@@ -91,29 +90,19 @@ namespace S {
         margin-bottom: -3px;
     `;
 
-    export const NodeText = styled.div`
-        max-width: 100px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    `;
-
     export const EndpointContainer = styled.div`
         position: absolute;
         left: 222.5px;
         top: 9px;
     `;
 
-    export const EndpointTextWrapper = styled.div`
+    export const EndpointTextWrapper = styled(Description)`
         position: absolute;
-        left: 156px;
-        top: 45px;
+        left: ${NODE_DIMENSIONS.CALL.WIDTH + 35}px;
+        top: ${NODE_DIMENSIONS.CALL.HEIGHT / 2 + 35}px;
         width: 100px;
+        max-width: 100px;
         text-align: center;
-        color: ${Colors.ON_SURFACE};
-        cursor: pointer;
-        font-family: var(--font-family);
-        font-size: var(--type-ramp-base-font-size);
     `;
 }
 
@@ -128,7 +117,6 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
     const [isHovered, setIsHovered] = React.useState(false);
     const [isHoveredEndpoint, setIsHoveredEndpoint] = React.useState(false);
     const [isEndpointSelected, setIsEndpointSelected] = React.useState(false);
-    const visualizerContext = useVisualizerContext();
     const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = React.useState(null);
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -137,6 +125,8 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const endpointHasDiagnotics = node.endpointHasDiagnostics();
     const endpointTooltip = endpointHasDiagnotics ? node.getEndpointDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
+    const nodeDescription = getNodeDescription(node.stNode);
+    const circleDescription = getNodeDescription(node.endpoint);
 
     useEffect(() => {
         if (!node.isSelected()) {
@@ -193,27 +183,36 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
 
     return (
         <div>
-            <Tooltip content={tooltip} position={'bottom'} containerPosition={'absolute'}>
+            <Tooltip content={!isPopoverOpen ? tooltip : ""} position={'bottom'} containerPosition={'absolute'}>
                 <S.Node
-                    selected={node.isSelected() && !isHoveredEndpoint && !isEndpointSelected}
-                    hovered={isHovered}
+                    selected={node.isSelected()}
                     hasError={hasDiagnotics}
+                    hovered={isHovered}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
                     onClick={(e) => node.onClicked(e, node, rpcClient, sidePanelContext)}
                 >
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
-                    <S.Header>
-                        <S.IconContainer>
-                            {getSVGIcon(node.stNode.tag)}
-                        </S.IconContainer>
-                        <S.NodeText>{node.stNode.tag}</S.NodeText>
-                        {isHovered && (
-                            <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>
-                                <MoreVertIcon />
-                            </S.StyledButton>
-                        )}
-                    </S.Header>
+                    <div style={{ display: "flex", flexDirection: "row", width: NODE_DIMENSIONS.DEFAULT.WIDTH }}>
+                        <S.IconContainer>{getSVGIcon(node.stNode.tag)}</S.IconContainer>
+                        <div>
+                            {isHovered && (
+                                <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>
+                                    <MoreVertIcon />
+                                </S.StyledButton>
+                            )}
+                            <Header showBorder={nodeDescription !== undefined}>
+                                <Name>{FirstCharToUpperCase(node.stNode.tag)}</Name>
+                            </Header>
+                            <S.Body>
+                                <Tooltip content={nodeDescription} position={'bottom'} >
+                                    <Description style={{
+                                        fontSize: "var(--type-ramp-minus1-font-size)"
+                                    }}>{nodeDescription}</Description>
+                                </Tooltip>
+                            </S.Body>
+                        </div>
+                    </div>
                     <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
                 </S.Node>
             </Tooltip>
@@ -266,7 +265,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
             </S.CircleContainer>
 
             {node.endpoint ? (
-                <S.EndpointTextWrapper>{node.endpoint.description || node.endpoint.type}</S.EndpointTextWrapper>
+                <S.EndpointTextWrapper>{circleDescription}</S.EndpointTextWrapper>
             ) : (
                 <S.EndpointContainer>
                     <S.StyledButton appearance="icon" onClick={handlePlusNode}>

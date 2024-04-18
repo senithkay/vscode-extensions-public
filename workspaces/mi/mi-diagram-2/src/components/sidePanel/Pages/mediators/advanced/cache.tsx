@@ -192,7 +192,7 @@ const CacheForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Cache Mediator Implementation</label>
-                    <AutoComplete items={["Default", "611 Compatible"]} selectedItem={formValues["cacheMediatorImplementation"]} onChange={(e: any) => {
+                    <AutoComplete items={["Default", "611 Compatible"]} value={formValues["cacheMediatorImplementation"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "cacheMediatorImplementation": e, "isProtocolChanged": true });
                         formValidators["cacheMediatorImplementation"](e);
                     }} />
@@ -207,7 +207,7 @@ const CacheForm = (props: AddMediatorProps) => {
                 {formValues["cacheMediatorImplementation"] && formValues["cacheMediatorImplementation"].toLowerCase() == "611 compatible" &&
                     <Field>
                         <label>Cache Type</label>
-                        <AutoComplete items={["FINDER", "COLLECTOR"]} selectedItem={formValues["cacheType"]} onChange={(e: any) => {
+                        <AutoComplete items={["FINDER", "COLLECTOR"]} value={formValues["cacheType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "cacheType": e });
                             formValidators["cacheType"](e);
                         }} />
@@ -222,7 +222,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["id"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "id": e, "isCacheChanged": true });
                                 formValidators["id"](e);
                             }}
@@ -239,7 +239,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["cacheTimeout"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "cacheTimeout": e, "isCacheChanged": true });
                                 formValidators["cacheTimeout"](e);
                             }}
@@ -256,7 +256,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["maxMessageSize"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "maxMessageSize": e, "isCacheChanged": true });
                                 formValidators["maxMessageSize"](e);
                             }}
@@ -269,7 +269,7 @@ const CacheForm = (props: AddMediatorProps) => {
                 {formValues["cacheMediatorImplementation"] && formValues["cacheMediatorImplementation"].toLowerCase() == "611 compatible" &&
                     <Field>
                         <label>Scope</label>
-                        <AutoComplete items={["Per-Host", "Per-Mediator"]} selectedItem={formValues["scope"]} onChange={(e: any) => {
+                        <AutoComplete items={["Per-Host", "Per-Mediator"]} value={formValues["scope"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "scope": e, "isCacheChanged": true });
                             formValidators["scope"](e);
                         }} />
@@ -284,7 +284,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["hashGeneratorAttribute"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "hashGeneratorAttribute": e, "isCacheChanged": true });
                                 formValidators["hashGeneratorAttribute"](e);
                             }}
@@ -306,7 +306,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["maxEntryCount"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "maxEntryCount": e, "isImplementationChanged": true });
                                 formValidators["maxEntryCount"](e);
                             }}
@@ -319,7 +319,7 @@ const CacheForm = (props: AddMediatorProps) => {
                 {formValues["cacheMediatorImplementation"] && formValues["cacheMediatorImplementation"].toLowerCase() == "611 compatible" && formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
                     <Field>
                         <label>Implementation Type</label>
-                        <AutoComplete items={["memory", "disk"]} selectedItem={formValues["implementationType"]} onChange={(e: any) => {
+                        <AutoComplete items={["memory", "disk"]} value={formValues["implementationType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "implementationType": e, "isImplementationChanged": true });
                             formValidators["implementationType"](e);
                         }} />
@@ -335,7 +335,7 @@ const CacheForm = (props: AddMediatorProps) => {
                 {formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
                     <Field>
                         <label>Sequence Type</label>
-                        <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE"]} selectedItem={formValues["sequenceType"]} onChange={(e: any) => {
+                        <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={formValues["sequenceType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "sequenceType": e });
                             formValidators["sequenceType"](e);
                         }} />
@@ -350,7 +350,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["sequenceKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "sequenceKey": e, "isOnCacheHitChanged": true });
                                 formValidators["sequenceKey"](e);
                             }}
@@ -368,7 +368,7 @@ const CacheForm = (props: AddMediatorProps) => {
                 {formValues["cacheMediatorImplementation"] && formValues["cacheMediatorImplementation"].toLowerCase() == "default" && formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
                     <Field>
                         <label>Cache Protocol Type</label>
-                        <AutoComplete items={["HTTP"]} selectedItem={formValues["cacheProtocolType"]} onChange={(e: any) => {
+                        <AutoComplete items={["HTTP"]} value={formValues["cacheProtocolType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "cacheProtocolType": e, "isProtocolChanged": true });
                             formValidators["cacheProtocolType"](e);
                         }} />
@@ -383,7 +383,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["cacheProtocolMethods"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "cacheProtocolMethods": e, "isProtocolChanged": true });
                                 formValidators["cacheProtocolMethods"](e);
                             }}
@@ -417,7 +417,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["headersToIncludeInHash"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "headersToIncludeInHash": e, "isProtocolChanged": true });
                                 formValidators["headersToIncludeInHash"](e);
                             }}
@@ -434,7 +434,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["responseCodes"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "responseCodes": e, "isProtocolChanged": true });
                                 formValidators["responseCodes"](e);
                             }}
@@ -473,7 +473,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["hashGenerator"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "hashGenerator": e, "isProtocolChanged": true });
                                 formValidators["hashGenerator"](e);
                             }}
@@ -494,7 +494,7 @@ const CacheForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e, "isCacheChanged": true });
                             formValidators["description"](e);
                         }}

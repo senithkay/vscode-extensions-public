@@ -6,52 +6,65 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-
-import styled from "@emotion/styled";
-import { Button, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, FormView, FormActions } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { SectionWrapper } from "./Commons";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
-import { useState } from "react";
-
-
-const WizardContainer = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 95vw;
-    height: calc(100vh - 140px);
-    overflow: auto;
-`;
-
-const ActionContainer = styled.div`
-    display  : flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-bottom: 20px;
-`;
+import { yupResolver } from "@hookform/resolvers/yup"
+import * as yup from "yup";
+import { useForm } from "react-hook-form";
 
 export interface ClassMediatorProps {
     path: string;
 }
 
+type InputsFields = {
+    packageName?: string;
+    className?: string;
+};
+
+const initialClassMediator: InputsFields = {
+    packageName: "com.example",
+    className: "SampleMediator"
+};
+
+const schema = yup.object({
+    packageName: yup.string()
+        .required("Package Name is required")
+        .matches(/^([a-zA-Z_$][a-zA-Z\d_$]*\.)*[a-zA-Z_$][a-zA-Z\d_$]*$/, "Invalid Package Name"),
+    className: yup.string()
+        .required("Class Name is required")
+        .matches(/^[A-Z][a-zA-Z\d_$]*$/, "Invalid Class Name")
+});
+
 export function ClassMediatorForm(props: ClassMediatorProps) {
 
     const { rpcClient } = useVisualizerContext();
-    const [packageName, setPackage] = useState("");
-    const [className, setClassName] = useState("");
 
+    const {
+        reset,
+        register,
+        formState: { errors, isDirty, isValid },
+        handleSubmit,
+    } = useForm({
+        defaultValues: initialClassMediator,
+        resolver: yupResolver(schema),
+        mode: "onChange"
+    });
 
-    const handleCancel = () => {
+    const openOverview = () => {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
-    const handleSave = async () => {
+    const handleBackButtonClick = () => {
+        rpcClient.getMiVisualizerRpcClient().goBack();
+    };
+
+
+    const handleCreateMediator = async (values: InputsFields) => {
         const request = {
             projectDirectory: props.path,
-            packageName: packageName,
-            className: className
+            packageName: values.packageName,
+            className: values.className
         };
         const response = await rpcClient.getMiDiagramRpcClient().createClassMediator(request);
         if (response) {
@@ -61,43 +74,32 @@ export function ClassMediatorForm(props: ClassMediatorProps) {
         }
     }
 
-    const isValid = packageName && packageName != "" && className && className != "";
-
     return (
+        <FormView title="Create Class Mediator" onClose={handleBackButtonClick}>
+            <TextField
+                id='package-input'
+                label="Package Name"
+                errorMsg={errors.packageName?.message}
+                {...register("packageName")}
+            />
+            <TextField
+                id='class-input'
+                label="Class Name"
+                errorMsg={errors.className?.message}
+                {...register("className")}
+            />
+            <br />
+            <FormActions>
+                <Button appearance="secondary" onClick={openOverview}>
+                    Cancel
+                </Button>
+                <Button disabled={!isValid || !isDirty} onClick={handleSubmit((values) => {
+                    handleCreateMediator(values);
+                })}>
+                    Create
+                </Button>
+            </FormActions>
+        </FormView>
 
-        <WizardContainer>
-            <SectionWrapper>
-                <Typography variant="h3">Create Class Mediator</Typography>
-                <TextField
-                    value={packageName}
-                    id='package-input'
-                    label="Package Name"
-                    placeholder="com.example"
-                    onChange={(text: string) => setPackage(text)}
-                    size={40}
-                    autoFocus
-                    required
-                />
-                <TextField
-                    value={className}
-                    id='class-input'
-                    label="Class Name"
-                    placeholder="SampleMediator"
-                    onChange={(text: string) => setClassName(text)}
-                    size={40}
-                    autoFocus
-                    required
-                />
-                <br />
-                <ActionContainer>
-                    <Button appearance="secondary" onClick={handleCancel}>
-                        Cancel
-                    </Button>
-                    <Button disabled={!isValid} onClick={handleSave}>
-                        Create
-                    </Button>
-                </ActionContainer>
-            </SectionWrapper>
-        </WizardContainer>
     );
 }

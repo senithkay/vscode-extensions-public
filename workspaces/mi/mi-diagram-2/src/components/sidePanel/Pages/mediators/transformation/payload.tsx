@@ -45,6 +45,11 @@ const Wrapper = styled.div`
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
+const generateDisplayValue = (paramValues: any) => {
+    const result: string = paramValues.parameters[1].value;
+    return result.trim();
+};
+
 const PayloadForm = (props: AddMediatorProps) => {
    const { rpcClient } = useVisualizerContext();
    const sidePanelContext = React.useContext(SidePanelContext);
@@ -99,7 +104,15 @@ const PayloadForm = (props: AddMediatorProps) => {
     const [params, setParams] = useState(paramConfigs);
 
     const handleOnChange = (params: any) => {
-        setParams(params);
+        const modifiedParams = { ...params, paramValues: params.paramValues.map((param: any) => {
+            return {
+                ...param,
+                key: param.parameters[0].value,
+                value: generateDisplayValue(param),
+                icon: "query"
+            }
+        })};
+        setParams(modifiedParams);
     };
 
     useEffect(() => {
@@ -147,7 +160,10 @@ const PayloadForm = (props: AddMediatorProps) => {
                                 value: property[4],
                                 isRequired: false
                             }
-                        ]
+                        ],
+                        key: property[0],
+                        value: property[1],
+                        icon: "query"
                     })
                 )
                 setParams({ ...params, paramValues: paramValues });
@@ -232,7 +248,7 @@ const PayloadForm = (props: AddMediatorProps) => {
             <Wrapper>
                 <Field>
                     <label>Payload Format</label>
-                    <AutoComplete items={["Inline", "Registry Reference"]} selectedItem={formValues["payloadFormat"]} onChange={(e: any) => {
+                    <AutoComplete items={["Inline", "Registry Reference"]} value={formValues["payloadFormat"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "payloadFormat": e });
                         formValidators["payloadFormat"](e);
                     }} />
@@ -241,7 +257,7 @@ const PayloadForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Media Type</label>
-                    <AutoComplete items={["xml", "json", "text"]} selectedItem={formValues["mediaType"]} onChange={(e: any) => {
+                    <AutoComplete items={["xml", "json", "text"]} value={formValues["mediaType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "mediaType": e });
                         formValidators["mediaType"](e);
                     }} />
@@ -250,7 +266,7 @@ const PayloadForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Template Type</label>
-                    <AutoComplete items={["default", "freemarker"]} selectedItem={formValues["templateType"]} onChange={(e: any) => {
+                    <AutoComplete items={["default", "freemarker"]} value={formValues["templateType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "templateType": e });
                         formValidators["templateType"](e);
                     }} />
@@ -264,7 +280,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["payloadKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "payloadKey": e });
                                 formValidators["payloadKey"](e);
                             }}
@@ -280,7 +296,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                     {formValues["payloadFormat"] && formValues["payloadFormat"].toLowerCase() == "inline" &&
                         <Field>
                         <TextArea
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "payload": e });
                                 formValidators["payload"](e);
                             }}
@@ -311,7 +327,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

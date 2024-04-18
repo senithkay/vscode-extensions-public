@@ -25,6 +25,7 @@ import {
     CreateAPIResponse,
     CreateClassMediatorRequest,
     CreateClassMediatorResponse,
+    CreateDataSourceResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
     CreateInboundEndpointRequest,
@@ -47,23 +48,31 @@ import {
     CreateTaskResponse,
     CreateTemplateRequest,
     CreateTemplateResponse,
+    DataSourceTemplate,
+    DownloadConnectorRequest,
+    DownloadConnectorResponse,
     ESBConfigsResponse,
     EVENT_TYPE,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     FileDirResponse,
-    FileListRequest,
-    FileListResponse,
     FileStructure,
+    GetAvailableConnectorRequest,
+    GetAvailableConnectorResponse,
     GetAvailableResourcesRequest,
     GetAvailableResourcesResponse,
     GetBackendRootUrlResponse,
+    GetConnectorFormRequest,
+    GetConnectorFormResponse,
+    GetDataSourceRequest,
     GetDefinitionRequest,
     GetDefinitionResponse,
     GetDiagnosticsReqeust,
     GetDiagnosticsResponse,
     GetFailoverEPRequest,
     GetFailoverEPResponse,
+    GetIconPathUriRequest,
+    GetIconPathUriResponse,
     GetInboundEndpointRequest,
     GetInboundEndpointResponse,
     GetLoadBalanceEPRequest,
@@ -74,20 +83,29 @@ import {
     GetMessageStoreResponse,
     GetProjectRootRequest,
     GetProjectUuidResponse,
+    GetRecipientEPRequest,
+    GetRecipientEPResponse,
     GetSelectiveWorkspaceContextResponse,
     GetTaskRequest,
     GetTaskResponse,
+    GetTemplateEPRequest,
+    GetTemplateEPResponse,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
     GetWorkspaceContextResponse,
     HighlightCodeRequest,
     ImportProjectRequest,
     ImportProjectResponse,
+    ListRegistryArtifactsRequest,
+    ListRegistryArtifactsResponse,
     MACHINE_VIEW,
     MiDiagramAPI,
+    MigrateProjectRequest,
+    MigrateProjectResponse,
     OpenDiagramRequest,
     ProjectDirResponse,
     ProjectRootResponse,
+    RangeFormatRequest,
     RetrieveAddressEndpointRequest,
     RetrieveAddressEndpointResponse,
     RetrieveDefaultEndpointRequest,
@@ -106,6 +124,7 @@ import {
     UndoRedoParams,
     UpdateAddressEndpointRequest,
     UpdateAddressEndpointResponse,
+    UpdateConnectorRequest,
     UpdateDefaultEndpointRequest,
     UpdateDefaultEndpointResponse,
     UpdateFailoverEPRequest,
@@ -114,22 +133,16 @@ import {
     UpdateHttpEndpointResponse,
     UpdateLoadBalanceEPRequest,
     UpdateLoadBalanceEPResponse,
+    UpdateRecipientEPRequest,
+    UpdateRecipientEPResponse,
+    UpdateTemplateEPRequest,
+    UpdateTemplateEPResponse,
     UpdateWsdlEndpointRequest,
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
     getSTRequest,
-    getSTResponse,
-    ListRegistryArtifactsResponse,
-    ListRegistryArtifactsRequest,
-    UpdateRecipientEPRequest,
-    UpdateRecipientEPResponse,
-    GetRecipientEPRequest,
-    GetRecipientEPResponse,
-    UpdateTemplateEPRequest,
-    UpdateTemplateEPResponse,
-    GetTemplateEPRequest,
-    GetTemplateEPResponse
+    getSTResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -137,21 +150,22 @@ import * as fs from "fs";
 import * as os from 'os';
 import { Transform } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
+import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, getTemplateEndpointXmlWrapper } from "../../util";
-import { addNewEntryToArtifactXML, changeRootPomPackaging, detectMediaType, getMediatypeAndFileExtension, createMetadataFilesForRegistryCollection, getAvailableRegistryResources } from "../../util/fileOperations";
-import { getProjectDetails, migrateConfigs } from "../../util/migrationUtils";
+import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
+import { addNewEntryToArtifactXML, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension } from "../../util/fileOperations";
+import { importProject } from "../../util/migrationUtils";
+import { getDataserviceXml } from "../../util/template-engine/mustach-templates/Dataservice";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
+import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/recipientEndpoint";
 import { rootPomXmlContent } from "../../util/templates";
+import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
-import * as vscode from 'vscode';
-import { replaceFullContentToFile } from "../../util/workspace";
-import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/recipientEndpoint";
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
 const connectorsPath = path.join(".metadata", ".Connectors");
@@ -493,13 +507,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     scope: prop.scope ?? 'default'
                 }));
 
+                const timeout = session?.sessionTimeout ? Number(session.sessionTimeout) : 0;
+
                 resolve({
                     name,
                     algorithm: loadbalance.algorithm,
                     failover: String(loadbalance.failover) ?? 'false',
                     buildMessage: String(loadbalance.buildMessage) ?? 'false',
                     sessionManagement: session?.type ?? 'none',
-                    sessionTimeout: session?.sessionTimeout ?? '',
+                    sessionTimeout: timeout,
                     description: description ?? '',
                     endpoints: endpoints.length > 0 ? endpoints : [],
                     properties: properties.length > 0 ? properties : []
@@ -512,7 +528,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 failover: 'false',
                 buildMessage: 'true',
                 sessionManagement: 'none',
-                sessionTimeout: '',
+                sessionTimeout: 0,
                 description: '',
                 endpoints: [],
                 properties: []
@@ -523,20 +539,20 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async updateFailoverEndpoint(params: UpdateFailoverEPRequest): Promise<UpdateFailoverEPResponse> {
         return new Promise(async (resolve) => {
             const { directory, ...templateParams } = params;
-
             const xmlData = getFailoverXmlWrapper(templateParams);
-
-            let filePath: string;
-
-            if (directory.endsWith('.xml')) {
-                filePath = directory;
+            if (params.getContentOnly) {
+                resolve({ path: "", content: xmlData });
             } else {
-                filePath = path.join(directory, `${templateParams.name}.xml`);
+                let filePath: string;
+                if (directory.endsWith('.xml')) {
+                    filePath = directory;
+                } else {
+                    filePath = path.join(directory, `${templateParams.name}.xml`);
+                }
+                fs.writeFileSync(filePath, xmlData);
+                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                resolve({ path: filePath, content: "" });
             }
-
-            fs.writeFileSync(filePath, xmlData);
-            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-            resolve({ path: filePath });
         });
     }
 
@@ -621,20 +637,20 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async updateRecipientEndpoint(params: UpdateRecipientEPRequest): Promise<UpdateRecipientEPResponse> {
         return new Promise(async (resolve) => {
             const { directory, ...templateParams } = params;
-
             const xmlData = getRecipientEPXml(templateParams);
-
-            let filePath: string;
-
-            if (directory.endsWith('.xml')) {
-                filePath = directory;
+            if (params.getContentOnly) {
+                resolve({ path: '', content: xmlData });
             } else {
-                filePath = path.join(directory, `${templateParams.name}.xml`);
+                let filePath: string;
+                if (directory.endsWith('.xml')) {
+                    filePath = directory;
+                } else {
+                    filePath = path.join(directory, `${templateParams.name}.xml`);
+                }
+                fs.writeFileSync(filePath, xmlData);
+                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                resolve({ path: filePath, content: "" });
             }
-
-            fs.writeFileSync(filePath, xmlData);
-            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-            resolve({ path: filePath });
         });
     }
 
@@ -642,17 +658,17 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
             const options = {
-                ignoreAttributes : false,
+                ignoreAttributes: false,
                 attributeNamePrefix: "@_",
                 indentBy: '    ',
                 format: true,
             };
-            
+
             const builder = new XMLBuilder(options);
             const filePath = params.path;
 
             if (filePath.includes('.xml') && fs.existsSync(filePath)) {
-                const { name, recipientlist, property, description} = endpointSyntaxTree.syntaxTree.endpoint;
+                const { name, recipientlist, property, description } = endpointSyntaxTree.syntaxTree.endpoint;
 
                 const endpoints = recipientlist.endpoint.map((member: any) => {
                     const { _default, key } = member;
@@ -711,7 +727,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             });
         });
     }
-    
+
     async updateTemplateEndpoint(params: UpdateTemplateEPRequest): Promise<UpdateTemplateEPResponse> {
         return new Promise(async (resolve) => {
             const { directory, ...templateParams } = params;
@@ -734,7 +750,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async getTemplateEndpoint(params: GetTemplateEPRequest): Promise<GetTemplateEPResponse> {
         return new Promise(async (resolve) => {
-            const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });            
+            const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
             const filePath = params.path;
 
             if (filePath.includes('.xml') && fs.existsSync(filePath)) {
@@ -767,9 +783,17 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
         return new Promise(async (resolve) => {
             const { directory, name, type, value, URL } = params;
-
             const xmlData = generateXmlData(name, type, value, URL);
-            const filePath = path.join(directory, `${name}.xml`);
+            let filePath = directory;
+
+            if (filePath.includes('localEntries')) {
+                filePath = filePath.replace('localEntries', 'local-entries');
+            }
+            if(filePath.endsWith('.xml')) {
+               filePath = directory;
+            } else {
+                filePath = path.join(filePath, `${name}.xml`);
+            }
 
             writeXmlDataToFile(filePath, xmlData);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
@@ -835,19 +859,20 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const getTemplateParams = params;
 
             const xmlData = getMessageStoreXmlWrapper(getTemplateParams);
+            let filePath = params.directory;
+                  
+            if (filePath.includes('messageStores')) {
+                filePath = filePath.replace('messageStores', 'message-stores');
+            }
+            if(filePath.endsWith('.xml')) {
+                filePath = params.directory;
+            } else {
+                filePath = path.join(filePath, `${params.name}.xml`);
+            }
 
-            const filePath = path.join(params.directory, `${params.name}.xml`);
             fs.writeFileSync(filePath, xmlData);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
-        });
-    }
-
-    async getXmlFileList(params: FileListRequest): Promise<FileListResponse> {
-        return new Promise(async (resolve) => {
-            const files = fs.readdirSync(params.path);
-            const xmlFiles = files.filter((file) => file.endsWith('.xml')).map(file => file.replace('.xml', ''));
-            resolve({ files: xmlFiles });
         });
     }
 
@@ -882,10 +907,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     password: '',
                     cacheConnection: '',
                     jmsAPIVersion: '',
-                    enableProducerGuaranteedDelivery: '',
+                    enableProducerGuaranteedDelivery: false,
                     rabbitMQServerHostName: '',
                     rabbitMQServerPort: '',
-                    sslEnabled: '',
+                    sslEnabled: false,
                     rabbitMQQueueName: '',
                     rabbitMQExchangeName: '',
                     routineKey: '',
@@ -1167,10 +1192,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async createSequence(params: CreateSequenceRequest): Promise<CreateSequenceResponse> {
         return new Promise(async (resolve) => {
-            const { directory, name, endpoint, onErrorSequence } = params;
+            const { directory, name, endpoint, onErrorSequence, statistics, trace } = params;
 
             let endpointAttributes = ``;
             let errorSequence = ``;
+            let statisticsAttribute = ``;
+            let traceAttribute = ``;
             if (endpoint) {
                 endpointAttributes = `<send>
           <endpoint key="${endpoint.replace(".xml", "")}"/>
@@ -1180,16 +1207,28 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (onErrorSequence) {
                 errorSequence = `onError="${onErrorSequence}"`;
             }
+            if (statistics) {
+                statisticsAttribute = `statistics="enable"`;
+            }
+            if (trace) {
+                traceAttribute = `trace="enable"`;
+            } else {
+                traceAttribute = `trace="disable"`;
+            }
 
             const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
-<sequence name="${name}" ${errorSequence} trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+<sequence name="${name}" ${errorSequence} ${traceAttribute} ${statisticsAttribute} xmlns="http://ws.apache.org/ns/synapse">
   ${endpointAttributes}
 </sequence>`;
 
-            const filePath = path.join(directory, `${name}.xml`);
-            fs.writeFileSync(filePath, xmlData);
-            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-            resolve({ filePath: filePath });
+            if (params.getContentOnly) {
+                resolve({ filePath: "", fileContent: xmlData });
+            } else {
+                const filePath = path.join(directory, `${name}.xml`);
+                fs.writeFileSync(filePath, xmlData);
+                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                resolve({ filePath: filePath, fileContent: "" });
+            }
         });
     }
 
@@ -1449,13 +1488,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     addressListener: (endpointOverallParams.enableAddressing != undefined && endpointOverallParams.enableAddressing.separateListener) ? 'enable' : 'disable',
                     securityEnabled: endpointOverallParams.enableSec != undefined ? 'enable' : 'disable',
                     suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
-                    initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : '',
-                    maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : '',
-                    progressionFactor: failureParams.progressionFactor != undefined ? failureParams.progressionFactor.textNode : '',
+                    initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : -1,
+                    maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : Number.MAX_SAFE_INTEGER,
+                    progressionFactor: failureParams.progressionFactor != undefined ? failureParams.progressionFactor.textNode : 1.0,
                     retryErrorCodes: suspensionParams.errorCodes != undefined ? suspensionParams.errorCodes.textNode : '',
-                    retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : '',
-                    retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : '',
-                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : '',
+                    retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : 0,
+                    retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : 0,
+                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : 0,
                     timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : '',
                     templateName: templateParams != null ? templateParams.name : '',
                     requireTemplateParameters: false,
@@ -1606,13 +1645,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     addressListener: (addressParams.enableAddressing != undefined && addressParams.enableAddressing.separateListener) ? 'enable' : 'disable',
                     securityEnabled: addressParams.enableSec != undefined ? 'enable' : 'disable',
                     suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
-                    initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : '',
-                    maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : '',
-                    progressionFactor: failureParams.progressionFactor != undefined ? failureParams.progressionFactor.textNode : '',
+                    initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : -1,
+                    maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : Number.MAX_SAFE_INTEGER,
+                    progressionFactor: failureParams.progressionFactor != undefined ? failureParams.progressionFactor.textNode : 1.0,
                     retryErrorCodes: suspensionParams.errorCodes != undefined ? suspensionParams.errorCodes.textNode : '',
-                    retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : '',
-                    retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : '',
-                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : '',
+                    retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : 0,
+                    retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : 0,
+                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : Number.MAX_SAFE_INTEGER,
                     timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : '',
                     templateName: templateParams != null ? templateParams.name : '',
                     requireTemplateParameters: false,
@@ -1714,13 +1753,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     addressListener: (wsdlParams.enableAddressing != undefined && wsdlParams.enableAddressing.separateListener) ? 'enable' : 'disable',
                     securityEnabled: wsdlParams.enableSec != undefined ? 'enable' : 'disable',
                     suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
-                    initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : '',
-                    maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : '',
-                    progressionFactor: failureParams.progressionFactor != undefined ? failureParams.progressionFactor.textNode : '',
+                    initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : -1,
+                    maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : Number.MAX_SAFE_INTEGER,
+                    progressionFactor: failureParams.progressionFactor != undefined ? failureParams.progressionFactor.textNode : 1.0,
                     retryErrorCodes: suspensionParams.errorCodes != undefined ? suspensionParams.errorCodes.textNode : '',
-                    retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : '',
-                    retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : '',
-                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : '',
+                    retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : 0,
+                    retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : 0,
+                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : 0,
                     timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : '',
                     templateName: templateParams != null ? templateParams.name : '',
                     requireTemplateParameters: false,
@@ -1818,13 +1857,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     addressListener: (defaultParams.enableAddressing != undefined && defaultParams.enableAddressing.separateListener) ? 'enable' : 'disable',
                     securityEnabled: defaultParams.enableSec != undefined ? 'enable' : 'disable',
                     suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
-                    initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : '',
-                    maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : '',
-                    progressionFactor: failureParams.progressionFactor != undefined ? failureParams.progressionFactor.textNode : '',
+                    initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : -1,
+                    maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : Number.MAX_SAFE_INTEGER,
+                    progressionFactor: failureParams.progressionFactor != undefined ? failureParams.progressionFactor.textNode : 1.0,
                     retryErrorCodes: suspensionParams.errorCodes != undefined ? suspensionParams.errorCodes.textNode : '',
-                    retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : '',
-                    retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : '',
-                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : '',
+                    retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : 0,
+                    retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : 0,
+                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : Number.MAX_SAFE_INTEGER,
                     timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : '',
                     templateName: templateParams != null ? templateParams.name : '',
                     requireTemplateParameters: false,
@@ -1890,8 +1929,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             edit.replace(Uri.parse(params.documentUri), range, text);
             await workspace.applyEdit(edit);
 
-            const formatRange = this.getFormatRange(range, text);
-            await this.format(Uri.parse(params.documentUri), formatRange);
+            if (!params.disableFormatting) {
+                const formatRange = this.getFormatRange(range, text);
+                await this.rangeFormat({ uri: params.documentUri, range: formatRange });
+            }
             const content = document.getText();
             undoRedo.addModification(content);
 
@@ -1909,9 +1950,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return formatRange;
     }
 
-    async format(uri: Uri, range: Range): Promise<ApplyEditResponse> {
+    async rangeFormat(req: RangeFormatRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
-            const edits: TextEdit[] = await commands.executeCommand("vscode.executeFormatRangeProvider", uri, range,
+            const uri = Uri.parse(req.uri);
+            const edits: TextEdit[] = await commands.executeCommand("vscode.executeFormatRangeProvider", uri, req.range,
                 { tabSize: 4, insertSpaces: false, trimTrailingWhitespace: false });
             const workspaceEdit = new WorkspaceEdit();
             workspaceEdit.set(uri, edits);
@@ -2118,6 +2160,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         response.hasCustomProperties = true;
                         response.properties = customProperties;
                     }
+                } else {
+                    response.messageProcessorType = 'Custom Message Processor';
+                    response.providerClass = className;
                 }
 
                 resolve(response);
@@ -2260,66 +2305,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async importProject(params: ImportProjectRequest): Promise<ImportProjectResponse> {
         return new Promise(async (resolve) => {
-            const { source, directory, open } = params;
-
-            const projectUuid = uuidv4();
-
-            let { projectName, groupId, artifactId } = getProjectDetails(source);
-
-            if (projectName && groupId && artifactId) {
-                const folderStructure: FileStructure = {
-                    [projectName]: {
-                        'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid),
-                        'src': {
-                            'main': {
-                                'wso2mi': {
-                                    'artifacts': {
-                                        'apis': '',
-                                        'endpoints': '',
-                                        'inbound-endpoints': '',
-                                        'local-entries': '',
-                                        'message-processors': '',
-                                        'message-stores': '',
-                                        'proxy-services': '',
-                                        'sequences': '',
-                                        'tasks': '',
-                                        'templates': '',
-                                        'data-services': '',
-                                        'data-sources': '',
-                                    },
-                                    'resources': {
-                                        'registry': {
-                                            'gov': '',
-                                            'conf': '',
-                                        },
-                                        'metadata': '',
-                                        'connectors': '',
-                                    },
-                                },
-                                'test': {
-                                    'wso2mi': '',
-                                }
-                            },
-                        },
-                    },
-                };
-
-                createFolderStructure(directory, folderStructure);
-                console.log("Created project structure for project: " + projectName)
-                migrateConfigs(source, path.join(directory, projectName));
-
-                window.showInformationMessage(`Successfully imported ${projectName} project`);
-
-                if (open) {
-                    commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, projectName)));
-                    resolve({ filePath: path.join(directory, projectName) });
-                }
-
-                resolve({ filePath: path.join(directory, projectName) });
-            } else {
-                window.showErrorMessage('Could not find the project details from the provided project: ', source);
-                resolve({ filePath: "" });
-            }
+            resolve(importProject(params));
         });
     }
 
@@ -2526,6 +2512,72 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             });
         });
     }
+
+    async downloadConnector(params: DownloadConnectorRequest): Promise<DownloadConnectorResponse> {
+        const { connector, url, version } = params;
+        try {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (!workspaceFolders) {
+                throw new Error('No workspace is currently open');
+            }
+            const rootPath = workspaceFolders[0].uri.fsPath;
+
+            const connectorDirectory = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors');
+
+            if (!fs.existsSync(connectorDirectory)) {
+                fs.mkdirSync(connectorDirectory, { recursive: true });
+            }
+
+            const connectorPath = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors', `${connector.replace(/\s+/g, '')}-${version}.zip`)
+
+            if (!fs.existsSync(connectorPath)) {
+                const response = await axios.get(url, {
+                    responseType: 'stream',
+                    headers: {
+                        'User-Agent': 'My Client'
+                    }
+                });
+
+
+                const writer = fs.createWriteStream(
+                    path.resolve(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors', `${connector.replace(/\s+/g, '')}-${version}.zip`)
+                );
+
+                response.data.pipe(writer);
+
+                return new Promise((resolve, reject) => {
+                    writer.on('finish', () => {
+                        writer.close();
+                        resolve({ path: connectorPath });
+                    });
+                    writer.on('error', reject);
+                    resolve({ path: connectorPath });
+                });
+            }
+
+            return new Promise((resolve, reject) => {
+                resolve({ path: connectorPath });
+            });
+
+        } catch (error) {
+            console.error('Error downloading connector:', error);
+            throw new Error('Failed to download connector');
+        }
+    }
+
+    async getConnectorForm(params: GetConnectorFormRequest): Promise<GetConnectorFormResponse> {
+        const { uiSchemaPath, operation } = params;
+        const operationSchema = path.join(uiSchemaPath, `${operation}.json`);
+
+        // Read the file synchronously
+        const rawData = fs.readFileSync(operationSchema, 'utf-8');
+
+        // Parse the JSON
+        const formJSON = JSON.parse(rawData);
+
+        return { formJSON: formJSON };
+    }
+
     async undo(params: UndoRedoParams): Promise<void> {
         const lastsource = undoRedo.undo();
         if (lastsource) {
@@ -2610,8 +2662,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async createRegistryResource(params: CreateRegistryResourceRequest): Promise<CreateRegistryResourceResponse> {
         return new Promise(async (resolve) => {
-            var registryDir = path.join(params.projectDirectory, 'src', 'main', 'wso2mi', 'resources', 'registry', params.registryRoot);
-            var transformedPath = params.registryRoot === "gov" ? "/_system/governance" : "/_system/config";
+            let projectDir = params.projectDirectory;
+            const fileUri = Uri.file(params.projectDirectory);
+            const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
+            if (workspaceFolder) {
+                params.projectDirectory = workspaceFolder?.uri.fsPath;
+                projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
+            }
+            let registryDir = path.join(projectDir, params.registryRoot);
+            let transformedPath = params.registryRoot === "gov" ? "/_system/governance" : "/_system/config";
             if (params.createOption === "import") {
                 if (fs.existsSync(params.filePath)) {
                     const fileName = path.basename(params.filePath);
@@ -2635,10 +2694,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     resolve({ path: destPath });
                 }
             } else {
-                var fileName = params.resourceName;
+                let fileName = params.resourceName;
                 const fileData = getMediatypeAndFileExtension(params.templateType);
                 fileName = fileName + "." + fileData.fileExtension;
-                const fileContent = getRegistryResourceContent(params.templateType, params.resourceName);
+                let fileContent = params.content ? params.content : getRegistryResourceContent(params.templateType, params.resourceName);
                 const registryPath = path.join(registryDir, params.registryPath);
                 const destPath = path.join(registryPath, fileName);
                 if (!fs.existsSync(registryPath)) {
@@ -2719,6 +2778,154 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<ListRegistryArtifactsResponse> {
         return new Promise(async (resolve) => {
             resolve(getAvailableRegistryResources(params.path));
+        });
+    }
+
+    async migrateProject({ source }: MigrateProjectRequest): Promise<MigrateProjectResponse> {
+        return new Promise(async (resolve) => {
+            const selection = await vscode.window.showQuickPick(
+                [
+                    {
+                        label: "Select Destination",
+                        description: "Select a destination folder to migrate the project",
+                    },
+                ],
+                {
+                    placeHolder: "Migration Options",
+                }
+            );
+
+            let target;
+            switch (selection?.label) {
+                case "Select Destination":
+                    target = await vscode.commands.executeCommand(COMMANDS.SELECT_DESTINATION, { sourceDir: source });
+                    break;
+            }
+
+            if (source && target) {
+                importProject({ source, directory: target, open: true });
+                resolve({ filePath: target });
+            }
+        });
+    }
+
+    async getAvailableConnectors(params: GetAvailableConnectorRequest): Promise<GetAvailableConnectorResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getAvailableConnectors({
+                documentUri: params.documentUri,
+                connectorName: params.connectorName
+            });
+
+            resolve(res);
+        });
+    }
+
+    async updateConnectors(params: UpdateConnectorRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.updateConnectors({
+                documentUri: params.documentUri
+            });
+
+            resolve(res);
+        })
+    }
+
+    async createDataSource(params: DataSourceTemplate): Promise<CreateDataSourceResponse> {
+        return new Promise(async (resolve) => {
+            const xmlData = await getDataserviceXml(params);
+            const dsPath = path.join(params.projectDirectory, 'src', 'main', 'wso2mi', 'artifacts', 'Data-Sources', params.name + '.xml');
+            fs.writeFileSync(dsPath, xmlData);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: dsPath });
+        });
+    }
+
+    async getDataSource(params: GetDataSourceRequest): Promise<DataSourceTemplate> {
+        const options = {
+            ignoreAttributes: false,
+            allowBooleanAttributes: true,
+            attributeNamePrefix: "@",
+        };
+        const parser = new XMLParser(options);
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+            if (filePath.includes('.xml') && fs.existsSync(filePath)) {
+                const xmlData = fs.readFileSync(filePath, "utf8");
+                const jsonData = parser.parse(xmlData);
+                var response: DataSourceTemplate = {
+                    projectDirectory: '',
+                    type: jsonData.datasource.definition['@type'] === 'RDBMS' ? 'RDBMS' : 'Custom',
+                    name: jsonData.datasource.name,
+                    description: jsonData.datasource.description ?? '',
+                };
+                if (jsonData.datasource.definition['@type'] === 'RDBMS') {
+                    if (jsonData.datasource.definition.configuration) {
+                        response.driverClassName = jsonData.datasource.definition.configuration.driverClassName ?? '';
+                        response.url = jsonData.datasource.definition.configuration.url ?? '';
+                        response.driverClassName = jsonData.datasource.definition.configuration.driverClassName ?? '';
+                        response.username = jsonData.datasource.definition.configuration.username ?? '';
+                        response.password = jsonData.datasource.definition.configuration.password ?? '';
+                        const params: { [key: string]: string | number | boolean } = {};
+                        if (jsonData.datasource.definition.configuration) {
+                            Object.entries(jsonData.datasource.definition.configuration).forEach(([key, value]) => {
+                                params[key] = value as string | number | boolean;
+                            });
+                        }
+                        // remove duplicates
+                        delete params.driverClassName;
+                        delete params.url;
+                        delete params.username;
+                        delete params.password;
+                        delete params.dataSourceClassName;
+                        delete params.dataSourceProps;
+                        response.dataSourceConfigParameters = params;
+                    }
+                    if (jsonData.datasource.jndiConfig) {
+                        response.jndiConfig = {
+                            JNDIConfigName: jsonData.datasource.jndiConfig.name,
+                            useDataSourceFactory: jsonData.datasource.jndiConfig['@useDataSourceFactory'],
+                        };
+                        if (jsonData.datasource.jndiConfig.environment.property) {
+                            const params: { [key: string]: string | number | boolean } = {};
+                            jsonData.datasource.jndiConfig.environment.property.forEach((item) => {
+                                const key = item['@name'].toString();
+                                const val = item['#text'];
+                                params[key] = val;
+                            });
+                            response.jndiConfig.properties = params;
+                        }
+                    }
+                    if (jsonData.datasource.definition.configuration.dataSourceClassName) {
+                        response.externalDSClassName = jsonData.datasource.definition.configuration.dataSourceClassName;
+                        if (jsonData.datasource.definition.configuration.dataSourceProps.property) {
+                            const params: { [key: string]: string | number | boolean } = {};
+                            jsonData.datasource.definition.configuration.dataSourceProps.property.forEach((item) => {
+                                const key = item['@name'].toString();
+                                const val = item['#text'];
+                                params[key] = val;
+                            });
+                            response.dataSourceProperties = params;
+                        }
+                    }
+                }
+                if (jsonData.datasource.definition['@type'] !== 'RDBMS') {
+                    response.customDSType = jsonData.datasource.definition['@type'];
+                    response.customDSConfiguration = jsonData.datasource.definition['#text'];
+                }
+                return resolve(response);
+            }
+            resolve(Promise.reject(new Error('Invalid data source')));
+        });
+    }
+
+    async getIconPathUri(params: GetIconPathUriRequest): Promise<GetIconPathUriResponse> {
+        return new Promise(async (resolve) => {
+            if (VisualizerWebview.currentPanel) {
+                let iconUri = VisualizerWebview.currentPanel.getIconPath(params.path, params.name);
+                resolve({ uri: iconUri });
+            }
         });
     }
 }

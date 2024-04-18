@@ -36,5 +36,6 @@ export const SERVICE = {
     ADD_RESOURCE: "add-resource",
     EDIT_RESOURCE: "edit-resource",
     EDIT_SEQUENCE: "edit-sequence",
+    EDIT_PROXY: "edit-proxy",
 } as const;
 

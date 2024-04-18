@@ -7,15 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { WebviewView, WebviewPanel } from 'vscode';
+import { WebviewView, WebviewPanel, window } from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { StateMachine } from './stateMachine';
-import { stateChanged, getVisualizerState, getAIVisualizerState, VisualizerLocation, AIVisualizerLocation } from '@wso2-enterprise/mi-core';
+import { stateChanged, getVisualizerState, getAIVisualizerState, VisualizerLocation, AIVisualizerLocation, sendAIStateEvent, AI_EVENT_TYPE, aiStateChanged, themeChanged } from '@wso2-enterprise/mi-core';
 import { registerMiDiagramRpcHandlers } from './rpc-managers/mi-diagram/rpc-handler';
 import { VisualizerWebview } from './visualizer/webview';
 import { registerMiVisualizerRpcHandlers } from './rpc-managers/mi-visualizer/rpc-handler';
 import { AiPanelWebview } from './ai-panel/webview';
 import { StateMachineAI } from './ai-panel/aiMachine';
+import { registerMiDataMapperRpcHandlers } from './rpc-managers/mi-data-mapper/rpc-handler';
 import { registerMiDebuggerRpcHandlers } from './rpc-managers/mi-debugger/rpc-handler';
 
 export class RPCLayer {
@@ -27,10 +28,13 @@ export class RPCLayer {
             StateMachine.service().onTransition((state) => {
                 RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, state.value);
             });
+            window.onDidChangeActiveColorTheme((theme) => {
+                RPCLayer._messenger.sendNotification(themeChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, theme.kind);
+            })
         } else {
             RPCLayer._messenger.registerWebviewPanel(webViewPanel as WebviewPanel);
             StateMachineAI.service().onTransition((state) => {
-                RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: AiPanelWebview.viewType }, state.value);
+                RPCLayer._messenger.sendNotification(aiStateChanged, { type: 'webview', webviewType: AiPanelWebview.viewType }, state.value);
             });
         }
     }
@@ -44,9 +48,11 @@ export class RPCLayer {
         RPCLayer._messenger.onRequest(getVisualizerState, () => getContext());
         registerMiDiagramRpcHandlers(RPCLayer._messenger);
         registerMiVisualizerRpcHandlers(RPCLayer._messenger);
+        registerMiDataMapperRpcHandlers(RPCLayer._messenger);
         registerMiDebuggerRpcHandlers(RPCLayer._messenger);
         // ----- AI Webview RPC Methods
         RPCLayer._messenger.onRequest(getAIVisualizerState, () => getAIContext());
+        RPCLayer._messenger.onRequest(sendAIStateEvent, (event: AI_EVENT_TYPE) => StateMachineAI.sendEvent(event));
     }
 
 }
@@ -70,7 +76,7 @@ async function getContext(): Promise<VisualizerLocation> {
 async function getAIContext(): Promise<AIVisualizerLocation> {
     const context = StateMachineAI.context();
     return new Promise((resolve) => {
-        resolve({ view: context.view, initialPrompt: context.initialPrompt });
+        resolve({ view: context.view, initialPrompt: context.initialPrompt, state: StateMachineAI.state() });
     });
 }
 

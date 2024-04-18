@@ -82,9 +82,9 @@ export function ResponseEditor(props: ParamProps) {
                     sx={{ zIndex: 1, position: "relative" }}
                     borderBox={isBallerniaExt}
                     label="Code"
-                    selectedItem={getTitleFromResponseCode(response.code)}
+                    value={getTitleFromResponseCode(response.code)}
                     items={responseCodes.map(code => code.title)}
-                    onChange={handleCodeChange}
+                    onValueChange={handleCodeChange}
                 />
                 <TypeBrowser
                     commonRpcClient={commonRpcClient}
@@ -105,7 +105,7 @@ export function ResponseEditor(props: ParamProps) {
                     size={33}
                     placeholder='Enter type'
                     value={definedRecordName}
-                    onChange={handleTypeChange}
+                    onTextChange={handleTypeChange}
                 />
             )}
             <ActionButtons

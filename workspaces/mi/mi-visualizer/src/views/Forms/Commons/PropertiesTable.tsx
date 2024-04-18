@@ -80,20 +80,20 @@ const PropertiesTable = ({ properties, setProperties }: any) => {
                             id='property-name'
                             value={property.name}
                             placeholder="Property name"
-                            onChange={(text: string) => handlePropertyChange(index, "name", text)}
+                            onTextChange={(text: string) => handlePropertyChange(index, "name", text)}
                             sx={{ marginTop: '-2px' }}
                         />
                         <TextField
                             id='property-value'
                             value={property.value}
                             placeholder="Property value"
-                            onChange={(text: string) => handlePropertyChange(index, "value", text)}
+                            onTextChange={(text: string) => handlePropertyChange(index, "value", text)}
                             sx={{ marginTop: '-2px' }}
                         />
                         <Dropdown
                             id="property-scope"
                             value={property.scope}
-                            onChange={(text: string) => handlePropertyChange(index, "scope", text)}
+                            onValueChange={(text: string) => handlePropertyChange(index, "scope", text)}
                             items={scopes}
                         />
                         <Codicon iconSx={{ fontSize: 18 }} name='trash' onClick={() => handlePropertyDelete(index)} />

@@ -18,12 +18,12 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 
-const cardStyle = { 
-   display: "block",
-   margin: "15px 0",
-   padding: "0 15px 15px 15px",
-   width: "auto",
-   cursor: "auto"
+const cardStyle = {
+    display: "block",
+    margin: "15px 0",
+    padding: "0 15px 15px 15px",
+    width: "auto",
+    cursor: "auto"
 };
 
 const Error = styled.span`
@@ -39,124 +39,176 @@ const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const FaultForm = (props: AddMediatorProps) => {
-   const { rpcClient } = useVisualizerContext();
-   const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({} as { [key: string]: any });
-   const [errors, setErrors] = useState({} as any);
+    const { rpcClient } = useVisualizerContext();
+    const sidePanelContext = React.useContext(SidePanelContext);
+    const [formValues, setFormValues] = useState({} as { [key: string]: any });
+    const [errors, setErrors] = useState({} as any);
 
-   useEffect(() => {
-       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-           setFormValues({ ...formValues, ...sidePanelContext.formValues });
-       } else {
-           setFormValues({
-       "soapVersion": "soap11",
-       "soap11": "VersionMismatch",
-       "serializeResponse": false,
-       "detailType": "VALUE",
-       "reasonType": "VALUE",});
-       }
-   }, [sidePanelContext.formValues]);
+    useEffect(() => {
+        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
+            setFormValues({ ...formValues, ...sidePanelContext.formValues });
+        } else {
+            setFormValues({
+                "soapVersion": "soap11",
+                "soap11": "VersionMismatch",
+                "soap12": "VersionMismatch",
+                "serializeResponse": false,
+                "markAsResponse": false,
+                "detailType": "VALUE",
+                "reasonType": "VALUE",
+            });
+        }
+    }, [sidePanelContext.formValues]);
 
-   const onClick = async () => {
-       const newErrors = {} as any;
-       Object.keys(formValidators).forEach((key) => {
-           const error = formValidators[key]();
-           if (error) {
-               newErrors[key] = (error);
-           }
-       });
-       if (Object.keys(newErrors).length > 0) {
-           setErrors(newErrors);
-       } else {
-           const xml = getXML(MEDIATORS.FAULT, formValues);
-           rpcClient.getMiDiagramRpcClient().applyEdit({
-               documentUri: props.documentUri, range: props.nodePosition, text: xml
-           });
-           sidePanelContext.setSidePanelState({
+    const onClick = async () => {
+        const newErrors = {} as any;
+        Object.keys(formValidators).forEach((key) => {
+            const error = formValidators[key]();
+            if (error) {
+                newErrors[key] = (error);
+            }
+        });
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+        } else {
+            const xml = getXML(MEDIATORS.FAULT, formValues);
+            rpcClient.getMiDiagramRpcClient().applyEdit({
+                documentUri: props.documentUri, range: props.nodePosition, text: xml
+            });
+            sidePanelContext.setSidePanelState({
                 ...sidePanelContext,
                 isOpen: false,
                 isEditing: false,
                 formValues: undefined,
                 nodeRange: undefined,
                 operationName: undefined
-              });
-       }
-   };
+            });
+        }
+    };
 
-   const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-       "soapVersion": (e?: any) => validateField("soapVersion", e, false),
-       "soap11": (e?: any) => validateField("soap11", e, false),
-       "actor": (e?: any) => validateField("actor", e, false),
-       "serializeResponse": (e?: any) => validateField("serializeResponse", e, false),
-       "detailType": (e?: any) => validateField("detailType", e, false),
-       "detailValue": (e?: any) => validateField("detailValue", e, false),
-       "detailExpression": (e?: any) => validateField("detailExpression", e, false),
-       "reasonType": (e?: any) => validateField("reasonType", e, false),
-       "reasonValue": (e?: any) => validateField("reasonValue", e, false),
-       "reasonExpression": (e?: any) => validateField("reasonExpression", e, false),
-       "description": (e?: any) => validateField("description", e, false),
+    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
+        "soapVersion": (e?: any) => validateField("soapVersion", e, false),
+        "soap11": (e?: any) => validateField("soap11", e, false),
+        "soap12": (e?: any) => validateField("soap12", e, false),
+        "actor": (e?: any) => validateField("actor", e, false),
+        "role": (e?: any) => validateField("role", e, false),
+        "node": (e?: any) => validateField("node", e, false),
+        "serializeResponse": (e?: any) => validateField("serializeResponse", e, false),
+        "markAsResponse": (e?: any) => validateField("markAsResponse", e, false),
+        "detailType": (e?: any) => validateField("detailType", e, false),
+        "detailValue": (e?: any) => validateField("detailValue", e, false),
+        "detailExpression": (e?: any) => validateField("detailExpression", e, false),
+        "reasonType": (e?: any) => validateField("reasonType", e, false),
+        "reasonValue": (e?: any) => validateField("reasonValue", e, false),
+        "reasonExpression": (e?: any) => validateField("reasonExpression", e, false),
+        "description": (e?: any) => validateField("description", e, false),
 
-   };
+    };
 
-   const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-       const value = e ?? formValues[id];
-       const newErrors = { ...errors };
-       let error;
-       if (isRequired && !value) {
-           error = "This field is required";
-       } else if (validation === "e-mail" && !value.match(emailRegex)) {
-           error = "Invalid e-mail address";
-       } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-           error = "Invalid name";
-       } else if (validation === "custom" && !value.match(regex)) {
-           error = "Invalid input";
-       } else {
-           delete newErrors[id];
-           setErrors(newErrors);
-       }
-       setErrors({ ...errors, [id]: error });
-       return error;
-   };
+    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
+        const value = e ?? formValues[id];
+        const newErrors = { ...errors };
+        let error;
+        if (isRequired && !value) {
+            error = "This field is required";
+        } else if (validation === "e-mail" && !value.match(emailRegex)) {
+            error = "Invalid e-mail address";
+        } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
+            error = "Invalid name";
+        } else if (validation === "custom" && !value.match(regex)) {
+            error = "Invalid input";
+        } else {
+            delete newErrors[id];
+            setErrors(newErrors);
+        }
+        setErrors({ ...errors, [id]: error });
+        return error;
+    };
 
-   return (
-       <div style={{ padding: "10px" }}>
+    return (
+        <div style={{ padding: "10px" }}>
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <h3>Properties</h3>
 
                 <Field>
                     <label>SOAP Version</label>
-                    <AutoComplete items={["soap11", "soap12", "POX"]} selectedItem={formValues["soapVersion"]} onChange={(e: any) => {
+                    <AutoComplete items={["soap11", "soap12", "POX"]} value={formValues["soapVersion"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "soapVersion": e });
                         formValidators["soapVersion"](e);
                     }} />
                     {errors["soapVersion"] && <Error>{errors["soapVersion"]}</Error>}
                 </Field>
 
-                <Field>
-                    <label>SOAP11</label>
-                    <AutoComplete items={["VersionMismatch", "MustUnderstand", "Client", "Server"]} selectedItem={formValues["soap11"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "soap11": e });
-                        formValidators["soap11"](e);
-                    }} />
-                    {errors["soap11"] && <Error>{errors["soap11"]}</Error>}
-                </Field>
+                {formValues["soapVersion"] && formValues["soapVersion"] == "soap11" &&
+                    <Field>
+                        <label>Code</label>
+                        <AutoComplete items={["VersionMismatch", "MustUnderstand", "Client", "Server"]} value={formValues["soap11"]} onValueChange={(e: any) => {
+                            setFormValues({ ...formValues, "soap11": e });
+                            formValidators["soap11"](e);
+                        }} />
+                        {errors["soap11"] && <Error>{errors["soap11"]}</Error>}
+                    </Field>
+                }
+                {formValues["soapVersion"] && formValues["soapVersion"] == "soap12" &&
+                    <Field>
+                        <label>SOAP12</label>
+                        <AutoComplete items={["VersionMismatch", "MustUnderstand", "DatEncodingUnknown", "Sender", "Receiver"]} value={formValues["soap12"]} onValueChange={(e: any) => {
+                            setFormValues({ ...formValues, "soap12": e });
+                            formValidators["soap12"](e);
+                        }} />
+                        {errors["soap12"] && <Error>{errors["soap12"]}</Error>}
+                    </Field>
+                }
 
-                <Field>
-                    <TextField
-                        label="Actor"
-                        size={50}
-                        placeholder=""
-                        value={formValues["actor"]}
-                        onChange={(e: any) => {
-                            setFormValues({ ...formValues, "actor": e });
-                            formValidators["actor"](e);
-                        }}
-                        required={false}
-                    />
-                    {errors["actor"] && <Error>{errors["actor"]}</Error>}
-                </Field>
-
+                {formValues["soapVersion"] && formValues["soapVersion"] == "soap11" &&
+                    <Field>
+                        <TextField
+                            label="Actor"
+                            size={50}
+                            placeholder=""
+                            value={formValues["actor"]}
+                            onTextChange={(e: any) => {
+                                setFormValues({ ...formValues, "actor": e });
+                                formValidators["actor"](e);
+                            }}
+                            required={false}
+                        />
+                        {errors["actor"] && <Error>{errors["actor"]}</Error>}
+                    </Field>
+                }
+                {formValues["soapVersion"] && formValues["soapVersion"] == "soap12" &&
+                    <Field>
+                        <TextField
+                            label="Role"
+                            size={50}
+                            placeholder=""
+                            value={formValues["role"]}
+                            onTextChange={(e: any) => {
+                                setFormValues({ ...formValues, "role": e });
+                                formValidators["role"](e);
+                            }}
+                            required={false}
+                        />
+                        {errors["role"] && <Error>{errors["role"]}</Error>}
+                    </Field>
+                }
+                {formValues["soapVersion"] && formValues["soapVersion"] == "soap12" &&
+                    <Field>
+                        <TextField
+                            label="Node"
+                            size={50}
+                            placeholder=""
+                            value={formValues["node"]}
+                            onTextChange={(e: any) => {
+                                setFormValues({ ...formValues, "node": e });
+                                formValidators["node"](e);
+                            }}
+                            required={false}
+                        />
+                        {errors["node"] && <Error>{errors["node"]}</Error>}
+                    </Field>
+                }
                 <Field>
                     <VSCodeCheckbox type="checkbox" checked={formValues["serializeResponse"]} onChange={(e: any) => {
                         setFormValues({ ...formValues, "serializeResponse": e.target.checked });
@@ -166,12 +218,23 @@ const FaultForm = (props: AddMediatorProps) => {
                     {errors["serializeResponse"] && <Error>{errors["serializeResponse"]}</Error>}
                 </Field>
 
+                {formValues["serializeResponse"] && formValues["serializeResponse"] == true &&
+                    <Field>
+                        <VSCodeCheckbox type="checkbox" checked={formValues["markAsResponse"]} onChange={(e: any) => {
+                            setFormValues({ ...formValues, "markAsResponse": e.target.checked });
+                            formValidators["markAsResponse"](e);
+                        }
+                        }>Mark As Response </VSCodeCheckbox>
+                        {errors["markAsResponse"] && <Error>{errors["markAsResponse"]}</Error>}
+                    </Field>
+                }
+
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <h3>Detail</h3>
 
                     <Field>
                         <label>Type</label>
-                        <AutoComplete items={["VALUE", "EXPRESSION"]} selectedItem={formValues["detailType"]} onChange={(e: any) => {
+                        <AutoComplete items={["VALUE", "EXPRESSION"]} value={formValues["detailType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "detailType": e });
                             formValidators["detailType"](e);
                         }} />
@@ -185,7 +248,7 @@ const FaultForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["detailValue"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "detailValue": e });
                                     formValidators["detailValue"](e);
                                 }}
@@ -202,7 +265,7 @@ const FaultForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["detailExpression"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "detailExpression": e });
                                     formValidators["detailExpression"](e);
                                 }}
@@ -219,7 +282,7 @@ const FaultForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Type</label>
-                        <AutoComplete items={["VALUE", "EXPRESSION"]} selectedItem={formValues["reasonType"]} onChange={(e: any) => {
+                        <AutoComplete items={["VALUE", "EXPRESSION"]} value={formValues["reasonType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "reasonType": e });
                             formValidators["reasonType"](e);
                         }} />
@@ -233,7 +296,7 @@ const FaultForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["reasonValue"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "reasonValue": e });
                                     formValidators["reasonValue"](e);
                                 }}
@@ -250,7 +313,7 @@ const FaultForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["reasonExpression"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "reasonExpression": e });
                                     formValidators["reasonExpression"](e);
                                 }}
@@ -268,7 +331,7 @@ const FaultForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

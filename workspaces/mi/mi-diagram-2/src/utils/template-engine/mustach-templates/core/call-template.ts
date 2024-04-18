@@ -23,7 +23,7 @@ export function getCallTemplateXml(data: { [key: string]: any }) {
     return {
       parameterName: property[0],
       parameterValue: property[1] == "LITERAL" ? property[2] : undefined,
-      parameterExpression: property[1] == "EXPRESSION" ? "{" + property[2] + "}" : undefined
+      parameterExpression: property[1] == "EXPRESSION" ? property[3] : undefined
     }
   });
   const modifiedData = {

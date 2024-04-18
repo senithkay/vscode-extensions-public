@@ -24,6 +24,7 @@ import {
     CreateAPIResponse,
     CreateClassMediatorRequest,
     CreateClassMediatorResponse,
+    CreateDataSourceResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
     CreateInboundEndpointRequest,
@@ -46,21 +47,29 @@ import {
     CreateTaskResponse,
     CreateTemplateRequest,
     CreateTemplateResponse,
+    DataSourceTemplate,
+    DownloadConnectorRequest,
+    DownloadConnectorResponse,
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     FileDirResponse,
-    FileListRequest,
-    FileListResponse,
+    GetAvailableConnectorRequest,
+    GetAvailableConnectorResponse,
     GetAvailableResourcesRequest,
     GetAvailableResourcesResponse,
     GetBackendRootUrlResponse,
+    GetConnectorFormRequest,
+    GetConnectorFormResponse,
+    GetDataSourceRequest,
     GetDefinitionRequest,
     GetDefinitionResponse,
     GetDiagnosticsReqeust,
     GetDiagnosticsResponse,
     GetFailoverEPRequest,
     GetFailoverEPResponse,
+    GetIconPathUriRequest,
+    GetIconPathUriResponse,
     GetInboundEndpointRequest,
     GetInboundEndpointResponse,
     GetLoadBalanceEPRequest,
@@ -71,19 +80,28 @@ import {
     GetMessageStoreResponse,
     GetProjectRootRequest,
     GetProjectUuidResponse,
+    GetRecipientEPRequest,
+    GetRecipientEPResponse,
     GetSelectiveWorkspaceContextResponse,
     GetTaskRequest,
     GetTaskResponse,
+    GetTemplateEPRequest,
+    GetTemplateEPResponse,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
     GetWorkspaceContextResponse,
     HighlightCodeRequest,
     ImportProjectRequest,
     ImportProjectResponse,
+    ListRegistryArtifactsRequest,
+    ListRegistryArtifactsResponse,
     MiDiagramAPI,
+    MigrateProjectRequest,
+    MigrateProjectResponse,
     OpenDiagramRequest,
     ProjectDirResponse,
     ProjectRootResponse,
+    RangeFormatRequest,
     RetrieveAddressEndpointRequest,
     RetrieveAddressEndpointResponse,
     RetrieveDefaultEndpointRequest,
@@ -102,6 +120,7 @@ import {
     UndoRedoParams,
     UpdateAddressEndpointRequest,
     UpdateAddressEndpointResponse,
+    UpdateConnectorRequest,
     UpdateDefaultEndpointRequest,
     UpdateDefaultEndpointResponse,
     UpdateFailoverEPRequest,
@@ -110,6 +129,10 @@ import {
     UpdateHttpEndpointResponse,
     UpdateLoadBalanceEPRequest,
     UpdateLoadBalanceEPResponse,
+    UpdateRecipientEPRequest,
+    UpdateRecipientEPResponse,
+    UpdateTemplateEPRequest,
+    UpdateTemplateEPResponse,
     UpdateWsdlEndpointRequest,
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
@@ -123,6 +146,7 @@ import {
     closeWebViewNotification,
     createAPI,
     createClassMediator,
+    createDataSource,
     createEndpoint,
     createInboundEndpoint,
     createLocalEntry,
@@ -134,14 +158,19 @@ import {
     createSequence,
     createTask,
     createTemplate,
+    downloadConnector,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
     getAddressEndpoint,
+    getAvailableConnectors,
+    getAvailableRegistryResources,
     getAvailableResources,
     getBackendRootUrl,
     getConnector,
+    getConnectorForm,
     getConnectors,
+    getDataSource,
     getDefaultEndpoint,
     getDefinition,
     getDiagnostics,
@@ -150,6 +179,7 @@ import {
     getEndpointsAndSequences,
     getFailoverEndpoint,
     getHttpEndpoint,
+    getIconPathUri,
     getInboundEndpoint,
     getLoadBalanceEndpoint,
     getLocalEntry,
@@ -157,6 +187,7 @@ import {
     getMessageStore,
     getProjectRoot,
     getProjectUuid,
+    getRecipientEndpoint,
     getSTRequest,
     getSTResponse,
     getSelectiveWorkspaceContext,
@@ -164,42 +195,32 @@ import {
     getSyntaxTree,
     getTask,
     getTemplate,
+    getTemplateEndpoint,
     getTemplates,
     getTextAtRange,
     getWorkspaceContext,
     getWorkspaceRoot,
     getWsdlEndpoint,
-    getXmlFileList,
     highlightCode,
     importProject,
     initUndoRedoManager,
+    migrateProject,
     openDiagram,
     openFile,
+    rangeFormat,
     redo,
     showErrorMessage,
     undo,
     updateAddressEndpoint,
+    updateConnectors,
     updateDefaultEndpoint,
     updateFailoverEndpoint,
     updateHttpEndpoint,
     updateLoadBalanceEndpoint,
-    updateWsdlEndpoint,
-    writeContentToFile,
-    ListRegistryArtifactsResponse,
-    ListRegistryArtifactsRequest,
-    getAvailableRegistryResources,
-    UpdateRecipientEPRequest,
-    UpdateRecipientEPResponse,
     updateRecipientEndpoint,
-    GetRecipientEPRequest,
-    GetRecipientEPResponse,
-    getRecipientEndpoint,
-    UpdateTemplateEPRequest,
-    UpdateTemplateEPResponse,
     updateTemplateEndpoint,
-    GetTemplateEPRequest,
-    GetTemplateEPResponse,
-    getTemplateEndpoint
+    updateWsdlEndpoint,
+    writeContentToFile
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -274,7 +295,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     updateRecipientEndpoint(params: UpdateRecipientEPRequest): Promise<UpdateRecipientEPResponse> {
         return this._messenger.sendRequest(updateRecipientEndpoint, HOST_EXTENSION, params);
     }
-    
+
     getRecipientEndpoint(params: GetRecipientEPRequest): Promise<GetRecipientEPResponse> {
         return this._messenger.sendRequest(getRecipientEndpoint, HOST_EXTENSION, params);
     }
@@ -282,7 +303,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     updateTemplateEndpoint(params: UpdateTemplateEPRequest): Promise<UpdateTemplateEPResponse> {
         return this._messenger.sendRequest(updateTemplateEndpoint, HOST_EXTENSION, params);
     }
-    
+
     getTemplateEndpoint(params: GetTemplateEPRequest): Promise<GetTemplateEPResponse> {
         return this._messenger.sendRequest(getTemplateEndpoint, HOST_EXTENSION, params);
     }
@@ -317,10 +338,6 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getMessageStore(params: GetMessageStoreRequest): Promise<GetMessageStoreResponse> {
         return this._messenger.sendRequest(getMessageStore, HOST_EXTENSION, params);
-    }
-
-    getXmlFileList(params: FileListRequest): Promise<FileListResponse> {
-        return this._messenger.sendRequest(getXmlFileList, HOST_EXTENSION, params);
     }
 
     createInboundEndpoint(params: CreateInboundEndpointRequest): Promise<CreateInboundEndpointResponse> {
@@ -435,6 +452,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(importProject, HOST_EXTENSION, params);
     }
 
+    migrateProject(params: MigrateProjectRequest): Promise<MigrateProjectResponse> {
+        return this._messenger.sendRequest(migrateProject, HOST_EXTENSION, params);
+    }
+
     getAIResponse(params: AIUserInput): Promise<string> {
         return this._messenger.sendRequest(getAIResponse, HOST_EXTENSION, params);
     }
@@ -505,5 +526,37 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<ListRegistryArtifactsResponse> {
         return this._messenger.sendRequest(getAvailableRegistryResources, HOST_EXTENSION, params);
+    }
+
+    rangeFormat(params: RangeFormatRequest): Promise<ApplyEditResponse> {
+        return this._messenger.sendRequest(rangeFormat, HOST_EXTENSION, params);
+    }
+
+    downloadConnector(params: DownloadConnectorRequest): Promise<DownloadConnectorResponse> {
+        return this._messenger.sendRequest(downloadConnector, HOST_EXTENSION, params);
+    }
+
+    getAvailableConnectors(params: GetAvailableConnectorRequest): Promise<GetAvailableConnectorResponse> {
+        return this._messenger.sendRequest(getAvailableConnectors, HOST_EXTENSION, params);
+    }
+
+    updateConnectors(params: UpdateConnectorRequest): void {
+        return this._messenger.sendNotification(updateConnectors, HOST_EXTENSION, params);
+    }
+
+    getConnectorForm(params: GetConnectorFormRequest): Promise<GetConnectorFormResponse> {
+        return this._messenger.sendRequest(getConnectorForm, HOST_EXTENSION, params);
+    }
+
+    createDataSource(params: DataSourceTemplate): Promise<CreateDataSourceResponse> {
+        return this._messenger.sendRequest(createDataSource, HOST_EXTENSION, params);
+    }
+
+    getDataSource(params: GetDataSourceRequest): Promise<DataSourceTemplate> {
+        return this._messenger.sendRequest(getDataSource, HOST_EXTENSION, params);
+    }
+
+    getIconPathUri(params: GetIconPathUriRequest): Promise<GetIconPathUriResponse> {
+        return this._messenger.sendRequest(getIconPathUri, HOST_EXTENSION, params);
     }
 }

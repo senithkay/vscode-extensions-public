@@ -20,6 +20,7 @@ export interface ApplyEditRequest {
     text: string;
     documentUri: string;
     range: Range;
+    disableFormatting?: boolean;
 }
 
 export interface ApplyEditResponse {
@@ -66,7 +67,7 @@ export interface UpdateLoadBalanceEPRequest {
     failover: string;
     buildMessage: string;
     sessionManagement: string;
-    sessionTimeout: string;
+    sessionTimeout: number;
     description: string;
     endpoints: { type: string; value: string; }[];
     properties: { name: string; value: string; scope: string; }[];
@@ -86,7 +87,7 @@ export interface GetLoadBalanceEPResponse {
     failover: string;
     buildMessage: string;
     sessionManagement: string;
-    sessionTimeout: string;
+    sessionTimeout: number;
     description: string;
     endpoints: { type: string; value: string; }[];
     properties: { name: string; value: string; scope: string; }[];
@@ -99,10 +100,12 @@ export interface UpdateFailoverEPRequest {
     description: string;
     endpoints: { type: string; value: string; }[];
     properties: { name: string; value: string; scope: string; }[];
+    getContentOnly: boolean;
 }
 
 export interface UpdateFailoverEPResponse {
     path: string;
+    content: string;
 }
 
 export interface GetFailoverEPRequest {
@@ -123,10 +126,12 @@ export interface UpdateRecipientEPRequest {
     description: string;
     endpoints: { type: string; value: string; }[];
     properties: { name: string; value: string; scope: string; }[];
+    getContentOnly: boolean;
 }
 
 export interface UpdateRecipientEPResponse {
     path: string;
+    content: string;
 }
 
 export interface GetRecipientEPRequest {
@@ -276,7 +281,7 @@ export interface GetMessageStoreResponse {
     jmsAPIVersion: string;
     rabbitMQServerHostName: string;
     rabbitMQServerPort: string;
-    sslEnabled: string;
+    sslEnabled: boolean;
     trustStoreLocation: string;
     trustStoreType: string;
     trustStorePassword: string;
@@ -296,7 +301,7 @@ export interface GetMessageStoreResponse {
     queueConnectionFactory: string;
     pollingCount: string;
     xPath: string;
-    enableProducerGuaranteedDelivery: string;
+    enableProducerGuaranteedDelivery: boolean;
     providerClass: string;
     customParameters: Record[];
     failOverMessageStore: string;
@@ -304,14 +309,6 @@ export interface GetMessageStoreResponse {
 
 export interface GetMessageStoreRequest {
     path: string;
-}
-
-export interface FileListRequest {
-    path: string;
-}
-
-export interface FileListResponse {
-    files: string[];
 }
 
 export interface CreateProjectRequest {
@@ -326,6 +323,10 @@ export interface ImportProjectRequest {
     source: string;
     directory: string;
     open: boolean;
+}
+
+export interface MigrateProjectRequest {
+    source: string;
 }
 
 export interface Connector {
@@ -407,8 +408,12 @@ export interface CreateSequenceRequest {
     name: string;
     endpoint: string;
     onErrorSequence: string;
+    getContentOnly: boolean;
+    statistics: boolean;
+    trace: boolean;
 }
 export interface CreateSequenceResponse {
+    fileContent: string;
     filePath: string;
 }
 
@@ -545,13 +550,13 @@ export interface UpdateHttpEndpointRequest {
     addressListener: string;
     securityEnabled: string;
     suspendErrorCodes: string;
-    initialDuration: string;
-    maximumDuration: string;
-    progressionFactor: string;
+    initialDuration: number;
+    maximumDuration: number;
+    progressionFactor: number;
     retryErrorCodes: string;
-    retryCount: string;
-    retryDelay: string;
-    timeoutDuration: string;
+    retryCount: number;
+    retryDelay: number;
+    timeoutDuration: number;
     timeoutAction: string;
     templateName: string;
     requireTemplateParameters: boolean;
@@ -593,13 +598,13 @@ export interface RetrieveHttpEndpointResponse {
     addressListener: string;
     securityEnabled: string;
     suspendErrorCodes: string;
-    initialDuration: string;
-    maximumDuration: string;
-    progressionFactor: string;
+    initialDuration: number;
+    maximumDuration: number;
+    progressionFactor: number;
     retryErrorCodes: string;
-    retryCount: string;
-    retryDelay: string;
-    timeoutDuration: string;
+    retryCount: number;
+    retryDelay: number;
+    timeoutDuration: number;
     timeoutAction: string;
     templateName: string;
     requireTemplateParameters: boolean;
@@ -622,13 +627,13 @@ export interface UpdateAddressEndpointRequest {
     addressListener: string;
     securityEnabled: string;
     suspendErrorCodes: string;
-    initialDuration: string;
-    maximumDuration: string;
-    progressionFactor: string;
+    initialDuration: number;
+    maximumDuration: number;
+    progressionFactor: number;
     retryErrorCodes: string;
-    retryCount: string;
-    retryDelay: string;
-    timeoutDuration: string;
+    retryCount: number;
+    retryDelay: number;
+    timeoutDuration: number;
     timeoutAction: string;
     templateName: string;
     requireTemplateParameters: boolean;
@@ -658,13 +663,13 @@ export interface RetrieveAddressEndpointResponse {
     addressListener: string;
     securityEnabled: string;
     suspendErrorCodes: string;
-    initialDuration: string;
-    maximumDuration: string;
-    progressionFactor: string;
+    initialDuration: number;
+    maximumDuration: number;
+    progressionFactor: number;
     retryErrorCodes: string;
-    retryCount: string;
-    retryDelay: string;
-    timeoutDuration: string;
+    retryCount: number;
+    retryDelay: number;
+    timeoutDuration: number;
     timeoutAction: string;
     templateName: string;
     requireTemplateParameters: boolean;
@@ -689,13 +694,13 @@ export interface UpdateWsdlEndpointRequest {
     addressListener: string;
     securityEnabled: string;
     suspendErrorCodes: string;
-    initialDuration: string;
-    maximumDuration: string;
-    progressionFactor: string;
+    initialDuration: number;
+    maximumDuration: number;
+    progressionFactor: number;
     retryErrorCodes: string;
-    retryCount: string;
-    retryDelay: string;
-    timeoutDuration: string;
+    retryCount: number;
+    retryDelay: number;
+    timeoutDuration: number;
     timeoutAction: string;
     templateName: string;
     requireTemplateParameters: boolean;
@@ -727,13 +732,13 @@ export interface RetrieveWsdlEndpointResponse {
     addressListener: string;
     securityEnabled: string;
     suspendErrorCodes: string;
-    initialDuration: string;
-    maximumDuration: string;
-    progressionFactor: string;
+    initialDuration: number;
+    maximumDuration: number;
+    progressionFactor: number;
     retryErrorCodes: string;
-    retryCount: string;
-    retryDelay: string;
-    timeoutDuration: string;
+    retryCount: number;
+    retryDelay: number;
+    timeoutDuration: number;
     timeoutAction: string;
     templateName: string;
     requireTemplateParameters: boolean;
@@ -755,13 +760,13 @@ export interface UpdateDefaultEndpointRequest {
     addressListener: string;
     securityEnabled: string;
     suspendErrorCodes: string;
-    initialDuration: string;
-    maximumDuration: string;
-    progressionFactor: string;
+    initialDuration: number;
+    maximumDuration: number;
+    progressionFactor: number;
     retryErrorCodes: string;
-    retryCount: string;
-    retryDelay: string;
-    timeoutDuration: string;
+    retryCount: number;
+    retryDelay: number;
+    timeoutDuration: number;
     timeoutAction: string;
     templateName: string;
     requireTemplateParameters: boolean;
@@ -790,13 +795,13 @@ export interface RetrieveDefaultEndpointResponse {
     addressListener: string;
     securityEnabled: string;
     suspendErrorCodes: string;
-    initialDuration: string;
-    maximumDuration: string;
-    progressionFactor: string;
+    initialDuration: number;
+    maximumDuration: number;
+    progressionFactor: number;
     retryErrorCodes: string;
-    retryCount: string;
-    retryDelay: string;
-    timeoutDuration: string;
+    retryCount: number;
+    retryDelay: number;
+    timeoutDuration: number;
     timeoutAction: string;
     templateName: string;
     requireTemplateParameters: boolean;
@@ -881,6 +886,10 @@ export interface ImportProjectResponse {
     filePath: string;
 }
 
+export interface MigrateProjectResponse {
+    filePath: string;
+}
+
 export interface FileStructure {
     [key: string]: string | FileStructure;
 }
@@ -961,6 +970,7 @@ export interface CreateRegistryResourceRequest {
     registryPath: string;
     registryRoot: string;
     createOption: string;
+    content?: string;
 }
 
 export interface CreateRegistryResourceResponse {
@@ -981,11 +991,13 @@ export interface BrowseFileRequest {
 
 export interface GetAvailableResourcesRequest {
     documentIdentifier: string;
-    resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate";
+    resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate" |
+    "dataService"| "dataSource" | "localEntry" | "dataMapper" | "js" | "json" | "smooksConfig" | "wsdl" | "ws_policy" | "xsd" | "xsl" | "xslt" | "yaml";
 }
 
 export interface GetAvailableResourcesResponse {
     resources: { [key: string]: any }[]
+    registryResources: { [key: string]: any }[]
 }
 
 export interface CreateClassMediatorRequest {
@@ -1011,4 +1023,84 @@ export interface RegistryArtifact {
     file: string;
     path: string;
     isCollection: boolean;
+}
+export interface RangeFormatRequest {
+    uri: string;
+    range: Range
+}
+
+export interface DownloadConnectorRequest {
+    url: string;
+    connector: string;
+    version: string;
+}
+
+export interface DownloadConnectorResponse {
+    path: string;
+}
+
+export interface GetAvailableConnectorRequest {
+    documentUri: string;
+    connectorName: string;
+}
+
+export interface GetAvailableConnectorResponse {
+    connectors?: any[];
+    name?: string;
+    path?: string;
+    uiSchemaPath?: string;
+    version?: string;
+    iconPath?: string;
+}
+
+export interface UpdateConnectorRequest {
+    documentUri: string;
+}
+
+export interface GetConnectorFormRequest {
+    uiSchemaPath: string;
+    operation: string;
+}
+
+export interface GetConnectorFormResponse {
+    formJSON: string;
+}
+export interface CreateDataSourceResponse {
+    path: string;
+}
+
+export interface GetDataSourceRequest {
+    path: string;
+}
+
+export interface DataSourceTemplate {
+    name: string;
+    projectDirectory: string;
+    description?: string;
+    jndiConfig?: JNDIDatasource;
+    driverClassName?: string;
+    url?: string;
+    type: string;
+    username?: string;
+    password?: string;
+    dataSourceConfigParameters?: { [key: string]: string | number | boolean };
+    dataSourceProperties?: { [key: string]: string | number | boolean };
+    externalDSClassName?: string;
+    customDSType?: string;
+    customDSConfiguration?: string;
+}
+
+export interface JNDIDatasource {
+    useDataSourceFactory: boolean;
+    properties?: { [key: string]: string | number | boolean };
+    JNDIConfigName: string;
+}
+
+export interface GetIconPathUriRequest {
+    path: string;
+    name: string;
+}
+
+export interface GetIconPathUriResponse {
+    uri: any;
 }

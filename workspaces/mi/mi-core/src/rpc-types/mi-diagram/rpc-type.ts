@@ -8,7 +8,136 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { ApiDirectoryResponse, ApplyEditRequest, ApplyEditResponse, CommandsRequest, CommandsResponse, ConnectorRequest, ConnectorResponse, ConnectorsResponse, CreateAPIRequest, CreateAPIResponse, CreateEndpointRequest, CreateEndpointResponse, CreateSequenceRequest, CreateSequenceResponse, EndpointDirectoryResponse, EndpointsAndSequencesResponse, ProjectRootResponse, OpenDiagramRequest, SequenceDirectoryResponse, ShowErrorMessageRequest, getSTRequest, getSTResponse, CreateProjectRequest, ProjectDirResponse, CreateProjectResponse, ImportProjectRequest, ImportProjectResponse, ESBConfigsResponse, HighlightCodeRequest, AIUserInput, WriteContentToFileRequest, WriteContentToFileResponse, CreateLocalEntryRequest, CreateLocalEntryResponse, FileDirResponse, CreateInboundEndpointRequest, CreateInboundEndpointResponse, UndoRedoParams, CreateTaskRequest, CreateTaskResponse, GetTaskRequest, GetTaskResponse, GetDefinitionRequest, GetDefinitionResponse, GetTextAtRangeRequest, GetTextAtRangeResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, GetProjectRootRequest, BrowseFileResponse, CreateRegistryResourceRequest, CreateRegistryResourceResponse, BrowseFileRequest, CreateMessageProcessorRequest, CreateMessageProcessorResponse, RetrieveMessageProcessorRequest, RetrieveMessageProcessorResponse, CreateProxyServiceRequest, CreateProxyServiceResponse, CreateMessageStoreRequest, CreateMessageStoreResponse, GetMessageStoreRequest, GetMessageStoreResponse, CreateTemplateRequest, CreateTemplateResponse, RetrieveTemplateRequest, RetrieveTemplateResponse, GetAvailableResourcesRequest, GetAvailableResourcesResponse, GetInboundEndpointRequest, GetInboundEndpointResponse, GetWorkspaceContextResponse, GetProjectUuidResponse, CreateClassMediatorRequest, CreateClassMediatorResponse, UpdateHttpEndpointRequest, UpdateHttpEndpointResponse, RetrieveHttpEndpointRequest, RetrieveHttpEndpointResponse, TemplatesResponse, UpdateAddressEndpointRequest, UpdateAddressEndpointResponse, RetrieveAddressEndpointRequest, RetrieveAddressEndpointResponse, UpdateWsdlEndpointRequest, UpdateWsdlEndpointResponse, RetrieveWsdlEndpointRequest, RetrieveWsdlEndpointResponse, UpdateDefaultEndpointRequest, UpdateDefaultEndpointResponse, RetrieveDefaultEndpointRequest, RetrieveDefaultEndpointResponse, GetLocalEntryRequest, GetLocalEntryResponse, FileListRequest, FileListResponse, UpdateLoadBalanceEPRequest, UpdateLoadBalanceEPResponse, GetLoadBalanceEPRequest, GetLoadBalanceEPResponse, UpdateFailoverEPRequest, UpdateFailoverEPResponse, GetFailoverEPRequest, GetFailoverEPResponse, UpdateRecipientEPRequest, UpdateRecipientEPResponse, GetRecipientEPRequest, GetRecipientEPResponse, UpdateTemplateEPRequest, UpdateTemplateEPResponse, GetTemplateEPRequest, GetTemplateEPResponse, GetSelectiveWorkspaceContextResponse, GetBackendRootUrlResponse, ListRegistryArtifactsResponse, ListRegistryArtifactsRequest } from "./types";
+import {
+    ApiDirectoryResponse,
+    ApplyEditRequest,
+    ApplyEditResponse,
+    CommandsRequest,
+    CommandsResponse,
+    ConnectorRequest,
+    ConnectorResponse,
+    ConnectorsResponse,
+    CreateAPIRequest,
+    CreateAPIResponse,
+    CreateEndpointRequest,
+    CreateEndpointResponse,
+    CreateSequenceRequest,
+    CreateSequenceResponse,
+    EndpointDirectoryResponse,
+    EndpointsAndSequencesResponse,
+    ProjectRootResponse,
+    OpenDiagramRequest,
+    SequenceDirectoryResponse,
+    ShowErrorMessageRequest,
+    getSTRequest,
+    getSTResponse,
+    CreateProjectRequest,
+    ProjectDirResponse,
+    CreateProjectResponse,
+    ImportProjectRequest,
+    ImportProjectResponse,
+    ESBConfigsResponse,
+    HighlightCodeRequest,
+    AIUserInput,
+    WriteContentToFileRequest,
+    WriteContentToFileResponse,
+    CreateLocalEntryRequest,
+    CreateLocalEntryResponse,
+    FileDirResponse,
+    CreateInboundEndpointRequest,
+    CreateInboundEndpointResponse,
+    UndoRedoParams,
+    CreateTaskRequest,
+    CreateTaskResponse,
+    GetTaskRequest,
+    GetTaskResponse,
+    GetDefinitionRequest,
+    GetDefinitionResponse,
+    GetTextAtRangeRequest,
+    GetTextAtRangeResponse,
+    GetDiagnosticsReqeust,
+    GetDiagnosticsResponse,
+    GetProjectRootRequest,
+    BrowseFileResponse,
+    CreateRegistryResourceRequest,
+    CreateRegistryResourceResponse,
+    BrowseFileRequest,
+    CreateMessageProcessorRequest,
+    CreateMessageProcessorResponse,
+    RetrieveMessageProcessorRequest,
+    RetrieveMessageProcessorResponse,
+    CreateProxyServiceRequest,
+    CreateProxyServiceResponse,
+    CreateMessageStoreRequest,
+    CreateMessageStoreResponse,
+    GetMessageStoreRequest,
+    GetMessageStoreResponse,
+    CreateTemplateRequest,
+    CreateTemplateResponse,
+    RetrieveTemplateRequest,
+    RetrieveTemplateResponse,
+    GetAvailableResourcesRequest,
+    GetAvailableResourcesResponse,
+    GetInboundEndpointRequest,
+    GetInboundEndpointResponse,
+    GetWorkspaceContextResponse,
+    GetProjectUuidResponse,
+    CreateClassMediatorRequest,
+    CreateClassMediatorResponse,
+    UpdateHttpEndpointRequest,
+    UpdateHttpEndpointResponse,
+    RetrieveHttpEndpointRequest,
+    RetrieveHttpEndpointResponse,
+    TemplatesResponse,
+    UpdateAddressEndpointRequest,
+    UpdateAddressEndpointResponse,
+    RetrieveAddressEndpointRequest,
+    RetrieveAddressEndpointResponse,
+    UpdateWsdlEndpointRequest,
+    UpdateWsdlEndpointResponse,
+    RetrieveWsdlEndpointRequest,
+    RetrieveWsdlEndpointResponse,
+    UpdateDefaultEndpointRequest,
+    UpdateDefaultEndpointResponse,
+    RetrieveDefaultEndpointRequest,
+    RetrieveDefaultEndpointResponse,
+    GetLocalEntryRequest,
+    GetLocalEntryResponse,
+    UpdateLoadBalanceEPRequest,
+    UpdateLoadBalanceEPResponse,
+    GetLoadBalanceEPRequest,
+    GetLoadBalanceEPResponse,
+    UpdateFailoverEPRequest,
+    UpdateFailoverEPResponse,
+    GetFailoverEPRequest,
+    GetFailoverEPResponse,
+    UpdateRecipientEPRequest,
+    UpdateRecipientEPResponse,
+    GetRecipientEPRequest,
+    GetRecipientEPResponse,
+    UpdateTemplateEPRequest,
+    UpdateTemplateEPResponse,
+    GetTemplateEPRequest,
+    GetTemplateEPResponse,
+    GetSelectiveWorkspaceContextResponse,
+    GetBackendRootUrlResponse,
+    ListRegistryArtifactsResponse,
+    ListRegistryArtifactsRequest, RangeFormatRequest,
+    MigrateProjectRequest,
+    MigrateProjectResponse,
+    DownloadConnectorResponse,
+    DownloadConnectorRequest,
+    GetAvailableConnectorRequest,
+    GetAvailableConnectorResponse,
+    GetConnectorFormRequest,
+    GetConnectorFormResponse,
+    UpdateConnectorRequest,
+    CreateDataSourceResponse,
+    DataSourceTemplate,
+    GetDataSourceRequest,
+    GetIconPathUriRequest,
+    GetIconPathUriResponse,
+} from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "mi-diagram";
@@ -26,9 +155,9 @@ export const createEndpoint: RequestType<CreateEndpointRequest, CreateEndpointRe
 export const updateLoadBalanceEndpoint: RequestType<UpdateLoadBalanceEPRequest, UpdateLoadBalanceEPResponse> = { method: `${_preFix}/updateLoadBalanceEndpoint` };
 export const getLoadBalanceEndpoint: RequestType<GetLoadBalanceEPRequest, GetLoadBalanceEPResponse> = { method: `${_preFix}/getLoadBalanceEndpoint` };
 export const updateFailoverEndpoint: RequestType<UpdateFailoverEPRequest, UpdateFailoverEPResponse> = { method: `${_preFix}/updateFailoverEndpoint` };
-export const getFailoverEndpoint: RequestType<GetFailoverEPRequest,  GetFailoverEPResponse> = { method: `${_preFix}/getFailoverEndpoint` };
+export const getFailoverEndpoint: RequestType<GetFailoverEPRequest, GetFailoverEPResponse> = { method: `${_preFix}/getFailoverEndpoint` };
 export const updateRecipientEndpoint: RequestType<UpdateRecipientEPRequest, UpdateRecipientEPResponse> = { method: `${_preFix}/updateRecipientEndpoint` };
-export const getRecipientEndpoint: RequestType<GetRecipientEPRequest,GetRecipientEPResponse> = { method: `${_preFix}/getRecipientEndpoint` };
+export const getRecipientEndpoint: RequestType<GetRecipientEPRequest, GetRecipientEPResponse> = { method: `${_preFix}/getRecipientEndpoint` };
 export const updateTemplateEndpoint: RequestType<UpdateTemplateEPRequest, UpdateTemplateEPResponse> = { method: `${_preFix}/updateTemplateEndpoint` };
 export const getTemplateEndpoint: RequestType<GetTemplateEPRequest, GetTemplateEPResponse> = { method: `${_preFix}/getTemplateEndpoint` };
 export const createLocalEntry: RequestType<CreateLocalEntryRequest, CreateLocalEntryResponse> = { method: `${_preFix}/createLocalEntry` };
@@ -39,7 +168,6 @@ export const getSequenceDirectory: RequestType<void, SequenceDirectoryResponse> 
 export const createSequence: RequestType<CreateSequenceRequest, CreateSequenceResponse> = { method: `${_preFix}/createSequence` };
 export const createMessageStore: RequestType<CreateMessageStoreRequest, CreateMessageStoreResponse> = { method: `${_preFix}/createMessageStore` };
 export const getMessageStore: RequestType<GetMessageStoreRequest, GetMessageStoreResponse> = { method: `${_preFix}/getMessageStore` };
-export const getXmlFileList: RequestType<FileListRequest, FileListResponse> = { method: `${_preFix}/getXmlFileList` };
 export const createInboundEndpoint: RequestType<CreateInboundEndpointRequest, CreateInboundEndpointResponse> = { method: `${_preFix}/createInboundEndpoint` };
 export const createMessageProcessor: RequestType<CreateMessageProcessorRequest, CreateMessageProcessorResponse> = { method: `${_preFix}/createMessageProcessor` };
 export const getMessageProcessor: RequestType<RetrieveMessageProcessorRequest, RetrieveMessageProcessorResponse> = { method: `${_preFix}/getMessageProcessor` };
@@ -68,6 +196,7 @@ export const askProjectImportDirPath: RequestType<void, ProjectDirResponse> = { 
 export const askFileDirPath: RequestType<void, FileDirResponse> = { method: `${_preFix}/askFileDirPath` };
 export const createProject: RequestType<CreateProjectRequest, CreateProjectResponse> = { method: `${_preFix}/createProject` };
 export const importProject: RequestType<ImportProjectRequest, ImportProjectResponse> = { method: `${_preFix}/importProject` };
+export const migrateProject: RequestType<MigrateProjectRequest, MigrateProjectResponse> = { method: `${_preFix}/migrateProject` };
 export const getAIResponse: RequestType<AIUserInput, string> = { method: `${_preFix}/getAIResponse` };
 export const writeContentToFile: RequestType<WriteContentToFileRequest, WriteContentToFileResponse> = { method: `${_preFix}/writeContentToFile` };
 export const highlightCode: NotificationType<HighlightCodeRequest> = { method: `${_preFix}/highlightCode` };
@@ -86,3 +215,11 @@ export const createClassMediator: RequestType<CreateClassMediatorRequest, Create
 export const getSelectiveWorkspaceContext: RequestType<void, GetSelectiveWorkspaceContextResponse> = { method: `${_preFix}/getSelectiveWorkspaceContext` };
 export const getBackendRootUrl: RequestType<void, GetBackendRootUrlResponse> = { method: `${_preFix}/getBackendRootUrl` };
 export const getAvailableRegistryResources: RequestType<ListRegistryArtifactsRequest, ListRegistryArtifactsResponse> = { method: `${_preFix}/getAvailableRegistryResources` };
+export const rangeFormat: RequestType<RangeFormatRequest, ApplyEditResponse> = { method: `${_preFix}/rangeFormat` };
+export const downloadConnector: RequestType<DownloadConnectorRequest, DownloadConnectorResponse> = { method: `${_preFix}/downloadConnector` };
+export const getAvailableConnectors: RequestType<GetAvailableConnectorRequest, GetAvailableConnectorResponse> = { method: `${_preFix}/getAvailableConnectors` };
+export const updateConnectors: NotificationType<UpdateConnectorRequest> = { method: `${_preFix}/updateConnectors` };
+export const getConnectorForm: RequestType<GetConnectorFormRequest, GetConnectorFormResponse> = { method: `${_preFix}/getConnectorForm` };
+export const createDataSource: RequestType<DataSourceTemplate, CreateDataSourceResponse> = { method: `${_preFix}/createDataSource` };
+export const getDataSource: RequestType<GetDataSourceRequest, DataSourceTemplate> = { method: `${_preFix}/getDataSource` };
+export const getIconPathUri: RequestType<GetIconPathUriRequest, GetIconPathUriResponse> = { method: `${_preFix}/getIconPathUri` };

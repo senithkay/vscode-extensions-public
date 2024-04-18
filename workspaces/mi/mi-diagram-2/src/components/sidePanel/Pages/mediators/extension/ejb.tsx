@@ -38,6 +38,11 @@ const Field = styled.div`
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
+const generateDisplayValue = (paramValues: any) => {
+    const result: string = paramValues.parameters[1].value === "LITERAL" ? paramValues.parameters[2].value : paramValues.parameters[3].value;
+    return result.trim();
+};
+
 const EJBForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -83,7 +88,15 @@ const EJBForm = (props: AddMediatorProps) => {
     const [params, setParams] = useState(paramConfigs);
 
     const handleOnChange = (params: any) => {
-        setParams(params);
+        const modifiedParams = { ...params, paramValues: params.paramValues.map((param: any) => {
+            return {
+                ...param,
+                key: param.parameters[0].value,
+                value: generateDisplayValue(param),
+                icon: "query"
+            }
+        })};
+        setParams(modifiedParams);
     };
 
     useEffect(() => {
@@ -126,7 +139,10 @@ const EJBForm = (props: AddMediatorProps) => {
                                 value: property[3],
                                 isRequired: false
                             }
-                        ]
+                        ],
+                        key: property[0],
+                        value: property[1] === "LITERAL" ? property[2] : property[3],
+                        icon: "query"
                     })
                 )
                 setParams({ ...params, paramValues: paramValues });
@@ -220,7 +236,7 @@ const EJBForm = (props: AddMediatorProps) => {
                     size={50}
                     placeholder=""
                     value={formValues["beanstalk"]}
-                    onChange={(e: any) => {
+                    onTextChange={(e: any) => {
                         setFormValues({ ...formValues, "beanstalk": e });
                         formValidators["beanstalk"](e);
                     }}
@@ -235,7 +251,7 @@ const EJBForm = (props: AddMediatorProps) => {
                     size={50}
                     placeholder=""
                     value={formValues["class"]}
-                    onChange={(e: any) => {
+                    onTextChange={(e: any) => {
                         setFormValues({ ...formValues, "class": e });
                         formValidators["class"](e);
                     }}
@@ -250,7 +266,7 @@ const EJBForm = (props: AddMediatorProps) => {
                     size={50}
                     placeholder=""
                     value={formValues["method"]}
-                    onChange={(e: any) => {
+                    onTextChange={(e: any) => {
                         setFormValues({ ...formValues, "method": e });
                         formValidators["method"](e);
                     }}
@@ -274,7 +290,7 @@ const EJBForm = (props: AddMediatorProps) => {
                     size={50}
                     placeholder=""
                     value={formValues["target"]}
-                    onChange={(e: any) => {
+                    onTextChange={(e: any) => {
                         setFormValues({ ...formValues, "target": e });
                         formValidators["target"](e);
                     }}
@@ -289,7 +305,7 @@ const EJBForm = (props: AddMediatorProps) => {
                     size={50}
                     placeholder=""
                     value={formValues["jndiName"]}
-                    onChange={(e: any) => {
+                    onTextChange={(e: any) => {
                         setFormValues({ ...formValues, "jndiName": e });
                         formValidators["jndiName"](e);
                     }}
@@ -313,7 +329,7 @@ const EJBForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Session Id Type</label>
-                    <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["sessionIdType"]} onChange={(e: any) => {
+                    <AutoComplete items={["LITERAL", "EXPRESSION"]} value={formValues["sessionIdType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "sessionIdType": e });
                         formValidators["sessionIdType"](e);
                     }} />
@@ -327,7 +343,7 @@ const EJBForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["sessionIdLiteral"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "sessionIdLiteral": e });
                                 formValidators["sessionIdLiteral"](e);
                             }}
@@ -344,7 +360,7 @@ const EJBForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["sessionIdExpression"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "sessionIdExpression": e });
                                 formValidators["sessionIdExpression"](e);
                             }}
@@ -362,7 +378,7 @@ const EJBForm = (props: AddMediatorProps) => {
                     size={50}
                     placeholder=""
                     value={formValues["description"]}
-                    onChange={(e: any) => {
+                    onTextChange={(e: any) => {
                         setFormValues({ ...formValues, "description": e });
                         formValidators["description"](e);
                     }}

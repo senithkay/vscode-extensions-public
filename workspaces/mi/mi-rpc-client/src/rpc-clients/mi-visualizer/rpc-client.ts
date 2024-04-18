@@ -9,6 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    ColorThemeKind,
     GettingStartedData,
     HistoryEntry,
     HistoryEntryResponse,
@@ -19,15 +20,21 @@ import {
     SampleDownloadRequest,
     WorkspacesResponse,
     addToHistory,
+    toggleDisplayOverview,
+    ToggleDisplayOverviewRequest,
     downloadSelectedSampleFromGithub,
     fetchSamplesFromGithub,
+    getCurrentThemeKind,
     getHistory,
     getProjectStructure,
     getWorkspaces,
     goBack,
     goHome,
     goSelected,
-    openView
+    openView,
+    GetAllRegistryPathsRequest,
+    getAllRegistryPaths,
+    GetAllRegistryPathsResponse
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -39,12 +46,20 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
         this._messenger = messenger;
     }
 
+    getAllRegistryPaths(params: GetAllRegistryPathsRequest): Promise<GetAllRegistryPathsResponse> {
+        return this._messenger.sendRequest(getAllRegistryPaths, HOST_EXTENSION, params);
+    }
+
     getWorkspaces(): Promise<WorkspacesResponse> {
         return this._messenger.sendRequest(getWorkspaces, HOST_EXTENSION);
     }
 
     getProjectStructure(params: ProjectStructureRequest): Promise<ProjectStructureResponse> {
         return this._messenger.sendRequest(getProjectStructure, HOST_EXTENSION, params);
+    }
+
+    getCurrentThemeKind(): Promise<ColorThemeKind> {
+        return this._messenger.sendRequest(getCurrentThemeKind, HOST_EXTENSION);
     }
 
     openView(params: OpenViewRequest): void {
@@ -77,5 +92,9 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     goSelected(params: number): void {
         return this._messenger.sendNotification(goSelected, HOST_EXTENSION, params);
+    }
+
+    toggleDisplayOverview(params: ToggleDisplayOverviewRequest): Promise<void> {
+        return this._messenger.sendRequest(toggleDisplayOverview, HOST_EXTENSION, params);
     }
 }

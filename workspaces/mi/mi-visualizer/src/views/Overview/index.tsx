@@ -11,7 +11,7 @@ import React, { useEffect } from "react";
 import { MachineStateValue, ProjectStructureResponse, WorkspaceFolder, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import ProjectStructureView from "./ProjectStructureView";
-import { Button, Icon, Codicon, TextArea, VerticleIcons } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, Codicon, TextArea, Card } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { View, ViewContent, ViewHeader } from "../../components/View";
@@ -171,7 +171,7 @@ export function Overview(props: OverviewProps) {
                         <Codicon name="wand" sx={{ marginRight: '5px' }} /> Describe your Integration to generate with AI
                     </h3>
                     <AIPanel>
-                        <TextArea onChange={handleAiPromptChange} value={inputAiPrompt} rows={4} cols={1000} placeholder="ie. I want to create an API that will route my request based on a header value."></TextArea>
+                        <TextArea onTextChange={handleAiPromptChange} value={inputAiPrompt} rows={4} cols={1000} placeholder="ie. I want to create an API that will route my request based on a header value."></TextArea>
                         <VSCodeButton onClick={handleGenerateWithAI}>
                             <Codicon name="wand" />
                             &nbsp; Generate
@@ -191,56 +191,3 @@ export function Overview(props: OverviewProps) {
         </View>
     );
 }
-
-interface CardProps {
-    icon: string;
-    title: string;
-    description?: string;
-    onClick?: () => void;
-}
-
-interface CardState {
-    isHovered: boolean;
-}
-
-const CardWraper = styled.div({
-    border: '1px solid var(--vscode-dropdown-border)',
-    backgroundColor: 'var(--vscode-dropdown-background)',
-    padding: '10px',
-    cursor: 'pointer',
-    '&:hover': {
-        backgroundColor: 'var(--vscode-button-background)',
-    },
-    display: 'flex',
-    flexDirection: 'column',
-});
-
-const CardTitle = styled.div<CardState>((props: CardState) => ({
-    fontSize: '1.2em',
-    color: props.isHovered ? 'var(--vscode-button-foreground)' : 'inherit',
-}));
-
-const CardDescription = styled.div<CardState>((props: CardState) => ({
-    marginLeft: '24px',
-    color: props.isHovered ? 'var(--vscode-button-foreground)' : 'inherit',
-}));
-
-const Card: React.FC<CardProps> = ({ icon, title, onClick, description }) => {
-    const [hovered, setHovered] = React.useState(false);
-
-    return (
-        <CardWraper onClick={onClick} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                    <Codicon
-                        name={icon}
-                        iconSx={{ fontSize: '1.5em', color: hovered ? 'var(--vscode-button-foreground)' : 'inherit' }}
-                        sx={{ marginRight: '10px' }}
-                    />
-                    <CardTitle isHovered={hovered}>{title}</CardTitle>
-                </div>
-                {description && <CardDescription isHovered={hovered}>{description}</CardDescription>}
-            </div>
-        </CardWraper>
-    );
-};

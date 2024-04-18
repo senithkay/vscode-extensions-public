@@ -45,6 +45,11 @@ const Field = styled.div`
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
+const generateDisplayValue = (paramValues: any) => {
+    const result: string = paramValues.parameters[1].value === "LITERAL" ? paramValues.parameters[2].value : paramValues.parameters[3].value;
+    return result.trim();
+};
+
 const LogForm = (props: AddMediatorProps) => {
    const { rpcClient } = useVisualizerContext();
    const sidePanelContext = React.useContext(SidePanelContext);
@@ -98,7 +103,15 @@ const LogForm = (props: AddMediatorProps) => {
     const [params, setParams] = useState(paramConfigs);
     
     const handleOnChange = (params: any) => {
-        setParams(params);
+        const modifiedParams = { ...params, paramValues: params.paramValues.map((param: any) => {
+            return {
+                ...param,
+                key: param.parameters[0].value,
+                value: generateDisplayValue(param),
+                icon: "query"
+            }
+        })};
+        setParams(modifiedParams);
     };
 
     useEffect(() => {
@@ -138,7 +151,10 @@ const LogForm = (props: AddMediatorProps) => {
                                 value: property[3],
                                 isRequired: false
                             }
-                        ]
+                        ],
+                        key: property[0],
+                        value: property[1] === "LITERAL" ? property[2] : property[3],
+                        icon: "query"
                     })
                 )
                 setParams({ ...params, paramValues: paramValues });
@@ -219,7 +235,7 @@ const LogForm = (props: AddMediatorProps) => {
             <Wrapper>
                 <Field>
                     <label>Log Category</label> <RequiredFormInput />
-                    <AutoComplete items={["INFO", "TRACE", "DEBUG", "WARN", "ERROR", "FATAL"]} selectedItem={formValues["category"]} onChange={(e: any) => {
+                    <AutoComplete items={["INFO", "TRACE", "DEBUG", "WARN", "ERROR", "FATAL"]} value={formValues["category"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "category": e });
                         formValidators["category"](e);
                     }} />
@@ -228,7 +244,7 @@ const LogForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Log Level</label> <RequiredFormInput />
-                    <AutoComplete items={["SIMPLE", "HEADERS", "FULL", "CUSTOM"]} selectedItem={formValues["level"]} onChange={(e: any) => {
+                    <AutoComplete items={["SIMPLE", "HEADERS", "FULL", "CUSTOM"]} value={formValues["level"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "level": e });
                         formValidators["level"](e);
                     }} />
@@ -241,7 +257,7 @@ const LogForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["separator"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "separator": e });
                             formValidators["separator"](e);
                         }}
@@ -266,7 +282,7 @@ const LogForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder="Description"
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

@@ -27,21 +27,31 @@ import {
     CreateSequenceRequest,
     CreateTaskRequest,
     CreateTemplateRequest,
-    FileListRequest,
+    DataSourceTemplate,
+    DownloadConnectorRequest,
+    GetAvailableConnectorRequest,
     GetAvailableResourcesRequest,
+    GetConnectorFormRequest,
+    GetDataSourceRequest,
     GetDefinitionRequest,
     GetDiagnosticsReqeust,
     GetFailoverEPRequest,
+    GetIconPathUriRequest,
     GetInboundEndpointRequest,
     GetLoadBalanceEPRequest,
     GetLocalEntryRequest,
     GetMessageStoreRequest,
     GetProjectRootRequest,
+    GetRecipientEPRequest,
     GetTaskRequest,
+    GetTemplateEPRequest,
     GetTextAtRangeRequest,
     HighlightCodeRequest,
     ImportProjectRequest,
+    ListRegistryArtifactsRequest,
+    MigrateProjectRequest,
     OpenDiagramRequest,
+    RangeFormatRequest,
     RetrieveAddressEndpointRequest,
     RetrieveDefaultEndpointRequest,
     RetrieveHttpEndpointRequest,
@@ -51,10 +61,13 @@ import {
     ShowErrorMessageRequest,
     UndoRedoParams,
     UpdateAddressEndpointRequest,
+    UpdateConnectorRequest,
     UpdateDefaultEndpointRequest,
     UpdateFailoverEPRequest,
     UpdateHttpEndpointRequest,
     UpdateLoadBalanceEPRequest,
+    UpdateRecipientEPRequest,
+    UpdateTemplateEPRequest,
     UpdateWsdlEndpointRequest,
     WriteContentToFileRequest,
     applyEdit,
@@ -66,6 +79,7 @@ import {
     closeWebViewNotification,
     createAPI,
     createClassMediator,
+    createDataSource,
     createEndpoint,
     createInboundEndpoint,
     createLocalEntry,
@@ -77,14 +91,19 @@ import {
     createSequence,
     createTask,
     createTemplate,
+    downloadConnector,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
     getAddressEndpoint,
+    getAvailableConnectors,
+    getAvailableRegistryResources,
     getAvailableResources,
     getBackendRootUrl,
     getConnector,
+    getConnectorForm,
     getConnectors,
+    getDataSource,
     getDefaultEndpoint,
     getDefinition,
     getDiagnostics,
@@ -93,6 +112,7 @@ import {
     getEndpointsAndSequences,
     getFailoverEndpoint,
     getHttpEndpoint,
+    getIconPathUri,
     getInboundEndpoint,
     getLoadBalanceEndpoint,
     getLocalEntry,
@@ -100,43 +120,39 @@ import {
     getMessageStore,
     getProjectRoot,
     getProjectUuid,
+    getRecipientEndpoint,
     getSTRequest,
     getSelectiveWorkspaceContext,
     getSequenceDirectory,
     getSyntaxTree,
     getTask,
     getTemplate,
+    getTemplateEndpoint,
     getTemplates,
     getTextAtRange,
     getWorkspaceContext,
     getWorkspaceRoot,
     getWsdlEndpoint,
-    getXmlFileList,
     highlightCode,
     importProject,
     initUndoRedoManager,
+    migrateProject,
     openDiagram,
     openFile,
+    rangeFormat,
     redo,
     showErrorMessage,
     undo,
     updateAddressEndpoint,
+    updateConnectors,
     updateDefaultEndpoint,
     updateFailoverEndpoint,
     updateHttpEndpoint,
     updateLoadBalanceEndpoint,
-    updateWsdlEndpoint,
-    writeContentToFile,
-    getAvailableRegistryResources,
-    ListRegistryArtifactsRequest,
     updateRecipientEndpoint,
-    UpdateRecipientEPRequest,
-    getRecipientEndpoint,
-    GetRecipientEPRequest,
     updateTemplateEndpoint,
-    UpdateTemplateEPRequest,
-    getTemplateEndpoint,
-    GetTemplateEPRequest
+    updateWsdlEndpoint,
+    writeContentToFile
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -158,19 +174,18 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getLoadBalanceEndpoint, (args: GetLoadBalanceEPRequest) => rpcManger.getLoadBalanceEndpoint(args));
     messenger.onRequest(updateFailoverEndpoint, (args: UpdateFailoverEPRequest) => rpcManger.updateFailoverEndpoint(args));
     messenger.onRequest(getFailoverEndpoint, (args: GetFailoverEPRequest) => rpcManger.getFailoverEndpoint(args));
-    messenger.onRequest(createLocalEntry, (args: CreateLocalEntryRequest) => rpcManger.createLocalEntry(args));
-    messenger.onRequest(getLocalEntry, (args: GetLocalEntryRequest) => rpcManger.getLocalEntry(args));
     messenger.onRequest(updateRecipientEndpoint, (args: UpdateRecipientEPRequest) => rpcManger.updateRecipientEndpoint(args));
     messenger.onRequest(getRecipientEndpoint, (args: GetRecipientEPRequest) => rpcManger.getRecipientEndpoint(args));
     messenger.onRequest(updateTemplateEndpoint, (args: UpdateTemplateEPRequest) => rpcManger.updateTemplateEndpoint(args));
     messenger.onRequest(getTemplateEndpoint, (args: GetTemplateEPRequest) => rpcManger.getTemplateEndpoint(args));
+    messenger.onRequest(createLocalEntry, (args: CreateLocalEntryRequest) => rpcManger.createLocalEntry(args));
+    messenger.onRequest(getLocalEntry, (args: GetLocalEntryRequest) => rpcManger.getLocalEntry(args));
     messenger.onRequest(getEndpointsAndSequences, () => rpcManger.getEndpointsAndSequences());
     messenger.onRequest(getTemplates, () => rpcManger.getTemplates());
     messenger.onRequest(getSequenceDirectory, () => rpcManger.getSequenceDirectory());
     messenger.onRequest(createSequence, (args: CreateSequenceRequest) => rpcManger.createSequence(args));
     messenger.onRequest(createMessageStore, (args: CreateMessageStoreRequest) => rpcManger.createMessageStore(args));
     messenger.onRequest(getMessageStore, (args: GetMessageStoreRequest) => rpcManger.getMessageStore(args));
-    messenger.onRequest(getXmlFileList, (args: FileListRequest) => rpcManger.getXmlFileList(args));
     messenger.onRequest(createInboundEndpoint, (args: CreateInboundEndpointRequest) => rpcManger.createInboundEndpoint(args));
     messenger.onRequest(createMessageProcessor, (args: CreateMessageProcessorRequest) => rpcManger.createMessageProcessor(args));
     messenger.onRequest(getMessageProcessor, (args: RetrieveMessageProcessorRequest) => rpcManger.getMessageProcessor(args));
@@ -199,6 +214,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(askFileDirPath, () => rpcManger.askFileDirPath());
     messenger.onRequest(createProject, (args: CreateProjectRequest) => rpcManger.createProject(args));
     messenger.onRequest(importProject, (args: ImportProjectRequest) => rpcManger.importProject(args));
+    messenger.onRequest(migrateProject, (args: MigrateProjectRequest) => rpcManger.migrateProject(args));
     messenger.onRequest(getAIResponse, (args: AIUserInput) => rpcManger.getAIResponse(args));
     messenger.onRequest(writeContentToFile, (args: WriteContentToFileRequest) => rpcManger.writeContentToFile(args));
     messenger.onNotification(highlightCode, (args: HighlightCodeRequest) => rpcManger.highlightCode(args));
@@ -217,4 +233,12 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getSelectiveWorkspaceContext, () => rpcManger.getSelectiveWorkspaceContext());
     messenger.onRequest(getBackendRootUrl, () => rpcManger.getBackendRootUrl());
     messenger.onRequest(getAvailableRegistryResources, (args: ListRegistryArtifactsRequest) => rpcManger.getAvailableRegistryResources(args));
+    messenger.onRequest(rangeFormat, (args: RangeFormatRequest) => rpcManger.rangeFormat(args));
+    messenger.onRequest(downloadConnector, (args: DownloadConnectorRequest) => rpcManger.downloadConnector(args));
+    messenger.onRequest(getAvailableConnectors, (args: GetAvailableConnectorRequest) => rpcManger.getAvailableConnectors(args));
+    messenger.onNotification(updateConnectors, (args: UpdateConnectorRequest) => rpcManger.updateConnectors(args));
+    messenger.onRequest(getConnectorForm, (args: GetConnectorFormRequest) => rpcManger.getConnectorForm(args));
+    messenger.onRequest(createDataSource, (args: DataSourceTemplate) => rpcManger.createDataSource(args));
+    messenger.onRequest(getDataSource, (args: GetDataSourceRequest) => rpcManger.getDataSource(args));
+    messenger.onRequest(getIconPathUri, (args: GetIconPathUriRequest) => rpcManger.getIconPathUri(args));
 }

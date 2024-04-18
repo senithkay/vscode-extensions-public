@@ -129,7 +129,7 @@ const FilterForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Condition Type</label>
-                        <AutoComplete items={["Source and Regular Expression", "XPath"]} selectedItem={formValues["conditionType"]} onChange={(e: any) => {
+                        <AutoComplete items={["Source and Regular Expression", "XPath"]} value={formValues["conditionType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "conditionType": e });
                             formValidators["conditionType"](e);
                         }} />
@@ -143,7 +143,7 @@ const FilterForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["source"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "source": e });
                                     formValidators["source"](e);
                                 }}
@@ -160,7 +160,7 @@ const FilterForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["regularExpression"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "regularExpression": e });
                                     formValidators["regularExpression"](e);
                                 }}
@@ -177,7 +177,7 @@ const FilterForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["xPath"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "xPath": e });
                                     formValidators["xPath"](e);
                                 }}
@@ -195,7 +195,7 @@ const FilterForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

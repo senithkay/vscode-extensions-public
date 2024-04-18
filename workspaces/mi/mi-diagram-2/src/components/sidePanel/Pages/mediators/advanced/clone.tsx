@@ -39,6 +39,11 @@ const Field = styled.div`
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
+const generateDisplayValue = (paramValues: any) => {
+    const result: string = paramValues.parameters[1].value + " " + paramValues.parameters[3].value + " " +  paramValues.parameters[4].value;
+    return result.trim();
+};
+
 const CloneForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -91,7 +96,15 @@ const CloneForm = (props: AddMediatorProps) => {
     const [params, setParams] = useState(paramConfigs);
 
     const handleOnChange = (params: any) => {
-        setParams(params);
+        const modifiedParams = { ...params, paramValues: params.paramValues.map((param: any) => {
+            return {
+                ...param,
+                key: param.parameters[0].value ?? param.parameters[2].value,
+                value: generateDisplayValue(param),
+                icon: "query"
+            }
+        })};
+        setParams(modifiedParams);
     };
 
     useEffect(() => {
@@ -144,7 +157,10 @@ const CloneForm = (props: AddMediatorProps) => {
                                 value: property[5],
                                 isRequired: true
                             }
-                        ]
+                        ],
+                        key: property[0] ?? property[2],
+                        value: property[1] + " " + property[3] + " " +  property[4],
+                        icon: "query"
                     })
                 )
                 setParams({ ...params, paramValues: paramValues });
@@ -257,7 +273,7 @@ const CloneForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["cloneId"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "cloneId": e, "isCloneKeysChange": true });
                             formValidators["cloneId"](e);
                         }}
@@ -300,7 +316,7 @@ const CloneForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e, "isCloneKeysChange": true });
                             formValidators["description"](e);
                         }}

@@ -122,7 +122,7 @@ const SmooksForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Input Type</label>
-                    <AutoComplete items={["xml", "text"]} selectedItem={formValues["inputType"]} onChange={(e: any) => {
+                    <AutoComplete items={["xml", "text"]} value={formValues["inputType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "inputType": e });
                         formValidators["inputType"](e);
                     }} />
@@ -135,7 +135,7 @@ const SmooksForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["inputExpression"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "inputExpression": e });
                             formValidators["inputExpression"](e);
                         }}
@@ -155,7 +155,7 @@ const SmooksForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["configurationKey"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "configurationKey": e });
                             formValidators["configurationKey"](e);
                         }}
@@ -171,7 +171,7 @@ const SmooksForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Output Type</label>
-                    <AutoComplete items={["xml", "text", "java"]} selectedItem={formValues["outputType"]} onChange={(e: any) => {
+                    <AutoComplete items={["xml", "text", "java"]} value={formValues["outputType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "outputType": e });
                         formValidators["outputType"](e);
                     }} />
@@ -180,7 +180,7 @@ const SmooksForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Output Method</label>
-                    <AutoComplete items={["Default", "Property", "Expression"]} selectedItem={formValues["outputMethod"]} onChange={(e: any) => {
+                    <AutoComplete items={["Default", "Property", "Expression"]} value={formValues["outputMethod"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "outputMethod": e });
                         formValidators["outputMethod"](e);
                     }} />
@@ -194,7 +194,7 @@ const SmooksForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["outputProperty"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "outputProperty": e });
                                 formValidators["outputProperty"](e);
                             }}
@@ -207,7 +207,7 @@ const SmooksForm = (props: AddMediatorProps) => {
                 {formValues["outputMethod"] && formValues["outputMethod"].toLowerCase() == "expression" &&
                     <Field>
                         <label>Output Action</label>
-                        <AutoComplete items={["Add", "Replace", "Sibiling"]} selectedItem={formValues["outputAction"]} onChange={(e: any) => {
+                        <AutoComplete items={["Add", "Replace", "Sibiling"]} value={formValues["outputAction"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "outputAction": e });
                             formValidators["outputAction"](e);
                         }} />
@@ -222,7 +222,7 @@ const SmooksForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["outputExpression"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "outputExpression": e });
                                 formValidators["outputExpression"](e);
                             }}
@@ -243,7 +243,7 @@ const SmooksForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

@@ -18,6 +18,15 @@ export function traversNode(node: STNode, visitor: Visitor, parent?: STNode) {
         name += tag.charAt(0).toUpperCase() + tag.slice(1);
     });
 
+    if (name.includes(":")) {
+        name = name.split(":")[1];
+        name = name.charAt(0).toUpperCase() + name.substring(1);
+    }
+
+    if (name.includes(".")) {
+        name = "Connector";
+    }
+
     let beginVisitFn: any = (visitor as any)[`beginVisit${name}`];
     if (!beginVisitFn) {
         beginVisitFn = visitor.beginVisitSTNode && visitor.beginVisitSTNode;
@@ -67,6 +76,11 @@ export async function traversNodeAsync(node: STNode, visitor: Visitor, parent?: 
     node.tag.split('-').forEach((tag) => {
         name += tag.charAt(0).toUpperCase() + tag.slice(1);
     });
+
+    if (name.includes(":")) {
+        name = name.split(":")[1];
+        name = name.charAt(0).toUpperCase() + name.substring(1);
+    }
 
     let beginVisitFn: any = (visitor as any)[`beginVisit${name}`];
     if (!beginVisitFn) {

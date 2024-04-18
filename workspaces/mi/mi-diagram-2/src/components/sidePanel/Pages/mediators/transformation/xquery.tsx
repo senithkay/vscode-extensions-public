@@ -37,6 +37,12 @@ const Field = styled.div`
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
+const generateDisplayValue = (paramValues: any) => {
+    const value = paramValues.parameters[2].value === "LITERAL" ? paramValues.parameters[3].value : paramValues.parameters[4].value
+    const result: string = paramValues.parameters[1].value + " " + value;
+    return result.trim();
+};
+
 const XQueryForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -97,7 +103,15 @@ const XQueryForm = (props: AddMediatorProps) => {
     const [params, setParams] = useState(paramConfigs);
 
     const handleOnChange = (params: any) => {
-        setParams(params);
+        const modifiedParams = { ...params, paramValues: params.paramValues.map((param: any) => {
+            return {
+                ...param,
+                key: param.parameters[0].value,
+                value: generateDisplayValue(param),
+                icon: "query"
+            }
+        })};
+        setParams(modifiedParams);
     };
 
     useEffect(() => {
@@ -152,7 +166,10 @@ const XQueryForm = (props: AddMediatorProps) => {
                                 value: property[5],
                                 isRequired: false
                             }
-                        ]
+                        ],
+                        key: property[0],
+                        value: property[1] + " " + property[2] === "LITERAL" ? property[3] : property[4],
+                        icon: "query"
                     })
                 )
                 setParams({ ...params, paramValues: paramValues });
@@ -236,7 +253,7 @@ const XQueryForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Script Key Type</label>
-                    <AutoComplete items={["Static", "Dynamic"]} selectedItem={formValues["scriptKeyType"]} onChange={(e: any) => {
+                    <AutoComplete items={["Static", "Dynamic"]} value={formValues["scriptKeyType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "scriptKeyType": e });
                         formValidators["scriptKeyType"](e);
                     }} />
@@ -250,7 +267,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["staticScriptKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "staticScriptKey": e });
                                 formValidators["staticScriptKey"](e);
                             }}
@@ -267,7 +284,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["dynamicScriptKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "dynamicScriptKey": e });
                                 formValidators["dynamicScriptKey"](e);
                             }}
@@ -283,7 +300,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["targetXPath"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "targetXPath": e });
                             formValidators["targetXPath"](e);
                         }}
@@ -313,7 +330,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

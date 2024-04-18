@@ -64,7 +64,7 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
            setErrors(newErrors);
        } else {
            const data = formValues;
-           let editRange = data.range.startTagRange;
+           let editRange = data.range ? data.range.startTagRange : props.nodePosition;
            data.editForeach = true;
            if (data.removeAnonymousSequence) {
                editRange = props.nodePosition;
@@ -128,7 +128,7 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["forEachID"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "forEachID": e });
                             formValidators["forEachID"](e);
                         }}
@@ -143,7 +143,7 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["forEachExpression"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "forEachExpression": e });
                             formValidators["forEachExpression"](e);
                         }}
@@ -158,7 +158,7 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}
@@ -174,7 +174,7 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Sequence Type</label>
-                    <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE", "NAMED_REFERENCE"]} selectedItem={formValues["sequenceType"]} onChange={(e: any) => {
+                    <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE", "NAMED_REFERENCE"]} value={formValues["sequenceType"]} onValueChange={(e: any) => {
                        let removeAnonymousSequence = false;
                        if (formValues["prevSequenceType"] == "ANONYMOUS" && e != "ANONYMOUS") {
                            removeAnonymousSequence = true;
@@ -192,7 +192,7 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["sequenceKey"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "sequenceKey": e });
                                 formValidators["sequenceKey"](e);
                             }}
@@ -209,7 +209,7 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["sequenceName"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "sequenceName": e });
                                 formValidators["sequenceName"](e);
                             }}

@@ -585,8 +585,8 @@ export interface Visitor {
     beginVisitRewriteRewriteruleAction?(node: Synapse.RewriteRewriteruleAction): void;
     endVisitRewriteRewriteruleAction?(node: Synapse.RewriteRewriteruleAction): void;
 
-    beginVisitTarget?(node: Synapse.Target): void;
-    endVisitTarget?(node: Synapse.Target): void;
+    beginVisitTarget?(node: Synapse.Target | Synapse.ProxyTarget): void;
+    endVisitTarget?(node: Synapse.Target | Synapse.ProxyTarget): void;
 
     beginVisitDbMediatorConnection?(node: Synapse.DbMediatorConnection): void;
     endVisitDbMediatorConnection?(node: Synapse.DbMediatorConnection): void;
@@ -708,9 +708,15 @@ export interface Visitor {
     beginVisitRule?(node: Synapse.Rule): void;
     endVisitRule?(node: Synapse.Rule): void;
 
+    beginVisitNtlm?(node: Synapse.Ntlm): void;
+    endVisitNtlm?(node: Synapse.Ntlm): void;
+
     beginVisitEjbArgs?(node: Synapse.EjbArgs): void;
     endVisitEjbArgs?(node: Synapse.EjbArgs): void;
 
     beginVisitCache?(node: Synapse.Cache): void;
     endVisitCache?(node: Synapse.Cache): void;
+
+    beginVisitConnector?(node: Synapse.Connector): void;
+    endVisitConnector?(node: Synapse.Connector): void;
 }

@@ -9,49 +9,13 @@
 
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
-import { AutoComplete, Button, TextField, TextArea, Dropdown, Typography, Codicon, CheckBox } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, TextArea, Dropdown, CheckBox, FormView, FormActions } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { FieldGroup, SectionWrapper } from "../Commons";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import ParamForm from "./ParamForm";
 import { inboundEndpointParams } from "./ParamTemplate";
-
-const WizardContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 95vw;
-    height: calc(100vh - 140px);
-    overflow: auto;
-`;
-
-const ActionContainer = styled.div`
-    display  : flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-bottom: 20px;
-    width: 100%;
-    margin-top: 20px;
-`;
-
-const HiddenFormWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 20px 40px;
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-`;
-
-const Container = styled.div`
-    display: flex;
-    flex-direction: row;
-    height: 50px;
-    align-items: center;
-    justify-content: flex-start;
-`;
+import CardWrapper from "../Commons/CardWrapper";
+import { TypeChip } from "../Commons";
 
 const CheckboxGroup = styled.div({
     display: "flex",
@@ -76,7 +40,6 @@ type InboundEndpoint = {
     errorSequence: string;
 };
 
-const creationTypes = ['CXF_WS_RM', 'Custom', 'Feed', 'File', 'HL7', 'HTTP', 'HTTPS', 'JMS', 'KAFKA', 'MQTT', 'RABBITMQ', 'WS', 'WSO2_MB', 'WSS'];
 const hideSubFormTypes = ['HTTP', 'HTTPS', 'CXF_WS_RM', 'Feed'];
 
 const customSequenceType = {
@@ -93,7 +56,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
 
     const [inboundEndpoint, setInboundEndpoint] = useState<InboundEndpoint>({
         name: "",
-        type: "HTTP",
+        type: "",
         sequence: "",
         errorSequence: "",
     });
@@ -144,6 +107,13 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                 }
                 else {
                     clearForm();
+                    if (hideSubFormTypes.includes(inboundEndpoint.type)) {
+                        setShowHiddenForm(false);
+                        setInboundEndpoint((prev: any) => ({ ...prev, sequence: "", errorSequence: "" }));
+                    }
+                    else {
+                        setShowHiddenForm(true);
+                    }
                 }
             })();
         }
@@ -166,6 +136,10 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
         })();
     }, []);
 
+    const formTitle = isNewInboundEndpoint
+        ? "Create new Inbound Endpoint"
+        : "Edit Inbound Endpoint : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
+
     const handleMessage = (text: string, isError: boolean = false) => {
         setMessage({ isError, text });
     }
@@ -173,7 +147,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     const clearForm = () => {
         setInboundEndpoint({
             name: "",
-            type: "HTTP",
+            type: "",
             sequence: "",
             errorSequence: "",
         });
@@ -184,7 +158,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
             statistics: false,
             description: "",
         });
-        setSelectedInboundParameters(inboundEndpointParams["http"]);
+        setSelectedInboundParameters(inboundEndpointParams[inboundEndpoint.type.toLowerCase()]);
         setCustomSequence("");
         setCustomErrorSequence("");
         setShowHiddenForm(false);
@@ -193,20 +167,6 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
             errorSequence: true,
         });
         setIsNewInboundEndpoint(true);
-    }
-
-    const handleTypeChange = (type: string) => {
-        if (hideSubFormTypes.includes(type)) {
-            setShowHiddenForm(false);
-            setInboundEndpoint((prev: any) => ({ ...prev, sequence: "", errorSequence: "" }));
-        }
-        else {
-            setShowHiddenForm(true);
-        }
-
-        setSelectedInboundParameters(inboundEndpointParams[type.toLowerCase()]);
-
-        handleOnChange("type", type);
     }
 
     const handleOnChange = (field: any, value: any) => {
@@ -218,7 +178,12 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
             setIsCustom((prev: any) => ({ ...prev, [field]: value === customSequenceType.value }));
         }
 
-        setInboundEndpoint((prevTask: any) => ({ ...prevTask, [field]: value }));
+        setInboundEndpoint((prev: any) => ({ ...prev, [field]: value }));
+    }
+
+    const setInboundEndpointType = (type: string) => {
+        setInboundEndpoint((prev: any) => ({ ...prev, type }));
+        setSelectedInboundParameters(inboundEndpointParams[type.toLowerCase()]);
     }
 
     const handleAdditionalParamChange = (field: string, value: any) => {
@@ -279,7 +244,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
-    const handleBackButtonClick = () => {
+    const handleOnClose = () => {
         rpcClient.getMiVisualizerRpcClient().goBack();
     }
 
@@ -288,73 +253,63 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     ));
 
     return (
-        <WizardContainer>
-            <SectionWrapper>
-                <Container>
-                    <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
-                    <div style={{ marginLeft: 30 }}>
-                        <Typography variant="h3">{!isNewInboundEndpoint && "Update"} Inbound Endpoint Artifact</Typography>
-                    </div>
-                </Container>
+        <FormView title={formTitle} onClose={handleOnClose}>
+            {inboundEndpoint.type === '' ? <CardWrapper cardsType="INBOUND_ENDPOINT" setType={setInboundEndpointType} /> : <>
+                <TypeChip type={inboundEndpoint.type} onClick={setInboundEndpointType} showButton={isNewInboundEndpoint} />
                 <TextField
                     value={inboundEndpoint.name}
                     id='name-input'
                     label="Name"
                     placeholder="Name"
-                    onChange={(text: string) => handleOnChange("name", text)}
+                    onTextChange={(text: string) => handleOnChange("name", text)}
                     errorMsg={validateName(inboundEndpoint.name)}
                     autoFocus
                     required
                     size={100}
                 />
-                <FieldGroup>
-                    <span>Creation Type</span>
-                    <AutoComplete
-                        items={creationTypes}
-                        selectedItem={inboundEndpoint.type}
-                        onChange={(text: string) => handleTypeChange(text)}
-                        sx={{ width: '370px' }}
-                    ></AutoComplete>
-                </FieldGroup>
                 {showHiddenForm && (
-                    <HiddenFormWrapper>
-                        <span>Sequence</span>
-                        <Dropdown
-                            id="sequence"
-                            value={inboundEndpoint.sequence}
-                            onChange={(text: string) => handleOnChange("sequence", text)}
-                            items={sequences}
-                        />
-                        {isCustom.sequence && <>
-                            <TextField
-                                value={customSequence}
-                                id='custom-sequence'
-                                placeholder="Custom Sequence Name"
-                                onChange={(text: string) => setCustomSequence(text)}
-                                errorMsg={validateName(customSequence)}
-                                required
-                                size={100}
+                    <>
+                        <div>
+                            <span>Sequence</span>
+                            <Dropdown
+                                id="sequence"
+                                value={inboundEndpoint.sequence}
+                                onValueChange={(text: string) => handleOnChange("sequence", text)}
+                                items={sequences}
                             />
-                        </>}
-                        <span>On Error Sequence</span>
-                        <Dropdown
-                            id="errorSequence"
-                            value={inboundEndpoint.errorSequence}
-                            onChange={(text: string) => handleOnChange("errorSequence", text)}
-                            items={sequences}
-                        />
-                        {isCustom.errorSequence && <>
-                            <TextField
-                                value={customErrorSequence}
-                                id='custom-onerror-sequence'
-                                placeholder="Custom On Error Sequence Name"
-                                onChange={(text: string) => setCustomErrorSequence(text)}
-                                errorMsg={validateName(customErrorSequence)}
-                                required
-                                size={100}
+                            {isCustom.sequence && <>
+                                <TextField
+                                    value={customSequence}
+                                    id='custom-sequence'
+                                    placeholder="Custom Sequence Name"
+                                    onTextChange={(text: string) => setCustomSequence(text)}
+                                    errorMsg={validateName(customSequence)}
+                                    required
+                                    size={100}
+                                />
+                            </>}
+                        </div>
+                        <div>
+                            <span>On Error Sequence</span>
+                            <Dropdown
+                                id="errorSequence"
+                                value={inboundEndpoint.errorSequence}
+                                onValueChange={(text: string) => handleOnChange("errorSequence", text)}
+                                items={sequences}
                             />
-                        </>}
-                    </HiddenFormWrapper>
+                            {isCustom.errorSequence && <>
+                                <TextField
+                                    value={customErrorSequence}
+                                    id='custom-onerror-sequence'
+                                    placeholder="Custom On Error Sequence Name"
+                                    onTextChange={(text: string) => setCustomErrorSequence(text)}
+                                    errorMsg={validateName(customErrorSequence)}
+                                    required
+                                    size={100}
+                                />
+                            </>}
+                        </div>
+                    </>
                 )}
                 {!isNewInboundEndpoint && (
                     <div>
@@ -388,27 +343,27 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                             id='description'
                             label="Description"
                             placeholder="Description"
-                            onChange={(text: string) => handleAdditionalParamChange("description", text)}
+                            onTextChange={(text: string) => handleAdditionalParamChange("description", text)}
                             cols={150}
                         />
                     </div>
                 )}
-            </SectionWrapper>
-            <ActionContainer>
-                <Button
-                    appearance="secondary"
-                    onClick={openOverview}
-                >
-                    Cancel
-                </Button>
-                <Button
-                    appearance="primary"
-                    onClick={handleCreateInboundEP}
-                    disabled={!isValid}
-                >
-                    {isNewInboundEndpoint ? "Create" : "Save Changes"}
-                </Button>
-            </ActionContainer>
-        </WizardContainer>
+                <FormActions>
+                    <Button
+                        appearance="secondary"
+                        onClick={openOverview}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        appearance="primary"
+                        onClick={handleCreateInboundEP}
+                        disabled={!isValid}
+                    >
+                        {isNewInboundEndpoint ? "Create" : "Save Changes"}
+                    </Button>
+                </FormActions>
+            </>}
+        </FormView>
     );
 }

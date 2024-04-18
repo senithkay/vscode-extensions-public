@@ -146,7 +146,7 @@ const DataMapperForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Input Type</label>
-                        <AutoComplete items={["XML", "CSV", "JSON"]} selectedItem={formValues["inputType"]} onChange={(e: any) => {
+                        <AutoComplete items={["XML", "CSV", "JSON"]} value={formValues["inputType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "inputType": e });
                             formValidators["inputType"](e);
                         }} />

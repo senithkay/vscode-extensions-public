@@ -44,6 +44,10 @@ export * from './components/TypeBrowser/TypeBrowser';
 export * from './components/Confirm/Confirm';
 export * from './components/CheckBoxGroup/CheckBoxGroup';
 export * from './components/ErrorBoundary/ErrorBoundary';
+export * from "./components/Card/Card";
+export * from './components/RadioButtonGroup/RadioButtonGroup';
+export * from './components/Accordion/Accordion';
+export * from './components/SyntaxHighlighter/SyntaxHighlighter';
 
 export * from './components/SampleForm/Header/Header';
 export * from './components/SampleForm/HorizontalIcons/HorizontalIcons';
@@ -54,5 +58,7 @@ export * from './components/SampleForm/WebAppCreation/WebAppCreation';
 
 export * from './components/Commons/ErrorBanner';
 export * from './components/Commons/RequiredInput';
+
+export * from './components/FormView/FormView';
 
 export * from './styles';

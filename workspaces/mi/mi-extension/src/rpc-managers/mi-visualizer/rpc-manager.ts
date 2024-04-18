@@ -10,6 +10,7 @@
  */
 import {
     AIVisualizerLocation,
+    ColorThemeKind,
     GettingStartedCategory,
     GettingStartedData,
     GettingStartedSample,
@@ -22,14 +23,18 @@ import {
     SampleDownloadRequest,
     VisualizerLocation,
     WorkspaceFolder,
-    WorkspacesResponse
+    WorkspacesResponse,
+    ToggleDisplayOverviewRequest,
+    GetAllRegistryPathsResponse,
+    GetAllRegistryPathsRequest
 } from "@wso2-enterprise/mi-core";
 import fetch from 'node-fetch';
-import { workspace } from "vscode";
+import { workspace, window } from "vscode";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { handleOpenFile } from "../../util/fileOperations";
-import { openAIView } from "../../ai-panel/aiMachine";
+import { openAIWebview } from "../../ai-panel/aiMachine";
+import { extension } from "../../MIExtensionContext";
 
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
     async getWorkspaces(): Promise<WorkspacesResponse> {
@@ -60,9 +65,17 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         });
     }
 
+    async getAllRegistryPaths(params: GetAllRegistryPathsRequest): Promise<GetAllRegistryPathsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getRegistryFiles(params.path);
+            resolve({ registryPaths: res });
+        });
+    }
+
     openView(params: OpenViewRequest): void {
         if (params.isAiWebview) {
-            openAIView(params.type, params.location as AIVisualizerLocation);
+            openAIWebview();
         } else {
             openView(params.type, params.location as VisualizerLocation);
         }
@@ -144,5 +157,19 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     addToHistory(entry: HistoryEntry): void {
         history.push(entry);
         navigate();
+    }
+
+    async getCurrentThemeKind(): Promise<ColorThemeKind> {
+        return new Promise((resolve) => {
+            const currentThemeKind = window.activeColorTheme.kind;
+            resolve(currentThemeKind);
+        });
+    }
+
+    async toggleDisplayOverview(params: ToggleDisplayOverviewRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            await extension.context.workspaceState.update('displayOverview', params.displayOverview);
+            resolve();
+        });
     }
 }

@@ -37,6 +37,11 @@ const Field = styled.div`
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
+const generateDisplayValue = (paramValues: any) => {
+    const result: string = paramValues.parameters[1].value === "LITERAL" ? paramValues.parameters[2].value : paramValues.parameters[3].value;
+    return result.trim();
+};
+
 const CallTemplateForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -92,7 +97,15 @@ const CallTemplateForm = (props: AddMediatorProps) => {
     const [params, setParams] = useState(paramConfigs);
 
     const handleOnChange = (params: any) => {
-        setParams(params);
+        const modifiedParams = { ...params, paramValues: params.paramValues.map((param: any) => {
+            return {
+                ...param,
+                key: param.parameters[0].value,
+                value: generateDisplayValue(param),
+                icon: "query"
+            }
+        })};
+        setParams(modifiedParams);
     };
 
     useEffect(() => {
@@ -133,7 +146,10 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                                 value: property[3],
                                 isRequired: false
                             }
-                        ]
+                        ],
+                        key: property[0],
+                        value: property[1] === "LITERAL" ? property[2] : property[3],
+                        icon: "query"
                     })
                 )
                 setParams({ ...params, paramValues: paramValues });
@@ -241,7 +257,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Available Templates</label>
-                    <AutoComplete items={[...availableSequenceTemplates, ...availableEndpointTemplates]} selectedItem={formValues["availableTemplates"]} onChange={(e: any) => {
+                    <AutoComplete items={[...availableSequenceTemplates, ...availableEndpointTemplates]} value={formValues["availableTemplates"]} onValueChange={(e: any) => {
                         const updateValues: { [key: string]: any } = { "availableTemplates": e }
                         if (e != "Select From Templates") {
                             updateValues["targetTemplate"] = e;
@@ -268,7 +284,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["targetTemplate"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             const updateValues: { [key: string]: any } = { "targetTemplate": e }
                             if (availableEndpointTemplates.includes(e) || availableSequenceTemplates.includes(e)) {
                                 updateValues["availableTemplates"] = e;
@@ -289,7 +305,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["onError"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "onError": e });
                             formValidators["onError"](e);
                         }}
@@ -304,7 +320,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}

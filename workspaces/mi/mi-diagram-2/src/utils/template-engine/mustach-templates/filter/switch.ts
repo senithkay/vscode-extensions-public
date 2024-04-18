@@ -73,3 +73,8 @@ export function getSwitchFormDataFromSTNode(data: { [key: string]: any }, node: 
   data.switchSelfClosed = node.selfClosed;
   return data;
 }
+
+export function getNewSwitchCaseXml() {
+  return `<case regex="case">
+  </case>`;
+}

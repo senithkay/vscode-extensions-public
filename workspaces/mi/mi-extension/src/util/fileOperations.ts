@@ -529,7 +529,15 @@ export async function createMetadataFilesForRegistryCollection(collectionRoot: s
 export async function getAvailableRegistryResources(projectDir: string): Promise<ListRegistryArtifactsResponse> {
     return new Promise(async (resolve) => {
         const result: RegistryArtifact[] = [];
-        const artifactXMLPath = path.join(projectDir, 'artifact.xml');
+        var artifactXMLPath = path.join(projectDir, 'artifact.xml');
+        if (!projectDir.endsWith('registry')) {
+            const fileUri = Uri.file(projectDir);
+            const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
+            if (workspaceFolder) {
+                projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
+                artifactXMLPath = path.join(projectDir, 'artifact.xml');
+            }
+        }
         if (fs.existsSync(artifactXMLPath)) {
             const artifactXML = fs.readFileSync(artifactXMLPath, "utf8");
             const options = {

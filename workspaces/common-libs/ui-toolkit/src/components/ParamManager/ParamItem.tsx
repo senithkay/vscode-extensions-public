@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from "react";
+import React, { useRef } from "react";
 
 import { Codicon } from "../Codicon/Codicon";
 import {
@@ -25,16 +25,52 @@ import {
 } from "./styles";
 import { Parameters } from "./ParamManager";
 import { Icon } from "../Icon/Icon";
+import { useDrag, useDrop } from 'react-dnd';
 
 interface ParamItemProps {
+    index: number;
+    moveItem: (dragIndex: number, hoverIndex: number) => void;
     params: Parameters;
     readonly?: boolean;
     onDelete?: (param: Parameters) => void;
     onEditClick?: (param: Parameters) => void;
 }
 
+interface DragItem {
+    type: string;
+    id: number;
+    index: number;
+}
+
+const ITEM_TYPE = 'paramItem';
+
 export function ParamItem(props: ParamItemProps) {
-    const { params, readonly, onDelete, onEditClick } = props;
+    const { params, index, readonly, moveItem, onDelete, onEditClick } = props;
+
+    const itemRef = useRef(null);
+
+    const [, drag] = useDrag({
+        type: ITEM_TYPE,
+        item: { type: ITEM_TYPE, id: params.id, index },
+        canDrag: !readonly, // Disable drag if readonly is true
+    });
+
+    const [, drop] = useDrop({
+        accept: ITEM_TYPE,
+        hover(item: DragItem) {
+            if (!itemRef.current) {
+                return;
+            }
+            const dragIndex = item.index;
+            const hoverIndex = index;
+            if (dragIndex === hoverIndex) {
+                return;
+            }
+            moveItem(dragIndex, hoverIndex);
+            item.index = hoverIndex;
+        },
+    });
+    drag(drop(itemRef));
 
     let label = "";
     params.parameters.forEach((param, index) => {
@@ -53,7 +89,7 @@ export function ParamItem(props: ParamItemProps) {
     const icon = (typeof params.icon === "string") ? <Icon name={params.icon} /> : params.icon;
 
     return (
-        <HeaderLabel data-testid={`${label}-item`}>
+        <HeaderLabel ref={itemRef} key={params.id} id={`${params.id}`} data-testid={`${label}-item`}>
             <ContentWrapper readonly={readonly} onClick={handleEdit}>
                 {icon ? (
                     <IconTextWrapper>

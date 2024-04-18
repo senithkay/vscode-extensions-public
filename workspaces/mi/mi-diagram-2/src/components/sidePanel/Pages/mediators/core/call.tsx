@@ -258,7 +258,7 @@ const CallForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Endpoint Type</label>
-                        <AutoComplete items={["INLINE", "NONE", "REGISTRYKEY", "XPATH"]} selectedItem={formValues["endpointType"]} onChange={(e: any) => {
+                        <AutoComplete items={["INLINE", "NONE", "REGISTRYKEY", "XPATH"]} value={formValues["endpointType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "endpointType": e, "isEndpointChanged": true });
                             formValidators["endpointType"](e);
                         }} />
@@ -272,7 +272,7 @@ const CallForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder="Endpoint Registry Key"
                                 value={formValues["endpointRegistryKey"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "endpointRegistryKey": e, "isEndpointChanged": true });
                                     formValidators["endpointRegistryKey"](e);
                                 }}
@@ -289,7 +289,7 @@ const CallForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder="Endpoint Xpath"
                                 value={formValues["endpointXpath"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "endpointXpath": e, "isEndpointChanged": true });
                                     formValidators["endpointXpath"](e);
                                 }}
@@ -303,7 +303,7 @@ const CallForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Source Type</label>
-                    <AutoComplete items={["none", "body", "property", "inline", "custom"]} selectedItem={formValues["sourceType"]} onChange={(e: any) => {
+                    <AutoComplete items={["none", "body", "property", "inline", "custom"]} value={formValues["sourceType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "sourceType": e, "isSourceChanged": true });
                         formValidators["sourceType"](e);
                     }} />
@@ -317,7 +317,7 @@ const CallForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder="Source Property"
                             value={formValues["sourceProperty"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "sourceProperty": e, "isSourceChanged": true });
                                 formValidators["sourceProperty"](e);
                             }}
@@ -334,7 +334,7 @@ const CallForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder="Content Type"
                             value={formValues["contentType"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "contentType": e, "isSourceChanged": true });
                                 formValidators["contentType"](e);
                             }}
@@ -351,7 +351,7 @@ const CallForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder="Source Payload"
                             value={formValues["sourcePayload"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "sourcePayload": e, "isSourceChanged": true });
                                 formValidators["sourcePayload"](e);
                             }}
@@ -369,7 +369,7 @@ const CallForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder="Source XPath"
                             value={formValues["sourceXPath"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "sourceXPath": e, "isSourceChanged": true });
                                 formValidators["sourceXPath"](e);
                             }}
@@ -380,7 +380,7 @@ const CallForm = (props: AddMediatorProps) => {
                 }
                 <Field>
                     <label>Target Type</label>
-                    <AutoComplete items={["none", "body", "property"]} selectedItem={formValues["targetType"]} onChange={(e: any) => {
+                    <AutoComplete items={["none", "body", "property"]} value={formValues["targetType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "targetType": e, "isTargetChanged": true });
                         formValidators["targetType"](e);
                     }} />
@@ -394,7 +394,7 @@ const CallForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder="Target Property"
                             value={formValues["targetProperty"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "targetProperty": e, "isTargetChanged": true });
                                 formValidators["targetProperty"](e);
                             }}
@@ -410,7 +410,7 @@ const CallForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder="Description"
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e, "isCallChanged": true });
                             formValidators["description"](e);
                         }}

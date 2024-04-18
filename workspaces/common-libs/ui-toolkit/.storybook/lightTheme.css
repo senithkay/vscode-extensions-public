@@ -8,6 +8,7 @@
  */
 body {
     background-color: #fff;
+    color: #000000;
     --vscode-foreground: #616161;
     --vscode-font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     --vscode-font-weight: normal;
@@ -671,4 +672,5 @@ body {
     --vscode-gitlens-graphScrollMarkerStashesColor: #e467e4;
     --vscode-gitlens-graphMinimapMarkerTagsColor: #d2a379;
     --vscode-gitlens-graphScrollMarkerTagsColor: #d2a379;
+    --vscode-debugTokenExpression-string: #a31515;
 }

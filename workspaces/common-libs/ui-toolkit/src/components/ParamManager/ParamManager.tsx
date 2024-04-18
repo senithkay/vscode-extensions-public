@@ -15,6 +15,8 @@ import { ParamItem } from './ParamItem';
 import { LinkButton } from '../LinkButton/LinkButton';
 import { Codicon } from '../Codicon/Codicon';
 import { Param } from './TypeResolver';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 export interface Parameters {
     id: number;
@@ -223,6 +225,19 @@ export function ParamManager(props: ParamManagerProps) {
         setIsNew(false);
     };
 
+    // Function to handle reordering of items after moving
+    const moveItem = (dragIndex: number, hoverIndex: number) => {
+        const updatedParameters = [...paramConfigs.paramValues];
+        const draggedItem = updatedParameters[dragIndex];
+        updatedParameters.splice(dragIndex, 1);
+        updatedParameters.splice(hoverIndex, 0, draggedItem);
+        const reArrangedParameters = updatedParameters.map((item, index) => ({
+            ...item,
+            id: index
+        }));
+        onChange({ ...paramConfigs, paramValues: reArrangedParameters });
+    };
+
     const paramComponents: React.ReactElement[] = [];
     paramConfigs?.paramValues
         .forEach((param , index) => {
@@ -239,12 +254,17 @@ export function ParamManager(props: ParamManagerProps) {
                 )
             } else if ((editingSegmentId !== index)) {
                 paramComponents.push(
-                    <ParamItem
-                        params={param}
-                        readonly={editingSegmentId !== -1 || readonly}
-                        onDelete={onDelete}
-                        onEditClick={onEdit}
-                    />
+                    <DndProvider backend={HTML5Backend}>
+                        <ParamItem
+                            moveItem={moveItem}
+                            key={param.id}
+                            index={index}
+                            params={param}
+                            readonly={editingSegmentId !== -1 || readonly}
+                            onDelete={onDelete}
+                            onEditClick={onEdit}
+                        />
+                    </DndProvider>
                 );
             }
         });

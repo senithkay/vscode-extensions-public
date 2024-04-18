@@ -1,0 +1,271 @@
+/*
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import { TextField, Dropdown, RadioButtonGroup, FormGroup, ParamManager } from "@wso2-enterprise/ui-toolkit";
+
+interface OptionProps {
+    value: string;
+}
+
+const Form = ({
+    renderProps,
+    register,
+    watch,
+    setValue,
+    isTemplate,
+    templateParams,
+    setTemplateParams,
+    additionalParams,
+    setAdditionalParams,
+}: any) => {
+    const addressingVersions: OptionProps[] = [
+        { value: "final" },
+        { value: "submission" },
+    ];
+
+    const timeoutOptions: OptionProps[] = [
+        { value: "Never" },
+        { value: "Discard" },
+        { value: "Fault" }
+    ];
+
+    const formatOptions: OptionProps[] = [
+        { value: "LEAVE_AS_IS" },
+        { value: "SOAP 1.1" },
+        { value: "SOAP 1.2" },
+        { value: "POX" },
+        { value: "GET" },
+        { value: "REST" }
+    ];
+
+    const optimizeOptions: OptionProps[] = [
+        { value: "LEAVE_AS_IS" },
+        { value: "MTOM" },
+        { value: "SWA" }
+    ];
+
+    const generateDisplayValue = (paramValues: any) => {
+        const result: string = "value:" + paramValues.parameters[1].value + "; scope:" + paramValues.parameters[2].value + ";";
+        return result.trim();
+    };
+
+    const handleTemplateParametersChange = (params: any) => {
+        const modifiedParams = {
+            paramFields: params.paramFields, 
+            paramValues: params.paramValues.map((param: any, index: number) => {
+                return {
+                    ...param,
+                    key: index + 1,
+                    value: param.parameters[0].value
+                }
+            })
+        };
+        setTemplateParams(modifiedParams);
+
+        const templateParameters: any = [];
+        modifiedParams.paramValues.map((param: any) => {
+            templateParameters.push(param.parameters[0].value);
+        })
+        setValue('templateParameters', templateParameters)
+    };
+
+    const handleAdditionalPropertiesChange = (params: any) => {
+        const modifiedParams = {
+            paramFields: params.paramFields, 
+            paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: param.parameters[0].value,
+                    value: generateDisplayValue(param)
+                }
+            })
+        };
+        setAdditionalParams(modifiedParams);
+
+        const endpointProperties: any = [];
+        modifiedParams.paramValues.map((param: any) => {
+            endpointProperties.push({
+                name: param.parameters[0].value,
+                value: param.parameters[1].value,
+                scope: param.parameters[2].value
+            });
+        });
+        setValue('properties', endpointProperties);
+    };
+
+    return (
+        <>
+            {isTemplate && (
+                <FormGroup title="Template Properties" isCollapsed={false}>
+                    <TextField
+                        required
+                        autoFocus
+                        label="Template Name"
+                        placeholder="Template Name"
+                        {...renderProps("templateName")}
+                    />
+                    <RadioButtonGroup
+                        label="Require Template Parameters"
+                        options={[{ content: "Yes", value: true }, { content: "No", value: false }]}
+                        {...register("requireTemplateParameters")}
+                    />
+                    {watch('requireTemplateParameters') && (
+                        <ParamManager
+                            paramConfigs={templateParams}
+                            readonly={false}
+                            onChange={handleTemplateParametersChange}
+                        />
+                    )}
+                </FormGroup>
+            )}
+            <FormGroup title="Basic Properties" isCollapsed={false}>
+                <TextField
+                    required
+                    autoFocus
+                    label="Endpoint Name"
+                    placeholder="Endpoint Name"
+                    {...renderProps("endpointName")}
+                    size={100}
+                />
+                <Dropdown
+                    label="Format"
+                    items={formatOptions}
+                    {...renderProps("format")}
+                />
+                <RadioButtonGroup
+                    label="Trace Enabled"
+                    options={[{ content: "Enable", value: "enable" }, { content: "Disable", value: "disable" }]}
+                    {...renderProps("traceEnabled")}
+                />
+                <RadioButtonGroup
+                    label="Statistics Enabled"
+                    options={[{ content: "Enable", value: "enable" }, { content: "Disable", value: "disable" }]}
+                    {...renderProps("statisticsEnabled")}
+                />
+            </FormGroup>
+            <FormGroup title="Miscellaneous Properties" isCollapsed={false}>
+                <Dropdown
+                    label="Optimize"
+                    items={optimizeOptions}
+                    {...renderProps("optimize")}
+                />
+                <TextField
+                    label="Description"
+                    placeholder="Description"
+                    {...renderProps("description")}
+                />
+                <TextField
+                    required
+                    label="WSDL URI"
+                    placeholder="WSDL URI"
+                    {...renderProps("wsdlUri")}
+                />
+                <TextField
+                    required
+                    label="WSDL Service"
+                    placeholder="WSDL Service"
+                    {...renderProps("wsdlService")}
+                />
+                <TextField
+                    required
+                    label="WSDL Port"
+                    placeholder="WSDL Port"
+                    {...renderProps("wsdlPort")}
+                />
+                <RadioButtonGroup
+                    label="Require Additional Properties"
+                    options={[{ content: "Yes", value: true }, { content: "No", value: false }]}
+                    {...register("requireProperties")}
+                />
+                {watch('requireProperties') && (
+                    <ParamManager
+                        paramConfigs={additionalParams}
+                        readonly={false}
+                        onChange={handleAdditionalPropertiesChange}
+                    />
+                )}
+            </FormGroup>
+            <FormGroup title="Quality of Service Properties" isCollapsed={true}>
+                <RadioButtonGroup
+                    label="Addressing"
+                    options={[{ content: "Enable", value: "enable" }, { content: "Disable", value: "disable" }]}
+                    {...renderProps("addressingEnabled")}
+                />
+                {watch('addressingEnabled') === 'enable' && (
+                    <>
+                        <Dropdown
+                            label="Addressing Version"
+                            items={addressingVersions}
+                            {...renderProps("addressingVersion")}
+                        />
+                        <RadioButtonGroup
+                            label="Addressing Separate Listener"
+                            options={[{ content: "Enable", value: "enable" }, { content: "Disable", value: "disable" }]}
+                            {...renderProps("addressListener")}
+                        />
+                    </>
+                )}
+                <RadioButtonGroup
+                    label="Security"
+                    options={[{ content: "Enable", value: "enable" }, { content: "Disable", value: "disable" }]}
+                    {...renderProps("securityEnabled")}
+                />
+            </FormGroup>
+            <FormGroup title="Endpoint Error Handling" isCollapsed={true}>
+                <TextField
+                    label="Suspend Error Codes"
+                    placeholder="304,305"
+                    {...renderProps("suspendErrorCodes")}
+                />
+                <TextField
+                    label="Suspend Initial Duration"
+                    placeholder="-1"
+                    {...renderProps("initialDuration")}
+                />
+                <TextField
+                    label="Suspend Maximum Duration"
+                    placeholder="1000"
+                    {...renderProps("maximumDuration")}
+                />
+                <TextField
+                    label="Suspend Progression Factor"
+                    placeholder="1"
+                    {...renderProps("progressionFactor")}
+                />
+                <TextField
+                    label="Retry Error Codes"
+                    placeholder="304,305"
+                    {...renderProps("retryErrorCodes")}
+                />
+                <TextField
+                    label="Retry Count"
+                    placeholder="10"
+                    {...renderProps("retryCount")}
+                />
+                <TextField
+                    label="Retry Delay"
+                    placeholder="1000"
+                    {...renderProps("retryDelay")}
+                />
+                <TextField
+                    label="Timeout Duration"
+                    placeholder="1000"
+                    {...renderProps("timeoutDuration")}
+                />
+                <Dropdown
+                    label="Timeout Action"
+                    items={timeoutOptions}
+                    {...renderProps("timeoutAction")}
+                />
+            </FormGroup>
+        </>
+    )
+}
+
+export default Form;

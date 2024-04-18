@@ -15,7 +15,7 @@ export interface GetLoadBalanceEPTemplatesArgs {
     failover: string;
     buildMessage: string;
     sessionManagement: string;
-    sessionTimeout: string;
+    sessionTimeout: number;
     description: string;
     endpoints: {
         type: string;

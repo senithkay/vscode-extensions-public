@@ -10,15 +10,13 @@
 import * as vscode from 'vscode';
 import { StateMachine } from './stateMachine';
 import { extension } from './MIExtensionContext';
-import { activateProjectExplorer } from './project-explorer/activate';
-import { activateAiPrompt } from './ai-prompt/activate';
 import { activate as activateHistory } from './history';
 import { activateVisualizer } from './visualizer/activate';
-import { activateActivityPanel } from './activity-panel/activate';
 import { activateAiPanel } from './ai-panel/activate';
 import { RPCLayer } from './RPCLayer';
 
 import { activateDebugger } from './debugger/activate';
+import { activateMigrationSupport } from './migration';
 
 export async function activate(context: vscode.ExtensionContext) {
 	extension.context = context;
@@ -26,9 +24,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	activateHistory();
 
 	activateDebugger(context);
-
+	activateMigrationSupport(context);
 	// activateActivityPanel(context);
-	activateProjectExplorer(context);
 	// activateAiPrompt(context);
 	activateVisualizer(context);
 	activateAiPanel(context);
