@@ -7,23 +7,125 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { ComponentPropsWithRef } from "react";
+import React, { useEffect, useState } from "react";
+import { AutoComplete, ItemComponent } from "@wso2-enterprise/ui-toolkit";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import styled from "@emotion/styled";
-import { TextField } from "@wso2-enterprise/ui-toolkit";
+import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
+import { FieldValues, useController, UseControllerProps } from 'react-hook-form';
 
-export interface IKeylookup extends ComponentPropsWithRef<"input"> {
+type FilterType =
+    | "sequence"
+    | "endpoint"
+    | "messageStore"
+    | "messageProcessor"
+    | "task"
+    | "sequenceTemplate"
+    | "endpointTemplate";
+
+type ItemType = "workspace" | "registry";
+
+// Interfaces
+export interface IKeylookup {
+    // AutoComplete props
+    id?: string;
+    required?: boolean;
     label?: string;
-    size?: number;
-
+    notItemsFoundMessage?: string;
+    widthOffset?: number;
+    nullable?: boolean;
+    sx?: React.CSSProperties;
+    borderBox?: boolean;
+    onValueChange?: (item: string, index?: number) => void;
+    name?: string;
+    onBlur?: React.FocusEventHandler<HTMLInputElement>;
+    onChange?: React.ChangeEventHandler<HTMLInputElement>;
+    // Document path
+    path: string;
     // Artifact type to be fetched
-    filterType?: string;
+    filterType: FilterType;
     // Callback to filter the fetched artifacts
-    filter?: (value: string) => void;
+    filter?: (value: string) => boolean;
 }
 
-export const Keylookup = (props: IKeylookup) => {
-    const { label, filterType, filter, ...rest } = props;
+export type IFormKeylookup<T extends FieldValues> = IKeylookup & UseControllerProps<T>;
 
-    return <TextField {...rest} />;
+// Styles
+const ItemContainer = styled.div({
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+});
+
+const ItemText = styled.div({
+    flex: "1 1 auto"
+});
+
+const getItemComponent = (item: string, type: ItemType) => {
+    return (
+        <ItemContainer>
+            <VSCodeTag>{type}</VSCodeTag>
+            <ItemText>{item}</ItemText>
+        </ItemContainer>
+    );
 };
 
+export const Keylookup = (props: IKeylookup) => {
+    const { filter, filterType, onValueChange, ...rest } = props;
+    const [items, setItems] = useState<ItemComponent[]>([]);
+    const [value, setValue] = useState<string | undefined>(undefined);
+    const { rpcClient } = useVisualizerContext();
+
+    useEffect(() => {
+        const fetchItems = async () => {
+            const result = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
+                documentIdentifier: props.path,
+                resourceType: filterType,
+            });
+
+            let workspaceItems: ItemComponent[];
+            let registryItems: ItemComponent[];
+            if (result?.resources) {
+                workspaceItems = result.resources.map((resource) => ({
+                    key: resource.name,
+                    item: getItemComponent(resource.name, "workspace"),
+                }));
+            }
+            if (result?.registryResources) {
+                registryItems = result.registryResources.map((resource) => ({
+                    key: resource.registryKey,
+                    item: getItemComponent(resource.registryKey, "registry"),
+                }));
+            }
+
+            let items = [...workspaceItems, ...registryItems];
+            if (filter) {
+                items = items.filter((item) => filter(item.key));
+            }
+            setItems(items);
+        };
+
+        fetchItems();
+    }, []);
+
+    const handleValueChange = (val: string) => {
+        setValue(val);
+        onValueChange && onValueChange(val);
+    };
+
+    return <AutoComplete {...rest} value={value} onValueChange={handleValueChange} items={items} />;
+};
+
+export const FormKeylookup = <T extends FieldValues>(props: IFormKeylookup<T>) => {
+    const { control, name, ...rest } = props;
+    const {
+        field: { onChange }
+    } = useController({ name, control });
+
+    return (
+        <Keylookup
+            {...rest}
+            onValueChange={onChange}
+        />
+    );
+}
