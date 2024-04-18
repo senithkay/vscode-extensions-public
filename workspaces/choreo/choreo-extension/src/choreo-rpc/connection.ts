@@ -1,16 +1,31 @@
 import { StreamMessageReader, StreamMessageWriter, createMessageConnection, MessageConnection } from 'vscode-jsonrpc/node'
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
+import * as os from 'os'
+import { getLogger } from '../logger/logger';
+import path from 'path';
 
 export class StdioConnection {
     private _connection: MessageConnection;
     private _serverProcess: ChildProcessWithoutNullStreams;
     constructor(private executable_path: string | undefined) {
         console.log("Starting RPC server, path:", this.executable_path);
-        this._serverProcess = spawn(`${this.executable_path}` || "choreo", ['start-rpc-server']);
+
+        const homeDir = os.homedir();
+        // generate the path for the executable based on the platform
+        let userHome = homeDir;
+
+        let genPath = path.join(userHome, ".choreo", "bin", "choreo");
+
+        if (this.executable_path && this.executable_path !== "") {
+            genPath = this.executable_path;
+        }
+
+        getLogger().debug("Starting RPC server" + genPath);
+
+        this._serverProcess = spawn(genPath, ['start-rpc-server']);
         this._connection = createMessageConnection(
             new StreamMessageReader(this._serverProcess.stdout),
             new StreamMessageWriter(this._serverProcess.stdin));
-
     }
 
     stop(): Promise<void> {
