@@ -350,7 +350,11 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry = apiEntry;
 
 		} else if (entry.type === "ENDPOINT") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			let icon = 'code';
+			if (entry.isRegistryResource) {
+				icon = 'file-code';
+			}
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon);
 			explorerEntry.contextValue = 'endpoint';
 			explorerEntry.command = {
 				"title": "Show Endpoint",

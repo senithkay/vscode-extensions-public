@@ -9,13 +9,14 @@
 
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
-import { Button, Dropdown, TextField, FormView, FormGroup, FormActions, ParamManager } from "@wso2-enterprise/ui-toolkit";
+import { Button, Dropdown, TextField, FormView, FormGroup, FormActions, ParamManager, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { Endpoint, EndpointList, InlineButtonGroup, TypeChip } from "./Commons";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
+import AddToRegistry, { getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
 
 const FieldGroup = styled.div`
     display: flex;
@@ -48,6 +49,11 @@ type InputsFields = {
     description?: string;
     endpoints?: Endpoint[];
     properties?: any[];
+    //reg form
+    saveInReg?: boolean;
+    artifactName?: string;
+    registryPath?: string
+    registryType?: "gov" | "conf";
 };
 
 const initialEndpoint: InputsFields = {
@@ -56,27 +62,72 @@ const initialEndpoint: InputsFields = {
     description: '',
     endpoints: [],
     properties: [],
+    //reg form
+    saveInReg: false,
+    artifactName: "",
+    registryPath: "/",
+    registryType: "gov"
 };
-
-const schema = yup.object({
-    name: yup.string().required("Endpoint Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint name"),
-    buildMessage: yup.string().required("Build Message is required"),
-    description: yup.string(),
-    endpoints: yup.array(),
-    properties: yup.array(),
-});
 
 export function FailoverWizard(props: FailoverWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
 
     const isNewEndpoint = !props.path.endsWith(".xml");
+    const [artifactNames, setArtifactNames] = useState([]);
+    const [registryPaths, setRegistryPaths] = useState([]);
+    const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
+    const [existingEndpoints, setExistingEndpoints] = useState<string[]>([]);
+    const [existingArtifactNames, setExistingArtifactNames] = useState<string[]>([]);
+    const [expandEndpointsView, setExpandEndpointsView] = useState<boolean>(false);
+    const [showAddNewEndpointView, setShowAddNewEndpointView] = useState<boolean>(false);
+    const [newEndpoint, setNewEndpoint] = useState<Endpoint>(initialInlineEndpoint);
+    const [savedEPName, setSavedEPName] = useState<string>("");
+
+    const schema = yup.object({
+        name: yup.string().required("Endpoint name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint name")
+            .test('validateEndpointName',
+                'Endpoint file name already exists', value => {
+                    return !isNewEndpoint ? !(existingEndpoints.includes(value) && value !== savedEPName) : !existingEndpoints.includes(value);
+                }).test('validateEndpointName',
+                    'Endpoint artifact name already exists', value => {
+                        return !isNewEndpoint ? !(existingArtifactNames.includes(value) && value !== savedEPName) : !existingArtifactNames.includes(value);
+                    }),
+        buildMessage: yup.string().required("Build Message is required"),
+        description: yup.string(),
+        endpoints: yup.array(),
+        properties: yup.array(),
+        saveInReg: yup.boolean().default(false),
+        artifactName: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().required("Artifact Name is required").test('validateArtifactName',
+                    'Artifact name already exists', value => {
+                        return !artifactNames.includes(value);
+                    }),
+        }),
+        registryPath: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                    const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
+                    return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
+                }),
+        }),
+        registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
+    });
 
     const {
         reset,
         register,
         formState: { errors, isDirty },
         handleSubmit,
+        getValues,
+        control,
         watch,
         setValue,
     } = useForm({
@@ -84,11 +135,6 @@ export function FailoverWizard(props: FailoverWizardProps) {
         resolver: yupResolver(schema),
         mode: "onChange"
     });
-
-    const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
-    const [expandEndpointsView, setExpandEndpointsView] = useState<boolean>(false);
-    const [showAddNewEndpointView, setShowAddNewEndpointView] = useState<boolean>(false);
-    const [newEndpoint, setNewEndpoint] = useState<Endpoint>(initialInlineEndpoint);
 
     const [paramConfigs, setParamConfigs] = useState<any>({
         paramValues: [],
@@ -130,6 +176,27 @@ export function FailoverWizard(props: FailoverWizardProps) {
                 }
             })();
         }
+        (async () => {
+            const endpointResponse = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
+                documentIdentifier: props.path,
+                resourceType: "endpoint",
+            });
+            let endpointArtifactNamesArr = [];
+            if (endpointResponse.resources) {
+                const endpointNames = endpointResponse.resources.map((resource) => resource.name);
+                endpointArtifactNamesArr.push(...endpointNames);
+                const epPaths = endpointResponse.resources.map((resource) => resource.artifactPath.replace(".xml", ""));
+                setExistingEndpoints(epPaths);
+            }
+            if (endpointResponse.registryResources) {
+                const registryKeys = endpointResponse.registryResources.map((resource) => resource.name);
+                endpointArtifactNamesArr.push(...registryKeys);
+            }
+            setExistingArtifactNames(endpointArtifactNamesArr);
+            const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
+            setArtifactNames(result.artifactNamesArr);
+            setRegistryPaths(result.registryPaths);
+        })();
     }, [props.path]);
 
     const buildMessageOptions = [
@@ -180,9 +247,13 @@ export function FailoverWizard(props: FailoverWizardProps) {
         const updateEndpointParams = {
             directory: props.path,
             ...values,
+            getContentOnly: watch("saveInReg") && isNewEndpoint,
             endpoints,
         }
-        rpcClient.getMiDiagramRpcClient().updateFailoverEndpoint(updateEndpointParams);
+        const result = await rpcClient.getMiDiagramRpcClient().updateFailoverEndpoint(updateEndpointParams);
+        if (watch("saveInReg") && isNewEndpoint) {
+            await saveToRegistry(rpcClient, props.path, values.registryType, values.name, result.content, values.registryPath, values.artifactName);
+        }
         openOverview();
     };
 
@@ -261,6 +332,16 @@ export function FailoverWizard(props: FailoverWizardProps) {
                     <ParamManager paramConfigs={paramConfigs} onChange={handleParamChange} />
                 </FieldGroup>
             </FormGroup>
+            {isNewEndpoint && (<>
+                <FormCheckBox
+                    label="Save the endpoint in registry"
+                    {...register("saveInReg")}
+                    control={control}
+                />
+                {watch("saveInReg") && (<>
+                    <AddToRegistry path={props.path} fileName={watch("name")} register={register} errors={errors} getValues={getValues} />
+                </>)}
+            </>)}
             <FormActions>
                 <Button
                     appearance="primary"

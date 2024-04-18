@@ -56,8 +56,6 @@ import {
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     FileDirResponse,
-    FileListRequest,
-    FileListResponse,
     FileStructure,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
@@ -541,20 +539,20 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async updateFailoverEndpoint(params: UpdateFailoverEPRequest): Promise<UpdateFailoverEPResponse> {
         return new Promise(async (resolve) => {
             const { directory, ...templateParams } = params;
-
             const xmlData = getFailoverXmlWrapper(templateParams);
-
-            let filePath: string;
-
-            if (directory.endsWith('.xml')) {
-                filePath = directory;
+            if (params.getContentOnly) {
+                resolve({ path: "", content: xmlData });
             } else {
-                filePath = path.join(directory, `${templateParams.name}.xml`);
+                let filePath: string;
+                if (directory.endsWith('.xml')) {
+                    filePath = directory;
+                } else {
+                    filePath = path.join(directory, `${templateParams.name}.xml`);
+                }
+                fs.writeFileSync(filePath, xmlData);
+                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                resolve({ path: filePath, content: "" });
             }
-
-            fs.writeFileSync(filePath, xmlData);
-            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-            resolve({ path: filePath });
         });
     }
 
@@ -639,20 +637,20 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async updateRecipientEndpoint(params: UpdateRecipientEPRequest): Promise<UpdateRecipientEPResponse> {
         return new Promise(async (resolve) => {
             const { directory, ...templateParams } = params;
-
             const xmlData = getRecipientEPXml(templateParams);
-
-            let filePath: string;
-
-            if (directory.endsWith('.xml')) {
-                filePath = directory;
+            if (params.getContentOnly) {
+                resolve({ path: '', content: xmlData });
             } else {
-                filePath = path.join(directory, `${templateParams.name}.xml`);
+                let filePath: string;
+                if (directory.endsWith('.xml')) {
+                    filePath = directory;
+                } else {
+                    filePath = path.join(directory, `${templateParams.name}.xml`);
+                }
+                fs.writeFileSync(filePath, xmlData);
+                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                resolve({ path: filePath, content: "" });
             }
-
-            fs.writeFileSync(filePath, xmlData);
-            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-            resolve({ path: filePath });
         });
     }
 
@@ -785,9 +783,17 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
         return new Promise(async (resolve) => {
             const { directory, name, type, value, URL } = params;
-
             const xmlData = generateXmlData(name, type, value, URL);
-            const filePath = path.join(directory, `${name}.xml`);
+            let filePath = directory;
+
+            if (filePath.includes('localEntries')) {
+                filePath = filePath.replace('localEntries', 'local-entries');
+            }
+            if(filePath.endsWith('.xml')) {
+               filePath = directory;
+            } else {
+                filePath = path.join(filePath, `${name}.xml`);
+            }
 
             writeXmlDataToFile(filePath, xmlData);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
@@ -853,19 +859,20 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const getTemplateParams = params;
 
             const xmlData = getMessageStoreXmlWrapper(getTemplateParams);
+            let filePath = params.directory;
+                  
+            if (filePath.includes('messageStores')) {
+                filePath = filePath.replace('messageStores', 'message-stores');
+            }
+            if(filePath.endsWith('.xml')) {
+                filePath = params.directory;
+            } else {
+                filePath = path.join(filePath, `${params.name}.xml`);
+            }
 
-            const filePath = path.join(params.directory, `${params.name}.xml`);
             fs.writeFileSync(filePath, xmlData);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
-        });
-    }
-
-    async getXmlFileList(params: FileListRequest): Promise<FileListResponse> {
-        return new Promise(async (resolve) => {
-            const files = fs.readdirSync(params.path);
-            const xmlFiles = files.filter((file) => file.endsWith('.xml')).map(file => file.replace('.xml', ''));
-            resolve({ files: xmlFiles });
         });
     }
 
@@ -900,10 +907,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     password: '',
                     cacheConnection: '',
                     jmsAPIVersion: '',
-                    enableProducerGuaranteedDelivery: '',
+                    enableProducerGuaranteedDelivery: false,
                     rabbitMQServerHostName: '',
                     rabbitMQServerPort: '',
-                    sslEnabled: '',
+                    sslEnabled: false,
                     rabbitMQQueueName: '',
                     rabbitMQExchangeName: '',
                     routineKey: '',
@@ -2530,14 +2537,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         'User-Agent': 'My Client'
                     }
                 });
-                
-    
+
+
                 const writer = fs.createWriteStream(
                     path.resolve(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors', `${connector.replace(/\s+/g, '')}-${version}.zip`)
                 );
-    
+
                 response.data.pipe(writer);
-    
+
                 return new Promise((resolve, reject) => {
                     writer.on('finish', () => {
                         writer.close();
@@ -2551,14 +2558,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             return new Promise((resolve, reject) => {
                 resolve({ path: connectorPath });
             });
-            
+
         } catch (error) {
             console.error('Error downloading connector:', error);
             throw new Error('Failed to download connector');
-        }      
+        }
     }
 
-    async getConnectorForm (params: GetConnectorFormRequest): Promise<GetConnectorFormResponse> {
+    async getConnectorForm(params: GetConnectorFormRequest): Promise<GetConnectorFormResponse> {
         const { uiSchemaPath, operation } = params;
         const operationSchema = path.join(uiSchemaPath, `${operation}.json`);
 
@@ -2568,7 +2575,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         // Parse the JSON
         const formJSON = JSON.parse(rawData);
 
-        return {formJSON: formJSON};
+        return { formJSON: formJSON };
     }
 
     async undo(params: UndoRedoParams): Promise<void> {
@@ -2917,7 +2924,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             if (VisualizerWebview.currentPanel) {
                 let iconUri = VisualizerWebview.currentPanel.getIconPath(params.path, params.name);
-                resolve({uri: iconUri});
+                resolve({ uri: iconUri });
             }
         });
     }
