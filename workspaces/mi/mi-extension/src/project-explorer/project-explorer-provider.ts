@@ -335,8 +335,8 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			// Generate resource structure
 			for (let i = 0; i < entry.resources.length; i++) {
 				const resource = entry.resources[i];
-				const resourceEntry = new ProjectExplorerEntry(resource.uriTemplate ?? "/", isCollapsibleState(false), {
-					name: resource.uriTemplate,
+				const resourceEntry = new ProjectExplorerEntry((resource.uriTemplate || resource.urlMapping) ?? "/", isCollapsibleState(false), {
+					name: (resource.uriTemplate || resource.urlMapping),
 					type: 'resource',
 					path: `${entry.path}/${i}`
 				}, 'code');
@@ -350,17 +350,25 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry = apiEntry;
 
 		} else if (entry.type === "ENDPOINT") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			let icon = 'code';
+			if (entry.isRegistryResource) {
+				icon = 'file-code';
+			}
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon);
 			explorerEntry.contextValue = 'endpoint';
 			explorerEntry.command = {
 				"title": "Show Endpoint",
 				"command": COMMANDS.SHOW_ENDPOINT,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"arguments": [vscode.Uri.parse(entry.path), 'endpoint', undefined, false]
 			};
 			explorerEntry.command.command = getViewCommand(entry.subType);
 
 		} else if (entry.type === "SEQUENCE") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			let icon = 'code';
+			if (entry.isRegistryResource) {
+				icon = 'file-code';
+			}
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon);
 			explorerEntry.contextValue = 'sequence';
 			explorerEntry.command = {
 				"title": "Show Diagram",
@@ -392,7 +400,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Template",
 				"command": COMMANDS.SHOW_TEMPLATE,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"arguments": [vscode.Uri.parse(entry.path), 'template', undefined, false]
 			};
 			explorerEntry.command.command = getViewCommand(entry.subType);
 

@@ -30,6 +30,7 @@ export interface ViewState {
     r?: number;
     subPositions?: { [x: string]: SubPositions; };
     isBrokenLines?: boolean;
+    canAddAfter?: boolean;
 }
 
 export interface SubPositions extends ViewState {
@@ -880,6 +881,7 @@ export interface NamedEndpoint extends Endpoint, STNode {
 export interface ProxyPublishWSDL extends STNode {
     definitions: TDefinitions;
     description: DescriptionType;
+    inlineWsdl:string;
     resource: Resource[];
     uri: string;
     key: string;
@@ -901,8 +903,23 @@ export interface DbMediatorConnectionPoolProperty extends STNode {
     value: string;
 }
 
+export interface ServiceParameter {
+    name: string;
+    value: string;
+}
+
+export interface ServicePolicy  {
+    value: string;
+}
+
 export interface Proxy extends STNode {
-    descriptionOrTargetOrPublishWSDL: any | ProxyPolicy | Parameter | ProxyTarget | ProxyPublishWSDL;
+    target: ProxyTarget;
+    publishWSDL: ProxyPublishWSDL;
+    policies: ProxyPolicy[];
+    enableAddressing: STNode;
+    enableSec: STNode;
+    parameters: Parameter[];
+    description: string;
     name: string;
     transports: string;
     pinnedServers: string;
@@ -910,6 +927,7 @@ export interface Proxy extends STNode {
     startOnLoad: boolean;
     statistics: string;
     trace: string;
+    onError: string;
 }
 
 export interface ExtensionElement extends STNode {

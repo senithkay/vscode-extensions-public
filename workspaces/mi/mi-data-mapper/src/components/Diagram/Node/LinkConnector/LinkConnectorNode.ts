@@ -1,0 +1,233 @@
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+import { TypeKind } from "@wso2-enterprise/mi-core";
+import md5 from "blueimp-md5";
+import { Diagnostic } from "vscode-languageserver-types";
+import { Identifier, Node, PropertyAccessExpression } from "ts-morph";
+
+import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { DataMapperLinkModel } from "../../Link";
+import { IntermediatePortModel, InputOutputPortModel } from "../../Port";
+import { OFFSETS } from "../../utils/constants";
+import { DataMapperNodeModel } from "../commons/DataMapperNode";
+import { ObjectOutputNode } from "../ObjectOutput";
+import { getPosition, isPositionsEquals } from "../../utils/st-utils";
+import {
+    findInputNode,
+    getDefaultValue,
+    getInputPort,
+    getOutputPort,
+    getTargetPortPrefix
+} from "../../utils/common-utils";
+
+export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
+const NODE_ID = "link-connector-node";
+
+export class LinkConnectorNode extends DataMapperNodeModel {
+
+    public sourcePorts: InputOutputPortModel[] = [];
+    public targetPort: InputOutputPortModel;
+    public targetMappedPort: InputOutputPortModel;
+
+    public inPort: IntermediatePortModel;
+    public outPort: IntermediatePortModel;
+
+    public value: string;
+    public diagnostics: Diagnostic[];
+    public hidden: boolean;
+
+    constructor(
+        public context: IDataMapperContext,
+        public valueNode: Node,
+        public editorLabel: string,
+        public parentNode: Node,
+        public fieldAccessNodes: (PropertyAccessExpression | Identifier)[],
+        public fields: Node[],
+        public isPrimitiveTypeArrayElement?: boolean
+    ) {
+        super(
+            NODE_ID,
+            context,
+            LINK_CONNECTOR_NODE_TYPE
+        );
+        if (Node.isPropertyAssignment(valueNode)) {
+            this.value = valueNode.getInitializer() ? valueNode.getInitializer().getText().trim() : '';
+        } else {
+            this.value = valueNode.getText().trim();
+        }
+    }
+
+    initPorts(): void {
+        this.sourcePorts = [];
+        this.targetMappedPort = undefined;
+        this.inPort = new IntermediatePortModel(
+            md5(JSON.stringify(getPosition(this.valueNode)) + "IN")
+            , "IN"
+        );
+        this.addPort(this.inPort);
+        this.outPort = new IntermediatePortModel(
+            md5(JSON.stringify(getPosition(this.valueNode)) + "OUT")
+            , "OUT"
+        );
+        this.addPort(this.outPort);
+
+        this.fieldAccessNodes.forEach((field) => {
+            const inputNode = findInputNode(field, this);
+            if (inputNode) {
+                this.sourcePorts.push(getInputPort(inputNode, field));
+            }
+        })
+
+        if (this.outPort) {
+            this.getModel().getNodes().map((node) => {
+    
+                if (node instanceof ObjectOutputNode) {
+                    const targetPortPrefix = getTargetPortPrefix(node);
+
+                    [this.targetPort, this.targetMappedPort] = getOutputPort(
+                        this.fields, node.dmTypeWithValue, targetPortPrefix,
+                        (portId: string) =>  node.getPort(portId) as InputOutputPortModel
+                    );
+
+                    if (this.targetMappedPort?.portName !== this.targetPort?.portName) {
+                        this.hidden = true;
+                    }
+                }
+            });
+        }
+    }
+
+    initLinks(): void {
+        if (this.hidden) {
+            if (this.targetMappedPort) {
+                this.sourcePorts.forEach((sourcePort) => {
+                    const inPort = this.targetMappedPort;
+                    const lm = new DataMapperLinkModel(undefined, this.diagnostics, true);
+
+                    sourcePort.addLinkedPort(this.targetMappedPort);
+
+                    lm.setTargetPort(this.targetMappedPort);
+                    lm.setSourcePort(sourcePort);
+                    lm.registerListener({
+                        selectionChanged(event) {
+                            if (event.isSelected) {
+                                inPort.fireEvent({}, "link-selected");
+                                sourcePort.fireEvent({}, "link-selected");
+                            } else {
+                                inPort.fireEvent({}, "link-unselected");
+                                sourcePort.fireEvent({}, "link-unselected");
+                            }
+                        },
+                    })
+                    this.getModel().addAll(lm);
+
+                    if (!this.editorLabel) {
+                        this.editorLabel = this.targetMappedPort.fieldFQN.split('.').pop();
+                    }
+                })
+            }
+        } else {
+            this.sourcePorts.forEach((sourcePort) => {
+                const inPort = this.inPort;
+                const lm = new DataMapperLinkModel(undefined, undefined, true);
+    
+                if (sourcePort) {
+                    sourcePort.addLinkedPort(this.inPort);
+                    sourcePort.addLinkedPort(this.targetMappedPort)
+
+                    lm.setTargetPort(this.inPort);
+                    lm.setSourcePort(sourcePort);
+                    lm.registerListener({
+                        selectionChanged(event) {
+                            if (event.isSelected) {
+                                inPort.fireEvent({}, "link-selected");
+                                sourcePort.fireEvent({}, "link-selected");
+                            } else {
+                                inPort.fireEvent({}, "link-unselected");
+                                sourcePort.fireEvent({}, "link-unselected");
+                            }
+                        },
+                    })
+                    this.getModel().addAll(lm);
+                }
+            })
+
+            if (this.targetMappedPort) {
+                const outPort = this.outPort;
+                const targetPort = this.targetMappedPort;
+
+                const lm = new DataMapperLinkModel(undefined, this.diagnostics, true);
+
+                lm.setTargetPort(this.targetMappedPort);
+                lm.setSourcePort(this.outPort);
+                lm.registerListener({
+                    selectionChanged(event) {
+                        if (event.isSelected) {
+                            outPort.fireEvent({}, "link-selected");
+                            targetPort.fireEvent({}, "link-selected");
+                        } else {
+                            outPort.fireEvent({}, "link-unselected");
+                            targetPort.fireEvent({}, "link-unselected");
+                        }
+                    },
+                })
+
+                if (!this.editorLabel) {
+                    this.editorLabel = this.targetMappedPort.fieldFQN.split('.').pop();
+                }
+                this.getModel().addAll(lm);
+            }
+        }
+    }
+
+    updateSource(suffix: string): void {
+        this.value = `${this.value} + ${suffix}`;
+        const targetNode = Node.isPropertyAssignment(this.valueNode)
+            ? this.valueNode.getInitializer()
+            : this.valueNode;
+        
+        targetNode.replaceWithText(this.value);
+        this.context.applyModifications();
+    }
+
+    public updatePosition() {
+        if (this.targetMappedPort) {
+            const position = this.targetMappedPort.getPosition()
+            this.setPosition(this.hasError() ? OFFSETS.LINK_CONNECTOR_NODE_WITH_ERROR.X : OFFSETS.LINK_CONNECTOR_NODE.X, position.y - 2)
+        }
+    }
+
+    public hasError(): boolean {
+        return this.diagnostics.length > 0;
+    }
+
+    public deleteLink(): void {
+        const targetField = this.targetPort.field;
+        const { functionST, applyModifications } = this.context;
+
+        const variableDeclaration = functionST
+            .getVariableStatementOrThrow()
+            .getDeclarationList()
+            .getDeclarations()[0];
+        const initializer = variableDeclaration.getInitializer();
+        const exprFuncBodyPosition = Node.isArrowFunction(initializer)
+            && getPosition(initializer.getBody());
+
+        if ((!targetField?.fieldName
+            && targetField?.kind !== TypeKind.Array
+            && targetField?.kind !== TypeKind.Interface)
+                || isPositionsEquals(exprFuncBodyPosition, getPosition(this.valueNode)))
+        {
+            this.valueNode.replaceWithText(getDefaultValue(targetField?.kind));
+            applyModifications();
+        } else {
+            // TODO: Handle the case where the target field is an array or an interface
+        }
+    }
+}

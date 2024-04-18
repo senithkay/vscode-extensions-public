@@ -19,6 +19,17 @@ export interface WorkspaceFolder {
     fsPath: string;
 }
 
+export interface Range {
+    start: {
+        line: number;
+        column: number;
+    };
+    end: {
+        line: number;
+        column: number;
+    };
+}
+
 export interface ProjectStructureRequest {
     documentUri?: string;
 }
@@ -56,12 +67,13 @@ export interface ProjectStructureEntry {
     type: string,
     subType?: string,
     name: string,
-    path: string
-
+    path: string,
+    isRegistryResource?: boolean
 }
 
 export interface ResourceStructureEntry {
     uriTemplate: string,
+    urlMapping: string,
     method: string
 }
 
@@ -112,3 +124,15 @@ export interface ToggleDisplayOverviewRequest {
     displayOverview: boolean;
 }
 
+export interface GetAllRegistryPathsRequest {
+    path: string;
+}
+
+export interface GetAllRegistryPathsResponse {
+    registryPaths: string[];
+}
+
+export interface GoToSourceRequest {
+    filePath: string;
+    position: Range;
+}

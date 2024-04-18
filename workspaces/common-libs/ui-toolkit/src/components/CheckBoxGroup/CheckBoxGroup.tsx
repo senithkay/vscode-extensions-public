@@ -9,6 +9,7 @@
 import styled from "@emotion/styled";
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import React, { ComponentPropsWithRef } from "react";
+import { Control, Controller } from "react-hook-form";
 
 const Directions = {
     vertical: "vertical",
@@ -17,7 +18,7 @@ const Directions = {
 
 export type CheckBoxProps = {
     label: string;
-    value: string;
+    value?: string;
     checked: boolean;
     onChange: (checked: boolean) => void;
 };
@@ -50,6 +51,31 @@ export const CheckBox = ({ label, value, checked, onChange }: CheckBoxProps) => 
         <VSCodeCheckbox key={`checkbox-${value}`} value={value} checked={checked} onClick={handleChange}>
             {label}
         </VSCodeCheckbox>
+    );
+};
+
+
+interface FormCheckBoxProps {
+    name: string;
+    label?: string;
+    control: Control<any>;
+}
+
+export const FormCheckBox: React.FC<FormCheckBoxProps> = ({ name, control, label }) => {
+    return (
+        <Controller
+            name={name}
+            control={control}
+            render={({ field: { onChange, value: checked } }) => {
+                return (
+                    <CheckBox
+                        label={label}
+                        checked={checked}
+                        onChange={onChange}
+                    />
+                );
+            }}
+        />
     );
 };
 

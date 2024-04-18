@@ -102,6 +102,10 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest('synapse/directoryTree', { uri: Uri.parse(path).toString() });
     }
 
+    async getRegistryFiles(req: string): Promise<string[]> {
+        return this.sendRequest("synapse/getRegistryFiles", { uri: Uri.parse(req).toString() });
+    }
+
     async getDefinition(params: GetDefinitionRequest): Promise<GetDefinitionResponse> {
         const doc = params.document;
         doc.uri = Uri.parse(doc.uri).toString();
@@ -145,7 +149,7 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest("synapse/diagnostic", { uri: Uri.parse(req.documentUri).toString() });
     }
 
-    async rangeFormat(req: RangeFormatParams ): Promise<vscode.TextEdit[]> {
+    async rangeFormat(req: RangeFormatParams): Promise<vscode.TextEdit[]> {
         return this.sendRequest("textDocument/rangeFormatting", req)
     }
 

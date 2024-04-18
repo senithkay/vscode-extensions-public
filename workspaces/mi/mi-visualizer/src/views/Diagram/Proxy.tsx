@@ -12,6 +12,10 @@ import { Proxy } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { Diagram } from "@wso2-enterprise/mi-diagram-2";
 import { Switch } from "@wso2-enterprise/ui-toolkit";
 import { View, ViewContent, ViewHeader } from "../../components/View";
+import { EditProxyForm, ProxyProps } from "../Forms/EditForms/EditProxyForm";
+import { generateProxyData, onProxyEdit } from "../../utils/form";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 
 export interface ProxyViewProps {
     model: Proxy;
@@ -21,15 +25,36 @@ export interface ProxyViewProps {
 
 export const ProxyView = ({ model: ProxyModel, documentUri, diagnostics }: ProxyViewProps) => {
     const model = ProxyModel as Proxy;
+    const { rpcClient } = useVisualizerContext();
+    const data = generateProxyData(model) as EditProxyForm;
+    const [isFormOpen, setFormOpen] = React.useState(false);
     const [isFaultFlow, setFlow] = React.useState<boolean>(false);
 
     const toggleFlow = () => {
         setFlow(!isFaultFlow);
     };
+
+    const handleEditProxy = () => {
+        console.log(model);
+        setFormOpen(true);
+    }
+    const onSave = (data: EditProxyForm) => {
+        onProxyEdit(data, model, documentUri, rpcClient);
+        setFormOpen(false);
+    }
     
     return (
         <View>
-            <ViewHeader title={`Proxy: ${model.name}`} codicon="globe">
+            {isFormOpen ?
+                <EditProxyForm
+                    proxyData={data}
+                    documentUri={documentUri}
+                    onCancel={() => setFormOpen(false)}
+                    onSave={onSave}
+                    isOpen={isFormOpen}
+                /> : 
+            <>
+            <ViewHeader title={`Proxy: ${model.name}`} codicon="globe" onEdit={handleEditProxy}>
                 <Switch
                     leftLabel="Flow"
                     rightLabel="Fault"
@@ -46,13 +71,15 @@ export const ProxyView = ({ model: ProxyModel, documentUri, diagnostics }: Proxy
                 />
             </ViewHeader>
             <ViewContent>
-                <Diagram
-                    model={model}
-                    documentUri={documentUri}
-                    diagnostics={diagnostics}
-                    isFaultFlow={isFaultFlow}
-                />
-            </ViewContent>
+                    <Diagram
+                        model={model}
+                        documentUri={documentUri}
+                        diagnostics={diagnostics}
+                        isFaultFlow={isFaultFlow}
+                    />
+            </ViewContent> 
+        </>
+        } 
         </View>
     )
 }

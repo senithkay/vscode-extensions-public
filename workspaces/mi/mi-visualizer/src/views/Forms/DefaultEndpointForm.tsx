@@ -6,88 +6,14 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import styled from "@emotion/styled";
-import React, { useEffect, useState } from "react";
-import {Button, TextField, Dropdown, Typography, Codicon} from "@wso2-enterprise/ui-toolkit";
-import { SectionWrapper } from "./Commons";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EVENT_TYPE, MACHINE_VIEW, UpdateDefaultEndpointRequest } from "@wso2-enterprise/mi-core";
-
-const WizardContainer = styled.div`
-    width: 95%;
-    display  : flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
-`;
-
-const ActionContainer = styled.div`
-    display  : flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-bottom: 20px;
-`;
-
-const Container = styled.div`
-    display: flex;
-    flex-direction: row;
-    height: 50px;
-    align-items: center;
-    justify-content: flex-start;
-`;
-
-const RadioBtnContainer = styled.div`
-    display  : inline-block;
-    flex-direction: column;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-bottom: 5px;
-`;
-
-const RadioLabel = styled.label`
-    margin-right: 10%;
-`;
-
-const Table = styled.table`
-    border: 1px solid;
-    borderCollapse: collapse;
-    width: 75%;
-`;
-
-const Th = styled.th`
-    border: 1px solid;
-    borderCollapse: collapse;
-    Width: 45%;
-`;
-
-const Td = styled.td`
-    border: 1px solid;
-    borderCollapse: collapse;
-    Width: 45%;
-`;
-
-const ThButton = styled.th`
-    border: 1px solid;
-    borderCollapse: collapse;
-    Width: 10%;
-`;
-
-const TdButton = styled.td`
-    border: 1px solid;
-    borderCollapse: collapse;
-    Width: 10%;
-`;
-
-const DivContent = styled.div`
-    display: flex;
-    justify-content: center;
-`;
-
-export interface Region {
-    label: string;
-    value: string;
-}
+import React, {useEffect, useState} from "react";
+import {Button, TextField, Dropdown, RadioButtonGroup, FormView, FormGroup, FormActions, ParamConfig, ParamManager} from "@wso2-enterprise/ui-toolkit";
+import {useVisualizerContext} from "@wso2-enterprise/mi-rpc-client";
+import {EVENT_TYPE, MACHINE_VIEW, UpdateDefaultEndpointRequest} from "@wso2-enterprise/mi-core";
+import {TypeChip} from "./Commons";
+import {useForm} from "react-hook-form";
+import * as yup from "yup";
+import {yupResolver} from "@hookform/resolvers/yup"
 
 interface OptionProps {
     value: string;
@@ -95,615 +21,479 @@ interface OptionProps {
 
 export interface DefaultEndpointWizardProps {
     path: string;
+    type: string;
 }
 
-interface Property {
-    name: string;
-    value: any;
-    scope: string;
+type InputsFields = {
+    endpointName?: string;
+    format?: string;
+    traceEnabled?: string;
+    statisticsEnabled?: string;
+    optimize?: string;
+    description?: string;
+    requireProperties?: boolean;
+    addressingEnabled?: string;
+    addressingVersion?: string;
+    addressListener?: string;
+    securityEnabled?: string;
+    suspendErrorCodes?: string;
+    initialDuration?: number;
+    maximumDuration?: number;
+    progressionFactor?: number;
+    retryErrorCodes?: string;
+    retryCount?: number;
+    retryDelay?: number;
+    timeoutDuration?: number;
+    timeoutAction?: string;
+    templateName?: string;
+    requireTemplateParameters?: boolean;
+};
+
+const newDefaultEndpoint: InputsFields = {
+    endpointName: "",
+    format: "LEAVE_AS_IS",
+    traceEnabled: "disable",
+    statisticsEnabled: "disable",
+    optimize: "LEAVE_AS_IS",
+    description: "",
+    requireProperties: false,
+    addressingEnabled: "disable",
+    addressingVersion: "",
+    addressListener: "disable",
+    securityEnabled: "disable",
+    suspendErrorCodes: "",
+    initialDuration: -1,
+    maximumDuration: Number.MAX_SAFE_INTEGER,
+    progressionFactor: 1.0,
+    retryErrorCodes: "",
+    retryCount: 0,
+    retryDelay: 0,
+    timeoutDuration: Number.MAX_SAFE_INTEGER,
+    timeoutAction: "",
+    templateName: "",
+    requireTemplateParameters: false
 }
 
 export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
 
-    const { rpcClient } = useVisualizerContext();
-    const [ endpoint, setEndpoint ] = useState<any>({
-        endpointName: "",
-        format: "LEAVE_AS_IS",
-        traceEnabled: "",
-        statisticsEnabled: "",
-        optimize: "LEAVE_AS_IS",
-        description: "",
-        requireProperties: false,
-        properties: [],
-        addressingEnabled: "",
-        addressingVersion: "",
-        addressListener: "",
-        securityEnabled: "",
-        suspendErrorCodes: "",
-        initialDuration: "",
-        maximumDuration: "",
-        progressionFactor: "",
-        retryErrorCodes: "",
-        retryCount: "",
-        retryDelay: "",
-        timeoutDuration: "",
-        timeoutAction: "",
-        templateName: "",
-        requireTemplateParameters: false,
-        templateParameters: []
-
-    })
-    const [isTemplate, setIsTemplate] = useState(false);
-    const [directoryPath, setDirectoryPath] = useState("");
-    const [properties, setProperties] = useState<Property[]>([]);
-    const [parameters, setParameters] = useState<string[]>([]);
-    const [message, setMessage] = useState({
-        isError: false,
-        text: ""
+    const schema = yup.object({
+        endpointName: yup.string().required("Endpoint Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name"),
+        format: yup.string().notRequired().default("LEAVE_AS_IS"),
+        traceEnabled: yup.string().notRequired().default("disable"),
+        statisticsEnabled: yup.string().notRequired().default("disable"),
+        optimize: yup.string().notRequired().default("LEAVE_AS_IS"),
+        description: yup.string().notRequired().default(""),
+        requireProperties: yup.boolean().notRequired().default(false),
+        addressingEnabled: yup.string().notRequired().default("disable"),
+        addressingVersion: yup.string().notRequired().default(""),
+        addressListener: yup.string().notRequired().default("disable"),
+        securityEnabled: yup.string().notRequired().default("disable"),
+        suspendErrorCodes: yup.string().notRequired().default(""),
+        initialDuration: yup.number().typeError('Initial Duration must be a number').min(-1, "Initial Duration must be greater than -1").notRequired().default(-1),
+        maximumDuration: yup.number().typeError('Maximum Duration must be a number').min(1, "Maximum Duration must be greater than 0").notRequired().default(Number.MAX_SAFE_INTEGER),
+        progressionFactor: yup.number().typeError('Progression Factor must be a number').min(1, "Progression Factor must be greater than 0").notRequired().default(1.0),
+        retryErrorCodes: yup.string().notRequired().default(""),
+        retryCount: yup.number().typeError('Retry Count must be a number').min(0, "Retry Count must be greater than or equal to 0").notRequired().default(0),
+        retryDelay: yup.number().typeError('Retry Delay must be a number').min(0, "Retry Delay Interval must be greater than or equal to 0").notRequired().default(0),
+        timeoutDuration: yup.number().typeError('Timeout Duration must be a number').min(1, "Timeout Duration must be greater than 0").notRequired().default(Number.MAX_SAFE_INTEGER),
+        timeoutAction: yup.string().notRequired().default(""),
+        templateName: props.type === 'template' ? yup.string().required("Template Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Template Name") : yup.string().notRequired().default(""),
+        requireTemplateParameters: yup.boolean().notRequired().default(false)
     });
-    const validNumericInput = /^\d*$/;
 
-    const isValid: boolean = endpoint.endpointName.length > 0 && endpoint.templateName.length > 0;
+    const {
+        reset,
+        register,
+        formState: {errors, isDirty},
+        handleSubmit,
+        setValue,
+        watch,
+    } = useForm({
+        resolver: yupResolver(schema),
+        mode: "onChange"
+    });
+
+    const {rpcClient} = useVisualizerContext();
+    const isNewEndpoint = !props.path.endsWith(".xml")
+    const isTemplate = props.type === 'template';
+
+    const paramTemplateConfigs: ParamConfig = {
+        paramValues: [],
+        paramFields: [
+            {
+                id: 0,
+                type: "TextField",
+                label: "Parameter",
+                defaultValue: "parameter_value",
+                isRequired: true
+            }]
+    }
+    const [templateParams, setTemplateParams] = useState(paramTemplateConfigs);
+
+    const propertiesConfigs: ParamConfig = {
+        paramValues: [],
+        paramFields: [
+            {
+                id: 0,
+                type: "TextField",
+                label: "Name",
+                defaultValue: "parameter_key",
+                isRequired: true
+            },
+            {
+                id: 1,
+                type: "TextField",
+                label: "Value",
+                defaultValue: "parameter_value",
+                isRequired: true
+            },
+            {
+                id: 2,
+                type: "Dropdown",
+                label: "Scope",
+                values: ["default", "transport", "axis2", "axis2-client"],
+                defaultValue: "default",
+                isRequired: true
+            }]
+    }
+    const [additionalParams, setAdditionalParams] = useState(propertiesConfigs);
 
     useEffect(() => {
 
-        (async () => {
-            setDirectoryPath(props.path);
-            const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: props.path });
-            if (syntaxTree.syntaxTree.template != undefined) {
-                setIsTemplate(true);
-            }
-            const existingEndpoint = await rpcClient.getMiDiagramRpcClient().getDefaultEndpoint({ path: props.path });
-            setEndpoint(existingEndpoint);
-            handleTimeoutActionChange(existingEndpoint.timeoutAction === '' ? 'Never' :
-                existingEndpoint.timeoutAction.charAt(0).toUpperCase() + existingEndpoint.timeoutAction.slice(1));
-            handleFormatChange(existingEndpoint.format);
-            handleOptimizeChange(existingEndpoint.optimize);
-            setProperties(existingEndpoint.properties);
-            setParameters(existingEndpoint.templateParameters);
-        })();
+        if (!isNewEndpoint) {
+            (async () => {
+                const existingEndpoint = await rpcClient.getMiDiagramRpcClient().getDefaultEndpoint({path: props.path});
+                templateParams.paramValues = [];
+                setTemplateParams(templateParams);
+                let i = 1;
+                existingEndpoint.templateParameters.map((param: any) => {
+                    setTemplateParams((prev: any) => {
+                        return {
+                            ...prev,
+                            paramValues: [...prev.paramValues, {
+                                id: prev.paramValues.length,
+                                parameters: [{
+                                    id: 0,
+                                    value: param,
+                                    label: "Parameter",
+                                    type: "TextField",
+                                }],
+                                key: i++,
+                                value: param,
+                            }
+                            ]
+                        }
+                    });
+                });
+                additionalParams.paramValues = [];
+                setAdditionalParams(additionalParams);
+                existingEndpoint.properties.map((param: any) => {
+                    setAdditionalParams((prev: any) => {
+                        return {
+                            ...prev,
+                            paramValues: [...prev.paramValues, {
+                                id: prev.paramValues.length,
+                                parameters: [{
+                                    id: 0,
+                                    value: param.name,
+                                    label: "Name",
+                                    type: "TextField",
+                                },
+                                    {
+                                        id: 1,
+                                        value: param.value,
+                                        label: "Value",
+                                        type: "TextField",
+                                    },
+                                    {
+                                        id: 2,
+                                        value: param.scope,
+                                        label: "Scope",
+                                        type: "Dropdown",
+                                        values: ["default", "transport", "axis2", "axis2-client"]
+                                    }],
+                                key: param.name,
+                                value: "value:" + param.value + "; scope:" + param.scope + ";",
+                            }
+                            ]
+                        }
+                    });
+                });
+                reset(existingEndpoint);
+                setValue('timeoutAction', existingEndpoint.timeoutAction === '' ? 'Never' :
+                    existingEndpoint.timeoutAction.charAt(0).toUpperCase() + existingEndpoint.timeoutAction.slice(1));
+            })();
+        } else {
+            reset(newDefaultEndpoint);
+        }
     }, [props.path]);
 
-    useEffect(() => {
-        const INVALID_CHARS_REGEX = /[@\\^+;:!%&,=*#[\]$?'"<>{}() /]/;
-
-        if (!isValid) {
-            handleMessage("Please fill all the mandatory fields", true);
-        } else if (INVALID_CHARS_REGEX.test(endpoint.endpointName)) {
-            handleMessage("Invalid endpoint name", true);
-        } else {
-            handleMessage("");
-        }
-
-    }, [endpoint.endpointName, isValid]);
-
     const addressingVersions: OptionProps[] = [
-        { value: "final"},
-        { value: "submission"},
+        {value: "final"},
+        {value: "submission"},
     ];
 
     const timeoutOptions: OptionProps[] = [
-        { value: "Never"},
-        { value: "Discard"},
-        { value: "Fault"}
+        {value: "Never"},
+        {value: "Discard"},
+        {value: "Fault"}
     ];
 
     const formatOptions: OptionProps[] = [
-        { value: "LEAVE_AS_IS"},
-        { value: "SOAP 1.1"},
-        { value: "SOAP 1.2"},
-        { value: "POX"},
-        { value: "GET"},
-        { value: "REST"}
+        {value: "LEAVE_AS_IS"},
+        {value: "SOAP 1.1"},
+        {value: "SOAP 1.2"},
+        {value: "POX"},
+        {value: "GET"},
+        {value: "REST"}
     ];
 
     const optimizeOptions: OptionProps[] = [
-        { value: "LEAVE_AS_IS"},
-        { value: "MTOM"},
-        { value: "SWA"}
+        {value: "LEAVE_AS_IS"},
+        {value: "MTOM"},
+        {value: "SWA"}
     ];
 
-    const scopes: OptionProps[] = [
-        { value: "default"},
-        { value: "transport"},
-        { value: "axis2"},
-        { value: "axis2-client"},
-    ];
-
-    const removePropertyValue = (keyToRemove: string) => {
-        setProperties(prevState =>
-            prevState.filter(pair => pair.name !== keyToRemove)
-        );
+    const handleTemplateParametersChange = (params: any) => {
+        let i = 1;
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: i++,
+                    value: param.parameters[0].value
+                }
+            })
+        };
+        setTemplateParams(modifiedParams);
     };
 
-    const removeParameter = (keyToRemove: string) => {
-        setParameters(prevState =>
-            prevState.filter(item => item !== keyToRemove)
-        );
+    const handleAdditionalPropertiesChange = (params: any) => {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: param.parameters[0].value,
+                    value: generateDisplayValue(param)
+                }
+            })
+        };
+        setAdditionalParams(modifiedParams);
     };
 
-    const editParameter = (oldKey: string, newKey: string) => {
-        const indexToEdit = parameters.indexOf(oldKey);
-        let existingParameters = [...parameters];
-        existingParameters[indexToEdit] = newKey;
-        setParameters(existingParameters);
+    const generateDisplayValue = (paramValues: any) => {
+        const result: string = "value:" + paramValues.parameters[1].value + "; scope:" + paramValues.parameters[2].value + ";";
+        return result.trim();
     };
 
-    const addParameter = () => {
-        setParameters([...parameters, 'parameter']);
-    }
+    const handleUpdateDefaultEndpoint = async (values: any) => {
 
-    const addPropertyValue = () => {
-        setProperties(prevState => [...prevState, { name: 'Parameter_Key', value: 'Parameter_Value', scope: 'default' }]);
-    };
+        let templateParameters: any = [];
+        templateParams.paramValues.map((param: any) => {
+            templateParameters.push(param.parameters[0].value);
+        })
 
-    const editPropertyKey = (oldKey: string, newKey: string) => {
-        setProperties(prevState =>
-            prevState.map(pair =>
-                pair.name === oldKey ? { ...pair, name: newKey } : pair
-            )
-        );
-    };
+        let endpointProperties: any = [];
+        additionalParams.paramValues.map((param: any) => {
+            endpointProperties.push({
+                name: param.parameters[0].value,
+                value: param.parameters[1].value,
+                scope: param.parameters[2].value
+            });
+        })
 
-    const editPropertyValue = (key: string, newValue: string) => {
-        setProperties(prevState =>
-            prevState.map(pair =>
-                pair.name === key ? { ...pair, value: newValue } : pair
-            )
-        );
-    };
-
-    const editPropertyScope = (key: string, newScope: string) => {
-        setProperties(prevState =>
-            prevState.map(pair =>
-                pair.name === key ? { ...pair, scope: newScope } : pair
-            )
-        );
-    };
-
-    const handleTraceEnabledChange = (value: string) => {
-        setEndpoint((prev: any) => ({ ...prev, traceEnabled: value }));
-    };
-
-    const handleStatsEnabledChange = (value: string) => {
-        setEndpoint((prev: any) => ({ ...prev, statisticsEnabled: value }));
-    };
-
-    const handleFormatChange = (value: string) => {
-        setEndpoint((prev: any) => ({ ...prev, format: value }));
-    };
-
-    const handleOptimizeChange = (value: string) => {
-        setEndpoint((prev: any) => ({ ...prev, optimize: value }));
-    };
-
-    const handleAddressingEnabledChange = (value: string) => {
-        setEndpoint((prev: any) => ({ ...prev, addressingEnabled: value }));
-    };
-
-    const handleAddressingVersionChange = (value: string) => {
-        setEndpoint((prev: any) => ({ ...prev, addressingVersion: value }));
-    };
-
-    const handleAddressListenerChange = (value: string) => {
-        setEndpoint((prev: any) => ({ ...prev, addressListener: value }));
-    };
-
-    const handleSecurityEnabledChange = (value: string) => {
-        setEndpoint((prev: any) => ({ ...prev, securityEnabled: value }));
-    };
-
-    const handleTimeoutActionChange = (value: string) => {
-        setEndpoint((prev: any) => ({ ...prev, timeoutAction: value }));
-    };
-
-    const handlePropertiesChange = (value: boolean) => {
-        if (!value) {
-            setProperties([]);
-        }
-        setEndpoint((prev: any) => ({ ...prev, requireProperties: value }));
-    };
-
-    const handleParametersChange = (value: boolean) => {
-        if (!value) {
-            setParameters([]);
-        }
-        setEndpoint((prev: any) => ({ ...prev, requireTemplateParameters: value }));
-    };
-
-    const handleOnChange = (field: any, value: any) => {
-        setEndpoint((prev: any) => ({ ...prev, [field]: value }));
-    }
-
-    const handleMessage = (text: string, isError: boolean = false) => {
-        setMessage({ isError, text });
-    }
-
-    const handleUpdateDefaultEndpoint = async () => {
-
-        endpoint.properties = properties;
-        endpoint.templateParameters = parameters;
         const updateDefaultEndpointParams: UpdateDefaultEndpointRequest = {
-            directory: directoryPath,
-            ...endpoint
+            ...values,
+            templateParameters: templateParameters,
+            properties: endpointProperties,
+            directory: props.path
         }
-        const file = await rpcClient.getMiDiagramRpcClient().updateDefaultEndpoint(updateDefaultEndpointParams);
+        await rpcClient.getMiDiagramRpcClient().updateDefaultEndpoint(updateDefaultEndpointParams);
 
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {view: MACHINE_VIEW.Overview}
+        });
     };
+
+    const renderProps = (fieldName: keyof InputsFields) => {
+        return {
+            id: fieldName,
+            value: String(watch(fieldName)),
+            errorMsg: errors[fieldName] && errors[fieldName].message.toString(),
+            ...register(fieldName)
+        }
+    };
+
+    const changeType = () => {
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: isTemplate ? MACHINE_VIEW.TemplateForm : MACHINE_VIEW.EndPointForm,
+                documentUri: props.path,
+                customProps: {type: isTemplate ? 'template' : 'endpoint'}
+            }
+        });
+    }
 
     const handleCancel = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {view: MACHINE_VIEW.Overview}
+        });
     };
 
     return (
-        <WizardContainer>
-            <SectionWrapper>
-                <Container>
-                    <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleCancel} />
-                    <div style={{ marginLeft: 30 }}>
-                        <Typography variant="h3">
-                            {isTemplate ? "Default Endpoint Template Artifact" : "Default Endpoint Artifact"}
-                        </Typography>
-                    </div>
-                </Container>
-                {isTemplate && (
-                    <>
-                        <Typography variant="h4">Template Properties</Typography>
+        <FormView title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'} onClose={handleCancel}>
+            <TypeChip
+                type={isTemplate ? "Default Endpoint Template" : "Default Endpoint"}
+                onClick={changeType}
+                showButton={isNewEndpoint}
+            />
+            {isTemplate && (
+                <>
+                    <FormGroup title="Template Properties" isCollapsed={false}>
                         <TextField
                             placeholder="Template Name"
                             label="Template Name"
-                            onTextChange={(value: string) => handleOnChange("templateName", value)}
-                            value={endpoint.templateName}
-                            id="template-name-input"
                             autoFocus
                             required
-                            validationMessage="Template name is required"
-                            size={100}
+                            {...renderProps('templateName')}
                         />
-                        <span>Require Template Parameters</span>
-                        <RadioBtnContainer>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    checked={endpoint.requireTemplateParameters === true}
-                                    onChange={() => handleParametersChange(true)}
-                                />
-                                Yes
-                            </RadioLabel>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    checked={endpoint.requireTemplateParameters === false}
-                                    onChange={() => handleParametersChange(false)}
-                                />
-                                No
-                            </RadioLabel>
-                        </RadioBtnContainer>
-                        {endpoint.requireTemplateParameters && (
-                            <>
-                                <span>Parameters</span>
-                                <Button onClick={addParameter}>Add Parameter</Button>
-                                <Table>
-                                    <thead>
-                                    <tr>
-                                        <Th>Name</Th>
-                                        <ThButton>Remove</ThButton>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {parameters.map(item => (
-                                        <tr>
-                                            <Td contentEditable={true} onBlur={(e) => editParameter(item, e.currentTarget.textContent || '')}>{item}</Td>
-                                            <TdButton>
-                                                <DivContent>
-                                                    <Button onClick={() => removeParameter(item)}>Remove</Button>
-                                                </DivContent>
-                                            </TdButton>
-                                        </tr>
-                                    ))}
-                                    </tbody>
-                                </Table>
-                            </>
+                        <RadioButtonGroup
+                            label="Require Template Parameters"
+                            options={[{content: "Yes", value: true}, {content: "No", value: false}]}
+                            {...register('requireTemplateParameters')}
+                        />
+                        {watch('requireTemplateParameters') && (
+                            <ParamManager
+                                paramConfigs={templateParams}
+                                readonly={false}
+                                onChange={handleTemplateParametersChange}/>
                         )}
-                    </>
-                )}
-                <Typography variant="h4">Basic Properties</Typography>
+                    </FormGroup>
+                </>
+            )}
+            <FormGroup title="Basic Properties" isCollapsed={false}>
                 <TextField
                     placeholder="Endpoint Name"
                     label="Endpoint Name"
-                    onTextChange={(value: string) => handleOnChange("endpointName", value)}
-                    value={endpoint.endpointName}
-                    id="endpoint-name-input"
                     autoFocus
                     required
-                    validationMessage="Endpoint name is required"
-                    size={100}
+                    {...renderProps('endpointName')}
                 />
-                <span>Format</span>
-                <Dropdown items={formatOptions} value={endpoint.format} onValueChange={handleFormatChange} id="format"/>
-                <span>Trace Enabled</span>
-                <RadioBtnContainer>
-                    <RadioLabel>
-                        <input
-                            type="radio"
-                            checked={endpoint.traceEnabled === 'enable'}
-                            onChange={() => handleTraceEnabledChange('enable')}
-                        />
-                        Enable
-                    </RadioLabel>
-                    <RadioLabel>
-                        <input
-                            type="radio"
-                            checked={endpoint.traceEnabled === 'disable'}
-                            onChange={() => handleTraceEnabledChange('disable')}
-                        />
-                        Disable
-                    </RadioLabel>
-                </RadioBtnContainer>
-                <span>Statistics Enabled</span>
-                <RadioBtnContainer>
-                    <RadioLabel>
-                        <input
-                            type="radio"
-                            checked={endpoint.statisticsEnabled === 'enable'}
-                            onChange={() => handleStatsEnabledChange('enable')}
-                        />
-                        Enable
-                    </RadioLabel>
-                    <RadioLabel>
-                        <input
-                            type="radio"
-                            checked={endpoint.statisticsEnabled === 'disable'}
-                            onChange={() => handleStatsEnabledChange('disable')}
-                        />
-                        Disable
-                    </RadioLabel>
-                </RadioBtnContainer>
-                <Typography variant="h4">Miscellaneous Properties</Typography>
-                <span>Optimize</span>
-                <Dropdown items={optimizeOptions} value={endpoint.optimize} onValueChange={handleOptimizeChange} id="optimize"/>
+                <Dropdown label="Format" items={formatOptions} {...renderProps('format')} />
+                <RadioButtonGroup
+                    label="Trace Enabled"
+                    options={[{content: "Enable", value: "enable"}, {content: "Disable", value: "disable"}]}
+                    {...renderProps('traceEnabled')}
+                />
+                <RadioButtonGroup
+                    label="Statistics Enabled"
+                    options={[{content: "Enable", value: "enable"}, {content: "Disable", value: "disable"}]}
+                    {...renderProps('statisticsEnabled')}
+                />
+            </FormGroup>
+            <FormGroup title="Miscellaneous Properties" isCollapsed={false}>
+                <Dropdown label="Optimize" items={optimizeOptions} {...renderProps('optimize')} />
                 <TextField
                     placeholder="Description"
                     label="Description"
-                    onTextChange={(value: string) => handleOnChange("description", value)}
-                    value={endpoint.description}
-                    id="description"
-                    size={100}
+                    {...renderProps('description')}
                 />
-                <span>Require Additional Properties</span>
-                <RadioBtnContainer>
-                    <RadioLabel>
-                        <input
-                            type="radio"
-                            checked={endpoint.requireProperties === true}
-                            onChange={() => handlePropertiesChange(true)}
-                        />
-                        Yes
-                    </RadioLabel>
-                    <RadioLabel>
-                        <input
-                            type="radio"
-                            checked={endpoint.requireProperties === false}
-                            onChange={() => handlePropertiesChange(false)}
-                        />
-                        No
-                    </RadioLabel>
-                </RadioBtnContainer>
-                {endpoint.requireProperties && (
+                <RadioButtonGroup
+                    label="Require Additional Properties"
+                    options={[{content: "Yes", value: true}, {content: "No", value: false}]}
+                    {...register('requireProperties')}
+                />
+                {watch('requireProperties') && (
+                    <ParamManager
+                        paramConfigs={additionalParams}
+                        readonly={false}
+                        onChange={handleAdditionalPropertiesChange}/>
+                )}
+            </FormGroup>
+            <FormGroup title="Quality of Service Properties" isCollapsed={false}>
+                <RadioButtonGroup
+                    label="Addressing"
+                    options={[{content: "Enable", value: "enable"}, {content: "Disable", value: "disable"}]}
+                    {...renderProps('addressingEnabled')}
+                />
+                {watch('addressingEnabled') === 'enable' && (
                     <>
-                        <span>Properties</span>
-                        <Button onClick={addPropertyValue}>Add Property</Button>
-                        <Table>
-                            <thead>
-                            <tr>
-                                <Th>Name</Th>
-                                <Th>Value</Th>
-                                <Th>Scope</Th>
-                                <ThButton>Remove</ThButton>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {properties.map(pair => (
-                                <tr>
-                                    <Td contentEditable={true} onBlur={(e) => editPropertyKey(pair.name, e.currentTarget.textContent || '')}>{pair.name}</Td>
-                                    <Td contentEditable={true} onBlur={(e) => editPropertyValue(pair.name, e.currentTarget.textContent || '')}>{pair.value}</Td>
-                                    <Td>
-                                        <Dropdown items={scopes} value={pair.scope} onValueChange={(value) => editPropertyScope(pair.name, value)} id="scope"/>
-                                    </Td>
-                                    <TdButton>
-                                        <Button onClick={() => removePropertyValue(pair.name)}>Remove</Button>
-                                    </TdButton>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </Table>
+                        <Dropdown label="Addressing Version"
+                                  items={addressingVersions} {...renderProps('addressingVersion')} />
+                        <RadioButtonGroup
+                            label="Addressing Separate Listener"
+                            options={[{content: "Enable", value: "enable"}, {content: "Disable", value: "disable"}]}
+                            {...renderProps('addressListener')}
+                        />
                     </>
                 )}
-                <Typography variant="h4">Quality of Service Properties</Typography>
-                <span>Addressing</span>
-                <RadioBtnContainer>
-                    <RadioLabel>
-                        <input
-                            type="radio"
-                            checked={endpoint.addressingEnabled === 'enable'}
-                            onChange={() => handleAddressingEnabledChange('enable')}
-                        />
-                        Enable
-                    </RadioLabel>
-                    <RadioLabel>
-                        <input
-                            type="radio"
-                            checked={endpoint.addressingEnabled === 'disable'}
-                            onChange={() => handleAddressingEnabledChange('disable')}
-                        />
-                        Disable
-                    </RadioLabel>
-                </RadioBtnContainer>
-                {endpoint.addressingEnabled === 'enable' && (
-                    <>
-                        <span>Addressing Version</span>
-                        <Dropdown items={addressingVersions} value={endpoint.addressingVersion} onValueChange={handleAddressingVersionChange} id="addressing-version"/>
-                        <span>Addressing Separate Listener</span>
-                        <RadioBtnContainer>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    checked={endpoint.addressListener === 'enable'}
-                                    onChange={() => handleAddressListenerChange('enable')}
-                                />
-                                Enable
-                            </RadioLabel>
-                            <RadioLabel>
-                                <input
-                                    type="radio"
-                                    checked={endpoint.addressListener === 'disable'}
-                                    onChange={() => handleAddressListenerChange('disable')}
-                                />
-                                Disable
-                            </RadioLabel>
-                        </RadioBtnContainer>
-                    </>
-                )}
-                <span>Security</span>
-                <RadioBtnContainer>
-                    <RadioLabel>
-                        <input
-                            type="radio"
-                            checked={endpoint.securityEnabled === 'enable'}
-                            onChange={() => handleSecurityEnabledChange('enable')}
-                        />
-                        Enable
-                    </RadioLabel>
-                    <RadioLabel>
-                        <input
-                            type="radio"
-                            checked={endpoint.securityEnabled === 'disable'}
-                            onChange={() => handleSecurityEnabledChange('disable')}
-                        />
-                        Disable
-                    </RadioLabel>
-                </RadioBtnContainer>
-                <Typography variant="h4">Endpoint Error Handling</Typography>
+                <RadioButtonGroup
+                    label="Security"
+                    options={[{content: "Enable", value: "enable"}, {content: "Disable", value: "disable"}]}
+                    {...renderProps('securityEnabled')}
+                />
+            </FormGroup>
+            <FormGroup title="Endpoint Error Handling" isCollapsed={false}>
                 <TextField
                     placeholder="304,305"
                     label="Suspend Error Codes"
-                    onTextChange={(value: string) => handleOnChange("suspendErrorCodes", value)}
-                    value={endpoint.suspendErrorCodes}
-                    id="suspend-error-codes"
-                    size={100}
+                    {...renderProps('suspendErrorCodes')}
                 />
                 <TextField
                     placeholder="-1"
                     label="Suspend Initial Duration"
-                    onTextChange={(value) => {
-                        if (validNumericInput.test(value)) {
-                            handleOnChange("initialDuration", Number(value))
-                        } else {
-                            handleOnChange("initialDuration", null)
-                        }
-                    }}
-                    value={endpoint.initialDuration}
-                    id="initial-duration"
-                    size={100}
+                    {...renderProps('initialDuration')}
                 />
                 <TextField
                     placeholder="1000"
                     label="Suspend Maximum Duration"
-                    onTextChange={(value) => {
-                        if (validNumericInput.test(value)) {
-                            handleOnChange("maximumDuration", Number(value))
-                        } else {
-                            handleOnChange("maximumDuration", null)
-                        }
-                    }}
-                    value={endpoint.maximumDuration}
-                    id="maximum-duration"
-                    size={100}
+                    {...renderProps('maximumDuration')}
                 />
                 <TextField
                     placeholder="1"
                     label="Suspend Progression Factor"
-                    onTextChange={(value) => {
-                        if (validNumericInput.test(value)) {
-                            handleOnChange("progressionFactor", Number(value))
-                        } else {
-                            handleOnChange("progressionFactor", null)
-                        }
-                    }}
-                    value={endpoint.progressionFactor}
-                    id="progression-factor"
-                    size={100}
+                    {...renderProps('progressionFactor')}
                 />
                 <TextField
                     placeholder="304,305"
                     label="Retry Error Codes"
-                    onTextChange={(value: string) => handleOnChange("retryErrorCodes", value)}
-                    value={endpoint.retryErrorCodes}
-                    id="retry-error-codes"
-                    size={100}
+                    {...renderProps('retryErrorCodes')}
                 />
                 <TextField
                     placeholder="10"
                     label="Retry Count"
-                    onTextChange={(value) => {
-                        if (validNumericInput.test(value)) {
-                            handleOnChange("retryCount", Number(value))
-                        } else {
-                            handleOnChange("retryCount", null)
-                        }
-                    }}
-                    value={endpoint.retryCount}
-                    id="retry-count"
-                    size={100}
+                    {...renderProps('retryCount')}
                 />
                 <TextField
                     placeholder="1000"
                     label="Retry Delay"
-                    onTextChange={(value) => {
-                        if (validNumericInput.test(value)) {
-                            handleOnChange("retryDelay", Number(value))
-                        } else {
-                            handleOnChange("retryDelay", null)
-                        }
-                    }}
-                    value={endpoint.retryDelay}
-                    id="retry-delay"
-                    size={100}
+                    {...renderProps('retryDelay')}
                 />
                 <TextField
                     placeholder="1000"
                     label="Timeout Duration"
-                    onTextChange={(value) => {
-                        if (validNumericInput.test(value)) {
-                            handleOnChange("timeoutDuration", Number(value))
-                        } else {
-                            handleOnChange("timeoutDuration", null)
-                        }
-                    }}
-                    value={endpoint.timeoutDuration}
-                    id="timeout-duration"
-                    size={100}
+                    {...renderProps('timeoutDuration')}
                 />
-                <span>Timeout Action</span>
-                <Dropdown items={timeoutOptions} value={endpoint.timeoutAction} onValueChange={handleTimeoutActionChange} id="timeout-action"/>
-            </SectionWrapper>
-            <ActionContainer>
-                {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
+                <Dropdown label="Timeout Action" items={timeoutOptions} {...renderProps('timeoutAction')} />
+            </FormGroup>
+            <FormActions>
+                <Button
+                    appearance="primary"
+                    onClick={handleSubmit(handleUpdateDefaultEndpoint)}
+                    disabled={!isDirty}
+                >
+                    {isNewEndpoint ? "Create" : "Save Changes"}
+                </Button>
                 <Button
                     appearance="secondary"
                     onClick={handleCancel}
                 >
                     Cancel
                 </Button>
-                <Button
-                    appearance="primary"
-                    onClick={handleUpdateDefaultEndpoint}
-                    disabled={!isValid}
-                >
-                    Save Changes
-                </Button>
-            </ActionContainer>
-        </WizardContainer>
+            </FormActions>
+        </FormView>
     );
 }

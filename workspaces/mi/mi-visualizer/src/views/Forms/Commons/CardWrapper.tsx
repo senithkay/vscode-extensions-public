@@ -92,7 +92,162 @@ const CARD_WRAPPER_DATA = {
                 description: 'Description',
             }
         ]
-    }
+    },
+    MESSAGE_PROCESSOR: {
+        cards: [
+            {
+                title: 'Scheduled Message Forwarding Processor',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'Message Sampling Processor',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'Custom Message Processor',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'Scheduled Failover Message Forwarding Processor',
+                icon: 'code',
+                description: 'Description',
+            }
+        ]
+    },
+    ENDPOINT: {
+        cards: [
+            {
+                title: 'Address Endpoint',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'Default Endpoint',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'Failover Endpoint',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'HTTP Endpoint',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'Load Balance Endpoint',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'Recipient List Endpoint',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'Template Endpoint',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'WSDL Endpoint',
+                icon: 'code',
+                description: 'Description',
+            }
+        ]
+    },
+    TEMPLATE: {
+        cards: [
+            {
+                title: 'Address Endpoint Template',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'Default Endpoint Template',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'HTTP Endpoint Template',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'Sequence Template',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'WSDL Endpoint Template',
+                icon: 'code',
+                description: 'Description',
+            }
+        ]
+    },
+    LOCAL_ENTRY: {
+        cards: [
+            {
+                title: 'In-Line Text Entry',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'In-Line XML Entry',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'Source URL Entry',
+                icon: 'code',
+                description: 'Description',
+            }
+        ]
+    },
+    MESSAGE_STORE: {
+        cards: [
+            {
+                title: 'JMS Message Store',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'RabbitMQ Message Store',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'WSO2 MB Message Store',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'In Memory Message Store',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'JDBC Message Store',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'Custom Message Store',
+                icon: 'code',
+                description: 'Description',
+            },
+            {
+                title: 'Resequence Message Store',
+                icon: 'code',
+                description: 'Description',
+            }
+        ]
+    },
 };
 
 type CardWrapperProps = {

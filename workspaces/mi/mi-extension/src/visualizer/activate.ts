@@ -40,9 +40,17 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         commands.registerCommand(COMMANDS.SHOW_OVERVIEW, async () => {
-            const displayState: boolean | undefined = extension.context.workspaceState.get('displayOverview');
-            const displayOverview = displayState === undefined ? true : displayState;
-            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.UnsupportedProject, customProps: { displayOverview } });
+            const projectType: string | undefined = extension.context.workspaceState.get('projectType');
+            switch (projectType) {
+                case 'miProject':
+                    openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+                    break;
+                case 'unsupportedProject':
+                    const displayState: boolean | undefined = extension.context.workspaceState.get('displayOverview');
+                    const displayOverview = displayState === undefined ? true : displayState;
+                    openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.UnsupportedProject, customProps: { displayOverview } });
+                    break;
+            }
         })
     );
 

@@ -28,6 +28,7 @@ export enum MACHINE_VIEW {
     SequenceView = "Sequence View",
     ProxyView = "Proxy View",
     ServiceDesigner = "Service Designer",
+    DataMapperView = "Data Mapper View",
     APIForm = "API Form",
     EndPointForm = "Endpoint Form",
     LoadBalanceEndPointForm = "Load Balance Endpoint Form",
@@ -64,6 +65,19 @@ export type MachineStateValue =
     | { ready: 'viewReady' } | { ready: 'viewEditing' }
     | { newProject: 'viewReady' };
 
+export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled';
+
+export enum AI_EVENT_TYPE {
+    LOGIN = "LOGIN",
+    SIGN_IN_SUCCESS = "SIGN_IN_SUCCESS",
+    LOGOUT = "LOGOUT",
+    EXECUTE = "EXECUTE",
+    CLEAR = "CLEAR",
+    CLEAR_PROMPT = "CLEAR_PROMPT",
+    DISPOSE = "DISPOSE",
+    CANCEL = "CANCEL",
+}
+
 export enum EVENT_TYPE {
     OPEN_VIEW = "OPEN_VIEW",
     CLEAR_PROMPT = "CLEAR_PROMPT",
@@ -83,6 +97,12 @@ export interface CommandProps {
     isService?: boolean
 }
 
+interface DataMapperProps {
+    filePath: string;
+    functionName: string;
+    fileContent: string;
+}
+
 // State Machine context values
 export interface VisualizerLocation {
     view: MACHINE_VIEW | null;
@@ -96,16 +116,20 @@ export interface VisualizerLocation {
     isMiProject?: boolean;
     displayOverview?: boolean;
     customProps?: any;
+    dataMapperProps?: DataMapperProps;
 }
 
 export interface AIVisualizerLocation {
     view?: AI_MACHINE_VIEW | null;
-    initialPrompt?: string
+    initialPrompt?: string;
+    state?: AIMachineStateValue;
 }
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
+export const aiStateChanged: NotificationType<AIMachineStateValue> = { method: 'aiStateChanged' };
 export const themeChanged: NotificationType<ColorThemeKind> = { method: 'themeChanged' };
 export const getVisualizerState: RequestType<void, VisualizerLocation> = { method: 'getVisualizerState' };
 export const getAIVisualizerState: RequestType<void, AIVisualizerLocation> = { method: 'getAIVisualizerState' };
+export const sendAIStateEvent: RequestType<AI_EVENT_TYPE, void> = { method: 'sendAIStateEvent' };
 export const onFileContentUpdate: NotificationType<void> = { method: `onFileContentUpdate` };
 export const webviewReady: NotificationType<void> = { method: `webviewReady` };

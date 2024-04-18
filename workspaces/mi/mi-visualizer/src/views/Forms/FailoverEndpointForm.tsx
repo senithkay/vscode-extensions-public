@@ -9,10 +9,14 @@
 
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
-import { Button, Dropdown, TextField, FormView, FormGroup, FormActions, ParamManager } from "@wso2-enterprise/ui-toolkit";
+import { Button, Dropdown, TextField, FormView, FormGroup, FormActions, ParamManager, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
-import { Endpoint, EndpointList, InlineButtonGroup } from "./Commons";
+import { Endpoint, EndpointList, InlineButtonGroup, TypeChip } from "./Commons";
+import { yupResolver } from "@hookform/resolvers/yup"
+import * as yup from "yup";
+import { useForm } from "react-hook-form";
+import AddToRegistry, { getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
 
 const FieldGroup = styled.div`
     display: flex;
@@ -39,17 +43,98 @@ const initialInlineEndpoint: Endpoint = {
     value: '',
 };
 
+type InputsFields = {
+    name?: string;
+    buildMessage?: string;
+    description?: string;
+    endpoints?: Endpoint[];
+    properties?: any[];
+    //reg form
+    saveInReg?: boolean;
+    artifactName?: string;
+    registryPath?: string
+    registryType?: "gov" | "conf";
+};
+
+const initialEndpoint: InputsFields = {
+    name: '',
+    buildMessage: 'true',
+    description: '',
+    endpoints: [],
+    properties: [],
+    //reg form
+    saveInReg: false,
+    artifactName: "",
+    registryPath: "/",
+    registryType: "gov"
+};
+
 export function FailoverWizard(props: FailoverWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
 
-    const [endpoint, setEndpoint] = useState<any>({
-        name: '',
-        buildMessage: 'true',
-        description: '',
+    const isNewEndpoint = !props.path.endsWith(".xml");
+    const [artifactNames, setArtifactNames] = useState([]);
+    const [registryPaths, setRegistryPaths] = useState([]);
+    const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
+    const [existingEndpoints, setExistingEndpoints] = useState<string[]>([]);
+    const [existingArtifactNames, setExistingArtifactNames] = useState<string[]>([]);
+    const [expandEndpointsView, setExpandEndpointsView] = useState<boolean>(false);
+    const [showAddNewEndpointView, setShowAddNewEndpointView] = useState<boolean>(false);
+    const [newEndpoint, setNewEndpoint] = useState<Endpoint>(initialInlineEndpoint);
+    const [savedEPName, setSavedEPName] = useState<string>("");
+
+    const schema = yup.object({
+        name: yup.string().required("Endpoint name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint name")
+            .test('validateEndpointName',
+                'Endpoint file name already exists', value => {
+                    return !isNewEndpoint ? !(existingEndpoints.includes(value) && value !== savedEPName) : !existingEndpoints.includes(value);
+                }).test('validateEndpointName',
+                    'Endpoint artifact name already exists', value => {
+                        return !isNewEndpoint ? !(existingArtifactNames.includes(value) && value !== savedEPName) : !existingArtifactNames.includes(value);
+                    }),
+        buildMessage: yup.string().required("Build Message is required"),
+        description: yup.string(),
+        endpoints: yup.array(),
+        properties: yup.array(),
+        saveInReg: yup.boolean().default(false),
+        artifactName: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().required("Artifact Name is required").test('validateArtifactName',
+                    'Artifact name already exists', value => {
+                        return !artifactNames.includes(value);
+                    }),
+        }),
+        registryPath: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                    const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
+                    return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
+                }),
+        }),
+        registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
     });
 
-    const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
+    const {
+        reset,
+        register,
+        formState: { errors, isDirty },
+        handleSubmit,
+        getValues,
+        control,
+        watch,
+        setValue,
+    } = useForm({
+        defaultValues: initialEndpoint,
+        resolver: yupResolver(schema),
+        mode: "onChange"
+    });
 
     const [paramConfigs, setParamConfigs] = useState<any>({
         paramValues: [],
@@ -60,50 +145,72 @@ export function FailoverWizard(props: FailoverWizardProps) {
         ]
     });
 
-    const [expandEndpointsView, setExpandEndpointsView] = useState<boolean>(false);
-    const [showAddNewEndpointView, setShowAddNewEndpointView] = useState<boolean>(false);
-    const [newEndpoint, setNewEndpoint] = useState<Endpoint>(initialInlineEndpoint);
-
     useEffect(() => {
+        if (!isNewEndpoint) {
+            (async () => {
+                const { endpoints, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getFailoverEndpoint({ path: props.path });
+
+                reset(endpoint);
+                setEndpoints(endpoints);
+
+                setParamConfigs((prev: any) => {
+                    return {
+                        ...prev,
+                        paramValues: endpoint.properties.map((property: any, index: Number) => {
+                            return {
+                                id: prev.paramValues.length + index,
+                                parameters: [
+                                    { id: 0, label: 'Name', type: 'TextField', value: property.name, isRequired: true },
+                                    { id: 1, label: 'Value', type: 'TextField', value: property.value, isRequired: true },
+                                    { id: 2, label: 'Scope', type: 'Dropdown', value: property.scope, values: ["default", "transport", "axis2", "axis2-client"], isRequired: true },
+                                ],
+                                key: property.name,
+                                value: property.value,
+                            }
+                        })
+                    };
+                });
+
+                if (endpoints.length > 0) {
+                    setExpandEndpointsView(true);
+                }
+            })();
+        }
         (async () => {
-            const { properties, endpoints, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getFailoverEndpoint({ path: props.path });
-
-            setEndpoint(endpoint);
-            
-            setParamConfigs((prev: any) => {
-                return {
-                    ...prev,
-                    paramValues: properties.map((property: any, index: Number) => {
-                        return {
-                            id: prev.paramValues.length + index,
-                            parameters: [
-                                { id: 0, label: 'Name', type: 'TextField', value: property.name, isRequired: true },
-                                { id: 1, label: 'Value', type: 'TextField', value: property.value, isRequired: true },
-                                { id: 2, label: 'Scope', type: 'Dropdown', value: property.scope, values: ["default", "transport", "axis2", "axis2-client"], isRequired: true },
-                            ],
-                            key: property.name,
-                            value: property.value,
-                        }
-                    })
-                };
+            const endpointResponse = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
+                documentIdentifier: props.path,
+                resourceType: "endpoint",
             });
-
-            setEndpoints(endpoints);
-
-            if (endpoints.length > 0) {
-                setExpandEndpointsView(true);
+            let endpointArtifactNamesArr = [];
+            if (endpointResponse.resources) {
+                const endpointNames = endpointResponse.resources.map((resource) => resource.name);
+                endpointArtifactNamesArr.push(...endpointNames);
+                const epPaths = endpointResponse.resources.map((resource) => resource.artifactPath.replace(".xml", ""));
+                setExistingEndpoints(epPaths);
             }
+            if (endpointResponse.registryResources) {
+                const registryKeys = endpointResponse.registryResources.map((resource) => resource.name);
+                endpointArtifactNamesArr.push(...registryKeys);
+            }
+            setExistingArtifactNames(endpointArtifactNamesArr);
+            const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
+            setArtifactNames(result.artifactNamesArr);
+            setRegistryPaths(result.registryPaths);
         })();
-    }, []);
+    }, [props.path]);
 
     const buildMessageOptions = [
         { content: 'True', value: 'true' },
         { content: 'False', value: 'false' },
     ];
 
-    const handleOnChange = (field: string, value: any) => {
-        setEndpoint((prev: any) => ({ ...prev, [field]: value }));
-    }
+    const renderProps = (fieldName: keyof InputsFields) => {
+        return {
+            id: fieldName,
+            ...register(fieldName),
+            errorMsg: errors[fieldName] && errors[fieldName].message.toString()
+        }
+    };
 
     const handleNewEndpointChange = (field: string, value: string) => {
         setNewEndpoint((prev: any) => ({ ...prev, [field]: value }));
@@ -128,22 +235,25 @@ export function FailoverWizard(props: FailoverWizardProps) {
                 })
             };
         })
+
+        setValue('properties', config.paramValues.map((param: any) => ({
+            name: param.parameters[0].value,
+            value: param.parameters[1].value,
+            scope: param.parameters[2].value ?? 'default',
+        })), { shouldDirty: true });
     }
 
-    const handleUpdateEndpoint = async () => {
+    const handleUpdateEndpoint = async (values: any) => {
         const updateEndpointParams = {
             directory: props.path,
-            ...endpoint,
+            ...values,
+            getContentOnly: watch("saveInReg") && isNewEndpoint,
             endpoints,
-            properties: paramConfigs.paramValues.map((param: any) => {
-                return {
-                    name: param.key,
-                    value: param.value,
-                    scope: param.parameters[2].value ?? 'default',
-                }
-            })
         }
-        rpcClient.getMiDiagramRpcClient().updateFailoverEndpoint(updateEndpointParams);
+        const result = await rpcClient.getMiDiagramRpcClient().updateFailoverEndpoint(updateEndpointParams);
+        if (watch("saveInReg") && isNewEndpoint) {
+            await saveToRegistry(rpcClient, props.path, values.registryType, values.name, result.content, values.registryPath, values.artifactName);
+        }
         openOverview();
     };
 
@@ -151,44 +261,38 @@ export function FailoverWizard(props: FailoverWizardProps) {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
-    const validateEndpointName = (name: string) => {
-        // Check if the name is empty
-        if (!name.trim()) {
-            return "Enpoint name is required";
-        }
-
-        // Check if the name contains spaces or special characters
-        if (/[\s~`!@#$%^&*()_+={}[\]:;'",.<>?/\\|]+/.test(name)) {
-            return "Endpoint name cannot contain spaces or special characters";
-        }
-        return "";
-    };
-
-    const isValid: boolean = validateEndpointName(endpoint.name) === '';;
+    const changeType = () => {
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.EndPointForm,
+                documentUri: props.path,
+                customProps: { type: 'endpoint' }
+            }
+        });
+    }
 
     return (
-        <FormView title="Failover Endpoint Artifact" onClose={openOverview}>
+        <FormView title="Endpoint Artifact" onClose={openOverview}>
+            <TypeChip
+                type={"Failover Endpoint"}
+                onClick={changeType}
+                showButton={isNewEndpoint}
+            />
             <FormGroup title="Basic Properties" isCollapsed={false}>
                 <TextField
-                    id='name-input'
+                    required
+                    autoFocus
                     label="Name"
                     placeholder="Name"
-                    value={endpoint.name}
-                    onTextChange={(text: string) => handleOnChange('name', text)}
-                    errorMsg={validateEndpointName(endpoint.name)}
+                    {...renderProps('name')}
                     size={100}
-                    autoFocus
-                    required
                 />
-                <FieldGroup>
-                    <span>Build Message</span>
-                    <Dropdown
-                        id="build-message"
-                        value={endpoint.buildMessage}
-                        onValueChange={(text: string) => handleOnChange("buildMessage", text)}
-                        items={buildMessageOptions}
-                    />
-                </FieldGroup>
+                <Dropdown
+                    label="Build Message"
+                    {...renderProps('buildMessage')}
+                    items={buildMessageOptions}
+                />
                 <FieldGroup>
                     <InlineButtonGroup
                         label="Endpoints"
@@ -203,42 +307,54 @@ export function FailoverWizard(props: FailoverWizardProps) {
                             setExpandEndpointsView(true);
                         }}
                     />
-                    {expandEndpointsView && <EndpointList
-                        endpoints={endpoints}
-                        setEndpoints={setEndpoints}
-                    />}
-                    {showAddNewEndpointView && <Endpoint
-                        endpoint={newEndpoint}
-                        handleEndpointChange={handleNewEndpointChange}
-                        handleSave={handleAddNewEndpoint}
-                    />}
+                    {expandEndpointsView && (
+                        <EndpointList
+                            endpoints={endpoints}
+                            setEndpoints={setEndpoints}
+                        />
+                    )}
+                    {showAddNewEndpointView && (
+                        <Endpoint
+                            endpoint={newEndpoint}
+                            handleEndpointChange={handleNewEndpointChange}
+                            handleSave={handleAddNewEndpoint}
+                        />
+                    )}
                 </FieldGroup>
             </FormGroup>
             <FormGroup title="Miscellaneous Properties" isCollapsed={false}>
                 <TextField
-                    id='description'
-                    value={endpoint.description}
                     label="Description"
-                    onTextChange={(text: string) => handleOnChange('description', text)}
+                    {...renderProps('description')}
                 />
                 <FieldGroup>
                     <span>Properties</span>
                     <ParamManager paramConfigs={paramConfigs} onChange={handleParamChange} />
                 </FieldGroup>
             </FormGroup>
+            {isNewEndpoint && (<>
+                <FormCheckBox
+                    label="Save the endpoint in registry"
+                    {...register("saveInReg")}
+                    control={control}
+                />
+                {watch("saveInReg") && (<>
+                    <AddToRegistry path={props.path} fileName={watch("name")} register={register} errors={errors} getValues={getValues} />
+                </>)}
+            </>)}
             <FormActions>
+                <Button
+                    appearance="primary"
+                    onClick={handleSubmit(handleUpdateEndpoint)}
+                    disabled={!isDirty}
+                >
+                    {isNewEndpoint ? "Create" : "Save Changes"}
+                </Button>
                 <Button
                     appearance="secondary"
                     onClick={openOverview}
                 >
                     Cancel
-                </Button>
-                <Button
-                    appearance="primary"
-                    onClick={handleUpdateEndpoint}
-                    disabled={!isValid}
-                >
-                    Update
                 </Button>
             </FormActions>
         </FormView>

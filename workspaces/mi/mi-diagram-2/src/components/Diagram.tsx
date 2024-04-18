@@ -109,8 +109,8 @@ export function Diagram(props: DiagramProps) {
         if (model.tag !== "sequence") {
             let faultSequence;
             if (modelCopy.tag === "proxy") {
-                faultSequence = (model as Proxy).descriptionOrTargetOrPublishWSDL[0].faultSequence;
-                delete (modelCopy as Proxy).descriptionOrTargetOrPublishWSDL[0].faultSequence;
+                faultSequence = (model as Proxy).target.faultSequence
+                delete (modelCopy as Proxy).target.faultSequence;
             } else {
                 faultSequence = (model as APIResource).faultSequence;
                 delete (modelCopy as APIResource).faultSequence;
