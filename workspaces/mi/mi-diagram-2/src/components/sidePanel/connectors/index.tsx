@@ -485,7 +485,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                     || (expandedConnectors && expandedConnectors.includes(connector))) && (
                                                         <OperationGrid>
                                                             {((filteredOperations.find(([filteredConnector]) => filteredConnector === connector)?.slice(1))
-                                                                || (Object.keys(connector.operations))).map((operation: any) => {
+                                                                || connector.operations).map((operation: any) => {
                                                                     // If operation is hidden, do not render the ComponentCard
                                                                     if (operation.isHidden) {
                                                                         return null;
@@ -493,8 +493,8 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
                                                                     return (
                                                                         <ComponentCard
-                                                                            key={operation}
-                                                                            onClick={() => selectOperation(connector, operation)}
+                                                                            key={operation.name}
+                                                                            onClick={() => selectOperation(connector, operation.name)}
                                                                             sx={{
                                                                                 '&:hover, &.active': {
                                                                                     '.icon svg g': {
@@ -525,7 +525,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                                                 whiteSpace: 'nowrap',
                                                                                 textAlign: 'left'
                                                                             }}>
-                                                                                <IconLabel>{operation}</IconLabel>
+                                                                                <IconLabel>{operation.name}</IconLabel>
                                                                             </div>
                                                                         </ComponentCard>
                                                                     );
