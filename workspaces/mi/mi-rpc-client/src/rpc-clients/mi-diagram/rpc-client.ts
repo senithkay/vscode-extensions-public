@@ -568,7 +568,6 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getIconPathUri, HOST_EXTENSION, params);
     }
 
-
     getUserAccessToken(): Promise<GetUserAccessTokenResponse> {
         return this._messenger.sendRequest(getUserAccessToken, HOST_EXTENSION);
     }

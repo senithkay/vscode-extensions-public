@@ -171,8 +171,9 @@ import { rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
-import { DEFAULT_PROJECT_VERSION } from "../../constants";
 import { extension } from '../../MIExtensionContext';
+import { DEFAULT_PROJECT_VERSION } from "../../constants";
+
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
 const connectorsPath = path.join(".metadata", ".Connectors");
@@ -2933,6 +2934,49 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 let iconUri = VisualizerWebview.currentPanel.getIconPath(params.path, params.name);
                 resolve({ uri: iconUri });
             }
+        });
+    }
+
+    async getUserAccessToken(): Promise<GetUserAccessTokenResponse> {
+        const token = await extension.context.secrets.get('MIAIUser');
+        if (token){
+            return { token: token };
+        }else{
+            throw new Error('User access token not found');
+        }
+        
+    }
+
+    async createConnection(params: CreateConnectionRequest): Promise<CreateConnectionResponse> {
+        return new Promise(async (resolve) => {
+            const { connectionName, keyValuesXML, directory } = params;
+            const localEntryPath = directory;
+
+            const xmlData =
+                    `<?xml version="1.0" encoding="UTF-8"?>
+    <localEntry key="${connectionName}" xmlns="http://ws.apache.org/ns/synapse">
+        ${keyValuesXML}
+    </localEntry>`;
+
+            const filePath = path.join(localEntryPath, `${connectionName}.xml`);
+            if (!fs.existsSync(localEntryPath)) {
+                fs.mkdirSync(localEntryPath);
+            }
+
+            fs.writeFileSync(filePath, xmlData);
+            resolve({ name: connectionName });
+        });
+    }
+
+    async getConnectorConnections(params: GetConnectorConnectionsRequest): Promise<GetConnectorConnectionsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getConnectorConnections({
+                documentUri: params.documentUri,
+                connectorName: params.connectorName
+            });
+
+            resolve(res);
         });
     }
 }
