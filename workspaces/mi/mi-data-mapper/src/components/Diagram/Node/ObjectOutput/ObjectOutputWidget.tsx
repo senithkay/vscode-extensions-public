@@ -11,7 +11,7 @@ import React, { useState } from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
-import { Node, isObjectLiteralExpression } from "typescript";
+import { Node } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
@@ -60,11 +60,11 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 
 	const fields = dmTypeWithValue && dmTypeWithValue.childrenTypes;
 	const hasValue = fields && fields.length > 0;
-	const isBodyObjectLiteralExpr = value && isObjectLiteralExpression(value);
+	const isBodyObjectLiteralExpr = value && Node.isObjectLiteralExpression(value);
 
 	const hasSyntaxDiagnostics = false; // TODO: Find diagnostics for the value
 	const hasEmptyFields = mappings && (mappings.length === 0 || !mappings.some(mapping => {
-		if (mapping.value) {
+		if (mapping.value && !mapping.value.wasForgotten()) {
 			return !isEmptyValue(getPosition(mapping.value));
 		}
 		return true;

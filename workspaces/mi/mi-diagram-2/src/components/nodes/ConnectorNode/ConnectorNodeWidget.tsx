@@ -53,7 +53,7 @@ namespace S {
     `;
 
     export const IconContainer = styled.div`
-        padding: 0 8px;
+        padding: 0 4px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -147,6 +147,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
             formValues: {
                 form: formJSON.formJSON,
                 title: `${connectorData.name} - ${node.stNode.tag.split(".")[1]}`,
+                uiSchemaPath: connectorData.uiSchemaPath,
                 parameters: (node.stNode as Connector).parameters
             },
             parentNode: node.mediatorName

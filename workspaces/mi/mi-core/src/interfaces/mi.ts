@@ -7,16 +7,18 @@
 * You may not alter or remove any copyright or other notice from copies of this content.
 */
 
-import { API, NamedSequence, Proxy } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { API, Datamapper, NamedSequence, Proxy } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export enum DIAGRAM_KIND {
     API = "api",
     SEQUENCE = "sequence",
     PROXY = "proxy",
+    DATA_MAPPER = "data_mapper",
 }
 
 export type SyntaxTreeMi = {
     [DIAGRAM_KIND.API]: API;
     [DIAGRAM_KIND.SEQUENCE]: NamedSequence;
     [DIAGRAM_KIND.PROXY]: Proxy;
+    [DIAGRAM_KIND.DATA_MAPPER]: Datamapper;
 }

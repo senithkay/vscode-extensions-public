@@ -24,6 +24,8 @@ import {
     CreateAPIResponse,
     CreateClassMediatorRequest,
     CreateClassMediatorResponse,
+    CreateConnectionRequest,
+    CreateConnectionResponse,
     CreateDataSourceResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
@@ -59,6 +61,8 @@ import {
     GetAvailableResourcesRequest,
     GetAvailableResourcesResponse,
     GetBackendRootUrlResponse,
+    GetConnectorConnectionsRequest,
+    GetConnectorConnectionsResponse,
     GetConnectorFormRequest,
     GetConnectorFormResponse,
     GetDataSourceRequest,
@@ -89,6 +93,7 @@ import {
     GetTemplateEPResponse,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
+    GetUserAccessTokenResponse,
     GetWorkspaceContextResponse,
     HighlightCodeRequest,
     ImportProjectRequest,
@@ -146,6 +151,7 @@ import {
     closeWebViewNotification,
     createAPI,
     createClassMediator,
+    createConnection,
     createDataSource,
     createEndpoint,
     createInboundEndpoint,
@@ -168,6 +174,7 @@ import {
     getAvailableResources,
     getBackendRootUrl,
     getConnector,
+    getConnectorConnections,
     getConnectorForm,
     getConnectors,
     getDataSource,
@@ -198,6 +205,7 @@ import {
     getTemplateEndpoint,
     getTemplates,
     getTextAtRange,
+    getUserAccessToken,
     getWorkspaceContext,
     getWorkspaceRoot,
     getWsdlEndpoint,
@@ -558,5 +566,17 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getIconPathUri(params: GetIconPathUriRequest): Promise<GetIconPathUriResponse> {
         return this._messenger.sendRequest(getIconPathUri, HOST_EXTENSION, params);
+    }
+
+    getUserAccessToken(): Promise<GetUserAccessTokenResponse> {
+        return this._messenger.sendRequest(getUserAccessToken, HOST_EXTENSION);
+    }
+
+    createConnection(params: CreateConnectionRequest): Promise<CreateConnectionResponse> {
+        return this._messenger.sendRequest(createConnection, HOST_EXTENSION, params);
+    }
+
+    getConnectorConnections(params: GetConnectorConnectionsRequest): Promise<GetConnectorConnectionsResponse> {
+        return this._messenger.sendRequest(getConnectorConnections, HOST_EXTENSION, params);
     }
 }

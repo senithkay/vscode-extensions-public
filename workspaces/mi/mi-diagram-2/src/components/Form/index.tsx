@@ -6,16 +6,6 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { STModification } from "../../types";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-export function getModification(statement: string, targetPosition: NodePosition): STModification {
-    return {
-        type: "INSERT",
-        isImport: false,
-        config: {
-            "STATEMENT": statement
-        },
-        ...targetPosition
-    };
-}
+export * from "./Keylookup/Keylookup";
+

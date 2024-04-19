@@ -1,5 +1,5 @@
 export const SAMPLE_ICONS_GITHUB_URL = "https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/";
-export const MI_COPILOT_BACKEND_URL = "https://cf3a4176-54c9-4547-bcd6-c6fe400ad0d8-dev.e1-us-east-azure.choreoapis.dev/awwr/mi-copilot-backend/mi-copilot-backend-5de/v1.0";
+export const MI_COPILOT_BACKEND_URL = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-eu-north-azure.choreoapis.dev/mi-ai-deployments/micopilot/mi-copilot-backend-be2/v1.0";
 
 export const COMMANDS = {
     OPEN_PROJECT: "MI.openProject",
@@ -65,3 +65,4 @@ export const COMMANDS = {
 
 export const SELECTED_SERVER_PATH = "selected-server-path";
 export const PORTS_TO_CHECK = [8290, 8253];
+export const DEFAULT_PROJECT_VERSION = "1.0.0";

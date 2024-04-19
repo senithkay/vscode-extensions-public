@@ -16,6 +16,7 @@ import {
     ConnectorRequest,
     CreateAPIRequest,
     CreateClassMediatorRequest,
+    CreateConnectionRequest,
     CreateEndpointRequest,
     CreateInboundEndpointRequest,
     CreateLocalEntryRequest,
@@ -31,6 +32,7 @@ import {
     DownloadConnectorRequest,
     GetAvailableConnectorRequest,
     GetAvailableResourcesRequest,
+    GetConnectorConnectionsRequest,
     GetConnectorFormRequest,
     GetDataSourceRequest,
     GetDefinitionRequest,
@@ -79,6 +81,7 @@ import {
     closeWebViewNotification,
     createAPI,
     createClassMediator,
+    createConnection,
     createDataSource,
     createEndpoint,
     createInboundEndpoint,
@@ -101,6 +104,7 @@ import {
     getAvailableResources,
     getBackendRootUrl,
     getConnector,
+    getConnectorConnections,
     getConnectorForm,
     getConnectors,
     getDataSource,
@@ -130,6 +134,7 @@ import {
     getTemplateEndpoint,
     getTemplates,
     getTextAtRange,
+    getUserAccessToken,
     getWorkspaceContext,
     getWorkspaceRoot,
     getWsdlEndpoint,
@@ -241,4 +246,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createDataSource, (args: DataSourceTemplate) => rpcManger.createDataSource(args));
     messenger.onRequest(getDataSource, (args: GetDataSourceRequest) => rpcManger.getDataSource(args));
     messenger.onRequest(getIconPathUri, (args: GetIconPathUriRequest) => rpcManger.getIconPathUri(args));
+    messenger.onRequest(getUserAccessToken, () => rpcManger.getUserAccessToken());
+    messenger.onRequest(createConnection, (args: CreateConnectionRequest) => rpcManger.createConnection(args));
+    messenger.onRequest(getConnectorConnections, (args: GetConnectorConnectionsRequest) => rpcManger.getConnectorConnections(args));
 }

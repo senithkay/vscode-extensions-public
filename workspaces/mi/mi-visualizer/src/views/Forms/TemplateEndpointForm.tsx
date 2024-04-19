@@ -9,13 +9,15 @@
 
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
-import { Button, Dropdown, TextField, FormView, FormGroup, FormActions, ParamManager } from "@wso2-enterprise/ui-toolkit";
+import { Button, Dropdown, TextField, FormView, FormGroup, FormActions, ParamManager, FormCheckBox, FormAutoComplete } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { TypeChip } from "./Commons";
+import AddToRegistry, { getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
+import { set } from "lodash";
 
 const FieldGroup = styled.div`
     display: flex;
@@ -39,6 +41,11 @@ type InputsFields = {
     description?: string;
     endpoints?: any[];
     parameters?: any[];
+    //reg form
+    saveInReg?: boolean;
+    artifactName?: string;
+    registryPath?: string
+    registryType?: "gov" | "conf";
 };
 
 const initialEndpoint: InputsFields = {
@@ -48,37 +55,18 @@ const initialEndpoint: InputsFields = {
     description: '',
     endpoints: [],
     parameters: [],
+    //reg form
+    saveInReg: false,
+    artifactName: "",
+    registryPath: "/",
+    registryType: "gov"
 };
-
-const schema = yup.object({
-    name: yup.string().required("Endpoint Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint name"),
-    uri: yup.string(),
-    template: yup.string().required("Template is required"),
-    description: yup.string(),
-    endpoints: yup.array(),
-    parameters: yup.array(),
-});
 
 export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
-
     const isNewEndpoint = !props.path.endsWith(".xml");
-
-    const {
-        reset,
-        register,
-        formState: { errors, isDirty },
-        handleSubmit,
-        watch,
-        setValue
-    } = useForm({
-        defaultValues: initialEndpoint,
-        resolver: yupResolver(schema),
-        mode: "onChange"
-    });
-
-    const [templates, setTemplates] = useState<any[]>([]);
+    const [templates, setTemplates] = useState<string[]>([]);
     const [paramConfigs, setParamConfigs] = useState<any>({
         paramValues: [],
         paramFields: [
@@ -86,14 +74,73 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
             { id: 2, type: "TextField", label: "Value", defaultValue: "", isRequired: true },
         ]
     });
+    const [existingEndpoints, setExistingEndpoints] = useState<string[]>([]);
+    const [existingArtifactNames, setExistingArtifactNames] = useState<string[]>([]);
+    const [artifactNames, setArtifactNames] = useState([]);
+    const [registryPaths, setRegistryPaths] = useState([]);
+    const [savedEPName, setSavedEPName] = useState<string>("");
+
+    const schema = yup.object({
+        name: yup.string().required("Endpoint name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint name")
+            .test('validateEndpointName',
+                'Endpoint file name already exists', value => {
+                    return !isNewEndpoint ? !(existingEndpoints.includes(value) && value !== savedEPName) : !existingEndpoints.includes(value);
+                }).test('validateEndpointName',
+                    'Endpoint artifact name already exists', value => {
+                        return !isNewEndpoint ? !(existingArtifactNames.includes(value) && value !== savedEPName) : !existingArtifactNames.includes(value);
+                    }),
+        uri: yup.string(),
+        template: yup.string().required("Template is required"),
+        description: yup.string(),
+        endpoints: yup.array(),
+        parameters: yup.array(),
+        saveInReg: yup.boolean().default(false),
+        artifactName: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().required("Artifact Name is required").test('validateArtifactName',
+                    'Artifact name already exists', value => {
+                        return !artifactNames.includes(value);
+                    }),
+        }),
+        registryPath: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                    const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
+                    return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
+                }),
+        }),
+        registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
+    });
+
+    const {
+        reset,
+        register,
+        formState: { errors, isDirty },
+        handleSubmit,
+        watch,
+        getValues,
+        control,
+        setValue
+    } = useForm({
+        defaultValues: initialEndpoint,
+        resolver: yupResolver(schema),
+        mode: "onChange"
+    });
+
+
 
     useEffect(() => {
         if (!isNewEndpoint) {
             (async () => {
                 const { parameters, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getTemplateEndpoint({ path: props.path });
-
                 reset(endpoint);
-
+                setSavedEPName(endpoint.name);
                 setParamConfigs((prev: any) => {
                     return {
                         ...prev,
@@ -110,15 +157,43 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
                         })
                     };
                 });
-
-                const items = await rpcClient.getMiDiagramRpcClient().getTemplates();
-                const templates = items.data.map((temp: string) => {
-                    temp = temp.replace(".xml", "");
-                    return { value: temp }
-                });
-                setTemplates(templates);
             })();
         }
+        (async () => {
+            const endpointResponse = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
+                documentIdentifier: props.path,
+                resourceType: "endpoint",
+            });
+            let endpointNamesArr = [];
+            if (endpointResponse.resources) {
+                const endpointNames = endpointResponse.resources.map((resource) => resource.name);
+                setExistingArtifactNames(endpointNames);
+                const epPaths = endpointResponse.resources.map((resource) => resource.artifactPath.replace(".xml", ""));
+                endpointNamesArr.push(...epPaths);
+            }
+            if (endpointResponse.registryResources) {
+                const registryKeys = endpointResponse.registryResources.map((resource) => resource.registryKey);
+                endpointNamesArr.push(...registryKeys);
+            }
+            setExistingEndpoints(endpointNamesArr);
+            const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
+            setArtifactNames(result.artifactNamesArr);
+            setRegistryPaths(result.registryPaths);
+            let templates = [];
+            const response = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
+                documentIdentifier: props.path,
+                resourceType: "endpointTemplate",
+            });
+            if (response.resources) {
+                const endpointNames = response.resources.map((resource) => resource.name);
+                templates.push(...endpointNames);
+            }
+            if (response.registryResources) {
+                const registryKeys = response.registryResources.map((resource) => resource.registryKey);
+                templates.push(...registryKeys);
+            }
+            setTemplates(templates);
+        })();
     }, [props.path]);
 
     const renderProps = (fieldName: keyof InputsFields) => {
@@ -154,8 +229,12 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
         const updateEndpointParams = {
             directory: props.path,
             ...values,
+            getContentOnly: watch("saveInReg") && isNewEndpoint,
         }
-        rpcClient.getMiDiagramRpcClient().updateTemplateEndpoint(updateEndpointParams);
+        const result = await rpcClient.getMiDiagramRpcClient().updateTemplateEndpoint(updateEndpointParams);
+        if (watch("saveInReg") && isNewEndpoint) {
+            await saveToRegistry(rpcClient, props.path, values.registryType, values.name, result.content, values.registryPath, values.artifactName);
+        }
         openOverview();
     };
 
@@ -195,9 +274,12 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
                     placeholder="Uri"
                     {...renderProps("uri")}
                 />
-                <Dropdown
+                <FormAutoComplete
                     label="Template"
+                    required={false}
+                    isNullable={true}
                     items={templates}
+                    control={control}
                     {...renderProps("template")}
                 />
                 <TextField
@@ -209,6 +291,16 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
                     <ParamManager paramConfigs={paramConfigs} onChange={handleParamChange} />
                 </FieldGroup>
             </FormGroup>
+            {isNewEndpoint && (<>
+                <FormCheckBox
+                    label="Save the endpoint in registry"
+                    {...register("saveInReg")}
+                    control={control}
+                />
+                {watch("saveInReg") && (<>
+                    <AddToRegistry path={props.path} fileName={watch("name")} register={register} errors={errors} getValues={getValues} />
+                </>)}
+            </>)}
             <FormActions>
                 <Button
                     appearance="primary"

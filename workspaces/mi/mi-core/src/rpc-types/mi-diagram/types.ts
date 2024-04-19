@@ -71,10 +71,12 @@ export interface UpdateLoadBalanceEPRequest {
     description: string;
     endpoints: { type: string; value: string; }[];
     properties: { name: string; value: string; scope: string; }[];
+    getContentOnly: boolean;
 }
 
 export interface UpdateLoadBalanceEPResponse {
     path: string;
+    content: string;
 }
 
 export interface GetLoadBalanceEPRequest {
@@ -152,10 +154,12 @@ export interface UpdateTemplateEPRequest {
     template: string;
     description: string;
     parameters: { name: string; value: string; }[];
+    getContentOnly: boolean;
 }
 
 export interface UpdateTemplateEPResponse {
     path: string;
+    content: string;
 }
 
 export interface GetTemplateEPRequest {
@@ -317,6 +321,7 @@ export interface CreateProjectRequest {
     open: boolean;
     groupID?: string;
     artifactID?: string;
+    version?: string;
 }
 
 export interface ImportProjectRequest {
@@ -1117,4 +1122,33 @@ export interface GetIconPathUriRequest {
 
 export interface GetIconPathUriResponse {
     uri: any;
+}
+
+export interface GetUserAccessTokenResponse{
+    token: string;
+}
+
+export interface CreateConnectionRequest {
+    connectionName: string;
+    keyValuesXML: string;
+    directory: string;
+}
+
+export interface CreateConnectionResponse {
+    name: string
+}
+
+export interface ConnectorConnection {
+    name: string;
+    path: string;
+    connectionType?: string;
+}
+
+export interface GetConnectorConnectionsRequest {
+    documentUri: string;
+    connectorName: string;
+}
+
+export interface GetConnectorConnectionsResponse {
+    connections?: ConnectorConnection[]
 }
