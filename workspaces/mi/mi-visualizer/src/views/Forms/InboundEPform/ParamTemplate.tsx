@@ -7,697 +7,944 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-interface Paramater {
+export interface Paramater {
     name?: string;
-    type: string;
+    type: 'text' | 'checkbox' | 'dropdown' | 'radio';
     value: string | number | boolean;
-    items?: { content: string; value: string }[];
+    items?: { content?: string; value: string }[];
+    validate?: {
+        type: string;
+        required?: boolean;
+        min?: number;
+        max?: number;
+    };
+    description?: string;
 }
 
 interface ParamPool {
     [key: string]: {
-        [key: string]: Paramater | {
+        [key: string]: {
             [key: string]: Paramater;
         };
     };
 }
 
-export const inboundEndpointParams: ParamPool = {
+export const defaultParameters: { [key: string]: { [key: string]: string | number | boolean; } } = {
     custom: {
-        class: {
-            type: 'text',
-            value: 'org.wso2.carbon.inbound.kafka.KafkaMessageConsumer',
-        },
-        'inbound.behavior': {
-            name: 'Inbound Endpoint Behavior',
-            type: 'dropdown',
-            items: [
-                {
-                    content: "Polling Inbound Endpoint",
-                    value: "polling",
-                },
-                {
-                    content: "Listening Inbound Endpoint",
-                    value: "listening",
-                },
-                {
-                    content: "Event Based Inbound Endpoint",
-                    value: "eventBased",
-                },
-            ],
-            value: 'polling',
-        },
-        interval: {
-            type: 'text',
-            value: 1000,
-        },
-        sequential: {
-            type: 'checkbox',
-            value: true,
-        },
-        coordination: {
-            type: 'checkbox',
-            value: true,
-        },
+        interval: 1000,
+        class: 'org.wso2.carbon.inbound.kafka.KafkaMessageConsumer',
+        sequential: true,
+        coordination: true,
+        'inbound.behavior': 'polling',
+    },
+    wss: {
+        'ws.client.side.broadcast.level': 0,
+        'ws.use.port.offset': false,
+    },
+    cxf_ws_rm: {
+        enableSSL: false,
+    },
+    feed: {
+        interval: 1000,
+        'feed.type': 'Atom',
+    },
+    file: {
+        interval: 1000,
+        sequential: true,
+        coordination: true,
+        'transport.vfs.ContentType': 'text/plain',
+        'transport.vfs.LockReleaseSameNode': false,
+        'transport.vfs.AutoLockRelease': false,
+        'transport.vfs.ActionAfterFailure': 'DELETE',
+        'transport.vfs.FailedRecordsFileName':
+            'vfs-move-failed-records.properties',
+        'transport.vfs.FailedRecordsFileDestination': 'repository/conf/',
+        'transport.vfs.MoveFailedRecordTimestampFormat': 'dd-MM-yyyy HH:mm:ss',
+        'transport.vfs.FailedRecordNextRetryDuration': 3000,
+        'transport.vfs.ActionAfterProcess': 'DELETE',
+        'transport.vfs.ReplyFileName': 'response.xml',
+        'transport.vfs.DistributedLock': false,
+        'transport.vfs.FileNamePattern': '.*.txt',
+        'transport.vfs.Locking': 'enable',
+        'transport.vfs.SFTPUserDirIsRoot': false,
+        'transport.vfs.FileSortAttribute': 'none',
+        'transport.vfs.FileSortAscending': true,
+        'transport.vfs.CreateFolder': true,
+        'transport.vfs.Streaming': false,
+        'transport.vfs.Build': false,
+        'transport.vfs.UpdateLastModified': true,
+    },
+    hl7: {
+        'inbound.hl7.AutoAck': true,
+        'inbound.hl7.TimeOut': 10000,
+        'inbound.hl7.CharSet': 'UTF-8',
+        'inbound.hl7.ValidateMessage': true,
+        'inbound.hl7.BuildInvalidMessages': true,
+        'inbound.hl7.PassThroughInvalidMessages': true,
     },
     http: {
-        'inbound.http.port': {
-            type: 'text',
-            value: 8000,
+        'inbound.http.port': 8000,
+        'inbound.worker.pool.size.core': 400,
+        'inbound.worker.pool.size.max': 500,
+        'inbound.worker.thread.keep.alive.sec': 60,
+        'inbound.worker.pool.queue.length': -1,
+        'inbound.thread.id': 'PassThroughInboundWorkerPool',
+    },
+    https: {
+        'inbound.http.port': 8000,
+        'inbound.worker.pool.size.core': 400,
+        'inbound.worker.pool.size.max': 500,
+        'inbound.worker.thread.keep.alive.sec': 60,
+        'inbound.worker.pool.queue.length': -1,
+        'inbound.thread.id': 'PassThroughInboundWorkerPool',
+    },
+    jms: {
+        interval: 1000,
+        sequential: true,
+        coordination: true,
+        'transport.jms.CacheLevel': 3,
+        'transport.jms.SessionAcknowledgement': 'AUTO_ACKNOWLEDGE',
+        'transport.jms.SessionTransacted': false,
+        'transport.jms.ConnectionFactoryType': 'queue',
+        'transport.jms.SharedSubscription': false,
+        'transport.jms.ResetConnectionOnPollingSuspension': false,
+    },
+    kafka: {
+        interval: 1000,
+        sequential: true,
+        coordination: true,
+        'zookeeper.connect': 'localhost:2181',
+        'group.id': 'sampleGroupID',
+        'consumer.type': 'highlevel',
+        topics: 'sampleTopic',
+        'thread.count': 1,
+        'socket.timeout.ms': 30000,
+        'socket.receive.buffer.bytes': 65536,
+        'fetch.message.max.bytes': 1048576,
+        'num.consumer.fetchers': 1,
+        'auto.commit.enable': false,
+        'auto.commit.interval.ms': 60000,
+        'queued.max.message.chunks': 2,
+        'rebalance.max.retries': 4,
+        'fetch.min.bytes': 1,
+        'fetch.wait.max.ms': 100,
+        'rebalance.backoff.ms': 2000,
+        'refresh.leader.backoff.ms': 200,
+        'auto.offset.reset': 'largest',
+        'consumer.timeout.ms': 3000,
+        'exclude.internal.topics': false,
+        'partition.assignment.strategy': 'roundrobin',
+        'zookeeper.session.timeout.ms': 6000,
+        'zookeeper.connection.timeout.ms': 6000,
+        'zookeeper.sync.time.ms': 2000,
+        'offsets.storage': 'zookeeper',
+        'offsets.channel.backoff.ms': 1000,
+        'offsets.channel.socket.timeout.ms': 10000,
+        'offsets.commit.max.retries': 5,
+        'dual.commit.enabled': true,
+    },
+    mqtt: {
+        sequential: true,
+        'mqtt.connection.factory': 'AMQPConnectionFactory',
+        'mqtt.subscription.qos': 0,
+        'mqtt.session.clean': false,
+        'mqtt.reconnection.interval': 1000,
+    },
+    rabbitmq: {
+        sequential: true,
+        coordination: true,
+        'rabbitmq.connection.factory': 'connection_factory',
+        'rabbitmq.server.host.name': 'localhost',
+        'rabbitmq.server.port': 5672,
+        'rabbitmq.server.user.name': 'guest',
+        'rabbitmq.server.password': 'guest',
+        'rabbitmq.queue.name': 'queue_name',
+        'rabbitmq.exchange.name': 'excahnge_name',
+    },
+    ws: {
+        'ws.client.side.broadcast.level': 0,
+        'ws.use.port.offset': false,
+    },
+    wso2_mb: {
+        interval: 1000,
+        sequential: true,
+        coordination: true,
+        'transport.jms.CacheLevel': 3,
+        'java.naming.factory.initial':
+            'org.wso2.andes.jndi.PropertiesFileInitialContextFactory',
+        'transport.jms.SessionAcknowledgement': 'AUTO_ACKNOWLEDGE',
+        'transport.jms.SessionTransacted': false,
+        'transport.jms.ConnectionFactoryType': 'topic',
+        'connectionfactory.TopicConnectionFactory':
+            "amqp://admin:admin@clientID/carbon?brokerlist='tcp://localhost:5673'",
+        'transport.jms.SharedSubscription': false,
+    },
+};
+
+export const inboundEndpointParams: ParamPool = {
+    custom: {
+        basic: {
+            class: {
+                type: 'text',
+                value: 'org.wso2.carbon.inbound.kafka.KafkaMessageConsumer',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
+            },
+            'inbound.behavior': {
+                name: 'Behavior',
+                type: 'dropdown',
+                items: [
+                    {
+                        content: "Polling Inbound Endpoint",
+                        value: "polling",
+                    },
+                    {
+                        content: "Listening Inbound Endpoint",
+                        value: "listening",
+                    },
+                    {
+                        content: "Event Based Inbound Endpoint",
+                        value: "eventBased",
+                    },
+                ],
+                value: 'polling',
+                description: 'Select the behavior of the inbound endpoint',
+            },
+            interval: {
+                type: 'text',
+                value: 1000,
+                validate: {
+                    type: 'number',
+                    required: true,
+                    min: 0,
+                },
+                description: 'Polling interval in milliseconds',
+            },
+            sequential: {
+                type: 'checkbox',
+                value: true,
+                description: 'Enable sequential processing',
+            },
+            coordination: {
+                type: 'checkbox',
+                value: true,
+            },
+        }
+    },
+    http: {
+        basic: {
+            'inbound.http.port': {
+                name: 'Port',
+                type: 'text',
+                value: 8000,
+                validate: {
+                    type: 'number',
+                    required: true,
+                },
+                description: 'The port on which the endpoint listener should be started.'
+            },
         },
-        advance: {
+        advanced: {
             'inbound.worker.pool.size.core': {
+                name: 'Worker Pool Size - Core',
                 type: 'text',
                 value: 400,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
             },
             'inbound.worker.pool.size.max': {
+                name: 'Worker Pool Size - Max',
                 type: 'text',
                 value: 500,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
             },
             'inbound.worker.thread.keep.alive.sec': {
+                name: 'Thread Keep Alive Time (sec)',
                 type: 'text',
                 value: 60,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
             },
             'inbound.worker.pool.queue.length': {
+                name: 'Worker Pool Queue Length',
                 type: 'text',
                 value: -1,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
             },
             'inbound.thread.group.id': {
+                name: 'Thread Group ID',
                 type: 'text',
                 value: '',
             },
             'inbound.thread.id': {
+                name: 'Thread ID',
                 type: 'text',
                 value: 'PassThroughInboundWorkerPool',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
             'dispatch.filter.pattern': {
+                name: 'Filter Pattern',
                 type: 'text',
                 value: '',
             },
         }
     },
     cxf_ws_rm: {
-        'inbound.cxf.rm.host': {
-            type: 'text',
-            value: '',
+        basic: {
+            'inbound.cxf.rm.host': {
+                name: 'Host',
+                type: 'text',
+                value: '',
+            },
+            'inbound.cxf.rm.port': {
+                name: 'Port',
+                type: 'text',
+                value: '',
+            },
         },
-        'inbound.cxf.rm.port': {
-            type: 'text',
-            value: '',
-        },
-        'inbound.cxf.rm.config-file': {
-            type: 'text',
-            value: '',
-        },
-        enableSSL: {
-            name: 'Enable SSL',
-            type: 'checkbox',
-            value: false,
-        },
+        advanced: {
+            'inbound.cxf.rm.config-file': {
+                name: 'Config File',
+                type: 'text',
+                value: '',
+            },
+            enableSSL: {
+                name: 'Enable SSL',
+                type: 'checkbox',
+                value: false,
+            },
+        }
     },
     feed: {
-        interval: {
-            type: 'text',
-            value: 1000,
-        },
-        'feed.url': {
-            name: 'Transport Feed URL',
-            type: 'text',
-            value: '',
-        },
-        'feed.type': {
-            name: 'Transport Feed Type',
-            type: 'dropdown',
-            items: [
-                {
-                    content: "RSS",
-                    value: "RSS",
-                },
-                {
-                    content: "Atom",
-                    value: "Atom",
-                },
-            ],
-            value: 'Atom',
-        },
+        basic: {
+            interval: {
+                name: 'Interval',
+                type: 'text',
+                value: 1000,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
+            'feed.url': {
+                name: 'URL',
+                type: 'text',
+                value: '',
+            },
+            'feed.type': {
+                name: 'Type',
+                type: 'radio',
+                items: [
+                    { content: 'RSS', value: "RSS" },
+                    { content: 'Atom', value: "Atom" },
+                ],
+                value: 'Atom',
+            },
+        }
     },
     hl7: {
-        'inbound.hl7.Port': {
-            name: 'Inbound HL7 Port',
-            type: 'text',
-            value: '',
+        basic: {
+            'inbound.hl7.Port': {
+                name: 'Port',
+                type: 'text',
+                value: '',
+            },
+            'inbound.hl7.AutoAck': {
+                name: 'Auto Ack',
+                type: 'checkbox',
+                value: true,
+            },
         },
-        'inbound.hl7.AutoAck': {
-            name: 'Inbound HL7 Auto Acknowledgement',
-            type: 'checkbox',
-            value: true,
-        },
-        advance: {
+        advanced: {
             'inbound.hl7.MessagePreProcessor': {
-                name: 'Inbound HL7 Message Pre-processor',
+                name: 'Message Pre-processor',
                 type: 'text',
                 value: '',
             },
             'inbound.hl7.CharSet': {
-                name: 'Inbound HL7 Char Set',
+                name: 'CharSet',
                 type: 'text',
                 value: 'UTF-8',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
             'inbound.hl7.TimeOut': {
-                name: 'Inbound HL7 Time Out',
+                name: 'Timeout',
                 type: 'text',
                 value: 10000,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
             },
             'inbound.hl7.ValidateMessage': {
-                name: 'Inbound HL7 Validate Message',
+                name: 'Validate Message',
                 type: 'checkbox',
                 value: true,
             },
             'inbound.hl7.BuildInvalidMessages': {
-                name: 'Inbound HL7 Build Invalid Messages',
+                name: 'Build Invalid Messages',
                 type: 'checkbox',
                 value: true,
             },
             'inbound.hl7.PassThroughInvalidMessages': {
-                name: 'Inbound HL7 Pass Through Invalid Messages',
+                name: 'Passthrough Invalid Messages',
                 type: 'checkbox',
                 value: true,
             },
         }
     },
     jms: {
-        interval: {
-            type: 'text',
-            value: 1000,
-        },
-        sequential: {
-            type: 'checkbox',
-            value: true,
-        },
-        coordination: {
-            type: 'checkbox',
-            value: true,
-        },
-        'java.naming.factory.initial': {
-            type: 'text',
-            value: '',
-        },
-        'java.naming.provider.url': {
-            type: 'text',
-            value: '',
-        },
-        'java.naming.security.credentials': {
-            type: 'text',
-            value: '',
-        },
-        'java.naming.security.principal': {
-            type: 'text',
-            value: '',
-        },
-        'transport.jms.ConnectionFactoryJNDIName': {
-            type: 'text',
-            name: 'Connection Factory JNDI Name',
-            value: '',
-        },
-        'transport.jms.ConnectionFactoryType': {
-            type: 'dropdown',
-            name: 'Connection Factory Type',
-            value: 'queue',
-            items: [
-                {
-                    content: "queue",
-                    value: "queue",
-                },
-                {
-                    content: "topic",
-                    value: "topic",
-                },
-            ],
-        },
-        'transport.jms.Destination': {
-            type: 'text',
-            value: '',
-        },
-        'transport.jms.SessionTransacted': {
-            type: 'checkbox',
-            name: 'Session Transacted',
-            value: false,
-        },
-        'transport.jms.SessionAcknowledgement': {
-            type: 'dropdown',
-            name: 'Session Acknowledgement',
-            value: 'AUTO_ACKNOWLEDGE',
-            items: [
-                {
-                    content: "AUTO_ACKNOWLEDGE",
-                    value: "AUTO_ACKNOWLEDGE",
-                },
-                {
-                    content: "CLIENT_ACKNOWLEDGE",
-                    value: "CLIENT_ACKNOWLEDGE",
-                },
-                {
-                    content: "DUPS_OK_ACKNOWLEDGE",
-                    value: "DUPS_OK_ACKNOWLEDGE",
-                },
-                {
-                    content: "SESSION_TRANSACTED",
-                    value: "SESSION_TRANSACTED",
-                }
-            ],
-        },
-        'transport.jms.CacheLevel': {
-            type: 'text',
-            name: 'Cache Level',
-            value: 3,
-        },
-        advance: {
-            'transport.jms.MessageSelector': {
+        basic: {
+            interval: {
+                name: 'Polling Interval',
                 type: 'text',
-                name: 'Message Selector',
+                value: 1000,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
+            sequential: {
+                type: 'checkbox',
+                value: true,
+            },
+            coordination: {
+                type: 'checkbox',
+                value: true,
+            },
+        },
+        connection: {
+            'java.naming.factory.initial': {
+                type: 'text',
+                value: '',
+            },
+            'java.naming.provider.url': {
+                type: 'text',
+                value: '',
+            },
+            'transport.jms.ConnectionFactoryJNDIName': {
+                name: 'Connection Factory JNDI Name',
+                type: 'text',
+                value: '',
+            },
+            'transport.jms.ConnectionFactoryType': {
+                name: 'Connection Factory Type',
+                type: 'radio',
+                value: 'queue',
+                items: [
+                    { content: "queue", value: "queue" },
+                    { content: "topic", value: "topic" },
+                ],
+            },
+            'transport.jms.Destination': {
+                name: 'Destination Name',
+                type: 'text',
+                value: '',
+            },
+            'transport.jms.ReplyDestination': {
+                name: 'Reply Destination',
+                type: 'text',
+                value: '',
+            },
+        },
+        session: {
+            'transport.jms.SessionTransacted': {
+                name: 'Session Transacted',
+                type: 'checkbox',
+                value: false,
+            },
+            'transport.jms.SessionAcknowledgement': {
+                name: 'Session Ack',
+                type: 'dropdown',
+                value: 'AUTO_ACKNOWLEDGE',
+                items: [
+                    { value: "AUTO_ACKNOWLEDGE" },
+                    { value: "CLIENT_ACKNOWLEDGE" },
+                    { value: "DUPS_OK_ACKNOWLEDGE" },
+                    { value: "SESSION_TRANSACTED" }
+                ],
+            },
+        },
+        security: {
+            'java.naming.security.credentials': {
+                type: 'text',
+                value: '',
+            },
+            'java.naming.security.principal': {
+                type: 'text',
                 value: '',
             },
             'transport.jms.UserName': {
+                name: 'User Name',
                 type: 'text',
                 value: '',
             },
             'transport.jms.Password': {
+                name: 'Password',
                 type: 'text',
                 value: '',
             },
-            'transport.jms.SubscriptionDurable': {
+        },
+        message: {
+            'transport.jms.CacheLevel': {
+                name: 'Cache Level',
                 type: 'text',
-                name: 'Subscription Durable',
+                value: 3,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
+            'transport.jms.ContentType': {
+                name: 'Content Type',
+                type: 'text',
                 value: '',
             },
             'transport.jms.JMSSpecVersion': {
+                name: 'JMS Spec Version',
+                type: 'text',
+                value: '',
+            },
+            'transport.jms.ContentTypeProperty': {
+                name: 'Content Type Property',
+                type: 'text',
+                value: '',
+            },
+        },
+        subscription: {
+            'transport.jms.SubscriptionDurable': {
+                name: 'Subscription Durable',
                 type: 'text',
                 value: '',
             },
             'transport.jms.DurableSubscriberClientID': {
-                type: 'text',
                 name: 'Durable Subscriber Client ID',
-                value: '',
-            },
-            'transport.jms.ReceiveTimeout': {
                 type: 'text',
-                name: 'Receive Timeout',
-                value: '',
-            },
-            'transport.jms.ContentType': {
-                type: 'text',
-                name: 'Content Type',
-                value: '',
-            },
-            'transport.jms.ReplyDestination': {
-                type: 'text',
-                name: 'Reply Destination',
-                value: '',
-            },
-            'transport.jms.PubSubNoLocal': {
-                type: 'text',
-                name: 'Pub Sub No Local',
                 value: '',
             },
             'transport.jms.DurableSubscriberName': {
-                type: 'text',
                 name: 'Durable Subscriber Name',
-                value: '',
-            },
-            'transport.jms.ContentTypeProperty': {
                 type: 'text',
-                name: 'Content Type Property',
                 value: '',
             },
             'transport.jms.SharedSubscription': {
-                type: 'checkbox',
                 name: 'Shared Subscription',
+                type: 'checkbox',
                 value: false,
             },
-            'pinnedServers': {
-                type: 'text',
-                name: 'Pinned Servers',
-                value: '',
-            },
+        },
+        resilience: {
             'concurrent.consumers': {
                 type: 'text',
                 value: '',
             },
             'transport.jms.retry.duration': {
+                name: 'Retry Duration',
                 type: 'text',
                 value: '',
             },
             'transport.jms.ResetConnectionOnPollingSuspension': {
-                type: 'checkbox',
                 name: 'Reset Connection On Polling Suspension',
+                type: 'checkbox',
                 value: false,
             },
             'transport.jms.RetriesBeforeSuspension': {
-                type: 'text',
                 name: 'Retries Before Suspension',
+                type: 'text',
                 value: '',
             },
             'transport.jms.PollingSuspensionPeriod': {
-                type: 'text',
                 name: 'Polling Suspension Period',
+                type: 'text',
+                value: '',
+            },
+            'transport.jms.ReceiveTimeout': {
+                name: 'Receive Timeout',
+                type: 'text',
+                value: '',
+            },
+        },
+        other: {
+            'transport.jms.MessageSelector': {
+                name: 'Message Selector',
+                type: 'text',
+                value: '',
+            },
+            'transport.jms.PubSubNoLocal': {
+                name: 'PubSub No Local',
+                type: 'text',
+                value: '',
+            },
+            'pinnedServers': {
+                name: 'Pinned Servers',
+                type: 'text',
                 value: '',
             },
             'db_url': {
+                name: 'DB URL',
                 type: 'text',
                 value: '',
             },
             'transport.jms.MessagePropertyHyphens': {
-                type: 'text',
                 name: 'Message Property Hyphens',
+                type: 'text',
                 value: '',
             },
         }
     },
     file: {
-        interval: {
-            type: 'text',
-            value: 1000,
-        },
-        sequential: {
-            type: 'checkbox',
-            value: true,
-        },
-        coordination: {
-            type: 'checkbox',
-            value: true,
-        },
-        'transport.vfs.FileURI': {
-            type: 'text',
-            name: 'File URI',
-            value: '',
-        },
-        'transport.vfs.ContentType': {
-            type: 'text',
-            name: 'Content Type',
-            value: 'text/plain',
-        },
-        advance: {
-            'transport.vfs.LockReleaseSameNode': {
+        basic: {
+            'transport.vfs.FileURI': {
+                name: 'File URI',
+                type: 'text',
+                value: '',
+            },
+            interval: {
+                name: 'Polling Interval',
+                type: 'text',
+                value: 1000,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
+            sequential: {
                 type: 'checkbox',
+                value: true,
+            },
+            coordination: {
+                type: 'checkbox',
+                value: true,
+            },
+            'transport.vfs.ContentType': {
+                name: 'Content-Type',
+                type: 'text',
+                value: 'text/plain',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
+            },
+            'transport.vfs.FileNamePattern': {
+                name: 'File Name Pattern',
+                type: 'text',
+                value: '.*.txt',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
+            },
+            'transport.vfs.FileProcessInterval': {
+                name: 'Processing Interval',
+                type: 'text',
+                value: '',
+            },
+            'transport.vfs.ReplyFileURI': {
+                name: 'Reply File URI',
+                type: 'text',
+                value: '',
+            },
+            'transport.vfs.ReplyFileName': {
+                name: 'Reply File Name',
+                type: 'text',
+                value: 'response.xml',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
+            },
+        },
+        actions: {
+            'transport.vfs.ActionAfterProcess': {
+                name: 'Action After Process',
+                type: 'dropdown',
+                value: 'DELETE',
+                items: [
+                    { value: "DELETE", },
+                    { value: "MOVE", },
+                    { value: "NONE", },
+                ],
+            },
+            'transport.vfs.MoveAfterProcess': {
+                name: 'Move After Process',
+                type: 'text',
+                value: '',
+            },
+            'transport.vfs.MoveAfterFailure': {
+                name: 'Move After Failure',
+                type: 'text',
+                value: '',
+            },
+            'transport.vfs.MoveTimestampFormat': {
+                name: 'Move Timestamp Format',
+                type: 'text',
+                value: '',
+            },
+            'transport.vfs.ActionAfterFailure': {
+                name: 'Action After Failure',
+                type: 'dropdown',
+                value: 'DELETE',
+                items: [
+                    { value: "DELETE", },
+                    { value: "MOVE", },
+                    { value: "NONE", },
+                ],
+            },
+            'transport.vfs.MoveAfterFailedMove': {
+                name: 'Move After Failed Move',
+                type: 'text',
+                value: '',
+            },
+        },
+        resilience: {
+            'transport.vfs.MaxRetryCount': {
+                name: 'Max Retry Count',
+                type: 'text',
+                value: '',
+            },
+            'transport.vfs.ReconnectTimeout': {
+                name: 'Reconnect Timeout',
+                type: 'text',
+                value: '',
+            },
+            'transport.vfs.LockReleaseSameNode': {
                 name: 'Lock Release Same Node',
+                type: 'checkbox',
                 value: false,
+            },
+            'transport.vfs.FailedRecordsFileName': {
+                name: 'Failed Records File Name',
+                type: 'text',
+                value: 'vfs-move-failed-records.properties',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
+            },
+            'transport.vfs.FailedRecordsFileDestination': {
+                name: 'Failed Records File Destination',
+                type: 'text',
+                value: 'repository/conf/',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
+            },
+            'transport.vfs.MoveFailedRecordTimestampFormat': {
+                name: 'Move Failed Record Timestamp Format',
+                type: 'text',
+                value: 'dd-MM-yyyy HH:mm:ss',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
+            },
+            'transport.vfs.FailedRecordNextRetryDuration': {
+                name: 'Failed Record Next Retry Duration',
+                type: 'text',
+                value: 3000,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
             },
             'transport.vfs.AutoLockRelease': {
                 type: 'checkbox',
                 name: 'Auto Lock Release',
                 value: false,
             },
-            'transport.vfs.ActionAfterFailure': {
-                type: 'dropdown',
-                name: 'Action After Failure',
-                value: 'DELETE',
-                items: [
-                    {
-                        content: "DELETE",
-                        value: "DELETE",
-                    },
-                    {
-                        content: "MOVE",
-                        value: "MOVE",
-                    },
-                    {
-                        content: "NONE",
-                        value: "NONE",
-                    },
-                ],
-            },
-            'transport.vfs.MaxRetryCount': {
+        },
+        other: {
+            'transport.vfs.DistributedTimeout': {
+                name: 'Distributed Timeout',
                 type: 'text',
-                name: 'Max Retry Count',
                 value: '',
             },
-            'transport.vfs.MoveAfterFailedMove': {
+            'transport.vfs.SFTPIdentities': {
+                name: 'SFTP Identities',
                 type: 'text',
-                name: 'Move After Failed Move',
                 value: '',
             },
-            'transport.vfs.FailedRecordsFileName': {
+            'transport.vfs.SFTPIdentityPassPhrase': {
+                name: 'SFTP Identity Pass Phrase',
                 type: 'text',
-                name: 'Failed Records File Name',
-                value: 'vfs-move-failed-records.properties',
-            },
-            'transport.vfs.FailedRecordsFileDestination': {
-                type: 'text',
-                name: 'Failed Records File Destination',
-                value: 'repository/conf/',
-            },
-            'transport.vfs.MoveFailedRecordTimestampFormat': {
-                type: 'text',
-                name: 'Move Failed Record Timestamp Format',
-                value: 'dd-MM-yyyy HH:mm:ss',
-            },
-            'transport.vfs.FailedRecordNextRetryDuration': {
-                type: 'text',
-                name: 'Failed Record Next Retry Duration',
-                value: 3000,
-            },
-            'transport.vfs.ReconnectTimeout': {
-                type: 'text',
-                name: 'Reconnect Timeout',
                 value: '',
             },
-            'transport.vfs.ActionAfterProcess': {
-                type: 'dropdown',
-                name: 'Action After Process',
-                value: 'DELETE',
-                items: [
-                    {
-                        content: "DELETE",
-                        value: "DELETE",
-                    },
-                    {
-                        content: "MOVE",
-                        value: "MOVE",
-                    },
-                    {
-                        content: "NONE",
-                        value: "NONE",
-                    },
-                ],
+            'transport.vfs.SFTPUserDirIsRoot': {
+                name: 'SFTP User Dirls Root',
+                type: 'checkbox',
+                value: false,
             },
-            'transport.vfs.MoveAfterFailure': {
+            'transport.vfs.FileSortAttribute': {
+                name: 'File Sort Attribute',
                 type: 'text',
-                name: 'Move After Failure',
+                value: 'none',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
+            },
+            'transport.vfs.FileSortAscending': {
+                name: 'File Sort Ascending',
+                type: 'checkbox',
+                value: true,
+            },
+            'transport.vfs.SubFolderTimestampFormat': {
+                name: 'Sub Folder Timestamp Format',
+                type: 'text',
                 value: '',
             },
-            'transport.vfs.ReplyFileURI': {
+            'transport.vfs.CreateFolder': {
+                name: 'Create Folder',
+                type: 'checkbox',
+                value: true,
+            },
+            'transport.vfs.FileProcessCount': {
+                name: 'File Process Count',
                 type: 'text',
-                name: 'Reply File URI',
                 value: '',
             },
-            'transport.vfs.ReplyFileName': {
-                type: 'text',
-                name: 'Reply File Name',
-                value: 'response.xml',
+            'transport.vfs.Streaming': {
+                name: 'Streaming',
+                type: 'checkbox',
+                value: false,
             },
-            'transport.vfs.MoveTimestampFormat': {
-                type: 'text',
-                name: 'Move Timestamp Format',
-                value: '',
+            'transport.vfs.Build': {
+                name: 'Build',
+                type: 'checkbox',
+                value: false,
+            },
+            'transport.vfs.UpdateLastModified': {
+                name: 'Update Last Modified',
+                type: 'checkbox',
+                value: true,
             },
             'transport.vfs.DistributedLock': {
                 type: 'checkbox',
                 name: 'Distributed Lock',
                 value: false,
             },
-            'transport.vfs.FileNamePattern': {
-                type: 'text',
-                name: 'File Name Pattern',
-                value: '.*.txt',
-            },
-            'transport.vfs.FileProcessInterval': {
-                type: 'text',
-                name: 'File Process Interval',
-                value: '',
-            },
-            'transport.vfs.MoveAfterProcess': {
-                type: 'text',
-                name: 'Move After Process',
-                value: '',
-            },
             'transport.vfs.Locking': {
-                type: 'dropdown',
+                type: 'radio',
                 name: 'Locking',
                 value: 'enable',
                 items: [
-                    {
-                        content: "enable",
-                        value: "enable",
-                    },
-                    {
-                        content: "disable",
-                        value: "disable",
-                    },
+                    { content: "enable", value: "enable", },
+                    { content: "disable", value: "disable", },
                 ],
-            },
-            'transport.vfs.DistributedTimeout': {
-                type: 'text',
-                name: 'Distributed Timeout',
-                value: '',
-            },
-            'transport.vfs.SFTPIdentities': {
-                type: 'text',
-                name: 'SFTP Identities',
-                value: '',
-            },
-            'transport.vfs.SFTPIdentityPassPhrase': {
-                type: 'text',
-                name: 'SFTP Identity Pass Phrase',
-                value: '',
-            },
-            'transport.vfs.SFTPUserDirIsRoot': {
-                type: 'checkbox',
-                name: 'SFTP User Dir Is Root',
-                value: false,
-            },
-            'transport.vfs.FileSortAttribute': {
-                type: 'text',
-                name: 'File Sort Attribute',
-                value: 'none',
-            },
-            'transport.vfs.FileSortAscending': {
-                type: 'checkbox',
-                name: 'File Sort Ascending',
-                value: true,
-            },
-            'transport.vfs.SubFolderTimestampFormat': {
-                type: 'text',
-                name: 'Sub Folder Timestamp Format',
-                value: '',
-            },
-            'transport.vfs.CreateFolder': {
-                type: 'checkbox',
-                name: 'Create Folder',
-                value: true,
-            },
-            'transport.vfs.FileProcessCount': {
-                type: 'text',
-                name: 'File Process Count',
-                value: '',
-            },
-            'transport.vfs.Streaming': {
-                type: 'checkbox',
-                name: 'Streaming',
-                value: false,
-            },
-            'transport.vfs.Build': {
-                type: 'checkbox',
-                name: 'Build',
-                value: false,
-            },
-            'transport.vfs.UpdateLastModified': {
-                type: 'checkbox',
-                name: 'Update Last Modified',
-                value: true,
             },
         }
     },
     ws: {
-        'inbound.ws.port': {
-            type: 'text',
-            value: '',
+        basic: {
+            'inbound.ws.port': {
+                name: 'Port',
+                type: 'text',
+                value: '',
+            },
+            'ws.outflow.dispatch.sequence': {
+                name: 'Outflow Sequence',
+                type: 'text',
+                value: '',
+            },
+            'ws.outflow.dispatch.fault.sequence': {
+                name: 'Outflow Fault Sequence',
+                type: 'text',
+                value: '',
+            },
+            'ws.client.side.broadcast.level': {
+                name: 'Client Side Broadcast Level',
+                type: 'radio',
+                value: '0',
+                items: [
+                    { content: "0", value: '0', },
+                    { content: "1", value: '1', },
+                    { content: "2", value: '2', },
+                ],
+            },
         },
-        'ws.client.side.broadcast.level': {
-            type: 'dropdown',
-            value: '0',
-            items: [
-                {
-                    content: "0",
-                    value: '0',
-                },
-                {
-                    content: "1",
-                    value: '1',
-                },
-                {
-                    content: "2",
-                    value: '2',
-                },
-            ],
-        },
-        'ws.outflow.dispatch.sequence': {
-            type: 'text',
-            value: '',
-        },
-        'ws.outflow.dispatch.fault.sequence': {
-            type: 'text',
-            value: '',
-        },
-        advance: {
+        advanced: {
             'ws.boss.thread.pool.size': {
+                name: 'Boss Thread Pool Size',
                 type: 'text',
                 value: '',
             },
             'ws.worker.thread.pool.size': {
+                name: 'Worker Thread Pool Size',
                 type: 'text',
                 value: '',
             },
-            'ws.subprotocol.handler.class': {
-                type: 'text',
-                value: '',
-            },
-            'ws.pipeline.handler.class': {
-                type: 'text',
-                value: '',
-            },
+        },
+        other: {
             'ws.default.content.type': {
+                name: 'Default Content-Type',
                 type: 'text',
                 value: '',
             },
             'ws.shutdown.status.code': {
+                name: 'Shutdown Status Code',
                 type: 'text',
                 value: '',
             },
             'ws.shutdown.status.message': {
+                name: 'Shutdown Status Message',
                 type: 'text',
                 value: '',
             },
             'ws.use.port.offset': {
+                name: 'Use Port Offset',
                 type: 'checkbox',
                 value: false,
+            },
+            'ws.subprotocol.handler.class': {
+                name: 'Subprotocol Handler Class',
+                type: 'text',
+                value: '',
+            },
+            'ws.pipeline.handler.class': {
+                name: 'Pipeline Handler Class',
+                type: 'text',
+                value: '',
             },
         }
     },
     https: {
-        'inbound.http.port': {
-            type: 'text',
-            value: 8000,
-        },
-        'keystore': {
-            type: 'text',
-            value: '',
-        },
-        advance: {
-            'inbound.worker.pool.size.core': {
+        basic: {
+            'inbound.http.port': {
+                name: 'Port',
                 type: 'text',
-                value: 400,
+                value: 8000,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
             },
-            'inbound.worker.pool.size.max': {
-                type: 'text',
-                value: 500,
-            },
-            'inbound.worker.thread.keep.alive.sec': {
-                type: 'text',
-                value: 60,
-            },
-            'inbound.worker.pool.queue.length': {
-                type: 'text',
-                value: -1,
-            },
-            'inbound.thread.group.id': {
+            'HttpsProtocols': {
+                name: 'Https Protocols',
                 type: 'text',
                 value: '',
             },
-            'inbound.thread.id': {
-                type: 'text',
-                value: 'PassThroughInboundWorkerPool',
-            },
-            'dispatch.filter.pattern': {
+        },
+        security: {
+            'keystore': {
                 type: 'text',
                 value: '',
             },
@@ -706,243 +953,406 @@ export const inboundEndpointParams: ParamPool = {
                 value: '',
             },
             'SSLVerifyClient': {
-                type: 'text',
                 name: 'SSL Verify Client',
+                type: 'text',
                 value: '',
             },
             'SSLProtocol': {
-                type: 'text',
                 name: 'SSL Protocol',
-                value: '',
-            },
-            'HttpsProtocols': {
                 type: 'text',
-                name: 'Https Protocols',
                 value: '',
             },
             'CertificateRevocationVerifier': {
-                type: 'text',
                 name: 'Certificate Revocation Verifier',
+                type: 'text',
+                value: '',
+            },
+        },
+        advanced: {
+            'inbound.worker.pool.size.core': {
+                name: 'Worker Pool Size - Core',
+                type: 'text',
+                value: 400,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
+            'inbound.worker.pool.size.max': {
+                name: 'Worker Pool Size - Max',
+                type: 'text',
+                value: 500,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
+            'inbound.worker.thread.keep.alive.sec': {
+                name: 'Thread Keep Alive Time (sec)',
+                type: 'text',
+                value: 60,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
+            'inbound.worker.pool.queue.length': {
+                name: 'Worker Pool Queue Length',
+                type: 'text',
+                value: -1,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
+            'inbound.thread.group.id': {
+                name: 'Thread Group ID',
+                type: 'text',
+                value: '',
+            },
+            'inbound.thread.id': {
+                name: 'Thread ID',
+                type: 'text',
+                value: 'PassThroughInboundWorkerPool',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
+            },
+            'dispatch.filter.pattern': {
+                name: 'Filter Pattern',
+                type: 'text',
                 value: '',
             },
         }
     },
     wss: {
-        'inbound.ws.port': {
-            type: 'text',
-            value: '',
-        },
-        'ws.client.side.broadcast.level': {
-            type: 'dropdown',
-            value: '0',
-            items: [
-                {
-                    content: "0",
-                    value: '0',
-                },
-                {
-                    content: "1",
-                    value: '1',
-                },
-                {
-                    content: "2",
-                    value: '2',
-                },
-            ],
-        },
-        'ws.outflow.dispatch.sequence': {
-            type: 'text',
-            value: '',
-        },
-        'ws.outflow.dispatch.fault.sequence': {
-            type: 'text',
-            value: '',
-        },
-        'wss.ssl.key.store.file': {
-            type: 'text',
-            value: '',
-        },
-        'wss.ssl.key.store.pass': {
-            type: 'text',
-            value: '',
-        },
-        'wss.ssl.trust.store.file': {
-            type: 'text',
-            value: '',
-        },
-        'wss.ssl.trust.store.pass': {
-            type: 'text',
-            value: '',
-        },
-        'wss.ssl.cert.pass': {
-            type: 'text',
-            value: '',
-        },
-        advance: {
-            'ws.boss.thread.pool.size': {
+        basic: {
+            'inbound.ws.port': {
+                name: 'Port',
                 type: 'text',
                 value: '',
             },
-            'ws.worker.thread.pool.size': {
+            'ws.outflow.dispatch.sequence': {
+                name: 'Outflow Sequence',
                 type: 'text',
                 value: '',
             },
-            'ws.subprotocol.handler.class': {
+            'ws.outflow.dispatch.fault.sequence': {
+                name: 'Outflow Fault Sequence',
                 type: 'text',
                 value: '',
             },
-            'ws.default.content.type': {
+            'ws.client.side.broadcast.level': {
+                name: 'Client Side Broadcast Level',
+                type: 'radio',
+                value: '0',
+                items: [
+                    { content: "0", value: '0', },
+                    { content: "1", value: '1', },
+                    { content: "2", value: '2', },
+                ],
+            },
+        },
+        'SSL': {
+            'wss.ssl.key.store.file': {
+                name: 'Key Store Location',
                 type: 'text',
                 value: '',
             },
-            'ws.shutdown.status.code': {
+            'wss.ssl.key.store.pass': {
+                name: 'Key Store Password',
                 type: 'text',
                 value: '',
             },
-            'ws.shutdown.status.message': {
+            'wss.ssl.trust.store.file': {
+                name: 'Trust Store Location',
                 type: 'text',
                 value: '',
             },
-            'ws.use.port.offset': {
-                type: 'checkbox',
-                value: false,
+            'wss.ssl.trust.store.pass': {
+                name: 'Trust Store Password',
+                type: 'text',
+                value: '',
+            },
+            'wss.ssl.cert.pass': {
+                name: 'Certificate Password',
+                type: 'text',
+                value: '',
             },
             'wss.ssl.protocols': {
+                name: 'SSL Protocols',
                 type: 'text',
                 value: '',
             },
             'wss.ssl.cipher.suites': {
+                name: 'Cipher Suites',
+                type: 'text',
+                value: '',
+            },
+        },
+        advanced: {
+            'ws.boss.thread.pool.size': {
+                name: 'Boss Thread Pool Size',
+                type: 'text',
+                value: '',
+            },
+            'ws.worker.thread.pool.size': {
+                name: 'Worker Thread Pool Size',
+                type: 'text',
+                value: '',
+            },
+        },
+        other: {
+            'ws.default.content.type': {
+                name: 'Default Content-Type',
+                type: 'text',
+                value: '',
+            },
+            'ws.shutdown.status.code': {
+                name: 'Shutdown Status Code',
+                type: 'text',
+                value: '',
+            },
+            'ws.shutdown.status.message': {
+                name: 'Shutdown Status Message',
+                type: 'text',
+                value: '',
+            },
+            'ws.use.port.offset': {
+                name: 'Use Port Offset',
+                type: 'checkbox',
+                value: false,
+            },
+            'ws.subprotocol.handler.class': {
+                name: 'Subprotocol Handler Class',
                 type: 'text',
                 value: '',
             },
         }
     },
     kafka: {
-        interval: {
-            type: 'text',
-            value: 1000,
-        },
-        sequential: {
-            type: 'checkbox',
-            value: true,
-        },
-        coordination: {
-            type: 'checkbox',
-            value: true,
-        },
-        'zookeeper.connect': {
-            type: 'text',
-            value: 'localhost:2181',
-        },
-        'group.id': {
-            type: 'text',
-            name: 'Group ID',
-            value: 'sampleGroupID',
-        },
-        'content.type': {
-            type: 'text',
-            value: '',
-        },
-        'consumer.type': {
-            type: 'dropdown',
-            value: 'highlevel',
-            items: [
-                {
-                    content: "high level",
-                    value: "highlevel",
-                },
-                {
-                    content: "simple",
-                    value: "simple",
-                },
-            ],
-        },
-        'topics': {
-            type: 'dropdown',
-            name: 'Topics or Topics Filter ??',
-            value: 'sampleTopic',
-        },
-        advance: {
-            'thread.count': {
+        basic: {
+            interval: {
+                name: 'Polling Interval',
                 type: 'text',
-                value: 1,
+                value: 1000,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
             },
-            'consumer.id': {
+            sequential: {
+                type: 'checkbox',
+                value: true,
+            },
+            coordination: {
+                type: 'checkbox',
+                value: true,
+            },
+            'topics': {
+                name: 'Topics or Topic Filter',
+                type: 'radio',
+                value: 'topics',
+                items: [
+                    { content: "topics", value: "topics" },
+                    { content: "topic.filter", value: "topic.filter" },
+                ],
+            },
+            'topic.name': {
+                name: 'Topic Name',
+                type: 'text',
+                value: 'sampleTopic',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
+            },
+        },
+        connection: {
+            'zookeeper.connect': {
+                name: 'Zookeeper Host:Port',
+                type: 'text',
+                value: 'localhost:2181',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
+            },
+            'client.id': {
                 type: 'text',
                 value: '',
             },
             'socket.timeout.ms': {
-                type: 'text',
                 name: 'Socket Timeout (ms)',
+                type: 'text',
                 value: 30000,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
+        },
+        'advanced.connection': {
+            'zookeeper.session.timeout.ms': {
+                name: 'Zookeeper Session Timeout (ms)',
+                type: 'text',
+                value: 6000,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
+            'zookeeper.connection.timeout.ms': {
+                name: 'Zookeeper Connection Timeout (ms)',
+                type: 'text',
+                value: 6000,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
+            'zookeeper.sync.time.ms': {
+                name: 'Zookeeper Sync Timeout (ms)',
+                type: 'text',
+                value: 2000,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
             },
             'socket.receive.buffer.bytes': {
                 type: 'text',
                 value: 65536,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
             },
             'fetch.message.max.bytes': {
+                name: 'Fetch Max Bytes',
                 type: 'text',
                 value: 1048576,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
             },
-            'num.consumer.fetchers': {
+        },
+        message: {
+            'content.type': {
                 type: 'text',
-                name: 'Number of Consumer Fetchers',
-                value: 1,
+                value: '',
             },
             'auto.commit.enable': {
+                name: 'Auto Commit Enabled',
                 type: 'checkbox',
                 value: false,
             },
             'auto.commit.interval.ms': {
-                type: 'text',
                 name: 'Auto Commit Interval (ms)',
+                type: 'text',
                 value: 60000,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
             },
-            'queued.max.message.chunks': {
+        },
+        consumer: {
+            'group.id': {
+                name: 'Group ID',
                 type: 'text',
-                value: 2,
+                value: 'sampleGroupID',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
-            'rebalance.max.retries': {
-                type: 'text',
-                value: 4,
-            },
-            'fetch.min.bytes': {
-                type: 'text',
-                value: 1,
-            },
-            'fetch.wait.max.ms': {
-                type: 'text',
-                name: 'Fetch Wait Max (ms)',
-                value: 100,
-            },
-            'rebalance.backoff.ms': {
-                type: 'text',
-                name: 'Rebalance Backoff (ms)',
-                value: 2000,
-            },
-            'refresh.leader.backoff.ms': {
-                type: 'text',
-                name: 'Refresh Leader Backoff (ms)',
-                value: 200,
-            },
-            'auto.offset.reset': {
+            'consumer.type': {
                 type: 'dropdown',
-                value: 'largest',
+                value: 'highlevel',
                 items: [
                     {
-                        content: "largest",
-                        value: "largest",
+                        content: "high level",
+                        value: "highlevel",
                     },
                     {
-                        content: "smallest",
-                        value: "smallest",
+                        content: "simple",
+                        value: "simple",
                     },
                 ],
             },
-            'consumer.timeout.ms': {
+            'consumer.id': {
+                name: 'Consumer ID',
                 type: 'text',
+                value: '',
+            },
+            'num.consumer.fetchers': {
+                name: 'Number of Consumer Fetchers',
+                type: 'text',
+                value: 1,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
+            'consumer.timeout.ms': {
                 name: 'Consumer Timeout (ms)',
+                type: 'text',
                 value: 3000,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
+        },
+        advanced: {
+            'thread.count': {
+                type: 'text',
+                value: 1,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
+            'offsets.storage': {
+                type: 'dropdown',
+                value: 'zookeeper',
+                items: [
+                    { value: "zookeeper" },
+                    { value: "kafka" },
+                ],
+            },
+            'offsets.channel.backoff.ms': {
+                name: 'Offsets Channel Backoff (ms)',
+                type: 'text',
+                value: 1000,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
+            'offsets.channel.socket.timeout.ms': {
+                name: 'Offsets Channel Socket Timeout (ms)',
+                type: 'text',
+                value: 10000,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
+            'offsets.commit.max.retries': {
+                type: 'text',
+                value: 5,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
+            'dual.commit.enabled': {
+                type: 'checkbox',
+                value: true,
             },
             'exclude.internal.topics': {
                 type: 'checkbox',
@@ -962,374 +1372,448 @@ export const inboundEndpointParams: ParamPool = {
                     },
                 ],
             },
-            'client.id': {
+            'queued.max.message.chunks': {
                 type: 'text',
-                value: '',
+                value: 2,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
             },
-            'zookeeper.session.timeout.ms': {
+            'rebalance.max.retries': {
                 type: 'text',
-                name: 'Zookeeper Session Timeout (ms)',
-                value: 6000,
+                value: 4,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
             },
-            'zookeeper.connection.timeout.ms': {
+            'fetch.min.bytes': {
                 type: 'text',
-                name: 'Zookeeper Connection Timeout (ms)',
-                value: 6000,
+                value: 1,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
             },
-            'zookeeper.sync.time.ms': {
+            'fetch.wait.max.ms': {
+                name: 'Fetch Wait Max Duration (ms)',
                 type: 'text',
-                name: 'Zookeeper Sync Time (ms)',
+                value: 100,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
+            'rebalance.backoff.ms': {
+                name: 'Rebalance Backoff Time (ms)',
+                type: 'text',
                 value: 2000,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
             },
-            'offsets.storage': {
-                type: 'dropdown',
-                value: 'zookeeper',
+            'refresh.leader.backoff.ms': {
+                name: 'Refresh Leader Backoff Duration (ms)',
+                type: 'text',
+                value: 200,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
+            'auto.offset.reset': {
+                type: 'radio',
+                value: 'largest',
                 items: [
-                    {
-                        content: "zookeeper",
-                        value: "zookeeper",
-                    },
-                    {
-                        content: "kafka",
-                        value: "kafka",
-                    },
+                    { content: "largest", value: "largest" },
+                    { content: "smallest", value: "smallest" },
                 ],
-            },
-            'offsets.channel.backoff.ms': {
-                type: 'text',
-                name: 'Offsets Channel Backoff (ms)',
-                value: 1000,
-            },
-            'offsets.channel.socket.timeout.ms': {
-                type: 'text',
-                name: 'Offsets Channel Socket Timeout (ms)',
-                value: 10000,
-            },
-            'offsets.commit.max.retries': {
-                type: 'text',
-                value: 5,
-            },
-            'dual.commit.enabled': {
-                type: 'checkbox',
-                value: true,
             },
         }
     },
     mqtt: {
-        'mqtt.reconnection.interval': {
-            type: 'text',
-            name: 'Reconnection Interval',
-            value: 1000,
+        basic: {
+            sequential: {
+                type: 'checkbox',
+                value: true,
+            },
+            coordination: {
+                type: 'checkbox',
+                value: true,
+            },
         },
-        sequential: {
-            type: 'checkbox',
-            value: true,
-        },
-        coordination: {
-            type: 'checkbox',
-            value: true,
-        },
-        'mqtt.connection.factory': {
-            type: 'text',
-            value: 'AMQPConnectionFactory',
-        },
-        'mqtt.server.host.name': {
-            type: 'text',
-            value: 'nnn',
-        },
-        'mqtt.server.port': {
-            type: 'text',
-            value: 'nnn',
-        },
-        'mqtt.topic.name': {
-            type: 'text',
-            value: 'nnn',
+        connection: {
+            'mqtt.connection.factory': {
+                name: 'Connection Factory',
+                type: 'text',
+                value: 'AMQPConnectionFactory',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
+            },
+            'mqtt.server.host.name': {
+                name: 'Server Host',
+                type: 'text',
+                value: '',
+            },
+            'mqtt.server.port': {
+                name: 'Server Port',
+                type: 'text',
+                value: '',
+            },
+            'mqtt.topic.name': {
+                name: 'Topic',
+                type: 'text',
+                value: '',
+            },
+            'mqtt.reconnection.interval': {
+                name: 'Reconnection Interval',
+                type: 'text',
+                value: 1000,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
         },
         // ?? key-store ?
-        advance: {
-            'mqtt.subscription.qos': {
-                type: 'dropdown',
-                name: 'Subscription QoS',
-                value: '0',
-                items: [
-                    {
-                        content: "0",
-                        value: "0",
-                    },
-                    {
-                        content: "1",
-                        value: "1",
-                    },
-                    {
-                        content: "2",
-                        value: "2",
-                    }
-                ]
-            },
-            'mqtt.session.clean': {
-                type: 'checkbox',
-                name: 'Session Clean',
-                value: false,
-            },
-            'mqtt.ssl.enable': {
-                type: 'text',
-                name: 'SSL Enable',
-                value: '',
-            },
-            'mqtt.temporary.store.directory': {
-                type: 'text',
-                name: 'Temporary Store Directory',
-                value: '',
-            },
+        subscription: {
             'mqtt.subscription.username': {
+                name: 'Username',
                 type: 'text',
-                name: 'Subscription Username',
                 value: '',
             },
             'mqtt.subscription.password': {
+                name: 'Password',
                 type: 'text',
-                name: 'Subscription Password',
                 value: '',
             },
             'mqtt.client.id': {
-                type: 'text',
                 name: 'Client ID',
+                type: 'text',
                 value: '',
             },
-            // Trust store ???
-            'mqtt.ssl.keystore.location': {
+            'mqtt.subscription.qos': {
+                type: 'radio',
+                name: 'QOS Level',
+                value: '0',
+                items: [
+                    { content: "0", value: '0', },
+                    { content: "1", value: '1', },
+                    { content: "2", value: '2', },
+                ]
+            },
+            'mqtt.session.clean': {
+                name: 'Session Clean',
+                type: 'checkbox',
+                value: false,
+            },
+        },
+        // Trust store ???
+        'SSL': {
+            'mqtt.ssl.enable': {
+                name: 'Enable',
                 type: 'text',
-                name: 'SSL Keystore Location',
+                value: '',
+            },
+            'mqtt.ssl.keystore.location': {
+                name: 'Keystore Location',
+                type: 'text',
                 value: '',
             },
             'mqtt.ssl.keystore.type': {
+                name: 'Keystore Type',
                 type: 'text',
-                name: 'SSL Keystore Type',
                 value: '',
             },
             'mqtt.ssl.keystore.password': {
+                name: 'Keystore Password',
                 type: 'text',
-                name: 'SSL Keystore Password',
                 value: '',
             },
             'mqtt.ssl.truststore.location': {
+                name: 'Truststore Location',
                 type: 'text',
-                name: 'SSL Truststore Location',
                 value: '',
             },
             'mqtt.ssl.truststore.type': {
+                name: 'Truststore Type',
                 type: 'text',
-                name: 'SSL Truststore Type',
                 value: '',
             },
             'mqtt.ssl.truststore.password': {
+                name: 'Truststore Password',
                 type: 'text',
-                name: 'SSL Truststore Password',
                 value: '',
             },
             'mqtt.ssl.version': {
-                type: 'text',
                 name: 'SSL Version',
+                type: 'text',
+                value: '',
+            },
+        },
+        other: {
+            'mqtt.temporary.store.directory': {
+                name: 'Temporary Store Directory',
+                type: 'text',
                 value: '',
             },
         }
     },
     rabbitmq: {
-        sequential: {
-            type: 'checkbox',
-            value: true,
-        },
-        coordination: {
-            type: 'checkbox',
-            value: true,
-        },
-        'rabbitmq.connection.factory': {
-            type: 'text',
-            value: 'connection_factory',
-        },
-        'rabbitmq.server.host.name': {
-            type: 'text',
-            value: 'localhost',
-        },
-        'rabbitmq.server.port': {
-            type: 'text',
-            value: 5672,
-        },
-        'rabbitmq.server.user.name': {
-            type: 'text',
-            value: 'guest',
-        },
-        'rabbitmq.server.password': {
-            type: 'text',
-            value: 'guest',
-        },
-        'rabbitmq.queue.name': {
-            type: 'text',
-            value: 'queue_name',
-        },
-        'rabbitmq.exchange.name': {
-            type: 'text',
-            value: 'excahnge_name',
-        },
-        advance: {
-            'rabbitmq.queue.durable': {
-                type: 'text',
-                name: 'Queue Durable',
-                value: '',
+        basic: {
+            sequential: {
+                type: 'checkbox',
+                value: true,
             },
-            'rabbitmq.queue.exclusive': {
-                type: 'text',
-                name: 'Queue Exclusive',
-                value: '',
+            coordination: {
+                type: 'checkbox',
+                value: true,
             },
-            'rabbitmq.queue.auto.delete': {
+        },
+        connection: {
+            'rabbitmq.connection.factory': {
+                name: 'Connection Factory',
                 type: 'text',
-                name: 'Queue Auto Delete',
-                value: '',
+                value: 'connection_factory',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
-            'rabbitmq.queue.auto.ack': {
+            'rabbitmq.server.host.name': {
+                name: 'Server Host',
                 type: 'text',
-                name: 'Queue Auto Ack',
-                value: '',
+                value: 'localhost',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
-            'rabbitmq.queue.routing.key': {
+            'rabbitmq.server.port': {
+                name: 'Server Port',
                 type: 'text',
-                name: 'Queue Routing Key',
-                value: '',
+                value: 5672,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
             },
-            'rabbitmq.queue.delivery.mode': {
+            'rabbitmq.server.user.name': {
+                name: 'Server User Name',
                 type: 'text',
-                name: 'Queue Delivery Mode',
-                value: '',
+                value: 'guest',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
-            'rabbitmq.exchange.type': {
+            'rabbitmq.server.password': {
+                name: 'Server Password',
                 type: 'text',
-                name: 'Exchange Type',
-                value: 'mom',
+                value: 'guest',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
-            'rabbitmq.exchange.durable': {
+            'rabbitmq.queue.name': {
+                name: 'Queue Name',
                 type: 'text',
-                name: 'Exchange Durable',
-                value: 'mom',
+                value: 'queue_name',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
-            'rabbitmq.exchange.auto.delete': {
+            'rabbitmq.exchange.name': {
+                name: 'Exchange Name',
                 type: 'text',
-                name: 'Exchange Auto Delete',
-                value: 'jnn',
+                value: 'excahnge_name',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
             'rabbitmq.server.virtual.host': {
+                name: 'Virtual Host',
                 type: 'text',
-                name: 'Server Virtual Host',
                 value: 'inuin',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
             'rabbitmq.factory.heartbeat': {
-                type: 'text',
                 name: 'Factory Heartbeat',
+                type: 'text',
                 value: 'iunin',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
             'rabbitmq.factory.connection.timeout': {
+                name: 'Connection Timeout',
                 type: 'text',
-                name: 'Factory Connection Timeout',
                 value: '',
             },
-            'rabbitmq.connection.factory.network.recovery.interval': {
-                type: 'text',
-                name: 'Connection Factory Network Recovery Interval',
-                value: '',
-            },
-            'rabbitmq.connection.ssl.enabled': {
-                type: 'text',
-                name: 'Connection SSL Enabled',
-                value: '',
-            },
-            'rabbitmq.connection.ssl.keystore.location': {
-                type: 'text',
-                name: 'Connection SSL Keystore Location',
-                value: '',
-            },
-            'rabbitmq.connection.ssl.keystore.type': {
-                type: 'text',
-                name: 'Connection SSL Keystore Type',
-                value: '',
-            },
-            'rabbitmq.connection.ssl.keystore.password': {
-                type: 'text',
-                name: 'Connection SSL Keystore Password',
-                value: '',
-            },
-            'rabbitmq.connection.ssl.truststore.location': {
-                type: 'text',
-                name: 'Connection SSL Truststore Location',
-                value: '',
-            },
-            'rabbitmq.connection.ssl.truststore.type': {
-                type: 'text',
-                name: 'Connection SSL Truststore Type',
-                value: '',
-            },
-            'rabbitmq.connection.ssl.truststore.password': {
-                type: 'text',
-                name: 'Connection SSL Truststore Password',
-                value: '',
-            },
-            'rabbitmq.connection.ssl.version': {
-                type: 'text',
-                name: 'Connection SSL Version',
-                value: '',
-            },
-            'rabbitmq.message.content.type': {
-                type: 'text',
-                name: 'Message Content Type',
-                value: '',
-            },
+        },
+        resilience: {
             'rabbitmq.connection.retry.count': {
+                name: 'Retry Count',
                 type: 'text',
-                name: 'Connection Retry Count',
                 value: '',
             },
             'rabbitmq.connection.retry.interval': {
-                type: 'text',
                 name: 'Connection Retry Interval',
+                type: 'text',
                 value: '',
             },
             'rabbitmq.server.retry.interval': {
-                type: 'text',
                 name: 'Server Retry Interval',
+                type: 'text',
+                value: '',
+            },
+            'rabbitmq.connection.factory.network.recovery.interval': {
+                name: 'Connection Factory Network Recovery Interval',
+                type: 'text',
+                value: '',
+            },
+        },
+        queue: {
+            'rabbitmq.queue.durable': {
+                name: 'Durable',
+                type: 'text',
+                value: '',
+            },
+            'rabbitmq.queue.exclusive': {
+                name: 'Exclusive',
+                type: 'text',
+                value: '',
+            },
+            'rabbitmq.queue.auto.delete': {
+                name: 'Auto Delete',
+                type: 'text',
+                value: '',
+            },
+            'rabbitmq.queue.auto.ack': {
+                name: 'Auto Ack',
+                type: 'text',
+                value: '',
+            },
+            'rabbitmq.queue.routing.key': {
+                name: 'Routing Key',
+                type: 'text',
+                value: '',
+            },
+            'rabbitmq.queue.delivery.mode': {
+                name: 'Delivery Mode',
+                type: 'text',
                 value: '',
             },
             'rabbitmq.queue.autodeclare': {
+                name: 'Auto Declare',
                 type: 'checkbox',
-                name: 'Queue Auto Declare',
                 value: false,
+            },
+        },
+        exchange: {
+            'rabbitmq.exchange.type': {
+                name: 'Type',
+                type: 'text',
+                value: '',
+            },
+            'rabbitmq.exchange.durable': {
+                name: 'Durable',
+                type: 'text',
+                value: '',
+            },
+            'rabbitmq.exchange.auto.delete': {
+                name: 'Auto Delete',
+                type: 'text',
+                value: '',
             },
             'rabbitmq.exchange.autodeclare': {
+                name: 'Auto Declare',
                 type: 'checkbox',
-                name: 'Exchange Auto Declare',
                 value: false,
             },
-            'rabbitmq.message.max.dead.lettered.count': {
+        },
+        'SSL': {
+            'rabbitmq.connection.ssl.enabled': {
+                name: 'Enabled',
                 type: 'text',
-                name: 'Message Max Dead Lettered Count',
+                value: '',
+            },
+            'rabbitmq.connection.ssl.keystore.location': {
+                name: 'Keystore Location',
+                type: 'text',
+                value: '',
+            },
+            'rabbitmq.connection.ssl.keystore.type': {
+                name: 'Keystore Type',
+                type: 'text',
+                value: '',
+            },
+            'rabbitmq.connection.ssl.keystore.password': {
+                name: 'Keystore Password',
+                type: 'text',
+                value: '',
+            },
+            'rabbitmq.connection.ssl.truststore.location': {
+                name: 'Truststore Location',
+                type: 'text',
+                value: '',
+            },
+            'rabbitmq.connection.ssl.truststore.type': {
+                name: 'Truststore Type',
+                type: 'text',
+                value: '',
+            },
+            'rabbitmq.connection.ssl.truststore.password': {
+                name: 'Truststore Password',
+                type: 'text',
+                value: '',
+            },
+            'rabbitmq.connection.ssl.version': {
+                name: 'SSL Version',
+                type: 'text',
+                value: '',
+            },
+        },
+        other: {
+            'rabbitmq.message.content.type': {
+                name: 'Content-Type',
+                type: 'text',
+                value: '',
+            },
+            'rabbitmq.message.max.dead.lettered.count': {
+                name: 'Dead Lettered Count',
+                type: 'text',
                 value: '',
             },
             'rabbitmq.message.requeue.delay': {
+                name: 'Requeue Delay',
                 type: 'text',
-                name: 'Message Requeue Delay',
                 value: '',
             },
             'rabbitmq.consumer.tag': {
-                type: 'text',
                 name: 'Consumer Tag',
+                type: 'text',
                 value: '',
             },
             'rabbitmq.channel.consumer.qos': {
+                name: 'Consumer QOS',
                 type: 'text',
-                name: 'Consumer Qos Key',
                 value: '',
             },
             'rabbitmq.channel.consumer.qos.type': {
+                name: 'Consumer QOS Type',
                 type: 'dropdown',
-                name: 'Consumer Qos Type',
                 value: 'inline',
                 items: [
                     {
@@ -1343,168 +1827,185 @@ export const inboundEndpointParams: ParamPool = {
                 ]
             },
             'rabbitmq.message.error.queue.routing.key': {
+                name: 'Error Queue Routing Key',
                 type: 'text',
-                name: 'Message Error Queue Routing Key',
                 value: '',
             },
             'rabbitmq.message.error.exchange.name': {
+                name: 'Error Exchange Name',
                 type: 'text',
-                name: 'Message Error Exchange Name',
                 value: '',
             },
         }
     },
     wso2_mb: {
-        interval: {
-            type: 'text',
-            value: 1000,
-        },
-        sequential: {
-            type: 'checkbox',
-            value: true,
-        },
-        coordination: {
-            type: 'checkbox',
-            value: true,
-        },
-        'java.naming.factory.initial': {
-            type: 'text',
-            value: 'org.wso2.andes.jndi.PropertiesFileInitialContextFactory',
+        basic: {
+            sequential: {
+                type: 'checkbox',
+                value: true,
+            },
+            coordination: {
+                type: 'checkbox',
+                value: true,
+            },
+            interval: {
+                name: 'Polling Interval',
+                type: 'text',
+                value: 1000,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
         },
         // credentials ???
         // principal ???
-        'transport.jms.ConnectionFactoryJNDIName': {
-            type: 'text',
-            name: 'Connection Factory JNDI Name',
-            value: '',
-        },
-        'mb.connection.url': {
-            type: 'text',
-            name: 'WSO2 MB Connection URL',
-            value: `amqp://admin:admin@clientID/carbon?brokerlist='tcp://localhost:5673'`,
-        },
-        'transport.jms.ConnectionFactoryType': {
-            type: 'dropdown',
-            name: 'Connection Factory Type',
-            value: 'topic',
-            items: [
-                {
-                    content: "topic",
-                    value: "topic",
-                },
-                {
-                    content: "queue",
-                    value: "queue",
-                },
-            ],
-        },
-        'transport.jms.Destination': {
-            type: 'text',
-            value: '',
-        },
-        'transport.jms.SessionTransacted': {
-            type: 'checkbox',
-            name: 'Session Transacted',
-            value: false,
-        },
-        'transport.jms.SessionAcknowledgement': {
-            type: 'dropdown',
-            name: 'Session Acknowledgement',
-            value: 'AUTO_ACKNOWLEDGE',
-            items: [
-                {
-                    content: "AUTO_ACKNOWLEDGE",
-                    value: "AUTO_ACKNOWLEDGE",
-                },
-                {
-                    content: "CLIENT_ACKNOWLEDGE",
-                    value: "CLIENT_ACKNOWLEDGE",
-                },
-                {
-                    content: "DUPS_OK_ACKNOWLEDGE",
-                    value: "DUPS_OK_ACKNOWLEDGE",
-                },
-                {
-                    content: "SESSION_TRANSACTED",
-                    value: "SESSION_TRANSACTED",
+        connection: {
+            'java.naming.factory.initial': {
+                type: 'text',
+                value: 'org.wso2.andes.jndi.PropertiesFileInitialContextFactory',
+                validate: {
+                    type: 'string',
+                    required: true,
                 }
-            ],
+            },
+            'transport.jms.ConnectionFactoryJNDIName': {
+                name: 'Connection Factory JNDI Name',
+                type: 'text',
+                value: '',
+            },
+            'mb.connection.url': {
+                name: 'Connection URL',
+                type: 'text',
+                value: `amqp://admin:admin@clientID/carbon?brokerlist='tcp://localhost:5673'`,
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
+            },
+            'transport.jms.ConnectionFactoryType': {
+                name: 'Connection Factory Type',
+                type: 'radio',
+                value: 'topic',
+                items: [
+                    { content: "topic", value: "topic", },
+                    { content: "queue", value: "queue", },
+                ],
+            },
+            'transport.jms.Destination': {
+                name: 'Destination Name',
+                type: 'text',
+                value: '',
+            },
+            'transport.jms.ReplyDestination': {
+                name: 'Reply Destination',
+                type: 'text',
+                value: '',
+            },
         },
-        'transport.jms.CacheLevel': {
-            type: 'text',
-            name: 'Cache Level',
-            value: 3,
-        },
-        advance: {
-            'transport.jms.SharedSubscription': {
+        session: {
+            'transport.jms.SessionTransacted': {
                 type: 'checkbox',
-                name: 'Shared Subscription',
+                name: 'Session Transacted',
                 value: false,
             },
-            'transport.jms.SubscriptionName': {
-                type: 'text',
-                name: 'Subscription Name',
-                value: '',
+            'transport.jms.SessionAcknowledgement': {
+                type: 'dropdown',
+                name: 'Session Ack',
+                value: 'AUTO_ACKNOWLEDGE',
+                items: [
+                    { value: "AUTO_ACKNOWLEDGE", },
+                    { value: "CLIENT_ACKNOWLEDGE", },
+                    { value: "DUPS_OK_ACKNOWLEDGE", },
+                    { value: "SESSION_TRANSACTED", }
+                ],
             },
-            'pinnedServers': {
-                type: 'text',
-                value: '',
-            },
+        },
+        resilience: {
             'concurrent.consumers': {
                 type: 'text',
                 value: '',
             },
-            'transport.jms.JMSSpecVersion': {
-                type: 'text',
-                name: 'JMS Spec Version',
-                value: '',
-            },
-            'transport.jms.SubscriptionDurable': {
-                type: 'text',
-                name: 'Subscription Durable',
-                value: '',
-            },
-            'transport.jms.DurableSubscriberClientID': {
-                type: 'text',
-                name: 'Durable Subscriber Client ID',
-                value: '',
-            },
-            'transport.jms.MessageSelector': {
-                type: 'text',
-                name: 'Message Selector',
-                value: '',
-            },
             'transport.jms.retry.duration': {
+                name: 'Retry Duration',
                 type: 'text',
                 value: '',
             },
             'transport.jms.ReceiveTimeout': {
+                name: 'Receive Timeout',
+                type: 'text',
+                value: '',
+            },
+        },
+        message: {
+            'transport.jms.CacheLevel': {
+                name: 'Cache Level',
+                type: 'text',
+                value: 3,
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
+            },
+            'transport.jms.JMSSpecVersion': {
+                name: 'JMS Spec Version',
                 type: 'text',
                 value: '',
             },
             'transport.jms.ContentType': {
+                name: 'Content Type',
                 type: 'text',
                 value: '',
             },
             'transport.jms.ContentTypeProperty': {
-                type: 'text',
                 name: 'Content Type Property',
-                value: '',
-            },
-            'transport.jms.ReplyDestination': {
                 type: 'text',
-                name: 'Reply Destination',
                 value: '',
             },
-            'transport.jms.PubSubNoLocal': {
+        },
+        subscription: {
+            'transport.jms.SharedSubscription': {
+                name: 'Shared Subscription',
+                type: 'checkbox',
+                value: false,
+            },
+            'transport.jms.SubscriptionName': {
+                name: 'Subscription Name',
+                type: 'text',
+                value: '',
+            },
+            'transport.jms.SubscriptionDurable': {
+                name: 'Subscription Durable',
+                type: 'text',
+                value: '',
+            },
+            'transport.jms.DurableSubscriberClientID': {
+                name: 'Durable Subscriber Client ID',
                 type: 'text',
                 value: '',
             },
             'transport.jms.DurableSubscriberName': {
-                type: 'text',
                 name: 'Durable Subscriber Name',
+                type: 'text',
                 value: '',
-            }
+            },
+        },
+        other: {
+            'transport.jms.MessageSelector': {
+                name: 'Message Selector',
+                type: 'text',
+                value: '',
+            },
+            'pinnedServers': {
+                name: 'Pinned Servers',
+                type: 'text',
+                value: '',
+            },
+            'transport.jms.PubSubNoLocal': {
+                name: 'PubSub No Local',
+                type: 'text',
+                value: '',
+            },
         }
     }
 };

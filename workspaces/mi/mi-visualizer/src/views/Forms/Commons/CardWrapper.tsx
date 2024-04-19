@@ -12,7 +12,7 @@ import { Card } from "@wso2-enterprise/ui-toolkit";
 
 const CardContainer = styled.div({
     display: "grid",
-    gridTemplateColumns: "repeat(4, 1fr)",
+    gridTemplateColumns: "repeat(3, 1fr)",
     gap: 20,
     justifyContent: "center",
     width: "100%",
@@ -22,75 +22,75 @@ const CARD_WRAPPER_DATA = {
     INBOUND_ENDPOINT: {
         cards: [
             {
-                title: 'CXF_WS_RM',
-                icon: 'code',
-                description: 'Description',
-            },
-            {
-                title: 'Custom',
-                icon: 'code',
-                description: 'Description',
-            },
-            {
-                title: 'Feed',
-                icon: 'code',
-                description: 'Description',
-            },
-            {
-                title: 'File',
-                icon: 'code',
-                description: 'Description',
-            },
-            {
-                title: 'HL7',
-                icon: 'code',
-                description: 'Description',
-            },
-            {
                 title: 'HTTP',
                 icon: 'code',
-                description: 'Description',
+                description: 'HTTP protocol',
             },
             {
                 title: 'HTTPS',
                 icon: 'code',
-                description: 'Description',
+                description: 'Secure HTTP protocol',
+            },
+            {
+                title: 'File',
+                icon: 'code',
+                description: 'File system',
             },
             {
                 title: 'JMS',
                 icon: 'code',
-                description: 'Description',
+                description: 'Java Messaging Service',
             },
             {
                 title: 'KAFKA',
                 icon: 'code',
-                description: 'Description',
-            },
-            {
-                title: 'MQTT',
-                icon: 'code',
-                description: 'Description',
+                description: 'Kafka messaging',
             },
             {
                 title: 'RABBITMQ',
                 icon: 'code',
-                description: 'Description',
+                description: 'RabbitMQ messaging',
+            },
+            {
+                title: 'HL7',
+                icon: 'code',
+                description: 'Healthcare messaging',
+            },
+            {
+                title: 'MQTT',
+                icon: 'code',
+                description: 'MQTT messaging',
             },
             {
                 title: 'WS',
                 icon: 'code',
-                description: 'Description',
+                description: 'Web Services',
             },
             {
                 title: 'WSO2_MB',
                 icon: 'code',
-                description: 'Description',
+                description: 'WSO2 Message Broker',
             },
             {
                 title: 'WSS',
                 icon: 'code',
-                description: 'Description',
-            }
+                description: 'Secure Web Services',
+            },
+            {
+                title: 'CXF_WS_RM',
+                icon: 'code',
+                description: 'CXF with WS-RM',
+            },
+            {
+                title: 'Feed',
+                icon: 'code',
+                description: 'RSS/Atom feed',
+            },
+            {
+                title: 'Custom',
+                icon: 'code',
+                description: 'User-defined endpoint',
+            },
         ]
     },
     MESSAGE_PROCESSOR: {

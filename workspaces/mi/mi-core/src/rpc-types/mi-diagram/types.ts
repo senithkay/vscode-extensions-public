@@ -180,8 +180,10 @@ export interface CreateInboundEndpointRequest {
     type: string;
     sequence: string;
     errorSequence: string;
+    suspend?: boolean;
+    trace?: boolean;
+    statistics?: boolean;
     parameters?: { [key: string]: string | number | boolean };
-    additionalParameters?: { [key: string]: string | number | boolean };
 }
 
 export interface CreateInboundEndpointResponse {
@@ -193,8 +195,10 @@ export interface GetInboundEndpointResponse {
     type: string;
     sequence: string;
     errorSequence: string;
+    suspend?: boolean;
+    trace?: boolean;
+    statistics?: boolean;
     parameters: { [key: string]: string | number | boolean };
-    additionalParameters: { [key: string]: string | number | boolean };
 }
 
 export interface GetInboundEndpointRequest {
