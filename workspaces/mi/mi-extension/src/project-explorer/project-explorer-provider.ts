@@ -354,10 +354,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry = apiEntry;
 
 		} else if (entry.type === "ENDPOINT") {
-			let icon = 'code';
-			if (entry.isRegistryResource) {
-				icon = 'file-code';
-			}
+			const icon = entry.isRegistryResource ? 'file-code' : 'code';
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon);
 			explorerEntry.contextValue = 'endpoint';
 			explorerEntry.command = {
@@ -399,7 +396,8 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 
 		} else if (entry.type === "TEMPLATE") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			const icon = entry.isRegistryResource ? 'file-code' : 'code';
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon);
 			explorerEntry.contextValue = 'template';
 			explorerEntry.command = {
 				"title": "Show Template",

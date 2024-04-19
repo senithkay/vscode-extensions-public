@@ -8,7 +8,6 @@
  */
 
 import { ParamConfig } from '@wso2-enterprise/ui-toolkit';
-import * as yup from "yup";
 
 export type InputsFields = {
     endpointName: string;
@@ -38,6 +37,11 @@ export type InputsFields = {
     templateName: string;
     requireTemplateParameters: boolean;
     templateParameters: any[];
+    saveInReg?: boolean;
+    //reg form
+    artifactName?: string;
+    registryPath?: string
+    registryType?: "gov" | "conf";
 }
 
 export const initialEndpoint: InputsFields = {
@@ -67,43 +71,14 @@ export const initialEndpoint: InputsFields = {
     timeoutAction: "Never",
     templateName: "",
     requireTemplateParameters: false,
-    templateParameters: []
-};
+    templateParameters: [],
+    saveInReg: false,
+    //reg form
+    artifactName: "",
+    registryPath: "/",
+    registryType: "gov"
 
-export const getSchema = (type: string) => {
-    return yup.object({
-        endpointName: yup.string().required("Endpoint Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in name"),
-        format: yup.string(),
-        traceEnabled: yup.string(),
-        statisticsEnabled: yup.string(),
-        optimize: yup.string(),
-        description: yup.string(),
-        wsdlUri: yup
-            .string()
-            .required("WSDL URI is required")
-            .matches(/^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?(\.wsdl)$/i, "Invalid URI template format"),
-        wsdlService: yup.string().required("WSDL Service is required"),
-        wsdlPort: yup.string().required("WSDL Port is required"),
-        requireProperties: yup.boolean(),
-        properties: yup.array(),
-        addressingEnabled: yup.string(),
-        addressingVersion: yup.string(),
-        addressListener: yup.string(),
-        securityEnabled: yup.string(),
-        suspendErrorCodes: yup.string(),
-        initialDuration: yup.number().typeError('Initial Duration must be a number'),
-        maximumDuration: yup.number().typeError('Maximum Duration must be a number').min(0, "Maximum Duration must be greater than or equal to 0"),
-        progressionFactor: yup.number().typeError('Progression Factor must be a number'),
-        retryErrorCodes: yup.string(),
-        retryCount: yup.number().typeError('Retry Count must be a number').min(0, "Retry Count must be greater than or equal to 0"),
-        retryDelay: yup.number().typeError('Retry Delay must be a number').min(0, "Retry Delay must be greater than or equal to 0"),
-        timeoutDuration: yup.number().typeError('Timeout Duration must be a number').min(0, "Timeout Duration must be greater than or equal to 0"),
-        timeoutAction: yup.string(),
-        templateName: type === 'endpoint' ? yup.string() : yup.string().required("Template name is required"),
-        requireTemplateParameters: yup.boolean(),
-        templateParameters: yup.array()
-    });
-}
+};
 
 export const paramTemplateConfigs: ParamConfig = {
     paramValues: [],

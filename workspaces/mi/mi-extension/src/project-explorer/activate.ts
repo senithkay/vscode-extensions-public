@@ -259,7 +259,7 @@ export function activateProjectExplorer(context: ExtensionContext) {
 			window.showTextDocument(document);
 		});
 	});
-	commands.registerCommand(COMMANDS.SHOW_TEMPLATE, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+	commands.registerCommand(COMMANDS.SHOW_TEMPLATE, (documentUri: Uri, type: string, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TemplateForm, documentUri: documentUri?.fsPath });
 	});
