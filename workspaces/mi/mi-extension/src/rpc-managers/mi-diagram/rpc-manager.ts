@@ -96,6 +96,7 @@ import {
     GetTemplateEPResponse,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
+    GetUserAccessTokenResponse,
     GetWorkspaceContextResponse,
     HighlightCodeRequest,
     ImportProjectRequest,
@@ -146,7 +147,7 @@ import {
     WriteContentToFileRequest,
     WriteContentToFileResponse,
     getSTRequest,
-    getSTResponse
+    getSTResponse,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -170,6 +171,7 @@ import { rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
+import { extension } from '../../MIExtensionContext';
 import { DEFAULT_PROJECT_VERSION } from "../../constants";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
@@ -2935,16 +2937,26 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
+    async getUserAccessToken(): Promise<GetUserAccessTokenResponse> {
+        const token = await extension.context.secrets.get('MIAIUser');
+        if (token){
+            return { token: token };
+        }else{
+            throw new Error('User access token not found');
+        }
+        
+    }
+
     async createConnection(params: CreateConnectionRequest): Promise<CreateConnectionResponse> {
         return new Promise(async (resolve) => {
             const { connectionName, keyValuesXML, directory } = params;
             const localEntryPath = directory;
 
             const xmlData =
-                `<?xml version="1.0" encoding="UTF-8"?>
-<localEntry key="${connectionName}" xmlns="http://ws.apache.org/ns/synapse">
-    ${keyValuesXML}
-</localEntry>`;
+                    `<?xml version="1.0" encoding="UTF-8"?>
+    <localEntry key="${connectionName}" xmlns="http://ws.apache.org/ns/synapse">
+        ${keyValuesXML}
+    </localEntry>`;
 
             const filePath = path.join(localEntryPath, `${connectionName}.xml`);
             if (!fs.existsSync(localEntryPath)) {

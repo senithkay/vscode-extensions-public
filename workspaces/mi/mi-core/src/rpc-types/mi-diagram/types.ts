@@ -1110,6 +1110,10 @@ export interface GetIconPathUriResponse {
     uri: any;
 }
 
+export interface GetUserAccessTokenResponse{
+    token: string;
+}
+
 export interface CreateConnectionRequest {
     connectionName: string;
     keyValuesXML: string;
