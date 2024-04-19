@@ -35,7 +35,7 @@ export function importProject(params: ImportProjectRequest): ImportProjectRespon
     if (projectName && groupId && artifactId) {
         const folderStructure: FileStructure = {
             [projectName]: {
-                'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid),
+                'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid, '1.0.0'),
                 'src': {
                     'main': {
                         'wso2mi': {
@@ -93,7 +93,7 @@ export function getProjectDetails(filePath: string) {
     let groupId: string | undefined;
     let artifactId: string | undefined;
     const pomContent = fs.readFileSync(path.join(filePath, "pom.xml"), 'utf8');
-  
+
     parseString(pomContent, { explicitArray: false, ignoreAttrs: true }, (err, result) => {
         if (err) {
             console.error('Error parsing pom.xml:', err);
@@ -105,7 +105,7 @@ export function getProjectDetails(filePath: string) {
         artifactId = result?.project?.artifactId;
     });
 
-    return {projectName, groupId, artifactId};
+    return { projectName, groupId, artifactId };
 }
 
 export function migrateConfigs(source: string, target: string) {
@@ -117,7 +117,7 @@ export function migrateConfigs(source: string, target: string) {
             if (item.isDirectory()) {
                 const sourceAbsolutePath = path.join(source, item.name)
                 const moduleType = determineProjectType(path.join(source, item.name));
-                if (moduleType === Nature.ESB || moduleType === Nature.DS || 
+                if (moduleType === Nature.ESB || moduleType === Nature.DS ||
                     moduleType === Nature.DATASOURCE || moduleType === Nature.CONNECTOR || moduleType === Nature.REGISTRY) {
                     copyConfigsToNewProjectStructure(moduleType, sourceAbsolutePath, target)
                 }
@@ -130,11 +130,11 @@ function determineProjectType(source: string): Nature | undefined {
     const rootMetaDataFilePath = path.join(source, '.project');
     let configType;
     if (fs.existsSync(rootMetaDataFilePath)) {
-       const projectFileContent = fs.readFileSync(rootMetaDataFilePath, 'utf-8');
-       parseString(projectFileContent, { explicitArray: false, ignoreAttrs: true }, (err, result) => {
+        const projectFileContent = fs.readFileSync(rootMetaDataFilePath, 'utf-8');
+        parseString(projectFileContent, { explicitArray: false, ignoreAttrs: true }, (err, result) => {
             if (err) {
                 console.error('Error occured while reading ' + rootMetaDataFilePath, err);
-                return; 
+                return;
             }
             const projectDescription = result.projectDescription;
             if (projectDescription && projectDescription.natures && projectDescription.natures.nature) {
@@ -143,7 +143,7 @@ function determineProjectType(source: string): Nature | undefined {
                     nature = nature.find(element => element.startsWith("org.wso2.developerstudio.eclipse"));
                 }
 
-                switch(nature) {
+                switch (nature) {
                     case 'org.wso2.developerstudio.eclipse.mavenmultimodule.project.nature':
                         configType = Nature.MULTIMODULE;
                         break;
@@ -158,7 +158,7 @@ function determineProjectType(source: string): Nature | undefined {
                         break;
                     case 'org.wso2.developerstudio.eclipse.artifact.connector.project.nature':
                         configType = Nature.CONNECTOR;
-                        break;  
+                        break;
                     case 'org.wso2.developerstudio.eclipse.general.project.nature':
                         configType = Nature.REGISTRY;
                         break;
@@ -170,7 +170,7 @@ function determineProjectType(source: string): Nature | undefined {
 }
 
 function copyConfigsToNewProjectStructure(nature: Nature, source: string, target: string) {
-    switch(nature) {
+    switch (nature) {
         case Nature.ESB:
             processArtifactsFolder(source, target);
             processMetaDataFolder(source, target);
@@ -185,15 +185,15 @@ function copyConfigsToNewProjectStructure(nature: Nature, source: string, target
         case Nature.CONNECTOR:
             processConnectors(source, target);
             break;
-        case Nature.REGISTRY: 
+        case Nature.REGISTRY:
             processRegistryResources(source, target);
             break;
     }
 }
 
-function processArtifactsFolder(source: string, target:string) {
+function processArtifactsFolder(source: string, target: string) {
     const synapseConfigsPath = path.join(source, 'src', 'main', 'synapse-config');
-    const artifactsPath = path.join(target, 'src' , 'main', 'wso2mi', 'artifacts');
+    const artifactsPath = path.join(target, 'src', 'main', 'wso2mi', 'artifacts');
     const sourceFolders = [
         'api',
         'endpoints',
@@ -228,31 +228,31 @@ function processArtifactsFolder(source: string, target:string) {
 
 }
 
-function processMetaDataFolder(source: string, target:string) {
+function processMetaDataFolder(source: string, target: string) {
     const oldMetaDataPath = path.join(source, 'src', 'main', 'resources', 'metadata');
-    const newMetaDataPath = path.join(target, 'src' , 'main', 'wso2mi', 'resources', 'metadata');
+    const newMetaDataPath = path.join(target, 'src', 'main', 'wso2mi', 'resources', 'metadata');
 
     copy(oldMetaDataPath, newMetaDataPath)
 }
 
-function processDataSourcesFolder(source: string, target:string) {
+function processDataSourcesFolder(source: string, target: string) {
     const oldDataSourcePath = path.join(source, 'datasource');
-    const newDataSourcePath = path.join(target, 'src' , 'main', 'wso2mi', 'artifacts', 'data-sources');
+    const newDataSourcePath = path.join(target, 'src', 'main', 'wso2mi', 'artifacts', 'data-sources');
 
     copy(oldDataSourcePath, newDataSourcePath)
 }
 
-function processDataServicesFolder(source: string, target:string) {
+function processDataServicesFolder(source: string, target: string) {
     const oldDataServicePath = path.join(source, 'dataservice');
-    const newDataServicePath = path.join(target, 'src' , 'main', 'wso2mi', 'artifacts', 'data-services');
+    const newDataServicePath = path.join(target, 'src', 'main', 'wso2mi', 'artifacts', 'data-services');
 
     copy(oldDataServicePath, newDataServicePath)
 }
 
-function processConnectors(source: string, target:string) {
-    const newConnectorPath = path.join(target, 'src' , 'main', 'wso2mi', 'resources', 'connectors');
+function processConnectors(source: string, target: string) {
+    const newConnectorPath = path.join(target, 'src', 'main', 'wso2mi', 'resources', 'connectors');
 
-    fs.readdir(source, {withFileTypes: true}, (err, files) => {
+    fs.readdir(source, { withFileTypes: true }, (err, files) => {
         if (err) {
             console.error(`Failed to list contents of the folder: ${source}`, err);
             return;
@@ -268,9 +268,9 @@ function processConnectors(source: string, target:string) {
     });
 }
 
-function processRegistryResources(source: string, target:string) {
+function processRegistryResources(source: string, target: string) {
     const artifactXMLPath = path.join(source, 'artifact.xml');
-    const newRegistryPath = path.join(target, 'src' , 'main', 'wso2mi', 'resources', 'registry');
+    const newRegistryPath = path.join(target, 'src', 'main', 'wso2mi', 'resources', 'registry');
     copyFile(artifactXMLPath, path.join(newRegistryPath, 'artifact.xml'));
 
     //read artifact.xml
@@ -278,10 +278,10 @@ function processRegistryResources(source: string, target:string) {
 
     parseString(xmlContent, { explicitArray: false, ignoreAttrs: true }, (err, result) => {
         if (err) {
-          console.error('Error parsing pom.xml:', err);
-          return;
+            console.error('Error parsing pom.xml:', err);
+            return;
         }
-        
+
         const artifacts = result.artifacts.artifact;
 
         artifacts.forEach(artifact => {
@@ -305,10 +305,10 @@ function processRegistryResources(source: string, target:string) {
             });
         });
 
-      });
+    });
 }
 
-function processTestsFolder(source: string, target:string) {
+function processTestsFolder(source: string, target: string) {
     const oldTestPath = path.join(source, 'test');
     const newTestPath = path.join(target, 'src', 'main', 'test', 'wso2mi');
 
@@ -321,14 +321,14 @@ function copy(source: string, target: string) {
             console.error(`Failed to list contents of the folder: ${source}`, err);
             return;
         }
-        
+
         files.forEach(file => {
             copyFile(path.join(source, file), path.join(target, file))
         });
     });
 }
 
-function copyFile (sourcePath: string, targetPath: string) {
+function copyFile(sourcePath: string, targetPath: string) {
     fs.copyFile(sourcePath, targetPath, err => {
         if (err) {
             console.error(`Failed to copy file from ${sourcePath} to ${targetPath}`, err);

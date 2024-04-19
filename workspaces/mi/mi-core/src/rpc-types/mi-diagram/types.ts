@@ -321,6 +321,7 @@ export interface CreateProjectRequest {
     open: boolean;
     groupID?: string;
     artifactID?: string;
+    version?: string;
 }
 
 export interface ImportProjectRequest {
