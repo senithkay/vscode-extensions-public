@@ -12,7 +12,7 @@ import { AutoComplete, ItemComponent } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import styled from "@emotion/styled";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
-import { FieldValues, useController, UseControllerProps } from 'react-hook-form';
+import { FieldValues, useController, UseControllerProps } from "react-hook-form";
 
 type FilterType =
     | "sequence"
@@ -23,8 +23,6 @@ type FilterType =
     | "sequenceTemplate"
     | "endpointTemplate";
 
-type ItemType = "workspace" | "registry";
-
 // Interfaces
 export interface IKeylookup {
     // AutoComplete props
@@ -34,6 +32,7 @@ export interface IKeylookup {
     notItemsFoundMessage?: string;
     widthOffset?: number;
     nullable?: boolean;
+    allowItemCreate?: boolean;
     sx?: React.CSSProperties;
     borderBox?: boolean;
     onValueChange?: (item: string, index?: number) => void;
@@ -57,21 +56,27 @@ const ItemContainer = styled.div({
     gap: "4px",
 });
 
-const ItemText = styled.div({
-    flex: "1 1 auto"
+const StyledTag = styled(VSCodeTag)({
+    "::part(control)": {
+        textTransform: "lowercase",
+    },
 });
 
-const getItemComponent = (item: string, type: ItemType) => {
+const ItemText = styled.div({
+    flex: "1 1 auto",
+});
+
+const getItemComponent = (item: string, type?: "reg:") => {
     return (
         <ItemContainer>
-            <VSCodeTag>{type}</VSCodeTag>
+            {type && <StyledTag>{type}</StyledTag>}
             <ItemText>{item}</ItemText>
         </ItemContainer>
     );
 };
 
 export const Keylookup = (props: IKeylookup) => {
-    const { filter, filterType, onValueChange, ...rest } = props;
+    const { filter, filterType, onValueChange, allowItemCreate = true, path, ...rest } = props;
     const [items, setItems] = useState<ItemComponent[]>([]);
     const [value, setValue] = useState<string | undefined>(undefined);
     const { rpcClient } = useVisualizerContext();
@@ -79,7 +84,7 @@ export const Keylookup = (props: IKeylookup) => {
     useEffect(() => {
         const fetchItems = async () => {
             const result = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                documentIdentifier: props.path,
+                documentIdentifier: path,
                 resourceType: filterType,
             });
 
@@ -88,13 +93,13 @@ export const Keylookup = (props: IKeylookup) => {
             if (result?.resources) {
                 workspaceItems = result.resources.map((resource) => ({
                     key: resource.name,
-                    item: getItemComponent(resource.name, "workspace"),
+                    item: getItemComponent(resource.name),
                 }));
             }
             if (result?.registryResources) {
                 registryItems = result.registryResources.map((resource) => ({
                     key: resource.registryKey,
-                    item: getItemComponent(resource.registryKey, "registry"),
+                    item: getItemComponent(resource.registryKey, "reg:"),
                 }));
             }
 
@@ -113,19 +118,22 @@ export const Keylookup = (props: IKeylookup) => {
         onValueChange && onValueChange(val);
     };
 
-    return <AutoComplete {...rest} value={value} onValueChange={handleValueChange} items={items} />;
+    return (
+        <AutoComplete
+            {...rest}
+            value={value}
+            onValueChange={handleValueChange}
+            items={items}
+            allowItemCreate={allowItemCreate}
+        />
+    );
 };
 
 export const FormKeylookup = <T extends FieldValues>(props: IFormKeylookup<T>) => {
     const { control, name, ...rest } = props;
     const {
-        field: { onChange }
+        field: { onChange },
     } = useController({ name, control });
 
-    return (
-        <Keylookup
-            {...rest}
-            onValueChange={onChange}
-        />
-    );
-}
+    return <Keylookup {...rest} onValueChange={onChange} />;
+};
