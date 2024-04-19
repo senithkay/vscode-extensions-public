@@ -16,8 +16,6 @@ import { DMType, Range } from "@wso2-enterprise/mi-core";
 import { Project } from "ts-morph";
 
 import { MIDataMapper } from "./components/DataMapper/DataMapper";
-import { FunctionSTFindingVisitor } from "./components/Visitors/FunctionSTFindingVisitor";
-import { traversNode } from "./components/Diagram/utils/st-utils";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -63,11 +61,10 @@ export function DataMapperView(props: DataMapperViewProps) {
 
         const project = new Project({useInMemoryFileSystem: true});
         const sourceFile = project.createSourceFile(filePath, fileContent);
+        const fnST = sourceFile.getFunction(functionName);
 
-        const fnSTFindingVisitor = new FunctionSTFindingVisitor(functionName);
-        traversNode(sourceFile, fnSTFindingVisitor);
         return {
-            functionST: fnSTFindingVisitor.getFunctionST(),
+            functionST: fnST,
             sourceFile: sourceFile,
         };
 

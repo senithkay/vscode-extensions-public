@@ -18,14 +18,6 @@ export interface IOTypeResponse {
     outputTree: DMType;
 }
 
-export interface GetFileContentRequest {
-    filePath: string;
-}
-
-export interface GetFileContentResponse {
-    fileContent: string;
-}
-
 export interface UpdateFileContentRequest {
     filePath: string;
     fileContent: string;

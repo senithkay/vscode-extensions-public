@@ -316,10 +316,10 @@ const stateMachine = createMachine<MachineContext>({
                                 viewLocation.view = MACHINE_VIEW.ProxyView;
                                 viewLocation.stNode = node.proxy;
                                 break;
-                            case !!node.sequence:
-                                viewLocation.view = MACHINE_VIEW.SequenceView;
-                                viewLocation.stNode = node.sequence;
-                                break;
+                            // case !!node.sequence:
+                            //     viewLocation.view = MACHINE_VIEW.SequenceView;
+                            //     viewLocation.stNode = node.sequence;
+                            //     break;
                             case !!node.sequence:
                                 // TODO: Use node.dataMapper to identify the data mapper function
                                 const filePath = "/Users/madusha/play/mi/mi-hw/HelloWorldService/src/main/wso2mi/resources/data-mapper/sample2.ts";
