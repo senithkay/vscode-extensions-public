@@ -170,6 +170,8 @@ import { rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
+import { DEFAULT_PROJECT_VERSION } from "../../constants";
+
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
 const connectorsPath = path.join(".metadata", ".Connectors");
@@ -793,8 +795,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (filePath.includes('localEntries')) {
                 filePath = filePath.replace('localEntries', 'local-entries');
             }
-            if(filePath.endsWith('.xml')) {
-               filePath = directory;
+            if (filePath.endsWith('.xml')) {
+                filePath = directory;
             } else {
                 filePath = path.join(filePath, `${name}.xml`);
             }
@@ -864,11 +866,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const xmlData = getMessageStoreXmlWrapper(getTemplateParams);
             let filePath = params.directory;
-                  
+
             if (filePath.includes('messageStores')) {
                 filePath = filePath.replace('messageStores', 'message-stores');
             }
-            if(filePath.endsWith('.xml')) {
+            if (filePath.endsWith('.xml')) {
                 filePath = params.directory;
             } else {
                 filePath = path.join(filePath, `${params.name}.xml`);
@@ -2231,12 +2233,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {
         return new Promise(async (resolve) => {
             const projectUuid = uuidv4();
-
-            const { directory, name, open, groupID, artifactID } = params;
-
+            const { directory, name, open, groupID, artifactID, version } = params;
             const folderStructure: FileStructure = {
                 [name]: { // Project folder
-                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name, projectUuid),
+                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name, projectUuid, version ?? DEFAULT_PROJECT_VERSION),
                     'src': {
                         'main': {
                             'java': '',
@@ -2252,8 +2252,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                     'sequences': '',
                                     'tasks': '',
                                     'templates': '',
-                                    'data-services': '',
-                                    'data-sources': '',
+                                    //TODO: will add again once the feature is implemented
+                                    // 'data-services': '',
+                                    // 'data-sources': '',
                                 },
                                 'resources': {
                                     'metadata': '',

@@ -228,10 +228,10 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
 
     return (
         <FormView title="Endpoint Artifact" onClose={openOverview}>
-            <TypeChip 
-                type={"Load Balance Endpoint"} 
-                onClick={changeType} 
-                showButton={isNewEndpoint} 
+            <TypeChip
+                type={"Load Balance Endpoint"}
+                onClick={changeType}
+                showButton={isNewEndpoint}
             />
             <FormGroup title="Basic Properties" isCollapsed={false}>
                 <TextField

@@ -317,6 +317,7 @@ export interface CreateProjectRequest {
     open: boolean;
     groupID?: string;
     artifactID?: string;
+    version?: string;
 }
 
 export interface ImportProjectRequest {
@@ -992,7 +993,7 @@ export interface BrowseFileRequest {
 export interface GetAvailableResourcesRequest {
     documentIdentifier: string;
     resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate" |
-    "dataService"| "dataSource" | "localEntry" | "dataMapper" | "js" | "json" | "smooksConfig" | "wsdl" | "ws_policy" | "xsd" | "xsl" | "xslt" | "yaml";
+    "dataService" | "dataSource" | "localEntry" | "dataMapper" | "js" | "json" | "smooksConfig" | "wsdl" | "ws_policy" | "xsd" | "xsl" | "xslt" | "yaml";
 }
 
 export interface GetAvailableResourcesResponse {
