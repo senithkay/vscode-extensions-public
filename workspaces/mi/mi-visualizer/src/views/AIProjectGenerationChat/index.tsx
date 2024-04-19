@@ -202,6 +202,17 @@ useEffect(() => {
     console.log("Suggestions: " + isSuggestionLoading);
   } , [isSuggestionLoading]);
 
+  function getStatusText(status: number) {
+    switch(status) {
+      case 400: return 'Bad Request';
+      case 401: return 'Unauthorized';
+      case 403: return 'Forbidden';
+      case 404: return 'Not Found';
+      // Add more status codes as needed
+      default: return '';
+    }
+  }
+
   async function generateSuggestions() {
     try {
         setIsLoading(true);
@@ -223,10 +234,12 @@ useEffect(() => {
               });
         }
         console.log(JSON.stringify({messages: chatArray, context : context[0].context}));
+        const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
         const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token.token}`,
             },
             body: JSON.stringify({messages: chatArray, context : context[0].context, num_suggestions:1, type: "artifact_gen" }),
         });
@@ -315,15 +328,24 @@ useEffect(() => {
             } );
       }
       console.log(context[0].context);
-    const response = await fetch(backendRootUri+backendUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({messages: chatArray, context : context[0].context}),
-    })
+      const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
+      const response = await fetch(backendRootUri+backendUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token.token}`, 
+        },
+        body: JSON.stringify({messages: chatArray, context : context[0].context}),
+      })
     if (!response.ok) {
       setIsLoading(false);
+      setMessages(prevMessages => {
+        const newMessages = [...prevMessages];
+        const statusText = getStatusText(response.status);
+        newMessages[newMessages.length - 1].content += `Failed to fetch response. Status: ${response.status} - ${statusText}`;
+        newMessages[newMessages.length - 1].type = 'Error';
+        return newMessages;
+      });
       throw new Error('Failed to fetch response');
     }
     const reader = response.body?.getReader();
@@ -519,7 +541,7 @@ useEffect(() => {
        {otherMessages.map((message, index) => (
         <div key={index} style={{ marginBottom: "8px" }}>
         {message.type !== "question" && message.type !== "label" && <strong>{message.role}:</strong>}
-                {splitContent(message.content).map((segment, i) =>
+        {splitContent(message.content).map((segment, i) =>
           segment.isCode ? (
             
               <div>
@@ -545,8 +567,11 @@ useEffect(() => {
               </div>
             
           ) : (
-            
-            <MarkdownRenderer key={i} markdownContent={segment.text} />
+            message.type == "Error" ? (
+              <div style={{ color: 'red', marginTop:"10px" }}>{segment.text}</div>
+            ):(
+              <MarkdownRenderer key={i} markdownContent={segment.text} />
+            )
           
           )
         )}

@@ -89,6 +89,7 @@ import {
     GetTemplateEPResponse,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
+    GetUserAccessTokenResponse,
     GetWorkspaceContextResponse,
     HighlightCodeRequest,
     ImportProjectRequest,
@@ -198,6 +199,7 @@ import {
     getTemplateEndpoint,
     getTemplates,
     getTextAtRange,
+    getUserAccessToken,
     getWorkspaceContext,
     getWorkspaceRoot,
     getWsdlEndpoint,
@@ -558,5 +560,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getIconPathUri(params: GetIconPathUriRequest): Promise<GetIconPathUriResponse> {
         return this._messenger.sendRequest(getIconPathUri, HOST_EXTENSION, params);
+    }
+
+    getUserAccessToken(): Promise<GetUserAccessTokenResponse> {
+        return this._messenger.sendRequest(getUserAccessToken, HOST_EXTENSION);
     }
 }

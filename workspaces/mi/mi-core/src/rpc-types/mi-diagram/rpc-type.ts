@@ -137,6 +137,7 @@ import {
     GetDataSourceRequest,
     GetIconPathUriRequest,
     GetIconPathUriResponse,
+    GetUserAccessTokenResponse,
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -223,3 +224,4 @@ export const getConnectorForm: RequestType<GetConnectorFormRequest, GetConnector
 export const createDataSource: RequestType<DataSourceTemplate, CreateDataSourceResponse> = { method: `${_preFix}/createDataSource` };
 export const getDataSource: RequestType<GetDataSourceRequest, DataSourceTemplate> = { method: `${_preFix}/getDataSource` };
 export const getIconPathUri: RequestType<GetIconPathUriRequest, GetIconPathUriResponse> = { method: `${_preFix}/getIconPathUri` };
+export const getUserAccessToken: RequestType<void, GetUserAccessTokenResponse> = { method: `${_preFix}/getUserAccessToken` };

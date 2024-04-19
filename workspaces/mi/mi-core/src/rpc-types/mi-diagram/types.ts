@@ -1104,3 +1104,7 @@ export interface GetIconPathUriRequest {
 export interface GetIconPathUriResponse {
     uri: any;
 }
+
+export interface GetUserAccessTokenResponse{
+    token: string;
+}

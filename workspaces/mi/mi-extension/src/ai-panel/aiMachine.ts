@@ -141,6 +141,8 @@ const aiStateMachine = createMachine<AiMachineContext>({
 
 
 async function checkToken(context, event) {
+    await extension.context.secrets.delete('MIAIUser');
+    await extension.context.secrets.delete('MIAIRefreshToken');
     return new Promise(async (resolve, reject) => {
         try {
             const token = await extension.context.secrets.get('MIAIUser');

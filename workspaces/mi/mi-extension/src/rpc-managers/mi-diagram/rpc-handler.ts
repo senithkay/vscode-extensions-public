@@ -130,6 +130,7 @@ import {
     getTemplateEndpoint,
     getTemplates,
     getTextAtRange,
+    getUserAccessToken,
     getWorkspaceContext,
     getWorkspaceRoot,
     getWsdlEndpoint,
@@ -152,7 +153,7 @@ import {
     updateRecipientEndpoint,
     updateTemplateEndpoint,
     updateWsdlEndpoint,
-    writeContentToFile
+    writeContentToFile,
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -241,4 +242,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createDataSource, (args: DataSourceTemplate) => rpcManger.createDataSource(args));
     messenger.onRequest(getDataSource, (args: GetDataSourceRequest) => rpcManger.getDataSource(args));
     messenger.onRequest(getIconPathUri, (args: GetIconPathUriRequest) => rpcManger.getIconPathUri(args));
+    messenger.onRequest(getUserAccessToken, () => rpcManger.getUserAccessToken());
 }

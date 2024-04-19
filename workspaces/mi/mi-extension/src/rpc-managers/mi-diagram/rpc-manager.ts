@@ -92,6 +92,7 @@ import {
     GetTemplateEPResponse,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
+    GetUserAccessTokenResponse,
     GetWorkspaceContextResponse,
     HighlightCodeRequest,
     ImportProjectRequest,
@@ -142,7 +143,7 @@ import {
     WriteContentToFileRequest,
     WriteContentToFileResponse,
     getSTRequest,
-    getSTResponse
+    getSTResponse,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -166,6 +167,7 @@ import { rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
+import { extension } from '../../MIExtensionContext';
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
 const connectorsPath = path.join(".metadata", ".Connectors");
@@ -2927,6 +2929,16 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 resolve({ uri: iconUri });
             }
         });
+    }
+
+    async getUserAccessToken(): Promise<GetUserAccessTokenResponse> {
+        const token = await extension.context.secrets.get('MIAIUser');
+        if (token){
+            return { token: token };
+        }else{
+            throw new Error('User access token not found');
+        }
+        
     }
 }
 
