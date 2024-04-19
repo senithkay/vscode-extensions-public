@@ -476,7 +476,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             if (filePath.includes('.xml') && fs.existsSync(filePath)) {
                 const { name, loadbalance, session, property, description } = endpointSyntaxTree.syntaxTree.endpoint;
-                const endpoints = await this.getEndpointsList(loadbalance.endpointOrMember, filePath);
+                const endpoints = await this.getEndpointsList(loadbalance.endpointOrMember, filePath, true);
 
                 const properties = property.map((prop: any) => ({
                     name: prop.name,
@@ -549,7 +549,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             if (filePath.includes('.xml') && fs.existsSync(filePath)) {
                 const { name, failover, property, description } = endpointSyntaxTree.syntaxTree.endpoint;
-                const endpoints = await this.getEndpointsList(failover.endpoint, filePath);
+                const endpoints = await this.getEndpointsList(failover.endpoint, filePath, false);
 
                 const properties = property.map((prop: any) => ({
                     name: prop.name,
@@ -612,7 +612,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             if (filePath.includes('.xml') && fs.existsSync(filePath)) {
                 const { name, recipientlist, property, description } = endpointSyntaxTree.syntaxTree.endpoint;
-                const endpoints = await this.getEndpointsList(recipientlist.endpoint, filePath);
+                const endpoints = await this.getEndpointsList(recipientlist.endpoint, filePath, false);
 
                 const properties = property.map((prop: any) => ({
                     name: prop.name,
@@ -2905,7 +2905,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
-    async getEndpointsList(endpointList: any, filePath: string): Promise<any[]> {
+    async getEndpointsList(endpointList: any, filePath: string, isLoadBalanceEp: boolean): Promise<any[]> {
         return new Promise(async (resolve) => {
             const endpoints: any[] = [];
             const endpointRegex = /<endpoint(.*?)>(.*?)<\/endpoint>/gs;
@@ -2921,9 +2921,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const builder = new XMLBuilder(options);
 
             endpointList.map((member: any) => {
-                if (member.key) {
-                    const value = member.key;
-                    endpoints.push({type: 'static', value});
+                if (isLoadBalanceEp) {
+                    if (member.endpoint?.key) {
+                        endpoints.push({type: 'static', value: member.endpoint.key});
+                    }
+                } else {
+                    if (member.key) {
+                        endpoints.push({type: 'static', value: member.key});
+                    }
                 }
             });
 
