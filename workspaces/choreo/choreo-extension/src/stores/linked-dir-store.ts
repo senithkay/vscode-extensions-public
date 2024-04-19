@@ -30,9 +30,9 @@ export const linkedDirectoryStore = createStore(
                 try {
                     set(({ state }) => ({ state: { ...state, loading: true } }));
                     const links = await getLinkedDirs(get().state?.links);
-                    set(({ state }) => ({ state: { ...state, loading: false, links } }));
+                    set(({ state }) => ({ state: { ...state, links } }));
                     const enrichedLinks = await getEnrichedLinks(links);
-                    set(({ state }) => ({ state: { ...state, links: enrichedLinks } }));
+                    set(({ state }) => ({ state: { ...state, loading: false, links: enrichedLinks } }));
                 } catch (err) {
                     set(({ state }) => ({ state: { ...state, loading: false, error: err as Error } }));
                 }
