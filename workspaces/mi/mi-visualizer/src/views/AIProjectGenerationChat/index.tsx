@@ -208,6 +208,7 @@ useEffect(() => {
       case 401: return 'Unauthorized';
       case 403: return 'Forbidden';
       case 404: return 'Not Found';
+      case 429: return 'Token Count Exceeded';
       // Add more status codes as needed
       default: return '';
     }
