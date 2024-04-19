@@ -8,8 +8,7 @@
  */
 import { BezierCurve, Point } from "@projectstorm/geometry";
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
-import { Diagnostic } from "vscode-languageserver-types";
-import { Node } from "ts-morph";
+import { Diagnostic, Node } from "ts-morph";
 
 import { IntermediatePortModel } from "../../Port";
 import { calculateControlPointOffset } from "../../utils/diagram-utils";

@@ -36,6 +36,7 @@ import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
 import { UnsupportedProject, UnsupportedProjectProps } from './views/UnsupportedProject';
 import { DataMapper } from './views/DataMapper';
+import { ErrorBoundary } from '@wso2-enterprise/ui-toolkit';
 
 const MainContainer = styled.div`
     display: flex;
@@ -171,7 +172,11 @@ const MainPanel = () => {
                     setViewComponent(<ServiceDesignerView syntaxTree={machineView.stNode} documentUri={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.DataMapperView:
-                    setViewComponent(<DataMapper {...machineView.dataMapperProps} />);
+                    setViewComponent(
+                        <ErrorBoundary errorMsg="An error occurred in the MI Data Mapper">
+                            <DataMapper {...machineView.dataMapperProps} />
+                        </ErrorBoundary >
+                    );
                     break;
                 case MACHINE_VIEW.APIForm:
                     setViewComponent(<APIWizard apiData={(machineView.customProps as APIWizardProps)?.apiData} path={machineView.documentUri} />);

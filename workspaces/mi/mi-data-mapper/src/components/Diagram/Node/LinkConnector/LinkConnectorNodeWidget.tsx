@@ -19,6 +19,7 @@ import { DataMapperPortWidget } from '../../Port';
 import { LinkConnectorNode } from './LinkConnectorNode';
 import { useIntermediateNodeStyles } from '../../../styles';
 import { getEditorLineAndColumn } from '../../utils/common-utils';
+import { DiagnosticWidget } from '../../Diagnostic/DiagnosticWidget';
 
 export interface LinkConnectorNodeWidgetProps {
     node: LinkConnectorNode;
@@ -29,6 +30,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const { node, engine } = props;
     const { goToSource } = node.context;
     const classes = useIntermediateNodeStyles();
+    const diagnostic = node.hasError() ? node.diagnostics[0] : null;
 
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
@@ -84,6 +86,14 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                     >
                         <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
                     </Button>
+                )}
+                {diagnostic && (
+                    <DiagnosticWidget
+                        diagnostic={diagnostic}
+                        value={node.valueNode.getText()}
+                        onClick={onClickEdit}
+                        btnSx={{ margin: "0 2px" }}
+                    />
                 )}
                 <DataMapperPortWidget engine={engine} port={node.outPort} dataTestId={`link-connector-node-${node?.value}-output`}/>
             </div>

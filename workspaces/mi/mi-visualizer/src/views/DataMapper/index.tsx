@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { DataMapperView } from "@wso2-enterprise/mi-data-mapper";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
@@ -25,6 +25,7 @@ interface DataMapperProps {
 export function DataMapper(props: DataMapperProps) {
     const { rpcClient } = useVisualizerContext();
     const { filePath, functionName, fileContent } = props;
+    const [isFileUpdateError, setIsFileUpdateError] = useState(false);
 
     const { dmIOTypes, isFetchingIOTypes, isTypeError } = useIOTypes(filePath, functionName);
 
@@ -34,23 +35,26 @@ export function DataMapper(props: DataMapperProps) {
                 .getMiDataMapperRpcClient()
                 .updateFileContent({ filePath, fileContent: newContent });
         } catch (error) {
-            console.error("Error while updating file content: ", error);
+            console.error(error);
+            setIsFileUpdateError(true);
         }
     };
+
+    useEffect(() => {
+        // Hack to hit the error boundary
+        if (isTypeError) {
+            throw new Error("Error while fetching input/output types");
+        } else if (isFileUpdateError) {
+            throw new Error("Error while updating file content");
+        }
+    }, [isTypeError, isFileUpdateError]);
 
     const goToSource = (range: Range) => {
         rpcClient.getMiVisualizerRpcClient().goToSource({ filePath, position: range });
     };
 
-    if (isTypeError) {
-        console.error("Error fetching DM input/output types");
-    } else if (!isFetchingIOTypes) {
-        console.log("IO Types", dmIOTypes);
-    }
-
     return (
         <>
-            {isTypeError && <div>Error fetching input/output types</div>}
             {isFetchingIOTypes
                 ? <ProgressIndicator />
                 : (
