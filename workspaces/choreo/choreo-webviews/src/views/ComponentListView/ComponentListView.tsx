@@ -6,7 +6,7 @@ import { ComponentListItem } from "./ComponentListItem";
 import { InvalidWorkspaceView } from "./InvalidWorkspaceView";
 
 export const ComponentListView: FC<ComponentsListActivityViewProps> = ({ directoryPath }) => {
-    const { links, isLoading } = useLinkedDirContext();
+    const { links, isLoading, activeComponentPath } = useLinkedDirContext();
 
     if (!directoryPath) {
         return <InvalidWorkspaceView />;
@@ -20,7 +20,7 @@ export const ComponentListView: FC<ComponentsListActivityViewProps> = ({ directo
         <div className="w-full flex flex-col py-2">
             {links.map((item, index) => (
                 <div key={item.componentFullPath}>
-                    <ComponentListItem item={item} isListLoading={isLoading} />
+                    <ComponentListItem item={item} isListLoading={isLoading} opened={activeComponentPath === item.componentFullPath}/>
                     {index !== links?.length - 1 && <div className="h-[0.5px] bg-vsc-dropdown-border opacity-70" />}
                 </div>
             ))}

@@ -15,6 +15,7 @@ import { selectComponent, selectOrg, selectProject } from "./cmd-utils";
 import { readFileSync } from "fs";
 import * as yaml from "js-yaml";
 import * as path from "path";
+import { webviewStateStore } from "../stores/webview-state-store";
 
 export function viewComponentCommand(context: ExtensionContext) {
     context.subscriptions.push(
@@ -71,7 +72,7 @@ export const showComponentDetails = (
     const componentKey = `${org.handle}-${project.handler}-${component.metadata.name}`;
     if (componentViewMap.has(componentKey) && componentViewMap.get(componentKey)?.getWebview()) {
         componentViewMap.get(componentKey)?.getWebview()?.reveal();
-    }else{
+    } else {
         const componentDetailsView = new ComponentDetailsView(
             ext.context.extensionUri,
             org,
@@ -81,6 +82,18 @@ export const showComponentDetails = (
         );
         componentDetailsView.getWebview()?.reveal();
         componentViewMap.set(componentKey, componentDetailsView);
+
+        webviewStateStore.getState().setOpenedComponentPath(componentPath ?? "");
+        componentDetailsView.getWebview()?.onDidChangeViewState((event) => {
+            if (event.webviewPanel.active) {
+                webviewStateStore.getState().setOpenedComponentPath(componentPath ?? "");
+            }else{
+                webviewStateStore.getState().onCloseComponentView(componentPath);
+            }
+        });
+        componentDetailsView.getWebview()?.onDidDispose(() => {
+            webviewStateStore.getState().onCloseComponentView(componentPath);
+        });
     }
 };
 // TODO: clear webview when component delete

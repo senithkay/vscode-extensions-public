@@ -85,6 +85,10 @@ export interface AuthState {
     loading: boolean;
 }
 
+export interface WebviewState {
+    openedComponentPath: string;
+}
+
 export interface LinkFileContent {
     component: string;
     project: string;

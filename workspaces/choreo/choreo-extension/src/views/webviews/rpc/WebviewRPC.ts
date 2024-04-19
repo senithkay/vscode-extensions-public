@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { commands, WebviewPanel, window, Uri, ProgressLocation, WebviewView } from "vscode";
+import { commands, WebviewPanel, window, Uri, ProgressLocation, WebviewView, Terminal } from "vscode";
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from "vscode-messenger-common";
 import {
@@ -98,6 +98,9 @@ import {
     ShowQuickPick,
     ShowWebviewQuickPickItemsReq,
     WebviewQuickPickItem,
+    WebviewStateChangedNotification,
+    ViewBuildsLogs,
+    ViewRuntimeLogs,
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -113,11 +116,13 @@ import { sendTelemetryEvent, sendTelemetryException } from "../../../telemetry/u
 import { existsSync, readFileSync, unlinkSync } from "fs";
 import { authStore } from "../../../stores/auth-store";
 import { linkedDirectoryStore } from "../../../stores/linked-dir-store";
+import { webviewStateStore } from "../../../stores/webview-state-store";
 import { registerChoreoRpcResolver } from "../../../choreo-rpc";
 import { removeCredentialsFromGitURL } from "../../../git/util";
 import { choreoEnvConfig } from "../../../auth/auth";
 import { showComponentDetails } from "../../../cmds/view-component-cmd";
 import * as yaml from "js-yaml";
+import { getChoreoPath } from "../../../choreo-rpc/connection";
 
 const manager = new ChoreoProjectManager();
 
@@ -126,6 +131,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     authStore.subscribe((store)=> messenger.sendNotification(AuthStoreChangedNotification, BROADCAST, store.state));
     linkedDirectoryStore.subscribe((store)=> messenger.sendNotification(LinkedDirStoreChangedNotification, BROADCAST, store.state));
+    webviewStateStore.subscribe((store)=> messenger.sendNotification(WebviewStateChangedNotification, BROADCAST, store.state));
 
     messenger.onRequest(GetAuthState, ()=>authStore.getState().state);
     messenger.onRequest(GetLinkedDirState, async ()=>linkedDirectoryStore.getState().state);
@@ -229,6 +235,23 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             title: params.title,
         });
         return itemSelection as WebviewQuickPickItem;
+    });
+    let buildLogsOutputChannel: vscode.OutputChannel;
+    messenger.onRequest(ViewBuildsLogs, async (params) => {
+        const logs = await window.withProgress(
+            { title: `Fetching build logs for build ID ${params.buildId}`, location: ProgressLocation.Notification },
+            () => ext.clients.rpcClient.getBuildLogs(params)
+        );
+        if(!buildLogsOutputChannel){
+            buildLogsOutputChannel = window.createOutputChannel(`Choreo: Build Logs`);
+        }
+        buildLogsOutputChannel.appendLine(`SHOWING BUILD LOGS FOR BUILD ${params.buildId}`);
+        buildLogsOutputChannel.append(logs);
+        buildLogsOutputChannel.show();
+    });
+    messenger.onRequest(ViewRuntimeLogs, async ({orgName, projectName, componentName, deploymentTrackName, envName, type}) => {
+        const args = ["logs", "-t", type.flag, "-o", orgName, "-p", projectName, "-c", componentName, "-d", deploymentTrackName, "-e", envName, "-f"];
+        window.createTerminal(`${componentName}:${type.label}`, getChoreoPath(), args).show();
     });
 
     // TODO remove old ones

@@ -8,9 +8,10 @@ import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 interface Props {
     item: ComponentLink;
     isListLoading?: boolean;
+    opened?: boolean;
 }
 
-export const ComponentListItem: FC<Props> = ({ item, isListLoading }) => {
+export const ComponentListItem: FC<Props> = ({ item, isListLoading, opened }) => {
     const isItemEnriched = item.component;
 
     const { mutate: confirmDelete } = useMutation({
@@ -79,11 +80,12 @@ export const ComponentListItem: FC<Props> = ({ item, isListLoading }) => {
         <div
             className={classNames({
                 "flex duration-100": true,
-                "cursor-pointer hover:bg-vsc-list-hoverBackground": isItemEnriched,
+                "cursor-pointer hover:bg-vsc-list-hoverBackground": isItemEnriched && !opened,
                 "animate-pulse cursor-progress": !isItemEnriched && isListLoading,
                 "animate-pulse": deletingComponent,
+                "cursor-pointer bg-vsc-list-dropBackground": opened
             })}
-            onClick={viewComponentDetails}
+            onClick={isItemEnriched ? viewComponentDetails : undefined}
         >
             <div className="flex-1 flex flex-col gap-0.5 pl-5 py-3 ">
                 <h3 className="text-sm font-bold">{item.linkContent.componentHandle}</h3>

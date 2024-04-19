@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { FC, ReactNode, useContext, useEffect } from "react";
+import React, { FC, ReactNode, useContext, useEffect, useState } from "react";
 import { ComponentLink, LinkedDirectoryState } from "@wso2-enterprise/choreo-core";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
@@ -19,6 +19,7 @@ import { ErrorBanner, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 export interface ILinkedDirContext {
     links: ComponentLink[];
     isLoading?: boolean;
+    activeComponentPath?: string;
 }
 
 const defaultContext: ILinkedDirContext = {
@@ -38,6 +39,8 @@ interface Props {
 export const LinkedDirContextProvider: FC<Props> = ({ children }) => {
     const queryClient = useQueryClient();
 
+    const [activeComponentPath, setActiveComponentPath] = useState("")
+
     const {
         data: linkedDirState,
         error: linkedDirStateError,
@@ -53,13 +56,15 @@ export const LinkedDirContextProvider: FC<Props> = ({ children }) => {
         ChoreoWebViewAPI.getInstance().onLinkedDirStateChanged((linkedDirState) => {
             queryClient.setQueryData(["linked_dir_state"], linkedDirState);
         });
+        ChoreoWebViewAPI.getInstance().onWebviewStateChanged((webviewState) => setActiveComponentPath(webviewState.openedComponentPath));
     }, []);
 
     return (
         <ChoreoLinkedDirContext.Provider
             value={{
                 links: linkedDirState?.links || [],
-                isLoading: isLoading || linkedDirState.loading
+                isLoading: isLoading || linkedDirState.loading,
+                activeComponentPath
             }}
         >
             {linkedDirStateError ? (

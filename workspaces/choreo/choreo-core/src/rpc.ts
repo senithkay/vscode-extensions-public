@@ -50,6 +50,18 @@ export const ShowQuickPick: RequestType<ShowWebviewQuickPickItemsReq, WebviewQui
 export const OpenComponentInConsole: RequestType<OpenComponentInConsoleReq, void> = { method: 'openComponentInConsole' };
 export const ViewComponentDetails: RequestType<ViewComponentDetailsReq, void> = { method: 'viewComponentDetails' };
 export const ReadServiceEndpoints: RequestType<string, ReadEndpointsResp> = { method: 'readServiceEndpoints' };
+export const ViewBuildsLogs: RequestType<ViewBuildLogsReq, void> = { method: 'viewBuildLogs' };
+export const ViewRuntimeLogs: RequestType<ViewRuntimeLogsReq, void> = { method: 'viewRuntimeLogs' };
+
+export interface ViewBuildLogsReq { orgId: string; orgHandler: string; componentName: string; projectId: string; buildId: number;}
+export interface ViewRuntimeLogsReq {
+   type: {label: string, flag: "component-application" | "component-gateway"};
+   orgName: string;
+   projectName: string;
+   componentName: string;
+   deploymentTrackName: string;
+   envName: string;
+}
 
 export interface ReadEndpointsResp {
    endpoints: Endpoint[];

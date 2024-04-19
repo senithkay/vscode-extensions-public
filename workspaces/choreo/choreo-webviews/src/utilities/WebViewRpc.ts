@@ -123,6 +123,12 @@ import {
     ShowQuickPick,
     ShowWebviewQuickPickItemsReq,
     WebviewQuickPickItem,
+    WebviewState,
+    WebviewStateChangedNotification,
+    ViewBuildLogsReq,
+    ViewBuildsLogs,
+    ViewRuntimeLogs,
+    ViewRuntimeLogsReq,
 } from "@wso2-enterprise/choreo-core";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
 import { ChoreoProjectClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/project/rpc";
@@ -169,6 +175,10 @@ export class ChoreoWebViewAPI {
 
     public onLinkedDirStateChanged(callback: (state: LinkedDirectoryState) => void) {
         this._messenger.onNotification(LinkedDirStoreChangedNotification, callback);
+    }
+
+    public onWebviewStateChanged(callback: (state: WebviewState) => void) {
+        this._messenger.onNotification(WebviewStateChangedNotification, callback);
     }
 
     // New RPC calls
@@ -246,6 +256,14 @@ export class ChoreoWebViewAPI {
 
     public async showQuickPicks(params: ShowWebviewQuickPickItemsReq): Promise<WebviewQuickPickItem | undefined> {
         return this._messenger.sendRequest(ShowQuickPick, HOST_EXTENSION, params);
+    }
+
+    public async viewBuildLogs(params: ViewBuildLogsReq): Promise<void> {
+        return this._messenger.sendRequest(ViewBuildsLogs, HOST_EXTENSION, params);
+    }
+
+    public async viewRuntimeLogs(params: ViewRuntimeLogsReq): Promise<void> {
+        return this._messenger.sendRequest(ViewRuntimeLogs, HOST_EXTENSION, params);
     }
     // todo: remove old ones
 

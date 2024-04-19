@@ -92,6 +92,18 @@ export const BuildsSection: FC<Props> = ({ component, organization, project, dep
         },
     });
 
+    const { mutate: showBuiltLogs, isLoading: isLoadingBuildLogs } = useMutation({
+        mutationFn: async (buildId: number) => {
+            await ChoreoWebViewAPI.getInstance().viewBuildLogs({
+                componentName: component.metadata.name,
+                orgHandler: organization.handle,
+                orgId: organization.id.toString(),
+                projectId: project.id,
+                buildId,
+            });
+        },
+    });
+
     const { mutate: selectCommitForBuild } = useMutation({
         mutationFn: async () => {
             const latestCommit = commits?.find((item) => item.isLatest);
@@ -125,7 +137,7 @@ export const BuildsSection: FC<Props> = ({ component, organization, project, dep
         },
     });
 
-    const { mutate: triggerDeployment } = useMutation({
+    const { mutate: triggerDeployment, isLoading: isDeploying } = useMutation({
         mutationFn: async (params: { build: BuildKind; env: Environment }) => {
             await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createDeployment({
                 commitHash: params.build.spec.revision,
@@ -291,7 +303,14 @@ export const BuildsSection: FC<Props> = ({ component, organization, project, dep
                                                 <div>{status}</div>
                                                 <div className="flex gap-1">
                                                     {["success", "failed"].includes(item.status?.conclusion) && (
-                                                        <Button appearance="icon" title="View Logs">
+                                                        <Button
+                                                            appearance="icon"
+                                                            title="View Logs"
+                                                            onClick={() =>
+                                                                showBuiltLogs(item.status?.runId)
+                                                            }
+                                                            disabled={isLoadingBuildLogs}
+                                                        >
                                                             <Codicon name="console" />
                                                         </Button>
                                                     )}
@@ -300,6 +319,7 @@ export const BuildsSection: FC<Props> = ({ component, organization, project, dep
                                                             appearance="icon"
                                                             title="Deploy Build"
                                                             onClick={() => selectEnvToDeploy({ build: item })}
+                                                            disabled={isDeploying}
                                                         >
                                                             <Codicon name="rocket" />
                                                         </Button>

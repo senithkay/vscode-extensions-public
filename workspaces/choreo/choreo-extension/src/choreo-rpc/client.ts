@@ -29,6 +29,7 @@ import {
     GetDeploymentStatusReq,
     ComponentDeployment,
     CreateDeploymentReq,
+    ViewBuildLogsReq,
 } from "@wso2-enterprise/choreo-core";
 import { workspace } from "vscode";
 import { handlerError } from "../error-utils";
@@ -41,8 +42,7 @@ export class RPCClient {
 
     async init() {
         getLogger().debug("Activating choreo rpc server");
-        const executablePath = workspace.getConfiguration().get<string>("cli.path");
-        const stdioConnection = new StdioConnection(executablePath);
+        const stdioConnection = new StdioConnection();
         this._conn = stdioConnection.getProtocolConnection();
         this._conn.trace(Trace.Verbose, new ChoreoTracer());
         this._conn.listen();
@@ -280,6 +280,14 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
             throw new Error("RPC client is not initialized");
         }
         await this.client.sendRequest("deployment/create", params);
+    }
+
+    async getBuildLogs(params: ViewBuildLogsReq): Promise<string> {
+        if (!this.client) {
+            throw new Error("RPC client is not initialized");
+        }
+        const response: { logs: string }= await this.client.sendRequest("build/logs", params);
+        return response.logs;
     }
 }
 
