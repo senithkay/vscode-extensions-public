@@ -1146,7 +1146,7 @@ export interface ConnectorConnection {
 
 export interface GetConnectorConnectionsRequest {
     documentUri: string;
-    connectorName: string;
+    connectorName: string | null;
 }
 
 export interface GetConnectorConnectionsResponse {
