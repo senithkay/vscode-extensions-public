@@ -34,6 +34,9 @@ export function getNodeDescription(stNode: any): string {
 
     switch (stNode.tag.toLowerCase()) {
         case "endpoint": {
+            if (stNode.key) {
+                return stNode.key;
+            }
             if (stNode.type) {
                 return stNode.type;
             }

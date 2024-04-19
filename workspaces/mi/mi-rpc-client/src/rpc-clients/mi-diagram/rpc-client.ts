@@ -24,6 +24,8 @@ import {
     CreateAPIResponse,
     CreateClassMediatorRequest,
     CreateClassMediatorResponse,
+    CreateConnectionRequest,
+    CreateConnectionResponse,
     CreateDataSourceResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
@@ -54,13 +56,13 @@ import {
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     FileDirResponse,
-    FileListRequest,
-    FileListResponse,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
     GetAvailableResourcesRequest,
     GetAvailableResourcesResponse,
     GetBackendRootUrlResponse,
+    GetConnectorConnectionsRequest,
+    GetConnectorConnectionsResponse,
     GetConnectorFormRequest,
     GetConnectorFormResponse,
     GetDataSourceRequest,
@@ -148,6 +150,7 @@ import {
     closeWebViewNotification,
     createAPI,
     createClassMediator,
+    createConnection,
     createDataSource,
     createEndpoint,
     createInboundEndpoint,
@@ -170,6 +173,7 @@ import {
     getAvailableResources,
     getBackendRootUrl,
     getConnector,
+    getConnectorConnections,
     getConnectorForm,
     getConnectors,
     getDataSource,
@@ -203,7 +207,6 @@ import {
     getWorkspaceContext,
     getWorkspaceRoot,
     getWsdlEndpoint,
-    getXmlFileList,
     highlightCode,
     importProject,
     initUndoRedoManager,
@@ -341,10 +344,6 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getMessageStore(params: GetMessageStoreRequest): Promise<GetMessageStoreResponse> {
         return this._messenger.sendRequest(getMessageStore, HOST_EXTENSION, params);
-    }
-
-    getXmlFileList(params: FileListRequest): Promise<FileListResponse> {
-        return this._messenger.sendRequest(getXmlFileList, HOST_EXTENSION, params);
     }
 
     createInboundEndpoint(params: CreateInboundEndpointRequest): Promise<CreateInboundEndpointResponse> {
@@ -565,5 +564,13 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getIconPathUri(params: GetIconPathUriRequest): Promise<GetIconPathUriResponse> {
         return this._messenger.sendRequest(getIconPathUri, HOST_EXTENSION, params);
+    }
+
+    createConnection(params: CreateConnectionRequest): Promise<CreateConnectionResponse> {
+        return this._messenger.sendRequest(createConnection, HOST_EXTENSION, params);
+    }
+
+    getConnectorConnections(params: GetConnectorConnectionsRequest): Promise<GetConnectorConnectionsResponse> {
+        return this._messenger.sendRequest(getConnectorConnections, HOST_EXTENSION, params);
     }
 }

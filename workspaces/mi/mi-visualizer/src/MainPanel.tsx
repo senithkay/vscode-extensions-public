@@ -243,7 +243,7 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.DataSourceForm:
                     setViewComponent(<DataSourceWizard path={machineView.documentUri} />);
-                    break;
+                    break;    
                 default:
                     setViewComponent(null);
             }

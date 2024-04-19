@@ -102,7 +102,7 @@ enum DiagramType {
     SEQUENCE
 }
 
-const RESTRICTED_NODE_TYPES = ["resource", "target"]
+const RESTRICTED_NODE_TYPES = ["target"]
 
 export type AnyNode = MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel | GroupNodeModel | PlusNodeModel;
 
@@ -182,7 +182,8 @@ export class NodeFactoryVisitor implements Visitor {
                     && !previousNode.visible) 
                     && type !== NodeTypes.PLUS_NODE
                     && RESTRICTED_NODE_TYPES.indexOf(currentNodeType) < 0
-                    && RESTRICTED_NODE_TYPES.indexOf(previousNodeType) < 0;
+                    && RESTRICTED_NODE_TYPES.indexOf(previousNodeType) < 0
+                    && previousNode.getStNode().viewState?.canAddAfter;
 
                 const addPosition = this.currentAddPosition != undefined ? this.currentAddPosition :
                     (type === NodeTypes.CONDITION_NODE_END && previousNode instanceof EmptyNodeModel) ? previousStNode.range.endTagRange.start :
@@ -415,12 +416,14 @@ export class NodeFactoryVisitor implements Visitor {
             node.viewState.y = 40;
             const startNode = structuredClone(node);
             startNode.viewState.id = "inSequenceStart";
+            startNode.viewState.canAddAfter = false;
             this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.IN_SEQUENCE });
 
             const sequneceReferenceNode = structuredClone(node);
             sequneceReferenceNode.viewState.id = "inSequenceNode";
             sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
             sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
+            sequneceReferenceNode.viewState.canAddAfter = false;
             this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: [node.inSequenceAttribute] });
 
             const endNode = structuredClone(node);

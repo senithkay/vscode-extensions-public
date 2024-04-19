@@ -33,8 +33,10 @@ export function getProxyServiceMustacheTemplate() {
 <proxy name="{{proxyServiceName}}" startOnLoad="true" transports="{{selectedTransports}}" xmlns="http://ws.apache.org/ns/synapse">
     <target>
         {{#customProxy}}
-        <inSequence/>
-        <outSequence/>
+        <inSequence>
+        </inSequence>
+        <outSequence>
+        </outSequence>
         <faultSequence/>
         {{/customProxy}}
         {{^customProxy}}

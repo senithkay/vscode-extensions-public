@@ -16,6 +16,7 @@ import {
     ConnectorRequest,
     CreateAPIRequest,
     CreateClassMediatorRequest,
+    CreateConnectionRequest,
     CreateEndpointRequest,
     CreateInboundEndpointRequest,
     CreateLocalEntryRequest,
@@ -29,9 +30,9 @@ import {
     CreateTemplateRequest,
     DataSourceTemplate,
     DownloadConnectorRequest,
-    FileListRequest,
     GetAvailableConnectorRequest,
     GetAvailableResourcesRequest,
+    GetConnectorConnectionsRequest,
     GetConnectorFormRequest,
     GetDataSourceRequest,
     GetDefinitionRequest,
@@ -80,6 +81,7 @@ import {
     closeWebViewNotification,
     createAPI,
     createClassMediator,
+    createConnection,
     createDataSource,
     createEndpoint,
     createInboundEndpoint,
@@ -102,6 +104,7 @@ import {
     getAvailableResources,
     getBackendRootUrl,
     getConnector,
+    getConnectorConnections,
     getConnectorForm,
     getConnectors,
     getDataSource,
@@ -134,7 +137,6 @@ import {
     getWorkspaceContext,
     getWorkspaceRoot,
     getWsdlEndpoint,
-    getXmlFileList,
     highlightCode,
     importProject,
     initUndoRedoManager,
@@ -188,7 +190,6 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createSequence, (args: CreateSequenceRequest) => rpcManger.createSequence(args));
     messenger.onRequest(createMessageStore, (args: CreateMessageStoreRequest) => rpcManger.createMessageStore(args));
     messenger.onRequest(getMessageStore, (args: GetMessageStoreRequest) => rpcManger.getMessageStore(args));
-    messenger.onRequest(getXmlFileList, (args: FileListRequest) => rpcManger.getXmlFileList(args));
     messenger.onRequest(createInboundEndpoint, (args: CreateInboundEndpointRequest) => rpcManger.createInboundEndpoint(args));
     messenger.onRequest(createMessageProcessor, (args: CreateMessageProcessorRequest) => rpcManger.createMessageProcessor(args));
     messenger.onRequest(getMessageProcessor, (args: RetrieveMessageProcessorRequest) => rpcManger.getMessageProcessor(args));
@@ -244,4 +245,6 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createDataSource, (args: DataSourceTemplate) => rpcManger.createDataSource(args));
     messenger.onRequest(getDataSource, (args: GetDataSourceRequest) => rpcManger.getDataSource(args));
     messenger.onRequest(getIconPathUri, (args: GetIconPathUriRequest) => rpcManger.getIconPathUri(args));
+    messenger.onRequest(createConnection, (args: CreateConnectionRequest) => rpcManger.createConnection(args));
+    messenger.onRequest(getConnectorConnections, (args: GetConnectorConnectionsRequest) => rpcManger.getConnectorConnections(args));
 }
