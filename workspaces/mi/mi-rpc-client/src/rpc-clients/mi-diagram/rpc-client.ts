@@ -99,7 +99,7 @@ import {
     ImportProjectRequest,
     ImportProjectResponse,
     ListRegistryArtifactsRequest,
-    ListRegistryArtifactsResponse,
+    RegistryArtifactNamesResponse,
     MiDiagramAPI,
     MigrateProjectRequest,
     MigrateProjectResponse,
@@ -538,7 +538,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getBackendRootUrl, HOST_EXTENSION);
     }
 
-    getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<ListRegistryArtifactsResponse> {
+    getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<RegistryArtifactNamesResponse> {
         return this._messenger.sendRequest(getAvailableRegistryResources, HOST_EXTENSION, params);
     }
 

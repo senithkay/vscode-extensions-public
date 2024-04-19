@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { useEffect, useState } from "react";
-import { FormAutoComplete, Button, FormGroup, TextField, FormView, FormActions, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
+import { Button, FormGroup, TextField, FormView, FormActions, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup"
@@ -49,8 +49,6 @@ const initialSequence: InputsFields = {
 export function SequenceWizard(props: SequenceWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
-    const [endpoints, setEndpoints] = useState([]);
-    const [sequences, setSequences] = useState([]);
     const [artifactNames, setArtifactNames] = useState([]);
     const [registryPaths, setRegistryPaths] = useState([]);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
@@ -110,35 +108,6 @@ export function SequenceWizard(props: SequenceWizardProps) {
 
     useEffect(() => {
         (async () => {
-            const response = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                documentIdentifier: props.path,
-                resourceType: "sequence",
-            });
-            let sequenceNamesArr = [];
-            if (response.resources) {
-                const sequenceNames = response.resources.map((resource) => resource.name);
-                sequenceNamesArr.push(...sequenceNames);
-            }
-            if (response.registryResources) {
-                const registryKeys = response.registryResources.map((resource) => resource.registryKey);
-                sequenceNamesArr.push(...registryKeys);
-            }
-            setSequences(sequenceNamesArr);
-            const endpointResponse = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                documentIdentifier: props.path,
-                resourceType: "endpoint",
-            });
-            // get endpoints from registry and workspace
-            let endpointNames = [];
-            if (endpointResponse.resources) {
-                const resources = endpointResponse.resources.map((resource) => resource.name);
-                endpointNames.push(...resources);
-            }
-            if (endpointResponse.registryResources) {
-                const registryKeys = endpointResponse.registryResources.map((resource) => resource.registryKey);
-                endpointNames.push(...registryKeys);
-            }
-            setEndpoints(endpointNames);
             const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
             setArtifactNames(result.artifactNamesArr);
             setRegistryPaths(result.registryPaths);
